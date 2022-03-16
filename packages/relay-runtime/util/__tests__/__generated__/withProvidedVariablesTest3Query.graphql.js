@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fed42ed5f5737c3bb435d42bcab1634a>>
+ * @generated SignedSource<<b06162060a4e9ff3bf90e799a8586053>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,18 +28,18 @@ export type withProvidedVariablesTest3Query = {|
   variables: withProvidedVariablesTest3Query$variables,
 |};
 type ProvidedVariablesType = {|
-  +__relay_internal__pv__provideIncludeUserNames: {|
+  +__relay_internal__pv__provideIncludeUserNamesrelayprovider: {|
     +get: () => boolean,
   |},
-  +__relay_internal__pv__provideNumberOfFriends: {|
+  +__relay_internal__pv__provideNumberOfFriendsrelayprovider: {|
     +get: () => number,
   |},
 |};
 */
 
 var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__provideNumberOfFriends": require('./../provideNumberOfFriends'),
-  "__relay_internal__pv__provideIncludeUserNames": require('./../provideIncludeUserNames')
+  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider'),
+  "__relay_internal__pv__provideIncludeUserNamesrelayprovider": require('./../provideIncludeUserNames.relayprovider')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -83,12 +83,12 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__provideNumberOfFriends"
+        "name": "__relay_internal__pv__provideNumberOfFriendsrelayprovider"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__provideIncludeUserNames"
+        "name": "__relay_internal__pv__provideIncludeUserNamesrelayprovider"
       }
     ],
     "kind": "Operation",
@@ -113,7 +113,7 @@ return {
             "kind": "InlineFragment",
             "selections": [
               {
-                "condition": "__relay_internal__pv__provideIncludeUserNames",
+                "condition": "__relay_internal__pv__provideIncludeUserNamesrelayprovider",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -132,7 +132,7 @@ return {
                   {
                     "kind": "Variable",
                     "name": "first",
-                    "variableName": "__relay_internal__pv__provideNumberOfFriends"
+                    "variableName": "__relay_internal__pv__provideNumberOfFriendsrelayprovider"
                   }
                 ],
                 "concreteType": "FriendsConnection",
@@ -167,12 +167,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "966b4da3d6d20d12015dbead647e011e",
+    "cacheID": "5df96f8b26a897a0be1e0f7d835736cf",
     "id": null,
     "metadata": {},
     "name": "withProvidedVariablesTest3Query",
     "operationKind": "query",
-    "text": "query withProvidedVariablesTest3Query(\n  $__relay_internal__pv__provideNumberOfFriends: Int!\n  $__relay_internal__pv__provideIncludeUserNames: Boolean!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest3Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest3Fragment on User {\n  name @include(if: $__relay_internal__pv__provideIncludeUserNames)\n  friends(first: $__relay_internal__pv__provideNumberOfFriends) {\n    count\n  }\n}\n",
+    "text": "query withProvidedVariablesTest3Query(\n  $__relay_internal__pv__provideNumberOfFriendsrelayprovider: Int!\n  $__relay_internal__pv__provideIncludeUserNamesrelayprovider: Boolean!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest3Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest3Fragment on User {\n  name @include(if: $__relay_internal__pv__provideIncludeUserNamesrelayprovider)\n  friends(first: $__relay_internal__pv__provideNumberOfFriendsrelayprovider) {\n    count\n  }\n}\n",
     "providedVariables": providedVariablesDefinition
   }
 };

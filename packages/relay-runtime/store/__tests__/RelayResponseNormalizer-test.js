@@ -2527,19 +2527,19 @@ describe('RelayResponseNormalizer', () => {
       @argumentDefinitions(
         includeName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsTrue"
+          provider: "../RelayProvider_returnsTrue.relayprovider"
         }
         includeFirstName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsFalse"
+          provider: "../RelayProvider_returnsFalse.relayprovider"
         }
         skipLastName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsFalse"
+          provider: "../RelayProvider_returnsFalse.relayprovider"
         }
         skipUsername: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsTrue"
+          provider: "../RelayProvider_returnsTrue.relayprovider"
         }
       ) {
         name @include(if: $includeName)

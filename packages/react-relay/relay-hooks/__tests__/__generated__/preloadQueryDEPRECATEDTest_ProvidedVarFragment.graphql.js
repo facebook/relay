@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d2eaf5c2d47186c183302d53f431b2c4>>
+ * @generated SignedSource<<99c4859fe0e4cc8db2bb1e528194e97e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,11 +35,11 @@ export type preloadQueryDEPRECATEDTest_ProvidedVarFragment$key = {
 var node/*: ReaderFragment*/ = (function(){
 var v0 = {
   "kind": "RootArgument",
-  "name": "__relay_internal__pv__RelayProvider_returnsFalse"
+  "name": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider"
 },
 v1 = {
   "kind": "RootArgument",
-  "name": "__relay_internal__pv__RelayProvider_returnsTrue"
+  "name": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider"
 };
 return {
   "argumentDefinitions": [
@@ -53,7 +53,7 @@ return {
   "name": "preloadQueryDEPRECATEDTest_ProvidedVarFragment",
   "selections": [
     {
-      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -67,7 +67,7 @@ return {
       ]
     },
     {
-      "condition": "__relay_internal__pv__RelayProvider_returnsFalse",
+      "condition": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -81,7 +81,7 @@ return {
       ]
     },
     {
-      "condition": "__relay_internal__pv__RelayProvider_returnsFalse",
+      "condition": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -95,7 +95,7 @@ return {
       ]
     },
     {
-      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -115,7 +115,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "6ccd0faa2d0e7e65107135efa23e2de2";
+  (node/*: any*/).hash = "3e5a29cf31ec382750f31487722a1b11";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<

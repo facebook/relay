@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<13093135f77197c94999a50b046b237e>>
+ * @generated SignedSource<<c4d3322746a4e0d98d3f73ee1cfaa832>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,18 +31,18 @@ export type RelayResponseNormalizerTest_pvQuery = {|
   variables: RelayResponseNormalizerTest_pvQuery$variables,
 |};
 type ProvidedVariablesType = {|
-  +__relay_internal__pv__RelayProvider_returnsFalse: {|
+  +__relay_internal__pv__RelayProvider_returnsFalserelayprovider: {|
     +get: () => boolean,
   |},
-  +__relay_internal__pv__RelayProvider_returnsTrue: {|
+  +__relay_internal__pv__RelayProvider_returnsTruerelayprovider: {|
     +get: () => boolean,
   |},
 |};
 */
 
 var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue'),
-  "__relay_internal__pv__RelayProvider_returnsFalse": require('./../RelayProvider_returnsFalse')
+  "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider'),
+  "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('./../RelayProvider_returnsFalse.relayprovider')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -102,12 +102,12 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__RelayProvider_returnsTrue"
+        "name": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__RelayProvider_returnsFalse"
+        "name": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider"
       }
     ],
     "kind": "Operation",
@@ -133,7 +133,7 @@ return {
             "kind": "InlineFragment",
             "selections": [
               {
-                "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+                "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -147,7 +147,7 @@ return {
                 ]
               },
               {
-                "condition": "__relay_internal__pv__RelayProvider_returnsFalse",
+                "condition": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -161,7 +161,7 @@ return {
                 ]
               },
               {
-                "condition": "__relay_internal__pv__RelayProvider_returnsFalse",
+                "condition": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -175,7 +175,7 @@ return {
                 ]
               },
               {
-                "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+                "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -198,12 +198,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "85269c9451accb2fc5d9de6defd85356",
+    "cacheID": "996f1711aec0ab7951cc8940ee9d2eca",
     "id": null,
     "metadata": {},
     "name": "RelayResponseNormalizerTest_pvQuery",
     "operationKind": "query",
-    "text": "query RelayResponseNormalizerTest_pvQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_returnsTrue: Boolean!\n  $__relay_internal__pv__RelayProvider_returnsFalse: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    id\n    ...RelayResponseNormalizerTest_pvFragment\n  }\n}\n\nfragment RelayResponseNormalizerTest_pvFragment on User {\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTrue)\n  firstName @include(if: $__relay_internal__pv__RelayProvider_returnsFalse)\n  lastName @skip(if: $__relay_internal__pv__RelayProvider_returnsFalse)\n  username @skip(if: $__relay_internal__pv__RelayProvider_returnsTrue)\n}\n",
+    "text": "query RelayResponseNormalizerTest_pvQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_returnsTruerelayprovider: Boolean!\n  $__relay_internal__pv__RelayProvider_returnsFalserelayprovider: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    id\n    ...RelayResponseNormalizerTest_pvFragment\n  }\n}\n\nfragment RelayResponseNormalizerTest_pvFragment on User {\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n  firstName @include(if: $__relay_internal__pv__RelayProvider_returnsFalserelayprovider)\n  lastName @skip(if: $__relay_internal__pv__RelayProvider_returnsFalserelayprovider)\n  username @skip(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n}\n",
     "providedVariables": providedVariablesDefinition
   }
 };

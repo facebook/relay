@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<be8883d0d7630051ee54ae2154333f6d>>
+ * @generated SignedSource<<cf76cc816d682fe52ee8232e1f9b1961>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,14 +28,14 @@ export type withProvidedVariablesTest1Query = {|
   variables: withProvidedVariablesTest1Query$variables,
 |};
 type ProvidedVariablesType = {|
-  +__relay_internal__pv__provideNumberOfFriends: {|
+  +__relay_internal__pv__provideNumberOfFriendsrelayprovider: {|
     +get: () => number,
   |},
 |};
 */
 
 var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__provideNumberOfFriends": require('./../provideNumberOfFriends')
+  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -79,7 +79,7 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__provideNumberOfFriends"
+        "name": "__relay_internal__pv__provideNumberOfFriendsrelayprovider"
       }
     ],
     "kind": "Operation",
@@ -109,7 +109,7 @@ return {
                   {
                     "kind": "Variable",
                     "name": "first",
-                    "variableName": "__relay_internal__pv__provideNumberOfFriends"
+                    "variableName": "__relay_internal__pv__provideNumberOfFriendsrelayprovider"
                   }
                 ],
                 "concreteType": "FriendsConnection",
@@ -144,12 +144,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "bfdf6467f62c1d909032cb765f730469",
+    "cacheID": "cf8c5214da5208986ab1ba46c6c49148",
     "id": null,
     "metadata": {},
     "name": "withProvidedVariablesTest1Query",
     "operationKind": "query",
-    "text": "query withProvidedVariablesTest1Query(\n  $__relay_internal__pv__provideNumberOfFriends: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest1Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest1Fragment on User {\n  friends(first: $__relay_internal__pv__provideNumberOfFriends) {\n    count\n  }\n}\n",
+    "text": "query withProvidedVariablesTest1Query(\n  $__relay_internal__pv__provideNumberOfFriendsrelayprovider: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest1Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest1Fragment on User {\n  friends(first: $__relay_internal__pv__provideNumberOfFriendsrelayprovider) {\n    count\n  }\n}\n",
     "providedVariables": providedVariablesDefinition
   }
 };

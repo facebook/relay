@@ -839,16 +839,22 @@ describe('Preload queries that use provided variables', () => {
   graphql`
     fragment preloadQueryDEPRECATEDTest_ProvidedVarFragment on User
     @argumentDefinitions(
-      includeName: {type: "Boolean!", provider: "../RelayProvider_returnsTrue"}
+      includeName: {
+        type: "Boolean!"
+        provider: "../RelayProvider_returnsTrue.relayprovider"
+      }
       includeFirstName: {
         type: "Boolean!"
-        provider: "../RelayProvider_returnsFalse"
+        provider: "../RelayProvider_returnsFalse.relayprovider"
       }
       skipLastName: {
         type: "Boolean!"
-        provider: "../RelayProvider_returnsFalse"
+        provider: "../RelayProvider_returnsFalse.relayprovider"
       }
-      skipUsername: {type: "Boolean!", provider: "../RelayProvider_returnsTrue"}
+      skipUsername: {
+        type: "Boolean!"
+        provider: "../RelayProvider_returnsTrue.relayprovider"
+      }
     ) {
       name @include(if: $includeName)
       firstName @include(if: $includeFirstName)
@@ -866,10 +872,10 @@ describe('Preload queries that use provided variables', () => {
 
   const variables = {id: 4};
   const generatedVariables = {
-    __relay_internal__pv__RelayProvider_returnsTrue:
-      require('./RelayProvider_returnsTrue').get(),
-    __relay_internal__pv__RelayProvider_returnsFalse:
-      require('./RelayProvider_returnsFalse').get(),
+    __relay_internal__pv__RelayProvider_returnsTruerelayprovider:
+      require('./RelayProvider_returnsTrue.relayprovider').get(),
+    __relay_internal__pv__RelayProvider_returnsFalserelayprovider:
+      require('./RelayProvider_returnsFalse.relayprovider').get(),
     ...variables,
   };
 

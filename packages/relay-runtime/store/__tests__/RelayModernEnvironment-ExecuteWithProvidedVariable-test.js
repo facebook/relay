@@ -120,11 +120,11 @@ describe('query with fragments that use provided variables', () => {
       @argumentDefinitions(
         includeName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsTrue"
+          provider: "../RelayProvider_returnsTrue.relayprovider"
         }
         skipUsername: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsTrue"
+          provider: "../RelayProvider_returnsTrue.relayprovider"
         }
       ) {
         id
@@ -141,12 +141,12 @@ describe('query with fragments that use provided variables', () => {
       @argumentDefinitions(
         includeName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsTrue"
+          provider: "../RelayProvider_returnsTrue.relayprovider"
         }
         # should be able to define two arguments that use the same provider
         includeAlternateName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsTrue"
+          provider: "../RelayProvider_returnsTrue.relayprovider"
         }
       ) {
         name @include(if: $includeName)
@@ -159,7 +159,7 @@ describe('query with fragments that use provided variables', () => {
       @argumentDefinitions(
         profilePictureScale: {
           type: "Float!"
-          provider: "../RelayProvider_pictureScale"
+          provider: "../RelayProvider_pictureScale.relayprovider"
         }
       ) {
         profile_picture(scale: $profilePictureScale) {

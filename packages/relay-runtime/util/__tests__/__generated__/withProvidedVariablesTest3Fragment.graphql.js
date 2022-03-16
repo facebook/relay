@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<77e18a1053611a13bb804b19257f2e02>>
+ * @generated SignedSource<<34d3cc319b9dd89354758cf402628a6e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -36,11 +36,11 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__relay_internal__pv__provideIncludeUserNames"
+      "name": "__relay_internal__pv__provideIncludeUserNamesrelayprovider"
     },
     {
       "kind": "RootArgument",
-      "name": "__relay_internal__pv__provideNumberOfFriends"
+      "name": "__relay_internal__pv__provideNumberOfFriendsrelayprovider"
     }
   ],
   "kind": "Fragment",
@@ -48,7 +48,7 @@ var node/*: ReaderFragment*/ = {
   "name": "withProvidedVariablesTest3Fragment",
   "selections": [
     {
-      "condition": "__relay_internal__pv__provideIncludeUserNames",
+      "condition": "__relay_internal__pv__provideIncludeUserNamesrelayprovider",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -67,7 +67,7 @@ var node/*: ReaderFragment*/ = {
         {
           "kind": "Variable",
           "name": "first",
-          "variableName": "__relay_internal__pv__provideNumberOfFriends"
+          "variableName": "__relay_internal__pv__provideNumberOfFriendsrelayprovider"
         }
       ],
       "concreteType": "FriendsConnection",
@@ -91,7 +91,7 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "0aeab9b09822f587624b901c7564e55c";
+  (node/*: any*/).hash = "db82f3ef127b5e13b0f57de1d6b4d31c";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<

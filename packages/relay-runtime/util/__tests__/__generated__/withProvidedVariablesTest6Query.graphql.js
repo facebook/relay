@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<101a6b20b4067cf10432a4ecbfded4d3>>
+ * @generated SignedSource<<d487f8bbb64a5a0397f70197f6e0e5a3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,14 +28,14 @@ export type withProvidedVariablesTest6Query = {|
   variables: withProvidedVariablesTest6Query$variables,
 |};
 type ProvidedVariablesType = {|
-  +__relay_internal__pv__provideRandomNumber_invalid1: {|
+  +__relay_internal__pv__provideRandomNumber_invalid1relayprovider: {|
     +get: () => number,
   |},
 |};
 */
 
 var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__provideRandomNumber_invalid1": require('./../provideRandomNumber_invalid1')
+  "__relay_internal__pv__provideRandomNumber_invalid1relayprovider": require('./../provideRandomNumber_invalid1.relayprovider')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -79,7 +79,7 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__provideRandomNumber_invalid1"
+        "name": "__relay_internal__pv__provideRandomNumber_invalid1relayprovider"
       }
     ],
     "kind": "Operation",
@@ -109,7 +109,7 @@ return {
                   {
                     "kind": "Variable",
                     "name": "scale",
-                    "variableName": "__relay_internal__pv__provideRandomNumber_invalid1"
+                    "variableName": "__relay_internal__pv__provideRandomNumber_invalid1relayprovider"
                   }
                 ],
                 "concreteType": "Image",
@@ -144,12 +144,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "fcf5dcc928e30119f23979bad57cec14",
+    "cacheID": "6dd170bdd08456e241d43158af4d2ebd",
     "id": null,
     "metadata": {},
     "name": "withProvidedVariablesTest6Query",
     "operationKind": "query",
-    "text": "query withProvidedVariablesTest6Query(\n  $__relay_internal__pv__provideRandomNumber_invalid1: Float!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest6Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest6Fragment on User {\n  profile_picture(scale: $__relay_internal__pv__provideRandomNumber_invalid1) {\n    uri\n  }\n}\n",
+    "text": "query withProvidedVariablesTest6Query(\n  $__relay_internal__pv__provideRandomNumber_invalid1relayprovider: Float!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest6Fragment\n    id\n  }\n}\n\nfragment withProvidedVariablesTest6Fragment on User {\n  profile_picture(scale: $__relay_internal__pv__provideRandomNumber_invalid1relayprovider) {\n    uri\n  }\n}\n",
     "providedVariables": providedVariablesDefinition
   }
 };

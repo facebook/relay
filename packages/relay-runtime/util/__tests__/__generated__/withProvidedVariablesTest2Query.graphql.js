@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9461a97d2044713616087c07ac72fc79>>
+ * @generated SignedSource<<3ea3ee32e4ee7a94add7d73ec783da61>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,14 +30,14 @@ export type withProvidedVariablesTest2Query = {|
   variables: withProvidedVariablesTest2Query$variables,
 |};
 type ProvidedVariablesType = {|
-  +__relay_internal__pv__provideNumberOfFriends: {|
+  +__relay_internal__pv__provideNumberOfFriendsrelayprovider: {|
     +get: () => number,
   |},
 |};
 */
 
 var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__provideNumberOfFriends": require('./../provideNumberOfFriends')
+  "__relay_internal__pv__provideNumberOfFriendsrelayprovider": require('./../provideNumberOfFriends.relayprovider')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -95,7 +95,7 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__provideNumberOfFriends"
+        "name": "__relay_internal__pv__provideNumberOfFriendsrelayprovider"
       }
     ],
     "kind": "Operation",
@@ -125,7 +125,7 @@ return {
                   {
                     "kind": "Variable",
                     "name": "first",
-                    "variableName": "__relay_internal__pv__provideNumberOfFriends"
+                    "variableName": "__relay_internal__pv__provideNumberOfFriendsrelayprovider"
                   }
                 ],
                 "concreteType": "FriendsConnection",
@@ -167,12 +167,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "9bb6ef43322148377bca28bc8c78d319",
+    "cacheID": "1c17170dd6100840a8f2a65d04036d20",
     "id": null,
     "metadata": {},
     "name": "withProvidedVariablesTest2Query",
     "operationKind": "query",
-    "text": "query withProvidedVariablesTest2Query(\n  $includeFriendsCount: Boolean!\n  $__relay_internal__pv__provideNumberOfFriends: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest2Fragment_47ZY3u\n    id\n  }\n}\n\nfragment withProvidedVariablesTest2Fragment_47ZY3u on User {\n  friends(first: $__relay_internal__pv__provideNumberOfFriends) {\n    count @include(if: $includeFriendsCount)\n  }\n}\n",
+    "text": "query withProvidedVariablesTest2Query(\n  $includeFriendsCount: Boolean!\n  $__relay_internal__pv__provideNumberOfFriendsrelayprovider: Int!\n) {\n  node(id: 4) {\n    __typename\n    ...withProvidedVariablesTest2Fragment_47ZY3u\n    id\n  }\n}\n\nfragment withProvidedVariablesTest2Fragment_47ZY3u on User {\n  friends(first: $__relay_internal__pv__provideNumberOfFriendsrelayprovider) {\n    count @include(if: $includeFriendsCount)\n  }\n}\n",
     "providedVariables": providedVariablesDefinition
   }
 };

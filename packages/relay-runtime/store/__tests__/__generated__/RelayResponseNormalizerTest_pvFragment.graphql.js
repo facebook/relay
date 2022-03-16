@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c7bc2b332a6bc8cba410a91bb558c939>>
+ * @generated SignedSource<<6e0a6d1b0d21a50c17853dd73de681cf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,11 +35,11 @@ export type RelayResponseNormalizerTest_pvFragment$key = {
 var node/*: ReaderFragment*/ = (function(){
 var v0 = {
   "kind": "RootArgument",
-  "name": "__relay_internal__pv__RelayProvider_returnsFalse"
+  "name": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider"
 },
 v1 = {
   "kind": "RootArgument",
-  "name": "__relay_internal__pv__RelayProvider_returnsTrue"
+  "name": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider"
 };
 return {
   "argumentDefinitions": [
@@ -53,7 +53,7 @@ return {
   "name": "RelayResponseNormalizerTest_pvFragment",
   "selections": [
     {
-      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -67,7 +67,7 @@ return {
       ]
     },
     {
-      "condition": "__relay_internal__pv__RelayProvider_returnsFalse",
+      "condition": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -81,7 +81,7 @@ return {
       ]
     },
     {
-      "condition": "__relay_internal__pv__RelayProvider_returnsFalse",
+      "condition": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -95,7 +95,7 @@ return {
       ]
     },
     {
-      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -115,7 +115,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bd90b1b55b33983116d3a7541c2e3ac0";
+  (node/*: any*/).hash = "94ee0bc832d986b62dfcc23aa393e5f8";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<

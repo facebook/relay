@@ -33,7 +33,10 @@ describe('withProvidedVariables', () => {
       graphql`
         fragment withProvidedVariablesTest1Fragment on User
         @argumentDefinitions(
-          numberOfFriends: {type: "Int!", provider: "../provideNumberOfFriends"}
+          numberOfFriends: {
+            type: "Int!"
+            provider: "../provideNumberOfFriends.relayprovider"
+          }
         ) {
           friends(first: $numberOfFriends) {
             count
@@ -46,9 +49,9 @@ describe('withProvidedVariables', () => {
         userVariables,
         userQuery.params.providedVariables,
       );
-      expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
-        15.0,
-      );
+      expect(
+        newVariables.__relay_internal__pv__provideNumberOfFriendsrelayprovider,
+      ).toEqual(15.0);
       expect(Object.keys(newVariables).length).toEqual(1);
     });
   });
@@ -66,7 +69,10 @@ describe('withProvidedVariables', () => {
       graphql`
         fragment withProvidedVariablesTest2Fragment on User
         @argumentDefinitions(
-          numberOfFriends: {type: "Int!", provider: "../provideNumberOfFriends"}
+          numberOfFriends: {
+            type: "Int!"
+            provider: "../provideNumberOfFriends.relayprovider"
+          }
           includeFriendsCount_: {type: "Boolean!"}
         ) {
           friends(first: $numberOfFriends) {
@@ -80,9 +86,9 @@ describe('withProvidedVariables', () => {
         userVariables,
         userQuery.params.providedVariables,
       );
-      expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
-        15.0,
-      );
+      expect(
+        newVariables.__relay_internal__pv__provideNumberOfFriendsrelayprovider,
+      ).toEqual(15.0);
       expect(newVariables.includeFriendsCount).toEqual(true);
       expect(Object.keys(newVariables).length).toEqual(2);
     });
@@ -100,10 +106,13 @@ describe('withProvidedVariables', () => {
       graphql`
         fragment withProvidedVariablesTest3Fragment on User
         @argumentDefinitions(
-          numberOfFriends: {type: "Int!", provider: "../provideNumberOfFriends"}
+          numberOfFriends: {
+            type: "Int!"
+            provider: "../provideNumberOfFriends.relayprovider"
+          }
           includeName: {
             type: "Boolean!"
-            provider: "../provideIncludeUserNames"
+            provider: "../provideIncludeUserNames.relayprovider"
           }
         ) {
           name @include(if: $includeName)
@@ -118,11 +127,11 @@ describe('withProvidedVariables', () => {
         userVariables,
         userQuery.params.providedVariables,
       );
-      expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
-        15.0,
-      );
       expect(
-        newVariables.__relay_internal__pv__provideIncludeUserNames,
+        newVariables.__relay_internal__pv__provideNumberOfFriendsrelayprovider,
+      ).toEqual(15.0);
+      expect(
+        newVariables.__relay_internal__pv__provideIncludeUserNamesrelayprovider,
       ).toEqual(true);
       expect(Object.keys(newVariables).length).toEqual(2);
     });
@@ -141,10 +150,13 @@ describe('withProvidedVariables', () => {
       graphql`
         fragment withProvidedVariablesTest4Fragment1 on User
         @argumentDefinitions(
-          numberOfFriends: {type: "Int!", provider: "../provideNumberOfFriends"}
+          numberOfFriends: {
+            type: "Int!"
+            provider: "../provideNumberOfFriends.relayprovider"
+          }
           includeName: {
             type: "Boolean!"
-            provider: "../provideIncludeUserNames"
+            provider: "../provideIncludeUserNames.relayprovider"
           }
         ) {
           friends(first: $numberOfFriends) {
@@ -164,7 +176,7 @@ describe('withProvidedVariables', () => {
         @argumentDefinitions(
           includeName: {
             type: "Boolean!"
-            provider: "../provideIncludeUserNames"
+            provider: "../provideIncludeUserNames.relayprovider"
           }
         ) {
           name @include(if: $includeName)
@@ -176,11 +188,11 @@ describe('withProvidedVariables', () => {
         userVariables,
         userQuery.params.providedVariables,
       );
-      expect(newVariables.__relay_internal__pv__provideNumberOfFriends).toEqual(
-        15.0,
-      );
       expect(
-        newVariables.__relay_internal__pv__provideIncludeUserNames,
+        newVariables.__relay_internal__pv__provideNumberOfFriendsrelayprovider,
+      ).toEqual(15.0);
+      expect(
+        newVariables.__relay_internal__pv__provideIncludeUserNamesrelayprovider,
       ).toEqual(true);
       expect(Object.keys(newVariables).length).toEqual(2);
     });
@@ -200,11 +212,11 @@ describe('withProvidedVariables', () => {
         @argumentDefinitions(
           impureProvider1: {
             type: "Float!"
-            provider: "../provideRandomNumber_invalid1"
+            provider: "../provideRandomNumber_invalid1.relayprovider"
           }
           impureProvider2: {
             type: "Float!"
-            provider: "../provideRandomNumber_invalid2"
+            provider: "../provideRandomNumber_invalid2.relayprovider"
           }
         ) {
           profile_picture(scale: $impureProvider1) {
@@ -222,17 +234,19 @@ describe('withProvidedVariables', () => {
         userQuery.params.providedVariables,
       );
       // first call should return 0
-      expect(vars.__relay_internal__pv__provideRandomNumber_invalid1).toEqual(
-        0,
-      );
-      expect(vars.__relay_internal__pv__provideRandomNumber_invalid2).toEqual(
-        0,
-      );
+      expect(
+        vars.__relay_internal__pv__provideRandomNumber_invalid1relayprovider,
+      ).toEqual(0);
+      expect(
+        vars.__relay_internal__pv__provideRandomNumber_invalid2relayprovider,
+      ).toEqual(0);
       expectToWarnMany(
         [
-          'Relay: Expected function `get` for provider `__relay_internal__pv__provideRandomNumber_invalid1`' +
+          'Relay: Expected function `get` for provider ' +
+            '`__relay_internal__pv__provideRandomNumber_invalid1relayprovider`' +
             ' to be a pure function, but got conflicting return values `1` and `0`',
-          'Relay: Expected function `get` for provider `__relay_internal__pv__provideRandomNumber_invalid2`' +
+          'Relay: Expected function `get` for provider ' +
+            '`__relay_internal__pv__provideRandomNumber_invalid2relayprovider`' +
             ' to be a pure function, but got conflicting return values `1` and `0`',
         ],
         () => {
@@ -243,12 +257,12 @@ describe('withProvidedVariables', () => {
         },
       );
       // should use cached value from first call to provider.get()
-      expect(vars.__relay_internal__pv__provideRandomNumber_invalid1).toEqual(
-        0,
-      );
-      expect(vars.__relay_internal__pv__provideRandomNumber_invalid2).toEqual(
-        0,
-      );
+      expect(
+        vars.__relay_internal__pv__provideRandomNumber_invalid1relayprovider,
+      ).toEqual(0);
+      expect(
+        vars.__relay_internal__pv__provideRandomNumber_invalid2relayprovider,
+      ).toEqual(0);
     });
 
     it('warns for different queries that use the same provider function', () => {
@@ -264,7 +278,7 @@ describe('withProvidedVariables', () => {
         @argumentDefinitions(
           impureProvider: {
             type: "Float!"
-            provider: "../provideRandomNumber_invalid1"
+            provider: "../provideRandomNumber_invalid1.relayprovider"
           }
         ) {
           profile_picture(scale: $impureProvider) {
@@ -276,7 +290,8 @@ describe('withProvidedVariables', () => {
       const userVariables = {};
       let vars;
       expectToWarn(
-        'Relay: Expected function `get` for provider `__relay_internal__pv__provideRandomNumber_invalid1`' +
+        'Relay: Expected function `get` for provider ' +
+          '`__relay_internal__pv__provideRandomNumber_invalid1relayprovider`' +
           ' to be a pure function, but got conflicting return values `2` and `0`',
         () => {
           vars = withProvidedVariables(
@@ -286,9 +301,9 @@ describe('withProvidedVariables', () => {
         },
       );
       // should use cached value from previous test case
-      expect(vars.__relay_internal__pv__provideRandomNumber_invalid1).toEqual(
-        0,
-      );
+      expect(
+        vars.__relay_internal__pv__provideRandomNumber_invalid1relayprovider,
+      ).toEqual(0);
     });
   });
 });

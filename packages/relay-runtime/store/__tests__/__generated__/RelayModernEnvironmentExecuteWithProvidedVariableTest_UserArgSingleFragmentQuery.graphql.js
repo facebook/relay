@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0d4a750e67a5087fbd6c09d773ab2d7c>>
+ * @generated SignedSource<<9832a5333ee7a4a136384151d9d2f2e1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,14 +30,14 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleF
   variables: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery$variables,
 |};
 type ProvidedVariablesType = {|
-  +__relay_internal__pv__RelayProvider_returnsTrue: {|
+  +__relay_internal__pv__RelayProvider_returnsTruerelayprovider: {|
     +get: () => boolean,
   |},
 |};
 */
 
 var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue')
+  "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -89,7 +89,7 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__RelayProvider_returnsTrue"
+        "name": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider"
       }
     ],
     "kind": "Operation",
@@ -139,7 +139,7 @@ return {
                 "storageKey": null
               },
               {
-                "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+                "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -153,7 +153,7 @@ return {
                 ]
               },
               {
-                "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+                "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -176,12 +176,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "3233111cb3da2dc84f5963ff83c15cde",
+    "cacheID": "9b7f13b4f1160c50e089312c31fd3580",
     "id": null,
     "metadata": {},
     "name": "RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery",
     "operationKind": "query",
-    "text": "query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_returnsTrue: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User {\n  id\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTrue)\n  username @skip(if: $__relay_internal__pv__RelayProvider_returnsTrue)\n  profilePicture {\n    uri\n  }\n}\n",
+    "text": "query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgSingleFragmentQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_returnsTruerelayprovider: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User {\n  id\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n  username @skip(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n  profilePicture {\n    uri\n  }\n}\n",
     "providedVariables": providedVariablesDefinition
   }
 };

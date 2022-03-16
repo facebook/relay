@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f44194fe3033ca49a3b26ca4297b5dfb>>
+ * @generated SignedSource<<504262dc595befa0516612df5a19220b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,18 +30,18 @@ export type preloadQueryDEPRECATEDTest_ProvidedVarQuery = {|
   variables: preloadQueryDEPRECATEDTest_ProvidedVarQuery$variables,
 |};
 type ProvidedVariablesType = {|
-  +__relay_internal__pv__RelayProvider_returnsFalse: {|
+  +__relay_internal__pv__RelayProvider_returnsFalserelayprovider: {|
     +get: () => boolean,
   |},
-  +__relay_internal__pv__RelayProvider_returnsTrue: {|
+  +__relay_internal__pv__RelayProvider_returnsTruerelayprovider: {|
     +get: () => boolean,
   |},
 |};
 */
 
 var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue'),
-  "__relay_internal__pv__RelayProvider_returnsFalse": require('./../RelayProvider_returnsFalse')
+  "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider'),
+  "__relay_internal__pv__RelayProvider_returnsFalserelayprovider": require('./../RelayProvider_returnsFalse.relayprovider')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -93,12 +93,12 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__RelayProvider_returnsTrue"
+        "name": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__RelayProvider_returnsFalse"
+        "name": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider"
       }
     ],
     "kind": "Operation",
@@ -123,7 +123,7 @@ return {
             "kind": "InlineFragment",
             "selections": [
               {
-                "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+                "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -137,7 +137,7 @@ return {
                 ]
               },
               {
-                "condition": "__relay_internal__pv__RelayProvider_returnsFalse",
+                "condition": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -151,7 +151,7 @@ return {
                 ]
               },
               {
-                "condition": "__relay_internal__pv__RelayProvider_returnsFalse",
+                "condition": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -165,7 +165,7 @@ return {
                 ]
               },
               {
-                "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+                "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -195,12 +195,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "aba73d30b35284819b8a5e88221657f4",
+    "cacheID": "b3f2eef01bf7468a17189b8a5784c719",
     "id": null,
     "metadata": {},
     "name": "preloadQueryDEPRECATEDTest_ProvidedVarQuery",
     "operationKind": "query",
-    "text": "query preloadQueryDEPRECATEDTest_ProvidedVarQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_returnsTrue: Boolean!\n  $__relay_internal__pv__RelayProvider_returnsFalse: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...preloadQueryDEPRECATEDTest_ProvidedVarFragment\n    id\n  }\n}\n\nfragment preloadQueryDEPRECATEDTest_ProvidedVarFragment on User {\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTrue)\n  firstName @include(if: $__relay_internal__pv__RelayProvider_returnsFalse)\n  lastName @skip(if: $__relay_internal__pv__RelayProvider_returnsFalse)\n  username @skip(if: $__relay_internal__pv__RelayProvider_returnsTrue)\n}\n",
+    "text": "query preloadQueryDEPRECATEDTest_ProvidedVarQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_returnsTruerelayprovider: Boolean!\n  $__relay_internal__pv__RelayProvider_returnsFalserelayprovider: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...preloadQueryDEPRECATEDTest_ProvidedVarFragment\n    id\n  }\n}\n\nfragment preloadQueryDEPRECATEDTest_ProvidedVarFragment on User {\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n  firstName @include(if: $__relay_internal__pv__RelayProvider_returnsFalserelayprovider)\n  lastName @skip(if: $__relay_internal__pv__RelayProvider_returnsFalserelayprovider)\n  username @skip(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n}\n",
     "providedVariables": providedVariablesDefinition
   }
 };

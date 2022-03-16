@@ -36,13 +36,22 @@ disallowWarnings();
 const fragmentPV = graphql`
   fragment usePreloadedQueryProvidedVariablesTest_Fragment on User
   @argumentDefinitions(
-    includeName: {type: "Boolean!", provider: "../RelayProvider_returnsTrue"}
+    includeName: {
+      type: "Boolean!"
+      provider: "../RelayProvider_returnsTrue.relayprovider"
+    }
     includeFirstName: {
       type: "Boolean!"
-      provider: "../RelayProvider_returnsFalse"
+      provider: "../RelayProvider_returnsFalse.relayprovider"
     }
-    skipLastName: {type: "Boolean!", provider: "../RelayProvider_returnsFalse"}
-    skipUsername: {type: "Boolean!", provider: "../RelayProvider_returnsTrue"}
+    skipLastName: {
+      type: "Boolean!"
+      provider: "../RelayProvider_returnsFalse.relayprovider"
+    }
+    skipUsername: {
+      type: "Boolean!"
+      provider: "../RelayProvider_returnsTrue.relayprovider"
+    }
   ) {
     name @include(if: $includeName)
     firstName @include(if: $includeFirstName)
@@ -209,7 +218,10 @@ describe('provided variables', () => {
     graphql`
       fragment usePreloadedQueryProvidedVariablesTest_badFragment on User
       @argumentDefinitions(
-        impureProvider: {type: "Float!", provider: "../RelayProvider_impure"}
+        impureProvider: {
+          type: "Float!"
+          provider: "../RelayProvider_impure.relayprovider"
+        }
       ) {
         profile_picture(scale: $impureProvider) {
           uri
@@ -242,7 +254,8 @@ describe('provided variables', () => {
     preloadWithFetchKey('fetchKey0');
 
     expectToWarn(
-      'Relay: Expected function `get` for provider `__relay_internal__pv__RelayProvider_impure` ' +
+      'Relay: Expected function `get` for provider ' +
+        '`__relay_internal__pv__RelayProvider_impurerelayprovider` ' +
         'to be a pure function, but got conflicting return values `1` and `0`',
       () => {
         preloadWithFetchKey('fetchKey1');

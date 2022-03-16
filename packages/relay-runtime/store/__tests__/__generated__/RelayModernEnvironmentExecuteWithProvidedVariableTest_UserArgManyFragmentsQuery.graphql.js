@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fc48f66e37742f1ad6f7a9be03de08fe>>
+ * @generated SignedSource<<ae8693e2ec18f4426221d040a1bcf512>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -32,18 +32,18 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFra
   variables: RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$variables,
 |};
 type ProvidedVariablesType = {|
-  +__relay_internal__pv__RelayProvider_pictureScale: {|
+  +__relay_internal__pv__RelayProvider_pictureScalerelayprovider: {|
     +get: () => number,
   |},
-  +__relay_internal__pv__RelayProvider_returnsTrue: {|
+  +__relay_internal__pv__RelayProvider_returnsTruerelayprovider: {|
     +get: () => boolean,
   |},
 |};
 */
 
 var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__RelayProvider_returnsTrue": require('./../RelayProvider_returnsTrue'),
-  "__relay_internal__pv__RelayProvider_pictureScale": require('./../RelayProvider_pictureScale')
+  "__relay_internal__pv__RelayProvider_returnsTruerelayprovider": require('./../RelayProvider_returnsTrue.relayprovider'),
+  "__relay_internal__pv__RelayProvider_pictureScalerelayprovider": require('./../RelayProvider_pictureScale.relayprovider')
 };
 
 var node/*: ConcreteRequest*/ = (function(){
@@ -114,12 +114,12 @@ return {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__RelayProvider_returnsTrue"
+        "name": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "__relay_internal__pv__RelayProvider_pictureScale"
+        "name": "__relay_internal__pv__RelayProvider_pictureScalerelayprovider"
       }
     ],
     "kind": "Operation",
@@ -166,7 +166,7 @@ return {
                   {
                     "kind": "Variable",
                     "name": "scale",
-                    "variableName": "__relay_internal__pv__RelayProvider_pictureScale"
+                    "variableName": "__relay_internal__pv__RelayProvider_pictureScalerelayprovider"
                   }
                 ],
                 "concreteType": "Image",
@@ -177,7 +177,7 @@ return {
                 "storageKey": null
               },
               {
-                "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+                "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -198,7 +198,7 @@ return {
                 ]
               },
               {
-                "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+                "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -221,12 +221,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "9d5880424175fe2a7efdce1275cbe0ea",
+    "cacheID": "06e5816fc5fcf9504d366918c90aca93",
     "id": null,
     "metadata": {},
     "name": "RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery",
     "operationKind": "query",
-    "text": "query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_returnsTrue: Boolean!\n  $__relay_internal__pv__RelayProvider_pictureScale: Float!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User {\n  id\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTrue)\n  username @skip(if: $__relay_internal__pv__RelayProvider_returnsTrue)\n  profilePicture {\n    uri\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2 on User {\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTrue)\n  alternate_name @include(if: $__relay_internal__pv__RelayProvider_returnsTrue)\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3 on User {\n  profile_picture(scale: $__relay_internal__pv__RelayProvider_pictureScale) {\n    uri\n  }\n}\n",
+    "text": "query RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery(\n  $id: ID!\n  $__relay_internal__pv__RelayProvider_returnsTruerelayprovider: Boolean!\n  $__relay_internal__pv__RelayProvider_pictureScalerelayprovider: Float!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2\n    ...RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1 on User {\n  id\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n  username @skip(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n  profilePicture {\n    uri\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2 on User {\n  name @include(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n  alternate_name @include(if: $__relay_internal__pv__RelayProvider_returnsTruerelayprovider)\n}\n\nfragment RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3 on User {\n  profile_picture(scale: $__relay_internal__pv__RelayProvider_pictureScalerelayprovider) {\n    uri\n  }\n}\n",
     "providedVariables": providedVariablesDefinition
   }
 };

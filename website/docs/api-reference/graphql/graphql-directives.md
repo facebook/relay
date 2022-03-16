@@ -51,8 +51,8 @@ fragment TodoList_list on TodoList @argumentDefinitions(
 A provided variable is a special fragment variable whose value is supplied by a specified provider function at runtime. This simplifies supplying device attributes, user experiment flags, and other runtime constants to graphql fragments.
 
 To add a provided variable:
-- add an argument with `provider: "<JSModule>"` to `@argumentDefinitions`
-- ensure that `<JSModule>.js` exists and exports a `get()` function
+- add an argument with `provider: "<JSModule>.relayprovider"` to `@argumentDefinitions`
+- ensure that `<JSModule>.relayprovider.js` exists and exports a `get()` function
   -  `get` should return the same value on every call for a given run.
 
 ```graphql
@@ -60,7 +60,7 @@ fragment TodoItem_item on TodoList
 @argumentDefinitions(
   include_timestamp: {
     type: "Boolean!",
-    provider: "Todo_ShouldIncludeTimestamp"
+    provider: "Todo_ShouldIncludeTimestamp.relayprovider"
   },
 ) {
   timestamp @include(if: $include_timestamp)
@@ -69,7 +69,7 @@ fragment TodoItem_item on TodoList
 ```
 
 ```javascript
-// Todo_ShouldIncludeTimestamp.js
+// Todo_ShouldIncludeTimestamp.relayprovider.js
 export default {
   get(): boolean {
     // must always return true or false for a given run

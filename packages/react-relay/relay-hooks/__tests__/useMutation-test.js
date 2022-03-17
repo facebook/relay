@@ -20,7 +20,10 @@ const useMutation = require('../useMutation');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {createOperationDescriptor, graphql} = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils');
+const {
+  MockPayloadGenerator,
+  createMockEnvironment,
+} = require('relay-test-utils');
 
 const {useState, useMemo} = React;
 let environment;
@@ -149,6 +152,23 @@ it('returns correct in-flight state when commit called inside render', () => {
   ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
   expect(isInFlightFn).toBeCalledTimes(1);
   expect(isInFlightFn).toHaveBeenCalledWith(false);
+});
+
+it('returns correct in-flight state when mutation resolves immediately', () => {
+  render(environment, CommentCreateMutation);
+  expect(isInFlightFn).toBeCalledTimes(1);
+  expect(isInFlightFn).toBeCalledWith(false);
+
+  isInFlightFn.mockClear();
+  // set up a resolver that will immediately resolve the mutation
+  environment.mock.queueOperationResolver(operation =>
+    MockPayloadGenerator.generate(operation),
+  );
+  ReactTestRenderer.act(() => {
+    commit({variables});
+  });
+  expect(isInFlightFn).toBeCalledTimes(1);
+  expect(isInFlightFn).toBeCalledWith(false);
 });
 
 it('returns correct in-flight state when the mutation is disposed', () => {

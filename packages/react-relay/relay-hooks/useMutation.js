@@ -97,6 +97,9 @@ function useMutation<TMutation: MutationParameters>(
 
   const commit = useCallback(
     (config: UseMutationConfig<TMutation>) => {
+      if (isMountedRef.current) {
+        setMutationInFlight(true);
+      }
       const disposable = commitMutationFn(environment, {
         ...config,
         mutation,
@@ -117,9 +120,6 @@ function useMutation<TMutation: MutationParameters>(
         },
       });
       inFlightMutationsRef.current.add(disposable);
-      if (isMountedRef.current) {
-        setMutationInFlight(true);
-      }
       return disposable;
     },
     [cleanup, commitMutationFn, environment, isMountedRef, mutation],

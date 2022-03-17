@@ -161,7 +161,7 @@ it('returns correct in-flight state when mutation resolves immediately', () => {
 
   isInFlightFn.mockClear();
   // set up a resolver that will immediately resolve the mutation
-  environment.mock.queueOperationResolver((operation) =>
+  environment.mock.queueOperationResolver(operation =>
     MockPayloadGenerator.generate(operation),
   );
   ReactTestRenderer.act(() => {

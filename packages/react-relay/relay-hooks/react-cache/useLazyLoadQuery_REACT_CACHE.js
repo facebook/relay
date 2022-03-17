@@ -51,11 +51,11 @@ function useLazyLoadQuery_REACT_CACHE<TVariables: Variables, TData>(
     environment,
     queryOperationDescriptor,
     options?.fetchPolicy,
+    options?.UNSTABLE_renderPolicy,
   );
 
   // Read the query's root fragment -- this may suspend.
   const {fragmentNode, fragmentRef} = queryResult;
-
   // $FlowExpectedError[incompatible-return] Is this a fixable incompatible-return?
   return useFragmentInternal(fragmentNode, fragmentRef, 'useLazyLoadQuery()', {
     fetchPolicy: options?.fetchPolicy,

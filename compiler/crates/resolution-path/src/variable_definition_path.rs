@@ -31,7 +31,7 @@ impl<'a> TypeAnnotationParent<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::resolution_path::test::test_resolution;
+    use crate::test::test_resolution;
 
     use super::*;
 

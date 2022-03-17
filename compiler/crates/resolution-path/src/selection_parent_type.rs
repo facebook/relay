@@ -106,9 +106,7 @@ impl<'a> SelectionParent<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::resolution_path::{
-        IdentParent, IdentPath, ResolutionPath, ResolvePosition, ScalarFieldPath,
-    };
+    use crate::{IdentParent, IdentPath, ResolutionPath, ResolvePosition, ScalarFieldPath};
 
     use super::*;
     use common::{SourceLocationKey, Span};

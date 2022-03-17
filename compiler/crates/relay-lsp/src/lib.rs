@@ -22,7 +22,6 @@ pub mod lsp_process_error;
 pub mod lsp_runtime_error;
 pub mod node_resolution_info;
 pub mod references;
-pub mod resolution_path;
 mod resolved_types_at_location;
 mod search_schema_items;
 mod server;
@@ -49,9 +48,6 @@ pub use server::LSPRequestDispatch;
 pub use server::{GlobalState, LSPState, Schemas};
 use std::sync::Arc;
 pub use utils::position_to_offset;
-#[cfg(test)]
-#[macro_use]
-extern crate assert_matches;
 
 pub async fn start_language_server<
     TPerfLogger,

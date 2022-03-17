@@ -10,10 +10,6 @@
 use crate::{
     location::transform_relay_location_to_lsp_location,
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    resolution_path::{
-        IdentParent, IdentPath, LinkedFieldPath, ResolutionPath, ResolvePosition, ScalarFieldPath,
-        SelectionParent, TypeConditionPath,
-    },
     server::GlobalState,
     FieldDefinitionSourceInfo, FieldSchemaInfo, LSPExtraDataProvider,
 };
@@ -23,6 +19,10 @@ use intern::string_key::{Intern, StringKey};
 use lsp_types::{
     request::{GotoDefinition, Request},
     GotoDefinitionResponse, Url,
+};
+use resolution_path::{
+    IdentParent, IdentPath, LinkedFieldPath, ResolutionPath, ResolvePosition, ScalarFieldPath,
+    SelectionParent, TypeConditionPath,
 };
 use schema::Schema;
 use serde::{Deserialize, Serialize};

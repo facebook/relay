@@ -164,6 +164,7 @@ export type {
 export type {
   DEPRECATED_GraphQLSubscriptionConfig,
   GraphQLSubscriptionConfig,
+  GraphQLSubscriptionConfigX,
   SubscriptionParameters,
 } from './subscription/requestSubscription';
 export type {JSResourceReference} from './util/JSResourceTypes.flow';

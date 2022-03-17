@@ -21,6 +21,7 @@ import type {
 import type {
   CacheConfig,
   Disposable,
+  GraphQLSubscription,
   Variables,
 } from '../util/RelayRuntimeTypes';
 
@@ -54,6 +55,21 @@ export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload: {...}> =
     response: TSubscriptionPayload,
     variables: Variables,
   |}>;
+
+/**
+ * Updated Flow type that makes use of typed graphql tagged literals with
+ * type information.
+ */
+export type GraphQLSubscriptionConfigX<TVariables, TData, TRawResponse> = {|
+  configs?: Array<DeclarativeMutationConfig>,
+  cacheConfig?: CacheConfig,
+  subscription: GraphQLSubscription<TVariables, TData, TRawResponse>,
+  variables: TVariables,
+  onCompleted?: ?() => void,
+  onError?: ?(error: Error) => void,
+  onNext?: ?(response: ?TData) => void,
+  updater?: ?SelectorStoreUpdater<TData>,
+|};
 
 function requestSubscription<TSubscriptionPayload: {...}>(
   environment: IEnvironment,

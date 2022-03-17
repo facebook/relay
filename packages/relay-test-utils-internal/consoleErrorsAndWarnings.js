@@ -11,11 +11,15 @@
 
 'use strict';
 
-/* global jest, afterEach */
+/* global afterEach */
+
+export type WillFireOptions = {
+  count?: number,
+};
 
 type API = $ReadOnly<{|
   disallowMessages: () => void,
-  expectMessageWillFire: string => void,
+  expectMessageWillFire: (string, void | WillFireOptions) => void,
   expectMessage: <T>(string, () => T) => T,
   expectMessageMany: <T>(Array<string>, () => T) => T,
 |}>;
@@ -64,7 +68,7 @@ function createConsoleInterceptionSystem(
       contextualExpectedMessage.length = 0;
       if (expectedMessages.length > 0) {
         const error = new Error(
-          `Some expected ${typename}s where not triggered:\n\n` +
+          `Some ${expectedMessages.length} expected ${typename}s where not triggered:\n\n` +
             Array.from(expectedMessages, message => ` * ${message}`).join(
               '\n',
             ) +
@@ -76,13 +80,18 @@ function createConsoleInterceptionSystem(
     });
   }
 
-  function expectMessageWillFire(message: string): void {
+  function expectMessageWillFire(
+    message: string,
+    options?: WillFireOptions,
+  ): void {
     if (!installed) {
       throw new Error(
         `${installerName} needs to be called before expect${typenameCapPlural}WillFire`,
       );
     }
-    expectedMessages.push(message);
+    for (let i = 0; i < (options?.count ?? 1); i++) {
+      expectedMessages.push(message);
+    }
   }
 
   function expectMessage<T>(message: string, fn: () => T): T {

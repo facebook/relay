@@ -13,6 +13,8 @@
 
 /* global jest */
 
+import type {WillFireOptions} from './consoleErrorsAndWarnings';
+
 const {createConsoleInterceptionSystem} = require('./consoleErrorsAndWarnings');
 
 const consoleErrorsSystem = createConsoleInterceptionSystem(
@@ -38,8 +40,11 @@ function disallowConsoleErrors(): void {
  * Expect an error with the given message. If the message isn't fired in the
  * current test, the test will fail.
  */
-function expectConsoleErrorWillFire(message: string): void {
-  consoleErrorsSystem.expectMessageWillFire(message);
+function expectConsoleErrorWillFire(
+  message: string,
+  options?: WillFireOptions,
+): void {
+  consoleErrorsSystem.expectMessageWillFire(message, options);
 }
 
 /**

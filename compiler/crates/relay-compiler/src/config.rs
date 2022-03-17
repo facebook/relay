@@ -621,6 +621,9 @@ pub struct SingleProjectConfigFile {
 
     /// Added in 13.1.1 to customize Final/Compat mode in the single project config file
     pub typegen_phase: FlowTypegenPhase,
+
+    #[serde(default)]
+    pub feature_flags: Option<FeatureFlags>,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -644,6 +647,7 @@ impl Default for SingleProjectConfigFile {
             codegen_command: None,
             js_module_format: JsModuleFormat::CommonJS,
             typegen_phase: FlowTypegenPhase::Final,
+            feature_flags: None,
         }
     }
 }
@@ -753,6 +757,7 @@ impl SingleProjectConfigFile {
                 ..Default::default()
             },
             js_module_format: self.js_module_format,
+            feature_flags: self.feature_flags,
             ..Default::default()
         };
 

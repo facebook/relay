@@ -35,7 +35,6 @@ import type {
   NormalizationSelectableNode,
 } from '../util/NormalizationNode';
 import type {
-  ReaderClientEdge,
   ReaderClientEdgeToServerObject,
   ReaderFragment,
 } from '../util/ReaderNode';
@@ -127,7 +126,7 @@ export type MissingRequiredFields = $ReadOnly<
 >;
 
 export type ClientEdgeTraversalInfo = {|
-  +readerClientEdge: ReaderClientEdgeToServerObject | ReaderClientEdge,
+  +readerClientEdge: ReaderClientEdgeToServerObject,
   +clientEdgeDestinationID: DataID,
 |};
 

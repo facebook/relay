@@ -80,7 +80,6 @@ const RelayConcreteNode = {
   ACTOR_CHANGE: 'ActorChange',
   CONDITION: 'Condition',
   CLIENT_COMPONENT: 'ClientComponent',
-  CLIENT_EDGE: 'ClientEdge', // Legacy
   CLIENT_EDGE_TO_SERVER_OBJECT: 'ClientEdgeToServerObject',
   CLIENT_EDGE_TO_CLIENT_OBJECT: 'ClientEdgeToClientObject',
   CLIENT_EXTENSION: 'ClientExtension',

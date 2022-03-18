@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 # expected-to-throw
 fragment Foo_user on User {
-  best_friend @waterfall {
+  best_friend {
     id
   }
 }
@@ -24,6 +24,6 @@ extend type User {
 
   client-edge-to-client-interface.invalid.graphql:3:3
     2 │ fragment Foo_user on User {
-    3 │   best_friend @waterfall {
+    3 │   best_friend {
       │   ^^^^^^^^^^^
     4 │     id

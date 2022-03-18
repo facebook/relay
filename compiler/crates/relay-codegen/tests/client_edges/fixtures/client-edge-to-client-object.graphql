@@ -1,5 +1,5 @@
 fragment Foo_user on User {
-  client_only_obj @waterfall {
+  client_only_obj {
     id
   }
 }

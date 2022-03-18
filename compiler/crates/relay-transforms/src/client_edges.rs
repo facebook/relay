@@ -215,54 +215,65 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
     fn transform_linked_field_impl(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let schema = &self.program.schema;
         let field_type = schema.field(field.definition.item);
+
         // Eventually we will want to enable client edges on non-resolver client
         // schema extensions, but we'll start with limiting them to resolvers.
-        if !field_type.is_extension
-            || field_type
-                .directives
-                .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
-                .is_none()
-        {
-            if let Some(directive) = field
-                .directives()
-                .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
-            {
+        let is_resolver = field_type
+            .directives
+            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+            .is_some();
+
+        let is_client_edge = field_type.is_extension && is_resolver;
+
+        let waterfall_directive = field
+            .directives()
+            .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME);
+
+        if !is_client_edge {
+            // Non-Client-Edge fields do not incur a waterfall, and thus should
+            // not be annotated with @waterfall.
+            if let Some(directive) = waterfall_directive {
                 self.errors.push(Diagnostic::error_with_data(
                     ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
                     directive.name.location,
                 ));
             }
             return self.default_transform_linked_field(field);
-        };
-
-        if field
-            .directives()
-            .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
-            .is_none()
-        {
-            let field_definition = schema.field(field.definition().item);
-            self.errors.push(Diagnostic::error_with_data(
-                ValidationMessageWithData::RelayResolversMissingWaterfall {
-                    field_name: field_definition.name.item,
-                },
-                field.definition.location,
-            ));
         }
+
+        let edge_to_type = field_type.type_.inner();
+
+        let is_edge_to_client_object = schema.is_extension_type(edge_to_type);
 
         let new_selections = self
             .transform_selections(&field.selections)
             .replace_or_else(|| field.selections.clone());
 
-        let edge_to_type = field_type.type_.inner();
 
-        let metadata_directive = if schema.is_extension_type(edge_to_type) {
+        let metadata_directive = if is_edge_to_client_object {
+            // We assume edges to client objects will be resolved on the client
+            // and thus not incur a waterfall. This will change in the furture
+            // for @live Resolvers that can trigger suspense.
+            if let Some(directive) = waterfall_directive {
+                self.errors.push(Diagnostic::error_with_data(
+                    ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
+                    directive.name.location,
+                ));
+            }
             match edge_to_type {
-                Type::Interface(_) | Type::Union(_) => {
+                Type::Interface(_) => {
                     self.errors.push(Diagnostic::error(
                         ValidationMessage::ClientEdgeToClientInterface,
                         field.alias_or_name_location(),
                     ));
                     return self.default_transform_linked_field(field);
+                }
+                Type::Union(_) => {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::ClientEdgeToClientUnion,
+                        field.alias_or_name_location(),
+                    ));
+                    return Transformed::Keep;
                 }
                 Type::Object(object_id) => ClientEdgeMetadataDirective::ClientObject {
                     type_name: schema.object(object_id).name.item,
@@ -274,6 +285,15 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 }
             }
         } else {
+            // Client Edges to server objects must be annotated with @waterfall
+            if waterfall_directive.is_none() {
+                self.errors.push(Diagnostic::error_with_data(
+                    ValidationMessageWithData::RelayResolversMissingWaterfall {
+                        field_name: field_type.name.item,
+                    },
+                    field.definition.location,
+                ));
+            }
             let client_edge_query_name = self.generate_query_name();
 
             self.generate_client_edge_query(

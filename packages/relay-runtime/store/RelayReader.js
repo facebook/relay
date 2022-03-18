@@ -14,6 +14,7 @@
 
 import type {
   ReaderActorChange,
+  ReaderClientEdgeToClientObject,
   ReaderClientEdgeToServerObject,
   ReaderFlightField,
   ReaderFragment,
@@ -473,9 +474,6 @@ class RelayReader {
           this._readActorChange(selection, record, data);
           break;
         case CLIENT_EDGE_TO_CLIENT_OBJECT:
-          throw new Error(
-            'Client edges to client objects are not yet supported.',
-          );
         case CLIENT_EDGE_TO_SERVER_OBJECT:
           if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
             this._readClientEdge(selection, record, data);
@@ -649,7 +647,7 @@ class RelayReader {
   }
 
   _readClientEdge(
-    field: ReaderClientEdgeToServerObject,
+    field: ReaderClientEdgeToServerObject | ReaderClientEdgeToClientObject,
     record: Record,
     data: SelectorData,
   ): void {
@@ -666,7 +664,7 @@ class RelayReader {
 
     const backingFieldData = {};
     this._traverseSelections([backingField], record, backingFieldData);
-    const destinationDataID = backingFieldData[applicationName];
+    let destinationDataID = backingFieldData[applicationName];
 
     if (destinationDataID == null) {
       data[applicationName] = destinationDataID;
@@ -678,12 +676,22 @@ class RelayReader {
       'Plural client edges not are yet implemented',
     ); // FIXME support plural
 
-    // Not wrapping the push/pop in a try/finally because if we throw, the
-    // Reader object is not usable after that anyway.
-    this._clientEdgeTraversalPath.push({
-      readerClientEdge: field,
-      clientEdgeDestinationID: destinationDataID,
-    });
+    if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
+      // Client objects might use ids that are not gobally unique and instead are just
+      // local within their type. ResolverCache will derive a namespaced ID for us.
+      destinationDataID = this._resolverCache.createClientRecord(
+        destinationDataID,
+        field.concreteType,
+      );
+      this._clientEdgeTraversalPath.push(null);
+    } else {
+      // Not wrapping the push/pop in a try/finally because if we throw, the
+      // Reader object is not usable after that anyway.
+      this._clientEdgeTraversalPath.push({
+        readerClientEdge: field,
+        clientEdgeDestinationID: destinationDataID,
+      });
+    }
 
     const prevData = data[applicationName];
     invariant(

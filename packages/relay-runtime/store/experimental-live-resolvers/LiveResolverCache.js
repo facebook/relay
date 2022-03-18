@@ -29,7 +29,7 @@ import type {LiveState} from './LiveResolverStore';
 
 const recycleNodesInto = require('../../util/recycleNodesInto');
 const {RELAY_LIVE_RESOLVER} = require('../../util/RelayConcreteNode');
-const {generateClientID} = require('../ClientID');
+const {generateClientID, generateClientObjectClientID} = require('../ClientID');
 const RelayModernRecord = require('../RelayModernRecord');
 const RelayRecordSource = require('../RelayRecordSource');
 const {
@@ -392,6 +392,17 @@ class LiveResolverCache implements ResolverCache {
       return true;
     }
     return false;
+  }
+
+  // Create an empty record consisting of just an `id` field, along with a
+  // namespaced `__id` field and insert it into the store.
+  createClientRecord(id: string, typeName: string): string {
+    const key = generateClientObjectClientID(typeName, id);
+    const recordSource = this._getRecordSource();
+    const newRecord = RelayModernRecord.create(key, typeName);
+    RelayModernRecord.setValue(newRecord, 'id', id);
+    recordSource.set(key, newRecord);
+    return key;
   }
 }
 

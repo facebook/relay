@@ -11,6 +11,7 @@ mod client;
 mod code_action;
 pub mod completion;
 pub mod diagnostic_reporter;
+mod docblock_resolution_info;
 mod explore_schema_for_type;
 pub mod goto_definition;
 mod graphql_tools;
@@ -31,7 +32,9 @@ pub mod status_updater;
 pub mod text_documents;
 pub mod utils;
 use common::PerfLogger;
+use docblock_resolution_info::DocblockResolutionInfo;
 pub use extract_graphql::JavaScriptSourceFeature;
+use graphql_syntax::ExecutableDocument;
 pub use hover::ContentConsumerType;
 pub use js_language_server::JSLanguageServer;
 use log::debug;
@@ -41,13 +44,26 @@ pub use lsp_extra_data_provider::{
 use lsp_process_error::LSPProcessResult;
 pub use lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use lsp_server::Connection;
+use node_resolution_info::NodeResolutionInfo;
 use relay_compiler::config::Config;
+use relay_docblock::DocblockIr;
 use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
 pub use server::LSPNotificationDispatch;
 pub use server::LSPRequestDispatch;
 pub use server::{GlobalState, LSPState, Schemas};
 use std::sync::Arc;
 pub use utils::position_to_offset;
+
+pub enum Feature {
+    GraphQLDocument(ExecutableDocument),
+    DocblockIr(DocblockIr),
+}
+
+#[allow(clippy::large_enum_variant)]
+pub enum FeatureResolutionInfo {
+    GraphqlNode(NodeResolutionInfo),
+    DocblockNode(DocblockResolutionInfo),
+}
 
 pub async fn start_language_server<
     TPerfLogger,

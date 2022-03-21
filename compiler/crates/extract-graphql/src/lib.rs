@@ -15,6 +15,7 @@ use graphql_syntax::GraphQLSource;
 use std::iter::Peekable;
 use std::str::CharIndices;
 
+#[derive(Clone)]
 pub enum JavaScriptSourceFeature {
     GraphQL(GraphQLSource),
     Docblock(DocblockSource),

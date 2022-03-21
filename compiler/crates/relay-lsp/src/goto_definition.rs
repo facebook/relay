@@ -8,6 +8,7 @@
 //! Utilities for providing the goto definition feature
 
 use crate::{
+    docblock_resolution_info::{create_docblock_resolution_info, DocblockResolutionInfo},
     location::transform_relay_location_to_lsp_location,
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     server::GlobalState,
@@ -39,18 +40,7 @@ fn get_goto_definition_response<'a>(
         ResolutionPath::Ident(IdentPath {
             inner: fragment_name,
             parent: IdentParent::FragmentSpreadName(_),
-        }) => {
-            let fragment = program.fragment(fragment_name.value).ok_or_else(|| {
-                LSPRuntimeError::UnexpectedError(format!(
-                    "Could not find fragment with name {}",
-                    fragment_name
-                ))
-            })?;
-
-            Ok(GotoDefinitionResponse::Scalar(
-                transform_relay_location_to_lsp_location(root_dir, fragment.name.location)?,
-            ))
-        }
+        }) => resolve_fragment_name(fragment_name.value, program, root_dir),
         ResolutionPath::Ident(IdentPath {
             inner: field_name,
             parent:
@@ -88,26 +78,11 @@ fn get_goto_definition_response<'a>(
                     inner: type_condition,
                     parent: _,
                 }),
-        }) => {
-            let provider_response = extra_data_provider.resolve_field_definition(
-                project_name.to_string(),
-                type_condition.type_.value.to_string(),
-                None,
-            );
-            let FieldDefinitionSourceInfo {
-                file_path,
-                line_number,
-                is_local,
-            } = get_field_definition_source_info_result(provider_response)?;
-            if is_local {
-                Ok(GotoDefinitionResponse::Scalar(get_location(
-                    &file_path,
-                    line_number,
-                )?))
-            } else {
-                Err(LSPRuntimeError::ExpectedError)
-            }
-        }
+        }) => resolve_type_name(
+            type_condition.type_.value,
+            project_name,
+            extra_data_provider,
+        ),
         _ => Err(LSPRuntimeError::ExpectedError),
     }
 }
@@ -169,23 +144,103 @@ fn resolve_field<'a>(
     }
 }
 
+fn resolve_type_name(
+    type_name: StringKey,
+    project_name: StringKey,
+    extra_data_provider: &dyn LSPExtraDataProvider,
+) -> LSPRuntimeResult<GotoDefinitionResponse> {
+    let provider_response = extra_data_provider.resolve_field_definition(
+        project_name.to_string(),
+        type_name.to_string(),
+        None,
+    );
+    let FieldDefinitionSourceInfo {
+        file_path,
+        line_number,
+        is_local,
+    } = get_field_definition_source_info_result(provider_response)?;
+    if is_local {
+        Ok(GotoDefinitionResponse::Scalar(get_location(
+            &file_path,
+            line_number,
+        )?))
+    } else {
+        Err(LSPRuntimeError::ExpectedError)
+    }
+}
+
+fn resolve_fragment_name(
+    fragment_name: StringKey,
+    program: &Program,
+    root_dir: &Path,
+) -> LSPRuntimeResult<GotoDefinitionResponse> {
+    let fragment = program.fragment(fragment_name).ok_or_else(|| {
+        LSPRuntimeError::UnexpectedError(format!(
+            "Could not find fragment with name {}",
+            fragment_name
+        ))
+    })?;
+
+    Ok(GotoDefinitionResponse::Scalar(
+        transform_relay_location_to_lsp_location(root_dir, fragment.name.location)?,
+    ))
+}
+
 pub fn on_goto_definition(
     state: &impl GlobalState,
     params: <GotoDefinition as Request>::Params,
 ) -> LSPRuntimeResult<<GotoDefinition as Request>::Result> {
-    let (document, position_span) =
-        state.extract_executable_document_from_text(&params.text_document_position_params, 1)?;
-    let path = document.resolve((), position_span);
-    let project_name = state
-        .extract_project_name_from_url(&params.text_document_position_params.text_document.uri)?;
+    let (feature, position_span) =
+        state.extract_feature_from_text(&params.text_document_position_params, 1)?;
 
-    let goto_definition_response = get_goto_definition_response(
-        path,
-        project_name,
-        &state.get_program(&project_name)?,
-        &state.root_dir(),
-        &*state.get_extra_data_provider(),
-    )?;
+    let goto_definition_response = match feature {
+        crate::Feature::GraphQLDocument(document) => {
+            let path = document.resolve((), position_span);
+            let project_name = state.extract_project_name_from_url(
+                &params.text_document_position_params.text_document.uri,
+            )?;
+
+            get_goto_definition_response(
+                path,
+                project_name,
+                &state.get_program(&project_name)?,
+                &state.root_dir(),
+                &*state.get_extra_data_provider(),
+            )?
+        }
+        crate::Feature::DocblockIr(docblock_ir) => {
+            let project_name = state.extract_project_name_from_url(
+                &params.text_document_position_params.text_document.uri,
+            )?;
+            let program = &state.get_program(&project_name)?;
+            let resolution = create_docblock_resolution_info(docblock_ir, position_span)?;
+            match resolution {
+                DocblockResolutionInfo::OnType(type_name) => {
+                    resolve_type_name(type_name, project_name, &*state.get_extra_data_provider())?
+                }
+                DocblockResolutionInfo::OnInterface(interface_name) => resolve_type_name(
+                    interface_name,
+                    project_name,
+                    &*state.get_extra_data_provider(),
+                )?,
+                DocblockResolutionInfo::EdgeTo(edge_type) => {
+                    resolve_type_name(edge_type, project_name, &*state.get_extra_data_provider())?
+                }
+                DocblockResolutionInfo::RootFragment(fragment_name) => {
+                    resolve_fragment_name(fragment_name, program, &state.root_dir())?
+                }
+                DocblockResolutionInfo::FieldName(_) => {
+                    // The field name _id_ the definition of the field.
+                    return Err(LSPRuntimeError::ExpectedError);
+                }
+                DocblockResolutionInfo::Deprecated => {
+                    // We don't currently have any go to definition support for
+                    // schema directives.
+                    return Err(LSPRuntimeError::ExpectedError);
+                }
+            }
+        }
+    };
 
     // For some lsp-clients, such as clients relying on org.eclipse.lsp4j,
     // (see https://javadoc.io/static/org.eclipse.lsp4j/org.eclipse.lsp4j/0.8.1/org/eclipse/lsp4j/services/TextDocumentService.html)

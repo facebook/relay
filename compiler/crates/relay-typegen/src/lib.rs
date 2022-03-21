@@ -34,7 +34,7 @@ use relay_transforms::{
     RelayResolverSpreadMetadata, RequiredMetadataDirective, TypeConditionInfo,
     ASSIGNABLE_DIRECTIVE, ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, CHILDREN_CAN_BUBBLE_METADATA_KEY,
     CLIENT_EXTENSION_DIRECTIVE_NAME, NO_INLINE_DIRECTIVE_NAME,
-    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE,
+    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE, UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::{fmt::Result as FmtResult, hash::Hash, path::Path};
@@ -55,6 +55,7 @@ lazy_static! {
     static ref KEY_CLIENTID: StringKey = "__id".intern();
     pub(crate) static ref KEY_DATA: StringKey = "$data".intern();
     static ref KEY_FRAGMENT_SPREADS: StringKey = "$fragmentSpreads".intern();
+    static ref KEY_UPDATABLE_FRAGMENT_SPREADS: StringKey = "$updatableFragmentSpreads".intern();
     pub(crate) static ref KEY_FRAGMENT_TYPE: StringKey = "$fragmentType".intern();
     static ref FRAGMENT_PROP_NAME: StringKey = "__fragmentPropName".intern();
     static ref FUTURE_ENUM_VALUE: StringKey = "%future added value".intern();
@@ -611,6 +612,10 @@ impl<'a> TypeGenerator<'a> {
                 conditional: false,
                 concrete_type: None,
                 type_condition_info: get_type_condition_info(fragment_spread),
+                is_updatable_fragment_spread: fragment_spread
+                    .directives
+                    .named(*UPDATABLE_DIRECTIVE_FOR_TYPEGEN)
+                    .is_some(),
             }));
         }
     }
@@ -2051,6 +2056,7 @@ struct TypeSelectionFragmentSpread {
     // Because concrete_type is poorly named and does not refer to the concrete
     // type of the fragment spread.
     type_condition_info: Option<TypeConditionInfo>,
+    is_updatable_fragment_spread: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -2179,25 +2185,44 @@ fn group_refs(
     props: impl Iterator<Item = TypeSelection>,
     should_sort_typegen_items: bool,
 ) -> impl Iterator<Item = TypeSelection> {
-    let mut fragment_spreads = None;
+    let mut regular_fragment_spreads = None;
+    let mut updatable_fragment_spreads = None;
     let mut props = props.into_iter();
     std::iter::from_fn(move || {
         while let Some(prop) = props.next() {
             if let TypeSelection::FragmentSpread(inline_fragment) = prop {
-                fragment_spreads
-                    .get_or_insert_with(Vec::new)
-                    .push(inline_fragment.fragment_name);
+                if inline_fragment.is_updatable_fragment_spread {
+                    updatable_fragment_spreads
+                        .get_or_insert_with(Vec::new)
+                        .push(inline_fragment.fragment_name);
+                } else {
+                    regular_fragment_spreads
+                        .get_or_insert_with(Vec::new)
+                        .push(inline_fragment.fragment_name);
+                }
             } else if let TypeSelection::InlineFragment(inline_fragment) = prop {
-                fragment_spreads
+                regular_fragment_spreads
                     .get_or_insert_with(Vec::new)
                     .push(inline_fragment.fragment_name);
             } else {
                 return Some(prop);
             }
         }
-        if let Some(refs) = fragment_spreads.take() {
+        if let Some(refs) = regular_fragment_spreads.take() {
             return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
                 field_name_or_alias: *KEY_FRAGMENT_SPREADS,
+                value: AST::FragmentReference(SortedStringKeyList::new(
+                    refs,
+                    should_sort_typegen_items,
+                )),
+                special_field: None,
+                conditional: false,
+                concrete_type: None,
+            }));
+        }
+        if let Some(refs) = updatable_fragment_spreads.take() {
+            return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
+                field_name_or_alias: *KEY_UPDATABLE_FRAGMENT_SPREADS,
                 value: AST::FragmentReference(SortedStringKeyList::new(
                     refs,
                     should_sort_typegen_items,

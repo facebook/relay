@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<23d2279241f91a865f406d8b2fccea86>>
+ * @generated SignedSource<<72f4bf167568e5c4a2a2218c8bc29ac6>>
  */
 
 mod generate_flow;
@@ -465,6 +465,20 @@ fn updatable_fragment_spread() {
     let input = include_str!("generate_flow/fixtures/updatable-fragment-spread.graphql");
     let expected = include_str!("generate_flow/fixtures/updatable-fragment-spread.expected");
     test_fixture(transform_fixture, "updatable-fragment-spread.graphql", "generate_flow/fixtures/updatable-fragment-spread.expected", input, expected);
+}
+
+#[test]
+fn updatable_fragment_spread_and_regular_spread() {
+    let input = include_str!("generate_flow/fixtures/updatable-fragment-spread-and-regular-spread.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-fragment-spread-and-regular-spread.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread-and-regular-spread.graphql", "generate_flow/fixtures/updatable-fragment-spread-and-regular-spread.expected", input, expected);
+}
+
+#[test]
+fn updatable_fragment_spread_multiple() {
+    let input = include_str!("generate_flow/fixtures/updatable-fragment-spread-multiple.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-fragment-spread-multiple.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread-multiple.graphql", "generate_flow/fixtures/updatable-fragment-spread-multiple.expected", input, expected);
 }
 
 #[test]

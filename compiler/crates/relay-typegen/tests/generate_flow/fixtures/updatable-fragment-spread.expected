@@ -13,7 +13,7 @@ import type { updatableFragmentSpread_updatable_user$fragmentType } from "updata
 export type updatableFragmentSpreadQuery$variables = {||};
 export type updatableFragmentSpreadQuery$data = {|
   +me: ?{|
-    +$fragmentSpreads: updatableFragmentSpread_updatable_user$fragmentType,
+    +$updatableFragmentSpreads: updatableFragmentSpread_updatable_user$fragmentType,
   |},
 |};
 export type updatableFragmentSpreadQuery = {|

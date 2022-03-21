@@ -9,7 +9,9 @@ use super::*;
 use crate::apply_custom_transforms::{
     apply_after_custom_transforms, apply_before_custom_transforms, CustomTransformsConfig,
 };
-use crate::assignable_fragment_spread::replace_updatable_fragment_spreads;
+use crate::assignable_fragment_spread::{
+    annotate_updatable_fragment_spreads, replace_updatable_fragment_spreads,
+};
 use crate::match_::hash_supported_argument;
 use common::{sync::try_join, DiagnosticsResult, PerfLogEvent, PerfLogger};
 use graphql_ir::Program;
@@ -556,6 +558,9 @@ fn apply_typegen_transforms(
         "transform_assignable_fragment_spreads_in_updatable_queries",
         || transform_assignable_fragment_spreads_in_updatable_queries(&program),
     );
+    program = log_event.time("annotate_updatable_fragment_spreads", || {
+        annotate_updatable_fragment_spreads(&program)
+    });
 
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(

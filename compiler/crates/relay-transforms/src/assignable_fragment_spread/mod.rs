@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod annotate_updatable_fragment_spreads;
 mod errors;
 mod replace_updatable_fragment_spreads;
 mod transform_assignable_fragment_spreads_in_regular_queries;
@@ -22,6 +23,7 @@ lazy_static! {
 }
 
 use self::errors::ValidationMessage;
+pub use annotate_updatable_fragment_spreads::*;
 pub use replace_updatable_fragment_spreads::*;
 pub use transform_assignable_fragment_spreads_in_regular_queries::*;
 pub use transform_assignable_fragment_spreads_in_updatable_queries::*;

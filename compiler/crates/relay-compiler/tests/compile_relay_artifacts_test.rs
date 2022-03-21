@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<eaeb71216eb073018511a13ef2b30a9f>>
+ * @generated SignedSource<<b7a654ba6a981315b7dae562ec7890e7>>
  */
 
 mod compile_relay_artifacts;
@@ -1441,17 +1441,17 @@ fn updatable_fragment_spread() {
 }
 
 #[test]
-fn updatable_fragment_spread_with_defer() {
-    let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-defer.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-defer.expected");
-    test_fixture(transform_fixture, "updatable-fragment-spread-with-defer.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread-with-defer.expected", input, expected);
+fn updatable_fragment_spread_with_defer_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-defer.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-defer.invalid.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread-with-defer.invalid.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread-with-defer.invalid.expected", input, expected);
 }
 
 #[test]
-fn updatable_fragment_spread_with_include() {
-    let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-include.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-include.expected");
-    test_fixture(transform_fixture, "updatable-fragment-spread-with-include.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread-with-include.expected", input, expected);
+fn updatable_fragment_spread_with_include_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-include.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-include.invalid.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread-with-include.invalid.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread-with-include.invalid.expected", input, expected);
 }
 
 #[test]

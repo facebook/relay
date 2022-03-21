@@ -10,6 +10,7 @@ mod transform_assignable_fragment_spreads_in_regular_queries;
 mod transform_assignable_fragment_spreads_in_updatable_queries;
 mod validate_assignable_directive;
 mod validate_updatable_directive;
+mod validate_updatable_fragment_spread;
 
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -24,3 +25,4 @@ pub use transform_assignable_fragment_spreads_in_regular_queries::*;
 pub use transform_assignable_fragment_spreads_in_updatable_queries::*;
 pub use validate_assignable_directive::*;
 pub use validate_updatable_directive::*;
+pub use validate_updatable_fragment_spread::*;

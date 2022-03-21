@@ -117,4 +117,7 @@ pub enum ValidationMessage {
         outer_type_plural: &'static str,
         operation_or_fragment_name: StringKey,
     },
+
+    #[error("Directives are not allowed on spreads of updatable fragments")]
+    UpdatableFragmentSpreadNoDirectives,
 }

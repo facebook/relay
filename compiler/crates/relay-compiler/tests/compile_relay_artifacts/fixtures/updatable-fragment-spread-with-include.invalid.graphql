@@ -1,3 +1,4 @@
+# expected-to-throw
 query updatableFragmentSpreadWithIncludeQuery($if: Boolean!) {
   me {
     ...updatableFragmentSpreadWithInclude_user @include(if: $if)

@@ -8,7 +8,7 @@
 use common::NamedItem;
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_syntax::OperationKind;
-use relay_transforms::{RefetchableMetadata, INLINE_DIRECTIVE_NAME};
+use relay_transforms::{RefetchableMetadata, INLINE_DIRECTIVE_NAME, UPDATABLE_DIRECTIVE};
 use relay_typegen::has_raw_response_type_directive;
 
 /// Specifies the imported and exported generated types of an
@@ -59,6 +59,8 @@ impl ArtifactGeneratedTypes {
 
     pub fn from_fragment(fragment: &FragmentDefinition, skip_types: bool) -> Self {
         let is_inline_data_fragment = fragment.directives.named(*INLINE_DIRECTIVE_NAME).is_some();
+        let is_updatable_fragment = fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some();
+
         if skip_types {
             if is_inline_data_fragment {
                 Self {
@@ -90,6 +92,15 @@ impl ArtifactGeneratedTypes {
                     "RefetchableFragment<\n  {name}$fragmentType,\n  {name}$data,\n  {refetchable_name}$variables,\n>",
                     name = fragment.name.item,
                     refetchable_name = refetchable_metadata.operation_name
+                )),
+            }
+        } else if is_updatable_fragment {
+            Self {
+                imported_types: "UpdatableFragment, ReaderFragment",
+                ast_type: "ReaderFragment",
+                exported_type: Some(format!(
+                    "UpdatableFragment<\n  {name}$fragmentType,\n  {name}$data,\n>",
+                    name = fragment.name.item
                 )),
             }
         } else {

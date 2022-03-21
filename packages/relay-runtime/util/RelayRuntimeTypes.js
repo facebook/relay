@@ -44,14 +44,6 @@ export type OperationType = {|
   +rawResponse?: {...},
 |};
 
-/**
- * Generated updatable query flow types are subtypes of this.
- */
-export type UpdatableQueryType = {|
-  +variables: Variables,
-  +response: mixed,
-|};
-
 export type VariablesOf<T: OperationType> = T['variables'];
 
 /**

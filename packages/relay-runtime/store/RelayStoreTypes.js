@@ -48,7 +48,6 @@ import type {
   Disposable,
   RenderPolicy,
   UpdatableQuery,
-  UpdatableQueryType,
   Variables,
 } from '../util/RelayRuntimeTypes';
 import type {InvalidationState} from './RelayModernStore';
@@ -477,10 +476,10 @@ export interface RecordSourceProxy {
   get(dataID: DataID): ?RecordProxy;
   getRoot(): RecordProxy;
   invalidateStore(): void;
-  readUpdatableQuery_EXPERIMENTAL<TQuery: UpdatableQueryType>(
-    query: UpdatableQuery<TQuery['variables'], TQuery['response']>,
-    variables: TQuery['variables'],
-  ): TQuery['response'];
+  readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
+    query: UpdatableQuery<TVariables, TData>,
+    variables: TVariables,
+  ): TData;
 }
 
 export interface ReadOnlyRecordSourceProxy {

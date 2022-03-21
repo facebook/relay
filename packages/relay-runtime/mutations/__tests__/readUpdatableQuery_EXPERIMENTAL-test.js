@@ -166,11 +166,10 @@ describe('readUpdatableQuery', () => {
       expect(me?.getValue('id')).toEqual('4');
       expect(me?.getValue('name')).toEqual('Zuck');
 
-      const updatableData =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-          updatableQuery,
-          {},
-        );
+      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery,
+        {},
+      );
 
       expect(updatableData.me?.id).toEqual('4');
       expect(updatableData.me?.name).toEqual('Zuck');
@@ -194,11 +193,10 @@ describe('readUpdatableQuery', () => {
       expect(me?.getValue('id')).toEqual('4');
       expect(me?.getValue('name')).toEqual('Zuck');
 
-      const updatableData =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-          updatableQuery,
-          {},
-        );
+      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery,
+        {},
+      );
 
       if (updatableData.me != null) {
         updatableData.me.name = 'MetaZuck';
@@ -231,11 +229,10 @@ describe('readUpdatableQuery', () => {
       expect(me?.getValue('id')).toEqual('4');
       expect(me?.getValue('name')).toEqual('Zuck');
 
-      const updatableData =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-          updatableQuery,
-          {},
-        );
+      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery,
+        {},
+      );
 
       expect(() => {
         if (updatableData.me != null) {
@@ -281,11 +278,10 @@ describe('readUpdatableQuery', () => {
       expect(node2?.getValue('id')).toEqual('5');
       expect(node2?.getValue('name')).toEqual(undefined);
 
-      const updatableData =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-          updatableQuery,
-          {},
-        );
+      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery,
+        {},
+      );
 
       if (updatableData.node != null) {
         const propertyDescriptor = Object.getOwnPropertyDescriptor(
@@ -354,11 +350,10 @@ describe('readUpdatableQuery', () => {
         expect(node?.getValue('id')).toEqual('4');
         expect(node?.getValue('name')).toEqual('Zuck');
 
-        const updatableData =
-          store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-            updatableQuery,
-            {},
-          );
+        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+          updatableQuery,
+          {},
+        );
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
@@ -423,11 +418,10 @@ describe('readUpdatableQuery', () => {
       });
 
       commitLocalUpdate(environment, store => {
-        const updatableData =
-          store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-            updatableQuery,
-            {},
-          );
+        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+          updatableQuery,
+          {},
+        );
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
@@ -506,11 +500,10 @@ describe('readUpdatableQuery', () => {
       });
 
       commitLocalUpdate(environment, store => {
-        const updatableData =
-          store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-            updatableQuery,
-            {},
-          );
+        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+          updatableQuery,
+          {},
+        );
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
@@ -606,11 +599,10 @@ describe('readUpdatableQuery', () => {
       });
 
       commitLocalUpdate(environment, store => {
-        const updatableData =
-          store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-            updatableQuery,
-            {},
-          );
+        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+          updatableQuery,
+          {},
+        );
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
@@ -688,11 +680,10 @@ describe('readUpdatableQuery', () => {
       expect(node?.getValue('id')).toEqual('4');
       expect(node?.getValue('name')).toEqual('Zuck');
 
-      const updatableData =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-          updatableQuery,
-          {},
-        );
+      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery,
+        {},
+      );
 
       if (updatableData.me != null) {
         updatableData.me = null;
@@ -739,11 +730,10 @@ describe('readUpdatableQuery', () => {
         throw new Error('parents should not be null');
       }
 
-      const updatableData =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-          updatableQuery,
-          {},
-        );
+      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery,
+        {},
+      );
 
       if (updatableData.node2 != null) {
         if (updatableData.node2.__typename === 'User') {
@@ -792,11 +782,10 @@ describe('readUpdatableQuery', () => {
     });
 
     commitLocalUpdate(environment, store => {
-      const updatableData =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-          updatableQuery,
-          {},
-        );
+      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery,
+        {},
+      );
 
       const source = environment.getStore().getSource();
       const selector = operation.fragment;
@@ -850,11 +839,10 @@ describe('readUpdatableQuery', () => {
       },
     });
     commitLocalUpdate(environment, store => {
-      const updatableData =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-          updatableQuery,
-          {},
-        );
+      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery,
+        {},
+      );
 
       if (updatableData.node2 != null) {
         if (updatableData.node2.__typename === 'User') {
@@ -884,25 +872,22 @@ describe('readUpdatableQuery', () => {
     });
 
     commitLocalUpdate(environment, store => {
-      const updatableData =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTest2UpdatableQuery>(
-          updatableQuery2,
-          {id: '4'},
-        );
+      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery2,
+        {id: '4'},
+      );
       expect(updatableData.node?.__typename).toBe('Metahuman');
 
-      const updatableData2 =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTest2UpdatableQuery>(
-          updatableQuery2,
-          {id: '5'},
-        );
+      const updatableData2 = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery2,
+        {id: '5'},
+      );
       expect(updatableData2.node?.__typename).toBe('Page');
 
-      const updatableData3 =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTest2UpdatableQuery>(
-          updatableQuery2,
-          {id: '42'},
-        );
+      const updatableData3 = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery2,
+        {id: '42'},
+      );
       expect(updatableData3.node).toBe(undefined);
     });
   });
@@ -918,12 +903,11 @@ describe('readUpdatableQuery', () => {
     });
 
     commitLocalUpdate(environment, store => {
-      const updatableData =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTest2UpdatableQuery>(
-          updatableQuery2,
-          // $FlowFixMe[prop-missing] That's the point
-          {id: '4', foo: 'bar'},
-        );
+      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery2,
+        // $FlowFixMe[prop-missing] That's the point
+        {id: '4', foo: 'bar'},
+      );
       expect(updatableData.node?.__typename).toBe('Metahuman');
     });
   });
@@ -948,11 +932,10 @@ describe('readUpdatableQuery', () => {
     });
 
     commitLocalUpdate(environment, store => {
-      const updatableData =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-          updatableQuery,
-          {},
-        );
+      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery,
+        {},
+      );
       expect(() => {
         // The author field contains client_best_friend, which is a client extension
         updatableData.me?.author;
@@ -984,11 +967,10 @@ describe('readUpdatableQuery', () => {
     });
 
     commitLocalUpdate(environment, store => {
-      const updatableData =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-          updatableQuery,
-          {},
-        );
+      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery,
+        {},
+      );
 
       if (updatableData.me?.author2 != null) {
         updatableData.me.author2.client_nickname = 'Mr. Right';
@@ -1024,11 +1006,10 @@ describe('readUpdatableQuery', () => {
     });
 
     commitLocalUpdate(environment, store => {
-      const updatableData =
-        store.readUpdatableQuery_EXPERIMENTAL<readUpdatableQueryEXPERIMENTALTestUpdatableQuery>(
-          updatableQuery,
-          {},
-        );
+      const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+        updatableQuery,
+        {},
+      );
 
       if (updatableData.me?.author?.client_best_friend != null) {
         updatableData.me.author.client_best_friend.name = 'Mr. Right';

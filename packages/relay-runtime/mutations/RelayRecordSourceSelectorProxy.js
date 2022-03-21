@@ -23,7 +23,7 @@ import type {ReaderLinkedField} from '../util/ReaderNode';
 import type {
   DataID,
   UpdatableQuery,
-  UpdatableQueryType,
+  Variables,
 } from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 
@@ -127,10 +127,10 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     this.__recordSource.invalidateStore();
   }
 
-  readUpdatableQuery_EXPERIMENTAL<TQuery: UpdatableQueryType>(
-    query: UpdatableQuery<TQuery['variables'], TQuery['response']>,
-    variables: TQuery['variables'],
-  ): TQuery['response'] {
+  readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
+    query: UpdatableQuery<TVariables, TData>,
+    variables: TVariables,
+  ): TData {
     return readUpdatableQuery_EXPERIMENTAL(query, variables, this);
   }
 }

@@ -96,6 +96,14 @@ declare export opaque type UpdatableQuery<
 >: ConcreteUpdatableQuery;
 
 /**
+ * Return type of graphql tag literals for updatable fragments.
+ */
+declare export opaque type UpdatableFragment<
+  TFragmentType,
+  +TData,
+>: ReaderFragment;
+
+/**
  * Return type of graphql tag literals for queries.
  */
 declare export opaque type Query<

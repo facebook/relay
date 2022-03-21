@@ -223,6 +223,7 @@ export type {
   Query,
   RefetchableFragment,
   RenderPolicy,
+  UpdatableFragment,
   UpdatableQuery,
   Variables,
   VariablesOf,

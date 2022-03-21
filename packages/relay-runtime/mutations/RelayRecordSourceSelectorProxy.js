@@ -14,6 +14,8 @@
 
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
+  FragmentType,
+  HasUpdatableSpread,
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
@@ -22,12 +24,16 @@ import type {
 import type {ReaderLinkedField} from '../util/ReaderNode';
 import type {
   DataID,
+  UpdatableFragment,
   UpdatableQuery,
   Variables,
 } from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 
 const {ROOT_TYPE, getStorageKey} = require('../store/RelayStoreUtils');
+const {
+  readUpdatableFragment_EXPERIMENTAL,
+} = require('./readUpdatableFragment_EXPERIMENTAL');
 const {
   readUpdatableQuery_EXPERIMENTAL,
 } = require('./readUpdatableQuery_EXPERIMENTAL');
@@ -132,6 +138,17 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     variables: TVariables,
   ): TData {
     return readUpdatableQuery_EXPERIMENTAL(query, variables, this);
+  }
+
+  readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
+    fragment: UpdatableFragment<TFragmentType, TData>,
+    fragmentReference: HasUpdatableSpread<TFragmentType>,
+  ): TData {
+    return readUpdatableFragment_EXPERIMENTAL(
+      fragment,
+      fragmentReference,
+      this,
+    );
   }
 }
 

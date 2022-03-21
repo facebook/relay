@@ -30,7 +30,7 @@ export type updatableFragmentSpreadAndRegularSpreadQuery = {|
 import type { FragmentType } from "relay-runtime";
 declare export opaque type updatableFragmentSpreadAndRegularSpread_2_updatable_user$fragmentType: FragmentType;
 export type updatableFragmentSpreadAndRegularSpread_2_updatable_user$data = {|
-  +firstName: ?string,
+  firstName: ?string,
   +$fragmentType: updatableFragmentSpreadAndRegularSpread_2_updatable_user$fragmentType,
 |};
 export type updatableFragmentSpreadAndRegularSpread_2_updatable_user$key = {
@@ -42,7 +42,7 @@ export type updatableFragmentSpreadAndRegularSpread_2_updatable_user$key = {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type updatableFragmentSpreadAndRegularSpread_updatable_user$fragmentType: FragmentType;
 export type updatableFragmentSpreadAndRegularSpread_updatable_user$data = {|
-  +firstName: ?string,
+  firstName: ?string,
   +$fragmentType: updatableFragmentSpreadAndRegularSpread_updatable_user$fragmentType,
 |};
 export type updatableFragmentSpreadAndRegularSpread_updatable_user$key = {

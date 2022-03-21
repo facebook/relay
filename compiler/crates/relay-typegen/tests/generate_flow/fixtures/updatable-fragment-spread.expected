@@ -24,7 +24,7 @@ export type updatableFragmentSpreadQuery = {|
 import type { FragmentType } from "relay-runtime";
 declare export opaque type updatableFragmentSpread_updatable_user$fragmentType: FragmentType;
 export type updatableFragmentSpread_updatable_user$data = {|
-  +firstName: ?string,
+  firstName: ?string,
   +$fragmentType: updatableFragmentSpread_updatable_user$fragmentType,
 |};
 export type updatableFragmentSpread_updatable_user$key = {

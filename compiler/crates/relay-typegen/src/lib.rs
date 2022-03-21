@@ -77,7 +77,7 @@ lazy_static! {
 }
 
 pub fn generate_fragment_type_exports_section(
-    fragment: &FragmentDefinition,
+    fragment_definition: &FragmentDefinition,
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> String {
@@ -87,10 +87,14 @@ pub fn generate_fragment_type_exports_section(
         project_config.js_module_format,
         project_config.output.is_some(),
         &project_config.typegen_config,
-        fragment.name.item,
+        fragment_definition.name.item,
+        fragment_definition
+            .directives
+            .named(*UPDATABLE_DIRECTIVE)
+            .is_some(),
     );
     generator
-        .write_fragment_type_exports_section(fragment)
+        .write_fragment_type_exports_section(fragment_definition)
         .unwrap();
     generator.into_string()
 }
@@ -107,6 +111,10 @@ pub fn generate_named_validator_export(
         project_config.output.is_some(),
         &project_config.typegen_config,
         fragment_definition.name.item,
+        fragment_definition
+            .directives
+            .named(*UPDATABLE_DIRECTIVE)
+            .is_some(),
     );
     generator
         .write_validator_function(fragment_definition, schema)
@@ -138,6 +146,10 @@ pub fn generate_operation_type_exports_section(
         project_config.output.is_some(),
         &project_config.typegen_config,
         rollout_key,
+        typegen_operation
+            .directives
+            .named(*UPDATABLE_DIRECTIVE)
+            .is_some(),
     );
     generator
         .write_operation_type_exports_section(typegen_operation, normalization_operation)
@@ -158,6 +170,10 @@ pub fn generate_split_operation_type_exports_section(
         project_config.output.is_some(),
         &project_config.typegen_config,
         typegen_operation.name.item,
+        typegen_operation
+            .directives
+            .named(*UPDATABLE_DIRECTIVE)
+            .is_some(),
     );
     generator
         .write_split_operation_type_exports_section(typegen_operation, normalization_operation)
@@ -193,7 +209,7 @@ struct TypeGenerator<'a> {
     writer: Box<dyn Writer>,
     has_actor_change: bool,
     flow_typegen_phase: FlowTypegenPhase,
-    is_updatable_operation: bool,
+    generating_updatable_types: bool,
     should_sort_typegen_items: bool,
 }
 impl<'a> TypeGenerator<'a> {
@@ -204,6 +220,7 @@ impl<'a> TypeGenerator<'a> {
         has_unified_output: bool,
         typegen_config: &'a TypegenConfig,
         rollout_key: StringKey,
+        generating_updatable_types: bool,
     ) -> Self {
         let flow_typegen_phase = typegen_config.flow_typegen.phase(rollout_key);
         let should_sort_typegen_items = typegen_config.sort_typegen_items.should_sort(rollout_key);
@@ -230,7 +247,7 @@ impl<'a> TypeGenerator<'a> {
             },
             has_actor_change: false,
             flow_typegen_phase,
-            is_updatable_operation: false,
+            generating_updatable_types,
             should_sort_typegen_items,
         }
     }
@@ -245,11 +262,6 @@ impl<'a> TypeGenerator<'a> {
         normalization_operation: &OperationDefinition,
     ) -> FmtResult {
         let old_variables_identifier = format!("{}Variables", typegen_operation.name.item);
-
-        self.is_updatable_operation = typegen_operation
-            .directives
-            .named(*UPDATABLE_DIRECTIVE)
-            .is_some();
 
         let input_variables_type = self.generate_input_variables_type(typegen_operation);
 
@@ -409,7 +421,6 @@ impl<'a> TypeGenerator<'a> {
         )?;
 
         self.generate_provided_variables_type(normalization_operation)?;
-        self.is_updatable_operation = false;
         Ok(())
     }
 
@@ -1120,9 +1131,9 @@ impl<'a> TypeGenerator<'a> {
         concrete_type: Option<Type>,
     ) -> Prop {
         let optional = type_selection.is_conditional();
-        if self.is_updatable_operation && optional {
+        if self.generating_updatable_types && optional {
             panic!(
-                "Within updatable operations, we should never generate optional fields! This indicates a bug in Relay. type_selection: {:?}",
+                "When generating types for updatable operations and fragments, we should never generate optional fields! This indicates a bug in Relay. type_selection: {:?}",
                 type_selection
             );
         }
@@ -1131,7 +1142,7 @@ impl<'a> TypeGenerator<'a> {
             TypeSelection::LinkedField(linked_field) => {
                 let key = linked_field.field_name_or_alias;
 
-                if self.is_updatable_operation {
+                if self.generating_updatable_types {
                     // TODO check whether the field is `node` or `nodes` on `Query`. If so, it should not be
                     // updatable.
 
@@ -1246,7 +1257,7 @@ impl<'a> TypeGenerator<'a> {
                         optional,
                         // all fields outside of updatable operations are read-only, and within updatable operations,
                         // all special fields are read only
-                        read_only: !self.is_updatable_operation
+                        read_only: !self.generating_updatable_types
                             || scalar_field.special_field.is_some(),
                     })
                 }

@@ -35,11 +35,9 @@ describe('cloneRelayScalarHandleSourceField()', () => {
   });
 
   it('returns a clone of the source, with the same name as the handle', () => {
-    // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === SCALAR_HANDLE);
     const clone = cloneRelayScalarHandleSourceField(
       (handleField: $FlowFixMe),
-      // $FlowFixMe[incompatible-call]
       selections,
       {},
     );
@@ -50,15 +48,12 @@ describe('cloneRelayScalarHandleSourceField()', () => {
   });
 
   it('throws if the source field is not present', () => {
-    // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === SCALAR_HANDLE);
-    // $FlowFixMe[incompatible-use]
     selections = selections.filter(node => node.kind === SCALAR_HANDLE);
 
     expect(() =>
       cloneRelayScalarHandleSourceField(
         (handleField: $FlowFixMe),
-        // $FlowFixMe[incompatible-call]
         selections,
         {},
       ),

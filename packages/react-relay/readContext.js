@@ -14,7 +14,6 @@
 
 const React = require('react');
 
-// $FlowFixMe[incompatible-use]
 const {ReactCurrentDispatcher, ReactCurrentOwner} =
   /* $FlowFixMe[prop-missing] Flow doesn't know about React's internals for
    * good reason, but for now, Relay needs the dispatcher to read context. */

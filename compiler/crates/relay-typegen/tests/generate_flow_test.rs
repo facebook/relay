@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<65038e74a8aebfe9b343c5d859b8fce9>>
+ * @generated SignedSource<<23d2279241f91a865f406d8b2fccea86>>
  */
 
 mod generate_flow;
@@ -458,6 +458,13 @@ fn unmasked_fragment_spreads() {
     let input = include_str!("generate_flow/fixtures/unmasked-fragment-spreads.graphql");
     let expected = include_str!("generate_flow/fixtures/unmasked-fragment-spreads.expected");
     test_fixture(transform_fixture, "unmasked-fragment-spreads.graphql", "generate_flow/fixtures/unmasked-fragment-spreads.expected", input, expected);
+}
+
+#[test]
+fn updatable_fragment_spread() {
+    let input = include_str!("generate_flow/fixtures/updatable-fragment-spread.graphql");
+    let expected = include_str!("generate_flow/fixtures/updatable-fragment-spread.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread.graphql", "generate_flow/fixtures/updatable-fragment-spread.expected", input, expected);
 }
 
 #[test]

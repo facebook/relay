@@ -267,11 +267,13 @@ impl<'a> Validator for UpdatableDirective<'a> {
     }
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
-        if let Some(updatable_directive) = fragment.directives.named(*UPDATABLE_DIRECTIVE) {
-            Err(vec![Diagnostic::error(
-                ValidationMessage::UpdatableNotAllowedOnFragments,
-                updatable_directive.name.location,
-            )])
+        if fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some() {
+            self.executable_definition_info = Some(ExecutableDefinitionInfo {
+                name: fragment.name.item,
+                location: fragment.name.location,
+                type_plural: "fragments",
+            });
+            self.default_validate_fragment(fragment)
         } else {
             Ok(())
         }

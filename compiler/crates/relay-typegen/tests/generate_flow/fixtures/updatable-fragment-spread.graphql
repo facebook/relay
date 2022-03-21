@@ -1,0 +1,9 @@
+query updatableFragmentSpreadQuery {
+	me {
+		...updatableFragmentSpread_updatable_user
+	}
+}
+
+fragment updatableFragmentSpread_updatable_user on User @updatable {
+	firstName
+}

@@ -372,21 +372,24 @@ mod tests {
                     },
                     "projects": {
                         "public": {
-                            "schema": "graphql/public.graphql"
+                            "schema": "graphql/public.graphql",
+                            "language": "flow"
                         },
                         "internal": {
-                            "schema": "graphql/__generated__/internal.graphql"
+                            "schema": "graphql/__generated__/internal.graphql",
+                            "language": "flow"
                         },
                         "with_custom_generated_dir": {
                             "schema": "graphql/__generated__/custom.graphql",
-                            "output": "graphql/custom-generated"
+                            "output": "graphql/custom-generated",
+                            "language": "flow"
                         },
                         "typescript": {
-                            "schema": "graphql/ts_schema.graphql",
-                            "language": "typescript"
+                            "schema": "graphql/ts_schema.graphql"
                         },
                         "overlapping_generated_dir": {
-                            "schema": "graphql/__generated__/custom.graphql"
+                            "schema": "graphql/__generated__/custom.graphql",
+                            "language": "flow"
                         }
                     }
                 }

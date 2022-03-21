@@ -72,7 +72,9 @@ file sources, and "listen" to the file changes in the "watch" mode. If
   enabling this the babel plugin needs `artifactDirectory` to be set as well.
   [string]
 - `language` The name of the language used for input files and generated
-  artifacts. ["flow" | "typescript"] [default: "flow"]
+  artifacts. ["typescript" | "flow"] [default: "typescript"]. Please, use "flow"
+  for plain JS projects: flow-types emitted as comments, and the generated
+  artifacts with "flow" are valid JS modules.
 - `excludes` Directories to ignore under `src`. [array] [default:
   ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"]]
 - `schemaExtensions` List of directories with schema extensions. [array]

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b7a654ba6a981315b7dae562ec7890e7>>
+ * @generated SignedSource<<1d6f350f3c9c690369bd4c7ee6c434df>>
  */
 
 mod compile_relay_artifacts;
@@ -1452,6 +1452,13 @@ fn updatable_fragment_spread_with_include_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-include.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-include.invalid.expected");
     test_fixture(transform_fixture, "updatable-fragment-spread-with-include.invalid.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread-with-include.invalid.expected", input, expected);
+}
+
+#[test]
+fn updatable_fragment_spread_with_typename_sibling() {
+    let input = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-typename-sibling.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/updatable-fragment-spread-with-typename-sibling.expected");
+    test_fixture(transform_fixture, "updatable-fragment-spread-with-typename-sibling.graphql", "compile_relay_artifacts/fixtures/updatable-fragment-spread-with-typename-sibling.expected", input, expected);
 }
 
 #[test]

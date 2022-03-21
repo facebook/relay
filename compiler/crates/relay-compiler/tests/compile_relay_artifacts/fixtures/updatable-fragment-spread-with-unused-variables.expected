@@ -80,7 +80,7 @@ fragment updatableFragmentSpreadWithUnusedVariables_user on User @updatable {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "firstName",
+            "name": "__typename",
             "storageKey": null
           },
           {
@@ -123,14 +123,10 @@ query updatableFragmentSpreadWithUnusedVariablesQuery(
   $if: Boolean
 ) {
   me {
-    ...updatableFragmentSpreadWithUnusedVariables_user
+    __typename
     anotherFirstName: firstName(if: $if)
     id
   }
-}
-
-fragment updatableFragmentSpreadWithUnusedVariables_user on User {
-  firstName
 }
 
 

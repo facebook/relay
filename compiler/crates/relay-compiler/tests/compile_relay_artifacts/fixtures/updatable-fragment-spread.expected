@@ -54,7 +54,7 @@ fragment updatableFragmentSpread_user on User @updatable {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "firstName",
+            "name": "__typename",
             "storageKey": null
           },
           {
@@ -82,13 +82,9 @@ QUERY:
 
 query updatableFragmentSpreadQuery {
   me {
-    ...updatableFragmentSpread_user
+    __typename
     id
   }
-}
-
-fragment updatableFragmentSpread_user on User {
-  firstName
 }
 
 

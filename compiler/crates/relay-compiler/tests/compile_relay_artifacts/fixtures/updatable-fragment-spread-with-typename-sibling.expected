@@ -1,26 +1,21 @@
 ==================================== INPUT ====================================
-query updatableFragmentSpreadWithVariablesQuery($if: Boolean) {
+query updatableFragmentSpreadWithTypenameSiblingQuery {
   me {
-    ...updatableFragmentSpreadWithVariables_user
+    ...updatableFragmentSpreadWithTypenameSibling_user
+    __typename
   }
 }
 
-fragment updatableFragmentSpreadWithVariables_user on User @updatable {
-  firstName(if: $if)
+fragment updatableFragmentSpreadWithTypenameSibling_user on User @updatable {
+  firstName
 }
 ==================================== OUTPUT ===================================
 {
   "fragment": {
-    "argumentDefinitions": [
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "if"
-      }
-    ],
+    "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "updatableFragmentSpreadWithVariablesQuery",
+    "name": "updatableFragmentSpreadWithTypenameSiblingQuery",
     "selections": [
       {
         "alias": null,
@@ -33,7 +28,14 @@ fragment updatableFragmentSpreadWithVariables_user on User @updatable {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "updatableFragmentSpreadWithVariables_user"
+            "name": "updatableFragmentSpreadWithTypenameSibling_user"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -44,15 +46,9 @@ fragment updatableFragmentSpreadWithVariables_user on User @updatable {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [
-      {
-        "defaultValue": null,
-        "kind": "LocalArgument",
-        "name": "if"
-      }
-    ],
+    "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "updatableFragmentSpreadWithVariablesQuery",
+    "name": "updatableFragmentSpreadWithTypenameSiblingQuery",
     "selections": [
       {
         "alias": null,
@@ -84,7 +80,7 @@ fragment updatableFragmentSpreadWithVariables_user on User @updatable {
   "params": {
     "id": null,
     "metadata": {},
-    "name": "updatableFragmentSpreadWithVariablesQuery",
+    "name": "updatableFragmentSpreadWithTypenameSiblingQuery",
     "operationKind": "query",
     "text": null
   }
@@ -92,7 +88,7 @@ fragment updatableFragmentSpreadWithVariables_user on User @updatable {
 
 QUERY:
 
-query updatableFragmentSpreadWithVariablesQuery {
+query updatableFragmentSpreadWithTypenameSiblingQuery {
   me {
     __typename
     id
@@ -101,25 +97,14 @@ query updatableFragmentSpreadWithVariablesQuery {
 
 
 {
-  "argumentDefinitions": [
-    {
-      "kind": "RootArgument",
-      "name": "if"
-    }
-  ],
+  "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "updatableFragmentSpreadWithVariables_user",
+  "name": "updatableFragmentSpreadWithTypenameSibling_user",
   "selections": [
     {
       "alias": null,
-      "args": [
-        {
-          "kind": "Variable",
-          "name": "if",
-          "variableName": "if"
-        }
-      ],
+      "args": null,
       "kind": "ScalarField",
       "name": "firstName",
       "storageKey": null

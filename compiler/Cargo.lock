@@ -824,7 +824,7 @@ dependencies = [
 
 [[package]]
 name = "intern"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "bincode",
  "fnv",
@@ -836,6 +836,7 @@ dependencies = [
  "serde",
  "serde_bytes",
  "serde_derive",
+ "serde_json",
  "smallvec",
 ]
 
@@ -1500,7 +1501,6 @@ dependencies = [
 name = "relay-lsp"
 version = "0.0.0"
 dependencies = [
- "assert_matches",
  "common",
  "crossbeam",
  "dashmap",
@@ -1522,6 +1522,7 @@ dependencies = [
  "relay-docblock",
  "relay-test-schema",
  "relay-transforms",
+ "resolution-path",
  "schema",
  "schema-documentation",
  "schema-print",
@@ -1604,6 +1605,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3acd125665422973a33ac9d3dd2df85edad0f4ae9b00dafb1a05e43a9f5ef8e7"
 dependencies = [
  "winapi",
+]
+
+[[package]]
+name = "resolution-path"
+version = "0.0.0"
+dependencies = [
+ "assert_matches",
+ "common",
+ "graphql-syntax",
+ "intern",
+ "relay-test-schema",
+ "schema",
 ]
 
 [[package]]
@@ -2247,18 +2260,18 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
 name = "zstd"
-version = "0.8.0+zstd.1.4.9"
+version = "0.9.2+zstd.1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "afab5e288c9e10bcd910b16ad82cb8028b74b09eccaa5ecd90621f99d3380735"
+checksum = "2390ea1bf6c038c39674f22d95f0564725fc06034a47129179810b2fc58caa54"
 dependencies = [
  "zstd-safe",
 ]
 
 [[package]]
 name = "zstd-safe"
-version = "4.0.0+zstd.1.4.9"
+version = "4.1.3+zstd.1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81f02c0811d5455aa82c6bc400cffd8c882f3a2813f5e2245e2b264443305ab2"
+checksum = "e99d81b99fb3c2c2c794e3fe56c305c63d5173a16a46b5850b07c935ffc7db79"
 dependencies = [
  "libc",
  "zstd-sys",
@@ -2266,9 +2279,9 @@ dependencies = [
 
 [[package]]
 name = "zstd-sys"
-version = "1.5.0+zstd.1.4.9"
+version = "1.6.2+zstd.1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4e6c094340240369025fc6b731b054ee2a834328fa584310ac96aa4baebdc465"
+checksum = "2daf2f248d9ea44454bfcb2516534e8b8ad2fc91bf818a1885495fc42bc8ac9f"
 dependencies = [
  "cc",
  "libc",

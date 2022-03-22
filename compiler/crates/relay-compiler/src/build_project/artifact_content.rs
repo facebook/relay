@@ -215,7 +215,9 @@ fn generate_updatable_query(
     writeln!(content, " */\n")?;
 
     write_disable_lint_header(&project_config.typegen_config.language, &mut content)?;
-    if project_config.typegen_config.language == TypegenLanguage::Flow {
+    if project_config.typegen_config.language == TypegenLanguage::Flow
+        || project_config.typegen_config.language == TypegenLanguage::JavaScript
+    {
         writeln!(content, "'use strict';\n")?;
     }
 
@@ -254,7 +256,7 @@ fn generate_updatable_query(
 
     match project_config.typegen_config.language {
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
-        TypegenLanguage::TypeScript => writeln!(content)?,
+        TypegenLanguage::TypeScript | TypegenLanguage::JavaScript => writeln!(content)?,
     }
 
     let request = printer.print_updatable_query(schema, &operation_fragment);
@@ -333,7 +335,9 @@ fn generate_operation(
     writeln!(content, " */\n")?;
 
     write_disable_lint_header(&project_config.typegen_config.language, &mut content)?;
-    if project_config.typegen_config.language == TypegenLanguage::Flow {
+    if project_config.typegen_config.language == TypegenLanguage::Flow
+        || project_config.typegen_config.language == TypegenLanguage::JavaScript
+    {
         writeln!(content, "'use strict';\n")?;
     }
 
@@ -396,7 +400,7 @@ fn generate_operation(
 
     match project_config.typegen_config.language {
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
-        TypegenLanguage::TypeScript => writeln!(content)?,
+        TypegenLanguage::TypeScript | TypegenLanguage::JavaScript => writeln!(content)?,
     }
     let mut top_level_statements = Default::default();
     if let Some(provided_variables) =
@@ -448,6 +452,12 @@ fn generate_operation(
                 writeln!(
                     content,
                     "require('relay-runtime').PreloadableQueryRegistry.set((node.params/*: any*/).id, node);\n",
+                )?;
+            }
+            TypegenLanguage::JavaScript => {
+                writeln!(
+                    content,
+                    "require('relay-runtime').PreloadableQueryRegistry.set(node.params).id, node);\n",
                 )?;
             }
             TypegenLanguage::TypeScript => {
@@ -520,7 +530,7 @@ fn generate_split_operation(
     }
     match project_config.typegen_config.language {
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
-        TypegenLanguage::TypeScript => writeln!(content)?,
+        TypegenLanguage::TypeScript | TypegenLanguage::JavaScript => writeln!(content)?,
     }
 
     let mut top_level_statements = Default::default();
@@ -649,7 +659,7 @@ fn generate_read_only_fragment(
 
     match project_config.typegen_config.language {
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
-        TypegenLanguage::TypeScript => writeln!(content)?,
+        TypegenLanguage::TypeScript | TypegenLanguage::JavaScript => writeln!(content)?,
     }
     let mut top_level_statements = Default::default();
     let fragment = printer.print_fragment(schema, reader_fragment, &mut top_level_statements);
@@ -721,7 +731,7 @@ fn generate_assignable_fragment(
 
     match project_config.typegen_config.language {
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
-        TypegenLanguage::TypeScript => writeln!(content)?,
+        TypegenLanguage::TypeScript | TypegenLanguage::JavaScript => writeln!(content)?,
     }
 
     // Assignable fragments should never be passed to useFragment, and thus, we
@@ -743,6 +753,7 @@ fn write_variable_value_with_type(
     value: &str,
 ) -> FmtResult {
     match language {
+        TypegenLanguage::JavaScript => writeln!(content, "var {} = {};\n", variable_name, value),
         TypegenLanguage::Flow => writeln!(
             content,
             "var {}/*: {}*/ = {};\n",
@@ -764,6 +775,7 @@ fn write_disable_lint_header(language: &TypegenLanguage, content: &mut String) -
         TypegenLanguage::Flow => {
             writeln!(content, "/* eslint-disable */\n")
         }
+        TypegenLanguage::JavaScript => Ok(()),
     }
 }
 
@@ -774,6 +786,7 @@ fn write_import_type_from(
     from: &str,
 ) -> FmtResult {
     match language {
+        TypegenLanguage::JavaScript => Ok(()),
         TypegenLanguage::Flow => writeln!(content, "import type {{ {} }} from '{}';", type_, from),
         TypegenLanguage::TypeScript => writeln!(content, "import {{ {} }} from '{}';", type_, from),
     }
@@ -789,7 +802,7 @@ fn write_export_generated_node(
         writeln!(content, "export default {};", variable_node)
     } else {
         match (typegen_config.language, forced_type) {
-            (TypegenLanguage::Flow, None) => {
+            (TypegenLanguage::Flow, None) | (TypegenLanguage::JavaScript, _) => {
                 writeln!(content, "module.exports = {};", variable_node)
             }
             (TypegenLanguage::Flow, Some(forced_type)) => writeln!(
@@ -827,6 +840,7 @@ fn write_source_hash(
             TypegenLanguage::Flow => {
                 writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash)?
             }
+            TypegenLanguage::JavaScript => writeln!(content, "node.hash = \"{}\";", source_hash)?,
             TypegenLanguage::TypeScript => {
                 writeln!(content, "  (node as any).hash = \"{}\";", source_hash)?
             }
@@ -837,6 +851,7 @@ fn write_source_hash(
             TypegenLanguage::Flow => {
                 writeln!(content, "(node/*: any*/).hash = \"{}\";\n", source_hash)?
             }
+            TypegenLanguage::JavaScript => writeln!(content, "node.hash = \"{}\";", source_hash)?,
             TypegenLanguage::TypeScript => {
                 writeln!(content, "(node as any).hash = \"{}\";\n", source_hash)?
             }

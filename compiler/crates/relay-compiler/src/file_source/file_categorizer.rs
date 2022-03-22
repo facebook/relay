@@ -349,7 +349,9 @@ fn is_extra_extensions(extension: &OsStr) -> bool {
 fn is_valid_source_code_extension(typegen_language: &TypegenLanguage, extension: &OsStr) -> bool {
     match typegen_language {
         TypegenLanguage::TypeScript => is_source_code_extension(extension),
-        TypegenLanguage::Flow => extension == "js" || extension == "jsx",
+        TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+            extension == "js" || extension == "jsx"
+        }
     }
 }
 
@@ -385,7 +387,8 @@ mod tests {
                             "language": "flow"
                         },
                         "typescript": {
-                            "schema": "graphql/ts_schema.graphql"
+                            "schema": "graphql/ts_schema.graphql",
+                            "language": "typescript"
                         },
                         "overlapping_generated_dir": {
                             "schema": "graphql/__generated__/custom.graphql",

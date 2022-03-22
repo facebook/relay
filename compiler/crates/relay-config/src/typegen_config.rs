@@ -16,13 +16,14 @@ type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(deny_unknown_fields, rename_all = "lowercase")]
 pub enum TypegenLanguage {
-    Flow,
+    JavaScript,
     TypeScript,
+    Flow,
 }
 
 impl Default for TypegenLanguage {
     fn default() -> Self {
-        Self::TypeScript
+        Self::JavaScript
     }
 }
 

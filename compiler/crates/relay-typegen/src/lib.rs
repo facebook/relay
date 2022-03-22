@@ -10,6 +10,7 @@
 #![deny(clippy::all)]
 
 mod flow;
+mod javascript;
 mod typescript;
 mod writer;
 
@@ -26,6 +27,7 @@ use graphql_ir::{
 };
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use itertools::Itertools;
+use javascript::JavaScriptPrinter;
 use lazy_static::lazy_static;
 pub use relay_config::{FlowTypegenPhase, TypegenConfig, TypegenLanguage};
 use relay_config::{JsModuleFormat, ProjectConfig, SchemaConfig};
@@ -239,6 +241,7 @@ impl<'a> TypeGenerator<'a> {
             match_fields: Default::default(),
             runtime_imports: RuntimeImports::default(),
             writer: match &typegen_config.language {
+                TypegenLanguage::JavaScript => Box::new(JavaScriptPrinter::default()),
                 TypegenLanguage::Flow => Box::new(FlowPrinter::new(flow_typegen_phase)),
                 TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(
                     typegen_config,
@@ -1791,7 +1794,7 @@ impl<'a> TypeGenerator<'a> {
         ));
 
         let (open_comment, close_comment) = match self.typegen_config.language {
-            TypegenLanguage::Flow => ("/*", "*/"),
+            TypegenLanguage::Flow | TypegenLanguage::JavaScript => ("/*", "*/"),
             TypegenLanguage::TypeScript => ("", ""),
         };
 
@@ -1883,7 +1886,7 @@ impl<'a> TypeGenerator<'a> {
         ));
 
         let (open_comment, close_comment) = match self.typegen_config.language {
-            TypegenLanguage::Flow => ("/*", "*/"),
+            TypegenLanguage::Flow | TypegenLanguage::JavaScript => ("/*", "*/"),
             TypegenLanguage::TypeScript => ("", ""),
         };
 

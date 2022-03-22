@@ -746,7 +746,7 @@ impl SingleProjectConfigFile {
                 .collect(),
             persist: self.persist_config,
             typegen_config: TypegenConfig {
-                language: self.language.unwrap_or(TypegenLanguage::TypeScript),
+                language: self.language.unwrap_or_default(),
                 custom_scalar_types: self.custom_scalars.clone(),
                 eager_es_modules: self.eager_es_modules,
                 flow_typegen: FlowTypegenConfig {

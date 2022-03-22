@@ -98,11 +98,14 @@ When parsing your project, the Relay compiler looks for `@RelayResolver` docbloc
 
 When the field is first read by a component, Relay will evaluate the Relay Resolver function and cache the result. Other components that read the same field will read the same cached value. If at any point any of the fields that the resolver reads (via its root fragment) change, Relay will reevaluate the resolver. If the return value changes (determined by `===` equality) Relay will propagate that change to all components (and other Relay Resolvers) that are currently reading the field.
 
+## Error Handling
+
+In order to make product code as robust as possible, Relay Resolvers follow the GraphQL spec’s documented [best practice](https://graphql.org/learn/best-practices/#nullability) of returning null when a field resolver errors. Instead of throwing, errors thrown by Relay Resolves will be logged to your environment's configured `requiredFieldLogger` with an event of kind `"relay_resolver.error"`. If you make use of Relay Resolves you should be sure to configure your environment with a `requiredFieldLogger` which reports those events to whatever system you use for tracking runtime errors.
+
+If your component requires a non-null value in order to render, and can’t provide a reasonable fallback experience, you can annotate the field access with `@required`.
+
 ## Current Limitations
 
 - Relay Resolvers are still considered experimental. To use them you must ensure that the `ENABLE_RELAY_RESOLVERS` runtime feature flag is enabled, and that the `enable_relay_resolver_transform` feature flag is enabled in your project’s Relay config file.
 - Relay Resolvers don’t yet have access to query variables. If this is functionality that would be useful to you, please get in touch.
 - Currently Relay Resolvers only work with Haste module resolution, where modules are imported using their globally unique name, rather than by path.
-- Error Handling: Currently if a Relay Resolver errors, it will throw in the component that first reads it. In the future we plan to have the following behavior:
-    - If a Relay Resolver throws an error during evaluation the consumer of the field will get `null` and the error will be logged. This follows the GraphQL spec’s documented [best practice](https://redux.js.org/usage/deriving-data-selectors) of returning null when a field resolver errors in order to make reading data as robust as possible.
-    - If your component requires a non-null value in order to render, and can’t provide a reasonable fallback experience, you can annotate the field access with `@required`.

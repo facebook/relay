@@ -1,0 +1,13 @@
+# expected-to-throw
+
+fragment circularInlineFragmentF1 on User @inline {
+  ...circularInlineFragmentF2
+}
+
+fragment circularInlineFragmentF2 on User @inline {
+  ...circularInlineFragmentF3
+}
+
+fragment circularInlineFragmentF3 on User @inline {
+  ...circularInlineFragmentF1
+}

@@ -1,0 +1,88 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment circularInlineFragmentF1 on User @inline {
+  ...circularInlineFragmentF2
+}
+
+fragment circularInlineFragmentF2 on User @inline {
+  ...circularInlineFragmentF3
+}
+
+fragment circularInlineFragmentF3 on User @inline {
+  ...circularInlineFragmentF1
+}
+==================================== ERROR ====================================
+✖︎ Found a circular reference from fragment 'circularInlineFragmentF1'.
+
+  circular-inline-fragment.invalid.graphql:12:6
+   11 │ fragment circularInlineFragmentF3 on User @inline {
+   12 │   ...circularInlineFragmentF1
+      │      ^^^^^^^^^^^^^^^^^^^^^^^^
+   13 │ }
+
+  ℹ︎ spreading circularInlineFragmentF2
+
+  circular-inline-fragment.invalid.graphql:4:6
+    3 │ fragment circularInlineFragmentF1 on User @inline {
+    4 │   ...circularInlineFragmentF2
+      │      ^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │ }
+
+  ℹ︎ spreading circularInlineFragmentF3
+
+  circular-inline-fragment.invalid.graphql:8:6
+    7 │ fragment circularInlineFragmentF2 on User @inline {
+    8 │   ...circularInlineFragmentF3
+      │      ^^^^^^^^^^^^^^^^^^^^^^^^
+    9 │ }
+
+
+✖︎ Found a circular reference from fragment 'circularInlineFragmentF2'.
+
+  circular-inline-fragment.invalid.graphql:4:6
+    3 │ fragment circularInlineFragmentF1 on User @inline {
+    4 │   ...circularInlineFragmentF2
+      │      ^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │ }
+
+  ℹ︎ spreading circularInlineFragmentF3
+
+  circular-inline-fragment.invalid.graphql:8:6
+    7 │ fragment circularInlineFragmentF2 on User @inline {
+    8 │   ...circularInlineFragmentF3
+      │      ^^^^^^^^^^^^^^^^^^^^^^^^
+    9 │ }
+
+  ℹ︎ spreading circularInlineFragmentF1
+
+  circular-inline-fragment.invalid.graphql:12:6
+   11 │ fragment circularInlineFragmentF3 on User @inline {
+   12 │   ...circularInlineFragmentF1
+      │      ^^^^^^^^^^^^^^^^^^^^^^^^
+   13 │ }
+
+
+✖︎ Found a circular reference from fragment 'circularInlineFragmentF3'.
+
+  circular-inline-fragment.invalid.graphql:8:6
+    7 │ fragment circularInlineFragmentF2 on User @inline {
+    8 │   ...circularInlineFragmentF3
+      │      ^^^^^^^^^^^^^^^^^^^^^^^^
+    9 │ }
+
+  ℹ︎ spreading circularInlineFragmentF1
+
+  circular-inline-fragment.invalid.graphql:12:6
+   11 │ fragment circularInlineFragmentF3 on User @inline {
+   12 │   ...circularInlineFragmentF1
+      │      ^^^^^^^^^^^^^^^^^^^^^^^^
+   13 │ }
+
+  ℹ︎ spreading circularInlineFragmentF2
+
+  circular-inline-fragment.invalid.graphql:4:6
+    3 │ fragment circularInlineFragmentF1 on User @inline {
+    4 │   ...circularInlineFragmentF2
+      │      ^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │ }

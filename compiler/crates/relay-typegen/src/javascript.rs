@@ -53,7 +53,7 @@ impl Writer for JavaScriptPrinter {
         Ok(())
     }
 
-    fn write_export_fragment_type(&mut self, _old_name: &str, _new_name: &str) -> FmtResult {
+    fn write_export_fragment_type(&mut self, _name: &str) -> FmtResult {
         Ok(())
     }
 

@@ -338,7 +338,7 @@ pub trait Writer: Write {
 
     fn write_import_fragment_type(&mut self, types: &[&str], from: &str) -> FmtResult;
 
-    fn write_export_fragment_type(&mut self, old_name: &str, new_name: &str) -> FmtResult;
+    fn write_export_fragment_type(&mut self, name: &str) -> FmtResult;
 
     fn write_export_fragment_types(
         &mut self,

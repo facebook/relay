@@ -25,8 +25,7 @@ use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_config::{
-    FlowTypegenConfig, FlowTypegenPhase, JsModuleFormat, SchemaConfig, TypegenConfig,
-    TypegenLanguage,
+    FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig, TypegenLanguage,
 };
 pub use relay_config::{
     LocalPersistConfig, PersistConfig, ProjectConfig, RemotePersistConfig, SchemaLocation,
@@ -620,7 +619,9 @@ pub struct SingleProjectConfigFile {
     pub schema_config: SchemaConfig,
 
     /// Added in 13.1.1 to customize Final/Compat mode in the single project config file
-    pub typegen_phase: FlowTypegenPhase,
+    /// Removed in 14.0.0
+    #[serde(default)]
+    pub typegen_phase: Option<Value>,
 
     #[serde(default)]
     pub feature_flags: Option<FeatureFlags>,
@@ -646,7 +647,7 @@ impl Default for SingleProjectConfigFile {
             is_dev_variable_name: None,
             codegen_command: None,
             js_module_format: JsModuleFormat::CommonJS,
-            typegen_phase: FlowTypegenPhase::Final,
+            typegen_phase: None,
             feature_flags: None,
         }
     }
@@ -715,6 +716,16 @@ impl SingleProjectConfigFile {
             );
         }
 
+        if self.typegen_phase.is_some() {
+            return Err(Error::ConfigFileValidation {
+                config_path: config_path.into(),
+                validation_errors: vec![ConfigValidationError::RemovedConfigField {
+                    name: "typegenPhase",
+                    action: "Please remove the option and update type imports from generated files to new names.",
+                }],
+            });
+        }
+
         let current_dir = std::env::current_dir().unwrap();
         let common_root_dir = self.get_common_root(current_dir.clone()).map_err(|err| {
             Error::ConfigFileValidation {
@@ -751,7 +762,6 @@ impl SingleProjectConfigFile {
                 eager_es_modules: self.eager_es_modules,
                 flow_typegen: FlowTypegenConfig {
                     no_future_proof_enums: self.no_future_proof_enums,
-                    phase: self.typegen_phase,
                     ..Default::default()
                 },
                 ..Default::default()

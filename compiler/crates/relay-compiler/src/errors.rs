@@ -226,6 +226,12 @@ pub enum ConfigValidationError {
 
     #[error("Unable to find common path for directories in the config file.")]
     CommonPathNotFound,
+
+    #[error("The config option `{name}` is no longer supported. {action}")]
+    RemovedConfigField {
+        name: &'static str,
+        action: &'static str,
+    },
 }
 
 #[derive(Debug, Error)]

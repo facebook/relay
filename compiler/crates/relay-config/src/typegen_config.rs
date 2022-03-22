@@ -79,7 +79,7 @@ pub struct TypegenConfig {
     pub sort_typegen_items: SortTypegenItemsConfig,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[derive(Default, Debug, Serialize, Deserialize, Clone, Copy)]
 #[serde(deny_unknown_fields, tag = "phase")]
 pub struct FlowTypegenConfig {
     /// This option controls whether or not a catch-all entry is added to enum type definitions
@@ -88,54 +88,6 @@ pub struct FlowTypegenConfig {
     /// from breaking.
     #[serde(default)]
     pub no_future_proof_enums: bool,
-
-    pub phase: FlowTypegenPhase,
-    #[serde(default)]
-    pub rollout: Rollout,
-}
-
-impl Default for FlowTypegenConfig {
-    fn default() -> Self {
-        Self {
-            no_future_proof_enums: false,
-            phase: FlowTypegenPhase::Final,
-            rollout: Rollout::default(),
-        }
-    }
-}
-
-impl FlowTypegenConfig {
-    /// Returns the FlowTypegenPhase based on the config. If a `Rollout` check
-    /// is not passing, the previous phase is returned.
-    pub fn phase(self, rollout_key: StringKey) -> FlowTypegenPhase {
-        if self.rollout.check(rollout_key.lookup()) {
-            self.phase
-        } else {
-            self.phase.previous()
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
-pub enum FlowTypegenPhase {
-    /// Final state
-    Final,
-    /// - remove $fragmentRefs for spreads
-    /// - remove $refType from Frag$data
-    /// - keep exporting old types for operations
-    Compat,
-}
-
-impl FlowTypegenPhase {
-    /// Returns the previous phase that should be used when the rollout
-    /// percentage check for the current phase fails.
-    fn previous(self) -> Self {
-        use FlowTypegenPhase::*;
-        match self {
-            Final => Compat,
-            Compat => Compat,
-        }
-    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, Default)]

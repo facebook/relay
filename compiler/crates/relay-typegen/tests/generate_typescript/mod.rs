@@ -12,10 +12,10 @@ use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use intern::string_key::Intern;
 use relay_codegen::JsModuleFormat;
-use relay_config::{FlowTypegenConfig, ProjectConfig};
+use relay_config::ProjectConfig;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::apply_transforms;
-use relay_typegen::{self, FlowTypegenPhase, TypegenConfig, TypegenLanguage};
+use relay_typegen::{self, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -42,10 +42,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         js_module_format: JsModuleFormat::Haste,
         typegen_config: TypegenConfig {
             language: TypegenLanguage::TypeScript,
-            flow_typegen: FlowTypegenConfig {
-                phase: FlowTypegenPhase::Final,
-                ..Default::default()
-            },
             ..Default::default()
         },
         ..Default::default()

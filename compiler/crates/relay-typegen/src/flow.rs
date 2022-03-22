@@ -5,10 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    writer::{Prop, Writer, AST},
-    FlowTypegenPhase,
-};
+use crate::writer::{Prop, Writer, AST};
 use intern::string_key::StringKey;
 use itertools::Itertools;
 use std::fmt::{Result as FmtResult, Write};
@@ -16,7 +13,6 @@ use std::fmt::{Result as FmtResult, Write};
 pub struct FlowPrinter {
     result: String,
     indentation: usize,
-    flow_typegen_phase: FlowTypegenPhase,
 }
 
 impl Write for FlowPrinter {
@@ -97,23 +93,12 @@ impl Writer for FlowPrinter {
         self.write_import_type(types, from)
     }
 
-    fn write_export_fragment_type(&mut self, old_name: &str, new_name: &str) -> FmtResult {
-        match self.flow_typegen_phase {
-            FlowTypegenPhase::Compat => {
-                writeln!(
-                    &mut self.result,
-                    "declare export opaque type {new_name}: FragmentType;
-export type {old_name} = {new_name};",
-                    old_name = old_name,
-                    new_name = new_name,
-                )
-            }
-            FlowTypegenPhase::Final => writeln!(
-                &mut self.result,
-                "declare export opaque type {new_name}: FragmentType;",
-                new_name = new_name
-            ),
-        }
+    fn write_export_fragment_type(&mut self, name: &str) -> FmtResult {
+        writeln!(
+            &mut self.result,
+            "declare export opaque type {name}: FragmentType;",
+            name = name
+        )
     }
 
     fn write_export_fragment_types(
@@ -134,11 +119,10 @@ export type {old_name} = {new_name};",
 }
 
 impl FlowPrinter {
-    pub fn new(flow_typegen_phase: FlowTypegenPhase) -> Self {
+    pub fn new() -> Self {
         Self {
             result: String::new(),
             indentation: 0,
-            flow_typegen_phase,
         }
     }
 
@@ -331,7 +315,7 @@ mod tests {
     use intern::string_key::Intern;
 
     fn print_type(ast: &AST) -> String {
-        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final));
+        let mut printer = Box::new(FlowPrinter::new());
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -550,7 +534,7 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final));
+        let mut printer = Box::new(FlowPrinter::new());
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(
             printer.into_string(),
@@ -560,7 +544,7 @@ mod tests {
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(FlowPrinter::new(FlowTypegenPhase::Final));
+        let mut printer = Box::new(FlowPrinter::new());
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }

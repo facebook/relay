@@ -399,13 +399,7 @@ class RelayReader {
           }
           break;
         }
-        case RELAY_LIVE_RESOLVER: {
-          if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
-            throw new Error('Relay Resolver fields are not yet supported.');
-          }
-          this._readResolverField(selection, record, data);
-          break;
-        }
+        case RELAY_LIVE_RESOLVER:
         case RELAY_RESOLVER: {
           if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
             throw new Error('Relay Resolver fields are not yet supported.');
@@ -547,7 +541,7 @@ class RelayReader {
     let fragmentMissingRequiredFields: ?MissingRequiredFields;
     let previousMissingRequriedFields: ?MissingRequiredFields;
 
-    let currentResolverErrors: RelayResolverErrors;
+    let currentResolverErrors: RelayResolverErrors = [];
     let previousResolverErrors: RelayResolverErrors;
     const fragmentSeenRecordIDs = new Set();
 

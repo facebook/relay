@@ -248,6 +248,9 @@ class LiveResolverCache implements ResolverCache {
     }
 
     // Subscribe to future values
+    // Note: We subscribe before reading, since subscribing could potentially
+    // trigger a syncronous update. By reading second way we will always
+    // observe the new value, without needing to double render.
     const handler = this._makeLiveStateHandler(linkedID);
     const unsubscribe = liveState.subscribe(handler);
 
@@ -287,11 +290,10 @@ class LiveResolverCache implements ResolverCache {
       const currentSource = this._getRecordSource();
       const currentRecord = currentSource.get(linkedID);
       if (!currentRecord) {
-        warning(
-          false,
-          'Expected a resolver record with ID %s, but it was missing.',
-          linkedID,
-        );
+        // If there is no record yet, it means the subscribe function fired an
+        // update syncronously on subscribe (before we even created the record).
+        // In this case we can safely ignore this update, since we will be
+        // reading the new value when we create the record.
         return;
       }
 

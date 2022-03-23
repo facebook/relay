@@ -772,10 +772,9 @@ fn write_disable_lint_header(language: &TypegenLanguage, content: &mut String) -
             writeln!(content, "/* eslint-disable */")?;
             writeln!(content, "// @ts-nocheck\n")
         }
-        TypegenLanguage::Flow => {
+        TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
             writeln!(content, "/* eslint-disable */\n")
         }
-        TypegenLanguage::JavaScript => Ok(()),
     }
 }
 

@@ -164,16 +164,23 @@ impl Config {
     pub fn search(start_dir: &Path) -> Result<Self> {
         match js_config_loader::search("relay", start_dir) {
             Ok(Some(config)) => Self::from_struct(config.path, config.value, true),
-            Ok(None) => Err(Error::ConfigNotFound),
-            Err(error) => Err(Error::ConfigSearchError { error }),
+            Ok(None) => Err(Error::ConfigError {
+                details: "No config found.".to_string(),
+            }),
+            Err(error) => Err(Error::ConfigError {
+                details: format!("Error searching config: {}", error),
+            }),
         }
     }
 
     pub fn load(config_path: PathBuf) -> Result<Self> {
         let config_string =
-            std::fs::read_to_string(&config_path).map_err(|err| Error::ConfigFileRead {
-                config_path: config_path.clone(),
-                source: err,
+            std::fs::read_to_string(&config_path).map_err(|err| Error::ConfigError {
+                details: format!(
+                    "Failed to read config file `{}`. {:?}",
+                    config_path.display(),
+                    err
+                ),
             })?;
         Self::from_string(config_path, &config_string, true)
     }
@@ -191,9 +198,12 @@ impl Config {
     /// `validate_fs` disables all filesystem checks for existence of files
     fn from_string(config_path: PathBuf, config_string: &str, validate_fs: bool) -> Result<Self> {
         let config_file: ConfigFile =
-            serde_json::from_str(config_string).map_err(|err| Error::ConfigFileParse {
-                config_path: config_path.clone(),
-                source: err,
+            serde_json::from_str(config_string).map_err(|err| Error::ConfigError {
+                details: format!(
+                    "Failed to parse config file `{}`: {}",
+                    config_path.display(),
+                    err,
+                ),
             })?;
         Self::from_struct(config_path, config_file, validate_fs)
     }

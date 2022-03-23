@@ -17,26 +17,6 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("Failed to read config file `{config_path}`.")]
-    ConfigFileRead {
-        config_path: PathBuf,
-        source: std::io::Error,
-    },
-
-    #[error("No config found.")]
-    ConfigNotFound,
-
-    #[error("Error searching config: {error}")]
-    ConfigSearchError {
-        error: js_config_loader::ConfigError,
-    },
-
-    #[error("Failed to parse config file `{config_path}`: {source}")]
-    ConfigFileParse {
-        config_path: PathBuf,
-        source: serde_json::Error,
-    },
-
     #[error("Unable to initialize relay compiler configuration. Error details: \n{details}")]
     ConfigError { details: String },
 

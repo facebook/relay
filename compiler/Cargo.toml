@@ -14,6 +14,7 @@ members = [
     "crates/interner",
     "crates/js-config-loader",
     "crates/persist-query",
+    "crates/relay-bin",
     "crates/relay-codegen",
     "crates/relay-compiler",
     "crates/relay-lsp",

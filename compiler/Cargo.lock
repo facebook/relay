@@ -1391,6 +1391,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
+name = "relay"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "common",
+ "log",
+ "relay-compiler",
+ "simplelog",
+ "tokio",
+]
+
+[[package]]
 name = "relay-codegen"
 version = "0.0.0"
 dependencies = [
@@ -1417,7 +1429,6 @@ version = "13.2.0"
 dependencies = [
  "async-trait",
  "bincode",
- "clap",
  "common",
  "common-path",
  "dashmap",
@@ -1459,7 +1470,6 @@ dependencies = [
  "serde_json",
  "sha-1",
  "signedsource",
- "simplelog",
  "thiserror",
  "tokio",
  "walkdir",

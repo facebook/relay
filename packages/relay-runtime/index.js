@@ -125,6 +125,7 @@ export type {
   FragmentType,
   FragmentSpecResolver,
   HandleFieldPayload,
+  HasUpdatableSpread,
   IEnvironment,
   InvalidationState,
   LogEvent,

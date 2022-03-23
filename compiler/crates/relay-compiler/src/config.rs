@@ -639,7 +639,7 @@ impl Default for SingleProjectConfigFile {
             excludes: get_default_excludes(),
             schema_extensions: vec![],
             no_future_proof_enums: false,
-            language: Some(TypegenLanguage::default()),
+            language: None,
             custom_scalars: Default::default(),
             schema_config: Default::default(),
             eager_es_modules: false,
@@ -734,6 +734,12 @@ impl SingleProjectConfigFile {
             }
         })?;
 
+        let language = self.language.ok_or_else(||
+            Error::ConfigError {
+                details: "The `language` option is missing in the Relay configuration file. Please, specify one of the following options: \"language\": \"javascript\", \"language\": \"typescript\", or \"language\": \"flow\".".to_string(),
+            }
+        )?;
+
         let project_config = ConfigFileProject {
             output: self.artifact_directory.map(|dir| {
                 normalize_path_from_config(current_dir.clone(), common_root_dir.clone(), dir)
@@ -757,7 +763,7 @@ impl SingleProjectConfigFile {
                 .collect(),
             persist: self.persist_config,
             typegen_config: TypegenConfig {
-                language: self.language.unwrap_or_default(),
+                language,
                 custom_scalar_types: self.custom_scalars.clone(),
                 eager_es_modules: self.eager_es_modules,
                 flow_typegen: FlowTypegenConfig {

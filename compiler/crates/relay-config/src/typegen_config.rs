@@ -31,7 +31,6 @@ impl Default for TypegenLanguage {
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
     /// The desired output language, "flow" or "typescript".
-    #[serde(default)]
     pub language: TypegenLanguage,
 
     /// # For Flow type generation

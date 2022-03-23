@@ -37,6 +37,9 @@ pub enum Error {
         source: serde_json::Error,
     },
 
+    #[error("Unable to initialize relay compiler configuration. Error details: \n{details}")]
+    ConfigError { details: String },
+
     #[error(
         "Config `{config_path}` is invalid:{}",
         validation_errors

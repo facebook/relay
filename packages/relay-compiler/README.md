@@ -114,14 +114,8 @@ file sources, and "listen" to the file changes in the "watch" mode. If
   of the exposed types are unified with `<module>$data` and `<module>$variables`
   suffixes.
 
-### CLI configuration
+### CLI Arguments
 
-We also support a limited set of CLI arguments that should cover the most cases
-when you need to run the compiler.
-
-- `--src` Relative path to the source code.
-- `--schema` Relative path to schema file.
-- `--artifactDirectory` Compiler output directory.
 - `--repersist` Run the persister even if the query has not changed.
 - `--watch` Run compiler in `watch` mode. Requires
   [`watchman`](https://facebook.github.io/watchman/) to be installed.

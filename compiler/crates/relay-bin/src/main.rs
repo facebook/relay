@@ -14,6 +14,9 @@ use relay_compiler::{
     config::{Config, SingleProjectConfigFile},
     FileSourceKind, LocalPersister, OperationPersister, PersistConfig, RemotePersister,
 };
+use relay_lsp::{start_language_server, LSPExtraDataProvider};
+use schema::SDLSchema;
+use schema_documentation::SchemaDocumentationLoader;
 use simplelog::{
     ColorChoice, ConfigBuilder as SimpleLogConfigBuilder, LevelFilter, TermLogger, TerminalMode,
     WriteLogger,
@@ -194,22 +197,65 @@ async fn main() {
         );
     }
 
-    let compiler = Compiler::new(Arc::new(config), Arc::new(ConsoleLogger));
+    if opt.lsp {
+        let perf_logger = Arc::new(ConsoleLogger);
+        let extra_data_provider = Box::new(DummyExtraDataProvider {});
+        let schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<SDLSchema>>> =
+            None;
+        let js_language_server = None;
 
-    if opt.watch {
-        if let Err(err) = compiler.watch().await {
-            error!("Watchman error: {}", err);
-            std::process::exit(1);
-        }
-    } else {
-        match compiler.compile().await {
-            Ok(_compiler_state) => {
-                info!("Done");
+        match start_language_server(
+            config,
+            perf_logger,
+            extra_data_provider,
+            schema_documentation_loader,
+            js_language_server,
+        )
+        .await
+        {
+            Ok(_) => {
+                info!("Relay LSP exited successfully.");
             }
-            Err(_err) => {
+            Err(err) => {
+                error!("Relay LSP unexpectedly terminated: {:#?}", err);
                 std::process::exit(1);
             }
         }
+    } else {
+        let compiler = Compiler::new(Arc::new(config), Arc::new(ConsoleLogger));
+
+        if opt.watch {
+            if let Err(err) = compiler.watch().await {
+                error!("Watchman error: {}", err);
+                std::process::exit(1);
+            }
+        } else {
+            match compiler.compile().await {
+                Ok(_compiler_state) => {
+                    info!("Done");
+                }
+                Err(_err) => {
+                    std::process::exit(1);
+                }
+            }
+        }
+    }
+}
+
+struct DummyExtraDataProvider {}
+
+impl LSPExtraDataProvider for DummyExtraDataProvider {
+    fn fetch_query_stats(&self, _search_token: &str) -> Vec<String> {
+        vec![]
+    }
+
+    fn resolve_field_definition(
+        &self,
+        _project_name: String,
+        _parent_type: String,
+        _field_info: Option<relay_lsp::FieldSchemaInfo>,
+    ) -> Result<Option<relay_lsp::FieldDefinitionSourceInfo>, String> {
+        Ok(None)
     }
 }
 

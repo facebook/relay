@@ -1398,6 +1398,9 @@ dependencies = [
  "common",
  "log",
  "relay-compiler",
+ "relay-lsp",
+ "schema",
+ "schema-documentation",
  "simplelog",
  "tokio",
 ]

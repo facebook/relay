@@ -16,9 +16,11 @@ use relay_compiler::{
 };
 use simplelog::{
     ColorChoice, ConfigBuilder as SimpleLogConfigBuilder, LevelFilter, TermLogger, TerminalMode,
+    WriteLogger,
 };
 use std::{
     env::{self, current_dir},
+    fs::File,
     path::PathBuf,
     process::Command,
     sync::Arc,
@@ -36,6 +38,10 @@ struct Opt {
     #[clap(long, short)]
     watch: bool,
 
+    /// Run the LSP server
+    #[clap(long, short)]
+    lsp: bool,
+
     /// Compile using this config file. If not provided, searches for a config in
     /// package.json under the `relay` key or `relay.config.json` files among other up
     /// from the current working directory.
@@ -49,8 +55,8 @@ struct Opt {
     repersist: bool,
 
     /// Verbosity level
-    #[clap(long, arg_enum, default_value = "verbose")]
-    output: OutputKind,
+    #[clap(long, arg_enum)]
+    output: Option<OutputKind>,
 
     /// Looks for pending changes and exits with non-zero code instead of
     /// writing to disk
@@ -101,11 +107,14 @@ impl From<CliConfig> for SingleProjectConfigFile {
 async fn main() {
     let opt = Opt::parse();
 
-    let log_level = match opt.output {
-        OutputKind::Debug => LevelFilter::Debug,
-        OutputKind::Quiet => LevelFilter::Off,
-        OutputKind::QuietWithErrors => LevelFilter::Error,
-        OutputKind::Verbose => LevelFilter::Info,
+    let log_level = match &opt.output {
+        Some(output) => match output {
+            OutputKind::Debug => LevelFilter::Debug,
+            OutputKind::Quiet => LevelFilter::Off,
+            OutputKind::QuietWithErrors => LevelFilter::Error,
+            OutputKind::Verbose => LevelFilter::Info,
+        },
+        None => LevelFilter::Info,
     };
 
     let log_config = SimpleLogConfigBuilder::new()
@@ -115,13 +124,30 @@ async fn main() {
         .set_thread_level(LevelFilter::Off)
         .build();
 
-    TermLogger::init(
-        log_level,
-        log_config,
-        TerminalMode::Mixed,
-        ColorChoice::Auto,
-    )
-    .unwrap();
+    if opt.lsp {
+        // The LSP works by writing responses to stdout.
+        // Any of the existing logs writing to stdout cause the LSP client
+        // to panic since the client doesn't know how to interpret our arbitrary logs.
+        //
+        // We also don't want to litter existing projects with a relay_lsp.log file
+        // Let's only write out to a file if the LSP client specified an output level.
+        if opt.output.is_some() {
+            WriteLogger::init(
+                log_level,
+                log_config,
+                File::create("relay_lsp.log").unwrap(),
+            )
+            .unwrap();
+        }
+    } else {
+        TermLogger::init(
+            log_level,
+            log_config,
+            TerminalMode::Mixed,
+            ColorChoice::Auto,
+        )
+        .unwrap();
+    }
 
     let config_result = if let Some(config_path) = opt.config {
         Config::load(config_path)

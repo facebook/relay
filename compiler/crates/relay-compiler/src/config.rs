@@ -744,9 +744,15 @@ impl SingleProjectConfigFile {
             }
         })?;
 
-        let language = self.language.ok_or_else(||
+        let language = self.language.ok_or_else(|| {
+            let mut variants = vec![];
+            for lang in TypegenLanguage::get_variants_as_string() {
+                variants.push(format!(r#"  "language": "{}""#, lang));
+            }
+
             Error::ConfigError {
-                details: "The `language` option is missing in the Relay configuration file. Please, specify one of the following options: \"language\": \"javascript\", \"language\": \"typescript\", or \"language\": \"flow\".".to_string(),
+                    details: format!("The `language` option is missing in the Relay configuration file. Please, specify one of the following options:\n{}", variants.join("\n")),
+                }
             }
         )?;
 

@@ -14,7 +14,7 @@ use relay_compiler::{
     config::{Config, SingleProjectConfigFile},
     FileSourceKind, LocalPersister, OperationPersister, PersistConfig, RemotePersister,
 };
-use relay_lsp::{start_language_server, LSPExtraDataProvider};
+use relay_lsp::{start_language_server, DummyExtraDataProvider};
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentationLoader;
 use simplelog::{
@@ -199,7 +199,7 @@ async fn main() {
 
     if opt.lsp {
         let perf_logger = Arc::new(ConsoleLogger);
-        let extra_data_provider = Box::new(DummyExtraDataProvider {});
+        let extra_data_provider = Box::new(DummyExtraDataProvider::new());
         let schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<SDLSchema>>> =
             None;
         let js_language_server = None;
@@ -239,23 +239,6 @@ async fn main() {
                 }
             }
         }
-    }
-}
-
-struct DummyExtraDataProvider {}
-
-impl LSPExtraDataProvider for DummyExtraDataProvider {
-    fn fetch_query_stats(&self, _search_token: &str) -> Vec<String> {
-        vec![]
-    }
-
-    fn resolve_field_definition(
-        &self,
-        _project_name: String,
-        _parent_type: String,
-        _field_info: Option<relay_lsp::FieldSchemaInfo>,
-    ) -> Result<Option<relay_lsp::FieldDefinitionSourceInfo>, String> {
-        Ok(None)
     }
 }
 

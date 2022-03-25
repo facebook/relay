@@ -51,10 +51,9 @@ fragment TodoList_list on TodoList @argumentDefinitions(
 A provided variable is a special fragment variable whose value is supplied by a specified provider function at runtime. This simplifies supplying device attributes, user experiment flags, and other runtime constants to graphql fragments.
 
 To add a provided variable:
-- add an argument with `provider: "<JSModule>.relayprovider"` to `@argumentDefinitions`
-- ensure that `<JSModule>.relayprovider.js` exists and exports a `get()` function
+- add an argument with `provider: "[JSModule].relayprovider"` to `@argumentDefinitions`
+- ensure that `[JSModule].relayprovider.js` exists and exports a `get()` function
   -  `get` should return the same value on every call for a given run.
-
 ```graphql
 fragment TodoItem_item on TodoList
 @argumentDefinitions(
@@ -78,11 +77,29 @@ export default {
 };
 ```
 Notes:
+
+<FbInternalOnly>
+
+- Even though fragments declare provided variables in `argumentDefinitions`, their parent cannot pass provided variables through `@arguments`.
+- An argument definition cannot specify both a provider and a defaultValue.
+- If the modified fragment is included in operations that use hack preloaders (`@preloadable(hackPreloader: true)`), you will need to manually add provided variables when calling `RelayPreloader::gen`.
+    - Hack's typechecker will fail with `The field __relay_internal__pv__[JsModule] is missing.`
+    - We strongly encourage switching to [Entrypoints](../../guides/entrypoints/using-entrypoints/) if possible.
+- _Unstable / subject to change_
+  - Relay transforms provided variables to operation root variables and renames them to `__relay_internal__pv__[JsModule]`.
+    - Only relevant if you are debugging a query that uses provided variables.
+
+</FbInternalOnly>
+
+<OssOnly>
+
 - Even though fragments declare provided variables in `argumentDefinitions`, their parent cannot pass provided variables through `@arguments`.
 - An argument definition cannot specify both a provider and a defaultValue.
 - _Unstable / subject to change_
-  - Relay transforms provided variables to operation root variables and renames them to `__<internal prefix>__<JsModule>`.
+  - Relay transforms provided variables to operation root variables and renames them to `__relay_internal__pv__[JsModule]`.
     - Only relevant if you are debugging a query that uses provided variables.
+
+</OssOnly>
 
 ## `@connection(key: String!, filters: [String])`
 

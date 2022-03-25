@@ -14,3 +14,5 @@ intern = { path = "../intern" }
 regex = "1.5.4"
 serde = { version = "1.0.126", features = ["derive", "rc"] }
 serde_json = { version = "1.0.64", features = ["float_roundtrip", "unbounded_depth"] }
+strum = "0.21"
+strum_macros = "0.21"

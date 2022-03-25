@@ -9,10 +9,9 @@ use clap::{ArgEnum, Parser};
 use common::ConsoleLogger;
 use log::{error, info};
 use relay_compiler::{
-    build_project::artifact_writer::ArtifactValidationWriter,
-    compiler::Compiler,
-    config::{Config, SingleProjectConfigFile},
-    FileSourceKind, LocalPersister, OperationPersister, PersistConfig, RemotePersister,
+    build_project::artifact_writer::ArtifactValidationWriter, compiler::Compiler, config::Config,
+    errors::Error, FileSourceKind, LocalPersister, OperationPersister, PersistConfig,
+    RemotePersister,
 };
 use relay_lsp::{start_language_server, DummyExtraDataProvider};
 use schema::SDLSchema;
@@ -29,12 +28,12 @@ use std::{
 
 #[derive(Parser)]
 #[clap(
-    name = "Relay Compiler",
-    version = option_env!("CARGO_PKG_VERSION").unwrap_or("unknown"),
-    about = "Compiles Relay files and writes generated files.",
-    rename_all = "camel_case",
-    args_conflicts_with_subcommands = true
-)]
+     name = "Relay Compiler",
+     version = option_env!("CARGO_PKG_VERSION").unwrap_or("unknown"),
+     about = "Compiles Relay files and writes generated files.",
+     rename_all = "camel_case",
+     args_conflicts_with_subcommands = true
+ )]
 struct Opt {
     #[clap(subcommand)]
     command: Option<Commands>,
@@ -110,29 +109,35 @@ enum OutputKind {
 pub struct CliConfig {
     /// Path for the directory where to search for source code
     #[clap(long)]
-    pub src: Option<PathBuf>,
+    pub src: Option<String>,
     /// Path to schema file
     #[clap(long)]
-    pub schema: Option<PathBuf>,
+    pub schema: Option<String>,
     /// Path to a directory, where the compiler should write artifacts
     #[clap(long)]
-    pub artifact_directory: Option<PathBuf>,
+    pub artifact_directory: Option<String>,
 }
 
 impl CliConfig {
-    pub fn is_defined(&self) -> bool {
+    fn is_defined(&self) -> bool {
         self.src.is_some() || self.schema.is_some() || self.artifact_directory.is_some()
     }
-}
 
-impl From<CliConfig> for SingleProjectConfigFile {
-    fn from(cli_config: CliConfig) -> Self {
-        SingleProjectConfigFile {
-            schema: cli_config.schema.expect("schema is required."),
-            artifact_directory: cli_config.artifact_directory,
-            src: cli_config.src.unwrap_or_else(|| PathBuf::from("./")),
-            ..Default::default()
-        }
+    fn get_config_string(self) -> String {
+        let src = self.src.unwrap_or_else(|| "./src".into());
+        let schema = self.schema.unwrap_or_else(|| "./path-to-schema".into());
+        let artifact_directory = self.artifact_directory.map_or("".to_string(), |a| {
+            format!("\n  \"artifactDirectory\": \"{}\",", a)
+        });
+        format!(
+            r#"
+ {{
+   "src": "{}",
+   "schema": "{}",{}
+   "language": "javascript"
+ }}"#,
+            src, schema, artifact_directory
+        )
     }
 }
 
@@ -140,7 +145,12 @@ fn get_config(config_path: Option<PathBuf>, cli_config: CliConfig) -> Config {
     let config_result = if let Some(config_path) = config_path {
         Config::load(config_path)
     } else if cli_config.is_defined() {
-        Ok(Config::from(SingleProjectConfigFile::from(cli_config)))
+        Err(Error::ConfigError {
+            details: format!(
+                "\nPassing Relay compiler configuration is not supported. Please add `relay.config.json` file,\nor \"relay\" section to your `package.json` file.\n\nCompiler configuration JSON:{}",
+                cli_config.get_config_string(),
+            ),
+        })
     } else {
         Config::search(&current_dir().expect("Unable to get current working directory."))
     };

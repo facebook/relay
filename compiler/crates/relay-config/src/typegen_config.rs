@@ -10,10 +10,20 @@ use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use serde::{Deserialize, Serialize};
-
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
-#[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(
+    EnumIter,
+    strum_macros::ToString,
+    Debug,
+    Copy,
+    Clone,
+    Serialize,
+    Deserialize,
+    PartialEq
+)]
 #[serde(deny_unknown_fields, rename_all = "lowercase")]
 pub enum TypegenLanguage {
     JavaScript,
@@ -24,6 +34,16 @@ pub enum TypegenLanguage {
 impl Default for TypegenLanguage {
     fn default() -> Self {
         Self::JavaScript
+    }
+}
+
+impl TypegenLanguage {
+    pub fn get_variants_as_string() -> Vec<String> {
+        let mut res = vec![];
+        for lang in Self::iter() {
+            res.push(lang.to_string().to_lowercase());
+        }
+        res
     }
 }
 

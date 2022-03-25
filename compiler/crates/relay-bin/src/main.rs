@@ -75,15 +75,12 @@ struct CompileCommand {
 }
 
 #[derive(Parser)]
-#[clap(about = "Run the LSP server")]
+#[clap(about = "Run the LSP server", rename_all = "camel_case")]
 struct LspCommand {
     /// Run the LSP using this config file. If not provided, searches for a config in
     /// package.json under the `relay` key or `relay.config.json` files among other up
     /// from the current working directory.
     config: Option<PathBuf>,
-
-    #[clap(flatten)]
-    cli_config: CliConfig,
 
     /// Verbosity level
     #[clap(long, arg_enum, default_value = "verbose")]
@@ -141,7 +138,23 @@ impl CliConfig {
     }
 }
 
-fn get_config(config_path: Option<PathBuf>, cli_config: CliConfig) -> Config {
+#[tokio::main]
+async fn main() {
+    let opt = Opt::parse();
+
+    let command = opt.command.unwrap_or(Commands::Compiler(opt.compile));
+
+    match command {
+        Commands::Compiler(command) => {
+            handle_compiler_command(command).await;
+        }
+        Commands::Lsp(command) => {
+            handle_lsp_command(command).await;
+        }
+    }
+}
+
+fn get_config_backwards_compatible(config_path: Option<PathBuf>, cli_config: CliConfig) -> Config {
     let config_result = if let Some(config_path) = config_path {
         Config::load(config_path)
     } else if cli_config.is_defined() {
@@ -151,6 +164,21 @@ fn get_config(config_path: Option<PathBuf>, cli_config: CliConfig) -> Config {
                 cli_config.get_config_string(),
             ),
         })
+    } else {
+        Config::search(&current_dir().expect("Unable to get current working directory."))
+    };
+
+    let config = config_result.unwrap_or_else(|err| {
+        error!("{}", err);
+        std::process::exit(1);
+    });
+
+    config
+}
+
+fn get_config(config_path: Option<PathBuf>) -> Config {
+    let config_result = if let Some(config_path) = config_path {
+        Config::load(config_path)
     } else {
         Config::search(&current_dir().expect("Unable to get current working directory."))
     };
@@ -184,7 +212,7 @@ fn configure_logger(output: OutputKind, terminal_mode: TerminalMode) {
 async fn handle_compiler_command(command: CompileCommand) {
     configure_logger(command.output, TerminalMode::Mixed);
 
-    let mut config = get_config(command.config, command.cli_config);
+    let mut config = get_config_backwards_compatible(command.config, command.cli_config);
 
     if command.validate {
         config.artifact_writer = Box::new(ArtifactValidationWriter::default());
@@ -240,7 +268,7 @@ async fn handle_compiler_command(command: CompileCommand) {
 async fn handle_lsp_command(command: LspCommand) {
     configure_logger(command.output, TerminalMode::Stderr);
 
-    let config = get_config(command.config, command.cli_config);
+    let config = get_config(command.config);
 
     let perf_logger = Arc::new(ConsoleLogger);
     let extra_data_provider = Box::new(DummyExtraDataProvider::new());
@@ -262,22 +290,6 @@ async fn handle_lsp_command(command: LspCommand) {
         Err(err) => {
             error!("Relay LSP unexpectedly terminated: {:#?}", err);
             std::process::exit(1);
-        }
-    }
-}
-
-#[tokio::main]
-async fn main() {
-    let opt = Opt::parse();
-
-    let command = opt.command.unwrap_or(Commands::Compiler(opt.compile));
-
-    match command {
-        Commands::Compiler(command) => {
-            handle_compiler_command(command).await;
-        }
-        Commands::Lsp(command) => {
-            handle_lsp_command(command).await;
         }
     }
 }

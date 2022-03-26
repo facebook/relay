@@ -10,8 +10,7 @@ use common::ConsoleLogger;
 use log::{error, info};
 use relay_compiler::{
     build_project::artifact_writer::ArtifactValidationWriter, compiler::Compiler, config::Config,
-    errors::Error, FileSourceKind, LocalPersister, OperationPersister, PersistConfig,
-    RemotePersister,
+    FileSourceKind, LocalPersister, OperationPersister, PersistConfig, RemotePersister,
 };
 use relay_lsp::{start_language_server, DummyExtraDataProvider};
 use schema::SDLSchema;
@@ -25,6 +24,10 @@ use std::{
     process::Command,
     sync::Arc,
 };
+
+mod errors;
+
+use errors::Error;
 
 #[derive(Parser)]
 #[clap(
@@ -160,8 +163,13 @@ async fn main() {
 
 fn get_config(config_path: Option<PathBuf>) -> Result<Config, Error> {
     match config_path {
-        Some(config_path) => Config::load(config_path),
-        None => Config::search(&current_dir().expect("Unable to get current working directory.")),
+        Some(config_path) => Config::load(config_path).map_err(|err| Error::ConfigError {
+            details: format!("{:?}", err),
+        }),
+        None => Config::search(&current_dir().expect("Unable to get current working directory."))
+            .map_err(|err| Error::ConfigError {
+                details: format!("{:?}", err),
+            }),
     }
 }
 
@@ -232,9 +240,16 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     let compiler = Compiler::new(Arc::new(config), Arc::new(ConsoleLogger));
 
     if command.watch {
-        compiler.watch().await?;
+        compiler.watch().await.map_err(|err| Error::CompilerError {
+            details: format!("{:?}", err),
+        })?;
     } else {
-        compiler.compile().await?;
+        compiler
+            .compile()
+            .await
+            .map_err(|err| Error::CompilerError {
+                details: format!("{:?}", err),
+            })?;
     }
 
     Ok(())

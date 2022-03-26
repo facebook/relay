@@ -1411,6 +1411,7 @@ dependencies = [
  "schema",
  "schema-documentation",
  "simplelog",
+ "thiserror",
  "tokio",
 ]
 

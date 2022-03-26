@@ -16,3 +16,4 @@ tokio = { version = "1.15", features = ["full", "test-util", "tracing"] }
 relay-lsp = { path = "../relay-lsp" }
 schema-documentation = { path = "../schema-documentation" }
 schema = { path = "../schema" }
+thiserror = "1.0.29"

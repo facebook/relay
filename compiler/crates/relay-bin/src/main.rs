@@ -144,51 +144,25 @@ async fn main() {
 
     let command = opt.command.unwrap_or(Commands::Compiler(opt.compile));
 
-    match command {
-        Commands::Compiler(command) => {
-            handle_compiler_command(command).await;
-        }
-        Commands::Lsp(command) => {
-            handle_lsp_command(command).await;
+    let result = match command {
+        Commands::Compiler(command) => handle_compiler_command(command).await,
+        Commands::Lsp(command) => handle_lsp_command(command).await,
+    };
+
+    match result {
+        Ok(_) => info!("Done."),
+        Err(err) => {
+            error!("{:?}", err);
+            std::process::exit(1);
         }
     }
 }
 
-fn get_config_backwards_compatible(config_path: Option<PathBuf>, cli_config: CliConfig) -> Config {
-    let config_result = if let Some(config_path) = config_path {
-        Config::load(config_path)
-    } else if cli_config.is_defined() {
-        Err(Error::ConfigError {
-            details: format!(
-                "\nPassing Relay compiler configuration is not supported. Please add `relay.config.json` file,\nor \"relay\" section to your `package.json` file.\n\nCompiler configuration JSON:{}",
-                cli_config.get_config_string(),
-            ),
-        })
-    } else {
-        Config::search(&current_dir().expect("Unable to get current working directory."))
-    };
-
-    let config = config_result.unwrap_or_else(|err| {
-        error!("{}", err);
-        std::process::exit(1);
-    });
-
-    config
-}
-
-fn get_config(config_path: Option<PathBuf>) -> Config {
-    let config_result = if let Some(config_path) = config_path {
-        Config::load(config_path)
-    } else {
-        Config::search(&current_dir().expect("Unable to get current working directory."))
-    };
-
-    let config = config_result.unwrap_or_else(|err| {
-        error!("{}", err);
-        std::process::exit(1);
-    });
-
-    config
+fn get_config(config_path: Option<PathBuf>) -> Result<Config, Error> {
+    match config_path {
+        Some(config_path) => Config::load(config_path),
+        None => Config::search(&current_dir().expect("Unable to get current working directory.")),
+    }
 }
 
 fn configure_logger(output: OutputKind, terminal_mode: TerminalMode) {
@@ -209,10 +183,19 @@ fn configure_logger(output: OutputKind, terminal_mode: TerminalMode) {
     TermLogger::init(log_level, log_config, terminal_mode, ColorChoice::Auto).unwrap();
 }
 
-async fn handle_compiler_command(command: CompileCommand) {
+async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     configure_logger(command.output, TerminalMode::Mixed);
 
-    let mut config = get_config_backwards_compatible(command.config, command.cli_config);
+    if command.cli_config.is_defined() {
+        return Err(Error::ConfigError {
+            details: format!(
+                "\nPassing Relay compiler configuration is not supported. Please add `relay.config.json` file,\nor \"relay\" section to your `package.json` file.\n\nCompiler configuration JSON:{}",
+                command.cli_config.get_config_string(),
+            ),
+        });
+    }
+
+    let mut config = get_config(command.config)?;
 
     if command.validate {
         config.artifact_writer = Box::new(ArtifactValidationWriter::default());
@@ -249,33 +232,25 @@ async fn handle_compiler_command(command: CompileCommand) {
     let compiler = Compiler::new(Arc::new(config), Arc::new(ConsoleLogger));
 
     if command.watch {
-        if let Err(err) = compiler.watch().await {
-            error!("Watchman error: {}", err);
-            std::process::exit(1);
-        }
+        compiler.watch().await?;
     } else {
-        match compiler.compile().await {
-            Ok(_compiler_state) => {
-                info!("Done");
-            }
-            Err(_err) => {
-                std::process::exit(1);
-            }
-        }
+        compiler.compile().await?;
     }
+
+    Ok(())
 }
 
-async fn handle_lsp_command(command: LspCommand) {
+async fn handle_lsp_command(command: LspCommand) -> Result<(), Error> {
     configure_logger(command.output, TerminalMode::Stderr);
 
-    let config = get_config(command.config);
+    let config = get_config(command.config)?;
 
     let perf_logger = Arc::new(ConsoleLogger);
     let extra_data_provider = Box::new(DummyExtraDataProvider::new());
     let schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<SDLSchema>>> = None;
     let js_language_server = None;
 
-    match start_language_server(
+    start_language_server(
         config,
         perf_logger,
         extra_data_provider,
@@ -283,15 +258,13 @@ async fn handle_lsp_command(command: LspCommand) {
         js_language_server,
     )
     .await
-    {
-        Ok(_) => {
-            info!("Relay LSP exited successfully.");
-        }
-        Err(err) => {
-            error!("Relay LSP unexpectedly terminated: {:#?}", err);
-            std::process::exit(1);
-        }
-    }
+    .map_err(|err| Error::LSPError {
+        details: format!("Relay LSP unexpectedly terminated: {:?}", err),
+    })?;
+
+    info!("Relay LSP exited successfully.");
+
+    Ok(())
 }
 
 /// Check if `watchman` is available.

@@ -86,7 +86,7 @@ struct LspCommand {
     config: Option<PathBuf>,
 
     /// Verbosity level
-    #[clap(long, arg_enum, default_value = "verbose")]
+    #[clap(long, arg_enum, default_value = "info")]
     output: OutputKind,
 }
 

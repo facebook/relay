@@ -78,7 +78,7 @@ struct CompileCommand {
 }
 
 #[derive(Parser)]
-#[clap(about = "Run the LSP server", rename_all = "camel_case")]
+#[clap(about = "Run the language server. Used by IDEs.", rename_all = "camel_case")]
 struct LspCommand {
     /// Run the LSP using this config file. If not provided, searches for a config in
     /// package.json under the `relay` key or `relay.config.json` files among other up

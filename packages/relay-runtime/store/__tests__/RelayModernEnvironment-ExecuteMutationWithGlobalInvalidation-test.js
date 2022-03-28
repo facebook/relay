@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,17 +13,19 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const {getRequest, getFragment, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('executeMutation() with global invalidation', () => {
   let callbacks;
@@ -42,21 +44,19 @@ describe('executeMutation() with global invalidation', () => {
   let queryVariables;
 
   beforeEach(() => {
-    jest.resetModules();
     commentID = 'comment-id';
 
-    CommentFragment = getFragment(graphql`
+    CommentFragment = graphql`
       fragment RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment on Comment {
         id
         body {
           text
         }
       }
-    `);
+    `;
 
     variables = {
       input: {
-        clientMutationId: '0',
         feedbackId: '1',
       },
     };
@@ -64,7 +64,7 @@ describe('executeMutation() with global invalidation', () => {
       id: commentID,
     };
     operation = createOperationDescriptor(
-      getRequest(graphql`
+      graphql`
         mutation RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCreateCommentMutation(
           $input: CommentCreateInput!
         ) {
@@ -77,11 +77,11 @@ describe('executeMutation() with global invalidation', () => {
             }
           }
         }
-      `),
+      `,
       variables,
     );
     queryOperation = createOperationDescriptor(
-      getRequest(graphql`
+      graphql`
         query RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentQuery(
           $id: ID!
         ) {
@@ -90,7 +90,7 @@ describe('executeMutation() with global invalidation', () => {
             ...RelayModernEnvironmentExecuteMutationWithGlobalInvalidationTestCommentFragment
           }
         }
-      `),
+      `,
       queryVariables,
     );
 

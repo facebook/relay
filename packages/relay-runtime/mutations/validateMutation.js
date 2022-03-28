@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,29 +13,17 @@
 'use strict';
 
 import type {
-  NormalizationSelection,
   NormalizationField,
+  NormalizationSelection,
 } from '../util/NormalizationNode';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
-type ValidationContext = {|
-  visitedPaths: Set<string>,
-  path: string,
-  variables: Variables,
-  missingDiff: Object,
-  extraDiff: Object,
-  moduleImportPaths: Set<string>,
-|};
-
-const warning = require('warning');
-
-const hasOwnProperty = Object.prototype.hasOwnProperty;
-
 const {
-  CONDITION,
+  ACTOR_CHANGE,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
+  CONDITION,
   DEFER,
   FLIGHT_FIELD,
   FRAGMENT_SPREAD,
@@ -48,10 +36,26 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = require('../util/RelayConcreteNode');
+const warning = require('warning');
+
+type ValidationContext = {|
+  visitedPaths: Set<string>,
+  path: string,
+  variables: Variables,
+  missingDiff: Object,
+  extraDiff: Object,
+  moduleImportPaths: Set<string>,
+|};
+// $FlowFixMe[method-unbinding] added when improving typing for this parameters
+const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 let validateMutation = () => {};
 if (__DEV__) {
-  const addFieldToDiff = (path: string, diff: Object, isScalar) => {
+  const addFieldToDiff = (
+    path: string,
+    diff: Object,
+    isScalar: void | boolean,
+  ) => {
     let deepLoc = diff;
     path.split('.').forEach((key, index, arr) => {
       if (deepLoc[key] == null) {
@@ -128,9 +132,16 @@ if (__DEV__) {
       case LINKED_FIELD:
       case FLIGHT_FIELD:
         return validateField(optimisticResponse, selection, context);
+      case ACTOR_CHANGE:
+        return validateField(
+          optimisticResponse,
+          selection.linkedField,
+          context,
+        );
       case INLINE_FRAGMENT:
         const type = selection.type;
         const isConcreteType = selection.abstractKey == null;
+        validateAbstractKey(context, selection.abstractKey);
         selection.selections.forEach(subselection => {
           if (isConcreteType && optimisticResponse.__typename !== type) {
             return;
@@ -145,11 +156,12 @@ if (__DEV__) {
         return;
       case MODULE_IMPORT:
         return validateModuleImport(context);
+      case TYPE_DISCRIMINATOR:
+        return validateAbstractKey(context, selection.abstractKey);
       case LINKED_HANDLE:
       case SCALAR_HANDLE:
       case DEFER:
-      case STREAM:
-      case TYPE_DISCRIMINATOR: {
+      case STREAM: {
         // TODO(T35864292) - Add missing validations for these types
         return;
       }
@@ -161,6 +173,16 @@ if (__DEV__) {
 
   const validateModuleImport = (context: ValidationContext) => {
     context.moduleImportPaths.add(context.path);
+  };
+
+  const validateAbstractKey = (
+    context: ValidationContext,
+    abstractKey: ?string,
+  ) => {
+    if (abstractKey != null) {
+      const path = `${context.path}.${abstractKey}`;
+      context.visitedPaths.add(path);
+    }
   };
 
   const validateField = (

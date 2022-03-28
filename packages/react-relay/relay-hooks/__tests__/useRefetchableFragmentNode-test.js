@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,30 +13,27 @@
 
 'use strict';
 
-const React = require('react');
-const Scheduler = require('scheduler');
-
-const {useMemo, useState, useEffect} = React;
-const TestRenderer = require('react-test-renderer');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+import type {OperationDescriptor, Variables} from 'relay-runtime';
 
 const {useTrackLoadQueryInRender} = require('../loadQuery');
-const invariant = require('invariant');
 const useRefetchableFragmentNodeOriginal = require('../useRefetchableFragmentNode');
+const invariant = require('invariant');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  createOperationDescriptor,
   Observable,
   __internal: {fetchQuery},
+  createOperationDescriptor,
   graphql,
-  getRequest,
-  getFragment,
 } = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils-internal');
+const Scheduler = require('scheduler');
 
-import type {OperationDescriptor, Variables} from 'relay-runtime';
+const {useMemo, useState, useEffect} = React;
 
 describe('useRefetchableFragmentNode', () => {
   let environment;
@@ -120,6 +117,7 @@ describe('useRefetchableFragmentNode', () => {
         [fragmentName]: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
+      __isWithinUnmatchedTypeRefinement: false,
     };
   }
 
@@ -141,7 +139,7 @@ describe('useRefetchableFragmentNode', () => {
         username
       }
     `;
-    gqlFragmentWithArgs = getFragment(graphql`
+    gqlFragmentWithArgs = graphql`
       fragment useRefetchableFragmentNodeTestUserFragmentWithArgs on User
       @refetchable(
         queryName: "useRefetchableFragmentNodeTestUserFragmentWithArgsRefetchQuery"
@@ -154,8 +152,8 @@ describe('useRefetchableFragmentNode', () => {
         }
         ...useRefetchableFragmentNodeTestNestedUserFragment
       }
-    `);
-    gqlFragment = getFragment(graphql`
+    `;
+    gqlFragment = graphql`
       fragment useRefetchableFragmentNodeTestUserFragment on User
       @refetchable(
         queryName: "useRefetchableFragmentNodeTestUserFragmentRefetchQuery"
@@ -167,18 +165,18 @@ describe('useRefetchableFragmentNode', () => {
         }
         ...useRefetchableFragmentNodeTestNestedUserFragment
       }
-    `);
-    gqlQuery = getRequest(graphql`
-      query useRefetchableFragmentNodeTestUserQuery($id: ID!, $scale: Int!) {
+    `;
+    gqlQuery = graphql`
+      query useRefetchableFragmentNodeTestUserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
           ...useRefetchableFragmentNodeTestUserFragment
         }
       }
-    `);
-    gqlQueryNestedFragment = getRequest(graphql`
+    `;
+    gqlQueryNestedFragment = graphql`
       query useRefetchableFragmentNodeTestUserQueryNestedFragmentQuery(
         $id: ID!
-        $scale: Int!
+        $scale: Float!
       ) {
         node(id: $id) {
           actor {
@@ -186,8 +184,8 @@ describe('useRefetchableFragmentNode', () => {
           }
         }
       }
-    `);
-    gqlQueryWithArgs = getRequest(graphql`
+    `;
+    gqlQueryWithArgs = graphql`
       query useRefetchableFragmentNodeTestUserQueryWithArgsQuery(
         $id: ID!
         $scale: Float!
@@ -197,8 +195,8 @@ describe('useRefetchableFragmentNode', () => {
             @arguments(scaleLocal: $scale)
         }
       }
-    `);
-    gqlQueryWithLiteralArgs = getRequest(graphql`
+    `;
+    gqlQueryWithLiteralArgs = graphql`
       query useRefetchableFragmentNodeTestUserQueryWithLiteralArgsQuery(
         $id: ID!
       ) {
@@ -207,7 +205,7 @@ describe('useRefetchableFragmentNode', () => {
             @arguments(scaleLocal: 16)
         }
       }
-    `);
+    `;
     variables = {id: '1', scale: 16};
     variablesNestedFragment = {id: '<feedbackid>', scale: 16};
     gqlRefetchQuery = require('./__generated__/useRefetchableFragmentNodeTestUserFragmentRefetchQuery.graphql');
@@ -262,18 +260,18 @@ describe('useRefetchableFragmentNode', () => {
       ...
     }) => {
       // We need a render a component to run a Hook
-      const [owner, _setOwner] = useState<OperationDescriptor>(props.owner);
-      const [_, _setCount] = useState(0);
+      const [owner, setOwner_] = useState<OperationDescriptor>(props.owner);
+      const [, setCount_] = useState(0);
       const fragment = props.fragment ?? gqlFragment;
       const artificialUserRef = useMemo(
         () => ({
           [ID_KEY]:
-          // $FlowFixMe[prop-missing]
             owner.request.variables.id ?? owner.request.variables.nodeID,
           [FRAGMENTS_KEY]: {
             [fragment.name]: {},
           },
           [FRAGMENT_OWNER_KEY]: owner.request,
+          __isWithinUnmatchedTypeRefinement: false,
         }),
         [owner, fragment.name],
       );
@@ -281,13 +279,11 @@ describe('useRefetchableFragmentNode', () => {
         ? props.userRef
         : artificialUserRef;
 
-      forceUpdate = _setCount;
-      setOwner = _setOwner;
+      forceUpdate = setCount_;
+      setOwner = setOwner_;
 
-      const {
-        fragmentData: userData,
-        refetch: refetchInternal,
-      } = useRefetchableFragmentNode(fragment, userRef);
+      const {fragmentData: userData, refetch: refetchInternal} =
+        useRefetchableFragmentNode(fragment, userRef);
 
       if (
         props.callDuringRenderKey != null &&
@@ -360,12 +356,12 @@ describe('useRefetchableFragmentNode', () => {
     it('should throw error if fragment is plural', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const UserFragment = getFragment(graphql`
+      const UserFragment = graphql`
         fragment useRefetchableFragmentNodeTest4Fragment on User
         @relay(plural: true) {
           id
         }
-      `);
+      `;
       const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
@@ -377,11 +373,11 @@ describe('useRefetchableFragmentNode', () => {
     it('should throw error if fragment is missing @refetchable directive', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const UserFragment = getFragment(graphql`
+      const UserFragment = graphql`
         fragment useRefetchableFragmentNodeTest5Fragment on User {
           id
         }
-      `);
+      `;
       const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
@@ -483,6 +479,7 @@ describe('useRefetchableFragmentNode', () => {
 
     beforeEach(() => {
       release = jest.fn();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockImplementation((...args) => {
         return {
           dispose: release,
@@ -494,6 +491,7 @@ describe('useRefetchableFragmentNode', () => {
       expected,
       requestEnvironment = environment,
     ) {
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(requestEnvironment.executeWithSource).toBeCalledTimes(
         expected.requestCount,
       );
@@ -530,7 +528,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert query is retained by loadQuery and
       // temporarily retained while component is suspended
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(env.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(env.retain.mock.calls[0][0]).toEqual(
         expected.refetchQuery ?? refetchQuery,
       );
@@ -563,6 +563,7 @@ describe('useRefetchableFragmentNode', () => {
           'Relay: Unexpected call to `refetch` on unmounted component',
         ),
       ).toEqual(true);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toHaveBeenCalledTimes(0);
     });
 
@@ -585,6 +586,7 @@ describe('useRefetchableFragmentNode', () => {
           'Relay: Unexpected call to `refetch` while using a null fragment ref',
         ),
       ).toEqual(true);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.executeWithSource).toHaveBeenCalledTimes(1);
     });
 
@@ -639,6 +641,7 @@ describe('useRefetchableFragmentNode', () => {
         jest.runAllTimers();
       });
       expect(release).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
     });
 
@@ -702,7 +705,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
     });
 
@@ -766,7 +771,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
     });
 
@@ -853,7 +860,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
     });
 
@@ -922,7 +931,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQueryWithArgs);
     });
 
@@ -992,7 +1003,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQueryWithArgs);
     });
 
@@ -1042,7 +1055,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
       // Update refetched data
@@ -1116,7 +1131,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
       // Set new environment
@@ -1145,6 +1162,7 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was released
       expect(release).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
 
       // Update data in new environment
@@ -1169,6 +1187,71 @@ describe('useRefetchableFragmentNode', () => {
           },
         },
       ]);
+    });
+
+    it('refetches with new environment when environment changes', () => {
+      const renderer = renderFragment();
+      const initialUser = {
+        id: '1',
+        name: 'Alice',
+        profile_picture: null,
+        ...createFragmentRef('1', query),
+      };
+      expectFragmentResults([{data: initialUser}]);
+
+      // Set new environment
+      const newEnvironment = createMockEnvironment();
+      newEnvironment.commitPayload(query, {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice in a different env',
+          username: 'useralice',
+          profile_picture: null,
+        },
+      });
+      TestRenderer.act(() => {
+        setEnvironment(newEnvironment);
+      });
+
+      TestRenderer.act(() => {
+        refetch({}, {fetchPolicy: 'network-only'});
+      });
+      renderSpy.mockClear();
+
+      // Assert fragment is refetched with new environment
+      expectFragmentIsRefetching(
+        renderer,
+        {
+          refetchVariables: variables,
+          refetchQuery,
+        },
+        newEnvironment,
+      );
+
+      // Mock network response
+      TestRenderer.act(() => {
+        newEnvironment.mock.resolve(gqlRefetchQuery, {
+          data: {
+            node: {
+              __typename: 'User',
+              id: '1',
+              name: 'Alice in a different env refetched',
+              profile_picture: null,
+              username: 'useralice',
+            },
+          },
+        });
+      });
+
+      // Assert fragment is rendered with new data
+      const refetchedUser = {
+        id: '1',
+        name: 'Alice in a different env refetched',
+        profile_picture: null,
+        ...createFragmentRef('1', refetchQuery),
+      };
+      expectFragmentResults([{data: refetchedUser}]);
     });
 
     it('resets to parent data when parent fragment ref changes', () => {
@@ -1217,7 +1300,9 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was retained
       expect(release).not.toBeCalled();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
       // Pass new parent fragment ref with different variables
@@ -1251,6 +1336,7 @@ describe('useRefetchableFragmentNode', () => {
 
       // Assert refetch query was released
       expect(release).toBeCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.retain).toBeCalledTimes(2);
 
       // Update new parent data
@@ -1305,7 +1391,9 @@ describe('useRefetchableFragmentNode', () => {
       );
 
       renderSpy.mockClear();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockClear();
       release.mockClear();
 
@@ -1374,7 +1462,9 @@ describe('useRefetchableFragmentNode', () => {
       );
 
       renderSpy.mockClear();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockClear();
       release.mockClear();
 
@@ -1443,7 +1533,9 @@ describe('useRefetchableFragmentNode', () => {
       );
 
       renderSpy.mockClear();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeWithSource.mockClear();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockClear();
       release.mockClear();
 
@@ -1551,7 +1643,9 @@ describe('useRefetchableFragmentNode', () => {
 
         const doAndAssertRefetch = fragmentResults => {
           renderSpy.mockClear();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.retain.mockClear();
 
           TestRenderer.act(() => {
@@ -1588,7 +1682,9 @@ describe('useRefetchableFragmentNode', () => {
           expectFragmentResults(fragmentResults);
 
           // Assert refetch query was retained
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(2);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
         };
 
@@ -1625,7 +1721,9 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Call refetch a second time
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
         const refetchVariables2 = {id: '4', scale: 16};
         const refetchQuery2 = createOperationDescriptor(
@@ -1725,7 +1823,9 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Call refetch a second time
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
         const refetchVariables2 = {id: '4', scale: 16};
         const refetchQuery2 = createOperationDescriptor(
@@ -1844,7 +1944,9 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Call refetch a second time
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
         const refetchVariables2 = {id: '4', scale: 16};
         const refetchQuery2 = createOperationDescriptor(
@@ -1866,6 +1968,7 @@ describe('useRefetchableFragmentNode', () => {
         });
 
         // Switch back to initial refetch
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.retain.mockClear();
         TestRenderer.act(() => {
           refetch(
@@ -1966,6 +2069,7 @@ describe('useRefetchableFragmentNode', () => {
         expectFragmentResults([{data: refetchingUser}]);
 
         // Call refetch a second time
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
         const refetchVariables2 = {id: '4', scale: 16};
         TestRenderer.act(() => {
@@ -2847,6 +2951,7 @@ describe('useRefetchableFragmentNode', () => {
             refetchVariables,
             refetchQuery,
           });
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();
 
           // Mock network response
@@ -2876,6 +2981,7 @@ describe('useRefetchableFragmentNode', () => {
             ...createFragmentRef('4', refetchQuery),
           };
           expectFragmentResults([{data: refetchedUser}]);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.retain.mockClear();
           release.mockClear();
 
@@ -2906,6 +3012,7 @@ describe('useRefetchableFragmentNode', () => {
           expectFragmentResults([{data: null}]);
           // Assert previous query was released
           expect(release).toBeCalledTimes(1);
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.retain).toBeCalledTimes(2);
         });
       });
@@ -2938,7 +3045,7 @@ describe('useRefetchableFragmentNode', () => {
         unsubscribe.mockClear();
       });
 
-      it('disposes ongoing request if environment changes', () => {
+      it('does not cancel ongoing request if environment changes', () => {
         renderFragment();
         renderSpy.mockClear();
         TestRenderer.act(() => {
@@ -2987,12 +3094,11 @@ describe('useRefetchableFragmentNode', () => {
           setEnvironment(newEnvironment);
         });
 
-        // Assert request was cancelled
-        // Unsubscribe is called twice because loadQuery will dispose
-        // of both the network and execute observables
-        expect(unsubscribe).toBeCalledTimes(2);
+        // Assert request is not cancelled, since useQueryLoader does not
+        // cancel network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
         expectRequestIsInFlight({
-          inFlight: false,
+          inFlight: true,
           requestCount: 1,
           gqlRefetchQuery,
           refetchVariables,
@@ -3008,7 +3114,7 @@ describe('useRefetchableFragmentNode', () => {
         expectFragmentResults([{data: expectedUser}, {data: expectedUser}]);
       });
 
-      it('disposes ongoing request if fragment ref changes', () => {
+      it('does not cancel ongoing request if fragment ref changes', () => {
         renderFragment();
         renderSpy.mockClear();
         TestRenderer.act(() => {
@@ -3062,12 +3168,11 @@ describe('useRefetchableFragmentNode', () => {
           setOwner(newQuery);
         });
 
-        // Assert request was cancelled
-        // Unsubscribe is called twice because loadQuery will dispose
-        // of both the network and execute observables
-        expect(unsubscribe).toBeCalledTimes(2);
+        // Assert request is not cancelled, since useQueryLoader does not
+        // cancel network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
         expectRequestIsInFlight({
-          inFlight: false,
+          inFlight: true,
           requestCount: 1,
           gqlRefetchQuery,
           refetchVariables,
@@ -3085,7 +3190,7 @@ describe('useRefetchableFragmentNode', () => {
         expectFragmentResults([{data: expectedUser}, {data: expectedUser}]);
       });
 
-      it('disposes of ongoing request on unmount when refetch suspends', () => {
+      it('does not cancel ongoing request on unmount when refetch suspends', () => {
         const renderer = renderFragment();
         renderSpy.mockClear();
         TestRenderer.act(() => {
@@ -3112,17 +3217,12 @@ describe('useRefetchableFragmentNode', () => {
           renderer.unmount();
         });
 
-        // Assert request was cancelled
-        expect(unsubscribe).toBeCalledTimes(2);
-        expectRequestIsInFlight({
-          inFlight: false,
-          requestCount: 1,
-          gqlRefetchQuery,
-          refetchVariables,
-        });
+        // Assert request is not cancelled. useQueryLoader does not cancel
+        // network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
       });
 
-      it('disposes of ongoing request on unmount when refetch does not suspend', () => {
+      it('does not cancel ongoing request on unmount when refetch does not suspend', () => {
         const renderer = renderFragment();
         renderSpy.mockClear();
         TestRenderer.act(() => {
@@ -3160,14 +3260,9 @@ describe('useRefetchableFragmentNode', () => {
           renderer.unmount();
         });
 
-        // Assert request was cancelled
-        expect(unsubscribe).toBeCalledTimes(2);
-        expectRequestIsInFlight({
-          inFlight: false,
-          requestCount: 1,
-          gqlRefetchQuery,
-          refetchVariables,
-        });
+        // Assert request is not cancelled. useQueryLoader does not cancel
+        // network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
       });
 
       it('disposes ongoing request if it is manually disposed when refetch suspends', () => {
@@ -3264,16 +3359,9 @@ describe('useRefetchableFragmentNode', () => {
           jest.runAllImmediates();
         });
 
-        // Assert request was cancelled.
-        // Unsubscribe is called twice because loadQuery will dispose
-        // of both the network and execute observables
-        expect(unsubscribe).toBeCalledTimes(2);
-        expectRequestIsInFlight({
-          inFlight: false,
-          requestCount: 1,
-          gqlRefetchQuery,
-          refetchVariables,
-        });
+        // Assert request is not cancelled. useQueryLoader does not cancel
+        // network requests when disposing query refs.
+        expect(unsubscribe).toBeCalledTimes(0);
 
         // Assert that when the refetch is disposed we reset to rendering the
         // original data before the refetch
@@ -3289,7 +3377,7 @@ describe('useRefetchableFragmentNode', () => {
 
     describe('refetching @fetchable types', () => {
       beforeEach(() => {
-        gqlFragment = getFragment(graphql`
+        gqlFragment = graphql`
           fragment useRefetchableFragmentNodeTest1Fragment on NonNodeStory
           @refetchable(
             queryName: "useRefetchableFragmentNodeTest1FragmentRefetchQuery"
@@ -3298,15 +3386,15 @@ describe('useRefetchableFragmentNode', () => {
               name
             }
           }
-        `);
+        `;
 
-        gqlQuery = getRequest(graphql`
+        gqlQuery = graphql`
           query useRefetchableFragmentNodeTest1Query($id: ID!) {
             nonNodeStory(id: $id) {
               ...useRefetchableFragmentNodeTest1Fragment
             }
           }
-        `);
+        `;
 
         variables = {id: 'a'};
         gqlRefetchQuery = require('./__generated__/useRefetchableFragmentNodeTest1FragmentRefetchQuery.graphql');
@@ -3385,7 +3473,9 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
 
@@ -3443,7 +3533,9 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
 
@@ -3534,7 +3626,9 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
     });
@@ -3546,7 +3640,7 @@ describe('useRefetchableFragmentNode', () => {
             username
           }
         `;
-        gqlFragment = getFragment(graphql`
+        gqlFragment = graphql`
           fragment useRefetchableFragmentNodeTest3Fragment on User
           @refetchable(
             queryName: "useRefetchableFragmentNodeTest3FragmentRefetchQuery"
@@ -3558,17 +3652,17 @@ describe('useRefetchableFragmentNode', () => {
             }
             ...useRefetchableFragmentNodeTest2Fragment
           }
-        `);
-        gqlQuery = getRequest(graphql`
+        `;
+        gqlQuery = graphql`
           query useRefetchableFragmentNodeTest2Query(
             $nodeID: ID!
-            $scale: Int!
+            $scale: Float!
           ) {
             node(id: $nodeID) {
               ...useRefetchableFragmentNodeTest3Fragment
             }
           }
-        `);
+        `;
         gqlRefetchQuery = require('./__generated__/useRefetchableFragmentNodeTest3FragmentRefetchQuery.graphql');
 
         variables = {nodeID: '1', scale: 16};
@@ -3666,7 +3760,9 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
 
@@ -3742,7 +3838,9 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
       });
     });
@@ -3754,6 +3852,7 @@ describe('useRefetchableFragmentNode', () => {
       beforeEach(() => {
         newEnvironment = createMockEnvironment();
         newRelease = jest.fn();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         newEnvironment.retain.mockImplementation((...args) => {
           return {
             dispose: newRelease,
@@ -3837,7 +3936,9 @@ describe('useRefetchableFragmentNode', () => {
 
         // Assert refetch query was retained
         expect(newRelease).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(newEnvironment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(newEnvironment.retain.mock.calls[0][0]).toEqual(refetchQuery);
 
         // Should be able to use the new data if switched to new environment
@@ -3862,6 +3963,7 @@ describe('useRefetchableFragmentNode', () => {
 
         // Refetch on another enironment afterwards should work
         renderSpy.mockClear();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeWithSource.mockClear();
         const anotherNewEnvironment = createMockEnvironment();
         TestRenderer.act(() => jest.runAllImmediates());

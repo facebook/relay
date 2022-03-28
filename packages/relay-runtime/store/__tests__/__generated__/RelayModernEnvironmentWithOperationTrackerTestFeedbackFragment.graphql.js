@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<32f3442f790c944180ec58ef745808c6>>
+ * @generated SignedSource<<97280a7cbb97b558690bb33d0ba37d98>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,36 +18,34 @@
 // @dataDrivenDependency RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment.author.plainNameRenderer {"branches":{"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref;
-export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment = {|
-  +id: string,
-  +body: ?{|
-    +text: ?string,
-  |},
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType = any;
+type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data = {|
   +author: ?{|
     +__typename: string,
     +nameRenderer: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$ref & RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
     |},
     +plainNameRenderer: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
     |},
   |},
-  +$refType: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref,
+  +body: ?{|
+    +text: ?string,
+  |},
+  +id: string,
+  +$fragmentType: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data = RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment;
 export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$key = {
   +$data?: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
   ...
 };
 */
@@ -119,6 +117,7 @@ var node/*: ReaderFragment*/ = {
               "kind": "InlineFragment",
               "selections": [
                 {
+                  "args": null,
                   "documentName": "RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment",
                   "fragmentName": "RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name",
                   "fragmentPropName": "name",
@@ -132,6 +131,7 @@ var node/*: ReaderFragment*/ = {
               "kind": "InlineFragment",
               "selections": [
                 {
+                  "args": null,
                   "documentName": "RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment",
                   "fragmentName": "RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name",
                   "fragmentPropName": "name",
@@ -164,6 +164,7 @@ var node/*: ReaderFragment*/ = {
               "kind": "InlineFragment",
               "selections": [
                 {
+                  "args": null,
                   "documentName": "RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer",
                   "fragmentName": "RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name",
                   "fragmentPropName": "name",
@@ -188,4 +189,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e135d9b0559cedee19c4ccccd85dc5be";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
+  RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data,
+>*/);

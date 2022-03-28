@@ -1,21 +1,26 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, SourceLocationKey};
+use common::{ConsoleLogger, FeatureFlag, FeatureFlags, SourceLocationKey};
 use fixture_tests::Fixture;
-use fnv::FnvHashMap;
-use graphql_ir::{build, Program};
+use fnv::{FnvBuildHasher, FnvHashMap};
+use graphql_ir::{build_ir_with_relay_feature_flags, Program};
 use graphql_syntax::parse_executable;
-use interner::Intern;
-use relay_compiler::apply_transforms;
+use graphql_test_helpers::diagnostics_to_sorted_string;
+use indexmap::IndexMap;
+use intern::string_key::Intern;
+use relay_codegen::JsModuleFormat;
+use relay_config::ProjectConfig;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{ConnectionInterface, FeatureFlags, NoInlineFeature};
+use relay_transforms::apply_transforms;
 use relay_typegen::{self, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
+
+type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
@@ -29,29 +34,53 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let mut sources = FnvHashMap::default();
     sources.insert(source_location, source);
-    let ast = parse_executable(source, source_location).unwrap();
-    let ir = build(&schema, &ast.definitions).unwrap();
-    let program = Program::from_definitions(Arc::clone(&schema), ir);
-    let programs = apply_transforms(
-        "test".intern(),
-        Arc::new(program),
-        Default::default(),
-        &ConnectionInterface::default(),
-        Arc::new(FeatureFlags {
-            enable_required_transform_for_prefix: Some("".intern()),
-            no_inline: NoInlineFeature::Enabled,
-            enable_relay_resolver_transform: true,
-            ..Default::default()
-        }),
-        Arc::new(ConsoleLogger),
-    )
-    .unwrap();
-
-    let typegen_config = TypegenConfig {
-        language: TypegenLanguage::Flow,
-        haste: true,
+    let ast = parse_executable(source, source_location)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(source, &diagnostics))?;
+    let feature_flags = FeatureFlags {
+        no_inline: FeatureFlag::Limited {
+            allowlist: [
+                "noInlineFragment_address".intern(),
+                "noInlineFragment_user".intern(),
+                "MarkdownUserNameRenderer_name".intern(),
+                "Test_userRenderer".intern(),
+                "PlainUserNameRenderer_name".intern(),
+            ]
+            .into_iter()
+            .collect(),
+        },
+        enable_flight_transform: true,
+        enable_relay_resolver_transform: true,
+        actor_change_support: FeatureFlag::Enabled,
+        enable_provided_variables: FeatureFlag::Enabled,
         ..Default::default()
     };
+    let ir = build_ir_with_relay_feature_flags(&schema, &ast.definitions, &feature_flags)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(source, &diagnostics))?;
+    let program = Program::from_definitions(Arc::clone(&schema), ir);
+
+    let mut custom_scalar_types = FnvIndexMap::default();
+    custom_scalar_types.insert("Boolean".intern(), "CustomBoolean".intern());
+    let project_config = ProjectConfig {
+        name: "test".intern(),
+        js_module_format: JsModuleFormat::Haste,
+        feature_flags: Arc::new(feature_flags),
+        typegen_config: TypegenConfig {
+            language: TypegenLanguage::Flow,
+            custom_scalar_types,
+            ..Default::default()
+        },
+        ..Default::default()
+    };
+
+    let programs = apply_transforms(
+        &project_config,
+        Arc::new(program),
+        Default::default(),
+        Arc::new(ConsoleLogger),
+        None,
+        None,
+    )
+    .map_err(|diagnostics| diagnostics_to_sorted_string(source, &diagnostics))?;
 
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item);
@@ -60,19 +89,19 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             .normalization
             .operation(typegen_operation.name.item)
             .unwrap();
-        relay_typegen::generate_operation_type(
+        relay_typegen::generate_operation_type_exports_section(
             typegen_operation,
             normalization_operation,
             &schema,
-            &typegen_config,
+            &project_config,
         )
     });
 
     let mut fragments: Vec<_> = programs.typegen.fragments().collect();
     fragments.sort_by_key(|frag| frag.name.item);
-    let fragment_strings = fragments
-        .into_iter()
-        .map(|frag| relay_typegen::generate_fragment_type(frag, &schema, &typegen_config));
+    let fragment_strings = fragments.into_iter().map(|frag| {
+        relay_typegen::generate_fragment_type_exports_section(frag, &schema, &project_config)
+    });
 
     let mut result: Vec<String> = operation_strings.collect();
     result.extend(fragment_strings);

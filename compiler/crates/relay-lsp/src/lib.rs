@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -9,41 +9,73 @@
 
 mod client;
 mod code_action;
-mod completion;
-mod diagnostic_reporter;
-mod extension_config;
-mod goto_definition;
-mod hover;
-mod location;
-mod lsp;
+pub mod completion;
+pub mod diagnostic_reporter;
+mod docblock_resolution_info;
+mod explore_schema_for_type;
+pub mod goto_definition;
+mod graphql_tools;
+pub mod hover;
+pub mod js_language_server;
+pub mod location;
 mod lsp_extra_data_provider;
 pub mod lsp_process_error;
-mod lsp_runtime_error;
-mod node_resolution_info;
-mod references;
-mod resolution_path;
+pub mod lsp_runtime_error;
+pub mod node_resolution_info;
+pub mod references;
+mod resolved_types_at_location;
+mod search_schema_items;
 mod server;
 mod shutdown;
-mod status_reporting;
-mod text_documents;
-mod utils;
-pub use crate::extension_config::ExtensionConfig;
+mod status_reporter;
+pub mod status_updater;
+pub mod text_documents;
+pub mod utils;
 use common::PerfLogger;
+use docblock_resolution_info::DocblockResolutionInfo;
+pub use extract_graphql::JavaScriptSourceFeature;
+use graphql_syntax::ExecutableDocument;
+pub use hover::ContentConsumerType;
+pub use js_language_server::JSLanguageServer;
 use log::debug;
-pub use lsp_extra_data_provider::LSPExtraDataProvider;
+pub use lsp_extra_data_provider::{
+    FieldDefinitionSourceInfo, FieldSchemaInfo, LSPExtraDataProvider,
+};
 use lsp_process_error::LSPProcessResult;
+pub use lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use lsp_server::Connection;
+use node_resolution_info::NodeResolutionInfo;
 use relay_compiler::config::Config;
+use relay_docblock::DocblockIr;
+use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
+pub use server::LSPNotificationDispatch;
+pub use server::LSPRequestDispatch;
+pub use server::{GlobalState, LSPState, Schemas};
 use std::sync::Arc;
-#[cfg(test)]
-#[macro_use]
-extern crate assert_matches;
+pub use utils::position_to_offset;
 
-pub async fn start_language_server<TPerfLogger>(
+pub enum Feature {
+    GraphQLDocument(ExecutableDocument),
+    DocblockIr(DocblockIr),
+}
+
+#[allow(clippy::large_enum_variant)]
+pub enum FeatureResolutionInfo {
+    GraphqlNode(NodeResolutionInfo),
+    DocblockNode(DocblockResolutionInfo),
+}
+
+pub async fn start_language_server<
+    TPerfLogger,
+    TSchemaDocumentation: SchemaDocumentation + 'static,
+>(
     config: Config,
-    extension_config: ExtensionConfig,
     perf_logger: Arc<TPerfLogger>,
     extra_data_provider: Box<dyn LSPExtraDataProvider + Send + Sync>,
+    schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
+    js_language_server: Option<
+        Box<dyn JSLanguageServer<TState = LSPState<TPerfLogger, TSchemaDocumentation>>>,
+    >,
 ) -> LSPProcessResult<()>
 where
     TPerfLogger: PerfLogger + 'static,
@@ -55,10 +87,11 @@ where
     server::run(
         connection,
         config,
-        extension_config,
         params,
         perf_logger,
         extra_data_provider,
+        schema_documentation_loader,
+        js_language_server,
     )
     .await?;
     io_handles.join()?;
@@ -88,6 +121,7 @@ mod tests {
             trace: None,
             workspace_folders: None,
             client_info: None,
+            locale: None,
         };
         client::initialize(&client, &init_params, 0);
         let params = server::initialize(&connection)?;

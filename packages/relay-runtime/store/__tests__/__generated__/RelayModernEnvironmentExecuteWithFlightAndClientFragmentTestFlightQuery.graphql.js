@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b338d5f5c3dce28954827a39b2d91ab7>>
+ * @generated SignedSource<<5bfc81c1b89b71b5b82af46ba8cef4ac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +17,19 @@
 // @ReactFlightServerDependency FlightComponent.server
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery$variables = {|
   count: number,
+  id: string,
 |};
-export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery$data = {|
   +node: ?{|
     +flightComponent?: ?any,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery = {|
-  variables: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQueryVariables,
-  response: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQueryResponse,
+  response: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery$data,
+  variables: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery$variables,
 |};
 */
 
@@ -167,4 +167,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "af935db133f1abf1a578d02f3bb73db0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery$variables,
+  RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestFlightQuery$data,
+>*/);

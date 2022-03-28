@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d7e7549ec6f4009203eeef53c8b6e28e>>
+ * @generated SignedSource<<c986cad40cc5e7ac546a855c9b691c6a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTest_noInline$ref = any;
-export type PhotoSize = "SMALL" | "LARGE" | "%future added value";
-export type RelayModernEnvironmentNoInlineTestQueryVariables = {|
-  size?: ?$ReadOnlyArray<?number>,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentNoInlineTest_noInline$fragmentType = any;
+export type PhotoSize = "LARGE" | "SMALL" | "%future added value";
+export type RelayModernEnvironmentNoInlineTestQuery$variables = {|
   preset?: ?PhotoSize,
+  size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayModernEnvironmentNoInlineTestQueryResponse = {|
+export type RelayModernEnvironmentNoInlineTestQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayModernEnvironmentNoInlineTest_noInline$ref,
+    +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentNoInlineTestQuery = {|
-  variables: RelayModernEnvironmentNoInlineTestQueryVariables,
-  response: RelayModernEnvironmentNoInlineTestQueryResponse,
+  response: RelayModernEnvironmentNoInlineTestQuery$data,
+  variables: RelayModernEnvironmentNoInlineTestQuery$variables,
 |};
 */
 
@@ -130,4 +130,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3a7cd297670bd45aeb18f860defe23bc";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentNoInlineTestQuery$variables,
+  RelayModernEnvironmentNoInlineTestQuery$data,
+>*/);

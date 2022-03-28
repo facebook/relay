@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<58f6de01caf031bb1e306abea35bf147>>
+ * @generated SignedSource<<5689b85dbc8f573d51977897b36c4f64>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernStoreTest5Fragment$ref = any;
-export type RelayModernStoreTest4QueryVariables = {|
-  size?: ?number,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernStoreTest5Fragment$fragmentType = any;
+export type RelayModernStoreTest4Query$variables = {|
+  size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayModernStoreTest4QueryResponse = {|
+export type RelayModernStoreTest4Query$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayModernStoreTest5Fragment$ref,
+    +$fragmentSpreads: RelayModernStoreTest5Fragment$fragmentType,
   |},
 |};
 export type RelayModernStoreTest4Query = {|
-  variables: RelayModernStoreTest4QueryVariables,
-  response: RelayModernStoreTest4QueryResponse,
+  response: RelayModernStoreTest4Query$data,
+  variables: RelayModernStoreTest4Query$variables,
 |};
 */
 
@@ -131,18 +131,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "6d588b7a1aa9203f6d5ec76f6cad07e4",
+    "cacheID": "1baaedeedd7d9457a213348979567add",
     "id": null,
     "metadata": {},
     "name": "RelayModernStoreTest4Query",
     "operationKind": "query",
-    "text": "query RelayModernStoreTest4Query(\n  $size: Int\n) {\n  me {\n    ...RelayModernStoreTest5Fragment\n    id\n  }\n}\n\nfragment RelayModernStoreTest5Fragment on User {\n  name\n  profilePicture(size: $size) {\n    uri\n  }\n  emailAddresses\n}\n"
+    "text": "query RelayModernStoreTest4Query(\n  $size: [Int]\n) {\n  me {\n    ...RelayModernStoreTest5Fragment\n    id\n  }\n}\n\nfragment RelayModernStoreTest5Fragment on User {\n  name\n  profilePicture(size: $size) {\n    uri\n  }\n  emailAddresses\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b68850038426618add09d6b8216ddf21";
+  (node/*: any*/).hash = "a27b012919fdb66b461839feecacd931";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernStoreTest4Query$variables,
+  RelayModernStoreTest4Query$data,
+>*/);

@@ -87,8 +87,8 @@ ExecutableDocument {
 Errors:
 ✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
 
-  directive-without-name.graphql:3:1
+  directive-without-name.graphql:2:10
     1 │ fragment Test on User {
-    2 │   photo @
+    2 │   photo @ 
+      │          ^
     3 │ }
-      │ ^

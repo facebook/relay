@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<99a99a678b1eb6fcd5963be8aed743a5>>
+ * @generated SignedSource<<58a63b97cf722d2d058ff2a07981d020>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,25 +17,23 @@
 // @dataDrivenDependency RelayReaderTestWhenMatchDirectiveIsPresentBarFragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$ref = any;
-type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$ref: FragmentReference;
-declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$ref;
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType = any;
+type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType: FragmentType;
+export type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$data = {|
   +id: string,
   +nameRenderer: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$ref & RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$ref,
+    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType & RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType,
   |},
-  +$refType: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$ref,
+  +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
 |};
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$data = RelayReaderTestWhenMatchDirectiveIsPresentBarFragment;
 export type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$key = {
   +$data?: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$data,
-  +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$ref,
+  +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
   ...
 };
 */
@@ -74,6 +72,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "RelayReaderTestWhenMatchDirectiveIsPresentBarFragment",
               "fragmentName": "RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name",
               "fragmentPropName": "name",
@@ -87,6 +86,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "RelayReaderTestWhenMatchDirectiveIsPresentBarFragment",
               "fragmentName": "RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name",
               "fragmentPropName": "name",
@@ -108,4 +108,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d8887b2ac025350aec36b04e349ce12a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
+  RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$data,
+>*/);

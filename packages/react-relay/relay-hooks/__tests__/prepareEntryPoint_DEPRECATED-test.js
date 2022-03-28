@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,8 +14,14 @@
 'use strict';
 
 const prepareEntryPoint_DEPRECATED = require('../prepareEntryPoint_DEPRECATED');
+const {
+  createMockEnvironment,
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
 
-const {createMockEnvironment} = require('relay-test-utils-internal');
+disallowWarnings();
+disallowConsoleErrors();
 
 class FakeJSResource<T> {
   _resolve: (T => mixed) | null;
@@ -79,7 +85,9 @@ test('it should preload entry point with queries', () => {
     entryPoint,
     {id: 'my-id'},
   );
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(networkSpy).toBeCalledTimes(1);
 });
@@ -133,7 +141,9 @@ test('it should preload entry point with nested entry points', () => {
     entryPoint,
     {id: 'my-id'},
   );
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(nestedEntryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
   expect(nestedEntryPoint.root.load).toBeCalledTimes(1);
@@ -209,7 +219,9 @@ test('it should preload entry point with both queries and nested entry points', 
   expect(networkSpy).toBeCalledTimes(2);
   expect(nestedEntryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
   expect(nestedEntryPoint.root.load).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
 });
 

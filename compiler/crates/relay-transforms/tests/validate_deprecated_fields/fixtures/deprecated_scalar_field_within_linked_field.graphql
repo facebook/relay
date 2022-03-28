@@ -1,0 +1,12 @@
+query Foo {
+  me {
+    author {
+      name
+      some_old_field
+    }
+  }
+}
+%extensions%
+extend type User {
+  some_old_field: String @deprecated
+}

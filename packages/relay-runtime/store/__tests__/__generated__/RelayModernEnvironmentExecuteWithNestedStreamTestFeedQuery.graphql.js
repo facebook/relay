@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<87906bdb8acf3579b8d2795dc94a550f>>
+ * @generated SignedSource<<6f7cff938992472f79ec17e614006604>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables = {|
   enableStream: boolean,
 |};
-export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data = {|
   +viewer: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery = {|
-  variables: RelayModernEnvironmentExecuteWithNestedStreamTestFeedQueryVariables,
-  response: RelayModernEnvironmentExecuteWithNestedStreamTestFeedQueryResponse,
+  response: RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data,
+  variables: RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables,
 |};
 */
 
@@ -112,7 +112,6 @@ return {
                 "if": "enableStream",
                 "kind": "Stream",
                 "label": "RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$stream$newsFeed",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,
@@ -151,7 +150,6 @@ return {
                                 "if": "enableStream",
                                 "kind": "Stream",
                                 "label": "RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$stream$actors",
-                                "metadata": null,
                                 "selections": [
                                   {
                                     "alias": null,
@@ -182,8 +180,7 @@ return {
                                     ],
                                     "storageKey": null
                                   }
-                                ],
-                                "useCustomizedBatch": null
+                                ]
                               },
                               (v2/*: any*/)
                             ],
@@ -195,8 +192,7 @@ return {
                     ],
                     "storageKey": null
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               }
             ],
             "storageKey": "newsFeed(first:10)"
@@ -221,4 +217,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0320449c8b7bac4f9ee4a98105c83e53";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables,
+  RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$data,
+>*/);

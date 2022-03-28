@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,13 +12,15 @@ use crate::util::{remove_directive, replace_directive};
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 pub use directives::{DeferDirective, StreamDirective};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
+    Argument, ConstantValue, Directive, Field, FragmentDefinition, FragmentSpread, InlineFragment,
     LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    ValidationMessage, Value,
+    Value,
 };
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
+use schema::Schema;
 use std::{collections::HashMap, sync::Arc};
+use thiserror::Error;
 
 pub struct DeferStreamConstants {
     pub defer_name: StringKey,
@@ -110,7 +112,7 @@ impl DeferStreamTransform<'_> {
             ))));
         }
 
-        let label_value = get_literal_string_argument(&defer, label_arg)?;
+        let label_value = get_literal_string_argument(defer, label_arg)?;
         let label = label_value
             .unwrap_or_else(|| get_applied_fragment_name(spread.fragment.item, &spread.arguments));
         let transformed_label = transform_label(
@@ -141,6 +143,7 @@ impl DeferStreamTransform<'_> {
         let next_defer = Directive {
             name: defer.name,
             arguments: next_arguments,
+            data: None,
         };
 
         Ok(Transformed::Replace(Selection::InlineFragment(Arc::new(
@@ -160,6 +163,16 @@ impl DeferStreamTransform<'_> {
         linked_field: &LinkedField,
         stream: &Directive,
     ) -> Result<Transformed<Selection>, Diagnostic> {
+        let schema_field = self.program.schema.field(linked_field.definition.item);
+        if !schema_field.type_.is_list() {
+            return Err(Diagnostic::error(
+                ValidationMessage::StreamFieldIsNotAList {
+                    field_name: schema_field.name.item,
+                },
+                stream.name.location,
+            ));
+        }
+
         let StreamDirective {
             if_arg,
             label_arg,
@@ -195,7 +208,7 @@ impl DeferStreamTransform<'_> {
             ));
         }
 
-        let label_value = get_literal_string_argument(&stream, label_arg)?;
+        let label_value = get_literal_string_argument(stream, label_arg)?;
         let label = label_value.unwrap_or_else(|| {
             get_applied_fragment_name(
                 linked_field.alias_or_name(&self.program.schema),
@@ -236,6 +249,7 @@ impl DeferStreamTransform<'_> {
         let next_stream = Directive {
             name: stream.name,
             arguments: next_arguments,
+            data: None,
         };
 
         Ok(get_next_selection(replace_directive(
@@ -381,4 +395,34 @@ fn get_literal_string_argument(
     } else {
         Ok(None)
     }
+}
+
+#[derive(Debug, Error)]
+enum ValidationMessage {
+    #[error(
+        "Invalid use of @{directive_name}, the provided label is not unique. Specify a unique 'label' as a literal string."
+    )]
+    LabelNotUniqueForDeferStream { directive_name: StringKey },
+
+    #[error("Field '{field_name}' is not of list type, therefore cannot use @stream directive.")]
+    StreamFieldIsNotAList { field_name: StringKey },
+
+    #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
+    StreamInitialCountRequired,
+
+    #[error(
+        "Invalid use of @defer on an inline fragment. Relay only supports @defer on fragment spreads."
+    )]
+    InvalidDeferOnInlineFragment,
+
+    #[error("Invalid use of @stream on scalar field '{field_name}'")]
+    InvalidStreamOnScalarField { field_name: StringKey },
+
+    #[error(
+        "Expected the '{arg_name}' value to @{directive_name} to be a string literal if provided."
+    )]
+    LiteralStringArgumentExpectedForDirective {
+        arg_name: StringKey,
+        directive_name: StringKey,
+    },
 }

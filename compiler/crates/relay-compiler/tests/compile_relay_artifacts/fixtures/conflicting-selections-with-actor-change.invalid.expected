@@ -1,0 +1,39 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query conflictingSelectionsWithActorChangeQuery {
+  ...conflictingSelectionsWithActorChange2_fragment
+  ...conflictingSelectionsWithActorChange3_fragment
+}
+
+fragment conflictingSelectionsWithActorChange1_fragment on Actor {
+  name
+}
+
+fragment conflictingSelectionsWithActorChange2_fragment on Query {
+  username(name: "Alice") @fb_actor_change {
+    ...conflictingSelectionsWithActorChange1_fragment
+  }
+}
+
+fragment conflictingSelectionsWithActorChange3_fragment on Query {
+  username(name: "Bob") @fb_actor_change {
+    ...conflictingSelectionsWithActorChange1_fragment
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected all fields on the same parent with the name or alias `username` to have the same argument values after applying fragment arguments. This field has the applied argument values: (name: "Alice")
+
+  conflicting-selections-with-actor-change.invalid.graphql:13:3
+   12 │ fragment conflictingSelectionsWithActorChange2_fragment on Query {
+   13 │   username(name: "Alice") @fb_actor_change {
+      │   ^^^^^^^^
+   14 │     ...conflictingSelectionsWithActorChange1_fragment
+
+  ℹ︎ which conflicts with this field with applied argument values (name: "Bob")
+
+  conflicting-selections-with-actor-change.invalid.graphql:19:3
+   18 │ fragment conflictingSelectionsWithActorChange3_fragment on Query {
+   19 │   username(name: "Bob") @fb_actor_change {
+      │   ^^^^^^^^
+   20 │     ...conflictingSelectionsWithActorChange1_fragment

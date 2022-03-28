@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9e9afc44628a38a875a4a10f71b32a7b>>
+ * @generated SignedSource<<c0565cd857bd9e6e4388595a443854d7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +15,25 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type usePaginationFragmentTestUserFragment$ref = any;
-export type usePaginationFragmentTestUserQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type usePaginationFragmentTestUserFragment$fragmentType = any;
+export type usePaginationFragmentTestUserQuery$variables = {|
   after?: ?string,
-  first?: ?number,
   before?: ?string,
+  first?: ?number,
+  id: string,
+  isViewerFriend?: ?boolean,
   last?: ?number,
   orderby?: ?$ReadOnlyArray<?string>,
-  isViewerFriend?: ?boolean,
 |};
-export type usePaginationFragmentTestUserQueryResponse = {|
+export type usePaginationFragmentTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: usePaginationFragmentTestUserFragment$ref,
+    +$fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
   |},
 |};
 export type usePaginationFragmentTestUserQuery = {|
-  variables: usePaginationFragmentTestUserQueryVariables,
-  response: usePaginationFragmentTestUserQueryResponse,
+  response: usePaginationFragmentTestUserQuery$data,
+  variables: usePaginationFragmentTestUserQuery$variables,
 |};
 */
 
@@ -329,4 +329,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e6459baa3fc32eef6945070272ab0a92";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePaginationFragmentTestUserQuery$variables,
+  usePaginationFragmentTestUserQuery$data,
+>*/);

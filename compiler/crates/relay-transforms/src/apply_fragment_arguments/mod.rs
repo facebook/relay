@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,21 +8,23 @@
 mod scope;
 
 use super::get_applied_fragment_name;
-use crate::feature_flags::NoInlineFeature;
-use crate::match_::SplitOperationMetadata;
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use crate::util::get_normalization_operation_name;
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use fnv::{FnvHashMap, FnvHashSet};
+use crate::{
+    match_::{SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION},
+    no_inline::{is_raw_response_type_enabled, NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG},
+    util::get_normalization_operation_name,
+};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation};
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
-    InlineFragment, OperationDefinition, Program, Selection, Transformed, TransformedMulti,
-    TransformedValue, Transformer, ValidationMessage, Value, Variable,
+    InlineFragment, OperationDefinition, Program, ProvidedVariableMetadata, Selection, Transformed,
+    TransformedMulti, TransformedValue, Transformer, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
-use scope::Scope;
+use intern::string_key::{Intern, StringKey, StringKeyIndexMap, StringKeyMap, StringKeySet};
+use itertools::Itertools;
+use scope::{format_local_variable, Scope};
 use std::sync::Arc;
+use thiserror::Error;
 
 /// A transform that converts a set of documents containing fragments/fragment
 /// spreads *with* arguments to one where all arguments have been inlined. This
@@ -35,6 +37,7 @@ use std::sync::Arc;
 ///   arguments.
 /// - Field & directive argument variables are replaced with the value of those
 ///   variables in context.
+/// - Definitions of provided variables are added to root operations.
 /// - All nodes are cloned with updated children.
 ///
 /// The transform also handles statically passing/failing Condition nodes:
@@ -47,8 +50,8 @@ use std::sync::Arc;
 pub fn apply_fragment_arguments(
     program: &Program,
     is_normalization: bool,
-    no_inline_feature: &NoInlineFeature,
-    base_fragment_names: &FnvHashSet<StringKey>,
+    no_inline_feature: &FeatureFlag,
+    base_fragment_names: &StringKeySet,
 ) -> DiagnosticsResult<Program> {
     let mut transform = ApplyFragmentArgumentsTransform {
         base_fragment_names,
@@ -57,6 +60,7 @@ pub fn apply_fragment_arguments(
         is_normalization,
         no_inline_feature,
         program,
+        provided_variables: Default::default(),
         scope: Default::default(),
         split_operations: Default::default(),
     };
@@ -67,16 +71,24 @@ pub fn apply_fragment_arguments(
 
     for (fragment_name, used_fragment) in transform.fragments {
         match used_fragment {
-            PendingFragment::Resolved(Some(fragment)) => next_program.insert_fragment(fragment),
-            PendingFragment::Resolved(None) => {
+            PendingFragment::Resolved {
+                fragment_definition: Some(fragment),
+                ..
+            } => next_program.insert_fragment(fragment),
+            PendingFragment::Resolved {
+                fragment_definition: None,
+                ..
+            } => {
                 // The fragment ended up empty, do not add to result Program.
             }
             PendingFragment::Pending => panic!("Unexpected case, {}", fragment_name),
         }
     }
 
-    for (_, operation) in transform.split_operations {
-        next_program.insert_operation(Arc::new(operation));
+    for (_, (operation, _)) in transform.split_operations {
+        if let Some(operation) = operation {
+            next_program.insert_operation(Arc::new(operation));
+        }
     }
 
     if transform.errors.is_empty() {
@@ -86,21 +98,30 @@ pub fn apply_fragment_arguments(
     }
 }
 
+type ProvidedVariablesMap = StringKeyIndexMap<VariableDefinition>;
+
 #[derive(Debug)]
 enum PendingFragment {
     Pending,
-    Resolved(Option<Arc<FragmentDefinition>>),
+    Resolved {
+        fragment_definition: Option<Arc<FragmentDefinition>>,
+        provided_variables: ProvidedVariablesMap,
+    },
 }
 
 struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
-    base_fragment_names: &'base_fragments FnvHashSet<StringKey>,
+    base_fragment_names: &'base_fragments StringKeySet,
     errors: Vec<Diagnostic>,
-    fragments: FnvHashMap<StringKey, PendingFragment>,
+    fragments: StringKeyMap<PendingFragment>,
     is_normalization: bool,
-    no_inline_feature: &'flags NoInlineFeature,
+    no_inline_feature: &'flags FeatureFlag,
     program: &'program Program,
+    // used to keep track of the provided variables used by the current
+    //  operation / fragment / no-inline fragment and its transitively
+    //  included fragments
+    provided_variables: ProvidedVariablesMap,
     scope: Scope,
-    split_operations: FnvHashMap<StringKey, OperationDefinition>,
+    split_operations: StringKeyMap<(Option<OperationDefinition>, ProvidedVariablesMap)>,
 }
 
 impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
@@ -113,7 +134,41 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         self.scope = Scope::root_scope();
-        self.default_transform_operation(operation)
+        self.provided_variables = Default::default();
+        let transform_result = self.default_transform_operation(operation);
+        if self.provided_variables.is_empty()
+            || operation
+                .directives
+                .named(*DIRECTIVE_SPLIT_OPERATION)
+                .is_some()
+        {
+            // this transform does not add the SplitOperation directive, so this
+            //  should be equal to checking whether the result is a split operation
+            self.provided_variables.clear();
+            transform_result
+        } else {
+            let mut add_provided_variables = |new_operation: &mut OperationDefinition| {
+                new_operation.variable_definitions.append(
+                    &mut self
+                        .provided_variables
+                        .drain(..)
+                        .map(|(_, definition)| definition)
+                        .collect_vec(),
+                );
+            };
+            match transform_result {
+                Transformed::Keep => {
+                    let mut new_operation = operation.clone();
+                    add_provided_variables(&mut new_operation);
+                    Transformed::Replace(new_operation)
+                }
+                Transformed::Replace(mut new_operation) => {
+                    add_provided_variables(&mut new_operation);
+                    Transformed::Replace(new_operation)
+                }
+                Transformed::Delete => Transformed::Delete,
+            }
+        }
     }
 
     fn transform_fragment(
@@ -141,8 +196,32 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     spread.fragment.item
                 );
             });
+
+        // Validate that the fragment spread does not try to pass in provided variables
+        for (original_definition_name, definition_location) in
+            fragment.used_global_variables.iter().filter_map(|def| {
+                Some((
+                    ProvidedVariableMetadata::find(&def.directives)?.original_variable_name,
+                    def.name.location,
+                ))
+            })
+        {
+            if let Some(invalid_argument) = spread.arguments.named(original_definition_name) {
+                self.errors.push(
+                    Diagnostic::error(
+                        ValidationMessage::ProvidedVariableIncompatibleWithArguments {
+                            original_definition_name,
+                        },
+                        invalid_argument.name.location,
+                    )
+                    .annotate("Provided variable defined here", definition_location),
+                );
+            }
+        }
+
         if self.is_normalization {
             if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
+                self.transform_no_inline_fragment(fragment, directive);
                 let transformed_arguments = spread
                     .arguments
                     .iter()
@@ -177,6 +256,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 };
             }
         }
+
         if let Some(applied_fragment) = self.apply_fragment(spread, fragment) {
             let directives = self
                 .transform_directives(&spread.directives)
@@ -200,9 +280,20 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
 
     fn transform_value(&mut self, value: &Value) -> TransformedValue<Value> {
         match value {
-            Value::Variable(variable) => {
-                if let Some(scope_value) = self.scope.get(variable.name.item) {
-                    TransformedValue::Replace(scope_value.clone())
+            Value::Variable(prev_variable) => {
+                if let Some(scope_value) = self.scope.get(prev_variable.name.item) {
+                    match scope_value {
+                        Value::Variable(replacement_variable) => {
+                            TransformedValue::Replace(Value::Variable(Variable {
+                                // Update the name/location to the applied variable name
+                                name: replacement_variable.name,
+                                // But keep the type of the previous variable, which reflects the type
+                                // expected at this location
+                                type_: prev_variable.type_.clone(),
+                            }))
+                        }
+                        _ => TransformedValue::Replace(scope_value.clone()),
+                    }
                 } else {
                     // Assume a global variable if the variable has no local
                     // bindings.
@@ -222,10 +313,16 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         condition_value: &ConditionValue,
     ) -> TransformedValue<ConditionValue> {
         match condition_value {
-            ConditionValue::Variable(variable) => {
-                match self.scope.get(variable.name.item) {
-                    Some(Value::Variable(variable_name)) => {
-                        TransformedValue::Replace(ConditionValue::Variable(variable_name.clone()))
+            ConditionValue::Variable(prev_variable) => {
+                match self.scope.get(prev_variable.name.item) {
+                    Some(Value::Variable(replacement_variable)) => {
+                        TransformedValue::Replace(ConditionValue::Variable(Variable {
+                            // Update the name/location to the applied variable name
+                            name: replacement_variable.name,
+                            // But keep the type of the previous variable, which reflects the type
+                            // expected at this location
+                            type_: prev_variable.type_.clone(),
+                        }))
                     }
                     Some(Value::Constant(ConstantValue::Boolean(constant_value))) => {
                         TransformedValue::Replace(ConditionValue::Constant(*constant_value))
@@ -251,14 +348,17 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         fragment: &FragmentDefinition,
         directive: &Directive,
     ) {
-        // We do not need to to write normalization files for base fragments
-        if self.base_fragment_names.contains(&fragment.name.item) {
+        // If we have already computed, we can return early
+        if let Some((_, provided_variables)) = self.split_operations.get(&fragment.name.item) {
+            for (name, def) in provided_variables {
+                self.provided_variables.insert(*name, def.clone());
+            }
             return;
         }
-        if !self
-            .no_inline_feature
-            .enable_for_fragment(fragment.name.item)
-        {
+
+        // We do not need to to write normalization files for base fragments
+        let is_base = self.base_fragment_names.contains(&fragment.name.item);
+        if !is_base && !self.no_inline_feature.is_enabled_for(fragment.name.item) {
             self.errors.push(Diagnostic::error(
                 format!(
                     "Invalid usage of @no_inline on fragment '{}': this feature is gated and currently set to: {}",
@@ -267,7 +367,12 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 directive.name.location,
             ));
         }
-        self.scope = no_inline_fragment_scope(fragment);
+
+        // save the context used by the enclosing operation / fragment
+        let mut saved_provided_vars = std::mem::take(&mut self.provided_variables);
+        let saved_scope = std::mem::replace(&mut self.scope, no_inline_fragment_scope(fragment));
+
+        self.extract_provided_variables(fragment);
         let fragment = self
             .default_transform_fragment(fragment)
             .unwrap_or_else(|| fragment.clone());
@@ -280,47 +385,83 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             ..
         } = fragment;
 
-        if !variable_definitions.is_empty() && !self.no_inline_feature.enable_fragment_variables() {
-            // arguments disallowed
-            self.errors.push(Diagnostic::error(
-                format!(
-                    "Invalid usage of @no_inline on fragment '{}' with arguments: fragment arguments are not yet supported",
-                    fragment.name.item,
-                ),
-                directive.name.location,
-            ));
-        }
-
         for variable in &mut variable_definitions {
             variable.name.item = format_local_variable(fragment.name.item, variable.name.item);
         }
         let mut metadata = SplitOperationMetadata {
             derived_from: fragment.name.item,
-            parent_sources: Default::default(),
-            raw_response_type: true,
+            parent_documents: Default::default(),
+            raw_response_type: is_raw_response_type_enabled(directive),
         };
-        metadata.parent_sources.insert(fragment.name.item);
+        // - A fragment with user defined @no_inline always produces a $normalization file. The `parent_document` of
+        // that file is the fragment itself as it gets deleted iff that fragment is deleted or no longer
+        // has the @no_inline directive.
+        // - A fragment with @no_inline generated by @module, `parent_documents` also include fragments that
+        // spread the current fragment with @module
+        metadata.parent_documents.insert(fragment.name.item);
+        let parent_documents_arg = directive.arguments.named(*PARENT_DOCUMENTS_ARG);
+        if let Some(Value::Constant(ConstantValue::List(parent_documents))) =
+            parent_documents_arg.map(|arg| &arg.value.item)
+        {
+            for val in parent_documents {
+                if let ConstantValue::String(name) = val {
+                    metadata.parent_documents.insert(*name);
+                } else {
+                    panic!("Expected item in the parent_documents to be a StringKey.")
+                }
+            }
+        }
         directives.push(metadata.to_directive());
         let normalization_name = get_normalization_operation_name(name.item).intern();
-        let operation = OperationDefinition {
-            name: WithLocation::new(name.location, normalization_name),
-            type_: type_condition,
-            variable_definitions,
-            directives,
-            selections,
-            kind: OperationKind::Query,
+        let operation = if is_base {
+            None
+        } else {
+            Some(OperationDefinition {
+                name: WithLocation::new(name.location, normalization_name),
+                type_: type_condition,
+                variable_definitions,
+                directives,
+                selections,
+                kind: OperationKind::Query,
+            })
         };
 
         if self.program.operation(normalization_name).is_some() {
             self.errors.push(Diagnostic::error(
                 format!(
-                    "Invalid usage of @no_inline on fragment '{}' - @no_inline is not yet supported on fragments loaded with @module",
+                    "Invalid usage of @no_inline on fragment '{}' - @no_inline is only allowed on allowlisted fragments loaded with @module",
                     fragment.name.item,
                 ),
                 directive.name.location,
             ));
         }
-        self.split_operations.insert(fragment.name.item, operation);
+        self.split_operations.insert(
+            fragment.name.item,
+            (operation, self.provided_variables.clone()),
+        );
+
+        // add this fragment's provided variables to that of the enclosing operation / fragment
+        saved_provided_vars.extend(self.provided_variables.drain(..).into_iter());
+        self.provided_variables = saved_provided_vars;
+        self.scope = saved_scope;
+    }
+
+    fn extract_provided_variables(&mut self, fragment: &FragmentDefinition) {
+        let provided_arguments =
+            fragment
+                .used_global_variables
+                .iter()
+                .filter(|variable_definition| {
+                    variable_definition
+                        .directives
+                        .named(ProvidedVariableMetadata::directive_name())
+                        .is_some()
+                });
+        for definition in provided_arguments {
+            self.provided_variables
+                .entry(definition.name.item)
+                .or_insert_with(|| definition.clone());
+        }
     }
 
     fn apply_fragment(
@@ -336,7 +477,17 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             get_applied_fragment_name(spread.fragment.item, &transformed_arguments);
         if let Some(applied_fragment) = self.fragments.get(&applied_fragment_name) {
             return match applied_fragment {
-                PendingFragment::Resolved(resolved) => resolved.clone(),
+                PendingFragment::Resolved {
+                    fragment_definition,
+                    provided_variables,
+                } => {
+                    // add this fragment's provided variables to that of the enclosing
+                    //  operation / fragment
+                    for (name, def) in provided_variables.iter() {
+                        self.provided_variables.insert(*name, def.clone());
+                    }
+                    fragment_definition.clone()
+                }
                 PendingFragment::Pending => {
                     let mut error = Diagnostic::error(
                         ValidationMessage::CircularFragmentReference {
@@ -358,6 +509,9 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
 
         self.scope
             .push(spread.fragment.location, &transformed_arguments, fragment);
+        // save the context used by the enclosing operation / fragment
+        let mut saved_provided_vars = std::mem::take(&mut self.provided_variables);
+        self.extract_provided_variables(fragment);
 
         let selections = self
             .transform_selections(&fragment.selections)
@@ -379,9 +533,15 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
 
         self.fragments.insert(
             applied_fragment_name,
-            PendingFragment::Resolved(transformed_fragment.clone()),
+            PendingFragment::Resolved {
+                fragment_definition: transformed_fragment.clone(),
+                provided_variables: self.provided_variables.clone(),
+            },
         );
 
+        // add this fragment's provided variables to that of the enclosing operation / fragment
+        saved_provided_vars.extend(self.provided_variables.drain(..).into_iter());
+        self.provided_variables = saved_provided_vars;
         self.scope.pop();
 
         transformed_fragment
@@ -439,7 +599,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
 }
 
 fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
-    let mut bindings = FnvHashMap::with_capacity_and_hasher(
+    let mut bindings = StringKeyMap::with_capacity_and_hasher(
         fragment.variable_definitions.len(),
         Default::default(),
     );
@@ -459,6 +619,12 @@ fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
     scope
 }
 
-fn format_local_variable(fragment_name: StringKey, arg_name: StringKey) -> StringKey {
-    format!("{}${}", fragment_name, arg_name).intern()
+#[derive(Debug, Error)]
+enum ValidationMessage {
+    #[error("Found a circular reference from fragment '{fragment_name}'.")]
+    CircularFragmentReference { fragment_name: StringKey },
+    #[error(
+        "Passing a value to '{original_definition_name}' (a provided variable) through @arguments is not supported."
+    )]
+    ProvidedVariableIncompatibleWithArguments { original_definition_name: StringKey },
 }

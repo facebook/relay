@@ -1,11 +1,11 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 
 pub struct MatchConstants {
@@ -19,8 +19,6 @@ pub struct MatchConstants {
     pub match_directive_name: StringKey,
     pub supported_arg: StringKey,
     pub name_arg: StringKey,
-    pub custom_module_directive_name: StringKey,
-    pub source_document_arg: StringKey,
 }
 
 lazy_static! {
@@ -35,7 +33,5 @@ lazy_static! {
         module_directive_name: "module".intern(),
         supported_arg: "supported".intern(),
         name_arg: "name".intern(),
-        custom_module_directive_name: "__module".intern(),
-        source_document_arg: "sourceDocument".intern(),
     };
 }

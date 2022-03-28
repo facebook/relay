@@ -1,0 +1,107 @@
+==================================== INPUT ====================================
+query updatableFragmentSpreadQuery {
+  me {
+    ...updatableFragmentSpread_user
+  }
+}
+
+fragment updatableFragmentSpread_user on User @updatable {
+  firstName
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "updatableFragmentSpreadQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "updatableFragmentSpread_user"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "updatableFragmentSpreadQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "updatableFragmentSpreadQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query updatableFragmentSpreadQuery {
+  me {
+    __typename
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "updatableFragmentSpread_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "firstName",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

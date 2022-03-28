@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,8 +13,8 @@
 
 import type {
   EntryPoint,
-  EntryPointProps,
   EntryPointElementConfig,
+  EntryPointProps,
 } from '../../EntryPointTypes.flow';
 
 type MyComponentOtherProps = $ReadOnly<{|
@@ -30,10 +30,11 @@ type PreloadParams = $ReadOnly<{||}>;
 type MyComponentEntryPointType = EntryPoint<PreloadParams, typeof MyComponent>;
 
 // This gets the "other props" of the component through the entrypoint's typing
-type MyComponentEntryPointProps = EntryPointElementConfig<MyComponentEntryPointType>;
+type MyComponentEntryPointProps =
+  EntryPointElementConfig<MyComponentEntryPointType>;
 
 // This gets the "other props" directly from the component's prop typings
-type OtherProps = $PropertyType<MyComponentProps, 'props'>;
+type OtherProps = MyComponentProps['props'];
 
 // We want to make sure that `OtherProps` and `MyComponentEntryPointProps` are exactly the same.
 opaque type __SUBTYPE_CHECK_1__: OtherProps = MyComponentEntryPointProps;

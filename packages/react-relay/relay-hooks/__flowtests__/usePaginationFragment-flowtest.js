@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,15 +12,6 @@
 // flowlint ambiguous-object-type:error
 
 import type {LoadMoreFn} from '../useLoadMoreFunction';
-import usePaginationFragment from '../usePaginationFragment';
-import {
-  fragmentInput,
-  fragmentData,
-  keyAnotherNonNullable,
-  keyAnotherNullable,
-  keyNonNullable,
-  keyNullable,
-} from './utils';
 import type {
   FetchFn,
   NonNullableData,
@@ -30,6 +21,16 @@ import type {
   QueryVariablesSubset,
 } from './utils';
 import type {IEnvironment, OperationType} from 'relay-runtime';
+
+import usePaginationFragment from '../usePaginationFragment';
+import {
+  fragmentData,
+  fragmentInput,
+  keyAnotherNonNullable,
+  keyAnotherNullable,
+  keyNonNullable,
+  keyNullable,
+} from './utils';
 
 type ExpectedReturnType<
   TQuery: OperationType,

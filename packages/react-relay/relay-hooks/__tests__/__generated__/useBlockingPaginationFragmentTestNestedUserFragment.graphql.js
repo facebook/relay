@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<372c87088fadc8bbd6992d2de2255c9e>>
+ * @generated SignedSource<<bac766d4104cc4efb25365aa4491479a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,16 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useBlockingPaginationFragmentTestNestedUserFragment$ref: FragmentReference;
-declare export opaque type useBlockingPaginationFragmentTestNestedUserFragment$fragmentType: useBlockingPaginationFragmentTestNestedUserFragment$ref;
-export type useBlockingPaginationFragmentTestNestedUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useBlockingPaginationFragmentTestNestedUserFragment$fragmentType: FragmentType;
+export type useBlockingPaginationFragmentTestNestedUserFragment$data = {|
   +username: ?string,
-  +$refType: useBlockingPaginationFragmentTestNestedUserFragment$ref,
+  +$fragmentType: useBlockingPaginationFragmentTestNestedUserFragment$fragmentType,
 |};
-export type useBlockingPaginationFragmentTestNestedUserFragment$data = useBlockingPaginationFragmentTestNestedUserFragment;
 export type useBlockingPaginationFragmentTestNestedUserFragment$key = {
   +$data?: useBlockingPaginationFragmentTestNestedUserFragment$data,
-  +$fragmentRefs: useBlockingPaginationFragmentTestNestedUserFragment$ref,
+  +$fragmentSpreads: useBlockingPaginationFragmentTestNestedUserFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +51,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "eb2765a66613b55829da5ea9c3c0627a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  useBlockingPaginationFragmentTestNestedUserFragment$fragmentType,
+  useBlockingPaginationFragmentTestNestedUserFragment$data,
+>*/);

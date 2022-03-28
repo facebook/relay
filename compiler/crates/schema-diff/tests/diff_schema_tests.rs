@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,25 +8,19 @@
 use schema_diff::definitions::*;
 use schema_diff::*;
 
-use interner::Intern;
+use intern::string_key::Intern;
 use schema::build_schema;
 
 fn diff(current: &str, previous: &str) -> SchemaChange {
-    let mut change = detect_changes(
-        &current.split('\n').collect::<Vec<_>>().as_ref(),
-        &previous.split('\n').collect::<Vec<_>>().as_ref(),
-    );
+    let mut change = detect_changes(&[current], &[previous]);
     sort_change(&mut change);
     change
 }
 
 fn is_safe(current: &str, previous: &str) -> bool {
     let schema = build_schema(current).unwrap();
-    let change = detect_changes(
-        &current.split('\n').collect::<Vec<_>>().as_ref(),
-        &previous.split('\n').collect::<Vec<_>>().as_ref(),
-    );
-    change.is_safe(&schema)
+    let change = detect_changes(&[current], &[previous]);
+    change.is_safe(&schema, &Default::default())
 }
 
 #[test]
@@ -93,13 +87,33 @@ fn test_add_enum_value() {
            }
          #",
         ),
-        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged {
-            name: "A".intern(),
-            added: vec![String::from("MAYBE").intern()],
-            removed: vec![],
-        }])
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged { name: "A".intern() }])
     );
 }
+
+#[test]
+fn test_sort_enum_value() {
+    assert_eq!(
+        diff(
+            r"
+         enum A {
+             OK
+             NOT_OK
+             MAYBE
+           }
+         #",
+            r"
+         enum A {
+             OK
+             MAYBE
+             NOT_OK
+           }
+         #",
+        ),
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged { name: "A".intern() }])
+    );
+}
+
 #[test]
 fn test_remove_enum_value() {
     assert_eq!(
@@ -118,11 +132,7 @@ fn test_remove_enum_value() {
            }
          #",
         ),
-        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged {
-            name: "A".intern(),
-            added: vec![],
-            removed: vec!["MAYBE".intern()],
-        }])
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged { name: "A".intern() }])
     );
 }
 
@@ -147,11 +157,29 @@ fn test_add_remove_enum_value() {
            }
          #",
         ),
-        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged {
-            name: "A".intern(),
-            added: vec!["NOT_ZUCK".intern(), "ZUCK".intern()],
-            removed: vec!["MARK".intern(), "NOT_MARK".intern()],
-        }])
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged { name: "A".intern() }])
+    );
+}
+
+#[test]
+fn test_add_comment_to_enum() {
+    assert_eq!(
+        diff(
+            r"
+            enum A {
+                OK
+                NOT_OK
+            }
+         #",
+            r"
+            # comment
+            enum A {
+                OK
+                NOT_OK
+            }
+         #",
+        ),
+        SchemaChange::GenericChange
     );
 }
 
@@ -766,6 +794,49 @@ fn test_add_object_with_id_node_interface() {
 }
 
 #[test]
+fn test_object_special_field_added() {
+    assert!(is_safe(
+        r"
+            type A {
+                key: String
+                foo: String # regular field is okay
+            }
+        #",
+        r"
+            type A {
+                key: String
+            }
+        #",
+    ));
+    assert!(!is_safe(
+        r"
+            type A {
+                key: String
+                id: String # id field is breaking
+            }
+        #",
+        r"
+            type A {
+                key: String
+            }
+        #",
+    ));
+    assert!(!is_safe(
+        r"
+            type A {
+                key: String
+                js: String # js field is breaking
+            }
+        #",
+        r"
+            type A {
+                key: String
+            }
+        #",
+    ));
+}
+
+#[test]
 fn test_add_type_with_id_actor_interface() {
     assert!(!is_safe(
         r"
@@ -897,14 +968,6 @@ fn sort_change(change: &mut SchemaChange) {
         changes.sort();
         for c in changes {
             match c {
-                DefinitionChange::EnumChanged {
-                    ref mut added,
-                    ref mut removed,
-                    ..
-                } => {
-                    added.sort();
-                    removed.sort();
-                }
                 DefinitionChange::UnionChanged {
                     ref mut added,
                     ref mut removed,

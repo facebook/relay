@@ -1,0 +1,9 @@
+fragment Foo on MyNewType {
+  some_old_user {
+    name
+  }
+}
+%extensions%
+type MyNewType {
+  some_old_user: User @deprecated
+}

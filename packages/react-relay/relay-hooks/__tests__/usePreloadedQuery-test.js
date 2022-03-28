@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,15 +14,12 @@
 'use strict';
 
 jest.mock('warning');
-const React = require('react');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const TestRenderer = require('react-test-renderer');
-
-const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
-const usePreloadedQuery = require('../usePreloadedQuery');
-const warning = require('warning');
-
 const {loadQuery} = require('../loadQuery');
+const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const usePreloadedQuery = require('../usePreloadedQuery');
+const React = require('react');
+const TestRenderer = require('react-test-renderer');
 const {
   Environment,
   Network,
@@ -30,13 +27,13 @@ const {
   PreloadableQueryRegistry,
   RecordSource,
   Store,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+const warning = require('warning');
 
-const query = getRequest(graphql`
-  query usePreloadedQueryTestQuery($id: ID! = 4) {
+const query = graphql`
+  query usePreloadedQueryTestQuery($id: ID!) {
     node(id: $id) {
       id
       ... on User {
@@ -44,7 +41,7 @@ const query = getRequest(graphql`
       }
     }
   }
-`);
+`;
 
 // Only queries with an ID are preloadable
 const ID = '12345';
@@ -88,7 +85,7 @@ let fetch;
 class ErrorBoundary extends React.Component<$FlowFixMe, $FlowFixMe> {
   state: {|error: mixed|} = {error: null};
 
-  componentDidCatch(error) {
+  componentDidCatch(error: Error) {
     this.setState({error});
   }
 
@@ -518,10 +515,17 @@ describe('usePreloadedQuery', () => {
 
   describe('using loadQuery', () => {
     let resolvedModule;
-    beforeEach(() => {
-      jest
+    let preloadableQueryRegistrySpy;
+    beforeAll(() => {
+      preloadableQueryRegistrySpy = jest
         .spyOn(PreloadableQueryRegistry, 'get')
-        .mockImplementation(() => resolvedModule);
+        .mockImplementation((key: string) => {
+          expect(key).toEqual(ID);
+          return resolvedModule;
+        });
+    });
+    afterAll(() => {
+      preloadableQueryRegistrySpy.mockRestore();
     });
 
     describe('if loadQuery is passed a preloadableConcreteRequest which is not available synchronously', () => {

@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+/*
+ * @fieldName field value
+  expected-to-throw
+*/
+==================================== ERROR ====================================
+✖︎ Expected "*".
+
+  missing_star.invalid.ecmascript:3:3
+    2 │  * @fieldName field value
+    3 │   expected-to-throw
+      │   ^

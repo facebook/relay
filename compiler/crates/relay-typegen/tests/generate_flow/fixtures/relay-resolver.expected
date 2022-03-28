@@ -12,31 +12,29 @@ query relayResolver_Query {
 # %extensions%
 
 extend type User {
-  pop_star_name: Int @relay_resolver(fragment_name: "relayResolver_PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+  pop_star_name: Int @relay_resolver(fragment_name: "relayResolver_PopStarNameResolverFragment_name", import_path: "./foo/bar/baz/PopStarNameResolver.js")
 }
 ==================================== OUTPUT ===================================
 import userPopStarNameResolver from "PopStarNameResolver";
-export type relayResolver_QueryVariables = {||};
-export type relayResolver_QueryResponse = {|
+export type relayResolver_Query$variables = {||};
+export type relayResolver_Query$data = {|
   +me: ?{|
-    +pop_star_name: $Call<typeof userPopStarNameResolver>,
+    +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
   |},
 |};
 export type relayResolver_Query = {|
-  variables: relayResolver_QueryVariables,
-  response: relayResolver_QueryResponse,
+  response: relayResolver_Query$data,
+  variables: relayResolver_Query$variables,
 |};
 -------------------------------------------------------------------------------
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type relayResolver_PopStarNameResolverFragment_name$ref: FragmentReference;
-declare export opaque type relayResolver_PopStarNameResolverFragment_name$fragmentType: relayResolver_PopStarNameResolverFragment_name$ref;
-export type relayResolver_PopStarNameResolverFragment_name = {|
+import type { FragmentType } from "relay-runtime";
+declare export opaque type relayResolver_PopStarNameResolverFragment_name$fragmentType: FragmentType;
+export type relayResolver_PopStarNameResolverFragment_name$data = {|
   +name: ?string,
-  +$refType: relayResolver_PopStarNameResolverFragment_name$ref,
+  +$fragmentType: relayResolver_PopStarNameResolverFragment_name$fragmentType,
 |};
-export type relayResolver_PopStarNameResolverFragment_name$data = relayResolver_PopStarNameResolverFragment_name;
 export type relayResolver_PopStarNameResolverFragment_name$key = {
   +$data?: relayResolver_PopStarNameResolverFragment_name$data,
-  +$fragmentRefs: relayResolver_PopStarNameResolverFragment_name$ref,
+  +$fragmentSpreads: relayResolver_PopStarNameResolverFragment_name$fragmentType,
   ...
 };

@@ -3,9 +3,10 @@
 name = "graphql-cli"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [dependencies]
 colored = "1.9"
 common = { path = "../common" }
+graphql-syntax = { path = "../graphql-syntax" }

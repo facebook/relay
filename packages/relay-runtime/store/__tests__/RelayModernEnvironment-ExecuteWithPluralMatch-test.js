@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,21 +13,22 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const nullthrows = require('nullthrows');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const nullthrows = require('nullthrows');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
-import type {NormalizationRootNode} from '../../util/NormalizationNode';
+disallowWarnings();
 
 describe('execute() a query with plural @match', () => {
   let callbacks;
@@ -54,7 +55,7 @@ describe('execute() a query with plural @match', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery(
         $id: ID!
       ) {
@@ -69,7 +70,7 @@ describe('execute() a query with plural @match', () => {
           }
         }
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name on PlainUserNameRenderer {
@@ -81,7 +82,7 @@ describe('execute() a query with plural @match', () => {
     `;
 
     markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$normalization.graphql');
-    markdownRendererFragment = getFragment(graphql`
+    markdownRendererFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         __typename
         markdown
@@ -89,7 +90,7 @@ describe('execute() a query with plural @match', () => {
           markup @__clientField(handle: "markup_handler")
         }
       }
-    `);
+    `;
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
     const MarkupHandler = {
@@ -182,16 +183,17 @@ describe('execute() a query with plural @match', () => {
       node: {
         nameRenderers: [
           {
-            __id:
-              'client:1:nameRenderers(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"]):0',
+            __id: 'client:1:nameRenderers(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"]):0',
 
             __fragmentPropName: 'name',
 
             __fragments: {
-              RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name: {},
+              RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name:
+                {},
             },
 
             __fragmentOwner: operation.request,
+            __isWithinUnmatchedTypeRefinement: false,
             __module_component: 'MarkdownUserNameRenderer.react',
           },
         ],
@@ -230,6 +232,7 @@ describe('execute() a query with plural @match', () => {
                 'RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
               markdown: 'markdown payload',
               data: {
+                id: 'data-1',
                 // NOTE: should be uppercased when normalized (by MarkupHandler)
                 markup: '<markup/>',
               },

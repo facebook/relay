@@ -44,5 +44,4 @@ class MyApplication extends React.Component {
     );
   }
 }
-
 ```

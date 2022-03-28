@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,21 +13,25 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const nullthrows = require('nullthrows');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const nullthrows = require('nullthrows');
+const {
+  cannotReadPropertyOfUndefined__DEPRECATED,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
 
-import type {NormalizationRootNode} from '../../util/NormalizationNode';
+disallowWarnings();
 
 describe('execute() a query with @module', () => {
   let callbacks: {|
@@ -58,9 +62,7 @@ describe('execute() a query with @module', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithModuleWithKeyTestUserQuery(
         $id: ID!
       ) {
@@ -78,7 +80,7 @@ describe('execute() a query with @module', () => {
           }
         }
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name on PlainUserNameRenderer {
@@ -90,7 +92,7 @@ describe('execute() a query with @module', () => {
     `;
 
     markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql');
-    markdownRendererFragment = getFragment(graphql`
+    markdownRendererFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         __typename
         markdown
@@ -98,7 +100,7 @@ describe('execute() a query with @module', () => {
           markup @__clientField(handle: "markup_handler")
         }
       }
-    `);
+    `;
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
 
@@ -192,10 +194,12 @@ describe('execute() a query with @module', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name:
+              {},
           },
 
           __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -232,6 +236,7 @@ describe('execute() a query with @module', () => {
               'RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -297,6 +302,7 @@ describe('execute() a query with @module', () => {
               'RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -348,6 +354,7 @@ describe('execute() a query with @module', () => {
               'RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },
@@ -387,6 +394,7 @@ describe('execute() a query with @module', () => {
               'RelayModernEnvironmentExecuteWithModuleWithKeyTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },
@@ -540,7 +548,7 @@ describe('execute() a query with @module', () => {
 
     expect(callbacks.error).toBeCalledTimes(1);
     expect(callbacks.error.mock.calls[0][0].message).toBe(
-      "Cannot read property 'length' of undefined",
+      cannotReadPropertyOfUndefined__DEPRECATED('length'),
     );
   });
 

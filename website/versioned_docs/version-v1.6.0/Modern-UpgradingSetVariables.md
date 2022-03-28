@@ -36,10 +36,9 @@ fragment on User {
     # ...
   }
 }
-
 ```
 
-This should be upgraded to use a [`PaginationContainer`](./pagination-container).
+This should be upgraded to use a [`PaginationContainer`](Modern-PaginationContainer.md).
 
 ## Changing Arguments
 
@@ -61,10 +60,9 @@ fragment on User {
     # ...
   }
 }
-
 ```
 
-This can be upgraded by using a [`RefetchContainer`](./refetch-container) which allows you to specify the exact query to use to fetch the new data.
+This can be upgraded by using a [`RefetchContainer`](Modern-RefetchContainer.md) which allows you to specify the exact query to use to fetch the new data.
 
 ## Show More
 
@@ -86,9 +84,8 @@ fragment on FeedbackTarget {
     # ...
   }
 }
-
 ```
 
-This can be upgraded by conditionally rendering a [`QueryRenderer`](./query-renderer) which will load the data once it is rendered. The code overhead of doing this is dramatically reduced with the new API.
+This can be upgraded by conditionally rendering a [`QueryRenderer`](Modern-QueryRenderer.md) which will load the data once it is rendered. The code overhead of doing this is dramatically reduced with the new API.
 
-Alternatively a [`RefetchContainer`](./refetch-container) can also be used.
+Alternatively a [`RefetchContainer`](Modern-RefetchContainer.md) can also be used.

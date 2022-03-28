@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,7 +7,7 @@
 
 use crate::SourcePrinter;
 use colored::*;
-use common::{Diagnostic, Location, SourceLocationKey};
+use common::{Diagnostic, Location, SourceLocationKey, TextSource};
 use std::fmt::Write;
 
 pub struct DiagnosticPrinter<T: Sources> {
@@ -38,7 +38,21 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
         writer: &mut W,
         diagnostic: &Diagnostic,
     ) -> std::fmt::Result {
-        writeln!(writer, "{}\n", format!("✖︎ {}", diagnostic.message()).red())?;
+        match diagnostic.severity() {
+            common::DiagnosticSeverity::Error => {
+                writeln!(writer, "{}\n", format!("✖︎ {}", diagnostic.message()).red())?;
+            }
+            common::DiagnosticSeverity::Warning => {
+                writeln!(
+                    writer,
+                    "{}\n",
+                    format!("︎⚠ {}", diagnostic.message()).yellow()
+                )?;
+            }
+            common::DiagnosticSeverity::Information | common::DiagnosticSeverity::Hint => {
+                writeln!(writer, "{}\n", format!("ℹ {}", diagnostic.message()).blue())?;
+            }
+        }
         self.write_source(writer, diagnostic.location())?;
         for related_information in diagnostic.related_information() {
             writeln!(
@@ -55,14 +69,14 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
     fn write_source<W: Write>(&self, writer: &mut W, location: Location) -> std::fmt::Result {
         let source_printer = SourcePrinter::default();
         if let Some(source) = self.sources.get(location.source_location()) {
-            let range = location.span().to_range(&source, 0, 0);
+            let range = source.to_span_range(location.span());
             writeln!(
                 writer,
                 "  {}{}",
                 location.source_location().path().underline(),
                 format!(":{}:{}", range.start.line + 1, range.start.character + 1).dimmed()
             )?;
-            source_printer.write_span(writer, location.span(), &source)?;
+            source_printer.write_span(writer, location.span(), &source.text, source.line_index)?;
         } else {
             writeln!(
                 writer,
@@ -75,14 +89,14 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
 }
 
 pub trait Sources {
-    fn get(&self, source_location: SourceLocationKey) -> Option<String>;
+    fn get(&self, source_location: SourceLocationKey) -> Option<TextSource>;
 }
 
 impl<F> Sources for F
 where
-    F: Fn(SourceLocationKey) -> Option<String>,
+    F: Fn(SourceLocationKey) -> Option<TextSource>,
 {
-    fn get(&self, source_location: SourceLocationKey) -> Option<String> {
+    fn get(&self, source_location: SourceLocationKey) -> Option<TextSource> {
         self(source_location)
     }
 }

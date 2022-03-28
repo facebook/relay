@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b57a795d7a8f1593456517c2c8d67d79>>
+ * @generated SignedSource<<88f26714ecd9eb7f991c7afc948885f4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$ref = any;
-export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType = any;
+export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$variables = {|
   id: string,
 |};
-export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQueryResponse = {|
+export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$data = {|
   +feedback: ?{|
-    +$fragmentRefs: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$ref,
+    +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestNoticeableResultFragment$fragmentType,
   |},
 |};
 export type RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery = {|
-  variables: RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQueryVariables,
-  response: RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQueryResponse,
+  response: RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$data,
+  variables: RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$variables,
 |};
 */
 
@@ -153,4 +153,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ac58d11ae357d8162d5c45b77ca2c4a1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$variables,
+  RelayMockEnvironmentWithComponentsTestWorldClassAwesomenessQuery$data,
+>*/);

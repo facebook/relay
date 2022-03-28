@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -31,9 +31,16 @@ export type ConcreteRequest = {|
   +params: RequestParameters,
 |};
 
+export type ConcreteUpdatableQuery = {|
+  +kind: 'UpdatableQuery',
+  +fragment: ReaderFragment,
+|};
+
 export type NormalizationRootNode =
   | ConcreteRequest
   | NormalizationSplitOperation;
+
+export type ProvidedVariablesType = {+[key: string]: {|get(): mixed|}};
 
 /**
  * Contains the parameters required for executing a GraphQL request.
@@ -48,6 +55,7 @@ export type RequestParameters =
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
+      +providedVariables?: ProvidedVariablesType,
       +metadata: {[key: string]: mixed, ...},
     |}
   | {|
@@ -57,6 +65,7 @@ export type RequestParameters =
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
+      +providedVariables?: ProvidedVariablesType,
       +metadata: {[key: string]: mixed, ...},
     |};
 
@@ -64,11 +73,15 @@ export type GeneratedNode =
   | ConcreteRequest
   | ReaderFragment
   | ReaderInlineDataFragment
-  | NormalizationSplitOperation;
+  | NormalizationSplitOperation
+  | ConcreteUpdatableQuery;
 
 const RelayConcreteNode = {
+  ACTOR_CHANGE: 'ActorChange',
   CONDITION: 'Condition',
   CLIENT_COMPONENT: 'ClientComponent',
+  CLIENT_EDGE_TO_SERVER_OBJECT: 'ClientEdgeToServerObject',
+  CLIENT_EDGE_TO_CLIENT_OBJECT: 'ClientEdgeToClientObject',
   CLIENT_EXTENSION: 'ClientExtension',
   DEFER: 'Defer',
   CONNECTION: 'Connection',
@@ -85,6 +98,7 @@ const RelayConcreteNode = {
   LOCAL_ARGUMENT: 'LocalArgument',
   MODULE_IMPORT: 'ModuleImport',
   RELAY_RESOLVER: 'RelayResolver',
+  RELAY_LIVE_RESOLVER: 'RelayLiveResolver',
   REQUIRED_FIELD: 'RequiredField',
   OBJECT_VALUE: 'ObjectValue',
   OPERATION: 'Operation',
@@ -95,6 +109,7 @@ const RelayConcreteNode = {
   SPLIT_OPERATION: 'SplitOperation',
   STREAM: 'Stream',
   TYPE_DISCRIMINATOR: 'TypeDiscriminator',
+  UPDATABLE_QUERY: 'UpdatableQuery',
   VARIABLE: 'Variable',
 };
 

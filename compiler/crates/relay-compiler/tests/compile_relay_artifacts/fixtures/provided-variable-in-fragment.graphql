@@ -1,0 +1,21 @@
+query providedVariableInFragment_Query($id: ID!) {
+    node(id: $id) {
+        ...providedVariableInFragment_Fragment1
+        ...providedVariableInFragment_Fragment2
+    }
+}
+
+fragment providedVariableInFragment_Fragment1 on User
+  @argumentDefinitions(
+    foo_gk: {type: "Boolean!", provider: "fooGKProvider"}
+    foobar_gk: {type: "Boolean!", provider: "foobarGKProvider"})
+{
+    name @include(if: $foo_gk)
+    alternate_name @include(if: $foobar_gk)
+}
+
+fragment providedVariableInFragment_Fragment2 on User
+  @argumentDefinitions(bar_gk: {type: "Boolean!", provider: "barGKProvider"})
+{
+    username @skip(if: $bar_gk)
+}

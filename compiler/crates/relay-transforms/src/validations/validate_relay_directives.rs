@@ -1,19 +1,21 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::relay_directive::{MASK_ARG_NAME, PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME};
+use crate::{
+    relay_directive::{MASK_ARG_NAME, PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME},
+    should_generate_hack_preloader,
+};
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use errors::validate;
-use fnv::FnvHashMap;
 use graphql_ir::{
     ConstantValue, Directive, FragmentDefinition, FragmentSpread, OperationDefinition, Program,
     ValidationMessage, Validator, Value, VariableDefinition,
 };
-use interner::StringKey;
+use intern::string_key::StringKeyMap;
 use schema::Schema;
 
 pub fn validate_relay_directives(program: &Program) -> DiagnosticsResult<()> {
@@ -26,7 +28,7 @@ enum ArgumentDefinition<'ir> {
     Local(&'ir VariableDefinition),
 }
 
-// This validtes both @relay(plural) and @relay(mask) usages
+// This validates both @relay(plural) and @relay(mask) usages
 struct RelayDirectiveValidation<'program> {
     program: &'program Program,
     // TODO(T63626938): This assumes that each document is processed serially (not in parallel or concurrently)
@@ -75,7 +77,7 @@ impl<'program> RelayDirectiveValidation<'program> {
     /// 2. Their types should be same, or one is the subset of the
     fn validate_reachable_arguments(
         &self,
-        map: &mut FnvHashMap<StringKey, ArgumentDefinition<'program>>,
+        map: &mut StringKeyMap<ArgumentDefinition<'program>>,
     ) -> DiagnosticsResult<()> {
         let mut errs = vec![];
         for arg in &self.current_reachable_arguments {
@@ -149,7 +151,7 @@ impl Validator for RelayDirectiveValidation<'_> {
             if self.current_reachable_arguments.is_empty() {
                 Ok(())
             } else {
-                let mut map = FnvHashMap::default();
+                let mut map: StringKeyMap<_> = Default::default();
                 for variable in &fragment.used_global_variables {
                     map.insert(variable.name.item, ArgumentDefinition::Global(variable));
                 }
@@ -165,11 +167,12 @@ impl Validator for RelayDirectiveValidation<'_> {
         // Initialize arguments state for @relay(mask: false),
         self.current_reachable_arguments = Default::default();
         validate!(
-            self.default_validate_operation(&operation),
+            self.default_validate_operation(operation),
+            should_generate_hack_preloader(operation).map(|_| ()),
             if self.current_reachable_arguments.is_empty() {
                 Ok(())
             } else {
-                let mut map = FnvHashMap::default();
+                let mut map: StringKeyMap<_> = Default::default();
                 for variable in &operation.variable_definitions {
                     map.insert(variable.name.item, ArgumentDefinition::Global(variable));
                 }

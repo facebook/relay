@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4fcce152468efc746887f7325c8f3964>>
+ * @generated SignedSource<<a034169cb5e39398bf2ba7f9f1b67f27>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,13 +15,31 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type DataCheckerTest14Fragment$ref: FragmentReference;
-declare export opaque type DataCheckerTest14Fragment$fragmentType: DataCheckerTest14Fragment$ref;
-export type DataCheckerTest14Fragment = {|
-  +id: string,
-  +firstName: ?string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type DataCheckerTest14Fragment$fragmentType: FragmentType;
+export type DataCheckerTest14Fragment$data = {|
+  +best_friends: ?{|
+    +edges: ?$ReadOnlyArray<?{|
+      +client_friend_edge_field: ?string,
+      +cursor: ?string,
+      +node: ?{|
+        +client_actor_field?: ?string,
+        +client_foo: ?{|
+          +client_name: ?string,
+          +profile_picture: ?{|
+            +uri: ?string,
+          |},
+        |},
+        +id: string,
+        +profilePicture?: ?{|
+          +height: ?number,
+          +uri: ?string,
+          +width: ?number,
+        |},
+      |},
+    |}>,
+  |},
   +client_actor_field: ?string,
   +client_foo: ?{|
     +client_name: ?string,
@@ -29,33 +47,13 @@ export type DataCheckerTest14Fragment = {|
       +uri: ?string,
     |},
   |},
-  +best_friends: ?{|
-    +edges: ?$ReadOnlyArray<?{|
-      +client_friend_edge_field: ?string,
-      +cursor: ?string,
-      +node: ?{|
-        +id: string,
-        +client_foo: ?{|
-          +client_name: ?string,
-          +profile_picture: ?{|
-            +uri: ?string,
-          |},
-        |},
-        +client_actor_field?: ?string,
-        +profilePicture?: ?{|
-          +uri: ?string,
-          +height: ?number,
-          +width: ?number,
-        |},
-      |},
-    |}>,
-  |},
-  +$refType: DataCheckerTest14Fragment$ref,
+  +firstName: ?string,
+  +id: string,
+  +$fragmentType: DataCheckerTest14Fragment$fragmentType,
 |};
-export type DataCheckerTest14Fragment$data = DataCheckerTest14Fragment;
 export type DataCheckerTest14Fragment$key = {
   +$data?: DataCheckerTest14Fragment$data,
-  +$fragmentRefs: DataCheckerTest14Fragment$ref,
+  +$fragmentSpreads: DataCheckerTest14Fragment$fragmentType,
   ...
 };
 */
@@ -244,4 +242,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "99de1670b248e2c0d7cebc896f86a2fd";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  DataCheckerTest14Fragment$fragmentType,
+  DataCheckerTest14Fragment$data,
+>*/);

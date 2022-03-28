@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,19 +12,30 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {VIEWER_ID} = require('../ViewerPattern');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() a query with nested @stream', () => {
   let actorFragment;
@@ -45,11 +56,7 @@ describe('execute() a query with nested @stream', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery(
         $enableStream: Boolean!
       ) {
@@ -57,9 +64,9 @@ describe('execute() a query with nested @stream', () => {
           ...RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment
         }
       }
-    `);
+    `;
 
-    feedFragment = getFragment(graphql`
+    feedFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment on Viewer {
         newsFeed(first: 10) {
           edges
@@ -81,14 +88,14 @@ describe('execute() a query with nested @stream', () => {
           }
         }
       }
-    `);
+    `;
 
-    actorFragment = getFragment(graphql`
-      fragment RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment on Actor {
+    actorFragment = graphql`
+      fragment RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment on User {
         # keep in sync with above
         name @__clientField(handle: "name_handler")
       }
-    `);
+    `;
     variables = {enableStream: true};
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(
@@ -99,7 +106,7 @@ describe('execute() a query with nested @stream', () => {
     );
 
     const NameHandler = {
-      update(storeProxy, payload) {
+      update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
         const record = storeProxy.get(payload.dataID);
         if (record != null) {
           const markup = record.getValue(payload.fieldKey);
@@ -115,7 +122,11 @@ describe('execute() a query with nested @stream', () => {
     error = jest.fn();
     next = jest.fn();
     callbacks = {complete, error, next};
-    fetch = (_query, _variables, _cacheConfig) => {
+    fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });

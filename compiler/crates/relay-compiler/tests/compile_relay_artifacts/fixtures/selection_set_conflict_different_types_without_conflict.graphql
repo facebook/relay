@@ -1,0 +1,10 @@
+query selectionSetConflictDifferentTypesWithoutConflictQuery {
+  username(name: "me") {
+    ... on User {
+      same_alias: lastName
+    }
+    ... on Page {
+      same_alias: name
+    }
+  }
+}

@@ -23,7 +23,7 @@ fragment ProfilePhoto on User {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Unknown argument 'size'
+✖︎ Unknown argument 'size'.
 
   unused_fragment_arg.invalid.graphql:16:30
    15 │   __typename

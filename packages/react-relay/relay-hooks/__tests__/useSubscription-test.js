@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,16 +13,15 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
-const {getRequest, graphql} = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils');
-
 import type {RelayMockEnvironment} from 'relay-test-utils/RelayModernMockEnvironment';
 
-const CommentCreateSubscription = getRequest(graphql`
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
+const {graphql} = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
+
+const CommentCreateSubscription = graphql`
   subscription useSubscriptionTestCommentCreateSubscription(
     $input: CommentCreateSubscriptionInput
   ) {
@@ -37,7 +36,7 @@ const CommentCreateSubscription = getRequest(graphql`
       }
     }
   }
-`);
+`;
 describe('useSubscription', () => {
   const mockEnv = createMockEnvironment();
   const config = {

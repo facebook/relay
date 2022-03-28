@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d345632d07ab8eb18acfb6e13d701ff2>>
+ * @generated SignedSource<<f015b53fa15170bf8b93d8b070899630>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,21 +17,21 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery.node {"branches":{"User":{"component":"User.react","fragment":"RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$ref = any;
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$data = {|
   +node: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery = {|
-  variables: RelayModernEnvironmentExecuteWithDeferAndModuleTestQueryVariables,
-  response: RelayModernEnvironmentExecuteWithDeferAndModuleTestQueryResponse,
+  response: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$data,
+  variables: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$variables,
 |};
 */
 
@@ -55,6 +55,7 @@ v2 = [
     "kind": "InlineFragment",
     "selections": [
       {
+        "args": null,
         "documentName": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery",
         "fragmentName": "RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user",
         "fragmentPropName": "user",
@@ -145,4 +146,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e1e0184ec7d619431104e6bada8a3318";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$variables,
+  RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$data,
+>*/);

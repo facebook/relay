@@ -28,45 +28,41 @@ fragment Foo on Node {
   }
 }
 ==================================== OUTPUT ===================================
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type Bar$ref: FragmentReference;
-declare export opaque type Bar$fragmentType: Bar$ref;
-export type Bar = ?{|
-  +name?: string,
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Bar$fragmentType: FragmentType;
+export type Bar$data = ?{|
   +body?: ?{|
     +text: ?string,
   |},
-  +$refType: Bar$ref,
+  +name?: string,
+  +$fragmentType: Bar$fragmentType,
 |};
-export type Bar$data = Bar;
 export type Bar$key = {
   +$data?: Bar$data,
-  +$fragmentRefs: Bar$ref,
+  +$fragmentSpreads: Bar$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type Foo$ref: FragmentReference;
-declare export opaque type Foo$fragmentType: Foo$ref;
-export type Foo = ?({|
-  +__typename: "User",
-  +name: string,
-  +$refType: Foo$ref,
-|} | {|
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Foo$fragmentType: FragmentType;
+export type Foo$data = ?({|
   +__typename: "Comment",
   +body: ?{|
     +text: ?string,
   |},
-  +$refType: Foo$ref,
+  +$fragmentType: Foo$fragmentType,
+|} | {|
+  +__typename: "User",
+  +name: string,
+  +$fragmentType: Foo$fragmentType,
 |} | {|
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
   +__typename: "%other",
-  +$refType: Foo$ref,
+  +$fragmentType: Foo$fragmentType,
 |});
-export type Foo$data = Foo;
 export type Foo$key = {
   +$data?: Foo$data,
-  +$fragmentRefs: Foo$ref,
+  +$fragmentSpreads: Foo$fragmentType,
   ...
 };

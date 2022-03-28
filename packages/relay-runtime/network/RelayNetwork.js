@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,21 +12,21 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {convertFetch} = require('./ConvertToExecuteFunction');
-
 import type {RequestParameters} from '../util/RelayConcreteNode';
 import type {CacheConfig, Variables} from '../util/RelayRuntimeTypes';
 import type {
   FetchFunction,
   GraphQLResponse,
-  LogRequestInfoFunction,
   INetwork,
+  LogRequestInfoFunction,
   SubscribeFunction,
   UploadableMap,
 } from './RelayNetworkTypes';
 import type RelayObservable from './RelayObservable';
+
+const withProvidedVariables = require('../util/withProvidedVariables');
+const {convertFetch} = require('./ConvertToExecuteFunction');
+const invariant = require('invariant');
 
 /**
  * Creates an implementation of the `Network` interface defined in
@@ -46,6 +46,10 @@ function create(
     uploadables?: ?UploadableMap,
     logRequestInfo: ?LogRequestInfoFunction,
   ): RelayObservable<GraphQLResponse> {
+    const operationVariables = withProvidedVariables(
+      variables,
+      request.providedVariables,
+    );
     if (request.operationKind === 'subscription') {
       invariant(
         subscribe,
@@ -57,7 +61,7 @@ function create(
         !uploadables,
         'RelayNetwork: Cannot provide uploadables while subscribing.',
       );
-      return subscribe(request, variables, cacheConfig);
+      return subscribe(request, operationVariables, cacheConfig);
     }
 
     const pollInterval = cacheConfig.poll;
@@ -66,12 +70,14 @@ function create(
         !uploadables,
         'RelayNetwork: Cannot provide uploadables while polling.',
       );
-      return observeFetch(request, variables, {force: true}).poll(pollInterval);
+      return observeFetch(request, operationVariables, {force: true}).poll(
+        pollInterval,
+      );
     }
 
     return observeFetch(
       request,
-      variables,
+      operationVariables,
       cacheConfig,
       uploadables,
       logRequestInfo,

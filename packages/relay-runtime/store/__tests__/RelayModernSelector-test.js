@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,9 +13,9 @@
 
 'use strict';
 
-const warning = require('warning');
+import type {OperationDescriptor} from '../RelayStoreTypes';
 
-const {graphql, getRequest, getFragment} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
   createRequestDescriptor,
@@ -32,8 +32,7 @@ const {
 } = require('../RelayModernSelector');
 const {ROOT_ID} = require('../RelayStoreUtils');
 const {createMockEnvironment, matchers} = require('relay-test-utils-internal');
-
-import type {OperationDescriptor} from '../RelayStoreTypes';
+const warning = require('warning');
 
 describe('RelayModernSelector', () => {
   let UserFragment;
@@ -52,10 +51,10 @@ describe('RelayModernSelector', () => {
     jest.mock('warning');
 
     environment = createMockEnvironment();
-    UserQuery = getRequest(graphql`
+    UserQuery = graphql`
       query RelayModernSelectorTestUserQuery(
         $id: ID!
-        $size: Int
+        $size: [Int]
         $cond: Boolean!
       ) {
         node(id: $id) {
@@ -63,8 +62,8 @@ describe('RelayModernSelector', () => {
           ...RelayModernSelectorTestUsersFragment
         }
       }
-    `);
-    UserFragment = getFragment(graphql`
+    `;
+    UserFragment = graphql`
       fragment RelayModernSelectorTestUserFragment on User {
         id
         name
@@ -72,8 +71,8 @@ describe('RelayModernSelector', () => {
           uri
         }
       }
-    `);
-    UsersFragment = getFragment(graphql`
+    `;
+    UsersFragment = graphql`
       fragment RelayModernSelectorTestUsersFragment on User
       @relay(plural: true) {
         id
@@ -82,7 +81,7 @@ describe('RelayModernSelector', () => {
           uri
         }
       }
-    `);
+    `;
     const dataID = ROOT_ID;
     variables = {id: '4', size: null, cond: false};
     operationVariables = variables;
@@ -135,7 +134,7 @@ describe('RelayModernSelector', () => {
         'RelayModernSelector: Expected value for fragment `RelayModernSelectorTestUserFragment` to be an object, got ' +
           '`[{"__fragments":{"RelayModernSelectorTestUserFragment":{},"RelayModernSelectorTestUsersFragment":{}},"__id":"4","__fragmentOwner":' +
           JSON.stringify(operationDescriptor.request) +
-          '}]`.',
+          ',"__isWithinUnmatchedTypeRefinement":false}]`.',
       );
     });
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,17 +13,19 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const {graphql, getRequest} = require('../../query/GraphQLTag');
+const {getRequest, graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('lookup()', () => {
   let ParentQuery;
@@ -31,8 +33,7 @@ describe('lookup()', () => {
   let operation;
 
   beforeEach(() => {
-    jest.resetModules();
-    ParentQuery = getRequest(graphql`
+    ParentQuery = graphql`
       query RelayModernEnvironmentLookupTestParentQuery {
         me {
           id
@@ -40,7 +41,7 @@ describe('lookup()', () => {
           ...RelayModernEnvironmentLookupTestChildFragment
         }
       }
-    `);
+    `;
     graphql`
       fragment RelayModernEnvironmentLookupTestChildFragment on User {
         id
@@ -78,6 +79,7 @@ describe('lookup()', () => {
         __id: '4',
         __fragments: {RelayModernEnvironmentLookupTestChildFragment: {}},
         __fragmentOwner: operation.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
   });
@@ -95,6 +97,7 @@ describe('lookup()', () => {
         __id: '4',
         __fragments: {RelayModernEnvironmentLookupTestChildFragment: {}},
         __fragmentOwner: owner.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
     // $FlowFixMe[incompatible-use]
@@ -102,7 +105,7 @@ describe('lookup()', () => {
   });
 
   it('reads __id fields', () => {
-    const TestQuery = getRequest(graphql`
+    const TestQuery = graphql`
       query RelayModernEnvironmentLookupTestQuery($id: ID!) {
         __id # ok on query type
         me {
@@ -130,7 +133,7 @@ describe('lookup()', () => {
           }
         }
       }
-    `);
+    `;
     operation = createOperationDescriptor(TestQuery, {id: 'comment:1'});
     environment.commitPayload(operation, {
       me: {
@@ -165,8 +168,7 @@ describe('lookup()', () => {
           __id: 'client:comment:1:commentBody(supported:["PlainCommentBody"])',
           __typename: 'PlainCommentBody',
           text: {
-            __id:
-              'client:comment:1:commentBody(supported:["PlainCommentBody"]):text',
+            __id: 'client:comment:1:commentBody(supported:["PlainCommentBody"]):text',
             __typename: 'Text',
             text: 'A comment!',
           },

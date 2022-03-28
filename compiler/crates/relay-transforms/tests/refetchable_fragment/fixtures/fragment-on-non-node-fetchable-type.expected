@@ -15,7 +15,11 @@ fragment ProfilePicture on User {
 query RefetchableFragmentQuery(
   $size: [Int]
   $id: ID!
-) @__refetchableQueryMetadata(__refetchableQueryMetadata: "RefetchableFragment") {
+) @__RefetchableDerivedFromMetadata
+# RefetchableDerivedFromMetadata(
+#     "RefetchableFragment",
+# )
+ {
   fetch__NonNodeStory(input_fetch_id: $id) {
     ...RefetchableFragment
   }
@@ -27,7 +31,17 @@ fragment ProfilePicture on User {
   }
 }
 
-fragment RefetchableFragment on NonNodeStory @refetchable(queryName: "RefetchableFragmentQuery") @__refetchableMetadata(__refetchableMetadata: ["RefetchableFragmentQuery", ["fetch__NonNodeStory"], "fetch_id"]) {
+fragment RefetchableFragment on NonNodeStory @refetchable(queryName: "RefetchableFragmentQuery") @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "RefetchableFragmentQuery",
+#     path: [
+#         "fetch__NonNodeStory",
+#     ],
+#     identifier_field: Some(
+#         "fetch_id",
+#     ),
+# }
+ {
   actor {
     ...ProfilePicture
   }

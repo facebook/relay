@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,21 +13,18 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
-const RelayModernStore = require('../../store/RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../../store/RelayRecordSource');
-
-const requestSubscription = require('../requestSubscription');
-
-const {graphql, getRequest} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../../store/RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../../store/RelayModernSelector');
+const RelayModernStore = require('../../store/RelayModernStore');
+const RelayRecordSource = require('../../store/RelayRecordSource');
 const {ROOT_ID} = require('../../store/RelayStoreUtils');
+const requestSubscription = require('../requestSubscription');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('requestSubscription-test', () => {
@@ -40,7 +37,7 @@ describe('requestSubscription-test', () => {
     const firstCommentId = 'comment-1';
     const firstCommentBody = 'first comment';
     const secondCommentId = 'comment-2';
-    const FeedbackCommentQuery = getRequest(graphql`
+    const FeedbackCommentQuery = graphql`
       query requestSubscriptionTestFeedbackCommentQuery($id: ID) {
         node(id: $id) {
           ... on Feedback {
@@ -58,7 +55,7 @@ describe('requestSubscription-test', () => {
           }
         }
       }
-    `);
+    `;
     const payload = {
       node: {
         __typename: 'Feedback',
@@ -93,7 +90,7 @@ describe('requestSubscription-test', () => {
     );
     environment.commitPayload(operationDescriptor, payload);
 
-    const CommentCreateSubscription = getRequest(graphql`
+    const CommentCreateSubscription = graphql`
       subscription requestSubscriptionTestCommentCreateSubscription(
         $input: CommentCreateSubscriptionInput
       ) {
@@ -108,7 +105,7 @@ describe('requestSubscription-test', () => {
           }
         }
       }
-    `);
+    `;
 
     const configs = [
       {
@@ -132,7 +129,6 @@ describe('requestSubscription-test', () => {
       variables: {
         feedbackId,
         text: secondCommentBody,
-        clientSubscriptionId: '0',
       },
     });
 
@@ -208,11 +204,10 @@ describe('requestSubscription-test', () => {
     const variables = {
       feedbackId,
       text: secondCommentBody,
-      clientSubscriptionId: '0',
     };
 
     beforeEach(() => {
-      CommentCreateSubscription = getRequest(graphql`
+      CommentCreateSubscription = graphql`
         subscription requestSubscriptionTest1CommentCreateSubscription(
           $input: CommentCreateSubscriptionInput
         ) {
@@ -227,7 +222,7 @@ describe('requestSubscription-test', () => {
             }
           }
         }
-      `);
+      `;
 
       cacheMetadata = undefined;
       const fetch = jest.fn((_query, _variables, _cacheConfig) => {
@@ -242,37 +237,30 @@ describe('requestSubscription-test', () => {
       });
     });
 
-    function runTests() {
-      it('with cacheConfig', () => {
-        requestSubscription(environment, {
-          subscription: CommentCreateSubscription,
-          variables,
-          cacheConfig: {
-            metadata,
-          },
-        });
-
-        expect(cacheMetadata).toEqual(metadata);
+    it('with cacheConfig', () => {
+      requestSubscription(environment, {
+        subscription: CommentCreateSubscription,
+        variables,
+        cacheConfig: {
+          metadata,
+        },
       });
 
-      it('without cacheConfig', () => {
-        requestSubscription(environment, {
-          subscription: CommentCreateSubscription,
-          variables,
-        });
+      expect(cacheMetadata).toEqual(metadata);
+    });
 
-        expect(cacheMetadata).toEqual(undefined);
+    it('without cacheConfig', () => {
+      requestSubscription(environment, {
+        subscription: CommentCreateSubscription,
+        variables,
       });
-    }
-    RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT = false;
-    runTests();
-    RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT = true;
-    runTests();
+
+      expect(cacheMetadata).toEqual(undefined);
+    });
   });
 
   it('does not overwrite existing data', () => {
-    RelayFeatureFlags.ENABLE_UNIQUE_SUBSCRIPTION_ROOT = true;
-    const ConfigsQuery = getRequest(graphql`
+    const ConfigsQuery = graphql`
       query requestSubscriptionTestConfigsQuery {
         viewer {
           configs {
@@ -284,7 +272,7 @@ describe('requestSubscription-test', () => {
           }
         }
       }
-    `);
+    `;
 
     graphql`
       fragment requestSubscriptionTestExtraFragment on Config {
@@ -292,7 +280,7 @@ describe('requestSubscription-test', () => {
       }
     `;
 
-    const ConfigCreateSubscription = getRequest(graphql`
+    const ConfigCreateSubscription = graphql`
       subscription requestSubscriptionTestConfigCreateSubscription {
         configCreateSubscribe {
           config {
@@ -301,7 +289,7 @@ describe('requestSubscription-test', () => {
           }
         }
       }
-    `);
+    `;
 
     const operationDescriptor = createOperationDescriptor(ConfigsQuery, {});
     const environment = createMockEnvironment();
@@ -384,6 +372,8 @@ describe('requestSubscription-test', () => {
           __id: expect.any(String),
           __fragments: {requestSubscriptionTestExtraFragment: {}},
           __fragmentOwner: expect.any(Object),
+          // TODO T96653810: Correctly detect reading from root of mutation/subscription
+          __isWithinUnmatchedTypeRefinement: true, // should be false
         },
       },
     });
@@ -423,8 +413,97 @@ describe('requestSubscription-test', () => {
           __id: expect.any(String),
           __fragments: {requestSubscriptionTestExtraFragment: {}},
           __fragmentOwner: expect.any(Object),
+          __isWithinUnmatchedTypeRefinement: true,
         },
       },
     });
+  });
+
+  it('reads the data using the correct rootID in onNext when resources are resolved synchronously', () => {
+    const normalization = require('./__generated__/requestSubscriptionTestPlainUserNameRenderer_name$normalization.graphql');
+    const subscription = graphql`
+      subscription requestSubscriptionTestSubscription(
+        $input: CommentCreateSubscriptionInput!
+      ) {
+        commentCreateSubscribe(input: $input) {
+          comment {
+            actor {
+              name
+              nameRenderer @match {
+                ...requestSubscriptionTestPlainUserNameRenderer_name
+                  @module(name: "PlainUserNameRenderer.react")
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    graphql`
+      fragment requestSubscriptionTestPlainUserNameRenderer_name on PlainUserNameRenderer {
+        plaintext
+        data {
+          text
+        }
+      }
+    `;
+    const environment = createMockEnvironment({
+      operationLoader: {
+        load: jest.fn(moduleName => {
+          return Promise.resolve(normalization);
+        }),
+        get: () => normalization,
+      },
+    });
+
+    const onNext = jest.fn();
+    const updater = jest.fn();
+
+    requestSubscription(environment, {
+      subscription,
+      variables: {},
+      updater,
+      onNext,
+    });
+    environment.mock.nextValue(subscription, {
+      data: {
+        commentCreateSubscribe: {
+          comment: {
+            id: '1',
+            actor: {
+              id: '4',
+              name: 'actor-name',
+              __typename: 'User',
+              nameRenderer: {
+                __typename: 'PlainUserNameRenderer',
+                __module_component_requestSubscriptionTestSubscription:
+                  'MarkdownUserNameRenderer.react',
+                __module_operation_requestSubscriptionTestSubscription:
+                  'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
+                markdown: 'markdown payload',
+                data: {
+                  id: 'data-1',
+                  plaintext: 'text',
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+    jest.runAllTimers();
+
+    expect(onNext).toBeCalledTimes(1);
+    expect(onNext).toBeCalledWith({
+      commentCreateSubscribe: {
+        comment: {
+          actor: {
+            name: 'actor-name',
+            nameRenderer: expect.any(Object),
+          },
+        },
+      },
+    });
+    expect(updater).toBeCalledTimes(1);
   });
 });

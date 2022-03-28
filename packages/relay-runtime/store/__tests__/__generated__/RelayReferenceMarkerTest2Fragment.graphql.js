@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<45196a439350f531a3bc8ed818f3bbc2>>
+ * @generated SignedSource<<11d4a4a4c75dd7510a02e8ca63814ebe>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,36 +15,34 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReferenceMarkerTest2Fragment$ref: FragmentReference;
-declare export opaque type RelayReferenceMarkerTest2Fragment$fragmentType: RelayReferenceMarkerTest2Fragment$ref;
-export type RelayReferenceMarkerTest2Fragment = {|
-  +client_foo: ?{|
-    +client_name: ?string,
-    +profile_picture: ?{|
-      +uri: ?string,
-    |},
-  |},
-  +nickname: ?string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReferenceMarkerTest2Fragment$fragmentType: FragmentType;
+export type RelayReferenceMarkerTest2Fragment$data = {|
   +best_friends: ?{|
     +client_friends_connection_field: ?string,
     +edges: ?$ReadOnlyArray<?{|
       +client_friend_edge_field: ?string,
       +cursor: ?string,
       +node: ?{|
-        +id: string,
         +firstName: ?string,
+        +id: string,
       |},
     |}>,
   |},
+  +client_foo: ?{|
+    +client_name: ?string,
+    +profile_picture: ?{|
+      +uri: ?string,
+    |},
+  |},
   +firstName: ?string,
-  +$refType: RelayReferenceMarkerTest2Fragment$ref,
+  +nickname: ?string,
+  +$fragmentType: RelayReferenceMarkerTest2Fragment$fragmentType,
 |};
-export type RelayReferenceMarkerTest2Fragment$data = RelayReferenceMarkerTest2Fragment;
 export type RelayReferenceMarkerTest2Fragment$key = {
   +$data?: RelayReferenceMarkerTest2Fragment$data,
-  +$fragmentRefs: RelayReferenceMarkerTest2Fragment$ref,
+  +$fragmentSpreads: RelayReferenceMarkerTest2Fragment$fragmentType,
   ...
 };
 */
@@ -190,4 +188,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "34600dc24690307d95ea58d1ef1e180c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReferenceMarkerTest2Fragment$fragmentType,
+  RelayReferenceMarkerTest2Fragment$data,
+>*/);

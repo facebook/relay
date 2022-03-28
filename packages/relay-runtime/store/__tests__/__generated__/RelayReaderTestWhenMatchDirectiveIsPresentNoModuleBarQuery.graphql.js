@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cc3c18e652ce02775575799d4aec3e12>>
+ * @generated SignedSource<<e5ae99fb380b2441d6ef705fd2fa9b76>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref = any;
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryVariables = {||};
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType = any;
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables = {||};
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref,
+    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
   |},
 |};
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery = {|
-  variables: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryVariables,
-  response: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryResponse,
+  response: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data,
+  variables: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables,
 |};
 */
 
@@ -96,6 +96,7 @@ var node/*: ConcreteRequest*/ = {
                 "kind": "InlineFragment",
                 "selections": [
                   {
+                    "args": null,
                     "documentName": "RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment",
                     "fragmentName": "RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name",
                     "fragmentPropName": "name",
@@ -109,6 +110,7 @@ var node/*: ConcreteRequest*/ = {
                 "kind": "InlineFragment",
                 "selections": [
                   {
+                    "args": null,
                     "documentName": "RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment",
                     "fragmentName": "RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name",
                     "fragmentPropName": "name",
@@ -140,4 +142,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "52e8fb8b490569a5a7125ef7dac411f1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables,
+  RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data,
+>*/);

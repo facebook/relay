@@ -26,67 +26,59 @@ fragment AnotherRecursiveFragment on Image {
   height
 }
 ==================================== OUTPUT ===================================
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type AnotherRecursiveFragment$ref: FragmentReference;
-declare export opaque type AnotherRecursiveFragment$fragmentType: AnotherRecursiveFragment$ref;
-export type AnotherRecursiveFragment = {|
-  +uri: ?string,
+import type { FragmentType } from "relay-runtime";
+declare export opaque type AnotherRecursiveFragment$fragmentType: FragmentType;
+export type AnotherRecursiveFragment$data = {|
   +height: ?number,
-  +$refType: AnotherRecursiveFragment$ref,
+  +uri: ?string,
+  +$fragmentType: AnotherRecursiveFragment$fragmentType,
 |};
-export type AnotherRecursiveFragment$data = AnotherRecursiveFragment;
 export type AnotherRecursiveFragment$key = {
   +$data?: AnotherRecursiveFragment$data,
-  +$fragmentRefs: AnotherRecursiveFragment$ref,
+  +$fragmentSpreads: AnotherRecursiveFragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type PhotoFragment$ref: FragmentReference;
-declare export opaque type PhotoFragment$fragmentType: PhotoFragment$ref;
-export type PhotoFragment = {|
+import type { FragmentType } from "relay-runtime";
+declare export opaque type PhotoFragment$fragmentType: FragmentType;
+export type PhotoFragment$data = {|
   +uri: ?string,
   +width: ?number,
-  +$refType: PhotoFragment$ref,
+  +$fragmentType: PhotoFragment$fragmentType,
 |};
-export type PhotoFragment$data = PhotoFragment;
 export type PhotoFragment$key = {
   +$data?: PhotoFragment$data,
-  +$fragmentRefs: PhotoFragment$ref,
+  +$fragmentSpreads: PhotoFragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RecursiveFragment$ref: FragmentReference;
-declare export opaque type RecursiveFragment$fragmentType: RecursiveFragment$ref;
-export type RecursiveFragment = {
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RecursiveFragment$fragmentType: FragmentType;
+export type RecursiveFragment$data = {
   +uri: ?string,
   +width: ?number,
   ...
 };
-export type RecursiveFragment$data = RecursiveFragment;
 export type RecursiveFragment$key = {
   +$data?: RecursiveFragment$data,
-  +$fragmentRefs: RecursiveFragment$ref,
+  +$fragmentSpreads: RecursiveFragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
-import type { PhotoFragment$ref } from "PhotoFragment.graphql";
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type UserProfile$ref: FragmentReference;
-declare export opaque type UserProfile$fragmentType: UserProfile$ref;
-export type UserProfile = {|
+import type { PhotoFragment$fragmentType } from "PhotoFragment.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type UserProfile$fragmentType: FragmentType;
+export type UserProfile$data = {|
   +profilePicture: ?{|
+    +height: ?number,
     +uri: ?string,
     +width: ?number,
-    +height: ?number,
-    +$fragmentRefs: PhotoFragment$ref,
+    +$fragmentSpreads: PhotoFragment$fragmentType,
   |},
-  +$refType: UserProfile$ref,
+  +$fragmentType: UserProfile$fragmentType,
 |};
-export type UserProfile$data = UserProfile;
 export type UserProfile$key = {
   +$data?: UserProfile$data,
-  +$fragmentRefs: UserProfile$ref,
+  +$fragmentSpreads: UserProfile$fragmentType,
   ...
 };

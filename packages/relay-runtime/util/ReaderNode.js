@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -18,7 +18,7 @@ import type {ConcreteRequest} from './RelayConcreteNode';
 export type ReaderFragmentSpread = {|
   +kind: 'FragmentSpread',
   +name: string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
 |};
 
 export type ReaderInlineDataFragmentSpread = {|
@@ -31,8 +31,8 @@ export type ReaderFragment = {|
   +kind: 'Fragment',
   +name: string,
   +type: string,
-  +abstractKey: ?string,
-  +metadata: ?{|
+  +abstractKey?: ?string,
+  +metadata?: ?{|
     +connection?: $ReadOnlyArray<ConnectionMetadata>,
     +mask?: boolean,
     +plural?: boolean,
@@ -64,7 +64,7 @@ export type ReaderPaginationFragment = {|
 |};
 
 export type ReaderRefetchMetadata = {|
-  +connection: ?ReaderPaginationMetadata,
+  +connection?: ?ReaderPaginationMetadata,
   +operation: string | ConcreteRequest,
   +fragmentPathInResult: Array<string>,
   +identifierField?: ?string,
@@ -108,7 +108,11 @@ export type ReaderClientExtension = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
-export type ReaderField = ReaderScalarField | ReaderLinkedField;
+export type ReaderField =
+  | ReaderScalarField
+  | ReaderLinkedField
+  | ReaderRelayResolver
+  | ReaderRelayLiveResolver;
 
 export type ReaderRootArgument = {|
   +kind: 'RootArgument',
@@ -119,21 +123,31 @@ export type ReaderInlineFragment = {|
   +kind: 'InlineFragment',
   +selections: $ReadOnlyArray<ReaderSelection>,
   +type: string,
-  +abstractKey: ?string,
+  +abstractKey?: ?string,
 |};
 
 export type ReaderLinkedField = {|
   +kind: 'LinkedField',
-  +alias: ?string,
+  +alias?: ?string,
   +name: string,
-  +storageKey: ?string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +concreteType: ?string,
+  +storageKey?: ?string,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +concreteType?: ?string,
   +plural: boolean,
   +selections: $ReadOnlyArray<ReaderSelection>,
 |};
 
+export type ReaderActorChange = {|
+  +kind: 'ActorChange',
+  +alias?: ?string,
+  +name: string,
+  +storageKey?: ?string,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +fragmentSpread: ReaderFragmentSpread,
+|};
+
 export type ReaderModuleImport = {|
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
   +kind: 'ModuleImport',
   +documentName: string,
   +fragmentPropName: string,
@@ -173,10 +187,10 @@ export type ReaderNode =
 
 export type ReaderScalarField = {|
   +kind: 'ScalarField',
-  +alias: ?string,
+  +alias?: ?string,
   +name: string,
-  +args: ?$ReadOnlyArray<ReaderArgument>,
-  +storageKey: ?string,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +storageKey?: ?string,
 |};
 
 export type ReaderFlightField = {|
@@ -211,18 +225,51 @@ export type ReaderRelayResolver = {|
   +alias: ?string,
   +name: string,
   +fragment: ReaderFragmentSpread,
+  +path: string,
   +resolverModule: (rootKey: {
     +$data?: any, // flowlint-line unclear-type:off
+    +$fragmentSpreads: any, // flowlint-line unclear-type:off
     +$fragmentRefs: any, // flowlint-line unclear-type:off
     ...
   }) => mixed,
 |};
 
+export type ReaderRelayLiveResolver = {|
+  +kind: 'RelayLiveResolver',
+  +alias: ?string,
+  +name: string,
+  +fragment: ReaderFragmentSpread,
+  +path: string,
+  +resolverModule: (rootKey: {
+    +$data?: any, // flowlint-line unclear-type:off
+    +$fragmentSpreads: any, // flowlint-line unclear-type:off
+    +$fragmentRefs: any, // flowlint-line unclear-type:off
+    ...
+  }) => mixed,
+|};
+
+export type ReaderClientEdgeToClientObject = {|
+  +kind: 'ClientEdgeToClientObject',
+  +concreteType: string,
+  +linkedField: ReaderLinkedField,
+  +backingField: ReaderRelayResolver | ReaderClientExtension,
+|};
+
+export type ReaderClientEdgeToServerObject = {|
+  +kind: 'ClientEdgeToServerObject',
+  +linkedField: ReaderLinkedField,
+  +operation: ConcreteRequest,
+  +backingField: ReaderRelayResolver | ReaderClientExtension,
+|};
+
 export type ReaderSelection =
   | ReaderCondition
+  | ReaderClientEdgeToClientObject
+  | ReaderClientEdgeToServerObject
   | ReaderClientExtension
   | ReaderDefer
   | ReaderField
+  | ReaderActorChange
   | ReaderFlightField
   | ReaderFragmentSpread
   | ReaderInlineDataFragmentSpread

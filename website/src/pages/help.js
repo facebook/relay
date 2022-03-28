@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -46,16 +46,11 @@ class Help extends React.Component {
       {
         content: (
           <span>
-            Many developers and users idle on Slack in the{' '}
-            <a href="https://graphql.slack.com/messages/relay">#relay</a>{' '}
-            channel of{' '}
-            <a href="https://graphql-slack.herokuapp.com/">
-              the GraphQL Slack community
-            </a>
-            .
+            Many developers and users idle in the #relay channel of the{' '}
+            <a href="https://discord.gg/Kb3SFkUeQt">GraphQL Discord server</a>.
           </span>
         ),
-        title: 'Slack',
+        title: 'Discord',
       },
       {
         content: (
@@ -81,7 +76,7 @@ class Help extends React.Component {
   }
 }
 
-export default props => (
+export default (props) => (
   <Layout>
     <Help {...props} />
   </Layout>

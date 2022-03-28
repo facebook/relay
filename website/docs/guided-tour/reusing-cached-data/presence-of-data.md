@@ -2,6 +2,9 @@
 id: presence-of-data
 title: Presence of Data
 slug: /guided-tour/reusing-cached-data/presence-of-data/
+description: Relay guide to the presence of data
+keywords:
+- presence
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -13,7 +16,7 @@ An important thing to keep in mind when attempting to reuse data that is cached 
 
 Data in the Relay store for a given query will generally be present after the query has been fetched for the first time, as long as that query is being rendered on the screen. If we've never fetched data for a specific query, then it will be missing from the store.
 
-However, even after we've fetched data for different queries, we can't keep all of the data that we've fetched indefinitely in memory, since over time it would grow to be too large and too stale. In order to mitigate this, Relay runs a process called *Garbage Collection*, in order to delete data that we're no longer using:
+However, even after we've fetched data for different queries, we can't keep all of the data that we've fetched indefinitely in memory, since over time it would grow to be too large and too stale. In order to mitigate this, Relay runs a process called *Garbage Collection*, in order to delete data that we're no longer using.
 
 ## Garbage Collection in Relay
 
@@ -22,7 +25,9 @@ Specifically, Relay runs garbage collection on the local in-memory store by dele
 However, this can be at odds with reusing cached data; if the data is deleted too soon, before we try to reuse it again later, that will prevent us from reusing that data to render a screen without having to wait on a network request. To address this, this section will cover what you need to do in order to ensure that the data you want to reuse is kept cached for as long as you need it.
 
 
-> NOTE: Usually, you shouldn't need to worry about configuring garbage collection and data retention, as this should be configured by the app infrastructure at the RelayEnvironment level; however, we will cover it here for reference.
+:::note
+NOTE: Usually, you shouldn't need to worry about configuring garbage collection and data retention, as this should be configured by the app infrastructure at the RelayEnvironment level; however, we will cover it here for reference.
+:::
 
 <FbGarbageCollection />
 
@@ -69,7 +74,7 @@ const store = new Store(source, {gcScheduler});
 ```
 
 * By default, if a `gcScheduler` option is not provided, Relay will schedule garbage collection using the `resolveImmediate` function.
-* You can provide a scheduler function to make GC scheduling less aggressive than the default, for example based on time or [scheduler](https://github.com/facebook/react/tree/master/packages/scheduler) priorities, or any other heuristic. By convention, implementations should not execute the callback immediately.
+* You can provide a scheduler function to make GC scheduling less aggressive than the default, for example based on time or [scheduler](https://github.com/facebook/react/tree/main/packages/scheduler) priorities, or any other heuristic. By convention, implementations should not execute the callback immediately.
 
 
 ### GC Release Buffer Size

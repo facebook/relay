@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<defa770d02a406fd0b55c1c0d3d061e3>>
+ * @generated SignedSource<<5358afc9dc29cac944142e12b127032a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type GraphQLTagTest2UserFragment$ref: FragmentReference;
-declare export opaque type GraphQLTagTest2UserFragment$fragmentType: GraphQLTagTest2UserFragment$ref;
-export type GraphQLTagTestUserFragment1RefetchQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+type GraphQLTagTest2UserFragment$fragmentType = any;
+export type GraphQLTagTestUserFragment1RefetchQuery$variables = {|
   id: string,
 |};
-export type GraphQLTagTestUserFragment1RefetchQueryResponse = {|
+export type GraphQLTagTestUserFragment1RefetchQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: GraphQLTagTest2UserFragment$ref,
+    +$fragmentSpreads: GraphQLTagTest2UserFragment$fragmentType,
   |},
 |};
 export type GraphQLTagTestUserFragment1RefetchQuery = {|
-  variables: GraphQLTagTestUserFragment1RefetchQueryVariables,
-  response: GraphQLTagTestUserFragment1RefetchQueryResponse,
+  response: GraphQLTagTestUserFragment1RefetchQuery$data,
+  variables: GraphQLTagTestUserFragment1RefetchQuery$variables,
 |};
 */
 
@@ -137,4 +136,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "551532a9e8b3679f63f17f68268f03d2";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  GraphQLTagTestUserFragment1RefetchQuery$variables,
+  GraphQLTagTestUserFragment1RefetchQuery$data,
+>*/);

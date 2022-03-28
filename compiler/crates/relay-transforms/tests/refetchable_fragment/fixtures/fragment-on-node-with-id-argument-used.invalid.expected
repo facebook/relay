@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment RefetchableFragment on User
+  @refetchable(queryName: "RefetchableFragmentQuery") {
+  friends(after: $id) {
+    __typename
+  }
+}
+==================================== ERROR ====================================
+✖︎ Invalid use of @refetchable on fragment `RefetchableFragment`, this fragment already has an `$id` variable in scope.
+
+  fragment-on-node-with-id-argument-used.invalid.graphql:4:18
+    3 │   @refetchable(queryName: "RefetchableFragmentQuery") {
+    4 │   friends(after: $id) {
+      │                  ^^^
+    5 │     __typename

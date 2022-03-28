@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<df94d7ec6ffaaed1e6ca8716ddc72088>>
+ * @generated SignedSource<<c6365cb3b7553c40257b502e3ccfa666>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,24 +17,24 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery.node.nameRenderers {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":true}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name$ref = any;
-export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType = any;
+type RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$data = {|
   +node: ?{|
     +nameRenderers?: ?$ReadOnlyArray<?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name$ref & RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name$fragmentType,
     |}>,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery = {|
-  variables: RelayModernEnvironmentExecuteWithPluralMatchTestUserQueryVariables,
-  response: RelayModernEnvironmentExecuteWithPluralMatchTestUserQueryResponse,
+  response: RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$data,
+  variables: RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$variables,
 |};
 */
 
@@ -67,6 +67,7 @@ v3 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery",
       "fragmentName": "RelayModernEnvironmentExecuteWithPluralMatchTestPlainUserNameRenderer_name",
       "fragmentPropName": "name",
@@ -80,6 +81,7 @@ v4 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery",
       "fragmentName": "RelayModernEnvironmentExecuteWithPluralMatchTestMarkdownUserNameRenderer_name",
       "fragmentPropName": "name",
@@ -201,4 +203,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5ba0549be6b9d3358f8bc52844e64484";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$variables,
+  RelayModernEnvironmentExecuteWithPluralMatchTestUserQuery$data,
+>*/);

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<63c3c66664c2acbd51eb6d99cef1aaa4>>
+ * @generated SignedSource<<be6cdc8ce5d2e0280c14563819dd6952>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useFragmentNodeReactDoubleEffectsTestUserFragment$ref = any;
-export type useFragmentNodeReactDoubleEffectsTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useFragmentNodeReactDoubleEffectsTestUserFragment$fragmentType = any;
+export type useFragmentNodeReactDoubleEffectsTestUserQuery$variables = {|
   id: string,
 |};
-export type useFragmentNodeReactDoubleEffectsTestUserQueryResponse = {|
+export type useFragmentNodeReactDoubleEffectsTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useFragmentNodeReactDoubleEffectsTestUserFragment$ref,
+    +$fragmentSpreads: useFragmentNodeReactDoubleEffectsTestUserFragment$fragmentType,
   |},
 |};
 export type useFragmentNodeReactDoubleEffectsTestUserQuery = {|
-  variables: useFragmentNodeReactDoubleEffectsTestUserQueryVariables,
-  response: useFragmentNodeReactDoubleEffectsTestUserQueryResponse,
+  response: useFragmentNodeReactDoubleEffectsTestUserQuery$data,
+  variables: useFragmentNodeReactDoubleEffectsTestUserQuery$variables,
 |};
 */
 
@@ -135,4 +135,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "362966f1b2b2a5e926134b5ad581e901";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useFragmentNodeReactDoubleEffectsTestUserQuery$variables,
+  useFragmentNodeReactDoubleEffectsTestUserQuery$data,
+>*/);

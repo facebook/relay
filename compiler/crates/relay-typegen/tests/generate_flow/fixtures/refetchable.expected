@@ -7,33 +7,31 @@ fragment FlowRefetchableFragment on Node
   }
 }
 ==================================== OUTPUT ===================================
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type FlowRefetchableFragment$ref: FragmentReference;
-declare export opaque type FlowRefetchableFragment$fragmentType: FlowRefetchableFragment$ref;
-export type FlowRefetchableFragmentQueryVariables = {|
+import type { FragmentType } from "relay-runtime";
+import type { FlowRefetchableFragment$fragmentType } from "FlowRefetchableFragment.graphql";
+export type FlowRefetchableFragmentQuery$variables = {|
   id: string,
 |};
-export type FlowRefetchableFragmentQueryResponse = {|
+export type FlowRefetchableFragmentQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: FlowRefetchableFragment$ref,
+    +$fragmentSpreads: FlowRefetchableFragment$fragmentType,
   |},
 |};
 export type FlowRefetchableFragmentQuery = {|
-  variables: FlowRefetchableFragmentQueryVariables,
-  response: FlowRefetchableFragmentQueryResponse,
+  response: FlowRefetchableFragmentQuery$data,
+  variables: FlowRefetchableFragmentQuery$variables,
 |};
 -------------------------------------------------------------------------------
-import type { FragmentReference } from "relay-runtime";
-import type { FlowRefetchableFragment$ref, FlowRefetchableFragment$fragmentType } from "FlowRefetchableFragmentQuery.graphql";
-export type { FlowRefetchableFragment$ref, FlowRefetchableFragment$fragmentType };
-export type FlowRefetchableFragment = {|
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FlowRefetchableFragment$fragmentType: FragmentType;
+import type { FlowRefetchableFragmentQuery$variables } from "FlowRefetchableFragmentQuery.graphql";
+export type FlowRefetchableFragment$data = {|
   +id: string,
   +name?: ?string,
-  +$refType: FlowRefetchableFragment$ref,
+  +$fragmentType: FlowRefetchableFragment$fragmentType,
 |};
-export type FlowRefetchableFragment$data = FlowRefetchableFragment;
 export type FlowRefetchableFragment$key = {
   +$data?: FlowRefetchableFragment$data,
-  +$fragmentRefs: FlowRefetchableFragment$ref,
+  +$fragmentSpreads: FlowRefetchableFragment$fragmentType,
   ...
 };

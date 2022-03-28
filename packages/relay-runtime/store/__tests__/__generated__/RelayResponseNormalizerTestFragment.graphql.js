@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bff02f95040af08040872c0b2c521f94>>
+ * @generated SignedSource<<5ca362fb0afb15a79e6449bbf33db0ba>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,25 +17,23 @@
 // @dataDrivenDependency RelayResponseNormalizerTestFragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayResponseNormalizerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayResponseNormalizerTestMarkdownUserNameRenderer_name$ref = any;
-type RelayResponseNormalizerTestPlainUserNameRenderer_name$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayResponseNormalizerTestFragment$ref: FragmentReference;
-declare export opaque type RelayResponseNormalizerTestFragment$fragmentType: RelayResponseNormalizerTestFragment$ref;
-export type RelayResponseNormalizerTestFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayResponseNormalizerTestMarkdownUserNameRenderer_name$fragmentType = any;
+type RelayResponseNormalizerTestPlainUserNameRenderer_name$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayResponseNormalizerTestFragment$fragmentType: FragmentType;
+export type RelayResponseNormalizerTestFragment$data = {|
   +id: string,
   +nameRenderer: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentRefs: RelayResponseNormalizerTestPlainUserNameRenderer_name$ref & RelayResponseNormalizerTestMarkdownUserNameRenderer_name$ref,
+    +$fragmentSpreads: RelayResponseNormalizerTestMarkdownUserNameRenderer_name$fragmentType & RelayResponseNormalizerTestPlainUserNameRenderer_name$fragmentType,
   |},
-  +$refType: RelayResponseNormalizerTestFragment$ref,
+  +$fragmentType: RelayResponseNormalizerTestFragment$fragmentType,
 |};
-export type RelayResponseNormalizerTestFragment$data = RelayResponseNormalizerTestFragment;
 export type RelayResponseNormalizerTestFragment$key = {
   +$data?: RelayResponseNormalizerTestFragment$data,
-  +$fragmentRefs: RelayResponseNormalizerTestFragment$ref,
+  +$fragmentSpreads: RelayResponseNormalizerTestFragment$fragmentType,
   ...
 };
 */
@@ -74,6 +72,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "RelayResponseNormalizerTestFragment",
               "fragmentName": "RelayResponseNormalizerTestPlainUserNameRenderer_name",
               "fragmentPropName": "name",
@@ -87,6 +86,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "RelayResponseNormalizerTestFragment",
               "fragmentName": "RelayResponseNormalizerTestMarkdownUserNameRenderer_name",
               "fragmentPropName": "name",
@@ -108,4 +108,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "59a69fffc6df53f032474b10299424b4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayResponseNormalizerTestFragment$fragmentType,
+  RelayResponseNormalizerTestFragment$data,
+>*/);

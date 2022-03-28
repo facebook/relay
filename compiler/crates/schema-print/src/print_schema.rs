@@ -1,15 +1,15 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use fnv::FnvHashMap;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use itertools::Itertools;
 use schema::*;
-use std::fmt::{Result, Write};
+use std::fmt::{Result as FmtResult, Write};
 use std::{
     collections::{hash_map::DefaultHasher, BTreeMap},
     hash::{Hash, Hasher},
@@ -36,25 +36,25 @@ pub fn print_schema_definition(schema: &SDLSchema) -> String {
     }
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_schema_definition(schema, &mut result).unwrap();
-    result.first().unwrap().to_owned()
+    result.into_iter().next().unwrap()
 }
 
 pub fn print_directives(schema: &SDLSchema) -> String {
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_directives(schema, &mut result).unwrap();
-    result.first().unwrap().to_owned()
+    result.into_iter().next().unwrap()
 }
 
 pub fn print_directive(schema: &SDLSchema, directive: &Directive) -> String {
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_directive(schema, &mut result, directive).unwrap();
-    result.first().unwrap().to_owned()
+    result.into_iter().next().unwrap()
 }
 
 pub fn print_types(schema: &SDLSchema) -> String {
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_types(schema, &mut result).unwrap();
-    result.first().unwrap().to_owned()
+    result.into_iter().next().unwrap()
 }
 
 /// Returns a sharded GraphQL SDLSchema
@@ -109,26 +109,30 @@ pub fn print_types_directives_as_shards(
 pub fn print_type(schema: &SDLSchema, type_: Type) -> String {
     let mut result = vec![String::new(); DEAULT_SHARD_COUNT];
     write_type(schema, &mut result, type_).unwrap();
-    result.first().unwrap().to_owned()
+    result.into_iter().next().unwrap()
 }
 
-fn write_schema_definition(schema: &SDLSchema, result: &mut Vec<String>) -> Result {
-    let mut printer = Printer::new(&schema, result);
+fn write_schema_definition(schema: &SDLSchema, result: &mut Vec<String>) -> FmtResult {
+    let mut printer = Printer::new(schema, result);
     printer.print_schema_definition()
 }
 
-fn write_directives(schema: &SDLSchema, result: &mut Vec<String>) -> Result {
-    let mut printer = Printer::new(&schema, result);
+fn write_directives(schema: &SDLSchema, result: &mut Vec<String>) -> FmtResult {
+    let mut printer = Printer::new(schema, result);
     printer.print_directives()
 }
 
-fn write_directive(schema: &SDLSchema, result: &mut Vec<String>, directive: &Directive) -> Result {
-    let mut printer = Printer::new(&schema, result);
+fn write_directive(
+    schema: &SDLSchema,
+    result: &mut Vec<String>,
+    directive: &Directive,
+) -> FmtResult {
+    let mut printer = Printer::new(schema, result);
     printer.print_directive(directive)
 }
 
-fn write_types(schema: &SDLSchema, result: &mut Vec<String>) -> Result {
-    let mut printer = Printer::new(&schema, result);
+fn write_types(schema: &SDLSchema, result: &mut Vec<String>) -> FmtResult {
+    let mut printer = Printer::new(schema, result);
     printer.print_types()
 }
 
@@ -137,13 +141,13 @@ fn write_types_as_shards<'a>(
     shards: &'a mut Vec<String>,
     shard_count: usize,
     type_shards: &'a mut FnvHashMap<StringKey, Vec<String>>,
-) -> Result {
-    let mut printer = Printer::new_with_shards(&schema, shards, shard_count, Some(type_shards));
+) -> FmtResult {
+    let mut printer = Printer::new_with_shards(schema, shards, shard_count, Some(type_shards));
     printer.print_types()
 }
 
-fn write_type(schema: &SDLSchema, result: &mut Vec<String>, type_: Type) -> Result {
-    let mut printer = Printer::new(&schema, result);
+fn write_type(schema: &SDLSchema, result: &mut Vec<String>, type_: Type) -> FmtResult {
+    let mut printer = Printer::new(schema, result);
     printer.print_type(type_)
 }
 
@@ -190,7 +194,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         }
     }
 
-    fn print_schema_definition(&mut self) -> Result {
+    fn print_schema_definition(&mut self) -> FmtResult {
         let query_type_name = self
             .schema
             .query_type()
@@ -221,7 +225,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         self.print_definition_end()
     }
 
-    fn print_directives(&mut self) -> Result {
+    fn print_directives(&mut self) -> FmtResult {
         if self.schema.get_directives().count() == 0 {
             return Ok(());
         }
@@ -233,7 +237,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         Ok(())
     }
 
-    fn print_directive(&mut self, directive: &Directive) -> Result {
+    fn print_directive(&mut self, directive: &Directive) -> FmtResult {
         write!(self.writer(), "directive @{}", directive.name)?;
         self.print_args(&directive.arguments)?;
         write!(
@@ -244,7 +248,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         self.print_definition_end()
     }
 
-    fn print_types(&mut self) -> Result {
+    fn print_types(&mut self) -> FmtResult {
         let ordered_type_map = self.schema.get_type_map().collect::<BTreeMap<_, _>>();
         for (_key, value) in ordered_type_map.iter() {
             self.print_type(**value)?;
@@ -252,7 +256,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         Ok(())
     }
 
-    fn print_type(&mut self, type_: Type) -> Result {
+    fn print_type(&mut self, type_: Type) -> FmtResult {
         self.update_writer_index_for_type_start(&type_);
         match type_ {
             Type::Enum(id) => self.print_enum(id)?,
@@ -266,24 +270,24 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         Ok(())
     }
 
-    fn print_scalar(&mut self, id: ScalarID) -> Result {
+    fn print_scalar(&mut self, id: ScalarID) -> FmtResult {
         let scalar = self.schema.scalar(id);
         write!(self.writer(), "scalar {}", scalar.name)?;
         self.print_directive_values(&scalar.directives)?;
         self.print_definition_end()
     }
 
-    fn print_object(&mut self, id: ObjectID) -> Result {
+    fn print_object(&mut self, id: ObjectID) -> FmtResult {
         let object = self.schema.object(id);
-        write!(self.writer(), "type {}", object.name)?;
+        write!(self.writer(), "type {}", object.name.item)?;
         self.print_implementing_interfaces(&object.interfaces)?;
         self.print_directive_values(&object.directives)?;
         self.print_space()?;
-        self.print_fields(&object.fields, object.name)?;
+        self.print_fields(&object.fields, object.name.item)?;
         self.print_definition_end()
     }
 
-    fn print_interface(&mut self, id: InterfaceID) -> Result {
+    fn print_interface(&mut self, id: InterfaceID) -> FmtResult {
         let interface = self.schema.interface(id);
         write!(self.writer(), "interface {}", interface.name)?;
         self.print_implementing_interfaces(&interface.interfaces)?;
@@ -293,7 +297,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         self.print_definition_end()
     }
 
-    fn print_union(&mut self, id: UnionID) -> Result {
+    fn print_union(&mut self, id: UnionID) -> FmtResult {
         let union_ = self.schema.union(id);
         write!(self.writer(), "union {}", union_.name)?;
         self.print_directive_values(&union_.directives)?;
@@ -301,7 +305,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
             let union_members = union_
                 .members
                 .iter()
-                .map(|id| self.schema.object(*id).name)
+                .map(|id| self.schema.object(*id).name.item)
                 .collect::<Vec<_>>()
                 .iter()
                 .join(" | ");
@@ -310,7 +314,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         self.print_definition_end()
     }
 
-    fn print_enum(&mut self, id: EnumID) -> Result {
+    fn print_enum(&mut self, id: EnumID) -> FmtResult {
         let enum_ = self.schema.enum_(id);
         write!(self.writer(), "enum {}", enum_.name)?;
         self.print_directive_values(&enum_.directives)?;
@@ -319,7 +323,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         self.print_definition_end()
     }
 
-    fn print_input_object(&mut self, id: InputObjectID) -> Result {
+    fn print_input_object(&mut self, id: InputObjectID) -> FmtResult {
         let input_object = self.schema.input_object(id);
         write!(self.writer(), "input {}", input_object.name)?;
         self.print_directive_values(&input_object.directives)?;
@@ -328,7 +332,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         self.print_definition_end()
     }
 
-    fn print_fields(&mut self, fields: &[FieldID], type_name: StringKey) -> Result {
+    fn print_fields(&mut self, fields: &[FieldID], type_name: StringKey) -> FmtResult {
         if fields.is_empty() {
             return Ok(());
         }
@@ -336,10 +340,10 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         self.print_new_line()?;
         for field_id in fields {
             let field = &self.schema.field(*field_id);
-            self.update_writer_index_for_field_start(field.name, type_name);
+            self.update_writer_index_for_field_start(field.name.item, type_name);
             self.print_space()?;
             self.print_space()?;
-            write!(self.writer(), "{}", field.name)?;
+            write!(self.writer(), "{}", field.name.item)?;
             self.print_args(&field.arguments)?;
             let type_string = self.schema.get_type_string(&field.type_);
             write!(self.writer(), ": {}", type_string)?;
@@ -350,7 +354,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         write!(self.writer(), "}}")
     }
 
-    fn print_args(&mut self, args: &ArgumentDefinitions) -> Result {
+    fn print_args(&mut self, args: &ArgumentDefinitions) -> FmtResult {
         if args.is_empty() {
             return Ok(());
         }
@@ -371,7 +375,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         write!(self.writer(), ")")
     }
 
-    fn print_enum_values(&mut self, values: &[EnumValue]) -> Result {
+    fn print_enum_values(&mut self, values: &[EnumValue]) -> FmtResult {
         if values.is_empty() {
             return Ok(());
         }
@@ -385,7 +389,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         write!(self.writer(), "}}")
     }
 
-    fn print_input_object_fields(&mut self, args: &ArgumentDefinitions) -> Result {
+    fn print_input_object_fields(&mut self, args: &ArgumentDefinitions) -> FmtResult {
         if args.is_empty() {
             return Ok(());
         }
@@ -402,7 +406,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         write!(self.writer(), "}}")
     }
 
-    fn print_directive_values(&mut self, directives: &[DirectiveValue]) -> Result {
+    fn print_directive_values(&mut self, directives: &[DirectiveValue]) -> FmtResult {
         if directives.is_empty() {
             return Ok(());
         }
@@ -413,7 +417,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         Ok(())
     }
 
-    fn print_directive_argument_values(&mut self, values: &[ArgumentValue]) -> Result {
+    fn print_directive_argument_values(&mut self, values: &[ArgumentValue]) -> FmtResult {
         if values.is_empty() {
             return Ok(());
         }
@@ -430,7 +434,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         write!(self.writer(), ")")
     }
 
-    fn print_implementing_interfaces(&mut self, interfaces: &[InterfaceID]) -> Result {
+    fn print_implementing_interfaces(&mut self, interfaces: &[InterfaceID]) -> FmtResult {
         if !interfaces.is_empty() {
             let interface_names = interfaces
                 .iter()
@@ -441,16 +445,16 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         Ok(())
     }
 
-    fn print_definition_end(&mut self) -> Result {
+    fn print_definition_end(&mut self) -> FmtResult {
         self.print_new_line()?;
         self.print_new_line()
     }
 
-    fn print_new_line(&mut self) -> Result {
+    fn print_new_line(&mut self) -> FmtResult {
         writeln!(self.writer())
     }
 
-    fn print_space(&mut self) -> Result {
+    fn print_space(&mut self) -> FmtResult {
         write!(self.writer(), " ")
     }
 
@@ -501,19 +505,9 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
 }
 
 fn is_schema_of_common_name(schema: &SDLSchema) -> bool {
-    match schema.query_type() {
-        Some(_) => {}
-        None => return false,
-    };
-    match schema.mutation_type() {
-        Some(_) => {}
-        None => return false,
-    };
-    match schema.subscription_type() {
-        Some(_) => {}
-        None => return false,
-    };
-    true
+    schema.query_type().is_some()
+        && schema.mutation_type().is_some()
+        && schema.subscription_type().is_some()
 }
 
 fn calculate_hash<T: Hash>(t: &T) -> u64 {

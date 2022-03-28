@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictWithNestedFragmentsQuery {
+  me {
+    same_alias: name
+    ...selectionSetConflictWithNestedFragmentsFrag
+  }
+}
+fragment selectionSetConflictWithNestedFragmentsFrag on User {
+  ... on Actor {
+    ...selectionSetConflictWithNestedFragmentsFrag2
+  }
+}
+fragment selectionSetConflictWithNestedFragmentsFrag2 on User {
+  same_alias: id
+}
+==================================== ERROR ====================================
+✖︎ Field 'same_alias' is ambiguous because it references two different fields: 'name' and 'id'
+
+  selection_set_conflict_with_nested_fragments.graphql:4:17
+    3 │   me {
+    4 │     same_alias: name
+      │                 ^^^^
+    5 │     ...selectionSetConflictWithNestedFragmentsFrag
+
+  ℹ︎ the other field
+
+  selection_set_conflict_with_nested_fragments.graphql:14:15
+   13 │ fragment selectionSetConflictWithNestedFragmentsFrag2 on User {
+   14 │   same_alias: id
+      │               ^^
+   15 │ }

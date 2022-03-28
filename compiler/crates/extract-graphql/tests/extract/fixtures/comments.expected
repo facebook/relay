@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -19,15 +19,5 @@ graphql`ignored`
  **/
 graphql`not ignored 2`
 ==================================== OUTPUT ===================================
-[
-    GraphQLSource {
-        text: "not ignored 1",
-        line_index: 13,
-        column_index: 18,
-    },
-    GraphQLSource {
-        text: "not ignored 2",
-        line_index: 18,
-        column_index: 8,
-    },
-]
+graphql - line: 13, column: 18, text: <not ignored 1>
+graphql - line: 18, column: 8, text: <not ignored 2>

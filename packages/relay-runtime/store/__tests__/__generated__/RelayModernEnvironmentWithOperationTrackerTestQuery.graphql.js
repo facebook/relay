@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ae773f0d2f1a82d7af3f4f36c7345a9a>>
+ * @generated SignedSource<<a9222460740b50f8616900a54a44e840>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentWithOperationTrackerTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType = any;
+export type RelayModernEnvironmentWithOperationTrackerTestQuery$variables = {|
   id?: ?string,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTestQueryResponse = {|
+export type RelayModernEnvironmentWithOperationTrackerTestQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentWithOperationTrackerTestQuery = {|
-  variables: RelayModernEnvironmentWithOperationTrackerTestQueryVariables,
-  response: RelayModernEnvironmentWithOperationTrackerTestQueryResponse,
+  response: RelayModernEnvironmentWithOperationTrackerTestQuery$data,
+  variables: RelayModernEnvironmentWithOperationTrackerTestQuery$variables,
 |};
 */
 
@@ -197,6 +197,7 @@ return {
                         "kind": "InlineFragment",
                         "selections": [
                           {
+                            "args": null,
                             "documentName": "RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment",
                             "fragmentName": "RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name",
                             "fragmentPropName": "name",
@@ -210,6 +211,7 @@ return {
                         "kind": "InlineFragment",
                         "selections": [
                           {
+                            "args": null,
                             "documentName": "RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment",
                             "fragmentName": "RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name",
                             "fragmentPropName": "name",
@@ -243,6 +245,7 @@ return {
                         "kind": "InlineFragment",
                         "selections": [
                           {
+                            "args": null,
                             "documentName": "RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer",
                             "fragmentName": "RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name",
                             "fragmentPropName": "name",
@@ -327,4 +330,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a7167fdd5f3eacc9c1ed47a342eb2fa0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentWithOperationTrackerTestQuery$variables,
+  RelayModernEnvironmentWithOperationTrackerTestQuery$data,
+>*/);

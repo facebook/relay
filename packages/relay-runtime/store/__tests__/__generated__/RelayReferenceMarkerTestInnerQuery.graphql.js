@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<dcd12d63c9b9e2f56350578369c13262>>
+ * @generated SignedSource<<7d300ffc9b18573a173a8462ebf5990c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayReferenceMarkerTestInnerQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayReferenceMarkerTestInnerQuery$variables = {|
   id: string,
 |};
-export type RelayReferenceMarkerTestInnerQueryResponse = {|
+export type RelayReferenceMarkerTestInnerQuery$data = {|
   +node: ?{|
     +name?: ?string,
   |},
 |};
 export type RelayReferenceMarkerTestInnerQuery = {|
-  variables: RelayReferenceMarkerTestInnerQueryVariables,
-  response: RelayReferenceMarkerTestInnerQueryResponse,
+  response: RelayReferenceMarkerTestInnerQuery$data,
+  variables: RelayReferenceMarkerTestInnerQuery$variables,
 |};
 */
 
@@ -131,4 +131,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "4c6a9934bb55d4c7f8779a65a12773c9";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReferenceMarkerTestInnerQuery$variables,
+  RelayReferenceMarkerTestInnerQuery$data,
+>*/);

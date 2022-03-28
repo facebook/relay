@@ -1,0 +1,10 @@
+# expected-to-throw
+fragment NonAssignable_page on Page {
+  __typename
+}
+
+query TestQuery @updatable {
+  node(id: 4) {
+    ...NonAssignable_page
+  }
+}

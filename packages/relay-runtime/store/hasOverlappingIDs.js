@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -20,7 +20,7 @@ function hasOverlappingIDs(
   seenRecords: DataIDSet,
   updatedRecordIDs: DataIDSet,
 ): boolean {
-  // $FlowFixMe: Set is an iterable type, accessing its iterator is allowed.
+  // $FlowFixMe[incompatible-use]: Set is an iterable type, accessing its iterator is allowed.
   const iterator = seenRecords[ITERATOR_KEY]();
   let next = iterator.next();
   while (!next.done) {

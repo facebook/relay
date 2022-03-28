@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a187139c70bdde0679a9c783604cf74e>>
+ * @generated SignedSource<<ecca1f45990bf2a2e9652013276c580b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReferenceMarkerTest3Fragment$ref = any;
-export type RelayReferenceMarkerTest5QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReferenceMarkerTest3Fragment$fragmentType = any;
+export type RelayReferenceMarkerTest5Query$variables = {|
   id: string,
 |};
-export type RelayReferenceMarkerTest5QueryResponse = {|
+export type RelayReferenceMarkerTest5Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayReferenceMarkerTest3Fragment$ref,
+    +$fragmentSpreads: RelayReferenceMarkerTest3Fragment$fragmentType,
   |},
 |};
 export type RelayReferenceMarkerTest5Query = {|
-  variables: RelayReferenceMarkerTest5QueryVariables,
-  response: RelayReferenceMarkerTest5QueryResponse,
+  response: RelayReferenceMarkerTest5Query$data,
+  variables: RelayReferenceMarkerTest5Query$variables,
 |};
 */
 
@@ -127,6 +127,7 @@ return {
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "RelayReferenceMarkerTest3Fragment",
                         "fragmentName": "RelayReferenceMarkerTestPlainUserNameRenderer_name",
                         "fragmentPropName": "name",
@@ -140,6 +141,7 @@ return {
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "RelayReferenceMarkerTest3Fragment",
                         "fragmentName": "RelayReferenceMarkerTestMarkdownUserNameRenderer_name",
                         "fragmentPropName": "name",
@@ -176,4 +178,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0788b1f4742c878888dfe9389e4d9de4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReferenceMarkerTest5Query$variables,
+  RelayReferenceMarkerTest5Query$data,
+>*/);

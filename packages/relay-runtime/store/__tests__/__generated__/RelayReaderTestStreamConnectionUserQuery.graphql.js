@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4a311c7fb3c6639682ebfe293568ae56>>
+ * @generated SignedSource<<5f193875c11e59c253f333613cc02505>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestStreamConnectionUserProfile$ref = any;
-export type RelayReaderTestStreamConnectionUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReaderTestStreamConnectionUserProfile$fragmentType = any;
+export type RelayReaderTestStreamConnectionUserQuery$variables = {|
   id: string,
 |};
-export type RelayReaderTestStreamConnectionUserQueryResponse = {|
+export type RelayReaderTestStreamConnectionUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayReaderTestStreamConnectionUserProfile$ref,
+    +$fragmentSpreads: RelayReaderTestStreamConnectionUserProfile$fragmentType,
   |},
 |};
 export type RelayReaderTestStreamConnectionUserQuery = {|
-  variables: RelayReaderTestStreamConnectionUserQueryVariables,
-  response: RelayReaderTestStreamConnectionUserQueryResponse,
+  response: RelayReaderTestStreamConnectionUserQuery$data,
+  variables: RelayReaderTestStreamConnectionUserQuery$variables,
 |};
 */
 
@@ -124,7 +124,6 @@ return {
                     "if": null,
                     "kind": "Stream",
                     "label": "RelayReaderTestStreamConnectionUserProfile$stream$UserProfile_friends",
-                    "metadata": null,
                     "selections": [
                       {
                         "alias": null,
@@ -164,8 +163,7 @@ return {
                         ],
                         "storageKey": null
                       }
-                    ],
-                    "useCustomizedBatch": null
+                    ]
                   },
                   {
                     "if": null,
@@ -236,4 +234,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "49574b98d8f989c7596cd7bf981f5a7e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestStreamConnectionUserQuery$variables,
+  RelayReaderTestStreamConnectionUserQuery$data,
+>*/);

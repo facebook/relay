@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5a9fff9e285763b2c28089b636e8504d>>
+ * @generated SignedSource<<633855b8029b0dd62718400015b9de79>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useRefetchableFragmentNodeTestUserFragment$ref: FragmentReference;
-declare export opaque type useRefetchableFragmentNodeTestUserFragment$fragmentType: useRefetchableFragmentNodeTestUserFragment$ref;
-export type useRefetchableFragmentNodeTestUserFragmentRefetchQueryVariables = {|
-  scale?: ?number,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+type useRefetchableFragmentNodeTestUserFragment$fragmentType = any;
+export type useRefetchableFragmentNodeTestUserFragmentRefetchQuery$variables = {|
   id: string,
+  scale?: ?number,
 |};
-export type useRefetchableFragmentNodeTestUserFragmentRefetchQueryResponse = {|
+export type useRefetchableFragmentNodeTestUserFragmentRefetchQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useRefetchableFragmentNodeTestUserFragment$ref,
+    +$fragmentSpreads: useRefetchableFragmentNodeTestUserFragment$fragmentType,
   |},
 |};
 export type useRefetchableFragmentNodeTestUserFragmentRefetchQuery = {|
-  variables: useRefetchableFragmentNodeTestUserFragmentRefetchQueryVariables,
-  response: useRefetchableFragmentNodeTestUserFragmentRefetchQueryResponse,
+  response: useRefetchableFragmentNodeTestUserFragmentRefetchQuery$data,
+  variables: useRefetchableFragmentNodeTestUserFragmentRefetchQuery$variables,
 |};
 */
 
@@ -178,4 +177,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "05ecfc568de9d9914217013ff67f7014";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useRefetchableFragmentNodeTestUserFragmentRefetchQuery$variables,
+  useRefetchableFragmentNodeTestUserFragmentRefetchQuery$data,
+>*/);

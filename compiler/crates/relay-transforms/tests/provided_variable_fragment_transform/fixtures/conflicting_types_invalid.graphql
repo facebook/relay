@@ -1,0 +1,61 @@
+# expected-to-throw
+fragment FragmentA on User
+  @argumentDefinitions(
+    var1: {type: "[Int]", provider: "varProviderA"}
+    var2: {type: "[Int]!", provider: "varProviderA"}
+) {
+    picture1: profilePicture(size: $var1) {
+        uri
+    }
+    picture2: profilePicture(size: $var2) {
+        uri
+    }
+}
+
+fragment TestAOther on User
+  @argumentDefinitions(
+    var_other: {type: "[Int]!", provider: "varProviderA"}
+) {
+    profilePicture(size: $var_other) {
+        uri
+    }
+}
+
+fragment FragmentB on User
+  @argumentDefinitions(
+    var1: {type: "[Int]", provider: "varProviderB"}
+    var2: {type: "Int", provider: "varProviderB"}
+) {
+    profilePicture(size: $var1) {
+        uri
+    }
+    friends(first: $var2) {
+        count
+    }
+}
+
+fragment FragmentC on User
+  @argumentDefinitions(
+    var1: {type: "Float", provider: "varProviderC"}
+    var2: {type: "Int", provider: "varProviderC"}
+) {
+    profile_picture(scale: $var1) {
+        uri
+    }
+    friends(first: $var2) {
+        count
+    }
+}
+
+fragment FragmentD on User
+  @argumentDefinitions(
+    var1: {type: "Float", provider: "varProviderD"}
+    var2: {type: "Float!", provider: "varProviderD"}
+) {
+    picture1: profile_picture(scale: $var1) {
+        uri
+    }
+    picture2: profile_picture(scale: $var2) {
+        uri
+    }
+}

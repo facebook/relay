@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fdff81335c5cad246dd9d55412f42393>>
+ * @generated SignedSource<<49bbc9c3bc35cbc3747c93a599b4a686>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,27 +15,27 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref = any;
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType = any;
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$variables = {|
   after?: ?string,
-  first?: ?number,
   before?: ?string,
+  first?: ?number,
+  id: string,
+  isViewerFriend?: ?boolean,
   last?: ?number,
   orderby?: ?$ReadOnlyArray<?string>,
-  isViewerFriend?: ?boolean,
 |};
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryResponse = {|
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$data = {|
   +node: ?{|
     +actor: ?{|
-      +$fragmentRefs: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref,
+      +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
     |},
   |},
 |};
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery = {|
-  variables: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryVariables,
-  response: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryResponse,
+  response: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$data,
+  variables: useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$variables,
 |};
 */
 
@@ -355,4 +355,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d89c8846126eef2be90954dd65755d31";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$variables,
+  useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$data,
+>*/);

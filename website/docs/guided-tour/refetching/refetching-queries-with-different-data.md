@@ -2,6 +2,10 @@
 id: refetching-queries-with-different-data
 title: Refetching Queries with Different Data
 slug: /guided-tour/refetching/refetching-queries-with-different-data/
+description: Relay guide to refetching queries with different data
+keywords:
+- refetching
+- query
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -27,6 +31,8 @@ Similarly to [Refreshing Queries with `useQueryLoader`](../refreshing-queries/#w
 /**
  * App.react.js
  */
+import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
+
 const AppQuery = require('__generated__/AppQuery.graphql');
 
 function App(props: Props) {
@@ -167,7 +173,7 @@ function App(props: Props) {
 
 Let's distill what's going on here:
 
-* When refetching, we now keep track of our own `isRefetching` loading state, since we are avoiding supending. We can use this state to render a busy spinner or similar loading UI inside the `MainContent` component, *without* hiding the `MainContent`.
+* When refetching, we now keep track of our own `isRefetching` loading state, since we are avoiding suspending. We can use this state to render a busy spinner or similar loading UI inside the `MainContent` component, *without* hiding the `MainContent`.
 * In the event handler, we first call `fetchQuery`, which will fetch the query and write the data to the local Relay store. When the `fetchQuery` network request completes, we call `loadQuery` so that we obtain an updated `queryRef` that we then pass to `usePreloadedQuery` in order render the updated data, similar to the previous example.
 * At this point, when `loadQuery` is called, the data for the query should already be cached in the local Relay store, so we use `fetchPolicy` of `'store-only'` to avoid suspending and only read the already cached data.
 
@@ -185,8 +191,6 @@ Similarly to [Refreshing Queries with `useLazyLoadQuery`](../refreshing-queries/
 /**
  * App.react.js
  */
-import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
-
 const AppQuery = require('__generated__/AppQuery.graphql');
 
 function App(props: Props) {
@@ -202,7 +206,7 @@ function App(props: Props) {
     // re-evaluated and refetched.
     setQueryArgs(prev => ({
       options: {
-        fetchKey: (prev?.fetchKey ?? 0) + 1,
+        fetchKey: (prev?.options.fetchKey ?? 0) + 1,
       },
       variables: {id: 'different-id'}
     }));
@@ -223,12 +227,10 @@ function App(props: Props) {
 /**
  * MainContent.react.js
  */
-import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
-
 // Fetches and renders the query, given the fetch options
 function MainContent(props) {
   const {refetch, queryArgs} = props;
-  const data = useLazyLoadQuery<AppQueryType>(
+  const data = useLazyLoadQuery(
     graphql`
       query AppQuery($id: ID!) {
         user(id: $id) {
@@ -282,8 +284,6 @@ In some cases, you might want to avoid showing a Suspense fallback, which would 
 /**
  * App.react.js
  */
-import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
-
 const AppQuery = require('__generated__/AppQuery.graphql');
 
 function App(props: Props) {
@@ -315,12 +315,12 @@ function App(props: Props) {
           // fetchPolicy to avoid suspending.
           setQueryArgs(prev => ({
             options: {
-              fetchKey: (prev?.fetchKey ?? 0) + 1,
+              fetchKey: (prev?.options.fetchKey ?? 0) + 1,
               fetchPolicy: 'store-only',
             },
             variables: {id: 'different-id'}
           }));
-        }
+        },
         error: () => {
           setIsRefreshing(false);
         }
@@ -341,7 +341,7 @@ function App(props: Props) {
 
 Let's distill what's going on here:
 
-* When refetching, we now keep track of our own `isRefetching` loading state, since we are avoiding supending. We can use this state to render a busy spinner or similar loading UI inside the `MainContent` component, *without* hiding the `MainContent`.
+* When refetching, we now keep track of our own `isRefetching` loading state, since we are avoiding suspending. We can use this state to render a busy spinner or similar loading UI inside the `MainContent` component, *without* hiding the `MainContent`.
 * In the event handler, we first call `fetchQuery`, which will fetch the query and write the data to the local Relay store. When the `fetchQuery` network request completes, we update our state so that we re-render an updated `fetchKey` and `fetchPolicy` that we then pass to `useLazyLoadQuery` in order render the updated data, similar to the previous example.
 * At this point, when we update the state, the data for the query should already be cached in the local Relay store, so we use `fetchPolicy` of `'store-only'` to avoid suspending and only read the already cached data.
 

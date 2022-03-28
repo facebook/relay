@@ -23,7 +23,6 @@ ReactDOM.render(
   />,
   container
 );
-
 ```
 
 When the **Relay.RootContainer** above is rendered, Relay will construct a query and send it to the GraphQL server. As soon as all required data has been fetched, `ProfilePicture` will be rendered. Props with fragments will contain data that was fetched from the server.

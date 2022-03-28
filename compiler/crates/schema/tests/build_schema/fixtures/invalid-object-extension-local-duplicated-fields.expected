@@ -14,7 +14,16 @@ extend type User {
 ==================================== ERROR ====================================
 ✖︎ Duplicate field definition 'nickname' found.
 
-  <generated>:1:1
-    1 │ # expected-to-throw
-      │ ^
-    2 │
+  invalid-object-extension-local-duplicated-fields.graphql:11:3
+   10 │   nickname: String
+   11 │   nickname: ID
+      │   ^^^^^^^^
+   12 │ }
+
+  ℹ︎ previously defined here
+
+  invalid-object-extension-local-duplicated-fields.graphql:10:3
+    9 │ extend type User {
+   10 │   nickname: String
+      │   ^^^^^^^^
+   11 │   nickname: ID

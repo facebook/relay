@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,18 +13,6 @@
 
 'use strict';
 
-const ProfilerContext = require('./ProfilerContext');
-const React = require('react');
-
-const useFetchTrackingRef = require('./useFetchTrackingRef');
-const useFragmentNode = require('./useFragmentNode');
-const useRelayEnvironment = require('./useRelayEnvironment');
-
-const {
-  getQueryResourceForEnvironment,
-  getQueryCacheIdentifier,
-} = require('./QueryResource');
-
 import type {
   FetchPolicy,
   GraphQLResponse,
@@ -33,6 +21,16 @@ import type {
   OperationType,
   RenderPolicy,
 } from 'relay-runtime';
+
+const ProfilerContext = require('./ProfilerContext');
+const {
+  getQueryCacheIdentifier,
+  getQueryResourceForEnvironment,
+} = require('./QueryResource');
+const useFetchTrackingRef = require('./useFetchTrackingRef');
+const useFragmentNode = require('./useFragmentNode');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const React = require('react');
 
 const {useContext, useEffect, useState, useRef} = React;
 
@@ -50,7 +48,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
   fetchPolicy?: ?FetchPolicy,
   fetchKey?: ?string | ?number,
   renderPolicy?: ?RenderPolicy,
-|}): $ElementType<TQuery, 'response'> {
+|}): TQuery['response'] {
   const environment = useRelayEnvironment();
   const profilerContext = useContext(ProfilerContext);
   const QueryResource = getQueryResourceForEnvironment(environment);
@@ -119,6 +117,14 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
     // the effect should be re-executed and the query re-retained.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [environment, cacheIdentifier]);
+
+  useEffect(() => {
+    // Release any temporary retain that's not released. At this point, if the
+    // cacheIdentifier doesn't change, the query is still permanently retained,
+    // and the temporary retain is redundant.
+    QueryResource.releaseTemporaryRetain(preparedQueryResult);
+    // This effect is intended to run on every commit, thus no dependency
+  });
 
   const {fragmentNode, fragmentRef} = preparedQueryResult;
   const {data} = useFragmentNode(

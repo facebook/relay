@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fd6d64d77ed7237fc52dcc639c6863dd>>
+ * @generated SignedSource<<753a41fc6a2e29a1f7b253272809f588>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,16 +15,16 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type ReactRelayTestMockerTestQueryVariables = {||};
-export type ReactRelayTestMockerTestQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type ReactRelayTestMockerTestQuery$variables = {||};
+export type ReactRelayTestMockerTestQuery$data = {|
   +me: ?{|
     +name: ?string,
   |},
 |};
 export type ReactRelayTestMockerTestQuery = {|
-  variables: ReactRelayTestMockerTestQueryVariables,
-  response: ReactRelayTestMockerTestQueryResponse,
+  response: ReactRelayTestMockerTestQuery$data,
+  variables: ReactRelayTestMockerTestQuery$variables,
 |};
 */
 
@@ -101,4 +101,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "130eb1e0c99c8856e670b7153c60015e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayTestMockerTestQuery$variables,
+  ReactRelayTestMockerTestQuery$data,
+>*/);

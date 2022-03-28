@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,9 +12,9 @@
 
 'use strict';
 
-const {getSelector} = require('relay-runtime');
-
 import type {FragmentMap, Variables} from 'relay-runtime';
+
+const {getSelector} = require('relay-runtime');
 
 function getRootVariablesForFragments<TProps: {...}>(
   fragments: FragmentMap,
@@ -32,11 +32,9 @@ function getRootVariablesForFragments<TProps: {...}>(
       selector != null && selector.kind === 'PluralReaderSelector'
         ? selector.selectors[0]?.owner.variables ?? {}
         : selector?.owner.variables ?? {};
-    // $FlowFixMe[cannot-spread-interface]
     rootVariables = {
       // $FlowFixMe[exponential-spread]
       ...rootVariables,
-      // $FlowFixMe[exponential-spread]
       ...fragmentOwnerVariables,
     };
   });

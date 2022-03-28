@@ -2,6 +2,9 @@
 id: type-emission
 title: Type Emission
 slug: /guides/type-emission/
+description: Relay guide to type emission
+keywords:
+- type emission
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -11,9 +14,7 @@ import TabItem from '@theme/TabItem';
 
 As part of its normal work, the [**Relay Compiler**](../compiler) will emit type information for your language of choice that helps you write type-safe application code. These types are included in the artifacts that `relay-compiler` generates to describe your operations and fragments.
 
-Regardless of your choice of language, all language plugins will emit roughly the same sort of type-information, but be sure to read the documentation for other [language plugins](#language-plugins) to learn about their specifics.
-
-## Operation input data
+## Operation variables
 
 The shape of the variables object used for query, mutation, or subscription operations.
 
@@ -29,23 +30,21 @@ In this example the emitted type-information would require the variables object 
 
 ```javascript
 /**
- * export type ExampleQueryVariables = {
+ * export type ExampleQuery$variables = {
  *   +artistID: string,
  * }
- * export type ExampleQueryResponse = {
+ * export type ExampleQuery$data = {
  *   +artist: {
  *     +name: ?string,
  *   }
  * }
  * export type ExampleQuery = {
- *   +variables: ExampleQueryVariables,
- *   +response: ExampleQueryResponse,
+ *   +variables: ExampleQuery$variables,
+ *   +response: ExampleQuery$data,
  * }
  */
 
-import type { ExampleQuery } from "__generated__/ExampleQuery.graphql"
-
-const data = useLazyLoadQuery<ExampleQuery>(
+const data = useLazyLoadQuery(
   graphql`
     query ExampleQuery($artistID: ID!) {
       artist(id: $artistID) {
@@ -53,7 +52,7 @@ const data = useLazyLoadQuery<ExampleQuery>(
       }
     }
   `,
-  // variables are expected to be of type ExampleQueryVariables
+  // variables are expected to be of type ExampleQuery$variables
   {artistID: 'banksy'},
 );
 ```
@@ -64,23 +63,20 @@ const data = useLazyLoadQuery<ExampleQuery>(
 
 ```javascript
 /**
- * export type ExampleQueryVariables = {
+ * export type ExampleQuery$variables = {
  *   readonly artistID: string
  * }
- * export type ExampleQueryResponse = {
+ * export type ExampleQuery$data = {
  *   readonly artist?: {
  *     readonly name?: string
  *   }
  * }
  * export type ExampleQuery = {
- *   readonly variables: ExampleQueryVariables
- *   readonly response: ExampleQueryResponse
+ *   readonly variables: ExampleQuery$variables
+ *   readonly response: ExampleQuery$data
  * }
  */
-
-import { ExampleQuery } from "__generated__/ExampleQuery.graphql"
-
-const data = useLazyLoadQuery<ExampleQuery>(
+const data = useLazyLoadQuery(
   graphql`
     query ExampleQuery($artistID: ID!) {
       artist(id: $artistID) {
@@ -88,7 +84,7 @@ const data = useLazyLoadQuery<ExampleQuery>(
       }
     }
   `,
-  // variables are expected to be of type ExampleQueryVariables
+  // variables are expected to be of type ExampleQuery$variables
   {artistID: 'banksy'},
 );
 ```
@@ -96,12 +92,11 @@ const data = useLazyLoadQuery<ExampleQuery>(
   </TabItem>
 </Tabs>
 
-## Operation/Fragment selection-set data
+## Operation and fragment data
 
 The shape of the data selected in a operation or fragment, following the [data-masking] rules. That is, excluding any data selected by fragment spreads.
 
 In this example the emitted type-information describes the response data which is returned by `useLazyLoadQuery` (or `usePreloadedQuery`).
-
 
 <Tabs
   defaultValue={fbContent({internal: 'Flow', external: 'TypeScript'})}
@@ -113,24 +108,22 @@ In this example the emitted type-information describes the response data which i
 
 ```javascript
 /**
- * export type ExampleQueryVariables = {
+ * export type ExampleQuery$variables = {
  *   +artistID: string,
  * }
- * export type ExampleQueryResponse = {
+ * export type ExampleQuery$data = {
  *   +artist: {
  *     +name: ?string,
  *   }
  * }
  * export type ExampleQuery = {
- *   +variables: ExampleQueryVariables,
- *   +response: ExampleQueryResponse,
+ *   +variables: ExampleQuery$variables,
+ *   +response: ExampleQuery$data,
  * }
  */
 
-import type { ExampleQuery } from "__generated__/ExampleQuery.graphql"
-
-// data is of type ExampleQueryResponse
-const data = useLazyLoadQuery<ExampleQuery>(
+// data is of type ExampleQuery$data
+const data = useLazyLoadQuery(
   graphql`
     query ExampleQuery($artistID: ID!) {
       artist(id: $artistID) {
@@ -150,24 +143,22 @@ return props.artist && <div>{props.artist.name} is great!</div>
 
 ```javascript
 /**
- * export type ExampleQueryVariables = {
+ * export type ExampleQuery$variables = {
  *   readonly artistID: string
  * }
- * export type ExampleQueryResponse = {
+ * export type ExampleQuery$data = {
  *   readonly artist?: {
  *     readonly name?: string
  *   }
  * }
  * export type ExampleQuery = {
- *   readonly variables: ExampleQueryVariables
- *   readonly response: ExampleQueryResponse
+ *   readonly variables: ExampleQuery$variables
+ *   readonly response: ExampleQuery$data
  * }
  */
 
-import { ExampleQuery } from "__generated__/ExampleQuery.graphql"
-
-// data is of type ExampleQueryResponse
-const data = useLazyLoadQuery<ExampleQuery>(
+// data is of type ExampleQuery$data
+const data = useLazyLoadQuery(
   graphql`
     query ExampleQuery($artistID: ID!) {
       artist(id: $artistID) {
@@ -185,8 +176,7 @@ return props.artist && <div>{props.artist.name} is great!</div>
 </Tabs>
 
 
-Similarly, in this example the emitted type-information describes the type of the prop to match the type of the fragment reference `useFragment`  expects to receive.
-
+Similarly, in this example the emitted type-information describes the type of the prop to match the type of the fragment reference `useFragment` expects to receive.
 
 <Tabs
   defaultValue={fbContent({internal: 'Flow', external: 'TypeScript'})}
@@ -286,41 +276,32 @@ Consider a component that [composes](../../guided-tour/rendering/fragments/#comp
   <TabItem value="Flow">
 
 ```javascript
-/**
- * import type { FragmentReference } from "relay-runtime";
- * declare export opaque type ExampleFragmentComponent_artist$ref: FragmentReference;
- *
- * export type ExampleFragmentComponent_artist$data = {
- *   +name: string,
- *   +$refType: ExampleFragmentComponent_artist$ref,
- * };
- */
-
 import { ExampleFragmentComponent } from "./ExampleFragmentComponent"
 
 /**
- * import type { ExampleFragmentComponent_artist$ref } from "ExampleFragmentComponent_artist.graphql";
+ * import type { ExampleFragmentComponent_artist$fragmentType } from "ExampleFragmentComponent_artist.graphql";
  *
- * export type ExampleQueryResponse = {
+ * export type ExampleQuery$data = {
  *   +artist: ?{
- *     +$fragmentRefs: ExampleFragmentComponent_artist$ref,
+ *     +name: ?string,
+ *     +$fragmentSpreads: ExampleFragmentComponent_artist$fragmentType,
  *   }
  * };
- * export type ExampleQueryVariables = {
+ * export type ExampleQuery$variables = {
  *   +artistID: string,
  * }
  * export type ExampleQuery = {
- *   +variables: ExampleQueryVariables,
- *   +response: ExampleQueryResponse,
+ *   +variables: ExampleQuery$variables,
+ *   +response: ExampleQuery$data,
  * }
  */
-import type { ExampleQuery } from "__generated__/ExampleQuery.graphql"
 
-// data is of type ExampleQueryResponse
-const data = useLazyLoadQuery<ExampleQuery>(
+// data is of type ExampleQuery$data
+const data = useLazyLoadQuery(
   graphql`
     query ExampleQuery($artistID: ID!) {
       artist(id: $artistID) {
+        name
         ...ExampleFragmentComponent_artist
       }
     }
@@ -328,8 +309,9 @@ const data = useLazyLoadQuery<ExampleQuery>(
   {artistID: 'banksy'},
 );
 
-// Here only `data.artist` is an object typed as the appropriate type
-// for the `artist` prop of `ExampleFragmentComponent`.
+// Here only `data.artist.name` is directly visible,
+// the marker prop $fragmentSpreads indicates that `data.artist`
+// can be used for the component expecting this fragment spread.
 return <ExampleFragmentComponent artist={data.artist} />;
 ```
 
@@ -338,40 +320,32 @@ return <ExampleFragmentComponent artist={data.artist} />;
   <TabItem value="TypeScript">
 
 ```javascript
-/**
- * declare const _ExampleFragmentComponent_artist$ref: unique symbol;
- * export type ExampleFragmentComponent_artist$ref = typeof _ExampleFragmentComponent_artist$ref;
- *
- * export type ExampleFragmentComponent_artist = {
- *   readonly name: string
- *   readonly " $refType": ExampleFragmentComponent_artist$ref
- * }
- */
 import { ExampleFragmentComponent } from "./ExampleFragmentComponent"
 
 /**
- * import { ExampleFragmentComponent_artist$ref } from "ExampleFragmentComponent_artist.graphql";
+ * import { ExampleFragmentComponent_artist$fragmentType } from "ExampleFragmentComponent_artist.graphql";
  *
- * export type ExampleQueryResponse = {
+ * export type ExampleQuery$data = {
  *   readonly artist?: {
- *     readonly " $fragmentRefs": ExampleFragmentComponent_artist$ref
+ *     readonly name: ?string,
+ *     readonly " $fragmentSpreads": ExampleFragmentComponent_artist$fragmentType
  *   }
  * }
- * export type ExampleQueryVariables = {
+ * export type ExampleQuery$variables = {
  *   readonly artistID: string
  * }
  * export type ExampleQuery = {
- *   readonly variables: ExampleQueryVariables
- *   readonly response: ExampleQueryResponse
+ *   readonly variables: ExampleQuery$variables
+ *   readonly response: ExampleQuery$data
  * }
  */
-import { ExampleQuery } from "__generated__/ExampleQuery.graphql"
 
-// data is of type ExampleQueryResponse
-const data = useLazyLoadQuery<ExampleQuery>(
+// data is of type ExampleQuery$data
+const data = useLazyLoadQuery(
   graphql`
     query ExampleQuery($artistID: ID!) {
       artist(id: $artistID) {
+        name
         ...ExampleFragmentComponent_artist
       }
     }
@@ -379,8 +353,9 @@ const data = useLazyLoadQuery<ExampleQuery>(
   {artistID: 'banksy'},
 );
 
-// Here only `data.artist` is an object typed as the appropriate type
-// for the `artist` prop of `ExampleFragmentComponent`.
+// Here only `data.artist.name` is directly visible,
+// the marker prop $fragmentSpreads indicates that `data.artist`
+// can be used for the component expecting this fragment spread.
 return <ExampleFragmentComponent artist={data.artist} />;
 ```
 
@@ -393,24 +368,28 @@ return <ExampleFragmentComponent artist={data.artist} />;
 
 An important caveat to note is that by default strict fragment reference type-information will _not_ be emitted, instead they will be typed as `any` and would allow you to pass in any data to the child component.
 
-To enable this feature, you will have to tell the compiler to store all the artifacts in a single directory, like so:
+To enable this feature, you will have to tell the compiler to store all the artifacts in a single directory, by specifing the `artifactDirectory` in the
+compiler configuration:
 
-```shell
-
-$ relay-compiler --artifactDirectory ./src/__generated__ […]
-
+```
+{
+  // package.json
+  "relay": {
+    "artifactDirectory": "./src/__generated__",
+    ...
+  },
+  ...
+}
 ```
 
 …and additionally inform the babel plugin in your `.babelrc` config where to look for the artifacts:
 
 ```json
-
 {
   "plugins": [
     ["relay", { "artifactDirectory": "./src/__generated__" }]
   ]
 }
-
 ```
 
 It is recommended to alias this directory in your module resolution configuration such that you don’t need to specify relative paths in your source files. This is what is also done in the above examples, where artifacts are imported from a `__generated__` alias, rather than relative paths like `../../../../__generated__`.
@@ -426,42 +405,10 @@ Facebook uses a module system called [Haste], in which all source files are cons
 
 At its simplest, we can consider Haste as a single directory that contains all module files, thus all module imports always being safe to import using relative sibling paths. This is what is achieved by the single artifact directory feature. Rather than co-locating artifacts with their source files, all artifacts are stored in a single directory, allowing the compiler to emit imports of fragment reference types.
 
-## Language plugins
-
--   Flow: This is the default and builtin language plugin. You can explicitly enable it like so:
-
-    ```shell
-
-    $ relay-compiler --language javascript […]
-
-    ```
-
-By default, Flow types are emitted inside of comments to avoid forcing your project to use Flow. Flow types inside of comments is perfectly valid Flow, however, some editors and IDEs (like WebStorm/IDEA) do not understand Flow unless it's in plain source code. In order to solve that, there's a language plugin maintained by the community that replicates the functionality of the default builtin plugin, but emits the Flow types as plain source and not inside comments. Installation and usage:
-
-```shell
-
-  $ yarn add --dev relay-compiler-language-js-flow-uncommented
-  $ relay-compiler --language js-flow-uncommented […]
-
-```
-
--   [TypeScript](https://github.com/relay-tools/relay-compiler-language-typescript): This is a language plugin for the TypeScript language maintained by the community. Install and enable it like so:
-
-    ```shell
-
-    $ yarn add --dev relay-compiler-language-typescript @types/react-relay @types/relay-runtime
-    $ relay-compiler --language typescript […]
-
-    ```
-
-If you are looking to create your own language plugin, refer to the `relay-compiler` [language plugin interface][plugin-interface].
-
 </OssOnly>
 
 [data-masking]: ../../principles-and-architecture/thinking-in-relay#data-masking
 
 [Haste]: https://twitter.com/dan_abramov/status/758655309212704768
-
-[plugin-interface]: https://github.com/facebook/relay/blob/master/packages/relay-compiler/language/RelayLanguagePluginInterface.js
 
 <DocsRating />

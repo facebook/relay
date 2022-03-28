@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -20,6 +20,7 @@ impl SourcePrinter {
         writer: &mut W,
         span: &Span,
         source: &str,
+        line_offset: usize,
     ) -> std::fmt::Result {
         let start_char_index = span.start as usize;
         let end_char_index = span.end as usize;
@@ -84,7 +85,7 @@ impl SourcePrinter {
             write!(
                 writer,
                 "{}",
-                format!(" {:>4} \u{2502} ", line_index + 1).bold()
+                format!(" {:>4} \u{2502} ", line_index + line_offset + 1).bold()
             )
             .unwrap();
             let mut something_highlighted_on_line = false;
@@ -96,26 +97,32 @@ impl SourcePrinter {
                     currently_hightlighted = false;
                 }
 
-                let chr = match source
-                    .char_indices()
-                    .find(|(idx, _)| *idx == byte_index)
-                    .map(|(_, chr)| chr)
-                {
-                    Some('\n') => {
+                let chr = match source.char_indices().find(|(idx, _)| *idx == byte_index) {
+                    Some((chr_index, '\n')) => {
                         if PRINT_WHITESPACE {
                             '␤'
                         } else {
-                            continue;
+                            // This prints a white-space if the \n is the first character in the Span.
+                            if chr_index == start_char_index {
+                                ' '
+                            } else {
+                                continue;
+                            }
                         }
                     }
-                    Some('\r') => {
+                    Some((chr_index, '\r')) => {
                         if PRINT_WHITESPACE {
                             '␍'
                         } else {
-                            continue;
+                            // This prints a white-space if the \r is the first character in the Span.
+                            if chr_index == start_char_index {
+                                ' '
+                            } else {
+                                continue;
+                            }
                         }
                     }
-                    Some(c) => c,
+                    Some((_, c)) => c,
                     None => continue,
                 };
 

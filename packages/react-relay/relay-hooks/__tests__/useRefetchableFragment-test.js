@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,22 +13,20 @@
 
 'use strict';
 
-const React = require('react');
-const {useMemo} = React;
-const TestRenderer = require('react-test-renderer');
-
 const useRefetchableFragmentOriginal = require('../useRefetchableFragment');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
   graphql,
-  getRequest,
-  getFragment,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+
+const {useMemo} = React;
 
 describe('useRefetchableFragment', () => {
   let environment;
@@ -43,6 +41,7 @@ describe('useRefetchableFragment', () => {
   function useRefetchableFragment(fragmentNode, fragmentRef) {
     const [data, refetch] = useRefetchableFragmentOriginal(
       fragmentNode,
+      // $FlowFixMe[incompatible-call]
       // $FlowFixMe[prop-missing]
       fragmentRef,
     );
@@ -77,6 +76,7 @@ describe('useRefetchableFragment', () => {
         useRefetchableFragmentTestNestedUserFragment: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
+      __isWithinUnmatchedTypeRefinement: false,
     };
   }
 
@@ -96,14 +96,14 @@ describe('useRefetchableFragment', () => {
     `;
 
     variables = {id: '1', scale: 16};
-    gqlQuery = getRequest(graphql`
-      query useRefetchableFragmentTestUserQuery($id: ID!, $scale: Int!) {
+    gqlQuery = graphql`
+      query useRefetchableFragmentTestUserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
           ...useRefetchableFragmentTestUserFragment
         }
       }
-    `);
-    gqlFragment = getFragment(graphql`
+    `;
+    gqlFragment = graphql`
       fragment useRefetchableFragmentTestUserFragment on User
       @refetchable(
         queryName: "useRefetchableFragmentTestUserFragmentRefetchQuery"
@@ -115,7 +115,7 @@ describe('useRefetchableFragment', () => {
         }
         ...useRefetchableFragmentTestNestedUserFragment
       }
-    `);
+    `;
 
     query = createOperationDescriptor(gqlQuery, variables);
     environment.commitPayload(query, {
@@ -134,15 +134,14 @@ describe('useRefetchableFragment', () => {
     const Container = (props: {userRef?: {...}, fragment: $FlowFixMe, ...}) => {
       // We need a render a component to run a Hook
       const artificialUserRef = useMemo(
-        // $FlowFixMe[prop-missing]
         () => ({
           [ID_KEY]:
-          // $FlowFixMe[prop-missing]
             query.request.variables.id ?? query.request.variables.nodeID,
           [FRAGMENTS_KEY]: {
             [gqlFragment.name]: {},
           },
           [FRAGMENT_OWNER_KEY]: query.request,
+          __isWithinUnmatchedTypeRefinement: false,
         }),
         [],
       );

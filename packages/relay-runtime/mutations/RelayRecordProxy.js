@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,16 +12,15 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {generateClientID} = require('../store/ClientID');
-const {getStableStorageKey} = require('../store/RelayStoreUtils');
-
 import type {RecordProxy} from '../store/RelayStoreTypes';
 import type {Arguments} from '../store/RelayStoreUtils';
 import type {DataID} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 import type RelayRecordSourceProxy from './RelayRecordSourceProxy';
+
+const {generateClientID} = require('../store/ClientID');
+const {getStableStorageKey} = require('../store/RelayStoreUtils');
+const invariant = require('invariant');
 
 /**
  * @internal

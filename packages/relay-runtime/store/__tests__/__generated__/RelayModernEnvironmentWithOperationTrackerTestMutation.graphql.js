@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<20b3fc0226aedf7b2495ba7a20a4a55d>>
+ * @generated SignedSource<<5af5e30470aba8b9f72c9bd8d55e333d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,12 +15,11 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref = any;
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
+type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType = any;
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -28,19 +27,19 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTestMutationVariables = {|
+export type RelayModernEnvironmentWithOperationTrackerTestMutation$variables = {|
   input?: ?CommentCreateInput,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTestMutationResponse = {|
+export type RelayModernEnvironmentWithOperationTrackerTestMutation$data = {|
   +commentCreate: ?{|
     +feedback: ?{|
-      +$fragmentRefs: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref,
+      +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
     |},
   |},
 |};
 export type RelayModernEnvironmentWithOperationTrackerTestMutation = {|
-  variables: RelayModernEnvironmentWithOperationTrackerTestMutationVariables,
-  response: RelayModernEnvironmentWithOperationTrackerTestMutationResponse,
+  response: RelayModernEnvironmentWithOperationTrackerTestMutation$data,
+  variables: RelayModernEnvironmentWithOperationTrackerTestMutation$variables,
 |};
 */
 
@@ -225,6 +224,7 @@ return {
                         "kind": "InlineFragment",
                         "selections": [
                           {
+                            "args": null,
                             "documentName": "RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment",
                             "fragmentName": "RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name",
                             "fragmentPropName": "name",
@@ -238,6 +238,7 @@ return {
                         "kind": "InlineFragment",
                         "selections": [
                           {
+                            "args": null,
                             "documentName": "RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment",
                             "fragmentName": "RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name",
                             "fragmentPropName": "name",
@@ -271,6 +272,7 @@ return {
                         "kind": "InlineFragment",
                         "selections": [
                           {
+                            "args": null,
                             "documentName": "RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment_plainNameRenderer",
                             "fragmentName": "RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name",
                             "fragmentPropName": "name",
@@ -359,4 +361,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a992f5cbffecf3ebece24d038d91c0a2";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentWithOperationTrackerTestMutation$variables,
+  RelayModernEnvironmentWithOperationTrackerTestMutation$data,
+>*/);

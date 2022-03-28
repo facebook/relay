@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,52 +7,50 @@
 
 //! Utilities related to LSP text document syncing
 
-use crate::{
-    lsp::{DidChangeTextDocumentParams, DidOpenTextDocumentParams, TextDocumentItem},
-    lsp_runtime_error::LSPRuntimeResult,
-    server::LSPState,
+use crate::{lsp_runtime_error::LSPRuntimeResult, server::GlobalState};
+
+use lsp_types::{
+    notification::{
+        Cancel, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument,
+        DidSaveTextDocument, Notification,
+    },
+    DidChangeTextDocumentParams, DidOpenTextDocumentParams, TextDocumentItem,
 };
 
-use common::PerfLogger;
-use lsp_types::notification::{
-    DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument, DidSaveTextDocument,
-    Notification,
-};
-
-pub(crate) fn on_did_open_text_document<TPerfLogger: PerfLogger + 'static>(
-    lsp_state: &mut LSPState<TPerfLogger>,
+pub fn on_did_open_text_document(
+    lsp_state: &impl GlobalState,
     params: <DidOpenTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     let DidOpenTextDocumentParams { text_document } = params;
     let TextDocumentItem { text, uri, .. } = text_document;
-    if !uri.path().starts_with(lsp_state.root_dir_str()) {
+    if !uri
+        .path()
+        .starts_with(lsp_state.root_dir().to_string_lossy().as_ref())
+    {
         return Ok(());
     }
 
-    // First we check to see if this document has any GraphQL documents.
-    let graphql_sources = extract_graphql::parse_chunks(&text);
-    if graphql_sources.is_empty() {
-        Ok(())
-    } else {
-        lsp_state.process_synced_sources(uri, graphql_sources)
-    }
+    lsp_state.document_opened(&uri, &text)
 }
 
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn on_did_close_text_document<TPerfLogger: PerfLogger + 'static>(
-    lsp_state: &mut LSPState<TPerfLogger>,
+pub fn on_did_close_text_document(
+    lsp_state: &impl GlobalState,
     params: <DidCloseTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     let uri = params.text_document.uri;
-    if !uri.path().starts_with(lsp_state.root_dir_str()) {
+    if !uri
+        .path()
+        .starts_with(lsp_state.root_dir().to_string_lossy().as_ref())
+    {
         return Ok(());
     }
-    lsp_state.remove_synced_sources(&uri);
-    Ok(())
+
+    lsp_state.document_closed(&uri)
 }
 
-pub(crate) fn on_did_change_text_document<TPerfLogger: PerfLogger + 'static>(
-    lsp_state: &mut LSPState<TPerfLogger>,
+pub fn on_did_change_text_document(
+    lsp_state: &impl GlobalState,
     params: <DidChangeTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     let DidChangeTextDocumentParams {
@@ -60,7 +58,10 @@ pub(crate) fn on_did_change_text_document<TPerfLogger: PerfLogger + 'static>(
         text_document,
     } = params;
     let uri = text_document.uri;
-    if !uri.path().starts_with(lsp_state.root_dir_str()) {
+    if !uri
+        .path()
+        .starts_with(lsp_state.root_dir().to_string_lossy().as_ref())
+    {
         return Ok(());
     }
 
@@ -69,21 +70,21 @@ pub(crate) fn on_did_change_text_document<TPerfLogger: PerfLogger + 'static>(
         .first()
         .expect("content_changes should always be non-empty");
 
-    // First we check to see if this document has any GraphQL documents.
-    let graphql_sources = extract_graphql::parse_chunks(&content_change.text);
-    if graphql_sources.is_empty() {
-        lsp_state.remove_synced_sources(&uri);
-
-        Ok(())
-    } else {
-        lsp_state.process_synced_sources(uri, graphql_sources)
-    }
+    lsp_state.document_changed(&uri, &content_change.text)
 }
 
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn on_did_save_text_document<TPerfLogger: PerfLogger + 'static>(
-    _lsp_state: &mut LSPState<TPerfLogger>,
+pub(crate) fn on_did_save_text_document(
+    _lsp_state: &impl GlobalState,
     _params: <DidSaveTextDocument as Notification>::Params,
+) -> LSPRuntimeResult<()> {
+    Ok(())
+}
+
+#[allow(clippy::unnecessary_wraps)]
+pub fn on_cancel(
+    _lsp_state: &impl GlobalState,
+    _params: <Cancel as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
     Ok(())
 }

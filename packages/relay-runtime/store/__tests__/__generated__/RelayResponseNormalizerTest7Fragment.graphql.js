@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6e57b9caa2fbeadbc69a5c1827c9ac68>>
+ * @generated SignedSource<<55aef71aa58714e9bd314cc3a1913f4e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayResponseNormalizerTest7Fragment$ref: FragmentReference;
-declare export opaque type RelayResponseNormalizerTest7Fragment$fragmentType: RelayResponseNormalizerTest7Fragment$ref;
-export type RelayResponseNormalizerTest7Fragment = {|
-  +id: string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayResponseNormalizerTest7Fragment$fragmentType: FragmentType;
+export type RelayResponseNormalizerTest7Fragment$data = {|
   +actors: ?$ReadOnlyArray<?{|
     +name: ?string,
   |}>,
-  +$refType: RelayResponseNormalizerTest7Fragment$ref,
+  +id: string,
+  +$fragmentType: RelayResponseNormalizerTest7Fragment$fragmentType,
 |};
-export type RelayResponseNormalizerTest7Fragment$data = RelayResponseNormalizerTest7Fragment;
 export type RelayResponseNormalizerTest7Fragment$key = {
   +$data?: RelayResponseNormalizerTest7Fragment$data,
-  +$fragmentRefs: RelayResponseNormalizerTest7Fragment$ref,
+  +$fragmentSpreads: RelayResponseNormalizerTest7Fragment$fragmentType,
   ...
 };
 */
@@ -84,4 +82,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ba5674ce1e46a27aebd198f03e252010";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayResponseNormalizerTest7Fragment$fragmentType,
+  RelayResponseNormalizerTest7Fragment$data,
+>*/);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,45 +11,28 @@
 
 'use strict';
 
-jest.mock('relay-runtime', () => {
-  const originalRuntime = jest.requireActual('relay-runtime');
-  const originalInternal = originalRuntime.__internal;
-  return {
-    ...originalRuntime,
-    __internal: {
-      ...originalInternal,
-      getPromiseForActiveRequest: jest.fn(),
-    },
-  };
-});
-const {createMockEnvironment} = require('relay-test-utils');
-
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
-  __internal: {getPromiseForActiveRequest},
+  __internal: {fetchQuery},
   createOperationDescriptor,
-  getFragment,
-  RelayFeatureFlags,
-  getRequest,
   graphql,
 } = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
 
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
-  (getPromiseForActiveRequest: any).mockReset();
-});
+const componentDisplayName = 'TestComponent';
+const UserFragment = graphql`
+  fragment FragmentResourceRequiredFieldTestUserFragment on User {
+    id
+    name @required(action: THROW)
+    alternate_name @required(action: LOG)
+  }
+`;
 
 let environment;
 let query;
 let FragmentResource;
-let UserFragment;
 let logger;
 let requiredFieldLogger;
-const componentDisplayName = 'TestComponent';
 
 beforeEach(() => {
   logger = jest.fn();
@@ -61,23 +44,15 @@ beforeEach(() => {
   });
   FragmentResource = getFragmentResourceForEnvironment(environment);
 
-  UserFragment = getFragment(graphql`
-    fragment FragmentResourceRequiredFieldTestUserFragment on User {
-      id
-      name @required(action: THROW)
-      alternate_name @required(action: LOG)
-    }
-  `);
-
   query = createOperationDescriptor(
-    getRequest(graphql`
+    graphql`
       query FragmentResourceRequiredFieldTestUserQuery($id: ID!) {
         node(id: $id) {
           __typename
           ...FragmentResourceRequiredFieldTestUserFragment
         }
       }
-    `),
+    `,
     {id: '4'},
   );
 });
@@ -93,7 +68,7 @@ test('Throws if a @required(action: THROW) field is null', () => {
   });
   expect(() => {
     FragmentResource.read(
-      getFragment(UserFragment),
+      UserFragment,
       {
         __id: '4',
         __fragments: {
@@ -118,7 +93,7 @@ test('Logs if a @required(action: LOG) field is null', () => {
     },
   });
   FragmentResource.read(
-    getFragment(UserFragment),
+    UserFragment,
     {
       __id: '4',
       __fragments: {
@@ -146,7 +121,7 @@ test('Throws if a @required(action: THROW) field is present and then goes missin
     },
   });
   const result = FragmentResource.read(
-    getFragment(UserFragment),
+    UserFragment,
     {
       __id: '4',
       __fragments: {
@@ -162,6 +137,7 @@ test('Throws if a @required(action: THROW) field is present and then goes missin
     alternate_name: 'Zuckster',
   });
 
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.subscribe).toHaveBeenCalledTimes(0);
   const disposable = FragmentResource.subscribe(result, callback);
 
@@ -176,7 +152,7 @@ test('Throws if a @required(action: THROW) field is present and then goes missin
 
   expect(() =>
     FragmentResource.read(
-      getFragment(UserFragment),
+      UserFragment,
       {
         __id: '4',
         __fragments: {
@@ -200,9 +176,7 @@ test('Throws if a @required(action: THROW) field is present and then goes missin
 });
 
 it('should throw promise if reading missing data and network request for parent query is in flight', async () => {
-  const requestPromise = Promise.resolve();
-  (getPromiseForActiveRequest: any).mockReturnValue(requestPromise);
-  const fragmentNode = getFragment(UserFragment);
+  fetchQuery(environment, query).subscribe({});
   const fragmentRef = {
     __id: '4',
     __fragments: {
@@ -214,31 +188,29 @@ it('should throw promise if reading missing data and network request for parent 
   // Try reading a fragment while parent query is in flight
   let thrown = null;
   try {
-    FragmentResource.read(fragmentNode, fragmentRef, componentDisplayName);
+    FragmentResource.read(UserFragment, fragmentRef, componentDisplayName);
   } catch (p) {
     thrown = p;
   }
 
   expect(thrown).toBeInstanceOf(Promise);
 
-  environment.commitPayload(query, {
-    node: {
-      __typename: 'User',
-      id: '4',
-      name: null,
-      alternate_name: 'Zuckster',
+  environment.mock.resolve(query, {
+    data: {
+      node: {
+        __typename: 'User',
+        id: '4',
+        name: null,
+        alternate_name: 'Zuckster',
+      },
     },
   });
-
-  await requestPromise;
+  jest.runAllImmediates();
+  await thrown;
 
   // Now that the request is complete, check that we detect the missing field.
   expect(() =>
-    FragmentResource.read(
-      getFragment(UserFragment),
-      fragmentRef,
-      componentDisplayName,
-    ),
+    FragmentResource.read(UserFragment, fragmentRef, componentDisplayName),
   ).toThrowError(
     "Relay: Missing @required value at path 'name' in 'FragmentResourceRequiredFieldTestUserFragment'.",
   );

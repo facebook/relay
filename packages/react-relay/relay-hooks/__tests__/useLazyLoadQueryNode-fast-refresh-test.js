@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,17 +13,14 @@
 
 'use strict';
 
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
-const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
-
 const {
-  createOperationDescriptor,
   __internal: {fetchQuery},
+  createOperationDescriptor,
   graphql,
-  getRequest,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
@@ -38,7 +35,9 @@ function expectToBeRendered(renderFn, readyState) {
 }
 
 function expectToHaveFetched(environment, query, cacheConfig) {
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute.mock.calls[0][0].operation).toMatchObject({
     fragment: expect.anything(),
     root: expect.anything(),
@@ -74,7 +73,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
         name
       }
     `;
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query useLazyLoadQueryNodeFastRefreshTestUserQuery($id: ID) {
         node(id: $id) {
           id
@@ -82,7 +81,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
           ...useLazyLoadQueryNodeFastRefreshTestUserFragment
         }
       }
-    `);
+    `;
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
     renderFn = jest.fn(result => result?.node?.name ?? 'Empty');
@@ -97,7 +96,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     // $FlowFixMe[cannot-resolve-module] This module is not available on www.
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
-    const V1 = function(props) {
+    const V1 = function (props) {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
       const result = useLazyLoadQueryNode<_>({
         query: _query,
@@ -120,6 +119,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     expect(instance.toJSON()).toEqual('Fallback');
     expectToHaveFetched(environment, query, {});
     expect(renderFn).not.toBeCalled();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
     ReactTestRenderer.act(() =>
@@ -137,6 +137,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     const data = environment.lookup(query.fragment).data;
     expectToBeRendered(renderFn, data);
 
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
     renderFn.mockClear();
     function V2(props) {

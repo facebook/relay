@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<989c8ae49c928a1e1531d3205ad89b86>>
+ * @generated SignedSource<<1f77482303cc32a6c2f868309bcc633c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useRefetchableFragmentTestUserFragment$ref: FragmentReference;
-declare export opaque type useRefetchableFragmentTestUserFragment$fragmentType: useRefetchableFragmentTestUserFragment$ref;
-export type useRefetchableFragmentTestUserFragmentRefetchQueryVariables = {|
-  scale?: ?number,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+type useRefetchableFragmentTestUserFragment$fragmentType = any;
+export type useRefetchableFragmentTestUserFragmentRefetchQuery$variables = {|
   id: string,
+  scale?: ?number,
 |};
-export type useRefetchableFragmentTestUserFragmentRefetchQueryResponse = {|
+export type useRefetchableFragmentTestUserFragmentRefetchQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useRefetchableFragmentTestUserFragment$ref,
+    +$fragmentSpreads: useRefetchableFragmentTestUserFragment$fragmentType,
   |},
 |};
 export type useRefetchableFragmentTestUserFragmentRefetchQuery = {|
-  variables: useRefetchableFragmentTestUserFragmentRefetchQueryVariables,
-  response: useRefetchableFragmentTestUserFragmentRefetchQueryResponse,
+  response: useRefetchableFragmentTestUserFragmentRefetchQuery$data,
+  variables: useRefetchableFragmentTestUserFragmentRefetchQuery$variables,
 |};
 */
 
@@ -178,4 +177,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d770b0dc72756ed4ba66dee386a91acf";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useRefetchableFragmentTestUserFragmentRefetchQuery$variables,
+  useRefetchableFragmentTestUserFragmentRefetchQuery$data,
+>*/);

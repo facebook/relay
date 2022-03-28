@@ -74,7 +74,6 @@ foo { # type FooType
  foo {
    id
  }
-
 ```
 
 -   `SkipRedundantNodeTransform`: A more advanced version of flattening, this eliminates more complex cases of field duplication such as when a field is fetched both unconditionally and conditionally, or is fetched by two different sub-fragments. For example:
@@ -97,7 +96,6 @@ foo {
     id
   }
 }
-
 ```
 
 -   `GenerateRequisiteFieldTransform`: This optional, Relay-specific transform inserts `id` fields for globally identifiable objects and `__typename` fields wherever the type cannot be statically determined (e.g. for unions).

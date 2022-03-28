@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,18 +13,7 @@
 
 'use strict';
 
-const LRUCache = require('./LRUCache');
-
-const invariant = require('invariant');
-
-const {isPromise} = require('relay-runtime');
-
-const CACHE_CAPACITY = 1000;
-
-const DEFAULT_FETCH_POLICY = 'store-or-network';
-
-const DATA_RETENTION_TIMEOUT = 5 * 60 * 1000;
-
+import type {Cache} from './LRUCache';
 import type {
   Disposable,
   FetchPolicy,
@@ -32,13 +21,22 @@ import type {
   IEnvironment,
   Observable,
   Observer,
+  OperationAvailability,
   OperationDescriptor,
   ReaderFragment,
   RenderPolicy,
   Snapshot,
   Subscription,
 } from 'relay-runtime';
-import type {Cache} from './LRUCache';
+
+const LRUCache = require('./LRUCache');
+const SuspenseResource = require('./SuspenseResource');
+const invariant = require('invariant');
+const {isPromise} = require('relay-runtime');
+const warning = require('warning');
+
+const CACHE_CAPACITY = 1000;
+const DEFAULT_FETCH_POLICY = 'store-or-network';
 
 export type QueryResource = QueryResourceImpl;
 
@@ -46,15 +44,20 @@ type QueryResourceCache = Cache<QueryResourceCacheEntry>;
 type QueryResourceCacheEntry = {|
   +id: number,
   +cacheIdentifier: string,
-  getRetainCount(): number,
-  getNetworkSubscription(): ?Subscription,
+  +operationAvailability: ?OperationAvailability,
+  // The number of received payloads for the operation.
+  // We want to differentiate the initial graphql response for the operation
+  // from the incremental responses, so later we can choose how to handle errors
+  // in the incremental payloads.
+  processedPayloadsCount: number,
   setNetworkSubscription(?Subscription): void,
   getValue(): Error | Promise<void> | QueryResult,
   setValue(Error | Promise<void> | QueryResult): void,
   temporaryRetain(environment: IEnvironment): Disposable,
   permanentRetain(environment: IEnvironment): Disposable,
+  releaseTemporaryRetain(): void,
 |};
-opaque type QueryResult: {
+export opaque type QueryResult: {
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
   ...
@@ -69,6 +72,10 @@ const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 interface IMap<K, V> {
   get(key: K): V | void;
   set(key: K, value: V): IMap<K, V>;
+}
+
+function operationIsLiveQuery(operation: OperationDescriptor): boolean {
+  return operation.request.node.params.metadata.live !== undefined;
 }
 
 function getQueryCacheIdentifier(
@@ -112,124 +119,57 @@ let nextID = 200000;
 function createCacheEntry(
   cacheIdentifier: string,
   operation: OperationDescriptor,
+  operationAvailability: ?OperationAvailability,
   value: Error | Promise<void> | QueryResult,
   networkSubscription: ?Subscription,
   onDispose: QueryResourceCacheEntry => void,
 ): QueryResourceCacheEntry {
+  const isLiveQuery = operationIsLiveQuery(operation);
+
   let currentValue: Error | Promise<void> | QueryResult = value;
-  let retainCount = 0;
-  let retainDisposable: ?Disposable = null;
-  let releaseTemporaryRetain: ?() => void = null;
   let currentNetworkSubscription: ?Subscription = networkSubscription;
 
-  const retain = (environment: IEnvironment) => {
-    retainCount++;
-    if (retainCount === 1) {
-      retainDisposable = environment.retain(operation);
-    }
+  const suspenseResource = new SuspenseResource(environment => {
+    const retention = environment.retain(operation);
     return {
       dispose: () => {
-        retainCount = Math.max(0, retainCount - 1);
-        if (retainCount === 0) {
-          invariant(
-            retainDisposable != null,
-            'Relay: Expected disposable to release query to be defined.' +
-              "If you're seeing this, this is likely a bug in Relay.",
-          );
-          retainDisposable.dispose();
-          retainDisposable = null;
+        // Normally if this entry never commits, the request would've ended by the
+        // time this timeout expires and the temporary retain is released. However,
+        // we need to do this for live queries which remain open indefinitely.
+        if (isLiveQuery && currentNetworkSubscription != null) {
+          currentNetworkSubscription.unsubscribe();
         }
+        retention.dispose();
         onDispose(cacheEntry);
       },
     };
-  };
+  });
 
   const cacheEntry = {
     cacheIdentifier,
     id: nextID++,
+    processedPayloadsCount: 0,
+    operationAvailability,
     getValue() {
       return currentValue;
     },
-    setValue(val) {
+    setValue(val: QueryResult | Promise<void> | Error) {
       currentValue = val;
     },
-    getRetainCount() {
-      return retainCount;
-    },
-    getNetworkSubscription() {
-      return currentNetworkSubscription;
-    },
     setNetworkSubscription(subscription: ?Subscription) {
-      if (currentNetworkSubscription != null) {
+      if (isLiveQuery && currentNetworkSubscription != null) {
         currentNetworkSubscription.unsubscribe();
       }
       currentNetworkSubscription = subscription;
     },
     temporaryRetain(environment: IEnvironment): Disposable {
-      // NOTE: If we're executing in a server environment, there's no need
-      // to create temporary retains, since the component will never commit.
-      if (environment.isServer()) {
-        return {dispose: () => {}};
-      }
-
-      // NOTE: temporaryRetain is called during the render phase. However,
-      // given that we can't tell if this render will eventually commit or not,
-      // we create a timer to autodispose of this retain in case the associated
-      // component never commits.
-      // If the component /does/ commit, permanentRetain will clear this timeout
-      // and permanently retain the data.
-      const disposable = retain(environment);
-      let releaseQueryTimeout = null;
-      const localReleaseTemporaryRetain = () => {
-        clearTimeout(releaseQueryTimeout);
-        releaseQueryTimeout = null;
-        releaseTemporaryRetain = null;
-        disposable.dispose();
-        // Normally if this entry never commits, the request would've ended by the
-        // time this timeout expires and the temporary retain is released. However,
-        // we need to do this for live queries which remain open indefinitely.
-        if (retainCount <= 0 && currentNetworkSubscription != null) {
-          currentNetworkSubscription.unsubscribe();
-        }
-      };
-      releaseQueryTimeout = setTimeout(
-        localReleaseTemporaryRetain,
-        DATA_RETENTION_TIMEOUT,
-      );
-
-      // NOTE: Since temporaryRetain can be called multiple times, we release
-      // the previous temporary retain after we re-establish a new one, since
-      // we only ever need a single temporary retain until the permanent retain is
-      // established.
-      // temporaryRetain may be called multiple times by React during the render
-      // phase, as well as multiple times by other query components that are
-      // rendering the same query/variables.
-      if (releaseTemporaryRetain != null) {
-        releaseTemporaryRetain();
-      }
-      releaseTemporaryRetain = localReleaseTemporaryRetain;
-
-      return {
-        dispose: () => {
-          releaseTemporaryRetain && releaseTemporaryRetain();
-        },
-      };
+      return suspenseResource.temporaryRetain(environment);
     },
     permanentRetain(environment: IEnvironment): Disposable {
-      const disposable = retain(environment);
-      if (releaseTemporaryRetain != null) {
-        releaseTemporaryRetain();
-        releaseTemporaryRetain = null;
-      }
-
-      return {
-        dispose: () => {
-          disposable.dispose();
-          if (retainCount <= 0 && currentNetworkSubscription != null) {
-            currentNetworkSubscription.unsubscribe();
-          }
-        },
-      };
+      return suspenseResource.permanentRetain(environment);
+    },
+    releaseTemporaryRetain() {
+      suspenseResource.releaseTemporaryRetain();
     },
   };
 
@@ -295,6 +235,7 @@ class QueryResourceImpl {
     // it's available
     let cacheEntry = this._cache.get(cacheIdentifier);
     let temporaryRetainDisposable: ?Disposable = null;
+    const entryWasCached = cacheEntry != null;
     if (cacheEntry == null) {
       // 2. If a cached value isn't available, try fetching the operation.
       // _fetchAndSaveQuery will update the cache with either a Promise or
@@ -332,7 +273,18 @@ class QueryResourceImpl {
     temporaryRetainDisposable = cacheEntry.temporaryRetain(environment);
 
     const cachedValue = cacheEntry.getValue();
-    if (isPromise(cachedValue) || cachedValue instanceof Error) {
+    if (isPromise(cachedValue)) {
+      environment.__log({
+        name: 'suspense.query',
+        fetchPolicy,
+        isPromiseCached: entryWasCached,
+        operation: operation,
+        queryAvailability: cacheEntry.operationAvailability,
+        renderPolicy,
+      });
+      throw cachedValue;
+    }
+    if (cachedValue instanceof Error) {
       throw cachedValue;
     }
     return cachedValue;
@@ -349,6 +301,7 @@ class QueryResourceImpl {
     const cacheEntry = this._getOrCreateCacheEntry(
       cacheIdentifier,
       operation,
+      null,
       queryResult,
       null,
     );
@@ -364,6 +317,13 @@ class QueryResourceImpl {
         disposable.dispose();
       },
     };
+  }
+
+  releaseTemporaryRetain(queryResult: QueryResult) {
+    const cacheEntry = this._cache.get(queryResult.cacheIdentifier);
+    if (cacheEntry != null) {
+      cacheEntry.releaseTemporaryRetain();
+    }
   }
 
   TESTS_ONLY__getCacheEntry(
@@ -384,14 +344,13 @@ class QueryResourceImpl {
   }
 
   _clearCacheEntry = (cacheEntry: QueryResourceCacheEntry): void => {
-    if (cacheEntry.getRetainCount() <= 0) {
-      this._cache.delete(cacheEntry.cacheIdentifier);
-    }
+    this._cache.delete(cacheEntry.cacheIdentifier);
   };
 
   _getOrCreateCacheEntry(
     cacheIdentifier: string,
     operation: OperationDescriptor,
+    operationAvailability: ?OperationAvailability,
     value: Error | Promise<void> | QueryResult,
     networkSubscription: ?Subscription,
   ): QueryResourceCacheEntry {
@@ -400,6 +359,7 @@ class QueryResourceImpl {
       cacheEntry = createCacheEntry(
         cacheIdentifier,
         operation,
+        operationAvailability,
         value,
         networkSubscription,
         this._clearCacheEntry,
@@ -466,6 +426,7 @@ class QueryResourceImpl {
       const cacheEntry = createCacheEntry(
         cacheIdentifier,
         operation,
+        queryAvailability,
         queryResult,
         null,
         this._clearCacheEntry,
@@ -483,32 +444,64 @@ class QueryResourceImpl {
           if (cacheEntry) {
             cacheEntry.setNetworkSubscription(networkSubscription);
           }
-
           const observerStart = observer?.start;
-          observerStart && observerStart(subscription);
+          if (observerStart) {
+            const subscriptionWithConditionalCancelation = {
+              ...subscription,
+              unsubscribe: () => {
+                // Only live queries should have their network requests canceled.
+                if (operationIsLiveQuery(operation)) {
+                  subscription.unsubscribe();
+                }
+              },
+            };
+            observerStart(subscriptionWithConditionalCancelation);
+          }
         },
         next: () => {
-          const snapshot = environment.lookup(operation.fragment);
           const cacheEntry = this._getOrCreateCacheEntry(
             cacheIdentifier,
             operation,
+            queryAvailability,
             queryResult,
             networkSubscription,
           );
+          cacheEntry.processedPayloadsCount += 1;
           cacheEntry.setValue(queryResult);
           resolveNetworkPromise();
 
           const observerNext = observer?.next;
-          observerNext && observerNext(snapshot);
+          if (observerNext != null) {
+            const snapshot = environment.lookup(operation.fragment);
+            observerNext(snapshot);
+          }
         },
         error: error => {
           const cacheEntry = this._getOrCreateCacheEntry(
             cacheIdentifier,
             operation,
+            queryAvailability,
             error,
             networkSubscription,
           );
-          cacheEntry.setValue(error);
+
+          // If, this is the first thing we receive for the query,
+          // before any other payload handled is error, we will cache and
+          // re-throw that error later.
+
+          // We will ignore errors for any incremental payloads we receive.
+          if (cacheEntry.processedPayloadsCount === 0) {
+            cacheEntry.setValue(error);
+          } else {
+            // TODO:T92030819 Remove this warning and actually throw the network error
+            // To complete this task we need to have a way of precisely tracking suspendable points
+            warning(
+              false,
+              'QueryResource: An incremental payload for query `%s` returned an error: `%s`.',
+              operation.fragment.node.name,
+              String(error.message),
+            );
+          }
           resolveNetworkPromise();
 
           networkSubscription = null;
@@ -543,6 +536,7 @@ class QueryResourceImpl {
         cacheEntry = createCacheEntry(
           cacheIdentifier,
           operation,
+          queryAvailability,
           networkPromise,
           networkSubscription,
           this._clearCacheEntry,

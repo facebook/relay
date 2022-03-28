@@ -26,32 +26,28 @@ yarn add --dev babel-plugin-relay graphql
 Add `"relay"` to the list of plugins your `.babelrc` file:
 
 ```javascript
-
 {
   "plugins": [
     "relay"
   ]
 }
-
 ```
 
 Please note that the `"relay"` plugin should run before other plugins or
 presets to ensure the `graphql` template literals are correctly transformed. See
 Babel's [documentation on this topic](https://babeljs.io/docs/plugins/#pluginpreset-ordering).
 
-See the [Migration Setup](./migration-setup) guide if upgrading an existing Relay app.
+See the [Migration Setup](./Modern-MigrationSetup.md) guide if upgrading an existing Relay app.
 
 Alternatively, instead of using `babel-plugin-relay`, you can use Relay with [babel-plugin-macros](https://github.com/kentcdodds/babel-plugin-macros). After installing `babel-plugin-macros` and adding it to your Babel config:
 
 ```javascript
-
 const graphql = require('babel-plugin-relay/macro');
-
 ```
 
 ## Set up relay-compiler
 
-Relay's ahead-of-time compilation requires the [Relay Compiler](./graphql-in-relay#relay-compiler), which you can install via `yarn` or `npm`:
+Relay's ahead-of-time compilation requires the [Relay Compiler](Modern-GraphQLInRelay.md#relay-compiler), which you can install via `yarn` or `npm`:
 
 ```sh
 
@@ -61,22 +57,18 @@ yarn add --dev relay-compiler graphql
 
 This installs the bin script `relay-compiler` in your node_modules folder. It's recommended to run this from a `yarn`/`npm` script by adding a script to your `package.json` file:
 
-```js
-
+```javascript
 "scripts": {
   "relay": "relay-compiler --src ./src --schema ./schema.graphql"
 }
-
 ```
 
 or if you are using jsx:
 
-```js
-
+```javascript
 "scripts": {
   "relay": "relay-compiler --src ./src --schema ./schema.graphql --extensions js jsx"
 }
-
 ```
 
 Then, after making edits to your application files, just run the `relay` script to generate new compiled artifacts:
@@ -95,7 +87,7 @@ yarn run relay --watch
 
 ```
 
-For more details, check out our [Relay Compiler docs](./graphql-in-relay#relay-compiler).
+For more details, check out our [Relay Compiler docs](Modern-GraphQLInRelay.md#relay-compiler).
 
 ## JavaScript environment requirements
 
@@ -111,15 +103,13 @@ polyfill in your bundled application, such as [core-js][] or
 A polyfilled environment for Relay using [core-js][] to support older browsers
 might look like:
 
-```js
-
+```javascript
 require('core-js/es6/map');
 require('core-js/es6/set');
 require('core-js/es6/promise');
 require('core-js/es6/object');
 
 require('./myRelayApplication');
-
 ```
 
 [core-js]: https://github.com/zloirock/core-js

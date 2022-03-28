@@ -15,7 +15,6 @@ import FbImportingGeneratedDefinitions from './fb/FbImportingGeneratedDefinition
 The `graphql` template tag provided by Relay serves as the mechanism to write queries, fragments, mutations and subscriptions in the [GraphQL](http://graphql.org/learn/) language. For example:
 
 ```javascript
-
 import {graphql} from 'react-relay';
 
 graphql`
@@ -25,7 +24,6 @@ graphql`
     }
   }
 `;
-
 ```
 
 The result of using the `graphql` template tag is a `GraphQLTaggedNode`; a runtime representation of the GraphQL document.
@@ -40,7 +38,6 @@ Relay uses the Relay Compiler to convert [`graphql`](#graphql) literals into gen
 A fragment like the following:
 
 ```javascript
-
 graphql`
   fragment MyComponent on Type {
     field
@@ -66,7 +63,6 @@ The Relay Compiler is responsible for generating code as part of a build step wh
 To use the Relay Compiler, you need either a `.graphql` or `.json` [GraphQL Schema](https://graphql.org/learn/schema/) file, describing your GraphQL server's API. Typically these files are local representations of a server source of truth and are not edited directly. For example, we might have a `schema.graphql` like:
 
 ```graphql
-
 schema {
   query: Root
 }
@@ -84,7 +80,6 @@ type WordDefinition {
   text: String
   image: String
 }
-
 ```
 
 </OssOnly>
@@ -108,7 +103,6 @@ For example, given the two files:
 -   `src/Components/DictionaryComponent.js`
 
 ```javascript
-
 const DictionaryWordFragment = graphql`
   fragment DictionaryComponent_word on Word {
     id
@@ -130,7 +124,6 @@ const DictionaryDefinitionFragment = graphql`
 -   `src/Queries/DictionaryQuery.js`
 
 ```javascript
-
 const DictionaryQuery = graphql`
   query DictionaryQuery {
     dictionary {
@@ -164,9 +157,7 @@ Typically you will not need to import your generated definitions. The [Relay Bab
 However the Relay Compiler also automatically generates [Flow](https://flow.org) types as [type comments](https://flow.org/en/docs/types/comments/). For example, you can import the generated Flow types like so:
 
 ```javascript
-
 import type {DictionaryComponent_word} from './__generated__/DictionaryComponent_word.graphql';
-
 ```
 
 More rarely, you may need to access a query, mutation, fragment or subscription from multiple files. In these cases, you can also import it directly:

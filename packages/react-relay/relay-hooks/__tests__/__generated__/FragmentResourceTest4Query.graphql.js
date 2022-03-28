@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ce330508624050b4d75ac848f6bf8c1e>>
+ * @generated SignedSource<<397cf4ed066999cfe51071e3034cfe59>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type FragmentResourceTest4Fragment$ref = any;
-export type FragmentResourceTest4QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type FragmentResourceTest4Fragment$fragmentType = any;
+export type FragmentResourceTest4Query$variables = {|
   id: string,
 |};
-export type FragmentResourceTest4QueryResponse = {|
-  +$fragmentRefs: FragmentResourceTest4Fragment$ref,
+export type FragmentResourceTest4Query$data = {|
+  +$fragmentSpreads: FragmentResourceTest4Fragment$fragmentType,
 |};
 export type FragmentResourceTest4Query = {|
-  variables: FragmentResourceTest4QueryVariables,
-  response: FragmentResourceTest4QueryResponse,
+  response: FragmentResourceTest4Query$data,
+  variables: FragmentResourceTest4Query$variables,
 |};
 */
 
@@ -114,4 +114,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d8eb85a11fd17ca4b97b9b170e2184db";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  FragmentResourceTest4Query$variables,
+  FragmentResourceTest4Query$data,
+>*/);

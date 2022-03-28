@@ -1,0 +1,31 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query incompatibleVariableUsageAcrossDocumentsQuery($id: ID) {
+    node(id: $id) {
+        __typename
+    }
+    me {
+        ...incompatibleVariableUsageAcrossDocumentsFragment
+    }
+}
+
+
+fragment incompatibleVariableUsageAcrossDocumentsFragment on User {
+    url(site: $id)
+}
+==================================== ERROR ====================================
+✖︎ Variable was previously used as type 'ID' but later used where type 'String' is expected.
+
+  incompatible-variable-usage-across-documents.graphql:13:15
+   12 │ fragment incompatibleVariableUsageAcrossDocumentsFragment on User {
+   13 │     url(site: $id)
+      │               ^^^
+   14 │ }
+
+  ℹ︎ is incompatible with
+
+  incompatible-variable-usage-across-documents.graphql:3:14
+    2 │ query incompatibleVariableUsageAcrossDocumentsQuery($id: ID) {
+    3 │     node(id: $id) {
+      │              ^^^
+    4 │         __typename

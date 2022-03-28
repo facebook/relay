@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,21 +13,19 @@
 
 'use strict';
 
-const React = require('react');
-const RelayEnvironmentProvider = require('../../react-relay/relay-hooks/RelayEnvironmentProvider');
-const TestRenderer = require('react-test-renderer');
-
 const preloadQuery = require('../../react-relay/relay-hooks/preloadQuery_DEPRECATED');
+const RelayEnvironmentProvider = require('../../react-relay/relay-hooks/RelayEnvironmentProvider');
 const usePreloadedQuery = require('../../react-relay/relay-hooks/usePreloadedQuery');
-
-const {getRequest, graphql} = require('relay-runtime');
+const React = require('react');
+const TestRenderer = require('react-test-renderer');
+const {graphql} = require('relay-runtime');
 const {
-  createMockEnvironment,
   MockPayloadGenerator,
+  createMockEnvironment,
 } = require('relay-test-utils');
 
-const query = getRequest(graphql`
-  query RelayMockEnvironmentTestQuery($id: ID! = 4) {
+const query = graphql`
+  query RelayMockEnvironmentTestQuery($id: ID!) {
     node(id: $id) {
       id
       ... on User {
@@ -35,7 +33,7 @@ const query = getRequest(graphql`
       }
     }
   }
-`);
+`;
 
 describe('when using queuePendingOperation, queueOperationResolver and preloadQuery in tests', () => {
   let prefetched;

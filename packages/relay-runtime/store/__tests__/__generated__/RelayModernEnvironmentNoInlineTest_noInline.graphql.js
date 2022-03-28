@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5ca2c441d6697978a4cc24596c073a84>>
+ * @generated SignedSource<<05d88402da941ae87e281498e7cc0c33>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTest_inner$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentNoInlineTest_noInline$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentNoInlineTest_noInline$fragmentType: RelayModernEnvironmentNoInlineTest_noInline$ref;
-export type RelayModernEnvironmentNoInlineTest_noInline = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayModernEnvironmentNoInlineTest_inner$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentNoInlineTest_noInline$fragmentType: FragmentType;
+export type RelayModernEnvironmentNoInlineTest_noInline$data = {|
   +profile_picture?: ?{|
     +uri: ?string,
   |},
-  +$fragmentRefs: RelayModernEnvironmentNoInlineTest_inner$ref,
-  +$refType: RelayModernEnvironmentNoInlineTest_noInline$ref,
+  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
+  +$fragmentType: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
 |};
-export type RelayModernEnvironmentNoInlineTest_noInline$data = RelayModernEnvironmentNoInlineTest_noInline;
 export type RelayModernEnvironmentNoInlineTest_noInline$key = {
   +$data?: RelayModernEnvironmentNoInlineTest_noInline$data,
-  +$fragmentRefs: RelayModernEnvironmentNoInlineTest_noInline$ref,
+  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
   ...
 };
 */
@@ -120,4 +118,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "6bd80bb9c64c065763c7ddc0ef046c62";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentNoInlineTest_noInline$fragmentType,
+  RelayModernEnvironmentNoInlineTest_noInline$data,
+>*/);

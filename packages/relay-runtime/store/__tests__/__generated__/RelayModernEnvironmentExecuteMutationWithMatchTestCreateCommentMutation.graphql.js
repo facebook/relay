@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fd055c5d69275cc0419a9cf7899e1364>>
+ * @generated SignedSource<<8de32e0cc4d31020ba2ce07e9821510f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,13 +17,12 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation.commentCreate.comment.actor.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref = any;
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
+type RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType = any;
+type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType = any;
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -31,10 +30,10 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutationVariables = {|
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables = {|
   input: CommentCreateInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutationResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
       +actor: ?{|
@@ -42,15 +41,15 @@ export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutat
         +nameRenderer: ?{|
           +__fragmentPropName?: ?string,
           +__module_component?: ?string,
-          +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref & RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$ref,
+          +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType,
         |},
       |},
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation = {|
-  variables: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutationVariables,
-  response: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutationResponse,
+  response: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data,
+  variables: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables,
 |};
 */
 
@@ -90,6 +89,7 @@ v4 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation",
       "fragmentName": "RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name",
       "fragmentPropName": "name",
@@ -103,6 +103,7 @@ v5 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation",
       "fragmentName": "RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name",
       "fragmentPropName": "name",
@@ -258,4 +259,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8a6c1e92e6379ca2bcf4b83fbdb38c58";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables,
+  RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data,
+>*/);

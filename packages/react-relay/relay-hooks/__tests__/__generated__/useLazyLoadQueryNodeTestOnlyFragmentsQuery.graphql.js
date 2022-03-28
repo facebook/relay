@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<20eda182aa808b7aea9d0da3eb8e2373>>
+ * @generated SignedSource<<5de3fc584be2abc43a974ac1b7756663>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useLazyLoadQueryNodeTestRootFragment$ref = any;
-export type useLazyLoadQueryNodeTestOnlyFragmentsQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useLazyLoadQueryNodeTestRootFragment$fragmentType = any;
+export type useLazyLoadQueryNodeTestOnlyFragmentsQuery$variables = {|
   id?: ?string,
 |};
-export type useLazyLoadQueryNodeTestOnlyFragmentsQueryResponse = {|
-  +$fragmentRefs: useLazyLoadQueryNodeTestRootFragment$ref,
+export type useLazyLoadQueryNodeTestOnlyFragmentsQuery$data = {|
+  +$fragmentSpreads: useLazyLoadQueryNodeTestRootFragment$fragmentType,
 |};
 export type useLazyLoadQueryNodeTestOnlyFragmentsQuery = {|
-  variables: useLazyLoadQueryNodeTestOnlyFragmentsQueryVariables,
-  response: useLazyLoadQueryNodeTestOnlyFragmentsQueryResponse,
+  response: useLazyLoadQueryNodeTestOnlyFragmentsQuery$data,
+  variables: useLazyLoadQueryNodeTestOnlyFragmentsQuery$variables,
 |};
 */
 
@@ -114,4 +114,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "01b943dc86633c9c75db8215fb4fbfa1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useLazyLoadQueryNodeTestOnlyFragmentsQuery$variables,
+  useLazyLoadQueryNodeTestOnlyFragmentsQuery$data,
+>*/);

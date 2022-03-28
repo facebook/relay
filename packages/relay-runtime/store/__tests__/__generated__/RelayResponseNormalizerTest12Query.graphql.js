@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1f54a806a97dadffc8c3ead1452935be>>
+ * @generated SignedSource<<df05f7c734655085d700f6c69dd9b263>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayResponseNormalizerTest9Fragment$ref = any;
-export type RelayResponseNormalizerTest12QueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayResponseNormalizerTest9Fragment$fragmentType = any;
+export type RelayResponseNormalizerTest12Query$variables = {|
   enableStream: boolean,
+  id: string,
 |};
-export type RelayResponseNormalizerTest12QueryResponse = {|
+export type RelayResponseNormalizerTest12Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayResponseNormalizerTest9Fragment$ref,
+    +$fragmentSpreads: RelayResponseNormalizerTest9Fragment$fragmentType,
   |},
 |};
 export type RelayResponseNormalizerTest12Query = {|
-  variables: RelayResponseNormalizerTest12QueryVariables,
-  response: RelayResponseNormalizerTest12QueryResponse,
+  response: RelayResponseNormalizerTest12Query$data,
+  variables: RelayResponseNormalizerTest12Query$variables,
 |};
 */
 
@@ -120,7 +120,6 @@ return {
                 "if": "enableStream",
                 "kind": "Stream",
                 "label": "RelayResponseNormalizerTest9Fragment$stream$actors",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,
@@ -142,8 +141,7 @@ return {
                     ],
                     "storageKey": null
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               }
             ],
             "type": "Feedback",
@@ -169,4 +167,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e2566f3cbdd63fc7ea2c74c81703d8e8";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayResponseNormalizerTest12Query$variables,
+  RelayResponseNormalizerTest12Query$data,
+>*/);

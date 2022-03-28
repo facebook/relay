@@ -1,6 +1,0 @@
-query FooQuery {
-  me @required(action: LOG) {
-    firstName
-    lastName @required(action: LOG)
-  }
-}

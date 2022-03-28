@@ -1,0 +1,11 @@
+subscription CommentCreateSubscription(
+  $input: CommentCreateSubscriptionInput!
+) {
+  commentCreateSubscribe(input: $input) {
+    ...CommentCreate_CommentCreateResponsePayload
+  }
+}
+
+fragment CommentCreate_CommentCreateResponsePayload on CommentCreateResponsePayload {
+  __typename
+}

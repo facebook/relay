@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f6c992fcd72f7d7e13b0885bd88a2535>>
+ * @generated SignedSource<<e688543250e2701e7b911370ac9379fe>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockPayloadGeneratorTest14Fragment$ref = any;
-export type RelayMockPayloadGeneratorTest14QueryVariables = {|
-  smallScale?: ?number,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayMockPayloadGeneratorTest14Fragment$fragmentType = any;
+export type RelayMockPayloadGeneratorTest14Query$variables = {|
   bigScale?: ?number,
+  smallScale?: ?number,
 |};
-export type RelayMockPayloadGeneratorTest14QueryResponse = {|
+export type RelayMockPayloadGeneratorTest14Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayMockPayloadGeneratorTest14Fragment$ref,
+    +$fragmentSpreads: RelayMockPayloadGeneratorTest14Fragment$fragmentType,
   |},
 |};
 export type RelayMockPayloadGeneratorTest14Query = {|
-  variables: RelayMockPayloadGeneratorTest14QueryVariables,
-  response: RelayMockPayloadGeneratorTest14QueryResponse,
+  response: RelayMockPayloadGeneratorTest14Query$data,
+  variables: RelayMockPayloadGeneratorTest14Query$variables,
 |};
 */
 
@@ -172,18 +172,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "a1a63d65a46626e2c15b2597720005e3",
+    "cacheID": "42cbf3fa1272de23df474f4bee2ad0ca",
     "id": null,
     "metadata": {},
     "name": "RelayMockPayloadGeneratorTest14Query",
     "operationKind": "query",
-    "text": "query RelayMockPayloadGeneratorTest14Query(\n  $smallScale: Int = 1\n  $bigScale: Int = 100\n) {\n  node(id: \"my-id\") {\n    __typename\n    ...RelayMockPayloadGeneratorTest14Fragment\n    id\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest14Fragment on User {\n  id\n  name\n  smallImage: profile_picture(scale: $smallScale) {\n    uri\n  }\n  bigImage: profile_picture(scale: $bigScale) {\n    uri\n  }\n}\n"
+    "text": "query RelayMockPayloadGeneratorTest14Query(\n  $smallScale: Float = 1\n  $bigScale: Float = 100\n) {\n  node(id: \"my-id\") {\n    __typename\n    ...RelayMockPayloadGeneratorTest14Fragment\n    id\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest14Fragment on User {\n  id\n  name\n  smallImage: profile_picture(scale: $smallScale) {\n    uri\n  }\n  bigImage: profile_picture(scale: $bigScale) {\n    uri\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "d131dd86a63779a30fcccad4262a2c77";
+  (node/*: any*/).hash = "4ef820e776fe2defd0a8ebd1a54c7fe1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockPayloadGeneratorTest14Query$variables,
+  RelayMockPayloadGeneratorTest14Query$data,
+>*/);

@@ -1,0 +1,97 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+# When conflicting module + types are encountered for a provided variable
+#  we assume that the most frequently used module + type is likely to be correct
+#  and warn for all others
+fragment TestFragmentA on User
+  @argumentDefinitions(
+    # varProvider module used more frequently
+    var1: {type: "[Int]", provider: "var Provider"}
+    var2: {type: "[Int]", provider: "../varProvider"}
+    var3: {type: "[Int]", provider: "varProvider"}
+) {
+    picture1: profilePicture(size: $var1) {
+        uri
+    }
+    picture2: profilePicture(size: $var2) {
+        uri
+    }
+    picture3: profilePicture(size: $var3) {
+        uri
+    }
+}
+
+fragment TestFragmentB on User
+  @argumentDefinitions(
+    var1: {type: "[Int]", provider: "varProvider"}
+  ) {
+    picture1: profilePicture(size: $var1) {
+        uri
+    }
+}
+
+# If there is no most frequently used definition,
+# we tie break with string ordering
+fragment TestFragmentC on User
+  @argumentDefinitions(
+    # Same frequency, but var(Provider1 < var)Provider1
+    var1: {type: "[Int]", provider: "var)Provider1"}
+    var2: {type: "[Int]", provider: "var(Provider1"}
+) {
+    picture1: profilePicture(size: $var1) {
+        uri
+    }
+    picture2: profilePicture(size: $var2) {
+        uri
+    }
+}
+
+fragment TestFragmentD on User
+  @argumentDefinitions(
+    # Same frequency, but [Int] < [Int]!
+    var1: {type: "[Int]!", provider: "varProvider2"}
+    var2: {type: "[Int]", provider: "varProvider2"}
+) {
+    picture1: profilePicture(size: $var1) {
+        uri
+    }
+    picture2: profilePicture(size: $var2) {
+        uri
+    }
+}
+==================================== ERROR ====================================
+✖︎ All provided variables using module 'varProvider2' must declare the same type. Expected '[Int]' but found '[Int]!'
+
+  conflict_warn_infrequent_definitions.graphql:52:5
+   51 │     # Same frequency, but [Int] < [Int]!
+   52 │     var1: {type: "[Int]!", provider: "varProvider2"}
+      │     ^^^^
+   53 │     var2: {type: "[Int]", provider: "varProvider2"}
+
+
+✖︎ Modules 'var(Provider1' and 'var)Provider1' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
+
+  conflict_warn_infrequent_definitions.graphql:38:5
+   37 │     # Same frequency, but var(Provider1 < var)Provider1
+   38 │     var1: {type: "[Int]", provider: "var)Provider1"}
+      │     ^^^^
+   39 │     var2: {type: "[Int]", provider: "var(Provider1"}
+
+
+✖︎ Modules 'varProvider' and '../varProvider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
+
+  conflict_warn_infrequent_definitions.graphql:10:5
+    9 │     var1: {type: "[Int]", provider: "var Provider"}
+   10 │     var2: {type: "[Int]", provider: "../varProvider"}
+      │     ^^^^
+   11 │     var3: {type: "[Int]", provider: "varProvider"}
+
+
+✖︎ Modules 'varProvider' and 'var Provider' used by provided variables have indistinguishable names. (All non ascii-alphanumeric characters are stripped in Relay transform)
+
+  conflict_warn_infrequent_definitions.graphql:9:5
+    8 │     # varProvider module used more frequently
+    9 │     var1: {type: "[Int]", provider: "var Provider"}
+      │     ^^^^
+   10 │     var2: {type: "[Int]", provider: "../varProvider"}

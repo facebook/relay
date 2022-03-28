@@ -1,0 +1,13 @@
+# expected-to-throw
+query selectionSetConflictMultipleConflictsWithDifferentArgsQuery {
+  root_alias: nodes(ids: [1, 2, 3]) {
+    ... on Page {
+      same_alias: actor_key
+    }
+  }
+  root_alias: nodes(ids: [1, 2]) {
+    ... on Actor {
+      same_alias: id
+    }
+  }
+}

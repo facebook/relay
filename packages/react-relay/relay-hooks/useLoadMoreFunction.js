@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,25 +13,9 @@
 
 'use strict';
 
-const getPaginationVariables = require('./getPaginationVariables');
-const getValueAtPath = require('./getValueAtPath');
-const invariant = require('invariant');
-const useFetchTrackingRef = require('./useFetchTrackingRef');
-const useIsMountedRef = require('./useIsMountedRef');
-const useIsOperationNodeActive = require('./useIsOperationNodeActive');
-const useRelayEnvironment = require('./useRelayEnvironment');
-const warning = require('warning');
-
-const {useCallback, useEffect, useState} = require('react');
-const {
-  ConnectionInterface,
-  __internal: {fetchQuery},
-  createOperationDescriptor,
-  getSelector,
-} = require('relay-runtime');
-
 import type {
   ConcreteRequest,
+  Direction,
   Disposable,
   GraphQLResponse,
   Observer,
@@ -41,7 +25,21 @@ import type {
   VariablesOf,
 } from 'relay-runtime';
 
-export type Direction = 'forward' | 'backward';
+const useFetchTrackingRef = require('./useFetchTrackingRef');
+const useIsMountedRef = require('./useIsMountedRef');
+const useIsOperationNodeActive = require('./useIsOperationNodeActive');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const invariant = require('invariant');
+const {useCallback, useEffect, useState} = require('react');
+const {
+  ConnectionInterface,
+  __internal: {fetchQuery},
+  createOperationDescriptor,
+  getPaginationVariables,
+  getSelector,
+  getValueAtPath,
+} = require('relay-runtime');
+const warning = require('warning');
 
 export type LoadMoreFn<TQuery: OperationType> = (
   count: number,
@@ -84,12 +82,8 @@ function useLoadMoreFunction<TQuery: OperationType>(
     identifierField,
   } = args;
   const environment = useRelayEnvironment();
-  const {
-    isFetchingRef,
-    startFetch,
-    disposeFetch,
-    completeFetch,
-  } = useFetchTrackingRef();
+  const {isFetchingRef, startFetch, disposeFetch, completeFetch} =
+    useFetchTrackingRef();
   const identifierValue =
     identifierField != null &&
     fragmentData != null &&
@@ -98,9 +92,8 @@ function useLoadMoreFunction<TQuery: OperationType>(
       : null;
   const isMountedRef = useIsMountedRef();
   const [mirroredEnvironment, setMirroredEnvironment] = useState(environment);
-  const [mirroredFragmentIdentifier, setMirroredFragmentIdentifier] = useState(
-    fragmentIdentifier,
-  );
+  const [mirroredFragmentIdentifier, setMirroredFragmentIdentifier] =
+    useState(fragmentIdentifier);
 
   const isParentQueryActive = useIsOperationNodeActive(
     fragmentNode,
@@ -190,7 +183,6 @@ function useLoadMoreFunction<TQuery: OperationType>(
       const parentVariables = fragmentSelector.owner.variables;
       const fragmentVariables = fragmentSelector.variables;
       const extraVariables = options?.UNSTABLE_extraVariables;
-      // $FlowFixMe[cannot-spread-interface]
       const baseVariables = {
         ...parentVariables,
         ...fragmentVariables,
@@ -200,7 +192,6 @@ function useLoadMoreFunction<TQuery: OperationType>(
         count,
         cursor,
         baseVariables,
-        // $FlowFixMe[cannot-spread-interface]
         {...extraVariables},
         paginationMetadata,
       );

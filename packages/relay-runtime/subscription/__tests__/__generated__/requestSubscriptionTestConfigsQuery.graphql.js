@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<86bc3ca2797f64bb59f61bcab4a938f5>>
+ * @generated SignedSource<<57fefa3632b2258e2fabfcf7cc8e4c0d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +15,9 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type requestSubscriptionTestConfigsQueryVariables = {||};
-export type requestSubscriptionTestConfigsQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type requestSubscriptionTestConfigsQuery$variables = {||};
+export type requestSubscriptionTestConfigsQuery$data = {|
   +viewer: ?{|
     +configs: ?{|
       +edges: ?$ReadOnlyArray<?{|
@@ -29,8 +29,8 @@ export type requestSubscriptionTestConfigsQueryResponse = {|
   |},
 |};
 export type requestSubscriptionTestConfigsQuery = {|
-  variables: requestSubscriptionTestConfigsQueryVariables,
-  response: requestSubscriptionTestConfigsQueryResponse,
+  response: requestSubscriptionTestConfigsQuery$data,
+  variables: requestSubscriptionTestConfigsQuery$variables,
 |};
 */
 
@@ -120,4 +120,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "16ca9c7a54273df2636b21f815941e23";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  requestSubscriptionTestConfigsQuery$variables,
+  requestSubscriptionTestConfigsQuery$data,
+>*/);

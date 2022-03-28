@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment AssignableFragment on Page @assignable {
+  __typename @required(action: LOG)
+}
+==================================== ERROR ====================================
+✖︎ Assignable fragments should contain only a single, unaliased __typename field with no directives.
+
+  assignable-fragment-directive-on-typename.invalid.graphql:3:3
+    2 │ fragment AssignableFragment on Page @assignable {
+    3 │   __typename @required(action: LOG)
+      │   ^^^^^^^^^^
+    4 │ }

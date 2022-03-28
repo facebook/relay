@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<00bb2e53d61bc3691b9f75216656b304>>
+ * @generated SignedSource<<7674454b53ea6c2a4c51956b1b119fba>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockPayloadGeneratorTest2Fragment$ref = any;
-export type RelayMockPayloadGeneratorTest3QueryVariables = {|
-  condition?: ?boolean,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayMockPayloadGeneratorTest2Fragment$fragmentType = any;
+export type RelayMockPayloadGeneratorTest3Query$variables = {|
+  condition: boolean,
 |};
-export type RelayMockPayloadGeneratorTest3QueryResponse = {|
+export type RelayMockPayloadGeneratorTest3Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayMockPayloadGeneratorTest2Fragment$ref,
+    +$fragmentSpreads: RelayMockPayloadGeneratorTest2Fragment$fragmentType,
   |},
 |};
 export type RelayMockPayloadGeneratorTest3Query = {|
-  variables: RelayMockPayloadGeneratorTest3QueryVariables,
-  response: RelayMockPayloadGeneratorTest3QueryResponse,
+  response: RelayMockPayloadGeneratorTest3Query$data,
+  variables: RelayMockPayloadGeneratorTest3Query$variables,
 |};
 */
 
@@ -221,18 +221,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "99dbb06b8a656b42a59a677f607872bc",
+    "cacheID": "7b4112ccf5fd820c35c73aa9b6a4f3c8",
     "id": null,
     "metadata": {},
     "name": "RelayMockPayloadGeneratorTest3Query",
     "operationKind": "query",
-    "text": "query RelayMockPayloadGeneratorTest3Query(\n  $condition: Boolean\n) {\n  node(id: \"my-id\") {\n    __typename\n    ...RelayMockPayloadGeneratorTest2Fragment\n    id\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest2Fragment on User {\n  id\n  name\n  author {\n    id\n    name\n    authorID: id\n    username\n  }\n  author @include(if: $condition) {\n    myId: id\n    myUsername: username\n    emailAddresses\n    birthdate {\n      day\n      month\n      year\n    }\n    id\n  }\n}\n"
+    "text": "query RelayMockPayloadGeneratorTest3Query(\n  $condition: Boolean!\n) {\n  node(id: \"my-id\") {\n    __typename\n    ...RelayMockPayloadGeneratorTest2Fragment\n    id\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest2Fragment on User {\n  id\n  name\n  author {\n    id\n    name\n    authorID: id\n    username\n  }\n  author @include(if: $condition) {\n    myId: id\n    myUsername: username\n    emailAddresses\n    birthdate {\n      day\n      month\n      year\n    }\n    id\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5c7eed9a422eb53f20c9c8a46254043d";
+  (node/*: any*/).hash = "02749249be24669737cad13a3b9b3559";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockPayloadGeneratorTest3Query$variables,
+  RelayMockPayloadGeneratorTest3Query$data,
+>*/);

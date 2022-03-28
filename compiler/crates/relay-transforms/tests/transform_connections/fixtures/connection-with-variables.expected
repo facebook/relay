@@ -12,7 +12,29 @@ fragment Example on User {
   }
 }
 ==================================== OUTPUT ===================================
-fragment Example on User @__connectionMetadata(__connectionMetadataArgument: [[["friends"], "forward", "friendsFirst", null, "friendsAfter", null, false]]) {
+fragment Example on User @__ConnectionMetadataDirective
+# ConnectionMetadataDirective(
+#     [
+#         ConnectionMetadata {
+#             path: Some(
+#                 [
+#                     "friends",
+#                 ],
+#             ),
+#             direction: "forward",
+#             first: Some(
+#                 "friendsFirst",
+#             ),
+#             last: None,
+#             before: None,
+#             after: Some(
+#                 "friendsAfter",
+#             ),
+#             is_stream_connection: false,
+#         },
+#     ],
+# )
+ {
   friends(first: $friendsFirst, after: $friendsAfter) @__clientField(key: "Example_friends", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
     edges {
       node {

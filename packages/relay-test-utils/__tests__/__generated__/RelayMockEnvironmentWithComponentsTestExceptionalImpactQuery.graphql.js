@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d235160ff70e9a95d27a4205b4ab2c5c>>
+ * @generated SignedSource<<578a3f9853ce3481092590e188a6b312>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,23 +15,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$ref = any;
-export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType = any;
+export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables = {|
   id?: ?string,
 |};
-export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQueryResponse = {|
+export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data = {|
   +user: ?{|
+    +hometown: ?{|
+      +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
+    |},
     +id: string,
     +name: ?string,
-    +hometown: ?{|
-      +$fragmentRefs: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$ref,
-    |},
   |},
 |};
 export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery = {|
-  variables: RelayMockEnvironmentWithComponentsTestExceptionalImpactQueryVariables,
-  response: RelayMockEnvironmentWithComponentsTestExceptionalImpactQueryResponse,
+  response: RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data,
+  variables: RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables,
 |};
 */
 
@@ -167,4 +167,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "798cb3a725408866a34e49c9e720775f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables,
+  RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data,
+>*/);

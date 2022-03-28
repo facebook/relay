@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<30e1dec4837a3a27bee866bba05e0b60>>
+ * @generated SignedSource<<e21a19b78dc0d3153047f00563e9e5d4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernStoreTest9Fragment$ref: FragmentReference;
-declare export opaque type RelayModernStoreTest9Fragment$fragmentType: RelayModernStoreTest9Fragment$ref;
-export type RelayModernStoreTest9Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernStoreTest9Fragment$fragmentType: FragmentType;
+export type RelayModernStoreTest9Fragment$data = {|
   +name: ?string,
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayModernStoreTest9Fragment$ref,
+  +$fragmentType: RelayModernStoreTest9Fragment$fragmentType,
 |};
-export type RelayModernStoreTest9Fragment$data = RelayModernStoreTest9Fragment;
 export type RelayModernStoreTest9Fragment$key = {
   +$data?: RelayModernStoreTest9Fragment$data,
-  +$fragmentRefs: RelayModernStoreTest9Fragment$ref,
+  +$fragmentSpreads: RelayModernStoreTest9Fragment$fragmentType,
   ...
 };
 */
@@ -85,4 +83,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c9aa05998065da656fd28fa0b154cfa1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernStoreTest9Fragment$fragmentType,
+  RelayModernStoreTest9Fragment$data,
+>*/);

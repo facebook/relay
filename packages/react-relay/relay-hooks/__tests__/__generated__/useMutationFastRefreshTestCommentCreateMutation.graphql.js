@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7acebec5fb7a6ee3640af27c374282da>>
+ * @generated SignedSource<<28582c1451ac1ab021d2c04c624ec86c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -27,25 +26,25 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type useMutationFastRefreshTestCommentCreateMutationVariables = {|
+export type useMutationFastRefreshTestCommentCreateMutation$variables = {|
   input?: ?CommentCreateInput,
 |};
-export type useMutationFastRefreshTestCommentCreateMutationResponse = {|
+export type useMutationFastRefreshTestCommentCreateMutation$data = {|
   +commentCreate: ?{|
     +feedbackCommentEdge: ?{|
       +cursor: ?string,
       +node: ?{|
-        +id: string,
         +body: ?{|
           +text: ?string,
         |},
+        +id: string,
       |},
     |},
   |},
 |};
 export type useMutationFastRefreshTestCommentCreateMutation = {|
-  variables: useMutationFastRefreshTestCommentCreateMutationVariables,
-  response: useMutationFastRefreshTestCommentCreateMutationResponse,
+  response: useMutationFastRefreshTestCommentCreateMutation$data,
+  variables: useMutationFastRefreshTestCommentCreateMutation$variables,
 |};
 */
 
@@ -162,4 +161,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "97430a57093eac226b7c8c315e30f400";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  useMutationFastRefreshTestCommentCreateMutation$variables,
+  useMutationFastRefreshTestCommentCreateMutation$data,
+>*/);

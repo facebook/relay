@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,17 +12,23 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const {graphql, getRequest} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 // Regression test: updaters read the store using the selector used to
 // publish, which can fail if a normalization ast was passed as the
@@ -41,15 +47,13 @@ describe('execute() with handler and updater', () => {
   let subject;
 
   beforeEach(() => {
-    jest.resetModules();
-
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery {
         me {
           name @__clientField(handle: "name_handler")
         }
       }
-    `);
+    `;
     operation = createOperationDescriptor(query, {});
 
     complete = jest.fn();
@@ -62,7 +66,7 @@ describe('execute() with handler and updater', () => {
       }),
     );
     const NameHandler = {
-      update(storeProxy, payload) {
+      update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
         const record = storeProxy.get(payload.dataID);
         if (record != null) {
           const name = record.getValue(payload.fieldKey);
@@ -77,7 +81,7 @@ describe('execute() with handler and updater', () => {
     source = RelayRecordSource.create();
     store = new RelayModernStore(source);
     environment = new RelayModernEnvironment({
-      network: RelayNetwork.create((fetch: $FlowFixMe)),
+      network: RelayNetwork.create(fetch),
       store,
       handlerProvider: name => {
         switch (name) {
@@ -90,7 +94,7 @@ describe('execute() with handler and updater', () => {
 
   it('calls next() and runs updater when payloads return', () => {
     const updater = jest.fn();
-    environment.execute({operation, updater}).subscribe(callbacks);
+    environment.executeSubscription({operation, updater}).subscribe(callbacks);
     subject.next({
       data: {
         me: {

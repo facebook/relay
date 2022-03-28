@@ -1,0 +1,20 @@
+# expected-to-throw
+fragment Foo_user on User {
+  best_friend {
+    id
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+interface ClientOnlyInterface implements Node {
+  id: ID!
+}
+
+extend type User {
+  best_friend: ClientOnlyInterface @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}

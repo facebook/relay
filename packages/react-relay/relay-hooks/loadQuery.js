@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,36 +11,34 @@
 
 'use strict';
 
-const React = require('react');
-
-const invariant = require('invariant');
-const warning = require('warning');
-
-const {
-  PreloadableQueryRegistry,
-  ReplaySubject,
-  createOperationDescriptor,
-  getRequest,
-  getRequestIdentifier,
-  Observable,
-  RelayFeatureFlags,
-  __internal: {fetchQueryDeduped},
-} = require('relay-runtime');
-
 import type {
+  LoadQueryOptions,
   PreloadableConcreteRequest,
   PreloadedQueryInner,
-  LoadQueryOptions,
 } from './EntryPointTypes.flow';
 import type {
+  GraphQLResponse,
+  GraphQLTaggedNode,
   IEnvironment,
   OperationDescriptor,
   OperationType,
-  GraphQLTaggedNode,
-  GraphQLResponse,
   RequestIdentifier,
   RequestParameters,
 } from 'relay-runtime';
+
+const invariant = require('invariant');
+const React = require('react');
+const {
+  Observable,
+  PreloadableQueryRegistry,
+  RelayFeatureFlags,
+  ReplaySubject,
+  __internal: {fetchQueryDeduped},
+  createOperationDescriptor,
+  getRequest,
+  getRequestIdentifier,
+} = require('relay-runtime');
+const warning = require('warning');
 
 let RenderDispatcher = null;
 let fetchKey = 100001;
@@ -59,7 +57,7 @@ function useTrackLoadQueryInRender() {
 function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: TQuery['variables'],
   options?: ?LoadQueryOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
 ): PreloadedQueryInner<TQuery, TEnvironmentProviderOptions> {
@@ -274,7 +272,8 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   let cancelOnLoadCallback;
   let queryId;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
-    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
+    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> =
+      (preloadableRequest: $FlowFixMe);
     ({params} = preloadableConcreteRequest);
 
     ({id: queryId} = params);
@@ -298,8 +297,8 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       // store in the first place, so it couldn't have been cached.
       const networkObservable =
         fetchPolicy === 'store-only' ? null : makeNetworkRequest(params);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       ({dispose: cancelOnLoadCallback} = PreloadableQueryRegistry.onLoad(
-        // $FlowFixMe[incompatible-call]
         queryId,
         preloadedModule => {
           cancelOnLoadCallback();
@@ -318,7 +317,8 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       ));
     }
   } else {
-    const graphQlTaggedNode: GraphQLTaggedNode = (preloadableRequest: $FlowFixMe);
+    const graphQlTaggedNode: GraphQLTaggedNode =
+      (preloadableRequest: $FlowFixMe);
     const request = getRequest(graphQlTaggedNode);
     params = request.params;
     queryId = params.cacheID != null ? params.cacheID : params.id;
@@ -326,6 +326,27 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   }
 
   let isDisposed = false;
+  let isReleased = false;
+  let isNetworkRequestCancelled = false;
+  const releaseQuery = () => {
+    if (isReleased) {
+      return;
+    }
+    retainReference && retainReference.dispose();
+    isReleased = true;
+  };
+  const cancelNetworkRequest = () => {
+    if (isNetworkRequestCancelled) {
+      return;
+    }
+    if (didExecuteNetworkSource) {
+      unsubscribeFromExecution && unsubscribeFromExecution();
+    } else {
+      unsubscribeFromNetworkRequest && unsubscribeFromNetworkRequest();
+    }
+    cancelOnLoadCallback && cancelOnLoadCallback();
+    isNetworkRequestCancelled = true;
+  };
   return {
     kind: 'PreloadedQuery',
     environment,
@@ -334,20 +355,17 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       if (isDisposed) {
         return;
       }
-      if (didExecuteNetworkSource) {
-        unsubscribeFromExecution && unsubscribeFromExecution();
-      } else {
-        unsubscribeFromNetworkRequest && unsubscribeFromNetworkRequest();
-      }
-      retainReference && retainReference.dispose();
-      cancelOnLoadCallback && cancelOnLoadCallback();
+      releaseQuery();
+      cancelNetworkRequest();
       isDisposed = true;
     },
+    releaseQuery,
+    cancelNetworkRequest,
     fetchKey,
     id: queryId,
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
     get isDisposed() {
-      return isDisposed;
+      return isDisposed || isReleased;
     },
     // $FlowFixMe[unsafe-getters-setters] - this has no side effects
     get networkError() {

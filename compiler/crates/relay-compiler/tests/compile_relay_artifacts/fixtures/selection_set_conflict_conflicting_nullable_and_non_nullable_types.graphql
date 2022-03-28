@@ -1,0 +1,17 @@
+# expected-to-throw
+query selectionSetConflictConflictingNullableAndNonNullableTypesQuery {
+  viewer {
+    newsFeed {
+      edges {
+        node {
+          ... on Story {
+            same_alias: __typename
+          }
+          ... on PhotoStory {
+            same_alias: lastName
+          }
+        }
+      }
+    }
+  }
+}

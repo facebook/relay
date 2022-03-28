@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -17,6 +17,7 @@ mod flatbuffer;
 mod graphql_schema;
 mod in_memory;
 mod schema;
+pub mod suggestion_list;
 
 pub use crate::schema::SDLSchema;
 use common::{DiagnosticsResult, SourceLocationKey};
@@ -29,6 +30,7 @@ pub use errors::{Result, SchemaError};
 use flatbuffer::FlatBufferSchema;
 pub use flatbuffer::SchemaWrapper;
 pub use graphql_schema::Schema;
+use graphql_syntax::SchemaDocument;
 pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
 pub use in_memory::InMemorySchema;
 
@@ -42,31 +44,28 @@ pub fn build_schema(sdl: &str) -> DiagnosticsResult<SDLSchema> {
 
 pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     server_sdls: &[T],
-    extension_sdls: &[U],
+    extension_sdls: &[(U, SourceLocationKey)],
 ) -> DiagnosticsResult<SDLSchema> {
-    let mut server_definitions = builtins()?;
+    let mut server_documents = vec![builtins()?];
     let mut combined_sdl: String = String::new();
     for server_sdl in server_sdls {
         combined_sdl.push_str(server_sdl.as_ref());
         combined_sdl.push('\n');
     }
-    server_definitions.extend(
-        graphql_syntax::parse_schema_document(&combined_sdl, SourceLocationKey::generated())?
-            .definitions,
-    );
+    server_documents.push(graphql_syntax::parse_schema_document(
+        &combined_sdl,
+        SourceLocationKey::generated(),
+    )?);
 
-    let mut extension_definitions = Vec::new();
-    for extension_sdl in extension_sdls {
-        extension_definitions.extend(
-            graphql_syntax::parse_schema_document(
-                extension_sdl.as_ref(),
-                SourceLocationKey::generated(),
-            )?
-            .definitions,
-        );
+    let mut client_schema_documents = Vec::new();
+    for (extension_sdl, location_key) in extension_sdls {
+        client_schema_documents.push(graphql_syntax::parse_schema_document(
+            extension_sdl.as_ref(),
+            *location_key,
+        )?);
     }
 
-    SDLSchema::build(&server_definitions, &extension_definitions)
+    SDLSchema::build(&server_documents, &client_schema_documents)
 }
 
 pub fn build_schema_with_flat_buffer(bytes: Vec<u8>) -> SDLSchema {
@@ -77,9 +76,6 @@ pub fn build_schema_from_flat_buffer(bytes: &[u8]) -> DiagnosticsResult<FlatBuff
     Ok(FlatBufferSchema::build(bytes))
 }
 
-pub fn builtins() -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
-    Ok(
-        graphql_syntax::parse_schema_document(BUILTINS, SourceLocationKey::generated())?
-            .definitions,
-    )
+pub fn builtins() -> DiagnosticsResult<SchemaDocument> {
+    graphql_syntax::parse_schema_document(BUILTINS, SourceLocationKey::generated())
 }

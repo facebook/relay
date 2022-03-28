@@ -1,0 +1,178 @@
+==================================== INPUT ====================================
+query selectionSetConflictStreamOnNodesOrEdgesQuery {
+  me {
+    ... on User {
+      friends {
+        edges @stream(label: "b", initial_count: 1) {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "selectionSetConflictStreamOnNodesOrEdgesQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "FriendsConnection",
+            "kind": "LinkedField",
+            "name": "friends",
+            "plural": false,
+            "selections": [
+              {
+                "kind": "Stream",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "FriendsEdge",
+                    "kind": "LinkedField",
+                    "name": "edges",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "User",
+                        "kind": "LinkedField",
+                        "name": "node",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "id",
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ]
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "selectionSetConflictStreamOnNodesOrEdgesQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "FriendsConnection",
+            "kind": "LinkedField",
+            "name": "friends",
+            "plural": false,
+            "selections": [
+              {
+                "if": null,
+                "kind": "Stream",
+                "label": "selectionSetConflictStreamOnNodesOrEdgesQuery$stream$b",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "FriendsEdge",
+                    "kind": "LinkedField",
+                    "name": "edges",
+                    "plural": true,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "User",
+                        "kind": "LinkedField",
+                        "name": "node",
+                        "plural": false,
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "id",
+                            "storageKey": null
+                          }
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ]
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "selectionSetConflictStreamOnNodesOrEdgesQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query selectionSetConflictStreamOnNodesOrEdgesQuery {
+  me {
+    friends {
+      edges @stream(label: "selectionSetConflictStreamOnNodesOrEdgesQuery$stream$b", initial_count: 1) {
+        node {
+          id
+        }
+      }
+    }
+    id
+  }
+}

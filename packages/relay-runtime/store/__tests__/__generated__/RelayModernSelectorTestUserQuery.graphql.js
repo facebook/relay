@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ca8930030a82bff9ecd7695c8db5c586>>
+ * @generated SignedSource<<86fd4e0ca4229b362408db98a5139966>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernSelectorTestUserFragment$ref = any;
-type RelayModernSelectorTestUsersFragment$ref = any;
-export type RelayModernSelectorTestUserQueryVariables = {|
-  id: string,
-  size?: ?number,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernSelectorTestUserFragment$fragmentType = any;
+type RelayModernSelectorTestUsersFragment$fragmentType = any;
+export type RelayModernSelectorTestUserQuery$variables = {|
   cond: boolean,
+  id: string,
+  size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayModernSelectorTestUserQueryResponse = {|
+export type RelayModernSelectorTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernSelectorTestUserFragment$ref & RelayModernSelectorTestUsersFragment$ref,
+    +$fragmentSpreads: RelayModernSelectorTestUserFragment$fragmentType & RelayModernSelectorTestUsersFragment$fragmentType,
   |},
 |};
 export type RelayModernSelectorTestUserQuery = {|
-  variables: RelayModernSelectorTestUserQueryVariables,
-  response: RelayModernSelectorTestUserQueryResponse,
+  response: RelayModernSelectorTestUserQuery$data,
+  variables: RelayModernSelectorTestUserQuery$variables,
 |};
 */
 
@@ -176,18 +176,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "555c7d35fd9d940d0fe8f33bd3e924d1",
+    "cacheID": "ff14fc374a9b5725c7b45e145387b849",
     "id": null,
     "metadata": {},
     "name": "RelayModernSelectorTestUserQuery",
     "operationKind": "query",
-    "text": "query RelayModernSelectorTestUserQuery(\n  $id: ID!\n  $size: Int\n  $cond: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernSelectorTestUserFragment\n    ...RelayModernSelectorTestUsersFragment\n    id\n  }\n}\n\nfragment RelayModernSelectorTestUserFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $cond) {\n    uri\n  }\n}\n\nfragment RelayModernSelectorTestUsersFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $cond) {\n    uri\n  }\n}\n"
+    "text": "query RelayModernSelectorTestUserQuery(\n  $id: ID!\n  $size: [Int]\n  $cond: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernSelectorTestUserFragment\n    ...RelayModernSelectorTestUsersFragment\n    id\n  }\n}\n\nfragment RelayModernSelectorTestUserFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $cond) {\n    uri\n  }\n}\n\nfragment RelayModernSelectorTestUsersFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $cond) {\n    uri\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a1c4660072809c07ccdb440e3eec35e7";
+  (node/*: any*/).hash = "afbaf504a28e027de34401ff4a82e567";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernSelectorTestUserQuery$variables,
+  RelayModernSelectorTestUserQuery$data,
+>*/);

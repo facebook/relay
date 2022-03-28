@@ -1,0 +1,379 @@
+==================================== INPUT ====================================
+query providedVariableRefetchableFragmentQuery {
+    node(id: 4) {
+        ...providedVariableRefetchableFragment
+    }
+}
+
+fragment providedVariableRefetchableFragment on Node
+  @refetchable(queryName: "refetchableQuery")
+{
+    ...providedVariableRefetchableFragment_providedVariableFragment
+}
+
+fragment providedVariableRefetchableFragment_providedVariableFragment on User
+  @argumentDefinitions(
+      includeName: {type: "Boolean!", provider: "includeName_RelayProvider"}
+) {
+   id
+   name @include(if: $includeName)
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "providedVariableRefetchableFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": 4
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "providedVariableRefetchableFragment"
+          }
+        ],
+        "storageKey": "node(id:4)"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__includeName_RelayProvider"
+      }
+    ],
+    "kind": "Operation",
+    "name": "providedVariableRefetchableFragmentQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "id",
+            "value": 4
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "TypeDiscriminator",
+            "abstractKey": "__isNode"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "condition": "__relay_internal__pv__includeName_RelayProvider",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  }
+                ]
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": "node(id:4)"
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "providedVariableRefetchableFragmentQuery",
+    "operationKind": "query",
+    "text": null,
+    "providedVariables": {
+      "__relay_internal__pv__includeName_RelayProvider": require('includeName_RelayProvider')
+    }
+  }
+}
+
+QUERY:
+
+query providedVariableRefetchableFragmentQuery(
+  $__relay_internal__pv__includeName_RelayProvider: Boolean!
+) {
+  node(id: 4) {
+    __typename
+    ...providedVariableRefetchableFragment
+    id
+  }
+}
+
+fragment providedVariableRefetchableFragment on Node {
+  __isNode: __typename
+  ...providedVariableRefetchableFragment_providedVariableFragment
+  id
+}
+
+fragment providedVariableRefetchableFragment_providedVariableFragment on User {
+  id
+  name @include(if: $__relay_internal__pv__includeName_RelayProvider)
+}
+
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "refetchableQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "providedVariableRefetchableFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__includeName_RelayProvider"
+      }
+    ],
+    "kind": "Operation",
+    "name": "refetchableQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "TypeDiscriminator",
+            "abstractKey": "__isNode"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "condition": "__relay_internal__pv__includeName_RelayProvider",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  }
+                ]
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "refetchableQuery",
+    "operationKind": "query",
+    "text": null,
+    "providedVariables": {
+      "__relay_internal__pv__includeName_RelayProvider": require('includeName_RelayProvider')
+    }
+  }
+}
+
+QUERY:
+
+query refetchableQuery(
+  $id: ID!
+  $__relay_internal__pv__includeName_RelayProvider: Boolean!
+) {
+  node(id: $id) {
+    __typename
+    ...providedVariableRefetchableFragment
+    id
+  }
+}
+
+fragment providedVariableRefetchableFragment on Node {
+  __isNode: __typename
+  ...providedVariableRefetchableFragment_providedVariableFragment
+  id
+}
+
+fragment providedVariableRefetchableFragment_providedVariableFragment on User {
+  id
+  name @include(if: $__relay_internal__pv__includeName_RelayProvider)
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [
+        "node"
+      ],
+      "operation": require('refetchableQuery.graphql'),
+      "identifierField": "id"
+    }
+  },
+  "name": "providedVariableRefetchableFragment",
+  "selections": [
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "providedVariableRefetchableFragment_providedVariableFragment"
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ],
+  "type": "Node",
+  "abstractKey": "__isNode"
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__includeName_RelayProvider"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableRefetchableFragment_providedVariableFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "condition": "__relay_internal__pv__includeName_RelayProvider",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<af0781f6987b03f5e470668942025388>>
+ * @generated SignedSource<<1b08c925b2926388117b4e546f58b2cc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayMockEnvironmentWithComponentsTestRedefiningSolutionQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayMockEnvironmentWithComponentsTestRedefiningSolutionQuery$variables = {|
   pageId: string,
 |};
-export type RelayMockEnvironmentWithComponentsTestRedefiningSolutionQueryResponse = {|
+export type RelayMockEnvironmentWithComponentsTestRedefiningSolutionQuery$data = {|
   +page: ?{|
     +id: string,
     +name: ?string,
   |},
 |};
 export type RelayMockEnvironmentWithComponentsTestRedefiningSolutionQuery = {|
-  variables: RelayMockEnvironmentWithComponentsTestRedefiningSolutionQueryVariables,
-  response: RelayMockEnvironmentWithComponentsTestRedefiningSolutionQueryResponse,
+  response: RelayMockEnvironmentWithComponentsTestRedefiningSolutionQuery$data,
+  variables: RelayMockEnvironmentWithComponentsTestRedefiningSolutionQuery$variables,
 |};
 */
 
@@ -154,4 +154,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "616bf865993fd8a6059f8c5dc641de63";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockEnvironmentWithComponentsTestRedefiningSolutionQuery$variables,
+  RelayMockEnvironmentWithComponentsTestRedefiningSolutionQuery$data,
+>*/);

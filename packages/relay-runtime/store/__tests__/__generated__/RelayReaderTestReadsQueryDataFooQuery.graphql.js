@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<14f02d6454a994d123d0aac40b973eb6>>
+ * @generated SignedSource<<68b92a2f4b3c360f44942b1c9f534ce9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,14 +15,13 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayReaderTestReadsQueryDataFooQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayReaderTestReadsQueryDataFooQuery$variables = {|
   id?: ?string,
   size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayReaderTestReadsQueryDataFooQueryResponse = {|
+export type RelayReaderTestReadsQueryDataFooQuery$data = {|
   +node: ?{|
-    +id: string,
     +__typename: string,
     +actors?: ?$ReadOnlyArray<?{|
       +name: ?string,
@@ -32,19 +31,20 @@ export type RelayReaderTestReadsQueryDataFooQueryResponse = {|
       +edges: ?$ReadOnlyArray<?{|
         +cursor: ?string,
         +node: ?{|
-          +id: string,
           +firstName: ?string,
+          +id: string,
         |},
       |}>,
     |},
+    +id: string,
     +profilePicture?: ?{|
       +uri: ?string,
     |},
   |},
 |};
 export type RelayReaderTestReadsQueryDataFooQuery = {|
-  variables: RelayReaderTestReadsQueryDataFooQueryVariables,
-  response: RelayReaderTestReadsQueryDataFooQueryResponse,
+  response: RelayReaderTestReadsQueryDataFooQuery$data,
+  variables: RelayReaderTestReadsQueryDataFooQuery$variables,
 |};
 */
 
@@ -278,4 +278,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a5843bfe2a9c884e36ae5a3472814fee";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestReadsQueryDataFooQuery$variables,
+  RelayReaderTestReadsQueryDataFooQuery$data,
+>*/);

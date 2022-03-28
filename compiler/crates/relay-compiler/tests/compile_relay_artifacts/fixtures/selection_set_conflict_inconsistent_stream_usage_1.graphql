@@ -1,0 +1,21 @@
+# expected-to-throw
+query selectionSetConflictInconsistentStreamUsage1Query {
+  me {
+    ... on User {
+      friends {
+        ... on FriendsConnection {
+          edges @stream(label: "hdijf", initial_count: 1) {
+            node {
+              name
+            }
+          }
+        }
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+}

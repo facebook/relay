@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6c32d94c0abc9ac0cbfc9f4bd063a533>>
+ * @generated SignedSource<<59bb5a7d75471cdadfb3b7b6d1c4bff3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockPayloadGeneratorTest33Fragment$ref = any;
-export type RelayMockPayloadGeneratorTest47QueryVariables = {||};
-export type RelayMockPayloadGeneratorTest47QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayMockPayloadGeneratorTest33Fragment$fragmentType = any;
+export type RelayMockPayloadGeneratorTest47Query$variables = {||};
+export type RelayMockPayloadGeneratorTest47Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayMockPayloadGeneratorTest33Fragment$ref,
+    +$fragmentSpreads: RelayMockPayloadGeneratorTest33Fragment$fragmentType,
   |},
 |};
 export type RelayMockPayloadGeneratorTest47Query = {|
-  variables: RelayMockPayloadGeneratorTest47QueryVariables,
-  response: RelayMockPayloadGeneratorTest47QueryResponse,
+  response: RelayMockPayloadGeneratorTest47Query$data,
+  variables: RelayMockPayloadGeneratorTest47Query$variables,
 |};
 */
 
@@ -127,6 +127,7 @@ return {
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "RelayMockPayloadGeneratorTest33Fragment",
                         "fragmentName": "RelayMockPayloadGeneratorTest4MarkdownUserNameRenderer_name",
                         "fragmentPropName": "name",
@@ -202,4 +203,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "4b48e2f43a325d78c6749a5475dbed06";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockPayloadGeneratorTest47Query$variables,
+  RelayMockPayloadGeneratorTest47Query$data,
+>*/);

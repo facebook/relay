@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9778cb48d8af1491ad4e30f3ff8313bb>>
+ * @generated SignedSource<<de8e9fd75fca8196c8bde1c680975638>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +15,14 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type ActorNameChangeInput = {|
-  clientMutationId?: ?string,
   newName?: ?string,
 |};
-export type RelayPublishQueueTest1MutationVariables = {|
+export type RelayPublishQueueTest1Mutation$variables = {|
   input: ActorNameChangeInput,
 |};
-export type RelayPublishQueueTest1MutationResponse = {|
+export type RelayPublishQueueTest1Mutation$data = {|
   +actorNameChange: ?{|
     +actor: ?{|
       +name: ?string,
@@ -31,8 +30,8 @@ export type RelayPublishQueueTest1MutationResponse = {|
   |},
 |};
 export type RelayPublishQueueTest1Mutation = {|
-  variables: RelayPublishQueueTest1MutationVariables,
-  response: RelayPublishQueueTest1MutationResponse,
+  response: RelayPublishQueueTest1Mutation$data,
+  variables: RelayPublishQueueTest1Mutation$variables,
 |};
 */
 
@@ -152,4 +151,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a2b8ecdab8b16a6538bb947d7cd2473a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayPublishQueueTest1Mutation$variables,
+  RelayPublishQueueTest1Mutation$data,
+>*/);

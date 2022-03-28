@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<040f8e0233fcbda05849800798fc1c65>>
+ * @generated SignedSource<<9b074242b9ad34fdcd5f87b33ca98a87>>
  */
 
 mod required_directive;
@@ -185,20 +185,6 @@ fn none_action_bubble_to_throw_invalid() {
     let input = include_str!("required_directive/fixtures/none-action-bubble-to-throw.invalid.graphql");
     let expected = include_str!("required_directive/fixtures/none-action-bubble-to-throw.invalid.expected");
     test_fixture(transform_fixture, "none-action-bubble-to-throw.invalid.graphql", "required_directive/fixtures/none-action-bubble-to-throw.invalid.expected", input, expected);
-}
-
-#[test]
-fn prefix_mismatch_fragment_invalid() {
-    let input = include_str!("required_directive/fixtures/prefix-mismatch-fragment.invalid.graphql");
-    let expected = include_str!("required_directive/fixtures/prefix-mismatch-fragment.invalid.expected");
-    test_fixture(transform_fixture, "prefix-mismatch-fragment.invalid.graphql", "required_directive/fixtures/prefix-mismatch-fragment.invalid.expected", input, expected);
-}
-
-#[test]
-fn prefix_mismatch_query_invalid() {
-    let input = include_str!("required_directive/fixtures/prefix-mismatch-query.invalid.graphql");
-    let expected = include_str!("required_directive/fixtures/prefix-mismatch-query.invalid.expected");
-    test_fixture(transform_fixture, "prefix-mismatch-query.invalid.graphql", "required_directive/fixtures/prefix-mismatch-query.invalid.expected", input, expected);
 }
 
 #[test]

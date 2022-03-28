@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fb632ec930082c00c3c0ccb1c78e9842>>
+ * @generated SignedSource<<e8ab123dfebb2905c34972a8bde52de5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$ref: FragmentReference;
-declare export opaque type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$ref;
-export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType: FragmentType;
+export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data = {|
   +name: ?string,
   +profile_picture: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$ref,
+  +$fragmentType: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
 |};
-export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data = RelayMockEnvironmentWithComponentsTestProminentSolutionFragment;
 export type RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$key = {
   +$data?: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data,
-  +$fragmentRefs: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$ref,
+  +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
   ...
 };
 */
@@ -85,4 +83,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c2b81707cf4c3d10cee30467951ddf99";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$fragmentType,
+  RelayMockEnvironmentWithComponentsTestProminentSolutionFragment$data,
+>*/);

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3866d8b0a170078526b73a49cd660359>>
+ * @generated SignedSource<<a1780f259a81c8448ba684fee275ddf6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type usePaginationFragmentTest3Fragment$ref: FragmentReference;
-declare export opaque type usePaginationFragmentTest3Fragment$fragmentType: usePaginationFragmentTest3Fragment$ref;
-export type usePaginationFragmentTest3FragmentRefetchQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+type usePaginationFragmentTest3Fragment$fragmentType = any;
+export type usePaginationFragmentTest3FragmentRefetchQuery$variables = {|
   id: string,
 |};
-export type usePaginationFragmentTest3FragmentRefetchQueryResponse = {|
+export type usePaginationFragmentTest3FragmentRefetchQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: usePaginationFragmentTest3Fragment$ref,
+    +$fragmentSpreads: usePaginationFragmentTest3Fragment$fragmentType,
   |},
 |};
 export type usePaginationFragmentTest3FragmentRefetchQuery = {|
-  variables: usePaginationFragmentTest3FragmentRefetchQueryVariables,
-  response: usePaginationFragmentTest3FragmentRefetchQueryResponse,
+  response: usePaginationFragmentTest3FragmentRefetchQuery$data,
+  variables: usePaginationFragmentTest3FragmentRefetchQuery$variables,
 |};
 */
 
@@ -123,4 +122,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b7e65e1c3646e22d52de26d24bb8c2a9";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePaginationFragmentTest3FragmentRefetchQuery$variables,
+  usePaginationFragmentTest3FragmentRefetchQuery$data,
+>*/);

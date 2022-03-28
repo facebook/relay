@@ -9,7 +9,7 @@ import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 import FbEntrypointsExtraInfo from './fb/FbEntrypointsExtraInfo.md';
 
-A [GraphQL Query](https://graphql.github.io/learn/queries/) is a description of data you want to query from a GraphQL server. It consists of a set of fields (and potentially [fragments](../fragments/)) that we want to request from the GraphQL server. What we can query for will depend on the [GraphQL Schema](https://graphql.github.io/learn/schema/) exposed on the server, which describes the data that is available for querying.
+A [GraphQL Query](https://graphql.org/learn/queries/) is a description of data you want to query from a GraphQL server. It consists of a set of fields (and potentially [fragments](../fragments/)) that we want to request from the GraphQL server. What we can query for will depend on the [GraphQL Schema](https://graphql.org/learn/schema/) exposed on the server, which describes the data that is available for querying.
 
 A query can be sent as a request over the network, along with an optional collection of [variables](../variables/) that the query uses, in order to fetch the data. The server response will be a JSON object that matches the shape of the query we sent:
 
@@ -65,7 +65,7 @@ Sample response:
 
 ## Rendering Queries
 
-To *render* a query in Relay, you can use the `usePreloadedQuery` Hook:
+To *render* a query in Relay, you can use the `usePreloadedQuery` hook. `usePreloadedQuery` takes a query definition and a query reference, and returns the corresponding data for that query and reference.
 
 ```js
 import type {HomeTabQuery} from 'HomeTabQuery.graphql';
@@ -104,7 +104,7 @@ Lets see what's going on here:
 * Similarly to [fragments](../fragments/), *the component is automatically subscribed to updates to the query data*: if the data for this query is updated anywhere in the app, the component will automatically re-render with the latest updated data.
 * `usePreloadedQuery` also additionally takes a Flow type parameter, which corresponds to the Flow type for the query, in this case `HomeTabQuery`.
     * Remember that Relay automatically generates Flow types for any declared queries, which are available to import from the generated files with the following name format: *`<query_name>`*`.graphql.js`.
-    * Note that the `data` is already properly Flow typed without requiring an explicit annotation, and is based on the types from the GraphQL schema. For example, the type of `data` above would be: `{ user: ?{ name: ?string } }`.
+    * Note that the `data` is already properly Flow-typed without requiring an explicit annotation, and is based on the types from the GraphQL schema. For example, the type of `data` above would be: `{ user: ?{ name: ?string } }`.
 * Make sure you're providing a Relay environment using a [Relay Environment Provider](../environment/) at the root of your app before trying to render a query.
 
 
@@ -159,13 +159,13 @@ function AppTabs(props) {
 The example above is somewhat contrived, but let's distill what is happening:
 
 * We are calling `useQueryLoader` inside our `AppTabs` component.
-    * It takes a query, which in this case is our `HomeTabQuery` (the query that we declared in our previous example), and which we can obtain by requiring the auto-generated file: `‘HomeTabQuery.graphql'`.
+    * It takes a query, which in this case is our `HomeTabQuery` (the query that we declared in our previous example), and which we can obtain by requiring the auto-generated file: `'HomeTabQuery.graphql'`.
     * It takes an optional initial `PreloadedQuery` to be used as the initial value of the `homeTabQueryRef` that is stored in state and returned by `useQueryLoader`.
-    * It also additionally takes a Flow type parameter, which corresponds to the Flow type for the query, in this case `HomeTabQueryType`, which you can also obtain from the auto-generated file: `‘HomeTabQuery.graphql'`.
+    * It also additionally takes a Flow type parameter, which corresponds to the Flow type for the query, in this case `HomeTabQueryType`, which you can also obtain from the auto-generated file: `'HomeTabQuery.graphql'`.
 * Calling `useQueryLoader` allows us to obtain 2 things:
     * `homeTabQueryRef`: A `?PreloadedQuery`, which is an object that describes and references an *instance* of our query that is being (or was) fetched. This value will be null if we haven't fetched the query, i.e. if we haven't called `loadHomeTabQuery`.
     * `loadHomeTabQuery`: A function that will *fetch* the data for this query from the server (if it isn't already cached), and given an object with the [variables](../variables/) the query expects, in this case `{id: '4'}` (we'll go into more detail about how Relay uses cached data in the [Reusing Cached Data For Render](../../reusing-cached-data/) section). Calling this function will also update the value of `homeTabQueryRef` to an instance of a `PreloadedQuery`.
-        * Note that the `variables` we pass to this function will checked by Flow to ensure that you are passing values that match what the GraphQL query expects.
+        * Note that the `variables` we pass to this function will be checked by Flow to ensure that you are passing values that match what the GraphQL query expects.
         * Also note that we are calling this function in the event handler that causes the `HomeTab` to be rendered. This allows us to start fetching the data for the screen as early as possible, even before the new tab starts rendering.
             * In fact, note that this function can NOT be called during render; it *must* be called outside of a Component's render function, otherwise it will produce an error.
 * Note that `useQueryLoader` will automatically dispose of all queries that have been loaded when the component unmounts. Disposing of a query means that Relay will no longer hold on to the data for that particular instance of the query in its cache (we'll cover the lifetime of query data in [Reusing Cached Data For Render](../../reusing-cached-data/) section). Additionally, if the request for the query is still in flight when disposal occurs, it will be canceled.
@@ -244,10 +244,10 @@ Lets see what's going on here:
 
 * `useLazyLoadQuery`  takes a graphql query and some variables for that query, and returns the data that was fetched for that query. The variables are an object containing the values for the [variables](../variables/) referenced inside the GraphQL query.
 * Similarly to [fragments](../fragments/), the component is automatically subscribed to updates to the query data: if the data for this query is updated anywhere in the app, the component will automatically re-render with the latest updated data.
-* `useLazyLoadQuery` additionally, it takes a Flow type parameter, which corresponds to the Flow type for the query, in this case AppQuery.
+* `useLazyLoadQuery` additionally  takes a Flow type parameter which corresponds to the Flow type for the query, in this case AppQuery.
     * Remember that Relay automatically generates Flow types for any declared queries, which you can import and use with `useLazyLoadQuery`. These types are available in the generated files with the following name format: `<query_name>.graphql.js`.
-    * Note that the `variables` will checked by Flow to ensure that you are passing values that match what the GraphQL query expects.
-    * Note that the data is already properly Flow typed without requiring an explicit annotation, and is based on the types from the GraphQL schema. For example, the type of `data` above would be: `{ user: ?{ name: ?string } }`.
+    * Note that the `variables` will be checked by Flow to ensure that you are passing values that match what the GraphQL query expects.
+    * Note that the data is already properly Flow-typed without requiring an explicit annotation, and is based on the types from the GraphQL schema. For example, the type of `data` above would be: `{ user: ?{ name: ?string } }`.
 * By default, when the component renders, Relay will *fetch* the data for this query (if it isn't already cached), and return it as a the result of the `useLazyLoadQuery` call. We'll go into more detail about how to show loading states in the [Loading States with Suspense](../loading-states/) section, and how Relay uses cached data in the [Reusing Cached Data For Rendering](../../reusing-cached-data/) section.
 * Note that if you re-render your component and pass *different query variables* than the ones originally used, it will cause the query to be fetched again with the new variables, and potentially re-render with different data.
 * Finally, make sure you're providing a Relay environment using a [Relay Environment Provider](../../../api-reference/relay-environment-provider/) at the root of your app before trying to render a query.

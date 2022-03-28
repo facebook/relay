@@ -1,15 +1,17 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::VecDeque;
+
 use crate::lexer::TokenKind;
 use crate::node::*;
 use crate::syntax_error::SyntaxError;
 use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, WithDiagnostics};
-use interner::Intern;
+use intern::string_key::Intern;
 use logos::Logos;
 
 type ParseResult<T> = Result<T, ()>;
@@ -32,7 +34,7 @@ pub struct Parser<'a> {
 }
 
 /// Parser for the *executable* subset of the GraphQL specification:
-/// https://github.com/graphql/graphql-spec/blob/master/spec/Appendix%20B%20--%20Grammar%20Summary.md
+/// https://github.com/graphql/graphql-spec/blob/main/spec/Appendix%20B%20--%20Grammar%20Summary.md
 impl<'a> Parser<'a> {
     pub fn new(
         source: &'a str,
@@ -66,6 +68,17 @@ impl<'a> Parser<'a> {
 
     pub fn parse_document(mut self) -> DiagnosticsResult<Document> {
         let document = self.parse_document_impl();
+        if self.errors.is_empty() {
+            self.parse_eof()?;
+            Ok(document.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
+    /// Parses a string containing a single directive.
+    pub fn parse_directive(mut self) -> DiagnosticsResult<Directive> {
+        let document = self.parse_directive_impl();
         if self.errors.is_empty() {
             self.parse_eof()?;
             Ok(document.unwrap())
@@ -166,7 +179,7 @@ impl<'a> Parser<'a> {
     }
     fn parse_definition(&mut self) -> ParseResult<Definition> {
         let token = self.peek();
-        let source = self.source(&token);
+        let source = self.source(token);
         match (token.kind, source) {
             (TokenKind::OpenBrace, _)
             | (TokenKind::Identifier, "query")
@@ -208,7 +221,7 @@ impl<'a> Parser<'a> {
         match token.kind {
             TokenKind::OpenBrace => true, // unnamed query
             TokenKind::Identifier => matches!(
-                self.source(&token),
+                self.source(token),
                 "query" | "mutation" | "fragment" | "subscription"
             ),
             _ => false,
@@ -221,7 +234,7 @@ impl<'a> Parser<'a> {
     /// []  TypeSystemExtension
     fn parse_executable_definition(&mut self) -> ParseResult<ExecutableDefinition> {
         let token = self.peek();
-        let source = self.source(&token);
+        let source = self.source(token);
         match (token.kind, source) {
             (TokenKind::OpenBrace, _) => Ok(ExecutableDefinition::Operation(
                 self.parse_operation_definition()?,
@@ -254,7 +267,7 @@ impl<'a> Parser<'a> {
         match token.kind {
             TokenKind::StringLiteral | TokenKind::BlockStringLiteral => true, // description
             TokenKind::Identifier => matches!(
-                self.source(&token),
+                self.source(token),
                 "schema"
                     | "scalar"
                     | "type"
@@ -274,14 +287,14 @@ impl<'a> Parser<'a> {
     /// [x]  TypeSystemDefinition
     /// []  TypeSystemExtension
     fn parse_type_system_definition(&mut self) -> ParseResult<TypeSystemDefinition> {
-        self.parse_optional_description();
+        let description = self.parse_optional_description();
         let token = self.peek();
         if token.kind != TokenKind::Identifier {
             // TODO
             // self.record_error(error)
             return Err(());
         }
-        match self.source(&token) {
+        match self.source(token) {
             "schema" => Ok(TypeSystemDefinition::SchemaDefinition(
                 self.parse_schema_definition()?,
             )),
@@ -304,7 +317,7 @@ impl<'a> Parser<'a> {
                 self.parse_input_object_type_definition()?,
             )),
             "directive" => Ok(TypeSystemDefinition::DirectiveDefinition(
-                self.parse_directive_definition()?,
+                self.parse_directive_definition(description)?,
             )),
             "extend" => self.parse_type_system_extension(),
             token_str => {
@@ -591,9 +604,9 @@ impl<'a> Parser<'a> {
         }
         Ok(ObjectTypeExtension {
             name,
-            fields,
             interfaces,
             directives,
+            fields,
         })
     }
 
@@ -693,7 +706,10 @@ impl<'a> Parser<'a> {
      * DirectiveDefinition :
      *   - Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
      */
-    fn parse_directive_definition(&mut self) -> ParseResult<DirectiveDefinition> {
+    fn parse_directive_definition(
+        &mut self,
+        description: Option<StringNode>,
+    ) -> ParseResult<DirectiveDefinition> {
         self.parse_keyword("directive")?;
         self.parse_kind(TokenKind::At)?;
         let name = self.parse_identifier()?;
@@ -710,6 +726,7 @@ impl<'a> Parser<'a> {
             arguments,
             repeatable,
             locations,
+            description,
         })
     }
 
@@ -791,13 +808,21 @@ impl<'a> Parser<'a> {
     /**
      * Description : StringValue
      */
-    fn parse_optional_description(&mut self) {
-        // TODO actually return the description
+    fn parse_optional_description(&mut self) -> Option<StringNode> {
         match self.peek_token_kind() {
-            TokenKind::StringLiteral | TokenKind::BlockStringLiteral => {
-                self.parse_token();
+            TokenKind::StringLiteral => {
+                let token = self.parse_token();
+                let source = self.source(&token);
+                let value = source[1..source.len() - 1].to_string().intern();
+                Some(StringNode { token, value })
             }
-            _ => {}
+            TokenKind::BlockStringLiteral => {
+                let token = self.parse_token();
+                let source = self.source(&token);
+                let value = clean_block_string_literal(source).intern();
+                Some(StringNode { token, value })
+            }
+            _ => None,
         }
     }
 
@@ -817,7 +842,7 @@ impl<'a> Parser<'a> {
      *   - Description? Name ArgumentsDefinition? : Type Directives?
      */
     fn parse_field_definition(&mut self) -> ParseResult<FieldDefinition> {
-        self.parse_optional_description();
+        let description = self.parse_optional_description();
         let name = self.parse_identifier()?;
         let arguments = self.parse_argument_defs()?;
         self.parse_kind(TokenKind::Colon)?;
@@ -825,9 +850,10 @@ impl<'a> Parser<'a> {
         let directives = self.parse_constant_directives()?;
         Ok(FieldDefinition {
             name,
-            arguments,
             type_,
+            arguments,
             directives,
+            description,
         })
     }
 
@@ -935,7 +961,7 @@ impl<'a> Parser<'a> {
         let maybe_operation_token = self.peek();
         let operation = match (
             maybe_operation_token.kind,
-            self.source(&maybe_operation_token),
+            self.source(maybe_operation_token),
         ) {
             (TokenKind::Identifier, "mutation") => (self.parse_token(), OperationKind::Mutation),
             (TokenKind::Identifier, "query") => (self.parse_token(), OperationKind::Query),
@@ -1018,7 +1044,9 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let token = self.peek();
         let type_annotation = match token.kind {
-            TokenKind::Identifier => TypeAnnotation::Named(self.parse_identifier()?),
+            TokenKind::Identifier => TypeAnnotation::Named(NamedTypeAnnotation {
+                name: self.parse_identifier()?,
+            }),
             TokenKind::OpenBracket => {
                 let open = self.parse_kind(TokenKind::OpenBracket)?;
                 let type_ = self.parse_type_annotation()?;
@@ -1053,7 +1081,7 @@ impl<'a> Parser<'a> {
 
     /// Directives[Const] : Directive[?Const]+
     fn parse_directives(&mut self) -> ParseResult<Vec<Directive>> {
-        self.parse_list(|s| s.peek_kind(TokenKind::At), |s| s.parse_directive())
+        self.parse_list(|s| s.peek_kind(TokenKind::At), |s| s.parse_directive_impl())
     }
 
     fn parse_constant_directives(&mut self) -> ParseResult<Vec<ConstantDirective>> {
@@ -1068,7 +1096,7 @@ impl<'a> Parser<'a> {
     }
 
     /// Directive[Const] : @ Name Arguments[?Const]?
-    fn parse_directive(&mut self) -> ParseResult<Directive> {
+    fn parse_directive_impl(&mut self) -> ParseResult<Directive> {
         let start = self.index();
         let at = self.parse_kind(TokenKind::At)?;
         let name = self.parse_identifier_with_error_recovery();
@@ -1554,6 +1582,13 @@ impl<'a> Parser<'a> {
                     value: value.intern(),
                 }))
             }
+            TokenKind::BlockStringLiteral => {
+                let value = clean_block_string_literal(source);
+                Ok(ConstantValue::String(StringNode {
+                    token,
+                    value: value.intern(),
+                }))
+            }
             TokenKind::IntegerLiteral => {
                 let value = source.parse::<i64>();
                 match value {
@@ -1971,5 +2006,144 @@ impl<'a> Parser<'a> {
             span: Span::new(index, index),
             kind: TokenKind::Empty,
         }
+    }
+}
+
+// https://spec.graphql.org/June2018/#sec-String-Value
+fn clean_block_string_literal(source: &str) -> String {
+    let inner = &source[3..source.len() - 3];
+    let common_indent = get_common_indent(inner);
+
+    let mut formatted_lines = inner
+        .lines()
+        .enumerate()
+        .map(|(i, line)| {
+            if i == 0 {
+                line.to_string()
+            } else {
+                line.chars().skip(common_indent).collect::<String>()
+            }
+        })
+        .collect::<VecDeque<String>>();
+
+    while formatted_lines
+        .front()
+        .map_or(false, |line| line_is_whitespace(line))
+    {
+        formatted_lines.pop_front();
+    }
+    while formatted_lines
+        .back()
+        .map_or(false, |line| line_is_whitespace(line))
+    {
+        formatted_lines.pop_back();
+    }
+
+    let lines_vec: Vec<String> = formatted_lines.into_iter().collect();
+    lines_vec.join("\n")
+}
+
+fn get_common_indent(source: &str) -> usize {
+    let lines = source.lines().skip(1);
+    let mut common_indent: Option<usize> = None;
+    for line in lines {
+        if let Some((first_index, _)) = line.match_indices(is_not_whitespace).next() {
+            if common_indent.map_or(true, |indent| first_index < indent) {
+                common_indent = Some(first_index)
+            }
+        }
+    }
+    common_indent.unwrap_or(0)
+}
+
+fn line_is_whitespace(line: &str) -> bool {
+    !line.contains(is_not_whitespace)
+}
+
+// https://spec.graphql.org/June2018/#sec-White-Space
+fn is_not_whitespace(c: char) -> bool {
+    c != ' ' && c != '\t'
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn triple_quote(inner: &str) -> String {
+        format!("\"\"\"{}\"\"\"", inner)
+    }
+
+    #[test]
+    fn common_indent_ignores_first_line() {
+        let actual = get_common_indent("            1\n  2\n  3");
+        assert_eq!(actual, 2);
+    }
+    #[test]
+    fn common_indent_uses_smallest_indent() {
+        let actual = get_common_indent("1\n  2\n        3");
+        assert_eq!(actual, 2);
+    }
+
+    #[test]
+    fn common_indent_ignores_lines_that_are_all_whitespace() {
+        let actual = get_common_indent("1\n    2\n \t\n    3\n");
+        assert_eq!(actual, 4);
+    }
+
+    #[test]
+    fn common_indent_ignores_lines_blank_lines() {
+        let actual = get_common_indent("1\n    2\n\n    3\n");
+        assert_eq!(actual, 4);
+    }
+
+    #[test]
+    fn clean_block_string_literal_does_not_trim_leading_whitespace() {
+        let actual = clean_block_string_literal(&triple_quote("       Hello world!"));
+        assert_eq!(actual, "       Hello world!");
+    }
+
+    #[test]
+    fn clean_block_string_literal_trims_leading_whitespace_lines() {
+        let actual = clean_block_string_literal(&triple_quote("       \n\t\t\t\nHello world!"));
+        assert_eq!(actual, "Hello world!");
+    }
+
+    #[test]
+    fn clean_block_string_literal_trims_trailing_whitespace_lines() {
+        let actual = clean_block_string_literal(&triple_quote("Hello world!\n    \n\t\t   \n"));
+        assert_eq!(actual, "Hello world!");
+    }
+
+    #[test]
+    fn clean_block_string_literal_trims_trailing_empty_lines() {
+        let actual = clean_block_string_literal(&triple_quote("Hello world!\n\n\n\n\n"));
+        assert_eq!(actual, "Hello world!");
+    }
+
+    #[test]
+    fn clean_block_string_literal_dedents_smallest_common_indent() {
+        let actual = clean_block_string_literal(&triple_quote(
+            "Hello world!\n  Two Char Indent\n    Four Char Indent",
+        ));
+        assert_eq!(actual, "Hello world!\nTwo Char Indent\n  Four Char Indent");
+    }
+
+    #[test]
+    fn clean_block_string_literal_ignores_first_line_indent() {
+        let actual = clean_block_string_literal(&triple_quote(
+            "        Hello world!\n  Two Char Indent\n    Four Char Indent",
+        ));
+        assert_eq!(
+            actual,
+            "        Hello world!\nTwo Char Indent\n  Four Char Indent"
+        );
+    }
+
+    #[test]
+    fn clean_block_string_literal_treats_tab_and_space_as_equal() {
+        let actual = clean_block_string_literal(&triple_quote(
+            "Hello world!\n\t\tTwo Tab Indent\n    Four Space Indent",
+        ));
+        assert_eq!(actual, "Hello world!\nTwo Tab Indent\n  Four Space Indent");
     }
 }

@@ -1,0 +1,840 @@
+==================================== INPUT ====================================
+query providedVariableNestedSplitOperation_Query($id: ID!) {
+  node(id: $id) {
+    ...providedVariableNestedSplitOperationFragment
+  }
+}
+
+fragment providedVariableNestedSplitOperationFragment on User
+{
+  id
+  nameRenderer @match{
+    ...providedVariableNestedSplitOperation_Markdown1
+      @module(name: "MarkdownUserNameRenderer.react")
+    ...providedVariableNestedSplitOperation_Plain1
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment providedVariableNestedSplitOperation_Markdown1 on MarkdownUserNameRenderer
+  @argumentDefinitions(
+    shouldIncludeMarkdown: {type: "Boolean!", provider: "shouldIncludeMarkdown_RelayProvider"}
+  )
+{
+  markdown @include(if: $shouldIncludeMarkdown)
+  data {
+    markup
+  }
+  user {
+    nameRenderer @match{
+      ...providedVariableNestedSplitOperation_Markdown2
+        @module(name: "MarkdownUserNameRenderer.react")
+      ...providedVariableNestedSplitOperation_Plain2
+        @module(name: "MarkdownUserNameRenderer.react")
+    }
+  }
+}
+
+fragment providedVariableNestedSplitOperation_Plain1 on PlainUserNameRenderer
+{
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment providedVariableNestedSplitOperation_Markdown2 on MarkdownUserNameRenderer
+  @argumentDefinitions(
+    shouldIncludeData: {type: "Boolean!", provider: "shouldIncludeData_RelayProvider"}
+  )
+{
+  markdown
+  data {
+    markup  @include(if: $shouldIncludeData)
+  }
+}
+
+fragment providedVariableNestedSplitOperation_Plain2 on PlainUserNameRenderer
+{
+  plaintext
+  data {
+    text
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "providedVariableNestedSplitOperation_Markdown1$normalization",
+  "selections": [
+    {
+      "condition": "__relay_internal__pv__shouldIncludeMarkdown_RelayProvider",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markdown",
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "user",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "supported",
+              "value": "1mLqbj"
+            }
+          ],
+          "concreteType": null,
+          "kind": "LinkedField",
+          "name": "nameRenderer",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "__typename",
+              "storageKey": null
+            },
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "documentName": "providedVariableNestedSplitOperation_Markdown1",
+                  "fragmentName": "providedVariableNestedSplitOperation_Markdown2",
+                  "fragmentPropName": "Markdown2",
+                  "kind": "ModuleImport"
+                }
+              ],
+              "type": "MarkdownUserNameRenderer",
+              "abstractKey": null
+            },
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "documentName": "providedVariableNestedSplitOperation_Markdown1",
+                  "fragmentName": "providedVariableNestedSplitOperation_Plain2",
+                  "fragmentPropName": "Plain2",
+                  "kind": "ModuleImport"
+                }
+              ],
+              "type": "PlainUserNameRenderer",
+              "abstractKey": null
+            }
+          ],
+          "storageKey": "nameRenderer(supported:\"1mLqbj\")"
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "providedVariableNestedSplitOperation_Markdown2$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "condition": "__relay_internal__pv__shouldIncludeData_RelayProvider",
+          "kind": "Condition",
+          "passingValue": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "markup",
+              "storageKey": null
+            }
+          ]
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "providedVariableNestedSplitOperation_Plain1$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "text",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "providedVariableNestedSplitOperation_Plain2$normalization",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "text",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}
+
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "providedVariableNestedSplitOperation_Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "providedVariableNestedSplitOperationFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__shouldIncludeMarkdown_RelayProvider"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__shouldIncludeData_RelayProvider"
+      }
+    ],
+    "kind": "Operation",
+    "name": "providedVariableNestedSplitOperation_Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": [
+                  {
+                    "kind": "Literal",
+                    "name": "supported",
+                    "value": "1mLqbj"
+                  }
+                ],
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "nameRenderer",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__typename",
+                    "storageKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "providedVariableNestedSplitOperationFragment",
+                        "fragmentName": "providedVariableNestedSplitOperation_Markdown1",
+                        "fragmentPropName": "Markdown1",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "MarkdownUserNameRenderer",
+                    "abstractKey": null
+                  },
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "args": null,
+                        "documentName": "providedVariableNestedSplitOperationFragment",
+                        "fragmentName": "providedVariableNestedSplitOperation_Plain1",
+                        "fragmentPropName": "Plain1",
+                        "kind": "ModuleImport"
+                      }
+                    ],
+                    "type": "PlainUserNameRenderer",
+                    "abstractKey": null
+                  }
+                ],
+                "storageKey": "nameRenderer(supported:\"1mLqbj\")"
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "providedVariableNestedSplitOperation_Query",
+    "operationKind": "query",
+    "text": null,
+    "providedVariables": {
+      "__relay_internal__pv__shouldIncludeMarkdown_RelayProvider": require('shouldIncludeMarkdown_RelayProvider'),
+      "__relay_internal__pv__shouldIncludeData_RelayProvider": require('shouldIncludeData_RelayProvider')
+    }
+  }
+}
+
+QUERY:
+
+query providedVariableNestedSplitOperation_Query(
+  $id: ID!
+  $__relay_internal__pv__shouldIncludeMarkdown_RelayProvider: Boolean!
+  $__relay_internal__pv__shouldIncludeData_RelayProvider: Boolean!
+) {
+  node(id: $id) {
+    __typename
+    ...providedVariableNestedSplitOperationFragment
+    id
+  }
+}
+
+fragment providedVariableNestedSplitOperationFragment on User {
+  id
+  nameRenderer(supported: ["MarkdownUserNameRenderer", "PlainUserNameRenderer"]) {
+    __typename
+    ... on MarkdownUserNameRenderer {
+      ...providedVariableNestedSplitOperation_Markdown1
+      __module_operation_providedVariableNestedSplitOperationFragment: js(module: "providedVariableNestedSplitOperation_Markdown1$normalization.graphql", id: "providedVariableNestedSplitOperationFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+      __module_component_providedVariableNestedSplitOperationFragment: js(module: "MarkdownUserNameRenderer.react", id: "providedVariableNestedSplitOperationFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
+    }
+    ... on PlainUserNameRenderer {
+      ...providedVariableNestedSplitOperation_Plain1
+      __module_operation_providedVariableNestedSplitOperationFragment: js(module: "providedVariableNestedSplitOperation_Plain1$normalization.graphql", id: "providedVariableNestedSplitOperationFragment.nameRenderer", branch: "PlainUserNameRenderer")
+      __module_component_providedVariableNestedSplitOperationFragment: js(module: "MarkdownUserNameRenderer.react", id: "providedVariableNestedSplitOperationFragment.nameRenderer", branch: "PlainUserNameRenderer")
+    }
+  }
+}
+
+fragment providedVariableNestedSplitOperation_Markdown1 on MarkdownUserNameRenderer {
+  markdown @include(if: $__relay_internal__pv__shouldIncludeMarkdown_RelayProvider)
+  data {
+    markup
+    id
+  }
+  user {
+    nameRenderer(supported: ["MarkdownUserNameRenderer", "PlainUserNameRenderer"]) {
+      __typename
+      ... on MarkdownUserNameRenderer {
+        ...providedVariableNestedSplitOperation_Markdown2
+        __module_operation_providedVariableNestedSplitOperation_Markdown1: js(module: "providedVariableNestedSplitOperation_Markdown2$normalization.graphql", id: "providedVariableNestedSplitOperation_Markdown1.user.nameRenderer", branch: "MarkdownUserNameRenderer")
+        __module_component_providedVariableNestedSplitOperation_Markdown1: js(module: "MarkdownUserNameRenderer.react", id: "providedVariableNestedSplitOperation_Markdown1.user.nameRenderer", branch: "MarkdownUserNameRenderer")
+      }
+      ... on PlainUserNameRenderer {
+        ...providedVariableNestedSplitOperation_Plain2
+        __module_operation_providedVariableNestedSplitOperation_Markdown1: js(module: "providedVariableNestedSplitOperation_Plain2$normalization.graphql", id: "providedVariableNestedSplitOperation_Markdown1.user.nameRenderer", branch: "PlainUserNameRenderer")
+        __module_component_providedVariableNestedSplitOperation_Markdown1: js(module: "MarkdownUserNameRenderer.react", id: "providedVariableNestedSplitOperation_Markdown1.user.nameRenderer", branch: "PlainUserNameRenderer")
+      }
+    }
+    id
+  }
+}
+
+fragment providedVariableNestedSplitOperation_Markdown2 on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup @include(if: $__relay_internal__pv__shouldIncludeData_RelayProvider)
+    id
+  }
+}
+
+fragment providedVariableNestedSplitOperation_Plain1 on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+    id
+  }
+}
+
+fragment providedVariableNestedSplitOperation_Plain2 on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableNestedSplitOperationFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "supported",
+          "value": "1mLqbj"
+        }
+      ],
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "nameRenderer",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": null,
+              "documentName": "providedVariableNestedSplitOperationFragment",
+              "fragmentName": "providedVariableNestedSplitOperation_Markdown1",
+              "fragmentPropName": "Markdown1",
+              "kind": "ModuleImport"
+            }
+          ],
+          "type": "MarkdownUserNameRenderer",
+          "abstractKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "args": null,
+              "documentName": "providedVariableNestedSplitOperationFragment",
+              "fragmentName": "providedVariableNestedSplitOperation_Plain1",
+              "fragmentPropName": "Plain1",
+              "kind": "ModuleImport"
+            }
+          ],
+          "type": "PlainUserNameRenderer",
+          "abstractKey": null
+        }
+      ],
+      "storageKey": "nameRenderer(supported:\"1mLqbj\")"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__shouldIncludeMarkdown_RelayProvider"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableNestedSplitOperation_Markdown1",
+  "selections": [
+    {
+      "condition": "__relay_internal__pv__shouldIncludeMarkdown_RelayProvider",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markdown",
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "markup",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "user",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "supported",
+              "value": "1mLqbj"
+            }
+          ],
+          "concreteType": null,
+          "kind": "LinkedField",
+          "name": "nameRenderer",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "documentName": "providedVariableNestedSplitOperation_Markdown1",
+                  "fragmentName": "providedVariableNestedSplitOperation_Markdown2",
+                  "fragmentPropName": "Markdown2",
+                  "kind": "ModuleImport"
+                }
+              ],
+              "type": "MarkdownUserNameRenderer",
+              "abstractKey": null
+            },
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "args": null,
+                  "documentName": "providedVariableNestedSplitOperation_Markdown1",
+                  "fragmentName": "providedVariableNestedSplitOperation_Plain2",
+                  "fragmentPropName": "Plain2",
+                  "kind": "ModuleImport"
+                }
+              ],
+              "type": "PlainUserNameRenderer",
+              "abstractKey": null
+            }
+          ],
+          "storageKey": "nameRenderer(supported:\"1mLqbj\")"
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__shouldIncludeData_RelayProvider"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableNestedSplitOperation_Markdown2",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "markdown",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "MarkdownUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "condition": "__relay_internal__pv__shouldIncludeData_RelayProvider",
+          "kind": "Condition",
+          "passingValue": true,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "markup",
+              "storageKey": null
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "MarkdownUserNameRenderer",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableNestedSplitOperation_Plain1",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "text",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "PlainUserNameRenderer",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableNestedSplitOperation_Plain2",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "plaintext",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "PlainUserNameData",
+      "kind": "LinkedField",
+      "name": "data",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "text",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "PlainUserNameRenderer",
+  "abstractKey": null
+}

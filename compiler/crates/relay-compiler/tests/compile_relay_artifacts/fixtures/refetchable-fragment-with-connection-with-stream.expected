@@ -166,7 +166,6 @@ fragment refetchableFragmentWithConnectionWithStream_PaginationFragment on Node
                     "if": null,
                     "kind": "Stream",
                     "label": "refetchableFragmentWithConnectionWithStream_PaginationFragment$stream$PaginationFragment_friends",
-                    "metadata": null,
                     "selections": [
                       {
                         "alias": null,
@@ -211,8 +210,7 @@ fragment refetchableFragmentWithConnectionWithStream_PaginationFragment on Node
                         ],
                         "storageKey": null
                       }
-                    ],
-                    "useCustomizedBatch": null
+                    ]
                   },
                   {
                     "if": null,

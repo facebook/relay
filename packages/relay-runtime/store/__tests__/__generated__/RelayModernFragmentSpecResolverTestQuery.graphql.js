@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5348b9f0d2d8d1a393cb6aabb881c148>>
+ * @generated SignedSource<<f78de0f9e31a54e6fc09d7a2af7767f9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernFragmentSpecResolverTestQueryUserFragment$ref = any;
-type RelayModernFragmentSpecResolverTestQueryUsersFragment$ref = any;
-export type RelayModernFragmentSpecResolverTestQueryVariables = {|
-  id: string,
-  size?: ?number,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType = any;
+type RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType = any;
+export type RelayModernFragmentSpecResolverTestQuery$variables = {|
   fetchSize: boolean,
+  id: string,
+  size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayModernFragmentSpecResolverTestQueryResponse = {|
+export type RelayModernFragmentSpecResolverTestQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernFragmentSpecResolverTestQueryUserFragment$ref & RelayModernFragmentSpecResolverTestQueryUsersFragment$ref,
+    +$fragmentSpreads: RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType & RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
   |},
 |};
 export type RelayModernFragmentSpecResolverTestQuery = {|
-  variables: RelayModernFragmentSpecResolverTestQueryVariables,
-  response: RelayModernFragmentSpecResolverTestQueryResponse,
+  response: RelayModernFragmentSpecResolverTestQuery$data,
+  variables: RelayModernFragmentSpecResolverTestQuery$variables,
 |};
 */
 
@@ -176,18 +176,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "032b54d6b3208b0efb93d8e5dc1e8a80",
+    "cacheID": "927041e646430203d20ec438187293e0",
     "id": null,
     "metadata": {},
     "name": "RelayModernFragmentSpecResolverTestQuery",
     "operationKind": "query",
-    "text": "query RelayModernFragmentSpecResolverTestQuery(\n  $id: ID!\n  $size: Int\n  $fetchSize: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernFragmentSpecResolverTestQueryUserFragment\n    ...RelayModernFragmentSpecResolverTestQueryUsersFragment\n    id\n  }\n}\n\nfragment RelayModernFragmentSpecResolverTestQueryUserFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n}\n\nfragment RelayModernFragmentSpecResolverTestQueryUsersFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n}\n"
+    "text": "query RelayModernFragmentSpecResolverTestQuery(\n  $id: ID!\n  $size: [Int]\n  $fetchSize: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernFragmentSpecResolverTestQueryUserFragment\n    ...RelayModernFragmentSpecResolverTestQueryUsersFragment\n    id\n  }\n}\n\nfragment RelayModernFragmentSpecResolverTestQueryUserFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n}\n\nfragment RelayModernFragmentSpecResolverTestQueryUsersFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "b1eebca9df0b2a3b0a5c3e758dddefde";
+  (node/*: any*/).hash = "861d571e1856374cfbff7ce6564c306c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernFragmentSpecResolverTestQuery$variables,
+  RelayModernFragmentSpecResolverTestQuery$data,
+>*/);

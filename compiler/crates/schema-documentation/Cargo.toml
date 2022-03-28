@@ -3,9 +3,9 @@
 name = "schema-documentation"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [dependencies]
-serde = { version = "=1.0.118", features = ["derive", "rc"] }
-serde_json = { version = "1.0", features = ["float_roundtrip"] }
+intern = { path = "../intern" }
+schema = { path = "../schema" }

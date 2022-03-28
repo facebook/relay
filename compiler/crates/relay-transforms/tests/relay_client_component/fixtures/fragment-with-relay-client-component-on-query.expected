@@ -9,7 +9,7 @@ fragment ClientFragment on Query {
   }
 }
 ==================================== OUTPUT ===================================
-query ClientFragment$normalization @__splitOperation(derivedFrom: "ClientFragment", parentSources: ["ClientFragment"]) {
+query ClientFragment$normalization @__splitOperation(derivedFrom: "ClientFragment", parentDocuments: ["ServerComponentFragment"]) {
   ...ClientFragment
 }
 
@@ -19,6 +19,12 @@ fragment ClientFragment on Query {
   }
 }
 
-fragment ServerComponentFragment on Query @__RelayClientComponentMetadata(__RelayClientComponentMetadataSplitOperation: ["ClientFragment$normalization.graphql"]) {
+fragment ServerComponentFragment on Query @__RelayClientComponentMetadata
+# RelayClientComponentMetadata {
+#     split_operation_filenames: [
+#         "ClientFragment$normalization.graphql",
+#     ],
+# }
+ {
   ...ClientFragment @relay_client_component_server(module_id: "ClientFragment$normalization.graphql")
 }

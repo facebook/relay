@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,19 +13,16 @@
 
 'use strict';
 
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Observer} from '../../network/RelayObservable';
+
 const {
   fetchQuery,
-  getPromiseForActiveRequest,
   getObservableForActiveRequest,
+  getPromiseForActiveRequest,
 } = require('../fetchQueryInternal');
-const {
-  createOperationDescriptor,
-  graphql,
-  getRequest,
-} = require('relay-runtime');
+const {createOperationDescriptor, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
-
-import type {Observer} from 'relay-runtime';
 
 let response;
 let gqlQuery;
@@ -34,13 +31,13 @@ let environment;
 
 beforeEach(() => {
   environment = createMockEnvironment();
-  gqlQuery = getRequest(graphql`
+  gqlQuery = graphql`
     query fetchQueryInternalTest1Query($id: ID!) {
       node(id: $id) {
         id
       }
     }
-  `);
+  `;
   query = createOperationDescriptor(gqlQuery, {id: '4'});
   response = {
     data: {
@@ -72,7 +69,7 @@ describe('fetchQuery', () => {
     let calledNext = false;
     const values = [];
     const observer = {
-      next: value => {
+      next: (value: GraphQLResponse) => {
         calledNext = true;
         values.push(value);
       },
@@ -106,7 +103,7 @@ describe('fetchQuery', () => {
     let calledError = false;
     let errorMessage = null;
     const observer = {
-      error: error => {
+      error: (error: Error) => {
         calledError = true;
         errorMessage = error.message;
       },
@@ -153,11 +150,13 @@ describe('fetchQuery', () => {
         unsubscribedObserver2 = true;
       },
     };
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.execute).toHaveBeenCalledTimes(0);
 
     const subscription1 = fetchQuery(environment, query).subscribe(observer1);
     const subscription2 = fetchQuery(environment, query).subscribe(observer2);
 
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.execute).toHaveBeenCalledTimes(1);
 
     environment.mock.nextValue(gqlQuery, response);
@@ -185,6 +184,7 @@ describe('fetchQuery', () => {
       environment.mock.isLoading(gqlQuery, query.request.variables),
     ).toEqual(false);
 
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.execute).toHaveBeenCalledTimes(1);
   });
 
@@ -263,7 +263,9 @@ describe('fetchQuery', () => {
       expect(
         environment2.mock.isLoading(gqlQuery, query.request.variables),
       ).toEqual(false);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toHaveBeenCalledTimes(1);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment2.execute).toHaveBeenCalledTimes(1);
     });
 
@@ -293,6 +295,7 @@ describe('fetchQuery', () => {
       expect(
         environment.mock.isLoading(gqlQuery, query.request.variables),
       ).toEqual(false);
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toHaveBeenCalledTimes(1);
       expect(calledObserver1).toEqual(true);
       expect(calledObserver2).toEqual(true);
@@ -304,7 +307,7 @@ describe('fetchQuery', () => {
       let observer2Payload = null;
       let calledObserver2Complete = false;
       const observer1 = {
-        next: data => {
+        next: (data: GraphQLResponse) => {
           observer1Payload = data;
         },
         complete: () => {
@@ -312,7 +315,7 @@ describe('fetchQuery', () => {
         },
       };
       const observer2 = {
-        next: data => {
+        next: (data: GraphQLResponse) => {
           observer2Payload = data;
         },
         complete: () => {
@@ -331,6 +334,7 @@ describe('fetchQuery', () => {
       environment.mock.complete(gqlQuery);
       subscription1.unsubscribe();
       subscription2.unsubscribe();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toHaveBeenCalledTimes(1);
 
       // Assert both observers got the payload
@@ -690,7 +694,7 @@ describe('getPromiseForActiveRequest', () => {
         get: jest.fn(),
       };
       environment = createMockEnvironment({operationLoader});
-      gqlQuery = getRequest(graphql`
+      gqlQuery = graphql`
         query fetchQueryInternalTest2Query($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -704,7 +708,7 @@ describe('getPromiseForActiveRequest', () => {
             }
           }
         }
-      `);
+      `;
       graphql`
         fragment fetchQueryInternalTestPlainFragment_name on PlainUserNameRenderer {
           plaintext
@@ -1001,7 +1005,7 @@ describe('getObservableForActiveRequest', () => {
         get: jest.fn(),
       };
       environment = createMockEnvironment({operationLoader});
-      gqlQuery = getRequest(graphql`
+      gqlQuery = graphql`
         query fetchQueryInternalTest3Query($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -1015,7 +1019,7 @@ describe('getObservableForActiveRequest', () => {
             }
           }
         }
-      `);
+      `;
 
       graphql`
         fragment fetchQueryInternalTestPlain1Fragment_name on PlainUserNameRenderer {

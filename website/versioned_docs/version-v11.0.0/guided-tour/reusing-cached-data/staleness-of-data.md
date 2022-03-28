@@ -10,7 +10,7 @@ import FbPushViews from './fb/FbPushViews.md';
 
 Assuming our data is [present in the store](../presence-of-data/), we still need to consider the staleness of such data.
 
-By default, Relay will not consider data in the store to be stale (regardless of how long it has been cached for), unless it's explicitly marked as stale using our data invalidation apis or if it is older than the query cache expiration time.
+By default, Relay will not consider data in the store to be stale (regardless of how long it has been cached for), unless it's explicitly marked as stale using our data invalidation APIs or if it is older than the query cache expiration time.
 
 Marking data as stale is useful for cases when we explicitly know that some data is no longer fresh (for example after executing a [Mutation](../../updating-data/graphql-mutations/).
 

@@ -1,0 +1,10 @@
+fragment TestFragment on User
+  @argumentDefinitions(
+    id: {type: "ID"}
+    size: {type: "[Int]", defaultValue: [100]}
+    arg_with_enabled_provider0: {type: "Boolean!", provider: "test_foo_gk.js"} 
+  ) {
+  profilePicture(size: $PictureSize) {
+    uri
+  }
+}

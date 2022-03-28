@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,21 +13,25 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const nullthrows = require('nullthrows');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const nullthrows = require('nullthrows');
+const {
+  cannotReadPropertyOfUndefined__DEPRECATED,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
 
-import type {NormalizationRootNode} from '../../util/NormalizationNode';
+disallowWarnings();
 
 describe('execute() a query with @match with additional arguments', () => {
   let callbacks: {|
@@ -59,9 +63,7 @@ describe('execute() a query with @match with additional arguments', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestUserQuery(
         $id: ID!
       ) {
@@ -76,7 +78,7 @@ describe('execute() a query with @match with additional arguments', () => {
           }
         }
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestPlainUserNameRenderer_name on PlainUserNameRenderer {
@@ -88,7 +90,7 @@ describe('execute() a query with @match with additional arguments', () => {
     `;
 
     markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$normalization.graphql');
-    markdownRendererFragment = getFragment(graphql`
+    markdownRendererFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         __typename
         markdown
@@ -96,7 +98,7 @@ describe('execute() a query with @match with additional arguments', () => {
           markup @__clientField(handle: "markup_handler")
         }
       }
-    `);
+    `;
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
     MarkupHandler = {
@@ -186,16 +188,17 @@ describe('execute() a query with @match with additional arguments', () => {
     expect(operationSnapshot.data).toEqual({
       node: {
         nameRendererForContext: {
-          __id:
-            'client:1:nameRendererForContext(context:"HEADER",supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRendererForContext(context:"HEADER",supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
 
           __fragmentPropName: 'name',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name:
+              {},
           },
 
           __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -232,6 +235,7 @@ describe('execute() a query with @match with additional arguments', () => {
               'RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -297,6 +301,7 @@ describe('execute() a query with @match with additional arguments', () => {
               'RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -379,6 +384,7 @@ describe('execute() a query with @match with additional arguments', () => {
               'RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -537,6 +543,7 @@ describe('execute() a query with @match with additional arguments', () => {
               'RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },
@@ -576,6 +583,7 @@ describe('execute() a query with @match with additional arguments', () => {
               'RelayModernEnvironmentExecuteWithMatchAdditionalArgumentsTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },
@@ -729,7 +737,7 @@ describe('execute() a query with @match with additional arguments', () => {
 
     expect(callbacks.error).toBeCalledTimes(1);
     expect(callbacks.error.mock.calls[0][0].message).toBe(
-      "Cannot read property 'length' of undefined",
+      cannotReadPropertyOfUndefined__DEPRECATED('length'),
     );
   });
 

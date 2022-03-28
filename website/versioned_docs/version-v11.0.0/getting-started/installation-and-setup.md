@@ -69,7 +69,7 @@ Alternatively, instead of using `babel-plugin-relay`, you can use Relay with [ba
 const graphql = require('babel-plugin-relay/macro');
 ```
 
-If you need to configure `babel-plugin-relay` further (e.g. to enable `compat` mode), you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/master/other/docs/user.md#config-experimental).
+If you need to configure `babel-plugin-relay` further (e.g. to enable `compat` mode), you can do so by [specifying the options in a number of ways](https://github.com/kentcdodds/babel-plugin-macros/blob/main/other/docs/user.md#config-experimental).
 
 For example:
 
@@ -136,15 +136,13 @@ polyfill in your bundled application, such as [core-js][] or
 A polyfilled environment for Relay using [core-js][] to support older browsers
 might look like:
 
-```js
-
+```javascript
 require('core-js/es6/map');
 require('core-js/es6/set');
 require('core-js/es6/promise');
 require('core-js/es6/object');
 
 require('./myRelayApplication');
-
 ```
 
 [core-js]: https://github.com/zloirock/core-js

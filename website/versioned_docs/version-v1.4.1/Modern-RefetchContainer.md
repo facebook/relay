@@ -3,7 +3,7 @@ id: refetch-container
 title: Refetch Container
 original_id: refetch-container
 ---
-A Refetch Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html) that works like a regular [Fragment Container](./fragment-container), but provides the additional ability to fetch a new GraphQL query with different variables and re-render the component the new result.
+A Refetch Container is also a [higher-order component](https://reactjs.org/docs/higher-order-components.html) that works like a regular [Fragment Container](Modern-FragmentContainer.md), but provides the additional ability to fetch a new GraphQL query with different variables and re-render the component the new result.
 
 Table of Contents:
 
@@ -16,13 +16,11 @@ Table of Contents:
 `createRefetchContainer` has the following signature:
 
 ```javascript
-
 createRefetchContainer(
   component: ReactComponentClass,
   fragmentSpec: GraphQLTaggedNode | {[string]: GraphQLTaggedNode},
   refetchQuery: GraphQLTaggedNode,
 ): ReactComponentClass;
-
 ```
 
 ### Arguments
@@ -32,7 +30,7 @@ createRefetchContainer(
     -   A `graphql` tagged fragment. If the fragment uses the name convention `<FileName><...>_<propName>`, the fragment's data will be available to the Component as a prop with the given `<propName>`.
         If the fragment name doesn't specify a prop name, the data will be available as a `data` prop.
     -   An object whose keys are prop names and values are `graphql` tagged fragments. Each key specified in this object will correspond to a prop available to the resulting Component.
-    -   **Note:** To enable [compatibility mode](./relay-compat), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
+    -   **Note:** To enable [compatibility mode](Modern-RelayCompat.md), `relay-compiler` enforces fragments to be named as `<FileName>_<propName>`.
 -   `refetchQuery`: A `graphql` tagged query to be fetched upon calling [`props.relay.refetch`](#refetch). As with any query, upon fetching this query, its result will be normalized into the store, any relevant subscriptions associated with the changed records will be fired, and subscribed components will re-render.
 
 ### Available Props
@@ -40,7 +38,6 @@ createRefetchContainer(
 The Component resulting from `createRefetchContainer` will receive the following `props`:
 
 ```javascript
-
 type Props = {
   relay: {
     environment: Environment,
@@ -48,11 +45,10 @@ type Props = {
   },
   // Additional props as specified by the fragmentSpec
 }
-
 ```
 
 -   `relay`:
-    -   `environment`: The current [Relay Environment](./relay-environment)
+    -   `environment`: The current [Relay Environment](Modern-RelayEnvironment.md)
     -   `refetch`: See `refetch` [docs](#refetch)
 
 ## `refetch`
@@ -64,7 +60,6 @@ type Props = {
 `refetch` has the following signature:
 
 ```javascript
-
 type RefetchOptions = {
   force?: boolean,
 };
@@ -91,7 +86,7 @@ refetch(
     local data store _after_ the new query has been fetched. If not specified, the `refetchVariables` will be used. This is useful when the data you need to render in your component doesn't necessarily match the data you queried the server for. For example, to implement pagination, you would fetch a page with variables like `{first: 5, after: '<cursor>'}`, but you might want to render the full collection with `{first: 10}`.
 -   `callback`: Function to be called after the refetch has completed. If an error occurred during refetch, this function will receive that error as an argument.
 -   `options`: Optional object containing set of options.
-    -   `force`: If the [Network Layer](./network-layer) has been configured with a cache, this option forces a refetch even if the data for this query and variables is already available in the cache.
+    -   `force`: If the [Network Layer](Modern-NetworkLayer.md) has been configured with a cache, this option forces a refetch even if the data for this query and variables is already available in the cache.
 
 ### Return Value
 
@@ -104,7 +99,6 @@ Returns a `Disposable` on which you could call `dispose()` to cancel the refetch
 In this simple example, let's assume we want to fetch the latest data for a `TodoItem` from the server:
 
 ```javascript
-
 // TodoItem.js
 import {createRefetchContainer, graphql} from 'react-relay';
 
@@ -148,7 +142,6 @@ export default createRefetchContainer(
     }
   `
 );
-
 ```
 
 ### Loading more data
@@ -156,7 +149,6 @@ export default createRefetchContainer(
 In this example we are using a Refetch Container to fetch more stories in a story feed component.
 
 ```javascript
-
 import {createRefetchContainer, graphql} from 'react-relay';
 
 class FeedStories extends React.Component {
@@ -212,5 +204,4 @@ export default createRefetchContainer(
     }
   `,
 );
-
 ```

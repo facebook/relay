@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9410e1e5036579f4b6eb2af9b4e8f00e>>
+ * @generated SignedSource<<9938c89157d60cf34306821893958c19>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,16 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type usePaginationFragmentTest1Fragment$ref: FragmentReference;
-declare export opaque type usePaginationFragmentTest1Fragment$fragmentType: usePaginationFragmentTest1Fragment$ref;
-export type usePaginationFragmentTest1Fragment = $ReadOnlyArray<{|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type usePaginationFragmentTest1Fragment$fragmentType: FragmentType;
+export type usePaginationFragmentTest1Fragment$data = $ReadOnlyArray<{|
   +id: string,
-  +$refType: usePaginationFragmentTest1Fragment$ref,
+  +$fragmentType: usePaginationFragmentTest1Fragment$fragmentType,
 |}>;
-export type usePaginationFragmentTest1Fragment$data = usePaginationFragmentTest1Fragment;
 export type usePaginationFragmentTest1Fragment$key = $ReadOnlyArray<{
   +$data?: usePaginationFragmentTest1Fragment$data,
-  +$fragmentRefs: usePaginationFragmentTest1Fragment$ref,
+  +$fragmentSpreads: usePaginationFragmentTest1Fragment$fragmentType,
   ...
 }>;
 */
@@ -55,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "336d8ae6ada85aef562c734581f8e84c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  usePaginationFragmentTest1Fragment$fragmentType,
+  usePaginationFragmentTest1Fragment$data,
+>*/);

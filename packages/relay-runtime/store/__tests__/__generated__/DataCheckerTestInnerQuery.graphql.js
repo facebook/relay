@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8770dd9a4fde6a09272aafe5a26f9a7a>>
+ * @generated SignedSource<<80b23aa9d881e875df3002b82966ac81>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type DataCheckerTestInnerQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type DataCheckerTestInnerQuery$variables = {|
   id: string,
 |};
-export type DataCheckerTestInnerQueryResponse = {|
+export type DataCheckerTestInnerQuery$data = {|
   +node: ?{|
     +name?: ?string,
   |},
 |};
 export type DataCheckerTestInnerQuery = {|
-  variables: DataCheckerTestInnerQueryVariables,
-  response: DataCheckerTestInnerQueryResponse,
+  response: DataCheckerTestInnerQuery$data,
+  variables: DataCheckerTestInnerQuery$variables,
 |};
 */
 
@@ -131,4 +131,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "137eac9e94abaaa5f18959dc2f8cfc23";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  DataCheckerTestInnerQuery$variables,
+  DataCheckerTestInnerQuery$data,
+>*/);

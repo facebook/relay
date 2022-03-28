@@ -74,7 +74,6 @@ RecordSource {
     city: 'Seattle',
   }
 }
-
 ```
 
 [1] Note that GraphQL itself does not impose this constraint, and Relay Runtime may also be used for schemas that do not conform to it. For example, both systems can be used to query a single denormalized table. However, many of the features that Relay Runtime provides, such as caching and normalization, work best when the data is represented as a normalized graph with stable identities for discrete pieces of information.

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b0f31bc8aaa947d16c83c65d9a2e74d4>>
+ * @generated SignedSource<<083ec2d39e152f81f5830023275c5ca1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockPayloadGeneratorTest31Fragment$ref = any;
-export type RelayMockPayloadGeneratorTest45QueryVariables = {||};
-export type RelayMockPayloadGeneratorTest45QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayMockPayloadGeneratorTest31Fragment$fragmentType = any;
+export type RelayMockPayloadGeneratorTest45Query$variables = {||};
+export type RelayMockPayloadGeneratorTest45Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayMockPayloadGeneratorTest31Fragment$ref,
+    +$fragmentSpreads: RelayMockPayloadGeneratorTest31Fragment$fragmentType,
   |},
 |};
 export type RelayMockPayloadGeneratorTest45Query = {|
-  variables: RelayMockPayloadGeneratorTest45QueryVariables,
-  response: RelayMockPayloadGeneratorTest45QueryResponse,
+  response: RelayMockPayloadGeneratorTest45Query$data,
+  variables: RelayMockPayloadGeneratorTest45Query$variables,
 |};
 */
 
@@ -136,6 +136,7 @@ return {
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "RelayMockPayloadGeneratorTest31Fragment",
                         "fragmentName": "RelayMockPayloadGeneratorTest1PlainUserNameRenderer_name",
                         "fragmentPropName": "name",
@@ -149,6 +150,7 @@ return {
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "RelayMockPayloadGeneratorTest31Fragment",
                         "fragmentName": "RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name",
                         "fragmentPropName": "name",
@@ -226,4 +228,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c45f56ca143cdb6c8633da434a4e229d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockPayloadGeneratorTest45Query$variables,
+  RelayMockPayloadGeneratorTest45Query$data,
+>*/);

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<80526ea2257ceda7132983335fa4891d>>
+ * @generated SignedSource<<a4fabd243c27dabcb5622c3c06e29c7d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,24 +17,24 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithModuleTestUserQuery.node.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$ref = any;
-export type RelayModernEnvironmentExecuteWithModuleTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$fragmentType = any;
+type RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithModuleTestUserQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithModuleTestUserQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithModuleTestUserQuery$data = {|
   +node: ?{|
     +nameRenderer?: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$ref & RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name$fragmentType,
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteWithModuleTestUserQuery = {|
-  variables: RelayModernEnvironmentExecuteWithModuleTestUserQueryVariables,
-  response: RelayModernEnvironmentExecuteWithModuleTestUserQueryResponse,
+  response: RelayModernEnvironmentExecuteWithModuleTestUserQuery$data,
+  variables: RelayModernEnvironmentExecuteWithModuleTestUserQuery$variables,
 |};
 */
 
@@ -57,6 +57,7 @@ v2 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "RelayModernEnvironmentExecuteWithModuleTestUserQuery",
       "fragmentName": "RelayModernEnvironmentExecuteWithModuleTestPlainUserNameRenderer_name",
       "fragmentPropName": "name",
@@ -70,6 +71,7 @@ v3 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "RelayModernEnvironmentExecuteWithModuleTestUserQuery",
       "fragmentName": "RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name",
       "fragmentPropName": "name",
@@ -191,4 +193,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f7e3296614af262229d75d7247494862";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithModuleTestUserQuery$variables,
+  RelayModernEnvironmentExecuteWithModuleTestUserQuery$data,
+>*/);

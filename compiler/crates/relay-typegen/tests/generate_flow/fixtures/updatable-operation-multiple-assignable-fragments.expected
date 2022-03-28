@@ -1,0 +1,53 @@
+==================================== INPUT ====================================
+query UpdatableQuery @updatable {
+  me {
+    actor {
+      ...Assignable_page
+      ...Assignable_node
+      lastName
+      name
+    }
+  }
+}
+
+fragment Assignable_node on Node @assignable {
+  __typename
+}
+
+fragment Assignable_page on Page @assignable {
+  __typename
+}
+==================================== OUTPUT ===================================
+import type { Assignable_node$fragmentType } from "Assignable_node.graphql";
+import type { Assignable_page$fragmentType } from "Assignable_page.graphql";
+export type UpdatableQuery$variables = {||};
+export type UpdatableQuery$data = {|
+  get me(): ?{|
+    get actor(): ?{|
+      lastName: ?string,
+      name: ?string,
+    |},
+    set actor(value: ?({
+      +__typename: "Page",
+      +__id: string,
+      +$fragmentSpreads: Assignable_page$fragmentType,
+      ...
+    } | {
+      +__id: string,
+      +__isAssignable_node: string,
+      +$fragmentSpreads: Assignable_node$fragmentType,
+      ...
+    })): void,
+  |},
+  set me(value: null | void): void,
+|};
+export type UpdatableQuery = {|
+  response: UpdatableQuery$data,
+  variables: UpdatableQuery$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Assignable_node$fragmentType: FragmentType;
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Assignable_page$fragmentType: FragmentType;

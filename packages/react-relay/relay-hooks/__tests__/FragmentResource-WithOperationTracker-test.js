@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,22 +13,17 @@
 
 'use strict';
 
-jest.mock('warning');
 const {createFragmentResource} = require('../FragmentResource');
 const {
   createOperationDescriptor,
   createReaderSelector,
   graphql,
-  getRequest,
-  getFragment,
 } = require('relay-runtime');
 const RelayOperationTracker = require('relay-runtime/store/RelayOperationTracker');
-const {
-  MockPayloadGenerator,
-  createMockEnvironment,
-} = require('relay-test-utils');
+const {createMockEnvironment} = require('relay-test-utils');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
-const warning = require('warning');
+disallowWarnings();
 
 describe('FragmentResource with Operation Tracker and Missing Data', () => {
   const componentName = 'TestComponent';
@@ -55,17 +50,15 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       operationTracker,
       operationLoader,
     });
-    NodeQuery = getRequest(graphql`
-      query FragmentResourceWithOperationTrackerTestNodeQuery($id: ID!)
-        @relay_test_operation {
+    NodeQuery = graphql`
+      query FragmentResourceWithOperationTrackerTestNodeQuery($id: ID!) {
         node(id: $id) {
           ...FragmentResourceWithOperationTrackerTestUserFragment
         }
       }
-    `);
-    ViewerFriendsQuery = getRequest(graphql`
-      query FragmentResourceWithOperationTrackerTestViewerFriendsQuery
-        @relay_test_operation {
+    `;
+    ViewerFriendsQuery = graphql`
+      query FragmentResourceWithOperationTrackerTestViewerFriendsQuery {
         viewer {
           actor {
             friends(first: 1) @connection(key: "Viewer_friends") {
@@ -78,11 +71,11 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           }
         }
       }
-    `);
-    FriendsPaginationQuery = getRequest(graphql`
+    `;
+    FriendsPaginationQuery = graphql`
       query FragmentResourceWithOperationTrackerTestFriendsPaginationQuery(
         $id: ID!
-      ) @relay_test_operation {
+      ) {
         node(id: $id) {
           ... on User {
             friends(first: 1) @connection(key: "Viewer_friends") {
@@ -95,15 +88,15 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           }
         }
       }
-    `);
-    PlainUserNameRenderer_name = getFragment(graphql`
+    `;
+    PlainUserNameRenderer_name = graphql`
       fragment FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name on PlainUserNameRenderer {
         plaintext
         data {
           text
         }
       }
-    `);
+    `;
     graphql`
       fragment FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         markdown
@@ -113,7 +106,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       }
     `;
     PlainUserNameRenderer_name$normalization = require('./__generated__/FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql');
-    UserFragment = getFragment(graphql`
+    UserFragment = graphql`
       fragment FragmentResourceWithOperationTrackerTestUserFragment on User {
         id
         name
@@ -131,7 +124,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
             @module(name: "PlainUserNameRenderer.react")
         }
       }
-    `);
+    `;
 
     FragmentResource = createFragmentResource(environment);
     viewerOperation = createOperationDescriptor(ViewerFriendsQuery, {});
@@ -144,23 +137,36 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       jest.fn(),
     );
 
-    // This will add data to the store (but not for 3D)
-    environment.mock.resolve(
-      viewerOperation,
-      // TODO: (alunyov) T43369419 [relay-testing] Make sure MockPayloadGenerator can generate data for @match
-      MockPayloadGenerator.generate(viewerOperation, {
-        Actor() {
-          return {
+    environment.mock.resolve(viewerOperation, {
+      data: {
+        viewer: {
+          actor: {
             id: 'viewer-id',
-          };
+            __typename: 'User',
+            friends: {
+              pageInfo: {
+                hasNextPage: true,
+                hasPrevPage: false,
+                startCursor: 'cursor-1',
+                endCursor: 'cursor-1',
+              },
+              edges: [
+                {
+                  cursor: 'cursor-1',
+                  node: {
+                    id: 'user-id-1',
+                    name: 'Alice',
+                    __typename: 'User',
+                    nameRenderer: null,
+                    plainNameRenderer: null,
+                  },
+                },
+              ],
+            },
+          },
         },
-        User(_, generateId) {
-          return {
-            id: 'user-id-1',
-          };
-        },
-      }),
-    );
+      },
+    });
 
     // We need to subscribe to a fragment in order for OperationTracker
     // to be able to notify owners if they are affected by any pending operation
@@ -175,8 +181,6 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
       ),
       jest.fn(),
     );
-    // $FlowFixMe[prop-missing]
-    warning.mockClear();
   });
 
   it('should throw and cache promise for pending operation affecting fragment owner', () => {
@@ -199,6 +203,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
               'FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
+              id: 'plain-test-data-id-1',
               text: 'Data Text',
             },
           },
@@ -210,6 +215,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
               'FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
+              id: 'plain-test-data-id-1',
               text: 'Data Text',
             },
           },
@@ -224,8 +230,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
     environment.mock.complete(nodeOperation);
 
     const fragmentRef = {
-      __id:
-        'client:user-id-1:nameRenderer(supported:["PlainUserNameRenderer"])',
+      __id: 'client:user-id-1:nameRenderer(supported:["PlainUserNameRenderer"])',
       __fragments: {
         FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name: {},
       },
@@ -281,6 +286,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
               'PlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
+              id: 'plain-test-data-id-1',
               text: 'Data Text',
             },
           },
@@ -292,6 +298,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
               'PlainUserNameRenderer_name$normalization.graphql',
             plaintext: 'Plaintext',
             data: {
+              id: 'plain-test-data-id-1',
               text: 'Data Text',
             },
           },
@@ -302,21 +309,18 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
     environment.mock.complete(nodeOperation);
     // To make sure promise is resolved
     jest.runAllTimers();
-    // $FlowFixMe[prop-missing]
-    warning.mockClear();
     const snapshot = FragmentResource.read(
       PlainUserNameRenderer_name,
       {
-        __id:
-          'client:user-id-1:nameRenderer(supported:["PlainUserNameRenderer"])',
+        __id: 'client:user-id-1:nameRenderer(supported:["PlainUserNameRenderer"])',
         __fragments: {
-          FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name: {},
+          FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name:
+            {},
         },
         __fragmentOwner: viewerOperation.request,
       },
       componentName,
     );
-    expect(warning).not.toBeCalled();
     expect(snapshot.data).toEqual({
       data: {
         text: 'Data Text',
@@ -343,8 +347,15 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
           __typename: 'User',
           id: 'viewer-id',
           friends: {
+            pageInfo: {
+              hasNextPage: true,
+              hasPrevPage: false,
+              startCursor: 'cursor-2',
+              endCursor: 'cursor-2',
+            },
             edges: [
               {
+                cursor: 'cursor-2',
                 node: {
                   __typename: 'User',
                   id: 'user-id-2',
@@ -357,6 +368,8 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
                       'PlainUserNameRenderer_name$normalization.graphql',
                     plaintext: 'Plaintext 2',
                     data: {
+                      id: 'plain-test-data-id-2',
+
                       text: 'Data Text 2',
                     },
                   },
@@ -368,6 +381,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
                       'PlainUserNameRenderer_name$normalization.graphql',
                     plaintext: 'Plaintext 2',
                     data: {
+                      id: 'plain-test-data-id-2',
                       text: 'Data Text 2',
                     },
                   },
@@ -380,8 +394,7 @@ describe('FragmentResource with Operation Tracker and Missing Data', () => {
     });
     expect(operationLoader.load).toBeCalledTimes(2);
     const fragmentRef = {
-      __id:
-        'client:user-id-2:nameRenderer(supported:["PlainUserNameRenderer"])',
+      __id: 'client:user-id-2:nameRenderer(supported:["PlainUserNameRenderer"])',
       __fragments: {
         FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name: {},
       },

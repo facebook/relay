@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d513722f86f761e98a0bb0fc4a15b6fe>>
+ * @generated SignedSource<<7da5975d505089dbbc8a65e25cf12f78>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type DataCheckerTest7Fragment$ref = any;
-export type DataCheckerTest6QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type DataCheckerTest7Fragment$fragmentType = any;
+export type DataCheckerTest6Query$variables = {|
   id: string,
 |};
-export type DataCheckerTest6QueryResponse = {|
+export type DataCheckerTest6Query$data = {|
   +node: ?{|
-    +$fragmentRefs: DataCheckerTest7Fragment$ref,
+    +$fragmentSpreads: DataCheckerTest7Fragment$fragmentType,
   |},
 |};
 export type DataCheckerTest6Query = {|
-  variables: DataCheckerTest6QueryVariables,
-  response: DataCheckerTest6QueryResponse,
+  response: DataCheckerTest6Query$data,
+  variables: DataCheckerTest6Query$variables,
 |};
 */
 
@@ -110,7 +110,6 @@ return {
                 "if": null,
                 "kind": "Stream",
                 "label": "DataCheckerTest7Fragment$stream$TestFragmentActors",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,
@@ -132,8 +131,7 @@ return {
                     ],
                     "storageKey": null
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               }
             ],
             "type": "Feedback",
@@ -159,4 +157,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e8bc7d9a84fa2e9536aed16887b17a29";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  DataCheckerTest6Query$variables,
+  DataCheckerTest6Query$data,
+>*/);

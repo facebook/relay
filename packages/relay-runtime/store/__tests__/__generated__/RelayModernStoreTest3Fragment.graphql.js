@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e23b8b66624dbd2e9739e34d046d3921>>
+ * @generated SignedSource<<914976d3558596adb7b3be323c6c62fc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,23 +15,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernStoreTest4Fragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernStoreTest3Fragment$ref: FragmentReference;
-declare export opaque type RelayModernStoreTest3Fragment$fragmentType: RelayModernStoreTest3Fragment$ref;
-export type RelayModernStoreTest3Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayModernStoreTest4Fragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernStoreTest3Fragment$fragmentType: FragmentType;
+export type RelayModernStoreTest3Fragment$data = {|
   +name: ?string,
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +$fragmentRefs: RelayModernStoreTest4Fragment$ref,
-  +$refType: RelayModernStoreTest3Fragment$ref,
+  +$fragmentSpreads: RelayModernStoreTest4Fragment$fragmentType,
+  +$fragmentType: RelayModernStoreTest3Fragment$fragmentType,
 |};
-export type RelayModernStoreTest3Fragment$data = RelayModernStoreTest3Fragment;
 export type RelayModernStoreTest3Fragment$key = {
   +$data?: RelayModernStoreTest3Fragment$data,
-  +$fragmentRefs: RelayModernStoreTest3Fragment$ref,
+  +$fragmentSpreads: RelayModernStoreTest3Fragment$fragmentType,
   ...
 };
 */
@@ -92,4 +90,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f0b65213433460d0f0f561df0d788d31";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernStoreTest3Fragment$fragmentType,
+  RelayModernStoreTest3Fragment$data,
+>*/);

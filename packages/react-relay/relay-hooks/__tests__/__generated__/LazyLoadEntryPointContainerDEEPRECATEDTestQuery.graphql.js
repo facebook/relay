@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<46b04a40ae66a02c8e97f751fa547ce5>>
+ * @generated SignedSource<<2b1ed0be1d87ebff0b31676b39c9daa6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type LazyLoadEntryPointContainerDEEPRECATEDTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type LazyLoadEntryPointContainerDEEPRECATEDTestQuery$variables = {|
   id: string,
 |};
-export type LazyLoadEntryPointContainerDEEPRECATEDTestQueryResponse = {|
+export type LazyLoadEntryPointContainerDEEPRECATEDTestQuery$data = {|
   +node: ?{|
     +id: string,
     +name?: ?string,
   |},
 |};
 export type LazyLoadEntryPointContainerDEEPRECATEDTestQuery = {|
-  variables: LazyLoadEntryPointContainerDEEPRECATEDTestQueryVariables,
-  response: LazyLoadEntryPointContainerDEEPRECATEDTestQueryResponse,
+  response: LazyLoadEntryPointContainerDEEPRECATEDTestQuery$data,
+  variables: LazyLoadEntryPointContainerDEEPRECATEDTestQuery$variables,
 |};
 */
 
@@ -134,4 +134,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "efb87d5ed867796ca922a529fb5256c7";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  LazyLoadEntryPointContainerDEEPRECATEDTestQuery$variables,
+  LazyLoadEntryPointContainerDEEPRECATEDTestQuery$data,
+>*/);

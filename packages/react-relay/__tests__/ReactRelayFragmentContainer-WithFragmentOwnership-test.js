@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,14 +10,13 @@
 
 'use strict';
 
-const React = require('react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayFragmentContainer = require('../ReactRelayFragmentContainer');
+const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-
 const {
-  createReaderSelector,
   createOperationDescriptor,
+  createReaderSelector,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
@@ -101,7 +100,7 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
     `;
     UserFragment = graphql`
       fragment ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment on User
-        @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
+      @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         name @include(if: $cond)
         ...ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment
@@ -177,9 +176,11 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Zuck',
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
     // Subscribes for updates
@@ -190,11 +191,15 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Zuck',
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
+      relayResolverErrors: [],
+      missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -230,10 +235,13 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Mark',
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
+      relayResolverErrors: [],
       seenRecords: {},
       isMissingData: false,
     });
@@ -252,9 +260,11 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Mark',
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
   });
@@ -287,9 +297,11 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Joe',
         __id: '842472',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser2.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
 
@@ -301,11 +313,15 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         name: 'Joe',
         __id: '842472',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser2.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
+      relayResolverErrors: [],
+      missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
@@ -348,9 +364,11 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         // Name is excluded since value of cond is now false
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1WithCondVar.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
     });
     // Container subscribes for updates on new props
@@ -361,11 +379,15 @@ describe('ReactRelayFragmentContainer with fragment ownerhsip', () => {
         // Name is excluded since value of cond is now false
         __id: '4',
         __fragments: {
-          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment: {},
+          ReactRelayFragmentContainerWithFragmentOwnershipTestNestedUserFragment:
+            {},
         },
         __fragmentOwner: ownerUser1WithCondVar.request,
+        __isWithinUnmatchedTypeRefinement: false,
       },
       missingRequiredFields: null,
+      relayResolverErrors: [],
+      missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(

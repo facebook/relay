@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -20,7 +20,8 @@ const Guides = fbContent({
     'guides/fb/writing-subscriptions',
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-queries',
-    'guides/fb/required-directive',
+    'guides/required-directive',
+    'guides/relay-resolvers',
     'guides/client-schema-extensions',
     'guides/type-emission',
     {
@@ -52,8 +53,8 @@ const Guides = fbContent({
     'guides/client-schema-extensions',
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-queries',
-    // TODO(T84714692) release required guide externally
-    // 'guides/required-directive',
+    'guides/required-directive',
+    'guides/relay-resolvers',
     // TODO(T84797602) release incremental data delivery externally
     // 'guides/incremental-data-delivery',
     // TODO release these in OSS
@@ -125,6 +126,7 @@ module.exports = {
             'guided-tour/updating-data/introduction',
             'guided-tour/updating-data/graphql-mutations',
             'guided-tour/updating-data/graphql-subscriptions',
+            'guided-tour/updating-data/imperatively-modifying-store-data',
             'guided-tour/updating-data/local-data-updates',
             'guided-tour/updating-data/client-only-data',
           ],
@@ -197,6 +199,7 @@ module.exports = {
             'debugging/fb/network-logger',
             'debugging/inconsistent-typename-error',
             'debugging/declarative-mutation-directives',
+            'debugging/fb/debugging-suspense',
             'debugging/fb/debugging-phps',
             'debugging/fb/vscode-extension',
             'debugging/fb/debugging-faq',

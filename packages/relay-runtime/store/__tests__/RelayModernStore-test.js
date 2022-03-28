@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,17 +13,18 @@
 
 'use strict';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernRecord = require('../RelayModernRecord');
-const RelayModernStore = require('../RelayModernStore');
-const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
-const RelayRecordSourceMapImpl = require('../RelayRecordSourceMapImpl');
+import type {Disposable} from '../../util/RelayRuntimeTypes';
 
-const {graphql, getRequest, getFragment} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
+const RelayModernRecord = require('../RelayModernRecord');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
+const RelayRecordSource = require('../RelayRecordSource');
 const {
   INVALIDATED_AT_KEY,
   REF_KEY,
@@ -34,8 +35,6 @@ const {
   createMockEnvironment,
   simpleClone,
 } = require('relay-test-utils-internal');
-
-import type {Disposable} from '../../util/RelayRuntimeTypes';
 
 function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
   if (!value) {
@@ -69,10 +68,9 @@ function cloneEventWithSets(event) {
 }
 
 [
-  [data => new RelayRecordSourceMapImpl(data), 'Map'],
+  [data => new RelayRecordSource(data), 'Map'],
   [
-    data =>
-      RelayOptimisticRecordSource.create(new RelayRecordSourceMapImpl(data)),
+    data => RelayOptimisticRecordSource.create(new RelayRecordSource(data)),
     'Optimistic',
   ],
 ].forEach(([getRecordSourceImplementation, ImplementationName]) => {
@@ -123,13 +121,13 @@ function cloneEventWithSets(event) {
         initialData = simpleClone(data);
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
-        UserQuery = getRequest(graphql`
-          query RelayModernStoreTest1Query($id: ID!, $size: Int) {
+        UserQuery = graphql`
+          query RelayModernStoreTest1Query($id: ID!, $size: [Int]) {
             node(id: $id) {
               ...RelayModernStoreTest1Fragment
             }
           }
-        `);
+        `;
         graphql`
           fragment RelayModernStoreTest1Fragment on User {
             name
@@ -147,6 +145,7 @@ function cloneEventWithSets(event) {
       });
 
       it('frees data when disposed', () => {
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose} = store.retain(
           createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
@@ -157,14 +156,14 @@ function cloneEventWithSets(event) {
       });
 
       it('only collects unreferenced data', () => {
-        const JoeQuery = getRequest(graphql`
+        const JoeQuery = graphql`
           query RelayModernStoreTestJoeQuery($id: ID!) {
             ...RelayModernStoreTestJoeFragment @arguments(id: $id)
           }
-        `);
+        `;
         graphql`
           fragment RelayModernStoreTestJoeFragment on Query
-            @argumentDefinitions(id: {type: "ID"}) {
+          @argumentDefinitions(id: {type: "ID"}) {
             node(id: $id) {
               ... on User {
                 name
@@ -186,6 +185,7 @@ function cloneEventWithSets(event) {
           },
         });
         store.publish(nextSource);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose} = store.retain(
           createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );
@@ -220,21 +220,21 @@ function cloneEventWithSets(event) {
         };
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
-        UserFragment = getFragment(graphql`
+        UserFragment = graphql`
           fragment RelayModernStoreTest2Fragment on User {
             name
             profilePicture(size: $size) {
               uri
             }
           }
-        `);
-        UserQuery = getRequest(graphql`
-          query RelayModernStoreTest2Query($size: Int) {
+        `;
+        UserQuery = graphql`
+          query RelayModernStoreTest2Query($size: [Int]) {
             me {
               ...RelayModernStoreTest2Fragment
             }
           }
-        `);
+        `;
       });
 
       it('returns selector data', () => {
@@ -256,20 +256,22 @@ function cloneEventWithSets(event) {
           },
           seenRecords: new Set(Object.keys(data)),
           missingRequiredFields: null,
+          relayResolverErrors: [],
+          missingClientEdges: null,
           isMissingData: false,
         });
       });
 
       it('includes fragment owner in selector data when owner is provided', () => {
-        UserQuery = getRequest(graphql`
-          query RelayModernStoreTest3Query($size: Float!) {
+        UserQuery = graphql`
+          query RelayModernStoreTest3Query($size: [Int]) {
             me {
               ...RelayModernStoreTest3Fragment
             }
           }
-        `);
+        `;
 
-        UserFragment = getFragment(graphql`
+        UserFragment = graphql`
           fragment RelayModernStoreTest3Fragment on User {
             name
             profilePicture(size: $size) {
@@ -277,7 +279,7 @@ function cloneEventWithSets(event) {
             }
             ...RelayModernStoreTest4Fragment
           }
-        `);
+        `;
         graphql`
           fragment RelayModernStoreTest4Fragment on User {
             username
@@ -304,9 +306,12 @@ function cloneEventWithSets(event) {
             __id: '4',
             __fragments: {RelayModernStoreTest4Fragment: {}},
             __fragmentOwner: owner.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
           seenRecords: new Set(Object.keys(data)),
           missingRequiredFields: null,
+          relayResolverErrors: [],
+          missingClientEdges: null,
           isMissingData: false,
         });
         expect(snapshot.data?.__fragmentOwner).toBe(owner.request);
@@ -362,6 +367,8 @@ function cloneEventWithSets(event) {
           },
           seenRecords: new Set(['client:2', '4']),
           missingRequiredFields: null,
+          relayResolverErrors: [],
+          missingClientEdges: null,
           isMissingData: false,
         });
       });
@@ -404,7 +411,7 @@ function cloneEventWithSets(event) {
           },
           gcReleaseBufferSize: 0,
         });
-        UserFragment = getFragment(graphql`
+        UserFragment = graphql`
           fragment RelayModernStoreTest5Fragment on User {
             name
             profilePicture(size: $size) {
@@ -412,15 +419,15 @@ function cloneEventWithSets(event) {
             }
             emailAddresses
           }
-        `);
+        `;
 
-        UserQuery = getRequest(graphql`
-          query RelayModernStoreTest4Query($size: Int) {
+        UserQuery = graphql`
+          query RelayModernStoreTest4Query($size: [Int]) {
             me {
               ...RelayModernStoreTest5Fragment
             }
           }
-        `);
+        `;
       });
 
       it('calls subscribers whose data has changed since previous notify', () => {
@@ -461,14 +468,14 @@ function cloneEventWithSets(event) {
 
       it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
         // subscribe(), publish(), notify() -> subscriber called
-        UserQuery = getRequest(graphql`
-          query RelayModernStoreTest5Query($size: Float!) {
+        UserQuery = graphql`
+          query RelayModernStoreTest5Query($size: [Int]) {
             me {
               ...RelayModernStoreTest6Fragment
             }
           }
-        `);
-        UserFragment = getFragment(graphql`
+        `;
+        UserFragment = graphql`
           fragment RelayModernStoreTest6Fragment on User {
             name
             profilePicture(size: $size) {
@@ -476,7 +483,7 @@ function cloneEventWithSets(event) {
             }
             emailAddresses
           }
-        `);
+        `;
         const owner = createOperationDescriptor(UserQuery, {size: 32});
         const selector = createReaderSelector(
           UserFragment,
@@ -632,6 +639,7 @@ function cloneEventWithSets(event) {
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: false,
           data: {
             name: 'Zuck',
@@ -675,6 +683,7 @@ function cloneEventWithSets(event) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: true,
           seenRecords: new Set(Object.keys(nextSource.toJSON())),
         });
@@ -714,6 +723,7 @@ function cloneEventWithSets(event) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          missingClientEdges: null,
           isMissingData: true,
           seenRecords: new Set(['842472']),
         });
@@ -755,6 +765,7 @@ function cloneEventWithSets(event) {
         );
         const snapshot = store.lookup(selector);
         const callback = jest.fn();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose} = store.subscribe(snapshot, callback);
         // Publish a change to profilePicture.uri
         const nextSource = getRecordSourceImplementation({
@@ -1091,13 +1102,13 @@ function cloneEventWithSets(event) {
         };
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query RelayModernStoreTest6Query($id: ID!, $size: [Int]) {
             node(id: $id) {
               ...RelayModernStoreTest7Fragment
             }
           }
-        `);
+        `;
         graphql`
           fragment RelayModernStoreTest7Fragment on User {
             name
@@ -1979,13 +1990,13 @@ function cloneEventWithSets(event) {
           gcReleaseBufferSize: 1,
           queryCacheExpirationTime: QUERY_CACHE_EXPIRATION_TIME,
         });
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query RelayModernStoreTest7Query($id: ID!, $size: [Int]) {
             node(id: $id) {
               ...RelayModernStoreTest8Fragment
             }
           }
-        `);
+        `;
         graphql`
           fragment RelayModernStoreTest8Fragment on User {
             name
@@ -2235,13 +2246,13 @@ function cloneEventWithSets(event) {
       let store;
       let schedulerQueue;
 
-      const NodeQuery = getRequest(graphql`
+      const NodeQuery = graphql`
         query RelayModernStoreTest8Query($id: ID!) {
           node(id: $id) {
             __typename
           }
         }
-      `);
+      `;
 
       function runNextScheduledJob() {
         const job = schedulerQueue.shift();
@@ -2292,6 +2303,7 @@ function cloneEventWithSets(event) {
       });
 
       it('calls the gc scheduler function when GC should run', () => {
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose} = writeAndRetainNode('a');
         expect(schedulerQueue.length).toBe(0);
         dispose();
@@ -2300,7 +2312,9 @@ function cloneEventWithSets(event) {
       });
 
       it('runs GC with full cleanup mode when no retains left', () => {
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose: disposeA} = writeAndRetainNode('a');
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose: disposeB} = writeAndRetainNode('b');
         disposeA();
         disposeB();
@@ -2311,6 +2325,7 @@ function cloneEventWithSets(event) {
       });
 
       it('runs GC with partial cleanup when some retain is left', () => {
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose: disposeA} = writeAndRetainNode('a');
         writeAndRetainNode('b');
         disposeA();
@@ -2324,6 +2339,7 @@ function cloneEventWithSets(event) {
       });
 
       it('GC pauses during optimistic updates.', () => {
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose: disposeA} = writeAndRetainNode('a');
         writeAndRetainNode('b');
         expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
@@ -2344,6 +2360,7 @@ function cloneEventWithSets(event) {
       });
 
       it('GC pauses after holdGC', () => {
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose: disposeA} = writeAndRetainNode('a');
         writeAndRetainNode('b');
         expect(getStoreRecordIDs()).toEqual(['a', 'b', 'client:root']);
@@ -2364,6 +2381,7 @@ function cloneEventWithSets(event) {
       });
 
       it('restarts GC when data is written halfway through', () => {
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose: disposeA} = writeAndRetainNode('a');
         writeAndRetainNode('b');
         disposeA();
@@ -2412,13 +2430,13 @@ function cloneEventWithSets(event) {
         initialData = simpleClone(data);
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query RelayModernStoreTest9Query($id: ID!, $size: [Int]) {
             node(id: $id) {
               ...RelayModernStoreTest9Fragment
             }
           }
-        `);
+        `;
         graphql`
           fragment RelayModernStoreTest9Fragment on User {
             name
@@ -2431,6 +2449,7 @@ function cloneEventWithSets(event) {
 
       it('prevents data from being collected with disabled GC, and reruns GC when it is enabled', () => {
         const gcHold = store.holdGC();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         const {dispose} = store.retain(
           createOperationDescriptor(UserQuery, {id: '4', size: 32}),
         );

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7fab0fffdf45aaa49341c42ce46740d8>>
+ * @generated SignedSource<<5ae81c9063eaa8a5135b10093553cf94>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,12 +15,10 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$ref;
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment = ?{|
-  +id: string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data = ?{|
   +comments: {|
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
@@ -28,12 +26,12 @@ export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment = ?{
       |},
     |}>,
   |},
-  +$refType: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$ref,
+  +id: string,
+  +$fragmentType: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,
 |};
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data = RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment;
 export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$key = {
   +$data?: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,
   ...
 };
 */
@@ -169,4 +167,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "bccfa87744c99b7482a52d28d18716d0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,
+  RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$data,
+>*/);

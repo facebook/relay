@@ -52,13 +52,15 @@ ExecutableDocument {
                                 kind: Colon,
                             },
                             type_: Named(
-                                Identifier {
-                                    span: 32:34,
-                                    token: Token {
+                                NamedTypeAnnotation {
+                                    name: Identifier {
                                         span: 32:34,
-                                        kind: Identifier,
+                                        token: Token {
+                                            span: 32:34,
+                                            kind: Identifier,
+                                        },
+                                        value: "ID",
                                     },
-                                    value: "ID",
                                 },
                             ),
                             default_value: Some(

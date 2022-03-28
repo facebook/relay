@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,17 +11,16 @@
 
 'use strict';
 
-const cloneRelayScalarHandleSourceField = require('../cloneRelayScalarHandleSourceField');
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
-
 const {SCALAR_FIELD, SCALAR_HANDLE} = require('../../util/RelayConcreteNode');
-const {getRequest, graphql} = require('relay-runtime');
+const cloneRelayScalarHandleSourceField = require('../cloneRelayScalarHandleSourceField');
+const {graphql} = require('relay-runtime');
 
 describe('cloneRelayScalarHandleSourceField()', () => {
   let selections;
 
   beforeEach(() => {
-    const TestQuery = getRequest(graphql`
+    const TestQuery = graphql`
       query cloneRelayScalarHandleSourceFieldTestQuery {
         me {
           address {
@@ -29,16 +28,18 @@ describe('cloneRelayScalarHandleSourceField()', () => {
           }
         }
       }
-    `);
+    `;
     // Get the selections on `me.addresss`.
     // $FlowFixMe
     selections = TestQuery.operation.selections[0].selections[0].selections;
   });
 
   it('returns a clone of the source, with the same name as the handle', () => {
+    // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === SCALAR_HANDLE);
     const clone = cloneRelayScalarHandleSourceField(
       (handleField: $FlowFixMe),
+      // $FlowFixMe[incompatible-call]
       selections,
       {},
     );
@@ -49,12 +50,15 @@ describe('cloneRelayScalarHandleSourceField()', () => {
   });
 
   it('throws if the source field is not present', () => {
+    // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === SCALAR_HANDLE);
+    // $FlowFixMe[incompatible-use]
     selections = selections.filter(node => node.kind === SCALAR_HANDLE);
 
     expect(() =>
       cloneRelayScalarHandleSourceField(
         (handleField: $FlowFixMe),
+        // $FlowFixMe[incompatible-call]
         selections,
         {},
       ),

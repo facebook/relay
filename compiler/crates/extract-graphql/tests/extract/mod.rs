@@ -1,13 +1,33 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use extract_graphql::parse_chunks;
+use extract_graphql::{extract, JavaScriptSourceFeature};
 use fixture_tests::Fixture;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    Ok(format!("{:#?}", parse_chunks(fixture.content)))
+    let features = extract(fixture.content);
+    Ok(features
+        .into_iter()
+        .map(|feature| match feature {
+            JavaScriptSourceFeature::Docblock(docblock_source) => {
+                let s = docblock_source.text_source();
+                format!(
+                    "docblock - line: {}, column: {}, text: <{}>",
+                    s.line_index, s.column_index, s.text
+                )
+            }
+            JavaScriptSourceFeature::GraphQL(graphql_source) => {
+                let s = graphql_source.text_source();
+                format!(
+                    "graphql - line: {}, column: {}, text: <{}>",
+                    s.line_index, s.column_index, s.text
+                )
+            }
+        })
+        .collect::<Vec<_>>()
+        .join("\n"))
 }

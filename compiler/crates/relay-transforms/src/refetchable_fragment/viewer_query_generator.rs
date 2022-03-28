@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,18 +7,21 @@
 
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
-    build_operation_variable_definitions, build_used_global_variables, QueryGenerator, RefetchRoot,
-    RefetchableMetadata, CONSTANTS,
+    build_operation_variable_definitions, build_used_global_variables,
+    validation_message::ValidationMessage, QueryGenerator, RefetchRoot, RefetchableMetadata,
+    CONSTANTS,
 };
 use crate::root_variables::VariableMap;
 use common::{Diagnostic, DiagnosticsResult, WithLocation};
-use graphql_ir::{FragmentDefinition, LinkedField, Selection, ValidationMessage};
-use interner::StringKey;
+use graphql_ir::{FragmentDefinition, LinkedField, Selection};
+use intern::string_key::StringKey;
+use relay_config::SchemaConfig;
 use schema::{FieldID, SDLSchema, Schema, Type};
 use std::sync::Arc;
 
 fn build_refetch_operation(
     schema: &SDLSchema,
+    _schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,

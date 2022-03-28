@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<492703315d08f4af66c6ba6246430723>>
+ * @generated SignedSource<<fb8f4cfc749c87cc8a5b9ba801b53807>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,23 +17,23 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery.node.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownActorNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$ref = any;
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data = {|
   +node: ?{|
     +nameRenderer?: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name$fragmentType,
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery = {|
-  variables: RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQueryVariables,
-  response: RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQueryResponse,
+  response: RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data,
+  variables: RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables,
 |};
 */
 
@@ -56,6 +56,7 @@ v2 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery",
       "fragmentName": "RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name",
       "fragmentPropName": "name",
@@ -175,4 +176,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5b8c5731fedef0753656577cf15d7702";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$variables,
+  RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery$data,
+>*/);

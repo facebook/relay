@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,18 +12,29 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() a query with @stream with handler', () => {
   let actorFragment;
@@ -43,11 +54,7 @@ describe('execute() a query with @stream with handler', () => {
   let store;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQuery(
         $id: ID!
         $enableStream: Boolean!
@@ -56,8 +63,8 @@ describe('execute() a query with @stream with handler', () => {
           ...RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment
         }
       }
-    `);
-    fragment = getFragment(graphql`
+    `;
+    fragment = graphql`
       fragment RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment on Feedback {
         id
         actors
@@ -66,13 +73,13 @@ describe('execute() a query with @stream with handler', () => {
           name @__clientField(handle: "name_handler")
         }
       }
-    `);
-    actorFragment = getFragment(graphql`
-      fragment RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment on Actor {
+    `;
+    actorFragment = graphql`
+      fragment RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment on User {
         # keep in sync with above
         name @__clientField(handle: "name_handler")
       }
-    `);
+    `;
     variables = {id: '1', enableStream: true};
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(fragment, '1', {}, operation.request);
@@ -80,7 +87,7 @@ describe('execute() a query with @stream with handler', () => {
     // Handler to upper-case the value of the (string) field to which its
     // applied
     const NameHandler = {
-      update(storeProxy, payload) {
+      update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
         const record = storeProxy.get(payload.dataID);
         if (record != null) {
           const name = record.getValue(payload.fieldKey);
@@ -95,7 +102,7 @@ describe('execute() a query with @stream with handler', () => {
     // synthesized client field: this is just to check whether the handler
     // ran or not.
     const ActorsHandler = {
-      update(storeProxy, payload) {
+      update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
         const record = storeProxy.get(payload.dataID);
         if (record != null) {
           const actors = record.getLinkedRecords(payload.fieldKey);
@@ -112,7 +119,11 @@ describe('execute() a query with @stream with handler', () => {
     error = jest.fn();
     next = jest.fn();
     callbacks = {complete, error, next};
-    fetch = (_query, _variables, _cacheConfig) => {
+    fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });

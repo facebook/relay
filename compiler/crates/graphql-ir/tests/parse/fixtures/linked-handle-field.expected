@@ -16,14 +16,14 @@ fragment LinkedHandleField on User {
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(67),
+            type_condition: Object(68),
             directives: [],
             selections: [
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
                         location: linked-handle-field.graphql:39:46,
-                        item: FieldID(458),
+                        item: FieldID(454),
                     },
                     arguments: [
                         Argument {
@@ -44,7 +44,7 @@ fragment LinkedHandleField on User {
                     directives: [
                         Directive {
                             name: WithLocation {
-                                location: linked-handle-field.graphql:63:76,
+                                location: linked-handle-field.graphql:62:76,
                                 item: "__clientField",
                             },
                             arguments: [
@@ -63,10 +63,11 @@ fragment LinkedHandleField on User {
                                     },
                                 },
                             ],
+                            data: None,
                         },
                         Directive {
                             name: WithLocation {
-                                location: linked-handle-field.graphql:107:120,
+                                location: linked-handle-field.graphql:106:120,
                                 item: "__clientField",
                             },
                             arguments: [
@@ -85,6 +86,7 @@ fragment LinkedHandleField on User {
                                     },
                                 },
                             ],
+                            data: None,
                         },
                     ],
                     selections: [
@@ -92,7 +94,7 @@ fragment LinkedHandleField on User {
                             alias: None,
                             definition: WithLocation {
                                 location: linked-handle-field.graphql:151:156,
-                                item: FieldID(178),
+                                item: FieldID(170),
                             },
                             arguments: [],
                             directives: [],

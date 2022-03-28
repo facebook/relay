@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,7 +12,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 /* eslint-enable lint/no-value-import */
 
-const Container = props => {
+const Container = (props) => {
   const containerClasses = classNames('container', props.className, {
     darkBackground: props.background === 'dark',
     highlightBackground: props.background === 'highlight',

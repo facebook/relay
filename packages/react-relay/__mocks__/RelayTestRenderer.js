@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,14 +12,12 @@
 
 'use strict';
 
-const React = require('react');
+import type {Snapshot, Variables} from 'relay-runtime';
+
 const ReactRelayContext = require('../ReactRelayContext');
-
 const invariant = require('invariant');
-
+const React = require('react');
 const {createOperationDescriptor, getRequest} = require('relay-runtime');
-
-import type {Variables, Snapshot} from 'relay-runtime';
 
 type Props = {
   environment: $FlowFixMe,

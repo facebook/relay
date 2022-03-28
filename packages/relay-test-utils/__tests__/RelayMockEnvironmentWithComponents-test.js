@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,21 +13,20 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-
 const {MockPayloadGenerator, createMockEnvironment} = require('../');
+const React = require('react');
 const {
   QueryRenderer,
   createFragmentContainer,
   createPaginationContainer,
   createRefetchContainer,
 } = require('react-relay');
+const ReactTestRenderer = require('react-test-renderer');
 const {
-  graphql,
-  commitMutation,
-  requestSubscription,
   DefaultHandlerProvider,
+  commitMutation,
+  graphql,
+  requestSubscription,
 } = require('relay-runtime');
 
 const {useState, useEffect} = React;
@@ -234,7 +233,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         query RelayMockEnvironmentWithComponentsTestNoticeableSuccessQuery(
           $id: ID = "<default>"
           $first: Int = 5
-          $cursor: String = ""
+          $cursor: ID = ""
         ) {
           user: node(id: $id) {
             id
@@ -300,7 +299,6 @@ describe('ReactRelayTestMocker with Containers', () => {
           getConnectionFromProps(props) {
             return props.user.friends;
           },
-          // $FlowFixMe[cannot-spread-interface]
           getFragmentVariables(vars, totalCount) {
             return {
               ...vars,
@@ -351,7 +349,6 @@ describe('ReactRelayTestMocker with Containers', () => {
           MockPayloadGenerator.generate(operation, {
             ID({path}, generateId) {
               if (path != null && path.join('.') === 'user.id') {
-                // $FlowFixMe[prop-missing]
                 return operation.request.variables.id;
               }
             },
@@ -388,7 +385,6 @@ describe('ReactRelayTestMocker with Containers', () => {
             ID({path}, generateId) {
               // Just to make sure we're generating list data for the same parent id
               if (path != null && path.join('.') === 'user.id') {
-                // $FlowFixMe[prop-missing]
                 return operation.request.variables.id;
               }
               return `my-custom-id-${generateId() + 5}`;
@@ -428,7 +424,6 @@ describe('ReactRelayTestMocker with Containers', () => {
             ID({path}, generateId) {
               // Just to make sure we're generating list data for the same parent id
               if (path != null && path.join('.') === 'user.id') {
-                // $FlowFixMe[prop-missing]
                 return operation.request.variables.id;
               }
               return `my-custom-id-${generateId() + 10}`;
@@ -731,7 +726,6 @@ describe('ReactRelayTestMocker with Containers', () => {
         environment.mock.resolveMostRecentOperation(operation =>
           MockPayloadGenerator.generate(operation, {
             ID() {
-              // $FlowFixMe[prop-missing]
               return operation.request.variables.id;
             },
             Feedback() {
@@ -769,7 +763,6 @@ describe('ReactRelayTestMocker with Containers', () => {
           MockPayloadGenerator.generate(operation, {
             Feedback() {
               return {
-                // $FlowFixMe[prop-missing]
                 id: operation.request.variables?.input?.feedbackId,
                 doesViewerLike: true,
               };
@@ -975,7 +968,6 @@ describe('ReactRelayTestMocker with Containers', () => {
       environment.mock.resolveMostRecentOperation(operation =>
         MockPayloadGenerator.generate(operation, {
           ID() {
-            // $FlowFixMe[prop-missing]
             return operation.request.variables.id;
           },
           Feedback() {
@@ -990,6 +982,10 @@ describe('ReactRelayTestMocker with Containers', () => {
     it('should resolve subscription', () => {
       ReactTestRenderer.act(() => {
         expect(testComponentTree).toMatchSnapshot();
+      });
+
+      ReactTestRenderer.act(() => {
+        jest.runAllTimers();
       });
 
       const reaction = testComponentTree.root.find(
@@ -1013,7 +1009,6 @@ describe('ReactRelayTestMocker with Containers', () => {
           MockPayloadGenerator.generate(operation, {
             Feedback() {
               return {
-                // $FlowFixMe[prop-missing]
                 id: operation.request.variables?.input?.feedbackId,
                 doesViewerLike: true,
               };
@@ -1101,7 +1096,6 @@ describe('ReactRelayTestMocker with Containers', () => {
         userQuery,
         MockPayloadGenerator.generate(userQuery, {
           Node: () => ({
-            // $FlowFixMe[prop-missing]
             id: userQuery.request.variables.userId,
             name: 'Alice',
           }),
@@ -1111,7 +1105,6 @@ describe('ReactRelayTestMocker with Containers', () => {
         pageQuery,
         MockPayloadGenerator.generate(pageQuery, {
           Node: () => ({
-            // $FlowFixMe[prop-missing]
             id: pageQuery.request.variables.pageId,
             name: 'My Page',
           }),

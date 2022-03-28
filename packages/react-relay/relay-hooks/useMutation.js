@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,46 +13,43 @@
 
 'use strict';
 
-const React = require('react');
-
-const useRelayEnvironment = require('./useRelayEnvironment');
-
-const {commitMutation: defaultCommitMutation} = require('relay-runtime');
-const {useState, useEffect, useRef, useCallback} = React;
-const useIsMountedRef = require('./useIsMountedRef');
-
 import type {
-  GraphQLTaggedNode,
+  DeclarativeMutationConfig,
   Disposable,
+  GraphQLTaggedNode,
+  IEnvironment,
   MutationConfig,
   MutationParameters,
-  IEnvironment,
   PayloadError,
-  DeclarativeMutationConfig,
   SelectorStoreUpdater,
   UploadableMap,
 } from 'relay-runtime';
+
+const useIsMountedRef = require('./useIsMountedRef');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const React = require('react');
+const {commitMutation: defaultCommitMutation} = require('relay-runtime');
+
+const {useState, useEffect, useRef, useCallback} = React;
 
 export type UseMutationConfig<TMutation: MutationParameters> = {|
   configs?: Array<DeclarativeMutationConfig>,
   onError?: ?(error: Error) => void,
   onCompleted?: ?(
-    response: $ElementType<TMutation, 'response'>,
+    response: TMutation['response'],
     errors: ?Array<PayloadError>,
   ) => void,
+  onNext?: ?() => void,
   onUnsubscribe?: ?() => void,
-  optimisticResponse?: $ElementType<
-    {
-      +rawResponse?: {...},
-      ...TMutation,
-      ...
-    },
-    'rawResponse',
-  >,
-  optimisticUpdater?: ?SelectorStoreUpdater,
-  updater?: ?SelectorStoreUpdater,
+  optimisticResponse?: {
+    +rawResponse?: {...},
+    ...TMutation,
+    ...
+  }['rawResponse'],
+  optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
+  updater?: ?SelectorStoreUpdater<TMutation['response']>,
   uploadables?: UploadableMap,
-  variables: $ElementType<TMutation, 'variables'>,
+  variables: TMutation['variables'],
 |};
 
 function useMutation<TMutation: MutationParameters>(
@@ -100,26 +97,29 @@ function useMutation<TMutation: MutationParameters>(
 
   const commit = useCallback(
     (config: UseMutationConfig<TMutation>) => {
+      if (isMountedRef.current) {
+        setMutationInFlight(true);
+      }
       const disposable = commitMutationFn(environment, {
         ...config,
         mutation,
         onCompleted: (response, errors) => {
           cleanup(disposable);
-          config.onCompleted && config.onCompleted(response, errors);
+          config.onCompleted?.(response, errors);
         },
         onError: error => {
           cleanup(disposable);
-          config.onError && config.onError(error);
+          config.onError?.(error);
         },
         onUnsubscribe: () => {
           cleanup(disposable);
-          config.onUnsubscribe && config.onUnsubscribe();
+          config.onUnsubscribe?.();
+        },
+        onNext: () => {
+          config.onNext?.();
         },
       });
       inFlightMutationsRef.current.add(disposable);
-      if (isMountedRef.current) {
-        setMutationInFlight(true);
-      }
       return disposable;
     },
     [cleanup, commitMutationFn, environment, isMountedRef, mutation],

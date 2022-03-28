@@ -108,9 +108,10 @@ ExecutableDocument {
 Errors:
 ✖︎ Expected a open brace ('{')
 
-  inline-fragment-without-selection.graphql:3:1
+  inline-fragment-without-selection.graphql:2:14
     1 │ fragment Test on User {
-    2 │   ... on User
+    2 │   ... on User 
+      │              ^
     3 │   username
       │ ^^
     4 │ }

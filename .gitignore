@@ -2,6 +2,7 @@
 node_modules
 npm-debug.log
 /compiler/target
+/compiler/crates/*/target
 /dist/
 /lib/
 /website/build

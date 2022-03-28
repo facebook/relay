@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<af3c818a6b014a34c35085f0811ef3bc>>
+ * @generated SignedSource<<04a7b7861bb1b35957154795a3a34f45>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,27 +15,27 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$ref = any;
-type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$ref = any;
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType = any;
+type ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType = any;
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables = {|
   after?: ?string,
   count: number,
   id: string,
   orderby?: ?$ReadOnlyArray<?string>,
 |};
-export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQueryResponse = {|
-  +viewer: ?{|
-    +$fragmentRefs: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$ref,
-  |},
+export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data = {|
   +node: ?{|
     +id: string,
-    +$fragmentRefs: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$ref,
+    +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserFragment$fragmentType,
+  |},
+  +viewer: ?{|
+    +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionOnFragmentViewerFragment$fragmentType,
   |},
 |};
 export type ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery = {|
-  variables: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQueryVariables,
-  response: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQueryResponse,
+  response: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data,
+  variables: ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables,
 |};
 */
 
@@ -289,4 +289,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "16cf027e832c7432065f4965429431c0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$variables,
+  ReactRelayPaginationContainerTestNoConnectionOnFragmentUserQuery$data,
+>*/);

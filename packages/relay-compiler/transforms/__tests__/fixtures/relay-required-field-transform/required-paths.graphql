@@ -1,9 +1,0 @@
-query FooQuery {
-  viewer @required(action: LOG) {
-    actor @required(action: LOG) {
-      address @required(action: LOG) {
-        country @required(action: LOG)
-      }
-    }
-  }
-}

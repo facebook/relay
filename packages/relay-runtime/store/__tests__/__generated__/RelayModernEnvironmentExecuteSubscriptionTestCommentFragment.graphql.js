@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ae63b158bb63982a7d5a38665b49cc3d>>
+ * @generated SignedSource<<3b600eeeb386eab1722e6e63380e8f13>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$fragmentType: RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$ref;
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentFragment = {|
-  +id: string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$data = {|
   +body: ?{|
     +text: ?string,
   |},
-  +$refType: RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$ref,
+  +id: string,
+  +$fragmentType: RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$data = RelayModernEnvironmentExecuteSubscriptionTestCommentFragment;
 export type RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$key = {
   +$data?: RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$fragmentType,
   ...
 };
 */
@@ -74,4 +72,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "63c56dd08d121f0bd12dea86bb5b8c94";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$fragmentType,
+  RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$data,
+>*/);

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9cc6790765cf68468b33daf5e6672f0d>>
+ * @generated SignedSource<<c0ae79fd66a1e9498e1c03f5662d53e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,18 +17,17 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription.commentCreateSubscribe.comment.actor.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$ref = any;
+import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
+type RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType = any;
+type RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType = any;
 export type CommentCreateSubscriptionInput = {|
-  clientSubscriptionId?: ?string,
   feedbackId?: ?string,
   text?: ?string,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscriptionVariables = {|
+export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$variables = {|
   input: CommentCreateSubscriptionInput,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscriptionResponse = {|
+export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +comment: ?{|
       +actor: ?{|
@@ -36,15 +35,15 @@ export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateS
         +nameRenderer: ?{|
           +__fragmentPropName?: ?string,
           +__module_component?: ?string,
-          +$fragmentRefs: RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$ref & RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$ref,
+          +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
         |},
       |},
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription = {|
-  variables: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscriptionVariables,
-  response: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscriptionResponse,
+  response: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$data,
+  variables: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$variables,
 |};
 */
 
@@ -84,6 +83,7 @@ v4 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription",
       "fragmentName": "RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name",
       "fragmentPropName": "name",
@@ -97,6 +97,7 @@ v5 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription",
       "fragmentName": "RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name",
       "fragmentPropName": "name",
@@ -240,9 +241,7 @@ return {
   "params": {
     "cacheID": "601e62ff5c9e358b7e0b3ef618d91480",
     "id": null,
-    "metadata": {
-      "subscriptionName": "commentCreateSubscribe"
-    },
+    "metadata": {},
     "name": "RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription(\n  $input: CommentCreateSubscriptionInput!\n) {\n  commentCreateSubscribe(input: $input) {\n    comment {\n      actor {\n        __typename\n        name\n        nameRenderer(supported: [\"PlainUserNameRenderer\", \"MarkdownUserNameRenderer\"]) {\n          __typename\n          ... on PlainUserNameRenderer {\n            ...RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name\n            __module_operation_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription: js(module: \"RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$normalization.graphql\", id: \"RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription.commentCreateSubscribe.comment.actor.nameRenderer\")\n            __module_component_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription: js(module: \"PlainUserNameRenderer.react\", id: \"RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription.commentCreateSubscribe.comment.actor.nameRenderer\")\n          }\n          ... on MarkdownUserNameRenderer {\n            ...RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name\n            __module_operation_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription: js(module: \"RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql\", id: \"RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription.commentCreateSubscribe.comment.actor.nameRenderer\")\n            __module_component_RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription: js(module: \"MarkdownUserNameRenderer.react\", id: \"RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription.commentCreateSubscribe.comment.actor.nameRenderer\")\n          }\n        }\n        id\n      }\n      id\n    }\n  }\n}\n\nfragment RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\n  __typename\n  markdown\n  data {\n    markup\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name on PlainUserNameRenderer {\n  plaintext\n  data {\n    text\n    id\n  }\n}\n"
@@ -254,4 +253,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7ff1492359f8843cfbc0780bb95cbbde";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+  RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$variables,
+  RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$data,
+>*/);

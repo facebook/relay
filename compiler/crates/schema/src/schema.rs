@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,9 +8,9 @@
 use crate::definitions::{Directive, *};
 use crate::in_memory::InMemorySchema;
 use crate::{flatbuffer::SchemaWrapper, graphql_schema::Schema};
-use common::DiagnosticsResult;
+use common::{DiagnosticsResult, SourceLocationKey};
 use graphql_syntax::*;
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 #[derive(Debug)]
 pub enum SDLSchema {
@@ -47,6 +47,13 @@ impl Schema for SDLSchema {
         }
     }
 
+    fn strongid_field(&self) -> FieldID {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.strongid_field(),
+            SDLSchema::InMemory(schema) => schema.strongid_field(),
+        }
+    }
+
     fn typename_field(&self) -> FieldID {
         match self {
             SDLSchema::FlatBuffer(schema) => schema.typename_field(),
@@ -60,6 +67,14 @@ impl Schema for SDLSchema {
             SDLSchema::InMemory(schema) => schema.fetch_token_field(),
         }
     }
+
+    fn is_fulfilled_field(&self) -> FieldID {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.is_fulfilled_field(),
+            SDLSchema::InMemory(schema) => schema.is_fulfilled_field(),
+        }
+    }
+
 
     fn get_type(&self, type_name: StringKey) -> Option<Type> {
         match self {
@@ -176,6 +191,55 @@ impl Schema for SDLSchema {
             SDLSchema::InMemory(schema) => schema.snapshot_print(),
         }
     }
+
+    fn input_objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a InputObject> + 'a> {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.input_objects(),
+            SDLSchema::InMemory(schema) => schema.input_objects(),
+        }
+    }
+
+    fn enums<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Enum> + 'a> {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.enums(),
+            SDLSchema::InMemory(schema) => schema.enums(),
+        }
+    }
+
+    fn scalars<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Scalar> + 'a> {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.scalars(),
+            SDLSchema::InMemory(schema) => schema.scalars(),
+        }
+    }
+
+    fn fields<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Field> + 'a> {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.fields(),
+            SDLSchema::InMemory(schema) => schema.fields(),
+        }
+    }
+
+    fn objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Object> + 'a> {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.objects(),
+            SDLSchema::InMemory(schema) => schema.objects(),
+        }
+    }
+
+    fn unions<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Union> + 'a> {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.unions(),
+            SDLSchema::InMemory(schema) => schema.unions(),
+        }
+    }
+
+    fn interfaces<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Interface> + 'a> {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.interfaces(),
+            SDLSchema::InMemory(schema) => schema.interfaces(),
+        }
+    }
 }
 
 impl SDLSchema {
@@ -187,25 +251,53 @@ impl SDLSchema {
     }
 
     pub fn build(
-        schema_definitions: &[graphql_syntax::TypeSystemDefinition],
-        client_definitions: &[graphql_syntax::TypeSystemDefinition],
+        schema_documents: &[SchemaDocument],
+        client_schema_documents: &[SchemaDocument],
     ) -> DiagnosticsResult<Self> {
         Ok(SDLSchema::InMemory(InMemorySchema::build(
-            schema_definitions,
-            client_definitions,
+            schema_documents,
+            client_schema_documents,
         )?))
     }
 
     pub fn build_flatbuffer(
-        schema_definitions: &[graphql_syntax::TypeSystemDefinition],
-        client_definitions: &[graphql_syntax::TypeSystemDefinition],
+        schema_documents: &[SchemaDocument],
+        client_schema_documents: &[SchemaDocument],
     ) -> DiagnosticsResult<Self> {
         let sdl_schema =
-            crate::in_memory::InMemorySchema::build(schema_definitions, client_definitions)?;
+            crate::in_memory::InMemorySchema::build(schema_documents, client_schema_documents)?;
         let flatbuffer_bytes = crate::flatbuffer::serialize_as_flatbuffer(&sdl_schema);
         Ok(SDLSchema::FlatBuffer(SchemaWrapper::from_vec(
             flatbuffer_bytes,
         )))
+    }
+
+    pub fn add_object_type_extension(
+        &mut self,
+        object_extension: ObjectTypeExtension,
+        location_key: SourceLocationKey,
+        is_extension: bool,
+    ) -> DiagnosticsResult<()> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::InMemory(schema) => {
+                schema.add_object_type_extension(object_extension, location_key, is_extension)
+            }
+        }
+    }
+
+    pub fn add_interface_type_extension(
+        &mut self,
+        interface_extension: InterfaceTypeExtension,
+        location_key: SourceLocationKey,
+        is_extension: bool,
+    ) -> DiagnosticsResult<()> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::InMemory(schema) => {
+                schema.add_interface_type_extension(interface_extension, location_key, is_extension)
+            }
+        }
     }
 
     pub fn unwrap_in_memory_impl(self) -> InMemorySchema {
@@ -281,7 +373,7 @@ impl SDLSchema {
 
     pub fn has_type(&self, type_name: StringKey) -> bool {
         match self {
-            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::FlatBuffer(schema) => schema.has_type(type_name),
             SDLSchema::InMemory(schema) => schema.has_type(type_name),
         }
     }

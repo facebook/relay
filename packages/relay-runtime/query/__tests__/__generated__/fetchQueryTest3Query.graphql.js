@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<50c904ea6867a9a87b2976422a105c6f>>
+ * @generated SignedSource<<2e5bb034b0ddc94c8e008d057eeded4e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,16 +15,16 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type fetchQueryTest3QueryVariables = {||};
-export type fetchQueryTest3QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type fetchQueryTest3Query$variables = {||};
+export type fetchQueryTest3Query$data = {|
   +me: ?{|
     +name: string,
   |},
 |};
 export type fetchQueryTest3Query = {|
-  variables: fetchQueryTest3QueryVariables,
-  response: fetchQueryTest3QueryResponse,
+  response: fetchQueryTest3Query$data,
+  variables: fetchQueryTest3Query$variables,
 |};
 */
 
@@ -106,4 +106,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "9e2929836073e3407ad2df12c1618ff7";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  fetchQueryTest3Query$variables,
+  fetchQueryTest3Query$data,
+>*/);

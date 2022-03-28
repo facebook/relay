@@ -410,7 +410,6 @@ $ relay-compiler --artifactDirectory ./src/__generated__ […]
     ["relay", { "artifactDirectory": "./src/__generated__" }]
   ]
 }
-
 ```
 
 It is recommended to alias this directory in your module resolution configuration such that you don’t need to specify relative paths in your source files. This is what is also done in the above examples, where artifacts are imported from a `__generated__` alias, rather than relative paths like `../../../../__generated__`.
@@ -462,6 +461,6 @@ If you are looking to create your own language plugin, refer to the `relay-compi
 
 [Haste]: https://twitter.com/dan_abramov/status/758655309212704768
 
-[plugin-interface]: https://github.com/facebook/relay/blob/master/packages/relay-compiler/language/RelayLanguagePluginInterface.js
+[plugin-interface]: https://github.com/facebook/relay/blob/main/packages/relay-compiler/language/RelayLanguagePluginInterface.js
 
 <DocsRating />

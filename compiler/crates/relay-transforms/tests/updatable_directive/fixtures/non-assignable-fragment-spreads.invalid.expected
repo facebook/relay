@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment NonAssignable_page on Page {
+  __typename
+}
+
+query TestQuery @updatable {
+  node(id: 4) {
+    ...NonAssignable_page
+  }
+}
+==================================== ERROR ====================================
+✖︎ Only fragments decorated with the @assignable directive can be spread within updatable operations. You can try adding the @assignable directive to the fragment NonAssignable_page.
+
+  non-assignable-fragment-spreads.invalid.graphql:8:8
+    7 │   node(id: 4) {
+    8 │     ...NonAssignable_page
+      │        ^^^^^^^^^^^^^^^^^^
+    9 │   }

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -11,25 +11,11 @@
 'use strict';
 
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
-
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {
-  RelayFeatureFlags,
-  graphql,
-  getRequest,
-  getFragment,
-} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
-});
 
 describe('RelayModernFragmentSpecResolver', () => {
   let UserFragment;
@@ -55,14 +41,14 @@ describe('RelayModernFragmentSpecResolver', () => {
     logger = jest.fn();
     requiredFieldLogger = jest.fn();
     environment = createMockEnvironment({log: logger, requiredFieldLogger});
-    UserFragment = getFragment(graphql`
+    UserFragment = graphql`
       fragment RelayModernFragmentSpecResolverRequiredFieldTestUserFragment on User {
         id
         name @required(action: THROW)
         alternate_name @required(action: LOG)
       }
-    `);
-    UserQuery = getRequest(graphql`
+    `;
+    UserQuery = graphql`
       query RelayModernFragmentSpecResolverRequiredFieldTestUserQuery(
         $id: ID!
       ) {
@@ -70,7 +56,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           ...RelayModernFragmentSpecResolverRequiredFieldTestUserFragment
         }
       }
-    `);
+    `;
     zuckOperation = createOperationDescriptor(UserQuery, {
       id: '4',
     });

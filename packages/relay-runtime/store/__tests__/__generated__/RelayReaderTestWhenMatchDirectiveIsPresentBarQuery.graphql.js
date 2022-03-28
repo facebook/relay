@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<62525eb74da445ff76e08760e0d613f7>>
+ * @generated SignedSource<<2032680b759ff8dd52ecff5ce4aafdd0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$ref = any;
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarQueryVariables = {||};
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType = any;
+export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables = {||};
+export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$ref,
+    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
   |},
 |};
 export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery = {|
-  variables: RelayReaderTestWhenMatchDirectiveIsPresentBarQueryVariables,
-  response: RelayReaderTestWhenMatchDirectiveIsPresentBarQueryResponse,
+  response: RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data,
+  variables: RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables,
 |};
 */
 
@@ -105,6 +105,7 @@ var node/*: ConcreteRequest*/ = {
                 "kind": "InlineFragment",
                 "selections": [
                   {
+                    "args": null,
                     "documentName": "RelayReaderTestWhenMatchDirectiveIsPresentBarFragment",
                     "fragmentName": "RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name",
                     "fragmentPropName": "name",
@@ -118,6 +119,7 @@ var node/*: ConcreteRequest*/ = {
                 "kind": "InlineFragment",
                 "selections": [
                   {
+                    "args": null,
                     "documentName": "RelayReaderTestWhenMatchDirectiveIsPresentBarFragment",
                     "fragmentName": "RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name",
                     "fragmentPropName": "name",
@@ -149,4 +151,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ef129a52e6ca5b6a54a16caac745a44a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables,
+  RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data,
+>*/);

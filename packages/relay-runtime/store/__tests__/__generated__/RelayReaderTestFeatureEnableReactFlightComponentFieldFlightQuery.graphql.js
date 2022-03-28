@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b1622e376b4e0468ab7c4cb311afef9a>>
+ * @generated SignedSource<<035b406d219665764d03c3e513056178>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +17,19 @@
 // @ReactFlightServerDependency FlightComponent.server
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$variables = {|
   count: number,
+  id: string,
 |};
-export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQueryResponse = {|
+export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$data = {|
   +node: ?{|
     +flightComponent?: ?any,
   |},
 |};
 export type RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery = {|
-  variables: RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQueryVariables,
-  response: RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQueryResponse,
+  response: RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$data,
+  variables: RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$variables,
 |};
 */
 
@@ -167,4 +167,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "4c044218b936033e2034103a2d011f01";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$variables,
+  RelayReaderTestFeatureEnableReactFlightComponentFieldFlightQuery$data,
+>*/);

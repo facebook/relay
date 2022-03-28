@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8869bb64ad21c4e55de471c6d362967d>>
+ * @generated SignedSource<<982aa376c24e68ffe817346e25712d10>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type usePreloadedQueryReactDoubleEffectsTestFragment$ref = any;
-export type usePreloadedQueryReactDoubleEffectsTestDeferQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType = any;
+export type usePreloadedQueryReactDoubleEffectsTestDeferQuery$variables = {|
   id?: ?string,
 |};
-export type usePreloadedQueryReactDoubleEffectsTestDeferQueryResponse = {|
+export type usePreloadedQueryReactDoubleEffectsTestDeferQuery$data = {|
   +node: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: usePreloadedQueryReactDoubleEffectsTestFragment$ref,
+    +$fragmentSpreads: usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType,
   |},
 |};
 export type usePreloadedQueryReactDoubleEffectsTestDeferQuery = {|
-  variables: usePreloadedQueryReactDoubleEffectsTestDeferQueryVariables,
-  response: usePreloadedQueryReactDoubleEffectsTestDeferQueryResponse,
+  response: usePreloadedQueryReactDoubleEffectsTestDeferQuery$data,
+  variables: usePreloadedQueryReactDoubleEffectsTestDeferQuery$variables,
 |};
 */
 
@@ -160,4 +160,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "6338c0f9d862dcd893716ffc9df2e626";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePreloadedQueryReactDoubleEffectsTestDeferQuery$variables,
+  usePreloadedQueryReactDoubleEffectsTestDeferQuery$data,
+>*/);

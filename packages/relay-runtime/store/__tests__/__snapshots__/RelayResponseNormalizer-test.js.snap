@@ -18,6 +18,9 @@ Object {
         "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):edges:0",
       ],
     },
+    "pageInfo": Object {
+      "__ref": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):pageInfo",
+    },
   },
   "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):edges:0": Object {
     "__id": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):edges:0",
@@ -26,6 +29,12 @@ Object {
     "node": Object {
       "__ref": "pet",
     },
+  },
+  "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):pageInfo": Object {
+    "__id": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):pageInfo",
+    "__typename": "PageInfo",
+    "endCursor": "cursor-1",
+    "hasNextPage": false,
   },
   "client:root": Object {
     "__id": "client:root",
@@ -68,6 +77,9 @@ Object {
         "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"first name\\"]):edges:0",
       ],
     },
+    "pageInfo": Object {
+      "__ref": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"first name\\"]):pageInfo",
+    },
   },
   "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"first name\\"]):edges:0": Object {
     "__id": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"first name\\"]):edges:0",
@@ -77,6 +89,12 @@ Object {
       "__ref": "cat",
     },
   },
+  "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"first name\\"]):pageInfo": Object {
+    "__id": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"first name\\"]):pageInfo",
+    "__typename": "PageInfo",
+    "endCursor": "cursor-2",
+    "hasNextPage": false,
+  },
   "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"])": Object {
     "__id": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"])",
     "__typename": "FriendsConnection",
@@ -84,6 +102,9 @@ Object {
       "__refs": Array [
         "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):edges:0",
       ],
+    },
+    "pageInfo": Object {
+      "__ref": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):pageInfo",
     },
   },
   "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):edges:0": Object {
@@ -93,6 +114,12 @@ Object {
     "node": Object {
       "__ref": "pet",
     },
+  },
+  "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):pageInfo": Object {
+    "__id": "client:4:friends(first:1,isViewerFriend:true,orderby:[\\"last name\\"]):pageInfo",
+    "__typename": "PageInfo",
+    "endCursor": "cursor-1",
+    "hasNextPage": false,
   },
   "client:root": Object {
     "__id": "client:root",

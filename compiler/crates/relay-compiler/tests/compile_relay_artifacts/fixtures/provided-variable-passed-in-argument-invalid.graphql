@@ -1,0 +1,12 @@
+#expected-to-throw
+fragment providedVariablePassedInArgumentInvalid_fragment on User
+  @argumentDefinitions(var: {type: "Boolean!", provider: "var_RelayProvider"}
+) {
+  name @include(if: $var)
+}
+
+query providedVariablePassedInArgumentInvalid_Query {
+  me {
+    ...providedVariablePassedInArgumentInvalid_fragment @arguments(var: false)
+  }
+}

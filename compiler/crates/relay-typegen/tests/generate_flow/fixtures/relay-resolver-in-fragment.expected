@@ -1,0 +1,39 @@
+==================================== INPUT ====================================
+fragment relayResolver_PopStarNameResolverFragment_name on User {
+  name
+}
+
+fragment relayResolver_consumer on User {
+  pop_star_name
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: Int @relay_resolver(fragment_name: "relayResolver_PopStarNameResolverFragment_name", import_path: "./foo/bar/baz/PopStarNameResolver.js")
+}
+==================================== OUTPUT ===================================
+import type { FragmentType } from "relay-runtime";
+declare export opaque type relayResolver_PopStarNameResolverFragment_name$fragmentType: FragmentType;
+export type relayResolver_PopStarNameResolverFragment_name$data = {|
+  +name: ?string,
+  +$fragmentType: relayResolver_PopStarNameResolverFragment_name$fragmentType,
+|};
+export type relayResolver_PopStarNameResolverFragment_name$key = {
+  +$data?: relayResolver_PopStarNameResolverFragment_name$data,
+  +$fragmentSpreads: relayResolver_PopStarNameResolverFragment_name$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+import userPopStarNameResolver from "PopStarNameResolver";
+declare export opaque type relayResolver_consumer$fragmentType: FragmentType;
+export type relayResolver_consumer$data = {|
+  +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
+  +$fragmentType: relayResolver_consumer$fragmentType,
+|};
+export type relayResolver_consumer$key = {
+  +$data?: relayResolver_consumer$data,
+  +$fragmentSpreads: relayResolver_consumer$fragmentType,
+  ...
+};

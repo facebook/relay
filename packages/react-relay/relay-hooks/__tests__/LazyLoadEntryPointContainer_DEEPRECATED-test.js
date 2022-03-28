@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,14 +14,12 @@
 'use strict';
 
 const LazyLoadEntryPointContainer_DEPRECATED = require('../LazyLoadEntryPointContainer_DEPRECATED.react');
-const React = require('react');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const TestRenderer = require('react-test-renderer');
-
-const invariant = require('invariant');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const usePreloadedQuery = require('../usePreloadedQuery');
-
+const invariant = require('invariant');
+const React = require('react');
+const TestRenderer = require('react-test-renderer');
 const {
   Environment,
   Network,
@@ -30,11 +28,17 @@ const {
   RecordSource,
   Store,
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
+const {
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
 
-const query = getRequest(graphql`
+disallowWarnings();
+disallowConsoleErrors();
+
+const query = graphql`
   query LazyLoadEntryPointContainerDEEPRECATEDTestQuery($id: ID!) {
     node(id: $id) {
       id
@@ -43,7 +47,7 @@ const query = getRequest(graphql`
       }
     }
   }
-`);
+`;
 
 // Only queries with an ID are preloadable
 // $FlowFixMe[cannot-write]
@@ -101,8 +105,6 @@ class FakeJSResource<T> {
 beforeEach(() => {
   PreloadableQueryRegistry.clear();
 
-  jest.spyOn(console, 'warn').mockImplementation(() => {});
-  jest.spyOn(console, 'error').mockImplementation(() => {});
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
     Observable.create(sink => {
       dataSource = sink;
@@ -147,6 +149,7 @@ it('suspends while the query and component are pending', () => {
   TestRenderer.act(() => jest.runAllImmediates());
   expect(renderer.toJSON()).toEqual('Fallback');
   expect(fetch).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
 });
 
@@ -168,11 +171,12 @@ it('suspends while the component is loading', () => {
   );
   TestRenderer.act(() => jest.runAllImmediates());
   expect(renderer.toJSON()).toEqual('Fallback');
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
 });
 
 it('suspends while the query is loading', () => {
-  function Component(props) {
+  function Component(props: any) {
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   }
@@ -191,6 +195,7 @@ it('suspends while the query is loading', () => {
   );
   TestRenderer.act(() => jest.runAllImmediates());
   expect(renderer.toJSON()).toEqual('Fallback');
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(0);
   expect(fetch).toBeCalledTimes(1);
 });
@@ -210,11 +215,13 @@ it('suspends then updates when the query and component load', () => {
   );
   TestRenderer.act(() => jest.runAllImmediates());
   expect(renderer.toJSON()).toEqual('Fallback');
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(2);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
 
   let receivedProps = null;
-  function Component(props) {
+  function Component(props: any) {
     receivedProps = props;
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
@@ -224,7 +231,9 @@ it('suspends then updates when the query and component load', () => {
   dataSource.next(response);
   dataSource.complete();
   TestRenderer.act(() => jest.runAllImmediates());
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(4);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(receivedProps).not.toBe(null);
   expect(receivedProps?.props).toBe(otherProps);
@@ -236,7 +245,7 @@ it('renders synchronously when the query and component are already loaded', () =
     version: 0,
   };
   let receivedProps = null;
-  function Component(props) {
+  function Component(props: any) {
     receivedProps = props;
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
@@ -260,7 +269,9 @@ it('renders synchronously when the query and component are already loaded', () =
     </RelayEnvironmentProvider>,
   );
   expect(renderer.toJSON()).toEqual('Zuck');
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(2);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(0);
   expect(receivedProps).not.toBe(null);
   expect(receivedProps?.props).toBe(otherProps);
@@ -378,7 +389,7 @@ it('fetches and renders synchronously when the query data is cached, then update
   });
   const otherProps = {version: 0};
   let receivedProps = null;
-  function Component(props) {
+  function Component(props: any) {
     receivedProps = props;
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
@@ -402,7 +413,9 @@ it('fetches and renders synchronously when the query data is cached, then update
   });
   invariant(renderer != null, 'should have been rendered');
   expect(renderer.toJSON()).toEqual('Zuck');
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(2);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(0);
   expect(receivedProps).not.toBe(null);
   expect(receivedProps?.props).toBe(otherProps);
@@ -446,7 +459,7 @@ it('renders synchronously when the query data and ast are cached, without fetchi
   );
   const otherProps = {version: 0};
   let receivedProps = null;
-  function Component(props) {
+  function Component(props: any) {
     receivedProps = props;
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
@@ -470,7 +483,9 @@ it('renders synchronously when the query data and ast are cached, without fetchi
   });
   invariant(renderer != null, 'should have been rendered');
   expect(renderer.toJSON()).toEqual('Zuck');
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(2);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(0);
   expect(receivedProps).not.toBe(null);
   expect(receivedProps?.props).toBe(otherProps);

@@ -1,11 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7fa2c7555d82e901afff13ec639b5d86>>
- * @flow
+ * @generated SignedSource<<0c604ff17e837edf7ee69c9059e1e6b1>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,22 +13,8 @@
 
 'use strict';
 
-/*::
-import type { ConcreteRequest } from 'relay-runtime';
-type Component_node$ref = any;
-export type AppQueryVariables = {||};
-export type AppQueryResponse = {|
-  +node: ?{|
-    +$fragmentRefs: Component_node$ref
-  |}
-|};
-export type AppQuery = {|
-  variables: AppQueryVariables,
-  response: AppQueryResponse,
-|};
-*/
 
-var node/*: ConcreteRequest*/ = (function(){
+var node = (function(){
 var v0 = [
   {
     "kind": "Literal",
@@ -112,8 +97,5 @@ return {
 };
 })();
 
-if (__DEV__) {
-  (node/*: any*/).hash = "942e72826c882d3a02cb0cfbf267dd83";
-}
-
+node.hash = "942e72826c882d3a02cb0cfbf267dd83";
 module.exports = node;

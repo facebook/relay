@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+query TestQuery {
+  me {
+    neighbors @required(action: NONE) {
+      name @required(action: NONE)
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type TestQuery$variables = {||};
+export type TestQuery$data = {|
+  +me: ?{|
+    +neighbors: $ReadOnlyArray<?{|
+      +name: string,
+    |}>,
+  |},
+|};
+export type TestQuery = {|
+  response: TestQuery$data,
+  variables: TestQuery$variables,
+|};

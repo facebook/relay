@@ -1,0 +1,10 @@
+# expected-to-throw
+query updatableFragmentSpreadWithDeferQuery {
+  me {
+    ...updatableFragmentSpreadWithDefer_user @defer
+  }
+}
+
+fragment updatableFragmentSpreadWithDefer_user on User @updatable {
+  firstName
+}

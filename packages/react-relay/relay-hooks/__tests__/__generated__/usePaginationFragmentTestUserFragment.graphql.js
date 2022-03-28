@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3627488ef7fe80e9e2175e20364ce735>>
+ * @generated SignedSource<<b5309f5255a2b8f90f0358087d4a50c2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,30 +15,28 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type usePaginationFragmentTestNestedUserFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-type usePaginationFragmentTestUserFragment$ref = any;
-type usePaginationFragmentTestUserFragment$fragmentType = any;
-export type { usePaginationFragmentTestUserFragment$ref, usePaginationFragmentTestUserFragment$fragmentType };
-export type usePaginationFragmentTestUserFragment = {|
-  +id: string,
-  +name: ?string,
+import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+type usePaginationFragmentTestNestedUserFragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type usePaginationFragmentTestUserFragment$fragmentType: FragmentType;
+type usePaginationFragmentTestUserFragmentPaginationQuery$variables = any;
+export type usePaginationFragmentTestUserFragment$data = {|
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
         +id: string,
         +name: ?string,
-        +$fragmentRefs: usePaginationFragmentTestNestedUserFragment$ref,
+        +$fragmentSpreads: usePaginationFragmentTestNestedUserFragment$fragmentType,
       |},
     |}>,
   |},
-  +$refType: usePaginationFragmentTestUserFragment$ref,
+  +id: string,
+  +name: ?string,
+  +$fragmentType: usePaginationFragmentTestUserFragment$fragmentType,
 |};
-export type usePaginationFragmentTestUserFragment$data = usePaginationFragmentTestUserFragment;
 export type usePaginationFragmentTestUserFragment$key = {
   +$data?: usePaginationFragmentTestUserFragment$data,
-  +$fragmentRefs: usePaginationFragmentTestUserFragment$ref,
+  +$fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
   ...
 };
 */
@@ -242,4 +240,8 @@ if (__DEV__) {
   (node/*: any*/).hash = "fe5dabc8eef251e3032e850d1c26f222";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: RefetchableFragment<
+  usePaginationFragmentTestUserFragment$fragmentType,
+  usePaginationFragmentTestUserFragment$data,
+  usePaginationFragmentTestUserFragmentPaginationQuery$variables,
+>*/);

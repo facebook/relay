@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<06b2914424646baaebb5d99df418aa00>>
+ * @generated SignedSource<<09be9351a8c1b57ff490ce6bd92b5ff7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type commitMutationTest1Fragment$ref: FragmentReference;
-declare export opaque type commitMutationTest1Fragment$fragmentType: commitMutationTest1Fragment$ref;
-export type commitMutationTest1Fragment = {|
-  +id: string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type commitMutationTest1Fragment$fragmentType: FragmentType;
+export type commitMutationTest1Fragment$data = {|
   +body: ?{|
     +text: ?string,
   |},
-  +$refType: commitMutationTest1Fragment$ref,
+  +id: string,
+  +$fragmentType: commitMutationTest1Fragment$fragmentType,
 |};
-export type commitMutationTest1Fragment$data = commitMutationTest1Fragment;
 export type commitMutationTest1Fragment$key = {
   +$data?: commitMutationTest1Fragment$data,
-  +$fragmentRefs: commitMutationTest1Fragment$ref,
+  +$fragmentSpreads: commitMutationTest1Fragment$fragmentType,
   ...
 };
 */
@@ -74,4 +72,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5531c772eb51f5d19ad21d26c583105b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  commitMutationTest1Fragment$fragmentType,
+  commitMutationTest1Fragment$data,
+>*/);

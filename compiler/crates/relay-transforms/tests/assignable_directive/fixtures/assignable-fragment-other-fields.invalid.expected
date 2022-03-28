@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment AssignableFragment on Page @assignable {
+  id
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ Assignable fragments should contain only a single, unaliased __typename field with no directives.
+
+  assignable-fragment-other-fields.invalid.graphql:2:10
+    1 │ # expected-to-throw
+    2 │ fragment AssignableFragment on Page @assignable {
+      │          ^^^^^^^^^^^^^^^^^^
+    3 │   id

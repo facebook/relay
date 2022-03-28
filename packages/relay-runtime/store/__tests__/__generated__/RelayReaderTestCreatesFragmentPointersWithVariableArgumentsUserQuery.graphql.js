@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<713bfba9717046b5de96c3132c59fb0c>>
+ * @generated SignedSource<<bed08f7acceae31ac7faac102d44236b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +15,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$ref = any;
-export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQueryVariables = {||};
-export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType = any;
+export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$variables = {||};
+export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$ref,
+    +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType,
   |},
 |};
 export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery = {|
-  variables: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQueryVariables,
-  response: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQueryResponse,
+  response: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data,
+  variables: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$variables,
 |};
 */
 
@@ -114,4 +114,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7a9eaa1476798159533ae048a3ff048a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$variables,
+  RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserQuery$data,
+>*/);

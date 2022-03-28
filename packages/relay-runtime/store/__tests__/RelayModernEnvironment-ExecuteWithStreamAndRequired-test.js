@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,19 +12,25 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
-const {RelayFeatureFlags} = require('relay-runtime');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() a query with @stream and @required', () => {
   let callbacks;
@@ -37,13 +43,7 @@ describe('execute() a query with @stream and @required', () => {
   let selector;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
-    // Note: This must come after `jest.resetModules()`.
-    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQuery(
         $id: ID!
         $enableStream: Boolean!
@@ -52,9 +52,9 @@ describe('execute() a query with @stream and @required', () => {
           ...RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment
         }
       }
-    `);
+    `;
 
-    fragment = getFragment(graphql`
+    fragment = graphql`
       fragment RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment on Feedback {
         id
         actors
@@ -63,7 +63,7 @@ describe('execute() a query with @stream and @required', () => {
           name
         }
       }
-    `);
+    `;
     const variables = {id: '1', enableStream: true};
 
     const complete = jest.fn();
@@ -74,7 +74,11 @@ describe('execute() a query with @stream and @required', () => {
     selector = createReaderSelector(fragment, '1', {}, operation.request);
     callbacks = {complete, error, next};
 
-    fetch = (_query, _variables, _cacheConfig) => {
+    fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -85,10 +89,6 @@ describe('execute() a query with @stream and @required', () => {
       network: RelayNetwork.create(fetch),
       store,
     });
-  });
-
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
   });
 
   it('bubbles @required @stream nodes up to the parent', () => {

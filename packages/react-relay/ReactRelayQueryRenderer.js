@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,19 +12,6 @@
 
 'use strict';
 
-const React = require('react');
-const ReactRelayContext = require('./ReactRelayContext');
-const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
-const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
-
-const areEqual = require('areEqual');
-
-const {
-  createOperationDescriptor,
-  deepFreeze,
-  getRequest,
-} = require('relay-runtime');
-
 import type {ReactRelayQueryRendererContext as ReactRelayQueryRendererContextType} from './ReactRelayQueryRendererContext';
 import type {
   CacheConfig,
@@ -35,7 +22,20 @@ import type {
   Snapshot,
   Variables,
 } from 'relay-runtime';
-type RetryCallbacks = {
+
+const ReactRelayContext = require('./ReactRelayContext');
+const ReactRelayQueryFetcher = require('./ReactRelayQueryFetcher');
+const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
+const areEqual = require('areEqual');
+const React = require('react');
+const {
+  RelayFeatureFlags,
+  createOperationDescriptor,
+  deepFreeze,
+  getRequest,
+} = require('relay-runtime');
+
+type RetryCallbacks = {|
   handleDataChange:
     | null
     | (({
@@ -44,8 +44,7 @@ type RetryCallbacks = {
         ...
       }) => void),
   handleRetryAfterError: null | ((error: Error) => void),
-  ...
-};
+|};
 
 export type RenderProps<T> = {|
   error: ?Error,
@@ -96,6 +95,8 @@ type State = {|
  * - Subscribes for updates to the root data and re-renders with any changes.
  */
 class ReactRelayQueryRenderer extends React.Component<Props, State> {
+  _maybeHiddenOrFastRefresh: boolean;
+
   constructor(props: Props) {
     super(props);
 
@@ -124,6 +125,8 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       queryFetcher = new ReactRelayQueryFetcher();
     }
 
+    this._maybeHiddenOrFastRefresh = false;
+
     this.state = {
       prevPropsEnvironment: props.environment,
       prevPropsVariables: props.variables,
@@ -148,77 +151,34 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       prevState.prevPropsEnvironment !== nextProps.environment ||
       !areEqual(prevState.prevPropsVariables, nextProps.variables)
     ) {
-      const {query} = nextProps;
-      const prevSelectionReferences = prevState.queryFetcher.getSelectionReferences();
-      prevState.queryFetcher.disposeRequest();
-
-      let queryFetcher;
-      if (query) {
-        const request = getRequest(query);
-        const requestCacheKey = getRequestCacheKey(
-          request.params,
-          nextProps.variables,
-        );
-        queryFetcher = requestCache[requestCacheKey]
-          ? requestCache[requestCacheKey].queryFetcher
-          : new ReactRelayQueryFetcher(prevSelectionReferences);
-      } else {
-        queryFetcher = new ReactRelayQueryFetcher(prevSelectionReferences);
-      }
-      return {
-        prevQuery: nextProps.query,
-        prevPropsEnvironment: nextProps.environment,
-        prevPropsVariables: nextProps.variables,
-        queryFetcher: queryFetcher,
-        ...fetchQueryAndComputeStateFromProps(
-          nextProps,
-          queryFetcher,
-          prevState.retryCallbacks,
-          // passing no requestCacheKey will cause it to be recalculated internally
-          // and we want the updated requestCacheKey, since variables may have changed
-        ),
-      };
+      return resetQueryStateForUpdate(nextProps, prevState);
     }
-
     return null;
   }
 
   componentDidMount() {
+    if (this._maybeHiddenOrFastRefresh === true) {
+      // This block only runs if the component has previously "unmounted"
+      // due to it being hidden by the Offscreen API, or during fast refresh.
+      // At this point, the current cached resource will have been disposed
+      // by the previous cleanup, so instead of attempting to
+      // do our regular commit setup, so that the query is re-evaluated
+      // (and potentially cause a refetch).
+      this._maybeHiddenOrFastRefresh = false;
+      // eslint-disable-next-line react/no-did-mount-set-state
+      this.setState(prevState => {
+        return resetQueryStateForUpdate(this.props, prevState);
+      });
+      return;
+    }
+
     const {retryCallbacks, queryFetcher, requestCacheKey} = this.state;
+    // We don't need to cache the request after the component commits
     if (requestCacheKey) {
       delete requestCache[requestCacheKey];
     }
 
-    retryCallbacks.handleDataChange = (params: {
-      error?: Error,
-      snapshot?: Snapshot,
-      ...
-    }): void => {
-      const error = params.error == null ? null : params.error;
-      const snapshot = params.snapshot == null ? null : params.snapshot;
-
-      this.setState(prevState => {
-        const {requestCacheKey: prevRequestCacheKey} = prevState;
-        if (prevRequestCacheKey) {
-          delete requestCache[prevRequestCacheKey];
-        }
-
-        // Don't update state if nothing has changed.
-        if (snapshot === prevState.snapshot && error === prevState.error) {
-          return null;
-        }
-        return {
-          renderProps: getRenderProps(
-            error,
-            snapshot,
-            prevState.queryFetcher,
-            prevState.retryCallbacks,
-          ),
-          snapshot,
-          requestCacheKey: null,
-        };
-      });
-    };
+    retryCallbacks.handleDataChange = this._handleDataChange;
 
     retryCallbacks.handleRetryAfterError = (error: Error) =>
       this.setState(prevState => {
@@ -236,22 +196,27 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
     // Re-initialize the ReactRelayQueryFetcher with callbacks.
     // If data has changed since constructions, this will re-render.
     if (this.props.query) {
-      queryFetcher.setOnDataChange(retryCallbacks.handleDataChange);
+      queryFetcher.setOnDataChange(this._handleDataChange);
     }
   }
 
-  componentDidUpdate(): void {
+  componentDidUpdate(_prevProps: Props, prevState: State): void {
     // We don't need to cache the request after the component commits
-    const {requestCacheKey} = this.state;
+    const {queryFetcher, requestCacheKey} = this.state;
     if (requestCacheKey) {
       delete requestCache[requestCacheKey];
       // HACK
       delete this.state.requestCacheKey;
     }
+
+    if (this.props.query && queryFetcher !== prevState.queryFetcher) {
+      queryFetcher.setOnDataChange(this._handleDataChange);
+    }
   }
 
   componentWillUnmount(): void {
     this.state.queryFetcher.dispose();
+    this._maybeHiddenOrFastRefresh = true;
   }
 
   shouldComponentUpdate(nextProps: Props, nextState: State): boolean {
@@ -260,6 +225,37 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       nextState.renderProps !== this.state.renderProps
     );
   }
+
+  _handleDataChange = (params: {
+    error?: Error,
+    snapshot?: Snapshot,
+    ...
+  }): void => {
+    const error = params.error == null ? null : params.error;
+    const snapshot = params.snapshot == null ? null : params.snapshot;
+
+    this.setState(prevState => {
+      const {requestCacheKey: prevRequestCacheKey} = prevState;
+      if (prevRequestCacheKey) {
+        delete requestCache[prevRequestCacheKey];
+      }
+
+      // Don't update state if nothing has changed.
+      if (snapshot === prevState.snapshot && error === prevState.error) {
+        return null;
+      }
+      return {
+        renderProps: getRenderProps(
+          error,
+          snapshot,
+          prevState.queryFetcher,
+          prevState.retryCallbacks,
+        ),
+        snapshot,
+        requestCacheKey: null,
+      };
+    });
+  };
 
   render(): React.Element<typeof ReactRelayContext.Provider> {
     const {renderProps, relayContext} = this.state;
@@ -334,6 +330,41 @@ function getRequestCacheKey(
   });
 }
 
+function resetQueryStateForUpdate(
+  props: Props,
+  prevState: State,
+): $Shape<State> {
+  const {query} = props;
+
+  const prevSelectionReferences =
+    prevState.queryFetcher.getSelectionReferences();
+  prevState.queryFetcher.disposeRequest();
+
+  let queryFetcher;
+  if (query) {
+    const request = getRequest(query);
+    const requestCacheKey = getRequestCacheKey(request.params, props.variables);
+    queryFetcher = requestCache[requestCacheKey]
+      ? requestCache[requestCacheKey].queryFetcher
+      : new ReactRelayQueryFetcher(prevSelectionReferences);
+  } else {
+    queryFetcher = new ReactRelayQueryFetcher(prevSelectionReferences);
+  }
+  return {
+    prevQuery: props.query,
+    prevPropsEnvironment: props.environment,
+    prevPropsVariables: props.variables,
+    queryFetcher: queryFetcher,
+    ...fetchQueryAndComputeStateFromProps(
+      props,
+      queryFetcher,
+      prevState.retryCallbacks,
+      // passing no requestCacheKey will cause it to be recalculated internally
+      // and we want the updated requestCacheKey, since variables may have changed
+    ),
+  };
+}
+
 function fetchQueryAndComputeStateFromProps(
   props: Props,
   queryFetcher: ReactRelayQueryFetcher,
@@ -390,7 +421,7 @@ function fetchQueryAndComputeStateFromProps(
       );
       const querySnapshot = queryFetcher.fetch({
         environment: genericEnvironment,
-        onDataChange: retryCallbacks.handleDataChange,
+        onDataChange: null,
         operation,
       });
 

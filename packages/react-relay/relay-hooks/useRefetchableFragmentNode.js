@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,27 +13,6 @@
 
 'use strict';
 
-const ProfilerContext = require('./ProfilerContext');
-
-const getRefetchMetadata = require('./getRefetchMetadata');
-const getValueAtPath = require('./getValueAtPath');
-const invariant = require('invariant');
-const useFragmentNode = require('./useFragmentNode');
-const useIsMountedRef = require('./useIsMountedRef');
-const useQueryLoader = require('./useQueryLoader');
-const useRelayEnvironment = require('./useRelayEnvironment');
-const warning = require('warning');
-
-const {getFragmentResourceForEnvironment} = require('./FragmentResource');
-const {getQueryResourceForEnvironment} = require('./QueryResource');
-const {useCallback, useContext, useReducer} = require('react');
-const {
-  __internal: {fetchQuery},
-  createOperationDescriptor,
-  getFragmentIdentifier,
-  getSelector,
-} = require('relay-runtime');
-
 import type {LoaderFn} from './useQueryLoader';
 import type {
   Disposable,
@@ -46,6 +25,25 @@ import type {
   Variables,
   VariablesOf,
 } from 'relay-runtime';
+
+const {getFragmentResourceForEnvironment} = require('./FragmentResource');
+const ProfilerContext = require('./ProfilerContext');
+const {getQueryResourceForEnvironment} = require('./QueryResource');
+const useFragmentNode = require('./useFragmentNode');
+const useIsMountedRef = require('./useIsMountedRef');
+const useQueryLoader = require('./useQueryLoader');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const invariant = require('invariant');
+const {useCallback, useContext, useReducer} = require('react');
+const {
+  __internal: {fetchQuery},
+  createOperationDescriptor,
+  getFragmentIdentifier,
+  getRefetchMetadata,
+  getSelector,
+  getValueAtPath,
+} = require('relay-runtime');
+const warning = require('warning');
 
 export type RefetchFn<
   TQuery: OperationType,
@@ -176,11 +174,8 @@ function useRefetchableFragmentNode<
   componentDisplayName: string,
 ): ReturnType<TQuery, TKey, InternalOptions> {
   const parentEnvironment = useRelayEnvironment();
-  const {
-    refetchableRequest,
-    fragmentRefPathInResponse,
-    identifierField,
-  } = getRefetchMetadata(fragmentNode, componentDisplayName);
+  const {refetchableRequest, fragmentRefPathInResponse, identifierField} =
+    getRefetchMetadata(fragmentNode, componentDisplayName);
   const fragmentIdentifier = getFragmentIdentifier(
     fragmentNode,
     parentFragmentRef,
@@ -213,9 +208,8 @@ function useRefetchableFragmentNode<
   const shouldReset =
     environment !== mirroredEnvironment ||
     fragmentIdentifier !== mirroredFragmentIdentifier;
-  const [queryRef, loadQuery, disposeQuery] = useQueryLoader<TQuery>(
-    refetchableRequest,
-  );
+  const [queryRef, loadQuery, disposeQuery] =
+    useQueryLoader<TQuery>(refetchableRequest);
 
   let fragmentRef = parentFragmentRef;
   if (shouldReset) {
@@ -436,7 +430,6 @@ function useRefetchFunction<TQuery: OperationType>(
       // all variables required by the fragment when calling `refetch()`.
       // We fill in any variables not passed by the call to `refetch()` with the
       // variables from the original parent fragment owner.
-      // $FlowFixMe[cannot-spread-interface]
       const refetchVariables: VariablesOf<TQuery> = {
         ...(parentVariables: $FlowFixMe),
         ...fragmentVariables,
@@ -500,7 +493,7 @@ function useRefetchFunction<TQuery: OperationType>(
     //   - fragmentNode and parentFragmentRef are also captured by including
     //     fragmentIdentifier
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fragmentIdentifier, dispatch, disposeQuery, identifierValue],
+    [fragmentIdentifier, dispatch, disposeQuery, identifierValue, loadQuery],
   );
 }
 
@@ -513,7 +506,6 @@ if (__DEV__) {
       environment: IEnvironment,
     ): ?DebugIDandTypename {
       const {Record} = require('relay-runtime');
-      // $FlowFixMe[prop-missing]
       const id = memoRefetchVariables?.id;
       if (
         fragmentRefPathInResponse.length !== 1 ||

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,16 +12,20 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const nullthrows = require('nullthrows');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -29,6 +33,12 @@ const {
   createReaderSelector,
   getSingularSelector,
 } = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const nullthrows = require('nullthrows');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() a query with multiple @stream selections on the same record', () => {
   let callbacks;
@@ -48,11 +58,7 @@ describe('execute() a query with multiple @stream selections on the same record'
   let deferFragment;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery(
         $id: ID!
         $enableStream: Boolean!
@@ -61,8 +67,8 @@ describe('execute() a query with multiple @stream selections on the same record'
           ...RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment
         }
       }
-    `);
-    fragment = getFragment(graphql`
+    `;
+    fragment = graphql`
       fragment RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment on Feedback {
         id
         actors
@@ -73,8 +79,8 @@ describe('execute() a query with multiple @stream selections on the same record'
         ...RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment
           @defer(label: "viewedBy", if: $enableStream)
       }
-    `);
-    deferFragment = getFragment(graphql`
+    `;
+    deferFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment on Feedback {
         viewedBy
           @stream(label: "viewedBy", if: $enableStream, initial_count: 0)
@@ -82,14 +88,14 @@ describe('execute() a query with multiple @stream selections on the same record'
           name @__clientField(handle: "name_handler")
         }
       }
-    `);
+    `;
     variables = {id: '1', enableStream: true};
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(fragment, '1', {}, operation.request);
     // Handler to upper-case the value of the (string) field to which it's
     // applied
     const NameHandler = {
-      update(storeProxy, payload) {
+      update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
         const record = storeProxy.get(payload.dataID);
         if (record != null) {
           const name = record.getValue(payload.fieldKey);
@@ -104,7 +110,7 @@ describe('execute() a query with multiple @stream selections on the same record'
     // synthesized client field: this is just to check whether the handler
     // ran or not.
     const ActorsHandler = {
-      update(storeProxy, payload) {
+      update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
         const record = storeProxy.get(payload.dataID);
         if (record != null) {
           const actors = record.getLinkedRecords(payload.fieldKey);
@@ -121,7 +127,11 @@ describe('execute() a query with multiple @stream selections on the same record'
     error = jest.fn();
     next = jest.fn();
     callbacks = {complete, error, next};
-    fetch = (_query, _variables, _cacheConfig) => {
+    fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -173,6 +183,7 @@ describe('execute() a query with multiple @stream selections on the same record'
         RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment: {},
       },
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
       __id: '1',
     });
     const deferSelector = nullthrows(
@@ -234,6 +245,7 @@ describe('execute() a query with multiple @stream selections on the same record'
         RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment: {},
       },
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
       __id: '1',
     });
 
@@ -259,6 +271,7 @@ describe('execute() a query with multiple @stream selections on the same record'
         RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment: {},
       },
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
       __id: '1',
     });
 
@@ -370,6 +383,7 @@ describe('execute() a query with multiple @stream selections on the same record'
         RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment: {},
       },
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
       __id: '1',
     });
 
@@ -434,6 +448,7 @@ describe('execute() a query with multiple @stream selections on the same record'
         RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment: {},
       },
       __fragmentOwner: operation.request,
+      __isWithinUnmatchedTypeRefinement: false,
       __id: '1',
     });
 

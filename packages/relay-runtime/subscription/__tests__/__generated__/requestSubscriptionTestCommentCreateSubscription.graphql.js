@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b49d64d0497c4f7d7189106e75418917>>
+ * @generated SignedSource<<451f968ad10de494fb0c57b291fae407>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,30 +15,29 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 export type CommentCreateSubscriptionInput = {|
-  clientSubscriptionId?: ?string,
   feedbackId?: ?string,
   text?: ?string,
 |};
-export type requestSubscriptionTestCommentCreateSubscriptionVariables = {|
+export type requestSubscriptionTestCommentCreateSubscription$variables = {|
   input?: ?CommentCreateSubscriptionInput,
 |};
-export type requestSubscriptionTestCommentCreateSubscriptionResponse = {|
+export type requestSubscriptionTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +feedbackCommentEdge: ?{|
       +node: ?{|
-        +id: string,
         +body: ?{|
           +text: ?string,
         |},
+        +id: string,
       |},
     |},
   |},
 |};
 export type requestSubscriptionTestCommentCreateSubscription = {|
-  variables: requestSubscriptionTestCommentCreateSubscriptionVariables,
-  response: requestSubscriptionTestCommentCreateSubscriptionResponse,
+  response: requestSubscriptionTestCommentCreateSubscription$data,
+  variables: requestSubscriptionTestCommentCreateSubscription$variables,
 |};
 */
 
@@ -136,9 +135,7 @@ return {
   "params": {
     "cacheID": "69ed95f4ec4971c57ef2b015b07ffeb0",
     "id": null,
-    "metadata": {
-      "subscriptionName": "commentCreateSubscribe"
-    },
+    "metadata": {},
     "name": "requestSubscriptionTestCommentCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription requestSubscriptionTestCommentCreateSubscription(\n  $input: CommentCreateSubscriptionInput\n) {\n  commentCreateSubscribe(input: $input) {\n    feedbackCommentEdge {\n      node {\n        id\n        body {\n          text\n        }\n      }\n    }\n  }\n}\n"
@@ -150,4 +147,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7d9ee99d1116caeaecdf85285ba0c2f7";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+  requestSubscriptionTestCommentCreateSubscription$variables,
+  requestSubscriptionTestCommentCreateSubscription$data,
+>*/);

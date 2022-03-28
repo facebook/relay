@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2010b64ff440b1ba129d690069757216>>
+ * @generated SignedSource<<1c8092efc5442758c9566419f6cc1876>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -27,10 +26,10 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTest1MutationVariables = {|
+export type RelayModernEnvironmentWithOperationTrackerTest1Mutation$variables = {|
   input?: ?CommentCreateInput,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTest1MutationResponse = {|
+export type RelayModernEnvironmentWithOperationTrackerTest1Mutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
       +id: string,
@@ -39,16 +38,16 @@ export type RelayModernEnvironmentWithOperationTrackerTest1MutationResponse = {|
       |},
     |},
     +feedback: ?{|
-      +id: string,
       +body: ?{|
         +text: ?string,
       |},
+      +id: string,
     |},
   |},
 |};
 export type RelayModernEnvironmentWithOperationTrackerTest1Mutation = {|
-  variables: RelayModernEnvironmentWithOperationTrackerTest1MutationVariables,
-  response: RelayModernEnvironmentWithOperationTrackerTest1MutationResponse,
+  response: RelayModernEnvironmentWithOperationTrackerTest1Mutation$data,
+  variables: RelayModernEnvironmentWithOperationTrackerTest1Mutation$variables,
 |};
 */
 
@@ -216,4 +215,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "191ed594a345f64de3ccd4b8bc51e924";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentWithOperationTrackerTest1Mutation$variables,
+  RelayModernEnvironmentWithOperationTrackerTest1Mutation$data,
+>*/);

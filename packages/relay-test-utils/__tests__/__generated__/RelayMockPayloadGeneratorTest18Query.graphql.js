@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c15281f919b60a55c396b1e7f708dabc>>
+ * @generated SignedSource<<fd4e4f02f84876eaa680cfa7f7c86bcc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockPayloadGeneratorTest22Fragment$ref = any;
-export type PhotoSize = "SMALL" | "LARGE" | "%future added value";
-export type RelayMockPayloadGeneratorTest18QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayMockPayloadGeneratorTest22Fragment$fragmentType = any;
+export type PhotoSize = "LARGE" | "SMALL" | "%future added value";
+export type RelayMockPayloadGeneratorTest18Query$variables = {|
+  RELAY_INCREMENTAL_DELIVERY?: ?boolean,
   first?: ?number,
   picturePreset?: ?PhotoSize,
-  RELAY_INCREMENTAL_DELIVERY?: ?boolean,
 |};
-export type RelayMockPayloadGeneratorTest18QueryResponse = {|
+export type RelayMockPayloadGeneratorTest18Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayMockPayloadGeneratorTest22Fragment$ref,
+    +$fragmentSpreads: RelayMockPayloadGeneratorTest22Fragment$fragmentType,
   |},
 |};
 export type RelayMockPayloadGeneratorTest18Query = {|
-  variables: RelayMockPayloadGeneratorTest18QueryVariables,
-  response: RelayMockPayloadGeneratorTest18QueryResponse,
+  response: RelayMockPayloadGeneratorTest18Query$data,
+  variables: RelayMockPayloadGeneratorTest18Query$variables,
 |};
 */
 
@@ -500,4 +500,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b3b221c6cd5d517678c590d0bf6a22ee";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockPayloadGeneratorTest18Query$variables,
+  RelayMockPayloadGeneratorTest18Query$data,
+>*/);

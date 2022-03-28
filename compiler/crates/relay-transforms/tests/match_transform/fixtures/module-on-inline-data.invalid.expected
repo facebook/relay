@@ -17,16 +17,16 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer @inline {
 ==================================== ERROR ====================================
 ✖︎ @module does not support @inline fragments.
 
-  module-on-inline-data.invalid.graphql:6:8
+  module-on-inline-data.invalid.graphql:6:7
     5 │     ...MarkdownUserNameRenderer_name
     6 │       @module(name: "MarkdownUserNameRenderer.react")
-      │        ^^^^^^
+      │       ^^^^^^^
     7 │   }
 
   ℹ︎ @inline directive location
 
-  module-on-inline-data.invalid.graphql:10:69
+  module-on-inline-data.invalid.graphql:10:68
     9 │ 
    10 │ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer @inline {
-      │                                                                     ^^^^^^
+      │                                                                    ^^^^^^^
    11 │   markdown

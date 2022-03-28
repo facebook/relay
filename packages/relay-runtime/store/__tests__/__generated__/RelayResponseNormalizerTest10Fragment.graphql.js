@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<31ebd6afd93f7af65bca297ff5ced8f9>>
+ * @generated SignedSource<<c0c20371ace8562707f7119047cb54e9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,24 +15,22 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayResponseNormalizerTest10Fragment$ref: FragmentReference;
-declare export opaque type RelayResponseNormalizerTest10Fragment$fragmentType: RelayResponseNormalizerTest10Fragment$ref;
-export type RelayResponseNormalizerTest10Fragment = {|
-  +id: string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayResponseNormalizerTest10Fragment$fragmentType: FragmentType;
+export type RelayResponseNormalizerTest10Fragment$data = {|
   +actors: ?$ReadOnlyArray<?{|
-    +name?: ?string,
     +actors?: ?$ReadOnlyArray<?{|
       +name: ?string,
     |}>,
+    +name?: ?string,
   |}>,
-  +$refType: RelayResponseNormalizerTest10Fragment$ref,
+  +id: string,
+  +$fragmentType: RelayResponseNormalizerTest10Fragment$fragmentType,
 |};
-export type RelayResponseNormalizerTest10Fragment$data = RelayResponseNormalizerTest10Fragment;
 export type RelayResponseNormalizerTest10Fragment$key = {
   +$data?: RelayResponseNormalizerTest10Fragment$data,
-  +$fragmentRefs: RelayResponseNormalizerTest10Fragment$ref,
+  +$fragmentSpreads: RelayResponseNormalizerTest10Fragment$fragmentType,
   ...
 };
 */
@@ -104,4 +102,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8c389e04433fbf8aaa29700855a45351";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayResponseNormalizerTest10Fragment$fragmentType,
+  RelayResponseNormalizerTest10Fragment$data,
+>*/);

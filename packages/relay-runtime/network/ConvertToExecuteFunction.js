@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,9 +12,9 @@
 
 'use strict';
 
-const RelayObservable = require('./RelayObservable');
-
 import type {ExecuteFunction, FetchFunction} from './RelayNetworkTypes';
+
+const RelayObservable = require('./RelayObservable');
 
 /**
  * Converts a FetchFunction into an ExecuteFunction for use by RelayNetwork.
@@ -37,6 +37,7 @@ function convertFetch(fn: FetchFunction): ExecuteFunction {
     // Note: We allow FetchFunction to directly return Error to indicate
     // a failure to fetch. To avoid handling this special case throughout the
     // Relay codebase, it is explicitly handled here.
+    // $FlowFixMe[incompatible-type]
     if (result instanceof Error) {
       return RelayObservable.create(sink => sink.error(result));
     }

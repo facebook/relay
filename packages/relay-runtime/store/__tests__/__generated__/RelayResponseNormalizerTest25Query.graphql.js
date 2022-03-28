@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<15ca853ad0a22665453c8311370e0827>>
+ * @generated SignedSource<<e0e89fee4670c4004f3a7aee905ef95f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,38 +15,38 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayResponseNormalizerTest25QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayResponseNormalizerTest25Query$variables = {|
   id?: ?string,
 |};
-export type RelayResponseNormalizerTest25QueryResponse = {|
+export type RelayResponseNormalizerTest25Query$data = {|
   +node: ?{|
-    +id: string,
     +__typename: string,
-    +name?: ?string,
     +friends?: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
-          +id: string,
-          +firstName: ?string,
           +comments: ?{|
             +edges: ?$ReadOnlyArray<?{|
               +node: ?{|
-                +id: string,
                 +body: ?{|
                   +text: ?string,
                 |},
+                +id: string,
               |},
             |}>,
           |},
+          +firstName: ?string,
+          +id: string,
         |},
       |}>,
     |},
+    +id: string,
+    +name?: ?string,
   |},
 |};
 export type RelayResponseNormalizerTest25Query = {|
-  variables: RelayResponseNormalizerTest25QueryVariables,
-  response: RelayResponseNormalizerTest25QueryResponse,
+  response: RelayResponseNormalizerTest25Query$data,
+  variables: RelayResponseNormalizerTest25Query$variables,
 |};
 */
 
@@ -243,4 +243,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "67df1c7186fe5d5d9fcc199f4e880684";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayResponseNormalizerTest25Query$variables,
+  RelayResponseNormalizerTest25Query$data,
+>*/);

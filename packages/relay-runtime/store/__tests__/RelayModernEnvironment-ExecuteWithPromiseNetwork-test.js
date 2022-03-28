@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,17 +13,19 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const {graphql, getRequest} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() with Promise network', () => {
   let callbacks;
@@ -40,9 +42,7 @@ describe('execute() with Promise network', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery(
         $fetchSize: Boolean!
       ) {
@@ -53,7 +53,7 @@ describe('execute() with Promise network', () => {
           }
         }
       }
-    `);
+    `;
     variables = {fetchSize: false};
     operation = createOperationDescriptor(query, {
       ...variables,

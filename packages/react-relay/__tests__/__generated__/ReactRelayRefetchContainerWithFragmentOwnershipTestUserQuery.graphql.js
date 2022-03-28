@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e9f62171a80a18747855610f8845f27b>>
+ * @generated SignedSource<<5bed525bb955ef04dcc7d5cac3023e14>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$ref = any;
-export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType = any;
+export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$variables = {|
   id: string,
   scale: number,
 |};
-export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQueryResponse = {|
+export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$ref,
+    +$fragmentSpreads: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   |},
 |};
 export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery = {|
-  variables: ReactRelayRefetchContainerWithFragmentOwnershipTestUserQueryVariables,
-  response: ReactRelayRefetchContainerWithFragmentOwnershipTestUserQueryResponse,
+  response: ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$data,
+  variables: ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$variables,
 |};
 */
 
@@ -158,18 +158,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "39a4aff8525f309d16914d0f2134b339",
+    "cacheID": "bf22e7e19e212cbdea962863864a2723",
     "id": null,
     "metadata": {},
     "name": "ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery",
     "operationKind": "query",
-    "text": "query ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery(\n  $id: ID!\n  $scale: Int!\n) {\n  node(id: $id) {\n    __typename\n    ...ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment\n    id\n  }\n}\n\nfragment ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment on User {\n  id\n  name\n  profile_picture(scale: $scale) {\n    uri\n  }\n  ...ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment_22eGLd\n}\n\nfragment ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment_22eGLd on User {\n  id\n  username\n}\n"
+    "text": "query ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery(\n  $id: ID!\n  $scale: Float!\n) {\n  node(id: $id) {\n    __typename\n    ...ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment\n    id\n  }\n}\n\nfragment ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment on User {\n  id\n  name\n  profile_picture(scale: $scale) {\n    uri\n  }\n  ...ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment_22eGLd\n}\n\nfragment ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment_22eGLd on User {\n  id\n  username\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "483c2b61b1949f475457661d8d95dfe8";
+  (node/*: any*/).hash = "226c6570b64b74227f1cd9b069e9815e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$variables,
+  ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$data,
+>*/);

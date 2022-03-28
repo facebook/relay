@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,16 +13,19 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {graphql, getRequest} = require('relay-runtime');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const {graphql} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
+
 describe('execute() multiple queries with overlapping @module-s', () => {
   let actorOperation;
   let actorOperationCallback;
@@ -39,8 +42,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-    actorQuery = getRequest(graphql`
+    actorQuery = graphql`
       query RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery(
         $id: ID!
       ) {
@@ -54,7 +56,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           }
         }
       }
-    `);
+    `;
     graphql`
       fragment RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name on PlainUserNameRenderer {
         plaintext
@@ -82,7 +84,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
         }
       }
     `;
-    userQuery = getRequest(graphql`
+    userQuery = graphql`
       query RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery(
         $id: ID!
       ) {
@@ -98,7 +100,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           }
         }
       }
-    `);
+    `;
 
     variables = {id: '1'};
     actorOperation = createOperationDescriptor(actorQuery, variables);
@@ -183,10 +185,12 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name:
+              {},
           },
 
           __fragmentOwner: userOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -225,10 +229,12 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name:
+              {},
           },
 
           __fragmentOwner: userOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'PlainUserNameRenderer.react',
         },
       },
@@ -270,10 +276,12 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name:
+              {},
           },
 
           __fragmentOwner: userOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -297,6 +305,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
         node: {
           id: '1',
           __typename: 'User',
+          __isActor: true,
           nameRenderer: {
             __typename: 'MarkdownUserNameRenderer',
             // different component: s/User/Actor/
@@ -328,10 +337,12 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownActorNameRenderer_name:
+              {},
           },
 
           __fragmentOwner: actorOperation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownActorNameRenderer.react',
         },
       },

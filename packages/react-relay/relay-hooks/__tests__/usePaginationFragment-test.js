@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,28 +13,25 @@
 
 'use strict';
 
-const React = require('react');
+import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
 
-import type {Direction} from '../useLoadMoreFunction';
-import type {OperationDescriptor, Variables} from 'relay-runtime';
-const {useMemo, useState} = React;
-const TestRenderer = require('react-test-renderer');
-
-const invariant = require('invariant');
 const usePaginationFragmentOriginal = require('../usePaginationFragment');
+const invariant = require('invariant');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
-const {createMockEnvironment} = require('relay-test-utils');
-
+const TestRenderer = require('react-test-renderer');
 const {
   ConnectionHandler,
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
-  graphql,
-  getRequest,
-  getFragment,
+  __internal: {fetchQuery},
   createOperationDescriptor,
+  graphql,
 } = require('relay-runtime');
+const {createMockEnvironment} = require('relay-test-utils');
+
+const {useMemo, useState} = React;
 
 describe('usePaginationFragment', () => {
   let environment;
@@ -45,7 +42,6 @@ describe('usePaginationFragment', () => {
   let gqlQueryWithLiteralArgs;
   let gqlQueryWithStreaming;
   let gqlPaginationQuery;
-  let gqlPaginationQueryWithStreaming;
   let gqlFragment;
   let gqlFragmentWithStreaming;
   let query;
@@ -133,6 +129,7 @@ describe('usePaginationFragment', () => {
         [fragmentName]: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
+      __isWithinUnmatchedTypeRefinement: false,
     };
   }
 
@@ -171,7 +168,6 @@ describe('usePaginationFragment', () => {
 
   beforeEach(() => {
     // Set up mocks
-    jest.resetModules();
     jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     jest.mock('warning');
     renderSpy = jest.fn();
@@ -201,7 +197,7 @@ describe('usePaginationFragment', () => {
       }
     `;
 
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query usePaginationFragmentTestUserQuery(
         $id: ID!
         $after: ID
@@ -216,8 +212,8 @@ describe('usePaginationFragment', () => {
             @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
-    `);
-    gqlQueryNestedFragment = getRequest(graphql`
+    `;
+    gqlQueryNestedFragment = graphql`
       query usePaginationFragmentTestUserQueryNestedFragmentQuery(
         $id: ID!
         $after: ID
@@ -237,8 +233,8 @@ describe('usePaginationFragment', () => {
           }
         }
       }
-    `);
-    gqlQueryWithoutID = getRequest(graphql`
+    `;
+    gqlQueryWithoutID = graphql`
       query usePaginationFragmentTestUserQueryWithoutIDQuery(
         $after: ID
         $first: Int
@@ -257,8 +253,8 @@ describe('usePaginationFragment', () => {
           }
         }
       }
-    `);
-    gqlQueryWithLiteralArgs = getRequest(graphql`
+    `;
+    gqlQueryWithLiteralArgs = graphql`
       query usePaginationFragmentTestUserQueryWithLiteralArgsQuery(
         $id: ID!
         $after: ID
@@ -271,8 +267,8 @@ describe('usePaginationFragment', () => {
             @arguments(isViewerFriendLocal: true, orderby: ["name"])
         }
       }
-    `);
-    gqlQueryWithStreaming = getRequest(graphql`
+    `;
+    gqlQueryWithStreaming = graphql`
       query usePaginationFragmentTestUserQueryWithStreamingQuery(
         $id: ID!
         $after: ID
@@ -287,8 +283,8 @@ describe('usePaginationFragment', () => {
             @arguments(isViewerFriendLocal: $isViewerFriend, orderby: $orderby)
         }
       }
-    `);
-    gqlFragment = getFragment(graphql`
+    `;
+    gqlFragment = graphql`
       fragment usePaginationFragmentTestUserFragment on User
       @refetchable(
         queryName: "usePaginationFragmentTestUserFragmentPaginationQuery"
@@ -322,8 +318,8 @@ describe('usePaginationFragment', () => {
           }
         }
       }
-    `);
-    gqlFragmentWithStreaming = getFragment(graphql`
+    `;
+    gqlFragmentWithStreaming = graphql`
       fragment usePaginationFragmentTestUserFragmentWithStreaming on User
       @refetchable(
         queryName: "usePaginationFragmentTestUserFragmentStreamingPaginationQuery"
@@ -358,7 +354,7 @@ describe('usePaginationFragment', () => {
           }
         }
       }
-    `);
+    `;
     gqlPaginationQuery = require('./__generated__/usePaginationFragmentTestUserFragmentPaginationQuery.graphql');
 
     query = createOperationDescriptor(gqlQuery, variables);
@@ -486,6 +482,7 @@ describe('usePaginationFragment', () => {
             [fragment.name]: {},
           },
           [FRAGMENT_OWNER_KEY]: owner.request,
+          __isWithinUnmatchedTypeRefinement: false,
         }),
         [owner, fragment.name],
       );
@@ -571,25 +568,17 @@ describe('usePaginationFragment', () => {
   });
 
   describe('initial render', () => {
-    let getPromiseForActiveRequestSpy;
-    beforeEach(() => {
-      getPromiseForActiveRequestSpy = jest.spyOn(
-        require('relay-runtime').__internal,
-        'getPromiseForActiveRequest',
-      );
-    });
-
     // The bulk of initial render behavior is covered in useFragmentNode-test,
     // so this suite covers the basic cases as a sanity check.
     it('should throw error if fragment is plural', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const UserFragment = getFragment(graphql`
+      const UserFragment = graphql`
         fragment usePaginationFragmentTest1Fragment on User
         @relay(plural: true) {
           id
         }
-      `);
+      `;
       const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
@@ -601,11 +590,11 @@ describe('usePaginationFragment', () => {
     it('should throw error if fragment is missing @refetchable directive', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const UserFragment = getFragment(graphql`
+      const UserFragment = graphql`
         fragment usePaginationFragmentTest2Fragment on User {
           id
         }
-      `);
+      `;
       const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
@@ -619,14 +608,14 @@ describe('usePaginationFragment', () => {
     it('should throw error if fragment is missing @connection directive', () => {
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 
-      const UserFragment = getFragment(graphql`
+      const UserFragment = graphql`
         fragment usePaginationFragmentTest3Fragment on User
         @refetchable(
           queryName: "usePaginationFragmentTest3FragmentRefetchQuery"
         ) {
           id
         }
-      `);
+      `;
       const renderer = renderFragment({fragment: UserFragment});
       expect(
         renderer
@@ -754,15 +743,13 @@ describe('usePaginationFragment', () => {
     it('should throw a promise if data is missing for fragment and request is in flight', () => {
       // This prevents console.error output in the test, which is expected
       jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-      getPromiseForActiveRequestSpy.mockImplementationOnce(() =>
-        Promise.resolve(),
-      );
 
       const missingDataVariables = {...variables, id: '4'};
       const missingDataQuery = createOperationDescriptor(
         gqlQuery,
         missingDataVariables,
       );
+
       // Commit a payload with name and profile_picture are missing
       environment.commitPayload(missingDataQuery, {
         node: {
@@ -770,6 +757,10 @@ describe('usePaginationFragment', () => {
           id: '4',
         },
       });
+
+      // Make sure query is in flight
+      fetchQuery(environment, missingDataQuery).subscribe({});
+
       const renderer = renderFragment({owner: missingDataQuery});
       expect(renderer.toJSON()).toEqual('Fallback');
     });
@@ -780,6 +771,7 @@ describe('usePaginationFragment', () => {
 
     beforeEach(() => {
       release = jest.fn();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockImplementation((...args) => {
         return {
           dispose: release,
@@ -788,6 +780,7 @@ describe('usePaginationFragment', () => {
     });
 
     function expectRequestIsInFlight(expected) {
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toBeCalledTimes(expected.requestCount);
       expect(
         environment.mock.isLoading(
@@ -866,6 +859,7 @@ describe('usePaginationFragment', () => {
             'Relay: Unexpected fetch on unmounted component',
           ),
         ).toEqual(true);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toHaveBeenCalledTimes(0);
       });
 
@@ -895,6 +889,7 @@ describe('usePaginationFragment', () => {
             'Relay: Unexpected fetch while using a null fragment ref',
           ),
         ).toEqual(true);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toHaveBeenCalledTimes(0);
       });
 
@@ -937,6 +932,7 @@ describe('usePaginationFragment', () => {
         TestRenderer.act(() => {
           loadNext(1, {onComplete: callback});
         });
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(1);
         expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
@@ -952,6 +948,7 @@ describe('usePaginationFragment', () => {
         fetchQuery(environment, query).subscribe({});
 
         const callback = jest.fn();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.execute.mockClear();
         renderFragment();
 
@@ -968,6 +965,7 @@ describe('usePaginationFragment', () => {
         TestRenderer.act(() => {
           loadNext(1, {onComplete: callback});
         });
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(0);
         expect(callback).toBeCalledTimes(1);
         expect(renderSpy).toBeCalledTimes(0);
@@ -1013,6 +1011,7 @@ describe('usePaginationFragment', () => {
           renderer.unmount();
         });
         expect(unsubscribe).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(1);
         expect(callback).toBeCalledTimes(0);
         expect(renderSpy).toBeCalledTimes(0);
@@ -1058,7 +1057,9 @@ describe('usePaginationFragment', () => {
           refetch({id: '4'});
         });
         expect(unsubscribe).toHaveBeenCalledTimes(1);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(1); // loadMore
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toBeCalledTimes(1); // refetch
         expect(callback).toBeCalledTimes(0);
         expect(renderSpy).toBeCalledTimes(0);
@@ -1821,7 +1822,6 @@ describe('usePaginationFragment', () => {
         expect(callback).toBeCalledTimes(0);
 
         TestRenderer.act(() => {
-          // $FlowFixMe[incompatible-call]
           setOwner({...query});
         });
 
@@ -2341,7 +2341,6 @@ describe('usePaginationFragment', () => {
             },
           });
           TestRenderer.act(() => {
-            // $FlowFixMe[incompatible-call]
             setOwner(newQuery);
           });
 
@@ -2657,6 +2656,7 @@ describe('usePaginationFragment', () => {
             },
           ]);
 
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.execute.mockClear();
           renderSpy.mockClear();
           // Call `capturedLoadNext`, which should be a no-op since it's
@@ -2667,6 +2667,7 @@ describe('usePaginationFragment', () => {
           });
 
           // Assert that calling `capturedLoadNext` is a no-op
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(0);
           expect(renderSpy).toBeCalledTimes(0);
 
@@ -2678,6 +2679,7 @@ describe('usePaginationFragment', () => {
           });
 
           // Assert that calling `loadNext` starts the request
+          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           expect(environment.execute).toBeCalledTimes(1);
           expect(renderSpy).toBeCalledTimes(1);
         });
@@ -3263,6 +3265,7 @@ describe('usePaginationFragment', () => {
       // The bulk of refetch behavior is covered in useRefetchableFragmentNode-test,
       // so this suite covers the pagination-related test cases.
       function expectRefetchRequestIsInFlight(expected) {
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toBeCalledTimes(
           expected.requestCount,
         );
@@ -3302,7 +3305,9 @@ describe('usePaginationFragment', () => {
 
         // Assert query is retained by loadQuery and
         // tentatively retained while component is suspended
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(
           expected.refetchQuery ?? paginationQuery,
         );
@@ -3422,7 +3427,9 @@ describe('usePaginationFragment', () => {
 
         // Assert refetch query was retained by loadQuery and the component
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
@@ -3540,7 +3547,9 @@ describe('usePaginationFragment', () => {
 
         // Assert refetch query was retained by loadQuery and the component
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
@@ -3720,7 +3729,9 @@ describe('usePaginationFragment', () => {
 
         // Assert refetch query was retained by loadQuery and the component
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
       });
 
@@ -3838,10 +3849,13 @@ describe('usePaginationFragment', () => {
 
         // Assert refetch query was retained by loadQuery and the component
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
 
         // Paginate after refetching
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.execute.mockClear();
         TestRenderer.act(() => {
           loadNext(1);
@@ -3947,19 +3961,17 @@ describe('usePaginationFragment', () => {
     });
 
     describe('paginating @fetchable types', () => {
-      let gqlRefetchQuery;
-
       beforeEach(() => {
         const fetchVariables = {id: 'a'};
-        gqlQuery = getRequest(graphql`
+        gqlQuery = graphql`
           query usePaginationFragmentTestStoryQuery($id: ID!) {
             nonNodeStory(id: $id) {
               ...usePaginationFragmentTestStoryFragment
             }
           }
-        `);
+        `;
 
-        gqlFragment = getFragment(graphql`
+        gqlFragment = graphql`
           fragment usePaginationFragmentTestStoryFragment on NonNodeStory
           @argumentDefinitions(
             count: {type: "Int", defaultValue: 10}
@@ -3977,7 +3989,7 @@ describe('usePaginationFragment', () => {
               }
             }
           }
-        `);
+        `;
         gqlPaginationQuery = require('./__generated__/usePaginationFragmentTestStoryFragmentRefetchQuery.graphql');
 
         query = createOperationDescriptor(gqlQuery, fetchVariables);

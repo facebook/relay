@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<254ecdcd3d5448d430f310ad13773834>>
+ * @generated SignedSource<<0984db863562582f5e635ef038a4478d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$fragmentType: RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$ref;
-export type RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name = {|
-  +plaintext: ?string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$data = {|
   +data: ?{|
     +text: ?string,
   |},
-  +$refType: RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$ref,
+  +plaintext: ?string,
+  +$fragmentType: RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$data = RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name;
 export type RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$key = {
   +$data?: RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -74,4 +72,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7c1010ea945368e73772ffc0c72399a3";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$fragmentType,
+  RelayModernEnvironmentExecuteWithModuleWithKeyTestPlainUserNameRenderer_name$data,
+>*/);

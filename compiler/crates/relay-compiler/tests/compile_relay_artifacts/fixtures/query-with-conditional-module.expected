@@ -178,6 +178,7 @@ fragment queryWithConditionalModule_MarkdownUserNameRenderer_name on MarkdownUse
                         "kind": "InlineFragment",
                         "selections": [
                           {
+                            "args": null,
                             "documentName": "queryWithConditionalModule_NameRendererFragment",
                             "fragmentName": "queryWithConditionalModule_MarkdownUserNameRenderer_name",
                             "fragmentPropName": "MarkdownUserNameRenderer_name",
@@ -315,6 +316,7 @@ fragment queryWithConditionalModule_NameRendererFragment on User {
               "kind": "InlineFragment",
               "selections": [
                 {
+                  "args": null,
                   "documentName": "queryWithConditionalModule_NameRendererFragment",
                   "fragmentName": "queryWithConditionalModule_MarkdownUserNameRenderer_name",
                   "fragmentPropName": "MarkdownUserNameRenderer_name",

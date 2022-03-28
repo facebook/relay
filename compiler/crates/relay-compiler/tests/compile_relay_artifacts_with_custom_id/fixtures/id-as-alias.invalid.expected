@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment idAsAlias_User_fragment on User {
+  global_id: name
+}
+
+fragment idAsAlias_ProfilePicture on User {
+  profilePicture(size: $size) {
+    global_id: uri
+  }
+}
+==================================== ERROR ====================================
+✖︎ Relay does not allow aliasing fields to `global_id`.
+
+  id-as-alias.invalid.graphql:3:3
+    2 │ fragment idAsAlias_User_fragment on User {
+    3 │   global_id: name
+      │   ^^^^^^^^^
+    4 │ }
+
+
+✖︎ Relay does not allow aliasing fields to `global_id`.
+
+  id-as-alias.invalid.graphql:8:5
+    7 │   profilePicture(size: $size) {
+    8 │     global_id: uri
+      │     ^^^^^^^^^
+    9 │   }

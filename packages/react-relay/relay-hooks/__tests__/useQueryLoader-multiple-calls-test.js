@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,30 +13,27 @@
 
 'use strict';
 
-const React = require('react');
-const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
 const loadQueryModule = require('../loadQuery');
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const usePreloadedQuery = require('../usePreloadedQuery');
 const useQueryLoader = require('../useQueryLoader');
-
+const React = require('react');
+const ReactTestRenderer = require('react-test-renderer');
 const {
   Network,
   Observable,
   PreloadableQueryRegistry,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
-const query = getRequest(graphql`
+const query = graphql`
   query useQueryLoaderMultipleCallsTestQuery($id: ID!) {
     node(id: $id) {
       id
     }
   }
-`);
+`;
 
 const preloadableConcreteRequest = {
   kind: 'PreloadableConcreteRequest',
@@ -77,6 +74,7 @@ beforeEach(() => {
     const observable = Observable.create(_sink => {
       sink = _sink;
     });
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const originalSubscribe = observable.subscribe.bind(observable);
     networkUnsubscribe = jest.fn();
     jest.spyOn(observable, 'subscribe').mockImplementation((...args) => {
@@ -91,7 +89,9 @@ beforeEach(() => {
 
   environment = createMockEnvironment({network: Network.create(fetch)});
 
-  const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
+  const originalExecuteWithSource =
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    environment.executeWithSource.getMockImplementation();
   executeObservable = undefined;
   executeUnsubscribe = undefined;
 
@@ -99,9 +99,8 @@ beforeEach(() => {
     .spyOn(environment, 'executeWithSource')
     .mockImplementation((...params) => {
       executeObservable = originalExecuteWithSource(...params);
-      const originalSubscribe = executeObservable.subscribe.bind(
-        executeObservable,
-      );
+      const originalSubscribe =
+        executeObservable.subscribe.bind(executeObservable);
       jest
         .spyOn(executeObservable, 'subscribe')
         .mockImplementation(subscriptionCallbacks => {
@@ -118,14 +117,13 @@ describe('when loading and disposing same query multiple times', () => {
     let loadedQuery;
     let queryLoaderCallback;
 
-    const QueryRenderer = function({queryRef}) {
+    const QueryRenderer = function ({queryRef}) {
       const data = usePreloadedQuery(query, queryRef);
       return data.node.id;
     };
-    const Inner = function({initialPreloadedQuery}) {
+    const Inner = function ({initialPreloadedQuery}) {
       [loadedQuery, queryLoaderCallback] = useQueryLoader(
         preloadableConcreteRequest,
-        // $FlowExpectedError[incompatible-call] it's ok to pass our fake preloaded query here
         initialPreloadedQuery,
       );
       return (
@@ -136,7 +134,7 @@ describe('when loading and disposing same query multiple times', () => {
         </React.Suspense>
       );
     };
-    const Container = function({initialPreloadedQuery = undefined}) {
+    const Container = function ({initialPreloadedQuery = undefined}) {
       return (
         <RelayEnvironmentProvider environment={environment}>
           <Inner initialPreloadedQuery={initialPreloadedQuery} />
@@ -164,7 +162,6 @@ describe('when loading and disposing same query multiple times', () => {
       PreloadableQueryRegistry.set(ID, query);
       queryLoaderCallback(variables);
     });
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('Loading');
 
     ReactTestRenderer.act(() => {
@@ -173,7 +170,6 @@ describe('when loading and disposing same query multiple times', () => {
       jest.runAllImmediates();
     });
 
-    // $FlowFixMe[incompatible-use]
     expect(instance.toJSON()).toEqual('4');
   });
 });

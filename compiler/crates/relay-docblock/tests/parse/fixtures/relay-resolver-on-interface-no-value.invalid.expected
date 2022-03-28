@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver
+ * 
+ * @onInterface
+ * @fieldName favorite_page
+ * @edgeTo Page
+ * @rootFragment myRootFragment
+ */
+==================================== ERROR ====================================
+✖︎ Expected docblock field "@onInterface" to have specified a value.
+
+  /path/to/test/fixture/relay-resolver-on-interface-no-value.invalid.js:4:5
+    3 │  * 
+    4 │  * @onInterface
+      │     ^^^^^^^^^^^
+    5 │  * @fieldName favorite_page

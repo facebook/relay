@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,22 +13,25 @@
 
 'use strict';
 
+const useFragmentOriginal = require('../useFragment');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
-
-const useFragmentOriginal = require('../useFragment');
-
 const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
   graphql,
-  getRequest,
-  getFragment,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+const {
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 describe('useFragment', () => {
   let environment;
@@ -70,12 +73,11 @@ describe('useFragment', () => {
         useFragmentTestNestedUserFragment: {},
       },
       [FRAGMENT_OWNER_KEY]: owner.request,
+      __isWithinUnmatchedTypeRefinement: false,
     };
   }
 
   beforeEach(() => {
-    // Set up mocks
-    jest.resetModules();
     renderSpy = jest.fn();
 
     // Set up environment and base data
@@ -87,34 +89,34 @@ describe('useFragment', () => {
     `;
     singularVariables = {id: '1'};
     pluralVariables = {ids: ['1', '2']};
-    gqlSingularQuery = getRequest(graphql`
+    gqlSingularQuery = graphql`
       query useFragmentTestUserQuery($id: ID!) {
         node(id: $id) {
           ...useFragmentTestUserFragment
         }
       }
-    `);
-    gqlSingularFragment = getFragment(graphql`
+    `;
+    gqlSingularFragment = graphql`
       fragment useFragmentTestUserFragment on User {
         id
         name
         ...useFragmentTestNestedUserFragment
       }
-    `);
-    gqlPluralQuery = getRequest(graphql`
+    `;
+    gqlPluralQuery = graphql`
       query useFragmentTestUsersQuery($ids: [ID!]!) {
         nodes(ids: $ids) {
           ...useFragmentTestUsersFragment
         }
       }
-    `);
-    gqlPluralFragment = getFragment(graphql`
+    `;
+    gqlPluralFragment = graphql`
       fragment useFragmentTestUsersFragment on User @relay(plural: true) {
         id
         name
         ...useFragmentTestNestedUserFragment
       }
-    `);
+    `;
     singularQuery = createOperationDescriptor(
       gqlSingularQuery,
       singularVariables,

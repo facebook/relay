@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+schema {
+  query: Query
+}
+
+type Query {
+  foo: MyType
+}
+
+extend type MyType {
+  will_this_crash: Int
+}
+
+type MyType {
+  is_this_cool: Boolean
+}
+==================================== ERROR ====================================
+✖︎ Cannot extend type 'MyType', the type is not defined on the server schema.
+
+  <generated>:11:13
+   10 │ 
+   11 │ extend type MyType {
+      │             ^^^^^^
+   12 │   will_this_crash: Int

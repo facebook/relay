@@ -3,7 +3,7 @@
 name = "dependency-analyzer"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [[test]]
@@ -18,7 +18,9 @@ path = "tests/ir_test.rs"
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
-interner = { path = "../interner" }
+intern = { path = "../intern" }
+relay-transforms = { path = "../relay-transforms" }
+schema = { path = "../schema" }
 
 [dev-dependencies]
 common = { path = "../common" }

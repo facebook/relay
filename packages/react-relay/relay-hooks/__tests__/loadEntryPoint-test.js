@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -14,8 +14,14 @@
 'use strict';
 
 const loadEntryPoint = require('../loadEntryPoint');
+const {
+  createMockEnvironment,
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
 
-const {createMockEnvironment} = require('relay-test-utils-internal');
+disallowWarnings();
+disallowConsoleErrors();
 
 class FakeJSResource<T> {
   _resolve: (T => mixed) | null;
@@ -81,7 +87,9 @@ test('it should preload entry point with queries', () => {
     entryPoint,
     {id: 'my-id'},
   );
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(networkSpy).toBeCalledTimes(1);
   expect(preloadedEntryPoint.queries.myTestQuery.name).toBe('MyPreloadedQuery');
@@ -89,6 +97,86 @@ test('it should preload entry point with queries', () => {
     id: 'my-id',
   });
   expect(preloadedEntryPoint.entryPoints).toEqual({});
+});
+
+test('it should unwrap an entry point wrapping a module with default exports', () => {
+  const env = createMockEnvironment();
+  const fakeModule = {
+    foo: 'bar',
+  };
+  const entryPoint = {
+    getPreloadProps(params) {
+      return {
+        queries: {
+          myTestQuery: {
+            parameters: {
+              kind: 'PreloadableConcreteRequest',
+              params: {
+                operationKind: 'query',
+                name: 'MyPreloadedQuery',
+                id: 'my-persisted-query-id',
+                text: null,
+                metadata: {},
+              },
+            },
+            variables: {
+              id: params.id,
+            },
+          },
+        },
+      };
+    },
+    root: (new FakeJSResource({
+      default: fakeModule,
+    }): $FlowFixMe),
+  };
+  const preloadedEntryPoint = loadEntryPoint(
+    {
+      getEnvironment: () => env,
+    },
+    entryPoint,
+    {id: 'my-id'},
+  );
+  expect(preloadedEntryPoint.getComponent()).toEqual(fakeModule);
+});
+
+test('it should return the module from an entry point that just returns the module directly', () => {
+  const env = createMockEnvironment();
+  const fakeModule = {
+    foo: 'bar',
+  };
+  const entryPoint = {
+    getPreloadProps(params) {
+      return {
+        queries: {
+          myTestQuery: {
+            parameters: {
+              kind: 'PreloadableConcreteRequest',
+              params: {
+                operationKind: 'query',
+                name: 'MyPreloadedQuery',
+                id: 'my-persisted-query-id',
+                text: null,
+                metadata: {},
+              },
+            },
+            variables: {
+              id: params.id,
+            },
+          },
+        },
+      };
+    },
+    root: (new FakeJSResource(fakeModule): $FlowFixMe),
+  };
+  const preloadedEntryPoint = loadEntryPoint(
+    {
+      getEnvironment: () => env,
+    },
+    entryPoint,
+    {id: 'my-id'},
+  );
+  expect(preloadedEntryPoint.getComponent()).toEqual(fakeModule);
 });
 
 describe('with respect to loadQuery', () => {
@@ -253,7 +341,9 @@ test('it should preload entry point with nested entry points', () => {
     entryPoint,
     {id: 'my-id'},
   );
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(nestedEntryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
   expect(nestedEntryPoint.root.load).toBeCalledTimes(1);
@@ -340,7 +430,9 @@ test('it should preload entry point with both queries and nested entry points', 
   expect(networkSpy).toBeCalledTimes(2);
   expect(nestedEntryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
   expect(nestedEntryPoint.root.load).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.getModuleIfRequired).toBeCalledTimes(1);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(entryPoint.root.load).toBeCalledTimes(1);
   expect(preloadedEntryPoint.queries.myTestQuery.name).toBe('MyPreloadedQuery');
   expect(preloadedEntryPoint.queries.myTestQuery.variables).toEqual({

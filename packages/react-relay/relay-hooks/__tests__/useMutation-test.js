@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,20 +13,17 @@
 
 'use strict';
 
+import type {PayloadData, PayloadError} from 'relay-runtime';
+
+const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
+const useMutation = require('../useMutation');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-
-const useMutation = require('../useMutation');
-
+const {createOperationDescriptor, graphql} = require('relay-runtime');
 const {
-  createOperationDescriptor,
-  graphql,
-  getRequest,
-} = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils');
-
-import type {PayloadData, PayloadError} from 'relay-runtime';
+  MockPayloadGenerator,
+  createMockEnvironment,
+} = require('relay-test-utils');
 
 const {useState, useMemo} = React;
 let environment;
@@ -66,7 +63,7 @@ beforeEach(() => {
   environment = createMockEnvironment();
   isInFlightFn = jest.fn();
 
-  CommentCreateMutation = getRequest(graphql`
+  CommentCreateMutation = graphql`
     mutation useMutationTest1Mutation($input: CommentCreateInput) {
       commentCreate(input: $input) {
         feedbackCommentEdge {
@@ -80,7 +77,7 @@ beforeEach(() => {
         }
       }
     }
-  `);
+  `;
 
   function Renderer({initialMutation, commitInRender}) {
     const [mutation, setMutationFn] = useState(initialMutation);
@@ -114,7 +111,7 @@ beforeEach(() => {
     );
   }
 
-  render = function(env, mutation, commitInRender = false) {
+  render = function (env, mutation, commitInRender = false) {
     ReactTestRenderer.act(() => {
       instance = ReactTestRenderer.create(
         <Container
@@ -138,6 +135,7 @@ it('returns correct in-flight state when the mutation is inflight and completes'
   expect(isInFlightFn).toBeCalledWith(true);
 
   isInFlightFn.mockClear();
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const operation = environment.executeMutation.mock.calls[0][0].operation;
   ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
   expect(isInFlightFn).toBeCalledTimes(1);
@@ -149,10 +147,28 @@ it('returns correct in-flight state when commit called inside render', () => {
   expect(isInFlightFn).toBeCalledTimes(2);
   expect(isInFlightFn).toHaveBeenNthCalledWith(2, true);
   isInFlightFn.mockClear();
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const operation = environment.executeMutation.mock.calls[0][0].operation;
   ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
   expect(isInFlightFn).toBeCalledTimes(1);
   expect(isInFlightFn).toHaveBeenCalledWith(false);
+});
+
+it('returns correct in-flight state when mutation resolves immediately', () => {
+  render(environment, CommentCreateMutation);
+  expect(isInFlightFn).toBeCalledTimes(1);
+  expect(isInFlightFn).toBeCalledWith(false);
+
+  isInFlightFn.mockClear();
+  // set up a resolver that will immediately resolve the mutation
+  environment.mock.queueOperationResolver(operation =>
+    MockPayloadGenerator.generate(operation),
+  );
+  ReactTestRenderer.act(() => {
+    commit({variables});
+  });
+  expect(isInFlightFn).toBeCalledTimes(1);
+  expect(isInFlightFn).toBeCalledWith(false);
 });
 
 it('returns correct in-flight state when the mutation is disposed', () => {
@@ -171,6 +187,7 @@ it('returns correct in-flight state when the mutation is disposed', () => {
 it('returns in-flight state that tracks all in-flight mutations', () => {
   render(environment, CommentCreateMutation);
   commit({variables});
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.executeMutation).toBeCalledTimes(1);
   expect(isInFlightFn).toBeCalledWith(true);
 
@@ -181,6 +198,7 @@ it('returns in-flight state that tracks all in-flight mutations', () => {
       },
     },
   });
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.executeMutation).toBeCalledTimes(2);
 
   commit({
@@ -190,15 +208,18 @@ it('returns in-flight state that tracks all in-flight mutations', () => {
       },
     },
   });
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.executeMutation).toBeCalledTimes(3);
 
   isInFlightFn.mockClear();
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const operation = environment.executeMutation.mock.calls[0][0].operation;
   ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
   expect(isInFlightFn).toBeCalledTimes(0);
 
   isInFlightFn.mockClear();
 
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const operation2 = environment.executeMutation.mock.calls[1][0].operation;
   ReactTestRenderer.act(() =>
     environment.mock.resolve(operation2, {
@@ -221,6 +242,7 @@ it('returns in-flight state that tracks all in-flight mutations', () => {
   expect(isInFlightFn).toBeCalledTimes(0);
 
   isInFlightFn.mockClear();
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const operation3 = environment.executeMutation.mock.calls[2][0].operation;
   ReactTestRenderer.act(() =>
     environment.mock.resolve(operation3, {
@@ -267,6 +289,7 @@ it('returns in-flight state that tracks all current mutations when disposed or e
   isInFlightFn.mockClear();
   ReactTestRenderer.act(() => disposable1.dispose());
   expect(isInFlightFn).toBeCalledTimes(0);
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const operation3 = environment.executeMutation.mock.calls[2][0].operation;
   ReactTestRenderer.act(() =>
     environment.mock.reject(operation3, new Error('test')),
@@ -282,6 +305,7 @@ it('calls onCompleted when mutation responses contains server errors', () => {
   const onCompleted = jest.fn();
   render(environment, CommentCreateMutation);
   commit({variables, onError, onCompleted});
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const operation = environment.executeMutation.mock.calls[0][0].operation;
 
   isInFlightFn.mockClear();
@@ -330,6 +354,7 @@ it('calls onError when mutation errors in commitMutation', () => {
   commit({variables, onError, onCompleted, updater: throwingUpdater});
 
   isInFlightFn.mockClear();
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const operation = environment.executeMutation.mock.calls[0][0].operation;
   ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
   expect(onError).toBeCalledTimes(1);
@@ -345,6 +370,7 @@ it('calls onComplete when mutation successfully resolved', () => {
   commit({variables, onError, onCompleted});
 
   isInFlightFn.mockClear();
+  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   const operation = environment.executeMutation.mock.calls[0][0].operation;
   ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
   expect(onError).toBeCalledTimes(0);
@@ -374,7 +400,7 @@ describe('change useMutation input', () => {
 
   beforeEach(() => {
     newEnv = createMockEnvironment();
-    CommentCreateMutation2 = getRequest(graphql`
+    CommentCreateMutation2 = graphql`
       mutation useMutationTest2Mutation($input: CommentCreateInput) {
         commentCreate(input: $input) {
           feedbackCommentEdge {
@@ -388,7 +414,7 @@ describe('change useMutation input', () => {
           }
         }
       }
-    `);
+    `;
   });
 
   it('resets in-flight state when the environment changes', () => {
@@ -404,6 +430,7 @@ describe('change useMutation input', () => {
     expect(isInFlightFn).toHaveBeenNthCalledWith(2, false);
 
     isInFlightFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
     expect(isInFlightFn).toBeCalledTimes(0);
@@ -413,10 +440,12 @@ describe('change useMutation input', () => {
     render(environment, CommentCreateMutation);
     isInFlightFn.mockClear();
     commit({variables});
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.executeMutation).toBeCalledTimes(1);
 
     ReactTestRenderer.act(() => setEnvironment(newEnv));
     commit({variables});
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(newEnv.executeMutation).toBeCalledTimes(1);
   });
 
@@ -430,6 +459,7 @@ describe('change useMutation input', () => {
     expect(isInFlightFn).toHaveBeenNthCalledWith(2, false);
 
     isInFlightFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
     expect(isInFlightFn).toBeCalledTimes(0);
@@ -445,14 +475,17 @@ describe('change useMutation input', () => {
       CommentCreateMutation2,
       variables,
     );
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.executeMutation).toBeCalledTimes(2);
     expect(
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.executeMutation.mock.calls[1][0].operation.request,
     ).toEqual(secondOperation.request);
 
     isInFlightFn.mockClear();
     ReactTestRenderer.act(() => {
       environment.mock.resolve(
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.executeMutation.mock.calls[0][0].operation,
         data,
       );
@@ -484,6 +517,7 @@ describe('unmount', () => {
     ReactTestRenderer.act(() => instance.unmount());
 
     isInFlightFn.mockClear();
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
     expect(isInFlightFn).toBeCalledTimes(0);
@@ -495,6 +529,7 @@ describe('unmount', () => {
     render(environment, CommentCreateMutation);
     commit({variables, onCompleted});
     ReactTestRenderer.act(() => instance.unmount());
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const operation = environment.executeMutation.mock.calls[0][0].operation;
     ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
     expect(onCompleted).toBeCalledTimes(1);

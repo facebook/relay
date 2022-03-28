@@ -1,0 +1,9 @@
+query noInlineFragmentAndModuleQuery {
+  me {
+    ...noInlineFragmentAndModule_parent @module(name: "NoInlineFragment")
+  }
+}
+
+fragment noInlineFragmentAndModule_parent on User @no_inline {
+  id
+}

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ca826f79c4a56f646b66415f7f37ac91>>
+ * @generated SignedSource<<a4f1beb2838fa69caa21c18f9cbe01c9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayReferenceMarkerTest2QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayReferenceMarkerTest2Query$variables = {|
   id: string,
 |};
-export type RelayReferenceMarkerTest2QueryResponse = {|
+export type RelayReferenceMarkerTest2Query$data = {|
   +node: ?{|
     +friends?: ?{|
       +edges: ?$ReadOnlyArray<?{|
@@ -33,8 +33,8 @@ export type RelayReferenceMarkerTest2QueryResponse = {|
   |},
 |};
 export type RelayReferenceMarkerTest2Query = {|
-  variables: RelayReferenceMarkerTest2QueryVariables,
-  response: RelayReferenceMarkerTest2QueryResponse,
+  response: RelayReferenceMarkerTest2Query$data,
+  variables: RelayReferenceMarkerTest2Query$variables,
 |};
 */
 
@@ -254,4 +254,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "4f658cfcbdfe7363e72c8f460fe2ca16";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReferenceMarkerTest2Query$variables,
+  RelayReferenceMarkerTest2Query$data,
+>*/);

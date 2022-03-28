@@ -1,39 +1,140 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, NamedItem, SourceLocationKey};
+use common::{ConsoleLogger, FeatureFlag, FeatureFlags, NamedItem, SourceLocationKey};
 use fixture_tests::Fixture;
-use graphql_ir::{build, FragmentDefinition, OperationDefinition, Program};
+use graphql_ir::{
+    build_ir_with_extra_features, BuilderOptions, FragmentDefinition, FragmentVariablesSemantic,
+    OperationDefinition, Program, RelayMode,
+};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
-use interner::Intern;
+
+use intern::string_key::Intern;
 use relay_codegen::{
     build_request_params, print_fragment, print_operation, print_request, JsModuleFormat,
 };
-use relay_compiler::{apply_transforms, validate};
+use relay_compiler::{validate, ConfigFileProject, ProjectConfig};
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{
-    ConnectionInterface, FeatureFlags, NoInlineFeature, DIRECTIVE_SPLIT_OPERATION,
-};
+use relay_transforms::{apply_transforms, DIRECTIVE_SPLIT_OPERATION};
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
-    if fixture.content.find("%TODO%").is_some() {
-        if fixture.content.find("expected-to-throw").is_some() {
+    if fixture.content.contains("%TODO%") {
+        if fixture.content.contains("expected-to-throw") {
             return Err("TODO".to_string());
         }
         return Ok("TODO".to_string());
     }
+    let hash_supported_argument_allowlist = vec!["UserNameRenderer".intern()];
+    let no_inline_allowlist = vec![
+        "autoFilledArgumentOnMatchPlainUserNameRenderer_name".intern(),
+        "autoFilledArgumentOnMatchMarkdownUserNameRenderer_name".intern(),
+        "fragmentWithMatchDirective_PlainUserNameRenderer_name".intern(),
+        "fragmentWithMatchDirective_MarkdownUserNameRenderer_name".intern(),
+        "matchFieldOverlapAcrossDocuments_MarkdownUserNameRenderer_name".intern(),
+        "matchOnChildOfPlural_PlainUserNameRenderer_name".intern(),
+        "matchOnChildOfPlural_MarkdownUserNameRenderer_name".intern(),
+        "moduleDeduping_frag".intern(),
+        "moduleInInlineFragment_MarkdownUserNameRenderer_name".intern(),
+        "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name".intern(),
+        "moduleOverlapAcrossDocuments_PlainUserNameRenderer_name".intern(),
+        "moduleOverlapAcrossDocuments_MarkdownUserNameRenderer_name".intern(),
+        "moduleOverlapWithinDocument_MarkdownUserNameRenderer_name".intern(),
+        "moduleOverlapWithinDocument_PlainUserNameRenderer_name".intern(),
+        "moduleOverlapWithinDocument_MarkdownUserNameRenderer_name".intern(),
+        "moduleWithDefer_MarkdownUserNameRenderer_name".intern(),
+        "multipleModulesDifferentComponent_MarkdownUserNameRenderer_name".intern(),
+        "multipleModulesDifferentFragment_MarkdownUserNameRenderer_name".intern(),
+        "multipleModulesDifferentFragment_OtherMarkdownUserNameRenderer_name".intern(),
+        "multipleModulesSameSelections_MarkdownUserNameRenderer_name".intern(),
+        "multipleModulesWithKey_PlainUserNameRenderer_name".intern(),
+        "multipleModulesWithKey_MarkdownUserNameRenderer_name".intern(),
+        "multipleModulesWithoutKey_PlainUserNameRenderer_name".intern(),
+        "multipleModulesWithoutKey_MarkdownUserNameRenderer_name".intern(),
+        "noInlineFragmentAndModule_parent".intern(),
+        "queryWithAndWithoutModuleDirective_MarkdownUserNameRenderer_name".intern(),
+        "queryWithConditionalModule_MarkdownUserNameRenderer_name".intern(),
+        "queryWithMatchDirective_PlainUserNameRenderer_name".intern(),
+        "queryWithMatchDirective_MarkdownUserNameRenderer_name".intern(),
+        "queryWithMatchDirectiveNoInlineExperimental_PlainUserNameRenderer_name".intern(),
+        "queryWithMatchDirectiveNoInlineExperimental_MarkdownUserNameRenderer_name".intern(),
+        "queryWithMatchDirectiveWithExtraArgument_PlainUserNameRenderer_name".intern(),
+        "queryWithMatchDirectiveWithExtraArgument_MarkdownUserNameRenderer_name".intern(),
+        "queryWithMatchDirectiveWithTypename_PlainUserNameRenderer_name".intern(),
+        "queryWithMatchDirectiveWithTypename_MarkdownUserNameRenderer_name".intern(),
+        "queryWithModuleDirective_MarkdownUserNameRenderer_name".intern(),
+        "queryWithModuleDirectiveAndArguments_MarkdownUserNameRenderer_name".intern(),
+        "queryWithModuleDirectiveAndArguments_PlainUserNameRenderer_name".intern(),
+        "conflictingSelectionsWithNoInline_fragment".intern(),
+        "providedVariableNoInlineFragment".intern(),
+        "noInlineFragment_parent".intern(),
+        "noInlineAbstractFragment_parent".intern(),
+        "queryWithRelayClientComponentWithArgumentDefinitions_ClientComponentFragment".intern(),
+        "queryWithRelayClientComponent_ClientComponentFragment".intern(),
+    ];
 
-    let parts: Vec<_> = fixture.content.split("%extensions%").collect();
-    let (base, schema) = match parts.as_slice() {
+    let feature_flags = FeatureFlags {
+        enable_flight_transform: true,
+        hash_supported_argument: FeatureFlag::Limited {
+            allowlist: hash_supported_argument_allowlist.into_iter().collect(),
+        },
+        // test SplitOperations that do not use @no-inline D28460294
+        no_inline: FeatureFlag::Limited {
+            allowlist: no_inline_allowlist.into_iter().collect(),
+        },
+        enable_relay_resolver_transform: true,
+        enable_3d_branch_arg_generation: true,
+        actor_change_support: FeatureFlag::Enabled,
+        text_artifacts: FeatureFlag::Disabled,
+        enable_client_edges: FeatureFlag::Enabled,
+        enable_provided_variables: FeatureFlag::Enabled,
+        skip_printing_nulls: FeatureFlag::Disabled,
+    };
+
+    let default_project_config = ProjectConfig {
+        name: "test".intern(),
+        feature_flags: Arc::new(feature_flags),
+        js_module_format: JsModuleFormat::Haste,
+        ..Default::default()
+    };
+    // Adding %project_config section on top of the fixture will allow
+    // us to validate output changes with different configurations
+    let parts: Vec<_> = fixture.content.split("%project_config%").collect();
+    let (project_config, other_parts) = match parts.as_slice() {
+        [fixture_content, project_config_str] => (
+            {
+                let config_file_project: ConfigFileProject =
+                    serde_json::from_str(project_config_str).unwrap();
+                ProjectConfig {
+                    schema_config: config_file_project.schema_config,
+                    typegen_config: config_file_project.typegen_config,
+                    feature_flags: config_file_project
+                        .feature_flags
+                        .map_or(default_project_config.feature_flags, |flags| {
+                            Arc::new(flags)
+                        }),
+                    js_module_format: config_file_project.js_module_format,
+                    ..default_project_config
+                }
+            },
+            fixture_content.split("%extensions%").collect::<Vec<&str>>(),
+        ),
+        [fixture_content] => (
+            default_project_config,
+            fixture_content.split("%extensions%").collect::<Vec<&str>>(),
+        ),
+        _ => panic!("Invalid fixture input {}", fixture.content),
+    };
+
+    let (base, schema) = match other_parts.as_slice() {
         [base, extensions] => (base, get_test_schema_with_extensions(extensions)),
         [base] => (base, get_test_schema()),
         _ => panic!("Invalid fixture input {}", fixture.content),
@@ -41,31 +142,33 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let ast = parse_executable(base, source_location)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
-    let ir = build(&schema, &ast.definitions)
+    let ir_result = build_ir_with_extra_features(
+        &schema,
+        &ast.definitions,
+        &BuilderOptions {
+            allow_undefined_fragment_spreads: false,
+            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+            relay_mode: Some(RelayMode {
+                enable_provided_variables: &FeatureFlag::Enabled,
+            }),
+            default_anonymous_operation_name: None,
+        },
+    );
+    let ir = ir_result
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
-    let connection_interface = ConnectionInterface::default();
-
-    validate(&program, &connection_interface, &None)
+    validate(&program, &project_config, &None)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
-
-    let feature_flags = FeatureFlags {
-        enable_flight_transform: true,
-        enable_required_transform_for_prefix: Some("".intern()),
-        no_inline: NoInlineFeature::Enabled,
-        enable_relay_resolver_transform: true,
-        enable_3d_branch_arg_generation: true,
-    };
 
     // TODO pass base fragment names
     let programs = apply_transforms(
-        "test".intern(),
+        &project_config,
         Arc::new(program),
         Default::default(),
-        &connection_interface,
-        Arc::new(feature_flags),
         Arc::new(ConsoleLogger),
+        None,
+        None,
     )
     .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
@@ -80,7 +183,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 .named(*DIRECTIVE_SPLIT_OPERATION)
                 .is_some()
             {
-                print_operation(&schema, operation, JsModuleFormat::Haste)
+                let mut import_statements = Default::default();
+                let operation =
+                    print_operation(&schema, operation, &project_config, &mut import_statements);
+                format!("{}{}", import_statements, operation)
             } else {
                 let name = operation.name.item;
                 let print_operation_node = programs
@@ -101,27 +207,29 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                     directives: reader_operation.directives.clone(),
                     type_condition: reader_operation.type_,
                 };
-                let request_parameters = build_request_params(&operation);
-                format!(
-                    "{}\n\nQUERY:\n\n{}",
-                    print_request(
-                        &schema,
-                        operation,
-                        &operation_fragment,
-                        request_parameters,
-                        JsModuleFormat::Haste
-                    ),
-                    text
-                )
+                let mut import_statements = Default::default();
+                let request_parameters = build_request_params(operation);
+                let request = print_request(
+                    &schema,
+                    operation,
+                    &operation_fragment,
+                    request_parameters,
+                    &project_config,
+                    &mut import_statements,
+                );
+                format!("{}{}\n\nQUERY:\n\n{}", import_statements, request, text)
             }
         })
         .chain({
             let mut fragments: Vec<&std::sync::Arc<FragmentDefinition>> =
                 programs.reader.fragments().collect();
             fragments.sort_by_key(|fragment| fragment.name.item);
-            fragments
-                .into_iter()
-                .map(|fragment| print_fragment(&schema, fragment, JsModuleFormat::Haste))
+            fragments.into_iter().map(|fragment| {
+                let mut import_statements = Default::default();
+                let fragment =
+                    print_fragment(&schema, fragment, &project_config, &mut import_statements);
+                format!("{}{}", import_statements, fragment)
+            })
         })
         .collect::<Vec<_>>();
     Ok(result.join("\n\n"))

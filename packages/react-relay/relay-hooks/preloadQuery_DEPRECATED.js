@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,18 +12,6 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
-const invariant = require('invariant');
-
-const {
-  createOperationDescriptor,
-  Environment,
-  getRequest,
-  getRequestIdentifier,
-  Observable,
-  PreloadableQueryRegistry,
-  ReplaySubject,
-} = require('relay-runtime');
 
 import type {
   PreloadableConcreteRequest,
@@ -41,6 +29,16 @@ import type {
   OperationType,
   Subscription,
 } from 'relay-runtime';
+
+const {
+  Observable,
+  PreloadableQueryRegistry,
+  RelayFeatureFlags,
+  ReplaySubject,
+  createOperationDescriptor,
+  getRequest,
+  getRequestIdentifier,
+} = require('relay-runtime');
 
 // Expire results by this delay after they resolve.
 const DEFAULT_PREFETCH_TIMEOUT = 30 * 1000; // 30 seconds
@@ -81,10 +79,6 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   options?: ?PreloadOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
 ): PreloadedQueryInner_DEPRECATED<TQuery, TEnvironmentProviderOptions> {
-  invariant(
-    environment instanceof Environment,
-    'preloadQuery(): Expected a RelayModernEnvironment',
-  );
   let _pendingQueries = pendingQueriesByEnvironment.get(environment);
   if (_pendingQueries == null) {
     _pendingQueries = new Map();
@@ -118,7 +112,16 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
           }
           return () => {
             subscription?.unsubscribe();
-            cleanup(pendingQueries, queryEntry);
+            if (environment.isServer()) {
+              return;
+            }
+            setTimeout(() => {
+              // Clear the cache entry after the default timeout
+              // null-check for Flow
+              if (queryEntry != null) {
+                cleanup(pendingQueries, queryEntry);
+              }
+            }, DEFAULT_PREFETCH_TIMEOUT);
           };
         })
       : null;
@@ -138,7 +141,7 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
 }
 
 function preloadQueryDeduped<TQuery: OperationType>(
-  environment: Environment,
+  environment: IEnvironment,
   pendingQueries: Map<string, PendingQueryEntry>,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
   variables: VariablesOf<TQuery>,
@@ -147,7 +150,8 @@ function preloadQueryDeduped<TQuery: OperationType>(
   let params;
   let query: ?ConcreteRequest;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
-    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
+    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> =
+      (preloadableRequest: $FlowFixMe);
     params = preloadableConcreteRequest.params;
     query = params.id != null ? PreloadableQueryRegistry.get(params.id) : null;
   } else {
@@ -245,9 +249,7 @@ function preloadQueryDeduped<TQuery: OperationType>(
   } else {
     nextQueryEntry = prevQueryEntry;
   }
-  // $FlowFixMe[incompatible-call]
   pendingQueries.set(cacheKey, nextQueryEntry);
-  // $FlowFixMe[incompatible-return]
   return nextQueryEntry;
 }
 

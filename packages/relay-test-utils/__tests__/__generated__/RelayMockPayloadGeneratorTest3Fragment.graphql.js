@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f2f6f80aeb5b544d7b010e93283bb1db>>
+ * @generated SignedSource<<0d0b2382b0cd6be5889856b4d7079e74>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,42 +15,40 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockPayloadGeneratorTest3Fragment$ref: FragmentReference;
-declare export opaque type RelayMockPayloadGeneratorTest3Fragment$fragmentType: RelayMockPayloadGeneratorTest3Fragment$ref;
-export type RelayMockPayloadGeneratorTest3Fragment = {|
-  +id: string,
-  +name: ?string,
-  +customId: string,
-  +profile_picture?: ?{|
-    +uri: ?string,
-  |},
-  +birthdate?: ?{|
-    +year: ?number,
-    +month?: ?number,
-  |},
-  +author: ?{|
-    +authorID: string,
-    +objectType: string,
-    +username: ?string,
-    +name?: ?string,
-  |},
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockPayloadGeneratorTest3Fragment$fragmentType: FragmentType;
+export type RelayMockPayloadGeneratorTest3Fragment$data = {|
   +allPhones: ?$ReadOnlyArray<?{|
     +phoneNumber: ?{|
       +displayNumber: ?string,
     |},
   |}>,
-  +emailAddresses: ?$ReadOnlyArray<?string>,
+  +author: ?{|
+    +authorID: string,
+    +name?: ?string,
+    +objectType: string,
+    +username: ?string,
+  |},
   +backgroundImage: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayMockPayloadGeneratorTest3Fragment$ref,
+  +birthdate?: ?{|
+    +month?: ?number,
+    +year: ?number,
+  |},
+  +customId: string,
+  +emailAddresses: ?$ReadOnlyArray<?string>,
+  +id: string,
+  +name: ?string,
+  +profile_picture?: ?{|
+    +uri: ?string,
+  |},
+  +$fragmentType: RelayMockPayloadGeneratorTest3Fragment$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTest3Fragment$data = RelayMockPayloadGeneratorTest3Fragment;
 export type RelayMockPayloadGeneratorTest3Fragment$key = {
   +$data?: RelayMockPayloadGeneratorTest3Fragment$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest3Fragment$ref,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest3Fragment$fragmentType,
   ...
 };
 */
@@ -273,4 +271,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "07a710f2ca89951dc1275ada481d2fae";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockPayloadGeneratorTest3Fragment$fragmentType,
+  RelayMockPayloadGeneratorTest3Fragment$data,
+>*/);

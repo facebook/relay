@@ -1,0 +1,86 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment refetchableFragmentDirectivesNotLiteralList on Node
+@refetchable(
+  queryName: "refetchableFragmentDirectivesQuery"
+  directives: $var
+) {
+  id
+}
+
+fragment refetchableFragmentDirectivesNotLiteralListValue on Node
+@refetchable(
+  queryName: "refetchableFragmentDirectivesQuery"
+  directives: [$var]
+) {
+  id
+}
+
+fragment refetchableFragmentDirectivesInvalidSyntax on Node
+@refetchable(
+  queryName: "refetchableFragmentDirectivesQuery"
+  directives: ["invalid syntax"]
+) {
+  id
+}
+
+fragment refetchableFragmentDirectivesNotADirective on Node
+@refetchable(
+  queryName: "refetchableFragmentDirectivesQuery"
+  directives: ["@doesNotExit"]
+) {
+  id
+}
+
+fragment refetchableFragmentDirectivesNotValidOnQuery on Node
+@refetchable(
+  queryName: "refetchableFragmentDirectivesQuery"
+  directives: ["@defer"] # invalid on queries
+) {
+  id
+}
+==================================== ERROR ====================================
+✖︎ Directive 'defer' not supported in this location
+
+  refetchable_fragment_directives.invalid.graphql:38:15
+   37 │   queryName: "refetchableFragmentDirectivesQuery"
+   38 │   directives: ["@defer"] # invalid on queries
+      │               ^^^^^^^^^^
+   39 │ ) {
+
+
+✖︎ Expected a at ('@')
+
+  refetchable_fragment_directives.invalid.graphql:22:15
+   21 │   queryName: "refetchableFragmentDirectivesQuery"
+   22 │   directives: ["invalid syntax"]
+      │               ^^^^^^^^^^^^^^^^^^
+   23 │ ) {
+
+
+✖︎ Unknown directive 'doesNotExit'
+
+  refetchable_fragment_directives.invalid.graphql:30:15
+   29 │   queryName: "refetchableFragmentDirectivesQuery"
+   30 │   directives: ["@doesNotExit"]
+      │               ^^^^^^^^^^^^^^^^
+   31 │ ) {
+
+
+✖︎ When provided, the `directives` argument to `@refetchable` needs to be a list of literal strings. Each string should be a server directive valid on queries. Example: `@refetchable(queryName: "ExampleQuery", directives: ["@owner(name: \"an owner\")"])
+
+  refetchable_fragment_directives.invalid.graphql:14:15
+   13 │   queryName: "refetchableFragmentDirectivesQuery"
+   14 │   directives: [$var]
+      │               ^^^^^^
+   15 │ ) {
+
+
+✖︎ When provided, the `directives` argument to `@refetchable` needs to be a list of literal strings. Each string should be a server directive valid on queries. Example: `@refetchable(queryName: "ExampleQuery", directives: ["@owner(name: \"an owner\")"])
+
+  refetchable_fragment_directives.invalid.graphql:6:15
+    5 │   queryName: "refetchableFragmentDirectivesQuery"
+    6 │   directives: $var
+      │               ^^^^
+    7 │ ) {

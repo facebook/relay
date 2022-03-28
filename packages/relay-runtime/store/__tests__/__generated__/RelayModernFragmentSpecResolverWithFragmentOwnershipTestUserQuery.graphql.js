@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<20d06942f21a2e29996516e7d1c31c37>>
+ * @generated SignedSource<<0d080c03d9b8b192629ad9857cffc178>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$ref = any;
-type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$ref = any;
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryVariables = {|
-  id: string,
-  size?: ?number,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$fragmentType = any;
+type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType = any;
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables = {|
   fetchSize: boolean,
+  id: string,
+  size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryResponse = {|
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$ref & RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$ref,
+    +$fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$fragmentType & RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType,
   |},
 |};
 export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery = {|
-  variables: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryVariables,
-  response: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQueryResponse,
+  response: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data,
+  variables: RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables,
 |};
 */
 
@@ -183,18 +183,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "4118d2af887cc01d92b8d536439b7404",
+    "cacheID": "b71e6a9ae10b0d558078f4c094133620",
     "id": null,
     "metadata": {},
     "name": "RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery",
     "operationKind": "query",
-    "text": "query RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery(\n  $id: ID!\n  $size: Int\n  $fetchSize: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment\n    ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment\n    id\n  }\n}\n\nfragment RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment on User {\n  username\n}\n\nfragment RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n  ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment\n}\n\nfragment RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n  ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment\n}\n"
+    "text": "query RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery(\n  $id: ID!\n  $size: [Int]\n  $fetchSize: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment\n    ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment\n    id\n  }\n}\n\nfragment RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment on User {\n  username\n}\n\nfragment RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n  ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment\n}\n\nfragment RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment on User {\n  id\n  name\n  profilePicture(size: $size) @include(if: $fetchSize) {\n    uri\n  }\n  ...RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "a5cb4ea541d3ae0684ab957761952e21";
+  (node/*: any*/).hash = "0ac3466c6ebc673ebbcfbbf5e1fead2b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables,
+  RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$data,
+>*/);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -19,19 +19,25 @@ const {
   Observable,
   PreloadableQueryRegistry,
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
 
-const query = getRequest(graphql`
+disallowWarnings();
+disallowConsoleErrors();
+
+const query = graphql`
   query loadQueryStoreBehaviorTestQuery($id: ID!) {
     node(id: $id) {
       name
       id
     }
   }
-`);
+`;
 
 // Only queries with an ID are preloadable
 const ID = '12345';

@@ -44,7 +44,6 @@ static commitUpdate(mutation: RelayMutation, callbacks: {
 type Transaction = {
   getError(): ?Error;
 }
-
 ```
 
 The `commitUpdate` method is analogous to dispatching an action in Flux. Relay processes
@@ -70,7 +69,6 @@ var onFailure = (transaction) => {
 var mutation = new MyMutation({...});
 
 Relay.Store.commitUpdate(mutation, {onFailure, onSuccess});
-
 ```
 
 ### applyUpdate (static method)
@@ -107,5 +105,4 @@ var mutation = new MyMutation({...});
 var transaction = Relay.Store.applyUpdate(mutation, {onFailure, onSuccess});
 
 transaction.commit();
-
 ```

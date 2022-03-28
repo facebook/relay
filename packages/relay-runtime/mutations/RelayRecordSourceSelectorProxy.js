@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,19 +12,32 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {getStorageKey, ROOT_TYPE} = require('../store/RelayStoreUtils');
-
+import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
+  FragmentType,
+  HasUpdatableSpread,
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
   SingularReaderSelector,
 } from '../store/RelayStoreTypes';
 import type {ReaderLinkedField} from '../util/ReaderNode';
-import type {DataID} from '../util/RelayRuntimeTypes';
+import type {
+  DataID,
+  UpdatableFragment,
+  UpdatableQuery,
+  Variables,
+} from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
+
+const {ROOT_TYPE, getStorageKey} = require('../store/RelayStoreUtils');
+const {
+  readUpdatableFragment_EXPERIMENTAL,
+} = require('./readUpdatableFragment_EXPERIMENTAL');
+const {
+  readUpdatableQuery_EXPERIMENTAL,
+} = require('./readUpdatableQuery_EXPERIMENTAL');
+const invariant = require('invariant');
 
 /**
  * @internal
@@ -78,10 +91,15 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     fieldName: string,
     plural: boolean,
   ): ReaderLinkedField {
-    const field = selector.node.selections.find(
+    let field = selector.node.selections.find(
       selection =>
-        selection.kind === 'LinkedField' && selection.name === fieldName,
+        (selection.kind === 'LinkedField' && selection.name === fieldName) ||
+        (selection.kind === 'RequiredField' &&
+          selection.field.name === fieldName),
     );
+    if (field && field.kind === 'RequiredField') {
+      field = field.field;
+    }
     invariant(
       field && field.kind === 'LinkedField',
       'RelayRecordSourceSelectorProxy#getRootField(): Cannot find root ' +
@@ -113,6 +131,24 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
 
   invalidateStore(): void {
     this.__recordSource.invalidateStore();
+  }
+
+  readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
+    query: UpdatableQuery<TVariables, TData>,
+    variables: TVariables,
+  ): TData {
+    return readUpdatableQuery_EXPERIMENTAL(query, variables, this);
+  }
+
+  readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
+    fragment: UpdatableFragment<TFragmentType, TData>,
+    fragmentReference: HasUpdatableSpread<TFragmentType>,
+  ): TData {
+    return readUpdatableFragment_EXPERIMENTAL(
+      fragment,
+      fragmentReference,
+      this,
+    );
   }
 }
 

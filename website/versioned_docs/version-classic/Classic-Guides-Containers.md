@@ -39,7 +39,6 @@ class ProfilePicture extends React.Component {
     // TODO: Fetch the profile photo URI for the given size...
   }
 }
-
 ```
 
 ### Data Dependencies With GraphQL
@@ -89,7 +88,6 @@ module.exports = Relay.createContainer(ProfilePicture, {
     `,
   },
 });
-
 ```
 
 ## Containers are Higher-Order Components
@@ -145,7 +143,6 @@ class ProfilePicture extends React.Component {
     });
   }
 }
-
 ```
 
 ## Container Composition
@@ -177,7 +174,6 @@ class Profile extends React.Component {
     );
   }
 }
-
 ```
 
 ### Composing Fragments
@@ -207,7 +203,6 @@ module.exports = Relay.createContainer(Profile, {
     `,
   }
 });
-
 ```
 
 The final data declaration is equivalent to the following plain GraphQL:

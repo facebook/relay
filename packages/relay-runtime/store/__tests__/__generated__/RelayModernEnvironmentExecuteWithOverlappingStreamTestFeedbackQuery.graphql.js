@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6cb826ffa6f767ef5f287dcab7c7e951>>
+ * @generated SignedSource<<0e2d11f39115bd8621efbc8726a5f1a4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables = {|
   enableStream: boolean,
+  id: string,
 |};
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery = {|
-  variables: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQueryVariables,
-  response: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQueryResponse,
+  response: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data,
+  variables: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables,
 |};
 */
 
@@ -140,7 +140,6 @@ return {
                 "if": "enableStream",
                 "kind": "Stream",
                 "label": "RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$stream$actors",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,
@@ -161,8 +160,7 @@ return {
                     "kind": "LinkedHandle",
                     "name": "actors"
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               },
               {
                 "if": "enableStream",
@@ -173,7 +171,6 @@ return {
                     "if": "enableStream",
                     "kind": "Stream",
                     "label": "RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$stream$viewedBy",
-                    "metadata": null,
                     "selections": [
                       {
                         "alias": null,
@@ -194,8 +191,7 @@ return {
                         "kind": "LinkedHandle",
                         "name": "viewedBy"
                       }
-                    ],
-                    "useCustomizedBatch": null
+                    ]
                   }
                 ]
               }
@@ -223,4 +219,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f23e7dbdffffaa06c49725c9cceca25c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables,
+  RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data,
+>*/);

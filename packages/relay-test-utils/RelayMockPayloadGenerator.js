@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,16 +13,29 @@
 
 'use strict';
 
-const invariant = require('invariant');
+import type {
+  GraphQLSingularResponse,
+  NormalizationArgument,
+  NormalizationField,
+  NormalizationLinkedField,
+  NormalizationOperation,
+  NormalizationScalarField,
+  NormalizationSelection,
+  NormalizationSplitOperation,
+  OperationDescriptor,
+  Variables,
+} from 'relay-runtime';
 
+const invariant = require('invariant');
 const {
-  TYPENAME_KEY,
   RelayConcreteNode,
+  TYPENAME_KEY,
   getModuleComponentKey,
   getModuleOperationKey,
 } = require('relay-runtime');
 
 const {
+  ACTOR_CHANGE,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
   CONDITION,
@@ -39,19 +52,6 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
-
-import type {
-  NormalizationArgument,
-  NormalizationField,
-  NormalizationLinkedField,
-  NormalizationOperation,
-  NormalizationScalarField,
-  NormalizationSelection,
-  OperationDescriptor,
-  GraphQLSingularResponse,
-  NormalizationSplitOperation,
-  Variables,
-} from 'relay-runtime';
 
 type ValueResolver = (
   typeName: ?string,
@@ -187,7 +187,6 @@ class RelayMockPayloadGenerator {
     +selectionMetadata: SelectionMetadata | null,
   |}) {
     this._variables = options.variables;
-    // $FlowFixMe[cannot-spread-indexer]
     // $FlowFixMe[cannot-spread-inexact]
     // $FlowFixMe[incompatible-type]
     this._mockResolvers = {
@@ -459,7 +458,8 @@ class RelayMockPayloadGenerator {
               selection.fragmentName,
             );
 
-            const splitOperation: NormalizationSplitOperation = (operation: $FlowFixMe);
+            const splitOperation: NormalizationSplitOperation =
+              (operation: $FlowFixMe);
             const {documentName} = selection;
             if (mockData == null) {
               mockData = {};
@@ -469,9 +469,8 @@ class RelayMockPayloadGenerator {
               ...mockData,
               [TYPENAME_KEY]: typeName,
               [getModuleOperationKey(documentName)]: operation.name,
-              [getModuleComponentKey(
-                documentName,
-              )]: defaultValues.__module_component,
+              [getModuleComponentKey(documentName)]:
+                defaultValues.__module_component,
               ...this._traverseSelections(
                 splitOperation.selections,
                 typeName,
@@ -498,6 +497,8 @@ class RelayMockPayloadGenerator {
           break;
         case FLIGHT_FIELD:
           throw new Error('Flight fields are not yet supported.');
+        case ACTOR_CHANGE:
+          throw new Error('ActorChange fields are not yet supported.');
         default:
           (selection: empty);
           invariant(
@@ -698,7 +699,7 @@ class RelayMockPayloadGenerator {
     // information came from mock resolver __typename value and it was
     // an intentional selection of the specific type
     const isAbstractType =
-      field.concreteType === null && typeName === typeFromSelection.type;
+      field.concreteType == null && typeName === typeFromSelection.type;
 
     const generateDataForField = possibleDefaultValue => {
       const fieldDefaultValue =
@@ -752,7 +753,6 @@ class RelayMockPayloadGenerator {
       'RelayMockPayloadGenerator(): Undefined variable `%s`.',
       name,
     );
-    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 

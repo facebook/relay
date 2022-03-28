@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,12 +12,11 @@
 
 'use strict';
 
-const invariant = require('invariant');
-
-const {getType} = require('./RelayModernRecord');
-
 import type {ReactFlightPayloadData} from '../network/RelayNetworkTypes';
 import type {ReactFlightClientResponse, Record} from './RelayStoreTypes';
+
+const {getType} = require('./RelayModernRecord');
+const invariant = require('invariant');
 
 // Reachable (client) executable definitions encountered while server component
 // rendering
@@ -51,13 +50,7 @@ function getReactFlightClientResponse(
       'got %s.',
     record,
   );
-  const response: ?ReactFlightClientResponse = (record[
-    REACT_FLIGHT_TREE_STORAGE_KEY
-  ]: $FlowFixMe);
-  if (response != null) {
-    return response;
-  }
-  return null;
+  return (record[REACT_FLIGHT_TREE_STORAGE_KEY]: $FlowFixMe);
 }
 
 module.exports = {

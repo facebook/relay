@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fffdc4713e2059dd7f3cd53712e3411a>>
+ * @generated SignedSource<<409089cd453d59df4713d0cf022fe015>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReferenceMarkerTestPlainUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayReferenceMarkerTestPlainUserNameRenderer_name$fragmentType: RelayReferenceMarkerTestPlainUserNameRenderer_name$ref;
-export type RelayReferenceMarkerTestPlainUserNameRenderer_name = {|
-  +plaintext: ?string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReferenceMarkerTestPlainUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayReferenceMarkerTestPlainUserNameRenderer_name$data = {|
   +data: ?{|
     +text: ?string,
   |},
-  +$refType: RelayReferenceMarkerTestPlainUserNameRenderer_name$ref,
+  +plaintext: ?string,
+  +$fragmentType: RelayReferenceMarkerTestPlainUserNameRenderer_name$fragmentType,
 |};
-export type RelayReferenceMarkerTestPlainUserNameRenderer_name$data = RelayReferenceMarkerTestPlainUserNameRenderer_name;
 export type RelayReferenceMarkerTestPlainUserNameRenderer_name$key = {
   +$data?: RelayReferenceMarkerTestPlainUserNameRenderer_name$data,
-  +$fragmentRefs: RelayReferenceMarkerTestPlainUserNameRenderer_name$ref,
+  +$fragmentSpreads: RelayReferenceMarkerTestPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -74,4 +72,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "673e4e6c0b40cff68532b5fb08a29a58";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReferenceMarkerTestPlainUserNameRenderer_name$fragmentType,
+  RelayReferenceMarkerTestPlainUserNameRenderer_name$data,
+>*/);

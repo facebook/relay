@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,14 +12,14 @@
 
 'use strict';
 
+import type {IEnvironment} from '../store/RelayStoreTypes';
+import type {CacheConfig, OperationType} from '../util/RelayRuntimeTypes';
+import type {GraphQLTaggedNode} from './GraphQLTag';
+
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
 const {getRequest} = require('./GraphQLTag');
-
-import type {IEnvironment} from '../store/RelayStoreTypes';
-import type {CacheConfig, OperationType} from '../util/RelayRuntimeTypes';
-import type {GraphQLTaggedNode} from './GraphQLTag';
 
 /**
  * A helper function to fetch the results of a query. Note that results for
@@ -30,9 +30,9 @@ import type {GraphQLTaggedNode} from './GraphQLTag';
 function fetchQuery_DEPRECATED<T: OperationType>(
   environment: IEnvironment,
   taggedNode: GraphQLTaggedNode,
-  variables: $PropertyType<T, 'variables'>,
+  variables: T['variables'],
   cacheConfig?: ?CacheConfig,
-): Promise<$PropertyType<T, 'response'>> {
+): Promise<T['response']> {
   const query = getRequest(taggedNode);
   if (query.params.operationKind !== 'query') {
     throw new Error('fetchQuery: Expected query operation');

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ae19bad3d01547a1e2897c80dfc5711b>>
+ * @generated SignedSource<<b591d5cd81c04f6bbfe240c9d7113812>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,17 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithDeferTestUserFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithDeferTestUserFragment$fragmentType: RelayModernEnvironmentExecuteWithDeferTestUserFragment$ref;
-export type RelayModernEnvironmentExecuteWithDeferTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithDeferTestUserFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithDeferTestUserFragment$data = {|
   +id: string,
   +name: ?string,
-  +$refType: RelayModernEnvironmentExecuteWithDeferTestUserFragment$ref,
+  +$fragmentType: RelayModernEnvironmentExecuteWithDeferTestUserFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithDeferTestUserFragment$data = RelayModernEnvironmentExecuteWithDeferTestUserFragment;
 export type RelayModernEnvironmentExecuteWithDeferTestUserFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithDeferTestUserFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferTestUserFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferTestUserFragment$fragmentType,
   ...
 };
 */
@@ -61,4 +59,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "eed70db622188a89bf789b59e251237f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithDeferTestUserFragment$fragmentType,
+  RelayModernEnvironmentExecuteWithDeferTestUserFragment$data,
+>*/);

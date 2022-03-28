@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,9 +10,9 @@
 
 'use strict';
 
-const GraphQL = require('graphql');
-
 import type {DocumentNode} from 'graphql';
+
+const GraphQL = require('graphql');
 
 /**
  * Given a babel AST path to a tagged template literal, return an AST if it is

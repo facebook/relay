@@ -1,0 +1,44 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query validateGlobalVariablesSharedFragmentQuery($condition: Boolean) {
+  me {
+    # first visit a fragment that expects `$condition: Boolean`
+    ...validateGlobalVariablesSharedFragment_user
+    # then visit a fragment that expects `$condition: Boolean!` - so this *should* error
+    ...validateGlobalVariablesSharedFragment_nonNull
+  }
+  viewer {
+    actor {
+      # then visit the (already cached) fragment that expects `$condition: Boolean` -
+      # this shouldn't overwrite the more-specific type that we saw in the second fragment
+      ...validateGlobalVariablesSharedFragment_user
+    }
+  }
+}
+
+fragment validateGlobalVariablesSharedFragment_user on User {
+  firstName(if: $condition)
+}
+
+fragment validateGlobalVariablesSharedFragment_nonNull on User {
+  # ERROR: nullable values flows into non-nullable arg
+  ... @include(if: $condition) {
+    lastName
+  }
+}
+==================================== ERROR ====================================
+✖︎ Variable was defined as type 'Boolean' but used where a variable of type 'Boolean!' is expected.
+
+  validate-global-variables-shared-fragment.invalid.graphql:2:50
+    1 │ # expected-to-throw
+    2 │ query validateGlobalVariablesSharedFragmentQuery($condition: Boolean) {
+      │                                                  ^^^^^^^^^^
+    3 │   me {
+
+  ℹ︎ Variable is used as 'Boolean!'
+
+  validate-global-variables-shared-fragment.invalid.graphql:24:20
+   23 │   # ERROR: nullable values flows into non-nullable arg
+   24 │   ... @include(if: $condition) {
+      │                    ^^^^^^^^^^
+   25 │     lastName

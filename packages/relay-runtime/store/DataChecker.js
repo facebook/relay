@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,23 +13,7 @@
 
 'use strict';
 
-const RelayConcreteNode = require('../util/RelayConcreteNode');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const RelayModernRecord = require('./RelayModernRecord');
-const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
-const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
-const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
-const RelayStoreUtils = require('./RelayStoreUtils');
-
-const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
-const cloneRelayScalarHandleSourceField = require('./cloneRelayScalarHandleSourceField');
-const getOperation = require('../util/getOperation');
-const invariant = require('invariant');
-
-const {isClientID} = require('./ClientID');
-const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
-const {generateTypeID} = require('./TypeID');
-
+import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
   NormalizationField,
   NormalizationFlightField,
@@ -51,12 +35,29 @@ import type {
   RecordSource,
 } from './RelayStoreTypes';
 
+const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
+const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
+const getOperation = require('../util/getOperation');
+const RelayConcreteNode = require('../util/RelayConcreteNode');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
+const {isClientID} = require('./ClientID');
+const cloneRelayHandleSourceField = require('./cloneRelayHandleSourceField');
+const cloneRelayScalarHandleSourceField = require('./cloneRelayScalarHandleSourceField');
+const {getLocalVariables} = require('./RelayConcreteVariables');
+const RelayModernRecord = require('./RelayModernRecord');
+const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
+const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
+const RelayStoreUtils = require('./RelayStoreUtils');
+const {generateTypeID} = require('./TypeID');
+const invariant = require('invariant');
+
 export type Availability = {|
   +status: 'available' | 'missing',
   +mostRecentlyInvalidatedAt: ?number,
 |};
 
 const {
+  ACTOR_CHANGE,
   CONDITION,
   CLIENT_COMPONENT,
   CLIENT_EXTENSION,
@@ -72,12 +73,8 @@ const {
   STREAM,
   TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
-const {
-  ROOT_ID,
-  getModuleOperationKey,
-  getStorageKey,
-  getArgumentValues,
-} = RelayStoreUtils;
+const {ROOT_ID, getModuleOperationKey, getStorageKey, getArgumentValues} =
+  RelayStoreUtils;
 
 /**
  * Synchronously check whether the records required to fulfill the given
@@ -90,8 +87,9 @@ const {
  * If all records are present, returns `true`, otherwise `false`.
  */
 function check(
-  source: RecordSource,
-  target: MutableRecordSource,
+  getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
+  getTargetForActor: (actorIdentifier: ActorIdentifier) => MutableRecordSource,
+  defaultActorIdentifier: ActorIdentifier,
   selector: NormalizationSelector,
   handlers: $ReadOnlyArray<MissingFieldHandler>,
   operationLoader: ?OperationLoader,
@@ -100,8 +98,9 @@ function check(
 ): Availability {
   const {dataID, node, variables} = selector;
   const checker = new DataChecker(
-    source,
-    target,
+    getSourceForActor,
+    getTargetForActor,
+    defaultActorIdentifier,
     variables,
     handlers,
     operationLoader,
@@ -125,26 +124,65 @@ class DataChecker {
   _source: RecordSource;
   _variables: Variables;
   _shouldProcessClientComponents: ?boolean;
+  +_getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource;
+  +_getTargetForActor: (
+    actorIdentifier: ActorIdentifier,
+  ) => MutableRecordSource;
+  +_getDataID: GetDataID;
+  +_mutatorRecordSourceProxyCache: Map<
+    ActorIdentifier,
+    [RelayRecordSourceMutator, RelayRecordSourceProxy],
+  >;
 
   constructor(
-    source: RecordSource,
-    target: MutableRecordSource,
+    getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
+    getTargetForActor: (
+      actorIdentifier: ActorIdentifier,
+    ) => MutableRecordSource,
+    defaultActorIdentifier: ActorIdentifier,
     variables: Variables,
     handlers: $ReadOnlyArray<MissingFieldHandler>,
     operationLoader: ?OperationLoader,
     getDataID: GetDataID,
     shouldProcessClientComponents: ?boolean,
   ) {
-    const mutator = new RelayRecordSourceMutator(source, target);
+    this._getSourceForActor = getSourceForActor;
+    this._getTargetForActor = getTargetForActor;
+    this._getDataID = getDataID;
+    this._source = getSourceForActor(defaultActorIdentifier);
+    this._mutatorRecordSourceProxyCache = new Map();
+    const [mutator, recordSourceProxy] = this._getMutatorAndRecordProxyForActor(
+      defaultActorIdentifier,
+    );
     this._mostRecentlyInvalidatedAt = null;
     this._handlers = handlers;
     this._mutator = mutator;
     this._operationLoader = operationLoader ?? null;
-    this._recordSourceProxy = new RelayRecordSourceProxy(mutator, getDataID);
+    this._recordSourceProxy = recordSourceProxy;
     this._recordWasMissing = false;
-    this._source = source;
     this._variables = variables;
     this._shouldProcessClientComponents = shouldProcessClientComponents;
+  }
+
+  _getMutatorAndRecordProxyForActor(
+    actorIdentifier: ActorIdentifier,
+  ): [RelayRecordSourceMutator, RelayRecordSourceProxy] {
+    let tuple = this._mutatorRecordSourceProxyCache.get(actorIdentifier);
+    if (tuple == null) {
+      const target = this._getTargetForActor(actorIdentifier);
+
+      const mutator = new RelayRecordSourceMutator(
+        this._getSourceForActor(actorIdentifier),
+        target,
+      );
+      const recordSourceProxy = new RelayRecordSourceProxy(
+        mutator,
+        this._getDataID,
+      );
+      tuple = [mutator, recordSourceProxy];
+      this._mutatorRecordSourceProxyCache.set(actorIdentifier, tuple);
+    }
+    return tuple;
   }
 
   check(node: NormalizationNode, dataID: DataID): Availability {
@@ -167,7 +205,6 @@ class DataChecker {
       'RelayAsyncLoader(): Undefined variable `%s`.',
       name,
     );
-    // $FlowFixMe[cannot-write]
     return this._variables[name];
   }
 
@@ -184,6 +221,8 @@ class DataChecker {
     ...
   } {
     return {
+      /* $FlowFixMe[class-object-subtyping] added when improving typing for
+       * this parameters */
       args: field.args ? getArgumentValues(field.args, this._variables) : {},
       // Getting a snapshot of the record state is potentially expensive since
       // we will need to merge the sink and source records. Since we do not create
@@ -309,8 +348,13 @@ class DataChecker {
             this._checkLink(selection, dataID);
           }
           break;
+        case ACTOR_CHANGE:
+          this._checkActorChange(selection.linkedField, dataID);
+          break;
         case CONDITION:
-          const conditionValue = this._getVariableValue(selection.condition);
+          const conditionValue = Boolean(
+            this._getVariableValue(selection.condition),
+          );
           if (conditionValue === selection.passingValue) {
             this._traverseSelections(selection.selections, dataID);
           }
@@ -323,7 +367,7 @@ class DataChecker {
             if (typeName === selection.type) {
               this._traverseSelections(selection.selections, dataID);
             }
-          } else if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
+          } else {
             // Abstract refinement: check data depending on whether the type
             // conforms to the interface/union or not:
             // - Type known to _not_ implement the interface: don't check the selections.
@@ -349,10 +393,6 @@ class DataChecker {
               // missing so don't bother reading the fragment
               this._handleMissing();
             } // else false: known to not implement the interface
-          } else {
-            // legacy behavior for abstract refinements: always check even
-            // if the type doesn't conform
-            this._traverseSelections(selection.selections, dataID);
           }
           break;
         }
@@ -388,9 +428,15 @@ class DataChecker {
         case STREAM:
           this._traverseSelections(selection.selections, dataID);
           break;
-        // $FlowFixMe[incompatible-type]
         case FRAGMENT_SPREAD:
+          const prevVariables = this._variables;
+          this._variables = getLocalVariables(
+            this._variables,
+            selection.fragment.argumentDefinitions,
+            selection.args,
+          );
           this._traverseSelections(selection.fragment.selections, dataID);
+          this._variables = prevVariables;
           break;
         case CLIENT_EXTENSION:
           const recordWasMissing = this._recordWasMissing;
@@ -398,25 +444,23 @@ class DataChecker {
           this._recordWasMissing = recordWasMissing;
           break;
         case TYPE_DISCRIMINATOR:
-          if (RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT) {
-            const {abstractKey} = selection;
-            const recordType = this._mutator.getType(dataID);
-            invariant(
-              recordType != null,
-              'DataChecker: Expected record `%s` to have a known type',
-              dataID,
-            );
-            const typeID = generateTypeID(recordType);
-            const implementsInterface = this._mutator.getValue(
-              typeID,
-              abstractKey,
-            );
-            if (implementsInterface == null) {
-              // unsure if the type implements the interface: data is
-              // missing
-              this._handleMissing();
-            } // else: if it does or doesn't implement, we don't need to check or skip anything else
-          }
+          const {abstractKey} = selection;
+          const recordType = this._mutator.getType(dataID);
+          invariant(
+            recordType != null,
+            'DataChecker: Expected record `%s` to have a known type',
+            dataID,
+          );
+          const typeID = generateTypeID(recordType);
+          const implementsInterface = this._mutator.getValue(
+            typeID,
+            abstractKey,
+          );
+          if (implementsInterface == null) {
+            // unsure if the type implements the interface: data is
+            // missing
+            this._handleMissing();
+          } // else: if it does or doesn't implement, we don't need to check or skip anything else
           break;
         case FLIGHT_FIELD:
           if (RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD) {
@@ -462,7 +506,14 @@ class DataChecker {
     const normalizationRootNode = operationLoader.get(operationReference);
     if (normalizationRootNode != null) {
       const operation = getOperation(normalizationRootNode);
+      const prevVariables = this._variables;
+      this._variables = getLocalVariables(
+        this._variables,
+        operation.argumentDefinitions,
+        moduleImport.args,
+      );
       this._traverse(operation, dataID);
+      this._variables = prevVariables;
     } else {
       // If the fragment is not available, we assume that the data cannot have been
       // processed yet and must therefore be missing.
@@ -516,6 +567,37 @@ class DataChecker {
           this._traverse(field, linkedID);
         }
       });
+    }
+  }
+
+  _checkActorChange(field: NormalizationLinkedField, dataID: DataID): void {
+    const storageKey = getStorageKey(field, this._variables);
+    const record = this._source.get(dataID);
+    const tuple =
+      record != null
+        ? RelayModernRecord.getActorLinkedRecordID(record, storageKey)
+        : record;
+
+    if (tuple == null) {
+      if (tuple === undefined) {
+        this._handleMissing();
+      }
+    } else {
+      const [actorIdentifier, linkedID] = tuple;
+      const prevSource = this._source;
+      const prevMutator = this._mutator;
+      const prevRecordSourceProxy = this._recordSourceProxy;
+
+      const [mutator, recordSourceProxy] =
+        this._getMutatorAndRecordProxyForActor(actorIdentifier);
+
+      this._source = this._getSourceForActor(actorIdentifier);
+      this._mutator = mutator;
+      this._recordSourceProxy = recordSourceProxy;
+      this._traverse(field, linkedID);
+      this._source = prevSource;
+      this._mutator = prevMutator;
+      this._recordSourceProxy = prevRecordSourceProxy;
     }
   }
 

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<483f7c66ac2ef6ed37f47902039ab5ea>>
+ * @generated SignedSource<<c3efc34c87369de06fb7d8bc6a1fcf83>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentDeleteInput = {|
-  clientMutationId?: ?string,
   commentId?: ?string,
 |};
-export type RelayOperationTrackerTest2MutationVariables = {|
+export type RelayOperationTrackerTest2Mutation$variables = {|
   input?: ?CommentDeleteInput,
 |};
-export type RelayOperationTrackerTest2MutationResponse = {|
+export type RelayOperationTrackerTest2Mutation$data = {|
   +commentDelete: ?{|
     +__typename: string,
   |},
 |};
 export type RelayOperationTrackerTest2Mutation = {|
-  variables: RelayOperationTrackerTest2MutationVariables,
-  response: RelayOperationTrackerTest2MutationResponse,
+  response: RelayOperationTrackerTest2Mutation$data,
+  variables: RelayOperationTrackerTest2Mutation$variables,
 |};
 */
 
@@ -100,4 +99,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e9dad29ed57988cb37c5a266d488dc06";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayOperationTrackerTest2Mutation$variables,
+  RelayOperationTrackerTest2Mutation$data,
+>*/);

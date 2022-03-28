@@ -16,7 +16,6 @@ Table of Contents:
 Use `commitMutation` to create and execute mutations. `commitMutation` has the following signature:
 
 ```javascript
-
 commitMutation(
   environment: Environment,
   config: {
@@ -30,12 +29,11 @@ commitMutation(
     configs?: Array<RelayMutationConfig>,
   },
 );
-
 ```
 
 ### Arguments
 
--   `environment`: The [Relay Environment](./relay-environment). **Note:** To ensure the mutation is performed on the correct `environment`, it's recommended to use the environment available within components (from `this.props.relay.environment`), instead of referencing a global environment.
+-   `environment`: The [Relay Environment](Modern-RelayEnvironment.md). **Note:** To ensure the mutation is performed on the correct `environment`, it's recommended to use the environment available within components (from `this.props.relay.environment`), instead of referencing a global environment.
 -   `config`:
     -   `mutation`: The `graphql` tagged mutation query.
     -   `variables`: Object containing the variables needed for the mutation. For example, if the mutation defines an `$input` variable, this object should contain an `input` key, whose shape must match the shape of the data expected by the mutation as defined by the GraphQL schema.
@@ -43,13 +41,13 @@ commitMutation(
     -   `onError`: Callback function executed if Relay encounters an error during the request.
     -   `optimisticResponse`: Object containing the data to optimistically update the local in-memory store, i.e. immediately, before the mutation request has completed. This object must have the same shape as the mutation's response type, as defined by the GraphQL schema. If provided, Relay will use the `optimisticResponse` data to update the fields on the relevant records in the local data store, _before_ `optimisticUpdater` is executed. If an error occurs during the mutation request, the optimistic update will be rolled back.
     -   `optimisticUpdater`: Function used to optimistically update the local in-memory store, i.e. immediately, before the mutation request has completed. If an error occurs during the mutation request, the optimistic update will be rolled back.
-        This function takes a `store`, which is a proxy of the in-memory [Relay Store](./relay-store). In this function, the client defines 'how to' update the local data via the `store` instance. For details on how to use the `store`, please refer to our [Relay Store API Reference](./relay-store).
+        This function takes a `store`, which is a proxy of the in-memory [Relay Store](Modern-RelayStore.md). In this function, the client defines 'how to' update the local data via the `store` instance. For details on how to use the `store`, please refer to our [Relay Store API Reference](Modern-RelayStore.md).
         **Please note:**
         -   It is usually preferable to just pass an `optimisticResponse` option instead of an `optimisticUpdater`, unless you need to perform updates on the local records that are more complicated than just updating fields (e.g. deleting records or adding items to collections).
         -   If you do decide to use an `optimisticUpdater`, often times it can be the same function as `updater`.
     -   `updater`: Function used to update the local in-memory store based on the **real** server response from the mutation. If `updater` is not provided, by default, Relay will know to automatically update the fields on the records referenced in the mutation response; however, you should pass an `updater` if you need to make more complicated updates than just updating fields (e.g. deleting records or adding items to collections).
         When the server response comes back, Relay first reverts any changes introduced by `optimisticUpdater` or `optimisticResponse` and will then execute `updater`.
-        This function takes a `store`, which is a proxy of the in-memory [Relay Store](./relay-store). In this function, the client defines 'how to' update the local data based on the server response via the `store` instance. For details on how to use the `store`, please refer to our [Relay Store API Reference](./relay-store).
+        This function takes a `store`, which is a proxy of the in-memory [Relay Store](Modern-RelayStore.md). In this function, the client defines 'how to' update the local data based on the server response via the `store` instance. For details on how to use the `store`, please refer to our [Relay Store API Reference](Modern-RelayStore.md).
     -   `configs`:  Array containing objects describing `optimisticUpdater`/`updater` configurations. `configs` provides a convenient way to specify the `updater` behavior without having to write an `updater` function. See our section on [Updater Configs](#updater-configs) for more details.
 
 ## Simple Example
@@ -57,7 +55,6 @@ commitMutation(
 Example of a simple mutation:
 
 ```javascript
-
 import {commitMutation, graphql} from 'react-relay';
 
 const mutation = graphql`
@@ -92,7 +89,6 @@ function markNotificationAsRead(environment, source, storyID) {
     },
   );
 }
-
 ```
 
 ## Optimistic Updates
@@ -100,7 +96,6 @@ function markNotificationAsRead(environment, source, storyID) {
 To improve perceived responsiveness, you may wish to perform an "optimistic update", in which the client immediately updates to reflect the anticipated new value even before the response from the server has come back. The simplest way to do this is by providing an `optimisticResponse` and adding it to the `config` that we pass into `commitMutation`:
 
 ```javascript
-
 const mutation = graphql`
   mutation MarkReadNotificationMutation(
     $input: MarkReadNotificationData!
@@ -129,7 +124,6 @@ commitMutation(
     variables,
   },
 );
-
 ```
 
 Another way to enable optimistic updates is via the `optimisticUpdater`, which can be used for more complicated update scenarios. Using `optimisticUpdater` is covered in the section [below](#using-updater-and-optimisticupdater).
@@ -149,7 +143,6 @@ Given a deletedIDFieldName, Relay will remove the node(s) from the connection.
 #### Example
 
 ```javascript
-
 const mutation = graphql`
   mutation DestroyShipMutation($input: DestroyShipData!) {
     destroyShip(input: $input) {
@@ -167,7 +160,6 @@ const configs = [{
   type: 'NODE_DELETE',
   deletedIDFieldName: 'destroyedShipId',
 }];
-
 ```
 
 ### RANGE_ADD
@@ -187,7 +179,6 @@ Given a parent, information about the connection, and the name of the newly crea
 #### Example
 
 ```javascript
-
 const mutation = graphql`
   mutation AddShipMutation($input: AddShipData!) {
     addShip(input: $input) {
@@ -210,7 +201,6 @@ const configs = [{
   }],
   edgeName: 'newShipEdge',
 }];
-
 ```
 
 ### RANGE_DELETE
@@ -232,7 +222,6 @@ from the connection but leave the associated record(s) in the store.
 #### Example
 
 ```javascript
-
 const mutation = graphql`
   mutation RemoveTagsMutation($input: RemoveTagsData!) {
     removeTags(input: $input) {
@@ -255,7 +244,6 @@ const configs = [{
   pathToConnection: ['todo', 'tags'],
   deletedIDFieldName: removedTagId
 }];
-
 ```
 
 ## Using updater and optimisticUpdater
@@ -270,10 +258,9 @@ When you provide these functions, this is roughly what happens during the mutati
 -   Relay will then automatically update the fields under the record corresponding to the ids in the response payload.
 -   If an `updater` was provided, Relay will execute it and update the store accordingly. The server payload will be available to the `updater` as a root field in the store.
 
-Here are a quick example of adding a todo item to a Todo list using this [example schema](https://github.com/relayjs/relay-examples/blob/master/todo/data/schema.graphql#L36):
+Here are a quick example of adding a todo item to a Todo list using this [example schema](https://github.com/relayjs/relay-examples/blob/main/todo/data/schema.graphql#L36):
 
 ```javascript
-
 // AddTodoMutation.js
 import {commitMutation, graphql} from 'react-relay';
 import {ConnectionHandler} from 'relay-runtime';
@@ -304,7 +291,7 @@ function sharedUpdater(store, user, newEdge) {
   // Get the user's Todo List using ConnectionHandler helper
   const conn = ConnectionHandler.getConnection(
     userProxy,
-    'TodoList_todos', // This is the connection identifier, defined here: https://github.com/relayjs/relay-examples/blob/master/todo/js/components/TodoList.js#L68
+    'TodoList_todos', // This is the connection identifier, defined here: https://github.com/relayjs/relay-examples/blob/main/todo/js/components/TodoList.js#L68
   );
 
   // Insert the new todo into the Todo List connection
@@ -365,7 +352,6 @@ function commit(
     }
   );
 }
-
 ```
 
-For details on how to interact with the Relay Store, please refer to our Relay Store [docs](./relay-store).
+For details on how to interact with the Relay Store, please refer to our Relay Store [docs](Modern-RelayStore.md).

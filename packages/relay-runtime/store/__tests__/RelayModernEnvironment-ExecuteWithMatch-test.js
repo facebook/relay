@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,21 +13,25 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const nullthrows = require('nullthrows');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const nullthrows = require('nullthrows');
+const {
+  cannotReadPropertyOfUndefined__DEPRECATED,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
 
-import type {NormalizationRootNode} from '../../util/NormalizationNode';
+disallowWarnings();
 
 describe('execute() a query with @match', () => {
   let callbacks: {|
@@ -59,9 +63,7 @@ describe('execute() a query with @match', () => {
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithMatchTestUserQuery($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -75,7 +77,7 @@ describe('execute() a query with @match', () => {
           }
         }
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name on PlainUserNameRenderer {
@@ -87,7 +89,7 @@ describe('execute() a query with @match', () => {
     `;
 
     markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql');
-    markdownRendererFragment = getFragment(graphql`
+    markdownRendererFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         __typename
         markdown
@@ -95,7 +97,7 @@ describe('execute() a query with @match', () => {
           markup @__clientField(handle: "markup_handler")
         }
       }
-    `);
+    `;
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
     MarkupHandler = {
@@ -162,6 +164,7 @@ describe('execute() a query with @match', () => {
               'RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },
@@ -185,14 +188,15 @@ describe('execute() a query with @match', () => {
     expect(operationSnapshot.data).toEqual({
       node: {
         nameRenderer: {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
           __fragmentPropName: 'name',
           __fragments: {
-            RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name:
+              {},
           },
           __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'MarkdownUserNameRenderer.react',
         },
       },
@@ -229,6 +233,7 @@ describe('execute() a query with @match', () => {
               'RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -294,6 +299,7 @@ describe('execute() a query with @match', () => {
               'RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },
@@ -345,6 +351,7 @@ describe('execute() a query with @match', () => {
               'RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },
@@ -363,7 +370,7 @@ describe('execute() a query with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(operation.request),
+        .getPendingOperationsAffectingOwner(operation.request),
     ).not.toBe(null);
 
     expect(operationLoader.load).toBeCalledTimes(1);
@@ -380,7 +387,7 @@ describe('execute() a query with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(operation.request),
+        .getPendingOperationsAffectingOwner(operation.request),
     ).toBe(null);
   });
 
@@ -399,6 +406,7 @@ describe('execute() a query with @match', () => {
               'RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },
@@ -423,7 +431,7 @@ describe('execute() a query with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(operation.request),
+        .getPendingOperationsAffectingOwner(operation.request),
     ).not.toBe(null);
 
     dataSource.complete();
@@ -435,7 +443,7 @@ describe('execute() a query with @match', () => {
     expect(
       environment
         .getOperationTracker()
-        .getPromiseForPendingOperationsAffectingOwner(operation.request),
+        .getPendingOperationsAffectingOwner(operation.request),
     ).toBe(null);
   });
 
@@ -454,6 +462,7 @@ describe('execute() a query with @match', () => {
               'RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },
@@ -491,6 +500,7 @@ describe('execute() a query with @match', () => {
               'RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },
@@ -518,6 +528,7 @@ describe('execute() a query with @match', () => {
               'RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },
@@ -550,6 +561,7 @@ describe('execute() a query with @match', () => {
               'RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               markup: '<markup/>',
             },
           },
@@ -567,7 +579,7 @@ describe('execute() a query with @match', () => {
 
     expect(callbacks.error).toBeCalledTimes(1);
     expect(callbacks.error.mock.calls[0][0].message).toBe(
-      "Cannot read property 'length' of undefined",
+      cannotReadPropertyOfUndefined__DEPRECATED('length'),
     );
   });
 
@@ -586,6 +598,7 @@ describe('execute() a query with @match', () => {
               'RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
             markdown: 'markdown payload',
             data: {
+              id: 'data-1',
               // NOTE: should be uppercased when normalized (by MarkupHandler)
               markup: '<markup/>',
             },

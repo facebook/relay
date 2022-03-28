@@ -1,33 +1,53 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use common::{NamedItem, WithLocation};
-use fnv::FnvHashSet;
 use graphql_ir::{Argument, ConstantValue, Directive, Value};
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey, StringKeySet};
 use lazy_static::lazy_static;
 
 lazy_static! {
     pub static ref DIRECTIVE_SPLIT_OPERATION: StringKey = "__splitOperation".intern();
     static ref ARG_DERIVED_FROM: StringKey = "derivedFrom".intern();
-    static ref ARG_PARENT_SOURCES: StringKey = "parentSources".intern();
+    static ref ARG_PARENT_DOCUMENTS: StringKey = "parentDocuments".intern();
     static ref ARG_RAW_RESPONSE_TYPE: StringKey = "rawResponseType".intern();
 }
 
 /// The split operation metadata directive indicates that an operation was split
 /// out by the compiler from a parent normalization file.
+///
+/// In the following GraphQL code, we would generate a `F$normalization.graphql.js`
+/// file. For that `SplitOperation`:
+/// - `derived_from` is `F`.
+/// - `parent_documents` are `Q1` and `F2`.
+///
+/// ```graphql
+/// fragment F on Query {
+///   # ...
+/// }
+/// query Q1 {
+///   ...F @module
+/// }
+/// query Q2 {
+///   ...F
+/// }
+/// fragment F2 on Query {
+///   ...F @module
+/// }
+/// ```
 pub struct SplitOperationMetadata {
-    /// Name of the fragment that this split operation represents.
+    /// Name of the fragment that this split operation represents. This is used
+    /// to determine the name of the generated artifact.
     pub derived_from: StringKey,
 
     /// The names of the fragments and operations that included this fragment.
     /// They are the reason this split operation exist. If they are all removed,
     /// this file also needs to be removed.
-    pub parent_sources: FnvHashSet<StringKey>,
+    pub parent_documents: StringKeySet,
 
     /// Should a @raw_response_type style type be generated.
     pub raw_response_type: bool,
@@ -43,9 +63,9 @@ impl SplitOperationMetadata {
                 ))),
             },
             Argument {
-                name: WithLocation::generated(*ARG_PARENT_SOURCES),
+                name: WithLocation::generated(*ARG_PARENT_DOCUMENTS),
                 value: WithLocation::generated(Value::Constant(ConstantValue::List(
-                    self.parent_sources
+                    self.parent_documents
                         .iter()
                         .cloned()
                         .map(ConstantValue::String)
@@ -62,6 +82,7 @@ impl SplitOperationMetadata {
         Directive {
             name: WithLocation::generated(*DIRECTIVE_SPLIT_OPERATION),
             arguments,
+            data: None,
         }
     }
 }
@@ -74,16 +95,16 @@ impl From<&Directive> for SplitOperationMetadata {
             .named(*ARG_DERIVED_FROM)
             .expect("Expected derived_from arg to exist");
         let derived_from = derived_from_arg.value.item.expect_string_literal();
-        let parent_sources_arg = directive
+        let parent_documents_arg = directive
             .arguments
-            .named(*ARG_PARENT_SOURCES)
-            .expect("Expected parent_sources arg to exist");
+            .named(*ARG_PARENT_DOCUMENTS)
+            .expect("Expected parent_documents arg to exist");
         let raw_response_type = directive.arguments.named(*ARG_RAW_RESPONSE_TYPE).is_some();
 
         if let Value::Constant(ConstantValue::List(source_definition_names)) =
-            &parent_sources_arg.value.item
+            &parent_documents_arg.value.item
         {
-            let parent_sources = source_definition_names
+            let parent_documents = source_definition_names
                 .iter()
                 .map(|val| {
                     if let ConstantValue::String(name) = val {
@@ -96,7 +117,7 @@ impl From<&Directive> for SplitOperationMetadata {
                 .collect();
             Self {
                 derived_from,
-                parent_sources,
+                parent_documents,
                 raw_response_type,
             }
         } else {

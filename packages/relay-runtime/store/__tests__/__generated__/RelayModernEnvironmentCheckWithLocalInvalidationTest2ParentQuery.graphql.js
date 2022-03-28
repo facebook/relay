@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<84cede6dc47c8d6cb1d643f01d0e668d>>
+ * @generated SignedSource<<69661fc1d27e1904a1b31940199ed005>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$ref = any;
-export type RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType = any;
+export type RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$variables = {|
   size: $ReadOnlyArray<?number>,
 |};
-export type RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQueryResponse = {|
+export type RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$data = {|
   +me: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery = {|
-  variables: RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQueryVariables,
-  response: RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQueryResponse,
+  response: RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$data,
+  variables: RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$variables,
 |};
 */
 
@@ -156,4 +156,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ca78599dc4e3d1312e5ed2be59582742";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$variables,
+  RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$data,
+>*/);

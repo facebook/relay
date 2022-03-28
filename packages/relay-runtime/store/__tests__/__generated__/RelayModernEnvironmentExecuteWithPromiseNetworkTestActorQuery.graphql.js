@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8fa50551a82d93b73d28f7c1d954c9ab>>
+ * @generated SignedSource<<d1f10c09169d07bd5ab47ad48237cb16>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,11 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$variables = {|
   fetchSize: boolean,
 |};
-export type RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$data = {|
   +me: ?{|
     +name: ?string,
     +profilePicture?: ?{|
@@ -28,8 +28,8 @@ export type RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQueryRespons
   |},
 |};
 export type RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery = {|
-  variables: RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQueryVariables,
-  response: RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQueryResponse,
+  response: RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$data,
+  variables: RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$variables,
 |};
 */
 
@@ -146,4 +146,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "850de1032d800f34d3684ba47d831f8d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$variables,
+  RelayModernEnvironmentExecuteWithPromiseNetworkTestActorQuery$data,
+>*/);

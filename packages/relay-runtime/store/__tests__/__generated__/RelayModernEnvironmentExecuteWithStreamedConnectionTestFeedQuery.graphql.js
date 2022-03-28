@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4a5e6a40fd1ecd6db17fe1a0944e1b91>>
+ * @generated SignedSource<<993356666953b585c9d353107a586471>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQueryVariables = {|
-  enableStream: boolean,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$variables = {|
   after?: ?string,
+  enableStream: boolean,
 |};
-export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$data = {|
   +viewer: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery = {|
-  variables: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQueryVariables,
-  response: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQueryResponse,
+  response: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$data,
+  variables: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$variables,
 |};
 */
 
@@ -128,7 +128,6 @@ return {
                 "if": "enableStream",
                 "kind": "Stream",
                 "label": "RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$stream$RelayModernEnvironment_newsFeed",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,
@@ -202,8 +201,7 @@ return {
                     ],
                     "storageKey": null
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               },
               {
                 "if": "enableStream",
@@ -269,4 +267,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "82b74c724400cf33ab9135fc73b2301a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$variables,
+  RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$data,
+>*/);

@@ -1,12 +1,12 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use crate::{
-    errors::{BuildProjectError, Error, Result},
+    errors::{BuildProjectError, Error},
     source_for_location, FsSourceReader, SourceReader,
 };
 use common::Diagnostic;
@@ -16,7 +16,8 @@ use std::path::PathBuf;
 
 pub trait StatusReporter {
     fn build_starts(&self);
-    fn build_finishes(&self, result: &Result<()>);
+    fn build_completes(&self);
+    fn build_errors(&self, error: &Error);
 }
 
 pub struct ConsoleStatusReporter {
@@ -38,7 +39,7 @@ impl ConsoleStatusReporter {
         match error {
             Error::DiagnosticsError { errors } => {
                 for diagnostic in errors {
-                    self.print_diagnostic(diagnostic);
+                    error!("{}", self.print_diagnostic(diagnostic));
                 }
             }
             Error::BuildProjectsErrors { errors } => {
@@ -57,14 +58,24 @@ impl ConsoleStatusReporter {
 
     fn print_project_error(&self, error: &BuildProjectError) {
         match error {
-            BuildProjectError::ValidationErrors { errors } => {
+            BuildProjectError::ValidationErrors {
+                errors,
+                project_name,
+            } => {
                 for diagnostic in errors {
-                    self.print_diagnostic(diagnostic);
+                    error!(
+                        "Error in the project `{}`: {}",
+                        project_name,
+                        self.print_diagnostic(diagnostic)
+                    );
                 }
             }
-            BuildProjectError::PersistErrors { errors } => {
+            BuildProjectError::PersistErrors {
+                errors,
+                project_name,
+            } => {
                 for error in errors {
-                    error!("{}", error);
+                    error!("Error in the project `{}`: {}", project_name, error);
                 }
             }
             _ => {
@@ -73,24 +84,24 @@ impl ConsoleStatusReporter {
         }
     }
 
-    fn print_diagnostic(&self, diagnostic: &Diagnostic) {
+    fn print_diagnostic(&self, diagnostic: &Diagnostic) -> String {
         let printer = DiagnosticPrinter::new(|source_location| {
             source_for_location(&self.root_dir, source_location, self.source_reader.as_ref())
-                .map(|source| source.text)
+                .map(|source| source.to_text_source())
         });
-        error!("{}", printer.diagnostic_to_string(diagnostic));
+        printer.diagnostic_to_string(diagnostic)
     }
 }
 
 impl StatusReporter for ConsoleStatusReporter {
     fn build_starts(&self) {}
 
-    fn build_finishes(&self, result: &Result<()>) {
-        if let Err(error) = result {
-            self.print_error(error);
-            if !matches!(error, Error::Cancelled) {
-                error!("Compilation failed.");
-            }
+    fn build_completes(&self) {}
+
+    fn build_errors(&self, error: &Error) {
+        self.print_error(error);
+        if !matches!(error, Error::Cancelled) {
+            error!("Compilation failed.");
         }
     }
 }

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1a06acfb0ae322dc1477038c1275a094>>
+ * @generated SignedSource<<20992903f2cba51587d85fb8d5378656>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,23 +17,23 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery.node.outerRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$ref = any;
-export type RelayModernEnvironmentExecuteWithNestedMatchTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithNestedMatchTestUserQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery$data = {|
   +node: ?{|
     +outerRenderer?: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$fragmentType,
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery = {|
-  variables: RelayModernEnvironmentExecuteWithNestedMatchTestUserQueryVariables,
-  response: RelayModernEnvironmentExecuteWithNestedMatchTestUserQueryResponse,
+  response: RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery$data,
+  variables: RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery$variables,
 |};
 */
 
@@ -65,6 +65,7 @@ v3 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery",
       "fragmentName": "RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name",
       "fragmentPropName": "name",
@@ -184,4 +185,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d453d85e2370e80016d83f0f2969676d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery$variables,
+  RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery$data,
+>*/);

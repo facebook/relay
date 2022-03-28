@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4a95ad756b042b565f82b41efba99737>>
+ * @generated SignedSource<<797b478fd714935cbcbc840dac57ce67>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,23 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentDeleteInput = {|
-  clientMutationId?: ?string,
   commentId?: ?string,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutationVariables = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutation$variables = {|
   connections: $ReadOnlyArray<string>,
   input?: ?CommentDeleteInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutationResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutation$data = {|
   +commentDelete: ?{|
     +deletedCommentId: ?string,
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutation = {|
-  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutationVariables,
-  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutationResponse,
+  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutation$data,
+  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutation$variables,
 |};
 */
 
@@ -136,4 +135,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a4a81aece0ad22e38a090c8d3a59bc95";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutation$variables,
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentMutation$data,
+>*/);

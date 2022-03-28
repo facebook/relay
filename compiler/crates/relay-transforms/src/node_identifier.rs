@@ -1,18 +1,20 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::CustomMetadataDirectives;
-use crate::MATCH_CONSTANTS;
+use crate::{util::CustomMetadataDirectives, ModuleMetadata};
 use common::WithLocation;
+use graphql_ir::Field;
 use graphql_ir::*;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use schema::SDLSchema;
-use std::hash::{Hash, Hasher};
-use std::sync::Arc;
+use std::{
+    hash::{Hash, Hasher},
+    sync::Arc,
+};
 
 /// An identifier that is unique to a given selection: the alias for
 /// fields, the type for inline fragments, and a summary of the condition
@@ -31,11 +33,11 @@ impl NodeIdentifier {
         match selection {
             Selection::LinkedField(node) => NodeIdentifier::LinkedField(LinkedFieldIdentifier {
                 alias_or_name: node.alias_or_name(schema),
-                node: Arc::clone(&node),
+                node: Arc::clone(node),
             }),
             Selection::ScalarField(node) => NodeIdentifier::ScalarField(ScalarFieldIdentifier {
                 alias_or_name: node.alias_or_name(schema),
-                node: Arc::clone(&node),
+                node: Arc::clone(node),
             }),
             Selection::InlineFragment(node) => NodeIdentifier::InlineFragment(Arc::clone(node)),
             Selection::FragmentSpread(node) => NodeIdentifier::FragmentSpread(Arc::clone(node)),
@@ -267,20 +269,25 @@ impl LocationAgnosticPartialEq for Vec<Directive> {
 
 impl LocationAgnosticHash for Directive {
     fn location_agnostic_hash<H: Hasher>(&self, state: &mut H) {
-        if self.name.item == MATCH_CONSTANTS.custom_module_directive_name {
-            MATCH_CONSTANTS.custom_module_directive_name.hash(state);
+        if self.name.item == ModuleMetadata::directive_name() {
+            (ModuleMetadata::directive_name()).hash(state);
         } else if !CustomMetadataDirectives::should_skip_in_node_identifier(self.name.item) {
             self.name.location_agnostic_hash(state);
             self.arguments.location_agnostic_hash(state);
+            self.data.hash(state);
         }
     }
 }
 
 impl LocationAgnosticPartialEq for Directive {
     fn location_agnostic_eq(&self, other: &Self) -> bool {
-        self.name.location_agnostic_eq(&other.name)
-            && (self.name.item == MATCH_CONSTANTS.custom_module_directive_name
-                || self.arguments.location_agnostic_eq(&other.arguments))
+        if !self.name.location_agnostic_eq(&other.name) {
+            return false;
+        }
+        if self.name.item == ModuleMetadata::directive_name() {
+            return true;
+        }
+        self.arguments.location_agnostic_eq(&other.arguments) && self.data == other.data
     }
 }
 

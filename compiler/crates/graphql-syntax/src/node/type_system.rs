@@ -1,16 +1,16 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use super::constant_directive::ConstantDirective;
-use super::constant_value::ConstantValue;
+use super::constant_value::{ConstantValue, StringNode};
 use super::primitive::*;
 use super::type_annotation::TypeAnnotation;
 use common::Span;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use std::fmt;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
@@ -70,71 +70,73 @@ impl fmt::Display for TypeSystemDefinition {
                 interfaces,
                 fields,
                 directives,
-            }) => write_object_helper(f, &name.value, interfaces, &fields, directives, false),
+            }) => write_object_helper(f, &name.value, interfaces, fields, directives, false),
             TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
                 name,
                 interfaces,
                 fields,
                 directives,
-            }) => write_object_helper(f, &name.value, &interfaces, &fields, directives, true),
+            }) => write_object_helper(f, &name.value, interfaces, fields, directives, true),
             TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
                 name,
                 fields,
                 directives,
                 ..
-            }) => write_interface_helper(f, &name.value, &fields, directives, false),
+            }) => write_interface_helper(f, &name.value, fields, directives, false),
             TypeSystemDefinition::InterfaceTypeExtension(InterfaceTypeExtension {
                 name,
                 interfaces: _,
                 fields,
                 directives,
-            }) => write_interface_helper(f, &name.value, &fields, directives, true),
+            }) => write_interface_helper(f, &name.value, fields, directives, true),
             TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition {
                 name,
                 directives,
                 members,
-            }) => write_union_type_definition_helper(f, &name.value, &directives, members, false),
+            }) => write_union_type_definition_helper(f, &name.value, directives, members, false),
             TypeSystemDefinition::UnionTypeExtension(UnionTypeExtension {
                 name,
                 directives,
                 members,
-            }) => write_union_type_definition_helper(f, &name.value, &directives, members, true),
+            }) => write_union_type_definition_helper(f, &name.value, directives, members, true),
             TypeSystemDefinition::DirectiveDefinition(DirectiveDefinition {
                 name,
                 arguments,
                 repeatable,
                 locations,
-            }) => {
-                write_directive_definition_helper(f, &name.value, &arguments, repeatable, locations)
-            }
+                description,
+            }) => write_directive_definition_helper(
+                f,
+                &name.value,
+                arguments,
+                repeatable,
+                locations,
+                description,
+            ),
             TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
                 name,
                 directives,
                 fields,
-            }) => write_input_object_type_definition_helper(
-                f,
-                &name.value,
-                directives,
-                &fields,
-                false,
-            ),
+            }) => {
+                write_input_object_type_definition_helper(f, &name.value, directives, fields, false)
+            }
             TypeSystemDefinition::InputObjectTypeExtension(InputObjectTypeExtension {
                 name,
                 directives,
                 fields,
             }) => {
-                write_input_object_type_definition_helper(f, &name.value, directives, &fields, true)
+                write_input_object_type_definition_helper(f, &name.value, directives, fields, true)
             }
             TypeSystemDefinition::EnumTypeDefinition(EnumTypeDefinition {
                 name,
                 directives,
                 values,
-            }) => write_enum_type_definition_helper(f, &name.value, directives, &values, false),
+            }) => write_enum_type_definition_helper(f, &name.value, directives, values, false),
             TypeSystemDefinition::EnumTypeExtension(EnumTypeExtension {
                 name,
                 directives,
                 values,
-            }) => write_enum_type_definition_helper(f, &name.value, directives, &values, true),
+            }) => write_enum_type_definition_helper(f, &name.value, directives, values, true),
             TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
                 name,
                 directives,
@@ -292,6 +294,7 @@ pub struct DirectiveDefinition {
     pub arguments: Option<List<InputValueDefinition>>,
     pub repeatable: bool,
     pub locations: Vec<DirectiveLocation>,
+    pub description: Option<StringNode>,
 }
 
 #[derive(PartialEq, Eq, Ord, PartialOrd, Hash, Debug, Clone, Copy)]
@@ -373,6 +376,7 @@ pub struct FieldDefinition {
     pub type_: TypeAnnotation,
     pub arguments: Option<List<InputValueDefinition>>,
     pub directives: Vec<ConstantDirective>,
+    pub description: Option<StringNode>,
 }
 
 impl fmt::Display for FieldDefinition {
@@ -467,7 +471,7 @@ fn write_object_helper(
     write!(f, "type {}", name)?;
     if !interfaces.is_empty() {
         write!(f, " implements ")?;
-        write_list(f, &interfaces, " & ")?;
+        write_list(f, interfaces, " & ")?;
     }
     write_directives(f, directives)?;
     if let Some(fields) = fields.as_ref() {
@@ -521,6 +525,7 @@ fn write_directive_definition_helper(
     arguments: &Option<List<InputValueDefinition>>,
     _repeatable: &bool,
     locations: &[DirectiveLocation],
+    _description: &Option<StringNode>,
 ) -> fmt::Result {
     write!(f, "directive @{}", name)?;
     if let Some(arguments) = arguments.as_ref() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -15,29 +15,28 @@ pub struct ConsoleLogEvent;
 pub struct ConsoleLogger;
 
 impl PerfLogEvent for ConsoleLogEvent {
-    type Timer = (String, Instant);
-    fn number(&self, name: impl Copy + Into<String>, number: usize) {
-        debug!("{}: {}", name.into(), number);
+    type Timer = (&'static str, Instant);
+    fn number(&self, name: &'static str, number: usize) {
+        debug!("{}: {}", name, number);
     }
-    fn string(&self, name: impl Copy + Into<String>, value: String) {
-        debug!("{}: {}", name.into(), value);
+    fn string(&self, name: &'static str, value: String) {
+        debug!("{}: {}", name, value);
     }
-    fn start(&self, name: impl Copy + Into<String>) -> Self::Timer {
-        (name.into(), Instant::now())
+    fn start(&self, name: &'static str) -> Self::Timer {
+        (name, Instant::now())
     }
     fn stop(&self, timer: Self::Timer) {
         let (name, time) = timer;
-        print_time(&name, time);
+        print_time(name, time);
     }
+    fn complete(self) {}
 }
 
 impl PerfLogger for ConsoleLogger {
     type PerfLogEvent = ConsoleLogEvent;
-    fn create_event(&self, _name: impl Copy + Into<String>) -> Self::PerfLogEvent {
+    fn create_event(&self, _name: &'static str) -> Self::PerfLogEvent {
         ConsoleLogEvent
     }
-    fn complete_event(&self, _event: Self::PerfLogEvent) {}
-    fn flush(&self) {}
 }
 
 pub fn print_time(name: &str, time: Instant) {

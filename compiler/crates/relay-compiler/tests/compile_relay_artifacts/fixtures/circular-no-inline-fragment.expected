@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query circularNoInlineFragmentQuery {
+  story {
+    feedback {
+      ...circularNoInlineFragment_feedback
+    }
+  }
+}
+
+fragment circularNoInlineFragment_feedback on Feedback @no_inline
+  @argumentDefinitions(
+    includeNext: {type: "Boolean!", defaultValue: true}
+  ) {
+  feedback {
+    ...circularNoInlineFragment_feedback @include(if: $includeNext) @arguments(includeNext: false)
+  }
+}
+==================================== ERROR ====================================
+✖︎ Found a circular reference from fragment 'circularNoInlineFragment_feedback'.
+
+  circular-no-inline-fragment.graphql:10:10
+    9 │ 
+   10 │ fragment circularNoInlineFragment_feedback on Feedback @no_inline
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   11 │   @argumentDefinitions(

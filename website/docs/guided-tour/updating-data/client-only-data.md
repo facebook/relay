@@ -1,7 +1,10 @@
 ---
 id: client-only-data
-title: Client-Only Data
+title: Client-only data
 slug: /guided-tour/updating-data/client-only-data/
+description: Relay guide to client-only data
+keywords:
+- client-only
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -31,7 +34,6 @@ In order to extend an existing type, add a `.graphql` file to your appropriate s
 
 
 ```graphql
-
 extend type Comment {
   is_new_comment: Boolean
 }
@@ -55,7 +57,6 @@ You can define types using the same regular GraphQL syntax, by defining it insid
 
 
 ```graphql
-
 # You can define more than one type in a single file
 enum FetchStatus {
   FETCHED
@@ -76,7 +77,6 @@ extend type Item {
   # You can extend server types with client-only types
   fetch_state: FetchState
 }
-
 ```
 
 * In this contrived example, we're defining 2 new client-only types, and `enum` and a regular `type`. Note that they can reference themselves as normal, and reference regular server defined types. Also note that we can extend server types and add fields that are of our client-only types.

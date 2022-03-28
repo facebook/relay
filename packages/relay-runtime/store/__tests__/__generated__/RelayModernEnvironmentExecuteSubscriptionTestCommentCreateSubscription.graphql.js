@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e0a2e24052b5cf2da5b6621dd027ab80>>
+ * @generated SignedSource<<33ba540cfc20216fbc80e50f643b9b43>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,28 +15,27 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 export type CommentCreateSubscriptionInput = {|
-  clientSubscriptionId?: ?string,
   feedbackId?: ?string,
   text?: ?string,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscriptionVariables = {|
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$variables = {|
   input: CommentCreateSubscriptionInput,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscriptionResponse = {|
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +comment: ?{|
-      +id: string,
       +body: ?{|
         +text: ?string,
       |},
+      +id: string,
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription = {|
-  variables: RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscriptionVariables,
-  response: RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscriptionResponse,
+  response: RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$data,
+  variables: RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$variables,
 |};
 */
 
@@ -123,9 +122,7 @@ return {
   "params": {
     "cacheID": "8fd8fcebf3ed6c8b5627532fceaa00d4",
     "id": null,
-    "metadata": {
-      "subscriptionName": "commentCreateSubscribe"
-    },
+    "metadata": {},
     "name": "RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription(\n  $input: CommentCreateSubscriptionInput!\n) {\n  commentCreateSubscribe(input: $input) {\n    comment {\n      id\n      body {\n        text\n      }\n    }\n  }\n}\n"
@@ -137,4 +134,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3e6ba24bf317bd29cad3c6f53895fd9f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+  RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$variables,
+  RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription$data,
+>*/);

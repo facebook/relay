@@ -6,7 +6,6 @@ original_id: subscriptions
 Relay exposes the following APIs to create subscriptions.
 
 ```javascript
-
 const {requestSubscription} = require('react-relay');
 
 type Variables = {[name: string]: any};
@@ -28,7 +27,6 @@ requestSubscription(
     cacheConfig?: CacheConfig,
   },
 ) => Disposable;
-
 ```
 
 The function returns a `Disposable` on which you could call `dispose()` to cancel the refetch.
@@ -45,7 +43,7 @@ Now let's take a closer look at the `config`:
     the server, with the raw GraphQL response payload.
 -   `updater`: an optional function that can supply custom logic for updating the
     in-memory Relay store based on the server response.
--   `configs`: an array containing the updater configurations. It is the same as [`configs`](./mutations#updater-configs) in `commitMutation`.
+-   `configs`: an array containing the updater configurations. It is the same as [`configs`](Modern-Mutations.md#updater-configs) in `commitMutation`.
 -   `cacheConfig?`: Optional object containing a set of cache configuration options
 
 ## Example
@@ -55,7 +53,6 @@ appropriate when you are only changing the properties of existing records that
 can be identified by their `id`:
 
 ```javascript
-
 const {
   requestSubscription,
   graphql,
@@ -89,7 +86,6 @@ requestSubscription(
     onError: error => console.error(error),
   }
 );
-
 ```
 
 # Updating the client on each response
@@ -99,7 +95,6 @@ Relay's in-memory cache when each subscription response is received. To do so,
 pass an `updater` function:
 
 ```javascript
-
 const {ConnectionHandler} = require('relay-runtime');
 
 requestSubscription(
@@ -125,5 +120,4 @@ requestSubscription(
     },
   },
 );
-
 ```

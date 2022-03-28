@@ -1,0 +1,127 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ActorChange with @stream should render a fragment for actor: Finally, Anatoli is joining the second scene. 1`] = `
+<div>
+  <div
+    className="actor"
+    data-test-id="actor-node-1"
+  >
+    <span
+      className="message"
+    >
+      Scene 1
+    </span>
+    <div
+      data-test-id="feedback-node-1"
+    >
+      <div>
+        Antonio Banderas
+      </div>
+      <div>
+        Julianne Moore
+      </div>
+    </div>
+  </div>
+  <div
+    className="actor"
+    data-test-id="actor-node-2"
+  >
+    <span
+      className="message"
+    >
+      Scene 2
+    </span>
+    <div
+      data-test-id="feedback-node-2"
+    >
+      <div>
+        Silvester Stallone
+      </div>
+      <div>
+        Anatoli Davydov
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ActorChange with @stream should render a fragment for actor: Julianne should join Antonio in the first list. 1`] = `
+<div>
+  <div
+    className="actor"
+    data-test-id="actor-node-1"
+  >
+    <span
+      className="message"
+    >
+      Scene 1
+    </span>
+    <div
+      data-test-id="feedback-node-1"
+    >
+      <div>
+        Antonio Banderas
+      </div>
+      <div>
+        Julianne Moore
+      </div>
+    </div>
+  </div>
+  <div
+    className="actor"
+    data-test-id="actor-node-2"
+  >
+    <span
+      className="message"
+    >
+      Scene 2
+    </span>
+    <div
+      data-test-id="feedback-node-2"
+    >
+      <div>
+        Silvester Stallone
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ActorChange with @stream should render a fragment for actor: Should render two blocks (scenes) with lists. Each scene has one actor: Antonio as Silvester. 1`] = `
+<div>
+  <div
+    className="actor"
+    data-test-id="actor-node-1"
+  >
+    <span
+      className="message"
+    >
+      Scene 1
+    </span>
+    <div
+      data-test-id="feedback-node-1"
+    >
+      <div>
+        Antonio Banderas
+      </div>
+    </div>
+  </div>
+  <div
+    className="actor"
+    data-test-id="actor-node-2"
+  >
+    <span
+      className="message"
+    >
+      Scene 2
+    </span>
+    <div
+      data-test-id="feedback-node-2"
+    >
+      <div>
+        Silvester Stallone
+      </div>
+    </div>
+  </div>
+</div>
+`;

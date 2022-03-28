@@ -2,6 +2,13 @@
 id: loading-states
 title: Loading States with Suspense
 slug: /guided-tour/rendering/loading-states/
+description: Relay guide to loading states
+keywords:
+- suspense
+- loading
+- glimmer
+- fallback
+- spinner
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -107,7 +114,7 @@ const {Suspense} = require('React');
 
 function App() {
   return (
-    // A LoadingGlimmer for *_all_* content is rendered via the Suspense fallback
+    // A LoadingGlimmer for all content is rendered via the Suspense fallback
     <Suspense fallback={<LoadingGlimmer />}>
       <MainContent />
       <SecondaryContent /> {/* SecondaryContent can also suspend */}

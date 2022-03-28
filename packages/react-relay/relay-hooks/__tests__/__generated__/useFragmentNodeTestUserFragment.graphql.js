@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<95bbc648681a6b4e622baf6e330e6bfc>>
+ * @generated SignedSource<<0baeb3ade6ee2818a90f09eade4794ef>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,24 +15,22 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type useFragmentNodeTestNestedUserFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useFragmentNodeTestUserFragment$ref: FragmentReference;
-declare export opaque type useFragmentNodeTestUserFragment$fragmentType: useFragmentNodeTestUserFragment$ref;
-export type useFragmentNodeTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type useFragmentNodeTestNestedUserFragment$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useFragmentNodeTestUserFragment$fragmentType: FragmentType;
+export type useFragmentNodeTestUserFragment$data = {|
   +id: string,
   +name: ?string,
   +profile_picture: ?{|
     +uri: ?string,
   |},
-  +$fragmentRefs: useFragmentNodeTestNestedUserFragment$ref,
-  +$refType: useFragmentNodeTestUserFragment$ref,
+  +$fragmentSpreads: useFragmentNodeTestNestedUserFragment$fragmentType,
+  +$fragmentType: useFragmentNodeTestUserFragment$fragmentType,
 |};
-export type useFragmentNodeTestUserFragment$data = useFragmentNodeTestUserFragment;
 export type useFragmentNodeTestUserFragment$key = {
   +$data?: useFragmentNodeTestUserFragment$data,
-  +$fragmentRefs: useFragmentNodeTestUserFragment$ref,
+  +$fragmentSpreads: useFragmentNodeTestUserFragment$fragmentType,
   ...
 };
 */
@@ -100,4 +98,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "68d21f4767ebb1a7a9f586ed35826203";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  useFragmentNodeTestUserFragment$fragmentType,
+  useFragmentNodeTestUserFragment$data,
+>*/);

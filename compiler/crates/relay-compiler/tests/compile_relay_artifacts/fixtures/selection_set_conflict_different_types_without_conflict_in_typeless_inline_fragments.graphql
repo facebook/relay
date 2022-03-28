@@ -1,0 +1,14 @@
+query selectionSetConflictDifferentTypesWithoutConflictInTypelessInlineFragmentsQuery {
+  username(name: "me") {
+    ... on User {
+      ... @include(if: true) {
+        same_alias: lastName
+      }
+    }
+    ... on Page {
+      ... @skip(if: false) {
+        same_alias: name
+      }
+    }
+  }
+}

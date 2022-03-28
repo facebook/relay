@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<df7c2aa527cc2da3542bd50b7a819988>>
+ * @generated SignedSource<<76a090cddaa5b293c562cd0134e132c6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$ref = any;
-export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType = any;
+export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQueryResponse = {|
+export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery$data = {|
   +node: ?{|
     +id: string,
-    +$fragmentRefs: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery = {|
-  variables: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQueryVariables,
-  response: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQueryResponse,
+  response: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery$data,
+  variables: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery$variables,
 |};
 */
 
@@ -161,4 +161,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "4e3ef6893b11d6b8e50305bb90fa383d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery$variables,
+  RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery$data,
+>*/);

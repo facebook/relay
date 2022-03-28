@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -31,7 +31,6 @@ export type PageInfo = {
 };
 
 type ConnectionConfig = {|
-  CLIENT_MUTATION_ID: string,
   CURSOR: string,
   EDGES: string,
   END_CURSOR: string,
@@ -53,7 +52,6 @@ const CONNECTION_CALLS = {
 };
 
 let config: ConnectionConfig = {
-  CLIENT_MUTATION_ID: 'clientMutationId',
   CURSOR: 'cursor',
   EDGES: 'edges',
   END_CURSOR: 'endCursor',

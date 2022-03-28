@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -40,7 +40,7 @@ impl Validator for ValidateGlobalVariables<'_> {
         {
             return Ok(());
         }
-        let variables = self.visitor.infer_operation_variables(operation);
+        let (variables, _) = self.visitor.infer_operation_variables(operation);
 
         let undefined_variables: Vec<_> = variables
             .values()

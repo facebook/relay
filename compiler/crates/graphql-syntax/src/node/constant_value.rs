@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,7 +8,7 @@
 use super::primitive::*;
 use common::{Named, Span};
 use core::fmt;
-use interner::StringKey;
+use intern::string_key::StringKey;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ConstantValue {
@@ -33,6 +33,12 @@ impl ConstantValue {
             ConstantValue::Enum(value) => value.token.span,
             ConstantValue::List(value) => value.span,
             ConstantValue::Object(value) => value.span,
+        }
+    }
+    pub fn get_string_literal(&self) -> Option<StringKey> {
+        match self {
+            ConstantValue::String(StringNode { value, .. }) => Some(*value),
+            _ => None,
         }
     }
 }

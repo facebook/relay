@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,22 +10,20 @@
 
 'use strict';
 
-const ConnectionHandler = require('../ConnectionHandler');
-const ConnectionInterface = require('../ConnectionInterface');
-const RelayModernStore = require('../../../store/RelayModernStore');
-const RelayRecordSourceMapImpl = require('../../../store/RelayRecordSourceMapImpl');
 const RelayRecordSourceMutator = require('../../../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../../../mutations/RelayRecordSourceProxy');
-const RelayResponseNormalizer = require('../../../store/RelayResponseNormalizer');
-const RelayStoreUtils = require('../../../store/RelayStoreUtils');
-
+const {graphql} = require('../../../query/GraphQLTag');
 const defaultGetDataID = require('../../../store/defaultGetDataID');
-const getRelayHandleKey = require('../../../util/getRelayHandleKey');
-
-const {graphql, getRequest} = require('../../../query/GraphQLTag');
 const {
   createNormalizationSelector,
 } = require('../../../store/RelayModernSelector');
+const RelayModernStore = require('../../../store/RelayModernStore');
+const RelayRecordSource = require('../../../store/RelayRecordSource');
+const RelayResponseNormalizer = require('../../../store/RelayResponseNormalizer');
+const RelayStoreUtils = require('../../../store/RelayStoreUtils');
+const getRelayHandleKey = require('../../../util/getRelayHandleKey');
+const ConnectionHandler = require('../ConnectionHandler');
+const ConnectionInterface = require('../ConnectionInterface');
 const {simpleClone} = require('relay-test-utils-internal');
 
 const {
@@ -37,13 +35,8 @@ const {
   TYPENAME_KEY,
   getStableStorageKey,
 } = RelayStoreUtils;
-const {
-  END_CURSOR,
-  HAS_NEXT_PAGE,
-  HAS_PREV_PAGE,
-  PAGE_INFO,
-  START_CURSOR,
-} = ConnectionInterface.get();
+const {END_CURSOR, HAS_NEXT_PAGE, HAS_PREV_PAGE, PAGE_INFO, START_CURSOR} =
+  ConnectionInterface.get();
 
 describe('ConnectionHandler', () => {
   let ConnectionQuery;
@@ -70,17 +63,17 @@ describe('ConnectionHandler', () => {
   beforeEach(() => {
     jest.resetModules();
 
-    baseSource = new RelayRecordSourceMapImpl({
+    baseSource = new RelayRecordSource({
       [ROOT_ID]: {
         [ID_KEY]: ROOT_ID,
         [TYPENAME_KEY]: ROOT_TYPE,
       },
     });
-    sinkSource = new RelayRecordSourceMapImpl({});
+    sinkSource = new RelayRecordSource({});
     mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
     proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
 
-    ConnectionQuery = getRequest(graphql`
+    ConnectionQuery = graphql`
       query ConnectionHandlerTestConnectionQuery(
         $id: ID!
         $before: ID
@@ -118,7 +111,7 @@ describe('ConnectionHandler', () => {
           }
         }
       }
-    `);
+    `;
   });
 
   describe('getConnectionID()', () => {
@@ -195,8 +188,8 @@ describe('ConnectionHandler', () => {
       ConnectionHandler.update(proxy, payload);
       const store = new RelayModernStore(baseSource);
       store.publish(sinkSource);
-      baseSource = new RelayRecordSourceMapImpl(baseSource.toJSON());
-      sinkSource = new RelayRecordSourceMapImpl({});
+      baseSource = new RelayRecordSource(baseSource.toJSON());
+      sinkSource = new RelayRecordSource({});
       mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
       proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
 
@@ -324,10 +317,8 @@ describe('ConnectionHandler', () => {
       ConnectionHandler.update(proxy, payload);
       const store = new RelayModernStore(baseSource);
       store.publish(sinkSource);
-      baseSource = new RelayRecordSourceMapImpl(
-        simpleClone(baseSource.toJSON()),
-      );
-      sinkSource = new RelayRecordSourceMapImpl({});
+      baseSource = new RelayRecordSource(simpleClone(baseSource.toJSON()));
+      sinkSource = new RelayRecordSource({});
       mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
       proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
 
@@ -454,10 +445,8 @@ describe('ConnectionHandler', () => {
       ConnectionHandler.update(proxy, payload);
       const store = new RelayModernStore(baseSource);
       store.publish(sinkSource);
-      baseSource = new RelayRecordSourceMapImpl(
-        simpleClone(baseSource.toJSON()),
-      );
-      sinkSource = new RelayRecordSourceMapImpl({});
+      baseSource = new RelayRecordSource(simpleClone(baseSource.toJSON()));
+      sinkSource = new RelayRecordSource({});
       mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
       proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
 
@@ -600,37 +589,40 @@ describe('ConnectionHandler', () => {
               'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
           },
         },
-        'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
-          [ID_KEY]:
-            'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
-          [TYPENAME_KEY]: 'FriendsConnection',
-          edges: {
-            [REFS_KEY]: [
+        'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+          {
+            [ID_KEY]:
+              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+            [TYPENAME_KEY]: 'FriendsConnection',
+            edges: {
+              [REFS_KEY]: [
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+              ],
+            },
+            [PAGE_INFO]: {
+              [REF_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+            },
+            __connection_next_edge_index: 1,
+          },
+        'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0':
+          {
+            [ID_KEY]:
               'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
-            ],
+            [TYPENAME_KEY]: 'FriendsEdge',
+            cursor: 'cursor:1',
+            node: {[REF_KEY]: '1'},
           },
-          [PAGE_INFO]: {
-            [REF_KEY]:
+        'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo':
+          {
+            [ID_KEY]:
               'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+            [TYPENAME_KEY]: 'PageInfo',
+            [END_CURSOR]: 'cursor:1',
+            [HAS_NEXT_PAGE]: true,
+            [HAS_PREV_PAGE]: false,
+            [START_CURSOR]: 'cursor:1',
           },
-          __connection_next_edge_index: 1,
-        },
-        'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0': {
-          [ID_KEY]:
-            'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
-          [TYPENAME_KEY]: 'FriendsEdge',
-          cursor: 'cursor:1',
-          node: {[REF_KEY]: '1'},
-        },
-        'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo': {
-          [ID_KEY]:
-            'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
-          [TYPENAME_KEY]: 'PageInfo',
-          [END_CURSOR]: 'cursor:1',
-          [HAS_NEXT_PAGE]: true,
-          [HAS_PREV_PAGE]: false,
-          [START_CURSOR]: 'cursor:1',
-        },
       });
     });
 
@@ -682,37 +674,40 @@ describe('ConnectionHandler', () => {
               'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
           },
         },
-        'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
-          [ID_KEY]:
-            'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
-          [TYPENAME_KEY]: 'FriendsConnection',
-          edges: {
-            [REFS_KEY]: [
+        'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+          {
+            [ID_KEY]:
+              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+            [TYPENAME_KEY]: 'FriendsConnection',
+            edges: {
+              [REFS_KEY]: [
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+              ],
+            },
+            [PAGE_INFO]: {
+              [REF_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+            },
+            __connection_next_edge_index: 1,
+          },
+        'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0':
+          {
+            [ID_KEY]:
               'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
-            ],
+            [TYPENAME_KEY]: 'FriendsEdge',
+            cursor: 'cursor:1',
+            node: {[REF_KEY]: '1'},
           },
-          [PAGE_INFO]: {
-            [REF_KEY]:
+        'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo':
+          {
+            [ID_KEY]:
               'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+            [TYPENAME_KEY]: 'PageInfo',
+            [END_CURSOR]: null,
+            [HAS_NEXT_PAGE]: false,
+            [HAS_PREV_PAGE]: false,
+            [START_CURSOR]: null,
           },
-          __connection_next_edge_index: 1,
-        },
-        'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0': {
-          [ID_KEY]:
-            'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
-          [TYPENAME_KEY]: 'FriendsEdge',
-          cursor: 'cursor:1',
-          node: {[REF_KEY]: '1'},
-        },
-        'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo': {
-          [ID_KEY]:
-            'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
-          [TYPENAME_KEY]: 'PageInfo',
-          [END_CURSOR]: null,
-          [HAS_NEXT_PAGE]: false,
-          [HAS_PREV_PAGE]: false,
-          [START_CURSOR]: null,
-        },
       });
     });
 
@@ -764,10 +759,8 @@ describe('ConnectionHandler', () => {
         ConnectionHandler.update(proxy, payload);
         const store = new RelayModernStore(baseSource);
         store.publish(sinkSource);
-        baseSource = new RelayRecordSourceMapImpl(
-          simpleClone(baseSource.toJSON()),
-        );
-        sinkSource = new RelayRecordSourceMapImpl({});
+        baseSource = new RelayRecordSource(simpleClone(baseSource.toJSON()));
+        sinkSource = new RelayRecordSource({});
         mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
         proxy = new RelayRecordSourceProxy(mutator, defaultGetDataID);
       });
@@ -819,36 +812,39 @@ describe('ConnectionHandler', () => {
         };
         ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
-            [TYPENAME_KEY]: 'FriendsConnection',
-            edges: {
-              [REFS_KEY]: [
-                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+              [TYPENAME_KEY]: 'FriendsConnection',
+              edges: {
+                [REFS_KEY]: [
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+                ],
+              },
+              pageInfo: {
+                [REF_KEY]:
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              },
+              __connection_next_edge_index: 2,
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-              ],
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:2',
+              node: {[REF_KEY]: '2'},
             },
-            pageInfo: {
-              [REF_KEY]:
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              [TYPENAME_KEY]: 'PageInfo',
+              [END_CURSOR]: 'cursor:2',
+              [HAS_NEXT_PAGE]: false,
             },
-            __connection_next_edge_index: 2,
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-            [TYPENAME_KEY]: 'FriendsEdge',
-            cursor: 'cursor:2',
-            node: {[REF_KEY]: '2'},
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
-            [TYPENAME_KEY]: 'PageInfo',
-            [END_CURSOR]: 'cursor:2',
-            [HAS_NEXT_PAGE]: false,
-          },
         });
       });
 
@@ -899,36 +895,39 @@ describe('ConnectionHandler', () => {
         };
         ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
-            [TYPENAME_KEY]: 'FriendsConnection',
-            edges: {
-              [REFS_KEY]: [
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+              [TYPENAME_KEY]: 'FriendsConnection',
+              edges: {
+                [REFS_KEY]: [
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+                ],
+              },
+              pageInfo: {
+                [REF_KEY]:
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              },
+              __connection_next_edge_index: 2,
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
-              ],
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:0',
+              node: {[REF_KEY]: '0'},
             },
-            pageInfo: {
-              [REF_KEY]:
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              [TYPENAME_KEY]: 'PageInfo',
+              [HAS_PREV_PAGE]: false,
+              [START_CURSOR]: 'cursor:0',
             },
-            __connection_next_edge_index: 2,
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-            [TYPENAME_KEY]: 'FriendsEdge',
-            cursor: 'cursor:0',
-            node: {[REF_KEY]: '0'},
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
-            [TYPENAME_KEY]: 'PageInfo',
-            [HAS_PREV_PAGE]: false,
-            [START_CURSOR]: 'cursor:0',
-          },
         });
       });
 
@@ -979,37 +978,40 @@ describe('ConnectionHandler', () => {
         };
         ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
-            [TYPENAME_KEY]: 'FriendsConnection',
-            edges: {
-              [REFS_KEY]: [
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+              [TYPENAME_KEY]: 'FriendsConnection',
+              edges: {
+                [REFS_KEY]: [
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+                ],
+              },
+              pageInfo: {
+                [REF_KEY]:
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              },
+              __connection_next_edge_index: 2,
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-              ],
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:0',
+              node: {[REF_KEY]: '0'},
             },
-            pageInfo: {
-              [REF_KEY]:
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              [TYPENAME_KEY]: 'PageInfo',
+              [END_CURSOR]: 'cursor:0',
+              [HAS_PREV_PAGE]: false,
+              [HAS_NEXT_PAGE]: true,
+              [START_CURSOR]: 'cursor:0',
             },
-            __connection_next_edge_index: 2,
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-            [TYPENAME_KEY]: 'FriendsEdge',
-            cursor: 'cursor:0',
-            node: {[REF_KEY]: '0'},
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
-            [TYPENAME_KEY]: 'PageInfo',
-            [END_CURSOR]: 'cursor:0',
-            [HAS_PREV_PAGE]: false,
-            [HAS_NEXT_PAGE]: true,
-            [START_CURSOR]: 'cursor:0',
-          },
         });
       });
 
@@ -1060,36 +1062,39 @@ describe('ConnectionHandler', () => {
         };
         ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
-            [TYPENAME_KEY]: 'FriendsConnection',
-            edges: {
-              [REFS_KEY]: [
-                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+              [TYPENAME_KEY]: 'FriendsConnection',
+              edges: {
+                [REFS_KEY]: [
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+                ],
+              },
+              pageInfo: {
+                [REF_KEY]:
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              },
+              __connection_next_edge_index: 2,
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-              ],
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: null,
+              node: {[REF_KEY]: '2'},
             },
-            pageInfo: {
-              [REF_KEY]:
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              [TYPENAME_KEY]: 'PageInfo',
+              [END_CURSOR]: 'cursor:2',
+              [HAS_NEXT_PAGE]: false,
             },
-            __connection_next_edge_index: 2,
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-            [TYPENAME_KEY]: 'FriendsEdge',
-            cursor: null,
-            node: {[REF_KEY]: '2'},
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
-            [TYPENAME_KEY]: 'PageInfo',
-            [END_CURSOR]: 'cursor:2',
-            [HAS_NEXT_PAGE]: false,
-          },
         });
       });
 
@@ -1140,36 +1145,39 @@ describe('ConnectionHandler', () => {
         };
         ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
-            [TYPENAME_KEY]: 'FriendsConnection',
-            edges: {
-              [REFS_KEY]: [
-                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+              [TYPENAME_KEY]: 'FriendsConnection',
+              edges: {
+                [REFS_KEY]: [
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+                ],
+              },
+              pageInfo: {
+                [REF_KEY]:
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              },
+              __connection_next_edge_index: 2,
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-              ],
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:2',
+              node: {[REF_KEY]: '2'},
             },
-            pageInfo: {
-              [REF_KEY]:
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              [TYPENAME_KEY]: 'PageInfo',
+              [END_CURSOR]: 'cursor:updated',
+              [HAS_NEXT_PAGE]: false,
             },
-            __connection_next_edge_index: 2,
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-            [TYPENAME_KEY]: 'FriendsEdge',
-            cursor: 'cursor:2',
-            node: {[REF_KEY]: '2'},
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
-            [TYPENAME_KEY]: 'PageInfo',
-            [END_CURSOR]: 'cursor:updated',
-            [HAS_NEXT_PAGE]: false,
-          },
         });
       });
 
@@ -1213,27 +1221,29 @@ describe('ConnectionHandler', () => {
         };
         ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
-            [TYPENAME_KEY]: 'FriendsConnection',
-            edges: {
-              [REFS_KEY]: [
-                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
-              ],
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+              [TYPENAME_KEY]: 'FriendsConnection',
+              edges: {
+                [REFS_KEY]: [
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+                ],
+              },
+              pageInfo: {
+                [REF_KEY]:
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              },
             },
-            pageInfo: {
-              [REF_KEY]:
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              [TYPENAME_KEY]: 'PageInfo',
+              [HAS_NEXT_PAGE]: false,
+              // end_cursor is skipped
             },
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
-            [TYPENAME_KEY]: 'PageInfo',
-            [HAS_NEXT_PAGE]: false,
-            // end_cursor is skipped
-          },
         });
       });
 
@@ -1290,44 +1300,48 @@ describe('ConnectionHandler', () => {
         };
         ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
-            [TYPENAME_KEY]: 'FriendsConnection',
-            edges: {
-              [REFS_KEY]: [
-                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
-                // '...edges:0' skipped bc of duplicate node id
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+              [TYPENAME_KEY]: 'FriendsConnection',
+              edges: {
+                [REFS_KEY]: [
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+                  // '...edges:0' skipped bc of duplicate node id
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2',
+                ],
+              },
+              pageInfo: {
+                [REF_KEY]:
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              },
+              __connection_next_edge_index: 3,
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:2',
+              node: {[REF_KEY]: '1'},
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2',
-              ],
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:3',
+              node: {[REF_KEY]: '3'},
             },
-            pageInfo: {
-              [REF_KEY]:
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              [TYPENAME_KEY]: 'PageInfo',
+              [END_CURSOR]: 'cursor:3',
+              [HAS_NEXT_PAGE]: true,
             },
-            __connection_next_edge_index: 3,
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-            [TYPENAME_KEY]: 'FriendsEdge',
-            cursor: 'cursor:2',
-            node: {[REF_KEY]: '1'},
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2',
-            [TYPENAME_KEY]: 'FriendsEdge',
-            cursor: 'cursor:3',
-            node: {[REF_KEY]: '3'},
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
-            [TYPENAME_KEY]: 'PageInfo',
-            [END_CURSOR]: 'cursor:3',
-            [HAS_NEXT_PAGE]: true,
-          },
         });
       });
 
@@ -1394,44 +1408,48 @@ describe('ConnectionHandler', () => {
         };
         ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
-            [TYPENAME_KEY]: 'FriendsConnection',
-            edges: {
-              [REFS_KEY]: [
-                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
-                // '...edges:0' skipped bc of duplicate node id
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+              [TYPENAME_KEY]: 'FriendsConnection',
+              edges: {
+                [REFS_KEY]: [
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+                  // '...edges:0' skipped bc of duplicate node id
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2',
+                ],
+              },
+              pageInfo: {
+                [REF_KEY]:
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              },
+              __connection_next_edge_index: 3,
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:2',
+              node: {[REF_KEY]: '1'},
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2',
-              ],
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:3',
+              node: {[REF_KEY]: '3'},
             },
-            pageInfo: {
-              [REF_KEY]:
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              [TYPENAME_KEY]: 'PageInfo',
+              [END_CURSOR]: 'cursor:3',
+              [HAS_NEXT_PAGE]: true,
             },
-            __connection_next_edge_index: 3,
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-            [TYPENAME_KEY]: 'FriendsEdge',
-            cursor: 'cursor:2',
-            node: {[REF_KEY]: '1'},
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2',
-            [TYPENAME_KEY]: 'FriendsEdge',
-            cursor: 'cursor:3',
-            node: {[REF_KEY]: '3'},
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
-            [TYPENAME_KEY]: 'PageInfo',
-            [END_CURSOR]: 'cursor:3',
-            [HAS_NEXT_PAGE]: true,
-          },
         });
       });
 
@@ -1488,44 +1506,48 @@ describe('ConnectionHandler', () => {
         };
         ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
-            [TYPENAME_KEY]: 'FriendsConnection',
-            edges: {
-              [REFS_KEY]: [
-                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+              [TYPENAME_KEY]: 'FriendsConnection',
+              edges: {
+                [REFS_KEY]: [
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2',
+                ],
+              },
+              pageInfo: {
+                [REF_KEY]:
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              },
+              __connection_next_edge_index: 3,
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:1',
+              node: {[REF_KEY]: '2'},
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2',
-              ],
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:3',
+              node: {[REF_KEY]: '3'},
             },
-            pageInfo: {
-              [REF_KEY]:
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              [TYPENAME_KEY]: 'PageInfo',
+              [END_CURSOR]: 'cursor:3',
+              [HAS_NEXT_PAGE]: true,
             },
-            __connection_next_edge_index: 3,
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-            [TYPENAME_KEY]: 'FriendsEdge',
-            cursor: 'cursor:1',
-            node: {[REF_KEY]: '2'},
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:2',
-            [TYPENAME_KEY]: 'FriendsEdge',
-            cursor: 'cursor:3',
-            node: {[REF_KEY]: '3'},
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
-            [TYPENAME_KEY]: 'PageInfo',
-            [END_CURSOR]: 'cursor:3',
-            [HAS_NEXT_PAGE]: true,
-          },
         });
       });
 
@@ -1581,28 +1603,30 @@ describe('ConnectionHandler', () => {
         };
         ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
-            [TYPENAME_KEY]: 'FriendsConnection',
-            edges: {
-              [REFS_KEY]: [
-                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
-              ],
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+              [TYPENAME_KEY]: 'FriendsConnection',
+              edges: {
+                [REFS_KEY]: [
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+                ],
+              },
+              pageInfo: {
+                [REF_KEY]:
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              },
+              __connection_next_edge_index: 2,
             },
-            pageInfo: {
-              [REF_KEY]:
-                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:2',
+              node: {[REF_KEY]: '2'},
             },
-            __connection_next_edge_index: 2,
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-            [TYPENAME_KEY]: 'FriendsEdge',
-            cursor: 'cursor:2',
-            node: {[REF_KEY]: '2'},
-          },
           // page info unchanged
         });
       });
@@ -1658,28 +1682,30 @@ describe('ConnectionHandler', () => {
         };
         ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
-            [TYPENAME_KEY]: 'FriendsConnection',
-            edges: {
-              [REFS_KEY]: [
-                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
-              ],
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+              [TYPENAME_KEY]: 'FriendsConnection',
+              edges: {
+                [REFS_KEY]: [
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+                ],
+              },
+              pageInfo: {
+                [REF_KEY]:
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              },
+              __connection_next_edge_index: 2,
             },
-            pageInfo: {
-              [REF_KEY]:
-                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:2',
+              node: {[REF_KEY]: '2'},
             },
-            __connection_next_edge_index: 2,
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-            [TYPENAME_KEY]: 'FriendsEdge',
-            cursor: 'cursor:2',
-            node: {[REF_KEY]: '2'},
-          },
           // page info unchanged
         });
       });
@@ -1731,37 +1757,40 @@ describe('ConnectionHandler', () => {
         };
         ConnectionHandler.update(proxy, payload);
         expect(sinkSource.toJSON()).toEqual({
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
-            [TYPENAME_KEY]: 'FriendsConnection',
-            count: 2,
-            edges: {
-              [REFS_KEY]: [
-                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])':
+            {
+              [ID_KEY]:
+                'client:4:__ConnectionQuery_friends_connection(orderby:["first name"])',
+              [TYPENAME_KEY]: 'FriendsConnection',
+              count: 2,
+              edges: {
+                [REFS_KEY]: [
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:0',
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
+                ],
+              },
+              pageInfo: {
+                [REF_KEY]:
+                  'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              },
+              __connection_next_edge_index: 2,
+            },
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-              ],
+              [TYPENAME_KEY]: 'FriendsEdge',
+              cursor: 'cursor:2',
+              node: {[REF_KEY]: '2'},
             },
-            pageInfo: {
-              [REF_KEY]:
+          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo':
+            {
+              [ID_KEY]:
                 'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
+              [TYPENAME_KEY]: 'PageInfo',
+              [END_CURSOR]: 'cursor:2',
+              [HAS_NEXT_PAGE]: false,
             },
-            __connection_next_edge_index: 2,
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):edges:1',
-            [TYPENAME_KEY]: 'FriendsEdge',
-            cursor: 'cursor:2',
-            node: {[REF_KEY]: '2'},
-          },
-          'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo': {
-            [ID_KEY]:
-              'client:4:__ConnectionQuery_friends_connection(orderby:["first name"]):pageInfo',
-            [TYPENAME_KEY]: 'PageInfo',
-            [END_CURSOR]: 'cursor:2',
-            [HAS_NEXT_PAGE]: false,
-          },
         });
       });
     });

@@ -1,0 +1,149 @@
+==================================== INPUT ====================================
+query updatableFragmentSpreadWithUnusedVariablesQuery($if: Boolean) {
+  me {
+    ...updatableFragmentSpreadWithUnusedVariables_user
+    anotherFirstName: firstName(if: $if)
+  }
+}
+
+fragment updatableFragmentSpreadWithUnusedVariables_user on User @updatable {
+  firstName
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "if"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "updatableFragmentSpreadWithUnusedVariablesQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "updatableFragmentSpreadWithUnusedVariables_user"
+          },
+          {
+            "alias": "anotherFirstName",
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "if",
+                "variableName": "if"
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "firstName",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "if"
+      }
+    ],
+    "kind": "Operation",
+    "name": "updatableFragmentSpreadWithUnusedVariablesQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": "anotherFirstName",
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "if",
+                "variableName": "if"
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "firstName",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "updatableFragmentSpreadWithUnusedVariablesQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query updatableFragmentSpreadWithUnusedVariablesQuery(
+  $if: Boolean
+) {
+  me {
+    __typename
+    anotherFirstName: firstName(if: $if)
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "updatableFragmentSpreadWithUnusedVariables_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "firstName",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

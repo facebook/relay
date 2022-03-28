@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<85b76e67ba828e501b1d7342e3cc2d33>>
+ * @generated SignedSource<<ea005be6cb12a039ac0416e5837a31d0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQueryResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$data = {|
   +node: ?{|
-    +id: string,
     +body: ?{|
       +text: ?string,
     |},
+    +id: string,
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery = {|
-  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQueryVariables,
-  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQueryResponse,
+  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$data,
+  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$variables,
 |};
 */
 
@@ -140,4 +140,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0e04c1b933c48a9099dab4b416fdd37e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$variables,
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestCommentQuery$data,
+>*/);

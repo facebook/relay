@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -9,7 +9,7 @@
 
 /* eslint-disable lint/no-value-import */
 import './docsRating.css';
-
+import Link from '@docusaurus/Link';
 import {fbContent} from 'internaldocs-fb-helpers';
 import * as React from 'react';
 /* eslint-enable lint/no-value-import */
@@ -51,7 +51,7 @@ function Wrapper({children}) {
 
 const FeedbackButtons = () => {
   const [hasProvidedFeedback, setHasProvidedFeedback] = React.useState(false);
-  const provideFeedback = value => {
+  const provideFeedback = (value) => {
     setHasProvidedFeedback(true);
     provideFeedbackToGoogleAnalytics(value);
   };
@@ -92,16 +92,28 @@ const FileATaskButton = () => (
   </p>
 );
 
+const SurveyLink = () => (
+  <p>
+    Help us make the site even better by{' '}
+    <Link to="https://www.surveymonkey.com/r/FYC9TCJ">
+      answering a few quick questions
+    </Link>
+    .
+  </p>
+);
+
 const DocsRatingInternal = () => (
   <Wrapper>
     <FileATaskButton />
     <FeedbackButtons />
+    <SurveyLink />
   </Wrapper>
 );
 
 const DocsRatingExternal = () => (
   <Wrapper>
     <FeedbackButtons />
+    <SurveyLink />
   </Wrapper>
 );
 

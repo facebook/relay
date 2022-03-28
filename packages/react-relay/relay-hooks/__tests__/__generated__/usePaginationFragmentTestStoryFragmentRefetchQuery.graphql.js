@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2b735e60c4ff4a1ae04f51e26890e539>>
+ * @generated SignedSource<<2981c796c75d07d7a7417cf8c5e745db>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,23 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type usePaginationFragmentTestStoryFragment$ref: FragmentReference;
-declare export opaque type usePaginationFragmentTestStoryFragment$fragmentType: usePaginationFragmentTestStoryFragment$ref;
-export type usePaginationFragmentTestStoryFragmentRefetchQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+type usePaginationFragmentTestStoryFragment$fragmentType = any;
+export type usePaginationFragmentTestStoryFragmentRefetchQuery$variables = {|
   count?: ?number,
   cursor?: ?string,
   id: string,
 |};
-export type usePaginationFragmentTestStoryFragmentRefetchQueryResponse = {|
+export type usePaginationFragmentTestStoryFragmentRefetchQuery$data = {|
   +fetch__NonNodeStory: ?{|
-    +$fragmentRefs: usePaginationFragmentTestStoryFragment$ref,
+    +$fragmentSpreads: usePaginationFragmentTestStoryFragment$fragmentType,
   |},
 |};
 export type usePaginationFragmentTestStoryFragmentRefetchQuery = {|
-  variables: usePaginationFragmentTestStoryFragmentRefetchQueryVariables,
-  response: usePaginationFragmentTestStoryFragmentRefetchQueryResponse,
+  response: usePaginationFragmentTestStoryFragmentRefetchQuery$data,
+  variables: usePaginationFragmentTestStoryFragmentRefetchQuery$variables,
 |};
 */
 
@@ -248,4 +247,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f32695b1b41c05ed8de7a6abfa8583a0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePaginationFragmentTestStoryFragmentRefetchQuery$variables,
+  usePaginationFragmentTestStoryFragmentRefetchQuery$data,
+>*/);

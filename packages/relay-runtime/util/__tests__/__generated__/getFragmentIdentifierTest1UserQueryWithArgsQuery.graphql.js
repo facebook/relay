@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e2c91a90e83b85cdbd386077f8d217ac>>
+ * @generated SignedSource<<fdb218d507ee68786fc84975ef84a4f3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type getFragmentIdentifierTest1UserFragmentWithArgs$ref = any;
-export type getFragmentIdentifierTest1UserQueryWithArgsQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type getFragmentIdentifierTest1UserFragmentWithArgs$fragmentType = any;
+export type getFragmentIdentifierTest1UserQueryWithArgsQuery$variables = {|
   id: string,
   scale: number,
 |};
-export type getFragmentIdentifierTest1UserQueryWithArgsQueryResponse = {|
+export type getFragmentIdentifierTest1UserQueryWithArgsQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: getFragmentIdentifierTest1UserFragmentWithArgs$ref,
+    +$fragmentSpreads: getFragmentIdentifierTest1UserFragmentWithArgs$fragmentType,
   |},
 |};
 export type getFragmentIdentifierTest1UserQueryWithArgsQuery = {|
-  variables: getFragmentIdentifierTest1UserQueryWithArgsQueryVariables,
-  response: getFragmentIdentifierTest1UserQueryWithArgsQueryResponse,
+  response: getFragmentIdentifierTest1UserQueryWithArgsQuery$data,
+  variables: getFragmentIdentifierTest1UserQueryWithArgsQuery$variables,
 |};
 */
 
@@ -178,4 +178,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "2c6734517dd2de88716f70f4c2a3b59e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  getFragmentIdentifierTest1UserQueryWithArgsQuery$variables,
+  getFragmentIdentifierTest1UserQueryWithArgsQuery$data,
+>*/);

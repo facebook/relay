@@ -1,0 +1,9 @@
+fragment LinkedField on User {
+  global_id
+  name
+  profilePicture {
+    uri
+    width
+    height
+  }
+}

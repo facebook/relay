@@ -75,8 +75,7 @@ The concept of availability refers to whether there is enough non-stale, non-inv
 
 A build-time transformation of the Javascript codebase, which turns calls to
 
-```js
-
+```javascript
 graphql`...`
 
 ```
@@ -377,8 +376,7 @@ Compare to [value](#value).
 
 A GraphQL literal is a call to
 
-```js
-
+```javascript
 graphql`...`
 
 ```
@@ -417,7 +415,7 @@ TODO
 
 ## Mutation
 
-A mutation is a combination of two things: a mutation on the back-end, followed by query against updated data.
+A mutation is a combination of two things: a mutation on the backend, followed by query against updated data.
 
 <FbInternalOnly>
 See the [guide on mutations](../guided-tour/updating-data/graphql-mutations), and [this article](https://www.internalfb.com/intern/wiki/Graphql-for-hack-developers/mutation-root-fields/) on defining mutations in your hack code.
@@ -505,7 +503,7 @@ TODO
 
 Querying a list of data (a [connection](#connection)) in parts is known as pagination.
 
-See the [graphql docs](https://graphql.github.io/learn/pagination/) and our [guided tour](../guided-tour/list-data/pagination).
+See the [graphql docs](https://graphql.org/learn/pagination/) and our [guided tour](../guided-tour/list-data/pagination).
 
 ## Payload
 
@@ -561,7 +559,7 @@ Exposes mutator methods like `commitUpdate` that only add or remove updates from
 
 ## Query
 
-A [GraphQL query](https://graphql.github.io/learn/queries/) is a request that can be sent to a GraphQL server in combination with a set of [variables](../guided-tour/rendering/variables), in order to fetch some data. It consists of a [selection](#selection) of fields, and potentially includes other [fragments](#fragment).
+A [GraphQL query](https://graphql.org/learn/queries/) is a request that can be sent to a GraphQL server in combination with a set of [variables](../guided-tour/rendering/variables), in order to fetch some data. It consists of a [selection](#selection) of fields, and potentially includes other [fragments](#fragment).
 
 ## Query Executor
 
@@ -644,10 +642,6 @@ This yields efficiency gains. The fragment can be loaded as part of a single, la
 A directive that allows you to turn off data masking.
 
 See the documentation.
-
-## @relay_early_flush
-
-TODO
 
 ## Relay Classic
 

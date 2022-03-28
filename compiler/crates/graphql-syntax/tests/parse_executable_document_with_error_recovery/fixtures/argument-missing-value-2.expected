@@ -161,8 +161,8 @@ ExecutableDocument {
 Errors:
 ✖︎ Expected a value ('$example', boolean, integer, float, string, null, list, or object)
 
-  argument-missing-value-2.graphql:4:1
+  argument-missing-value-2.graphql:3:7
     2 │   photo(
-    3 │     s:
+    3 │     s: 
+      │       ^
     4 │     size1: $size
-      │ ^

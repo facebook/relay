@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<aa2adcb8bdf63ae808014e14d3ae014f>>
+ * @generated SignedSource<<e5e17fdbf095f98e6fe29373a058b49c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useLazyLoadQueryNodeFastRefreshTestUserFragment$ref = any;
-export type useLazyLoadQueryNodeFastRefreshTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType = any;
+export type useLazyLoadQueryNodeFastRefreshTestUserQuery$variables = {|
   id?: ?string,
 |};
-export type useLazyLoadQueryNodeFastRefreshTestUserQueryResponse = {|
+export type useLazyLoadQueryNodeFastRefreshTestUserQuery$data = {|
   +node: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: useLazyLoadQueryNodeFastRefreshTestUserFragment$ref,
+    +$fragmentSpreads: useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType,
   |},
 |};
 export type useLazyLoadQueryNodeFastRefreshTestUserQuery = {|
-  variables: useLazyLoadQueryNodeFastRefreshTestUserQueryVariables,
-  response: useLazyLoadQueryNodeFastRefreshTestUserQueryResponse,
+  response: useLazyLoadQueryNodeFastRefreshTestUserQuery$data,
+  variables: useLazyLoadQueryNodeFastRefreshTestUserQuery$variables,
 |};
 */
 
@@ -134,4 +134,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ee05f828677e819fb1cfd6cf12c4e4a0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useLazyLoadQueryNodeFastRefreshTestUserQuery$variables,
+  useLazyLoadQueryNodeFastRefreshTestUserQuery$data,
+>*/);

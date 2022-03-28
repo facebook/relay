@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5045485ed7e75fe0f8dee5b12c41e4ae>>
+ * @generated SignedSource<<fbe946805d617db9f89c81b88d3d47b0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockPayloadGeneratorTest3Fragment$ref = any;
-export type RelayMockPayloadGeneratorTest4QueryVariables = {|
-  showProfilePicture?: ?boolean,
-  hideBirthday?: ?boolean,
-  showBirthdayMonth?: ?boolean,
-  hideAuthorUsername?: ?boolean,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayMockPayloadGeneratorTest3Fragment$fragmentType = any;
+export type RelayMockPayloadGeneratorTest4Query$variables = {|
+  hideAuthorUsername: boolean,
+  hideBirthday: boolean,
+  showBirthdayMonth: boolean,
+  showProfilePicture: boolean,
 |};
-export type RelayMockPayloadGeneratorTest4QueryResponse = {|
+export type RelayMockPayloadGeneratorTest4Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayMockPayloadGeneratorTest3Fragment$ref,
+    +$fragmentSpreads: RelayMockPayloadGeneratorTest3Fragment$fragmentType,
   |},
 |};
 export type RelayMockPayloadGeneratorTest4Query = {|
-  variables: RelayMockPayloadGeneratorTest4QueryVariables,
-  response: RelayMockPayloadGeneratorTest4QueryResponse,
+  response: RelayMockPayloadGeneratorTest4Query$data,
+  variables: RelayMockPayloadGeneratorTest4Query$variables,
 |};
 */
 
@@ -337,18 +337,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "3bd21571dcd8d7f0947582c7ca043365",
+    "cacheID": "33d5297a3ebc999a995d1ec392674619",
     "id": null,
     "metadata": {},
     "name": "RelayMockPayloadGeneratorTest4Query",
     "operationKind": "query",
-    "text": "query RelayMockPayloadGeneratorTest4Query(\n  $showProfilePicture: Boolean\n  $hideBirthday: Boolean\n  $showBirthdayMonth: Boolean\n  $hideAuthorUsername: Boolean\n) {\n  node(id: \"my-id\") {\n    __typename\n    ...RelayMockPayloadGeneratorTest3Fragment\n    id\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest3Fragment on User {\n  id\n  name\n  customId: id\n  profile_picture @include(if: $showProfilePicture) {\n    uri\n  }\n  birthdate @skip(if: $hideBirthday) {\n    year\n    month @include(if: $showBirthdayMonth)\n  }\n  author {\n    name\n    id\n  }\n  author @skip(if: $hideAuthorUsername) {\n    authorID: id\n    objectType: __typename\n    username\n    id\n  }\n  allPhones {\n    phoneNumber {\n      displayNumber\n    }\n  }\n  emailAddresses\n  backgroundImage {\n    uri\n  }\n}\n"
+    "text": "query RelayMockPayloadGeneratorTest4Query(\n  $showProfilePicture: Boolean!\n  $hideBirthday: Boolean!\n  $showBirthdayMonth: Boolean!\n  $hideAuthorUsername: Boolean!\n) {\n  node(id: \"my-id\") {\n    __typename\n    ...RelayMockPayloadGeneratorTest3Fragment\n    id\n  }\n}\n\nfragment RelayMockPayloadGeneratorTest3Fragment on User {\n  id\n  name\n  customId: id\n  profile_picture @include(if: $showProfilePicture) {\n    uri\n  }\n  birthdate @skip(if: $hideBirthday) {\n    year\n    month @include(if: $showBirthdayMonth)\n  }\n  author {\n    name\n    id\n  }\n  author @skip(if: $hideAuthorUsername) {\n    authorID: id\n    objectType: __typename\n    username\n    id\n  }\n  allPhones {\n    phoneNumber {\n      displayNumber\n    }\n  }\n  emailAddresses\n  backgroundImage {\n    uri\n  }\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "1885f7dd7f21320e32f6e18e8f3d87af";
+  (node/*: any*/).hash = "9c1756d1dc05632f216b5817ca47e88a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockPayloadGeneratorTest4Query$variables,
+  RelayMockPayloadGeneratorTest4Query$data,
+>*/);

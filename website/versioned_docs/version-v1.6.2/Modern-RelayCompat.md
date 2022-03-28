@@ -8,7 +8,7 @@ scratch. Instead, convert one component at a time to the Relay Modern API while
 continuing to have a working app. Once all components have been converted, the
 smaller and faster Relay Modern runtime can be used.
 
-During this migration, use the [Relay Compat](./relay-compat) tools and APIs to work with both Relay Classic and Relay Modern.
+During this migration, use the [Relay Compat](Modern-RelayCompat.md) tools and APIs to work with both Relay Classic and Relay Modern.
 
 ## API and Runtime
 
@@ -31,7 +31,6 @@ Relay Modern. The components using Relay Compat can be referred to by both other
 Relay Modern and Relay Classic components.
 
 ```javascript
-
 const {createFragmentContainer, graphql} = require('react-relay/compat');
 
 class TodoItem extends React.Component {
@@ -47,5 +46,4 @@ module.exports = createFragmentContainer(TodoItem, graphql`
     isComplete
   }
 `);
-
 ```

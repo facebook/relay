@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4177eb04559a56ef6c3f8081153ff0aa>>
+ * @generated SignedSource<<162326977109f51cc8f85a34c7a6d3c3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type DataCheckerTest5Fragment$ref = any;
-export type DataCheckerTest5QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type DataCheckerTest5Fragment$fragmentType = any;
+export type DataCheckerTest5Query$variables = {|
   id: string,
 |};
-export type DataCheckerTest5QueryResponse = {|
+export type DataCheckerTest5Query$data = {|
   +node: ?{|
-    +$fragmentRefs: DataCheckerTest5Fragment$ref,
+    +$fragmentSpreads: DataCheckerTest5Fragment$fragmentType,
   |},
 |};
 export type DataCheckerTest5Query = {|
-  variables: DataCheckerTest5QueryVariables,
-  response: DataCheckerTest5QueryResponse,
+  response: DataCheckerTest5Query$data,
+  variables: DataCheckerTest5Query$variables,
 |};
 */
 
@@ -118,6 +118,7 @@ return {
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "DataCheckerTest5Fragment",
                         "fragmentName": "DataCheckerTest5PlainUserNameRenderer_name",
                         "fragmentPropName": "name",
@@ -131,6 +132,7 @@ return {
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "DataCheckerTest5Fragment",
                         "fragmentName": "DataCheckerTest5MarkdownUserNameRenderer_name",
                         "fragmentPropName": "name",
@@ -167,4 +169,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "eb95da17a46437e27a3ea0ccf845ea21";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  DataCheckerTest5Query$variables,
+  DataCheckerTest5Query$data,
+>*/);

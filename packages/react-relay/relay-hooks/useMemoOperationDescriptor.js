@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,18 +13,16 @@
 
 'use strict';
 
-const React = require('react');
-
-const useMemoVariables = require('./useMemoVariables');
-
-const {createOperationDescriptor, getRequest} = require('relay-runtime');
-
 import type {
+  CacheConfig,
   GraphQLTaggedNode,
   OperationDescriptor,
   Variables,
-  CacheConfig,
 } from 'relay-runtime';
+
+const useMemoVariables = require('./useMemoVariables');
+const React = require('react');
+const {createOperationDescriptor, getRequest} = require('relay-runtime');
 
 const {useMemo} = React;
 

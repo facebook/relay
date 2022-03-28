@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bf79788059cdb8733de7e983b417bc9c>>
+ * @generated SignedSource<<93214d8f06ef389b223f63c54f12077a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +15,25 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayPaginationContainerTestUserFragment$ref = any;
-export type ReactRelayPaginationContainerTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayPaginationContainerTestUserFragment$fragmentType = any;
+export type ReactRelayPaginationContainerTestUserQuery$variables = {|
   after?: ?string,
   count: number,
   id: string,
-  orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend?: ?boolean,
+  orderby?: ?$ReadOnlyArray<?string>,
 |};
-export type ReactRelayPaginationContainerTestUserQueryResponse = {|
+export type ReactRelayPaginationContainerTestUserQuery$data = {|
   +node: ?{|
-    +id: string,
     +__typename: string,
-    +$fragmentRefs: ReactRelayPaginationContainerTestUserFragment$ref,
+    +id: string,
+    +$fragmentSpreads: ReactRelayPaginationContainerTestUserFragment$fragmentType,
   |},
 |};
 export type ReactRelayPaginationContainerTestUserQuery = {|
-  variables: ReactRelayPaginationContainerTestUserQueryVariables,
-  response: ReactRelayPaginationContainerTestUserQueryResponse,
+  response: ReactRelayPaginationContainerTestUserQuery$data,
+  variables: ReactRelayPaginationContainerTestUserQuery$variables,
 |};
 */
 
@@ -277,4 +277,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "50a3bd82c5fad5ead1ce004df8427725";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayPaginationContainerTestUserQuery$variables,
+  ReactRelayPaginationContainerTestUserQuery$data,
+>*/);

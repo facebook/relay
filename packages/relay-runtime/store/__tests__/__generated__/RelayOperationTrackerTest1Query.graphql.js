@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a81a32e8721943e40c12310c15683d5c>>
+ * @generated SignedSource<<9d72f2a73bb0b5e079357ed2d3d54ce9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,18 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayOperationTrackerTest1QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayOperationTrackerTest1Query$variables = {|
   id?: ?string,
 |};
-export type RelayOperationTrackerTest1QueryResponse = {|
+export type RelayOperationTrackerTest1Query$data = {|
   +node: ?{|
     +id: string,
   |},
 |};
 export type RelayOperationTrackerTest1Query = {|
-  variables: RelayOperationTrackerTest1QueryVariables,
-  response: RelayOperationTrackerTest1QueryResponse,
+  response: RelayOperationTrackerTest1Query$data,
+  variables: RelayOperationTrackerTest1Query$variables,
 |};
 */
 
@@ -117,4 +117,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d7ac241162d417e0fd7a5104a17437b0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayOperationTrackerTest1Query$variables,
+  RelayOperationTrackerTest1Query$data,
+>*/);

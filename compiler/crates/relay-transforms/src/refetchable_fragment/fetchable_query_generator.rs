@@ -1,10 +1,11 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
+use super::validation_message::ValidationMessage;
 use super::{
     build_fragment_metadata_as_directive, build_fragment_spread,
     build_operation_variable_definitions, build_used_global_variables, QueryGenerator, RefetchRoot,
@@ -13,20 +14,23 @@ use super::{
 use crate::root_variables::VariableMap;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, FragmentDefinition, LinkedField, ScalarField, Selection, ValidationMessage, Value,
-    Variable, VariableDefinition,
+    Argument, FragmentDefinition, LinkedField, ScalarField, Selection, Value, Variable,
+    VariableDefinition,
 };
-use graphql_syntax::ConstantValue;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKey};
+use relay_config::SchemaConfig;
 use schema::{Argument as ArgumentDef, FieldID, SDLSchema, Schema, Type};
 use std::sync::Arc;
 
 fn build_refetch_operation(
     schema: &SDLSchema,
+    schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,
 ) -> DiagnosticsResult<Option<RefetchRoot>> {
+    let id_name = schema_config.node_interface_id_field;
+
     if let Some(identifier_field_name) = get_fetchable_field_name(fragment, schema)? {
         let identifier_field_id = get_identifier_field_id(fragment, schema, identifier_field_name)?;
 
@@ -59,7 +63,7 @@ fn build_refetch_operation(
             ),
         });
         let mut variable_definitions = build_operation_variable_definitions(&fragment);
-        if let Some(id_argument) = variable_definitions.named(CONSTANTS.id_name) {
+        if let Some(id_argument) = variable_definitions.named(id_name) {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
                     fragment_name: fragment.name.item,
@@ -68,7 +72,7 @@ fn build_refetch_operation(
             )]);
         }
         variable_definitions.push(VariableDefinition {
-            name: WithLocation::new(fragment.name.location, CONSTANTS.id_name),
+            name: WithLocation::new(fragment.name.location, id_name),
             type_: id_arg.type_.non_null(),
             default_value: None,
             directives: vec![],
@@ -84,7 +88,7 @@ fn build_refetch_operation(
                     value: WithLocation::new(
                         fragment.name.location,
                         Value::Variable(Variable {
-                            name: WithLocation::new(fragment.name.location, CONSTANTS.id_name),
+                            name: WithLocation::new(fragment.name.location, id_name),
                             type_: id_arg.type_.non_null(),
                         }),
                     ),
@@ -108,8 +112,8 @@ fn get_fetchable_field_name(
         if let Some(fetchable) = object.directives.named(CONSTANTS.fetchable) {
             let field_name_arg = fetchable.arguments.named(CONSTANTS.field_name);
             if let Some(field_name_arg) = field_name_arg {
-                if let ConstantValue::String(name) = &field_name_arg.value {
-                    return Ok(Some(name.value));
+                if let Some(value) = field_name_arg.value.get_string_literal() {
+                    return Ok(Some(value));
                 }
             }
             return Err(vec![Diagnostic::error(

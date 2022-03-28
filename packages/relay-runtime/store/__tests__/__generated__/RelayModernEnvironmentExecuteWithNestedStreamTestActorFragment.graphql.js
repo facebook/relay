@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7c795f5e50d2997593145ca8ca8cc843>>
+ * @generated SignedSource<<7efa48eab45e4b9ad6ba9f74921abeab>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,16 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment$fragmentType: RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment$ref;
-export type RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment$data = {|
   +name: ?string,
-  +$refType: RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment$ref,
+  +$fragmentType: RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment$data = RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment;
 export type RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment$fragmentType,
   ...
 };
 */
@@ -45,12 +43,15 @@ var node/*: ReaderFragment*/ = {
       "storageKey": null
     }
   ],
-  "type": "Actor",
-  "abstractKey": "__isActor"
+  "type": "User",
+  "abstractKey": null
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "028d0d736b7bf6e919745eedfe435049";
+  (node/*: any*/).hash = "657ef41d464979f0bec9509df67c2ad4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment$fragmentType,
+  RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment$data,
+>*/);

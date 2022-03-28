@@ -10,7 +10,7 @@ fragment ChildFragment on User {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Unknown argument 'pictureSize'
+✖︎ Unknown argument 'pictureSize'.
 
   fragment-with-undefined-variable-arguments.invalid.graphql:3:31
     2 │ fragment ParentFragment on User {

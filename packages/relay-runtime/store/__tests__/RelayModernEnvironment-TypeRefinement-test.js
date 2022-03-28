@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,23 +12,27 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const nullthrows = require('nullthrows');
-
-const {graphql, getRequest, getFragment} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {generateTypeID} = require('../TypeID');
+const nullthrows = require('nullthrows');
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
 
-describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', () => {
+disallowWarnings();
+
+describe('missing data detection', () => {
   let ParentQuery;
   let AbstractQuery;
   let ConcreteQuery;
@@ -42,8 +46,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   let abstractOperation;
 
   beforeEach(() => {
-    jest.resetModules();
-    ParentQuery = getRequest(graphql`
+    ParentQuery = graphql`
       query RelayModernEnvironmentTypeRefinementTestParentQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestConcreteUserFragment
@@ -52,49 +55,49 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
           ...RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment
         }
       }
-    `);
+    `;
 
     // version of the query with only concrete refinements
-    ConcreteQuery = getRequest(graphql`
+    ConcreteQuery = graphql`
       query RelayModernEnvironmentTypeRefinementTestConcreteQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestConcreteUserFragment
           ...RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment
         }
       }
-    `);
+    `;
 
     // version of the query with only abstract refinements
-    AbstractQuery = getRequest(graphql`
+    AbstractQuery = graphql`
       query RelayModernEnvironmentTypeRefinementTestAbstractQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestAbstractActorFragment
           ...RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment
         }
       }
-    `);
+    `;
 
     // identical fragments except for User (concrete) / Actor (interface)
-    ConcreteUserFragment = getFragment(graphql`
+    ConcreteUserFragment = graphql`
       fragment RelayModernEnvironmentTypeRefinementTestConcreteUserFragment on User {
         id
         name
         missing: lastName
       }
-    `);
+    `;
 
-    AbstractActorFragment = getFragment(graphql`
+    AbstractActorFragment = graphql`
       fragment RelayModernEnvironmentTypeRefinementTestAbstractActorFragment on Actor {
         id
         name
         missing: lastName
       }
-    `);
+    `;
 
     // identical except for inline fragments on User / Actor
     // note fragment type is Node in both cases to avoid any
     // flattening
-    ConcreteInlineRefinementFragment = getFragment(graphql`
+    ConcreteInlineRefinementFragment = graphql`
       fragment RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment on Node {
         ... on User {
           id
@@ -102,9 +105,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
           missing: lastName
         }
       }
-    `);
+    `;
 
-    AbstractInlineRefinementFragment = getFragment(graphql`
+    AbstractInlineRefinementFragment = graphql`
       fragment RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment on Node {
         ... on Actor {
           id
@@ -112,7 +115,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
           missing: lastName
         }
       }
-    `);
+    `;
 
     const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
@@ -125,17 +128,10 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     abstractOperation = createOperationDescriptor(AbstractQuery, {});
   });
 
-  beforeEach(() => {
-    RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = true;
-  });
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_PRECISE_TYPE_REFINEMENT = false;
-  });
-
   // Commit the given payload, immediately running GC to prune any data
   // that wouldn't be retained by the query
   // eslint-disable-next-line no-shadow
-  function commitPayload(operation, payload) {
+  function commitPayload(operation: OperationDescriptor, payload) {
     environment.retain(operation);
     environment.commitPayload(operation, payload);
     (environment.getStore(): $FlowFixMe).scheduleGC();
@@ -143,6 +139,15 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   }
 
   it('concrete spread on matching concrete type reads data and counts missing user fields as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     // with missing value
     commitPayload(operation, {
       userOrPage: {
@@ -200,6 +205,13 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('concrete spread on non-matching concrete type reads data but does not count missing user fields as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+
     // with missing value
     commitPayload(operation, {
       userOrPage: {
@@ -259,6 +271,15 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('concrete inline fragment on matching concrete type reads data and counts missing user fields as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     // with missing value
     commitPayload(operation, {
       userOrPage: {
@@ -315,6 +336,12 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     expect(environment.check(operation).status).toBe('available');
   });
   it('concrete inline fragment on non-matching concrete type does not read data or count data as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     commitPayload(operation, {
       userOrPage: {
         id: 'abc',
@@ -341,6 +368,15 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('abstract spread on implementing type reads data and counts missing user fields as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     // with missing value
     commitPayload(operation, {
       userOrPage: {
@@ -397,6 +433,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     expect(environment.check(operation).status).toBe('available');
   });
   it('abstract spread on non-implementing type reads data but does not count missing user fields as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     // with missing value
     commitPayload(operation, {
       userOrPage: {
@@ -471,6 +510,15 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('abstract spread missing the discriminator and user fields: reads data and counts data as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     commitPayload(operation, {
       userOrPage: {
         id: 'abc',
@@ -519,6 +567,15 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('abstract inline fragment on implementing type reads data and counts missing user fields as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     // with missing value
     commitPayload(operation, {
       userOrPage: {
@@ -576,6 +633,9 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('abstract inline fragment on non-implementing type reads data but does not count missing user fields as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     commitPayload(operation, {
       userOrPage: {
         id: 'abc',
@@ -652,6 +712,15 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
   });
 
   it('abstract inline fragment missing the discriminator and user fields: reads data and counts data as missing', () => {
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `missing: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
     commitPayload(operation, {
       userOrPage: {
         id: 'abc',
@@ -704,7 +773,7 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     let NestedActorFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest1Query {
           viewer {
             actor {
@@ -712,23 +781,29 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
             }
           }
         }
-      `);
-      ActorFragment = getFragment(graphql`
+      `;
+      ActorFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest1Fragment on Actor {
           id
           name
           ...RelayModernEnvironmentTypeRefinementTest2Fragment
         }
-      `);
-      NestedActorFragment = getFragment(graphql`
+      `;
+      NestedActorFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest2Fragment on Actor {
           lastName
         }
-      `);
+      `;
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
     it('reads and reports missing data if only user fields are missing', () => {
+      expectWarningWillFire(
+        'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+      );
+      expectWarningWillFire(
+        'RelayResponseNormalizer: Payload did not contain a value for field `lastName: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+      );
       commitPayload(operation, {
         viewer: {
           actor: {
@@ -814,6 +889,12 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     });
 
     it('reads and reports missing data if the discriminator and user fields are missing', () => {
+      expectWarningWillFire(
+        'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+      );
+      expectWarningWillFire(
+        'RelayResponseNormalizer: Payload did not contain a value for field `lastName: lastName`. Check that you are parsing with the same query that was used to fetch the payload.',
+      );
       commitPayload(operation, {
         viewer: {
           actor: {
@@ -865,25 +946,25 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     let NestedEntityFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest2Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest3Fragment
           }
         }
-      `);
-      PageFragment = getFragment(graphql`
+      `;
+      PageFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest3Fragment on Page {
           id
           lastName
           ...RelayModernEnvironmentTypeRefinementTest4Fragment
         }
-      `);
-      NestedEntityFragment = getFragment(graphql`
+      `;
+      NestedEntityFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest4Fragment on Entity {
           url
         }
-      `);
+      `;
 
       operation = createOperationDescriptor(ParentQuery, {});
     });
@@ -1069,25 +1150,25 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     let NestedNamedFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest3Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest5Fragment
           }
         }
-      `);
-      ActorFragment = getFragment(graphql`
+      `;
+      ActorFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest5Fragment on Actor {
           id
           lastName
           ...RelayModernEnvironmentTypeRefinementTest6Fragment
         }
-      `);
-      NestedNamedFragment = getFragment(graphql`
+      `;
+      NestedNamedFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest6Fragment on Named {
           name
         }
-      `);
+      `;
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
@@ -1276,14 +1357,14 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     let NestedNamedFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest4Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest7Fragment
           }
         }
-      `);
-      UserFragment = getFragment(graphql`
+      `;
+      UserFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest7Fragment on User {
           ... on Actor {
             id
@@ -1291,12 +1372,12 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
             ...RelayModernEnvironmentTypeRefinementTest8Fragment
           }
         }
-      `);
-      NestedNamedFragment = getFragment(graphql`
+      `;
+      NestedNamedFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest8Fragment on Named {
           name
         }
-      `);
+      `;
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
@@ -1485,25 +1566,25 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     let NestedUserFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest5Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest9Fragment
           }
         }
-      `);
-      ActorFragment = getFragment(graphql`
+      `;
+      ActorFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest9Fragment on Actor {
           id
           lastName
           ...RelayModernEnvironmentTypeRefinementTest10Fragment
         }
-      `);
-      NestedUserFragment = getFragment(graphql`
+      `;
+      NestedUserFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest10Fragment on User {
           name
         }
-      `);
+      `;
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
@@ -1596,14 +1677,14 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
     let NestedUserFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest6Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest11Fragment
           }
         }
-      `);
-      UserFragment = getFragment(graphql`
+      `;
+      UserFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest11Fragment on User {
           ... on Actor {
             id
@@ -1611,12 +1692,12 @@ describe('missing data detection with feature ENABLE_PRECISE_TYPE_REFINEMENT', (
             ...RelayModernEnvironmentTypeRefinementTest12Fragment
           }
         }
-      `);
-      NestedUserFragment = getFragment(graphql`
+      `;
+      NestedUserFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest12Fragment on User {
           name
         }
-      `);
+      `;
       operation = createOperationDescriptor(ParentQuery, {});
     });
 

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,17 +13,19 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
-const RelayRecordSource = require('../RelayRecordSource');
-
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {graphql, getRequest} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
+const {disallowWarnings} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('retain()', () => {
   let ParentQuery;
@@ -31,7 +33,6 @@ describe('retain()', () => {
   let operation;
 
   beforeEach(() => {
-    jest.resetModules();
     graphql`
       fragment RelayModernEnvironmentRetainTestQueryChildFragment on User {
         id
@@ -39,14 +40,14 @@ describe('retain()', () => {
       }
     `;
 
-    ParentQuery = getRequest(graphql`
+    ParentQuery = graphql`
       query RelayModernEnvironmentRetainTestQuery {
         me {
           id
           name
         }
       }
-    `);
+    `;
 
     const source = RelayRecordSource.create();
     const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
@@ -83,6 +84,7 @@ describe('retain()', () => {
   });
 
   it('releases data when disposed', () => {
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     const {dispose} = environment.retain(operation);
     const selector = createReaderSelector(
       ParentQuery.fragment,

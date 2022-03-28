@@ -11,7 +11,7 @@ However, a `QueryRenderer` will not start loading its data until it is mounted, 
 
 ## Props
 
--   `environment`: The [Relay Environment](./relay-environment)
+-   `environment`: The [Relay Environment](Modern-RelayEnvironment.md)
 -   `query`: The `graphql` tagged query. **Note:** `relay-compiler` enforces the query to be named as `<FileName>Query`. Optional, if not provided, an empty `props` object is passed to the `render` callback.
 -   `cacheConfig?`: Optional object containing a set of cache configuration options, i.e. `force: true` requires the fetch to be issued regardless of the state of any configured response cache.
 -   `variables`: Object containing set of variables to pass to the GraphQL query, i.e. a mapping from variable name to value. **Note:** If a new set of variables is passed, the `QueryRenderer` will re-fetch the query.
@@ -23,7 +23,6 @@ However, a `QueryRenderer` will not start loading its data until it is mounted, 
 ## Example
 
 ```javascript
-
 // Example.js
 import React from 'react';
 import { QueryRenderer, graphql } from 'react-relay';
@@ -55,5 +54,4 @@ const Example = (props) => {
     />
   );
 }
-
 ```

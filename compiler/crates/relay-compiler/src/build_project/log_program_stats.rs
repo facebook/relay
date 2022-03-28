@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -17,7 +17,7 @@ lazy_static! {
     static ref LOG_AST_STATS: bool = std::env::var("RELAY_LOG_AST_STATS").is_ok();
 }
 
-pub fn print_stats(extra_info: &'static str, program: &Program) {
+pub fn print_stats(extra_info: &str, program: &Program) {
     if *LOG_AST_STATS {
         let mut visitor = IRStatsVisitor::default();
         let stats = visitor.visit_program(program);

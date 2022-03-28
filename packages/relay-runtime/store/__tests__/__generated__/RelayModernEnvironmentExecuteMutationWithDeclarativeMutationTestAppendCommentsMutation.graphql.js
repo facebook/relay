@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<baa3f1bdead0d8b1e10a0b8593e54b74>>
+ * @generated SignedSource<<90a9352767aafe132b7a54108499d9ea>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +15,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentsCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?$ReadOnlyArray<?CommentfeedbackFeedback>,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -27,12 +26,12 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsMutationVariables = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsMutation$variables = {|
   connections: $ReadOnlyArray<string>,
   edgeTypeName: string,
   input?: ?CommentsCreateInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsMutationResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsMutation$data = {|
   +commentsCreate: ?{|
     +comments: ?$ReadOnlyArray<?{|
       +id: string,
@@ -40,8 +39,8 @@ export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppe
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsMutation = {|
-  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsMutationVariables,
-  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsMutationResponse,
+  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsMutation$data,
+  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsMutation$variables,
 |};
 */
 
@@ -167,4 +166,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "57b8c462283bf55892b339592e2b5339";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsMutation$variables,
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsMutation$data,
+>*/);

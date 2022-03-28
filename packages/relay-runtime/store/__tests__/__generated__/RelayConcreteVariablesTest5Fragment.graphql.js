@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e0297dc1e21a31d2f7e7b55e4a706de4>>
+ * @generated SignedSource<<a9f5acb5cfc6ddcd9afbbd95fad9d364>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayConcreteVariablesTest5Fragment$ref: FragmentReference;
-declare export opaque type RelayConcreteVariablesTest5Fragment$fragmentType: RelayConcreteVariablesTest5Fragment$ref;
-export type RelayConcreteVariablesTest5Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayConcreteVariablesTest5Fragment$fragmentType: FragmentType;
+export type RelayConcreteVariablesTest5Fragment$data = {|
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayConcreteVariablesTest5Fragment$ref,
+  +$fragmentType: RelayConcreteVariablesTest5Fragment$fragmentType,
 |};
-export type RelayConcreteVariablesTest5Fragment$data = RelayConcreteVariablesTest5Fragment;
 export type RelayConcreteVariablesTest5Fragment$key = {
   +$data?: RelayConcreteVariablesTest5Fragment$data,
-  +$fragmentRefs: RelayConcreteVariablesTest5Fragment$ref,
+  +$fragmentSpreads: RelayConcreteVariablesTest5Fragment$fragmentType,
   ...
 };
 */
@@ -78,4 +76,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "547656b480e781cce1de6ab5a4b1c05d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayConcreteVariablesTest5Fragment$fragmentType,
+  RelayConcreteVariablesTest5Fragment$data,
+>*/);

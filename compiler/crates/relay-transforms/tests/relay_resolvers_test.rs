@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<29d04a9a612ca04d9d27a57d565d16aa>>
+ * @generated SignedSource<<4ddd14affc6f8400bb65aa1e188e078e>>
  */
 
 mod relay_resolvers;
@@ -41,6 +41,13 @@ fn missing_import_path_invalid() {
 }
 
 #[test]
+fn multiple_relay_resolvers() {
+    let input = include_str!("relay_resolvers/fixtures/multiple-relay-resolvers.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/multiple-relay-resolvers.expected");
+    test_fixture(transform_fixture, "multiple-relay-resolvers.graphql", "relay_resolvers/fixtures/multiple-relay-resolvers.expected", input, expected);
+}
+
+#[test]
 fn nested_relay_resolver() {
     let input = include_str!("relay_resolvers/fixtures/nested-relay-resolver.graphql");
     let expected = include_str!("relay_resolvers/fixtures/nested-relay-resolver.expected");
@@ -52,6 +59,20 @@ fn relay_resolver() {
     let input = include_str!("relay_resolvers/fixtures/relay-resolver.graphql");
     let expected = include_str!("relay_resolvers/fixtures/relay-resolver.expected");
     test_fixture(transform_fixture, "relay-resolver.graphql", "relay_resolvers/fixtures/relay-resolver.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_backing_client_edge() {
+    let input = include_str!("relay_resolvers/fixtures/relay-resolver-backing-client-edge.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/relay-resolver-backing-client-edge.expected");
+    test_fixture(transform_fixture, "relay-resolver-backing-client-edge.graphql", "relay_resolvers/fixtures/relay-resolver-backing-client-edge.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_required() {
+    let input = include_str!("relay_resolvers/fixtures/relay-resolver-required.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/relay-resolver-required.expected");
+    test_fixture(transform_fixture, "relay-resolver-required.graphql", "relay_resolvers/fixtures/relay-resolver-required.expected", input, expected);
 }
 
 #[test]

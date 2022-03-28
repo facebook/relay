@@ -3,34 +3,37 @@
 name = "relay-lsp"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [dependencies]
 common = { path = "../common" }
-crossbeam = "0.7"
-dashmap = { version = "4.0.2", features = ["serde"] }
+crossbeam = "0.8"
+dashmap = { version = "4.0.2", features = ["rayon", "serde"] }
+docblock-syntax = { path = "../docblock-syntax" }
 extract-graphql = { path = "../extract-graphql" }
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
-interner = { path = "../interner" }
-lazy_static = "1.0"
-log = { version = "0.4.8", features = ["kv_unstable"] }
-lsp-server = "0.3.2"
-lsp-types = "0.73.0"
-rand = { version = "0.7", features = ["small_rng"] }
+graphql-watchman = { path = "../graphql-watchman" }
+intern = { path = "../intern" }
+log = { version = "0.4.14", features = ["kv_unstable", "kv_unstable_std"] }
+lsp-server = "0.5.2"
+lsp-types = "0.89.0"
+percent-encoding = "2.1"
+rand = { version = "0.8", features = ["small_rng"] }
 rayon = "1.2"
 relay-compiler = { path = "../relay-compiler" }
+relay-docblock = { path = "../relay-docblock" }
 relay-transforms = { path = "../relay-transforms" }
+resolution-path = { path = "../resolution-path" }
 schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
-serde = { version = "=1.0.118", features = ["derive", "rc"] }
-serde_json = { version = "1.0", features = ["float_roundtrip"] }
-tokio = { version = "1.3", features = ["full", "test-util"] }
+serde = { version = "1.0.126", features = ["derive", "rc"] }
+serde_json = { version = "1.0.64", features = ["float_roundtrip", "unbounded_depth"] }
+tokio = { version = "1.15", features = ["full", "test-util", "tracing"] }
 
 [dev-dependencies]
-assert_matches = "1.5"
 relay-test-schema = { path = "../relay-test-schema" }

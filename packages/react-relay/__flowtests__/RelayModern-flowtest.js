@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,15 +12,6 @@
 
 'use strict';
 
-const React = require('react');
-
-declare function nullthrows<T>(x: ?T): T;
-
-const {
-  createContainer: createFragmentContainer,
-} = require('../ReactRelayFragmentContainer');
-const {graphql} = require('relay-runtime');
-
 import type {$FragmentRef} from '../ReactRelayTypes';
 import type {RelayModernFlowtest_badref} from './RelayModernFlowtest_badref.graphql';
 import type {RelayModernFlowtest_notref} from './RelayModernFlowtest_notref.graphql';
@@ -32,6 +23,14 @@ import type {
   RelayModernFlowtest_users,
   RelayModernFlowtest_users$ref,
 } from './RelayModernFlowtest_users.graphql';
+
+const {
+  createContainer: createFragmentContainer,
+} = require('../ReactRelayFragmentContainer');
+const React = require('react');
+const {graphql} = require('relay-runtime');
+
+declare function nullthrows<T>(x: ?T): T;
 
 class NotReferencedTest_ extends React.Component<{
   notref: RelayModernFlowtest_notref,
@@ -97,7 +96,7 @@ class SingularTest extends React.Component<{
     return null;
   }
 }
-SingularTest = createFragmentContainer(SingularTest, {
+const SingularTestFragment = createFragmentContainer(SingularTest, {
   user: graphql`
     fragment RelayModernFlowtest_user on User {
       name
@@ -120,7 +119,7 @@ class PluralTest extends React.Component<{
     return null;
   }
 }
-PluralTest = createFragmentContainer(PluralTest, {
+const PluralTestFragment = createFragmentContainer(PluralTest, {
   users: graphql`
     fragment RelayModernFlowtest_users on User @relay(plural: true) {
       name
@@ -129,46 +128,71 @@ PluralTest = createFragmentContainer(PluralTest, {
 });
 
 declare var aUserRef: {
-  +$fragmentRefs: RelayModernFlowtest_user$ref,
+  +$fragmentSpreads: RelayModernFlowtest_user$ref,
   ...
 };
 
 declare var oneOfUsersRef: {
-  +$fragmentRefs: RelayModernFlowtest_users$ref,
+  +$fragmentSpreads: RelayModernFlowtest_users$ref,
   ...
 };
 
 declare var usersRef: $ReadOnlyArray<{
-  +$fragmentRefs: RelayModernFlowtest_users$ref,
+  +$fragmentSpreads: RelayModernFlowtest_users$ref,
   ...
 }>;
 
 declare var nonUserRef: {
-  +$fragmentRefs: {thing: true, ...},
+  +$fragmentSpreads: {thing: true, ...},
   ...
 };
 
 function cb(): void {}
 
-// $FlowExpectedError - can't pass null for user
-<SingularTest onClick={cb} string="x" user={null} nullableUser={null} />;
+<SingularTestFragment
+  onClick={cb}
+  string="x"
+  // $FlowExpectedError - can't pass null for user
+  user={null}
+  nullableUser={null}
+/>;
 // $FlowExpectedError - user is required
-<SingularTest onClick={cb} string="x" nullableUser={null} />;
-// $FlowExpectedError - can't pass non-user ref for user
-<SingularTest onClick={cb} string="x" user={nonUserRef} nullableUser={null} />;
-// $FlowExpectedError - `cb` prop is not a function
-<SingularTest onClick="cb" string="x" user={aUserRef} nullableUser={null} />;
-// $FlowExpectedError - `string` prop is not a string
-<SingularTest onClick={cb} string={1} user={aUserRef} nullableUser={null} />;
+<SingularTestFragment onClick={cb} string="x" nullableUser={null} />;
+<SingularTestFragment
+  onClick={cb}
+  string="x"
+  // $FlowExpectedError - can't pass non-user ref for user
+  user={nonUserRef}
+  nullableUser={null}
+/>;
+<SingularTestFragment
+  // $FlowExpectedError - `cb` prop is not a function
+  onClick="cb"
+  string="x"
+  user={aUserRef}
+  nullableUser={null}
+/>;
+<SingularTestFragment
+  onClick={cb}
+  // $FlowExpectedError - `string` prop is not a string
+  string={1}
+  user={aUserRef}
+  nullableUser={null}
+/>;
 
-<SingularTest onClick={cb} string="x" user={aUserRef} nullableUser={null} />;
-<SingularTest
+<SingularTestFragment
+  onClick={cb}
+  string="x"
+  user={aUserRef}
+  nullableUser={null}
+/>;
+<SingularTestFragment
   onClick={cb}
   string="x"
   user={aUserRef}
   nullableUser={aUserRef}
 />;
-<SingularTest
+<SingularTestFragment
   onClick={cb}
   string="x"
   user={aUserRef}
@@ -177,7 +201,7 @@ function cb(): void {}
 />;
 
 // $FlowExpectedError - onClick is required
-<SingularTest
+<SingularTestFragment
   string="x"
   user={aUserRef}
   nullableUser={null}
@@ -186,13 +210,13 @@ function cb(): void {}
 />;
 
 declare var aComplexUserRef: {
-  +$fragmentRefs: {thing1: true, ...} & RelayModernFlowtest_user$ref & {
+  +$fragmentSpreads: {thing1: true, ...} & RelayModernFlowtest_user$ref & {
       thing2: true,
       ...
     },
   ...
 };
-<SingularTest
+<SingularTestFragment
   string="x"
   onClick={cb}
   user={aComplexUserRef}
@@ -201,34 +225,42 @@ declare var aComplexUserRef: {
 />;
 
 // $FlowExpectedError - can't pass null for user
-<PluralTest users={null} nullableUsers={null} />;
+<PluralTestFragment users={null} nullableUsers={null} />;
 // $FlowExpectedError - users is required
-<PluralTest nullableUsers={null} />;
+<PluralTestFragment nullableUsers={null} />;
 // $FlowExpectedError - can't pass non-user refs for user
-<PluralTest users={[nonUserRef]} nullableUsers={null} />;
+<PluralTestFragment users={[nonUserRef]} nullableUsers={null} />;
 
-<PluralTest users={usersRef} nullableUsers={null} />;
+<PluralTestFragment users={usersRef} nullableUsers={null} />;
 
-<PluralTest
+<PluralTestFragment
   users={([oneOfUsersRef]: Array<typeof oneOfUsersRef>)}
   nullableUsers={null}
 />;
-<PluralTest users={[oneOfUsersRef]} nullableUsers={null} />;
+<PluralTestFragment users={[oneOfUsersRef]} nullableUsers={null} />;
 
-<PluralTest users={usersRef} nullableUsers={[oneOfUsersRef]} />;
-<PluralTest users={usersRef} nullableUsers={null} optionalUsers={usersRef} />;
-// $FlowExpectedError - optional, not nullable!
-<PluralTest users={usersRef} nullableUsers={null} optionalUsers={null} />;
+<PluralTestFragment users={usersRef} nullableUsers={[oneOfUsersRef]} />;
+<PluralTestFragment
+  users={usersRef}
+  nullableUsers={null}
+  optionalUsers={usersRef}
+/>;
+<PluralTestFragment
+  users={usersRef}
+  nullableUsers={null}
+  // $FlowExpectedError - optional, not nullable!
+  optionalUsers={null}
+/>;
 
 class AnyTest extends React.Component<{|
   anything: any,
 |}> {}
 const AnyTestContainer = createFragmentContainer(AnyTest, {});
 
-<AnyTest anything={42} />;
-<AnyTest anything={null} />;
-<AnyTest anything={() => {}} />;
+<AnyTestContainer anything={42} />;
+<AnyTestContainer anything={null} />;
+<AnyTestContainer anything={() => {}} />;
 // $FlowExpectedError - any other prop can not be passed
-<AnyTest anything={null} anythingElse={42} />;
+<AnyTestContainer anything={null} anythingElse={42} />;
 // $FlowExpectedError - anything has to be passed
-<AnyTest />;
+<AnyTestContainer />;

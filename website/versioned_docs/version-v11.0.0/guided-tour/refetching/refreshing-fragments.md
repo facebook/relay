@@ -22,7 +22,7 @@ When referring to **"refreshing a fragment"**, we mean fetching the *exact* same
 <OssOnly>
 If we want to keep our data up to date with the latest version from the server, the first thing to consider is if it appropriate to use any real-time features, which can make it easier to automatically keep the data up to date without manually refreshing the data periodically.
 
-One example of this is using [GraphQL Subscriptions](https://relay.dev/docs/en/subscriptions), which will require additional configuration on your server and [network layer](https://relay.dev/docs/en/subscriptions#configure-network).
+One example of this is using [GraphQL Subscriptions](https://relay.dev/docs/guided-tour/updating-data/graphql-subscriptions/), which will require additional configuration on your server and [network layer](https://relay.dev/docs/guided-tour/updating-data/graphql-subscriptions/#configuring-the-network-layer).
 </OssOnly>
 
 ## Using `useRefetchableFragment`
@@ -90,7 +90,7 @@ Let's distill what's happening in this example:
 
 * `useRefetchableFragment` behaves similarly to [`useFragment`](../../../api-reference/use-fragment/) (see the [Fragments](../../rendering/fragments/) section), but with a few additions:
     * It expects a fragment that is annotated with the `@refetchable` directive. Note that  `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, on `Query`, on any type that implements `Node` (i.e. a type that has an `id` field).
-* It returns a `refetch` function, which is already Flow typed to expect the query variables that the generated query expects
+* It returns a `refetch` function, which is already Flow-typed to expect the query variables that the generated query expects
 * It takes two Flow type parameters: the type of the generated query (in our case  `UserComponentRefreshQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
 * We're calling the `refetch` function with 2 main inputs:
     * The first argument is the set of variables to fetch the fragment with. In this case, calling `refetch` and passing an empty set of variables will fetch the fragment again *with the exact same variables the fragment was originally fetched with,* which is what we want for a refresh.

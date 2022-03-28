@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,20 +13,24 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const nullthrows = require('nullthrows');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const nullthrows = require('nullthrows');
 const {RelayFeatureFlags} = require('relay-runtime');
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
 
 describe('execute() with @relay_client_component', () => {
   let callbacks;
@@ -46,19 +50,15 @@ describe('execute() with @relay_client_component', () => {
   let store;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.mock('warning');
-    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-
-    ClientFragment = getFragment(graphql`
+    ClientFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment on Story {
         name
         body {
           text
         }
       }
-    `);
-    Query = getRequest(graphql`
+    `;
+    Query = graphql`
       query RelayModernEnvironmentExecuteWithRelayClientComponentTestQuery(
         $id: ID!
       ) {
@@ -67,7 +67,7 @@ describe('execute() with @relay_client_component', () => {
             @relay_client_component
         }
       }
-    `);
+    `;
 
     complete = jest.fn();
     error = jest.fn();
@@ -115,8 +115,7 @@ describe('execute() with @relay_client_component', () => {
               __typename: 'Story',
               name: 'React Server Components: The Musical',
               body: {
-                text:
-                  'Presenting a new musical from the director of Cats (2019)!',
+                text: 'Presenting a new musical from the director of Cats (2019)!',
               },
             },
           },
@@ -138,6 +137,7 @@ describe('execute() with @relay_client_component', () => {
               [ClientFragment.name]: expect.anything(),
             },
             __fragmentOwner: operation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         });
 
@@ -183,6 +183,12 @@ describe('execute() with @relay_client_component', () => {
 
       it('handles missing fragment data', () => {
         environment.execute({operation}).subscribe(callbacks);
+        expectWarningWillFire(
+          'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+        );
+        expectWarningWillFire(
+          'RelayResponseNormalizer: Payload did not contain a value for field `body: body`. Check that you are parsing with the same query that was used to fetch the payload.',
+        );
         dataSource.next({
           data: {
             node: {
@@ -208,6 +214,7 @@ describe('execute() with @relay_client_component', () => {
               [ClientFragment.name]: expect.anything(),
             },
             __fragmentOwner: operation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         });
 
@@ -269,6 +276,7 @@ describe('execute() with @relay_client_component', () => {
               [ClientFragment.name]: expect.anything(),
             },
             __fragmentOwner: operation.request,
+            __isWithinUnmatchedTypeRefinement: false,
           },
         });
 

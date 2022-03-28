@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cf9453953abf75f4180e8ff958044358>>
+ * @generated SignedSource<<a5089ea0e09e03ea7d699118644855ee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +15,16 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useRefetchableFragmentNodeTest4Fragment$ref: FragmentReference;
-declare export opaque type useRefetchableFragmentNodeTest4Fragment$fragmentType: useRefetchableFragmentNodeTest4Fragment$ref;
-export type useRefetchableFragmentNodeTest4Fragment = $ReadOnlyArray<{|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useRefetchableFragmentNodeTest4Fragment$fragmentType: FragmentType;
+export type useRefetchableFragmentNodeTest4Fragment$data = $ReadOnlyArray<{|
   +id: string,
-  +$refType: useRefetchableFragmentNodeTest4Fragment$ref,
+  +$fragmentType: useRefetchableFragmentNodeTest4Fragment$fragmentType,
 |}>;
-export type useRefetchableFragmentNodeTest4Fragment$data = useRefetchableFragmentNodeTest4Fragment;
 export type useRefetchableFragmentNodeTest4Fragment$key = $ReadOnlyArray<{
   +$data?: useRefetchableFragmentNodeTest4Fragment$data,
-  +$fragmentRefs: useRefetchableFragmentNodeTest4Fragment$ref,
+  +$fragmentSpreads: useRefetchableFragmentNodeTest4Fragment$fragmentType,
   ...
 }>;
 */
@@ -55,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "aefb7faae26173c6c2f8bba8aedab15b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  useRefetchableFragmentNodeTest4Fragment$fragmentType,
+  useRefetchableFragmentNodeTest4Fragment$data,
+>*/);

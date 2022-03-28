@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,15 +13,9 @@
 
 'use strict';
 
-const useIsMountedRef = require('./useIsMountedRef');
-const useRelayEnvironment = require('./useRelayEnvironment');
-
-const {loadQuery, useTrackLoadQueryInRender} = require('./loadQuery');
-const {useCallback, useEffect, useRef, useState} = require('react');
-
 import type {
-  PreloadableConcreteRequest,
   LoadQueryOptions,
+  PreloadableConcreteRequest,
   PreloadedQuery,
 } from './EntryPointTypes.flow';
 import type {
@@ -30,8 +24,14 @@ import type {
   OperationType,
 } from 'relay-runtime';
 
+const {loadQuery, useTrackLoadQueryInRender} = require('./loadQuery');
+const useIsMountedRef = require('./useIsMountedRef');
+const useRelayEnvironment = require('./useRelayEnvironment');
+const {useCallback, useEffect, useRef, useState} = require('react');
+const {getRequest} = require('relay-runtime');
+
 export type LoaderFn<TQuery: OperationType> = (
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: TQuery['variables'],
   options?: UseQueryLoaderLoadQueryOptions,
 ) => void;
 
@@ -53,6 +53,16 @@ type NullQueryReference = {|
   kind: 'NullQueryReference',
 |};
 const initialNullQueryReferenceState = {kind: 'NullQueryReference'};
+
+function requestIsLiveQuery<TQuery: OperationType>(
+  preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
+): boolean {
+  if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
+    return (preloadableRequest: $FlowFixMe).params.metadata.live !== undefined;
+  }
+  const request = getRequest(preloadableRequest);
+  return request.params.metadata.live !== undefined;
+}
 
 function useQueryLoader<TQuery: OperationType>(
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
@@ -93,12 +103,10 @@ function useQueryLoader<TQuery: OperationType>(
     PreloadedQuery<TQuery> | NullQueryReference,
   >(() => initialQueryReferenceInternal);
 
-  const [
-    previousInitialQueryReference,
-    setPreviousInitialQueryReference,
-  ] = useState<PreloadedQuery<TQuery> | NullQueryReference>(
-    () => initialQueryReferenceInternal,
-  );
+  const [previousInitialQueryReference, setPreviousInitialQueryReference] =
+    useState<PreloadedQuery<TQuery> | NullQueryReference>(
+      () => initialQueryReferenceInternal,
+    );
 
   if (initialQueryReferenceInternal !== previousInitialQueryReference) {
     // Rendering the query reference makes it "managed" by this hook, so
@@ -120,7 +128,7 @@ function useQueryLoader<TQuery: OperationType>(
 
   const queryLoaderCallback = useCallback(
     (
-      variables: $ElementType<TQuery, 'variables'>,
+      variables: TQuery['variables'],
       options?: ?UseQueryLoaderLoadQueryOptions,
     ) => {
       const mergedOptions: ?UseQueryLoaderLoadQueryOptions =
@@ -209,24 +217,35 @@ function useQueryLoader<TQuery: OperationType>(
 
         undisposedQueryReferences.delete(undisposedQueryReference);
         if (undisposedQueryReference.kind !== 'NullQueryReference') {
-          undisposedQueryReference.dispose &&
-            undisposedQueryReference.dispose();
+          if (requestIsLiveQuery(preloadableRequest)) {
+            undisposedQueryReference.dispose &&
+              undisposedQueryReference.dispose();
+          } else {
+            undisposedQueryReference.releaseQuery &&
+              undisposedQueryReference.releaseQuery();
+          }
         }
       }
     }
-  }, [queryReference, isMountedRef, queryLoaderCallback]);
+  }, [queryReference, isMountedRef, queryLoaderCallback, preloadableRequest]);
 
   useEffect(() => {
     return function disposeAllRemainingQueryReferences() {
       // undisposedQueryReferences.current is never reassigned
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      for (const unhandledStateChange of undisposedQueryReferencesRef.current) {
-        if (unhandledStateChange.kind !== 'NullQueryReference') {
-          unhandledStateChange.dispose && unhandledStateChange.dispose();
+      for (const undisposedQueryReference of undisposedQueryReferencesRef.current) {
+        if (undisposedQueryReference.kind !== 'NullQueryReference') {
+          if (requestIsLiveQuery(preloadableRequest)) {
+            undisposedQueryReference.dispose &&
+              undisposedQueryReference.dispose();
+          } else {
+            undisposedQueryReference.releaseQuery &&
+              undisposedQueryReference.releaseQuery();
+          }
         }
       }
     };
-  }, []);
+  }, [preloadableRequest]);
 
   return [
     queryReference.kind === 'NullQueryReference' ? null : queryReference,

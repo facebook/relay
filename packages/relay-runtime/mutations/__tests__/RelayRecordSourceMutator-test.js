@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,11 +10,10 @@
 
 'use strict';
 
-const RelayRecordSourceMapImpl = require('../../store/RelayRecordSourceMapImpl');
 const RelayRecordSourceMutator = require('../../mutations/RelayRecordSourceMutator');
+const RelayRecordSource = require('../../store/RelayRecordSource');
 const RelayRecordState = require('../../store/RelayRecordState');
 const RelayStoreUtils = require('../../store/RelayStoreUtils');
-
 const {simpleClone} = require('relay-test-utils-internal');
 
 const {ID_KEY, REF_KEY, REFS_KEY, TYPENAME_KEY} = RelayStoreUtils;
@@ -75,8 +74,8 @@ describe('RelayRecordSourceMutator', () => {
     backupData = {};
     sinkData = {};
     baseData = simpleClone(initialData);
-    baseSource = new RelayRecordSourceMapImpl(baseData);
-    sinkSource = new RelayRecordSourceMapImpl(sinkData);
+    baseSource = new RelayRecordSource(baseData);
+    sinkSource = new RelayRecordSource(sinkData);
     mutator = new RelayRecordSourceMutator(baseSource, sinkSource, []);
   });
 

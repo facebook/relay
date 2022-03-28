@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+/*
+// Can't parse this!
+// expected-to-throw
+*/
+==================================== ERROR ====================================
+✖︎ Expected "*".
+
+  invalid_docblock.invalid.ecmascript:2:1
+    1 │ 
+    2 │ // Can't parse this!
+      │ ^

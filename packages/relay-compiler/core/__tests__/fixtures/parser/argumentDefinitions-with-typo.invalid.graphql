@@ -1,8 +1,0 @@
-# expected-to-throw
-fragment TestFragment on User
-  @argumentDefinitions(
-    id: {type: "ID"}
-    size: {type: "[Int]", defaultValu: [100]} # uh-oh, typo
-  ) {
-  ...Foo @arguments(size: $size)
-}

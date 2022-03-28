@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,11 +8,10 @@
 use crate::definitions::{Argument, Directive, *};
 use crate::errors::SchemaError;
 use crate::graphql_schema::Schema;
-use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey};
+use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, WithLocation};
 use graphql_syntax::*;
-use interner::{Intern, StringKey};
-use std::collections::{BTreeMap, HashMap, HashSet};
-use std::convert::TryInto;
+use intern::string_key::{Intern, StringKey};
+use std::collections::{BTreeMap, HashMap};
 
 fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
     Err(vec![Diagnostic::error(error, Location::generated())])
@@ -26,12 +25,16 @@ pub struct InMemorySchema {
     type_map: TypeMap,
 
     clientid_field: FieldID,
+    strongid_field: FieldID,
     typename_field: FieldID,
     fetch_token_field: FieldID,
+    is_fulfilled_field: FieldID,
 
     clientid_field_name: StringKey,
+    strongid_field_name: StringKey,
     typename_field_name: StringKey,
     fetch_token_field_name: StringKey,
+    is_fulfilled_field_name: StringKey,
 
     string_type: Option<Type>,
     id_type: Option<Type>,
@@ -66,12 +69,20 @@ impl Schema for InMemorySchema {
         self.clientid_field
     }
 
+    fn strongid_field(&self) -> FieldID {
+        self.strongid_field
+    }
+
     fn typename_field(&self) -> FieldID {
         self.typename_field
     }
 
     fn fetch_token_field(&self) -> FieldID {
         self.fetch_token_field
+    }
+
+    fn is_fulfilled_field(&self) -> FieldID {
+        self.is_fulfilled_field
     }
 
     fn get_type(&self, type_name: StringKey) -> Option<Type> {
@@ -115,7 +126,7 @@ impl Schema for InMemorySchema {
             Type::Enum(id) => self.enums[id.as_usize()].name,
             Type::InputObject(id) => self.input_objects[id.as_usize()].name,
             Type::Interface(id) => self.interfaces[id.as_usize()].name,
-            Type::Object(id) => self.objects[id.as_usize()].name,
+            Type::Object(id) => self.objects[id.as_usize()].name.item,
             Type::Scalar(id) => self.scalars[id.as_usize()].name,
             Type::Union(id) => self.unions[id.as_usize()].name,
         }
@@ -158,6 +169,9 @@ impl Schema for InMemorySchema {
             if name == self.clientid_field_name {
                 return Some(self.clientid_field);
             }
+            if name == self.strongid_field_name {
+                return Some(self.strongid_field);
+            }
         }
 
         let fields = match parent_type {
@@ -182,7 +196,7 @@ impl Schema for InMemorySchema {
             .iter()
             .find(|field_id| {
                 let field = &self.fields[field_id.as_usize()];
-                field.name == name
+                field.name.item == name
             })
             .cloned()
     }
@@ -202,11 +216,15 @@ impl Schema for InMemorySchema {
             subscription_type,
             directives,
             clientid_field: _clientid_field,
+            strongid_field: _strongid_field,
             typename_field: _typename_field,
             fetch_token_field: _fetch_token_field,
+            is_fulfilled_field: _is_fulfilled_field,
             clientid_field_name: _clientid_field_name,
+            strongid_field_name: _strongid_field_name,
             typename_field_name: _typename_field_name,
             fetch_token_field_name: _fetch_token_field_name,
+            is_fulfilled_field_name: _is_fulfilled_field_name,
             string_type: _string_type,
             id_type: _id_type,
             unchecked_argument_type_sentinel: _unchecked_argument_type_sentinel,
@@ -226,19 +244,19 @@ impl Schema for InMemorySchema {
 
         format!(
             r#"Schema {{
- query_type: {:#?}
- mutation_type: {:#?}
- subscription_type: {:#?}
- directives: {:#?}
- type_map: {:#?}
- enums: {:#?}
- fields: {:#?}
- input_objects: {:#?}
- interfaces: {:#?}
- objects: {:#?}
- scalars: {:#?}
- unions: {:#?}
- }}"#,
+  query_type: {:#?}
+  mutation_type: {:#?}
+  subscription_type: {:#?}
+  directives: {:#?}
+  type_map: {:#?}
+  enums: {:#?}
+  fields: {:#?}
+  input_objects: {:#?}
+  interfaces: {:#?}
+  objects: {:#?}
+  scalars: {:#?}
+  unions: {:#?}
+  }}"#,
             query_type,
             mutation_type,
             subscription_type,
@@ -252,6 +270,34 @@ impl Schema for InMemorySchema {
             scalars,
             unions,
         )
+    }
+
+    fn input_objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a InputObject> + 'a> {
+        Box::new(self.input_objects.iter())
+    }
+
+    fn enums<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Enum> + 'a> {
+        Box::new(self.enums.iter())
+    }
+
+    fn scalars<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Scalar> + 'a> {
+        Box::new(self.scalars.iter())
+    }
+
+    fn fields<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Field> + 'a> {
+        Box::new(self.fields.iter())
+    }
+
+    fn objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Object> + 'a> {
+        Box::new(self.objects.iter())
+    }
+
+    fn unions<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Union> + 'a> {
+        Box::new(self.unions.iter())
+    }
+
+    fn interfaces<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Interface> + 'a> {
+        Box::new(self.interfaces.iter())
     }
 }
 
@@ -351,13 +397,17 @@ impl InMemorySchema {
     }
 
     pub fn add_object(&mut self, object: Object) -> DiagnosticsResult<ObjectID> {
-        if self.type_map.contains_key(&object.name) {
-            return todo_add_location(SchemaError::DuplicateType(object.name));
+        if self.type_map.contains_key(&object.name.item) {
+            return Err(vec![Diagnostic::error(
+                SchemaError::DuplicateType(object.name.item),
+                object.name.location,
+            )]);
         }
         let index: u32 = self.objects.len().try_into().unwrap();
         let name = object.name;
         self.objects.push(object);
-        self.type_map.insert(name, Type::Object(ObjectID(index)));
+        self.type_map
+            .insert(name.item, Type::Object(ObjectID(index)));
         Ok(ObjectID(index))
     }
 
@@ -500,7 +550,7 @@ impl InMemorySchema {
             ));
         }
         self.type_map.remove(&self.get_type_name(Type::Object(id)));
-        self.type_map.insert(object.name, Type::Object(id));
+        self.type_map.insert(object.name.item, Type::Object(id));
         self.objects[id.as_usize()] = object;
         Ok(())
     }
@@ -561,7 +611,10 @@ impl InMemorySchema {
     pub fn replace_field(&mut self, id: FieldID, field: Field) -> DiagnosticsResult<()> {
         let id = id.as_usize();
         if id >= self.fields.len() {
-            return todo_add_location(SchemaError::UnknownTypeID(id, String::from("Field")));
+            return Err(vec![Diagnostic::error(
+                SchemaError::UnknownTypeID(id, String::from("Field")),
+                field.name.location,
+            )]);
         }
         self.fields[id] = field;
         Ok(())
@@ -577,11 +630,15 @@ impl InMemorySchema {
             subscription_type: None,
             type_map: HashMap::new(),
             clientid_field: FieldID(0),
+            strongid_field: FieldID(0),
             typename_field: FieldID(0),
             fetch_token_field: FieldID(0),
+            is_fulfilled_field: FieldID(0),
             clientid_field_name: "__id".intern(),
+            strongid_field_name: "strong_id__".intern(),
             typename_field_name: "__typename".intern(),
             fetch_token_field_name: "__token".intern(),
+            is_fulfilled_field_name: "is_fulfilled__".intern(),
             string_type: None,
             id_type: None,
             unchecked_argument_type_sentinel: None,
@@ -597,9 +654,19 @@ impl InMemorySchema {
     }
 
     pub fn build(
-        schema_definitions: &[graphql_syntax::TypeSystemDefinition],
-        client_definitions: &[graphql_syntax::TypeSystemDefinition],
+        schema_documents: &[SchemaDocument],
+        client_schema_documents: &[SchemaDocument],
     ) -> DiagnosticsResult<Self> {
+        let schema_definitions: Vec<&TypeSystemDefinition> = schema_documents
+            .iter()
+            .flat_map(|document| &document.definitions)
+            .collect();
+
+        let client_definitions: Vec<&TypeSystemDefinition> = client_schema_documents
+            .iter()
+            .flat_map(|document| &document.definitions)
+            .collect();
+
         // Step 1: build the type_map from type names to type keys
         let mut type_map =
             HashMap::with_capacity(schema_definitions.len() + client_definitions.len());
@@ -611,7 +678,8 @@ impl InMemorySchema {
         let mut next_scalar_id = 0;
         let mut field_count = 0;
         let mut directive_count = 0;
-        for definition in schema_definitions.iter().chain(client_definitions) {
+
+        for definition in schema_definitions.iter().chain(&client_definitions) {
             match definition {
                 TypeSystemDefinition::SchemaDefinition { .. } => {}
                 TypeSystemDefinition::DirectiveDefinition { .. } => {
@@ -689,11 +757,15 @@ impl InMemorySchema {
             subscription_type: None,
             type_map,
             clientid_field: FieldID(0), // dummy value, overwritten later
+            strongid_field: FieldID(0), // dummy value, overwritten later
             typename_field: FieldID(0), // dummy value, overwritten later
             fetch_token_field: FieldID(0), // dummy value, overwritten later
+            is_fulfilled_field: FieldID(0), // dummy value, overwritten later
             clientid_field_name: "__id".intern(),
+            strongid_field_name: "strong_id__".intern(),
             typename_field_name: "__typename".intern(),
             fetch_token_field_name: "__token".intern(),
+            is_fulfilled_field_name: "is_fulfilled__".intern(),
             string_type: Some(string_type),
             id_type: Some(id_type),
             unchecked_argument_type_sentinel,
@@ -707,38 +779,43 @@ impl InMemorySchema {
             unions: Vec::with_capacity(next_union_id.try_into().unwrap()),
         };
 
-        for definition in schema_definitions {
-            schema.add_definition(definition, false)?;
+        for document in schema_documents {
+            for definition in &document.definitions {
+                schema.add_definition(definition, &document.location.source_location(), false)?;
+            }
         }
 
-        for definition in client_definitions {
-            schema.add_definition(definition, true)?;
+        for document in client_schema_documents {
+            for definition in &document.definitions {
+                schema.add_definition(definition, &document.location.source_location(), true)?;
+            }
         }
 
-        for definition in schema_definitions.iter().chain(client_definitions) {
-            if let TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
-                name,
-                interfaces,
-                ..
-            }) = definition
-            {
-                let object_id = match schema.type_map.get(&name.value) {
-                    Some(Type::Object(id)) => id,
-                    _ => unreachable!("Must be an Object type"),
-                };
-                for interface in interfaces {
-                    let type_ = schema.type_map.get(&interface.value).unwrap();
-                    match type_ {
-                        Type::Interface(id) => {
-                            let interface = schema.interfaces.get_mut(id.as_usize()).unwrap();
-                            interface.implementing_objects.push(*object_id)
+        for document in schema_documents.iter().chain(client_schema_documents) {
+            for definition in &document.definitions {
+                if let TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
+                    name,
+                    interfaces,
+                    ..
+                }) = definition
+                {
+                    let object_id = match schema.type_map.get(&name.value) {
+                        Some(Type::Object(id)) => id,
+                        _ => unreachable!("Must be an Object type"),
+                    };
+                    for interface in interfaces {
+                        let type_ = schema.type_map.get(&interface.value).unwrap();
+                        match type_ {
+                            Type::Interface(id) => {
+                                let interface = schema.interfaces.get_mut(id.as_usize()).unwrap();
+                                interface.implementing_objects.push(*object_id)
+                            }
+                            _ => unreachable!("Must be an interface"),
                         }
-                        _ => unreachable!("Must be an interface"),
                     }
                 }
             }
         }
-
         schema.load_defaults();
 
         Ok(schema)
@@ -749,6 +826,8 @@ impl InMemorySchema {
         self.load_default_typename_field();
         self.load_default_fetch_token_field();
         self.load_default_clientid_field();
+        self.load_default_strongid_field();
+        self.load_default_is_fulfilled_field();
     }
 
     // In case the schema doesn't define a query, mutation or subscription
@@ -782,12 +861,13 @@ impl InMemorySchema {
         let typename_field_id = self.fields.len();
         self.typename_field = FieldID(typename_field_id.try_into().unwrap());
         self.fields.push(Field {
-            name: self.typename_field_name,
+            name: WithLocation::generated(self.typename_field_name),
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
         });
     }
 
@@ -796,12 +876,13 @@ impl InMemorySchema {
         let fetch_token_field_id = self.fields.len();
         self.fetch_token_field = FieldID(fetch_token_field_id.try_into().unwrap());
         self.fields.push(Field {
-            name: self.fetch_token_field_name,
+            name: WithLocation::generated(self.fetch_token_field_name),
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
         });
     }
 
@@ -810,18 +891,88 @@ impl InMemorySchema {
         let clientid_field_id = self.fields.len();
         self.clientid_field = FieldID(clientid_field_id.try_into().unwrap());
         self.fields.push(Field {
-            name: self.clientid_field_name,
+            name: WithLocation::generated(self.clientid_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(Default::default()),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
             directives: Vec::new(),
             parent_type: None,
+            description: None,
         });
+    }
+
+    fn load_default_strongid_field(&mut self) {
+        let id_type = *self.type_map.get(&"ID".intern()).expect("Missing ID type");
+        let strongid_field_id = self.fields.len();
+        self.strongid_field = FieldID(strongid_field_id.try_into().unwrap());
+        self.fields.push(Field {
+            name: WithLocation::generated(self.strongid_field_name),
+            is_extension: true,
+            arguments: ArgumentDefinitions::new(Default::default()),
+            type_: TypeReference::Named(id_type),
+            directives: Vec::new(),
+            parent_type: None,
+            description: None,
+        });
+    }
+
+    fn load_default_is_fulfilled_field(&mut self) {
+        let string_type = *self
+            .type_map
+            .get(&"String".intern())
+            .expect("Missing String type");
+        let is_fulfilled_field_id = self.fields.len();
+        self.is_fulfilled_field = FieldID(is_fulfilled_field_id.try_into().unwrap());
+        self.fields.push(Field {
+            name: WithLocation::generated(self.is_fulfilled_field_name),
+            is_extension: true,
+            arguments: ArgumentDefinitions::new(vec![Argument {
+                name: "name".intern(),
+                type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
+                default_value: None,
+                description: None,
+            }]),
+            type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
+            directives: Vec::new(),
+            parent_type: None,
+            description: None,
+        });
+    }
+
+    /// Add additional object extensions to the schema after its initial
+    /// creation.
+    pub fn add_object_type_extension(
+        &mut self,
+        object_extension: ObjectTypeExtension,
+        location_key: SourceLocationKey,
+        is_extension: bool,
+    ) -> DiagnosticsResult<()> {
+        self.add_definition(
+            &TypeSystemDefinition::ObjectTypeExtension(object_extension),
+            &location_key,
+            is_extension,
+        )
+    }
+
+    /// Add additional interface extensions to the schema after its initial
+    /// creation.
+    pub fn add_interface_type_extension(
+        &mut self,
+        interface_extension: InterfaceTypeExtension,
+        location_key: SourceLocationKey,
+        is_extension: bool,
+    ) -> DiagnosticsResult<()> {
+        self.add_definition(
+            &TypeSystemDefinition::InterfaceTypeExtension(interface_extension),
+            &location_key,
+            is_extension,
+        )
     }
 
     fn add_definition(
         &mut self,
         definition: &TypeSystemDefinition,
+        location_key: &SourceLocationKey,
         is_extension: bool,
     ) -> DiagnosticsResult<()> {
         match definition {
@@ -834,39 +985,45 @@ impl InMemorySchema {
                     match operation {
                         OperationType::Query => {
                             if let Some(prev_query_type) = self.query_type {
-                                return todo_add_location(
+                                return Err(vec![Diagnostic::error(
                                     SchemaError::DuplicateOperationDefinition(
                                         *operation,
                                         type_.value,
-                                        self.object(prev_query_type).name,
+                                        expect_object_type_name(&self.type_map, prev_query_type),
                                     ),
-                                );
+                                    Location::new(*location_key, type_.span),
+                                )]);
                             } else {
                                 self.query_type = Some(operation_id);
                             }
                         }
                         OperationType::Mutation => {
                             if let Some(prev_mutation_type) = self.mutation_type {
-                                return todo_add_location(
+                                return Err(vec![Diagnostic::error(
                                     SchemaError::DuplicateOperationDefinition(
                                         *operation,
                                         type_.value,
-                                        self.object(prev_mutation_type).name,
+                                        expect_object_type_name(&self.type_map, prev_mutation_type),
                                     ),
-                                );
+                                    Location::new(*location_key, type_.span),
+                                )]);
                             } else {
                                 self.mutation_type = Some(operation_id);
                             }
                         }
                         OperationType::Subscription => {
                             if let Some(prev_subscription_type) = self.subscription_type {
-                                return todo_add_location(
+                                return Err(vec![Diagnostic::error(
                                     SchemaError::DuplicateOperationDefinition(
                                         *operation,
                                         type_.value,
-                                        self.object(prev_subscription_type).name,
+                                        expect_object_type_name(
+                                            &self.type_map,
+                                            prev_subscription_type,
+                                        ),
                                     ),
-                                );
+                                    Location::new(*location_key, type_.span),
+                                )]);
                             } else {
                                 self.subscription_type = Some(operation_id);
                             }
@@ -879,14 +1036,16 @@ impl InMemorySchema {
                 arguments,
                 repeatable,
                 locations,
+                description,
             }) => {
                 if self.directives.contains_key(&name.value) {
                     let str_name = name.value.lookup();
                     if str_name != "skip" && str_name != "include" {
                         // TODO(T63941319) @skip and @include directives are duplicated in our schema
-                        return todo_add_location(SchemaError::DuplicateDirectiveDefinition(
-                            name.value,
-                        ));
+                        return Err(vec![Diagnostic::error(
+                            SchemaError::DuplicateDirectiveDefinition(name.value),
+                            Location::new(*location_key, name.span),
+                        )]);
                     }
                 }
                 let arguments = self.build_arguments(arguments)?;
@@ -898,6 +1057,7 @@ impl InMemorySchema {
                         locations: locations.clone(),
                         repeatable: *repeatable,
                         is_extension,
+                        description: description.as_ref().map(|node| node.value),
                     },
                 );
             }
@@ -910,24 +1070,26 @@ impl InMemorySchema {
                 let parent_id = Type::Object(ObjectID(self.objects.len() as u32));
                 let fields = if is_extension {
                     self.build_extend_fields(
-                        &fields,
-                        &mut HashSet::with_capacity(len_of_option_list(fields)),
+                        fields,
+                        &mut HashMap::with_capacity(len_of_option_list(fields)),
+                        *location_key,
                         Some(parent_id),
                     )?
                 } else {
-                    self.build_fields(&fields, Some(parent_id))?
+                    self.build_fields(fields, *location_key, Some(parent_id))?
                 };
                 let interfaces = interfaces
                     .iter()
-                    .map(|name| self.build_interface_id(name.value))
+                    .map(|name| self.build_interface_id(name, location_key))
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
-                let directives = self.build_directive_values(&directives);
+                let directives = self.build_directive_values(directives);
                 self.objects.push(Object {
-                    name: name.value,
+                    name: WithLocation::new(Location::new(*location_key, name.span), name.value),
                     fields,
                     is_extension,
                     interfaces,
                     directives,
+                    description: None,
                 });
             }
             TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
@@ -939,18 +1101,19 @@ impl InMemorySchema {
                 let parent_id = Type::Interface(InterfaceID(self.interfaces.len() as u32));
                 let fields = if is_extension {
                     self.build_extend_fields(
-                        &fields,
-                        &mut HashSet::with_capacity(len_of_option_list(fields)),
+                        fields,
+                        &mut HashMap::with_capacity(len_of_option_list(fields)),
+                        *location_key,
                         Some(parent_id),
                     )?
                 } else {
-                    self.build_fields(&fields, Some(parent_id))?
+                    self.build_fields(fields, *location_key, Some(parent_id))?
                 };
                 let interfaces = interfaces
                     .iter()
-                    .map(|name| self.build_interface_id(name.value))
+                    .map(|name| self.build_interface_id(name, location_key))
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
-                let directives = self.build_directive_values(&directives);
+                let directives = self.build_directive_values(directives);
                 self.interfaces.push(Interface {
                     name: name.value,
                     implementing_objects: vec![],
@@ -958,6 +1121,7 @@ impl InMemorySchema {
                     fields,
                     directives,
                     interfaces,
+                    description: None,
                 });
             }
             TypeSystemDefinition::UnionTypeDefinition(UnionTypeDefinition {
@@ -969,12 +1133,13 @@ impl InMemorySchema {
                     .iter()
                     .map(|name| self.build_object_id(name.value))
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
-                let directives = self.build_directive_values(&directives);
+                let directives = self.build_directive_values(directives);
                 self.unions.push(Union {
                     name: name.value,
                     is_extension,
                     members,
                     directives,
+                    description: None,
                 });
             }
             TypeSystemDefinition::InputObjectTypeDefinition(InputObjectTypeDefinition {
@@ -983,11 +1148,12 @@ impl InMemorySchema {
                 directives,
             }) => {
                 let fields = self.build_arguments(fields)?;
-                let directives = self.build_directive_values(&directives);
+                let directives = self.build_directive_values(directives);
                 self.input_objects.push(InputObject {
                     name: name.value,
                     fields,
                     directives,
+                    description: None,
                 });
             }
             TypeSystemDefinition::EnumTypeDefinition(EnumTypeDefinition {
@@ -995,7 +1161,7 @@ impl InMemorySchema {
                 directives,
                 values,
             }) => {
-                let directives = self.build_directive_values(&directives);
+                let directives = self.build_directive_values(directives);
                 let values = if let Some(values) = values {
                     values
                         .items
@@ -1013,17 +1179,19 @@ impl InMemorySchema {
                     is_extension,
                     values,
                     directives,
+                    description: None,
                 });
             }
             TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
                 name,
                 directives,
             }) => {
-                let directives = self.build_directive_values(&directives);
+                let directives = self.build_directive_values(directives);
                 self.scalars.push(Scalar {
                     name: name.value,
                     is_extension,
                     directives,
+                    description: None,
                 })
             }
             TypeSystemDefinition::ObjectTypeExtension(ObjectTypeExtension {
@@ -1034,15 +1202,24 @@ impl InMemorySchema {
             }) => match self.type_map.get(&name.value).cloned() {
                 Some(Type::Object(id)) => {
                     let index = id.as_usize();
-                    let field_ids = &self.objects[index].fields;
+                    let obj = self.objects.get(index).ok_or_else(|| {
+                        vec![Diagnostic::error(
+                            SchemaError::ExtendUndefinedType(name.value),
+                            Location::new(*location_key, name.span),
+                        )]
+                    })?;
+
+                    let field_ids = &obj.fields;
                     let mut existing_fields =
-                        HashSet::with_capacity(field_ids.len() + len_of_option_list(fields));
+                        HashMap::with_capacity(field_ids.len() + len_of_option_list(fields));
                     for field_id in field_ids {
-                        existing_fields.insert(self.fields[field_id.as_usize()].name);
+                        let field_name = self.fields[field_id.as_usize()].name;
+                        existing_fields.insert(field_name.item, field_name.location);
                     }
                     let client_fields = self.build_extend_fields(
                         fields,
                         &mut existing_fields,
+                        *location_key,
                         Some(Type::Object(id)),
                     )?;
 
@@ -1050,21 +1227,24 @@ impl InMemorySchema {
 
                     let built_interfaces = interfaces
                         .iter()
-                        .map(|name| self.build_interface_id(name.value))
+                        .map(|name| self.build_interface_id(name, location_key))
                         .collect::<DiagnosticsResult<Vec<_>>>()?;
                     extend_without_duplicates(
                         &mut self.objects[index].interfaces,
                         built_interfaces,
                     );
 
-                    let built_directives = self.build_directive_values(&directives);
+                    let built_directives = self.build_directive_values(directives);
                     extend_without_duplicates(
                         &mut self.objects[index].directives,
                         built_directives,
                     );
                 }
                 _ => {
-                    return todo_add_location(SchemaError::ExtendUndefinedType(name.value));
+                    return Err(vec![Diagnostic::error(
+                        SchemaError::ExtendUndefinedType(name.value),
+                        Location::new(*location_key, name.span),
+                    )]);
                 }
             },
             TypeSystemDefinition::InterfaceTypeExtension(InterfaceTypeExtension {
@@ -1075,27 +1255,38 @@ impl InMemorySchema {
             }) => match self.type_map.get(&name.value).cloned() {
                 Some(Type::Interface(id)) => {
                     let index = id.as_usize();
-                    let field_ids = &self.interfaces[index].fields;
+                    let interface = self.interfaces.get(index).ok_or_else(|| {
+                        vec![Diagnostic::error(
+                            SchemaError::ExtendUndefinedType(name.value),
+                            Location::new(*location_key, name.span),
+                        )]
+                    })?;
+                    let field_ids = &interface.fields;
                     let mut existing_fields =
-                        HashSet::with_capacity(field_ids.len() + len_of_option_list(fields));
+                        HashMap::with_capacity(field_ids.len() + len_of_option_list(fields));
                     for field_id in field_ids {
-                        existing_fields.insert(self.fields[field_id.as_usize()].name);
+                        let field_name = self.fields[field_id.as_usize()].name;
+                        existing_fields.insert(field_name.item, field_name.location);
                     }
                     let client_fields = self.build_extend_fields(
                         fields,
                         &mut existing_fields,
+                        *location_key,
                         Some(Type::Interface(id)),
                     )?;
                     self.interfaces[index].fields.extend(client_fields);
 
-                    let built_directives = self.build_directive_values(&directives);
+                    let built_directives = self.build_directive_values(directives);
                     extend_without_duplicates(
                         &mut self.interfaces[index].directives,
                         built_directives,
                     );
                 }
                 _ => {
-                    return todo_add_location(SchemaError::ExtendUndefinedType(name.value));
+                    return Err(vec![Diagnostic::error(
+                        SchemaError::ExtendUndefinedType(name.value),
+                        Location::new(*location_key, name.span),
+                    )]);
                 }
             },
             TypeSystemDefinition::SchemaExtension { .. } => todo!("SchemaExtension"),
@@ -1119,14 +1310,21 @@ impl InMemorySchema {
         }
     }
 
-    fn build_interface_id(&mut self, name: StringKey) -> DiagnosticsResult<InterfaceID> {
-        match self.type_map.get(&name) {
+    fn build_interface_id(
+        &mut self,
+        name: &Identifier,
+        location_key: &SourceLocationKey,
+    ) -> DiagnosticsResult<InterfaceID> {
+        match self.type_map.get(&name.value) {
             Some(Type::Interface(id)) => Ok(*id),
-            Some(non_interface_type) => todo_add_location(SchemaError::ExpectedInterfaceReference(
-                name,
-                *non_interface_type,
-            )),
-            None => todo_add_location(SchemaError::UndefinedType(name)),
+            Some(non_interface_type) => Err(vec![Diagnostic::error(
+                SchemaError::ExpectedInterfaceReference(name.value, *non_interface_type),
+                Location::new(*location_key, name.span),
+            )]),
+            None => Err(vec![Diagnostic::error(
+                SchemaError::UndefinedType(name.value),
+                Location::new(*location_key, name.span),
+            )]),
         }
     }
 
@@ -1139,6 +1337,7 @@ impl InMemorySchema {
     fn build_fields(
         &mut self,
         field_defs: &Option<List<FieldDefinition>>,
+        field_location_key: SourceLocationKey,
         parent_type: Option<Type>,
     ) -> DiagnosticsResult<Vec<FieldID>> {
         if let Some(field_defs) = field_defs {
@@ -1149,13 +1348,18 @@ impl InMemorySchema {
                     let arguments = self.build_arguments(&field_def.arguments)?;
                     let type_ = self.build_type_reference(&field_def.type_)?;
                     let directives = self.build_directive_values(&field_def.directives);
+                    let description = field_def.description.as_ref().map(|desc| desc.value);
                     Ok(self.build_field(Field {
-                        name: field_def.name.value,
+                        name: WithLocation::new(
+                            Location::new(field_location_key, field_def.name.span),
+                            field_def.name.value,
+                        ),
                         is_extension: false,
                         arguments,
                         type_,
                         directives,
                         parent_type,
+                        description,
                     }))
                 })
                 .collect()
@@ -1167,25 +1371,33 @@ impl InMemorySchema {
     fn build_extend_fields(
         &mut self,
         field_defs: &Option<List<FieldDefinition>>,
-        existing_fields: &mut HashSet<StringKey>,
+        existing_fields: &mut HashMap<StringKey, Location>,
+        source_location_key: SourceLocationKey,
         parent_type: Option<Type>,
     ) -> DiagnosticsResult<Vec<FieldID>> {
         if let Some(field_defs) = field_defs {
             let mut field_ids: Vec<FieldID> = Vec::with_capacity(field_defs.items.len());
             for field_def in &field_defs.items {
-                if !existing_fields.insert(field_def.name.value) {
-                    return todo_add_location(SchemaError::DuplicateField(field_def.name.value));
+                let field_name = field_def.name.value;
+                let field_location = Location::new(source_location_key, field_def.name.span);
+                if let Some(prev_location) = existing_fields.insert(field_name, field_location) {
+                    return Err(vec![
+                        Diagnostic::error(SchemaError::DuplicateField(field_name), field_location)
+                            .annotate("previously defined here", prev_location),
+                    ]);
                 }
                 let arguments = self.build_arguments(&field_def.arguments)?;
                 let directives = self.build_directive_values(&field_def.directives);
                 let type_ = self.build_type_reference(&field_def.type_)?;
+                let description = field_def.description.as_ref().map(|desc| desc.value);
                 field_ids.push(self.build_field(Field {
-                    name: field_def.name.value,
+                    name: WithLocation::new(field_location, field_name),
                     is_extension: true,
                     arguments,
                     type_,
                     directives,
                     parent_type,
+                    description,
                 }));
             }
             Ok(field_ids)
@@ -1207,6 +1419,7 @@ impl InMemorySchema {
                         name: arg_def.name.value,
                         type_: self.build_input_object_reference(&arg_def.type_)?,
                         default_value: arg_def.default_value.clone(),
+                        description: None,
                     })
                 })
                 .collect();
@@ -1221,17 +1434,17 @@ impl InMemorySchema {
         ast_type: &TypeAnnotation,
     ) -> DiagnosticsResult<TypeReference> {
         Ok(match ast_type {
-            TypeAnnotation::Named(name) => {
-                let type_ = self.type_map.get(&name.value).ok_or_else(|| {
+            TypeAnnotation::Named(named_type) => {
+                let type_ = self.type_map.get(&named_type.name.value).ok_or_else(|| {
                     vec![Diagnostic::error(
-                        SchemaError::UndefinedType(name.value),
-                        Location::new(SourceLocationKey::generated(), name.span),
+                        SchemaError::UndefinedType(named_type.name.value),
+                        Location::new(SourceLocationKey::generated(), named_type.name.span),
                     )]
                 })?;
                 if !(type_.is_enum() || type_.is_scalar() || type_.is_input_object()) {
                     return Err(vec![Diagnostic::error(
-                        SchemaError::ExpectedInputType(name.value),
-                        Location::new(SourceLocationKey::generated(), name.span),
+                        SchemaError::ExpectedInputType(named_type.name.value),
+                        Location::new(SourceLocationKey::generated(), named_type.name.span),
                     )]);
                 }
 
@@ -1251,10 +1464,10 @@ impl InMemorySchema {
         ast_type: &TypeAnnotation,
     ) -> DiagnosticsResult<TypeReference> {
         Ok(match ast_type {
-            TypeAnnotation::Named(name) => {
-                TypeReference::Named(*self.type_map.get(&name.value).ok_or_else(|| {
+            TypeAnnotation::Named(named_type) => {
+                TypeReference::Named(*self.type_map.get(&named_type.name.value).ok_or_else(|| {
                     vec![Diagnostic::error(
-                        SchemaError::UndefinedType(name.value),
+                        SchemaError::UndefinedType(named_type.name.value),
                         Location::generated(),
                     )]
                 })?)
@@ -1308,6 +1521,17 @@ fn extend_without_duplicates<T: PartialEq>(
 
 fn len_of_option_list<T>(option_list: &Option<List<T>>) -> usize {
     option_list.as_ref().map_or(0, |list| list.items.len())
+}
+
+fn expect_object_type_name(type_map: &TypeMap, object_id: ObjectID) -> StringKey {
+    *type_map
+        .iter()
+        .find(|(_, type_)| match type_ {
+            Type::Object(id_) => id_ == &object_id,
+            _ => false,
+        })
+        .expect("Missing object in type_map")
+        .0
 }
 
 #[cfg(test)]

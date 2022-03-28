@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8533eaa9972d4ef6f15d1ce5f81eb1b2>>
+ * @generated SignedSource<<9f7afea4bdb3f8df0175937f5fca6bf5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,27 +15,27 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useBlockingPaginationFragmentTestUserFragment$ref = any;
-export type useBlockingPaginationFragmentTestUserQueryNestedFragmentQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useBlockingPaginationFragmentTestUserFragment$fragmentType = any;
+export type useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery$variables = {|
   after?: ?string,
-  first?: ?number,
   before?: ?string,
+  first?: ?number,
+  id: string,
+  isViewerFriend?: ?boolean,
   last?: ?number,
   orderby?: ?$ReadOnlyArray<?string>,
-  isViewerFriend?: ?boolean,
 |};
-export type useBlockingPaginationFragmentTestUserQueryNestedFragmentQueryResponse = {|
+export type useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery$data = {|
   +node: ?{|
     +actor: ?{|
-      +$fragmentRefs: useBlockingPaginationFragmentTestUserFragment$ref,
+      +$fragmentSpreads: useBlockingPaginationFragmentTestUserFragment$fragmentType,
     |},
   |},
 |};
 export type useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery = {|
-  variables: useBlockingPaginationFragmentTestUserQueryNestedFragmentQueryVariables,
-  response: useBlockingPaginationFragmentTestUserQueryNestedFragmentQueryResponse,
+  response: useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery$data,
+  variables: useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery$variables,
 |};
 */
 
@@ -355,4 +355,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "19018d89e0c127bfa85e874e07a4b743";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery$variables,
+  useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery$data,
+>*/);

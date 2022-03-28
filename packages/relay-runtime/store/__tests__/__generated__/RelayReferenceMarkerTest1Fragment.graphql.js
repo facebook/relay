@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e4da9b1496507a17a657e54e61c1288a>>
+ * @generated SignedSource<<1c69adc5ace70fe8743c3be010cbee48>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,30 +15,28 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReferenceMarkerTest1Fragment$ref: FragmentReference;
-declare export opaque type RelayReferenceMarkerTest1Fragment$fragmentType: RelayReferenceMarkerTest1Fragment$ref;
-export type RelayReferenceMarkerTest1Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReferenceMarkerTest1Fragment$fragmentType: FragmentType;
+export type RelayReferenceMarkerTest1Fragment$data = {|
   +firstName: ?string,
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +cursor: ?string,
       +node: ?{|
-        +id: string,
         +firstName: ?string,
+        +id: string,
       |},
     |}>,
   |},
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayReferenceMarkerTest1Fragment$ref,
+  +$fragmentType: RelayReferenceMarkerTest1Fragment$fragmentType,
 |};
-export type RelayReferenceMarkerTest1Fragment$data = RelayReferenceMarkerTest1Fragment;
 export type RelayReferenceMarkerTest1Fragment$key = {
   +$data?: RelayReferenceMarkerTest1Fragment$data,
-  +$fragmentRefs: RelayReferenceMarkerTest1Fragment$ref,
+  +$fragmentSpreads: RelayReferenceMarkerTest1Fragment$fragmentType,
   ...
 };
 */
@@ -152,4 +150,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "90914722103f39a1f621e4d4529be673";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReferenceMarkerTest1Fragment$fragmentType,
+  RelayReferenceMarkerTest1Fragment$data,
+>*/);

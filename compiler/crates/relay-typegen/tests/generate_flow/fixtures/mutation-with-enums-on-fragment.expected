@@ -27,12 +27,12 @@ fragment FriendFragment on User {
   }
 }
 ==================================== OUTPUT ===================================
-import type { FriendFragment$ref } from "FriendFragment.graphql";
+import type { FriendFragment$fragmentType } from "FriendFragment.graphql";
 export type TestEnums = "mark" | "zuck" | "%future added value";
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
+  client_mutation_id: string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -40,36 +40,36 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type CommentCreateMutationVariables = {|
-  input: CommentCreateInput,
+export type CommentCreateMutation$variables = {|
   first?: ?number,
+  input: CommentCreateInput,
   orderBy?: ?$ReadOnlyArray<string>,
 |};
-export type CommentCreateMutationResponse = {|
+export type CommentCreateMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
       +friends: ?{|
         +edges: ?$ReadOnlyArray<?{|
           +node: ?{|
-            +id: string,
             +__typename: string,
-            +$fragmentRefs: FriendFragment$ref,
+            +id: string,
+            +$fragmentSpreads: FriendFragment$fragmentType,
           |},
         |}>,
       |},
     |},
   |},
 |};
-export type CommentCreateMutationRawResponse = {|
+export type CommentCreateMutation$rawResponse = {|
   +commentCreate: ?{|
     +comment: ?{|
       +friends: ?{|
         +edges: ?$ReadOnlyArray<?{|
           +node: ?{|
-            +id: string,
             +__typename: "User",
-            +name: ?string,
+            +id: string,
             +lastName: ?string,
+            +name: ?string,
             +profilePicture2: ?{|
               +test_enums: ?TestEnums,
             |},
@@ -81,26 +81,24 @@ export type CommentCreateMutationRawResponse = {|
   |},
 |};
 export type CommentCreateMutation = {|
-  variables: CommentCreateMutationVariables,
-  response: CommentCreateMutationResponse,
-  rawResponse: CommentCreateMutationRawResponse,
+  rawResponse: CommentCreateMutation$rawResponse,
+  response: CommentCreateMutation$data,
+  variables: CommentCreateMutation$variables,
 |};
 -------------------------------------------------------------------------------
 export type TestEnums = "mark" | "zuck" | "%future added value";
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type FriendFragment$ref: FragmentReference;
-declare export opaque type FriendFragment$fragmentType: FriendFragment$ref;
-export type FriendFragment = {|
-  +name: ?string,
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FriendFragment$fragmentType: FragmentType;
+export type FriendFragment$data = {|
   +lastName: ?string,
+  +name: ?string,
   +profilePicture2: ?{|
     +test_enums: ?TestEnums,
   |},
-  +$refType: FriendFragment$ref,
+  +$fragmentType: FriendFragment$fragmentType,
 |};
-export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
   +$data?: FriendFragment$data,
-  +$fragmentRefs: FriendFragment$ref,
+  +$fragmentSpreads: FriendFragment$fragmentType,
   ...
 };

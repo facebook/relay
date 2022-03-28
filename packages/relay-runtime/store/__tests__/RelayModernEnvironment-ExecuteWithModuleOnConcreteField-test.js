@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,21 +13,22 @@
 
 'use strict';
 
-const RelayModernEnvironment = require('../RelayModernEnvironment');
-const RelayModernStore = require('../RelayModernStore');
+import type {NormalizationRootNode} from '../../util/NormalizationNode';
+
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const RelayRecordSource = require('../RelayRecordSource');
-
-const nullthrows = require('nullthrows');
-
-const {graphql, getFragment, getRequest} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
+const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {getSingularSelector} = require('../RelayModernSelector');
+const RelayModernStore = require('../RelayModernStore');
+const RelayRecordSource = require('../RelayRecordSource');
+const nullthrows = require('nullthrows');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
-import type {NormalizationRootNode} from '../../util/NormalizationNode';
+disallowWarnings();
 
 describe('execute() a query with @module on a field with a nullable concrete type', () => {
   let authorFragment;
@@ -52,9 +53,7 @@ describe('execute() a query with @module on a field with a nullable concrete typ
   let variables;
 
   beforeEach(() => {
-    jest.resetModules();
-
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery(
         $id: ID!
       ) {
@@ -67,14 +66,14 @@ describe('execute() a query with @module on a field with a nullable concrete typ
           }
         }
       }
-    `);
+    `;
 
     authorNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$normalization.graphql');
-    authorFragment = getFragment(graphql`
+    authorFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author on User {
         name
       }
-    `);
+    `;
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
 
@@ -147,10 +146,12 @@ describe('execute() a query with @module on a field with a nullable concrete typ
           __fragmentPropName: 'author',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author: {},
+            RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author:
+              {},
           },
 
           __fragmentOwner: operation.request,
+          __isWithinUnmatchedTypeRefinement: false,
           __module_component: 'FeedbackAuthor.react',
         },
       },

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c1b8f6e554e26debbd66b80c09d6f8d4>>
+ * @generated SignedSource<<2be2da3604c1ba5fb3a165d30088ce54>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$ref;
-export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment = {|
-  +id: string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$data = {|
   +actor: ?{|
     +name: ?string,
   |},
-  +$refType: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$ref,
+  +id: string,
+  +$fragmentType: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$data = RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment;
 export type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$key = {
   +$data?: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType,
   ...
 };
 */
@@ -74,4 +72,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3f43a3ad199bd0b3f314e82db5533579";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType,
+  RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$data,
+>*/);

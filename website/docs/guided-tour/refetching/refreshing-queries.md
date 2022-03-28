@@ -2,6 +2,10 @@
 id: refreshing-queries
 title: Refreshing Queries
 slug: /guided-tour/refetching/refreshing-queries/
+description: Relay guide to refreshing queries
+keywords:
+- refreshing
+- queries
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -23,7 +27,7 @@ When referring to **"refreshing a query"**, we mean fetching the *exact* same da
 <OssOnly>
 If we want to keep our data up to date with the latest version from the server, the first thing to consider is if it appropriate to use any real-time features, which can make it easier to automatically keep the data up to date without manually refreshing the data periodically.
 
-One example of this is using [GraphQL Subscriptions](https://relay.dev/docs/en/subscriptions), which will require additional configuration on your server and [network layer](https://relay.dev/docs/en/subscriptions#configure-network).
+One example of this is using [GraphQL Subscriptions](https://relay.dev/docs/guided-tour/updating-data/graphql-subscriptions), which will require additional configuration on your server and [network layer](https://relay.dev/docs/guided-tour/updating-data/graphql-subscriptions/#configuring-the-network-layer).
 </OssOnly>
 
 ## When using `useQueryLoader` / `loadQuery`
@@ -184,7 +188,7 @@ function App(props: Props) {
 
 Let's distill what's going on here:
 
-* When refreshing, we now keep track of our own `isRefreshing` loading state, since we are avoiding supending. We can use this state to render a busy spinner or similar loading UI inside the `MainContent` component, *without* hiding the `MainContent`.
+* When refreshing, we now keep track of our own `isRefreshing` loading state, since we are avoiding suspending. We can use this state to render a busy spinner or similar loading UI inside the `MainContent` component, *without* hiding the `MainContent`.
 * In the event handler, we first call `fetchQuery`, which will fetch the query and write the data to the local Relay store. When the `fetchQuery` network request completes, we call `loadQuery` so that we obtain an updated  `queryRef` that we then pass to `usePreloadedQuery` in order render the updated data, similar to the previous example.
 * At this point, when `loadQuery` is called, the data for the query should already be cached in the local Relay store, so we use `fetchPolicy` of `'store-only'` to avoid suspending and only read the already cached data.
 
@@ -239,12 +243,11 @@ function App(props: Props) {
 /**
  * MainContent.react.js
  */
-import type {AppQuery as AppQueryType} from 'AppQuery.graphql';
 
 // Fetches and renders the query, given the fetch options
 function MainContent(props) {
   const {refresh, queryOptions, variables} = props;
-  const data = useLazyLoadQuery<AppQueryType>(
+  const data = useLazyLoadQuery(
     graphql`
       query AppQuery($id: ID!) {
         user(id: $id) {
@@ -352,7 +355,7 @@ function App(props: Props) {
 
 Let's distill what's going on here:
 
-* When refreshing, we now keep track of our own `isRefreshing` loading state, since we are avoiding supending. We can use this state to render a busy spinner or similar loading UI inside the `MainContent` component, *without* hiding the `MainContent`.
+* When refreshing, we now keep track of our own `isRefreshing` loading state, since we are avoiding suspending. We can use this state to render a busy spinner or similar loading UI inside the `MainContent` component, *without* hiding the `MainContent`.
 * In the event handler, we first call `fetchQuery`, which will fetch the query and write the data to the local Relay store. When the `fetchQuery` network request completes, we update our state so that we re-render an updated `fetchKey` and `fetchPolicy` that we then pass to `useLazyLoadQuery` in order render the updated data, similar to the previous example.
 * At this point, when we update the state, the data for the query should already be cached in the local Relay store, so we use `fetchPolicy` of `'store-only'` to avoid suspending and only read the already cached data.
 

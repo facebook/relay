@@ -1,27 +1,23 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use super::{SplitOperationMetadata, MATCH_CONSTANTS};
-use crate::util::get_normalization_operation_name;
-use common::{NamedItem, WithLocation};
-use fnv::{FnvHashMap, FnvHashSet};
+use crate::{util::get_normalization_operation_name, ModuleMetadata};
+use common::WithLocation;
 use graphql_ir::{
     InlineFragment, OperationDefinition, Program, Selection, Transformed, TransformedValue,
     Transformer,
 };
 use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
+use intern::string_key::{Intern, StringKeyMap, StringKeySet};
 use schema::Schema;
 use std::sync::Arc;
 
-pub fn split_module_import(
-    program: &Program,
-    base_fragment_names: &FnvHashSet<StringKey>,
-) -> Program {
+pub fn split_module_import(program: &Program, base_fragment_names: &StringKeySet) -> Program {
     let mut transform = SplitModuleImportTransform::new(program, base_fragment_names);
     transform
         .transform_program(program)
@@ -30,20 +26,34 @@ pub fn split_module_import(
 
 pub struct SplitModuleImportTransform<'program, 'base_fragment_names> {
     program: &'program Program,
-    split_operations: FnvHashMap<StringKey, (SplitOperationMetadata, OperationDefinition)>,
-    base_fragment_names: &'base_fragment_names FnvHashSet<StringKey>,
+    split_operations: StringKeyMap<(SplitOperationMetadata, OperationDefinition)>,
+    base_fragment_names: &'base_fragment_names StringKeySet,
 }
 
 impl<'program, 'base_fragment_names> SplitModuleImportTransform<'program, 'base_fragment_names> {
     fn new(
         program: &'program Program,
-        base_fragment_names: &'base_fragment_names FnvHashSet<StringKey>,
+        base_fragment_names: &'base_fragment_names StringKeySet,
     ) -> Self {
         Self {
             program,
             split_operations: Default::default(),
             base_fragment_names,
         }
+    }
+
+    fn inline_module_metadata<'a>(
+        &self,
+        fragment: &'a InlineFragment,
+    ) -> Option<&'a ModuleMetadata> {
+        if fragment.directives.len() == 1 {
+            if let Some(module_metadata) = ModuleMetadata::find(&fragment.directives) {
+                if !module_metadata.no_inline {
+                    return Some(module_metadata);
+                }
+            }
+        }
+        None
     }
 }
 
@@ -73,34 +83,24 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
     }
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
-        if fragment.directives.len() == 1
-            && fragment.directives[0].name.item == MATCH_CONSTANTS.custom_module_directive_name
-        {
-            let directive = &fragment.directives[0];
+        if let Some(module_metadata) = self.inline_module_metadata(fragment) {
             let parent_type = fragment
                 .type_condition
                 .expect("Expect the module import inline fragment to have a type");
-            let name = directive
-                .arguments
-                .named(MATCH_CONSTANTS.name_arg)
-                .unwrap()
-                .value
-                .item
-                .expect_string_literal();
 
-            // We do not need to to write normalization files for base fragments
-            if self.base_fragment_names.contains(&name) {
+            // We do not need to to write normalization files for base fragments.
+            // This is because when we process the base project, the normalization fragment will
+            // be written, and we do not want to emit multiple normalization fragments with
+            // the same name. If we did, Haste would complain about a duplicate module definition.
+            if self
+                .base_fragment_names
+                .contains(&module_metadata.fragment_name)
+            {
                 return self.default_transform_inline_fragment(fragment);
             }
 
-            let source_document = directive
-                .arguments
-                .named(MATCH_CONSTANTS.source_document_arg)
-                .unwrap()
-                .value
-                .item
-                .expect_string_literal();
-            let normalization_name = get_normalization_operation_name(name).intern();
+            let normalization_name =
+                get_normalization_operation_name(module_metadata.fragment_name).intern();
             let schema = &self.program.schema;
             let created_split_operation = self
                 .split_operations
@@ -112,7 +112,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                         match selection {
                             Selection::ScalarField(field) => {
                                 if field.alias.is_none()
-                                    || schema.field(field.definition.item).name
+                                    || schema.field(field.definition.item).name.item
                                         != MATCH_CONSTANTS.js_field_name
                                 {
                                     next_selections.push(selection.clone())
@@ -123,15 +123,12 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                     }
                     (
                         SplitOperationMetadata {
-                            derived_from: name,
-                            parent_sources: Default::default(),
+                            derived_from: module_metadata.fragment_name,
+                            parent_documents: Default::default(),
                             raw_response_type: false,
                         },
                         OperationDefinition {
-                            name: WithLocation::new(
-                                directive.arguments[0].name.location,
-                                normalization_name,
-                            ),
+                            name: WithLocation::new(module_metadata.location, normalization_name),
                             type_: parent_type,
                             variable_definitions: vec![],
                             directives: vec![],
@@ -142,8 +139,8 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                 });
             created_split_operation
                 .0
-                .parent_sources
-                .insert(source_document);
+                .parent_documents
+                .insert(module_metadata.source_document_name);
         }
         self.default_transform_inline_fragment(fragment)
     }

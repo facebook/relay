@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ce6a2152b92d9eeaae94bf35599f56b0>>
+ * @generated SignedSource<<31b7c1942f4e0a1e32bad8443e13330e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,25 +17,23 @@
 // @dataDrivenDependency RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$ref = any;
-type RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref: FragmentReference;
-declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref;
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType = any;
+type RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType: FragmentType;
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data = {|
   +id: string,
   +nameRenderer: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$ref & RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$ref,
+    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType & RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType,
   |},
-  +$refType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref,
+  +$fragmentType: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
 |};
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data = RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment;
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$key = {
   +$data?: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data,
-  +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref,
+  +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
   ...
 };
 */
@@ -65,6 +63,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment",
               "fragmentName": "RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name",
               "fragmentPropName": "name",
@@ -78,6 +77,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment",
               "fragmentName": "RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name",
               "fragmentPropName": "name",
@@ -99,4 +99,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3171d1e6bd288204b1bbcf964f679bb0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
+  RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data,
+>*/);

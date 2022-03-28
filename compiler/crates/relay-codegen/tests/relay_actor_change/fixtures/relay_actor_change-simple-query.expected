@@ -1,0 +1,98 @@
+==================================== INPUT ====================================
+query SimpleQuery {
+  node(id: "test-id") {
+    id
+    ... on User {
+      actor @fb_actor_change {
+        ...UserFragment
+      }
+    }
+  }
+}
+
+fragment UserFragment on User {
+  name
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "UserFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "SimpleQuery",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "id",
+          "value": "test-id"
+        }
+      ],
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "node",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        },
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "kind": "ActorChange",
+              "linkedField": {
+                "alias": null,
+                "args": null,
+                "concreteType": null,
+                "kind": "LinkedField",
+                "name": "actor",
+                "plural": false,
+                "selections": [
+                  {
+                    "args": null,
+                    "kind": "FragmentSpread",
+                    "name": "UserFragment"
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "actor_key",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              }
+            }
+          ],
+          "type": "User",
+          "abstractKey": null
+        }
+      ],
+      "storageKey": "node(id:\"test-id\")"
+    }
+  ]
+}

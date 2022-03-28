@@ -1,0 +1,23 @@
+fragment ParentFragment on User {
+  ...ChildFragment1 @arguments(pictureSize: [42])
+  ...ChildFragment2
+}
+
+fragment ChildFragment1 on User
+  @argumentDefinitions(
+    pictureSize: {type: "[Int]"}
+    arg_with_enabled_provider0: {type: "Boolean!", provider: "foo_gk_module.js"}
+  ) {
+
+  profilePicture(size: $pictureSize) {
+    uri @include(if: $arg_with_enabled_provider0)
+  }
+}
+
+fragment ChildFragment2 on User
+  @argumentDefinitions(
+    arg_with_enabled_provider0: {type: "Boolean!", provider: "foo_gk_module.js"}
+  ) {
+
+  traits @include(if: $arg_with_enabled_provider0)
+}

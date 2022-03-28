@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -15,9 +15,9 @@ const {
   getPaginationFragment,
   getRefetchableFragment,
   getRequest,
+  graphql,
   isFragment,
   isRequest,
-  graphql,
 } = require('../GraphQLTag');
 
 beforeEach(() => {
@@ -85,7 +85,7 @@ describe('getRefetchableFragment()', () => {
   it('returns refetchable fragments', () => {
     const fragment = graphql`
       fragment GraphQLTagTest2UserFragment on User
-        @refetchable(queryName: "GraphQLTagTestUserFragment1RefetchQuery") {
+      @refetchable(queryName: "GraphQLTagTestUserFragment1RefetchQuery") {
         id
         name
       }
@@ -97,7 +97,7 @@ describe('getRefetchableFragment()', () => {
   it('returns refetchable pagination fragments', () => {
     const fragment = graphql`
       fragment GraphQLTagTest3UserFragment on User
-        @refetchable(queryName: "GraphQLTagTestUserFragment2RefetchQuery") {
+      @refetchable(queryName: "GraphQLTagTestUserFragment2RefetchQuery") {
         id
         name
         friends(after: $after, first: $first)
@@ -128,7 +128,7 @@ describe('getPaginationFragment()', () => {
   it('returns null for refetchable fragments', () => {
     const fragment = graphql`
       fragment GraphQLTagTest5UserFragment on User
-        @refetchable(queryName: "GraphQLTagTestUserFragment3RefetchQuery") {
+      @refetchable(queryName: "GraphQLTagTestUserFragment3RefetchQuery") {
         id
         name
       }
@@ -139,7 +139,7 @@ describe('getPaginationFragment()', () => {
   it('returns refetchable pagination fragments', () => {
     const fragment = graphql`
       fragment GraphQLTagTest6UserFragment on User
-        @refetchable(queryName: "GraphQLTagTestUserFragment4RefetchQuery") {
+      @refetchable(queryName: "GraphQLTagTestUserFragment4RefetchQuery") {
         id
         name
         friends(after: $after, first: $first)

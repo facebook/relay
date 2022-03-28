@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -8,32 +8,26 @@
 pub trait PerfLogger: Send + Sync {
     type PerfLogEvent: PerfLogEvent + Send;
     /// Create log event
-    fn create_event(&self, name: impl Copy + Into<String>) -> Self::PerfLogEvent;
-
-    /// Push event to the logger queue
-    fn complete_event(&self, event: Self::PerfLogEvent);
-
-    /// Flush all log events
-    fn flush(&self);
+    fn create_event(&self, name: &'static str) -> Self::PerfLogEvent;
 }
 
 pub trait PerfLogEvent: Send + Sync {
     type Timer: Send + Sync;
 
     /// Log number
-    fn number(&self, name: impl Copy + Into<String>, number: usize);
+    fn number(&self, name: &'static str, number: usize);
 
     /// Provides a possibility to log additional fields describing current run (like, project name)
-    fn string(&self, name: impl Copy + Into<String>, value: String);
+    fn string(&self, name: &'static str, value: String);
 
     /// Start new execution timer with the name
-    fn start(&self, name: impl Copy + Into<String>) -> Self::Timer;
+    fn start(&self, name: &'static str) -> Self::Timer;
 
     /// Stop timer and log execution time
     fn stop(&self, timer: Self::Timer);
 
     /// Measure a time of calling a callback.
-    fn time<T, F>(&self, name: impl Copy + Into<String>, f: F) -> T
+    fn time<T, F>(&self, name: &'static str, f: F) -> T
     where
         F: FnOnce() -> T,
     {
@@ -42,23 +36,25 @@ pub trait PerfLogEvent: Send + Sync {
         self.stop(timer);
         res
     }
+
+    /// Log the event
+    fn complete(self);
 }
 
 pub struct NoopPerfLogger;
 impl PerfLogger for NoopPerfLogger {
     type PerfLogEvent = NoopPerfLoggerEvent;
-    fn create_event(&self, _name: impl Copy + Into<String>) -> Self::PerfLogEvent {
+    fn create_event(&self, _name: &'static str) -> Self::PerfLogEvent {
         NoopPerfLoggerEvent
     }
-    fn complete_event(&self, _event: Self::PerfLogEvent) {}
-    fn flush(&self) {}
 }
 
 pub struct NoopPerfLoggerEvent;
 impl PerfLogEvent for NoopPerfLoggerEvent {
     type Timer = ();
-    fn number(&self, _name: impl Copy + Into<String>, _number: usize) {}
-    fn string(&self, _name: impl Copy + Into<String>, _value: String) {}
-    fn start(&self, _name: impl Copy + Into<String>) -> Self::Timer {}
+    fn number(&self, _name: &'static str, _number: usize) {}
+    fn string(&self, _name: &'static str, _value: String) {}
+    fn start(&self, _name: &'static str) -> Self::Timer {}
     fn stop(&self, _timer: Self::Timer) {}
+    fn complete(self) {}
 }

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<675a42645392a5fbbcf6e3ec4ad5045a>>
+ * @generated SignedSource<<c58fdb3d34735795cb6acac15e688201>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,27 +15,26 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref: FragmentReference;
-declare export opaque type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref;
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType = any;
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$variables = {|
   after?: ?string,
   before?: ?string,
   first?: ?number,
+  id: string,
   isViewerFriendLocal?: ?boolean,
   last?: ?number,
   orderby?: ?$ReadOnlyArray<?string>,
-  id: string,
 |};
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQueryResponse = {|
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref,
+    +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
   |},
 |};
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery = {|
-  variables: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQueryVariables,
-  response: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQueryResponse,
+  response: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$data,
+  variables: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$variables,
 |};
 */
 
@@ -331,4 +330,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f40001b7b963988467bb56b398ac1e1a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$variables,
+  useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$data,
+>*/);

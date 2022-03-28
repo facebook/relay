@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+#expected-to-throw
+query TestQuery($__relay_internal_foo: ID!, $__relay_internal_bar: Boolean!) {
+  node(id: $__relay_internal_foo) {
+    ... on User {
+      name @include(if: $__relay_internal_bar)
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ Invalid name `$__relay_internal_foo` for an operation variable. The `__relay_internal` prefix is reserved for relay internal usage.
+
+  relayinternal_prefix_invalid.graphql:2:17
+    1 │ #expected-to-throw
+    2 │ query TestQuery($__relay_internal_foo: ID!, $__relay_internal_bar: Boolean!) {
+      │                 ^^^^^^^^^^^^^^^^^^^^^
+    3 │   node(id: $__relay_internal_foo) {
+
+  ℹ︎ related location
+
+  relayinternal_prefix_invalid.graphql:2:45
+    1 │ #expected-to-throw
+    2 │ query TestQuery($__relay_internal_foo: ID!, $__relay_internal_bar: Boolean!) {
+      │                                             ^^^^^^^^^^^^^^^^^^^^^
+    3 │   node(id: $__relay_internal_foo) {

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b23f36a793f84a590180c912b60c75b2>>
+ * @generated SignedSource<<8d07e770c742da12c06c4177851b4d27>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +15,25 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$ref = any;
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType = any;
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables = {|
   after?: ?string,
   count: number,
   id: string,
+  isViewerFriend: boolean,
   orderby?: ?$ReadOnlyArray<?string>,
-  isViewerFriend?: ?boolean,
 |};
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryResponse = {|
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data = {|
   +node: ?{|
-    +id: string,
     +__typename: string,
-    +$fragmentRefs: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$ref,
+    +id: string,
+    +$fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   |},
 |};
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery = {|
-  variables: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryVariables,
-  response: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryResponse,
+  response: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data,
+  variables: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables,
 |};
 */
 
@@ -277,18 +277,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "a4257c646ac96b56bad79597004153ce",
+    "cacheID": "d020e7105d9ea0eb0a39ec2de386cf68",
     "id": null,
     "metadata": {},
     "name": "ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery",
     "operationKind": "query",
-    "text": "query ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery(\n  $after: ID\n  $count: Int!\n  $id: ID!\n  $orderby: [String]\n  $isViewerFriend: Boolean\n) {\n  node(id: $id) {\n    id\n    __typename\n    ...ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment_2nnVOB\n  }\n}\n\nfragment ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment_2nnVOB on User {\n  id\n  friends(after: $after, first: $count, orderby: $orderby, isViewerFriend: $isViewerFriend) {\n    edges {\n      node {\n        id\n        ...ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment_G5jjK\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n\nfragment ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment_G5jjK on User {\n  id\n  name @include(if: $isViewerFriend)\n}\n"
+    "text": "query ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery(\n  $after: ID\n  $count: Int!\n  $id: ID!\n  $orderby: [String]\n  $isViewerFriend: Boolean!\n) {\n  node(id: $id) {\n    id\n    __typename\n    ...ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment_2nnVOB\n  }\n}\n\nfragment ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment_2nnVOB on User {\n  id\n  friends(after: $after, first: $count, orderby: $orderby, isViewerFriend: $isViewerFriend) {\n    edges {\n      node {\n        id\n        ...ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment_G5jjK\n        __typename\n      }\n      cursor\n    }\n    pageInfo {\n      endCursor\n      hasNextPage\n    }\n  }\n}\n\nfragment ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment_G5jjK on User {\n  id\n  name @include(if: $isViewerFriend)\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f2ae63b5adf92acd8b5340bf80d78375";
+  (node/*: any*/).hash = "46153f91be065033bb3e83f093819f1b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables,
+  ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data,
+>*/);

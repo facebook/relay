@@ -58,7 +58,7 @@ query LiteralObjectArgument {
                             alias: None,
                             definition: WithLocation {
                                 location: literal-object-argument.graphql:85:90,
-                                item: FieldID(57),
+                                item: FieldID(54),
                             },
                             arguments: [],
                             directives: [],

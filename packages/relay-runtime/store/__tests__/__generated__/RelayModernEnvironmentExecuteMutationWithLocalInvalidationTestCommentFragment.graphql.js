@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e59e122b7dcb0695d0b327ff2ff2f7b5>>
+ * @generated SignedSource<<760999fe9024b7bd0443c5b9989d175b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +15,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$ref;
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment = {|
-  +id: string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data = {|
   +body: ?{|
     +text: ?string,
   |},
-  +$refType: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$ref,
+  +id: string,
+  +$fragmentType: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data = RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment;
 export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$key = {
   +$data?: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
   ...
 };
 */
@@ -74,4 +72,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "bc14e8d2677d8a33ad9d1cfa5411894d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
+  RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$data,
+>*/);

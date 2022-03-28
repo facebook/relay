@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<aba3ceaf399f0699365deab734356113>>
+ * @generated SignedSource<<f9430c1f386aced0876edb06190bfbe5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,24 +17,24 @@
 // @dataDrivenDependency fetchQueryInternalTest2Query.node.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"fetchQueryInternalTestMarkdownFragment_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"fetchQueryInternalTestPlainFragment_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type fetchQueryInternalTestMarkdownFragment_name$ref = any;
-type fetchQueryInternalTestPlainFragment_name$ref = any;
-export type fetchQueryInternalTest2QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type fetchQueryInternalTestMarkdownFragment_name$fragmentType = any;
+type fetchQueryInternalTestPlainFragment_name$fragmentType = any;
+export type fetchQueryInternalTest2Query$variables = {|
   id: string,
 |};
-export type fetchQueryInternalTest2QueryResponse = {|
+export type fetchQueryInternalTest2Query$data = {|
   +node: ?{|
     +nameRenderer?: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: fetchQueryInternalTestPlainFragment_name$ref & fetchQueryInternalTestMarkdownFragment_name$ref,
+      +$fragmentSpreads: fetchQueryInternalTestMarkdownFragment_name$fragmentType & fetchQueryInternalTestPlainFragment_name$fragmentType,
     |},
   |},
 |};
 export type fetchQueryInternalTest2Query = {|
-  variables: fetchQueryInternalTest2QueryVariables,
-  response: fetchQueryInternalTest2QueryResponse,
+  response: fetchQueryInternalTest2Query$data,
+  variables: fetchQueryInternalTest2Query$variables,
 |};
 */
 
@@ -57,6 +57,7 @@ v2 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "fetchQueryInternalTest2Query",
       "fragmentName": "fetchQueryInternalTestPlainFragment_name",
       "fragmentPropName": "name",
@@ -70,6 +71,7 @@ v3 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "fetchQueryInternalTest2Query",
       "fragmentName": "fetchQueryInternalTestMarkdownFragment_name",
       "fragmentPropName": "name",
@@ -191,4 +193,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8b4e8e582a315c7b0003b5f190341462";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  fetchQueryInternalTest2Query$variables,
+  fetchQueryInternalTest2Query$data,
+>*/);

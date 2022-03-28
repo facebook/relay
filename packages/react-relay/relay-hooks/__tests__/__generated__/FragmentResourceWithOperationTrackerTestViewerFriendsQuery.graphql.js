@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9ee3401ccc90317551a8d337ddbc2bb8>>
+ * @generated SignedSource<<61baee9ff39eca0f0f8d6a5c7eb56d17>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,16 +15,16 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type FragmentResourceWithOperationTrackerTestUserFragment$ref = any;
-export type FragmentResourceWithOperationTrackerTestViewerFriendsQueryVariables = {||};
-export type FragmentResourceWithOperationTrackerTestViewerFriendsQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type FragmentResourceWithOperationTrackerTestUserFragment$fragmentType = any;
+export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery$variables = {||};
+export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
       +friends: ?{|
         +edges: ?$ReadOnlyArray<?{|
           +node: ?{|
-            +$fragmentRefs: FragmentResourceWithOperationTrackerTestUserFragment$ref,
+            +$fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
           |},
         |}>,
       |},
@@ -32,8 +32,8 @@ export type FragmentResourceWithOperationTrackerTestViewerFriendsQueryResponse =
   |},
 |};
 export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery = {|
-  variables: FragmentResourceWithOperationTrackerTestViewerFriendsQueryVariables,
-  response: FragmentResourceWithOperationTrackerTestViewerFriendsQueryResponse,
+  response: FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data,
+  variables: FragmentResourceWithOperationTrackerTestViewerFriendsQuery$variables,
 |};
 */
 
@@ -90,48 +90,6 @@ v4 = {
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
-},
-v5 = {
-  "enumValues": null,
-  "nullable": false,
-  "plural": false,
-  "type": "String"
-},
-v6 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "String"
-},
-v7 = {
-  "enumValues": null,
-  "nullable": false,
-  "plural": false,
-  "type": "ID"
-},
-v8 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "UserNameRenderer"
-},
-v9 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "JSDependency"
-},
-v10 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "PlainUserNameData"
-},
-v11 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "ID"
 };
 return {
   "fragment": {
@@ -284,6 +242,7 @@ return {
                                 "kind": "InlineFragment",
                                 "selections": [
                                   {
+                                    "args": null,
                                     "documentName": "FragmentResourceWithOperationTrackerTestUserFragment",
                                     "fragmentName": "FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name",
                                     "fragmentPropName": "name",
@@ -297,6 +256,7 @@ return {
                                 "kind": "InlineFragment",
                                 "selections": [
                                   {
+                                    "args": null,
                                     "documentName": "FragmentResourceWithOperationTrackerTestUserFragment",
                                     "fragmentName": "FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name",
                                     "fragmentPropName": "name",
@@ -330,6 +290,7 @@ return {
                                 "kind": "InlineFragment",
                                 "selections": [
                                   {
+                                    "args": null,
                                     "documentName": "FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer",
                                     "fragmentName": "FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name",
                                     "fragmentPropName": "name",
@@ -387,76 +348,7 @@ return {
             "friends"
           ]
         }
-      ],
-      "relayTestingSelectionTypeInfo": {
-        "viewer": {
-          "enumValues": null,
-          "nullable": true,
-          "plural": false,
-          "type": "Viewer"
-        },
-        "viewer.actor": {
-          "enumValues": null,
-          "nullable": true,
-          "plural": false,
-          "type": "Actor"
-        },
-        "viewer.actor.__typename": (v5/*: any*/),
-        "viewer.actor.friends": {
-          "enumValues": null,
-          "nullable": true,
-          "plural": false,
-          "type": "FriendsConnection"
-        },
-        "viewer.actor.friends.edges": {
-          "enumValues": null,
-          "nullable": true,
-          "plural": true,
-          "type": "FriendsEdge"
-        },
-        "viewer.actor.friends.edges.cursor": (v6/*: any*/),
-        "viewer.actor.friends.edges.node": {
-          "enumValues": null,
-          "nullable": true,
-          "plural": false,
-          "type": "User"
-        },
-        "viewer.actor.friends.edges.node.__typename": (v5/*: any*/),
-        "viewer.actor.friends.edges.node.id": (v7/*: any*/),
-        "viewer.actor.friends.edges.node.name": (v6/*: any*/),
-        "viewer.actor.friends.edges.node.nameRenderer": (v8/*: any*/),
-        "viewer.actor.friends.edges.node.nameRenderer.__module_component_FragmentResourceWithOperationTrackerTestUserFragment": (v9/*: any*/),
-        "viewer.actor.friends.edges.node.nameRenderer.__module_operation_FragmentResourceWithOperationTrackerTestUserFragment": (v9/*: any*/),
-        "viewer.actor.friends.edges.node.nameRenderer.__typename": (v5/*: any*/),
-        "viewer.actor.friends.edges.node.nameRenderer.data": (v10/*: any*/),
-        "viewer.actor.friends.edges.node.nameRenderer.data.id": (v11/*: any*/),
-        "viewer.actor.friends.edges.node.nameRenderer.data.markup": (v6/*: any*/),
-        "viewer.actor.friends.edges.node.nameRenderer.data.text": (v6/*: any*/),
-        "viewer.actor.friends.edges.node.nameRenderer.markdown": (v6/*: any*/),
-        "viewer.actor.friends.edges.node.nameRenderer.plaintext": (v6/*: any*/),
-        "viewer.actor.friends.edges.node.plainNameRenderer": (v8/*: any*/),
-        "viewer.actor.friends.edges.node.plainNameRenderer.__module_component_FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer": (v9/*: any*/),
-        "viewer.actor.friends.edges.node.plainNameRenderer.__module_operation_FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer": (v9/*: any*/),
-        "viewer.actor.friends.edges.node.plainNameRenderer.__typename": (v5/*: any*/),
-        "viewer.actor.friends.edges.node.plainNameRenderer.data": (v10/*: any*/),
-        "viewer.actor.friends.edges.node.plainNameRenderer.data.id": (v11/*: any*/),
-        "viewer.actor.friends.edges.node.plainNameRenderer.data.text": (v6/*: any*/),
-        "viewer.actor.friends.edges.node.plainNameRenderer.plaintext": (v6/*: any*/),
-        "viewer.actor.friends.pageInfo": {
-          "enumValues": null,
-          "nullable": true,
-          "plural": false,
-          "type": "PageInfo"
-        },
-        "viewer.actor.friends.pageInfo.endCursor": (v6/*: any*/),
-        "viewer.actor.friends.pageInfo.hasNextPage": {
-          "enumValues": null,
-          "nullable": true,
-          "plural": false,
-          "type": "Boolean"
-        },
-        "viewer.actor.id": (v7/*: any*/)
-      }
+      ]
     },
     "name": "FragmentResourceWithOperationTrackerTestViewerFriendsQuery",
     "operationKind": "query",
@@ -466,7 +358,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "f15f8921d77c61be7dc708d9e8c1f412";
+  (node/*: any*/).hash = "9a6980a0f3a95258c3734cfb5f857974";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  FragmentResourceWithOperationTrackerTestViewerFriendsQuery$variables,
+  FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data,
+>*/);

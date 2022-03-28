@@ -153,14 +153,13 @@ Most of GraphQL type information for a specific field in the selection is not av
 
 Operation with the @relay_test_operation directive will have additional metadata that will contain GraphQL type info for fields in the operation's selection. And it will improve the quality of the generated data. You also will be able to define Mock resolvers for Scalar (not only ID and String) and Abstract types:
 
-```js
-
+```javascript
 {
   Float() {
     return 123.456;
   },
   Boolean(context) {
-    if (contex.name === 'can_edit') {
+    if (context.name === 'can_edit') {
       return true;
     }
     return false;
@@ -181,8 +180,7 @@ Operation with the @relay_test_operation directive will have additional metadata
 Using `createMockEnvironment` and `MockPayloadGenerator` allows writing concise tests for components that are using Relay hooks. Both those modules can be imported from `relay-test-utils`
 
 
-```js
-
+```javascript
 // Say you have a component with the useLazyLoadQuery or a QueryRenderer
 const MyAwesomeViewRoot = require('MyAwesomeViewRoot');
 const {
@@ -251,8 +249,7 @@ test('Error State', () => {
 
 Essentially, in the example above will `resolveMostRecentOperation` will generate data for all child fragment containers (pagination, refetch). But, usually the root component may have many child fragment components and you may want to exercise a specific component that uses `useFragment`. The solution for that would be to wrap your fragment container with the `useLazyLoadQuery` component that renders a Query that's spreads fragments from your fragment component:
 
-```js
-
+```javascript
 test('Fragment', () => {
   const environment = createMockEnvironment();
   const TestRenderer = () => {
@@ -369,7 +366,6 @@ test('`Pagination` Container', () => {
 
   expect(loadMore.props.disabled).toBe(true);
 });
-
 ```
 
 ### Refetch Component
@@ -432,7 +428,10 @@ test('Refetch Container', () => {
 
 Mutations itself are operations so we can test them independently (unit-test) for specific mutation, or in combination with the view from which this mutation is called.
 
-> Note: the `useMutation` API is an improvement over calling `commitMutation` directly.
+:::note
+the `useMutation` API is an improvement over calling `commitMutation` directly.
+:::
+
 
 ```js
 // Say, you have a mutation function
@@ -505,8 +504,7 @@ test('it should subscribe', () => {
 
 With `queueOperationResolver` it possible to define responses for operations that will be executed on the environment
 
-```js
-
+```javascript
 // Say you have a component with the QueryRenderer
 const MyAwesomeViewRoot = require('MyAwesomeViewRoot');
 const {
@@ -569,7 +567,7 @@ https://phabricator.internmc.facebook.com/diffusion/FBS/browse/master/xplat/js/R
 
 <OssOnly>
 
-The best source of example tests is in [the relay-experimental package](https://github.com/facebook/relay/tree/master/packages/relay-experimental/__tests__).
+The best source of example tests is in [the relay-experimental package](https://github.com/facebook/relay/tree/main/packages/relay-experimental/__tests__).
 
 </OssOnly>
 

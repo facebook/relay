@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -10,32 +10,38 @@
 #![deny(clippy::all)]
 
 mod artifact_map;
-mod build_project;
+pub mod build_project;
 pub mod compiler;
 pub mod compiler_state;
 pub mod config;
+mod docblocks;
 pub mod errors;
+mod file_source;
 mod graphql_asts;
+mod operation_persister;
 mod red_to_green;
-mod rollout;
 pub mod saved_state;
 pub mod status_reporter;
-mod watchman;
 
 pub use build_project::{
-    add_to_mercurial, apply_transforms,
+    add_to_mercurial,
     artifact_writer::{
-        ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactWriter, NoopArtifactWriter,
+        ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactValidationWriter, ArtifactWriter,
+        NoopArtifactWriter,
     },
     build_programs, build_raw_program, build_schema, create_path_for_artifact, generate_artifacts,
     generate_extra_artifacts::GenerateExtraArtifactsFn,
-    is_operation_preloadable, transform_program, validate, validate_program, Artifact,
-    ArtifactContent, BuildProjectFailure, Programs, SourceHashes,
+    path_for_artifact, transform_program, validate, validate_program, AdditionalValidations,
+    Artifact, ArtifactContent, ArtifactGeneratedTypes, BuildProjectFailure, SourceHashes,
 };
-pub use config::{OperationPersister, PersistConfig};
-pub use graphql_asts::GraphQLAsts;
-pub use watchman::{
+pub use config::{
+    ConfigFileProject, FileSourceKind, LocalPersistConfig, OperationPersister, PersistConfig,
+    ProjectConfig, RemotePersistConfig, SchemaLocation,
+};
+pub use file_source::{
     source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,
     FileSourceSubscription, FileSourceSubscriptionNextChange, FsSourceReader,
     SourceControlUpdateStatus, SourceReader,
 };
+pub use graphql_asts::GraphQLAsts;
+pub use operation_persister::{LocalPersister, RemotePersister};

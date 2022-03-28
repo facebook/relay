@@ -1,14 +1,12 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use crate::ir::{ExecutableDefinition, FragmentDefinition, OperationDefinition};
-use fnv::FnvHashMap;
-use interner::StringKey;
-use rayon::{iter::ParallelIterator, prelude::*};
+use intern::string_key::{StringKey, StringKeyMap};
 use schema::SDLSchema;
 use std::{collections::HashMap, sync::Arc};
 
@@ -16,8 +14,8 @@ use std::{collections::HashMap, sync::Arc};
 #[derive(Debug, Clone)]
 pub struct Program {
     pub schema: Arc<SDLSchema>,
-    fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
-    operations: Vec<Arc<OperationDefinition>>,
+    pub fragments: StringKeyMap<Arc<FragmentDefinition>>,
+    pub operations: Vec<Arc<OperationDefinition>>,
 }
 
 impl Program {
@@ -66,6 +64,10 @@ impl Program {
         self.fragments.get(&name)
     }
 
+    pub fn fragment_mut(&mut self, name: StringKey) -> Option<&mut Arc<FragmentDefinition>> {
+        self.fragments.get_mut(&name)
+    }
+
     /// Searches for an operation by name.
     ///
     /// NOTE: This is a linear search, we currently don't frequently search
@@ -84,28 +86,8 @@ impl Program {
         self.operations.iter()
     }
 
-    pub fn par_operations(&self) -> impl ParallelIterator<Item = &Arc<OperationDefinition>> {
-        self.operations.par_iter()
-    }
-
-    pub fn par_operations_mut(
-        &mut self,
-    ) -> impl ParallelIterator<Item = &mut Arc<OperationDefinition>> {
-        self.operations.par_iter_mut()
-    }
-
     pub fn fragments(&self) -> impl Iterator<Item = &Arc<FragmentDefinition>> {
         self.fragments.values()
-    }
-
-    pub fn par_fragments(&self) -> impl ParallelIterator<Item = &Arc<FragmentDefinition>> {
-        self.fragments.par_iter().map(|(_, v)| v)
-    }
-
-    pub fn par_fragments_mut(
-        &mut self,
-    ) -> impl ParallelIterator<Item = &mut Arc<FragmentDefinition>> {
-        self.fragments.par_iter_mut().map(|(_, v)| v)
     }
 
     pub fn document_count(&self) -> usize {
@@ -117,7 +99,7 @@ impl Program {
         other_program: &Self,
         removed_definition_names: Option<&[StringKey]>,
     ) {
-        let mut operations: FnvHashMap<StringKey, Arc<OperationDefinition>> = self
+        let mut operations: StringKeyMap<Arc<OperationDefinition>> = self
             .operations
             .drain(..)
             .map(|op| (op.name.item, op))

@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9afab5fa1b2726aafb993e5e1d779497>>
+ * @generated SignedSource<<05fb716221b98a4a0af8956e1cf75bb6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,31 +18,29 @@
 // @dataDrivenDependency FragmentResourceWithOperationTrackerTestUserFragment.plainNameRenderer {"branches":{"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$ref = any;
-type FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type FragmentResourceWithOperationTrackerTestUserFragment$ref: FragmentReference;
-declare export opaque type FragmentResourceWithOperationTrackerTestUserFragment$fragmentType: FragmentResourceWithOperationTrackerTestUserFragment$ref;
-export type FragmentResourceWithOperationTrackerTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+type FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType = any;
+type FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType = any;
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FragmentResourceWithOperationTrackerTestUserFragment$fragmentType: FragmentType;
+export type FragmentResourceWithOperationTrackerTestUserFragment$data = {|
   +id: string,
   +name: ?string,
   +nameRenderer: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentRefs: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$ref & FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$ref,
+    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType & FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
   |},
   +plainNameRenderer: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentRefs: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$ref,
+    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
   |},
-  +$refType: FragmentResourceWithOperationTrackerTestUserFragment$ref,
+  +$fragmentType: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
 |};
-export type FragmentResourceWithOperationTrackerTestUserFragment$data = FragmentResourceWithOperationTrackerTestUserFragment;
 export type FragmentResourceWithOperationTrackerTestUserFragment$key = {
   +$data?: FragmentResourceWithOperationTrackerTestUserFragment$data,
-  +$fragmentRefs: FragmentResourceWithOperationTrackerTestUserFragment$ref,
+  +$fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
   ...
 };
 */
@@ -88,6 +86,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "FragmentResourceWithOperationTrackerTestUserFragment",
               "fragmentName": "FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name",
               "fragmentPropName": "name",
@@ -101,6 +100,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "FragmentResourceWithOperationTrackerTestUserFragment",
               "fragmentName": "FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name",
               "fragmentPropName": "name",
@@ -133,6 +133,7 @@ var node/*: ReaderFragment*/ = {
           "kind": "InlineFragment",
           "selections": [
             {
+              "args": null,
               "documentName": "FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer",
               "fragmentName": "FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name",
               "fragmentPropName": "name",
@@ -154,4 +155,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b3d16c15af5579c578a209cce953b3e2";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
+  FragmentResourceWithOperationTrackerTestUserFragment$data,
+>*/);

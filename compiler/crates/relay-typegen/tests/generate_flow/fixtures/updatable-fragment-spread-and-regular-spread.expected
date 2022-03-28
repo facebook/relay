@@ -1,0 +1,53 @@
+==================================== INPUT ====================================
+query updatableFragmentSpreadAndRegularSpreadQuery {
+	me {
+		...updatableFragmentSpreadAndRegularSpread_updatable_user
+		...updatableFragmentSpreadAndRegularSpread_user
+	}
+}
+
+fragment updatableFragmentSpreadAndRegularSpread_updatable_user on User @updatable {
+	firstName
+}
+
+fragment updatableFragmentSpreadAndRegularSpread_user on User {
+	firstName
+}
+==================================== OUTPUT ===================================
+import type { updatableFragmentSpreadAndRegularSpread_updatable_user$fragmentType } from "updatableFragmentSpreadAndRegularSpread_updatable_user.graphql";
+import type { updatableFragmentSpreadAndRegularSpread_user$fragmentType } from "updatableFragmentSpreadAndRegularSpread_user.graphql";
+export type updatableFragmentSpreadAndRegularSpreadQuery$variables = {||};
+export type updatableFragmentSpreadAndRegularSpreadQuery$data = {|
+  +me: ?{|
+    +$updatableFragmentSpreads: updatableFragmentSpreadAndRegularSpread_updatable_user$fragmentType,
+    +$fragmentSpreads: updatableFragmentSpreadAndRegularSpread_user$fragmentType,
+  |},
+|};
+export type updatableFragmentSpreadAndRegularSpreadQuery = {|
+  response: updatableFragmentSpreadAndRegularSpreadQuery$data,
+  variables: updatableFragmentSpreadAndRegularSpreadQuery$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type updatableFragmentSpreadAndRegularSpread_updatable_user$fragmentType: FragmentType;
+export type updatableFragmentSpreadAndRegularSpread_updatable_user$data = {|
+  firstName: ?string,
+  +$fragmentType: updatableFragmentSpreadAndRegularSpread_updatable_user$fragmentType,
+|};
+export type updatableFragmentSpreadAndRegularSpread_updatable_user$key = {
+  +$data?: updatableFragmentSpreadAndRegularSpread_updatable_user$data,
+  +$fragmentSpreads: updatableFragmentSpreadAndRegularSpread_updatable_user$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type updatableFragmentSpreadAndRegularSpread_user$fragmentType: FragmentType;
+export type updatableFragmentSpreadAndRegularSpread_user$data = {|
+  +firstName: ?string,
+  +$fragmentType: updatableFragmentSpreadAndRegularSpread_user$fragmentType,
+|};
+export type updatableFragmentSpreadAndRegularSpread_user$key = {
+  +$data?: updatableFragmentSpreadAndRegularSpread_user$data,
+  +$fragmentSpreads: updatableFragmentSpreadAndRegularSpread_user$fragmentType,
+  ...
+};

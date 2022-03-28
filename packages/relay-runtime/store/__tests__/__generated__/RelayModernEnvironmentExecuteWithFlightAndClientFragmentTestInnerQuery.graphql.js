@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8d578e3a632abe6b5c84060dd263774d>>
+ * @generated SignedSource<<6f4da1c0202fbd97586deb6db9bc02e1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +17,19 @@
 // @ReactFlightClientDependency RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$normalization.graphql
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery = {|
-  variables: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQueryVariables,
-  response: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQueryResponse,
+  response: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$data,
+  variables: RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$variables,
 |};
 */
 
@@ -97,6 +97,7 @@ return {
             "storageKey": null
           },
           {
+            "args": null,
             "fragment": require('./RelayModernEnvironmentExecuteWithFlightAndClientFragmentTest_clientFragment$normalization.graphql'),
             "kind": "ClientComponent"
           },
@@ -127,4 +128,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "337f43907f43a7d61eed932a0bf7f0d2";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$variables,
+  RelayModernEnvironmentExecuteWithFlightAndClientFragmentTestInnerQuery$data,
+>*/);

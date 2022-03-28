@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fb55dff0e8762b73590386f346841553>>
+ * @generated SignedSource<<b546305a678a13a88f862f8e96b1f804>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,16 +15,16 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayPublishQueueTest5QueryVariables = {||};
-export type RelayPublishQueueTest5QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayPublishQueueTest5Query$variables = {||};
+export type RelayPublishQueueTest5Query$data = {|
   +me: ?{|
     +name: ?string,
   |},
 |};
 export type RelayPublishQueueTest5Query = {|
-  variables: RelayPublishQueueTest5QueryVariables,
-  response: RelayPublishQueueTest5QueryResponse,
+  response: RelayPublishQueueTest5Query$data,
+  variables: RelayPublishQueueTest5Query$variables,
 |};
 */
 
@@ -101,4 +101,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "18ed083c255b6858fb59c74c5bb22f05";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayPublishQueueTest5Query$variables,
+  RelayPublishQueueTest5Query$data,
+>*/);

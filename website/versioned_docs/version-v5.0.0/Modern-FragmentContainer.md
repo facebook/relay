@@ -17,12 +17,10 @@ Table of Contents:
 `createFragmentContainer` has the following signature:
 
 ```javascript
-
 createFragmentContainer(
   component: ReactComponentClass,
   fragmentSpec: {[string]: GraphQLTaggedNode},
 ): ReactComponentClass;
-
 ```
 
 ### Arguments
@@ -43,11 +41,10 @@ type Props = {
   },
   // Additional props as specified by the fragmentSpec
 }
-
 ```
 
 -   `relay`:
-    -   `environment`: The current [Relay Environment](./relay-environment)
+    -   `environment`: The current [Relay Environment](Modern-RelayEnvironment.md)
 
 ## Example
 
@@ -58,7 +55,6 @@ To start, let's build the plain React version of a hypothetical `<TodoItem />` c
 Here's a basic implementation of `<TodoItem />` that ignores styling in order to highlight the functionality:
 
 ```javascript
-
 // TodoItem.js
 class TodoItem extends React.Component {
   render() {
@@ -78,7 +74,6 @@ class TodoItem extends React.Component {
     );
   }
 }
-
 ```
 
 ### Data Dependencies With GraphQL
@@ -86,7 +81,6 @@ class TodoItem extends React.Component {
 In Relay, data dependencies are described using [GraphQL](https://github.com/facebook/graphql). For `<TodoItem />`, the dependency can be expressed as follows. Note that this exactly matches the shape that the component expected for the `item` prop.
 
 ```javascript
-
 graphql`
   # This fragment only applies to objects of type 'Todo'.
   fragment TodoItem_item on Todo {
@@ -102,7 +96,6 @@ graphql`
 Given the plain React component and a GraphQL fragment, we can now define a Fragment Container to specify this component's data requirements. Let's look at the code first and then see what's happening:
 
 ```javascript
-
 // TodoItem.js
 import {createFragmentContainer, graphql} from 'react-relay';
 
@@ -120,7 +113,6 @@ export default createFragmentContainer(TodoItem, {
     }
   `,
 });
-
 ```
 
 ## Container Composition
@@ -134,7 +126,6 @@ Let's explore how this works via a `<TodoList />` component that composes the `<
 View composition is _exactly_ what you're used to — Relay containers are just standard React components. Here's the `<TodoList />` component:
 
 ```javascript
-
 class TodoList extends React.Component {
   render() {
     // Expects a `list` with a string `title`, as well as the information
@@ -151,7 +142,6 @@ class TodoList extends React.Component {
     );
   }
 }
-
 ```
 
 ### Composing Fragments
@@ -159,7 +149,6 @@ class TodoList extends React.Component {
 Fragment composition works similarly — a parent container's fragment composes the fragment for each of its children. In this case, `<TodoList />` needs to fetch information about the `Todo`s that are required by `<TodoItem />`.
 
 ```javascript
-
 class TodoList extends React.Component // as above
 
 export default createFragmentContainer(TodoList, {
@@ -176,7 +165,6 @@ export default createFragmentContainer(TodoList, {
     }
   `,
 });
-
 ```
 
 Note that when composing fragments, the type of the composed fragment must match the field on the parent in which it is embedded. For example, it wouldn't make sense to embed a fragment of type `Story` into a parent's field of type `User`. Relay and GraphQL will provide helpful error messages if you get this wrong (and if they aren't helpful, let us know!).
@@ -185,12 +173,11 @@ Note that when composing fragments, the type of the composed fragment must match
 
 #### `@argumentDefinitions`
 
-When defining a fragment, you can use the [`@argumentDefinitions`](./graphql-in-relay#argumentdefinitions) directive to specify any arguments, with potentially default values, that the fragment expects.
+When defining a fragment, you can use the [`@argumentDefinitions`](Modern-GraphQLInRelay.md#argumentdefinitions) directive to specify any arguments, with potentially default values, that the fragment expects.
 
 For example, let's redefine our `TodoList_list` fragment to take some arguments using `@argumentDefinitions`:
 
 ```graphql
-
 fragment TodoList_list on TodoList @argumentDefinitions(
   count: {type: "Int", defaultValue: 10},  # Optional argument
   userID: {type: "ID"},                    # Required argument
@@ -200,25 +187,22 @@ fragment TodoList_list on TodoList @argumentDefinitions(
     ...TodoItem_item
   }
 }
-
 ```
 
 Any arguments defined inside `@argumentDefinitions` will be local variables available inside the fragment's scope. However, a fragment can also reference global variables that were defined in the root query.
 
 #### `@arguments`
 
-In order to pass arguments to a fragment that has `@argumentDefinitions`, you need to use the [`@arguments`](./graphql-in-relay#arguments) directive.
+In order to pass arguments to a fragment that has `@argumentDefinitions`, you need to use the [`@arguments`](Modern-GraphQLInRelay.md#arguments) directive.
 
 Following our `TodoList_list` example, we would pass arguments to the fragment like so:
 
 ```graphql
-
 query TodoListQuery($count: Int, $userID: ID) {
   ...TodoList_list @arguments(count: $count, userID: $userID) # Pass arguments here
 }
-
 ```
 
 ## Rendering Containers
 
-As we've learned, Relay fragment containers only declare data requirements as GraphQL fragments. In order to actually fetch and render the specified data, we need to use a `QueryRenderer` component to render a root query and any fragment containers included within. Please refer to our [`QueryRenderer`](./query-renderer) docs for more details.
+As we've learned, Relay fragment containers only declare data requirements as GraphQL fragments. In order to actually fetch and render the specified data, we need to use a `QueryRenderer` component to render a root query and any fragment containers included within. Please refer to our [`QueryRenderer`](Modern-QueryRenderer.md) docs for more details.

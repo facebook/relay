@@ -1,5 +1,0 @@
-fragment SomeFragment on User {
-  nearest_neighbor {
-    name @required(action: LOG)
-  }
-}

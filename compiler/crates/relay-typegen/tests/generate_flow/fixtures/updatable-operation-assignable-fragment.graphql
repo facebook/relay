@@ -1,0 +1,9 @@
+query UpdatableQuery @updatable {
+  viewer {
+    ...Assignable_viewer
+  }
+}
+
+fragment Assignable_viewer on Viewer @assignable {
+  __typename
+}

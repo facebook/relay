@@ -14,21 +14,21 @@ Before taking a deep dive into the mutations API, let's look at a complete examp
 class LikeStoryMutation extends Relay.Mutation {
   // This method should return a GraphQL operation that represents
   // the mutation to be performed. This presumes that the server
-  // implements a mutation type named ‘likeStory’.
+  // implements a mutation type named 'likeStory’.
   getMutation() {
     return Relay.QL`mutation {likeStory}`;
   }
   // Use this method to prepare the variables that will be used as
-  // input to the mutation. Our ‘likeStory’ mutation takes exactly
+  // input to the mutation. Our 'likeStory’ mutation takes exactly
   // one variable as input – the ID of the story to like.
   getVariables() {
     return {storyID: this.props.story.id};
   }
-  // Use this method to design a ‘fat query’ – one that represents every
+  // Use this method to design a 'fat query’ – one that represents every
   // field in your data model that could change as a result of this mutation.
   // Liking a story could affect the likers count, the sentence that
   // summarizes who has liked a story, and the fact that the viewer likes the
-  // story or not. Relay will intersect this query with a ‘tracked query’
+  // story or not. Relay will intersect this query with a 'tracked query’
   // that represents the data that your application actually uses, and
   // instruct the server to include only those fields in its response.
   getFatQuery() {
@@ -47,7 +47,7 @@ class LikeStoryMutation extends Relay.Mutation {
   // These configurations advise Relay on how to handle the LikeStoryPayload
   // returned by the server. Here, we tell Relay to use the payload to
   // change the fields of a record it already has in the store. The
-  // key-value pairs of ‘fieldIDs’ associate field names in the payload
+  // key-value pairs of 'fieldIDs’ associate field names in the payload
   // with the ID of the record that we want updated.
   getConfigs() {
     return [{
@@ -69,7 +69,6 @@ class LikeStoryMutation extends Relay.Mutation {
     `,
   };
 }
-
 ```
 
 Here's an example of this mutation in use by a `LikeButton` component:
@@ -109,7 +108,6 @@ module.exports = Relay.createContainer(LikeButton, {
     `,
   },
 });
-
 ```
 
 In this particular example, the only field that the `LikeButton` cares about is `viewerDoesLike`. That field will form part of the tracked query that Relay will intersect with the fat query of `LikeStoryMutation` to determine what fields to request as part of the server's response payload for the mutation. Another component elsewhere in the application might be interested in the likers count, or the like sentence. Since those fields will automatically be added to Relay's tracked query, the `LikeButton` need not worry about requesting them explicitly.
@@ -138,7 +136,6 @@ class LikeStoryMutation extends Relay.Mutation {
   }
   /* ... */
 }
-
 ```
 
 ## Fragment variables
@@ -174,7 +171,6 @@ class RentMovieMutation extends Relay.Mutation {
     `,
   };
 }
-
 ```
 
 ## The fat query
@@ -209,7 +205,6 @@ class AcceptFriendRequestMutation extends Relay.Mutation {
     `;
   }
 }
-
 ```
 
 This fat query looks like any other GraphQL query, with one important distinction. We know some of these fields to be non-scalar (like `friendEdge` and `friends`) but notice that we have not named any of their children by way of a subquery. In this way, we indicate to Relay that _anything_ under those non-scalar fields may change as a result of this mutation.
@@ -217,7 +212,7 @@ This fat query looks like any other GraphQL query, with one important distinctio
 <blockquote>
 Note
 
-When designing a fat query, consider <em>all</em> of the data that might change as a result of the mutation – not just the data currently in use by your application. We don't need to worry about overfetching; this query is never executed without first intersecting it with a ‘tracked query’ of the data our application actually needs. If we omit fields in the fat query, we might observe data inconsistencies in the future when we add views with new data dependencies, or add new data dependencies to existing views.
+When designing a fat query, consider <em>all</em> of the data that might change as a result of the mutation – not just the data currently in use by your application. We don't need to worry about overfetching; this query is never executed without first intersecting it with a 'tracked query’ of the data our application actually needs. If we omit fields in the fat query, we might observe data inconsistencies in the future when we add views with new data dependencies, or add new data dependencies to existing views.
 
 </blockquote>
 
@@ -264,7 +259,6 @@ class RenameDocumentMutation extends Relay.Mutation {
   }
   /* ... */
 }
-
 ```
 
 ### `NODE_DELETE`
@@ -320,7 +314,6 @@ class DestroyShipMutation extends Relay.Mutation {
   }
   /* ... */
 }
-
 ```
 
 ### `RANGE_ADD`
@@ -360,7 +353,6 @@ const rangeBehaviors = {
   // Prepend the ship, wherever the connection is sorted by age
   'orderby(newest)': 'prepend',
 };
-
 ```
 
 Or this way, with the same results:
@@ -418,7 +410,6 @@ class IntroduceShipMutation extends Relay.Mutation {
   }
   /* ... */
 }
-
 ```
 
 ### `RANGE_DELETE`
@@ -464,7 +455,6 @@ class RemoveTagMutation extends Relay.Mutation {
   }
   /* ... */
 }
-
 ```
 
 ### `REQUIRED_CHILDREN`
@@ -483,7 +473,6 @@ this.props.relay.commitUpdate(
     }),
   }
 );
-
 ```
 
 #### Arguments
@@ -531,7 +520,6 @@ class CreateCouponMutation extends Relay.Mutation<Props> {
     }];
   }
 }
-
 ```
 
 ## Optimistic updates
@@ -585,7 +573,6 @@ class LikeStoryMutation extends Relay.Mutation {
   };
   /* ... */
 }
-
 ```
 
 You don't have to mimic the entire response payload. Here, we've punted on the like sentence, since it's difficult to localize on the client side. When the server responds, Relay will treat its payload as the source of truth, but in the meantime, the optimistic response will be applied right away, allowing the people who use our product to enjoy instant feedback after having taken an action.

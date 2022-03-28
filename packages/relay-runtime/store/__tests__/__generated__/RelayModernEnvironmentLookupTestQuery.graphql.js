@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4aea3d42754ceb9fb4038eda06d35300>>
+ * @generated SignedSource<<001fa4c0ef2562d0232d95a5bd17602e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,35 +15,35 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentLookupTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentLookupTestQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentLookupTestQueryResponse = {|
+export type RelayModernEnvironmentLookupTestQuery$data = {|
   +__id: string,
   +me: ?{|
-    +__id: string,
     +__typename: string,
+    +__id: string,
     +id: string,
   |},
   +node: ?{|
-    +__id: string,
     +__typename: string,
-    +id: string,
+    +__id: string,
     +commentBody?: ?{|
-      +__id: string,
       +__typename: string,
+      +__id: string,
       +text?: ?{|
-        +__id: string,
         +__typename: string,
+        +__id: string,
         +text: ?string,
       |},
     |},
+    +id: string,
   |},
 |};
 export type RelayModernEnvironmentLookupTestQuery = {|
-  variables: RelayModernEnvironmentLookupTestQueryVariables,
-  response: RelayModernEnvironmentLookupTestQueryResponse,
+  response: RelayModernEnvironmentLookupTestQuery$data,
+  variables: RelayModernEnvironmentLookupTestQuery$variables,
 |};
 */
 
@@ -206,4 +206,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "bea49102c3069567ca430f28d38ba916";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentLookupTestQuery$variables,
+  RelayModernEnvironmentLookupTestQuery$data,
+>*/);

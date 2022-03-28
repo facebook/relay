@@ -6,7 +6,7 @@ fragment Foo on EnabledUserNameRenderer {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Unknown type 'EnabledUserNameRenderer'
+✖︎ Unknown type 'EnabledUserNameRenderer'. Did you mean `PlainUserNameRenderer`, `UserNameRenderer`, `MarkdownUserNameRenderer`, or `PlainUserRenderer`?
 
   inline-fragment-on-union.invalid.graphql:2:17
     1 │ # expected-to-throw

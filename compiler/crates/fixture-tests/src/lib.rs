@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -58,9 +58,6 @@ use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use std::sync::Arc;
-
-use signedsource as _; // used in main.rs, cargo only
-use structopt as _; // used in main.rs, cargo only
 
 lazy_static! {
     static ref LOCK: Arc<Mutex<usize>> = Arc::new(Mutex::new(0));

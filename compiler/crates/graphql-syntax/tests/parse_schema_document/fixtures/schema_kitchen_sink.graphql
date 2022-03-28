@@ -1,4 +1,4 @@
-# source: https://github.com/graphql/graphql-js/blob/master/src/__fixtures__/schema-kitchen-sink.graphql
+# source: https://github.com/graphql/graphql-js/blob/5d109ec32f60b593b721037cd2944d2c07420006/src/__fixtures__/schema-kitchen-sink.graphql
 
 """This is a description of the schema as a whole."""
 schema {

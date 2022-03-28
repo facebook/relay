@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b641e0e49ac4bc0fcc58ed67ba655ad5>>
+ * @generated SignedSource<<3051ac0ff920d51a1894b71aa739c918>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayResponseNormalizerTest2Fragment$ref = any;
-export type RelayResponseNormalizerTest6QueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayResponseNormalizerTest2Fragment$fragmentType = any;
+export type RelayResponseNormalizerTest6Query$variables = {|
   enableDefer: boolean,
+  id: string,
 |};
-export type RelayResponseNormalizerTest6QueryResponse = {|
+export type RelayResponseNormalizerTest6Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayResponseNormalizerTest2Fragment$ref,
+    +$fragmentSpreads: RelayResponseNormalizerTest2Fragment$fragmentType,
   |},
 |};
 export type RelayResponseNormalizerTest6Query = {|
-  variables: RelayResponseNormalizerTest6QueryVariables,
-  response: RelayResponseNormalizerTest6QueryResponse,
+  response: RelayResponseNormalizerTest6Query$data,
+  variables: RelayResponseNormalizerTest6Query$variables,
 |};
 */
 
@@ -159,4 +159,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "6d72ae05b718f7c9fee011a92865e4b5";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayResponseNormalizerTest6Query$variables,
+  RelayResponseNormalizerTest6Query$data,
+>*/);

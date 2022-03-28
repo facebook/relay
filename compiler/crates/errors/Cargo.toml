@@ -3,8 +3,8 @@
 name = "errors"
 version = "0.0.0"
 authors = ["Facebook"]
-edition = "2018"
+edition = "2021"
 license = "MIT"
 
 [dependencies]
-rayon = "1.2"
+common = { path = "../common" }

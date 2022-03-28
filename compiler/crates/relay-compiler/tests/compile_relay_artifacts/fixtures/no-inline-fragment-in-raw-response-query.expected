@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query noInlineFragmentInRawResponseQueryQuery @raw_response_type {
+  me {
+    ...noInlineFragmentInRawResponseQuery_parent
+  }
+}
+
+fragment noInlineFragmentInRawResponseQuery_parent on User {
+  ...noInlineFragmentInRawResponseQuery_child
+}
+
+fragment noInlineFragmentInRawResponseQuery_child on User
+@no_inline {
+  name
+}
+==================================== ERROR ====================================
+✖︎ The `raw_response_type` argument should be set to `true` for the @no_inline fragment `noInlineFragmentInRawResponseQuery_child` used in the query with @raw_response_type.
+
+  no-inline-fragment-in-raw-response-query.graphql:12:10
+   11 │ 
+   12 │ fragment noInlineFragmentInRawResponseQuery_child on User
+      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   13 │ @no_inline {
+
+  ℹ︎ The query with @raw_response_type
+
+  no-inline-fragment-in-raw-response-query.graphql:2:7
+    1 │ # expected-to-throw
+    2 │ query noInlineFragmentInRawResponseQueryQuery @raw_response_type {
+      │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    3 │   me {

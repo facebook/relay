@@ -1,0 +1,7 @@
+# expected-to-throw
+query TestQuery {
+  me {
+    same_alias: name
+    same_alias: canViewerComment
+  }
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -35,6 +35,7 @@ where
         (format!(".{}rc.js", name), Box::new(JsLoader)),
         (format!(".{}rc.cjs", name), Box::new(JsLoader)),
         (format!("{}.config.js", name), Box::new(JsLoader)),
+        (format!("{}.config.json", name), Box::new(JsonLoader)),
         (format!("{}.config.cjs", name), Box::new(JsLoader)),
     ];
 

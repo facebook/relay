@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e3decfda278e7110cac93a1e7b2f8810>>
+ * @generated SignedSource<<c2fee8e8b90649ac4755b46f043c56ec>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,24 +17,24 @@
 // @dataDrivenDependency fetchQueryInternalTest3Query.node.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"fetchQueryInternalTestMarkdown1Fragment_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"fetchQueryInternalTestPlain1Fragment_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type fetchQueryInternalTestMarkdown1Fragment_name$ref = any;
-type fetchQueryInternalTestPlain1Fragment_name$ref = any;
-export type fetchQueryInternalTest3QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type fetchQueryInternalTestMarkdown1Fragment_name$fragmentType = any;
+type fetchQueryInternalTestPlain1Fragment_name$fragmentType = any;
+export type fetchQueryInternalTest3Query$variables = {|
   id: string,
 |};
-export type fetchQueryInternalTest3QueryResponse = {|
+export type fetchQueryInternalTest3Query$data = {|
   +node: ?{|
     +nameRenderer?: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: fetchQueryInternalTestPlain1Fragment_name$ref & fetchQueryInternalTestMarkdown1Fragment_name$ref,
+      +$fragmentSpreads: fetchQueryInternalTestMarkdown1Fragment_name$fragmentType & fetchQueryInternalTestPlain1Fragment_name$fragmentType,
     |},
   |},
 |};
 export type fetchQueryInternalTest3Query = {|
-  variables: fetchQueryInternalTest3QueryVariables,
-  response: fetchQueryInternalTest3QueryResponse,
+  response: fetchQueryInternalTest3Query$data,
+  variables: fetchQueryInternalTest3Query$variables,
 |};
 */
 
@@ -57,6 +57,7 @@ v2 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "fetchQueryInternalTest3Query",
       "fragmentName": "fetchQueryInternalTestPlain1Fragment_name",
       "fragmentPropName": "name",
@@ -70,6 +71,7 @@ v3 = {
   "kind": "InlineFragment",
   "selections": [
     {
+      "args": null,
       "documentName": "fetchQueryInternalTest3Query",
       "fragmentName": "fetchQueryInternalTestMarkdown1Fragment_name",
       "fragmentPropName": "name",
@@ -191,4 +193,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "75ae6c5d458245bd586c46fd64b355af";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  fetchQueryInternalTest3Query$variables,
+  fetchQueryInternalTest3Query$data,
+>*/);

@@ -1,4 +1,0 @@
-fragment NonNullFragment on User {
-  firstName
-  lastName @required(action: NONE)
-}

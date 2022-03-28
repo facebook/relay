@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<88e4f70c7cddc83e027abd8a24cf0fa9>>
+ * @generated SignedSource<<8cfbe364f914c89ce9b2405a88713948>>
  */
 
 mod refetchable_fragment;
@@ -45,6 +45,13 @@ fn fragment_on_node_interface_without_id() {
     let input = include_str!("refetchable_fragment/fixtures/fragment-on-node-interface-without-id.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/fragment-on-node-interface-without-id.expected");
     test_fixture(transform_fixture, "fragment-on-node-interface-without-id.graphql", "refetchable_fragment/fixtures/fragment-on-node-interface-without-id.expected", input, expected);
+}
+
+#[test]
+fn fragment_on_node_with_id_argument_used_invalid() {
+    let input = include_str!("refetchable_fragment/fixtures/fragment-on-node-with-id-argument-used.invalid.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/fragment-on-node-with-id-argument-used.invalid.expected");
+    test_fixture(transform_fixture, "fragment-on-node-with-id-argument-used.invalid.graphql", "refetchable_fragment/fixtures/fragment-on-node-with-id-argument-used.invalid.expected", input, expected);
 }
 
 #[test]
@@ -115,6 +122,13 @@ fn fragment_with_args_on_viewer() {
     let input = include_str!("refetchable_fragment/fixtures/fragment-with-args-on-viewer.graphql");
     let expected = include_str!("refetchable_fragment/fixtures/fragment-with-args-on-viewer.expected");
     test_fixture(transform_fixture, "fragment-with-args-on-viewer.graphql", "refetchable_fragment/fixtures/fragment-with-args-on-viewer.expected", input, expected);
+}
+
+#[test]
+fn fragment_with_relay_plural_invalid() {
+    let input = include_str!("refetchable_fragment/fixtures/fragment-with-relay-plural.invalid.graphql");
+    let expected = include_str!("refetchable_fragment/fixtures/fragment-with-relay-plural.invalid.expected");
+    test_fixture(transform_fixture, "fragment-with-relay-plural.invalid.graphql", "refetchable_fragment/fixtures/fragment-with-relay-plural.invalid.expected", input, expected);
 }
 
 #[test]

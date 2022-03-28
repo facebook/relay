@@ -1,5 +1,5 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,34 +13,29 @@
 
 'use strict';
 
-const React = require('react');
-const Scheduler = require('scheduler');
+import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
 
-import type {Direction} from '../useLoadMoreFunction';
-import type {OperationDescriptor, Variables} from 'relay-runtime';
-const {useEffect, useTransition, useMemo, useState} = React;
-const TestRenderer = require('react-test-renderer');
-
-const invariant = require('invariant');
 const useBlockingPaginationFragmentOriginal = require('../useBlockingPaginationFragment');
+const invariant = require('invariant');
+const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
+const TestRenderer = require('react-test-renderer');
 const {
   ConnectionHandler,
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
-  graphql,
   getRequest,
-  getFragment,
+  graphql,
 } = require('relay-runtime');
-
 const {createMockEnvironment} = require('relay-test-utils');
+const Scheduler = require('scheduler');
 
-const PAGINATION_SUSPENSE_CONFIG = {timeoutMs: 45 * 1000};
+const {useEffect, useTransition, useMemo, useState} = React;
 
 describe('useBlockingPaginationFragment with useTransition', () => {
-  if (typeof React.useTransition !== 'function') {
+  if (typeof useTransition !== 'function') {
     it('empty test to prevent Jest from failing', () => {
       // This suite is only useful with experimental React build
     });
@@ -83,9 +78,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       fragmentNode,
       fragmentRef,
     ) {
-      const [startTransition, isPendingNext] = useTransition(
-        PAGINATION_SUSPENSE_CONFIG,
-      );
+      const [isPendingNext, startTransition] = useTransition();
       // $FlowFixMe[incompatible-call]
       const {data, ...result} = useBlockingPaginationFragmentOriginal(
         fragmentNode,
@@ -146,6 +139,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     }
 
     function expectRequestIsInFlight(expected) {
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toBeCalledTimes(expected.requestCount);
       expect(
         environment.mock.isLoading(
@@ -184,9 +178,11 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       return {
         [ID_KEY]: id,
         [FRAGMENTS_KEY]: {
-          useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment: {},
+          useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment:
+            {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
+        __isWithinUnmatchedTypeRefinement: false,
       };
     }
 
@@ -215,6 +211,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         handlerProvider: () => ConnectionHandler,
       });
       release = jest.fn();
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       environment.retain.mockImplementation((...args) => {
         return {
           dispose: release,
@@ -226,15 +223,15 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         }
       `;
 
-      gqlFragment = getFragment(graphql`
+      gqlFragment = graphql`
         fragment useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment on User
-          @refetchable(
-            queryName: "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery"
-          )
-          @argumentDefinitions(
-            isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-            orderby: {type: "[String]"}
-          ) {
+        @refetchable(
+          queryName: "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery"
+        )
+        @argumentDefinitions(
+          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+          orderby: {type: "[String]"}
+        ) {
           id
           name
           friends(
@@ -254,33 +251,31 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             }
           }
         }
-      `);
+      `;
 
-      gqlQuery = getRequest(
-        graphql`
-          query useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery(
-            $id: ID!
-            $after: ID
-            $first: Int
-            $before: ID
-            $last: Int
-            $orderby: [String]
-            $isViewerFriend: Boolean
-          ) {
-            node(id: $id) {
-              actor {
-                ...useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment
-                  @arguments(
-                    isViewerFriendLocal: $isViewerFriend
-                    orderby: $orderby
-                  )
-              }
+      gqlQuery = graphql`
+        query useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery(
+          $id: ID!
+          $after: ID
+          $first: Int
+          $before: ID
+          $last: Int
+          $orderby: [String]
+          $isViewerFriend: Boolean
+        ) {
+          node(id: $id) {
+            actor {
+              ...useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment
+                @arguments(
+                  isViewerFriendLocal: $isViewerFriend
+                  orderby: $orderby
+                )
             }
           }
-        `,
-      );
+        }
+      `;
 
-      gqlQueryWithoutID = getRequest(graphql`
+      gqlQueryWithoutID = graphql`
         query useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQuery(
           $after: ID
           $first: Int
@@ -299,7 +294,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             }
           }
         }
-      `);
+      `;
 
       variablesWithoutID = {
         after: null,
@@ -394,7 +389,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       }) => {
         // We need a render a component to run a Hook
         const [owner, _setOwner] = useState(props.owner);
-        const [_, _setCount] = useState(0);
+        const [, setCount] = useState(0);
         const fragment = props.fragment ?? gqlFragment;
         const artificialUserRef = useMemo(() => {
           const snapshot = environment.lookup(owner.fragment);
@@ -405,15 +400,13 @@ describe('useBlockingPaginationFragment with useTransition', () => {
           : artificialUserRef;
 
         setOwner = _setOwner;
-        forceUpdate = _setCount;
+        forceUpdate = setCount;
 
-        const {
-          data: userData,
-        } = useBlockingPaginationFragmentWithSuspenseTransition(
-          fragment,
-          // $FlowFixMe[prop-missing]
-          userRef,
-        );
+        const {data: userData} =
+          useBlockingPaginationFragmentWithSuspenseTransition(
+            fragment,
+            userRef,
+          );
         return <Renderer user={userData} />;
       };
 
@@ -1022,6 +1015,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       // The bulk of refetch behavior is covered in useRefetchableFragmentNode-test,
       // so this suite covers the pagination-related test cases.
       function expectRefetchRequestIsInFlight(expected) {
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toBeCalledTimes(
           expected.requestCount,
         );
@@ -1077,7 +1071,9 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
         // Assert query is retained by loadQuery
         // and tentatively retained while component is suspended
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(
           expected.refetchQuery,
         );
@@ -1191,10 +1187,13 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
         // Assert refetch query was retained by loadQuery and component
         expect(release).not.toBeCalled();
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(2);
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(paginationQuery);
 
         // Paginate after refetching
+        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         environment.execute.mockClear();
         loadNext(1);
 

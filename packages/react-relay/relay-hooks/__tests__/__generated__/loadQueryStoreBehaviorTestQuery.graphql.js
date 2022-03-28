@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2a49777d1404f27d92a002e1482dbfbd>>
+ * @generated SignedSource<<6d17e767ad006fa8d8ffbbc3e60651b1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type loadQueryStoreBehaviorTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type loadQueryStoreBehaviorTestQuery$variables = {|
   id: string,
 |};
-export type loadQueryStoreBehaviorTestQueryResponse = {|
+export type loadQueryStoreBehaviorTestQuery$data = {|
   +node: ?{|
-    +name: ?string,
     +id: string,
+    +name: ?string,
   |},
 |};
 export type loadQueryStoreBehaviorTestQuery = {|
-  variables: loadQueryStoreBehaviorTestQueryVariables,
-  response: loadQueryStoreBehaviorTestQueryResponse,
+  response: loadQueryStoreBehaviorTestQuery$data,
+  variables: loadQueryStoreBehaviorTestQuery$variables,
 |};
 */
 
@@ -127,4 +127,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "cf2ac1f2d1bee4875f0ed5be74fc175e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  loadQueryStoreBehaviorTestQuery$variables,
+  loadQueryStoreBehaviorTestQuery$data,
+>*/);

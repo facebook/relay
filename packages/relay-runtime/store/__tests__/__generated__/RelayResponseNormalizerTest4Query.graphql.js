@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5d094e3a388e0d27cfc1a8c52098cda8>>
+ * @generated SignedSource<<652fe171665060938efd489481776a6f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayResponseNormalizerTestFragment$ref = any;
-export type RelayResponseNormalizerTest4QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayResponseNormalizerTestFragment$fragmentType = any;
+export type RelayResponseNormalizerTest4Query$variables = {|
   id: string,
 |};
-export type RelayResponseNormalizerTest4QueryResponse = {|
+export type RelayResponseNormalizerTest4Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayResponseNormalizerTestFragment$ref,
+    +$fragmentSpreads: RelayResponseNormalizerTestFragment$fragmentType,
   |},
 |};
 export type RelayResponseNormalizerTest4Query = {|
-  variables: RelayResponseNormalizerTest4QueryVariables,
-  response: RelayResponseNormalizerTest4QueryResponse,
+  response: RelayResponseNormalizerTest4Query$data,
+  variables: RelayResponseNormalizerTest4Query$variables,
 |};
 */
 
@@ -127,6 +127,7 @@ return {
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "RelayResponseNormalizerTestFragment",
                         "fragmentName": "RelayResponseNormalizerTestPlainUserNameRenderer_name",
                         "fragmentPropName": "name",
@@ -140,6 +141,7 @@ return {
                     "kind": "InlineFragment",
                     "selections": [
                       {
+                        "args": null,
                         "documentName": "RelayResponseNormalizerTestFragment",
                         "fragmentName": "RelayResponseNormalizerTestMarkdownUserNameRenderer_name",
                         "fragmentPropName": "name",
@@ -176,4 +178,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "325e859306b977210ac702e455a74207";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayResponseNormalizerTest4Query$variables,
+  RelayResponseNormalizerTest4Query$data,
+>*/);

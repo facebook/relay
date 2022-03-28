@@ -1,20 +1,40 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::{FnvBuildHasher, FnvHashMap};
+use fnv::FnvBuildHasher;
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
-use indexmap::IndexMap;
-use interner::StringKey;
+use indexmap::IndexSet;
+use intern::string_key::StringKey;
 
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub struct ObjectEntry {
     pub key: StringKey,
     pub value: Primitive,
+}
+
+/// A helper for creating Vec<ObjectEntry>
+/// For now, field names are defined in `CODEGEN_CONSTANTS
+#[macro_export]
+macro_rules! object {
+    { $ ( $(:$func: expr,)* $key:ident: $value:expr,)* } => ({
+        use crate::constants::CODEGEN_CONSTANTS;
+        vec![
+            $(
+                $(
+                    $func,
+                )*
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.$key,
+                    value: $value,
+                },
+            )*
+        ]
+    })
 }
 
 /// An interned codegen AST
@@ -43,6 +63,7 @@ impl Ast {
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub enum Primitive {
     Key(AstKey),
+    Variable(StringKey),
     String(StringKey),
     Float(FloatValue),
     Int(i64),
@@ -52,6 +73,9 @@ pub enum Primitive {
     RawString(String),
     GraphQLModuleDependency(StringKey),
     JSModuleDependency(StringKey),
+    // Don't include the value in the output when
+    // skip_printing_nulls is enabled
+    SkippableNull,
 }
 
 impl Primitive {
@@ -79,8 +103,6 @@ impl Primitive {
     }
 }
 
-type Table = IndexMap<Ast, usize, FnvBuildHasher>;
-
 #[derive(Eq, PartialEq, Hash, Copy, Clone, Debug)]
 pub struct AstKey(usize);
 
@@ -92,28 +114,27 @@ impl AstKey {
 
 #[derive(Default)]
 pub struct AstBuilder {
-    table: Table,
+    table: IndexSet<Ast, FnvBuildHasher>,
 }
 
 impl AstBuilder {
     pub fn intern(&mut self, ast: Ast) -> AstKey {
-        if let Some(ix) = self.table.get(&ast) {
-            AstKey(*ix)
-        } else {
-            let ix = self.table.len();
-            self.table.insert(ast, ix);
-            AstKey(ix)
-        }
+        AstKey(self.table.insert_full(ast).0)
     }
 
     pub fn lookup(&self, key: AstKey) -> &Ast {
-        self.table.get_index(key.as_usize()).unwrap().0
+        self.table.get_index(key.as_usize()).unwrap()
     }
 }
 
-pub struct RequestParameters {
-    pub id: Option<String>,
-    pub metadata: FnvHashMap<String, String>,
+#[derive(Clone)]
+pub enum QueryID {
+    Persisted { id: String, text_hash: String },
+    External(StringKey),
+}
+
+pub struct RequestParameters<'a> {
+    pub id: &'a Option<QueryID>,
     pub name: StringKey,
     pub operation_kind: OperationKind,
     pub text: Option<String>,

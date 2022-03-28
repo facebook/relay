@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5c5b793ceeda90a48ed1c1236f19b4d4>>
+ * @generated SignedSource<<4a44dd86644265df578a5ef0dc7c0c9e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +15,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernFragmentSpecResolverTestQueryUserFragment$ref: FragmentReference;
-declare export opaque type RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType: RelayModernFragmentSpecResolverTestQueryUserFragment$ref;
-export type RelayModernFragmentSpecResolverTestQueryUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType: FragmentType;
+export type RelayModernFragmentSpecResolverTestQueryUserFragment$data = {|
   +id: string,
   +name: ?string,
   +profilePicture?: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayModernFragmentSpecResolverTestQueryUserFragment$ref,
+  +$fragmentType: RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType,
 |};
-export type RelayModernFragmentSpecResolverTestQueryUserFragment$data = RelayModernFragmentSpecResolverTestQueryUserFragment;
 export type RelayModernFragmentSpecResolverTestQueryUserFragment$key = {
   +$data?: RelayModernFragmentSpecResolverTestQueryUserFragment$data,
-  +$fragmentRefs: RelayModernFragmentSpecResolverTestQueryUserFragment$ref,
+  +$fragmentSpreads: RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType,
   ...
 };
 */
@@ -104,4 +102,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "307c9d6b156252938357d44fe889c8d4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType,
+  RelayModernFragmentSpecResolverTestQueryUserFragment$data,
+>*/);

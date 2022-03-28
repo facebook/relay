@@ -22,7 +22,7 @@ fragment ChildFragment on User
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(67),
+            type_condition: Object(68),
             directives: [],
             selections: [
                 LinkedField {
@@ -34,7 +34,7 @@ fragment ChildFragment on User
                     ),
                     definition: WithLocation {
                         location: fragment-with-literal-enum-arguments-into-enum-list.graphql:53:61,
-                        item: FieldID(451),
+                        item: FieldID(447),
                     },
                     arguments: [
                         Argument {
@@ -62,7 +62,7 @@ fragment ChildFragment on User
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-literal-enum-arguments-into-enum-list.graphql:92:97,
-                                item: FieldID(57),
+                                item: FieldID(54),
                             },
                             arguments: [],
                             directives: [],
@@ -121,7 +121,7 @@ fragment ChildFragment on User
                 },
             ],
             used_global_variables: [],
-            type_condition: Object(67),
+            type_condition: Object(68),
             directives: [
                 Directive {
                     name: WithLocation {
@@ -129,6 +129,7 @@ fragment ChildFragment on User
                         item: "argumentDefinitions",
                     },
                     arguments: [],
+                    data: None,
                 },
             ],
             selections: [
@@ -136,7 +137,7 @@ fragment ChildFragment on User
                     alias: None,
                     definition: WithLocation {
                         location: fragment-with-literal-enum-arguments-into-enum-list.graphql:253:261,
-                        item: FieldID(451),
+                        item: FieldID(447),
                     },
                     arguments: [
                         Argument {
@@ -172,7 +173,7 @@ fragment ChildFragment on User
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-literal-enum-arguments-into-enum-list.graphql:297:302,
-                                item: FieldID(57),
+                                item: FieldID(54),
                             },
                             arguments: [],
                             directives: [],

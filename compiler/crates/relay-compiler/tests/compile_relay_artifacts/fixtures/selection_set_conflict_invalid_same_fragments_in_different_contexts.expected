@@ -1,0 +1,57 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query selectionSetConflictInvalidSameFragmentsInDifferentContextsQuery {
+  node(id: 42) {
+    ... on User {
+      people: friends {
+        edges {
+          node {
+            ...selectionSetConflictInvalidSameFragmentsInDifferentContextsA
+          }
+        }
+      }
+    }
+    ... on Page {
+      people: likers {
+        edges {
+          node {
+            ...selectionSetConflictInvalidSameFragmentsInDifferentContextsB
+          }
+        }
+      }
+    }
+  }
+
+  me {
+    ...selectionSetConflictInvalidSameFragmentsInDifferentContextsA
+    ...selectionSetConflictInvalidSameFragmentsInDifferentContextsB
+  }
+}
+
+fragment selectionSetConflictInvalidSameFragmentsInDifferentContextsA on Actor {
+  profilePicture(size: [42]) {
+    uri
+  }
+}
+
+fragment selectionSetConflictInvalidSameFragmentsInDifferentContextsB on Actor {
+  profilePicture {
+    uri
+  }
+}
+==================================== ERROR ====================================
+✖︎ Expected all fields on the same parent with the name or alias `profilePicture` to have the same argument values after applying fragment arguments. This field has the applied argument values: (size: [42])
+
+  selection_set_conflict_invalid_same_fragments_in_different_contexts.graphql:31:3
+   30 │ fragment selectionSetConflictInvalidSameFragmentsInDifferentContextsA on Actor {
+   31 │   profilePicture(size: [42]) {
+      │   ^^^^^^^^^^^^^^
+   32 │     uri
+
+  ℹ︎ which conflicts with this field with applied argument values 
+
+  selection_set_conflict_invalid_same_fragments_in_different_contexts.graphql:37:3
+   36 │ fragment selectionSetConflictInvalidSameFragmentsInDifferentContextsB on Actor {
+   37 │   profilePicture {
+      │   ^^^^^^^^^^^^^^
+   38 │     uri

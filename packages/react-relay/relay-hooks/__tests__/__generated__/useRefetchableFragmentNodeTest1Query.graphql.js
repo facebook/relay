@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<68d2e2f3e03856bde5ee494b6f47aed9>>
+ * @generated SignedSource<<db851f2a5cd97d3454999f66a6f63603>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +15,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useRefetchableFragmentNodeTest1Fragment$ref = any;
-export type useRefetchableFragmentNodeTest1QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type useRefetchableFragmentNodeTest1Fragment$fragmentType = any;
+export type useRefetchableFragmentNodeTest1Query$variables = {|
   id: string,
 |};
-export type useRefetchableFragmentNodeTest1QueryResponse = {|
+export type useRefetchableFragmentNodeTest1Query$data = {|
   +nonNodeStory: ?{|
-    +$fragmentRefs: useRefetchableFragmentNodeTest1Fragment$ref,
+    +$fragmentSpreads: useRefetchableFragmentNodeTest1Fragment$fragmentType,
   |},
 |};
 export type useRefetchableFragmentNodeTest1Query = {|
-  variables: useRefetchableFragmentNodeTest1QueryVariables,
-  response: useRefetchableFragmentNodeTest1QueryResponse,
+  response: useRefetchableFragmentNodeTest1Query$data,
+  variables: useRefetchableFragmentNodeTest1Query$variables,
 |};
 */
 
@@ -155,4 +155,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3e85459031771c5b73d57f631a2d33e5";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useRefetchableFragmentNodeTest1Query$variables,
+  useRefetchableFragmentNodeTest1Query$data,
+>*/);

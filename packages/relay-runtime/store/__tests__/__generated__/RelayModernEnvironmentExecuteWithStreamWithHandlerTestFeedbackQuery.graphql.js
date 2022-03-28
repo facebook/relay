@@ -1,10 +1,10 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  * 
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0a40b35c3db3e5f4998b46a7ba285e51>>
+ * @generated SignedSource<<3eeb293f6b34f83754c39e96cb50d30f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +15,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+type RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$fragmentType = any;
+export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQuery$variables = {|
   enableStream: boolean,
+  id: string,
 |};
-export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQuery = {|
-  variables: RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQueryVariables,
-  response: RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQueryResponse,
+  response: RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQuery$data,
+  variables: RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQuery$variables,
 |};
 */
 
@@ -120,7 +120,6 @@ return {
                 "if": "enableStream",
                 "kind": "Stream",
                 "label": "RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment$stream$actors",
-                "metadata": null,
                 "selections": [
                   {
                     "alias": null,
@@ -160,8 +159,7 @@ return {
                     "kind": "LinkedHandle",
                     "name": "actors"
                   }
-                ],
-                "useCustomizedBatch": null
+                ]
               }
             ],
             "type": "Feedback",
@@ -187,4 +185,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "448b460c0771d55eb7b0ec5c53bd1c59";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQuery$variables,
+  RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQuery$data,
+>*/);

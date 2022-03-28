@@ -29,3 +29,32 @@ pub trait LSPExtraDataProvider: Send + Sync {
         field_info: Option<FieldSchemaInfo>,
     ) -> Result<Option<FieldDefinitionSourceInfo>, String>;
 }
+
+pub struct DummyExtraDataProvider {}
+
+impl DummyExtraDataProvider {
+    pub fn new() -> DummyExtraDataProvider {
+        DummyExtraDataProvider {}
+    }
+}
+
+impl Default for DummyExtraDataProvider {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl LSPExtraDataProvider for DummyExtraDataProvider {
+    fn fetch_query_stats(&self, _search_token: &str) -> Vec<String> {
+        vec![]
+    }
+
+    fn resolve_field_definition(
+        &self,
+        _project_name: String,
+        _parent_type: String,
+        _field_info: Option<FieldSchemaInfo>,
+    ) -> Result<Option<FieldDefinitionSourceInfo>, String> {
+        Ok(None)
+    }
+}

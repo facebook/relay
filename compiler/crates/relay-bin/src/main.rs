@@ -7,7 +7,7 @@
 
 use clap::{ArgEnum, Parser};
 use common::ConsoleLogger;
-use log::{error, info};
+use log::{debug, error, info};
 use relay_compiler::{
     build_project::artifact_writer::ArtifactValidationWriter, compiler::Compiler, config::Config,
     FileSourceKind, LocalPersister, OperationPersister, PersistConfig, RemotePersister,
@@ -78,7 +78,10 @@ struct CompileCommand {
 }
 
 #[derive(Parser)]
-#[clap(about = "Run the language server. Used by IDEs.", rename_all = "camel_case")]
+#[clap(
+    about = "Run the language server. Used by IDEs.",
+    rename_all = "camel_case"
+)]
 struct LspCommand {
     /// Run the LSP using this config file. If not provided, searches for a config in
     /// package.json under the `relay` key or `relay.config.json` files among other up
@@ -86,7 +89,7 @@ struct LspCommand {
     config: Option<PathBuf>,
 
     /// Verbosity level
-    #[clap(long, arg_enum, default_value = "info")]
+    #[clap(long, arg_enum, default_value = "quiet")]
     output: OutputKind,
 }
 
@@ -264,6 +267,8 @@ async fn handle_lsp_command(command: LspCommand) -> Result<(), Error> {
     let extra_data_provider = Box::new(DummyExtraDataProvider::new());
     let schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<SDLSchema>>> = None;
     let js_language_server = None;
+
+    debug!("Starting the relay language server...");
 
     start_language_server(
         config,

@@ -1,0 +1,64 @@
+import * as path from "path";
+import * as fs from "fs/promises";
+
+async function exists(file: string): Promise<boolean> {
+  return fs
+    .stat(file)
+    .then(() => true)
+    .catch(() => false);
+}
+
+function getBinaryPathRelativeToPackageJson() {
+  let binaryPathRelativeToPackageJson;
+  if (process.platform === "darwin" && process.arch === "x64") {
+    binaryPathRelativeToPackageJson = path.join("macos-x64", "relay");
+  } else if (process.platform === "darwin" && process.arch === "arm64") {
+    binaryPathRelativeToPackageJson = path.join("macos-arm64", "relay");
+  } else if (process.platform === "linux" && process.arch === "x64") {
+    binaryPathRelativeToPackageJson = path.join("linux-x64", "relay");
+  } else if (process.platform === "win32" && process.arch === "x64") {
+    binaryPathRelativeToPackageJson = path.join("win-x64", "relay.exe");
+  } else {
+    binaryPathRelativeToPackageJson = null;
+  }
+
+  if (binaryPathRelativeToPackageJson) {
+    return path.join(
+      ".",
+      "node_modules",
+      "relay-compiler",
+      binaryPathRelativeToPackageJson
+    );
+  }
+
+  return null;
+}
+
+export async function findRelayBinary(
+  rootPath: string
+): Promise<string | null> {
+  const binaryPathRelativeToPackageJson = getBinaryPathRelativeToPackageJson();
+
+  let currentPath = rootPath;
+  while (true) {
+    let possibleBinaryPath = path.join(
+      currentPath,
+      binaryPathRelativeToPackageJson
+    );
+
+    if (await exists(possibleBinaryPath)) {
+      return possibleBinaryPath;
+    }
+
+    let nextPath = path.normalize(path.join(currentPath, ".."));
+
+    // Eventually we'll get to `/` and get stuck in a loop.
+    if (nextPath === currentPath) {
+      break;
+    } else {
+      currentPath = nextPath;
+    }
+  }
+
+  return null;
+}

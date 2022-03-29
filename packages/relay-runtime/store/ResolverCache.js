@@ -43,12 +43,12 @@ const warning = require('warning');
 
 type ResolverID = string;
 
-type EvaluationResult<T> = {|
+export type EvaluationResult<T> = {|
   resolverResult: T,
-  fragmentValue: {...},
+  fragmentValue: ?{...},
   resolverID: ResolverID,
   seenRecordIDs: Set<DataID>,
-  readerSelector: SingularReaderSelector,
+  readerSelector: ?SingularReaderSelector,
   errors: RelayResolverErrors,
   missingRequiredFields: ?MissingRequiredFields,
 |};

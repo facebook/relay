@@ -24,7 +24,7 @@ import type {
   RelayResolverErrors,
   SingularReaderSelector,
 } from '../RelayStoreTypes';
-import type {ResolverCache} from '../ResolverCache';
+import type {EvaluationResult, ResolverCache} from '../ResolverCache';
 import type {LiveState} from './LiveResolverStore';
 
 const recycleNodesInto = require('../../util/recycleNodesInto');
@@ -58,16 +58,6 @@ const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
  */
 
 type ResolverID = string;
-
-type EvaluationResult<T> = {|
-  resolverResult: T,
-  fragmentValue: {...},
-  resolverID: ResolverID,
-  seenRecordIDs: Set<DataID>,
-  readerSelector: SingularReaderSelector,
-  errors: RelayResolverErrors,
-  missingRequiredFields: ?MissingRequiredFields,
-|};
 
 // $FlowFixMe[unclear-type] - will always be empty
 const emptySet: $ReadOnlySet<any> = new Set();

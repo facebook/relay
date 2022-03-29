@@ -577,23 +577,17 @@ class RelayReader {
             error: e,
           };
         }
-        const errors = snapshot?.relayResolverErrors ?? [];
-        if (resolverError != null) {
-          errors.push(resolverError);
-        }
+
         return {
           resolverResult,
-          errors,
-          fragmentValue: snapshot?.data,
+          snapshot: snapshot,
           resolverID,
-          seenRecordIDs: snapshot?.seenRecords ?? new Set(),
-          readerSelector: snapshot?.selector,
-          missingRequiredFields: snapshot?.missingRequiredFields,
+          error: resolverError,
         };
       });
     };
 
-    const [result, seenRecord, resolverErrors, missingRequiredFields] =
+    const [result, seenRecord, resolverError, cachedSnapshot] =
       this._resolverCache.readFromCacheOrEvaluate(
         record,
         field,
@@ -602,11 +596,22 @@ class RelayReader {
         getDataForResolverFragment,
       );
 
-    for (const resolverError of resolverErrors) {
-      this._resolverErrors.push(resolverError);
+    if (cachedSnapshot != null) {
+      if (cachedSnapshot.missingRequiredFields != null) {
+        this._addMissingRequiredFields(cachedSnapshot.missingRequiredFields);
+      }
+      if (cachedSnapshot.missingClientEdges != null) {
+        for (const missing of cachedSnapshot.missingClientEdges) {
+          this._missingClientEdges.push(missing);
+        }
+      }
+      for (const error of cachedSnapshot.relayResolverErrors) {
+        this._resolverErrors.push(error);
+      }
+      this._isMissingData = this._isMissingData || cachedSnapshot.isMissingData;
     }
-    if (missingRequiredFields != null) {
-      this._addMissingRequiredFields(missingRequiredFields);
+    if (resolverError) {
+      this._resolverErrors.push(resolverError);
     }
     if (seenRecord != null) {
       this._seenRecords.add(seenRecord);

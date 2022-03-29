@@ -39,22 +39,17 @@ export type SubscriptionParameters = {|
   +rawResponse?: {...},
 |};
 
-export type GraphQLSubscriptionConfig<T: SubscriptionParameters> = {|
-  configs?: Array<DeclarativeMutationConfig>,
-  cacheConfig?: CacheConfig,
-  subscription: GraphQLTaggedNode,
-  variables: T['variables'],
-  onCompleted?: ?() => void,
-  onError?: ?(error: Error) => void,
-  onNext?: ?(response: ?T['response']) => void,
-  updater?: ?SelectorStoreUpdater<T['response']>,
-|};
-
 export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload: {...}> =
-  GraphQLSubscriptionConfig<{|
-    response: TSubscriptionPayload,
+  {|
+    configs?: Array<DeclarativeMutationConfig>,
+    cacheConfig?: CacheConfig,
+    subscription: GraphQLTaggedNode,
     variables: Variables,
-  |}>;
+    onCompleted?: ?() => void,
+    onError?: ?(error: Error) => void,
+    onNext?: ?(response: ?TSubscriptionPayload) => void,
+    updater?: ?SelectorStoreUpdater<TSubscriptionPayload>,
+  |};
 
 /**
  * Updated Flow type that makes use of typed graphql tagged literals with

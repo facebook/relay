@@ -457,7 +457,7 @@ fn generate_operation(
             TypegenLanguage::JavaScript => {
                 writeln!(
                     content,
-                    "require('relay-runtime').PreloadableQueryRegistry.set(node.params).id, node);\n",
+                    "require('relay-runtime').PreloadableQueryRegistry.set(node.params.id, node);\n",
                 )?;
             }
             TypegenLanguage::TypeScript => {

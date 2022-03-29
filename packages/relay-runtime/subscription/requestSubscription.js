@@ -55,7 +55,7 @@ export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload: {...}> =
  * Updated Flow type that makes use of typed graphql tagged literals with
  * type information.
  */
-export type GraphQLSubscriptionConfigX<TVariables, TData, TRawResponse> = {|
+export type GraphQLSubscriptionConfig<TVariables, TData, TRawResponse> = {|
   configs?: Array<DeclarativeMutationConfig>,
   cacheConfig?: CacheConfig,
   subscription: GraphQLSubscription<TVariables, TData, TRawResponse>,

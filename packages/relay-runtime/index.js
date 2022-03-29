@@ -164,7 +164,7 @@ export type {
 } from './store/RelayStoreTypes';
 export type {
   DEPRECATED_GraphQLSubscriptionConfig,
-  GraphQLSubscriptionConfigX,
+  GraphQLSubscriptionConfig,
   SubscriptionParameters,
 } from './subscription/requestSubscription';
 export type {JSResourceReference} from './util/JSResourceTypes.flow';

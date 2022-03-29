@@ -14,7 +14,7 @@
 
 import type {
   Disposable,
-  GraphQLSubscriptionConfigX,
+  GraphQLSubscriptionConfig,
   IEnvironment,
 } from 'relay-runtime';
 
@@ -24,11 +24,11 @@ const {requestSubscription} = require('relay-runtime');
 
 type RequestSubscriptionFn<TVariables, TData, TRawResponse> = (
   environment: IEnvironment,
-  config: GraphQLSubscriptionConfigX<TVariables, TData, TRawResponse>,
+  config: GraphQLSubscriptionConfig<TVariables, TData, TRawResponse>,
 ) => Disposable;
 
 function useSubscription<TVariables, TData, TRawResponse>(
-  config: GraphQLSubscriptionConfigX<TVariables, TData, TRawResponse>,
+  config: GraphQLSubscriptionConfig<TVariables, TData, TRawResponse>,
   requestSubscriptionFn?: RequestSubscriptionFn<
     TVariables,
     TData,

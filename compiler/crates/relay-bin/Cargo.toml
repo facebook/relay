@@ -11,9 +11,9 @@ clap = { version = "3.1.2", features = ["derive", "regex", "unicode", "wrap_help
 common = { path = "../common" }
 log = { version = "0.4.14", features = ["kv_unstable", "kv_unstable_std"] }
 relay-compiler = { path = "../relay-compiler" }
-simplelog = "0.10.0"
-tokio = { version = "1.15", features = ["full", "test-util", "tracing"] }
 relay-lsp = { path = "../relay-lsp" }
-schema-documentation = { path = "../schema-documentation" }
 schema = { path = "../schema" }
+schema-documentation = { path = "../schema-documentation" }
+simplelog = "0.10.0"
 thiserror = "1.0.29"
+tokio = { version = "1.15", features = ["full", "test-util", "tracing"] }

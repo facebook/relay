@@ -29,7 +29,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             ..Default::default()
         };
 
-
         let mut printed = next_program
             .operations()
             .map(|def| print_operation(&schema, def, printer_options.clone()))

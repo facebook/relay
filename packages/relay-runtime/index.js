@@ -163,7 +163,6 @@ export type {
   StoreUpdater,
 } from './store/RelayStoreTypes';
 export type {
-  DEPRECATED_GraphQLSubscriptionConfig,
   GraphQLSubscriptionConfig,
   SubscriptionParameters,
 } from './subscription/requestSubscription';

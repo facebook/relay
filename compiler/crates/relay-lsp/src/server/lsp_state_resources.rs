@@ -11,10 +11,11 @@ use common::{PerfLogEvent, PerfLogger};
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
-use intern::string_key::StringKey;
+use intern::string_key::{StringKey, StringKeySet};
 use log::debug;
 use rayon::iter::ParallelIterator;
 use relay_compiler::{
+    build_project::{get_project_asts, ProjectAstData, ProjectAsts},
     build_raw_program, build_schema,
     compiler_state::{CompilerState, ProjectName},
     config::ProjectConfig,
@@ -283,6 +284,11 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         let build_time = log_event.start("build_lsp_project_time");
         log_event.string("project", project_name.to_string());
 
+        let ProjectAstData {
+            project_asts,
+            base_fragment_names,
+        } = get_project_asts(&graphql_asts, project_config)?;
+
         let schema = log_event.time("build_schema_time", || {
             self.build_schema(compiler_state, project_config)
         })?;
@@ -292,6 +298,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         self.build_programs(
             project_config,
+            project_asts,
+            base_fragment_names,
             compiler_state,
             graphql_asts,
             schema,
@@ -340,6 +348,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn build_programs(
         &self,
         project_config: &ProjectConfig,
+        project_asts: ProjectAsts,
+        base_fragment_names: StringKeySet,
         compiler_state: &CompilerState,
         graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
         schema: Arc<SDLSchema>,
@@ -358,10 +368,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 true
             };
 
-        let (base_program, base_fragment_names, _) = build_raw_program(
+        let (base_program, _) = build_raw_program(
             project_config,
             &compiler_state.implicit_dependencies.read().unwrap(),
-            graphql_asts,
+            project_asts,
             schema,
             log_event,
             is_incremental_build,

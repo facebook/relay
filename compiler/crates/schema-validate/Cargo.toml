@@ -24,7 +24,7 @@ rayon = "1.2"
 regex = "1.5.4"
 schema = { path = "../schema" }
 schema-print = { path = "../schema-print" }
-thiserror = "1.0.29"
+thiserror = "1.0.30"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

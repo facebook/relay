@@ -23,6 +23,7 @@ import type {
   RecordProxy,
   RecordSource,
   RecordSourceProxy,
+  UpdatableData,
 } from '../store/RelayStoreTypes';
 import type {
   DataID,
@@ -176,14 +177,14 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
   readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
     query: UpdatableQuery<TVariables, TData>,
     variables: TVariables,
-  ): TData {
+  ): UpdatableData<TData> {
     return readUpdatableQuery_EXPERIMENTAL(query, variables, this);
   }
 
   readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
     fragment: UpdatableFragment<TFragmentType, TData>,
     fragmentReference: HasUpdatableSpread<TFragmentType>,
-  ): TData {
+  ): UpdatableData<TData> {
     return readUpdatableFragment_EXPERIMENTAL(
       fragment,
       fragmentReference,

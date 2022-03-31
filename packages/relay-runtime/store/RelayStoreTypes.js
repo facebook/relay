@@ -476,6 +476,14 @@ export type HasUpdatableSpread<TFragmentType> = {
 };
 
 /**
+ * The return type of calls to readUpdatableQuery_EXPERIMENTAL and
+ * readUpdatableFragment_EXPERIMENTAL.
+ */
+export type UpdatableData<TData> = {|
+  +updatableData: TData,
+|};
+
+/**
  * An interface for imperatively getting/setting properties of a `RecordSource`. This interface
  * is designed to allow the appearance of direct RecordSource manipulation while
  * allowing different implementations that may e.g. create a changeset of
@@ -490,11 +498,11 @@ export interface RecordSourceProxy {
   readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
     query: UpdatableQuery<TVariables, TData>,
     variables: TVariables,
-  ): TData;
+  ): UpdatableData<TData>;
   readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
     fragment: UpdatableFragment<TFragmentType, TData>,
     fragmentReference: HasUpdatableSpread<TFragmentType>,
-  ): TData;
+  ): UpdatableData<TData>;
 }
 
 export interface ReadOnlyRecordSourceProxy {

@@ -97,7 +97,7 @@ describe('readUpdatableFragment', () => {
       const updatableData = store.readUpdatableFragment_EXPERIMENTAL(
         updatableFragment,
         me,
-      );
+      ).updatableData;
 
       expect(updatableData.firstName).toEqual('Mark');
       expect(updatableData.firstName2).toEqual('Twain');
@@ -142,7 +142,7 @@ describe('readUpdatableFragment', () => {
       const updatableData = store.readUpdatableFragment_EXPERIMENTAL(
         updatableFragment2,
         me,
-      );
+      ).updatableData;
 
       expect(updatableData.firstName2).toEqual('Twain');
       expect(updatableData.firstName3).toEqual('Wahlburg');

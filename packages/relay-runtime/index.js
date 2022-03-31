@@ -161,6 +161,7 @@ export type {
   SingularReaderSelector,
   Snapshot,
   StoreUpdater,
+  UpdatableData,
 } from './store/RelayStoreTypes';
 export type {
   GraphQLSubscriptionConfig,

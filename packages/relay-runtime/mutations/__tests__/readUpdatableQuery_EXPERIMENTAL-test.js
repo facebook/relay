@@ -169,7 +169,7 @@ describe('readUpdatableQuery', () => {
       const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
         updatableQuery,
         {},
-      );
+      ).updatableData;
 
       expect(updatableData.me?.id).toEqual('4');
       expect(updatableData.me?.name).toEqual('Zuck');
@@ -196,7 +196,7 @@ describe('readUpdatableQuery', () => {
       const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
         updatableQuery,
         {},
-      );
+      ).updatableData;
 
       if (updatableData.me != null) {
         updatableData.me.name = 'MetaZuck';
@@ -232,7 +232,7 @@ describe('readUpdatableQuery', () => {
       const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
         updatableQuery,
         {},
-      );
+      ).updatableData;
 
       expect(() => {
         if (updatableData.me != null) {
@@ -281,7 +281,7 @@ describe('readUpdatableQuery', () => {
       const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
         updatableQuery,
         {},
-      );
+      ).updatableData;
 
       if (updatableData.node != null) {
         const propertyDescriptor = Object.getOwnPropertyDescriptor(
@@ -353,7 +353,7 @@ describe('readUpdatableQuery', () => {
         const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
           updatableQuery,
           {},
-        );
+        ).updatableData;
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
@@ -421,7 +421,7 @@ describe('readUpdatableQuery', () => {
         const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
           updatableQuery,
           {},
-        );
+        ).updatableData;
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
@@ -503,7 +503,7 @@ describe('readUpdatableQuery', () => {
         const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
           updatableQuery,
           {},
-        );
+        ).updatableData;
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
@@ -602,7 +602,7 @@ describe('readUpdatableQuery', () => {
         const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
           updatableQuery,
           {},
-        );
+        ).updatableData;
 
         const source = environment.getStore().getSource();
         const selector = operation.fragment;
@@ -683,7 +683,7 @@ describe('readUpdatableQuery', () => {
       const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
         updatableQuery,
         {},
-      );
+      ).updatableData;
 
       if (updatableData.me != null) {
         updatableData.me = null;
@@ -733,7 +733,7 @@ describe('readUpdatableQuery', () => {
       const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
         updatableQuery,
         {},
-      );
+      ).updatableData;
 
       if (updatableData.node2 != null) {
         if (updatableData.node2.__typename === 'User') {
@@ -785,7 +785,7 @@ describe('readUpdatableQuery', () => {
       const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
         updatableQuery,
         {},
-      );
+      ).updatableData;
 
       const source = environment.getStore().getSource();
       const selector = operation.fragment;
@@ -842,7 +842,7 @@ describe('readUpdatableQuery', () => {
       const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
         updatableQuery,
         {},
-      );
+      ).updatableData;
 
       if (updatableData.node2 != null) {
         if (updatableData.node2.__typename === 'User') {
@@ -875,19 +875,19 @@ describe('readUpdatableQuery', () => {
       const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
         updatableQuery2,
         {id: '4'},
-      );
+      ).updatableData;
       expect(updatableData.node?.__typename).toBe('Metahuman');
 
       const updatableData2 = store.readUpdatableQuery_EXPERIMENTAL(
         updatableQuery2,
         {id: '5'},
-      );
+      ).updatableData;
       expect(updatableData2.node?.__typename).toBe('Page');
 
       const updatableData3 = store.readUpdatableQuery_EXPERIMENTAL(
         updatableQuery2,
         {id: '42'},
-      );
+      ).updatableData;
       expect(updatableData3.node).toBe(undefined);
     });
   });
@@ -907,7 +907,7 @@ describe('readUpdatableQuery', () => {
         updatableQuery2,
         // $FlowFixMe[prop-missing] That's the point
         {id: '4', foo: 'bar'},
-      );
+      ).updatableData;
       expect(updatableData.node?.__typename).toBe('Metahuman');
     });
   });
@@ -935,7 +935,7 @@ describe('readUpdatableQuery', () => {
       const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
         updatableQuery,
         {},
-      );
+      ).updatableData;
       expect(() => {
         // The author field contains client_best_friend, which is a client extension
         updatableData.me?.author;
@@ -970,7 +970,7 @@ describe('readUpdatableQuery', () => {
       const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
         updatableQuery,
         {},
-      );
+      ).updatableData;
 
       if (updatableData.me?.author2 != null) {
         updatableData.me.author2.client_nickname = 'Mr. Right';
@@ -1009,7 +1009,7 @@ describe('readUpdatableQuery', () => {
       const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
         updatableQuery,
         {},
-      );
+      ).updatableData;
 
       if (updatableData.me?.author?.client_best_friend != null) {
         updatableData.me.author.client_best_friend.name = 'Mr. Right';

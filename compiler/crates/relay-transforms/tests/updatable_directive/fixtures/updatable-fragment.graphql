@@ -1,0 +1,3 @@
+fragment UpdatableFragment_page on Page @updatable {
+  __typename
+}

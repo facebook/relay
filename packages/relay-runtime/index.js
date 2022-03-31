@@ -125,6 +125,7 @@ export type {
   FragmentType,
   FragmentSpecResolver,
   HandleFieldPayload,
+  HasUpdatableSpread,
   IEnvironment,
   InvalidationState,
   LogEvent,
@@ -160,9 +161,9 @@ export type {
   SingularReaderSelector,
   Snapshot,
   StoreUpdater,
+  UpdatableData,
 } from './store/RelayStoreTypes';
 export type {
-  DEPRECATED_GraphQLSubscriptionConfig,
   GraphQLSubscriptionConfig,
   SubscriptionParameters,
 } from './subscription/requestSubscription';
@@ -222,6 +223,7 @@ export type {
   Query,
   RefetchableFragment,
   RenderPolicy,
+  UpdatableFragment,
   UpdatableQuery,
   Variables,
   VariablesOf,

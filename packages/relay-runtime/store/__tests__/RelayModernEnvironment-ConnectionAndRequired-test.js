@@ -19,7 +19,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -44,7 +44,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
     describe(environmentType, () => {
       beforeEach(() => {
-        query = getRequest(graphql`
+        query = graphql`
           query RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery(
             $id: ID!
           ) {
@@ -52,8 +52,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               ...RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment
             }
           }
-        `);
-        fragment = getFragment(graphql`
+        `;
+        fragment = graphql`
           fragment RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment on Feedback
           @argumentDefinitions(
             count: {type: "Int", defaultValue: 2}
@@ -73,7 +73,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         const variables = {
           id: '<feedbackid>',
         };

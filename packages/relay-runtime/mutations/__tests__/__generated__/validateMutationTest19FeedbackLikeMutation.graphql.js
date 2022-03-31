@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ceedf544d2fcebf0b0f6fa3bf6f4720f>>
+ * @generated SignedSource<<7359f61bd52f12a4081ec7bfced5e212>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,6 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type FeedbackLikeInput = {|
-  clientMutationId?: ?string,
   feedbackId?: ?string,
 |};
 export type validateMutationTest19FeedbackLikeMutation$variables = {|
@@ -32,8 +31,8 @@ export type validateMutationTest19FeedbackLikeMutation$data = {|
   |},
 |};
 export type validateMutationTest19FeedbackLikeMutation = {|
-  variables: validateMutationTest19FeedbackLikeMutation$variables,
   response: validateMutationTest19FeedbackLikeMutation$data,
+  variables: validateMutationTest19FeedbackLikeMutation$variables,
 |};
 */
 

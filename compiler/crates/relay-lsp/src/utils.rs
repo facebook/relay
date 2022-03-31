@@ -8,16 +8,17 @@
 use std::path::PathBuf;
 
 use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
+use crate::Feature;
 use common::{SourceLocationKey, Span, TextSource};
 use dashmap::DashMap;
+use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
-use graphql_syntax::{
-    parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument,
-};
+use graphql_syntax::{parse_executable_with_error_recovery, ExecutableDefinition};
 use intern::string_key::StringKey;
 use log::debug;
 use lsp_types::{Position, TextDocumentPositionParams, Url};
 use relay_compiler::{FileCategorizer, FileGroup};
+use relay_docblock::parse_docblock_ast;
 
 pub fn extract_executable_definitions_from_text_document(
     text_document_uri: &Url,
@@ -85,13 +86,13 @@ pub fn extract_project_name_from_url(
     Ok(project_name)
 }
 
-/// Return a parsed executable document for this LSP request, only if the request occurs
-/// within a GraphQL document.
-pub fn extract_executable_document_from_text(
+/// Return a parsed executable document, or parsed Docblock IR for this LSP
+/// request, only if the request occurs within a GraphQL document or Docblock.
+pub fn extract_feature_from_text(
     source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
     text_document_position: &TextDocumentPositionParams,
     index_offset: usize,
-) -> LSPRuntimeResult<(ExecutableDocument, Span)> {
+) -> LSPRuntimeResult<(Feature, Span)> {
     let uri = &text_document_position.text_document.uri;
     let position = text_document_position.position;
 
@@ -99,44 +100,68 @@ pub fn extract_executable_document_from_text(
         .get(uri)
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    let graphql_source = source_features
+    let (index, javascript_feature) = source_features
         .iter()
-        .find_map(|source_feature| {
-            if let JavaScriptSourceFeature::GraphQL(graphql_source) = source_feature {
-                let range = graphql_source.text_source().to_range();
-                if position >= range.start && position <= range.end {
-                    Some(graphql_source)
-                } else {
-                    None
-                }
-            } else {
-                None
-            }
+        .enumerate()
+        .find(|(_, source_feature)| {
+            let range = source_feature.text_source().to_range();
+            position >= range.start && position <= range.end
         })
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
-    let document = parse_executable_with_error_recovery(
-        &graphql_source.text_source().text,
-        SourceLocationKey::standalone(&uri.to_string()),
-    )
-    .item;
+    let source_location_key = SourceLocationKey::embedded(uri.as_ref(), index);
+    match javascript_feature {
+        JavaScriptSourceFeature::GraphQL(graphql_source) => {
+            let document = parse_executable_with_error_recovery(
+                &graphql_source.text_source().text,
+                source_location_key,
+            )
+            .item;
 
-    // Now we need to take the `Position` and map that to an offset relative
-    // to this GraphQL document, as the `Span`s in the document are relative.
-    debug!("Successfully parsed the definitions for a target GraphQL source");
-    // Map the position to a zero-length span, relative to this GraphQL source.
-    let position_span = position_to_span(&position, graphql_source.text_source(), index_offset)
-        .ok_or_else(|| {
-            LSPRuntimeError::UnexpectedError("Failed to map positions to spans".to_string())
-        })?;
+            // Now we need to take the `Position` and map that to an offset relative
+            // to this GraphQL document, as the `Span`s in the document are relative.
+            debug!("Successfully parsed the definitions for a target GraphQL source");
+            // Map the position to a zero-length span, relative to this GraphQL source.
+            let position_span =
+                position_to_span(&position, graphql_source.text_source(), index_offset)
+                    .ok_or_else(|| {
+                        LSPRuntimeError::UnexpectedError(
+                            "Failed to map positions to spans".to_string(),
+                        )
+                    })?;
 
-    // Now we need to walk the Document, tracking our path along the way, until
-    // we find the position within the document. Note that the GraphQLSource will
-    // already be updated *with the characters that triggered the completion request*
-    // since the change event fires before completion.
-    debug!("position_span: {:?}", position_span);
+            // Now we need to walk the Document, tracking our path along the way, until
+            // we find the position within the document. Note that the GraphQLSource will
+            // already be updated *with the characters that triggered the completion request*
+            // since the change event fires before completion.
+            debug!("position_span: {:?}", position_span);
 
-    Ok((document, position_span))
+            Ok((Feature::GraphQLDocument(document), position_span))
+        }
+        JavaScriptSourceFeature::Docblock(docblock_source) => {
+            let text_source = &docblock_source.text_source();
+            let text = &text_source.text;
+            let dockblock_ir = parse_docblock(text, source_location_key)
+                .and_then(|ast| parse_docblock_ast(&ast))
+                .map_err(|_| {
+                    LSPRuntimeError::UnexpectedError("Failed to parse docblock".to_string())
+                })?
+                .ok_or_else(|| {
+                    LSPRuntimeError::UnexpectedError("No docblock IR found".to_string())
+                })?;
+
+            let position_span =
+                position_to_offset(&position, index_offset, text_source.line_index, text)
+                    .map(|offset| Span::new(offset, offset))
+                    .ok_or_else(|| {
+                        LSPRuntimeError::UnexpectedError(
+                            "Failed to map positions to spans".to_string(),
+                        )
+                    })?;
+
+            Ok((Feature::DocblockIr(dockblock_ir), position_span))
+        }
+    }
 }
 
 /// Maps the LSP `Position` type back to a relative span, so we can find out which syntax node(s)

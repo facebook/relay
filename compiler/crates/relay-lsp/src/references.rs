@@ -11,8 +11,8 @@ use crate::{
     location::transform_relay_location_to_lsp_location,
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::NodeKind,
-    node_resolution_info::NodeResolutionInfo,
     server::GlobalState,
+    FeatureResolutionInfo,
 };
 use common::Location as IRLocation;
 use graphql_ir::{FragmentSpread, Program, Visitor};
@@ -24,21 +24,31 @@ use lsp_types::{
 use std::path::PathBuf;
 
 fn get_references_response(
-    node_resolution_info: NodeResolutionInfo,
+    feature_resolution_info: FeatureResolutionInfo,
     program: &Program,
     root_dir: &PathBuf,
 ) -> LSPRuntimeResult<Vec<LSPLocation>> {
-    match node_resolution_info.kind {
-        NodeKind::FragmentDefinition(fragment) => {
-            let references =
-                ReferenceFinder::get_references_to_fragment(program, fragment.name.value)
-                    .into_iter()
-                    .map(|location| transform_relay_location_to_lsp_location(root_dir, location))
-                    .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
+    match feature_resolution_info {
+        FeatureResolutionInfo::GraphqlNode(node_resolution_info) => {
+            match node_resolution_info.kind {
+                NodeKind::FragmentDefinition(fragment) => {
+                    let references =
+                        ReferenceFinder::get_references_to_fragment(program, fragment.name.value)
+                            .into_iter()
+                            .map(|location| {
+                                transform_relay_location_to_lsp_location(root_dir, location)
+                            })
+                            .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
 
-            Ok(references)
+                    Ok(references)
+                }
+                _ => Err(LSPRuntimeError::ExpectedError),
+            }
         }
-        _ => Err(LSPRuntimeError::ExpectedError),
+        FeatureResolutionInfo::DocblockNode(_) => {
+            // Go to reference not implemented for docblocks yet.
+            Err(LSPRuntimeError::ExpectedError)
+        }
     }
 }
 

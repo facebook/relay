@@ -14,13 +14,13 @@
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const {LINKED_FIELD, LINKED_HANDLE} = require('../../util/RelayConcreteNode');
 const cloneRelayHandleSourceField = require('../cloneRelayHandleSourceField');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 
 describe('cloneRelayHandleSourceField()', () => {
   let selections;
 
   beforeEach(() => {
-    const TestQuery = getRequest(graphql`
+    const TestQuery = graphql`
       query cloneRelayHandleSourceFieldTestTestQuery {
         me {
           address @__clientField(handle: "test") {
@@ -28,7 +28,7 @@ describe('cloneRelayHandleSourceField()', () => {
           }
         }
       }
-    `);
+    `;
     // Get the selections on `me`.
     // $FlowFixMe[incompatible-use]
     // $FlowFixMe[prop-missing]
@@ -36,10 +36,13 @@ describe('cloneRelayHandleSourceField()', () => {
   });
 
   it('returns a clone of the source, with the same name as the handle', () => {
+    // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === LINKED_HANDLE);
+    // $FlowFixMe[incompatible-use]
     const sourceField = selections.find(node => node.kind === LINKED_FIELD);
     const clone = cloneRelayHandleSourceField(
       (handleField: $FlowFixMe),
+      // $FlowFixMe[incompatible-call]
       selections,
       {},
     );
@@ -52,10 +55,13 @@ describe('cloneRelayHandleSourceField()', () => {
   });
 
   it('throws if the source field is not present', () => {
+    // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === LINKED_HANDLE);
+    // $FlowFixMe[incompatible-use]
     selections = selections.filter(node => node.kind === LINKED_HANDLE);
 
     expect(() =>
+      // $FlowFixMe[incompatible-call]
       cloneRelayHandleSourceField((handleField: $FlowFixMe), selections, {}),
     ).toThrowError(
       'cloneRelayHandleSourceField: Expected a corresponding source field ' +

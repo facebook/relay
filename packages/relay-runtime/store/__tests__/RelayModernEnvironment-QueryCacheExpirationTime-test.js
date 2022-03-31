@@ -22,7 +22,7 @@ const {createReaderSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -41,14 +41,14 @@ describe('query cache expiration time', () => {
     fetchTime = Date.now();
     jest.spyOn(global.Date, 'now').mockImplementation(() => fetchTime);
 
-    ParentQuery = getRequest(graphql`
+    ParentQuery = graphql`
       query RelayModernEnvironmentQueryCacheExpirationTimeTestQuery {
         me {
           id
           name
         }
       }
-    `);
+    `;
 
     source = RelayRecordSource.create();
     store = new RelayModernStore(source, {

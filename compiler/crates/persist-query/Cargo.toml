@@ -11,7 +11,7 @@ hyper = { version = "0.14.7", features = ["client", "http1", "http2"] }
 hyper-tls = "0.5"
 serde = { version = "1.0.126", features = ["derive", "rc"] }
 serde_json = { version = "1.0.64", features = ["float_roundtrip", "unbounded_depth"] }
-thiserror = "1.0.29"
+thiserror = "1.0.30"
 url = "2.2.2"
 
 [features]

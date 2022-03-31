@@ -12,9 +12,9 @@ import { FragmentRefs } from "relay-runtime";
 export type LinkedField$data = {
   readonly name: string | null;
   readonly profilePicture: {
+    readonly height: number | null;
     readonly uri: string | null;
     readonly width: number | null;
-    readonly height: number | null;
   } | null;
   readonly " $fragmentType": "LinkedField";
 };

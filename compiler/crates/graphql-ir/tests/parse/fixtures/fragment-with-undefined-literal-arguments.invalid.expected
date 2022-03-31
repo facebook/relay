@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 # expected-to-throw
 fragment ParentFragment on User {
-  ...ChildFragment @arguments(pictureSize: 42) # error: $pictureSize not defined
+  ...ChildFragment @arguments(prize: 42) # error: $prize not defined
 }
 
 fragment ChildFragment on User {
@@ -10,10 +10,10 @@ fragment ChildFragment on User {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Unknown argument 'pictureSize'
+✖︎ Unknown argument 'prize'.
 
   fragment-with-undefined-literal-arguments.invalid.graphql:3:31
     2 │ fragment ParentFragment on User {
-    3 │   ...ChildFragment @arguments(pictureSize: 42) # error: $pictureSize not defined
-      │                               ^^^^^^^^^^^^^^^
+    3 │   ...ChildFragment @arguments(prize: 42) # error: $prize not defined
+      │                               ^^^^^^^^^
     4 │ }

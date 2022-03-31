@@ -14,9 +14,9 @@ use crate::{
     refetchable_fragment::RefetchableMetadata,
     relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
     required_directive::{CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME},
-    ModuleMetadata, ReactFlightLocalComponentsMetadata, RefetchableDerivedFromMetadata,
-    RelayClientComponentMetadata, RelayResolverSpreadMetadata, RequiredMetadataDirective,
-    CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_METADATA_KEY, CLIENT_EDGE_QUERY_METADATA_KEY,
+    ClientEdgeMetadataDirective, ModuleMetadata, ReactFlightLocalComponentsMetadata,
+    RefetchableDerivedFromMetadata, RelayClientComponentMetadata, RelayResolverSpreadMetadata,
+    RequiredMetadataDirective, CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_QUERY_METADATA_KEY,
     DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE,
 };
 
@@ -102,7 +102,7 @@ lazy_static! {
         ReactFlightLocalComponentsMetadata::directive_name(),
         *REQUIRED_DIRECTIVE_NAME,
         RequiredMetadataDirective::directive_name(),
-        *CLIENT_EDGE_METADATA_KEY,
+        ClientEdgeMetadataDirective::directive_name(),
         *CLIENT_EDGE_QUERY_METADATA_KEY,
         *CLIENT_EDGE_GENERATED_FRAGMENT_KEY,
         *CHILDREN_CAN_BUBBLE_METADATA_KEY,
@@ -131,7 +131,7 @@ lazy_static! {
         ModuleMetadata::directive_name(),
         InlineDirectiveMetadata::directive_name(),
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-        *CLIENT_EDGE_METADATA_KEY,
+        ClientEdgeMetadataDirective::directive_name(),
         "defer".intern(),
     ];
     static ref VALID_PROVIDED_VARIABLE_NAME: Regex = Regex::new(r#"^[A-Za-z0-9_]*$"#).unwrap();

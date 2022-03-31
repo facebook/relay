@@ -28,7 +28,11 @@ fragment BestFriendResolverFragment_name on User {
 
 fragment Foo_user on User {
   ... @skip(if: $some_var) {
-    ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend") {
+    ... @__ClientEdgeMetadataDirective
+    # ServerObject {
+    #     query_name: "ClientEdgeQuery_Foo_user_best_friend",
+    # }
+     {
       ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
       # RelayResolverSpreadMetadata {
       #     field_parent_type: "User",
@@ -36,6 +40,7 @@ fragment Foo_user on User {
       #     field_name: "best_friend",
       #     field_alias: None,
       #     field_path: "best_friend",
+      #     live: false,
       # }
        @waterfall
       best_friend @waterfall {
@@ -44,7 +49,11 @@ fragment Foo_user on User {
     }
   }
   ... @include(if: $some_var) {
-    ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_best_friend_1") {
+    ... @__ClientEdgeMetadataDirective
+    # ServerObject {
+    #     query_name: "ClientEdgeQuery_Foo_user_best_friend_1",
+    # }
+     {
       ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
       # RelayResolverSpreadMetadata {
       #     field_parent_type: "User",
@@ -52,6 +61,7 @@ fragment Foo_user on User {
       #     field_name: "best_friend",
       #     field_alias: None,
       #     field_path: "best_friend",
+      #     live: false,
       # }
        @waterfall
       best_friend @waterfall {

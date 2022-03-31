@@ -22,8 +22,6 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
-  getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -98,14 +96,14 @@ describe('useRefetchableFragment', () => {
     `;
 
     variables = {id: '1', scale: 16};
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query useRefetchableFragmentTestUserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
           ...useRefetchableFragmentTestUserFragment
         }
       }
-    `);
-    gqlFragment = getFragment(graphql`
+    `;
+    gqlFragment = graphql`
       fragment useRefetchableFragmentTestUserFragment on User
       @refetchable(
         queryName: "useRefetchableFragmentTestUserFragmentRefetchQuery"
@@ -117,7 +115,7 @@ describe('useRefetchableFragment', () => {
         }
         ...useRefetchableFragmentTestNestedUserFragment
       }
-    `);
+    `;
 
     query = createOperationDescriptor(gqlQuery, variables);
     environment.commitPayload(query, {

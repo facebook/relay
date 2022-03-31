@@ -14,13 +14,13 @@
 const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const {SCALAR_FIELD, SCALAR_HANDLE} = require('../../util/RelayConcreteNode');
 const cloneRelayScalarHandleSourceField = require('../cloneRelayScalarHandleSourceField');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 
 describe('cloneRelayScalarHandleSourceField()', () => {
   let selections;
 
   beforeEach(() => {
-    const TestQuery = getRequest(graphql`
+    const TestQuery = graphql`
       query cloneRelayScalarHandleSourceFieldTestQuery {
         me {
           address {
@@ -28,16 +28,18 @@ describe('cloneRelayScalarHandleSourceField()', () => {
           }
         }
       }
-    `);
+    `;
     // Get the selections on `me.addresss`.
     // $FlowFixMe
     selections = TestQuery.operation.selections[0].selections[0].selections;
   });
 
   it('returns a clone of the source, with the same name as the handle', () => {
+    // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === SCALAR_HANDLE);
     const clone = cloneRelayScalarHandleSourceField(
       (handleField: $FlowFixMe),
+      // $FlowFixMe[incompatible-call]
       selections,
       {},
     );
@@ -48,12 +50,15 @@ describe('cloneRelayScalarHandleSourceField()', () => {
   });
 
   it('throws if the source field is not present', () => {
+    // $FlowFixMe[incompatible-use]
     const handleField = selections.find(node => node.kind === SCALAR_HANDLE);
+    // $FlowFixMe[incompatible-use]
     selections = selections.filter(node => node.kind === SCALAR_HANDLE);
 
     expect(() =>
       cloneRelayScalarHandleSourceField(
         (handleField: $FlowFixMe),
+        // $FlowFixMe[incompatible-call]
         selections,
         {},
       ),

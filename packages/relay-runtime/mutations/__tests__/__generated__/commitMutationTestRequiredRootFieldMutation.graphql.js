@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<07d1e2e379df925d75ad8bfb4ffedd0e>>
+ * @generated SignedSource<<f9e675e64f544bf0439e9ad6ff5ea814>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,6 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentDeleteInput = {|
-  clientMutationId?: ?string,
   commentId?: ?string,
 |};
 export type commitMutationTestRequiredRootFieldMutation$variables = {|
@@ -29,8 +28,8 @@ export type commitMutationTestRequiredRootFieldMutation$data = {|
   |},
 |};
 export type commitMutationTestRequiredRootFieldMutation = {|
-  variables: commitMutationTestRequiredRootFieldMutation$variables,
   response: commitMutationTestRequiredRootFieldMutation$data,
+  variables: commitMutationTestRequiredRootFieldMutation$variables,
 |};
 */
 

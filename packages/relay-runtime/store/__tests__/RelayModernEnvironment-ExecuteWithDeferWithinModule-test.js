@@ -21,7 +21,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -98,7 +98,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
     describe(environmentType, () => {
       beforeEach(() => {
-        query = getRequest(graphql`
+        query = graphql`
           query RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery(
             $id: ID!
           ) {
@@ -120,7 +120,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
         actorNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization.graphql');
         graphql`
@@ -140,12 +140,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           }
         `;
 
-        fragment = getFragment(graphql`
+        fragment = graphql`
           fragment RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserFragment on User {
             id
             name
           }
-        `);
+        `;
         variables = {id: '1'};
         operation = createOperationDescriptor(query, variables);
         complete = jest.fn();

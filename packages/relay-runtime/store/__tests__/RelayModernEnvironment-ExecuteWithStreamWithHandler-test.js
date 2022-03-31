@@ -24,7 +24,7 @@ import type {
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -54,7 +54,7 @@ describe('execute() a query with @stream with handler', () => {
   let store;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackQuery(
         $id: ID!
         $enableStream: Boolean!
@@ -63,8 +63,8 @@ describe('execute() a query with @stream with handler', () => {
           ...RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment
         }
       }
-    `);
-    fragment = getFragment(graphql`
+    `;
+    fragment = graphql`
       fragment RelayModernEnvironmentExecuteWithStreamWithHandlerTestFeedbackFragment on Feedback {
         id
         actors
@@ -73,13 +73,13 @@ describe('execute() a query with @stream with handler', () => {
           name @__clientField(handle: "name_handler")
         }
       }
-    `);
-    actorFragment = getFragment(graphql`
+    `;
+    actorFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment on User {
         # keep in sync with above
         name @__clientField(handle: "name_handler")
       }
-    `);
+    `;
     variables = {id: '1', enableStream: true};
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(fragment, '1', {}, operation.request);

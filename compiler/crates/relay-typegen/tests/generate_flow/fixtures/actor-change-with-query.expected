@@ -28,8 +28,8 @@ export type Viewer$data = {|
   |},
 |};
 export type Viewer = {|
-  variables: Viewer$variables,
   response: Viewer$data,
+  variables: Viewer$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";
@@ -37,9 +37,9 @@ declare export opaque type ActorFragment$fragmentType: FragmentType;
 export type ActorFragment$data = {|
   +name: ?string,
   +profilePicture: ?{|
+    +height: ?number,
     +uri: ?string,
     +width: ?number,
-    +height: ?number,
   |},
   +$fragmentType: ActorFragment$fragmentType,
 |};

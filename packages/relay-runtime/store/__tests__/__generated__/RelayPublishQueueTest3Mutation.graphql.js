@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3b73670acbec63df90cd0c729ece6163>>
+ * @generated SignedSource<<af95c1a3c161a6f505db29392d3d47f2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,6 @@
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type ActorNameChangeInput = {|
-  clientMutationId?: ?string,
   newName?: ?string,
 |};
 export type RelayPublishQueueTest3Mutation$variables = {|
@@ -31,8 +30,8 @@ export type RelayPublishQueueTest3Mutation$data = {|
   |},
 |};
 export type RelayPublishQueueTest3Mutation = {|
-  variables: RelayPublishQueueTest3Mutation$variables,
   response: RelayPublishQueueTest3Mutation$data,
+  variables: RelayPublishQueueTest3Mutation$variables,
 |};
 */
 

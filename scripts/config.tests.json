@@ -29,7 +29,8 @@
         "actor_change_support": {
           "kind": "enabled"
         }
-      }
+      },
+      "language": "flow"
     }
   },
   "isDevVariableName": "__DEV__"

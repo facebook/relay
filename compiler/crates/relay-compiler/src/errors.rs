@@ -17,25 +17,8 @@ pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("Failed to read config file `{config_path}`.")]
-    ConfigFileRead {
-        config_path: PathBuf,
-        source: std::io::Error,
-    },
-
-    #[error("No config found.")]
-    ConfigNotFound,
-
-    #[error("Error searching config: {error}")]
-    ConfigSearchError {
-        error: js_config_loader::ConfigError,
-    },
-
-    #[error("Failed to parse config file `{config_path}`: {source}")]
-    ConfigFileParse {
-        config_path: PathBuf,
-        source: serde_json::Error,
-    },
+    #[error("Unable to initialize relay compiler configuration. Error details: \n{details}")]
+    ConfigError { details: String },
 
     #[error(
         "Config `{config_path}` is invalid:{}",
@@ -226,6 +209,12 @@ pub enum ConfigValidationError {
 
     #[error("Unable to find common path for directories in the config file.")]
     CommonPathNotFound,
+
+    #[error("The config option `{name}` is no longer supported. {action}")]
+    RemovedConfigField {
+        name: &'static str,
+        action: &'static str,
+    },
 }
 
 #[derive(Debug, Error)]
@@ -238,7 +227,10 @@ pub enum BuildProjectError {
             .collect::<Vec<_>>()
             .join("")
     )]
-    ValidationErrors { errors: Vec<Diagnostic> },
+    ValidationErrors {
+        errors: Vec<Diagnostic>,
+        project_name: ProjectName,
+    },
 
     #[error("Persisting operation(s) failed:{0}",
         errors
@@ -247,7 +239,10 @@ pub enum BuildProjectError {
             .collect::<Vec<_>>()
             .join("")
     )]
-    PersistErrors { errors: Vec<PersistError> },
+    PersistErrors {
+        errors: Vec<PersistError>,
+        project_name: ProjectName,
+    },
 
     #[error("Failed to write file `{file}`: {source}")]
     WriteFileError { file: PathBuf, source: io::Error },

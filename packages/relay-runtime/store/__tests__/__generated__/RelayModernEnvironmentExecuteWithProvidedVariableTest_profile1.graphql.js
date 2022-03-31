@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d405753496889b4fd01a43c68bd33134>>
+ * @generated SignedSource<<1d88621d823f56a7e7b406ff1ac00215>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,10 +21,10 @@ declare export opaque type RelayModernEnvironmentExecuteWithProvidedVariableTest
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$data = {|
   +id: string,
   +name?: ?string,
-  +username?: ?string,
   +profilePicture: ?{|
     +uri: ?string,
   |},
+  +username?: ?string,
   +$fragmentType: RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType,
 |};
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$key = {
@@ -37,7 +37,7 @@ export type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$key =
 var node/*: ReaderFragment*/ = (function(){
 var v0 = {
   "kind": "RootArgument",
-  "name": "__relay_internal__pv__RelayProvider_returnsTrue"
+  "name": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider"
 };
 return {
   "argumentDefinitions": [
@@ -56,7 +56,7 @@ return {
       "storageKey": null
     },
     {
-      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -70,7 +70,7 @@ return {
       ]
     },
     {
-      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -108,7 +108,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bde31756e6495f3fc76396a0fafadc57";
+  (node/*: any*/).hash = "7cc45cbe1140a02e7abb6df54fb74563";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<

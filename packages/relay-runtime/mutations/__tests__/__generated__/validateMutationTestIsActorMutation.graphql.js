@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ac7c88599b644c381577023abb1626ae>>
+ * @generated SignedSource<<5e584ce0d03a7ce7f088b6de1b162fae>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
 type validateMutationTestActorFragment$fragmentType = any;
 export type ActorNameChangeInput = {|
-  clientMutationId?: ?string,
   newName?: ?string,
 |};
 export type validateMutationTestIsActorMutation$variables = {|
@@ -34,19 +33,19 @@ export type validateMutationTestIsActorMutation$data = {|
 export type validateMutationTestIsActorMutation$rawResponse = {|
   +actorNameChange: ?{|
     +actor: ?({|
+      +__typename: "Page",
+      +__isActor: "Page",
+      +id: string,
+      +username: ?string,
+    |} | {|
       +__typename: "User",
       +__isActor: "User",
-      +id: string,
       +birthdate: ?{|
         +day: ?number,
         +month: ?number,
         +year: ?number,
       |},
-    |} | {|
-      +__typename: "Page",
-      +__isActor: "Page",
       +id: string,
-      +username: ?string,
     |} | {|
       +__typename: string,
       +__isActor: string,
@@ -55,9 +54,9 @@ export type validateMutationTestIsActorMutation$rawResponse = {|
   |},
 |};
 export type validateMutationTestIsActorMutation = {|
-  variables: validateMutationTestIsActorMutation$variables,
-  response: validateMutationTestIsActorMutation$data,
   rawResponse: validateMutationTestIsActorMutation$rawResponse,
+  response: validateMutationTestIsActorMutation$data,
+  variables: validateMutationTestIsActorMutation$variables,
 |};
 */
 

@@ -1,11 +1,11 @@
 mutation MutationWithValidNameMutation {
     commentCreate(input: null) {
-        clientMutationId
+        __typename
     }
 }
 
 mutation MutationWithValidNameSecondMutation {
     commentCreate(input: null) {
-        clientMutationId
+        __typename
     }
 }

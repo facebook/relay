@@ -19,7 +19,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const {getHandleStorageKey} = require('../../store/RelayStoreUtils');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
@@ -53,14 +53,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
     describe(environmentType, () => {
       beforeEach(() => {
-        query = getRequest(graphql`
+        query = graphql`
           query RelayModernEnvironmentConnectionTestFeedbackQuery($id: ID!) {
             node(id: $id) {
               ...RelayModernEnvironmentConnectionTestFeedbackFragment
             }
           }
-        `);
-        paginationQuery = getRequest(graphql`
+        `;
+        paginationQuery = graphql`
           query RelayModernEnvironmentConnectionTestPaginationQuery(
             $id: ID!
             $count: Int!
@@ -71,8 +71,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 @arguments(count: $count, cursor: $cursor)
             }
           }
-        `);
-        fragment = getFragment(graphql`
+        `;
+        fragment = graphql`
           fragment RelayModernEnvironmentConnectionTestFeedbackFragment on Feedback
           @argumentDefinitions(
             count: {type: "Int", defaultValue: 2}
@@ -91,7 +91,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         const variables = {
           id: '<feedbackid>',
         };

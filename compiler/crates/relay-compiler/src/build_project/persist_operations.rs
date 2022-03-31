@@ -82,6 +82,7 @@ pub async fn persist_operations(
         .finalize()
         .map_err(|error| BuildProjectError::PersistErrors {
             errors: vec![error],
+            project_name: project_config.name,
         })?;
     debug!("done persisting");
     let errors = results
@@ -89,7 +90,10 @@ pub async fn persist_operations(
         .filter_map(Result::err)
         .collect::<Vec<_>>();
     if !errors.is_empty() {
-        let error = BuildProjectError::PersistErrors { errors };
+        let error = BuildProjectError::PersistErrors {
+            errors,
+            project_name: project_config.name,
+        };
         log_event.string("error", error.to_string());
         return Err(error);
     }

@@ -50,10 +50,6 @@ pub enum ValidationMessage {
         field_type: StringKey,
     },
 
-    // Updatable queries and fragments
-    #[error("The @updatable directive is yet allowed on fragments.")]
-    UpdatableNotAllowedOnFragments,
-
     #[error(
         "The @{disallowed_directive_name} directive is not allowed in updatable {outer_type_plural}."
     )]
@@ -121,4 +117,7 @@ pub enum ValidationMessage {
         outer_type_plural: &'static str,
         operation_or_fragment_name: StringKey,
     },
+
+    #[error("Directives are not allowed on spreads of updatable fragments")]
+    UpdatableFragmentSpreadNoDirectives,
 }

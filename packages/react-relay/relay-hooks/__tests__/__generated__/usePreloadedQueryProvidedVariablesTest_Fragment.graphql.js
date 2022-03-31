@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<801f3d305184e4f72e016e44e0c121c6>>
+ * @generated SignedSource<<31faeb41cff8ce307104cb0bca921d3a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,9 +19,9 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType: FragmentType;
 export type usePreloadedQueryProvidedVariablesTest_Fragment$data = {|
-  +name?: ?string,
   +firstName?: ?string,
   +lastName?: ?string,
+  +name?: ?string,
   +username?: ?string,
   +$fragmentType: usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType,
 |};
@@ -35,11 +35,11 @@ export type usePreloadedQueryProvidedVariablesTest_Fragment$key = {
 var node/*: ReaderFragment*/ = (function(){
 var v0 = {
   "kind": "RootArgument",
-  "name": "__relay_internal__pv__RelayProvider_returnsFalse"
+  "name": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider"
 },
 v1 = {
   "kind": "RootArgument",
-  "name": "__relay_internal__pv__RelayProvider_returnsTrue"
+  "name": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider"
 };
 return {
   "argumentDefinitions": [
@@ -53,7 +53,7 @@ return {
   "name": "usePreloadedQueryProvidedVariablesTest_Fragment",
   "selections": [
     {
-      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -67,7 +67,7 @@ return {
       ]
     },
     {
-      "condition": "__relay_internal__pv__RelayProvider_returnsFalse",
+      "condition": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider",
       "kind": "Condition",
       "passingValue": true,
       "selections": [
@@ -81,7 +81,7 @@ return {
       ]
     },
     {
-      "condition": "__relay_internal__pv__RelayProvider_returnsFalse",
+      "condition": "__relay_internal__pv__RelayProvider_returnsFalserelayprovider",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -95,7 +95,7 @@ return {
       ]
     },
     {
-      "condition": "__relay_internal__pv__RelayProvider_returnsTrue",
+      "condition": "__relay_internal__pv__RelayProvider_returnsTruerelayprovider",
       "kind": "Condition",
       "passingValue": false,
       "selections": [
@@ -115,7 +115,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bd07e5c78d2238a6262a40f596363fc6";
+  (node/*: any*/).hash = "7cc9c205b3d6a750ce15f3a08828adcb";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<

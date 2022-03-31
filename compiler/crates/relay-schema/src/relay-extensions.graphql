@@ -221,6 +221,7 @@ directive @relay_client_component on FRAGMENT_SPREAD
 directive @relay_resolver(
   fragment_name: String!
   import_path: String!
+  live: Boolean
 ) on FIELD_DEFINITION
 
 """

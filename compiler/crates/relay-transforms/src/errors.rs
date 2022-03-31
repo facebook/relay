@@ -170,6 +170,16 @@ pub enum ValidationMessage {
         "Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases."
     )]
     ConflictingModuleSelections,
+
+    #[error(
+        "Client Edges that reference client-defined interface types are not currently supported in Relay."
+    )]
+    ClientEdgeToClientInterface,
+
+    #[error(
+        "Client Edges that reference client-defined union types are not currently supported in Relay."
+    )]
+    ClientEdgeToClientUnion,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -180,7 +190,7 @@ pub enum ValidationMessageWithData {
     RelayResolversMissingWaterfall { field_name: StringKey },
 
     #[error(
-        "Unexpceted `@waterfall` directive. Only fields backed by a Client Edge should be annotated with the `@waterfall` directive."
+        "Unexpeceted `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive."
     )]
     RelayResolversUnexpectedWaterfall,
 }

@@ -21,7 +21,7 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -42,7 +42,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
   let variables;
 
   beforeEach(() => {
-    actorQuery = getRequest(graphql`
+    actorQuery = graphql`
       query RelayModernEnvironmentExecuteWithOverlappingModuleTestActorQuery(
         $id: ID!
       ) {
@@ -56,7 +56,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           }
         }
       }
-    `);
+    `;
     graphql`
       fragment RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name on PlainUserNameRenderer {
         plaintext
@@ -84,7 +84,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
         }
       }
     `;
-    userQuery = getRequest(graphql`
+    userQuery = graphql`
       query RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery(
         $id: ID!
       ) {
@@ -100,7 +100,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
           }
         }
       }
-    `);
+    `;
 
     variables = {id: '1'};
     actorOperation = createOperationDescriptor(actorQuery, variables);

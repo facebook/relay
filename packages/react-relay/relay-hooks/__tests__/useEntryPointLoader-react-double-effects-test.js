@@ -24,7 +24,6 @@ const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -116,7 +115,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
       }
     `;
 
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query useEntryPointLoaderReactDoubleEffectsTestUserQuery($id: ID) {
         node(id: $id) {
           id
@@ -124,7 +123,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
           ...useEntryPointLoaderReactDoubleEffectsTestUserFragment
         }
       }
-    `);
+    `;
     // $FlowFixMe
     gqlQuery.params.cacheID = 'TestQuery';
     variables = {id: '1'};

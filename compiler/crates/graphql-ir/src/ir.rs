@@ -178,6 +178,25 @@ impl Selection {
             | (Selection::Condition(_), _) => false,
         }
     }
+
+    /// Find all fragment spreads referenced the current Selection.
+    /// Result deduplicated and sorted by fragment spread name
+    pub fn spreaded_fragments(&self) -> Vec<Arc<FragmentSpread>> {
+        let run_for_set =
+            |set: &[Selection]| set.iter().flat_map(|s| s.spreaded_fragments()).collect();
+
+        let mut all: Vec<Arc<FragmentSpread>> = match self {
+            Selection::FragmentSpread(a) => vec![Arc::clone(a)],
+            Selection::InlineFragment(a) => run_for_set(&a.selections),
+            Selection::LinkedField(a) => run_for_set(&a.selections),
+            Selection::ScalarField(_) => vec![],
+            Selection::Condition(a) => run_for_set(&a.selections),
+        };
+
+        all.sort_unstable_by_key(|fs| fs.fragment.item);
+        all.dedup_by_key(|fs| fs.fragment.item);
+        all
+    }
 }
 
 impl fmt::Debug for Selection {

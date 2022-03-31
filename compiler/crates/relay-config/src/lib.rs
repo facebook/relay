@@ -20,4 +20,4 @@ pub use project_config::{
     LocalPersistConfig, PersistConfig, ProjectConfig, ProjectName, RemotePersistConfig,
     SchemaConfig, SchemaLocation,
 };
-pub use typegen_config::{FlowTypegenConfig, FlowTypegenPhase, TypegenConfig, TypegenLanguage};
+pub use typegen_config::{FlowTypegenConfig, TypegenConfig, TypegenLanguage};

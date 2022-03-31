@@ -7,13 +7,12 @@
 
 //! Utilities for providing the hover feature
 
-use crate::{
-    lsp_runtime_error::LSPRuntimeResult, resolution_path::ResolvePosition, server::GlobalState,
-};
+use crate::{lsp_runtime_error::LSPRuntimeResult, server::GlobalState};
 use lsp_types::{
     request::{HoverRequest, Request},
     LanguageString, MarkedString,
 };
+use resolution_path::ResolvePosition;
 use serde::Serialize;
 
 mod with_resolution_path;

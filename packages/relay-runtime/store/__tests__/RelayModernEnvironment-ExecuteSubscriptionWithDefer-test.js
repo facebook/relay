@@ -23,7 +23,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -60,7 +60,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
     describe(environmentType, () => {
       beforeEach(() => {
-        subscription = getRequest(graphql`
+        subscription = graphql`
           subscription RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentCreateSubscription(
             $input: CommentCreateSubscriptionInput!
           ) {
@@ -72,16 +72,16 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
-        commentFragment = getFragment(graphql`
+        `;
+        commentFragment = graphql`
           fragment RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment on Comment {
             id
             actor {
               name @__clientField(handle: "name_handler")
             }
           }
-        `);
-        commentQuery = getRequest(graphql`
+        `;
+        commentQuery = graphql`
           query RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentQuery(
             $id: ID!
           ) {
@@ -90,10 +90,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               ...RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment
             }
           }
-        `);
+        `;
         variables = {
           input: {
-            clientMutationId: '0',
             feedbackId: '1',
           },
         };

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a22b4dd1b04f731d91f6daf85c6d5ebd>>
+ * @generated SignedSource<<7414a7d21db69b967b49c36af99ace12>>
  */
 
 mod extract;
@@ -80,4 +80,11 @@ fn template_literal() {
     let input = include_str!("extract/fixtures/template_literal.js");
     let expected = include_str!("extract/fixtures/template_literal.expected");
     test_fixture(transform_fixture, "template_literal.js", "extract/fixtures/template_literal.expected", input, expected);
+}
+
+#[test]
+fn with_space() {
+    let input = include_str!("extract/fixtures/with_space.js");
+    let expected = include_str!("extract/fixtures/with_space.expected");
+    test_fixture(transform_fixture, "with_space.js", "extract/fixtures/with_space.expected", input, expected);
 }

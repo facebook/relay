@@ -90,6 +90,7 @@ function getQueryResultOrFetchQuery_REACT_CACHE(
   );
 
   let entry = cache.get(cacheKey);
+
   if (entry === undefined) {
     // Initiate a query to fetch the data if needed:
     entry = onCacheMiss(
@@ -169,17 +170,32 @@ function onCacheMiss(
     }
   }
 
-  const promise = shouldFetch
-    ? executeOperationAndKeepUpToDate(environment, operation, updateCache)
-    : undefined;
-  if (shouldRenderNow) {
-    return {status: 'resolved', result: constructQueryResult(operation)};
+  let cacheEntry;
+  if (shouldFetch) {
+    cacheEntry = executeOperationAndKeepUpToDate(
+      environment,
+      operation,
+      updateCache,
+    );
+  }
+
+  if (cacheEntry) {
+    switch (cacheEntry.status) {
+      case 'resolved':
+        return cacheEntry;
+      case 'rejected':
+        return cacheEntry;
+      case 'pending':
+        return shouldRenderNow
+          ? {status: 'resolved', result: constructQueryResult(operation)}
+          : cacheEntry;
+    }
   } else {
     invariant(
-      promise,
-      'Should either fetch or render (or both), otherwise we would suspend forever.',
+      shouldRenderNow,
+      'Should either fetch or be willing to render. This is a bug in Relay.',
     );
-    return {status: 'pending', promise: promise};
+    return {status: 'resolved', result: constructQueryResult(operation)};
   }
 }
 
@@ -187,7 +203,7 @@ function executeOperationAndKeepUpToDate(
   environment: IEnvironment,
   operation: OperationDescriptor,
   updateCache: QueryCacheEntry => void,
-): Promise<void> {
+): QueryCacheEntry {
   let resolvePromise;
   const promise = new Promise(r => {
     resolvePromise = r;
@@ -196,6 +212,7 @@ function executeOperationAndKeepUpToDate(
   promise.displayName = 'Relay(' + operation.request.node.operation.name + ')';
 
   let isFirstPayload = true;
+  let entry;
 
   // FIXME We may still need to cancel network requests for live queries.
   const fetchObservable = fetchQueryInternal(environment, operation);
@@ -203,7 +220,8 @@ function executeOperationAndKeepUpToDate(
     start: subscription => {},
     error: error => {
       if (isFirstPayload) {
-        updateCache({status: 'rejected', error});
+        entry = {status: 'rejected', error};
+        updateCache(entry);
       } else {
         // TODO:T92030819 Remove this warning and actually throw the network error
         // To complete this task we need to have a way of precisely tracking suspendable points
@@ -220,24 +238,27 @@ function executeOperationAndKeepUpToDate(
     },
     next: response => {
       // Stop suspending on the first payload because of streaming, defer, etc.
-      updateCache({
+      entry = {
         status: 'resolved',
         result: constructQueryResult(operation),
-      });
+      };
+      updateCache(entry);
       resolvePromise();
       isFirstPayload = false;
     },
     complete: () => {
-      updateCache({
+      // FIXME I don't think we need to do anything further on complete.
+      entry = {
         status: 'resolved',
         result: constructQueryResult(operation),
-      });
+      };
+      updateCache(entry);
       resolvePromise();
       isFirstPayload = false;
     },
   });
 
-  return promise;
+  return entry ?? {status: 'pending', promise};
 }
 
 module.exports = getQueryResultOrFetchQuery_REACT_CACHE;

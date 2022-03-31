@@ -15,7 +15,7 @@
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -47,7 +47,7 @@ describe('execute()', () => {
   let queryVariables;
 
   beforeEach(() => {
-    CommentCreateSubscription = getRequest(graphql`
+    CommentCreateSubscription = graphql`
       subscription RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription(
         $input: CommentCreateSubscriptionInput!
       ) {
@@ -60,16 +60,16 @@ describe('execute()', () => {
           }
         }
       }
-    `);
-    CommentFragment = getFragment(graphql`
+    `;
+    CommentFragment = graphql`
       fragment RelayModernEnvironmentExecuteSubscriptionTestCommentFragment on Comment {
         id
         body {
           text
         }
       }
-    `);
-    CommentQuery = getRequest(graphql`
+    `;
+    CommentQuery = graphql`
       query RelayModernEnvironmentExecuteSubscriptionTestCommentQuery(
         $id: ID!
       ) {
@@ -78,10 +78,9 @@ describe('execute()', () => {
           ...RelayModernEnvironmentExecuteSubscriptionTestCommentFragment
         }
       }
-    `);
+    `;
     variables = {
       input: {
-        clientMutationId: '0',
         feedbackId: '1',
       },
     };

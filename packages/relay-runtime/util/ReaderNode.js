@@ -111,7 +111,8 @@ export type ReaderClientExtension = {|
 export type ReaderField =
   | ReaderScalarField
   | ReaderLinkedField
-  | ReaderRelayResolver;
+  | ReaderRelayResolver
+  | ReaderRelayLiveResolver;
 
 export type ReaderRootArgument = {|
   +kind: 'RootArgument',
@@ -224,10 +225,7 @@ export type ReaderRelayResolver = {|
   +alias: ?string,
   +name: string,
   +fragment: ReaderFragmentSpread,
-  // This field is optional for now as we rollout the compiler change
-  // Once the new version of the compiler has been rolled out, this
-  // will become: `path: string`.
-  +path?: string,
+  +path: string,
   +resolverModule: (rootKey: {
     +$data?: any, // flowlint-line unclear-type:off
     +$fragmentSpreads: any, // flowlint-line unclear-type:off
@@ -236,8 +234,29 @@ export type ReaderRelayResolver = {|
   }) => mixed,
 |};
 
-export type ReaderClientEdge = {|
-  +kind: 'ClientEdge',
+export type ReaderRelayLiveResolver = {|
+  +kind: 'RelayLiveResolver',
+  +alias: ?string,
+  +name: string,
+  +fragment: ReaderFragmentSpread,
+  +path: string,
+  +resolverModule: (rootKey: {
+    +$data?: any, // flowlint-line unclear-type:off
+    +$fragmentSpreads: any, // flowlint-line unclear-type:off
+    +$fragmentRefs: any, // flowlint-line unclear-type:off
+    ...
+  }) => mixed,
+|};
+
+export type ReaderClientEdgeToClientObject = {|
+  +kind: 'ClientEdgeToClientObject',
+  +concreteType: string,
+  +linkedField: ReaderLinkedField,
+  +backingField: ReaderRelayResolver | ReaderClientExtension,
+|};
+
+export type ReaderClientEdgeToServerObject = {|
+  +kind: 'ClientEdgeToServerObject',
   +linkedField: ReaderLinkedField,
   +operation: ConcreteRequest,
   +backingField: ReaderRelayResolver | ReaderClientExtension,
@@ -245,7 +264,8 @@ export type ReaderClientEdge = {|
 
 export type ReaderSelection =
   | ReaderCondition
-  | ReaderClientEdge
+  | ReaderClientEdgeToClientObject
+  | ReaderClientEdgeToServerObject
   | ReaderClientExtension
   | ReaderDefer
   | ReaderField

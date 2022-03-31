@@ -197,6 +197,28 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 );
             });
 
+        // Validate that the fragment spread does not try to pass in provided variables
+        for (original_definition_name, definition_location) in
+            fragment.used_global_variables.iter().filter_map(|def| {
+                Some((
+                    ProvidedVariableMetadata::find(&def.directives)?.original_variable_name,
+                    def.name.location,
+                ))
+            })
+        {
+            if let Some(invalid_argument) = spread.arguments.named(original_definition_name) {
+                self.errors.push(
+                    Diagnostic::error(
+                        ValidationMessage::ProvidedVariableIncompatibleWithArguments {
+                            original_definition_name,
+                        },
+                        invalid_argument.name.location,
+                    )
+                    .annotate("Provided variable defined here", definition_location),
+                );
+            }
+        }
+
         if self.is_normalization {
             if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
                 self.transform_no_inline_fragment(fragment, directive);
@@ -601,4 +623,8 @@ fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
 enum ValidationMessage {
     #[error("Found a circular reference from fragment '{fragment_name}'.")]
     CircularFragmentReference { fragment_name: StringKey },
+    #[error(
+        "Passing a value to '{original_definition_name}' (a provided variable) through @arguments is not supported."
+    )]
+    ProvidedVariableIncompatibleWithArguments { original_definition_name: StringKey },
 }

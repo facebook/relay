@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<877353425a8ffe182ea0c3410a813fef>>
+ * @generated SignedSource<<a8683cd43eb5be1d892867261a8d0e64>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -30,9 +30,9 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
         name: ?string,
       |},
       set client_best_friend(value: ?{
-        +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
         +__typename: "User",
         +__id: string,
+        +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
         ...
       }): void,
     |},
@@ -43,9 +43,9 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
     set author2(value: null | void): void,
   |},
   set me(value: ?{
-    +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
     +__typename: "User",
     +__id: string,
+    +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
     ...
   }): void,
   get node(): ?({|
@@ -68,9 +68,9 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
       set parents(value: []): void,
     |}>,
     set parents(value: $ReadOnlyArray<{
-      +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
       +__typename: "User",
       +__id: string,
+      +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_user$fragmentType,
       ...
     }>): void,
   |} | {|
@@ -83,15 +83,15 @@ export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
     +id: string,
   |},
   set node3(value: ?{
-    +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_node$fragmentType,
-    +__isreadUpdatableQueryEXPERIMENTALTest_node: string,
     +__id: string,
+    +__isreadUpdatableQueryEXPERIMENTALTest_node: string,
+    +$fragmentSpreads: readUpdatableQueryEXPERIMENTALTest_node$fragmentType,
     ...
   }): void,
 |};
 export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery = {|
-  variables: readUpdatableQueryEXPERIMENTALTestUpdatableQuery$variables,
   response: readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data,
+  variables: readUpdatableQueryEXPERIMENTALTestUpdatableQuery$variables,
 |};
 */
 

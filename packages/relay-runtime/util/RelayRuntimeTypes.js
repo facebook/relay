@@ -44,14 +44,6 @@ export type OperationType = {|
   +rawResponse?: {...},
 |};
 
-/**
- * Generated updatable query flow types are subtypes of this.
- */
-export type UpdatableQueryType = {|
-  +variables: Variables,
-  +response: mixed,
-|};
-
 export type VariablesOf<T: OperationType> = T['variables'];
 
 /**
@@ -102,6 +94,14 @@ declare export opaque type UpdatableQuery<
   -TVariables: Variables,
   +TData,
 >: ConcreteUpdatableQuery;
+
+/**
+ * Return type of graphql tag literals for updatable fragments.
+ */
+declare export opaque type UpdatableFragment<
+  TFragmentType,
+  +TData,
+>: ReaderFragment;
 
 /**
  * Return type of graphql tag literals for queries.

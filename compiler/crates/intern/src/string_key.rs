@@ -19,7 +19,6 @@ use std::{
 
 // StringKey is a small impedence matcher around StringId.
 // NOTE in particular that it does NOT do de-duplicating serde.
-// and that its ordering is arbitrary (rather than string order).
 #[derive(Copy, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 #[repr(transparent)]
 pub struct StringKey(StringId);

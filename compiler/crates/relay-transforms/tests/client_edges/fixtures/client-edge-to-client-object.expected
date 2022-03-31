@@ -1,0 +1,46 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  best_friend {
+    id
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+type ClientOnlyType implements Node {
+  id: ID!
+}
+
+extend type User {
+  best_friend: ClientOnlyType @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+}
+==================================== OUTPUT ===================================
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+fragment Foo_user on User {
+  ... @__ClientEdgeMetadataDirective
+  # ClientObject {
+  #     type_name: "ClientOnlyType",
+  # }
+   {
+    ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
+    # RelayResolverSpreadMetadata {
+    #     field_parent_type: "User",
+    #     import_path: "BestFriendResolver",
+    #     field_name: "best_friend",
+    #     field_alias: None,
+    #     field_path: "best_friend",
+    #     live: false,
+    # }
+    
+    best_friend {
+      id
+    }
+  }
+}

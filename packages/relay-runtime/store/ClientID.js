@@ -47,8 +47,18 @@ function generateUniqueClientID(): DataID {
   return `${PREFIX}local:${localID++}`;
 }
 
+// Client objects backed by Relay Resolvers may not be able to provide a
+// globally unique ID, so we provide a namespace.
+function generateClientObjectClientID(
+  typename: string,
+  localId: string,
+): DataID {
+  return `${PREFIX}${typename}:${localId}`;
+}
+
 module.exports = {
   generateClientID,
+  generateClientObjectClientID,
   generateUniqueClientID,
   isClientID,
 };

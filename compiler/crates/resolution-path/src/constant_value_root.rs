@@ -70,7 +70,7 @@ pub enum ConstantValueRoot<'a> {
 
 #[cfg(test)]
 mod test {
-    use crate::resolution_path::test::test_resolution;
+    use crate::test::test_resolution;
 
     use super::*;
 

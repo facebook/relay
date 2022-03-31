@@ -28,14 +28,14 @@ export type relayResolver_Query$data = {|
 |};
 export type relayResolver_Query$rawResponse = {|
   +me: ?{|
-    +name: ?string,
     +id: string,
+    +name: ?string,
   |},
 |};
 export type relayResolver_Query = {|
-  variables: relayResolver_Query$variables,
-  response: relayResolver_Query$data,
   rawResponse: relayResolver_Query$rawResponse,
+  response: relayResolver_Query$data,
+  variables: relayResolver_Query$variables,
 |};
 -------------------------------------------------------------------------------
 import type { FragmentType } from "relay-runtime";

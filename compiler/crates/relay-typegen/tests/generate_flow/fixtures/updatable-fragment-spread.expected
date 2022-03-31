@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+query updatableFragmentSpreadQuery {
+	me {
+		...updatableFragmentSpread_updatable_user
+	}
+}
+
+fragment updatableFragmentSpread_updatable_user on User @updatable {
+	firstName
+}
+==================================== OUTPUT ===================================
+import type { updatableFragmentSpread_updatable_user$fragmentType } from "updatableFragmentSpread_updatable_user.graphql";
+export type updatableFragmentSpreadQuery$variables = {||};
+export type updatableFragmentSpreadQuery$data = {|
+  +me: ?{|
+    +$updatableFragmentSpreads: updatableFragmentSpread_updatable_user$fragmentType,
+  |},
+|};
+export type updatableFragmentSpreadQuery = {|
+  response: updatableFragmentSpreadQuery$data,
+  variables: updatableFragmentSpreadQuery$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type updatableFragmentSpread_updatable_user$fragmentType: FragmentType;
+export type updatableFragmentSpread_updatable_user$data = {|
+  firstName: ?string,
+  +$fragmentType: updatableFragmentSpread_updatable_user$fragmentType,
+|};
+export type updatableFragmentSpread_updatable_user$key = {
+  +$data?: updatableFragmentSpread_updatable_user$data,
+  +$fragmentSpreads: updatableFragmentSpread_updatable_user$fragmentType,
+  ...
+};

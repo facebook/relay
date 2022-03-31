@@ -20,7 +20,7 @@ import type {
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -48,7 +48,7 @@ describe('execute() with network that returns optimistic response', () => {
   let variables;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery(
         $fetchSize: Boolean!
       ) {
@@ -59,7 +59,7 @@ describe('execute() with network that returns optimistic response', () => {
           }
         }
       }
-    `);
+    `;
     variables = {fetchSize: false};
     operation = createOperationDescriptor(query, {
       ...variables,
@@ -351,14 +351,14 @@ describe('execute() with network that returns optimistic response', () => {
   });
 
   it('does fill missing fields from server-sent optimistic response with nulls when treatMissingFieldsAsNull is enabled', () => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query {
         me {
           name
           lastName
         }
       }
-    `);
+    `;
     operation = createOperationDescriptor(query, {});
 
     environment = new RelayModernEnvironment({

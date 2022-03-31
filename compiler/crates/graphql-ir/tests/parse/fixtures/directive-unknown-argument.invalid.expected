@@ -2,14 +2,14 @@
 # expected-to-throw
 query TestQuery {
   task(number: 123) {
-    title @include(if: false, extra: true)
+    title @include(if: false, bif: true)
   }
 }
 ==================================== ERROR ====================================
-✖︎ Unknown argument 'extra'
+✖︎ Unknown argument 'bif'. Did you mean `if`?
 
   directive-unknown-argument.invalid.graphql:4:31
     3 │   task(number: 123) {
-    4 │     title @include(if: false, extra: true)
-      │                               ^^^^^
+    4 │     title @include(if: false, bif: true)
+      │                               ^^^
     5 │   }

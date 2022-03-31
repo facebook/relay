@@ -115,7 +115,6 @@ describe('RelayPublishQueue', () => {
 
       const variables = {
         input: {
-          clientMutationId: '0',
           newName: 'zuck',
         },
       };

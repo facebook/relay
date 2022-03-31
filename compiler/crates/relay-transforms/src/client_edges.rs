@@ -5,7 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::refetchable_fragment::{RefetchableFragment, REFETCHABLE_NAME};
+use crate::{
+    refetchable_fragment::{RefetchableFragment, REFETCHABLE_NAME},
+    ValidationMessage,
+};
 use graphql_syntax::OperationKind;
 use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
@@ -17,27 +20,34 @@ use super::ValidationMessageWithData;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
 use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
-    Argument, ConstantValue, Directive, Field, FragmentDefinition, InlineFragment, LinkedField,
-    OperationDefinition, Program, Selection, Transformed, Transformer, Value,
+    associated_data_impl, Argument, ConstantValue, Directive, Field, FragmentDefinition,
+    InlineFragment, LinkedField, OperationDefinition, Program, Selection, Transformed, Transformer,
+    Value,
 };
 use schema::Schema;
 
 lazy_static! {
-    // This gets attached to the client edge field
-    pub static ref CLIENT_EDGE_METADATA_KEY: StringKey = "__clientEdge".intern();
     // This gets attached to the generated query
     pub static ref CLIENT_EDGE_QUERY_METADATA_KEY: StringKey = "__clientEdgeQuery".intern();
     pub static ref QUERY_NAME_ARG: StringKey = "queryName".intern();
+    pub static ref TYPE_NAME_ARG: StringKey = "typeName".intern();
     pub static ref CLIENT_EDGE_SOURCE_NAME: StringKey = "clientEdgeSourceDocument".intern();
     // This gets attached to fragment which defines the selection in the generated query
     pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: StringKey = "__clientEdgeGeneratedFragment".intern();
     pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: StringKey = "waterfall".intern();
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub enum ClientEdgeMetadataDirective {
+    ServerObject { query_name: StringKey },
+    ClientObject { type_name: StringKey },
+}
+associated_data_impl!(ClientEdgeMetadataDirective);
+
 pub struct ClientEdgeMetadata<'a> {
     pub backing_field: &'a Selection,
     pub selections: &'a Selection,
-    pub query_name: StringKey,
+    pub metadata_directive: ClientEdgeMetadataDirective,
 }
 
 // Client edges consists of two parts:
@@ -55,31 +65,19 @@ pub struct ClientEdgeMetadata<'a> {
 // structured metadata, if present.
 impl<'a> ClientEdgeMetadata<'a> {
     pub fn find(fragment: &'a InlineFragment) -> Option<Self> {
-        fragment
-            .directives
-            .named(*CLIENT_EDGE_METADATA_KEY)
-            .map(|directive| {
-                let query_name = directive
-                    .arguments
-                    .named(*QUERY_NAME_ARG)
-                    .expect("Client Edge metadata should have a query name")
-                    .value
-                    .item
-                    .get_string_literal()
-                    .expect("queryName is a string literal");
-
-                ClientEdgeMetadata {
-                    query_name,
-                    backing_field: fragment
-                        .selections
-                        .get(0)
-                        .expect("Client Edge inline fragments have exactly two selections"),
-                    selections: fragment
-                        .selections
-                        .get(1)
-                        .expect("Client Edge inline fragments have exactly two selections"),
-                }
-            })
+        ClientEdgeMetadataDirective::find(&fragment.directives).map(|metadata_directive| {
+            ClientEdgeMetadata {
+                metadata_directive: metadata_directive.clone(),
+                backing_field: fragment
+                    .selections
+                    .get(0)
+                    .expect("Client Edge inline fragments have exactly two selections"),
+                selections: fragment
+                    .selections
+                    .get(1)
+                    .expect("Client Edge inline fragments have exactly two selections"),
+            }
+        })
     }
 }
 pub fn client_edges(program: &Program, schema_config: &SchemaConfig) -> DiagnosticsResult<Program> {
@@ -215,52 +213,97 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
     }
 
     fn transform_linked_field_impl(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        let field_type = self.program.schema.field(field.definition.item);
+        let schema = &self.program.schema;
+        let field_type = schema.field(field.definition.item);
+
         // Eventually we will want to enable client edges on non-resolver client
         // schema extensions, but we'll start with limiting them to resolvers.
-        if !field_type.is_extension
-            || field_type
-                .directives
-                .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
-                .is_none()
-        {
-            if let Some(directive) = field
-                .directives()
-                .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
-            {
+        let is_resolver = field_type
+            .directives
+            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+            .is_some();
+
+        let is_client_edge = field_type.is_extension && is_resolver;
+
+        let waterfall_directive = field
+            .directives()
+            .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME);
+
+        if !is_client_edge {
+            // Non-Client-Edge fields do not incur a waterfall, and thus should
+            // not be annotated with @waterfall.
+            if let Some(directive) = waterfall_directive {
                 self.errors.push(Diagnostic::error_with_data(
                     ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
                     directive.name.location,
                 ));
             }
             return self.default_transform_linked_field(field);
-        };
-
-        if field
-            .directives()
-            .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
-            .is_none()
-        {
-            let field_definition = self.program.schema.field(field.definition().item);
-            self.errors.push(Diagnostic::error_with_data(
-                ValidationMessageWithData::RelayResolversMissingWaterfall {
-                    field_name: field_definition.name.item,
-                },
-                field.definition.location,
-            ));
         }
+
+        let edge_to_type = field_type.type_.inner();
+
+        let is_edge_to_client_object = schema.is_extension_type(edge_to_type);
 
         let new_selections = self
             .transform_selections(&field.selections)
             .replace_or_else(|| field.selections.clone());
 
-        let client_edge_query_name = self.generate_query_name();
+        let metadata_directive = if is_edge_to_client_object {
+            // We assume edges to client objects will be resolved on the client
+            // and thus not incur a waterfall. This will change in the furture
+            // for @live Resolvers that can trigger suspense.
+            if let Some(directive) = waterfall_directive {
+                self.errors.push(Diagnostic::error_with_data(
+                    ValidationMessageWithData::RelayResolversUnexpectedWaterfall,
+                    directive.name.location,
+                ));
+            }
+            match edge_to_type {
+                Type::Interface(_) => {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::ClientEdgeToClientInterface,
+                        field.alias_or_name_location(),
+                    ));
+                    return self.default_transform_linked_field(field);
+                }
+                Type::Union(_) => {
+                    self.errors.push(Diagnostic::error(
+                        ValidationMessage::ClientEdgeToClientUnion,
+                        field.alias_or_name_location(),
+                    ));
+                    return Transformed::Keep;
+                }
+                Type::Object(object_id) => ClientEdgeMetadataDirective::ClientObject {
+                    type_name: schema.object(object_id).name.item,
+                },
+                _ => {
+                    panic!(
+                        "Expected a linked field to reference either an Object, Interface, or Union"
+                    )
+                }
+            }
+        } else {
+            // Client Edges to server objects must be annotated with @waterfall
+            if waterfall_directive.is_none() {
+                self.errors.push(Diagnostic::error_with_data(
+                    ValidationMessageWithData::RelayResolversMissingWaterfall {
+                        field_name: field_type.name.item,
+                    },
+                    field.definition.location,
+                ));
+            }
+            let client_edge_query_name = self.generate_query_name();
 
-        self.generate_client_edge_query(
-            client_edge_query_name,
-            field_type.type_.inner(),
-            new_selections.clone(),
-        );
+            self.generate_client_edge_query(
+                client_edge_query_name,
+                field_type.type_.inner(),
+                new_selections.clone(),
+            );
+            ClientEdgeMetadataDirective::ServerObject {
+                query_name: client_edge_query_name,
+            }
+        };
 
         let transformed_field = Arc::new(LinkedField {
             selections: new_selections,
@@ -269,16 +312,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
         let inline_fragment = InlineFragment {
             type_condition: None,
-            directives: vec![Directive {
-                name: WithLocation::generated(*CLIENT_EDGE_METADATA_KEY),
-                arguments: vec![Argument {
-                    name: WithLocation::generated(*QUERY_NAME_ARG),
-                    value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                        client_edge_query_name,
-                    ))),
-                }],
-                data: None,
-            }],
+            directives: vec![metadata_directive.into()],
             selections: vec![
                 Selection::LinkedField(transformed_field.clone()),
                 Selection::LinkedField(transformed_field),

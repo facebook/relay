@@ -7,15 +7,14 @@
 
 use crate::{
     diagnostic_reporter::{get_diagnostics_data, DiagnosticReporter},
+    docblock_resolution_info::create_docblock_resolution_info,
     graphql_tools::get_query_text,
     js_language_server::JSLanguageServer,
     lsp_runtime_error::LSPRuntimeResult,
-    node_resolution_info::{create_node_resolution_info, NodeResolutionInfo},
-    utils::extract_project_name_from_url,
-    utils::{
-        extract_executable_definitions_from_text_document, extract_executable_document_from_text,
-    },
-    ContentConsumerType,
+    node_resolution_info::create_node_resolution_info,
+    utils::extract_executable_definitions_from_text_document,
+    utils::{extract_feature_from_text, extract_project_name_from_url},
+    ContentConsumerType, Feature, FeatureResolutionInfo,
 };
 use crate::{LSPExtraDataProvider, LSPRuntimeError};
 use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span, TextSource};
@@ -66,7 +65,7 @@ pub trait GlobalState {
     fn resolve_node(
         &self,
         text_document_position: &TextDocumentPositionParams,
-    ) -> LSPRuntimeResult<NodeResolutionInfo>;
+    ) -> LSPRuntimeResult<FeatureResolutionInfo>;
 
     fn root_dir(&self) -> PathBuf;
 
@@ -75,6 +74,12 @@ pub trait GlobalState {
         position: &TextDocumentPositionParams,
         index_offset: usize,
     ) -> LSPRuntimeResult<(ExecutableDocument, Span)>;
+
+    fn extract_feature_from_text(
+        &self,
+        position: &TextDocumentPositionParams,
+        index_offset: usize,
+    ) -> LSPRuntimeResult<(Feature, Span)>;
 
     fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation;
 
@@ -375,9 +380,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn resolve_node(
         &self,
         text_document_position: &TextDocumentPositionParams,
-    ) -> LSPRuntimeResult<NodeResolutionInfo> {
-        let (document, position_span) = extract_executable_document_from_text(
-            &self.synced_javascript_features,
+    ) -> LSPRuntimeResult<FeatureResolutionInfo> {
+        let (feature, position_span) = self.extract_feature_from_text(
             text_document_position,
             // For hovering, offset the index by 1
             // ```
@@ -389,19 +393,39 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             1,
         )?;
 
-        create_node_resolution_info(document, position_span)
+        let info = match feature {
+            Feature::GraphQLDocument(executable_document) => FeatureResolutionInfo::GraphqlNode(
+                create_node_resolution_info(executable_document, position_span)?,
+            ),
+            Feature::DocblockIr(docblock_ir) => FeatureResolutionInfo::DocblockNode(
+                create_docblock_resolution_info(docblock_ir, position_span)?,
+            ),
+        };
+        Ok(info)
     }
 
+    /// Return a parsed executable document for this LSP request, only if the request occurs
+    /// within a GraphQL document.
     fn extract_executable_document_from_text(
         &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
     ) -> LSPRuntimeResult<(ExecutableDocument, Span)> {
-        extract_executable_document_from_text(
-            &self.synced_javascript_features,
-            position,
-            index_offset,
-        )
+        let (feature, span) = self.extract_feature_from_text(position, index_offset)?;
+        match feature {
+            Feature::GraphQLDocument(document) => Ok((document, span)),
+            Feature::DocblockIr(_) => Err(LSPRuntimeError::ExpectedError),
+        }
+    }
+
+    /// Return a parsed executable document, or parsed Docblock IR for this LSP
+    /// request, only if the request occurs within a GraphQL document or Docblock.
+    fn extract_feature_from_text(
+        &self,
+        position: &TextDocumentPositionParams,
+        index_offset: usize,
+    ) -> LSPRuntimeResult<(Feature, Span)> {
+        extract_feature_from_text(&self.synced_javascript_features, position, index_offset)
     }
 
     fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation {

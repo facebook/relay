@@ -18,10 +18,12 @@ mod generate_artifacts;
 pub mod generate_extra_artifacts;
 mod log_program_stats;
 mod persist_operations;
+mod project_asts;
 mod source_control;
 mod validate;
 
 use self::log_program_stats::print_stats;
+pub use self::project_asts::{get_project_asts, ProjectAstData, ProjectAsts};
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;
@@ -70,25 +72,24 @@ impl From<BuildProjectError> for BuildProjectFailure {
 pub fn build_raw_program(
     project_config: &ProjectConfig,
     implicit_dependencies: &DependencyMap,
-    graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
+    project_asts: ProjectAsts,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     is_incremental_build: bool,
-) -> Result<(Program, StringKeySet, SourceHashes), BuildProjectError> {
+) -> Result<(Program, SourceHashes), BuildProjectError> {
     // Build a type aware IR.
-    let BuildIRResult {
-        ir,
-        base_fragment_names,
-        source_hashes,
-    } = log_event.time("build_ir_time", || {
+    let BuildIRResult { ir, source_hashes } = log_event.time("build_ir_time", || {
         build_ir::build_ir(
             project_config,
             implicit_dependencies,
+            project_asts,
             &schema,
-            graphql_asts,
             is_incremental_build,
         )
-        .map_err(|errors| BuildProjectError::ValidationErrors { errors })
+        .map_err(|errors| BuildProjectError::ValidationErrors {
+            errors,
+            project_name: project_config.name,
+        })
     })?;
 
     // Turn the IR into a base Program.
@@ -96,7 +97,7 @@ pub fn build_raw_program(
         Program::from_definitions(schema, ir)
     });
 
-    Ok((program, base_fragment_names, source_hashes))
+    Ok((program, source_hashes))
 }
 
 pub fn validate_program(
@@ -107,8 +108,13 @@ pub fn validate_program(
 ) -> Result<(), BuildProjectError> {
     let timer = log_event.start("validate_time");
     log_event.number("validate_documents_count", program.document_count());
-    let result = validate(program, project_config, &config.additional_validations)
-        .map_err(|errors| BuildProjectError::ValidationErrors { errors });
+    let result =
+        validate(program, project_config, &config.additional_validations).map_err(|errors| {
+            BuildProjectError::ValidationErrors {
+                errors,
+                project_name: project_config.name,
+            }
+        });
 
     log_event.stop(timer);
 
@@ -133,7 +139,12 @@ pub fn transform_program(
         Some(print_stats),
         custom_transforms_config,
     )
-    .map_err(|errors| BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors }));
+    .map_err(|errors| {
+        BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+            errors,
+            project_name: project_config.name,
+        })
+    });
 
     log_event.stop(timer);
 
@@ -144,7 +155,8 @@ pub fn build_programs(
     config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
-    graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
+    project_asts: ProjectAsts,
+    base_fragment_names: StringKeySet,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     perf_logger: Arc<impl PerfLogger + 'static>,
@@ -158,10 +170,10 @@ pub fn build_programs(
             true
         };
 
-    let (program, base_fragment_names, source_hashes) = build_raw_program(
+    let (program, source_hashes) = build_raw_program(
         project_config,
         &compiler_state.implicit_dependencies.read().unwrap(),
-        graphql_asts,
+        project_asts,
         schema,
         log_event,
         is_incremental_build,
@@ -215,13 +227,21 @@ pub fn build_project(
     log_event.string("project", project_name.to_string());
     info!("[{}] compiling...", project_name);
 
+    let ProjectAstData {
+        project_asts,
+        base_fragment_names,
+    } = get_project_asts(graphql_asts, project_config)?;
+
     // Construct a schema instance including project specific extensions.
     let schema = log_event
         .time("build_schema_time", || {
             build_schema(compiler_state, project_config)
         })
         .map_err(|errors| {
-            BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
+            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                errors,
+                project_name: project_config.name,
+            })
         })?;
 
     if compiler_state.should_cancel_current_build() {
@@ -234,7 +254,8 @@ pub fn build_project(
         config,
         project_config,
         compiler_state,
-        graphql_asts,
+        project_asts,
+        base_fragment_names,
         Arc::clone(&schema),
         &log_event,
         Arc::clone(&perf_logger),

@@ -20,7 +20,6 @@ type Foo {
 }
 ==================================== OUTPUT ===================================
 export type UpdateAllSeenStateInput = {|
-  clientMutationId?: ?string,
   storyIds?: ?$ReadOnlyArray<?string>,
 |};
 export type Test$variables = {|
@@ -38,15 +37,15 @@ export type Test$data = {|
 export type Test$rawResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
-      +id: string,
       +foos?: ?$ReadOnlyArray<?{|
         +bar: ?string,
       |}>,
+      +id: string,
     |}>,
   |},
 |};
 export type Test = {|
-  variables: Test$variables,
-  response: Test$data,
   rawResponse: Test$rawResponse,
+  response: Test$data,
+  variables: Test$variables,
 |};

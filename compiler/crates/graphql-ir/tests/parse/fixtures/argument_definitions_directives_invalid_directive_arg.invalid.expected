@@ -12,7 +12,7 @@ fragment InvalidArgumentDirectives on User
   __typename
 }
 ==================================== ERROR ====================================
-✖︎ Unknown argument 'arg_does_not_exist'
+✖︎ Unknown argument 'arg_does_not_exist'.
 
   argument_definitions_directives_invalid_directive_arg.invalid.graphql:8:18
     7 │     type: "ID"

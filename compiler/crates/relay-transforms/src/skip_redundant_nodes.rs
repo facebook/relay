@@ -439,9 +439,7 @@ impl<'s> SkipRedundantNodesTransform {
  */
 fn get_partitioned_selections(selections: &[Selection]) -> Vec<&Selection> {
     let mut result = Vec::with_capacity(selections.len());
-    unsafe {
-        result.set_len(selections.len())
-    };
+    unsafe { result.set_len(selections.len()) };
     let mut non_field_index = selections
         .iter()
         .filter(|sel| is_selection_linked_or_scalar(sel))

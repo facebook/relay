@@ -13,7 +13,7 @@
 
 'use strict';
 
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -29,34 +29,34 @@ describe('RelayOperationTracker', () => {
   let MutationOperation2;
   beforeEach(() => {
     tracker = new RelayOperationTracker();
-    const Query1 = getRequest(graphql`
+    const Query1 = graphql`
       query RelayOperationTrackerTest1Query($id: ID) {
         node(id: $id) {
           id
         }
       }
-    `);
-    const Query2 = getRequest(graphql`
+    `;
+    const Query2 = graphql`
       query RelayOperationTrackerTest2Query($id: ID) {
         node(id: $id) {
           __typename
         }
       }
-    `);
-    const Mutation1 = getRequest(graphql`
+    `;
+    const Mutation1 = graphql`
       mutation RelayOperationTrackerTest1Mutation($input: CommentCreateInput) {
         commentCreate(input: $input) {
           __typename
         }
       }
-    `);
-    const Mutation2 = getRequest(graphql`
+    `;
+    const Mutation2 = graphql`
       mutation RelayOperationTrackerTest2Mutation($input: CommentDeleteInput) {
         commentDelete(input: $input) {
           __typename
         }
       }
-    `);
+    `;
 
     QueryOperation1 = createOperationDescriptor(Query1, {id: '1'}).request;
     QueryOperation2 = createOperationDescriptor(Query2, {id: '2'}).request;

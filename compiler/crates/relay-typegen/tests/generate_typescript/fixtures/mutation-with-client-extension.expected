@@ -20,7 +20,6 @@ type Foo {
 }
 ==================================== OUTPUT ===================================
 export type UpdateAllSeenStateInput = {
-  clientMutationId?: string | null;
   storyIds?: ReadonlyArray<string | null> | null;
 };
 export type Test$variables = {
@@ -38,15 +37,15 @@ export type Test$data = {
 export type Test$rawResponse = {
   readonly viewerNotificationsUpdateAllSeenState: {
     readonly stories: ReadonlyArray<{
-      readonly id: string;
       readonly foos?: ReadonlyArray<{
         readonly bar: string | null;
       } | null> | null;
+      readonly id: string;
     } | null> | null;
   } | null;
 };
 export type Test = {
-  variables: Test$variables;
-  response: Test$data;
   rawResponse: Test$rawResponse;
+  response: Test$data;
+  variables: Test$variables;
 };

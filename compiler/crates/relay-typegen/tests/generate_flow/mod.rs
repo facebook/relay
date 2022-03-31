@@ -14,10 +14,10 @@ use graphql_test_helpers::diagnostics_to_sorted_string;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use relay_codegen::JsModuleFormat;
-use relay_config::{FlowTypegenConfig, ProjectConfig};
+use relay_config::ProjectConfig;
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::apply_transforms;
-use relay_typegen::{self, FlowTypegenPhase, TypegenConfig, TypegenLanguage};
+use relay_typegen::{self, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
@@ -67,10 +67,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         typegen_config: TypegenConfig {
             language: TypegenLanguage::Flow,
             custom_scalar_types,
-            flow_typegen: FlowTypegenConfig {
-                phase: FlowTypegenPhase::Final,
-                ..Default::default()
-            },
             ..Default::default()
         },
         ..Default::default()

@@ -25,7 +25,7 @@ import type {
 const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -56,7 +56,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   let variables;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery(
         $enableStream: Boolean!
         $after: ID
@@ -65,9 +65,9 @@ describe('execute() fetches a @stream-ed @connection', () => {
           ...RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment
         }
       }
-    `);
+    `;
 
-    feedFragment = getFragment(graphql`
+    feedFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment on Viewer {
         newsFeed(first: 10, after: $after)
           @stream_connection(
@@ -95,7 +95,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
           }
         }
       }
-    `);
+    `;
     variables = {enableStream: true, after: null};
     operation = createOperationDescriptor(query, variables);
     selector = createReaderSelector(

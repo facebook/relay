@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8e1756c0473705244fa2617c4045898c>>
+ * @generated SignedSource<<b5309f5255a2b8f90f0358087d4a50c2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,8 +21,6 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type usePaginationFragmentTestUserFragment$fragmentType: FragmentType;
 type usePaginationFragmentTestUserFragmentPaginationQuery$variables = any;
 export type usePaginationFragmentTestUserFragment$data = {|
-  +id: string,
-  +name: ?string,
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
@@ -32,6 +30,8 @@ export type usePaginationFragmentTestUserFragment$data = {|
       |},
     |}>,
   |},
+  +id: string,
+  +name: ?string,
   +$fragmentType: usePaginationFragmentTestUserFragment$fragmentType,
 |};
 export type usePaginationFragmentTestUserFragment$key = {

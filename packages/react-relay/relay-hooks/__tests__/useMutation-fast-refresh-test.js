@@ -17,7 +17,7 @@ const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useMutation = require('../useMutation');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
 describe('useLazyLoadQueryNode', () => {
@@ -53,7 +53,7 @@ describe('useLazyLoadQueryNode', () => {
 
     environment = createMockEnvironment();
 
-    CommentCreateMutation = getRequest(graphql`
+    CommentCreateMutation = graphql`
       mutation useMutationFastRefreshTestCommentCreateMutation(
         $input: CommentCreateInput
       ) {
@@ -69,7 +69,7 @@ describe('useLazyLoadQueryNode', () => {
           }
         }
       }
-    `);
+    `;
     isInFlightFn = jest.fn(val => val);
   });
 

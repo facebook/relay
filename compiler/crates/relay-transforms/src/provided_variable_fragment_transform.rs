@@ -61,7 +61,6 @@ impl ProvidedVariableDefinitions {
         usages.push(variable_def.name.location);
     }
 
-
     fn get_errors(&self, schema: &SDLSchema, errors: &mut Vec<Diagnostic>) {
         if self.usages_map.len() > 1 {
             // The most frequently used definition is likely the intended one
@@ -122,7 +121,6 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
             in_scope_providers: Default::default(),
         }
     }
-
 
     fn get_errors(&self) -> Vec<Diagnostic> {
         let mut errors = Vec::new();

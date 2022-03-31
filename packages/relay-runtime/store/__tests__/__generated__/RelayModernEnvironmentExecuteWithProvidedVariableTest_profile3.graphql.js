@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c502fe9a1f0cb55e656edf7b6b651f99>>
+ * @generated SignedSource<<d2e9fbfdb5993d43cd0a00a4432d0cbd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -35,7 +35,7 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [
     {
       "kind": "RootArgument",
-      "name": "__relay_internal__pv__RelayProvider_pictureScale"
+      "name": "__relay_internal__pv__RelayProvider_pictureScalerelayprovider"
     }
   ],
   "kind": "Fragment",
@@ -48,7 +48,7 @@ var node/*: ReaderFragment*/ = {
         {
           "kind": "Variable",
           "name": "scale",
-          "variableName": "__relay_internal__pv__RelayProvider_pictureScale"
+          "variableName": "__relay_internal__pv__RelayProvider_pictureScalerelayprovider"
         }
       ],
       "concreteType": "Image",
@@ -72,7 +72,7 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "29eac2c27a8f5ab425403af0bd3ff18c";
+  (node/*: any*/).hash = "6dd8fe168d6f4e9e7e4397902fee83a5";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<

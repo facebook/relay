@@ -21,7 +21,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
@@ -76,7 +76,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       beforeEach(() => {
         markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql');
 
-        subscription = getRequest(graphql`
+        subscription = graphql`
           subscription RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription(
             $input: CommentCreateSubscriptionInput!
           ) {
@@ -94,7 +94,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
         graphql`
           fragment RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name on PlainUserNameRenderer {
@@ -105,7 +105,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           }
         `;
 
-        markdownRendererFragment = getFragment(graphql`
+        markdownRendererFragment = graphql`
           fragment RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             __typename
             markdown
@@ -113,9 +113,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               markup @__clientField(handle: "markup_handler")
             }
           }
-        `);
+        `;
 
-        commentFragment = getFragment(graphql`
+        commentFragment = graphql`
           fragment RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment on Comment {
             id
             actor {
@@ -128,9 +128,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        commentQuery = getRequest(graphql`
+        commentQuery = graphql`
           query RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery(
             $id: ID!
           ) {
@@ -139,10 +139,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               ...RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment
             }
           }
-        `);
+        `;
         variables = {
           input: {
-            clientMutationId: '0',
             feedbackId: '1',
           },
         };

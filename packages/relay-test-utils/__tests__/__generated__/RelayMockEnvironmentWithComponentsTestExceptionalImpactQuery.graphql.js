@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ed2c28df17ba0d0d7f5427f5d0544d22>>
+ * @generated SignedSource<<578a3f9853ce3481092590e188a6b312>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,16 +22,16 @@ export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variabl
 |};
 export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data = {|
   +user: ?{|
-    +id: string,
-    +name: ?string,
     +hometown: ?{|
       +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
     |},
+    +id: string,
+    +name: ?string,
   |},
 |};
 export type RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery = {|
-  variables: RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables,
   response: RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$data,
+  variables: RelayMockEnvironmentWithComponentsTestExceptionalImpactQuery$variables,
 |};
 */
 

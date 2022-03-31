@@ -26,11 +26,16 @@ const {
   ID_KEY,
   __internal: {fetchQuery},
   createOperationDescriptor,
-  getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils');
+const {
+  createMockEnvironment,
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+// TODO: T114709507 Add disallowConsoleErrors() with update to React 18.
 
 const {useMemo, useState} = React;
 
@@ -70,8 +75,10 @@ let environment;
 let disableStoreUpdates;
 let enableStoreUpdates;
 let gqlSingularQuery;
+let gqlSingularMissingDataQuery;
 let gqlSingularFragment;
 let gqlPluralQuery;
+let gqlPluralMissingDataQuery;
 let gqlPluralFragment;
 let singularQuery;
 let pluralQuery;
@@ -129,9 +136,6 @@ function createFragmentRef(id, owner) {
 }
 
 beforeEach(() => {
-  // Set up mocks
-  jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
-  jest.mock('warning');
   jest.mock('scheduler', () => {
     return jest.requireActual('scheduler/unstable_mock');
   });
@@ -146,14 +150,32 @@ beforeEach(() => {
   `;
   singularVariables = {id: '1', scale: 16};
   pluralVariables = {ids: ['1', '2'], scale: 16};
-  gqlSingularQuery = getRequest(graphql`
+  gqlSingularQuery = graphql`
     query useFragmentNodeTestUserQuery($id: ID!, $scale: Float!) {
       node(id: $id) {
         ...useFragmentNodeTestUserFragment
       }
     }
-  `);
-  gqlSingularFragment = getFragment(graphql`
+  `;
+  gqlSingularMissingDataQuery = graphql`
+    query useFragmentNodeTestMissingDataQuery($id: ID!) {
+      node(id: $id) {
+        __typename
+        id
+      }
+    }
+  `;
+
+  gqlPluralMissingDataQuery = graphql`
+    query useFragmentNodeTestMissingDataPluralQuery($ids: [ID!]!) {
+      nodes(ids: $ids) {
+        __typename
+        id
+      }
+    }
+  `;
+
+  gqlSingularFragment = graphql`
     fragment useFragmentNodeTestUserFragment on User {
       id
       name
@@ -162,15 +184,15 @@ beforeEach(() => {
       }
       ...useFragmentNodeTestNestedUserFragment
     }
-  `);
-  gqlPluralQuery = getRequest(graphql`
+  `;
+  gqlPluralQuery = graphql`
     query useFragmentNodeTestUsersQuery($ids: [ID!]!, $scale: Float!) {
       nodes(ids: $ids) {
         ...useFragmentNodeTestUsersFragment
       }
     }
-  `);
-  gqlPluralFragment = getFragment(graphql`
+  `;
+  gqlPluralFragment = graphql`
     fragment useFragmentNodeTestUsersFragment on User @relay(plural: true) {
       id
       name
@@ -179,7 +201,7 @@ beforeEach(() => {
       }
       ...useFragmentNodeTestNestedUserFragment
     }
-  `);
+  `;
   singularQuery = createOperationDescriptor(
     gqlSingularQuery,
     singularVariables,
@@ -420,6 +442,8 @@ it('should update when fragment data changes', () => {
         id: '1',
         // Update name
         name: 'Alice in Wonderland',
+        username: null,
+        profile_picture: null,
       },
     });
   });
@@ -457,6 +481,8 @@ it('should preserve object identity when fragment data changes', () => {
         id: '1',
         // Update name
         name: 'Alice in Wonderland',
+        username: null,
+        profile_picture: null,
       },
     });
   });
@@ -492,6 +518,7 @@ it('should re-read and resubscribe to fragment when environment changes', () => 
       id: '1',
       name: 'Alice in a different env',
       profile_picture: null,
+      username: null,
     },
   });
 
@@ -514,6 +541,8 @@ it('should re-read and resubscribe to fragment when environment changes', () => 
         id: '1',
         // Update name
         name: 'Alice in Wonderland',
+        username: null,
+        profile_picture: null,
       },
     });
   });
@@ -576,6 +605,8 @@ it('should re-read and resubscribe to fragment when fragment pointers change', (
         id: '200',
         // Update name
         name: 'Foo Updated',
+        profile_picture: null,
+        username: 'userfoo',
       },
     });
   });
@@ -640,6 +671,8 @@ it('should render correct data when changing fragment refs multiple times', () =
       id: '1',
       // Update name
       name: 'Alice in Wonderland',
+      username: 'userfoo',
+      profile_picture: null,
     },
   });
 
@@ -667,6 +700,8 @@ it('should render correct data when changing fragment refs multiple times', () =
         id: '1',
         // Update name
         name: 'Alice Updated',
+        username: 'userfoo',
+        profile_picture: null,
       },
     });
   });
@@ -748,6 +783,8 @@ it('should ignore updates to initially rendered data when fragment pointers chan
         __typename: 'User',
         id: '1',
         name: 'Alice in Wonderland',
+        username: 'userfoo',
+        profile_picture: null,
       },
     });
 
@@ -777,6 +814,8 @@ it('should ignore updates to initially rendered data when fragment pointers chan
         id: '200',
         // Update name
         name: 'Foo Updated',
+        username: 'userfoo',
+        profile_picture: null,
       },
     });
     expectSchedulerToFlushAndYield([
@@ -848,6 +887,10 @@ it('should re-read and resubscribe to fragment when variables change', () => {
         id: '1',
         // Update name
         name: 'Alice in Wonderland',
+        profile_picture: {
+          uri: 'uri32',
+        },
+        username: 'useralice',
       },
     });
   });
@@ -936,6 +979,7 @@ it('should ignore updates to initially rendered data when variables change', () 
         profile_picture: {
           uri: 'uri16',
         },
+        username: null,
       },
     });
 
@@ -967,6 +1011,10 @@ it('should ignore updates to initially rendered data when variables change', () 
         id: '1',
         // Update name
         name: 'Alice latest update',
+        profile_picture: {
+          uri: 'uri32',
+        },
+        username: null,
       },
     });
     expectSchedulerToFlushAndYield([
@@ -1056,21 +1104,24 @@ it('should NOT update even if fragment ref changes but doesnt point to a differe
 });
 
 it('should throw a promise if if data is missing for fragment and request is in flight', () => {
-  // This prevents console.error output in the test, which is expected
-  jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-
   const missingDataVariables = {...singularVariables, id: '4'};
   const missingDataQuery = createOperationDescriptor(
     gqlSingularQuery,
     missingDataVariables,
   );
   // Commit a payload with name and profile_picture are missing
-  environment.commitPayload(missingDataQuery, {
-    node: {
-      __typename: 'User',
-      id: '4',
+  environment.commitPayload(
+    createOperationDescriptor(
+      gqlSingularMissingDataQuery,
+      missingDataVariables,
+    ),
+    {
+      node: {
+        __typename: 'User',
+        id: '4',
+      },
     },
-  });
+  );
 
   // Make sure query is in flight
   fetchQuery(environment, missingDataQuery).subscribe({});
@@ -1084,21 +1135,11 @@ it('should warn if fragment reference is non-null but read-out data is null', ()
   // we pass to useFragmentNode points to data that does not exist; we expect
   // an error to be thrown in this case.
   (environment.getStore().getSource(): $FlowFixMe).clear();
-  const warning = require('warning');
-  // $FlowFixMe[prop-missing]
-  warning.mockClear();
 
+  expectWarningWillFire(
+    "Relay: Expected to have been able to read non-null data for fragment `useFragmentNodeTestUserFragment` declared in `TestDisplayName`, since fragment reference was non-null. Make sure that that `TestDisplayName`'s parent isn't holding on to and/or passing a fragment reference for data that has been deleted.",
+  );
   renderSingularFragment();
-  expect(warning).toBeCalledTimes(1);
-  // $FlowFixMe[prop-missing]
-  const [, warningMessage] = warning.mock.calls[0];
-  expect(
-    warningMessage.startsWith(
-      'Relay: Expected to have been able to read non-null data for fragment `%s`',
-    ),
-  ).toEqual(true);
-  // $FlowFixMe[prop-missing]
-  warning.mockClear();
 });
 
 it('should NOT warn if plural fragment reference is non-null and empty', () => {
@@ -1106,18 +1147,10 @@ it('should NOT warn if plural fragment reference is non-null and empty', () => {
   environment.commitPayload(pluralQuery, {
     nodes: [],
   });
-  const warning = require('warning');
-  // $FlowFixMe[prop-missing]
-  warning.mockClear();
-
   // Pass the updated fragment ref
   const usersRef = (environment.lookup(pluralQuery.fragment).data: $FlowFixMe)
     .nodes;
   renderPluralFragment({usersRef});
-  expect(warning).toBeCalledTimes(0);
-
-  // $FlowFixMe[prop-missing]
-  warning.mockClear();
 });
 
 it('should warn if plural fragment reference is non-null but read-out data is null', () => {
@@ -1125,45 +1158,37 @@ it('should warn if plural fragment reference is non-null but read-out data is nu
   // we pass to useFragmentNode points to data that does not exist; we expect
   // an error to be thrown in this case.
   (environment.getStore().getSource(): $FlowFixMe).clear();
-  const warning = require('warning');
-  // $FlowFixMe[prop-missing]
-  warning.mockClear();
+
+  expectWarningWillFire(
+    "Relay: Expected to have been able to read non-null data for fragment `useFragmentNodeTestUsersFragment` declared in `TestDisplayName`, since fragment reference was non-null. Make sure that that `TestDisplayName`'s parent isn't holding on to and/or passing a fragment reference for data that has been deleted.",
+  );
 
   renderPluralFragment();
-  expect(warning).toBeCalledTimes(1);
-  // $FlowFixMe[prop-missing]
-  const [, warningMessage] = warning.mock.calls[0];
-  expect(
-    warningMessage.startsWith(
-      'Relay: Expected to have been able to read non-null data for fragment `%s`',
-    ),
-  ).toEqual(true);
-  // $FlowFixMe[prop-missing]
-  warning.mockClear();
 });
 
 it('should subscribe for updates even if there is missing data', () => {
-  // This prevents console.error output in the test, which is expected
-  jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-  const warning = require('warning');
-
   const missingDataVariables = {...singularVariables, id: '4'};
-  const missingDataQuery = createOperationDescriptor(
+
+  const singularDataQuery = createOperationDescriptor(
     gqlSingularQuery,
     missingDataVariables,
   );
 
   // Commit a payload where name is missing.
-  environment.commitPayload(missingDataQuery, {
-    node: {
-      __typename: 'User',
-      id: '4',
+  environment.commitPayload(
+    createOperationDescriptor(
+      gqlSingularMissingDataQuery,
+      missingDataVariables,
+    ),
+    {
+      node: {
+        __typename: 'User',
+        id: '4',
+      },
     },
-  });
+  );
 
-  // $FlowFixMe[prop-missing]
-  warning.mockClear();
-  renderSingularFragment({owner: missingDataQuery});
+  renderSingularFragment({owner: singularDataQuery});
 
   // Assert render output with missing data
   assertFragmentResults([
@@ -1172,18 +1197,22 @@ it('should subscribe for updates even if there is missing data', () => {
         id: '4',
         name: undefined,
         profile_picture: undefined,
-        ...createFragmentRef('4', missingDataQuery),
+        ...createFragmentRef('4', singularDataQuery),
       },
     },
   ]);
 
   // Commit a payload with updated name.
-  environment.commitPayload(missingDataQuery, {
-    node: {
-      __typename: 'User',
-      id: '4',
-      name: 'Mark',
-    },
+  internalAct(() => {
+    environment.commitPayload(singularDataQuery, {
+      node: {
+        __typename: 'User',
+        id: '4',
+        name: 'Mark',
+        username: null,
+        profile_picture: null,
+      },
+    });
   });
 
   // Assert render output with updated data
@@ -1192,8 +1221,8 @@ it('should subscribe for updates even if there is missing data', () => {
       data: {
         id: '4',
         name: 'Mark',
-        profile_picture: undefined,
-        ...createFragmentRef('4', missingDataQuery),
+        profile_picture: null,
+        ...createFragmentRef('4', singularDataQuery),
       },
     },
   ]);
@@ -1236,6 +1265,7 @@ it('upon commit, it should pick up changes in data that happened before comittin
         profile_picture: {
           uri: 'uri16',
         },
+        username: null,
       },
     });
 
@@ -1265,6 +1295,10 @@ it('upon commit, it should pick up changes in data that happened before comittin
         id: '1',
         // Update name
         name: 'Alice latest update',
+        profile_picture: {
+          uri: 'uri16',
+        },
+        username: null,
       },
     });
     expectSchedulerToFlushAndYield([
@@ -1289,10 +1323,6 @@ it('upon commit, it should pick up changes in data that happened before comittin
 });
 
 it('should subscribe for updates to plural fragments even if there is missing data', () => {
-  // This prevents console.error output in the test, which is expected
-  jest.spyOn(console, 'error').mockImplementationOnce(() => {});
-  const warning = require('warning');
-
   const missingDataVariables = {...pluralVariables, ids: ['4']};
   const missingDataQuery = createOperationDescriptor(
     gqlPluralQuery,
@@ -1300,17 +1330,18 @@ it('should subscribe for updates to plural fragments even if there is missing da
   );
 
   // Commit a payload where name is missing.
-  environment.commitPayload(missingDataQuery, {
-    nodes: [
-      {
-        __typename: 'User',
-        id: '4',
-      },
-    ],
-  });
+  environment.commitPayload(
+    createOperationDescriptor(gqlPluralMissingDataQuery, missingDataVariables),
+    {
+      nodes: [
+        {
+          __typename: 'User',
+          id: '4',
+        },
+      ],
+    },
+  );
 
-  // $FlowFixMe[prop-missing]
-  warning.mockClear();
   renderPluralFragment({owner: missingDataQuery});
 
   // Assert render output with missing data
@@ -1328,14 +1359,18 @@ it('should subscribe for updates to plural fragments even if there is missing da
   ]);
 
   // Commit a payload with updated name.
-  environment.commitPayload(missingDataQuery, {
-    nodes: [
-      {
-        __typename: 'User',
-        id: '4',
-        name: 'Mark',
-      },
-    ],
+  internalAct(() => {
+    environment.commitPayload(missingDataQuery, {
+      nodes: [
+        {
+          __typename: 'User',
+          id: '4',
+          name: 'Mark',
+          profile_picture: null,
+          username: null,
+        },
+      ],
+    });
   });
 
   // Assert render output with updated data
@@ -1345,7 +1380,7 @@ it('should subscribe for updates to plural fragments even if there is missing da
         {
           id: '4',
           name: 'Mark',
-          profile_picture: undefined,
+          profile_picture: null,
           ...createFragmentRef('4', missingDataQuery),
         },
       ],
@@ -1377,6 +1412,8 @@ describe('disableStoreUpdates', () => {
         __typename: 'User',
         id: '1',
         name: 'Alice updated',
+        profile_picture: null,
+        username: null,
       },
     });
 
@@ -1406,6 +1443,8 @@ describe('disableStoreUpdates', () => {
         __typename: 'User',
         id: '1',
         name: 'Alice updated',
+        profile_picture: null,
+        username: null,
       },
     });
 
@@ -1475,6 +1514,8 @@ describe('disableStoreUpdates', () => {
         __typename: 'User',
         id: '1',
         name: 'Alice',
+        profile_picture: null,
+        username: null,
       },
     });
 

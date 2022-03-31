@@ -1,0 +1,115 @@
+==================================== INPUT ====================================
+query updatableFragmentSpreadWithTypenameSiblingQuery {
+  me {
+    ...updatableFragmentSpreadWithTypenameSibling_user
+    __typename
+  }
+}
+
+fragment updatableFragmentSpreadWithTypenameSibling_user on User @updatable {
+  firstName
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "updatableFragmentSpreadWithTypenameSiblingQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "updatableFragmentSpreadWithTypenameSibling_user"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "updatableFragmentSpreadWithTypenameSiblingQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "updatableFragmentSpreadWithTypenameSiblingQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query updatableFragmentSpreadWithTypenameSiblingQuery {
+  me {
+    __typename
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "updatableFragmentSpreadWithTypenameSibling_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "firstName",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

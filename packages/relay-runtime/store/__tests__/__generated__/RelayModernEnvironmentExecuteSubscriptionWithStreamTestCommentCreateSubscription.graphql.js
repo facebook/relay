@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e67ad7c9d9369bbc45b8ba500c8082bb>>
+ * @generated SignedSource<<7ff9cdf50eceaa21d62dff2b7f60f1f8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,6 @@
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 type RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$fragmentType = any;
 export type CommentCreateSubscriptionInput = {|
-  clientSubscriptionId?: ?string,
   feedbackId?: ?string,
   text?: ?string,
 |};
@@ -33,8 +32,8 @@ export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreate
   |},
 |};
 export type RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription = {|
-  variables: RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables,
   response: RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$data,
+  variables: RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription$variables,
 |};
 */
 

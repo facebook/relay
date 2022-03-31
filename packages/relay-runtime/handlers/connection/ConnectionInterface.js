@@ -31,7 +31,6 @@ export type PageInfo = {
 };
 
 type ConnectionConfig = {|
-  CLIENT_MUTATION_ID: string,
   CURSOR: string,
   EDGES: string,
   END_CURSOR: string,
@@ -53,7 +52,6 @@ const CONNECTION_CALLS = {
 };
 
 let config: ConnectionConfig = {
-  CLIENT_MUTATION_ID: 'clientMutationId',
   CURSOR: 'cursor',
   EDGES: 'edges',
   END_CURSOR: 'endCursor',

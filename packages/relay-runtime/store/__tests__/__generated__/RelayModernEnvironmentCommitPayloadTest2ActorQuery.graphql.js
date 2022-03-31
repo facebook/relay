@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c9b2ca88c1f8fd34302b985ef8a3174d>>
+ * @generated SignedSource<<35706a61092bcbb7bfb2c0ccef17cf44>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,17 +19,17 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 export type RelayModernEnvironmentCommitPayloadTest2ActorQuery$variables = {||};
 export type RelayModernEnvironmentCommitPayloadTest2ActorQuery$data = {|
   +me: ?{|
-    +name: ?string,
     +birthdate: ?{|
       +day: ?number,
       +month: ?number,
       +year: ?number,
     |},
+    +name: ?string,
   |},
 |};
 export type RelayModernEnvironmentCommitPayloadTest2ActorQuery = {|
-  variables: RelayModernEnvironmentCommitPayloadTest2ActorQuery$variables,
   response: RelayModernEnvironmentCommitPayloadTest2ActorQuery$data,
+  variables: RelayModernEnvironmentCommitPayloadTest2ActorQuery$variables,
 |};
 */
 

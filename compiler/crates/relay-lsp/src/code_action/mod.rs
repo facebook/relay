@@ -17,14 +17,14 @@ use lsp_types::{
     request::CodeActionRequest, request::Request, CodeAction, CodeActionOrCommand, Diagnostic,
     Position, Range, TextDocumentPositionParams, TextEdit, Url, WorkspaceEdit,
 };
+use resolution_path::{
+    IdentParent, IdentPath, OperationDefinitionPath, ResolutionPath, ResolvePosition,
+};
 use serde_json::Value;
 use std::collections::{HashMap, HashSet};
 
 use crate::{
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    resolution_path::{
-        IdentParent, IdentPath, OperationDefinitionPath, ResolutionPath, ResolvePosition,
-    },
     server::GlobalState,
 };
 

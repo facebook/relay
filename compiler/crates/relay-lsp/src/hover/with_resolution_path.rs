@@ -12,23 +12,23 @@ use graphql_text_printer::print_value;
 use intern::string_key::StringKey;
 use lsp_types::{Hover, HoverContents, MarkedString};
 use relay_transforms::RELAY_RESOLVER_DIRECTIVE_NAME;
+use resolution_path::{
+    ArgumentPath, ArgumentRoot, ConstantArgPath, ConstantBooleanPath, ConstantEnumPath,
+    ConstantFloatPath, ConstantIntPath, ConstantListPath, ConstantNullPath, ConstantObjPath,
+    ConstantObjectPath, ConstantStringPath, ConstantValueParent, ConstantValuePath,
+    ConstantValueRoot, DefaultValuePath, DirectivePath, FragmentDefinitionPath, FragmentSpreadPath,
+    IdentParent, IdentPath, InlineFragmentPath, LinkedFieldPath, ListTypeAnnotationPath,
+    NamedTypeAnnotationPath, NonNullTypeAnnotationPath, OperationDefinitionPath, OperationPath,
+    ResolutionPath, ScalarFieldPath, SelectionPath, TypeAnnotationPath, TypeConditionParent,
+    TypeConditionPath, ValueListPath, ValuePath, VariableDefinitionPath, VariableIdentifierParent,
+    VariableIdentifierPath,
+};
 use schema::{SDLSchema, Schema};
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
 
 use crate::{
     hover::{get_open_schema_explorer_command_link, GraphQLSchemaExplorerParams},
-    resolution_path::{
-        ArgumentPath, ArgumentRoot, ConstantArgPath, ConstantBooleanPath, ConstantEnumPath,
-        ConstantFloatPath, ConstantIntPath, ConstantListPath, ConstantNullPath, ConstantObjPath,
-        ConstantObjectPath, ConstantStringPath, ConstantValueParent, ConstantValuePath,
-        ConstantValueRoot, DefaultValuePath, DirectivePath, FragmentDefinitionPath,
-        FragmentSpreadPath, IdentParent, IdentPath, InlineFragmentPath, LinkedFieldPath,
-        ListTypeAnnotationPath, NamedTypeAnnotationPath, NonNullTypeAnnotationPath,
-        OperationDefinitionPath, OperationPath, ResolutionPath, ScalarFieldPath, SelectionPath,
-        TypeAnnotationPath, TypeConditionParent, TypeConditionPath, ValueListPath, ValuePath,
-        VariableDefinitionPath, VariableIdentifierParent, VariableIdentifierPath,
-    },
     LSPExtraDataProvider,
 };
 

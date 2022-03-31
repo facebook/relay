@@ -20,7 +20,6 @@ const ReactTestRenderer = require('react-test-renderer');
 const {
   __internal: {fetchQuery},
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -74,7 +73,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
         name
       }
     `;
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query useLazyLoadQueryNodeFastRefreshTestUserQuery($id: ID) {
         node(id: $id) {
           id
@@ -82,7 +81,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
           ...useLazyLoadQueryNodeFastRefreshTestUserFragment
         }
       }
-    `);
+    `;
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
     renderFn = jest.fn(result => result?.node?.name ?? 'Empty');

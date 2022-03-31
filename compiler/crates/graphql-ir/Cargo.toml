@@ -27,7 +27,7 @@ intern = { path = "../intern" }
 lazy_static = "1.0"
 once_cell = "1.8"
 schema = { path = "../schema" }
-thiserror = "1.0.29"
+thiserror = "1.0.30"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

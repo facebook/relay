@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4abd5992318921b9e4f23a2a4f1c64d9>>
+ * @generated SignedSource<<5de3fc584be2abc43a974ac1b7756663>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,8 +24,8 @@ export type useLazyLoadQueryNodeTestOnlyFragmentsQuery$data = {|
   +$fragmentSpreads: useLazyLoadQueryNodeTestRootFragment$fragmentType,
 |};
 export type useLazyLoadQueryNodeTestOnlyFragmentsQuery = {|
-  variables: useLazyLoadQueryNodeTestOnlyFragmentsQuery$variables,
   response: useLazyLoadQueryNodeTestOnlyFragmentsQuery$data,
+  variables: useLazyLoadQueryNodeTestOnlyFragmentsQuery$variables,
 |};
 */
 

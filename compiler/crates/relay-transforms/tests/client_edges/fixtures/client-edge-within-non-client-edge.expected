@@ -23,7 +23,11 @@ fragment BestFriendResolverFragment_name on User {
 
 fragment Foo_user on User {
   nearest_neighbor {
-    ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend") {
+    ... @__ClientEdgeMetadataDirective
+    # ServerObject {
+    #     query_name: "ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend",
+    # }
+     {
       ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
       # RelayResolverSpreadMetadata {
       #     field_parent_type: "User",
@@ -31,6 +35,7 @@ fragment Foo_user on User {
       #     field_name: "best_friend",
       #     field_alias: None,
       #     field_path: "nearest_neighbor.best_friend",
+      #     live: false,
       # }
        @waterfall
       best_friend @waterfall {

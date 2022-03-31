@@ -22,7 +22,7 @@ const {createReaderSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const {ROOT_ID} = require('../RelayStoreUtils');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -40,14 +40,14 @@ describe('retain()', () => {
       }
     `;
 
-    ParentQuery = getRequest(graphql`
+    ParentQuery = graphql`
       query RelayModernEnvironmentRetainTestQuery {
         me {
           id
           name
         }
       }
-    `);
+    `;
 
     const source = RelayRecordSource.create();
     const store = new RelayModernStore(source, {gcReleaseBufferSize: 0});

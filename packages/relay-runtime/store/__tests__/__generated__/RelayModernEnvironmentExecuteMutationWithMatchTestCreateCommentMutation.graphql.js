@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<31030e45d3fce4ff215890310856c5bf>>
+ * @generated SignedSource<<8de32e0cc4d31020ba2ce07e9821510f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,9 +21,8 @@ import type { ConcreteRequest, Mutation } from 'relay-runtime';
 type RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType = any;
 type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType = any;
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -42,15 +41,15 @@ export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutat
         +nameRenderer: ?{|
           +__fragmentPropName?: ?string,
           +__module_component?: ?string,
-          +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
+          +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType,
         |},
       |},
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation = {|
-  variables: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables,
   response: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data,
+  variables: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables,
 |};
 */
 

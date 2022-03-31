@@ -64,18 +64,18 @@ file sources, and "listen" to the file changes in the "watch" mode. If
 
 - `src` Root directory of application code. [string] [required]
 - `schema` Relative path to the file with GraphQL SDL file. [string] [required]
+- `language` The name of the language used for input files and generated
+  artifacts. ["javascript" | "typescript" | "flow"] [required].
+- `artifactDirectory` A specific directory to output all artifacts to. When
+  enabling this the babel plugin needs `artifactDirectory` to be set as well.
+  [string]
+- `excludes` Directories to ignore under `src`. [array] [default:
+  ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"]]
+- `schemaExtensions` List of directories with schema extensions. [array]
 - `schemaConfig`
   - `nodeInterfaceIdField` Configure the name of the globally unique ID field on
     the Node interface. Useful if you can't use the default `id` field name.
     [string][default: "id"]
-- `artifactDirectory` A specific directory to output all artifacts to. When
-  enabling this the babel plugin needs `artifactDirectory` to be set as well.
-  [string]
-- `language` The name of the language used for input files and generated
-  artifacts. ["flow" | "typescript"] [default: "flow"]
-- `excludes` Directories to ignore under `src`. [array] [default:
-  ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"]]
-- `schemaExtensions` List of directories with schema extensions. [array]
 - `noFutureProofEnums` For `flow` only. This option controls whether or not a
   catch-all entry is added to enum type definitions values that may be added in
   the future. Enabling this means you will have to update your application
@@ -106,20 +106,9 @@ file sources, and "listen" to the file changes in the "watch" mode. If
   [string]
 - `jsModuleFormat` Formatting style for generated files. `commonjs` or `haste`.
   Default is `commonjs`. [string]
-- `typegenPhase` - `Final` or `Compat`. Use `Compat` for exposing old
-  `<module>QueryVariables` and `<module>QueryResponse` types in the generated
-  artifacts. But we do recommend migrating to the `Final` mode, where the naming
-  of the exposed types are unified with `<module>$data` and `<module>$variables`
-  suffixes.
 
-### CLI configuration
+### CLI Arguments
 
-We also support a limited set of CLI arguments that should cover the most cases
-when you need to run the compiler.
-
-- `--src` Relative path to the source code.
-- `--schema` Relative path to schema file.
-- `--artifactDirectory` Compiler output directory.
 - `--repersist` Run the persister even if the query has not changed.
 - `--watch` Run compiler in `watch` mode. Requires
   [`watchman`](https://facebook.github.io/watchman/) to be installed.

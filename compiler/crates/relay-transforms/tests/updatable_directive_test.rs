@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ded26f0cf33418928ab1ff7cab9ce021>>
+ * @generated SignedSource<<8aed2dbc4bf489ab7a2058ce199e361a>>
  */
 
 mod updatable_directive;
@@ -129,4 +129,11 @@ fn type_narrowing() {
     let input = include_str!("updatable_directive/fixtures/type-narrowing.graphql");
     let expected = include_str!("updatable_directive/fixtures/type-narrowing.expected");
     test_fixture(transform_fixture, "type-narrowing.graphql", "updatable_directive/fixtures/type-narrowing.expected", input, expected);
+}
+
+#[test]
+fn updatable_fragment() {
+    let input = include_str!("updatable_directive/fixtures/updatable-fragment.graphql");
+    let expected = include_str!("updatable_directive/fixtures/updatable-fragment.expected");
+    test_fixture(transform_fixture, "updatable-fragment.graphql", "updatable_directive/fixtures/updatable-fragment.expected", input, expected);
 }

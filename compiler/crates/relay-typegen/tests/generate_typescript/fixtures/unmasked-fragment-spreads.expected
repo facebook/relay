@@ -28,8 +28,8 @@ fragment AnotherRecursiveFragment on Image {
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
 export type AnotherRecursiveFragment$data = {
-  readonly uri: string | null;
   readonly height: number | null;
+  readonly uri: string | null;
   readonly " $fragmentType": "AnotherRecursiveFragment";
 };
 export type AnotherRecursiveFragment$key = {
@@ -61,9 +61,9 @@ export type RecursiveFragment$key = {
 import { FragmentRefs } from "relay-runtime";
 export type UserProfile$data = {
   readonly profilePicture: {
+    readonly height: number | null;
     readonly uri: string | null;
     readonly width: number | null;
-    readonly height: number | null;
     readonly " $fragmentSpreads": FragmentRefs<"PhotoFragment">;
   } | null;
   readonly " $fragmentType": "UserProfile";

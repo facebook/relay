@@ -134,6 +134,7 @@ type Mutation {
     input: UpdateAllSeenStateInput
   ): ViewerNotificationsUpdateAllSeenStateResponsePayload
   setLocation(input: LocationInput): setLocationResponsePayload
+  setName(name: String!): User
 }
 
 type Subscription {
@@ -144,28 +145,24 @@ type Subscription {
 }
 
 input ActorSubscribeInput {
-  clientMutationId: String
   subscribeeId: ID
 }
 
 input ActorNameChangeInput {
-  clientMutationId: String
   newName: String
 }
 
 input ApplicationRequestDeleteAllInput {
-  clientMutationId: String
   deletedRequestIds: [ID]
 }
 
 input CommentCreateInput {
-  clientMutationId: String
+  client_mutation_id: String!
   feedbackId: ID
   feedback: CommentfeedbackFeedback
 }
 
 input CommentsCreateInput {
-  clientMutationId: String
   feedbackId: ID
   feedback: [CommentfeedbackFeedback]
 }
@@ -179,40 +176,33 @@ input FeedbackcommentComment {
 }
 
 input CommentCreateSubscriptionInput {
-  clientSubscriptionId: String
   feedbackId: ID
   text: String
 }
 
 input CommentDeleteInput {
-  clientMutationId: String
   commentId: ID
 }
 
 input CommentsDeleteInput {
-  clientMutationId: String
   commentIds: [ID]
 }
 
 input FeedbackLikeInput {
-  clientMutationId: String
   feedbackId: ID
 }
 
 input FeedbackLikeInputStrict {
   userID: ID!
-  clientMutationId: ID!
   feedbackId: ID!
   description: String
 }
 
 input NodeSaveStateInput {
-  clientMutationId: String
   nodeId: ID
 }
 
 input UpdateAllSeenStateInput {
-  clientMutationId: String
   storyIds: [ID]
 }
 
@@ -222,22 +212,18 @@ input LocationInput {
 }
 
 type setLocationResponsePayload {
-  clientMutationId: String
   viewer: Viewer
 }
 
 type ActorSubscribeResponsePayload {
-  clientMutationId: String
   subscribee: Actor
 }
 
 type ActorNameChangePayload {
-  clientMutationId: String
   actor: Actor
 }
 
 type ApplicationRequestDeleteAllResponsePayload {
-  clientMutationId: String
   deletedRequestIds: [ID]
 }
 
@@ -326,7 +312,6 @@ type Comment implements Node {
 }
 
 type CommentCreateResponsePayload {
-  clientMutationId: String
   comment: Comment
   feedback: Feedback
   feedbackCommentEdge: CommentsEdge
@@ -335,7 +320,6 @@ type CommentCreateResponsePayload {
 }
 
 type CommentsCreateResponsePayload {
-  clientMutationId: String
   comments: [Comment]
   feedback: [Feedback]
   feedbackCommentEdges: [CommentsEdge]
@@ -343,13 +327,11 @@ type CommentsCreateResponsePayload {
 }
 
 type CommentDeleteResponsePayload {
-  clientMutationId: String
   deletedCommentId: ID
   feedback: Feedback
 }
 
 type CommentsDeleteResponsePayload {
-  clientMutationId: String
   deletedCommentIds: [ID]
   feedback: Feedback
 }
@@ -465,8 +447,6 @@ type Feedback implements Node {
 }
 
 type FeedbackLikeResponsePayload {
-  clientMutationId: String
-  clientSubscriptionId: String
   feedback: Feedback
 }
 
@@ -913,13 +893,11 @@ type TopLevelCommentsConnection {
 }
 
 input UnfriendInput {
-  clientMutationId: String
   friendId: ID
 }
 
 type UnfriendResponsePayload {
   actor: Actor
-  clientMutationId: String
   formerFriend: User
 }
 

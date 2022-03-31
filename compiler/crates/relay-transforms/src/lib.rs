@@ -34,6 +34,7 @@ mod inline_data_fragment;
 mod inline_fragments;
 mod mask;
 mod match_;
+mod metadata_directive;
 mod murmurhash;
 mod no_inline;
 mod node_identifier;
@@ -62,14 +63,11 @@ mod util;
 mod validate_operation_variables;
 mod validations;
 
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::StringKey;
 use intern::BuildIdHasher;
-use lazy_static::lazy_static;
 use std::collections::{HashMap, HashSet};
 
-lazy_static! {
-    pub static ref INTERNAL_METADATA_DIRECTIVE: StringKey = "__metadata".intern();
-}
+pub use metadata_directive::{create_metadata_directive, INTERNAL_METADATA_DIRECTIVE};
 
 /// Name of an executable operation
 type OperationName = StringKey;
@@ -88,12 +86,13 @@ pub use apply_transforms::{apply_transforms, Programs};
 pub use assignable_fragment_spread::{
     transform_assignable_fragment_spreads_in_regular_queries,
     transform_assignable_fragment_spreads_in_updatable_queries, validate_assignable_directive,
-    validate_updatable_directive, TypeConditionInfo, ASSIGNABLE_DIRECTIVE,
-    ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, UPDATABLE_DIRECTIVE,
+    validate_updatable_directive, validate_updatable_fragment_spread, TypeConditionInfo,
+    ASSIGNABLE_DIRECTIVE, ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, UPDATABLE_DIRECTIVE,
+    UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
 };
 pub use client_edges::{
     client_edges, preserve_client_edge_backing_ids, preserve_client_edge_selections,
-    ClientEdgeMetadata, CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_METADATA_KEY,
+    ClientEdgeMetadata, ClientEdgeMetadataDirective, CLIENT_EDGE_GENERATED_FRAGMENT_KEY,
     CLIENT_EDGE_QUERY_METADATA_KEY, CLIENT_EDGE_SOURCE_NAME, CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME,
 };
 pub use client_extensions::{client_extensions, CLIENT_EXTENSION_DIRECTIVE_NAME};

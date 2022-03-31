@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<18ff98935a4123f9a7c54083713ea630>>
+ * @generated SignedSource<<3915ed2fed38fa5c0977dbcbeedc2ea9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,15 +22,15 @@ type RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdate
 export type RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferredQuery$variables = {||};
 export type RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferredQuery$data = {|
   +me: ?{|
-    +name: ?string,
     +__fragmentPropName: ?string,
     +__module_component: ?string,
+    +name: ?string,
     +$fragmentSpreads: RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferred_module_user$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferredQuery = {|
-  variables: RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferredQuery$variables,
   response: RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferredQuery$data,
+  variables: RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferredQuery$variables,
 |};
 */
 

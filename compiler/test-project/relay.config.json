@@ -13,7 +13,8 @@
     "test": {
       "customScalarTypes": {},
       "enumModuleSuffix": ".test",
-      "schema": "packages/relay-test-utils-internal/testschema.graphql"
+      "schema": "packages/relay-test-utils-internal/testschema.graphql",
+      "language": "javascript"
     }
   }
 }

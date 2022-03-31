@@ -1,6 +1,6 @@
 # expected-to-throw
 query TestQuery {
-  task(task_id: 123) {
+  task(cucumber: 123) {
     title
   }
 }

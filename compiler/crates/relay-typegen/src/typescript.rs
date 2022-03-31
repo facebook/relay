@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::{Prop, Writer, AST};
+use crate::writer::{Prop, SortedASTList, SortedStringKeyList, StringLiteral, Writer, AST};
 use crate::TypegenConfig;
 use crate::{KEY_DATA, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE};
 use intern::string_key::{Intern, StringKey};
@@ -16,6 +16,7 @@ pub struct TypeScriptPrinter {
     result: String,
     use_import_type_syntax: bool,
     indentation: usize,
+    should_sort_typegen_items: bool,
 }
 
 impl Write for TypeScriptPrinter {
@@ -37,7 +38,7 @@ impl Writer for TypeScriptPrinter {
         match ast {
             AST::Any => write!(&mut self.result, "any"),
             AST::String => write!(&mut self.result, "string"),
-            AST::StringLiteral(literal) => self.write_string_literal(*literal),
+            AST::StringLiteral(literal) => self.write_string_literal(**literal),
             AST::OtherTypename => self.write_other_string(),
             AST::Number => write!(&mut self.result, "number"),
             AST::Boolean => write!(&mut self.result, "boolean"),
@@ -48,8 +49,8 @@ impl Writer for TypeScriptPrinter {
             AST::ReadOnlyArray(of_type) => self.write_read_only_array(of_type),
             AST::Nullable(of_type) => self.write_nullable(of_type),
             AST::NonNullable(of_type) => self.write_non_nullable(of_type),
-            AST::ExactObject(props) => self.write_object(props),
-            AST::InexactObject(props) => self.write_object(props),
+            AST::ExactObject(object) => self.write_object(object),
+            AST::InexactObject(object) => self.write_object(object),
             AST::Local3DPayload(document_name, selections) => {
                 self.write_local_3d_payload(*document_name, selections)
             }
@@ -58,7 +59,12 @@ impl Writer for TypeScriptPrinter {
             AST::ReturnTypeOfFunctionWithName(function_name) => {
                 self.write_return_type_of_function_with_name(*function_name)
             }
-            AST::ActorChangePoint(_) => panic!("Not supported yet"),
+            AST::ActorChangePoint(_) => {
+                panic!("ActorChangePoint is not supported yet in Typescript")
+            }
+            AST::ReturnTypeOfMethodCall(object, method_name) => {
+                self.write_return_type_of_method_call(object, *method_name)
+            }
         }
     }
 
@@ -102,7 +108,7 @@ impl Writer for TypeScriptPrinter {
         Ok(())
     }
 
-    fn write_export_fragment_type(&mut self, _old_name: &str, _new_name: &str) -> FmtResult {
+    fn write_export_fragment_type(&mut self, _name: &str) -> FmtResult {
         Ok(())
     }
 
@@ -116,11 +122,12 @@ impl Writer for TypeScriptPrinter {
 }
 
 impl TypeScriptPrinter {
-    pub fn new(config: &TypegenConfig) -> Self {
+    pub fn new(config: &TypegenConfig, should_sort_typegen_items: bool) -> Self {
         Self {
             result: String::new(),
             indentation: 0,
             use_import_type_syntax: config.use_import_type_syntax,
+            should_sort_typegen_items,
         }
     }
 
@@ -247,23 +254,34 @@ impl TypeScriptPrinter {
         Ok(())
     }
 
-    fn write_fragment_references(&mut self, fragments: &[StringKey]) -> FmtResult {
+    fn write_fragment_references(&mut self, fragments: &SortedStringKeyList) -> FmtResult {
         write!(&mut self.result, "FragmentRefs<")?;
-        self.write(&AST::Union(
+        self.write(&AST::Union(SortedASTList::new(
             fragments
                 .iter()
-                .map(|key| AST::StringLiteral(*key))
+                .map(|key| AST::StringLiteral(StringLiteral(*key)))
                 .collect(),
-        ))?;
+            self.should_sort_typegen_items,
+        )))?;
         write!(&mut self.result, ">")
     }
 
     fn write_fragment_references_type(&mut self, fragment: StringKey) -> FmtResult {
-        self.write(&AST::StringLiteral(fragment))
+        self.write(&AST::StringLiteral(StringLiteral(fragment)))
     }
 
     fn write_return_type_of_function_with_name(&mut self, function_name: StringKey) -> FmtResult {
         write!(&mut self.result, "ReturnType<typeof {}>", function_name)
+    }
+
+    fn write_return_type_of_method_call(
+        &mut self,
+        object: &AST,
+        method_name: StringKey,
+    ) -> FmtResult {
+        write!(&mut self.result, "ReturnType<")?;
+        self.write(object)?;
+        write!(&mut self.result, "[\"{}\"]>", method_name)
     }
 
     fn write_callable(&mut self, return_type: &AST) -> FmtResult {
@@ -274,7 +292,7 @@ impl TypeScriptPrinter {
 
 #[cfg(test)]
 mod tests {
-    use crate::writer::KeyValuePairProp;
+    use crate::writer::{ExactObject, InexactObject, KeyValuePairProp, SortedASTList};
 
     use super::*;
     use intern::string_key::Intern;
@@ -284,7 +302,7 @@ mod tests {
     }
 
     fn print_type_with_config(ast: &AST, config: &TypegenConfig) -> String {
-        let mut printer = Box::new(TypeScriptPrinter::new(config));
+        let mut printer = Box::new(TypeScriptPrinter::new(config, true));
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -299,7 +317,10 @@ mod tests {
     #[test]
     fn union_type() {
         assert_eq!(
-            print_type(&AST::Union(vec![AST::String, AST::Number])),
+            print_type(&AST::Union(SortedASTList::new(
+                vec![AST::String, AST::Number],
+                true
+            ))),
             "string | number".to_string()
         );
     }
@@ -320,50 +341,57 @@ mod tests {
         );
 
         assert_eq!(
-            print_type(&AST::Nullable(Box::new(AST::Union(vec![
-                AST::String,
-                AST::Number,
-            ])))),
+            print_type(&AST::Nullable(Box::new(AST::Union(SortedASTList::new(
+                vec![AST::String, AST::Number,],
+                true
+            ))))),
             "string | number | null"
         )
     }
 
     #[test]
     fn exact_object() {
-        assert_eq!(print_type(&AST::ExactObject(Vec::new())), r"{}".to_string());
+        assert_eq!(
+            print_type(&AST::ExactObject(ExactObject::new(Vec::new(), true))),
+            r"{}".to_string()
+        );
 
         assert_eq!(
-            print_type(&AST::ExactObject(vec![Prop::KeyValuePair(
-                KeyValuePairProp {
+            print_type(&AST::ExactObject(ExactObject::new(
+                vec![Prop::KeyValuePair(KeyValuePairProp {
                     key: "single".intern(),
                     optional: false,
                     read_only: false,
                     value: AST::String,
-                }
-            )])),
+                })],
+                true
+            ))),
             r"{
   single: string;
 }"
             .to_string()
         );
         assert_eq!(
-            print_type(&AST::ExactObject(vec![
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: "foo".intern(),
-                    optional: true,
-                    read_only: false,
-                    value: AST::String,
-                }),
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: "bar".intern(),
-                    optional: false,
-                    read_only: true,
-                    value: AST::Number,
-                }),
-            ])),
+            print_type(&AST::ExactObject(ExactObject::new(
+                vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: "foo".intern(),
+                        optional: true,
+                        read_only: false,
+                        value: AST::String,
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: "bar".intern(),
+                        optional: false,
+                        read_only: true,
+                        value: AST::Number,
+                    }),
+                ],
+                true
+            ))),
             r"{
-  foo?: string;
   readonly bar: number;
+  foo?: string;
 }"
             .to_string()
         );
@@ -372,39 +400,45 @@ mod tests {
     #[test]
     fn nested_object() {
         assert_eq!(
-            print_type(&AST::ExactObject(vec![
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: "foo".intern(),
-                    optional: true,
-                    read_only: false,
-                    value: AST::ExactObject(vec![
-                        Prop::KeyValuePair(KeyValuePairProp {
-                            key: "nested_foo".intern(),
-                            optional: true,
-                            read_only: false,
-                            value: AST::String,
-                        }),
-                        Prop::KeyValuePair(KeyValuePairProp {
-                            key: "nested_foo2".intern(),
-                            optional: false,
-                            read_only: true,
-                            value: AST::Number,
-                        }),
-                    ]),
-                }),
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: "bar".intern(),
-                    optional: false,
-                    read_only: true,
-                    value: AST::Number,
-                }),
-            ])),
+            print_type(&AST::ExactObject(ExactObject::new(
+                vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: "foo".intern(),
+                        optional: true,
+                        read_only: false,
+                        value: AST::ExactObject(ExactObject::new(
+                            vec![
+                                Prop::KeyValuePair(KeyValuePairProp {
+                                    key: "nested_foo".intern(),
+                                    optional: true,
+                                    read_only: false,
+                                    value: AST::String,
+                                }),
+                                Prop::KeyValuePair(KeyValuePairProp {
+                                    key: "nested_foo2".intern(),
+                                    optional: false,
+                                    read_only: true,
+                                    value: AST::Number,
+                                }),
+                            ],
+                            true
+                        )),
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: "bar".intern(),
+                        optional: false,
+                        read_only: true,
+                        value: AST::Number,
+                    }),
+                ],
+                true
+            ))),
             r"{
+  readonly bar: number;
   foo?: {
     nested_foo?: string;
     readonly nested_foo2: number;
   };
-  readonly bar: number;
 }"
             .to_string()
         );
@@ -413,19 +447,20 @@ mod tests {
     #[test]
     fn inexact_object() {
         assert_eq!(
-            print_type(&AST::InexactObject(Vec::new())),
+            print_type(&AST::InexactObject(InexactObject::new(Vec::new(), true))),
             "{}".to_string()
         );
 
         assert_eq!(
-            print_type(&AST::InexactObject(vec![Prop::KeyValuePair(
-                KeyValuePairProp {
+            print_type(&AST::InexactObject(InexactObject::new(
+                vec![Prop::KeyValuePair(KeyValuePairProp {
                     key: "single".intern(),
                     optional: false,
                     read_only: false,
                     value: AST::String,
-                }
-            ),])),
+                }),],
+                true
+            ))),
             r"{
   single: string;
 }"
@@ -433,23 +468,26 @@ mod tests {
         );
 
         assert_eq!(
-            print_type(&AST::InexactObject(vec![
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: "foo".intern(),
-                    optional: false,
-                    read_only: false,
-                    value: AST::String,
-                }),
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: "bar".intern(),
-                    optional: true,
-                    read_only: true,
-                    value: AST::Number,
-                })
-            ])),
+            print_type(&AST::InexactObject(InexactObject::new(
+                vec![
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: "foo".intern(),
+                        optional: false,
+                        read_only: false,
+                        value: AST::String,
+                    }),
+                    Prop::KeyValuePair(KeyValuePairProp {
+                        key: "bar".intern(),
+                        optional: true,
+                        read_only: true,
+                        value: AST::Number,
+                    })
+                ],
+                true
+            ))),
             r"{
-  foo: string;
   readonly bar?: number;
+  foo: string;
 }"
             .to_string()
         );
@@ -458,14 +496,15 @@ mod tests {
     #[test]
     fn other_comment() {
         assert_eq!(
-            print_type(&AST::ExactObject(vec![Prop::KeyValuePair(
-                KeyValuePairProp {
+            print_type(&AST::ExactObject(ExactObject::new(
+                vec![Prop::KeyValuePair(KeyValuePairProp {
                     key: "with_comment".intern(),
                     optional: false,
                     read_only: false,
                     value: AST::OtherTypename,
-                }
-            ),])),
+                }),],
+                true
+            ))),
             r#"{
   // This will never be '%other', but we need some
   // value in case none of the concrete values match.
@@ -477,21 +516,24 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default(), true));
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(printer.into_string(), "import { A, B } from \"module\";\n");
 
-        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig {
-            use_import_type_syntax: true,
-            ..Default::default()
-        }));
+        let mut printer = Box::new(TypeScriptPrinter::new(
+            &TypegenConfig {
+                use_import_type_syntax: true,
+                ..Default::default()
+            },
+            true,
+        ));
         printer.write_import_type(&["C"], "./foo").unwrap();
         assert_eq!(printer.into_string(), "import type { C } from \"./foo\";\n");
     }
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default(), true));
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }

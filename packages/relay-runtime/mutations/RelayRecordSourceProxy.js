@@ -17,21 +17,28 @@ import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {
   DataIDSet,
+  FragmentType,
   HandleFieldPayload,
+  HasUpdatableSpread,
   RecordProxy,
   RecordSource,
   RecordSourceProxy,
+  UpdatableData,
 } from '../store/RelayStoreTypes';
 import type {
   DataID,
+  UpdatableFragment,
   UpdatableQuery,
-  UpdatableQueryType,
+  Variables,
 } from '../util/RelayRuntimeTypes';
 import type RelayRecordSourceMutator from './RelayRecordSourceMutator';
 
 const RelayModernRecord = require('../store/RelayModernRecord');
 const {EXISTENT, NONEXISTENT} = require('../store/RelayRecordState');
 const {ROOT_ID, ROOT_TYPE} = require('../store/RelayStoreUtils');
+const {
+  readUpdatableFragment_EXPERIMENTAL,
+} = require('./readUpdatableFragment_EXPERIMENTAL');
 const {
   readUpdatableQuery_EXPERIMENTAL,
 } = require('./readUpdatableQuery_EXPERIMENTAL');
@@ -167,11 +174,22 @@ class RelayRecordSourceProxy implements RecordSourceProxy {
     return this._idsMarkedForInvalidation;
   }
 
-  readUpdatableQuery_EXPERIMENTAL<TQuery: UpdatableQueryType>(
-    query: UpdatableQuery<TQuery['variables'], TQuery['response']>,
-    variables: TQuery['variables'],
-  ): TQuery['response'] {
+  readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
+    query: UpdatableQuery<TVariables, TData>,
+    variables: TVariables,
+  ): UpdatableData<TData> {
     return readUpdatableQuery_EXPERIMENTAL(query, variables, this);
+  }
+
+  readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
+    fragment: UpdatableFragment<TFragmentType, TData>,
+    fragmentReference: HasUpdatableSpread<TFragmentType>,
+  ): UpdatableData<TData> {
+    return readUpdatableFragment_EXPERIMENTAL(
+      fragment,
+      fragmentReference,
+      this,
+    );
   }
 }
 

@@ -540,9 +540,9 @@ pub enum TransformedMulti<T> {
     ReplaceMultiple(Vec<T>),
 }
 
-impl<T> Into<TransformedMulti<T>> for Transformed<T> {
-    fn into(self) -> TransformedMulti<T> {
-        match self {
+impl<T> From<Transformed<T>> for TransformedMulti<T> {
+    fn from(other: Transformed<T>) -> TransformedMulti<T> {
+        match other {
             Transformed::Delete => TransformedMulti::Delete,
             Transformed::Keep => TransformedMulti::Keep,
             Transformed::Replace(replacement) => TransformedMulti::Replace(replacement),
@@ -585,9 +585,9 @@ impl<T> TransformedValue<T> {
     }
 }
 
-impl<T> Into<Transformed<T>> for TransformedValue<T> {
-    fn into(self) -> Transformed<T> {
-        match self {
+impl<T> From<TransformedValue<T>> for Transformed<T> {
+    fn from(other: TransformedValue<T>) -> Transformed<T> {
+        match other {
             TransformedValue::Keep => Transformed::Keep,
             TransformedValue::Replace(replacement) => Transformed::Replace(replacement),
         }

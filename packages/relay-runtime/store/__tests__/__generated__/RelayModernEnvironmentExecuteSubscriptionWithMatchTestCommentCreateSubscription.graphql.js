@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3ffa8777b723fc2484658836d40a375b>>
+ * @generated SignedSource<<c0ae79fd66a1e9498e1c03f5662d53e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,6 @@ import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 type RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType = any;
 type RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType = any;
 export type CommentCreateSubscriptionInput = {|
-  clientSubscriptionId?: ?string,
   feedbackId?: ?string,
   text?: ?string,
 |};
@@ -36,15 +35,15 @@ export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateS
         +nameRenderer: ?{|
           +__fragmentPropName?: ?string,
           +__module_component?: ?string,
-          +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType,
+          +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
         |},
       |},
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription = {|
-  variables: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$variables,
   response: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$data,
+  variables: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription$variables,
 |};
 */
 

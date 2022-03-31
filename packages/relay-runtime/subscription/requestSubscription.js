@@ -13,7 +13,6 @@
 'use strict';
 
 import type {DeclarativeMutationConfig} from '../mutations/RelayDeclarativeMutationConfig';
-import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
   IEnvironment,
   SelectorStoreUpdater,
@@ -21,6 +20,7 @@ import type {
 import type {
   CacheConfig,
   Disposable,
+  GraphQLSubscription,
   Variables,
 } from '../util/RelayRuntimeTypes';
 
@@ -38,26 +38,24 @@ export type SubscriptionParameters = {|
   +rawResponse?: {...},
 |};
 
-export type GraphQLSubscriptionConfig<T: SubscriptionParameters> = {|
+/**
+ * Updated Flow type that makes use of typed graphql tagged literals with
+ * type information.
+ */
+export type GraphQLSubscriptionConfig<TVariables, TData, TRawResponse> = {|
   configs?: Array<DeclarativeMutationConfig>,
   cacheConfig?: CacheConfig,
-  subscription: GraphQLTaggedNode,
-  variables: T['variables'],
+  subscription: GraphQLSubscription<TVariables, TData, TRawResponse>,
+  variables: TVariables,
   onCompleted?: ?() => void,
   onError?: ?(error: Error) => void,
-  onNext?: ?(response: ?T['response']) => void,
-  updater?: ?SelectorStoreUpdater<T['response']>,
+  onNext?: ?(response: ?TData) => void,
+  updater?: ?SelectorStoreUpdater<TData>,
 |};
 
-export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload: {...}> =
-  GraphQLSubscriptionConfig<{|
-    response: TSubscriptionPayload,
-    variables: Variables,
-  |}>;
-
-function requestSubscription<TSubscriptionPayload: {...}>(
+function requestSubscription<TVariables: Variables, TData, TRawResponse>(
   environment: IEnvironment,
-  config: DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload>,
+  config: GraphQLSubscriptionConfig<TVariables, TData, TRawResponse>,
 ): Disposable {
   const subscription = getRequest(config.subscription);
   if (subscription.params.operationKind !== 'subscription') {
@@ -110,7 +108,7 @@ function requestSubscription<TSubscriptionPayload: {...}>(
           }
           const data = environment.lookup(selector).data;
           // $FlowFixMe[incompatible-cast]
-          onNext((data: TSubscriptionPayload));
+          onNext((data: TData));
         }
       },
       error: onError,

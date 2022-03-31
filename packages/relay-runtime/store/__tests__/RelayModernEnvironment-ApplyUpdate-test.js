@@ -19,7 +19,7 @@ const {
   getActorIdentifier,
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -45,20 +45,20 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       beforeEach(() => {
         jest.resetModules();
 
-        ParentQuery = getRequest(graphql`
+        ParentQuery = graphql`
           query RelayModernEnvironmentApplyUpdateTestParentQuery {
             me {
               id
               name
             }
           }
-        `);
-        UserFragment = getFragment(graphql`
+        `;
+        UserFragment = graphql`
           fragment RelayModernEnvironmentApplyUpdateTestUserFragment on User {
             id
             name
           }
-        `);
+        `;
 
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);

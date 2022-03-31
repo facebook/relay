@@ -26,7 +26,6 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
-  getFragment,
   getRequest,
   graphql,
 } = require('relay-runtime');
@@ -224,7 +223,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         }
       `;
 
-      gqlFragment = getFragment(graphql`
+      gqlFragment = graphql`
         fragment useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment on User
         @refetchable(
           queryName: "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery"
@@ -252,33 +251,31 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             }
           }
         }
-      `);
+      `;
 
-      gqlQuery = getRequest(
-        graphql`
-          query useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery(
-            $id: ID!
-            $after: ID
-            $first: Int
-            $before: ID
-            $last: Int
-            $orderby: [String]
-            $isViewerFriend: Boolean
-          ) {
-            node(id: $id) {
-              actor {
-                ...useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment
-                  @arguments(
-                    isViewerFriendLocal: $isViewerFriend
-                    orderby: $orderby
-                  )
-              }
+      gqlQuery = graphql`
+        query useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery(
+          $id: ID!
+          $after: ID
+          $first: Int
+          $before: ID
+          $last: Int
+          $orderby: [String]
+          $isViewerFriend: Boolean
+        ) {
+          node(id: $id) {
+            actor {
+              ...useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment
+                @arguments(
+                  isViewerFriendLocal: $isViewerFriend
+                  orderby: $orderby
+                )
             }
           }
-        `,
-      );
+        }
+      `;
 
-      gqlQueryWithoutID = getRequest(graphql`
+      gqlQueryWithoutID = graphql`
         query useBlockingPaginationFragmentWithSuspenseTransitionTestUserQueryWithoutIDQuery(
           $after: ID
           $first: Int
@@ -297,7 +294,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
             }
           }
         }
-      `);
+      `;
 
       variablesWithoutID = {
         after: null,

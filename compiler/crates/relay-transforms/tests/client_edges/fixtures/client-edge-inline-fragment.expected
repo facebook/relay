@@ -33,7 +33,11 @@ fragment BestFriendResolverFragment_name on User {
 fragment Foo_node on Node {
   ... on Story {
     author {
-      ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_node_Story__author__best_friend") {
+      ... @__ClientEdgeMetadataDirective
+      # ServerObject {
+      #     query_name: "ClientEdgeQuery_Foo_node_Story__author__best_friend",
+      # }
+       {
         ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
         # RelayResolverSpreadMetadata {
         #     field_parent_type: "User",
@@ -41,6 +45,7 @@ fragment Foo_node on Node {
         #     field_name: "best_friend",
         #     field_alias: None,
         #     field_path: "author.best_friend",
+        #     live: false,
         # }
          @waterfall
         best_friend @waterfall {
@@ -51,7 +56,11 @@ fragment Foo_node on Node {
   }
   ... on PhotoStory {
     author {
-      ... @__clientEdge(queryName: "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend") {
+      ... @__ClientEdgeMetadataDirective
+      # ServerObject {
+      #     query_name: "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend",
+      # }
+       {
         ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
         # RelayResolverSpreadMetadata {
         #     field_parent_type: "User",
@@ -59,6 +68,7 @@ fragment Foo_node on Node {
         #     field_name: "best_friend",
         #     field_alias: None,
         #     field_path: "author.best_friend",
+        #     live: false,
         # }
          @waterfall
         best_friend @waterfall {

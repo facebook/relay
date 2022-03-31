@@ -71,12 +71,12 @@ export type ConcreateTypes$key = {
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
 export type FragmentSpread$data = {
-  readonly id: string;
-  readonly justFrag: {
-    readonly " $fragmentSpreads": FragmentRefs<"PictureFragment">;
-  } | null;
   readonly fragAndField: {
     readonly uri: string | null;
+    readonly " $fragmentSpreads": FragmentRefs<"PictureFragment">;
+  } | null;
+  readonly id: string;
+  readonly justFrag: {
     readonly " $fragmentSpreads": FragmentRefs<"PictureFragment">;
   } | null;
   readonly " $fragmentSpreads": FragmentRefs<"OtherFragment" | "UserFrag1" | "UserFrag2">;

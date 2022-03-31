@@ -9,6 +9,9 @@ use super::*;
 use crate::apply_custom_transforms::{
     apply_after_custom_transforms, apply_before_custom_transforms, CustomTransformsConfig,
 };
+use crate::assignable_fragment_spread::{
+    annotate_updatable_fragment_spreads, replace_updatable_fragment_spreads,
+};
 use crate::match_::hash_supported_argument;
 use common::{sync::try_join, DiagnosticsResult, PerfLogEvent, PerfLogger};
 use graphql_ir::Program;
@@ -372,6 +375,10 @@ fn apply_normalization_transforms(
         print_stats("apply_fragment_arguments", &program);
     }
 
+    program = log_event.time("replace_updatable_fragment_spreads", || {
+        replace_updatable_fragment_spreads(&program)
+    });
+
     program = log_event.time("hash_supported_argument", || {
         hash_supported_argument(&program, &project_config.feature_flags)
     })?;
@@ -466,6 +473,11 @@ fn apply_operation_text_transforms(
     log_event.time("validate_global_variables", || {
         validate_global_variables(&program)
     })?;
+
+    program = log_event.time("replace_updatable_fragment_spreads", || {
+        replace_updatable_fragment_spreads(&program)
+    });
+
     program = log_event.time("skip_split_operation", || skip_split_operation(&program));
     program = log_event.time("skip_client_extensions", || {
         skip_client_extensions(&program)
@@ -546,6 +558,9 @@ fn apply_typegen_transforms(
         "transform_assignable_fragment_spreads_in_updatable_queries",
         || transform_assignable_fragment_spreads_in_updatable_queries(&program),
     );
+    program = log_event.time("annotate_updatable_fragment_spreads", || {
+        annotate_updatable_fragment_spreads(&program)
+    });
 
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(

@@ -24,7 +24,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -59,7 +59,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       beforeEach(() => {
         RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
 
-        FlightQuery = getRequest(graphql`
+        FlightQuery = graphql`
           query RelayModernEnvironmentExecuteWithFlightTestFlightQuery(
             $id: ID!
             $count: Int!
@@ -70,9 +70,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        InnerQuery = getRequest(graphql`
+        InnerQuery = graphql`
           query RelayModernEnvironmentExecuteWithFlightTestInnerQuery(
             $id: ID!
           ) {
@@ -82,7 +82,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
         reactFlightPayloadDeserializer = jest.fn(payload => {
           return {

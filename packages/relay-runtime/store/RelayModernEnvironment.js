@@ -342,7 +342,7 @@ class RelayModernEnvironment implements IEnvironment {
   |}): RelayObservable<GraphQLResponse> {
     return this._execute({
       createSource: () =>
-        this._network.execute(
+        this.getNetwork().execute(
           operation.request.node.params,
           operation.request.variables,
           operation.request.cacheConfig || {},
@@ -372,7 +372,7 @@ class RelayModernEnvironment implements IEnvironment {
   |}): RelayObservable<GraphQLResponse> {
     return this._execute({
       createSource: () =>
-        this._network.execute(
+        this.getNetwork().execute(
           operation.request.node.params,
           operation.request.variables,
           operation.request.cacheConfig || {},
@@ -412,7 +412,7 @@ class RelayModernEnvironment implements IEnvironment {
     }
     return this._execute({
       createSource: () =>
-        this._network.execute(
+        this.getNetwork().execute(
           operation.request.node.params,
           operation.request.variables,
           {

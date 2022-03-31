@@ -1,6 +1,6 @@
 # expected-to-throw
 fragment ParentFragment on User {
-  ...ChildFragment @arguments(pictureSize: 42) # error: $pictureSize not defined
+  ...ChildFragment @arguments(prize: 42) # error: $prize not defined
 }
 
 fragment ChildFragment on User {

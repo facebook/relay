@@ -52,7 +52,7 @@ impl PartialOrd for BytesId {
 impl Ord for BytesId {
     fn cmp(&self, other: &BytesId) -> Ordering {
         if self == other {
-            std::cmp::Ordering::Equal
+            Ordering::Equal
         } else {
             self.get().cmp(other.get())
         }
@@ -65,7 +65,7 @@ pub type BytesIdSet = HashSet<BytesId, BuildIdHasher<u32>>;
 /// An opaque token corresponding to an interned &str.
 ///
 /// You can recover the str with id.as_str() or using format!.
-#[derive(Copy, Clone, Hash, Eq, PartialEq, Ord, PartialOrd)]
+#[derive(Copy, Clone, Hash, Eq, PartialEq)]
 #[derive(Serialize, Deserialize)]
 #[repr(transparent)]
 pub struct StringId(BytesId);
@@ -113,6 +113,18 @@ impl fmt::Display for StringId {
 impl fmt::Debug for StringId {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         f.write_str(self.as_str())
+    }
+}
+
+impl PartialOrd for StringId {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for StringId {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.as_str().cmp(other.as_str())
     }
 }
 

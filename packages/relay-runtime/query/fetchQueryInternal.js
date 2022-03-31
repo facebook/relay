@@ -22,6 +22,7 @@ import type {
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
 
 const Observable = require('../network/RelayObservable');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayReplaySubject = require('../util/RelayReplaySubject');
 const invariant = require('invariant');
 
@@ -30,6 +31,7 @@ type RequestCacheEntry = {|
   +subject: RelayReplaySubject<GraphQLResponse>,
   +subjectForInFlightStatus: RelayReplaySubject<GraphQLResponse>,
   +subscription: Subscription,
+  promise: ?Promise<void>,
 |};
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
@@ -137,6 +139,7 @@ function fetchQueryDeduped(
               subject: new RelayReplaySubject(),
               subjectForInFlightStatus: new RelayReplaySubject(),
               subscription: subscription,
+              promise: null,
             };
             requestCache.set(identifier, cachedRequest);
           },
@@ -248,8 +251,13 @@ function getPromiseForActiveRequest(
   if (!environment.isRequestActive(cachedRequest.identifier)) {
     return null;
   }
-
-  return new Promise((resolve, reject) => {
+  if (RelayFeatureFlags.USE_REACT_CACHE) {
+    const existing = cachedRequest.promise;
+    if (existing) {
+      return existing;
+    }
+  }
+  const promise = new Promise((resolve, reject) => {
     let resolveOnNext = false;
     getActiveStatusObservableForCachedRequest(
       environment,
@@ -271,6 +279,10 @@ function getPromiseForActiveRequest(
     });
     resolveOnNext = true;
   });
+  if (RelayFeatureFlags.USE_REACT_CACHE) {
+    cachedRequest.promise = promise;
+  }
+  return promise;
 }
 
 /**

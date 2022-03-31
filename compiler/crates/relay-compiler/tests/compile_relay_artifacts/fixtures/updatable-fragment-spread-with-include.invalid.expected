@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query updatableFragmentSpreadWithIncludeQuery($if: Boolean!) {
+  me {
+    ...updatableFragmentSpreadWithInclude_user @include(if: $if)
+  }
+}
+
+fragment updatableFragmentSpreadWithInclude_user on User @updatable {
+  firstName
+}
+==================================== ERROR ====================================
+✖︎ Directives are not allowed on spreads of updatable fragments
+
+  updatable-fragment-spread-with-include.invalid.graphql:4:8
+    3 │   me {
+    4 │     ...updatableFragmentSpreadWithInclude_user @include(if: $if)
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │   }

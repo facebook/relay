@@ -33,26 +33,26 @@ export type RelayClientIDFieldQuery$variables = {|
 export type RelayClientIDFieldQuery$data = {|
   +__id: string,
   +me: ?{|
-    +__id: string,
     +__typename: string,
+    +__id: string,
     +global_id: string,
   |},
   +node: ?{|
-    +__id: string,
     +__typename: string,
-    +global_id: string,
+    +__id: string,
     +commentBody?: ?{|
-      +__id: string,
       +__typename: string,
+      +__id: string,
       +text?: ?{|
-        +__id: string,
         +__typename: string,
+        +__id: string,
         +text: ?string,
       |},
     |},
+    +global_id: string,
   |},
 |};
 export type RelayClientIDFieldQuery = {|
-  variables: RelayClientIDFieldQuery$variables,
   response: RelayClientIDFieldQuery$data,
+  variables: RelayClientIDFieldQuery$variables,
 |};

@@ -40,6 +40,7 @@ pub async fn persist(
     document: &str,
     uri: &str,
     params: impl IntoIterator<Item = (&String, &String)>,
+    extra_headers: impl IntoIterator<Item = (&String, &String)>,
 ) -> Result<String, PersistError> {
     let request_body = {
         let mut request_body = form_urlencoded::Serializer::new(String::new());
@@ -50,14 +51,19 @@ pub async fn persist(
         request_body.finish()
     };
 
-    let req = Request::builder()
+    let mut builder = Request::builder()
         .method(Method::POST)
         .uri(uri)
-        .header("content-type", "application/x-www-form-urlencoded")
-        .body(Body::from(request_body))
-        .map_err(|err| PersistError::NetworkCreateError {
-            error: Box::new(err),
-        })?;
+        .header("content-type", "application/x-www-form-urlencoded");
+    for (k, v) in extra_headers {
+        builder = builder.header(k, v);
+    }
+    let req =
+        builder
+            .body(Body::from(request_body))
+            .map_err(|err| PersistError::NetworkCreateError {
+                error: Box::new(err),
+            })?;
     let https = HttpsConnector::new();
     let client = Client::builder().build(https);
     let res = client.request(req).await?;

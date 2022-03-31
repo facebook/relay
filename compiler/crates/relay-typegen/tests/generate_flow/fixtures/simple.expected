@@ -13,9 +13,9 @@ declare export opaque type LinkedField$fragmentType: FragmentType;
 export type LinkedField$data = {|
   +name: ?string,
   +profilePicture: ?{|
+    +height: ?number,
     +uri: ?string,
     +width: ?number,
-    +height: ?number,
   |},
   +$fragmentType: LinkedField$fragmentType,
 |};

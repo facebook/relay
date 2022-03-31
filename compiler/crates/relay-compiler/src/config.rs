@@ -25,8 +25,7 @@ use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_config::{
-    FlowTypegenConfig, FlowTypegenPhase, JsModuleFormat, SchemaConfig, TypegenConfig,
-    TypegenLanguage,
+    FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig, TypegenLanguage,
 };
 pub use relay_config::{
     LocalPersistConfig, PersistConfig, ProjectConfig, RemotePersistConfig, SchemaLocation,
@@ -165,16 +164,23 @@ impl Config {
     pub fn search(start_dir: &Path) -> Result<Self> {
         match js_config_loader::search("relay", start_dir) {
             Ok(Some(config)) => Self::from_struct(config.path, config.value, true),
-            Ok(None) => Err(Error::ConfigNotFound),
-            Err(error) => Err(Error::ConfigSearchError { error }),
+            Ok(None) => Err(Error::ConfigError {
+                details: "No config found.".to_string(),
+            }),
+            Err(error) => Err(Error::ConfigError {
+                details: format!("Error searching config: {}", error),
+            }),
         }
     }
 
     pub fn load(config_path: PathBuf) -> Result<Self> {
         let config_string =
-            std::fs::read_to_string(&config_path).map_err(|err| Error::ConfigFileRead {
-                config_path: config_path.clone(),
-                source: err,
+            std::fs::read_to_string(&config_path).map_err(|err| Error::ConfigError {
+                details: format!(
+                    "Failed to read config file `{}`. {:?}",
+                    config_path.display(),
+                    err
+                ),
             })?;
         Self::from_string(config_path, &config_string, true)
     }
@@ -192,9 +198,12 @@ impl Config {
     /// `validate_fs` disables all filesystem checks for existence of files
     fn from_string(config_path: PathBuf, config_string: &str, validate_fs: bool) -> Result<Self> {
         let config_file: ConfigFile =
-            serde_json::from_str(config_string).map_err(|err| Error::ConfigFileParse {
-                config_path: config_path.clone(),
-                source: err,
+            serde_json::from_str(config_string).map_err(|err| Error::ConfigError {
+                details: format!(
+                    "Failed to parse config file `{}`: {}",
+                    config_path.display(),
+                    err,
+                ),
             })?;
         Self::from_struct(config_path, config_file, validate_fs)
     }
@@ -287,8 +296,6 @@ impl Config {
                     filename_for_artifact: None,
                     skip_types_for_artifact: None,
                     rollout: config_file_project.rollout,
-                    relay_flow_enum_directive_rollout: config_file_project
-                        .relay_flow_enum_directive_rollout,
                     js_module_format: config_file_project.js_module_format,
                 };
                 Ok((project_name, project_config))
@@ -622,7 +629,12 @@ pub struct SingleProjectConfigFile {
     pub schema_config: SchemaConfig,
 
     /// Added in 13.1.1 to customize Final/Compat mode in the single project config file
-    pub typegen_phase: FlowTypegenPhase,
+    /// Removed in 14.0.0
+    #[serde(default)]
+    pub typegen_phase: Option<Value>,
+
+    #[serde(default)]
+    pub feature_flags: Option<FeatureFlags>,
 }
 
 impl Default for SingleProjectConfigFile {
@@ -637,7 +649,7 @@ impl Default for SingleProjectConfigFile {
             excludes: get_default_excludes(),
             schema_extensions: vec![],
             no_future_proof_enums: false,
-            language: Some(TypegenLanguage::default()),
+            language: None,
             custom_scalars: Default::default(),
             schema_config: Default::default(),
             eager_es_modules: false,
@@ -645,7 +657,8 @@ impl Default for SingleProjectConfigFile {
             is_dev_variable_name: None,
             codegen_command: None,
             js_module_format: JsModuleFormat::CommonJS,
-            typegen_phase: FlowTypegenPhase::Final,
+            typegen_phase: None,
+            feature_flags: None,
         }
     }
 }
@@ -713,6 +726,16 @@ impl SingleProjectConfigFile {
             );
         }
 
+        if self.typegen_phase.is_some() {
+            return Err(Error::ConfigFileValidation {
+                config_path: config_path.into(),
+                validation_errors: vec![ConfigValidationError::RemovedConfigField {
+                    name: "typegenPhase",
+                    action: "Please remove the option and update type imports from generated files to new names.",
+                }],
+            });
+        }
+
         let current_dir = std::env::current_dir().unwrap();
         let common_root_dir = self.get_common_root(current_dir.clone()).map_err(|err| {
             Error::ConfigFileValidation {
@@ -720,6 +743,18 @@ impl SingleProjectConfigFile {
                 validation_errors: vec![err],
             }
         })?;
+
+        let language = self.language.ok_or_else(|| {
+            let mut variants = vec![];
+            for lang in TypegenLanguage::get_variants_as_string() {
+                variants.push(format!(r#"  "language": "{}""#, lang));
+            }
+
+            Error::ConfigError {
+                    details: format!("The `language` option is missing in the Relay configuration file. Please, specify one of the following options:\n{}", variants.join("\n")),
+                }
+            }
+        )?;
 
         let project_config = ConfigFileProject {
             output: self.artifact_directory.map(|dir| {
@@ -744,17 +779,17 @@ impl SingleProjectConfigFile {
                 .collect(),
             persist: self.persist_config,
             typegen_config: TypegenConfig {
-                language: self.language.unwrap_or(TypegenLanguage::TypeScript),
+                language,
                 custom_scalar_types: self.custom_scalars.clone(),
                 eager_es_modules: self.eager_es_modules,
                 flow_typegen: FlowTypegenConfig {
                     no_future_proof_enums: self.no_future_proof_enums,
-                    phase: self.typegen_phase,
                     ..Default::default()
                 },
                 ..Default::default()
             },
             js_module_format: self.js_module_format,
+            feature_flags: self.feature_flags,
             ..Default::default()
         };
 
@@ -883,9 +918,6 @@ pub struct ConfigFileProject {
     /// pass, otherwise it should be a number between 0 and 100 as a percentage.
     #[serde(default)]
     pub rollout: Rollout,
-
-    #[serde(default)]
-    pub relay_flow_enum_directive_rollout: Rollout,
 
     #[serde(default)]
     pub js_module_format: JsModuleFormat,

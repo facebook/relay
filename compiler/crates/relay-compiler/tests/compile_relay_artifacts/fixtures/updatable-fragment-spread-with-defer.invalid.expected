@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query updatableFragmentSpreadWithDeferQuery {
+  me {
+    ...updatableFragmentSpreadWithDefer_user @defer
+  }
+}
+
+fragment updatableFragmentSpreadWithDefer_user on User @updatable {
+  firstName
+}
+==================================== ERROR ====================================
+✖︎ Directives are not allowed on spreads of updatable fragments
+
+  updatable-fragment-spread-with-defer.invalid.graphql:4:8
+    3 │   me {
+    4 │     ...updatableFragmentSpreadWithDefer_user @defer
+      │        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    5 │   }

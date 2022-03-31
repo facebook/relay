@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<873b615a310d9477fa46bc9e1b8773ff>>
+ * @generated SignedSource<<17fa37aaab96370d6924fce3a659522f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,6 @@
 /*::
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 export type FeedbackLikeInput = {|
-  clientMutationId?: ?string,
   feedbackId?: ?string,
 |};
 export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables = {|
@@ -26,14 +25,14 @@ export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$vari
 export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data = {|
   +feedbackLikeSubscribe: ?{|
     +feedback: ?{|
-      +id: string,
       +doesViewerLike: ?boolean,
+      +id: string,
     |},
   |},
 |};
 export type RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription = {|
-  variables: RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables,
   response: RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$data,
+  variables: RelayMockEnvironmentWithComponentsTestRemarkableFixSubscription$variables,
 |};
 */
 

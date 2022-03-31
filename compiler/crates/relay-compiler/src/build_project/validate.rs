@@ -15,6 +15,7 @@ use relay_transforms::{
     validate_module_names, validate_no_double_underscore_alias,
     validate_no_inline_fragments_with_raw_response_type, validate_relay_directives,
     validate_unused_fragment_variables, validate_unused_variables, validate_updatable_directive,
+    validate_updatable_fragment_spread,
 };
 
 pub type AdditionalValidations =
@@ -43,6 +44,7 @@ pub fn validate(
         },
         disallow_circular_no_inline_fragments(program),
         validate_updatable_directive(program),
+        validate_updatable_fragment_spread(program),
         validate_assignable_directive(program),
     ])?;
 

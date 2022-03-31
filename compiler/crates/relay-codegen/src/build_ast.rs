@@ -23,14 +23,14 @@ use md5::{Digest, Md5};
 use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
-    remove_directive, ClientEdgeMetadata, ConnectionConstants, ConnectionMetadata, DeferDirective,
-    InlineDirectiveMetadata, ModuleMetadata, RefetchableMetadata, RelayDirective,
-    RelayResolverSpreadMetadata, RequiredMetadataDirective, StreamDirective,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
-    INLINE_DIRECTIVE_NAME, INTERNAL_METADATA_DIRECTIVE, NO_INLINE_DIRECTIVE_NAME,
-    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-    RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
-    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    remove_directive, ClientEdgeMetadata, ClientEdgeMetadataDirective, ConnectionConstants,
+    ConnectionMetadata, DeferDirective, InlineDirectiveMetadata, ModuleMetadata,
+    RefetchableMetadata, RelayDirective, RelayResolverSpreadMetadata, RequiredMetadataDirective,
+    StreamDirective, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
+    DIRECTIVE_SPLIT_OPERATION, INLINE_DIRECTIVE_NAME, INTERNAL_METADATA_DIRECTIVE,
+    NO_INLINE_DIRECTIVE_NAME, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
+    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
+    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
 
@@ -82,7 +82,6 @@ pub fn build_request_params(operation: &OperationDefinition) -> RequestParameter
     RequestParameters {
         name: operation.name.item,
         operation_kind: operation.kind,
-        metadata: Default::default(),
         id: &None,
         text: None,
     }
@@ -722,6 +721,12 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
 
         let path = relay_resolver_spread_metadata.field_path;
 
+        let kind = if relay_resolver_spread_metadata.live {
+            CODEGEN_CONSTANTS.relay_live_resolver
+        } else {
+            CODEGEN_CONSTANTS.relay_resolver
+        };
+
         // TODO(T86853359): Support non-haste environments when generating Relay Resolver RederAST
         let haste_import_name = Path::new(&module.to_string())
             .file_stem()
@@ -732,7 +737,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         Primitive::Key(self.object(object! {
             :build_alias(field_alias, field_name),
             fragment: fragment_primitive,
-            kind: Primitive::String(CODEGEN_CONSTANTS.relay_resolver),
+            kind: Primitive::String(kind),
             name: Primitive::String(field_name),
             resolver_module: Primitive::JSModuleDependency(haste_import_name),
             path: Primitive::String(path),
@@ -887,12 +892,24 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             _ => panic!("Expected Client Edge selections to be a LinkedField"),
         };
 
-        Primitive::Key(self.object(object! {
-            kind: Primitive::String(CODEGEN_CONSTANTS.client_edge),
-            operation: Primitive::GraphQLModuleDependency(client_edge_metadata.query_name),
-            client_edge_backing_field_key: backing_field,
-            client_edge_selections_key: selections_item,
-        }))
+        match client_edge_metadata.metadata_directive {
+            ClientEdgeMetadataDirective::ServerObject { query_name } => {
+                Primitive::Key(self.object(object! {
+                    kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_server_object),
+                    operation: Primitive::GraphQLModuleDependency(query_name),
+                    client_edge_backing_field_key: backing_field,
+                    client_edge_selections_key: selections_item,
+                }))
+            }
+            ClientEdgeMetadataDirective::ClientObject { type_name } => {
+                Primitive::Key(self.object(object! {
+                    kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
+                    concrete_type: Primitive::String(type_name),
+                    client_edge_backing_field_key: backing_field,
+                    client_edge_selections_key: selections_item,
+                }))
+            }
+        }
     }
 
     fn build_inline_fragment(&mut self, inline_frag: &InlineFragment) -> Primitive {
@@ -1274,7 +1291,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
     fn build_request_parameters(
         &mut self,
         operation: &OperationDefinition,
-        mut request_parameters: RequestParameters<'_>,
+        request_parameters: RequestParameters<'_>,
         top_level_statements: &TopLevelStatements,
     ) -> AstKey {
         let mut metadata_items: Vec<ObjectEntry> = operation
@@ -1306,15 +1323,6 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let connection_metadata = extract_connection_metadata_from_directive(&operation.directives);
         if let Some(connection_metadata) = connection_metadata {
             metadata_items.push(self.build_connection_metadata(connection_metadata))
-        }
-
-        // add request parameters metadata
-        let metadata_values: Vec<(String, String)> = request_parameters.metadata.drain().collect();
-        for (key, value) in metadata_values {
-            metadata_items.push(ObjectEntry {
-                key: key.intern(),
-                value: Primitive::RawString(value),
-            });
         }
 
         // sort metadata keys

@@ -36,7 +36,7 @@ fn get_expected_file_extensions(config: &Config) -> HashSet<&str> {
 
     for project in config.enabled_projects() {
         match project.typegen_config.language {
-            TypegenLanguage::Flow => {
+            TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
                 file_extensions.insert("js");
                 file_extensions.insert("jsx");
             }

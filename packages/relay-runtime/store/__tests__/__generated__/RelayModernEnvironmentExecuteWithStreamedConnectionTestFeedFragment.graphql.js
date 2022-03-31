@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<239e8d80d6d880a59b851e5f35fa5d15>>
+ * @generated SignedSource<<a458bdd7f3114976b6d4dda2189d2c8a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,14 +24,14 @@ export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$
       +cursor: ?string,
       +node: ?{|
         +__typename: string,
-        +id: string,
         +feedback: ?{|
-          +id: string,
           +actors: ?$ReadOnlyArray<?{|
             +id: string,
             +name: ?string,
           |}>,
+          +id: string,
         |},
+        +id: string,
       |},
     |}>,
     +pageInfo: ?{|

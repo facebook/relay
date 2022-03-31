@@ -199,7 +199,7 @@ version = "3.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "da95d038ede1a964ce99f49cbe27a7fb538d1da595e4b4f70b8c8f338d17bf16"
 dependencies = [
- "heck",
+ "heck 0.4.0",
  "proc-macro-error",
  "proc-macro2",
  "quote",
@@ -402,6 +402,7 @@ dependencies = [
 name = "extract-graphql"
 version = "0.0.0"
 dependencies = [
+ "common",
  "docblock-syntax",
  "fixture-tests",
  "graphql-syntax",
@@ -628,7 +629,6 @@ dependencies = [
  "graphql-cli",
  "intern",
  "logos",
- "lsp-types",
  "serde",
  "thiserror",
 ]
@@ -697,6 +697,15 @@ checksum = "ab5ef0d4909ef3724cc8cce6ccc8572c5c817592e9285f5464f8e86f8bd3726e"
 dependencies = [
  "ahash",
  "serde",
+]
+
+[[package]]
+name = "heck"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d621efb26863f0e9924c6ac577e8275e5e6b77455db64ffa6c65c904e9e132c"
+dependencies = [
+ "unicode-segmentation",
 ]
 
 [[package]]
@@ -824,7 +833,7 @@ dependencies = [
 
 [[package]]
 name = "intern"
-version = "0.0.0"
+version = "0.1.0"
 dependencies = [
  "bincode",
  "fnv",
@@ -836,6 +845,7 @@ dependencies = [
  "serde",
  "serde_bytes",
  "serde_derive",
+ "serde_json",
  "smallvec",
 ]
 
@@ -1390,6 +1400,22 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
+name = "relay"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "common",
+ "log",
+ "relay-compiler",
+ "relay-lsp",
+ "schema",
+ "schema-documentation",
+ "simplelog",
+ "thiserror",
+ "tokio",
+]
+
+[[package]]
 name = "relay-codegen"
 version = "0.0.0"
 dependencies = [
@@ -1412,11 +1438,10 @@ dependencies = [
 
 [[package]]
 name = "relay-compiler"
-version = "13.1.1"
+version = "13.2.0"
 dependencies = [
  "async-trait",
  "bincode",
- "clap",
  "common",
  "common-path",
  "dashmap",
@@ -1458,7 +1483,6 @@ dependencies = [
  "serde_json",
  "sha-1",
  "signedsource",
- "simplelog",
  "thiserror",
  "tokio",
  "walkdir",
@@ -1477,6 +1501,8 @@ dependencies = [
  "regex",
  "serde",
  "serde_json",
+ "strum",
+ "strum_macros",
 ]
 
 [[package]]
@@ -1500,10 +1526,10 @@ dependencies = [
 name = "relay-lsp"
 version = "0.0.0"
 dependencies = [
- "assert_matches",
  "common",
  "crossbeam",
  "dashmap",
+ "docblock-syntax",
  "extract-graphql",
  "fnv",
  "graphql-ir",
@@ -1518,8 +1544,10 @@ dependencies = [
  "rand",
  "rayon",
  "relay-compiler",
+ "relay-docblock",
  "relay-test-schema",
  "relay-transforms",
+ "resolution-path",
  "schema",
  "schema-documentation",
  "schema-print",
@@ -1602,6 +1630,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3acd125665422973a33ac9d3dd2df85edad0f4ae9b00dafb1a05e43a9f5ef8e7"
 dependencies = [
  "winapi",
+]
+
+[[package]]
+name = "resolution-path"
+version = "0.0.0"
+dependencies = [
+ "assert_matches",
+ "common",
+ "graphql-syntax",
+ "intern",
+ "relay-test-schema",
+ "schema",
 ]
 
 [[package]]
@@ -1830,9 +1870,9 @@ dependencies = [
 
 [[package]]
 name = "simplelog"
-version = "0.10.0"
+version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59d0fe306a0ced1c88a58042dc22fc2ddd000982c26d75f6aa09a394547c41e0"
+checksum = "85d04ae642154220ef00ee82c36fb07853c10a4f2a0ca6719f9991211d2eb959"
 dependencies = [
  "chrono",
  "log",
@@ -1886,6 +1926,24 @@ name = "strsim"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
+
+[[package]]
+name = "strum"
+version = "0.21.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aaf86bbcfd1fa9670b7a129f64fc0c9fcbbfe4f1bc4210e9e98fe71ffc12cde2"
+
+[[package]]
+name = "strum_macros"
+version = "0.21.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d06aaeeee809dbc59eb4556183dd927df67db1540de5be8d3ec0b6636358a5ec"
+dependencies = [
+ "heck 0.3.3",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
 
 [[package]]
 name = "sval"
@@ -2115,6 +2173,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "unicode-segmentation"
+version = "1.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7e8820f5d777f6224dc4be3632222971ac30164d4a258d595640799554ebfd99"
+
+[[package]]
 name = "unicode-width"
 version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2245,18 +2309,18 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
 name = "zstd"
-version = "0.8.0+zstd.1.4.9"
+version = "0.9.2+zstd.1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "afab5e288c9e10bcd910b16ad82cb8028b74b09eccaa5ecd90621f99d3380735"
+checksum = "2390ea1bf6c038c39674f22d95f0564725fc06034a47129179810b2fc58caa54"
 dependencies = [
  "zstd-safe",
 ]
 
 [[package]]
 name = "zstd-safe"
-version = "4.0.0+zstd.1.4.9"
+version = "4.1.3+zstd.1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81f02c0811d5455aa82c6bc400cffd8c882f3a2813f5e2245e2b264443305ab2"
+checksum = "e99d81b99fb3c2c2c794e3fe56c305c63d5173a16a46b5850b07c935ffc7db79"
 dependencies = [
  "libc",
  "zstd-sys",
@@ -2264,9 +2328,9 @@ dependencies = [
 
 [[package]]
 name = "zstd-sys"
-version = "1.5.0+zstd.1.4.9"
+version = "1.6.2+zstd.1.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4e6c094340240369025fc6b731b054ee2a834328fa584310ac96aa4baebdc465"
+checksum = "2daf2f248d9ea44454bfcb2516534e8b8ad2fc91bf818a1885495fc42bc8ac9f"
 dependencies = [
  "cc",
  "libc",

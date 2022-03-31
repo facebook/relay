@@ -79,7 +79,7 @@ pub fn parse_executable_with_error_recovery_and_parser_features(
     parser.parse_executable_document()
 }
 
-/// Parses a GraphQL document that's restricted to executable executable
+/// Parses a GraphQL document that's restricted to executable
 /// definitions with custom feature flags passed as `features`.
 pub fn parse_executable_with_features(
     source: &str,

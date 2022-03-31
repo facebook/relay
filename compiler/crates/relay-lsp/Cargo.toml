@@ -27,6 +27,7 @@ rayon = "1.2"
 relay-compiler = { path = "../relay-compiler" }
 relay-docblock = { path = "../relay-docblock" }
 relay-transforms = { path = "../relay-transforms" }
+resolution-path = { path = "../resolution-path" }
 schema = { path = "../schema" }
 schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
@@ -35,5 +36,4 @@ serde_json = { version = "1.0.64", features = ["float_roundtrip", "unbounded_dep
 tokio = { version = "1.15", features = ["full", "test-util", "tracing"] }
 
 [dev-dependencies]
-assert_matches = "1.5"
 relay-test-schema = { path = "../relay-test-schema" }

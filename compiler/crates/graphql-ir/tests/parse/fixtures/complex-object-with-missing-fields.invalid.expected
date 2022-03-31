@@ -6,7 +6,7 @@ mutation LikeMutation($feedbackId: ID!) {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Missing required fields '["clientMutationId", "userID"]' of type 'FeedbackLikeInputStrict'
+✖︎ Missing required fields '["userID"]' of type 'FeedbackLikeInputStrict'
 
   complex-object-with-missing-fields.invalid.graphql:3:29
     2 │ mutation LikeMutation($feedbackId: ID!) {

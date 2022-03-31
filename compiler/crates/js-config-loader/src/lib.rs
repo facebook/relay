@@ -35,6 +35,7 @@ where
         (format!(".{}rc.js", name), Box::new(JsLoader)),
         (format!(".{}rc.cjs", name), Box::new(JsLoader)),
         (format!("{}.config.js", name), Box::new(JsLoader)),
+        (format!("{}.config.json", name), Box::new(JsonLoader)),
         (format!("{}.config.cjs", name), Box::new(JsLoader)),
     ];
 

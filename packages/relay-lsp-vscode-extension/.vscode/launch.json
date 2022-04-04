@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Extension Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+      "env": {
+        "RELAY_BINARY_PATH": "/Users/terence/Code/relay/compiler/target/debug/relay"
+      }
+    }
+  ]
+}

@@ -185,6 +185,7 @@ Spreading fragments is generally preferable to refetching the data after a mutat
 We may want to update some state in response to the mutation succeeding or failing. For example, we might want to alert the user if the mutation failed. The `UseMutationConfig` object can include the following fields to handle such cases:
 
 * `onCompleted`, a callback that is executed when the mutation completes. It is passed the mutation response (stopping at fragment spread boundaries).
+  * The value passed to `onCompleted` is the the mutation fragment, as read out from the store, **after** updaters and declarative mutation directives are applied. This means that data from within unmasked fragments will not be read, and records that were deleted (e.g. by `@deleteRecord`) may also be null.
 * `onError`, a callback that is executed when the mutation errors. It is passed the error that occurred.
 
 ## Declarative mutation directives

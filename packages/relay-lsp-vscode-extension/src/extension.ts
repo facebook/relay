@@ -22,6 +22,8 @@ export async function activate(context: ExtensionContext) {
 
   const relayBinary =
     process.env.RELAY_BINARY_PATH ?? (await findRelayBinary(process.cwd()));
+
+  const outputLevel = process.env.RELAY_LSP_LOG_LEVEL ?? "debug";
   // const relayBinary = await findRelayBinary(workspace.rootPath);
 
   if (!relayBinary) {
@@ -36,7 +38,7 @@ export async function activate(context: ExtensionContext) {
 
   const serverOptions: ServerOptions = {
     command: relayBinary,
-    args: ["lsp", "--output=debug"],
+    args: ["lsp", `--output=${outputLevel}`],
   };
 
   // Options to control the language client
@@ -55,6 +57,8 @@ export async function activate(context: ExtensionContext) {
     revealOutputChannelOn: RevealOutputChannelOn.Never,
 
     initializationFailedHandler: (error) => {
+      outputChannel.appendLine(`initializationFailedHandler ${error}`);
+
       return true;
     },
 

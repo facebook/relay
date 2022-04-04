@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<72f4bf167568e5c4a2a2218c8bc29ac6>>
+ * @generated SignedSource<<0d8c404a6c037950a24e7f8515f31878>>
  */
 
 mod generate_flow;
@@ -346,6 +346,13 @@ fn required_bubbles_to_non_null_plural_linked_field() {
     let input = include_str!("generate_flow/fixtures/required-bubbles-to-non-null-plural-linked-field.graphql");
     let expected = include_str!("generate_flow/fixtures/required-bubbles-to-non-null-plural-linked-field.expected");
     test_fixture(transform_fixture, "required-bubbles-to-non-null-plural-linked-field.graphql", "generate_flow/fixtures/required-bubbles-to-non-null-plural-linked-field.expected", input, expected);
+}
+
+#[test]
+fn required_bubbles_to_plural_fragment_root() {
+    let input = include_str!("generate_flow/fixtures/required-bubbles-to-plural-fragment-root.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-bubbles-to-plural-fragment-root.expected");
+    test_fixture(transform_fixture, "required-bubbles-to-plural-fragment-root.graphql", "generate_flow/fixtures/required-bubbles-to-plural-fragment-root.expected", input, expected);
 }
 
 #[test]

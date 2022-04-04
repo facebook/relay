@@ -11,12 +11,10 @@
 
 'use strict';
 
-import type {readUpdatableQueryEXPERIMENTALTest2UpdatableQuery} from './__generated__/readUpdatableQueryEXPERIMENTALTest2UpdatableQuery.graphql';
 import type {readUpdatableQueryEXPERIMENTALTestRegularQuery} from './__generated__/readUpdatableQueryEXPERIMENTALTestRegularQuery.graphql';
-import type {readUpdatableQueryEXPERIMENTALTestUpdatableQuery} from './__generated__/readUpdatableQueryEXPERIMENTALTestUpdatableQuery.graphql';
 
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -137,7 +135,7 @@ describe('readUpdatableQuery', () => {
   let rootRequest;
 
   beforeEach(() => {
-    rootRequest = getRequest(regularQuery);
+    rootRequest = regularQuery;
     operation = createOperationDescriptor(rootRequest, {});
     const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);

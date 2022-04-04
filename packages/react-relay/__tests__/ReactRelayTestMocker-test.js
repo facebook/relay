@@ -20,7 +20,7 @@ const QueryRenderer = require('../ReactRelayQueryRenderer');
 const ReactRelayTestMocker = require('../ReactRelayTestMocker');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const RelayTestUtils = require('relay-test-utils-internal');
 
 const ReactRelayTestMockerTestQuery = graphql`
@@ -94,7 +94,7 @@ describe('ReactRelayTestMocker', () => {
 
     it('updates properly via default values', () => {
       const testQueryDefault = {
-        query: getRequest(ReactRelayTestMockerTestQuery),
+        query: ReactRelayTestMockerTestQuery,
         payload: {data: payload},
       };
 
@@ -103,7 +103,7 @@ describe('ReactRelayTestMocker', () => {
       const nestedQuery = ReactRelayTestMockerTestNestedQuery;
 
       const nestedQueryDefault = {
-        query: getRequest(ReactRelayTestMockerTestNestedQuery),
+        query: ReactRelayTestMockerTestNestedQuery,
         payload: {
           data: {
             viewer: {
@@ -203,7 +203,7 @@ describe('ReactRelayTestMocker', () => {
       expect(tree.toJSON()).toMatchSnapshot();
 
       writer.networkWrite({
-        query: getRequest(ReactRelayTestMockerTestQuery),
+        query: ReactRelayTestMockerTestQuery,
         payload: {data: payload},
       });
       jest.runAllTimers();
@@ -217,7 +217,7 @@ describe('ReactRelayTestMocker', () => {
       tree = ReactTestRenderer.create(toRender);
 
       writer.networkWrite({
-        query: getRequest(ReactRelayTestMockerTestQuery),
+        query: ReactRelayTestMockerTestQuery,
         payload: {
           data: null,
           errors: [
@@ -242,7 +242,7 @@ describe('ReactRelayTestMocker', () => {
       const q = ReactRelayTestMockerTestFragContainerTestQuery;
 
       writer.dataWrite({
-        query: getRequest(ReactRelayTestMockerTestFragContainerTestQuery),
+        query: ReactRelayTestMockerTestFragContainerTestQuery,
         payload: {data: payload},
         variables,
       });
@@ -267,7 +267,7 @@ describe('ReactRelayTestMocker', () => {
       };
 
       writer.dataWrite({
-        query: getRequest(ReactRelayTestMockerTestFragContainerTestQuery),
+        query: ReactRelayTestMockerTestFragContainerTestQuery,
         payload: {data: newPayload},
         variables,
       });

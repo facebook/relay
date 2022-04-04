@@ -14,7 +14,7 @@
 import type {readUpdatableFragmentEXPERIMENTALTestRegularQuery} from './__generated__/readUpdatableFragmentEXPERIMENTALTestRegularQuery.graphql';
 
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -58,7 +58,7 @@ describe('readUpdatableFragment', () => {
   let rootRequest;
 
   beforeEach(() => {
-    rootRequest = getRequest(regularQuery);
+    rootRequest = regularQuery;
     operation = createOperationDescriptor(rootRequest, {if2: true, if3: false});
     const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);

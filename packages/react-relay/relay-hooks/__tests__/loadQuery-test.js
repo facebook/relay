@@ -13,8 +13,6 @@
 
 'use strict';
 
-import type {ConcreteRequest, GraphQLTaggedNode} from 'relay-runtime';
-
 const {loadQuery, useTrackLoadQueryInRender} = require('../loadQuery');
 // Need React require for OSS build
 // eslint-disable-next-line no-unused-vars
@@ -24,7 +22,6 @@ const {
   Network,
   Observable,
   PreloadableQueryRegistry,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {
@@ -38,7 +35,7 @@ disallowWarnings();
 disallowConsoleErrors();
 
 describe('loadQuery', () => {
-  const q: GraphQLTaggedNode = graphql`
+  const query = graphql`
     query loadQueryTestQuery($id: ID!) {
       node(id: $id) {
         id
@@ -46,7 +43,6 @@ describe('loadQuery', () => {
     }
   `;
 
-  const query: ConcreteRequest = getRequest(q);
   // Only queries with an ID are preloadable
   const ID = '12345';
   (query.params: $FlowFixMe).id = ID;

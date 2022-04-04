@@ -29,7 +29,6 @@ const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext
 const areEqual = require('areEqual');
 const React = require('react');
 const {
-  RelayFeatureFlags,
   createOperationDescriptor,
   deepFreeze,
   getRequest,

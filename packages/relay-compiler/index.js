@@ -12,6 +12,9 @@
 
 const path = require('path');
 
+// We copy this binary resolution in the VSCode extension
+// If this changes, please update accordingly in here
+// https://github.com/facebook/relay/blob/main/vscode-extension/src/utils.ts
 let binary;
 if (process.platform === 'darwin' && process.arch === 'x64') {
   binary = path.join(__dirname, 'macos-x64', 'relay');

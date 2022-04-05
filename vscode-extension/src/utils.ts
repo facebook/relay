@@ -8,6 +8,9 @@ async function exists(file: string): Promise<boolean> {
     .catch(() => false);
 }
 
+// This is derived from the relay-compiler npm package.
+// If you update this, please update accordingly here
+// https://github.com/facebook/relay/blob/main/packages/relay-compiler/index.js
 function getBinaryPathRelativeToPackageJson() {
   let binaryPathRelativeToPackageJson;
   if (process.platform === "darwin" && process.arch === "x64") {

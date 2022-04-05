@@ -1,6 +1,6 @@
 {
   "name": "relay-lsp-client",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Relay LSP Client for VSCode",
   "main": "./out/extension.js",
   "activationEvents": [
@@ -15,22 +15,17 @@
       "type": "object",
       "title": "Relay",
       "properties": {
-        "relay.enabled": {
-          "scope": "window",
-          "type": "boolean",
-          "default": true,
-          "description": "Is relay enabled"
-        },
         "relay.outputLevel": {
           "scope": "window",
           "type": "string",
           "default": "quiet-with-errors",
-          "description": "Can be one of the following. `quiet`, `quiet-with-errors`, `verbose`, `debug`"
+          "enum": ["quiet", "quiet-with-errors", "verbose", "debug"],
+          "description": "Controls what is logged to the Output Channel."
         },
         "relay.pathToRelay": {
           "scope": "window",
           "type": "string",
-          "description": "Absolute path to relay binary. If not provided, the extension will look in the nearest node_modules directory"
+          "description": "Absolute path to the relay binary. If not provided, the extension will look in the nearest node_modules directory"
         }
       }
     }

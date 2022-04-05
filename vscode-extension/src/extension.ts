@@ -41,6 +41,9 @@ export async function activate(context: ExtensionContext) {
 
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
+    markdown: {
+      isTrusted: true
+    },
     documentSelector: [
       { scheme: "file", language: "javascript" },
       { scheme: "file", language: "typescript" },
@@ -79,7 +82,7 @@ export async function activate(context: ExtensionContext) {
       closed() {
         window
           .showWarningMessage(
-            "Relay LSP client connection got closed unexpectdly.",
+            "Relay LSP client connection got closed unexpectedly.",
             "Go to output",
             "Ignore"
           )

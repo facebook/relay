@@ -1,6 +1,6 @@
 {
   "name": "relay-lsp-client",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Relay LSP Client for VSCode",
   "main": "./out/extension.js",
   "activationEvents": [

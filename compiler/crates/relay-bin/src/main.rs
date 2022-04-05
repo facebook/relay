@@ -7,7 +7,7 @@
 
 use clap::{ArgEnum, Parser};
 use common::ConsoleLogger;
-use log::{debug, error, info};
+use log::{error, info};
 use relay_compiler::{
     build_project::artifact_writer::ArtifactValidationWriter, compiler::Compiler, config::Config,
     FileSourceKind, LocalPersister, OperationPersister, PersistConfig, RemotePersister,

@@ -6,7 +6,8 @@
     "outDir": "out",
     "rootDir": "src",
     "sourceMap": true,
-    "incremental": true
+    "incremental": true,
+    "strict": true
   },
   "include": ["src"],
   "exclude": ["node_modules"]

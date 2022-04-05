@@ -7,29 +7,36 @@ import {
   ServerOptions,
 } from 'vscode-languageclient/node';
 import {getConfig} from './config';
+import {RelayExtensionContext} from './context';
 import {createErrorHandler} from './errorHandler';
 import {findRelayBinary} from './utils';
 
-let client: LanguageClient;
+let relayExtensionContext: RelayExtensionContext | undefined;
 
-export async function activate(context: ExtensionContext) {
+export async function activate() {
   const config = getConfig();
-  const outputChannel = window.createOutputChannel('Relay Language Server');
+  relayExtensionContext = {
+    client: null,
+    outputChannel: window.createOutputChannel('Relay Language Server'),
+  };
 
   // TODO: Support multi folder workspaces by not using rootPath.
   // Maybe initialize a client once for each workspace?
   const relayBinary =
-    config.pathToRelay || (await findRelayBinary(workspace.rootPath));
+    config.pathToRelay ||
+    (await findRelayBinary(workspace.rootPath ?? process.cwd()));
 
   if (!relayBinary) {
-    outputChannel.appendLine(
+    relayExtensionContext.outputChannel.appendLine(
       "Could not find relay binary in path. Maybe you're not inside of a project with relay installed.",
     );
 
     return;
   }
 
-  outputChannel.appendLine(`Using relay binary: ${relayBinary}`);
+  relayExtensionContext.outputChannel.appendLine(
+    `Using relay binary: ${relayBinary}`,
+  );
 
   const serverOptions: ServerOptions = {
     command: relayBinary,
@@ -48,23 +55,25 @@ export async function activate(context: ExtensionContext) {
       {scheme: 'file', language: 'javascriptreact'},
     ],
 
-    outputChannel,
+    outputChannel: relayExtensionContext.outputChannel,
 
     // Since we use stderr for debug logs, the "Something went wrong" popup
     // in VSCode shows up a lot. This tells vscode not to show it in any case.
     revealOutputChannelOn: RevealOutputChannelOn.Never,
 
     initializationFailedHandler: (error) => {
-      outputChannel.appendLine(`initializationFailedHandler ${error}`);
+      relayExtensionContext?.outputChannel.appendLine(
+        `initializationFailedHandler ${error}`,
+      );
 
       return true;
     },
 
-    errorHandler: createErrorHandler(outputChannel),
+    errorHandler: createErrorHandler(relayExtensionContext),
   };
 
   // Create the language client and start the client.
-  client = new LanguageClient(
+  relayExtensionContext.client = new LanguageClient(
     'RelayLanguageClient',
     'Relay Language Client',
     serverOptions,
@@ -72,12 +81,9 @@ export async function activate(context: ExtensionContext) {
   );
 
   // Start the client. This will also launch the server
-  client.start();
+  relayExtensionContext.client.start();
 }
 
 export function deactivate(): Thenable<void> | undefined {
-  if (!client) {
-    return undefined;
-  }
-  return client.stop();
+  return relayExtensionContext?.client?.stop();
 }

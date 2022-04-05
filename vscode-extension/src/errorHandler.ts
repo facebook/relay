@@ -1,7 +1,10 @@
 import {OutputChannel, window} from 'vscode';
 import {CloseAction, ErrorAction, ErrorHandler} from 'vscode-languageclient';
+import {RelayExtensionContext} from './context';
 
-export function createErrorHandler(outputChannel: OutputChannel): ErrorHandler {
+export function createErrorHandler(
+  context: RelayExtensionContext,
+): ErrorHandler {
   return {
     // This happens when the LSP server stops running.
     // e.g. Could not find relay config.
@@ -27,7 +30,7 @@ export function createErrorHandler(outputChannel: OutputChannel): ErrorHandler {
         )
         .then((selected) => {
           if (selected === 'Go to output') {
-            outputChannel.show();
+            context.outputChannel.show();
           }
         });
 
@@ -43,7 +46,7 @@ export function createErrorHandler(outputChannel: OutputChannel): ErrorHandler {
         )
         .then((selected) => {
           if (selected === 'Go to output') {
-            outputChannel.show();
+            context.outputChannel.show();
           }
         });
 

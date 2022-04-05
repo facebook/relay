@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fbfd636dffb2bb8068dc96085f27bb68>>
+ * @generated SignedSource<<1ca9d7eb11468f905882356aaeae390b>>
  */
 
 mod find_field_usages;
@@ -66,6 +66,13 @@ fn linked_field_nomatch() {
     let input = include_str!("find_field_usages/fixtures/linked_field.nomatch.graphql");
     let expected = include_str!("find_field_usages/fixtures/linked_field.nomatch.expected");
     test_fixture(transform_fixture, "linked_field.nomatch.graphql", "find_field_usages/fixtures/linked_field.nomatch.expected", input, expected);
+}
+
+#[test]
+fn multiple_matches() {
+    let input = include_str!("find_field_usages/fixtures/multiple_matches.graphql");
+    let expected = include_str!("find_field_usages/fixtures/multiple_matches.expected");
+    test_fixture(transform_fixture, "multiple_matches.graphql", "find_field_usages/fixtures/multiple_matches.expected", input, expected);
 }
 
 #[test]

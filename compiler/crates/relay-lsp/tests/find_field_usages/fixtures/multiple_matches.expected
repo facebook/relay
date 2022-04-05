@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+fragment TestMultipleMatchesFragment1 on User {
+  name
+  ... on Actor {
+    name
+  }
+}
+
+fragment TestMultipleMatchesFragment2 on User {
+  name
+}
+
+%arguments%
+User name
+==================================== OUTPUT ===================================
+("TestMultipleMatchesFragment1 - 0", multiple_matches.graphql:50:54)
+("TestMultipleMatchesFragment1 - 1", multiple_matches.graphql:76:80)
+("TestMultipleMatchesFragment2", multiple_matches.graphql:138:142)

@@ -1,4 +1,4 @@
-import { workspace, ExtensionContext, window } from "vscode";
+import { workspace, ExtensionContext, window, commands } from "vscode";
 
 import {
   CloseAction,
@@ -8,28 +8,14 @@ import {
   RevealOutputChannelOn,
   ServerOptions,
 } from "vscode-languageclient/node";
+import { getConfig } from "./config";
 import { findRelayBinary } from "./utils";
 
 let client: LanguageClient;
 
-type Config = {
-  pathToRelay: string | null;
-  outputLevel: string;
-}
-
-function getConfig(): Config {
-  const configuration = workspace.getConfiguration('relay');
-
-  return {
-    pathToRelay: configuration.get('pathToRelay'),
-    outputLevel: configuration.get('outputLevel'),
-  };
-}
-
 export async function activate(context: ExtensionContext) {
-  const outputChannel = window.createOutputChannel("Relay Language Server");
-
   const config = getConfig();
+  const outputChannel = window.createOutputChannel("Relay Language Server");
 
   // TODO: Support multi folder workspaces by not using rootPath.
   // Maybe initialize a client once for each workspace?

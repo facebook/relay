@@ -42,8 +42,15 @@ export async function findRelayBinary(
 ): Promise<string | null> {
   const binaryPathRelativeToPackageJson = getBinaryPathRelativeToPackageJson();
 
+  let counter = 0;
   let currentPath = rootPath;
   while (true) {
+    if (counter >= 5000) {
+      throw new Error("Could not find Relay binary after 5000 traversals. This is likely a bug in the extension code and should be reported to https://github.com/facebook/relay/issues");
+    }
+
+    counter++;
+
     let possibleBinaryPath = path.join(
       currentPath,
       binaryPathRelativeToPackageJson

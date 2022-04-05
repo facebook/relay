@@ -10,7 +10,8 @@ use common::ConsoleLogger;
 use log::{error, info};
 use relay_compiler::{
     build_project::artifact_writer::ArtifactValidationWriter, compiler::Compiler, config::Config,
-    FileSourceKind, LocalPersister, OperationPersister, PersistConfig, RemotePersister,
+    errors::Error as CompilerError, FileSourceKind, LocalPersister, OperationPersister,
+    PersistConfig, RemotePersister,
 };
 use relay_lsp::{start_language_server, DummyExtraDataProvider};
 use schema::SDLSchema;
@@ -158,7 +159,7 @@ async fn main() {
     match result {
         Ok(_) => info!("Done."),
         Err(err) => {
-            error!("{:?}", err);
+            error!("{}", err);
             std::process::exit(1);
         }
     }
@@ -166,13 +167,9 @@ async fn main() {
 
 fn get_config(config_path: Option<PathBuf>) -> Result<Config, Error> {
     match config_path {
-        Some(config_path) => Config::load(config_path).map_err(|err| Error::ConfigError {
-            details: format!("{:?}", err),
-        }),
+        Some(config_path) => Config::load(config_path).map_err(Error::ConfigError),
         None => Config::search(&current_dir().expect("Unable to get current working directory."))
-            .map_err(|err| Error::ConfigError {
-                details: format!("{:?}", err),
-            }),
+            .map_err(Error::ConfigError),
     }
 }
 
@@ -198,12 +195,12 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     configure_logger(command.output, TerminalMode::Mixed);
 
     if command.cli_config.is_defined() {
-        return Err(Error::ConfigError {
+        return Err(Error::ConfigError(CompilerError::ConfigError {
             details: format!(
                 "\nPassing Relay compiler configuration is not supported. Please add `relay.config.json` file,\nor \"relay\" section to your `package.json` file.\n\nCompiler configuration JSON:{}",
                 command.cli_config.get_config_string(),
             ),
-        });
+        }));
     }
 
     let mut config = get_config(command.config)?;

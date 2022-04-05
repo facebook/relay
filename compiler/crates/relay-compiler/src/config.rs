@@ -20,6 +20,7 @@ use fnv::{FnvBuildHasher, FnvHashSet};
 use graphql_ir::{OperationDefinition, Program};
 use indexmap::IndexMap;
 use intern::string_key::{Intern, StringKey};
+use js_config_loader::LoaderSource;
 use log::warn;
 use persist_query::PersistError;
 use rayon::prelude::*;
@@ -35,6 +36,8 @@ use serde::de::Error as DeError;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use sha1::{Digest, Sha1};
+use std::env::current_dir;
+use std::ffi::OsStr;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::{fmt, vec};
@@ -162,10 +165,66 @@ impl From<SingleProjectConfigFile> for Config {
 
 impl Config {
     pub fn search(start_dir: &Path) -> Result<Self> {
-        match js_config_loader::search("relay", start_dir) {
+        Self::load_config(
+            start_dir,
+            &[
+                LoaderSource::PackageJson("relay".to_string()),
+                LoaderSource::Json("relay.config.json".to_string()),
+                LoaderSource::Js("relay.config.js".to_string()),
+            ],
+        )
+    }
+
+    pub fn load(config_path: PathBuf) -> Result<Self> {
+        let loader = if config_path.extension() == Some(OsStr::new("js")) {
+            LoaderSource::Js(config_path.display().to_string())
+        } else if config_path.extension() == Some(OsStr::new("json")) {
+            LoaderSource::Json(config_path.display().to_string())
+        } else {
+            return Err(Error::ConfigError {
+                details: format!(
+                    "Invalid file extension. Expected `.js` or `.json`. Provided file \"{}\".",
+                    config_path.display()
+                ),
+            });
+        };
+        Self::load_config(
+            &current_dir().expect("Unable to get current working directory."),
+            &[loader],
+        )
+    }
+
+    fn load_config(start_dir: &Path, loaders_sources: &[LoaderSource]) -> Result<Self> {
+        match js_config_loader::load(start_dir, loaders_sources) {
             Ok(Some(config)) => Self::from_struct(config.path, config.value, true),
             Ok(None) => Err(Error::ConfigError {
-                details: "No config found.".to_string(),
+                details: format!(
+                    r#"
+Configuration for Relay compiler not found.
+
+Please make sure that the configuration file is created in {}.
+
+You can also pass the path to the configuration file as `relay-compiler ./path-to-config/relay.json`.
+
+Example file:
+{{
+  "src": "./src",
+  "schema": "./path-to/schema.graphql"
+}}
+"#,
+                    match loaders_sources.len() {
+                        1 => loaders_sources[0].to_string(),
+                        2 => format!("{} or {}", loaders_sources[0], loaders_sources[1]),
+                        _ => {
+                            let mut loaders_str = loaders_sources
+                                .iter()
+                                .map(|loader| loader.to_string())
+                                .collect::<Vec<_>>();
+                            let last_option = loaders_str.pop().unwrap();
+                            format!("{}, or {}", loaders_str.join(", "), last_option)
+                        }
+                    }
+                ),
             }),
             Err(error) => Err(Error::ConfigError {
                 details: format!("Error searching config: {}", error),
@@ -173,39 +232,15 @@ impl Config {
         }
     }
 
-    pub fn load(config_path: PathBuf) -> Result<Self> {
-        let config_string =
-            std::fs::read_to_string(&config_path).map_err(|err| Error::ConfigError {
-                details: format!(
-                    "Failed to read config file `{}`. {:?}",
-                    config_path.display(),
-                    err
-                ),
-            })?;
-        Self::from_string(config_path, &config_string, true)
-    }
-
     /// Loads a config file without validation for use in tests.
     #[cfg(test)]
     pub fn from_string_for_test(config_string: &str) -> Result<Self> {
-        Self::from_string(
-            "/virtual/root/virtual_config.json".into(),
-            config_string,
-            false,
-        )
-    }
-
-    /// `validate_fs` disables all filesystem checks for existence of files
-    fn from_string(config_path: PathBuf, config_string: &str, validate_fs: bool) -> Result<Self> {
+        let path = PathBuf::from("/virtual/root/virtual_config.json");
         let config_file: ConfigFile =
             serde_json::from_str(config_string).map_err(|err| Error::ConfigError {
-                details: format!(
-                    "Failed to parse config file `{}`: {}",
-                    config_path.display(),
-                    err,
-                ),
+                details: format!("Failed to parse config file `{}`: {}", path.display(), err,),
             })?;
-        Self::from_struct(config_path, config_file, validate_fs)
+        Self::from_struct(path, config_file, false)
     }
 
     /// `validate_fs` disables all filesystem checks for existence of files

@@ -34,22 +34,20 @@ Relay Compiler will automatically discover the config if:
   project (i.e. in the same folder as the `package.json` file).
 - The `package.json` file contains a `"relay"` key.
 
-Additionally, this config file can be specified with the CLI argument `--config`
-as follows:
+Alternatively, the path to a configuration file can be specified as an argument:
 
 ```shell
-npm run relay --config ./relay.json
+npm run relay ./relay.json
 ```
 
 or with yarn
 
 ```shell
-yarn relay --config ./relay.json
+yarn relay ./relay.json
 ```
 
-Please note, that if you pass configuration options via --cli arguments, you'll
-need to provide a separate configuration for the
-[babel plugin](https://www.npmjs.com/package/babel-plugin-relay).
+Please note, in this case you'll need to provide a separate configuration for
+the [babel plugin](https://www.npmjs.com/package/babel-plugin-relay).
 
 ## File Finder
 

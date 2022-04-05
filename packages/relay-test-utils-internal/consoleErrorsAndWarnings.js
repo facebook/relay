@@ -45,7 +45,7 @@ function createConsoleInterceptionSystem(
     );
     if (
       contextualExpectedMessage.length > 0 &&
-      contextualExpectedMessage[0] === message
+      message.startsWith(contextualExpectedMessage[0])
     ) {
       contextualExpectedMessage.shift();
     } else if (index >= 0) {

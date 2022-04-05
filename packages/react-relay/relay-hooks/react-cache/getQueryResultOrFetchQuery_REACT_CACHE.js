@@ -15,7 +15,9 @@
 
 import type {
   FetchPolicy,
+  GraphQLResponse,
   IEnvironment,
+  Observable,
   OperationDescriptor,
   ReaderFragment,
   RenderPolicy,
@@ -53,8 +55,11 @@ function getQueryCacheKey(
   operation: OperationDescriptor,
   fetchPolicy: FetchPolicy,
   renderPolicy: RenderPolicy,
+  fetchKey?: ?string | ?number,
 ): string {
-  const cacheIdentifier = `${fetchPolicy}-${renderPolicy}-${operation.request.identifier}`;
+  const cacheIdentifier = `${fetchPolicy}-${renderPolicy}-${
+    operation.request.identifier
+  }-${fetchKey ?? ''}`;
   return cacheIdentifier;
 }
 
@@ -75,11 +80,16 @@ function constructQueryResult(operation: OperationDescriptor): QueryResult {
 function getQueryResultOrFetchQuery_REACT_CACHE(
   environment: IEnvironment,
   queryOperationDescriptor: OperationDescriptor,
-  fetchPolicy: FetchPolicy = DEFAULT_FETCH_POLICY,
-  maybeRenderPolicy?: RenderPolicy,
+  options?: {|
+    fetchPolicy?: FetchPolicy,
+    renderPolicy?: RenderPolicy,
+    fetchKey?: ?string | ?number,
+    fetchObservable?: Observable<GraphQLResponse>,
+  |},
 ): QueryResult {
+  const fetchPolicy = options?.fetchPolicy ?? DEFAULT_FETCH_POLICY;
   const renderPolicy =
-    maybeRenderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
+    options?.renderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
 
   const cache = getCacheForType(createQueryCache);
 
@@ -87,6 +97,7 @@ function getQueryResultOrFetchQuery_REACT_CACHE(
     queryOperationDescriptor,
     fetchPolicy,
     renderPolicy,
+    options?.fetchKey,
   );
 
   let entry = cache.get(cacheKey);
@@ -101,6 +112,7 @@ function getQueryResultOrFetchQuery_REACT_CACHE(
       newCacheEntry => {
         cache.set(cacheKey, newCacheEntry);
       },
+      options?.fetchObservable,
     );
     cache.set(cacheKey, entry);
 
@@ -135,6 +147,7 @@ function onCacheMiss(
   fetchPolicy: FetchPolicy,
   renderPolicy: RenderPolicy,
   updateCache: QueryCacheEntry => void,
+  customFetchObservable?: Observable<GraphQLResponse>,
 ): QueryCacheEntry {
   // NB: Besides checking if the data is available, calling `check` will write missing
   // data to the store using any missing data handlers specified in the environment.
@@ -176,6 +189,7 @@ function onCacheMiss(
       environment,
       operation,
       updateCache,
+      customFetchObservable,
     );
   }
 
@@ -203,6 +217,7 @@ function executeOperationAndKeepUpToDate(
   environment: IEnvironment,
   operation: OperationDescriptor,
   updateCache: QueryCacheEntry => void,
+  customFetchObservable?: Observable<GraphQLResponse>,
 ): QueryCacheEntry {
   let resolvePromise;
   const promise = new Promise(r => {
@@ -215,7 +230,8 @@ function executeOperationAndKeepUpToDate(
   let entry;
 
   // FIXME We may still need to cancel network requests for live queries.
-  const fetchObservable = fetchQueryInternal(environment, operation);
+  const fetchObservable =
+    customFetchObservable ?? fetchQueryInternal(environment, operation);
   fetchObservable.subscribe({
     start: subscription => {},
     error: error => {

@@ -339,6 +339,20 @@ const relayCompiler = gulp.parallel(
       .src(['LICENSE'])
       .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
   },
+  function copyGraphQLExtensions() {
+    return gulp
+      .src(
+        path.join(
+          '.',
+          'compiler',
+          'crates',
+          'relay-schema',
+          'src',
+          'relay-extensions.graphql',
+        ),
+      )
+      .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
+  },
   function copyPackageFiles() {
     return gulp
       .src(['README.md', 'package.json', 'cli.js', 'index.js'], {

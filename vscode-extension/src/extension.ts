@@ -12,17 +12,29 @@ import { findRelayBinary } from "./utils";
 
 let client: LanguageClient;
 
+type Config = {
+  pathToRelay: string | null;
+  outputLevel: string;
+}
+
+function getConfig(): Config {
+  const configuration = workspace.getConfiguration('relay');
+
+  return {
+    pathToRelay: configuration.get('pathToRelay'),
+    outputLevel: configuration.get('outputLevel'),
+  };
+}
+
 export async function activate(context: ExtensionContext) {
   const outputChannel = window.createOutputChannel("Relay Language Server");
+
+  const config = getConfig();
 
   // TODO: Support multi folder workspaces by not using rootPath.
   // Maybe initialize a client once for each workspace?
   const relayBinary =
-  // TODO: Use VSCode config instead of process.env
-    process.env.RELAY_BINARY_PATH ?? (await findRelayBinary(workspace.rootPath));
-
-  // TODO: Use VSCode config instead of process.env
-  const outputLevel = process.env.RELAY_LSP_LOG_LEVEL ?? "debug";
+    config.pathToRelay || (await findRelayBinary(workspace.rootPath));
 
   if (!relayBinary) {
     outputChannel.appendLine(
@@ -36,7 +48,7 @@ export async function activate(context: ExtensionContext) {
 
   const serverOptions: ServerOptions = {
     command: relayBinary,
-    args: ["lsp", `--output=${outputLevel}`],
+    args: ["lsp", `--output=${config.outputLevel}`],
   };
 
   // Options to control the language client

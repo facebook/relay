@@ -25,7 +25,8 @@
         },
         "relay.pathToRelay": {
           "scope": "window",
-          "type": "string",
+          "default": null,
+          "type": ["string", "null"],
           "description": "Absolute path to the relay binary. If not provided, the extension will look in the nearest node_modules directory"
         }
       }

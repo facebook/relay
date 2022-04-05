@@ -9,7 +9,9 @@
       "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
       "preLaunchTask": "ts-build",
       "env": {
-        "RELAY_BINARY_PATH": "/path/to/your/binary",
+        // Use this if you want to use a local binary
+        // Otherwise we'll look in your node modules
+        // "RELAY_BINARY_PATH": "/path/to/your/binary",
         "RELAY_LSP_LOG_LEVEL": "debug"
       }
     }

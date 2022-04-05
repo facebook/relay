@@ -1,8 +1,3 @@
-/* --------------------------------------------------------------------------------------------
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- * ------------------------------------------------------------------------------------------ */
-
 import { workspace, ExtensionContext, window } from "vscode";
 
 import {
@@ -20,11 +15,14 @@ let client: LanguageClient;
 export async function activate(context: ExtensionContext) {
   const outputChannel = window.createOutputChannel("Relay Language Server");
 
+  // TODO: Support multi folder workspaces by not using rootPath.
+  // Maybe initialize a client once for each workspace?
   const relayBinary =
-    process.env.RELAY_BINARY_PATH ?? (await findRelayBinary(process.cwd()));
+  // TODO: Use VSCode config instead of process.env
+    process.env.RELAY_BINARY_PATH ?? (await findRelayBinary(workspace.rootPath));
 
+  // TODO: Use VSCode config instead of process.env
   const outputLevel = process.env.RELAY_LSP_LOG_LEVEL ?? "debug";
-  // const relayBinary = await findRelayBinary(workspace.rootPath);
 
   if (!relayBinary) {
     outputChannel.appendLine(
@@ -63,7 +61,21 @@ export async function activate(context: ExtensionContext) {
     },
 
     errorHandler: {
+      // This happens when the LSP server stops running.
+      // e.g. Could not find relay config.
+      // e.g. watchman was not installed.
       //
+      // TODO: Figure out the best way to handle this `closed` event
+      //
+      // Some of these messages are worth surfacing and others are not
+      // e.g. "Watchman is not installed" is important to surface to the user
+      // but "No relay config found" is not relevant since the user is likely
+      // just in a workspace where they don't have a relay config.
+      //
+      // We already bail early if there is no relay binary found. 
+      // So maybe we should just show all of these messages since it would
+      // be weird if you had a relay binary in your node modules but no relay
+      // config could be found. 🤷 for now.
       closed() {
         window
           .showWarningMessage(
@@ -79,6 +91,7 @@ export async function activate(context: ExtensionContext) {
 
         return CloseAction.DoNotRestart;
       },
+      // This `error` callback should probably never happen. 🙏
       error() {
         window
           .showWarningMessage(

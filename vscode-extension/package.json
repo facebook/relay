@@ -1,7 +1,7 @@
 {
   "name": "relay-lsp-client",
   "version": "1.0.0",
-  "description": "VSCode part of a language server",
+  "description": "Relay LSP Client for VSCode",
   "main": "./out/extension.js",
   "activationEvents": [
     "onLanguage:plaintext",

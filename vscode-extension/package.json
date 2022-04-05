@@ -15,12 +15,6 @@
       "type": "object",
       "title": "Relay",
       "properties": {
-        "relay.enabled": {
-          "scope": "window",
-          "type": "boolean",
-          "default": true,
-          "description": "Is relay enabled"
-        },
         "relay.outputLevel": {
           "scope": "window",
           "type": "string",

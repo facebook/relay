@@ -19,12 +19,13 @@
           "scope": "window",
           "type": "string",
           "default": "quiet-with-errors",
-          "description": "Can be one of the following. `quiet`, `quiet-with-errors`, `verbose`, `debug`"
+          "enum": ["quiet", "quiet-with-errors", "verbose", "debug"],
+          "description": "Controls what is logged to the Output Channel."
         },
         "relay.pathToRelay": {
           "scope": "window",
           "type": "string",
-          "description": "Absolute path to relay binary. If not provided, the extension will look in the nearest node_modules directory"
+          "description": "Absolute path to the relay binary. If not provided, the extension will look in the nearest node_modules directory"
         }
       }
     }

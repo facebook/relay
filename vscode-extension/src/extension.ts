@@ -79,7 +79,7 @@ export async function activate(context: ExtensionContext) {
       closed() {
         window
           .showWarningMessage(
-            "Relay LSP client connection got closed unexpectdly.",
+            "Relay LSP client connection got closed unexpectedly.",
             "Go to output",
             "Ignore"
           )

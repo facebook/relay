@@ -440,24 +440,23 @@ impl<'a> TypeGenerator<'a> {
 
         let unmasked = RelayDirective::is_unmasked_fragment_definition(fragment_definition);
 
-        let base_type = self.selections_to_babel(
+        let mut type_ = self.selections_to_babel(
             selections.into_iter(),
             unmasked,
             if unmasked { None } else { Some(fragment_name) },
         );
-        let type_ = if is_plural_fragment {
-            AST::ReadOnlyArray(base_type.into())
-        } else {
-            base_type
-        };
 
-        let type_ = match fragment_definition
+        if fragment_definition
             .directives
             .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+            .is_some()
         {
-            Some(_) => AST::Nullable(type_.into()),
-            None => type_,
+            type_ = AST::Nullable(type_.into());
         };
+
+        if is_plural_fragment {
+            type_ = AST::ReadOnlyArray(type_.into())
+        }
 
         self.runtime_imports.fragment_reference = true;
         self.write_import_actor_change_point()?;

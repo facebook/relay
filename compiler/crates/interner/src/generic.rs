@@ -107,9 +107,7 @@ where
         // Split the buffer into a pointer to the first element and the remainder
         // of the slice, writing the new element into the first element pointer
         let (dest_ptr, remaining) = buffer.split_first_mut().unwrap();
-        unsafe {
-            std::ptr::write(dest_ptr, MaybeUninit::new(value))
-        };
+        unsafe { std::ptr::write(dest_ptr, MaybeUninit::new(value)) };
 
         // Cast the mutable pointer to immutable
         let dest_ptr: &'static V = unsafe { &*dest_ptr.as_ptr() };

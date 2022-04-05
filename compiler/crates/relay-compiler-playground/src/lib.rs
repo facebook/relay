@@ -297,7 +297,6 @@ fn get_project_config(
         })
         .unwrap_or(Ok(TypegenConfig::default()))?;
 
-
     Ok(ProjectConfig {
         name: project_name,
         feature_flags: Arc::new(feature_flags),

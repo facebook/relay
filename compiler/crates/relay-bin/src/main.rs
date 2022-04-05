@@ -89,7 +89,7 @@ struct LspCommand {
     config: Option<PathBuf>,
 
     /// Verbosity level
-    #[clap(long, arg_enum, default_value = "quiet")]
+    #[clap(long, arg_enum, default_value = "quiet-with-errors")]
     output: OutputKind,
 }
 
@@ -267,8 +267,6 @@ async fn handle_lsp_command(command: LspCommand) -> Result<(), Error> {
     let extra_data_provider = Box::new(DummyExtraDataProvider::new());
     let schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<SDLSchema>>> = None;
     let js_language_server = None;
-
-    debug!("Starting the relay language server...");
 
     start_language_server(
         config,

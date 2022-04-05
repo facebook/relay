@@ -111,7 +111,7 @@ parking_lot = { version = "0.11.2", features = ["send_guard"] }
 regex = "1.5.4"
 relay-config = { path = "../relay-config" }
 schema = { path = "../schema" }
-thiserror = "1.0.29"
+thiserror = "1.0.30"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

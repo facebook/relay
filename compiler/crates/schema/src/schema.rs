@@ -75,7 +75,6 @@ impl Schema for SDLSchema {
         }
     }
 
-
     fn get_type(&self, type_name: StringKey) -> Option<Type> {
         match self {
             SDLSchema::FlatBuffer(schema) => schema.get_type(type_name),

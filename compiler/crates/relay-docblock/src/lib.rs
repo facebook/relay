@@ -122,7 +122,6 @@ impl RelayResolverParser {
         })
     }
 
-
     fn parse_field(&mut self, field: &DocblockField) {
         if !self.allowed_fields.contains(&field.field_name.item) {
             self.errors.push(Diagnostic::error(

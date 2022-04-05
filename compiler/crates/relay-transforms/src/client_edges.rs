@@ -249,7 +249,6 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             .transform_selections(&field.selections)
             .replace_or_else(|| field.selections.clone());
 
-
         let metadata_directive = if is_edge_to_client_object {
             // We assume edges to client objects will be resolved on the client
             // and thus not incur a waterfall. This will change in the furture

@@ -1464,14 +1464,14 @@ impl InMemorySchema {
         ast_type: &TypeAnnotation,
     ) -> DiagnosticsResult<TypeReference> {
         Ok(match ast_type {
-            TypeAnnotation::Named(named_type) => {
-                TypeReference::Named(*self.type_map.get(&named_type.name.value).ok_or_else(|| {
+            TypeAnnotation::Named(named_type) => TypeReference::Named(
+                *self.type_map.get(&named_type.name.value).ok_or_else(|| {
                     vec![Diagnostic::error(
                         SchemaError::UndefinedType(named_type.name.value),
                         Location::generated(),
                     )]
-                })?)
-            }
+                })?,
+            ),
             TypeAnnotation::NonNull(of_type) => {
                 TypeReference::NonNull(Box::new(self.build_type_reference(&of_type.type_)?))
             }

@@ -77,13 +77,13 @@ impl<'program> SubscriptionTransform<'program> {
                             let object_field = self.program.schema.field(*object_field_id);
                             if object_field.name.item == MATCH_CONSTANTS.js_field_name {
                                 // if we find a js field, it must be valid
-                                return self.is_valid_js_dependency(&object_field.type_).then(|| {
-                                    ValidFieldResult {
+                                return self.is_valid_js_dependency(&object_field.type_).then(
+                                    || ValidFieldResult {
                                         linked_field,
                                         js_field_id: *object_field_id,
                                         fragment_spread,
-                                    }
-                                });
+                                    },
+                                );
                             }
                         }
                         None

@@ -249,7 +249,6 @@ impl<'a> DocblockParser<'a> {
         self.next_while(|c| c == &' ' || c == &'\t');
     }
 
-
     fn expect_str(&mut self, expected: &'static str) -> ParseResult<()> {
         for c in expected.chars() {
             if self.peek_char(&c) {

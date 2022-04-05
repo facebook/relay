@@ -6,21 +6,21 @@
  */
 
 use crate::config::ProjectConfig;
-use crate::{compiler_state::ProjectName, graphql_asts::GraphQLAsts};
 use common::Diagnostic;
-use dependency_analyzer::{get_reachable_ast, get_reachable_ir, ReachableAst};
+use dependency_analyzer::get_reachable_ir;
 use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
 use graphql_text_printer::print_executable_definition_ast;
-use intern::string_key::{StringKey, StringKeySet};
+use intern::string_key::StringKey;
 use md5::{Digest, Md5};
 use relay_transforms::DependencyMap;
 use schema::SDLSchema;
 
+use super::ProjectAsts;
+
 pub struct BuildIRResult {
     pub ir: Vec<graphql_ir::ExecutableDefinition>,
     pub source_hashes: SourceHashes,
-    pub base_fragment_names: StringKeySet,
 }
 
 /// Map fragments and queries definition names to the md5 of they printed source
@@ -45,102 +45,31 @@ impl SourceHashes {
 pub fn build_ir(
     project_config: &ProjectConfig,
     implicit_dependencies: &DependencyMap,
+    project_asts: ProjectAsts,
     schema: &SDLSchema,
-    graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
     is_incremental_build: bool,
 ) -> Result<BuildIRResult, Vec<Diagnostic>> {
-    let project_asts = graphql_asts
-        .get(&project_config.name)
-        .map(|asts| asts.asts.clone())
-        .unwrap_or_default();
-    let (base_project_asts, base_definition_names) = match project_config.base {
-        Some(base_project_name) => {
-            let base_project_asts = graphql_asts
-                .get(&base_project_name)
-                .map(|asts| asts.asts.clone())
-                .unwrap_or_default();
-            let base_definition_names = base_project_asts
-                .iter()
-                // TODO(T64459085): Figure out what to do about unnamed (anonymous) operations
-                .filter_map(|definition| definition.name())
-                .collect::<StringKeySet>();
-            (base_project_asts, base_definition_names)
-        }
-        None => (Vec::new(), Default::default()),
-    };
-
-    find_duplicates(&project_asts, &base_project_asts)?;
-
-    let ReachableAst {
-        definitions: reachable_ast,
-        base_fragment_names,
-    } = get_reachable_ast(project_asts, base_project_asts);
-
-    let source_hashes = SourceHashes::from_definitions(&reachable_ast);
+    let asts = project_asts.definitions;
+    let source_hashes = SourceHashes::from_definitions(&asts);
     let ir = graphql_ir::build_ir_with_relay_feature_flags(
         schema,
-        &reachable_ast,
+        &asts,
         &project_config.feature_flags,
     )?;
     if is_incremental_build {
-        let mut reachable_names = graphql_asts
-            .get(&project_config.name)
-            .map(|asts| asts.pending_definition_names.clone())
-            .unwrap_or_default();
-        if let Some(base_project_name) = project_config.base {
-            reachable_names.extend(
-                graphql_asts
-                    .get(&base_project_name)
-                    .map(|asts| asts.pending_definition_names.clone())
-                    .unwrap_or_default(),
-            );
-        }
         let affected_ir = get_reachable_ir(
             ir,
-            base_definition_names,
-            reachable_names,
+            project_asts.base_definition_names,
+            project_asts.changed_names,
             implicit_dependencies,
             schema,
         );
         Ok(BuildIRResult {
             ir: affected_ir,
-            base_fragment_names,
             source_hashes,
         })
     } else {
-        Ok(BuildIRResult {
-            ir,
-            base_fragment_names,
-            source_hashes,
-        })
-    }
-}
-
-fn find_duplicates(
-    asts: &[ExecutableDefinition],
-    base_asts: &[ExecutableDefinition],
-) -> Result<(), Vec<Diagnostic>> {
-    let mut definitions = FnvHashMap::default();
-
-    let mut errors = Vec::new();
-    for def in asts.iter().chain(base_asts) {
-        if let Some(name) = def.name() {
-            if let Some(prev_def) = definitions.insert(name, def) {
-                errors.push(
-                    Diagnostic::error(
-                        graphql_ir::ValidationMessage::DuplicateDefinition(name),
-                        def.location(),
-                    )
-                    .annotate("previously defined here", prev_def.location()),
-                );
-            }
-        }
-    }
-
-    if errors.is_empty() {
-        Ok(())
-    } else {
-        Err(errors)
+        Ok(BuildIRResult { ir, source_hashes })
     }
 }
 

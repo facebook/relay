@@ -161,11 +161,10 @@ export type {
   SingularReaderSelector,
   Snapshot,
   StoreUpdater,
+  UpdatableData,
 } from './store/RelayStoreTypes';
 export type {
-  DEPRECATED_GraphQLSubscriptionConfig,
   GraphQLSubscriptionConfig,
-  GraphQLSubscriptionConfigX,
   SubscriptionParameters,
 } from './subscription/requestSubscription';
 export type {JSResourceReference} from './util/JSResourceTypes.flow';

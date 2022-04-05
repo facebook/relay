@@ -13,6 +13,7 @@ pub mod completion;
 pub mod diagnostic_reporter;
 mod docblock_resolution_info;
 mod explore_schema_for_type;
+pub mod find_field_usages;
 pub mod goto_definition;
 mod graphql_tools;
 pub mod hover;

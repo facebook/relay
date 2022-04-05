@@ -43,7 +43,7 @@ import type {
   SingularReaderSelector,
   Snapshot,
 } from './RelayStoreTypes';
-import type {ResolverCache} from './ResolverCache';
+import type {EvaluationResult, ResolverCache} from './ResolverCache';
 
 const {
   ACTOR_CHANGE,
@@ -536,54 +536,26 @@ class RelayReader {
     // Found when reading the resolver fragment, which can happen either when
     // evaluating the resolver and it calls readFragment, or when checking if the
     // inputs have changed since a previous evaluation:
-    let fragmentValue;
-    let fragmentReaderSelector;
-    let fragmentMissingRequiredFields: ?MissingRequiredFields;
-    let previousMissingRequriedFields: ?MissingRequiredFields;
-
-    let currentResolverErrors: RelayResolverErrors = [];
-    let previousResolverErrors: RelayResolverErrors;
-    const fragmentSeenRecordIDs = new Set();
+    let snapshot: ?Snapshot;
 
     const getDataForResolverFragment = singularReaderSelector => {
-      if (fragmentValue != null) {
+      if (snapshot != null) {
         // It was already read when checking for input staleness; no need to read it again.
         // Note that the variables like fragmentSeenRecordIDs in the outer closure will have
         // already been set and will still be used in this case.
-        return fragmentValue;
+        return snapshot.data;
       }
-      fragmentReaderSelector = singularReaderSelector;
-      const existingSeenRecords = this._seenRecords;
-      try {
-        this._seenRecords = fragmentSeenRecordIDs;
-        const resolverFragmentData = {};
-        previousMissingRequriedFields = this._missingRequiredFields;
-        this._missingRequiredFields = null;
 
-        previousResolverErrors = this._resolverErrors;
-        this._resolverErrors = [];
-        this._createInlineDataOrResolverFragmentPointer(
-          singularReaderSelector.node,
-          record,
-          resolverFragmentData,
-        );
-        fragmentMissingRequiredFields = this._missingRequiredFields;
-        currentResolverErrors = this._resolverErrors;
-        fragmentValue = resolverFragmentData[FRAGMENTS_KEY]?.[fragment.name];
-        invariant(
-          typeof fragmentValue === 'object' && fragmentValue !== null,
-          `Expected reader data to contain a __fragments property with a property for the fragment named ${fragment.name}, but it is missing.`,
-        );
-        return fragmentValue;
-      } finally {
-        this._seenRecords = existingSeenRecords;
-        this._missingRequiredFields = previousMissingRequriedFields;
-        this._resolverErrors = previousResolverErrors;
-      }
+      snapshot = read(
+        this._recordSource,
+        singularReaderSelector,
+        this._resolverCache,
+      );
+      return snapshot.data;
     };
     const resolverContext = {getDataForResolverFragment};
 
-    const evaluate = () => {
+    const evaluate = (): EvaluationResult<mixed> => {
       const key = {
         __id: RelayModernRecord.getDataID(record),
         __fragmentOwner: this._owner,
@@ -593,30 +565,29 @@ class RelayReader {
       };
       return withResolverContext(resolverContext, () => {
         let resolverResult = null;
+        let resolverError = null;
         try {
           // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
           resolverResult = resolverModule(key);
         } catch (e) {
           // `field.path` is typed as nullable while we rollout compiler changes.
           const path = field.path ?? '[UNKNOWN]';
-          currentResolverErrors.push({
+          resolverError = {
             field: {path, owner: this._fragmentName},
             error: e,
-          });
+          };
         }
+
         return {
           resolverResult,
-          errors: currentResolverErrors,
-          fragmentValue,
+          snapshot: snapshot,
           resolverID,
-          seenRecordIDs: fragmentSeenRecordIDs,
-          readerSelector: fragmentReaderSelector,
-          missingRequiredFields: fragmentMissingRequiredFields,
+          error: resolverError,
         };
       });
     };
 
-    const [result, seenRecord, resolverErrors, missingRequiredFields] =
+    const [result, seenRecord, resolverError, cachedSnapshot] =
       this._resolverCache.readFromCacheOrEvaluate(
         record,
         field,
@@ -625,11 +596,22 @@ class RelayReader {
         getDataForResolverFragment,
       );
 
-    for (const resolverError of resolverErrors) {
-      this._resolverErrors.push(resolverError);
+    if (cachedSnapshot != null) {
+      if (cachedSnapshot.missingRequiredFields != null) {
+        this._addMissingRequiredFields(cachedSnapshot.missingRequiredFields);
+      }
+      if (cachedSnapshot.missingClientEdges != null) {
+        for (const missing of cachedSnapshot.missingClientEdges) {
+          this._missingClientEdges.push(missing);
+        }
+      }
+      for (const error of cachedSnapshot.relayResolverErrors) {
+        this._resolverErrors.push(error);
+      }
+      this._isMissingData = this._isMissingData || cachedSnapshot.isMissingData;
     }
-    if (missingRequiredFields != null) {
-      this._addMissingRequiredFields(missingRequiredFields);
+    if (resolverError) {
+      this._resolverErrors.push(resolverError);
     }
     if (seenRecord != null) {
       this._seenRecords.add(seenRecord);

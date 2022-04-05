@@ -18,11 +18,11 @@ import type {
 } from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
-  MissingRequiredFields,
   MutableRecordSource,
   Record,
-  RelayResolverErrors,
+  RelayResolverError,
   SingularReaderSelector,
+  Snapshot,
 } from './RelayStoreTypes';
 
 const recycleNodesInto = require('../util/recycleNodesInto');
@@ -31,10 +31,8 @@ const {generateClientID} = require('./ClientID');
 const RelayModernRecord = require('./RelayModernRecord');
 const {
   RELAY_RESOLVER_ERROR_KEY,
-  RELAY_RESOLVER_INPUTS_KEY,
   RELAY_RESOLVER_INVALIDATION_KEY,
-  RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY,
-  RELAY_RESOLVER_READER_SELECTOR_KEY,
+  RELAY_RESOLVER_SNAPSHOT_KEY,
   RELAY_RESOLVER_VALUE_KEY,
   getStorageKey,
 } = require('./RelayStoreUtils');
@@ -43,14 +41,11 @@ const warning = require('warning');
 
 type ResolverID = string;
 
-type EvaluationResult<T> = {|
+export type EvaluationResult<T> = {|
   resolverResult: T,
-  fragmentValue: {...},
   resolverID: ResolverID,
-  seenRecordIDs: Set<DataID>,
-  readerSelector: SingularReaderSelector,
-  errors: RelayResolverErrors,
-  missingRequiredFields: ?MissingRequiredFields,
+  snapshot: ?Snapshot,
+  error: ?RelayResolverError,
 |};
 
 export interface ResolverCache {
@@ -63,8 +58,8 @@ export interface ResolverCache {
   ): [
     T /* Answer */,
     ?DataID /* Seen record */,
-    RelayResolverErrors,
-    ?MissingRequiredFields,
+    ?RelayResolverError,
+    ?Snapshot,
   ];
   invalidateDataIDs(
     updatedDataIDs: Set<DataID>, // Mutated in place
@@ -85,15 +80,16 @@ class NoopResolverCache implements ResolverCache {
   ): [
     T /* Answer */,
     ?DataID /* Seen record */,
-    RelayResolverErrors,
-    ?MissingRequiredFields,
+    ?RelayResolverError,
+    ?Snapshot,
   ] {
     invariant(
       field.kind !== RELAY_LIVE_RESOLVER,
       'This store does not support Live Resolvers',
     );
-    const {resolverResult, missingRequiredFields, errors} = evaluate();
-    return [resolverResult, undefined, errors, missingRequiredFields];
+    const {resolverResult, snapshot, error} = evaluate();
+
+    return [resolverResult, undefined, error, snapshot];
   }
   invalidateDataIDs(updatedDataIDs: Set<DataID>): void {}
   createClientRecord(id: string, typeName: string): string {
@@ -138,8 +134,8 @@ class RecordResolverCache implements ResolverCache {
   ): [
     T /* Answer */,
     ?DataID /* Seen record */,
-    RelayResolverErrors,
-    ?MissingRequiredFields,
+    ?RelayResolverError,
+    ?Snapshot,
   ] {
     const recordSource = this._getRecordSource();
     const recordID = RelayModernRecord.getDataID(record);
@@ -163,23 +159,13 @@ class RecordResolverCache implements ResolverCache {
       );
       RelayModernRecord.setValue(
         linkedRecord,
-        RELAY_RESOLVER_INPUTS_KEY,
-        evaluationResult.fragmentValue,
-      );
-      RelayModernRecord.setValue(
-        linkedRecord,
-        RELAY_RESOLVER_READER_SELECTOR_KEY,
-        evaluationResult.readerSelector,
-      );
-      RelayModernRecord.setValue(
-        linkedRecord,
-        RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY,
-        evaluationResult.missingRequiredFields,
+        RELAY_RESOLVER_SNAPSHOT_KEY,
+        evaluationResult.snapshot,
       );
       RelayModernRecord.setValue(
         linkedRecord,
         RELAY_RESOLVER_ERROR_KEY,
-        evaluationResult.errors,
+        evaluationResult.error,
       );
       recordSource.set(linkedID, linkedRecord);
 
@@ -192,25 +178,26 @@ class RecordResolverCache implements ResolverCache {
       const resolverID = evaluationResult.resolverID;
       addDependencyEdge(this._resolverIDToRecordIDs, resolverID, linkedID);
       addDependencyEdge(this._recordIDToResolverIDs, recordID, resolverID);
-      for (const seenRecordID of evaluationResult.seenRecordIDs) {
-        addDependencyEdge(
-          this._recordIDToResolverIDs,
-          seenRecordID,
-          resolverID,
-        );
+      const seenRecordIds = evaluationResult.snapshot?.seenRecords;
+      if (seenRecordIds != null) {
+        for (const seenRecordID of seenRecordIds) {
+          addDependencyEdge(
+            this._recordIDToResolverIDs,
+            seenRecordID,
+            resolverID,
+          );
+        }
       }
     }
 
     // $FlowFixMe[incompatible-type] - will always be empty
     const answer: T = linkedRecord[RELAY_RESOLVER_VALUE_KEY];
-
-    const missingRequiredFields: ?MissingRequiredFields =
-      // $FlowFixMe[incompatible-type] - casting mixed
-      linkedRecord[RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY];
-
     // $FlowFixMe[incompatible-type] - casting mixed
-    const errors: RelayResolverErrors = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
-    return [answer, linkedID, errors, missingRequiredFields];
+    const snapshot: ?Snapshot = linkedRecord[RELAY_RESOLVER_SNAPSHOT_KEY];
+    // $FlowFixMe[incompatible-type] - casting mixed
+    const error: ?RelayResolverError = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
+
+    return [answer, linkedID, error, snapshot];
   }
 
   invalidateDataIDs(
@@ -272,15 +259,13 @@ class RecordResolverCache implements ResolverCache {
     if (!RelayModernRecord.getValue(record, RELAY_RESOLVER_INVALIDATION_KEY)) {
       return false;
     }
-    const originalInputs = RelayModernRecord.getValue(
-      record,
-      RELAY_RESOLVER_INPUTS_KEY,
-    );
     // $FlowFixMe[incompatible-type] - storing values in records is not typed
-    const readerSelector: ?SingularReaderSelector = RelayModernRecord.getValue(
+    const snapshot: ?Snapshot = RelayModernRecord.getValue(
       record,
-      RELAY_RESOLVER_READER_SELECTOR_KEY,
+      RELAY_RESOLVER_SNAPSHOT_KEY,
     );
+    const originalInputs = snapshot?.data;
+    const readerSelector: ?SingularReaderSelector = snapshot?.selector;
     if (originalInputs == null || readerSelector == null) {
       warning(
         false,

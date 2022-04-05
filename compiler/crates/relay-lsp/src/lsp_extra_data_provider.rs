@@ -38,6 +38,12 @@ impl DummyExtraDataProvider {
     }
 }
 
+impl Default for DummyExtraDataProvider {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl LSPExtraDataProvider for DummyExtraDataProvider {
     fn fetch_query_stats(&self, _search_token: &str) -> Vec<String> {
         vec![]

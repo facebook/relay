@@ -42,7 +42,6 @@ where
     let next_program = transform(&program)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-
     let printer_options = PrinterOptions {
         debug_directive_data: true,
         ..Default::default()

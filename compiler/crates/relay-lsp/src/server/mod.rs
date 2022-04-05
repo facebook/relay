@@ -16,6 +16,7 @@ use crate::{
     code_action::on_code_action,
     completion::{on_completion, on_resolve_completion_item},
     explore_schema_for_type::{on_explore_schema_for_type, ExploreSchemaForType},
+    find_field_usages::{on_find_field_usages, FindFieldUsages},
     goto_definition::{
         on_get_source_location_of_type_definition, on_goto_definition,
         GetSourceLocationOfTypeDefinition,
@@ -222,6 +223,7 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
             .on_request_sync::<Shutdown>(on_shutdown)?
             .on_request_sync::<GraphQLExecuteQuery>(on_graphql_execute_query)?
             .on_request_sync::<HeartbeatRequest>(on_heartbeat)?
+            .on_request_sync::<FindFieldUsages>(on_find_field_usages)?
             .request();
 
         // If we have gotten here, we have not handled the request

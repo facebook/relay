@@ -6,7 +6,10 @@
  */
 
 use self::ignoring_type_and_location::arguments_equals;
-use crate::{PointerAddress, ValidationMessage, DEFER_STREAM_CONSTANTS};
+use crate::{
+    node_identifier::LocationAgnosticBehavior, PointerAddress, ValidationMessage,
+    DEFER_STREAM_CONSTANTS,
+};
 use common::{Diagnostic, DiagnosticsResult, Location};
 use dashmap::DashMap;
 use errors::{par_try_map, validate_map};
@@ -16,10 +19,13 @@ use graphql_ir::{
 };
 use intern::string_key::StringKey;
 use schema::{SDLSchema, Schema, Type, TypeReference};
+use std::marker::PhantomData;
 use std::sync::Arc;
 
-pub fn validate_selection_conflict(program: &Program) -> DiagnosticsResult<()> {
-    ValidateSelectionConflict::new(program).validate_program(program)
+pub fn validate_selection_conflict<B: LocationAgnosticBehavior + Sync>(
+    program: &Program,
+) -> DiagnosticsResult<()> {
+    ValidateSelectionConflict::<B>::new(program).validate_program(program)
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -30,18 +36,20 @@ enum Field<'s> {
 
 type Fields<'s> = Vec<Field<'s>>;
 
-struct ValidateSelectionConflict<'s> {
+struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     program: &'s Program,
     fragment_cache: DashMap<StringKey, Arc<Fields<'s>>>,
     fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
+    _behavior: PhantomData<TBehavior>,
 }
 
-impl<'s> ValidateSelectionConflict<'s> {
+impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     fn new(program: &'s Program) -> Self {
         Self {
             program,
             fragment_cache: Default::default(),
             fields_cache: Default::default(),
+            _behavior: PhantomData::<B>,
         }
     }
 
@@ -295,7 +303,7 @@ impl<'s> ValidateSelectionConflict<'s> {
                 l.definition().location,
             )
             .annotate("the other field", r.definition().location))
-        } else if !(arguments_equals(l.arguments(), r.arguments())) {
+        } else if !(arguments_equals::<B>(l.arguments(), r.arguments())) {
             Err(self.create_conflicting_fields_error(
                 response_key,
                 l.definition().location,
@@ -401,24 +409,25 @@ impl<'s> Field<'s> {
 }
 
 mod ignoring_type_and_location {
-    use crate::node_identifier::LocationAgnosticPartialEq;
+    use crate::node_identifier::{LocationAgnosticBehavior, LocationAgnosticPartialEq};
     use graphql_ir::{Argument, Value};
 
     /// Verify that two sets of arguments are equivalent - same argument names
     /// and values. Notably, this ignores the types of arguments and values,
     /// which may not always be inferred identically.
-    pub fn arguments_equals(a: &[Argument], b: &[Argument]) -> bool {
+    pub fn arguments_equals<B: LocationAgnosticBehavior>(a: &[Argument], b: &[Argument]) -> bool {
         order_agnostic_slice_equals(a, b, |a, b| {
-            a.name.location_agnostic_eq(&b.name) && value_equals(&a.value.item, &b.value.item)
+            a.name.location_agnostic_eq::<B>(&b.name)
+                && value_equals::<B>(&a.value.item, &b.value.item)
         })
     }
 
-    fn value_equals(a: &Value, b: &Value) -> bool {
+    fn value_equals<B: LocationAgnosticBehavior>(a: &Value, b: &Value) -> bool {
         match (a, b) {
-            (Value::Constant(a), Value::Constant(b)) => a.location_agnostic_eq(b),
-            (Value::Variable(a), Value::Variable(b)) => a.name.location_agnostic_eq(&b.name),
-            (Value::List(a), Value::List(b)) => slice_equals(a, b, value_equals),
-            (Value::Object(a), Value::Object(b)) => arguments_equals(a, b),
+            (Value::Constant(a), Value::Constant(b)) => a.location_agnostic_eq::<B>(b),
+            (Value::Variable(a), Value::Variable(b)) => a.name.location_agnostic_eq::<B>(&b.name),
+            (Value::List(a), Value::List(b)) => slice_equals(a, b, value_equals::<B>),
+            (Value::Object(a), Value::Object(b)) => arguments_equals::<B>(a, b),
             _ => false,
         }
     }

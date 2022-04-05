@@ -6,7 +6,7 @@
  */
 
 use crate::{
-    node_identifier::NodeIdentifier,
+    node_identifier::{NodeIdentifier, RelayLocationAgnosticBehavior},
     util::{is_relay_custom_inline_fragment_directive, PointerAddress},
     DEFER_STREAM_CONSTANTS,
 };
@@ -119,7 +119,7 @@ pub fn skip_redundant_nodes(program: &Program) -> Program {
 }
 
 #[derive(Default, Clone, Debug)]
-struct SelectionMap(VecMap<NodeIdentifier, Option<SelectionMap>>);
+struct SelectionMap(VecMap<NodeIdentifier<RelayLocationAgnosticBehavior>, Option<SelectionMap>>);
 
 type Cache = DashMap<PointerAddress, (Transformed<Selection>, SelectionMap)>;
 
@@ -152,7 +152,8 @@ impl<'s> SkipRedundantNodesTransform {
         // If it's the same node, and selection_map is empty
         // result of transform_selection has to be the same.
         let is_empty = selection_map.0.is_empty();
-        let identifier = NodeIdentifier::from_selection(&self.schema, selection);
+        let identifier =
+            NodeIdentifier::from_selection(&self.schema, selection, RelayLocationAgnosticBehavior);
         match selection {
             Selection::ScalarField(_) | Selection::FragmentSpread(_) => {
                 if selection_map.0.contains_key(&identifier) {

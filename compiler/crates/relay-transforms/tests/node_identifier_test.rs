@@ -9,7 +9,7 @@ use common::SourceLocationKey;
 use graphql_ir::{build, ExecutableDefinition, Selection};
 use graphql_syntax::parse_executable;
 use relay_test_schema::TEST_SCHEMA;
-use relay_transforms::NodeIdentifier;
+use relay_transforms::{NodeIdentifier, RelayLocationAgnosticBehavior};
 
 fn get_selection(def: &ExecutableDefinition) -> &Selection {
     if let ExecutableDefinition::Fragment(frag) = def {
@@ -23,8 +23,16 @@ fn are_selections_equal(graphql: &str) -> bool {
     let source_location = SourceLocationKey::standalone("test");
     let ast = parse_executable(graphql, source_location).unwrap();
     let ir = build(&TEST_SCHEMA, &ast.definitions).unwrap();
-    let left = NodeIdentifier::from_selection(&TEST_SCHEMA, get_selection(&ir[0]));
-    let right = NodeIdentifier::from_selection(&TEST_SCHEMA, get_selection(&ir[1]));
+    let left = NodeIdentifier::from_selection(
+        &TEST_SCHEMA,
+        get_selection(&ir[0]),
+        RelayLocationAgnosticBehavior,
+    );
+    let right = NodeIdentifier::from_selection(
+        &TEST_SCHEMA,
+        get_selection(&ir[1]),
+        RelayLocationAgnosticBehavior,
+    );
     left == right
 }
 

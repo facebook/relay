@@ -12,7 +12,7 @@ use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_test_schema::TEST_SCHEMA;
-use relay_transforms::validate_selection_conflict;
+use relay_transforms::{validate_selection_conflict, RelayLocationAgnosticBehavior};
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -38,7 +38,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     };
 
     let program = Program::from_definitions(Arc::clone(&TEST_SCHEMA), ir);
-    validate_selection_conflict(&program)
+    validate_selection_conflict::<RelayLocationAgnosticBehavior>(&program)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     Ok("OK".to_owned())

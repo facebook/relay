@@ -127,7 +127,7 @@ pub use match_::{
     SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION, MATCH_CONSTANTS,
 };
 pub use no_inline::NO_INLINE_DIRECTIVE_NAME;
-pub use node_identifier::NodeIdentifier;
+pub use node_identifier::{NodeIdentifier, RelayLocationAgnosticBehavior};
 pub use preloadable_directive::{is_operation_preloadable, should_generate_hack_preloader};
 pub use provided_variable_fragment_transform::provided_variable_fragment_transform;
 pub use react_flight::{

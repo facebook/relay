@@ -37,9 +37,9 @@ pub fn build_schema(
             let mut schema_sources = Vec::new();
             schema_sources.extend(
                 compiler_state.schemas[&project_config.name]
-                    .get_sources()
+                    .get_sources_with_location()
                     .into_iter()
-                    .map(String::as_str),
+                    .map(|(schema, location_key)| (schema.as_str(), location_key)),
             );
             let mut schema =
                 relay_schema::build_schema_with_extensions(&schema_sources, &extensions)?;

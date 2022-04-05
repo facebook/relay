@@ -393,8 +393,14 @@ impl CompilerState {
         if schema_change == SchemaChange::None {
             true
         } else {
+            let current_sources = sources
+                .get_sources_with_location()
+                .into_iter()
+                .map(|(schema, location_key)| (schema.as_str(), location_key))
+                .collect::<Vec<_>>();
+
             match relay_schema::build_schema_with_extensions(
-                &current,
+                &current_sources,
                 &Vec::<(&str, SourceLocationKey)>::new(),
             ) {
                 Ok(schema) => schema_change.is_safe(&schema, schema_config),

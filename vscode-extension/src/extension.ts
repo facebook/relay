@@ -41,6 +41,9 @@ export async function activate(context: ExtensionContext) {
 
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
+    markdown: {
+      isTrusted: true
+    },
     documentSelector: [
       { scheme: "file", language: "javascript" },
       { scheme: "file", language: "typescript" },

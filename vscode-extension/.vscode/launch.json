@@ -1,0 +1,17 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Development Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+      "preLaunchTask": "ts-build",
+      "env": {
+        "RELAY_BINARY_PATH": "/path/to/your/binary",
+        "RELAY_LSP_LOG_LEVEL": "debug"
+      }
+    }
+  ]
+}

@@ -39,23 +39,20 @@ const BUILTINS: &str = include_str!("./builtins.graphql");
 pub use flatbuffer::serialize_as_flatbuffer;
 
 pub fn build_schema(sdl: &str) -> DiagnosticsResult<SDLSchema> {
-    build_schema_with_extensions::<_, &str>(&[sdl], &[])
+    build_schema_with_extensions::<_, &str>(&[(sdl, SourceLocationKey::generated())], &[])
 }
 
 pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
-    server_sdls: &[T],
+    server_sdls: &[(T, SourceLocationKey)],
     extension_sdls: &[(U, SourceLocationKey)],
 ) -> DiagnosticsResult<SDLSchema> {
     let mut server_documents = vec![builtins()?];
-    let mut combined_sdl: String = String::new();
-    for server_sdl in server_sdls {
-        combined_sdl.push_str(server_sdl.as_ref());
-        combined_sdl.push('\n');
+    for (server_sdl, location_key) in server_sdls {
+        server_documents.push(graphql_syntax::parse_schema_document(
+            server_sdl.as_ref(),
+            *location_key,
+        )?);
     }
-    server_documents.push(graphql_syntax::parse_schema_document(
-        &combined_sdl,
-        SourceLocationKey::generated(),
-    )?);
 
     let mut client_schema_documents = Vec::new();
     for (extension_sdl, location_key) in extension_sdls {

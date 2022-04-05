@@ -12,6 +12,12 @@
     "onLanguage:typescriptreact"
   ],
   "contributes": {
+    "commands": [
+      {
+        "command": "relay.restartLanguageServer",
+        "title": "Relay: Restart Language Server"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "Relay",

@@ -38,6 +38,7 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "prettier-check": "prettier -c .",
     "lint": "eslint --max-warnings 0 ."
   },
   "engines": {

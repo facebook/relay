@@ -44,12 +44,16 @@ export async function findRelayBinary(
 
   let counter = 0;
   let currentPath = rootPath;
+
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     if (counter >= 5000) {
-      throw new Error('Could not find Relay binary after 5000 traversals. This is likely a bug in the extension code and should be reported to https://github.com/facebook/relay/issues');
+      throw new Error(
+        'Could not find Relay binary after 5000 traversals. This is likely a bug in the extension code and should be reported to https://github.com/facebook/relay/issues',
+      );
     }
 
-    counter++;
+    counter += 1;
 
     const possibleBinaryPath = path.join(
       currentPath,

@@ -1,4 +1,4 @@
-import { workspace, ExtensionContext, window } from 'vscode';
+import {workspace, window} from 'vscode';
 
 import {
   CloseAction,
@@ -8,18 +8,19 @@ import {
   RevealOutputChannelOn,
   ServerOptions,
 } from 'vscode-languageclient/node';
-import { findRelayBinary } from './utils';
+import {findRelayBinary} from './utils';
 
 let client: LanguageClient;
 
-export async function activate(context: ExtensionContext) {
+export async function activate() {
   const outputChannel = window.createOutputChannel('Relay Language Server');
 
   // TODO: Support multi folder workspaces by not using rootPath.
   // Maybe initialize a client once for each workspace?
   const relayBinary =
-  // TODO: Use VSCode config instead of process.env
-    process.env.RELAY_BINARY_PATH ?? (await findRelayBinary(workspace.rootPath));
+    // TODO: Use VSCode config instead of process.env
+    process.env.RELAY_BINARY_PATH ??
+    (await findRelayBinary(workspace.rootPath));
 
   // TODO: Use VSCode config instead of process.env
   const outputLevel = process.env.RELAY_LSP_LOG_LEVEL ?? 'debug';
@@ -45,10 +46,10 @@ export async function activate(context: ExtensionContext) {
       isTrusted: true,
     },
     documentSelector: [
-      { scheme: 'file', language: 'javascript' },
-      { scheme: 'file', language: 'typescript' },
-      { scheme: 'file', language: 'typescriptreact' },
-      { scheme: 'file', language: 'javascriptreact' },
+      {scheme: 'file', language: 'javascript'},
+      {scheme: 'file', language: 'typescript'},
+      {scheme: 'file', language: 'typescriptreact'},
+      {scheme: 'file', language: 'javascriptreact'},
     ],
 
     outputChannel,

@@ -22,40 +22,10 @@ jobs:
           cache: 'yarn'
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-scripts
-      - name: Lint
+      - name: ESLint 
         run: yarn run lint
-
-  vscode-extension-prettier:
-    name: VSCode Extension Prettier 
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./vscode-extension
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 16.x
-          cache: 'yarn'
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
-      - name: Prettier Check 
+      - name: Prettier
         run: yarn run prettier-check 
-
-  vscode-extension-typecheck:
-    name: VSCode Extension Typecheck
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./vscode-extension
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 16.x
-          cache: 'yarn'
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-scripts
       - name: Typecheck
         run: yarn run typecheck
 

@@ -6,7 +6,6 @@
  */
 
 use self::ignoring_type_and_location::arguments_equals;
-use crate::{ValidationMessage, DEFER_STREAM_CONSTANTS};
 use common::{Diagnostic, DiagnosticsResult, Location, PointerAddress};
 use dashmap::DashMap;
 use errors::{par_try_map, validate_map};
@@ -18,6 +17,7 @@ use intern::string_key::StringKey;
 use schema::{SDLSchema, Schema, Type, TypeReference};
 use std::marker::PhantomData;
 use std::sync::Arc;
+use thiserror::Error;
 
 pub fn validate_selection_conflict<B: LocationAgnosticBehavior + Sync>(
     program: &Program,
@@ -312,11 +312,11 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             let left_stream_directive = l
                 .directives()
                 .iter()
-                .find(|d| d.name.item == DEFER_STREAM_CONSTANTS.stream_name);
+                .find(|d| d.name.item.lookup() == "stream");
             let right_stream_directive = r
                 .directives()
                 .iter()
-                .find(|d| d.name.item == DEFER_STREAM_CONSTANTS.stream_name);
+                .find(|d| d.name.item.lookup() == "stream");
             match (left_stream_directive, right_stream_directive) {
                 (Some(_), None) => Err(Diagnostic::error(
                     ValidationMessage::StreamConflictOnlyUsedInOnePlace { response_key },
@@ -456,4 +456,45 @@ mod ignoring_type_and_location {
     {
         a.len() == b.len() && a.iter().zip(b).all(|(a, b)| eq(a, b))
     }
+}
+
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+enum ValidationMessage {
+    #[error(
+        "Field '{response_key}' is ambiguous because it references two different fields: '{l_name}' and '{r_name}'"
+    )]
+    AmbiguousFieldAlias {
+        response_key: StringKey,
+        l_name: StringKey,
+        r_name: StringKey,
+    },
+
+    #[error(
+        "Field '{response_key}' is ambiguous because it references fields with different types: '{l_name}' with type '{l_type_string}' and '{r_name}' with type '{r_type_string}'"
+    )]
+    AmbiguousFieldType {
+        response_key: StringKey,
+        l_name: StringKey,
+        l_type_string: String,
+        r_name: StringKey,
+        r_type_string: String,
+    },
+
+    #[error(
+        "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after applying fragment arguments. This field has the applied argument values: {arguments_a}"
+    )]
+    InvalidSameFieldWithDifferentArguments {
+        field_name: StringKey,
+        arguments_a: String,
+    },
+
+    #[error(
+        "Field '{response_key}' is marked with @stream in one place, and not marked in another place. Please use alias to distinguish the 2 fields.'"
+    )]
+    StreamConflictOnlyUsedInOnePlace { response_key: StringKey },
+
+    #[error(
+        "Field '{response_key}' is marked with @stream in multiple places. Please use an alias to distinguish them'"
+    )]
+    StreamConflictUsedInMultiplePlaces { response_key: StringKey },
 }

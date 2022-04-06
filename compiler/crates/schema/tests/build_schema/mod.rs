@@ -19,7 +19,9 @@ const SCHEMA_SEPARATOR: &str = "%extensions%";
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split(SCHEMA_SEPARATOR).collect();
     let result = match parts.as_slice() {
-        [base] => build_schema_with_extensions::<_, &str>(&[base], &[]),
+        [base] => {
+            build_schema_with_extensions::<_, &str>(&[(base, SourceLocationKey::generated())], &[])
+        }
         [base, extensions] => {
             // prepend a comment so the correct line + column number is reported for client extension
             // (since we source base and client schemas from one file)
@@ -27,7 +29,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             assert!(nchars_base > 0);
             let prepended_extension = format!("{}\n{}", "#".repeat(nchars_base - 1), extensions);
             build_schema_with_extensions(
-                &[base],
+                &[(base, SourceLocationKey::generated())],
                 &[(
                     prepended_extension,
                     SourceLocationKey::standalone(fixture.file_name),

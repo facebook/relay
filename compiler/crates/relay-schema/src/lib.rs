@@ -19,7 +19,7 @@ use std::iter::once;
 const RELAY_EXTENSIONS: &str = include_str!("./relay-extensions.graphql");
 
 pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
-    server_sdls: &[T],
+    server_sdls: &[(T, SourceLocationKey)],
     extension_sdls: &[(U, SourceLocationKey)],
 ) -> DiagnosticsResult<SDLSchema> {
     let extensions: Vec<(&str, SourceLocationKey)> =

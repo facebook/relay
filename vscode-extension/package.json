@@ -37,11 +37,19 @@
   "engines": {
     "vscode": "^1.65.0"
   },
+  "prettier": {
+    "bracketSameLine": true,
+    "bracketSpacing": false,
+    "parser": "typescript",
+    "singleQuote": true,
+    "trailingComma": "all"
+  },
   "dependencies": {
     "vscode-languageclient": "^7.0.0"
   },
   "devDependencies": {
     "@types/vscode": "^1.65.0",
+    "prettier": "^2.6.2",
     "typescript": "^4.6.3"
   }
 }

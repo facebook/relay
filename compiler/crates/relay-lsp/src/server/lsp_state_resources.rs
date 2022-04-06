@@ -43,6 +43,8 @@ pub(crate) struct LSPStateResources<
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
 }
 
+const MAX_ERROR_COUNT: usize = 3;
+
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation + 'static>
     LSPStateResources<TPerfLogger, TSchemaDocumentation>
 {
@@ -58,6 +60,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     /// Create an end-less loop of keeping the resources up-to-date with the source control changes
     async fn internal_watch(&self) {
+        // avoid dead loop when watchman has an error
+        let mut error_count = 0;
         'outer: loop {
             debug!("Initializing resources for LSP server");
 
@@ -77,6 +81,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 Ok(f) => f,
                 Err(error) => {
                     self.log_errors("watch_build_error", &error);
+                    error_count += 1;
+                    if error_count == MAX_ERROR_COUNT {
+                        panic!("{}", error);
+                    }
                     continue;
                 }
             };
@@ -87,6 +95,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 Ok(f) => f,
                 Err(error) => {
                     self.log_errors("watch_build_error", &error);
+                    error_count += 1;
+                    if error_count == MAX_ERROR_COUNT {
+                        panic!("{}", error);
+                    }
                     continue;
                 }
             };
@@ -124,6 +136,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             setup_event.complete();
 
             debug!("LSP server initialization completed!");
+            error_count = 0;
 
             // Here we will wait for changes from watchman
             'inner: loop {

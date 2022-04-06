@@ -8,6 +8,27 @@ name: CI
 on: [push, pull_request]
 
 jobs:
+  vscode-extension-lint:
+    name: VSCode Extension Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./vscode-extension
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
+      - name: ESLint
+        run: yarn run lint
+      - name: Prettier
+        run: yarn run prettier-check
+      - name: Typecheck
+        run: yarn run typecheck
+
   js-tests:
     name: JS Tests (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest

@@ -1,4 +1,4 @@
-import { workspace, ExtensionContext, window } from "vscode";
+import { workspace, ExtensionContext, window } from 'vscode';
 
 import {
   CloseAction,
@@ -7,13 +7,13 @@ import {
   LanguageClientOptions,
   RevealOutputChannelOn,
   ServerOptions,
-} from "vscode-languageclient/node";
-import { findRelayBinary } from "./utils";
+} from 'vscode-languageclient/node';
+import { findRelayBinary } from './utils';
 
 let client: LanguageClient;
 
 export async function activate(context: ExtensionContext) {
-  const outputChannel = window.createOutputChannel("Relay Language Server");
+  const outputChannel = window.createOutputChannel('Relay Language Server');
 
   // TODO: Support multi folder workspaces by not using rootPath.
   // Maybe initialize a client once for each workspace?
@@ -22,11 +22,11 @@ export async function activate(context: ExtensionContext) {
     process.env.RELAY_BINARY_PATH ?? (await findRelayBinary(workspace.rootPath));
 
   // TODO: Use VSCode config instead of process.env
-  const outputLevel = process.env.RELAY_LSP_LOG_LEVEL ?? "debug";
+  const outputLevel = process.env.RELAY_LSP_LOG_LEVEL ?? 'debug';
 
   if (!relayBinary) {
     outputChannel.appendLine(
-      "Could not find relay binary in path. Maybe you're not inside of a project with relay installed."
+      "Could not find relay binary in path. Maybe you're not inside of a project with relay installed.",
     );
 
     return;
@@ -36,19 +36,19 @@ export async function activate(context: ExtensionContext) {
 
   const serverOptions: ServerOptions = {
     command: relayBinary,
-    args: ["lsp", `--output=${outputLevel}`],
+    args: ['lsp', `--output=${outputLevel}`],
   };
 
   // Options to control the language client
   const clientOptions: LanguageClientOptions = {
     markdown: {
-      isTrusted: true
+      isTrusted: true,
     },
     documentSelector: [
-      { scheme: "file", language: "javascript" },
-      { scheme: "file", language: "typescript" },
-      { scheme: "file", language: "typescriptreact" },
-      { scheme: "file", language: "javascriptreact" },
+      { scheme: 'file', language: 'javascript' },
+      { scheme: 'file', language: 'typescript' },
+      { scheme: 'file', language: 'typescriptreact' },
+      { scheme: 'file', language: 'javascriptreact' },
     ],
 
     outputChannel,
@@ -75,19 +75,19 @@ export async function activate(context: ExtensionContext) {
       // but "No relay config found" is not relevant since the user is likely
       // just in a workspace where they don't have a relay config.
       //
-      // We already bail early if there is no relay binary found. 
+      // We already bail early if there is no relay binary found.
       // So maybe we should just show all of these messages since it would
       // be weird if you had a relay binary in your node modules but no relay
       // config could be found. 🤷 for now.
       closed() {
         window
           .showWarningMessage(
-            "Relay LSP client connection got closed unexpectedly.",
-            "Go to output",
-            "Ignore"
+            'Relay LSP client connection got closed unexpectedly.',
+            'Go to output',
+            'Ignore',
           )
           .then((selected) => {
-            if (selected === "Go to output") {
+            if (selected === 'Go to output') {
               client.outputChannel.show();
             }
           });
@@ -98,12 +98,12 @@ export async function activate(context: ExtensionContext) {
       error() {
         window
           .showWarningMessage(
-            "An error occurred while writing/reading to/from the relay lsp connection",
-            "Go to output",
-            "Ignore"
+            'An error occurred while writing/reading to/from the relay lsp connection',
+            'Go to output',
+            'Ignore',
           )
           .then((selected) => {
-            if (selected === "Go to output") {
+            if (selected === 'Go to output') {
               client.outputChannel.show();
             }
           });
@@ -115,10 +115,10 @@ export async function activate(context: ExtensionContext) {
 
   // Create the language client and start the client.
   client = new LanguageClient(
-    "RelayLanguageClient",
-    "Relay Language Client",
+    'RelayLanguageClient',
+    'Relay Language Client',
     serverOptions,
-    clientOptions
+    clientOptions,
   );
 
   // Start the client. This will also launch the server

@@ -1,16 +1,13 @@
 {
-    "ignorePatterns": "out/*",
-    "parserOptions": {
-        "project": "./tsconfig.json"
-    },
-    "extends": [
-        "airbnb-base",
-        "airbnb-typescript/base"
-    ],
-    "rules": {
-        "operator-linebreak": "off",
-        "@typescript-eslint/object-curly-spacing": "off",
-        "import/prefer-default-export": "off",
-        "no-await-in-loop": "off"
-    }
+  "ignorePatterns": "out/*",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "extends": ["airbnb-base", "airbnb-typescript/base"],
+  "rules": {
+    "operator-linebreak": "off",
+    "@typescript-eslint/object-curly-spacing": "off",
+    "import/prefer-default-export": "off",
+    "no-await-in-loop": "off"
+  }
 }

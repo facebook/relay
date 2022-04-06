@@ -6,16 +6,13 @@
  */
 
 use self::ignoring_type_and_location::arguments_equals;
-use crate::{
-    node_identifier::LocationAgnosticBehavior, PointerAddress, ValidationMessage,
-    DEFER_STREAM_CONSTANTS,
-};
+use crate::{PointerAddress, ValidationMessage, DEFER_STREAM_CONSTANTS};
 use common::{Diagnostic, DiagnosticsResult, Location};
 use dashmap::DashMap;
 use errors::{par_try_map, validate_map};
 use graphql_ir::{
-    Argument, Field as IRField, FragmentDefinition, LinkedField, OperationDefinition, Program,
-    ScalarField, Selection,
+    node_identifier::LocationAgnosticBehavior, Argument, Field as IRField, FragmentDefinition,
+    LinkedField, OperationDefinition, Program, ScalarField, Selection,
 };
 use intern::string_key::StringKey;
 use schema::{SDLSchema, Schema, Type, TypeReference};
@@ -409,7 +406,7 @@ impl<'s> Field<'s> {
 }
 
 mod ignoring_type_and_location {
-    use crate::node_identifier::{LocationAgnosticBehavior, LocationAgnosticPartialEq};
+    use graphql_ir::node_identifier::{LocationAgnosticBehavior, LocationAgnosticPartialEq};
     use graphql_ir::{Argument, Value};
 
     /// Verify that two sets of arguments are equivalent - same argument names

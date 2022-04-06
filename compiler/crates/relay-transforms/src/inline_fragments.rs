@@ -7,13 +7,12 @@
 
 use crate::{
     no_inline::NO_INLINE_DIRECTIVE_NAME,
-    node_identifier::{
-        LocationAgnosticHash, LocationAgnosticPartialEq, RelayLocationAgnosticBehavior,
-    },
     relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
+    RelayLocationAgnosticBehavior,
 };
 use fnv::FnvHashMap;
 use graphql_ir::{
+    node_identifier::{LocationAgnosticHash, LocationAgnosticPartialEq},
     FragmentDefinition, FragmentSpread, InlineFragment, Program, ScalarField, Selection,
     Transformed, Transformer,
 };

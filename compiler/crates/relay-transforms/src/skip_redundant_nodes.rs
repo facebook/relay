@@ -6,11 +6,11 @@
  */
 
 use crate::{
-    util::{is_relay_custom_inline_fragment_directive, PointerAddress},
-    RelayLocationAgnosticBehavior, DEFER_STREAM_CONSTANTS,
+    util::is_relay_custom_inline_fragment_directive, RelayLocationAgnosticBehavior,
+    DEFER_STREAM_CONSTANTS,
 };
 
-use common::{sync::*, NamedItem};
+use common::{sync::*, NamedItem, PointerAddress};
 use dashmap::DashMap;
 use graphql_ir::{
     node_identifier::NodeIdentifier, Condition, FragmentDefinition, InlineFragment, LinkedField,

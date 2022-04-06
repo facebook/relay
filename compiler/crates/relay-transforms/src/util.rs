@@ -29,22 +29,6 @@ use lazy_static::lazy_static;
 use regex::Regex;
 use schema::{SDLSchema, Schema, Type};
 
-// A wrapper type that allows comparing pointer equality of references. Two
-// `PointerAddress` values are equal if they point to the same memory location.
-//
-// This type is _sound_, but misuse can easily lead to logical bugs if the memory
-// of one PointerAddress could not have been freed and reused for a subsequent
-// PointerAddress.
-#[derive(Hash, Eq, PartialEq, Clone, Copy)]
-pub struct PointerAddress(usize);
-
-impl PointerAddress {
-    pub fn new<T>(ptr: &T) -> Self {
-        let ptr_address: usize = unsafe { std::mem::transmute(ptr) };
-        Self(ptr_address)
-    }
-}
-
 /// This function will return a new Vec[...] of directives,
 /// where one will be missing. The one with `remove_directive_name` name
 pub fn remove_directive(

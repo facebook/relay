@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{client_edges::ClientEdgeMetadataDirective, util::PointerAddress};
-use common::WithLocation;
+use crate::client_edges::ClientEdgeMetadataDirective;
+use common::{PointerAddress, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     Directive, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,

@@ -166,7 +166,7 @@ pub use transform_connections::transform_connections;
 pub use unwrap_custom_directive_selection::unwrap_custom_directive_selection;
 pub use util::{
     extract_variable_name, generate_abstract_type_refinement_key, get_fragment_filename,
-    remove_directive, PointerAddress,
+    remove_directive,
 };
 pub use validate_operation_variables::validate_operation_variables;
 pub use validations::*;

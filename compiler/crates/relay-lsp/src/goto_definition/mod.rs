@@ -84,9 +84,13 @@ pub fn on_goto_definition(
         DefinitionDescription::Fragment { fragment_name } => {
             locate_fragment_definition(program, fragment_name, &root_dir)?
         }
-        DefinitionDescription::Type { type_name } => {
-            locate_type_definition(extra_data_provider, project_name, type_name)?
-        }
+        DefinitionDescription::Type { type_name } => locate_type_definition(
+            extra_data_provider,
+            project_name,
+            type_name,
+            &schema,
+            &root_dir,
+        )?,
     };
 
     // For some lsp-clients, such as clients relying on org.eclipse.lsp4j,
@@ -120,22 +124,48 @@ fn locate_type_definition(
     extra_data_provider: &dyn LSPExtraDataProvider,
     project_name: StringKey,
     type_name: StringKey,
+    schema: &Arc<SDLSchema>,
+    root_dir: &std::path::Path,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
+    let type_ = schema.get_type(type_name);
+
+    let schema_location = type_.and_then(|type_| {
+        match type_ {
+            // Why don't these other types have locations?
+            Type::InputObject(_) => None,
+            Type::Enum(_) => None,
+            Type::Interface(_) => None,
+            Type::Scalar(_) => None,
+            Type::Union(_) => None,
+            Type::Object(object_id) => Some(schema.object(object_id).name.location),
+        }
+    });
+
     let provider_response = extra_data_provider.resolve_field_definition(
         project_name.to_string(),
         type_name.to_string(),
         None,
     );
-    let FieldDefinitionSourceInfo {
-        file_path,
-        line_number,
-        is_local,
-    } = get_field_definition_source_info_result(provider_response)?;
-    Ok(if is_local {
-        GotoDefinitionResponse::Scalar(get_location(&file_path, line_number)?)
-    } else {
-        return Err(LSPRuntimeError::ExpectedError);
-    })
+
+    let field_definition_source_info = get_field_definition_source_info_result(provider_response);
+
+    match (field_definition_source_info, schema_location) {
+        // If we got the extra data provider's source info, we'll use that whether or not we had a schema location
+        (Ok(source_info), _) => Ok(if source_info.is_local {
+            GotoDefinitionResponse::Scalar(get_location(
+                &source_info.file_path,
+                source_info.line_number,
+            )?)
+        } else {
+            return Err(LSPRuntimeError::ExpectedError);
+        }),
+        // If the extra data provider failed, we'll fallback to the schema location
+        (Err(_), Some(schema_location)) => Ok(GotoDefinitionResponse::Scalar(
+            transform_relay_location_to_lsp_location(&root_dir, schema_location)?,
+        )),
+        // If both failed, bubble up that failure
+        (Err(err), None) => Err(err),
+    }
 }
 
 fn locate_field_definition(

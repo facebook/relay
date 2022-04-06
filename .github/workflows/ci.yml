@@ -8,6 +8,22 @@ name: CI
 on: [push, pull_request]
 
 jobs:
+  vscode-extension-lint:
+    name: VSCode Extension Lint
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./vscode-extension
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
+      - name: Lint
+        run: yarn run lint
+
   vscode-extension-prettier:
     name: VSCode Extension Prettier 
     runs-on: ubuntu-latest

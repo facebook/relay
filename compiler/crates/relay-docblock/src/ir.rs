@@ -181,9 +181,9 @@ impl RelayResolverIr {
         {
             definitions.extend(
                 self.interface_definitions(
-                    WithLocation::new(interface_name.location, existing_interface.name),
+                    WithLocation::new(interface_name.location, existing_interface.name.item),
                     schema
-                        .get_type(existing_interface.name)
+                        .get_type(existing_interface.name.item)
                         .unwrap()
                         .get_interface_id()
                         .unwrap(),

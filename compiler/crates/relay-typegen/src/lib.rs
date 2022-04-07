@@ -1298,19 +1298,23 @@ impl<'a> TypeGenerator<'a> {
 
     fn transform_graphql_scalar_type(&mut self, scalar: ScalarID) -> AST {
         let scalar_name = self.schema.scalar(scalar).name;
-        if let Some(&custom_scalar) = self.typegen_config.custom_scalar_types.get(&scalar_name) {
+        if let Some(&custom_scalar) = self
+            .typegen_config
+            .custom_scalar_types
+            .get(&scalar_name.item)
+        {
             AST::RawType(custom_scalar)
-        } else if scalar_name == *TYPE_ID || scalar_name == *TYPE_STRING {
+        } else if scalar_name.item == *TYPE_ID || scalar_name.item == *TYPE_STRING {
             AST::String
-        } else if scalar_name == *TYPE_FLOAT || scalar_name == *TYPE_INT {
+        } else if scalar_name.item == *TYPE_FLOAT || scalar_name.item == *TYPE_INT {
             AST::Number
-        } else if scalar_name == *TYPE_BOOLEAN {
+        } else if scalar_name.item == *TYPE_BOOLEAN {
             AST::Boolean
         } else {
             if self.typegen_config.require_custom_scalar_types {
                 panic!(
                     "Expected the JS type for '{}' to be defined, please update 'customScalarTypes' in your compiler config.",
-                    scalar_name
+                    scalar_name.item
                 );
             }
             AST::Any
@@ -1319,7 +1323,7 @@ impl<'a> TypeGenerator<'a> {
 
     fn transform_graphql_enum_type(&mut self, enum_id: EnumID) -> AST {
         self.used_enums.insert(enum_id);
-        AST::Identifier(self.schema.enum_(enum_id).name)
+        AST::Identifier(self.schema.enum_(enum_id).name.item)
     }
 
     fn write_runtime_imports(&mut self) -> FmtResult {
@@ -1431,8 +1435,8 @@ impl<'a> TypeGenerator<'a> {
             let enum_type = self.schema.enum_(enum_id);
             if let Some(enum_module_suffix) = &self.typegen_config.enum_module_suffix {
                 self.writer.write_import_type(
-                    &[enum_type.name.lookup()],
-                    &format!("{}{}", enum_type.name, enum_module_suffix),
+                    &[enum_type.name.item.lookup()],
+                    &format!("{}{}", enum_type.name.item, enum_module_suffix),
                 )?;
             } else {
                 let mut members: Vec<AST> = enum_type
@@ -1446,7 +1450,7 @@ impl<'a> TypeGenerator<'a> {
                 }
 
                 self.writer.write_export_type(
-                    enum_type.name.lookup(),
+                    enum_type.name.item.lookup(),
                     &AST::Union(SortedASTList::new(members, self.should_sort_typegen_items)),
                 )?;
             }
@@ -1538,10 +1542,10 @@ impl<'a> TypeGenerator<'a> {
                     let input_object = self.schema.input_object(*input_object_id);
                     if !self
                         .generated_input_object_types
-                        .contains_key(&input_object.name)
+                        .contains_key(&input_object.name.item)
                     {
                         self.generated_input_object_types
-                            .insert(input_object.name, GeneratedInputObject::Pending);
+                            .insert(input_object.name.item, GeneratedInputObject::Pending);
 
                         let props = ExactObject::new(
                             input_object
@@ -1563,11 +1567,11 @@ impl<'a> TypeGenerator<'a> {
                             self.should_sort_typegen_items,
                         );
                         self.generated_input_object_types.insert(
-                            input_object.name,
+                            input_object.name.item,
                             GeneratedInputObject::Resolved(AST::ExactObject(props)),
                         );
                     }
-                    AST::Identifier(input_object.name)
+                    AST::Identifier(input_object.name.item)
                 }
                 Type::Union(_) | Type::Object(_) | Type::Interface(_) => {
                     panic!("unexpected non-input type")

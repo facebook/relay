@@ -114,7 +114,7 @@ impl<'program> SubscriptionTransform<'program> {
         match type_ {
             TypeReference::Named(Type::Scalar(scalar_id)) => {
                 let scalar = self.program.schema.scalar(*scalar_id);
-                scalar.name == MATCH_CONSTANTS.js_field_type && !scalar.is_extension
+                scalar.name.item == MATCH_CONSTANTS.js_field_type && !scalar.is_extension
             }
             _ => false,
         }

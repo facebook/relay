@@ -123,12 +123,12 @@ impl Schema for InMemorySchema {
 
     fn get_type_name(&self, type_: Type) -> StringKey {
         match type_ {
-            Type::Enum(id) => self.enums[id.as_usize()].name,
-            Type::InputObject(id) => self.input_objects[id.as_usize()].name,
-            Type::Interface(id) => self.interfaces[id.as_usize()].name,
+            Type::Enum(id) => self.enums[id.as_usize()].name.item,
+            Type::InputObject(id) => self.input_objects[id.as_usize()].name.item,
+            Type::Interface(id) => self.interfaces[id.as_usize()].name.item,
             Type::Object(id) => self.objects[id.as_usize()].name.item,
-            Type::Scalar(id) => self.scalars[id.as_usize()].name,
-            Type::Union(id) => self.unions[id.as_usize()].name,
+            Type::Scalar(id) => self.scalars[id.as_usize()].name.item,
+            Type::Union(id) => self.unions[id.as_usize()].name.item,
         }
     }
 
@@ -359,13 +359,13 @@ impl InMemorySchema {
     }
 
     pub fn add_enum(&mut self, enum_: Enum) -> DiagnosticsResult<EnumID> {
-        if self.type_map.contains_key(&enum_.name) {
-            return todo_add_location(SchemaError::DuplicateType(enum_.name));
+        if self.type_map.contains_key(&enum_.name.item) {
+            return todo_add_location(SchemaError::DuplicateType(enum_.name.item));
         }
         let index: u32 = self.enums.len().try_into().unwrap();
         let name = enum_.name;
         self.enums.push(enum_);
-        self.type_map.insert(name, Type::Enum(EnumID(index)));
+        self.type_map.insert(name.item, Type::Enum(EnumID(index)));
         Ok(EnumID(index))
     }
 
@@ -373,26 +373,26 @@ impl InMemorySchema {
         &mut self,
         input_object: InputObject,
     ) -> DiagnosticsResult<InputObjectID> {
-        if self.type_map.contains_key(&input_object.name) {
-            return todo_add_location(SchemaError::DuplicateType(input_object.name));
+        if self.type_map.contains_key(&input_object.name.item) {
+            return todo_add_location(SchemaError::DuplicateType(input_object.name.item));
         }
         let index: u32 = self.input_objects.len().try_into().unwrap();
         let name = input_object.name;
         self.input_objects.push(input_object);
         self.type_map
-            .insert(name, Type::InputObject(InputObjectID(index)));
+            .insert(name.item, Type::InputObject(InputObjectID(index)));
         Ok(InputObjectID(index))
     }
 
     pub fn add_interface(&mut self, interface: Interface) -> DiagnosticsResult<InterfaceID> {
-        if self.type_map.contains_key(&interface.name) {
-            return todo_add_location(SchemaError::DuplicateType(interface.name));
+        if self.type_map.contains_key(&interface.name.item) {
+            return todo_add_location(SchemaError::DuplicateType(interface.name.item));
         }
         let index: u32 = self.interfaces.len().try_into().unwrap();
         let name = interface.name;
         self.interfaces.push(interface);
         self.type_map
-            .insert(name, Type::Interface(InterfaceID(index)));
+            .insert(name.item, Type::Interface(InterfaceID(index)));
         Ok(InterfaceID(index))
     }
 
@@ -412,22 +412,22 @@ impl InMemorySchema {
     }
 
     pub fn add_scalar(&mut self, scalar: Scalar) -> DiagnosticsResult<ScalarID> {
-        if self.type_map.contains_key(&scalar.name) {
-            return todo_add_location(SchemaError::DuplicateType(scalar.name));
+        if self.type_map.contains_key(&scalar.name.item) {
+            return todo_add_location(SchemaError::DuplicateType(scalar.name.item));
         }
         let index: u32 = self.scalars.len().try_into().unwrap();
-        let name = scalar.name;
+        let name = scalar.name.item;
         self.scalars.push(scalar);
         self.type_map.insert(name, Type::Scalar(ScalarID(index)));
         Ok(ScalarID(index))
     }
 
     pub fn add_union(&mut self, union: Union) -> DiagnosticsResult<UnionID> {
-        if self.type_map.contains_key(&union.name) {
-            return todo_add_location(SchemaError::DuplicateType(union.name));
+        if self.type_map.contains_key(&union.name.item) {
+            return todo_add_location(SchemaError::DuplicateType(union.name.item));
         }
         let index: u32 = self.unions.len().try_into().unwrap();
-        let name = union.name;
+        let name = union.name.item;
         self.unions.push(union);
         self.type_map.insert(name, Type::Union(UnionID(index)));
         Ok(UnionID(index))
@@ -535,7 +535,8 @@ impl InMemorySchema {
         }
         self.type_map
             .remove(&self.get_type_name(Type::Interface(id)));
-        self.type_map.insert(interface.name, Type::Interface(id));
+        self.type_map
+            .insert(interface.name.item, Type::Interface(id));
         self.interfaces[id.as_usize()] = interface;
         Ok(())
     }
@@ -565,7 +566,7 @@ impl InMemorySchema {
             ));
         }
         self.type_map.remove(&self.get_type_name(Type::Enum(id)));
-        self.type_map.insert(enum_.name, Type::Enum(id));
+        self.type_map.insert(enum_.name.item, Type::Enum(id));
         self.enums[id.as_usize()] = enum_;
         Ok(())
     }
@@ -586,7 +587,7 @@ impl InMemorySchema {
         self.type_map
             .remove(&self.get_type_name(Type::InputObject(id)));
         self.type_map
-            .insert(input_object.name, Type::InputObject(id));
+            .insert(input_object.name.item, Type::InputObject(id));
         self.input_objects[id.as_usize()] = input_object;
         Ok(())
     }
@@ -601,7 +602,7 @@ impl InMemorySchema {
             ));
         }
         self.type_map.remove(&self.get_type_name(Type::Union(id)));
-        self.type_map.insert(union.name, Type::Union(id));
+        self.type_map.insert(union.name.item, Type::Union(id));
         self.unions[id.as_usize()] = union;
         Ok(())
     }
@@ -1115,7 +1116,7 @@ impl InMemorySchema {
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(directives);
                 self.interfaces.push(Interface {
-                    name: name.value,
+                    name: WithLocation::new(Location::new(*location_key, name.span), name.value),
                     implementing_objects: vec![],
                     is_extension,
                     fields,
@@ -1135,7 +1136,7 @@ impl InMemorySchema {
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(directives);
                 self.unions.push(Union {
-                    name: name.value,
+                    name: WithLocation::new(Location::new(*location_key, name.span), name.value),
                     is_extension,
                     members,
                     directives,
@@ -1150,7 +1151,7 @@ impl InMemorySchema {
                 let fields = self.build_arguments(fields)?;
                 let directives = self.build_directive_values(directives);
                 self.input_objects.push(InputObject {
-                    name: name.value,
+                    name: WithLocation::new(Location::new(*location_key, name.span), name.value),
                     fields,
                     directives,
                     description: None,
@@ -1175,7 +1176,7 @@ impl InMemorySchema {
                     Vec::new()
                 };
                 self.enums.push(Enum {
-                    name: name.value,
+                    name: WithLocation::new(Location::new(*location_key, name.span), name.value),
                     is_extension,
                     values,
                     directives,
@@ -1188,7 +1189,7 @@ impl InMemorySchema {
             }) => {
                 let directives = self.build_directive_values(directives);
                 self.scalars.push(Scalar {
-                    name: name.value,
+                    name: WithLocation::new(Location::new(*location_key, name.span), name.value),
                     is_extension,
                     directives,
                     description: None,

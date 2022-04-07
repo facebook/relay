@@ -166,7 +166,10 @@ Text Schema:Schema {
 }
   enums: [
     Enum {
-        name: "PageType",
+        name: WithLocation {
+            location: <generated>:340:348,
+            item: "PageType",
+        },
         is_extension: false,
         values: [
             EnumValue {
@@ -493,7 +496,10 @@ Text Schema:Schema {
 ]
   input_objects: [
     InputObject {
-        name: "Location",
+        name: WithLocation {
+            location: <generated>:510:518,
+            item: "Location",
+        },
         fields: [
             Argument {
                 name: "lat",
@@ -580,7 +586,10 @@ Text Schema:Schema {
 ]
   interfaces: [
     Interface {
-        name: "Node",
+        name: WithLocation {
+            location: <generated>:218:222,
+            item: "Node",
+        },
         is_extension: false,
         implementing_objects: [
             ObjectID(1),
@@ -656,37 +665,55 @@ Text Schema:Schema {
 ]
   scalars: [
     Scalar {
-        name: "Int",
+        name: WithLocation {
+            location: <generated>:187:190,
+            item: "Int",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Float",
+        name: WithLocation {
+            location: <generated>:198:203,
+            item: "Float",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "String",
+        name: WithLocation {
+            location: <generated>:211:217,
+            item: "String",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Boolean",
+        name: WithLocation {
+            location: <generated>:225:232,
+            item: "Boolean",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "ID",
+        name: WithLocation {
+            location: <generated>:240:242,
+            item: "ID",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "URL",
+        name: WithLocation {
+            location: <generated>:459:462,
+            item: "URL",
+        },
         is_extension: false,
         directives: [
             DirectiveValue {
@@ -722,19 +749,28 @@ Text Schema:Schema {
         description: None,
     },
     Scalar {
-        name: "Float",
+        name: WithLocation {
+            location: <generated>:660:665,
+            item: "Float",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Int",
+        name: WithLocation {
+            location: <generated>:674:677,
+            item: "Int",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "String",
+        name: WithLocation {
+            location: <generated>:686:692,
+            item: "String",
+        },
         is_extension: false,
         directives: [],
         description: None,
@@ -742,7 +778,10 @@ Text Schema:Schema {
 ]
   unions: [
     Union {
-        name: "Actor",
+        name: WithLocation {
+            location: <generated>:431:436,
+            item: "Actor",
+        },
         is_extension: false,
         members: [
             ObjectID(1),
@@ -841,7 +880,10 @@ directives: [
 ]
 enums: [
     Enum {
-        name: "PageType",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "PageType",
+        },
         is_extension: false,
         values: [
             EnumValue {
@@ -1079,7 +1121,10 @@ fields: [
 ]
 input_objects: [
     InputObject {
-        name: "Location",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Location",
+        },
         fields: [
             Argument {
                 name: "lat",
@@ -1166,7 +1211,10 @@ input_objects: [
 ]
 interfaces: [
     Interface {
-        name: "Node",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Node",
+        },
         is_extension: false,
         implementing_objects: [
             ObjectID(0),
@@ -1242,37 +1290,55 @@ objects: [
 ]
 scalars: [
     Scalar {
-        name: "Boolean",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Boolean",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Float",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Float",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "ID",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "ID",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Int",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Int",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "String",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "String",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "URL",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "URL",
+        },
         is_extension: false,
         directives: [
             DirectiveValue {
@@ -1310,7 +1376,10 @@ scalars: [
 ]
 unions: [
     Union {
-        name: "Actor",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Actor",
+        },
         is_extension: false,
         members: [
             ObjectID(0),

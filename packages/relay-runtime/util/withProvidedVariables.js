@@ -20,7 +20,7 @@ const areEqual = require('areEqual');
 const warning = require('warning');
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
-const debugCache = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
+let debugCache = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
 
 function withProvidedVariables(
   userSuppliedVariables: Variables,
@@ -59,6 +59,12 @@ function withProvidedVariables(
   } else {
     return userSuppliedVariables;
   }
+}
+
+if (__DEV__) {
+  withProvidedVariables.tests_only_resetDebugCache = () => {
+    debugCache = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
+  };
 }
 
 module.exports = withProvidedVariables;

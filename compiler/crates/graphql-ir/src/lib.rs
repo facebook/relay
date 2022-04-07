@@ -15,6 +15,7 @@ mod build;
 mod constants;
 mod errors;
 mod ir;
+pub mod node_identifier;
 mod program;
 mod signatures;
 mod transform;

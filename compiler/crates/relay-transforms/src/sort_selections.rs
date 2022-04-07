@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::PointerAddress;
+use common::PointerAddress;
 use graphql_ir::{
     Field, FragmentDefinition, OperationDefinition, Program, Selection, Transformed,
     TransformedValue, Transformer,

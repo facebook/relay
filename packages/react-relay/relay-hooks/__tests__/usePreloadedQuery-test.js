@@ -16,8 +16,9 @@
 jest.mock('warning');
 const {loadQuery} = require('../loadQuery');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
+const usePreloadedQuery_REACT_CACHE = require('../react-cache/usePreloadedQuery_REACT_CACHE');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const usePreloadedQuery = require('../usePreloadedQuery');
+const usePreloadedQuery_LEGACY = require('../usePreloadedQuery');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
 const {
@@ -26,6 +27,7 @@ const {
   Observable,
   PreloadableQueryRegistry,
   RecordSource,
+  RelayFeatureFlags,
   Store,
   graphql,
 } = require('relay-runtime');
@@ -109,7 +111,28 @@ afterAll(() => {
   jest.clearAllMocks();
 });
 
-describe('usePreloadedQuery', () => {
+describe.each([
+  ['React Cache', usePreloadedQuery_REACT_CACHE],
+  ['Legacy', usePreloadedQuery_LEGACY],
+])('usePreloadedQuery (%s)', (_hookName, usePreloadedQuery) => {
+  const usingReactCache = usePreloadedQuery === usePreloadedQuery_REACT_CACHE;
+  // Our open-source build is still on React 17, so we need to skip these tests there:
+  if (usingReactCache) {
+    // $FlowExpectedError[prop-missing] Cache not yet part of Flow types
+    if (React.unstable_getCacheForType === undefined) {
+      return;
+    }
+  }
+  let originalReactCacheFeatureFlag;
+  beforeEach(() => {
+    originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
+    RelayFeatureFlags.USE_REACT_CACHE =
+      usePreloadedQuery === usePreloadedQuery_REACT_CACHE;
+  });
+  afterEach(() => {
+    RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
+  });
+
   beforeEach(() => {
     dataSource = undefined;
     fetch = jest.fn((_query, _variables, _cacheConfig) =>
@@ -122,6 +145,7 @@ describe('usePreloadedQuery', () => {
       store: new Store(new RecordSource()),
     });
   });
+
   describe('using preloadQuery_DEPRECATED', () => {
     beforeEach(() => {
       jest.spyOn(console, 'warn').mockImplementation(() => {});
@@ -809,8 +833,13 @@ describe('usePreloadedQuery', () => {
     });
 
     describe('when loadQuery is passed a preloadable concrete request and the query AST is available synchronously', () => {
+      let originalResolvedModule;
       beforeEach(() => {
+        originalResolvedModule = resolvedModule;
         resolvedModule = query;
+      });
+      afterEach(() => {
+        resolvedModule = originalResolvedModule;
       });
       describe('when the network response is available before usePreloadedQuery is rendered', () => {
         it('should synchronously render successfully', () => {
@@ -1040,7 +1069,7 @@ describe('usePreloadedQuery', () => {
 
         prefetched.dispose();
         render();
-        expect(warning).toBeCalledTimes(5);
+        expect(warning).toBeCalledTimes(3);
         expect(warning).toHaveBeenLastCalledWith(
           false, // invariant broken
           expectWarningMessage,

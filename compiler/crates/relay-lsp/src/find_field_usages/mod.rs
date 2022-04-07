@@ -15,9 +15,11 @@ use graphql_ir::{
     Visitor,
 };
 use intern::string_key::{Intern, StringKey};
+use itertools::Itertools;
 use lsp_types::request::Request;
 use schema::{FieldID, SDLSchema, Schema, Type};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::sync::Arc;
 
 // This implementation of FindFieldUsages find matching fields in:
@@ -74,7 +76,7 @@ pub fn on_find_field_usages(
             Ok(FindFieldUsageResultItem {
                 location_uri: lsp_location.uri.to_string(),
                 location_range: lsp_location.range,
-                label: label.to_string(),
+                label,
             })
         })
         .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
@@ -88,13 +90,25 @@ pub fn get_usages(
     schema: Arc<SDLSchema>,
     type_name: StringKey,
     field_name: StringKey,
-) -> LSPRuntimeResult<Vec<(StringKey, IRLocation)>> {
+) -> LSPRuntimeResult<Vec<(String, IRLocation)>> {
     let type_ = schema.get_type(type_name).ok_or_else(|| {
         LSPRuntimeError::UnexpectedError(format!("Type {} not found!", type_name))
     })?;
     let mut usage_finder = FieldUsageFinder::new(schema, type_, field_name);
     usage_finder.visit_program(program);
-    Ok(usage_finder.usages)
+
+    let mut result = Vec::with_capacity(usage_finder.usages.len());
+    for (label, locations) in usage_finder.usages.into_iter().sorted() {
+        if let [location] = locations.as_slice() {
+            // exactly 1 location, so no need to enumerate
+            result.push((label.to_string(), *location));
+        } else {
+            for (idx, location) in locations.into_iter().enumerate() {
+                result.push((format!("{} - {}", label, idx), location));
+            }
+        }
+    }
+    Ok(result)
 }
 
 #[derive(Default)]
@@ -108,7 +122,7 @@ struct FieldUsageFinderScope {
 }
 
 struct FieldUsageFinder {
-    usages: Vec<(StringKey, IRLocation)>,
+    usages: HashMap<StringKey, Vec<IRLocation>>,
     schema: Arc<SDLSchema>,
     type_: Type,
     field_name: StringKey,
@@ -143,12 +157,14 @@ impl FieldUsageFinder {
         false
     }
     fn add_field(&mut self, field: &WithLocation<FieldID>) {
-        self.usages.push((
-            self.current_scope
-                .label
-                .expect("Expected label in find_field_usages"),
-            field.location,
-        ));
+        let current_label = self
+            .current_scope
+            .label
+            .expect("Expected label in find_field_usages");
+        self.usages
+            .entry(current_label)
+            .or_default()
+            .push(field.location);
     }
 }
 

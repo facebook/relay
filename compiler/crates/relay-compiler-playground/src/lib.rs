@@ -91,8 +91,11 @@ pub fn parse_to_ir_impl(schema_text: &str, document_text: &str) -> PlaygroundRes
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
 
     let schema = Arc::new(
-        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
-            .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
+        build_schema_with_extensions(
+            &[(schema_text, SourceLocationKey::generated())],
+            &Vec::<(&str, SourceLocationKey)>::new(),
+        )
+        .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
 
     let ir = graphql_ir::build(&schema, &document.definitions)
@@ -124,8 +127,11 @@ pub fn parse_to_reader_ast_impl(
     document_text: &str,
 ) -> PlaygroundResult {
     let schema = Arc::new(
-        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
-            .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
+        build_schema_with_extensions(
+            &[(schema_text, SourceLocationKey::Generated)],
+            &Vec::<(&str, SourceLocationKey)>::new(),
+        )
+        .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
     let project_config = get_project_config(feature_flags_json, None)?;
     let programs = get_programs(&schema, &project_config, document_text)?;
@@ -168,8 +174,11 @@ pub fn parse_to_normalization_ast_impl(
     document_text: &str,
 ) -> PlaygroundResult {
     let schema = Arc::new(
-        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
-            .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
+        build_schema_with_extensions(
+            &[(schema_text, SourceLocationKey::Generated)],
+            &Vec::<(&str, SourceLocationKey)>::new(),
+        )
+        .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
     let project_config = get_project_config(feature_flags_json, None)?;
     let programs = get_programs(&schema, &project_config, document_text)?;
@@ -211,8 +220,11 @@ pub fn parse_to_types_impl(
     document_text: &str,
 ) -> PlaygroundResult {
     let schema = Arc::new(
-        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
-            .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
+        build_schema_with_extensions(
+            &[(schema_text, SourceLocationKey::Generated)],
+            &Vec::<(&str, SourceLocationKey)>::new(),
+        )
+        .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
     let project_config = get_project_config(feature_flags_json, Some(typegen_config_json))?;
     let programs = get_programs(&schema, &project_config, document_text)?;
@@ -255,8 +267,11 @@ fn transform_impl(
     document_text: &str,
 ) -> PlaygroundResult {
     let schema = Arc::new(
-        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
-            .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
+        build_schema_with_extensions(
+            &[(schema_text, SourceLocationKey::Generated)],
+            &Vec::<(&str, SourceLocationKey)>::new(),
+        )
+        .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
     let project_config = get_project_config(feature_flags_json, None)?;
     let programs = get_programs(&schema, &project_config, document_text)?;

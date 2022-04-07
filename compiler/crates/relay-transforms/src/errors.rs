@@ -119,49 +119,11 @@ pub enum ValidationMessage {
     EmptyOperationResult { name: StringKey },
 
     #[error(
-        "Field '{response_key}' is ambiguous because it references two different fields: '{l_name}' and '{r_name}'"
-    )]
-    AmbiguousFieldAlias {
-        response_key: StringKey,
-        l_name: StringKey,
-        r_name: StringKey,
-    },
-
-    #[error(
-        "Field '{response_key}' is ambiguous because it references fields with different types: '{l_name}' with type '{l_type_string}' and '{r_name}' with type '{r_type_string}'"
-    )]
-    AmbiguousFieldType {
-        response_key: StringKey,
-        l_name: StringKey,
-        l_type_string: String,
-        r_name: StringKey,
-        r_type_string: String,
-    },
-
-    #[error(
-        "Field '{response_key}' is marked with @stream in one place, and not marked in another place. Please use alias to distinguish the 2 fields.'"
-    )]
-    StreamConflictOnlyUsedInOnePlace { response_key: StringKey },
-
-    #[error(
-        "Field '{response_key}' is marked with @stream in multiple places. Please use an alias to distinguish them'"
-    )]
-    StreamConflictUsedInMultiplePlaces { response_key: StringKey },
-
-    #[error(
         "The `@relay_test_operation` directive is only allowed within test \
         files because it creates larger generated files we don't want to \
         include in production. File does not match test regex: {test_path_regex}"
     )]
     TestOperationOutsideTestDirectory { test_path_regex: String },
-
-    #[error(
-        "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after applying fragment arguments. This field has the applied argument values: {arguments_a}"
-    )]
-    InvalidSameFieldWithDifferentArguments {
-        field_name: StringKey,
-        arguments_a: String,
-    },
 
     #[error("Undefined fragment '{0}'")]
     UndefinedFragment(StringKey),

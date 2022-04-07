@@ -40,7 +40,7 @@ const {
 
 type FragmentQueryOptions = {|
   fetchPolicy?: FetchPolicy,
-  networkCacheConfig?: CacheConfig,
+  networkCacheConfig?: ?CacheConfig,
 |};
 
 type FragmentState = $ReadOnly<
@@ -186,11 +186,9 @@ function handleMissingClientEdge(
   // doing here is started the query if needed and retaining and releasing it
   // according to the component mount/suspense cycle; getQueryResultOrFetchQuery
   // already handles this by itself.
-  getQueryResultOrFetchQuery(
-    environment,
-    queryOperationDescriptor,
-    queryOptions?.fetchPolicy,
-  );
+  getQueryResultOrFetchQuery(environment, queryOperationDescriptor, {
+    fetchPolicy: queryOptions?.fetchPolicy,
+  });
 }
 
 function subscribeToSnapshot(

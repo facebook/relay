@@ -7,11 +7,12 @@
 
 use crate::{
     no_inline::NO_INLINE_DIRECTIVE_NAME,
-    node_identifier::{LocationAgnosticHash, LocationAgnosticPartialEq},
     relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
+    RelayLocationAgnosticBehavior,
 };
 use fnv::FnvHashMap;
 use graphql_ir::{
+    node_identifier::{LocationAgnosticHash, LocationAgnosticPartialEq},
     FragmentDefinition, FragmentSpread, InlineFragment, Program, ScalarField, Selection,
     Transformed, Transformer,
 };
@@ -31,14 +32,19 @@ type Seen = FnvHashMap<FragmentSpreadKey, Arc<InlineFragment>>;
 impl PartialEq for FragmentSpreadKey {
     fn eq(&self, other: &Self) -> bool {
         self.0.fragment.item == other.0.fragment.item
-            && self.0.directives.location_agnostic_eq(&other.0.directives)
+            && self
+                .0
+                .directives
+                .location_agnostic_eq::<RelayLocationAgnosticBehavior>(&other.0.directives)
     }
 }
 
 impl Hash for FragmentSpreadKey {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.0.fragment.item.hash(state);
-        self.0.directives.location_agnostic_hash(state);
+        self.0
+            .directives
+            .location_agnostic_hash::<_, RelayLocationAgnosticBehavior>(state);
     }
 }
 

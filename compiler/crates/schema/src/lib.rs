@@ -39,23 +39,36 @@ const BUILTINS: &str = include_str!("./builtins.graphql");
 pub use flatbuffer::serialize_as_flatbuffer;
 
 pub fn build_schema(sdl: &str) -> DiagnosticsResult<SDLSchema> {
-    build_schema_with_extensions::<_, &str>(&[sdl], &[])
+    build_schema_with_extensions::<_, &str>(&[(sdl, SourceLocationKey::generated())], &[])
 }
 
 pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
-    server_sdls: &[T],
+    server_sdls: &[(T, SourceLocationKey)],
     extension_sdls: &[(U, SourceLocationKey)],
 ) -> DiagnosticsResult<SDLSchema> {
     let mut server_documents = vec![builtins()?];
-    let mut combined_sdl: String = String::new();
-    for server_sdl in server_sdls {
-        combined_sdl.push_str(server_sdl.as_ref());
-        combined_sdl.push('\n');
-    }
-    server_documents.push(graphql_syntax::parse_schema_document(
-        &combined_sdl,
-        SourceLocationKey::generated(),
-    )?);
+
+    let server_schema_document = match server_sdls {
+        [(sdl, source_location)] => {
+            graphql_syntax::parse_schema_document(sdl.as_ref(), *source_location)?
+        }
+        _ => {
+            // When the schema is split across multiple files, the individual
+            // files may not be syntactically complete, so we join them together
+            // before parsing.
+
+            // Note that this requires us to use a generates source location key which
+            // means click to definition for schema files will not work.
+            let mut combined_sdl: String = String::new();
+            for (sdl, _) in server_sdls {
+                combined_sdl.push_str(sdl.as_ref());
+                combined_sdl.push('\n');
+            }
+            graphql_syntax::parse_schema_document(&combined_sdl, SourceLocationKey::Generated)?
+        }
+    };
+
+    server_documents.push(server_schema_document);
 
     let mut client_schema_documents = Vec::new();
     for (extension_sdl, location_key) in extension_sdls {

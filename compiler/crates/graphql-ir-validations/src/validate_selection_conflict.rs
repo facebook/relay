@@ -6,20 +6,23 @@
  */
 
 use self::ignoring_type_and_location::arguments_equals;
-use crate::{PointerAddress, ValidationMessage, DEFER_STREAM_CONSTANTS};
-use common::{Diagnostic, DiagnosticsResult, Location};
+use common::{Diagnostic, DiagnosticsResult, Location, PointerAddress};
 use dashmap::DashMap;
 use errors::{par_try_map, validate_map};
 use graphql_ir::{
-    Argument, Field as IRField, FragmentDefinition, LinkedField, OperationDefinition, Program,
-    ScalarField, Selection,
+    node_identifier::LocationAgnosticBehavior, Argument, Field as IRField, FragmentDefinition,
+    LinkedField, OperationDefinition, Program, ScalarField, Selection,
 };
 use intern::string_key::StringKey;
 use schema::{SDLSchema, Schema, Type, TypeReference};
+use std::marker::PhantomData;
 use std::sync::Arc;
+use thiserror::Error;
 
-pub fn validate_selection_conflict(program: &Program) -> DiagnosticsResult<()> {
-    ValidateSelectionConflict::new(program).validate_program(program)
+pub fn validate_selection_conflict<B: LocationAgnosticBehavior + Sync>(
+    program: &Program,
+) -> DiagnosticsResult<()> {
+    ValidateSelectionConflict::<B>::new(program).validate_program(program)
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -30,18 +33,20 @@ enum Field<'s> {
 
 type Fields<'s> = Vec<Field<'s>>;
 
-struct ValidateSelectionConflict<'s> {
+struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     program: &'s Program,
     fragment_cache: DashMap<StringKey, Arc<Fields<'s>>>,
     fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
+    _behavior: PhantomData<TBehavior>,
 }
 
-impl<'s> ValidateSelectionConflict<'s> {
+impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     fn new(program: &'s Program) -> Self {
         Self {
             program,
             fragment_cache: Default::default(),
             fields_cache: Default::default(),
+            _behavior: PhantomData::<B>,
         }
     }
 
@@ -295,7 +300,7 @@ impl<'s> ValidateSelectionConflict<'s> {
                 l.definition().location,
             )
             .annotate("the other field", r.definition().location))
-        } else if !(arguments_equals(l.arguments(), r.arguments())) {
+        } else if !(arguments_equals::<B>(l.arguments(), r.arguments())) {
             Err(self.create_conflicting_fields_error(
                 response_key,
                 l.definition().location,
@@ -307,11 +312,11 @@ impl<'s> ValidateSelectionConflict<'s> {
             let left_stream_directive = l
                 .directives()
                 .iter()
-                .find(|d| d.name.item == DEFER_STREAM_CONSTANTS.stream_name);
+                .find(|d| d.name.item.lookup() == "stream");
             let right_stream_directive = r
                 .directives()
                 .iter()
-                .find(|d| d.name.item == DEFER_STREAM_CONSTANTS.stream_name);
+                .find(|d| d.name.item.lookup() == "stream");
             match (left_stream_directive, right_stream_directive) {
                 (Some(_), None) => Err(Diagnostic::error(
                     ValidationMessage::StreamConflictOnlyUsedInOnePlace { response_key },
@@ -401,24 +406,25 @@ impl<'s> Field<'s> {
 }
 
 mod ignoring_type_and_location {
-    use crate::node_identifier::LocationAgnosticPartialEq;
+    use graphql_ir::node_identifier::{LocationAgnosticBehavior, LocationAgnosticPartialEq};
     use graphql_ir::{Argument, Value};
 
     /// Verify that two sets of arguments are equivalent - same argument names
     /// and values. Notably, this ignores the types of arguments and values,
     /// which may not always be inferred identically.
-    pub fn arguments_equals(a: &[Argument], b: &[Argument]) -> bool {
+    pub fn arguments_equals<B: LocationAgnosticBehavior>(a: &[Argument], b: &[Argument]) -> bool {
         order_agnostic_slice_equals(a, b, |a, b| {
-            a.name.location_agnostic_eq(&b.name) && value_equals(&a.value.item, &b.value.item)
+            a.name.location_agnostic_eq::<B>(&b.name)
+                && value_equals::<B>(&a.value.item, &b.value.item)
         })
     }
 
-    fn value_equals(a: &Value, b: &Value) -> bool {
+    fn value_equals<B: LocationAgnosticBehavior>(a: &Value, b: &Value) -> bool {
         match (a, b) {
-            (Value::Constant(a), Value::Constant(b)) => a.location_agnostic_eq(b),
-            (Value::Variable(a), Value::Variable(b)) => a.name.location_agnostic_eq(&b.name),
-            (Value::List(a), Value::List(b)) => slice_equals(a, b, value_equals),
-            (Value::Object(a), Value::Object(b)) => arguments_equals(a, b),
+            (Value::Constant(a), Value::Constant(b)) => a.location_agnostic_eq::<B>(b),
+            (Value::Variable(a), Value::Variable(b)) => a.name.location_agnostic_eq::<B>(&b.name),
+            (Value::List(a), Value::List(b)) => slice_equals(a, b, value_equals::<B>),
+            (Value::Object(a), Value::Object(b)) => arguments_equals::<B>(a, b),
             _ => false,
         }
     }
@@ -450,4 +456,45 @@ mod ignoring_type_and_location {
     {
         a.len() == b.len() && a.iter().zip(b).all(|(a, b)| eq(a, b))
     }
+}
+
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+enum ValidationMessage {
+    #[error(
+        "Field '{response_key}' is ambiguous because it references two different fields: '{l_name}' and '{r_name}'"
+    )]
+    AmbiguousFieldAlias {
+        response_key: StringKey,
+        l_name: StringKey,
+        r_name: StringKey,
+    },
+
+    #[error(
+        "Field '{response_key}' is ambiguous because it references fields with different types: '{l_name}' with type '{l_type_string}' and '{r_name}' with type '{r_type_string}'"
+    )]
+    AmbiguousFieldType {
+        response_key: StringKey,
+        l_name: StringKey,
+        l_type_string: String,
+        r_name: StringKey,
+        r_type_string: String,
+    },
+
+    #[error(
+        "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after applying fragment arguments. This field has the applied argument values: {arguments_a}"
+    )]
+    InvalidSameFieldWithDifferentArguments {
+        field_name: StringKey,
+        arguments_a: String,
+    },
+
+    #[error(
+        "Field '{response_key}' is marked with @stream in one place, and not marked in another place. Please use alias to distinguish the 2 fields.'"
+    )]
+    StreamConflictOnlyUsedInOnePlace { response_key: StringKey },
+
+    #[error(
+        "Field '{response_key}' is marked with @stream in multiple places. Please use an alias to distinguish them'"
+    )]
+    StreamConflictUsedInMultiplePlaces { response_key: StringKey },
 }

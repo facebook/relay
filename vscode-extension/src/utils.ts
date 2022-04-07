@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 import * as path from 'path';
 import * as fs from 'fs/promises';
 
@@ -48,6 +55,8 @@ export async function findRelayBinary(
 
   let counter = 0;
   let currentPath = rootPath;
+
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     if (counter >= 5000) {
       throw new Error(
@@ -55,9 +64,9 @@ export async function findRelayBinary(
       );
     }
 
-    counter++;
+    counter += 1;
 
-    let possibleBinaryPath = path.join(
+    const possibleBinaryPath = path.join(
       currentPath,
       binaryPathRelativeToPackageJson,
     );
@@ -66,7 +75,7 @@ export async function findRelayBinary(
       return possibleBinaryPath;
     }
 
-    let nextPath = path.normalize(path.join(currentPath, '..'));
+    const nextPath = path.normalize(path.join(currentPath, '..'));
 
     // Eventually we'll get to `/` and get stuck in a loop.
     if (nextPath === currentPath) {

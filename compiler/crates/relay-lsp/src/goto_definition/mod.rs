@@ -148,16 +148,17 @@ fn locate_type_definition(
             let type_ = schema.get_type(type_name);
 
             type_
-                .and_then(|type_| {
-                    match type_ {
-                        // Why don't these other types have locations?
-                        Type::InputObject(_) => None,
-                        Type::Enum(_) => None,
-                        Type::Interface(_) => None,
-                        Type::Scalar(_) => None,
-                        Type::Union(_) => None,
-                        Type::Object(object_id) => Some(schema.object(object_id).name.location),
+                .and_then(|type_| match type_ {
+                    Type::InputObject(input_object_id) => {
+                        Some(schema.input_object(input_object_id).name.location)
                     }
+                    Type::Enum(enum_id) => Some(schema.enum_(enum_id).name.location),
+                    Type::Interface(interface_id) => {
+                        Some(schema.interface(interface_id).name.location)
+                    }
+                    Type::Scalar(scalar_id) => Some(schema.scalar(scalar_id).name.location),
+                    Type::Union(union_id) => Some(schema.union(union_id).name.location),
+                    Type::Object(object_id) => Some(schema.object(object_id).name.location),
                 })
                 .map(|schema_location| {
                     transform_relay_location_to_lsp_location(&root_dir, schema_location)

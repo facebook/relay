@@ -16,7 +16,7 @@ pub(crate) fn on_shutdown(
     _state: &impl GlobalState,
     _params: <Shutdown as Request>::Params,
 ) -> LSPRuntimeResult<<Shutdown as Request>::Result> {
-    std::process::exit(0);
+    LSPRuntimeResult::Ok(())
 }
 
 pub(crate) fn on_exit(

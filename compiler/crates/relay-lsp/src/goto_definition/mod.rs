@@ -127,20 +127,6 @@ fn locate_type_definition(
     schema: &Arc<SDLSchema>,
     root_dir: &std::path::Path,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
-    let type_ = schema.get_type(type_name);
-
-    let schema_location = type_.and_then(|type_| {
-        match type_ {
-            // Why don't these other types have locations?
-            Type::InputObject(_) => None,
-            Type::Enum(_) => None,
-            Type::Interface(_) => None,
-            Type::Scalar(_) => None,
-            Type::Union(_) => None,
-            Type::Object(object_id) => Some(schema.object(object_id).name.location),
-        }
-    });
-
     let provider_response = extra_data_provider.resolve_field_definition(
         project_name.to_string(),
         type_name.to_string(),
@@ -149,9 +135,8 @@ fn locate_type_definition(
 
     let field_definition_source_info = get_field_definition_source_info_result(provider_response);
 
-    match (field_definition_source_info, schema_location) {
-        // If we got the extra data provider's source info, we'll use that whether or not we had a schema location
-        (Ok(source_info), _) => Ok(if source_info.is_local {
+    match field_definition_source_info {
+        Ok(source_info) => Ok(if source_info.is_local {
             GotoDefinitionResponse::Scalar(get_location(
                 &source_info.file_path,
                 source_info.line_number,
@@ -159,12 +144,27 @@ fn locate_type_definition(
         } else {
             return Err(LSPRuntimeError::ExpectedError);
         }),
-        // If the extra data provider failed, we'll fallback to the schema location
-        (Err(_), Some(schema_location)) => Ok(GotoDefinitionResponse::Scalar(
-            transform_relay_location_to_lsp_location(&root_dir, schema_location)?,
-        )),
-        // If both failed, bubble up that failure
-        (Err(err), None) => Err(err),
+        Err(_) => {
+            let type_ = schema.get_type(type_name);
+
+            type_
+                .and_then(|type_| {
+                    match type_ {
+                        // Why don't these other types have locations?
+                        Type::InputObject(_) => None,
+                        Type::Enum(_) => None,
+                        Type::Interface(_) => None,
+                        Type::Scalar(_) => None,
+                        Type::Union(_) => None,
+                        Type::Object(object_id) => Some(schema.object(object_id).name.location),
+                    }
+                })
+                .map(|schema_location| {
+                    transform_relay_location_to_lsp_location(&root_dir, schema_location)
+                        .map(|lsp_location| GotoDefinitionResponse::Scalar(lsp_location))
+                })
+                .ok_or(LSPRuntimeError::ExpectedError)?
+        }
     }
 }
 

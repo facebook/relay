@@ -18,6 +18,8 @@ export async function createAndStartClient(context: RelayExtensionContext) {
     config.pathToRelay ||
     (await findRelayBinary(workspace.rootPath ?? process.cwd()));
 
+  context.outputChannel.appendLine('Starting the Relay GraphQL extension...');
+
   if (!relayBinary) {
     context.outputChannel.appendLine(
       "Could not find relay binary in path. Maybe you're not inside of a project with relay installed.",

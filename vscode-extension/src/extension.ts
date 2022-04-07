@@ -10,7 +10,7 @@ export async function activate(extensionContext: ExtensionContext) {
   relayExtensionContext = {
     client: null,
     outputChannel: window.createOutputChannel('Relay Language Server'),
-    extensionContext: extensionContext,
+    extensionContext,
   };
 
   registerCommands(relayExtensionContext);

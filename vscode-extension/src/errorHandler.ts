@@ -1,4 +1,4 @@
-import {OutputChannel, window} from 'vscode';
+import {window} from 'vscode';
 import {CloseAction, ErrorAction, ErrorHandler} from 'vscode-languageclient';
 import {RelayExtensionContext} from './context';
 

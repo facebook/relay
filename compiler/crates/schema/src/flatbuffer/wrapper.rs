@@ -277,7 +277,7 @@ impl Schema for SchemaWrapper {
     fn get_type_name(&self, type_: Type) -> StringKey {
         match type_ {
             Type::Enum(id) => self.enum_(id).name,
-            Type::InputObject(id) => self.input_object(id).name,
+            Type::InputObject(id) => self.input_object(id).name.item,
             Type::Interface(id) => self.interface(id).name,
             Type::Object(id) => self.object(id).name.item,
             Type::Scalar(id) => self.scalar(id).name,

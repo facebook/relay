@@ -197,7 +197,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let name = input_object.name;
         // Reserve idx and add to typemap. Else we could endup in a cycle
         let idx = self.input_objects.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::InputObject, name);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::InputObject, name.item);
         self.input_objects
             .push(schema_flatbuffer::InputObject::create(
                 &mut self.bldr,
@@ -206,7 +206,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let items = &self.serialize_directive_values(&input_object.directives);
         let fields = &self.serialize_arguments(&input_object.fields);
         let args = schema_flatbuffer::InputObjectArgs {
-            name: Some(self.bldr.create_string(name.lookup())),
+            name: Some(self.bldr.create_string(name.item.lookup())),
             directives: Some(self.bldr.create_vector(items)),
             fields: Some(self.bldr.create_vector(fields)),
         };

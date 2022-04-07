@@ -1538,10 +1538,10 @@ impl<'a> TypeGenerator<'a> {
                     let input_object = self.schema.input_object(*input_object_id);
                     if !self
                         .generated_input_object_types
-                        .contains_key(&input_object.name)
+                        .contains_key(&input_object.name.item)
                     {
                         self.generated_input_object_types
-                            .insert(input_object.name, GeneratedInputObject::Pending);
+                            .insert(input_object.name.item, GeneratedInputObject::Pending);
 
                         let props = ExactObject::new(
                             input_object
@@ -1563,11 +1563,11 @@ impl<'a> TypeGenerator<'a> {
                             self.should_sort_typegen_items,
                         );
                         self.generated_input_object_types.insert(
-                            input_object.name,
+                            input_object.name.item,
                             GeneratedInputObject::Resolved(AST::ExactObject(props)),
                         );
                     }
-                    AST::Identifier(input_object.name)
+                    AST::Identifier(input_object.name.item)
                 }
                 Type::Union(_) | Type::Object(_) | Type::Interface(_) => {
                     panic!("unexpected non-input type")

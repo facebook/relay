@@ -262,7 +262,7 @@ pub struct Object {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct InputObject {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub fields: ArgumentDefinitions,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
@@ -442,11 +442,11 @@ macro_rules! impl_named_for_with_location {
 
 impl_named_for_with_location!(Object);
 impl_named_for_with_location!(Field);
+impl_named_for_with_location!(InputObject);
 impl_named!(Interface);
 impl_named!(Union);
 impl_named!(Scalar);
 impl_named!(Enum);
-impl_named!(InputObject);
 
 impl_named!(Argument);
 impl_named!(ArgumentValue);

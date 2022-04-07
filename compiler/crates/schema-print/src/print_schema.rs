@@ -325,7 +325,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
 
     fn print_input_object(&mut self, id: InputObjectID) -> FmtResult {
         let input_object = self.schema.input_object(id);
-        write!(self.writer(), "input {}", input_object.name)?;
+        write!(self.writer(), "input {}", input_object.name.item)?;
         self.print_directive_values(&input_object.directives)?;
         self.print_space()?;
         self.print_input_object_fields(&input_object.fields)?;

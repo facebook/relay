@@ -54,6 +54,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub(crate) fn watch(self) {
         tokio::spawn(async move {
+            // Wait for a notify from VSCode document events. This is for preventing
+            // starting the loop when the current workspace doesn't have any Relay file.
+            self.lsp_state.notify_lsp_state_resources.notified().await;
             self.internal_watch().await;
         });
     }
@@ -140,6 +143,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
             // Here we will wait for changes from watchman
             'inner: loop {
+                // Wait for a notify from watchman updates, or when a Relay file
+                // from an unactivated project is opened in VSCode
                 self.lsp_state.notify_lsp_state_resources.notified().await;
 
                 // Source control update started, we can ignore all pending changes, and wait for it to complete,

@@ -144,6 +144,8 @@ fn locate_type_definition(
         } else {
             return Err(LSPRuntimeError::ExpectedError);
         }),
+        // If we couldn't resolve through the extra data provider, we'll fallback to
+        // try to find a location in the server sdl.
         Err(_) => {
             let type_ = schema.get_type(type_name);
 

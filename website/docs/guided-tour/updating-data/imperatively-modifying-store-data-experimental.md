@@ -87,11 +87,6 @@ import type {
   CreateFeedbackMutation$data,
 } from 'CreateFeedbackMutation.graphql';
 
-import type {
-  CreateFeedbackUpdatableQuery,
-  CreateFeedbackUpdatableQuery$data,
-} from 'CreateFeedbackUpdatableQuery.graphql';
-
 const {commitMutation, graphql} = require('react-relay');
 const {ConnectionHandler} = require('relay-runtime');
 
@@ -119,9 +114,8 @@ function commitCreateFeedbackMutation(
         return;
       }
 
-      // Step 3: call store.readUpdatableQuery_EXPERIMENTAL, and pass it a type parameter
-      const updatableData: CreateFeedbackUpdatableQuery$data =
-        store.readUpdatableQuery_EXPERIMENTAL<CreateFeedbackUpdatableQuery>(
+      // Step 3: call store.readUpdatableQuery_EXPERIMENTAL
+      const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
           // Step 4: Pass it a query literal, where the query contains the @updatable directive.
           // This query literal describes the data in the store that you want to update.
           graphql`
@@ -185,10 +179,6 @@ extend type User {
 ```js
 import type {RecordSourceSelectorProxy} from 'react-relay';
 import type {UserSelectToggle_user$fragmentType, UserSelectToggle_user} from 'UserSelectToggle_user.graphql';
-import type {
-  UserSelectToggleUpdatableQuery,
-  UserSelectToggleUpdatableQuery$data,
-} from 'UserSelectToggleUpdatableQuery.graphql';
 
 const {useRelayEnvironment, commitLocalUpdate} = require('react-relay');
 
@@ -211,8 +201,7 @@ function UserSelectToggle({ userId, userRef }: {
       commitLocalUpdate(
         environment,
         (store: RecordSourceSelectorProxy) => {
-          const updatableData: UserSelectToggleUpdatableQuery$data =
-            store.readUpdatableQuery_EXPERIMENTAL<UserSelectToggleUpdatableQuery>(
+          const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
             graphql`
               query UserSelectToggleUpdatableQuery($id: ID!) @updatable {
                 node(id: $id) {

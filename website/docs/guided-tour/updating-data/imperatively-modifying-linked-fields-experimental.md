@@ -127,10 +127,6 @@ We are planning on implementing this as part of a broader improvement to our typ
 
 ```js
 import type {RecordSourceSelectorProxy} from 'react-relay';
-import type {
-  AssignBestFriendButtonUpdatableQuery$data,
-  AssignBestFriendButtonUpdatableQuery,
-} from 'AssignBestFriendButtonUpdatableQuery.graphql';
 
 const {commitLocalUpdate, useRelayEnvironment} = require('react-relay');
 
@@ -141,9 +137,7 @@ const onClick = () => {
   const updatableData = commitLocalUpdate(
     environment,
     (store: RecordSourceSelectorProxy) => {
-      const updatableData:
-        AssignBestFriendButtonUpdatableQuery$data =
-        store.readUpdatableQuery_EXPERIMENTAL<AssignBestFriendButtonUpdatableQuery>(
+      const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
           graphql`
             query AssignBestFriendButtonUpdatableQuery
             @updatable {
@@ -183,10 +177,6 @@ extend type Viewer {
 import {validate as ValidateUser} from 'AssignableBestFriendButton_assignable_user.graphql';
 import type {AssignBestFriendButton_user$fragmentType} from 'AssignBestFriendButton_user.graphql';
 import type {RecordSourceSelectorProxy} from 'react-relay';
-import type {
-  AssignBestFriendButtonUpdatableQuery$data,
-  AssignBestFriendButtonUpdatableQuery,
-} from 'AssignBestFriendButtonUpdatableQuery.graphql';
 
 const {commitLocalUpdate, useFragment, useRelayEnvironment} = require('react-relay');
 
@@ -211,9 +201,7 @@ export default function AssignBestFriendButton({
     const updatableData = commitLocalUpdate(
       environment,
       (store: RecordSourceSelectorProxy) => {
-        const updatableData:
-          AssignBestFriendButtonUpdatableQuery$data =
-          store.readUpdatableQuery_EXPERIMENTAL<AssignBestFriendButtonUpdatableQuery>(
+        const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
             graphql`
               query AssignBestFriendButtonUpdatableQuery
               @updatable {
@@ -293,10 +281,6 @@ import type {AssignBestFriendButton_user$fragmentType} from 'AssignBestFriendBut
 import type {AssignBestFriendButton_viewer$fragmentType} from 'AssignBestFriendButton_viewer';
 
 import type {RecordSourceSelectorProxy} from 'react-relay';
-import type {
-  AssignBestFriendButtonUpdatableQuery$data,
-  AssignBestFriendButtonUpdatableQuery,
-} from 'AssignBestFriendButtonUpdatableQuery.graphql';
 
 const {commitLocalUpdate, useFragment, useRelayEnvironment} = require('react-relay');
 
@@ -330,12 +314,10 @@ export default function AssignBestFriendButton({
 
   const environment = useRelayEnvironment();
   const onClick = () => {
-    const updatableData = commitLocalUpdate(
+    commitLocalUpdate(
       environment,
       (store: RecordSourceSelectorProxy) => {
-        const updatableData:
-          AssignBestFriendButtonUpdatableQuery$data =
-          store.readUpdatableQuery_EXPERIMENTAL<AssignBestFriendButtonUpdatableQuery>(
+        const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
             graphql`
               query AssignBestFriendButtonUpdatableQuery
               @updatable {
@@ -402,8 +384,7 @@ const onClick = () => {
   commitLocalUpdate(
     environment,
     store => {
-      const updatableData: TestComponentUpdatableQuery$data
-        = store.readUpdatableQuery_EXPERIMENTAL<TestComponentUpdatableQuery>(
+      const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
         graphql`
           TestComponentUpdatableQuery {
             best_friend {

@@ -71,16 +71,6 @@ pub(crate) fn set_error_status(sender: &Sender<Message>, error: impl std::fmt::D
     );
 }
 
-pub(crate) fn set_initializing_status(sender: &Sender<Message>) {
-    update_in_progress_status(
-        "Relay: initializing...",
-        Some(
-            "The Relay compiler will start when you open a Javascript file containing a graphql literal",
-        ),
-        sender,
-    );
-}
-
 pub(crate) fn update_in_progress_status(
     short_message: impl Into<String>,
     message: Option<impl Into<String>>,

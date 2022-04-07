@@ -488,7 +488,9 @@ fn apply_operation_text_transforms(
         skip_null_arguments_transform(&program)
     });
     log_event.time("validate_selection_conflict", || {
-        validate_selection_conflict::<RelayLocationAgnosticBehavior>(&program)
+        graphql_ir_validations::validate_selection_conflict::<RelayLocationAgnosticBehavior>(
+            &program,
+        )
     })?;
     log_event.time("flatten", || flatten(&mut program, false, true))?;
     program = log_event.time("validate_operation_variables", || {

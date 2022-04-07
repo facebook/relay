@@ -36,7 +36,6 @@ use crate::{
     },
     shutdown::{on_exit, on_shutdown},
     status_reporter::LSPStatusReporter,
-    status_updater::set_initializing_status,
     text_documents::{
         on_cancel, on_did_change_text_document, on_did_close_text_document,
         on_did_open_text_document, on_did_save_text_document,
@@ -130,7 +129,6 @@ where
         "Running language server with config root {:?}",
         config.root_dir
     );
-    set_initializing_status(&connection.sender);
 
     let task_processor = LSPTaskProcessor;
     let task_queue = TaskQueue::new(Arc::new(task_processor));

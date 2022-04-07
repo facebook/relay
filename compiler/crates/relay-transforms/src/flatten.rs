@@ -7,8 +7,8 @@
 
 use crate::{
     handle_fields::{HANDLER_ARG_NAME, KEY_ARG_NAME},
-    util::{is_relay_custom_inline_fragment_directive, CustomMetadataDirectives, PointerAddress},
-    ModuleMetadata, ValidationMessage,
+    util::{is_relay_custom_inline_fragment_directive, CustomMetadataDirectives},
+    ModuleMetadata, RelayLocationAgnosticBehavior, ValidationMessage,
 };
 use graphql_ir::{
     Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
@@ -17,11 +17,9 @@ use graphql_ir::{
 use intern::string_key::StringKeyMap;
 use schema::{Schema, Type};
 
-use crate::node_identifier::{
-    LocationAgnosticPartialEq, NodeIdentifier, RelayLocationAgnosticBehavior,
-};
-use common::{sync::*, Diagnostic, DiagnosticsResult, NamedItem};
+use common::{sync::*, Diagnostic, DiagnosticsResult, NamedItem, PointerAddress};
 use fnv::FnvHashMap;
+use graphql_ir::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
 use parking_lot::{Mutex, RwLock};
 use schema::SDLSchema;
 use std::sync::Arc;

@@ -5,10 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{util::CustomMetadataDirectives, ModuleMetadata};
+use crate::*;
 use common::WithLocation;
-use graphql_ir::Field;
-use graphql_ir::*;
 use intern::string_key::StringKey;
 use schema::SDLSchema;
 use std::{
@@ -17,18 +15,6 @@ use std::{
     marker::PhantomData,
     sync::Arc,
 };
-
-// Relay specific stuff starts here...
-#[derive(Clone)]
-pub struct RelayLocationAgnosticBehavior;
-impl LocationAgnosticBehavior for RelayLocationAgnosticBehavior {
-    fn should_skip_in_node_identifier(name: StringKey) -> bool {
-        CustomMetadataDirectives::should_skip_in_node_identifier(name)
-    }
-    fn hash_for_name_only(name: StringKey) -> bool {
-        ModuleMetadata::directive_name() == name
-    }
-}
 
 #[derive(Clone, Debug)]
 enum NodeIdentifierInner<TBehavior: LocationAgnosticBehavior> {
@@ -383,7 +369,7 @@ impl LocationAgnosticPartialEq for Directive {
         if !self.name.location_agnostic_eq::<B>(&other.name) {
             return false;
         }
-        if self.name.item == ModuleMetadata::directive_name() {
+        if B::hash_for_name_only(self.name.item) {
             return true;
         }
         self.arguments.location_agnostic_eq::<B>(&other.arguments) && self.data == other.data

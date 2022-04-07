@@ -6,16 +6,15 @@
  */
 
 use crate::{
-    node_identifier::{NodeIdentifier, RelayLocationAgnosticBehavior},
-    util::{is_relay_custom_inline_fragment_directive, PointerAddress},
+    util::is_relay_custom_inline_fragment_directive, RelayLocationAgnosticBehavior,
     DEFER_STREAM_CONSTANTS,
 };
 
-use common::{sync::*, NamedItem};
+use common::{sync::*, NamedItem, PointerAddress};
 use dashmap::DashMap;
 use graphql_ir::{
-    Condition, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program,
-    Selection, Transformed, TransformedValue,
+    node_identifier::NodeIdentifier, Condition, FragmentDefinition, InlineFragment, LinkedField,
+    OperationDefinition, Program, Selection, Transformed, TransformedValue,
 };
 use schema::SDLSchema;
 use std::sync::Arc;

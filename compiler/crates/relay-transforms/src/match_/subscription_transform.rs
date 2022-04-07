@@ -114,7 +114,7 @@ impl<'program> SubscriptionTransform<'program> {
         match type_ {
             TypeReference::Named(Type::Scalar(scalar_id)) => {
                 let scalar = self.program.schema.scalar(*scalar_id);
-                scalar.name == MATCH_CONSTANTS.js_field_type && !scalar.is_extension
+                scalar.name.item == MATCH_CONSTANTS.js_field_type && !scalar.is_extension
             }
             _ => false,
         }
@@ -168,23 +168,21 @@ impl<'program> SubscriptionTransform<'program> {
             directives: vec![],
             selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
                 type_condition,
-                directives: vec![
-                    ModuleMetadata {
-                        key: operation_name_with_suffix.intern(),
-                        module_id: format!(
-                            "{}.{}",
-                            operation.name.item,
-                            linked_field.alias_or_name(&self.program.schema).lookup()
-                        )
-                        .intern(),
-                        module_name: normalization_operation_name,
-                        source_document_name: operation.name.item,
-                        fragment_name: fragment_spread.fragment.item,
-                        location,
-                        no_inline: false,
-                    }
-                    .into(),
-                ],
+                directives: vec![ModuleMetadata {
+                    key: operation_name_with_suffix.intern(),
+                    module_id: format!(
+                        "{}.{}",
+                        operation.name.item,
+                        linked_field.alias_or_name(&self.program.schema).lookup()
+                    )
+                    .intern(),
+                    module_name: normalization_operation_name,
+                    source_document_name: operation.name.item,
+                    fragment_name: fragment_spread.fragment.item,
+                    location,
+                    no_inline: false,
+                }
+                .into()],
                 selections,
             }))],
         }))];

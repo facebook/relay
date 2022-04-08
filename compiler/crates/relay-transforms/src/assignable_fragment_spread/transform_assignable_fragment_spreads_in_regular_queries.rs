@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
 use graphql_ir::{
     Condition, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
     OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
@@ -186,15 +186,10 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
                     Selection::FragmentSpread(Arc::new(fragment_spread.clone())),
                     // This is the "abstract fragment spread marker"
                     Selection::ScalarField(Arc::new(ScalarField {
-                        alias: Some(WithLocation {
-                            location: Location::generated(),
-                            item: format!("__is{}", fragment_spread.fragment.item.lookup())
-                                .intern(),
-                        }),
-                        definition: WithLocation {
-                            location: Location::generated(),
-                            item: self.program.schema.typename_field(),
-                        },
+                        alias: Some(WithLocation::generated(
+                            format!("__is{}", fragment_spread.fragment.item.lookup()).intern(),
+                        )),
+                        definition: WithLocation::generated(self.program.schema.typename_field()),
                         arguments: vec![],
                         directives: vec![],
                     })),
@@ -270,10 +265,7 @@ fn get_transformed_linked_field(
     let mut selections = linked_field.selections.clone();
     selections.push(Selection::ScalarField(Arc::new(ScalarField {
         alias: None,
-        definition: WithLocation {
-            location: Location::generated(),
-            item: additional_field,
-        },
+        definition: WithLocation::generated(additional_field),
         arguments: vec![],
         directives: vec![],
     })));

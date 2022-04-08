@@ -189,15 +189,10 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
                     Selection::FragmentSpread(Arc::new(fragment_spread.clone())),
                     // This is the "abstract fragment spread marker"
                     Selection::ScalarField(Arc::new(ScalarField {
-                        alias: Some(WithLocation {
-                            location: Location::generated(),
-                            item: format!("__is{}", fragment_spread.fragment.item.lookup())
-                                .intern(),
-                        }),
-                        definition: WithLocation {
-                            location: Location::generated(),
-                            item: self.program.schema.typename_field(),
-                        },
+                        alias: Some(WithLocation::generated(
+                            format!("__is{}", fragment_spread.fragment.item.lookup()).intern(),
+                        )),
+                        definition: WithLocation::generated(self.program.schema.typename_field()),
                         arguments: vec![],
                         directives: vec![],
                     })),

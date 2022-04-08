@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<12a03ad68e8a6ddf5e1bde9ed356b917>>
+ * @generated SignedSource<<a5457a232706fbbb4dabfec7842e363b>>
  */
 
 mod assignable_fragment_spread;
@@ -17,6 +17,13 @@ fn abstract_assignable_fragment_spread_on_concrete_type() {
     let input = include_str!("assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-concrete-type.graphql");
     let expected = include_str!("assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-concrete-type.expected");
     test_fixture(transform_fixture, "abstract-assignable-fragment-spread-on-concrete-type.graphql", "assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-concrete-type.expected", input, expected);
+}
+
+#[test]
+fn abstract_assignable_fragment_spread_on_concrete_type_in_updatable_fragment() {
+    let input = include_str!("assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-concrete-type-in-updatable-fragment.graphql");
+    let expected = include_str!("assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-concrete-type-in-updatable-fragment.expected");
+    test_fixture(transform_fixture, "abstract-assignable-fragment-spread-on-concrete-type-in-updatable-fragment.graphql", "assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-concrete-type-in-updatable-fragment.expected", input, expected);
 }
 
 #[test]

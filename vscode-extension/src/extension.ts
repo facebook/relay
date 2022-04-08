@@ -7,11 +7,15 @@ import {createAndStartClient} from './languageClient';
 let relayExtensionContext: RelayExtensionContext | undefined;
 
 export async function activate(extensionContext: ExtensionContext) {
+  const outputChannel = window.createOutputChannel('Relay Language Server');
+
   relayExtensionContext = {
     client: null,
-    outputChannel: window.createOutputChannel('Relay Language Server'),
+    outputChannel,
     extensionContext,
   };
+
+  extensionContext.subscriptions.push(outputChannel);
 
   registerCommands(relayExtensionContext);
 
@@ -19,5 +23,7 @@ export async function activate(extensionContext: ExtensionContext) {
 }
 
 export function deactivate(): Thenable<void> | undefined {
+  relayExtensionContext?.outputChannel.dispose();
+
   return relayExtensionContext?.client?.stop();
 }

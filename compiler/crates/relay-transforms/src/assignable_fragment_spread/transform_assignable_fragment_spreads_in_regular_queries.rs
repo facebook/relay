@@ -7,8 +7,8 @@
 
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
-    Condition, FragmentSpread, InlineFragment, LinkedField, OperationDefinition, Program,
-    ScalarField, Selection, Transformed, Transformer,
+    Condition, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
+    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
 };
 use intern::string_key::Intern;
 use schema::{FieldID, Schema};
@@ -125,6 +125,21 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
             Transformed::Keep
         } else {
             self.default_transform_operation(operation)
+        }
+    }
+
+    fn transform_fragment(
+        &mut self,
+        fragment_definition: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
+        if fragment_definition
+            .directives
+            .named(*UPDATABLE_DIRECTIVE)
+            .is_some()
+        {
+            Transformed::Keep
+        } else {
+            self.default_transform_fragment(fragment_definition)
         }
     }
 

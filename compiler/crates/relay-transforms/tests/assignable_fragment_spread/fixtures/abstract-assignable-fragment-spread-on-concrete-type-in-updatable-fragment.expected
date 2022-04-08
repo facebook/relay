@@ -15,10 +15,6 @@ fragment Assignable_node on Node @assignable {
 
 fragment Foo on Query @updatable {
   me {
-    ... on Node {
-      ...Assignable_node
-      __isAssignable_node: __typename
-    }
-    __id
+    ...Assignable_node
   }
 }

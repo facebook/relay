@@ -313,8 +313,7 @@ pub async fn commit_project(
     if let Some(operation_persister) = config
         .create_operation_persister
         .as_ref()
-        .map(|create_fn| create_fn(project_config))
-        .flatten()
+        .and_then(|create_fn| create_fn(project_config))
     {
         let persist_operations_timer = log_event.start("persist_operations_time");
         persist_operations::persist_operations(

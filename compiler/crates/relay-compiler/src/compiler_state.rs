@@ -264,7 +264,7 @@ pub enum ArtifactMapKind {
     Mapping(ArtifactMap),
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct CompilerState {
     pub graphql_sources: FnvHashMap<ProjectName, GraphQLSources>,
     pub schemas: FnvHashMap<ProjectName, SchemaSources>,
@@ -300,19 +300,9 @@ impl CompilerState {
         });
 
         let mut result = Self {
-            graphql_sources: Default::default(),
-            artifacts: Default::default(),
-            implicit_dependencies: Default::default(),
-            extensions: Default::default(),
-            docblocks: Default::default(),
-            schemas: Default::default(),
             clock: file_source_changes.clock(),
             saved_state_version: config.saved_state_version.clone(),
-            dirty_artifact_paths: Default::default(),
-            pending_implicit_dependencies: Default::default(),
-            pending_file_source_changes: Default::default(),
-            schema_cache: Default::default(),
-            source_control_update_status: Default::default(),
+            ..Default::default()
         };
 
         for (category, files) in categorized {

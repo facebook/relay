@@ -312,85 +312,87 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         }
     }
 
+    if !errors.is_empty() {
+        return Err(Error::BuildProjectsErrors { errors });
+    }
+
+    if compiler_state.should_cancel_current_build() {
+        debug!("Build is cancelled: updates in source code/or new file changes are pending.");
+        return Err(Error::Cancelled);
+    }
+
+    let mut handles: Vec<JoinHandle<std::result::Result<_, BuildProjectFailure>>> = Vec::new();
+    for (project_name, schema, programs, artifacts) in results {
+        let config = Arc::clone(&config);
+        let perf_logger = Arc::clone(&perf_logger);
+        let artifact_map = compiler_state
+            .artifacts
+            .get(&project_name)
+            .cloned()
+            .unwrap_or_else(|| Arc::new(ArtifactMapKind::Unconnected(Default::default())));
+        let removed_definition_names = graphql_asts
+            .remove(&project_name)
+            .expect("Expect GraphQLAsts to exist.")
+            .removed_definition_names;
+        let dirty_artifact_paths = compiler_state
+            .dirty_artifact_paths
+            .get(&project_name)
+            .cloned()
+            .unwrap_or_default();
+
+        let source_control_update_status = Arc::clone(&compiler_state.source_control_update_status);
+        handles.push(task::spawn(async move {
+            let project_config = &config.projects[&project_name];
+            Ok((
+                project_name,
+                commit_project(
+                    &config,
+                    project_config,
+                    perf_logger,
+                    &schema,
+                    programs,
+                    artifacts,
+                    artifact_map,
+                    removed_definition_names,
+                    dirty_artifact_paths,
+                    source_control_update_status,
+                )
+                .await?,
+                schema,
+            ))
+        }));
+    }
+
     let mut build_cancelled_during_commit = false;
-    if errors.is_empty() {
-        if compiler_state.should_cancel_current_build() {
-            debug!("Build is cancelled: updates in source code/or new file changes are pending.");
-            return Err(Error::Cancelled);
-        }
-
-        let mut handles: Vec<JoinHandle<std::result::Result<_, BuildProjectFailure>>> = Vec::new();
-        for (project_name, schema, programs, artifacts) in results {
-            let config = Arc::clone(&config);
-            let perf_logger = Arc::clone(&perf_logger);
-            let artifact_map = compiler_state
-                .artifacts
-                .get(&project_name)
-                .cloned()
-                .unwrap_or_else(|| Arc::new(ArtifactMapKind::Unconnected(Default::default())));
-            let removed_definition_names = graphql_asts
-                .remove(&project_name)
-                .expect("Expect GraphQLAsts to exist.")
-                .removed_definition_names;
-            let dirty_artifact_paths = compiler_state
-                .dirty_artifact_paths
-                .get(&project_name)
-                .cloned()
-                .unwrap_or_default();
-
-            let source_control_update_status =
-                Arc::clone(&compiler_state.source_control_update_status);
-            handles.push(task::spawn(async move {
-                let project_config = &config.projects[&project_name];
-                Ok((
-                    project_name,
-                    commit_project(
-                        &config,
-                        project_config,
-                        perf_logger,
-                        &schema,
-                        programs,
-                        artifacts,
-                        artifact_map,
-                        removed_definition_names,
-                        dirty_artifact_paths,
-                        source_control_update_status,
-                    )
-                    .await?,
-                    schema,
-                ))
-            }));
-        }
-
-        for commit_result in join_all(handles).await {
-            let commit_result: std::result::Result<std::result::Result<_, _>, _> = commit_result;
-            let inner_result = commit_result.map_err(|e| Error::JoinError {
-                error: e.to_string(),
-            })?;
-            match inner_result {
-                Ok((project_name, next_artifact_map, schema)) => {
-                    let next_artifact_map = Arc::new(ArtifactMapKind::Mapping(next_artifact_map));
-                    compiler_state
-                        .artifacts
-                        .insert(project_name, next_artifact_map);
-                    compiler_state.schema_cache.insert(project_name, schema);
-                }
-                Err(BuildProjectFailure::Error(error)) => {
-                    errors.push(error);
-                }
-                Err(BuildProjectFailure::Cancelled) => {
-                    build_cancelled_during_commit = true;
-                }
+    for commit_result in join_all(handles).await {
+        let commit_result: std::result::Result<std::result::Result<_, _>, _> = commit_result;
+        let inner_result = commit_result.map_err(|e| Error::JoinError {
+            error: e.to_string(),
+        })?;
+        match inner_result {
+            Ok((project_name, next_artifact_map, schema)) => {
+                let next_artifact_map = Arc::new(ArtifactMapKind::Mapping(next_artifact_map));
+                compiler_state
+                    .artifacts
+                    .insert(project_name, next_artifact_map);
+                compiler_state.schema_cache.insert(project_name, schema);
+            }
+            Err(BuildProjectFailure::Error(error)) => {
+                errors.push(error);
+            }
+            Err(BuildProjectFailure::Cancelled) => {
+                build_cancelled_during_commit = true;
             }
         }
     }
 
-    if errors.is_empty() {
-        match build_cancelled_during_commit {
-            true => Err(Error::Cancelled),
-            false => Ok(()),
-        }
-    } else {
-        Err(Error::BuildProjectsErrors { errors })
+    if !errors.is_empty() {
+        return Err(Error::BuildProjectsErrors { errors });
     }
+
+    if build_cancelled_during_commit {
+        return Err(Error::Cancelled);
+    }
+
+    Ok(())
 }

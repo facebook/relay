@@ -25,7 +25,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 index: i as u16,
             },
         )?;
-        let ir = parse_docblock_ast(&ast)?.unwrap();
+        let ir = parse_docblock_ast(&ast, Default::default())?.unwrap();
 
         ir.to_sdl_string(&TEST_SCHEMA)
     };

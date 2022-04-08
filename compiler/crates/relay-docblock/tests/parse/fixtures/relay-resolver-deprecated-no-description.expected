@@ -8,47 +8,53 @@
 
 /**
  * @RelayResolver
- * 
+ *
  * @onType User
  * @fieldName favorite_page
  * @edgeTo Page
  * @rootFragment myRootFragment
  * @deprecated
  */
+
+graphql`
+  fragment myRootFragment on User {
+    name
+  }
+`
 ==================================== OUTPUT ===================================
 RelayResolver(
     RelayResolverIr {
         field_name: WithLocation {
-            location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:54:67,
+            location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:53:66,
             item: "favorite_page",
         },
         on: Type(
             PopulatedIrField {
-                key_location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:28:34,
+                key_location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:27:33,
                 value: WithLocation {
-                    location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:35:39,
+                    location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:34:38,
                     item: "User",
                 },
             },
         ),
         root_fragment: WithLocation {
-            location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:101:115,
+            location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:100:114,
             item: "myRootFragment",
         },
         edge_to: Some(
             WithLocation {
-                location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:79:83,
+                location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:78:82,
                 item: "Page",
             },
         ),
         description: None,
         deprecated: Some(
             IrField {
-                key_location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:120:130,
+                key_location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:119:129,
                 value: None,
             },
         ),
         live: None,
-        location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:0:131,
+        location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:0:130,
     },
 )

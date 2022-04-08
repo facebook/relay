@@ -7,12 +7,16 @@
 
 // expected-to-throw
 
-/**
- * @RelayResolver
- */
-
 graphql`
   fragment myRootFragment on User {
     name
   }
 `
+
+/**
+ * @RelayResolver
+ *
+ * @onType User
+ * @fieldName my_field
+ * @rootFragment missingFragment
+ */

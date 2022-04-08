@@ -12,10 +12,12 @@ use common::{Diagnostic, SourceLocationKey};
 use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
 use intern::string_key::{StringKey, StringKeySet};
+use std::collections::hash_map::Entry;
+use std::path::{Path, PathBuf};
 
 #[derive(Debug)]
 pub struct GraphQLAsts {
-    pub asts: Vec<ExecutableDefinition>,
+    asts: FnvHashMap<PathBuf, Vec<ExecutableDefinition>>,
     /// Names of fragments and operations that are updated or created
     pub pending_definition_names: StringKeySet,
     /// Names of fragments and operations that are deleted
@@ -23,6 +25,17 @@ pub struct GraphQLAsts {
 }
 
 impl GraphQLAsts {
+    pub fn get_executable_definitions_for_file(
+        &self,
+        file_path: &Path,
+    ) -> Option<&Vec<ExecutableDefinition>> {
+        self.asts.get(file_path)
+    }
+
+    pub fn get_all_executable_definitions(&self) -> Vec<ExecutableDefinition> {
+        self.asts.values().flatten().cloned().collect()
+    }
+
     pub fn from_graphql_sources_map(
         graphql_sources_map: &FnvHashMap<ProjectName, GraphQLSources>,
         dirty_definitions_map: &FnvHashMap<ProjectName, Vec<StringKey>>,
@@ -48,7 +61,7 @@ impl GraphQLAsts {
     ) -> Result<Self> {
         let mut syntax_errors = Vec::new();
 
-        let mut asts = Vec::new();
+        let mut asts: FnvHashMap<PathBuf, Vec<ExecutableDefinition>> = Default::default();
         let mut pending_definition_names: StringKeySet = Default::default();
         let mut removed_definition_names = Vec::new();
 
@@ -115,7 +128,7 @@ impl GraphQLAsts {
                     }
                 }
             }
-            asts.extend(definitions_for_file);
+            asts.insert(file_name.clone(), definitions_for_file);
         }
 
         // Iterate over processed sources that aren't in the pending source set,
@@ -144,7 +157,15 @@ impl GraphQLAsts {
                     Err(errors) => syntax_errors.extend(errors),
                 }
             }
-            asts.extend(definitions_for_file);
+            match asts.entry(file_name.clone()) {
+                Entry::Vacant(entry) => {
+                    entry.insert(definitions_for_file);
+                }
+                Entry::Occupied(mut entry) => {
+                    let definitions = entry.get_mut();
+                    definitions.extend(definitions_for_file)
+                }
+            }
         }
 
         if syntax_errors.is_empty() {

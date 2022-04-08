@@ -1,0 +1,48 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @RelayResolver
+ *
+ * @onType User
+ * @fieldName my_field
+ * @rootFragment myRootFragment
+ */
+
+graphql`
+  fragment myRootFragment on User {
+    name
+  }
+`
+==================================== OUTPUT ===================================
+RelayResolver(
+    RelayResolverIr {
+        field_name: WithLocation {
+            location: /path/to/test/fixture/relay-resolver-with-fragment.js:53:61,
+            item: "my_field",
+        },
+        on: Type(
+            PopulatedIrField {
+                key_location: /path/to/test/fixture/relay-resolver-with-fragment.js:27:33,
+                value: WithLocation {
+                    location: /path/to/test/fixture/relay-resolver-with-fragment.js:34:38,
+                    item: "User",
+                },
+            },
+        ),
+        root_fragment: WithLocation {
+            location: /path/to/test/fixture/relay-resolver-with-fragment.js:79:93,
+            item: "myRootFragment",
+        },
+        edge_to: None,
+        description: None,
+        deprecated: None,
+        live: None,
+        location: /path/to/test/fixture/relay-resolver-with-fragment.js:0:94,
+    },
+)

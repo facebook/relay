@@ -5,10 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-// expected-to-throw
-
 /**
  * @RelayResolver
+ *
+ * @onType User
+ * @fieldName my_field
+ * @rootFragment myRootFragment
  */
 
 graphql`

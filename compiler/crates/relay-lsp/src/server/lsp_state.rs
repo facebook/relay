@@ -268,8 +268,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 JavaScriptSourceFeature::Docblock(docblock_source) => {
                     let text_source = docblock_source.text_source();
                     let text = &text_source.text;
+                    // TODO: Pass &[ExecutableDocuments]
                     let result = parse_docblock(text, source_location_key)
-                        .and_then(|ast| parse_docblock_ast(&ast));
+                        .and_then(|ast| parse_docblock_ast(&ast, Default::default()));
 
                     if let Err(errors) = result {
                         diagnostics.extend(

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<085b96473751f6ff499d57fcc5854332>>
+ * @generated SignedSource<<33d8ff21010be3d648977f76f75a2a02>>
  */
 
 mod parse;
@@ -73,4 +73,18 @@ fn relay_resolver_on_type_no_value_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-on-type-no-value.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-on-type-no-value.invalid.expected");
     test_fixture(transform_fixture, "relay-resolver-on-type-no-value.invalid.js", "parse/fixtures/relay-resolver-on-type-no-value.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_fragment() {
+    let input = include_str!("parse/fixtures/relay-resolver-with-fragment.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-with-fragment.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-fragment.js", "parse/fixtures/relay-resolver-with-fragment.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_fragment_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-with-fragment.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-with-fragment.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-fragment.invalid.js", "parse/fixtures/relay-resolver-with-fragment.invalid.expected", input, expected);
 }

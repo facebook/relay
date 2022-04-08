@@ -11,6 +11,12 @@
 /**
  * @RelayResolver
  */
+
+graphql`
+  fragment myRootFragment on User {
+    name
+  }
+`
 ==================================== ERROR ====================================
 ✖︎ Expected either `onType` or `onInterface` to be defined in a @RelayResolver docblock.
 

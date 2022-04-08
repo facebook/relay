@@ -15,6 +15,7 @@ use crate::errors::ErrorMessages;
 use common::{Diagnostic, Location};
 use common::{DiagnosticsResult, WithLocation};
 use docblock_syntax::{DocblockAST, DocblockField, DocblockSection};
+use graphql_syntax::ExecutableDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 pub use ir::{DocblockIr, On, RelayResolverIr};
@@ -33,13 +34,16 @@ lazy_static! {
     static ref EMPTY_STRING: StringKey = "".intern();
 }
 
-pub fn parse_docblock_ast(ast: &DocblockAST) -> DiagnosticsResult<Option<DocblockIr>> {
+pub fn parse_docblock_ast(
+    ast: &DocblockAST,
+    definitions: Option<&Vec<ExecutableDefinition>>,
+) -> DiagnosticsResult<Option<DocblockIr>> {
     if ast.find_field(*RELAY_RESOLVER_FIELD).is_none() {
         return Ok(None);
     }
 
     let parser = RelayResolverParser::new();
-    let resolver_ir = parser.parse(ast)?;
+    let resolver_ir = parser.parse(ast, definitions)?;
     Ok(Some(DocblockIr::RelayResolver(resolver_ir)))
 }
 
@@ -71,8 +75,12 @@ impl RelayResolverParser {
             ],
         }
     }
-    fn parse(mut self, ast: &DocblockAST) -> DiagnosticsResult<RelayResolverIr> {
-        let result = self.parse_sections(ast);
+    fn parse(
+        mut self,
+        ast: &DocblockAST,
+        definitions: Option<&Vec<ExecutableDefinition>>,
+    ) -> DiagnosticsResult<RelayResolverIr> {
+        let result = self.parse_sections(ast, definitions);
         if !self.errors.is_empty() {
             Err(self.errors)
         } else {
@@ -80,7 +88,11 @@ impl RelayResolverParser {
         }
     }
 
-    fn parse_sections(&mut self, ast: &DocblockAST) -> ParseResult<RelayResolverIr> {
+    fn parse_sections(
+        &mut self,
+        ast: &DocblockAST,
+        definitions_in_file: Option<&Vec<ExecutableDefinition>>,
+    ) -> ParseResult<RelayResolverIr> {
         for section in &ast.sections {
             match section {
                 DocblockSection::Field(field) => self.parse_field(field),
@@ -101,16 +113,37 @@ impl RelayResolverParser {
         }
 
         let field_name = self.assert_field_value_exists(*FIELD_NAME_FIELD, ast.location);
-        let root_fragment = self.assert_field_value_exists(*ROOT_FRAGMENT_FIELD, ast.location);
         let on = self.assert_on(ast.location);
 
         let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
         let live = self.fields.get(&LIVE_FIELD).copied();
 
+        let root_fragment = self.assert_field_value_exists(*ROOT_FRAGMENT_FIELD, ast.location)?;
+        let fragment_definition = definitions_in_file.and_then(|defs| {
+            defs.iter().find(|item| {
+                if let ExecutableDefinition::Fragment(fragment) = item {
+                    fragment.name.value == root_fragment.item
+                } else {
+                    false
+                }
+            })
+        });
+
+        if definitions_in_file.is_some() && fragment_definition.is_none() {
+            self.errors.push(Diagnostic::error(
+                ErrorMessages::FragmentNotFound {
+                    fragment_name: root_fragment.item,
+                },
+                root_fragment.location,
+            ));
+
+            return Err(());
+        }
+
         Ok(RelayResolverIr {
             field_name: field_name?,
             on: on?,
-            root_fragment: root_fragment?,
+            root_fragment,
             edge_to: self
                 .fields
                 .get(&EDGE_TO_FIELD)

@@ -31,13 +31,13 @@ pub fn get_project_asts(
 ) -> Result<ProjectAstData, BuildProjectError> {
     let project_asts = graphql_asts
         .get(&project_config.name)
-        .map(|asts| asts.asts.clone())
+        .map(|asts| asts.get_all_executable_definitions())
         .unwrap_or_default();
     let (base_project_asts, base_definition_names) = match project_config.base {
         Some(base_project_name) => {
             let base_project_asts = graphql_asts
                 .get(&base_project_name)
-                .map(|asts| asts.asts.clone())
+                .map(|asts| asts.get_all_executable_definitions())
                 .unwrap_or_default();
             let base_definition_names = base_project_asts
                 .iter()

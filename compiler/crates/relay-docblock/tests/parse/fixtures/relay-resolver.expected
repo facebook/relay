@@ -8,51 +8,57 @@
 
 /**
  * @RelayResolver
- * 
+ *
  * @onType User
  * @fieldName favorite_page
  * @edgeTo Page
  * @rootFragment myRootFragment
- * 
- * The user's favorite page! They probably clicked something in the UI 
+ *
+ * The user's favorite page! They probably clicked something in the UI
  * to tell us that it was their favorite page and then we put that in a
  * database or something. Then we got that info out again and put it out
  * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
  */
+
+graphql`
+  fragment myRootFragment on User {
+    name
+  }
+`
 ==================================== OUTPUT ===================================
 RelayResolver(
     RelayResolverIr {
         field_name: WithLocation {
-            location: /path/to/test/fixture/relay-resolver.js:54:67,
+            location: /path/to/test/fixture/relay-resolver.js:53:66,
             item: "favorite_page",
         },
         on: Type(
             PopulatedIrField {
-                key_location: /path/to/test/fixture/relay-resolver.js:28:34,
+                key_location: /path/to/test/fixture/relay-resolver.js:27:33,
                 value: WithLocation {
-                    location: /path/to/test/fixture/relay-resolver.js:35:39,
+                    location: /path/to/test/fixture/relay-resolver.js:34:38,
                     item: "User",
                 },
             },
         ),
         root_fragment: WithLocation {
-            location: /path/to/test/fixture/relay-resolver.js:101:115,
+            location: /path/to/test/fixture/relay-resolver.js:100:114,
             item: "myRootFragment",
         },
         edge_to: Some(
             WithLocation {
-                location: /path/to/test/fixture/relay-resolver.js:79:83,
+                location: /path/to/test/fixture/relay-resolver.js:78:82,
                 item: "Page",
             },
         ),
         description: Some(
             WithLocation {
-                location: /path/to/test/fixture/relay-resolver.js:119:411,
-                item: "\nThe user's favorite page! They probably clicked something in the UI \nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
+                location: /path/to/test/fixture/relay-resolver.js:117:408,
+                item: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
             },
         ),
         deprecated: None,
         live: None,
-        location: /path/to/test/fixture/relay-resolver.js:0:412,
+        location: /path/to/test/fixture/relay-resolver.js:0:409,
     },
 )

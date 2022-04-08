@@ -1,4 +1,4 @@
-import {ExtensionContext, OutputChannel} from 'vscode';
+import {ExtensionContext, OutputChannel, StatusBarItem} from 'vscode';
 import {LanguageClient} from 'vscode-languageclient/node';
 
 // Mutable object to pass around to command handlers so they
@@ -17,4 +17,5 @@ export type RelayExtensionContext = {
   client: LanguageClient | null;
   outputChannel: OutputChannel;
   extensionContext: ExtensionContext;
+  statusBar: StatusBarItem;
 };

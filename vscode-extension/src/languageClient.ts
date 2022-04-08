@@ -1,12 +1,17 @@
-import {workspace} from 'vscode';
+import {DocumentSelector, workspace} from 'vscode';
 import {
+  ClientCapabilities,
+  Disposable,
   LanguageClientOptions,
+  RequestType,
   RevealOutputChannelOn,
+  ServerCapabilities,
 } from 'vscode-languageclient';
 import {ServerOptions, LanguageClient} from 'vscode-languageclient/node';
 import {getConfig} from './config';
 import {RelayExtensionContext} from './context';
 import {createErrorHandler} from './errorHandler';
+import {handleShowStatusMethod, ShowStatusParams} from './statusBar';
 import {findRelayBinary} from './utils';
 
 export async function createAndStartClient(context: RelayExtensionContext) {
@@ -63,13 +68,32 @@ export async function createAndStartClient(context: RelayExtensionContext) {
   };
 
   // Create the language client and start the client.
-  context.client = new LanguageClient(
+  const client = new LanguageClient(
     'RelayLanguageClient',
     'Relay Language Client',
     serverOptions,
     clientOptions,
   );
 
+  let showStatusDisposable: Disposable | undefined;
+  client.registerFeature({
+    fillClientCapabilities() {},
+
+    initialize() {
+      showStatusDisposable = client?.onRequest(
+        new RequestType<ShowStatusParams, void, void>('window/showStatus'),
+        (params) => {
+          handleShowStatusMethod(context, params);
+        },
+      );
+    },
+
+    dispose() {
+      showStatusDisposable?.dispose();
+    },
+  });
+
   // Start the client. This will also launch the server
-  context.client.start();
+  client.start();
+  context.client = client;
 }

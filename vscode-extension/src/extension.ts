@@ -3,15 +3,19 @@ import {registerCommands} from './commands/register';
 
 import {RelayExtensionContext} from './context';
 import {createAndStartClient} from './languageClient';
+import {createStatusBar, initializeStatusBar} from './statusBar';
 
 let relayExtensionContext: RelayExtensionContext | undefined;
 
 export async function activate(extensionContext: ExtensionContext) {
   relayExtensionContext = {
     client: null,
-    outputChannel: window.createOutputChannel('Relay Language Server'),
     extensionContext,
+    outputChannel: window.createOutputChannel('Relay Language Server'),
+    statusBar: createStatusBar(),
   };
+
+  initializeStatusBar(relayExtensionContext);
 
   registerCommands(relayExtensionContext);
 

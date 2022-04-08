@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a5457a232706fbbb4dabfec7842e363b>>
+ * @generated SignedSource<<b084bca445010020052e379fcacc39d6>>
  */
 
 mod assignable_fragment_spread;
@@ -38,6 +38,13 @@ fn abstract_assignable_fragment_spread_on_matching_abstract_type() {
     let input = include_str!("assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-matching-abstract-type.graphql");
     let expected = include_str!("assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-matching-abstract-type.expected");
     test_fixture(transform_fixture, "abstract-assignable-fragment-spread-on-matching-abstract-type.graphql", "assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-matching-abstract-type.expected", input, expected);
+}
+
+#[test]
+fn assignable_fragment_spread_top_level_invalid() {
+    let input = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-top-level.invalid.graphql");
+    let expected = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-top-level.invalid.expected");
+    test_fixture(transform_fixture, "assignable-fragment-spread-top-level.invalid.graphql", "assignable_fragment_spread/fixtures/assignable-fragment-spread-top-level.invalid.expected", input, expected);
 }
 
 #[test]

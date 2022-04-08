@@ -421,7 +421,11 @@ impl<'a> TypeGenerator<'a> {
         });
         let fragment_name = fragment_definition.name.item;
         let ref_type_fragment_spreads_property = Prop::KeyValuePair(KeyValuePairProp {
-            key: *KEY_FRAGMENT_SPREADS,
+            key: if self.generating_updatable_types {
+                *KEY_UPDATABLE_FRAGMENT_SPREADS
+            } else {
+                *KEY_FRAGMENT_SPREADS
+            },
             optional: false,
             read_only: true,
             value: AST::FragmentReference(SortedStringKeyList::new(

@@ -35,7 +35,7 @@ export type updatableFragmentSpreadAndRegularSpread_2_updatable_user$data = {|
 |};
 export type updatableFragmentSpreadAndRegularSpread_2_updatable_user$key = {
   +$data?: updatableFragmentSpreadAndRegularSpread_2_updatable_user$data,
-  +$fragmentSpreads: updatableFragmentSpreadAndRegularSpread_2_updatable_user$fragmentType,
+  +$updatableFragmentSpreads: updatableFragmentSpreadAndRegularSpread_2_updatable_user$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
@@ -47,6 +47,6 @@ export type updatableFragmentSpreadAndRegularSpread_updatable_user$data = {|
 |};
 export type updatableFragmentSpreadAndRegularSpread_updatable_user$key = {
   +$data?: updatableFragmentSpreadAndRegularSpread_updatable_user$data,
-  +$fragmentSpreads: updatableFragmentSpreadAndRegularSpread_updatable_user$fragmentType,
+  +$updatableFragmentSpreads: updatableFragmentSpreadAndRegularSpread_updatable_user$fragmentType,
   ...
 };

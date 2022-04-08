@@ -29,6 +29,6 @@ export type updatableFragmentSpread_updatable_user$data = {|
 |};
 export type updatableFragmentSpread_updatable_user$key = {
   +$data?: updatableFragmentSpread_updatable_user$data,
-  +$fragmentSpreads: updatableFragmentSpread_updatable_user$fragmentType,
+  +$updatableFragmentSpreads: updatableFragmentSpread_updatable_user$fragmentType,
   ...
 };

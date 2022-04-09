@@ -68,13 +68,14 @@ function getStatusBarTooltip(params: ShowStatusParams): string | undefined {
   return params.message;
 }
 
+// All possible icons can be found here https://code.visualstudio.com/api/references/icons-in-labels#icon-listing
 function getStatusBarIcon(params: ShowStatusParams): string {
   if (params.type === ShowStatusMessageType.Log) {
     return 'info';
   }
 
   if (params.type === ShowStatusMessageType.Info) {
-    return 'info';
+    return 'run';
   }
 
   if (params.type === ShowStatusMessageType.Error) {

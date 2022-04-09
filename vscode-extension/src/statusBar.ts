@@ -16,6 +16,9 @@ export function initializeStatusBar(context: RelayExtensionContext) {
   updateStatusBar(context);
 }
 
+// the following type definitions are one to one mappings of the types defined
+// by the lsp_types package in this rust crate.
+// https://github.com/gluon-lang/lsp-types/blob/master/src/window.rs#L15
 enum ShowStatusMessageType {
   /// An error message.
   Error = 1,
@@ -89,6 +92,15 @@ function getStatusBarIcon(params: ShowStatusParams): string {
   return 'extensions-info-message';
 }
 
+// A lot of the data from the window/showStatus command is ignored.
+// On the LSP Server, we only make use of the following properties
+//
+// - type
+// - message
+// - shortMessage
+//
+// The source of truth is currently marked here
+// https://github.com/facebook/relay/blob/main/compiler/crates/relay-lsp/src/status_updater.rs#L82
 export function handleShowStatusMethod(
   context: RelayExtensionContext,
   params: ShowStatusParams,

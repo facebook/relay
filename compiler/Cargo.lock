@@ -621,6 +621,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "graphql-ir-validations"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "dashmap",
+ "errors",
+ "fixture-tests",
+ "graphql-cli",
+ "graphql-ir",
+ "graphql-syntax",
+ "graphql-test-helpers",
+ "graphql-text-printer",
+ "intern",
+ "itertools",
+ "relay-test-schema",
+ "schema",
+ "thiserror",
+]
+
+[[package]]
 name = "graphql-syntax"
 version = "0.0.0"
 dependencies = [
@@ -1531,12 +1551,14 @@ dependencies = [
  "dashmap",
  "docblock-syntax",
  "extract-graphql",
+ "fixture-tests",
  "fnv",
  "graphql-ir",
  "graphql-syntax",
  "graphql-text-printer",
  "graphql-watchman",
  "intern",
+ "itertools",
  "log",
  "lsp-server",
  "lsp-types",
@@ -1586,6 +1608,7 @@ dependencies = [
  "fnv",
  "graphql-cli",
  "graphql-ir",
+ "graphql-ir-validations",
  "graphql-syntax",
  "graphql-test-helpers",
  "graphql-text-printer",

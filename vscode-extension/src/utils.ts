@@ -49,6 +49,10 @@ export async function findRelayBinary(
 ): Promise<string | null> {
   const binaryPathRelativeToPackageJson = getBinaryPathRelativeToPackageJson();
 
+  if (!binaryPathRelativeToPackageJson) {
+    return null;
+  }
+
   let counter = 0;
   let currentPath = rootPath;
 

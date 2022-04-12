@@ -12,6 +12,12 @@
     "onLanguage:typescriptreact"
   ],
   "contributes": {
+    "commands": [
+      {
+        "command": "relay.restartLanguageServer",
+        "title": "Relay: Restart Language Server"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "Relay",
@@ -30,11 +36,21 @@
         },
         "relay.pathToRelay": {
           "scope": "window",
-          "type": "string",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ],
           "description": "Absolute path to the relay binary. If not provided, the extension will look in the nearest node_modules directory"
         }
       }
     }
+  },
+  "prettier": {
+    "bracketSameLine": true,
+    "bracketSpacing": false,
+    "singleQuote": true,
+    "trailingComma": "all"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
@@ -43,12 +59,6 @@
   },
   "engines": {
     "vscode": "^1.65.0"
-  },
-  "prettier": {
-    "bracketSameLine": true,
-    "bracketSpacing": false,
-    "singleQuote": true,
-    "trailingComma": "all"
   },
   "dependencies": {
     "vscode-languageclient": "^7.0.0"

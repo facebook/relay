@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0d8c404a6c037950a24e7f8515f31878>>
+ * @generated SignedSource<<8b85c44986b34de76ca74cfa4ae31975>>
  */
 
 mod generate_flow;
@@ -220,6 +220,13 @@ fn refetchable_fragment() {
     let input = include_str!("generate_flow/fixtures/refetchable-fragment.graphql");
     let expected = include_str!("generate_flow/fixtures/refetchable-fragment.expected");
     test_fixture(transform_fixture, "refetchable-fragment.graphql", "generate_flow/fixtures/refetchable-fragment.expected", input, expected);
+}
+
+#[test]
+fn regular_query_with_assignable_fragment_spread() {
+    let input = include_str!("generate_flow/fixtures/regular-query-with-assignable-fragment-spread.graphql");
+    let expected = include_str!("generate_flow/fixtures/regular-query-with-assignable-fragment-spread.expected");
+    test_fixture(transform_fixture, "regular-query-with-assignable-fragment-spread.graphql", "generate_flow/fixtures/regular-query-with-assignable-fragment-spread.expected", input, expected);
 }
 
 #[test]

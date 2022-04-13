@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_state::CompilerState;
 use crate::config::ProjectConfig;
 use crate::docblocks::extract_schema_from_docblock_sources;
+use crate::{compiler_state::CompilerState, GraphQLAsts};
 use common::DiagnosticsResult;
 use graphql_syntax::TypeSystemDefinition;
 use schema::SDLSchema;
@@ -16,6 +16,7 @@ use std::sync::Arc;
 pub fn build_schema(
     compiler_state: &CompilerState,
     project_config: &ProjectConfig,
+    graphql_asts: Option<&GraphQLAsts>,
 ) -> DiagnosticsResult<Arc<SDLSchema>> {
     let schema = compiler_state.schema_cache.get(&project_config.name);
     match schema {
@@ -55,10 +56,14 @@ pub fn build_schema(
 
                 for docblocks in docblock_sources {
                     for (file_path, docblock_sources) in &docblocks.get_all() {
+                        let executable_definitions = graphql_asts
+                            .and_then(|asts| asts.get_executable_definitions_for_file(file_path));
+
                         for schema_document in extract_schema_from_docblock_sources(
                             file_path,
                             docblock_sources,
                             &schema,
+                            executable_definitions,
                         )? {
                             for definition in schema_document.definitions {
                                 match definition {

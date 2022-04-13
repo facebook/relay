@@ -335,12 +335,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     ) -> Result<Arc<SDLSchema>, BuildProjectFailure> {
         match self.lsp_state.schemas.entry(project_config.name) {
             Entry::Vacant(e) => {
-                let schema = build_schema(compiler_state, project_config).map_err(|errors| {
-                    BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
-                        errors,
-                        project_name: project_config.name,
-                    })
-                })?;
+                let schema = build_schema(compiler_state, project_config, Default::default())
+                    .map_err(|errors| {
+                        BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                            errors,
+                            project_name: project_config.name,
+                        })
+                    })?;
                 e.insert(Arc::clone(&schema));
                 Ok(schema)
             }
@@ -348,14 +349,14 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 if !compiler_state.project_has_pending_schema_changes(project_config.name) {
                     Ok(Arc::clone(e.get()))
                 } else {
-                    let schema =
-                        build_schema(compiler_state, project_config).map_err(|errors| {
-                            debug!("build error");
-                            BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
-                                errors,
-                                project_name: project_config.name,
-                            })
-                        })?;
+                    let schema = build_schema(compiler_state, project_config, Default::default())
+                        .map_err(|errors| {
+                        debug!("build error");
+                        BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                            errors,
+                            project_name: project_config.name,
+                        })
+                    })?;
                     e.insert(Arc::clone(&schema));
                     Ok(schema)
                 }

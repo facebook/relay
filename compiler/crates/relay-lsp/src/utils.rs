@@ -141,8 +141,8 @@ pub fn extract_feature_from_text(
         JavaScriptSourceFeature::Docblock(docblock_source) => {
             let text_source = &docblock_source.text_source();
             let text = &text_source.text;
-            let dockblock_ir = parse_docblock(text, source_location_key)
-                .and_then(|ast| parse_docblock_ast(&ast))
+            let docblock_ir = parse_docblock(text, source_location_key)
+                .and_then(|ast| parse_docblock_ast(&ast, Default::default()))
                 .map_err(|_| {
                     LSPRuntimeError::UnexpectedError("Failed to parse docblock".to_string())
                 })?
@@ -159,7 +159,7 @@ pub fn extract_feature_from_text(
                         )
                     })?;
 
-            Ok((Feature::DocblockIr(dockblock_ir), position_span))
+            Ok((Feature::DocblockIr(docblock_ir), position_span))
         }
     }
 }

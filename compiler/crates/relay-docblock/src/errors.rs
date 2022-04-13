@@ -40,6 +40,9 @@ pub enum ErrorMessages {
         "Expected either `onType` or `onInterface` to be defined in a @RelayResolver docblock."
     )]
     ExpectedOnTypeOrOnInterface,
+
+    #[error("Fragment \"{fragment_name}\" not found.")]
+    FragmentNotFound { fragment_name: StringKey },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

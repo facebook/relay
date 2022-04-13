@@ -14,4 +14,4 @@ log = { version = "0.4.14", features = ["kv_unstable", "kv_unstable_std"] }
 lsp-types = "0.89.0"
 md-5 = "0.8"
 rayon = "1.2"
-serde = { version = "1.0.126", features = ["derive", "rc"] }
+serde = { version = "1.0.136", features = ["derive", "rc"] }

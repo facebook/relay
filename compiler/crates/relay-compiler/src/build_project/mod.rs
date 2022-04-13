@@ -13,7 +13,7 @@ mod artifact_generated_types;
 mod artifact_locator;
 pub mod artifact_writer;
 mod build_ir;
-mod build_schema;
+pub mod build_schema;
 mod generate_artifacts;
 pub mod generate_extra_artifacts;
 mod log_program_stats;
@@ -235,7 +235,11 @@ pub fn build_project(
     // Construct a schema instance including project specific extensions.
     let schema = log_event
         .time("build_schema_time", || {
-            build_schema(compiler_state, project_config)
+            build_schema(
+                compiler_state,
+                project_config,
+                graphql_asts.get(&project_name),
+            )
         })
         .map_err(|errors| {
             BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
@@ -313,8 +317,7 @@ pub async fn commit_project(
     if let Some(operation_persister) = config
         .create_operation_persister
         .as_ref()
-        .map(|create_fn| create_fn(project_config))
-        .flatten()
+        .and_then(|create_fn| create_fn(project_config))
     {
         let persist_operations_timer = log_event.start("persist_operations_time");
         persist_operations::persist_operations(

@@ -244,7 +244,7 @@ pub struct Directive {
 
 #[derive(Clone, Debug)]
 pub struct Scalar {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
@@ -262,7 +262,7 @@ pub struct Object {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct InputObject {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub fields: ArgumentDefinitions,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
@@ -270,7 +270,7 @@ pub struct InputObject {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Enum {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub values: Vec<EnumValue>,
     pub directives: Vec<DirectiveValue>,
@@ -279,7 +279,7 @@ pub struct Enum {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Union {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub members: Vec<ObjectID>,
     pub directives: Vec<DirectiveValue>,
@@ -288,7 +288,7 @@ pub struct Union {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Interface {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub implementing_objects: Vec<ObjectID>,
     pub fields: Vec<FieldID>,
@@ -442,11 +442,11 @@ macro_rules! impl_named_for_with_location {
 
 impl_named_for_with_location!(Object);
 impl_named_for_with_location!(Field);
-impl_named!(Interface);
-impl_named!(Union);
-impl_named!(Scalar);
-impl_named!(Enum);
-impl_named!(InputObject);
+impl_named_for_with_location!(InputObject);
+impl_named_for_with_location!(Interface);
+impl_named_for_with_location!(Union);
+impl_named_for_with_location!(Scalar);
+impl_named_for_with_location!(Enum);
 
 impl_named!(Argument);
 impl_named!(ArgumentValue);

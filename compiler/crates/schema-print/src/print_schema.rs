@@ -272,7 +272,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
 
     fn print_scalar(&mut self, id: ScalarID) -> FmtResult {
         let scalar = self.schema.scalar(id);
-        write!(self.writer(), "scalar {}", scalar.name)?;
+        write!(self.writer(), "scalar {}", scalar.name.item)?;
         self.print_directive_values(&scalar.directives)?;
         self.print_definition_end()
     }
@@ -289,17 +289,17 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
 
     fn print_interface(&mut self, id: InterfaceID) -> FmtResult {
         let interface = self.schema.interface(id);
-        write!(self.writer(), "interface {}", interface.name)?;
+        write!(self.writer(), "interface {}", interface.name.item)?;
         self.print_implementing_interfaces(&interface.interfaces)?;
         self.print_directive_values(&interface.directives)?;
         self.print_space()?;
-        self.print_fields(&interface.fields, interface.name)?;
+        self.print_fields(&interface.fields, interface.name.item)?;
         self.print_definition_end()
     }
 
     fn print_union(&mut self, id: UnionID) -> FmtResult {
         let union_ = self.schema.union(id);
-        write!(self.writer(), "union {}", union_.name)?;
+        write!(self.writer(), "union {}", union_.name.item)?;
         self.print_directive_values(&union_.directives)?;
         if !union_.members.is_empty() {
             let union_members = union_
@@ -316,7 +316,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
 
     fn print_enum(&mut self, id: EnumID) -> FmtResult {
         let enum_ = self.schema.enum_(id);
-        write!(self.writer(), "enum {}", enum_.name)?;
+        write!(self.writer(), "enum {}", enum_.name.item)?;
         self.print_directive_values(&enum_.directives)?;
         self.print_space()?;
         self.print_enum_values(&enum_.values)?;
@@ -325,7 +325,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
 
     fn print_input_object(&mut self, id: InputObjectID) -> FmtResult {
         let input_object = self.schema.input_object(id);
-        write!(self.writer(), "input {}", input_object.name)?;
+        write!(self.writer(), "input {}", input_object.name.item)?;
         self.print_directive_values(&input_object.directives)?;
         self.print_space()?;
         self.print_input_object_fields(&input_object.fields)?;
@@ -438,7 +438,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         if !interfaces.is_empty() {
             let interface_names = interfaces
                 .iter()
-                .map(|id| self.schema.interface(*id).name)
+                .map(|id| self.schema.interface(*id).name.item)
                 .join(" & ");
             write!(self.writer(), " implements {}", interface_names,)?;
         }

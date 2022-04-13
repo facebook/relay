@@ -50,9 +50,9 @@ relay-transforms = { path = "../relay-transforms" }
 relay-typegen = { path = "../relay-typegen" }
 schema = { path = "../schema" }
 schema-diff = { path = "../schema-diff" }
-serde = { version = "1.0.126", features = ["derive", "rc"] }
+serde = { version = "1.0.136", features = ["derive", "rc"] }
 serde_bser = "0.3"
-serde_json = { version = "1.0.64", features = ["float_roundtrip", "unbounded_depth"] }
+serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }
 sha-1 = "0.8"
 signedsource = { path = "../signedsource" }
 thiserror = "1.0.30"

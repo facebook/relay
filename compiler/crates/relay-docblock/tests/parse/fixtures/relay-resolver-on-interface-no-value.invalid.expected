@@ -10,17 +10,23 @@
 
 /**
  * @RelayResolver
- * 
+ *
  * @onInterface
  * @fieldName favorite_page
  * @edgeTo Page
  * @rootFragment myRootFragment
  */
+
+graphql`
+  fragment myRootFragment on User {
+    name
+  }
+`
 ==================================== ERROR ====================================
 ✖︎ Expected docblock field "@onInterface" to have specified a value.
 
   /path/to/test/fixture/relay-resolver-on-interface-no-value.invalid.js:4:5
-    3 │  * 
+    3 │  *
     4 │  * @onInterface
       │     ^^^^^^^^^^^
     5 │  * @fieldName favorite_page

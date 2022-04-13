@@ -1,11 +1,15 @@
-import {DocumentSelector, workspace} from 'vscode';
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+import {Disposable, workspace} from 'vscode';
 import {
-  ClientCapabilities,
-  Disposable,
   LanguageClientOptions,
   RequestType,
   RevealOutputChannelOn,
-  ServerCapabilities,
 } from 'vscode-languageclient';
 import {ServerOptions, LanguageClient} from 'vscode-languageclient/node';
 import {getConfig} from './config';

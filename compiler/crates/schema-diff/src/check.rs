@@ -112,7 +112,7 @@ fn is_object_add_safe(name: StringKey, schema: &SDLSchema, schema_config: &Schem
             && object
                 .interfaces
                 .iter()
-                .any(|id| schema.interface(*id).name != *NODE_INTERFACE_KEY)
+                .any(|id| schema.interface(*id).name.item != *NODE_INTERFACE_KEY)
         {
             return false;
         }

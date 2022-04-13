@@ -8,25 +8,24 @@
 
 // expected-to-throw
 
-/**
- * @RelayResolver
- *
- * @onType
- * @fieldName favorite_page
- * @edgeTo Page
- * @rootFragment myRootFragment
- */
-
 graphql`
   fragment myRootFragment on User {
     name
   }
 `
-==================================== ERROR ====================================
-✖︎ Expected docblock field "@onType" to have specified a value.
 
-  /path/to/test/fixture/relay-resolver-on-type-no-value.invalid.js:4:5
-    3 │  *
-    4 │  * @onType
-      │     ^^^^^^
-    5 │  * @fieldName favorite_page
+/**
+ * @RelayResolver
+ *
+ * @onType User
+ * @fieldName my_field
+ * @rootFragment missingFragment
+ */
+==================================== ERROR ====================================
+✖︎ Fragment "missingFragment" not found.
+
+  /path/to/test/fixture/relay-resolver-with-fragment.invalid.js:6:18
+    5 │  * @fieldName my_field
+    6 │  * @rootFragment missingFragment
+      │                  ^^^^^^^^^^^^^^^
+    7 │

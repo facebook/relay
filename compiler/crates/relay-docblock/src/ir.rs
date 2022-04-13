@@ -22,7 +22,7 @@ lazy_static! {
     static ref RELAY_RESOLVER_DIRECTIVE_NAME: StringKey = "relay_resolver".intern();
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: StringKey = "deprecated".intern();
     static ref FRAGMENT_KEY_ARGUMENT_NAME: StringKey = "fragment_name".intern();
-    static ref IMPORT_PATH_AGUMENT_NAME: StringKey = "import_path".intern();
+    static ref IMPORT_PATH_ARGUMENT_NAME: StringKey = "import_path".intern();
     static ref LIVE_ARGUMENT_NAME: StringKey = "live".intern();
     static ref DEPRECATED_REASON_ARGUMENT_NAME: StringKey = "reason".intern();
 }
@@ -181,9 +181,9 @@ impl RelayResolverIr {
         {
             definitions.extend(
                 self.interface_definitions(
-                    WithLocation::new(interface_name.location, existing_interface.name),
+                    WithLocation::new(interface_name.location, existing_interface.name.item),
                     schema
-                        .get_type(existing_interface.name)
+                        .get_type(existing_interface.name.item)
                         .unwrap()
                         .get_interface_id()
                         .unwrap(),
@@ -246,7 +246,7 @@ impl RelayResolverIr {
         let mut arguments = vec![
             string_argument(*FRAGMENT_KEY_ARGUMENT_NAME, self.root_fragment),
             string_argument(
-                *IMPORT_PATH_AGUMENT_NAME,
+                *IMPORT_PATH_ARGUMENT_NAME,
                 WithLocation::new(self.location, import_path),
             ),
         ];

@@ -539,7 +539,10 @@ Text Schema:Schema {
 ]
   input_objects: [
     InputObject {
-        name: "Country",
+        name: WithLocation {
+            location: <generated>:775:782,
+            item: "Country",
+        },
         fields: [
             Argument {
                 name: "name",
@@ -588,7 +591,10 @@ Text Schema:Schema {
 ]
   interfaces: [
     Interface {
-        name: "XIGHuman",
+        name: WithLocation {
+            location: <generated>:427:435,
+            item: "XIGHuman",
+        },
         is_extension: false,
         implementing_objects: [
             ObjectID(1),
@@ -760,37 +766,55 @@ Text Schema:Schema {
 ]
   scalars: [
     Scalar {
-        name: "Int",
+        name: WithLocation {
+            location: <generated>:187:190,
+            item: "Int",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Float",
+        name: WithLocation {
+            location: <generated>:198:203,
+            item: "Float",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "String",
+        name: WithLocation {
+            location: <generated>:211:217,
+            item: "String",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Boolean",
+        name: WithLocation {
+            location: <generated>:225:232,
+            item: "Boolean",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "ID",
+        name: WithLocation {
+            location: <generated>:240:242,
+            item: "ID",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "ID",
+        name: WithLocation {
+            location: <generated>:293:295,
+            item: "ID",
+        },
         is_extension: false,
         directives: [
             DirectiveValue {
@@ -828,7 +852,10 @@ Text Schema:Schema {
 ]
   unions: [
     Union {
-        name: "Address",
+        name: WithLocation {
+            location: <generated>:993:1000,
+            item: "Address",
+        },
         is_extension: false,
         members: [
             ObjectID(2),
@@ -1256,7 +1283,10 @@ fields: [
 ]
 input_objects: [
     InputObject {
-        name: "Country",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Country",
+        },
         fields: [
             Argument {
                 name: "name",
@@ -1305,7 +1335,10 @@ input_objects: [
 ]
 interfaces: [
     Interface {
-        name: "XIGHuman",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "XIGHuman",
+        },
         is_extension: false,
         implementing_objects: [
             ObjectID(2),
@@ -1477,19 +1510,28 @@ objects: [
 ]
 scalars: [
     Scalar {
-        name: "Boolean",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Boolean",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Float",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Float",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "ID",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "ID",
+        },
         is_extension: false,
         directives: [
             DirectiveValue {
@@ -1525,13 +1567,19 @@ scalars: [
         description: None,
     },
     Scalar {
-        name: "Int",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Int",
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "String",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "String",
+        },
         is_extension: false,
         directives: [],
         description: None,
@@ -1539,7 +1587,10 @@ scalars: [
 ]
 unions: [
     Union {
-        name: "Address",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Address",
+        },
         is_extension: false,
         members: [
             ObjectID(0),

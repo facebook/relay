@@ -276,12 +276,12 @@ impl Schema for SchemaWrapper {
 
     fn get_type_name(&self, type_: Type) -> StringKey {
         match type_ {
-            Type::Enum(id) => self.enum_(id).name,
-            Type::InputObject(id) => self.input_object(id).name,
-            Type::Interface(id) => self.interface(id).name,
+            Type::Enum(id) => self.enum_(id).name.item,
+            Type::InputObject(id) => self.input_object(id).name.item,
+            Type::Interface(id) => self.interface(id).name.item,
             Type::Object(id) => self.object(id).name.item,
-            Type::Scalar(id) => self.scalar(id).name,
-            Type::Union(id) => self.union(id).name,
+            Type::Scalar(id) => self.scalar(id).name.item,
+            Type::Union(id) => self.union(id).name.item,
         }
     }
 
@@ -298,14 +298,14 @@ impl Schema for SchemaWrapper {
 
     fn is_string(&self, type_: Type) -> bool {
         match type_ {
-            Type::Scalar(id) => self.scalar(id).name.lookup() == "String",
+            Type::Scalar(id) => self.scalar(id).name.item.lookup() == "String",
             _ => false,
         }
     }
 
     fn is_id(&self, type_: Type) -> bool {
         match type_ {
-            Type::Scalar(id) => self.scalar(id).name.lookup() == "ID",
+            Type::Scalar(id) => self.scalar(id).name.item.lookup() == "ID",
             _ => false,
         }
     }

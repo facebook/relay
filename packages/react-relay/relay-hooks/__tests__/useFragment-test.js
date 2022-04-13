@@ -13,7 +13,8 @@
 
 'use strict';
 
-const useFragmentOriginal = require('../useFragment');
+const useFragmentOriginal_REACT_CACHE = require('../react-cache/useFragment_REACT_CACHE');
+const useFragmentOriginal_LEGACY = require('../useFragment');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
@@ -21,6 +22,7 @@ const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
+  RelayFeatureFlags,
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
@@ -33,7 +35,20 @@ const {
 disallowWarnings();
 disallowConsoleErrors();
 
-describe('useFragment', () => {
+describe.each([
+  ['React Cache', useFragmentOriginal_REACT_CACHE],
+  ['Legacy', useFragmentOriginal_LEGACY],
+])('useFragment (%s)', (_hookName, useFragmentOriginal) => {
+  let originalReactCacheFeatureFlag;
+  beforeEach(() => {
+    originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
+    RelayFeatureFlags.USE_REACT_CACHE =
+      useFragmentOriginal === useFragmentOriginal_REACT_CACHE;
+  });
+  afterEach(() => {
+    RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
+  });
+
   let environment;
   let gqlSingularQuery;
   let gqlSingularFragment;
@@ -202,32 +217,50 @@ describe('useFragment', () => {
       );
     };
 
-    renderSingularFragment = (props?: {
-      owner?: $FlowFixMe,
-      userRef?: $FlowFixMe,
-      ...
-    }) => {
-      return TestRenderer.create(
+    renderSingularFragment = (
+      props?: {
+        owner?: $FlowFixMe,
+        userRef?: $FlowFixMe,
+        ...
+      },
+      existing,
+    ) => {
+      const elements = (
         <React.Suspense fallback="Singular Fallback">
           <ContextProvider>
             <SingularContainer owner={singularQuery} {...props} />
           </ContextProvider>
-        </React.Suspense>,
+        </React.Suspense>
       );
+      if (existing) {
+        existing.update(elements);
+        return existing;
+      } else {
+        return TestRenderer.create(elements);
+      }
     };
 
-    renderPluralFragment = (props?: {
-      owner?: $FlowFixMe,
-      userRef?: $FlowFixMe,
-      ...
-    }) => {
-      return TestRenderer.create(
+    renderPluralFragment = (
+      props?: {
+        owner?: $FlowFixMe,
+        userRef?: $FlowFixMe,
+        ...
+      },
+      existing,
+    ) => {
+      const elements = (
         <React.Suspense fallback="Plural Fallback">
           <ContextProvider>
             <PluralContainer owner={pluralQuery} {...props} />
           </ContextProvider>
-        </React.Suspense>,
+        </React.Suspense>
       );
+      if (existing) {
+        existing.update(elements);
+        return existing;
+      } else {
+        return TestRenderer.create(elements);
+      }
     };
   });
 
@@ -246,10 +279,10 @@ describe('useFragment', () => {
   });
 
   it('should return the same data object if rendered multiple times: singular fragment', () => {
-    renderSingularFragment();
+    const container = renderSingularFragment();
     expect(renderSpy).toBeCalledTimes(1);
     const actualData = renderSpy.mock.calls[0][0];
-    renderSingularFragment();
+    renderSingularFragment({}, container);
     expect(renderSpy).toBeCalledTimes(2);
     const actualData2 = renderSpy.mock.calls[1][0];
     expect(actualData).toBe(actualData2);
@@ -272,10 +305,10 @@ describe('useFragment', () => {
   });
 
   it('should return the same data object if rendered multiple times: plural fragment', () => {
-    renderPluralFragment();
+    const container = renderPluralFragment();
     expect(renderSpy).toBeCalledTimes(1);
     const actualData = renderSpy.mock.calls[0][0];
-    renderPluralFragment();
+    renderPluralFragment({}, container);
     expect(renderSpy).toBeCalledTimes(2);
     const actualData2 = renderSpy.mock.calls[1][0];
     expect(actualData).toBe(actualData2);

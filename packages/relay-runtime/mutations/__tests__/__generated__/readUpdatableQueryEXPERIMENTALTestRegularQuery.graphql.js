@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1f01d964f9d0a27d7e4f682a7d5bb06d>>
+ * @generated SignedSource<<549d03a1f82e9c44db9ebdaa5efc82ff>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -223,12 +223,12 @@ return {
         "name": "node",
         "plural": false,
         "selections": [
-          (v6/*: any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
             "name": "readUpdatableQueryEXPERIMENTALTest_user"
           },
+          (v6/*: any*/),
           (v7/*: any*/),
           (v4/*: any*/)
         ],
@@ -350,7 +350,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bde36a09c95c842e557b8e5ba7b1903b";
+  (node/*: any*/).hash = "12785f1f4beff952cc20920d7c4bd1e2";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

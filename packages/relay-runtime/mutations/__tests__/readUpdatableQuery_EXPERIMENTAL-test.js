@@ -96,7 +96,6 @@ const regularQuery = graphql`
       }
     }
     node(id: "4") {
-      __typename
       ...readUpdatableQueryEXPERIMENTALTest_user
       ... on User {
         name

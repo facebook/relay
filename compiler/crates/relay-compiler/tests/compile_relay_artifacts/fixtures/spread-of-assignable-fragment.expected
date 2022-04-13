@@ -44,6 +44,13 @@ fragment spreadOfAssignableFragmentAssignable_node on Node @assignable {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "__id",
             "storageKey": null
           }
@@ -104,6 +111,13 @@ fragment spreadOfAssignableFragmentAssignable_node on Node @assignable {
             "args": null,
             "kind": "FragmentSpread",
             "name": "spreadOfAssignableFragmentAssignable_user"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
           },
           {
             "args": null,

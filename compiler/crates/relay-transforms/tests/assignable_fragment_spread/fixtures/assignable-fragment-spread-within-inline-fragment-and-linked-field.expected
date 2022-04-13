@@ -19,7 +19,10 @@ query TestQuery(
   node(id: "4") {
     ... on User {
       author {
-        ...Assignable_user
+        ... {
+          ...Assignable_user
+          __typename
+        }
         __id
       }
     }

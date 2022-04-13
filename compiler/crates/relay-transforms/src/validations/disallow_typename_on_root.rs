@@ -24,15 +24,9 @@ impl<'program> DisallowTypenameOnRoot<'program> {
     fn new(program: &'program Program) -> Self {
         Self { program }
     }
-}
 
-impl Validator for DisallowTypenameOnRoot<'_> {
-    const NAME: &'static str = "disallow_typename_on_root";
-    const VALIDATE_ARGUMENTS: bool = false;
-    const VALIDATE_DIRECTIVES: bool = false;
-
-    fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
-        let typename_selection = operation.selections.iter().find_map(|sel| {
+    fn validate_query_selections(&mut self, selections: &[Selection]) -> DiagnosticsResult<()> {
+        let typename_selection = selections.iter().find_map(|sel| {
             if let Selection::ScalarField(field) = sel {
                 if field.definition.item == self.program.schema.typename_field() {
                     Some(field)
@@ -52,8 +46,21 @@ impl Validator for DisallowTypenameOnRoot<'_> {
             Ok(())
         }
     }
+}
 
-    fn validate_fragment(&mut self, _: &FragmentDefinition) -> DiagnosticsResult<()> {
+impl Validator for DisallowTypenameOnRoot<'_> {
+    const NAME: &'static str = "disallow_typename_on_root";
+    const VALIDATE_ARGUMENTS: bool = false;
+    const VALIDATE_DIRECTIVES: bool = false;
+
+    fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
+        self.validate_query_selections(&operation.selections)
+    }
+
+    fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
+        if self.program.schema.query_type() == Some(fragment.type_condition) {
+            self.validate_query_selections(&fragment.selections)?
+        }
         Ok(())
     }
 }

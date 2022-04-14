@@ -79,6 +79,10 @@ pub(crate) fn update_in_progress_status(
     update_status(short_message, message, MessageType::Warning, sender);
 }
 
+// This is the entrypoint for all status bar update commands.
+// If you change this, please be sure to update the appropriate
+// logic in the following file.
+// https://github.com/facebook/relay/blob/main/vscode-extension/src/statusBar.ts
 pub fn update_status(
     short_message: impl Into<String>,
     message: Option<impl Into<String>>,

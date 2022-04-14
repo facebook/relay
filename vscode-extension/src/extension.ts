@@ -10,22 +10,26 @@ import {registerCommands} from './commands/register';
 
 import {RelayExtensionContext} from './context';
 import {createAndStartClient} from './languageClient';
+import {createStatusBarItem, intializeStatusBarItem} from './statusBarItem';
 
 let relayExtensionContext: RelayExtensionContext | undefined;
 
 export async function activate(extensionContext: ExtensionContext) {
   const outputChannel = window.createOutputChannel('Relay Language Server');
+  const statusBar = createStatusBarItem();
 
   relayExtensionContext = {
+    statusBar,
     client: null,
     outputChannel,
     extensionContext,
   };
 
   extensionContext.subscriptions.push(outputChannel);
+  extensionContext.subscriptions.push(statusBar);
 
+  intializeStatusBarItem(relayExtensionContext);
   registerCommands(relayExtensionContext);
-
   createAndStartClient(relayExtensionContext);
 }
 

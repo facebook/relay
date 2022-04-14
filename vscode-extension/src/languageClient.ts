@@ -5,17 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {Disposable, workspace} from 'vscode';
+import {workspace} from 'vscode';
 import {
   LanguageClientOptions,
-  RequestType,
   RevealOutputChannelOn,
 } from 'vscode-languageclient';
 import {ServerOptions, LanguageClient} from 'vscode-languageclient/node';
 import {getConfig} from './config';
 import {RelayExtensionContext} from './context';
 import {createErrorHandler} from './errorHandler';
-import {handleShowStatusMethod, ShowStatusParams} from './statusBar';
+import {LSPStatusBarFeature} from './lspStatusBarFeature';
 import {findRelayBinary} from './utils';
 
 export async function createAndStartClient(context: RelayExtensionContext) {
@@ -79,23 +78,7 @@ export async function createAndStartClient(context: RelayExtensionContext) {
     clientOptions,
   );
 
-  let showStatusDisposable: Disposable | undefined;
-  client.registerFeature({
-    fillClientCapabilities() {},
-
-    initialize() {
-      showStatusDisposable = client?.onRequest(
-        new RequestType<ShowStatusParams, void, void>('window/showStatus'),
-        (params) => {
-          handleShowStatusMethod(context, params);
-        },
-      );
-    },
-
-    dispose() {
-      showStatusDisposable?.dispose();
-    },
-  });
+  client.registerFeature(new LSPStatusBarFeature(context));
 
   // Start the client. This will also launch the server
   client.start();

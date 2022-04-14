@@ -53,11 +53,8 @@ impl Deref for SortedASTList {
 }
 
 impl SortedASTList {
-    pub fn new(mut members: Vec<AST>, should_sort: bool) -> Self {
-        if should_sort {
-            members.sort();
-        }
-
+    pub fn new(mut members: Vec<AST>) -> Self {
+        members.sort();
         Self(members)
     }
 }
@@ -74,10 +71,8 @@ impl Deref for ExactObject {
 }
 
 impl ExactObject {
-    pub fn new(mut props: Vec<Prop>, should_sort_props: bool) -> Self {
-        if should_sort_props {
-            props.sort();
-        }
+    pub fn new(mut props: Vec<Prop>) -> Self {
+        props.sort();
         Self(props)
     }
 
@@ -140,10 +135,8 @@ impl Deref for InexactObject {
 }
 
 impl InexactObject {
-    pub fn new(mut props: Vec<Prop>, should_sort_props: bool) -> Self {
-        if should_sort_props {
-            props.sort();
-        }
+    pub fn new(mut props: Vec<Prop>) -> Self {
+        props.sort();
         Self(props)
     }
 
@@ -206,12 +199,10 @@ impl Deref for SortedStringKeyList {
 }
 
 impl SortedStringKeyList {
-    pub fn new(mut props: Vec<StringKey>, should_sort_props: bool) -> Self {
-        if should_sort_props {
-            // We can sort unstably, because we don't care that StringKey's are re-ordered.
-            // Unlike sorting stably, sorting unstably doesn't allocated extra memory.
-            props.sort_unstable()
-        }
+    pub fn new(mut props: Vec<StringKey>) -> Self {
+        // We can sort unstably, because we don't care that StringKey's are re-ordered.
+        // Unlike sorting stably, sorting unstably doesn't allocated extra memory.
+        props.sort_unstable();
         Self(props)
     }
 }

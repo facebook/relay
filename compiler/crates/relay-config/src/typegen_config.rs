@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::Rollout;
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
@@ -90,12 +89,6 @@ pub struct TypegenConfig {
     /// This option enables emitting es modules artifacts.
     #[serde(default)]
     pub eager_es_modules: bool,
-
-    /// This option controls which emitted files have sorted fields, fragment names,
-    /// and union members. It also controls whether unions with more than one element
-    /// are written with surrounding parentheses.
-    #[serde(default)]
-    pub sort_typegen_items: SortTypegenItemsConfig,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone, Copy)]
@@ -107,16 +100,4 @@ pub struct FlowTypegenConfig {
     /// from breaking.
     #[serde(default)]
     pub no_future_proof_enums: bool,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, Default)]
-pub struct SortTypegenItemsConfig {
-    #[serde(default)]
-    pub rollout: Rollout,
-}
-
-impl SortTypegenItemsConfig {
-    pub fn should_sort(&self, rollout_key: StringKey) -> bool {
-        self.rollout.check(rollout_key.lookup())
-    }
 }

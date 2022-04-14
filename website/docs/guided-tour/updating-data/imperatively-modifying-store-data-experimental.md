@@ -25,7 +25,7 @@ Please also see the [early adopter guide](https://fb.quip.com/4FZaADvkQPPl).
 </FbInternalOnly>
 
 :::note
-See also [using readUpdatableQuery_EXPERIMENTAL to update linked fields in the store](../imperatively-modifying-linked-fields-experimental).
+See also [this guide on updating linked fields in the store](../imperatively-modifying-linked-fields-experimental).
 :::
 
 Data in Relay stores can be imperatively modified within updater functions.
@@ -80,6 +80,7 @@ extend type Feedback {
 ```
 
 ```js
+// CreateFeedback.js
 import type {Environment} from 'react-relay';
 import type {
   FeedbackCreateData,
@@ -100,43 +101,41 @@ function commitCreateFeedbackMutation(
         feedback_create(input: $input) {
           feedback {
             id
+            # Step 1: in the mutation response, spread an updatable fragment (defined below).
+            # This updatable fragment will select the fields that we want to update on this
+            # particular feedback object.
+            ...CreateFeedback_updatable_feedback
           }
         }
       }
     `,
     variables: {input},
 
-    // Step 1: define an updater
+    // Step 2: define an updater
     updater: (store: RecordSourceSelectorProxy, response: ?CreateCommentMutation$data) => {
-      // Step 2: extract the ID of the newly-created feedback object
-      const id = response?.feedback_create?.feedback?.id;
-      if (id == null) {
+      // Step 3: Access and nullcheck the feedback object.
+      // Note that this could also have been achieved with the @required directive.
+      const feedbackRef = response?.feedback_create?.feedback;
+      if (feedbackRef == null) {
         return;
       }
 
-      // Step 3: call store.readUpdatableQuery_EXPERIMENTAL
-      const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
-          // Step 4: Pass it a query literal, where the query contains the @updatable directive.
-          // This query literal describes the data in the store that you want to update.
+      // Step 3: call store.readUpdatableFragment_EXPERIMENTAL
+      const {updatableData} = store.readUpdatableFragment_EXPERIMENTAL(
+          // Step 4: Pass it a fragment literal, where the fragment contains the @updatable directive.
+          // This fragment selects the fields that you wish to update on the feedback object.
+          // In step 1, we spread this fragment in the query response.
           graphql`
-            query CreateFeedbackUpdatableQuery($id: ID!) @updatable {
-              node(id: $id) {
-                ... on Feedback {
-                  __typename
-                  is_new_comment
-                }
-              }
+            fragment CreateFeedback_updatable_feedback on Feedback @updatable {
+              is_new_comment
             }
           `,
-          // Step 4A: Pass the query variables to readUpdatableQuery_EXPERIMENTAL
-          {id}
+          // Step 5: Pass the fragment reference.
+          feedbackRef
         );
 
-      // Step 5: Access the field, and mutate the updatableData
-      if (updatableData.node?.__typename === 'Feedback') {
-        // In this block, Flow understands that updatableData.node is a Feedback item
-        updatableData.node.is_new_comment = true;
-      }
+      // Step 6: Mutate the updatableData object!
+      updatableData.is_new_comment = true;
     },
   });
 }
@@ -144,25 +143,16 @@ function commitCreateFeedbackMutation(
 module.exports = {commit: commitCreateFeedbackMutation};
 ```
 
-<FbInternalOnly>
-
-:::note
-If available, the auto-generated `fetch__Feedback` field can make this example simpler.
-:::
-
-</FbInternalOnly>
-
 Let's distill what's going on here.
 
 * The `updater` accepts two parameters: a `RecordSourceSelectorProxy` and an optional object that is the result of reading out the mutation response.
-    * The type of this `data` argument is a nullable version of the `$data` type that is imported from the generated mutation file.
-    * The `data` arguments contains just the data selected directly by the mutation argument. In other words, if another fragment is spread in the mutation, the data from that fragment will not be available within `data` by default.
-* This `updater` is executed after the mutation response has been written to the store. In other words, we can assume that the returned feedback object exists for any data that is read out through the `store` object in the updater.
+    * The type of this second argument is a nullable version of the `$data` type that is imported from the generated mutation file.
+    * The second argument contains just the data selected directly by the mutation argument. In other words, it will not contain any fields selected solely by spread fragments.
+* This `updater` is executed after the mutation response has been written to the store.
 * In this example updater, we do three things:
-  * First, we get the ID of the newly created Feedback object.
-  * Next, we call `readUpdatableQuery_EXPERIMENTAL`. We pass it a GraphQL query that has the `@updatable` directive and the query variables. This query defines the data that we wish to access and update.
-  * Next, we modify the value that was returned from `readUpdatableQuery_EXPERIMENTAL`. In this case, `updatableData.node.is_new_comment = true` calls a lower-level and older API (`proxy.setValue(...)`) under the hood.
-    * Note that in order to have `updatableData.node.is_new_comment = true` typecheck, we must refine the type of `updatableData.node`. We must check that it isn't optional, and that the typename matches what we expect. Otherwise, Flow will complain.
+  * First, we spread an updatable fragment in the mutation response.
+  * Second, we read out the fields selected by this fragment by calling `readUpdatableFragment_EXPERIMENTAL`. This returns an updatable proxy object.
+  * Third, we update fields on this updatable proxy.
 * Once this updater completes, the updates that have been recorded are written to the store, and all affected components are re-rendered.
 
 ## Example 2: Updating data in response to user interactions
@@ -177,22 +167,26 @@ extend type User {
 ```
 
 ```js
+// UserSelectToggle.react.js
 import type {RecordSourceSelectorProxy} from 'react-relay';
-import type {UserSelectToggle_user$fragmentType, UserSelectToggle_user} from 'UserSelectToggle_user.graphql';
+import type {UserSelectToggle_user$key, UserSelectToggle_user} from 'UserSelectToggle_user.graphql';
 
 const {useRelayEnvironment, commitLocalUpdate} = require('react-relay');
 
-function UserSelectToggle({ userId, userRef }: {
+function UserSelectToggle({ userId, viewerRef }: {
   userId: string,
-  userRef: UserSelectToggle_user$fragmentType,
+  viewerRef: UserSelectToggle_viewer$key,
 }) {
-  const data = useFragment<UserSelectToggle_user>(graphql`
-    fragment UserSelectToggle_user on User {
-      id @required(action: THROW)
-      name @required(action: THROW)
-      is_selected
+  const viewer = useFragment<UserSelectToggle_viewer>(graphql`
+    fragment UserSelectToggle_viewer on Viewer {
+      user(user_id: $user_id) {
+        id
+        name
+        is_selected
+        ...UserSelectToggle_updatable_user
+      }
     }
-  `, userRef);
+  `, viewerRef);
 
   const environment = useRelayEnvironment();
 
@@ -201,28 +195,26 @@ function UserSelectToggle({ userId, userRef }: {
       commitLocalUpdate(
         environment,
         (store: RecordSourceSelectorProxy) => {
-          const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
+          const userRef = viewer.user;
+          if (userRef == null) {
+            return;
+          }
+
+          const {updatableData} = store.readUpdatableFragment_EXPERIMENTAL(
             graphql`
-              query UserSelectToggleUpdatableQuery($id: ID!) @updatable {
-                node(id: $id) {
-                  ... on User {
-                    __typename
-                    is_selected
-                  }
-                }
+              fragment UserSelectToggle_updatable_user($id: ID!) on User @updatable {
+                is_selected
               }
             `,
-            {id: data.id}
+            userRef
           );
 
-          if (updatableData.node?.__typename === 'User') {
-            updatableData.node.is_selected = !data.is_selected;
-          }
+          updatableData.is_selected = !viewer?.user?.is_selected;
         }
       );
     }}
   >
-    {data.is_selected ? 'Deselect' : 'Select'} {data.name}
+    {viewer?.user?.is_selected ? 'Deselect' : 'Select'} {viewer?.user?.name}
   </button>
 }
 ```
@@ -230,18 +222,60 @@ function UserSelectToggle({ userId, userRef }: {
 Let's distill what's going on here.
 
 * In a click handler, we call `commitLocalUpdate`, which accepts a Relay environment and an updater function. **Unlike in the previous examples, this updater does not accept a second parameter** because there is no associated network payload.
-* In this updater function, we access get an updatable data object by calling `store.readUpdatableQuery_EXPERIMENTAL`, access the current user and toggle the `is_selected` field.
-
-<FbInternalOnly>
-
-:::note
-If available, the auto-generated `fetch__User` field can make this example simpler.
-:::
-
-</FbInternalOnly>
+* In this updater function, we access get an updatable proxy object by calling `store.readUpdatableFragment_EXPERIMENTAL`, and toggle the `is_selected` field.
+* Like the previous example in which we called `readUpdatableFragment_EXPERIMENTAL`, this can be rewritten to use the `readUpdatableQuery_EXPERIMENTAL` API.
 
 :::note
 This example can be rewritten using the `environment.commitPayload` API, albeit without type safety.
 :::
+
+## Alternative API: `readUpdatableQuery_EXPERIMENTAL`.
+
+In the previous examples, we used an updatable fragment to access the record whose fields we want to update. This can also be possible to do with an updatable query.
+
+If we know the path from the root (i.e. the object whose type is `Query`) to the record we wish to modify, we can use the `readUpdatableQuery_EXPERIMENTAL` API to achieve this.
+
+For example, we could set the viewer's `name` field in response to an event as follows:
+
+```js
+// NameUpdater.react.js
+function NameUpdater({ queryRef }: {
+  queryRef: NameUpdater_viewer$key,
+}) {
+  const environment = useRelayEnvironment();
+  const data = useFragment(
+    graphql`
+      fragment NameUpdater_viewer on Viewer {
+        name
+      }
+    `,
+    queryRef
+  );
+  const [newName, setNewName] = useState(data?.viewer?.name);
+  const onSubmit = () => {
+    commitLocalUpdate(environment, store => {
+      const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
+        graphql`
+          viewer {
+            name
+          }
+        `,
+        {}
+      );
+      const viewer = updatableData.viewer;
+      if (viewer != null) {
+        viewer.name = newName;
+      }
+    });
+  };
+
+  // etc
+}
+```
+
+* This particular example can be rewritten using `readUpdatableFragment_EXPERIMENTAL`. However, you may prefer `readUpdatableQuery_EXPERIMENTAL` for several reasons:
+  * You do not have ready access to a fragment reference, e.g. if the call to `commitLocalUpdate` is not obviously associated with a component.
+  * You do not have ready access to a fragment where we select the **parent record** of the record we wish to modify (e.g. the `Query` in this example). Due to a known type hole in Relay, **updatable fragments cannot be spread at the top level.**
+  * You wish to use variables in the updatatable fragment. Currently, updatable fragments reuse the variables that were passed to the query. This means that you cannot, for example, have an updatable fragment with fragment-local variables and call `readUpdatableFragment_EXPERIMENTAL` multiple times, each time passing different variables.
 
 <DocsRating />

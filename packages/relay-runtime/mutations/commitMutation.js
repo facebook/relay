@@ -19,11 +19,7 @@ import type {
   MutationParameters,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
-import type {
-  CacheConfig,
-  Disposable,
-  Variables,
-} from '../util/RelayRuntimeTypes';
+import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from './RelayDeclarativeMutationConfig';
 
 const {getRequest} = require('../query/GraphQLTag');
@@ -58,12 +54,6 @@ export type MutationConfig<TMutation: MutationParameters> = {|
   uploadables?: UploadableMap,
   variables: TMutation['variables'],
 |};
-
-export type DEPRECATED_MutationConfig<TMutationResponse> = MutationConfig<{|
-  response: TMutationResponse,
-  rawResponse: any,
-  variables: Variables,
-|}>;
 
 /**
  * Higher-level helper function to execute a mutation against a specific

@@ -10,7 +10,7 @@ import {registerCommands} from './commands/register';
 
 import {RelayExtensionContext} from './context';
 import {createAndStartClient} from './languageClient';
-import {createStatusBar, initializeStatusBar} from './statusBar';
+import {createStatusBar, intializeStatusBar} from './statusBar';
 
 let relayExtensionContext: RelayExtensionContext | undefined;
 
@@ -26,8 +26,9 @@ export async function activate(extensionContext: ExtensionContext) {
   };
 
   extensionContext.subscriptions.push(outputChannel);
+  extensionContext.subscriptions.push(statusBar);
 
-  initializeStatusBar(relayExtensionContext);
+  intializeStatusBar(relayExtensionContext);
   registerCommands(relayExtensionContext);
   createAndStartClient(relayExtensionContext);
 }

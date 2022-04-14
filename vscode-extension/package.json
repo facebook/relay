@@ -2,7 +2,13 @@
   "name": "relay",
   "displayName": "Relay GraphQL",
   "version": "0.0.1",
-  "description": "Relay LSP Client for VSCode",
+  "description": "Relay-powered IDE experience",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facebook/relay",
+    "directory": "vscode-extension"
+  },
+  "license": "MIT",
   "main": "./out/extension.js",
   "activationEvents": [
     "onLanguage:plaintext",
@@ -55,7 +61,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "prettier-check": "prettier -c .",
-    "lint": "eslint --max-warnings 0 ."
+    "lint": "eslint --max-warnings 0 .",
+    "vscode:prepublish": "tsc"
   },
   "engines": {
     "vscode": "^1.65.0"

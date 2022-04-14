@@ -79,34 +79,34 @@ Next, lets define a component that accepts a User fragment reference. In the fra
 
 ```js
 // AssignBestFriendButton.react.js
-import type {AssignBestFriendButton_user$fragmentType} from 'AssignBestFriendButton_user.graphql';
+import type {AssignBestFriendButton_user$key} from 'AssignBestFriendButton_user.graphql';
 
 const {useFragment} = require('react-relay');
 
 export default function AssignBestFriendButton({
-  userFragmentRef: AssignBestFriendButton_user$fragmentType,
+  someTypeRef: AssignBestFriendButton_user$key,
 }) {
-  const user = useFragment(graphql`
-    fragment AssignBestFriendButton_user on User {
-      name
-      ...AssignableBestFriendButton_assignable_user
+  const data = useFragment(graphql`
+    fragment AssignBestFriendButton_someType on SomeType {
+      user {
+        name
+        ...AssignableBestFriendButton_assignable_user
+      }
     }
-  `, userFragmentRef);
+  `, someTypeRef);
 
   // We will replace this stub with the real thing below.
   const onClick = () => {};
 
   return (<button onClick={onClick}>
-    Declare {user.name ?? 'someone with no name'} my best friend!
+    Declare {data.user?.name ?? 'someone with no name'} your new best friend!
   </button>);
 }
 ```
 
 That's great! Now, we have a component that renders a button. Let's fill out that button's click handler by using the `commitLocalUpdate` and `readUpdatableQuery_EXPERIMENTAL` APIs to assign `viewer.best_friend`.
 
-This follows the pattern set out in [the second example in the previous section](../imperatively-modifying-store-data-experimental/#example-2-updating-data-in-response-to-user-interactions).
-
-* In order to make it valid to assign `user` (i.e. the results of the call to `useFragment`) to `best_friend`, we must **also** spread `AssignBestFriendButton_assignable_user` under the `best_friend` field in the viewer.
+* In order to make it valid to assign `data.user` to `best_friend`, we must **also** spread `AssignBestFriendButton_assignable_user` under the `best_friend` field in the viewer in the updatable query or fragment.
 * In addition, we must pass `user` through the imported `validateUser` function.
 
 <FbInternalOnly>
@@ -119,7 +119,7 @@ In this case, the source for assignment is a User, which we statically know has 
 
 If the generated types were updated to reflect this fact, validation would not be necessary in this instance.
 
-We are planning on implementing this as part of a broader improvement to our typegen.
+We hope to implement this as part of a broader improvement to our typegen.
 
 :::
 
@@ -151,7 +151,8 @@ const onClick = () => {
           {}
         );
 
-      if (updatableData.viewer != null) {
+      const user = data.user;
+      if (user != null && updatableData.viewer != null) {
         const validUser = validateUser(user);
         if (validUser !== false) {
           updatableData.viewer.best_friend = validUser;
@@ -175,7 +176,7 @@ extend type Viewer {
 ```js
 // AssignBestFriendButton.react.js
 import {validate as ValidateUser} from 'AssignableBestFriendButton_assignable_user.graphql';
-import type {AssignBestFriendButton_user$fragmentType} from 'AssignBestFriendButton_user.graphql';
+import type {AssignBestFriendButton_user$key} from 'AssignBestFriendButton_user.graphql';
 import type {RecordSourceSelectorProxy} from 'react-relay';
 
 const {commitLocalUpdate, useFragment, useRelayEnvironment} = require('react-relay');
@@ -187,12 +188,14 @@ graphql`
 `;
 
 export default function AssignBestFriendButton({
-  userFragmentRef: AssignBestFriendButton_user$fragmentType,
+  userFragmentRef: AssignBestFriendButton_someType$key,
 }) {
-  const user = useFragment(graphql`
-    fragment AssignBestFriendButton_user on User {
-      name
-      ...AssignableBestFriendButton_assignable_user
+  const data = useFragment(graphql`
+    fragment AssignBestFriendButton_someType on SomeType {
+      user {
+        name
+        ...AssignableBestFriendButton_assignable_user
+      }
     }
   `, userFragmentRef);
 
@@ -215,7 +218,8 @@ export default function AssignBestFriendButton({
             {}
           );
 
-        if (updatableData.viewer != null) {
+        const user = data.user;
+        if (user != null && updatableData.viewer != null) {
           const validUser = validateUser(user);
           if (validUser !== false) {
             updatableData.viewer.best_friend = validUser;
@@ -236,9 +240,10 @@ Let's recap what is happening here.
 * We are writing a component in which clicking a button results in a user is being assigned to `viewer.best_friend`. After this button is clicked, all components which were previously reading the `viewer.best_friend` field will be re-rendered, if necessary.
 * The source of the assignment is a user where an **assignable fragment** is spread.
 * The target of the assignment is accessed using the `commitLocalUpdate` and `readUpdatableQuery_EXPERIMENTAL` APIs.
-* The query passed to `readUpdatableQuery_EXPERIMENTAL` should include the `@updatable` directive. This imposes additional restrictions.
+* The query passed to `readUpdatableQuery_EXPERIMENTAL` must include the `@updatable` directive.
 * Finally, in order to have `updatableData.viewer.best_friend = something` typecheck, we must:
-  * validate that the `viewer` is not null, and
+  * validate that the `viewer` is not null,
+  * validate that the `user` is not null, and
   * validate that the source (`user`) is valid for assignment by using the `validateUser` function.
 
 ## Pitfalls
@@ -277,8 +282,8 @@ extend type Viewer {
 ```js
 // AssignBestFriendButton.react.js
 import {validate as ValidateUser} from 'AssignableBestFriendButton_assignable_user.graphql';
-import type {AssignBestFriendButton_user$fragmentType} from 'AssignBestFriendButton_user.graphql';
-import type {AssignBestFriendButton_viewer$fragmentType} from 'AssignBestFriendButton_viewer';
+import type {AssignBestFriendButton_user$key} from 'AssignBestFriendButton_user.graphql';
+import type {AssignBestFriendButton_viewer$key} from 'AssignBestFriendButton_viewer';
 
 import type {RecordSourceSelectorProxy} from 'react-relay';
 
@@ -291,15 +296,17 @@ graphql`
 `;
 
 export default function AssignBestFriendButton({
-  userFragmentRef: AssignBestFriendButton_user$fragmentType,
-  viewerFragmentRef: AssignBestFriendButton_viewer$fragmentType,
+  someTypeRef: AssignBestFriendButton_someType$key,
+  viewerFragmentRef: AssignBestFriendButton_viewer$key,
 }) {
-  const user = useFragment(graphql`
-    fragment AssignBestFriendButton_user on User {
-      name
-      ...AssignableBestFriendButton_assignable_user
+  const data = useFragment(graphql`
+    fragment AssignBestFriendButton_someType on SomeType {
+      user {
+        name
+        ...AssignableBestFriendButton_assignable_user
+      }
     }
-  `, userFragmentRef);
+  `, someTypeRef);
 
   const viewer = useFragment(graphql`
     fragment AssignBestFriendButton_viewer on Viewer {
@@ -343,7 +350,8 @@ export default function AssignBestFriendButton({
             }
           });
 
-        if (updatableData.viewer != null) {
+        const user = data.user;
+        if (updatableData.viewer != null && user != null) {
           const validUser = validateUser(user);
           if (validUser !== false) {
             updatableData.viewer.best_friends = existingBestFriends.concat([validUser]);
@@ -354,7 +362,7 @@ export default function AssignBestFriendButton({
   };
 
   return (<button onClick={onClick}>
-    Declare {user.name ?? 'someone with no name'} my best friend!
+    Add {user.name ?? 'someone with no name'} to my list of best friends!
   </button>);
 }
 ```

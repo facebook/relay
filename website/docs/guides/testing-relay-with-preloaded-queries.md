@@ -140,7 +140,8 @@ This is more straightforward - it is done via a call to `environment.mock.queueP
 * If "before" `usePreloadedQuery` is hit, but "after" is not - the query suspends. This entire guide is written to resolve it - you might want to re-read it. But most likely it is either:
    * Used a different query - the query resolver would not be called, `currentOperation` will be `null`
    * Query variables don't match - the query resolver would not be called, `currentOperation` will be `null` (make sure to inspect the `variables`).
-      * Also, make sure arrays are in the same order, if any (or better yet, use sets, if at all possible).
+      * Make sure arrays are in the same order, if any (or better yet, use sets, if at all possible).
+      * Also, check if you aren't passing `undefined` variables to `loadQuery` on component. If you are, make them `null` instead. For example, instead `loadQuery({ first: 10, after: undefined })` use `loadQuery({ first: 10, after: null })`.
 * If data returned rom the query is not what you expect, make sure you're generating the right graphql type.
    * You can tell you're mocking the wrong one if the return values look something like `<mock-value-for-field-"formatted_amount">`
 

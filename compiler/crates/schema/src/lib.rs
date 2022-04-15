@@ -33,11 +33,8 @@ pub use graphql_schema::Schema;
 use graphql_syntax::SchemaDocument;
 pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
 pub use in_memory::InMemorySchema;
-use lazy_static::lazy_static;
 
-lazy_static! {
-    static ref BUILTINS: String = include_str!("./builtins.graphql").replace("\r\n", "\n");
-}
+const BUILTINS: &str = include_str!("./builtins.graphql");
 
 pub use flatbuffer::serialize_as_flatbuffer;
 
@@ -93,5 +90,5 @@ pub fn build_schema_from_flat_buffer(bytes: &[u8]) -> DiagnosticsResult<FlatBuff
 }
 
 pub fn builtins() -> DiagnosticsResult<SchemaDocument> {
-    graphql_syntax::parse_schema_document(BUILTINS.as_str(), SourceLocationKey::generated())
+    graphql_syntax::parse_schema_document(BUILTINS, SourceLocationKey::generated())
 }

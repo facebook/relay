@@ -403,8 +403,15 @@ Example file:
     /// Validated internal consistency of the config.
     fn validate_consistency(&self, errors: &mut Vec<ConfigValidationError>) {
         let mut project_names = FnvHashSet::default();
-        for project_set in self.sources.values() {
+        for (source_dir, project_set) in self.sources.iter() {
             for name in project_set.iter() {
+                if self.projects.get(name).is_none() {
+                    errors.push(ConfigValidationError::ProjectDefinitionMissing {
+                        source_dir: source_dir.clone(),
+                        project_name: *name,
+                    });
+                }
+
                 project_names.insert(*name);
             }
         }
@@ -510,7 +517,11 @@ impl fmt::Debug for Config {
         } = self;
 
         fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
-            if option.is_some() { "Some(Fn)" } else { "None" }
+            if option.is_some() {
+                "Some(Fn)"
+            } else {
+                "None"
+            }
         }
 
         f.debug_struct("Config")

@@ -4003,6 +4003,8 @@ describe('usePaginationFragment', () => {
           }
         `;
 
+        // $FlowFixMe[prop-missing]
+        // $FlowFixMe[incompatible-type-arg]
         gqlFragment = graphql`
           fragment usePaginationFragmentTestStoryFragment on NonNodeStory
           @argumentDefinitions(

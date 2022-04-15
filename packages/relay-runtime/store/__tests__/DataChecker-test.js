@@ -2395,6 +2395,7 @@ describe('check()', () => {
       beforeEach(() => {
         sampleData = {
           ...sampleData,
+          // $FlowFixMe[prop-missing]
           'client:4': {
             __id: 'client:4',
             __typename: 'Photo',
@@ -2507,6 +2508,7 @@ describe('check()', () => {
       });
 
       it('returns null invalidation epoch when stale record is unreachable', () => {
+        // $FlowFixMe[prop-missing]
         sampleData = {
           // Root record is missing, so none of the descendants are reachable
           '1': {
@@ -2521,9 +2523,11 @@ describe('check()', () => {
             __id: 'client:1',
             __typename: 'FriendsConnection',
             edges: {
+              // $FlowFixMe[incompatible-type]
               __refs: [],
             },
           },
+          // $FlowFixMe[prop-missing]
           'client:4': {
             __id: 'client:4',
             __typename: 'Photo',

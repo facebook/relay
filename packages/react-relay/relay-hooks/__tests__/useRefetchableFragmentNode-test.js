@@ -3428,6 +3428,8 @@ describe('useRefetchableFragmentNode', () => {
 
     describe('refetching @fetchable types', () => {
       beforeEach(() => {
+        // $FlowFixMe[prop-missing]
+        // $FlowFixMe[incompatible-type-arg]
         gqlFragment = graphql`
           fragment useRefetchableFragmentNodeTest1Fragment on NonNodeStory
           @refetchable(
@@ -3691,6 +3693,7 @@ describe('useRefetchableFragmentNode', () => {
             username
           }
         `;
+        // $FlowFixMe[incompatible-type-arg]
         gqlFragment = graphql`
           fragment useRefetchableFragmentNodeTest3Fragment on User
           @refetchable(

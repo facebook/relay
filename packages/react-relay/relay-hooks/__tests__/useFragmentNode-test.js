@@ -802,6 +802,7 @@ describe.each([
       );
 
       // Assert initial render
+      // $FlowFixMe[incompatible-type]
       SingularRenderer = YieldyUserComponent;
       internalAct(() => {
         renderSingularFragment({isConcurrent: true});
@@ -1003,6 +1004,7 @@ describe.each([
       );
 
       // Assert initial render
+      // $FlowFixMe[incompatible-type]
       SingularRenderer = YieldyUserComponent;
       internalAct(() => {
         renderSingularFragment({isConcurrent: true});
@@ -1333,6 +1335,7 @@ describe.each([
       };
 
       // Assert initial render
+      // $FlowFixMe[incompatible-type]
       SingularRenderer = YieldyUserComponent;
       internalAct(() => {
         renderSingularFragment({isConcurrent: true});

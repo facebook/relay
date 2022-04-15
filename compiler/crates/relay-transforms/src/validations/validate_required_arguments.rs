@@ -108,14 +108,14 @@ impl Validator for ValidateRequiredArguments<'_> {
 impl ValidateRequiredArguments<'_> {
     fn validate_required_arguments(
         &self,
-        argument_defintinitions: &ArgumentDefinitions,
+        argument_definitions: &ArgumentDefinitions,
         arguments: &[Argument],
         node_name: StringKey,
         node_location: Location,
         root_name_with_location: WithLocation<StringKey>,
     ) -> DiagnosticsResult<()> {
-        if !argument_defintinitions.is_empty() {
-            for def in argument_defintinitions.iter() {
+        if !argument_definitions.is_empty() {
+            for def in argument_definitions.iter() {
                 if def.type_.is_non_null()
                     && def.default_value.is_none()
                     && !arguments

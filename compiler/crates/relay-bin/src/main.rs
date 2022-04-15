@@ -7,7 +7,7 @@
 
 use clap::{ArgEnum, Parser};
 use common::ConsoleLogger;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
 use log::{error, info};
 use relay_compiler::{
     build_project::artifact_writer::ArtifactValidationWriter, compiler::Compiler, config::Config,
@@ -24,7 +24,6 @@ use std::{
     env::{self, current_dir},
     path::PathBuf,
     process::Command,
-    str::FromStr,
     sync::Arc,
 };
 
@@ -199,10 +198,11 @@ fn configure_logger(output: OutputKind, terminal_mode: TerminalMode) {
 }
 
 /// Update Config if the `project` flag is set
-fn set_project_flag(config: &mut Config, project: Vec<String>) {
+fn set_project_flag(config: &mut Config, project: Vec<String>) -> Result<(), Error> {
     if project.is_empty() {
-        return;
+        return Ok(());
     }
+
     for project_config in config.projects.values_mut() {
         project_config.enabled = false;
     }
@@ -212,19 +212,22 @@ fn set_project_flag(config: &mut Config, project: Vec<String>) {
         if let Some(project_config) = config.projects.get_mut(&selected_project) {
             project_config.enabled = true;
         } else {
-            error!(
-                "Project `{}` not found, available projects: {}.",
-                selected_project,
-                config
-                    .projects
-                    .keys()
-                    .map(|name| name.lookup())
-                    .collect::<Vec<_>>()
-                    .join(", ")
-            );
-            std::process::exit(1);
+            return Err(Error::ProjectFilterError {
+                details: format!(
+                    "Project `{}` not found, available projects: {}.",
+                    selected_project,
+                    config
+                        .projects
+                        .keys()
+                        .map(|name| name.lookup())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ),
+            });
         }
     }
+
+    return Ok(());
 }
 
 async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
@@ -241,7 +244,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
 
     let mut config = get_config(command.config)?;
 
-    set_project_flag(&mut config, command.projects);
+    set_project_flag(&mut config, command.projects)?;
 
     if command.validate {
         config.artifact_writer = Box::new(ArtifactValidationWriter::default());

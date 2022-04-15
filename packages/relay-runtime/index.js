@@ -84,10 +84,7 @@ export type {
   RangeOperation,
 } from './mutations/RelayDeclarativeMutationConfig';
 export type {OptimisticMutationConfig} from './mutations/applyOptimisticMutation';
-export type {
-  DEPRECATED_MutationConfig,
-  MutationConfig,
-} from './mutations/commitMutation';
+export type {MutationConfig} from './mutations/commitMutation';
 export type {
   ExecuteFunction,
   FetchFunction,

@@ -5,12 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {ExtensionContext, window} from 'vscode';
-import {registerCommands} from './commands/register';
+import { ExtensionContext, window } from 'vscode';
+import { registerCommands } from './commands/register';
 
-import {RelayExtensionContext} from './context';
-import {createAndStartClient} from './languageClient';
-import {createStatusBarItem, intializeStatusBarItem} from './statusBarItem';
+import { RelayExtensionContext } from './context';
+import { createAndStartClient } from './languageClient';
+import { createStatusBarItem, intializeStatusBarItem } from './statusBarItem';
 
 let relayExtensionContext: RelayExtensionContext | undefined;
 

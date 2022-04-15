@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {commands} from 'vscode';
-import {RelayExtensionContext} from '../context';
-import {handleRestartLanguageServerCommand} from './restartLanguageServer';
-import {handleShowOutputCommand} from './showOutput';
+import { commands } from 'vscode';
+import { RelayExtensionContext } from '../context';
+import { handleRestartLanguageServerCommand } from './restartLanguageServer';
+import { handleShowOutputCommand } from './showOutput';
 
 export function registerCommands(context: RelayExtensionContext) {
   context.extensionContext.subscriptions.push(

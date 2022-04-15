@@ -17,3 +17,4 @@ schema-documentation = { path = "../schema-documentation" }
 simplelog = "0.10.0"
 thiserror = "1.0.30"
 tokio = { version = "1.15", features = ["full", "test-util", "tracing"] }
+intern = { path = "../intern" }

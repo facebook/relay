@@ -20,7 +20,11 @@ const areEqual = require('areEqual');
 const warning = require('warning');
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
-let debugCache = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
+let debugCache:
+  | Map<mixed, mixed>
+  | Map<() => mixed, mixed>
+  | WeakMap<interface {} | $ReadOnlyArray<mixed>, mixed>
+  | WeakMap<() => mixed, mixed> = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
 
 function withProvidedVariables(
   userSuppliedVariables: Variables,

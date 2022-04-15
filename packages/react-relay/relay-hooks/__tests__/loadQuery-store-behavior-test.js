@@ -13,6 +13,12 @@
 
 'use strict';
 
+import type {
+  loadQueryStoreBehaviorTestQuery$data,
+  loadQueryStoreBehaviorTestQuery$variables,
+} from './__generated__/loadQueryStoreBehaviorTestQuery.graphql';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
+
 const {loadQuery} = require('../loadQuery');
 const {
   Network,
@@ -81,7 +87,10 @@ let fetch;
 let environment;
 let store;
 let operation;
-let resolvedModule;
+let resolvedModule: ?Query<
+  loadQueryStoreBehaviorTestQuery$variables,
+  loadQueryStoreBehaviorTestQuery$data,
+>;
 let writeDataToStore;
 
 beforeEach(() => {

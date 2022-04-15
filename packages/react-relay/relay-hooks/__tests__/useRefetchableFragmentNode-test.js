@@ -12,8 +12,32 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
+import type {
+  useRefetchableFragmentNodeTest1FragmentRefetchQuery$data,
+  useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables,
+} from './__generated__/useRefetchableFragmentNodeTest1FragmentRefetchQuery.graphql';
+import type {
+  useRefetchableFragmentNodeTest1Query$data,
+  useRefetchableFragmentNodeTest1Query$variables,
+} from './__generated__/useRefetchableFragmentNodeTest1Query.graphql';
+import type {
+  useRefetchableFragmentNodeTest2Query$data,
+  useRefetchableFragmentNodeTest2Query$variables,
+} from './__generated__/useRefetchableFragmentNodeTest2Query.graphql';
+import type {
+  useRefetchableFragmentNodeTest3FragmentRefetchQuery$data,
+  useRefetchableFragmentNodeTest3FragmentRefetchQuery$variables,
+} from './__generated__/useRefetchableFragmentNodeTest3FragmentRefetchQuery.graphql';
+import type {
+  useRefetchableFragmentNodeTestUserFragmentRefetchQuery$data,
+  useRefetchableFragmentNodeTestUserFragmentRefetchQuery$variables,
+} from './__generated__/useRefetchableFragmentNodeTestUserFragmentRefetchQuery.graphql';
+import type {
+  useRefetchableFragmentNodeTestUserQuery$data,
+  useRefetchableFragmentNodeTestUserQuery$variables,
+} from './__generated__/useRefetchableFragmentNodeTestUserQuery.graphql';
 import type {OperationDescriptor, Variables} from 'relay-runtime';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {useTrackLoadQueryInRender} = require('../loadQuery');
 const useRefetchableFragmentNodeOriginal = require('../useRefetchableFragmentNode');
@@ -37,9 +61,33 @@ const {useMemo, useState, useEffect} = React;
 
 describe('useRefetchableFragmentNode', () => {
   let environment;
-  let gqlQuery;
+  let gqlQuery:
+    | Query<
+        useRefetchableFragmentNodeTest1Query$variables,
+        useRefetchableFragmentNodeTest1Query$data,
+      >
+    | Query<
+        useRefetchableFragmentNodeTest2Query$variables,
+        useRefetchableFragmentNodeTest2Query$data,
+      >
+    | Query<
+        useRefetchableFragmentNodeTestUserQuery$variables,
+        useRefetchableFragmentNodeTestUserQuery$data,
+      >;
   let gqlQueryNestedFragment;
-  let gqlRefetchQuery;
+  let gqlRefetchQuery:
+    | Query<
+        useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables,
+        useRefetchableFragmentNodeTest1FragmentRefetchQuery$data,
+      >
+    | Query<
+        useRefetchableFragmentNodeTest3FragmentRefetchQuery$variables,
+        useRefetchableFragmentNodeTest3FragmentRefetchQuery$data,
+      >
+    | Query<
+        useRefetchableFragmentNodeTestUserFragmentRefetchQuery$variables,
+        useRefetchableFragmentNodeTestUserFragmentRefetchQuery$data,
+      >;
   let gqlQueryWithArgs;
   let gqlQueryWithLiteralArgs;
   let gqlRefetchQueryWithArgs;
@@ -51,7 +99,10 @@ describe('useRefetchableFragmentNode', () => {
   let queryWithArgs;
   let queryWithLiteralArgs;
   let refetchQueryWithArgs;
-  let variables;
+  let variables:
+    | {|id: string, scale: number|}
+    | {|id: string|}
+    | {|nodeID: string, scale: number|};
   let variablesNestedFragment;
   let forceUpdate;
   let setEnvironment;

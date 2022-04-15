@@ -436,7 +436,7 @@ class QueryResourceImpl {
 
     if (shouldFetch) {
       const queryResult = getQueryResult(operation, cacheIdentifier);
-      let networkSubscription;
+      let networkSubscription: ?Subscription;
       fetchObservable.subscribe({
         start: subscription => {
           networkSubscription = subscription;

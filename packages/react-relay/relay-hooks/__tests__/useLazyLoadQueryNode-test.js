@@ -12,8 +12,16 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
+import type {
+  useLazyLoadQueryNodeTest1Query$data,
+  useLazyLoadQueryNodeTest1Query$variables,
+} from './__generated__/useLazyLoadQueryNodeTest1Query.graphql';
+import type {
+  useLazyLoadQueryNodeTestUserQuery$data,
+  useLazyLoadQueryNodeTestUserQuery$variables,
+} from './__generated__/useLazyLoadQueryNodeTestUserQuery.graphql';
 import type {FetchPolicy} from 'relay-runtime';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragmentNode = require('../useFragmentNode');
@@ -77,7 +85,15 @@ type Props = {|
 
 describe('useLazyLoadQueryNode', () => {
   let environment;
-  let gqlQuery;
+  let gqlQuery:
+    | Query<
+        useLazyLoadQueryNodeTest1Query$variables,
+        useLazyLoadQueryNodeTest1Query$data,
+      >
+    | Query<
+        useLazyLoadQueryNodeTestUserQuery$variables,
+        useLazyLoadQueryNodeTestUserQuery$data,
+      >;
   let renderFn;
   let render;
   let release;

@@ -12,9 +12,21 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {Observer} from '../../network/RelayObservable';
+import type {
+  fetchQueryInternalTest1Query$data,
+  fetchQueryInternalTest1Query$variables,
+} from './__generated__/fetchQueryInternalTest1Query.graphql';
+import type {
+  fetchQueryInternalTest2Query$data,
+  fetchQueryInternalTest2Query$variables,
+} from './__generated__/fetchQueryInternalTest2Query.graphql';
+import type {
+  fetchQueryInternalTest3Query$data,
+  fetchQueryInternalTest3Query$variables,
+} from './__generated__/fetchQueryInternalTest3Query.graphql';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {
   fetchQuery,
@@ -25,7 +37,19 @@ const {createOperationDescriptor, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
 let response;
-let gqlQuery;
+let gqlQuery:
+  | Query<
+      fetchQueryInternalTest1Query$variables,
+      fetchQueryInternalTest1Query$data,
+    >
+  | Query<
+      fetchQueryInternalTest2Query$variables,
+      fetchQueryInternalTest2Query$data,
+    >
+  | Query<
+      fetchQueryInternalTest3Query$variables,
+      fetchQueryInternalTest3Query$data,
+    >;
 let query;
 let environment;
 

@@ -253,7 +253,7 @@ class RelayMockPayloadGenerator {
     prevData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
-    let mockData = prevData ?? {};
+    let mockData: ?($FlowFixMe | MockData) = prevData ?? {};
 
     selections.forEach(selection => {
       switch (selection.kind) {
@@ -585,7 +585,7 @@ class RelayMockPayloadGenerator {
       return data;
     }
 
-    let value;
+    let value: mixed;
 
     // For __typename fields we are going to return typeName
     if (field.name === TYPENAME_KEY) {

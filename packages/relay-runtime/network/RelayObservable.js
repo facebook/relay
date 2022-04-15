@@ -76,7 +76,9 @@ export interface Subscribable<+T> {
 // however Flow cannot yet distinguish it from T.
 export type ObservableFromValue<+T> = RelayObservable<T> | Promise<T> | T;
 
-let hostReportError = swallowError;
+let hostReportError:
+  | ((Error, isUncaughtThrownError: boolean) => mixed)
+  | ((_error: Error, _isUncaughtThrownError: boolean) => void) = swallowError;
 
 /**
  * Limited implementation of ESObservable, providing the limited set of behavior

@@ -12,7 +12,16 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$data,
+  RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$variables,
+} from './__generated__/RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query.graphql';
+import type {
+  RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$data,
+  RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$variables,
+} from './__generated__/RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery.graphql';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 import type {
   CacheConfig,
   Variables,
@@ -42,7 +51,15 @@ describe('execute() with network that returns optimistic response', () => {
   let fetch;
   let next;
   let operation;
-  let query;
+  let query:
+    | Query<
+        RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$variables,
+        RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$data,
+      >
+    | Query<
+        RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$variables,
+        RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$data,
+      >;
   let source;
   let store;
   let variables;

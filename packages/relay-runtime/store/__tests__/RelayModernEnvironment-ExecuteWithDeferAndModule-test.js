@@ -12,6 +12,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {IActorEnvironment} from '../../multi-actor-environment/MultiActorEnvironmentTypes';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {ReaderFragment} from '../../util/ReaderNode';
 import type {ConcreteRequest} from '../../util/RelayConcreteNode';
@@ -46,7 +47,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
     let callbacks;
     let complete;
     let dataSource;
-    let environment;
+    let environment: IActorEnvironment | RelayModernEnvironment;
     let error;
     let fetch;
     let fragment;

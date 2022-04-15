@@ -20,12 +20,12 @@ const {createMockEnvironment} = require('relay-test-utils-internal');
 
 let loadedEntryPoint;
 let instance;
-let entryPointLoaderCallback;
-let dispose;
+let entryPointLoaderCallback: (params: {...}) => void;
+let dispose: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
 let loadEntryPointLastReturnValue;
 let disposeEntryPoint;
 
-let renderCount;
+let renderCount: ?number;
 let environment;
 let defaultEnvironmentProvider;
 let render;

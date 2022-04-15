@@ -5,17 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {workspace} from 'vscode';
+import { workspace } from 'vscode';
 import {
   LanguageClientOptions,
   RevealOutputChannelOn,
 } from 'vscode-languageclient';
-import {ServerOptions, LanguageClient} from 'vscode-languageclient/node';
-import {getConfig} from './config';
-import {RelayExtensionContext} from './context';
-import {createErrorHandler} from './errorHandler';
-import {LSPStatusBarFeature} from './lspStatusBarFeature';
-import {findRelayBinary} from './utils';
+import { ServerOptions, LanguageClient } from 'vscode-languageclient/node';
+import { getConfig } from './config';
+import { RelayExtensionContext } from './context';
+import { createErrorHandler } from './errorHandler';
+import { LSPStatusBarFeature } from './lspStatusBarFeature';
+import { findRelayBinary } from './utils';
 
 export async function createAndStartClient(context: RelayExtensionContext) {
   const config = getConfig();
@@ -49,10 +49,10 @@ export async function createAndStartClient(context: RelayExtensionContext) {
       isTrusted: true,
     },
     documentSelector: [
-      {scheme: 'file', language: 'javascript'},
-      {scheme: 'file', language: 'typescript'},
-      {scheme: 'file', language: 'typescriptreact'},
-      {scheme: 'file', language: 'javascriptreact'},
+      { scheme: 'file', language: 'javascript' },
+      { scheme: 'file', language: 'typescript' },
+      { scheme: 'file', language: 'typescriptreact' },
+      { scheme: 'file', language: 'javascriptreact' },
     ],
 
     outputChannel: context.outputChannel,

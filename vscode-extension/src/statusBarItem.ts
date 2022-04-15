@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {StatusBarAlignment, StatusBarItem, window} from 'vscode';
+import { StatusBarAlignment, StatusBarItem, window } from 'vscode';
 
-import {RelayExtensionContext} from './context';
+import { RelayExtensionContext } from './context';
 
 const SHOW_OUTPUT_COMMAND = 'relay.showOutput';
 

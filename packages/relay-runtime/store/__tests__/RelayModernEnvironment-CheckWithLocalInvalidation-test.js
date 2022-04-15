@@ -350,7 +350,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       describe('when query has incremental payloads', () => {
         beforeEach(() => {
-          ParentQuery = graphql`
+          const ParentQueryTemplate = graphql`
             query RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery(
               $size: [Int]!
             ) {
@@ -369,7 +369,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           `;
-          operation = createOperationDescriptor(ParentQuery, {size: 32});
+          operation = createOperationDescriptor(ParentQueryTemplate, {
+            size: 32,
+          });
         });
 
         describe('when record is invalidated before query has been written to the store', () => {

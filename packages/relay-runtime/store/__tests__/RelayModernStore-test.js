@@ -598,7 +598,7 @@ function cloneEventWithSets(event) {
       });
 
       it('notifies subscribers and sets updated value for isMissingData', () => {
-        data = {
+        const dataObj = {
           '4': {
             __id: '4',
             id: '4',
@@ -611,7 +611,7 @@ function cloneEventWithSets(event) {
             uri: 'https://photo1.jpg',
           },
         };
-        source = getRecordSourceImplementation(data);
+        source = getRecordSourceImplementation(dataObj);
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(

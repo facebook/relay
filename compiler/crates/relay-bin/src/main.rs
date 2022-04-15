@@ -57,9 +57,9 @@ struct CompileCommand {
     #[clap(long, short)]
     watch: bool,
 
-    /// A list of projects to compile.
-    /// If excluded, all projects will be compiled
-    #[clap(long)]
+    /// Compile only this project. You can pass this argument multiple times.
+    /// to compile multiple projects. If excluded, all projects will be compiled.
+    #[clap(name = "project", long, short)]
     projects: Vec<String>,
 
     /// Compile using this config file. If not provided, searches for a config in

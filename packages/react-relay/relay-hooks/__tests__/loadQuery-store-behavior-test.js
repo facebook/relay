@@ -88,10 +88,10 @@ beforeEach(() => {
   operation = createOperationDescriptor(query, variables);
   observable = undefined;
   fetch = jest.fn((_query, _variables, _cacheConfig) => {
-    observable = Observable.create(_sink => {
+    const observableCreate = Observable.create(_sink => {
       sink = _sink;
     });
-    return observable;
+    return observableCreate;
   });
   environment = createMockEnvironment({network: Network.create(fetch)});
   store = environment.getStore();

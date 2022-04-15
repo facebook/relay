@@ -105,8 +105,8 @@ beforeEach(() => {
         .spyOn(executeObservable, 'subscribe')
         .mockImplementation(subscriptionCallbacks => {
           originalSubscribe(subscriptionCallbacks);
-          executeUnsubscribe = jest.fn();
-          return {unsubscribe: executeUnsubscribe};
+          const executeUnsubscribeFn = jest.fn();
+          return {unsubscribe: executeUnsubscribeFn};
         });
       return executeObservable;
     });

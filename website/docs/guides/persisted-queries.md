@@ -106,91 +106,32 @@ You can also add additional request body parameters via the `params` option.
 }
 ```
 
-### Example implemetation of `relayLocalPersisting.js`
+### Local Persisted Queries
 
-Here's an example of a simple persist server that will save query text to the `queryMap.json` file.
-
-
-```javascript
-const http = require('http');
-const crypto = require('crypto');
-const fs = require('fs');
-
-function md5(input) {
-  return crypto.createHash('md5').update(input).digest('hex');
-}
-
-class QueryMap {
-  constructor(fileMapName) {
-    this._fileMapName = fileMapName;
-    this._queryMap = new Map(JSON.parse(fs.readFileSync(this._fileMapName)));
-  }
-
-  _flush() {
-    const data = JSON.stringify(Array.from(this._queryMap.entries()));
-    fs.writeFileSync(this._fileMapName, data);
-  }
-
-  saveQuery(text) {
-    const id = md5(text);
-    this._queryMap.set(id, text);
-    this._flush();
-    return id;
-  }
-}
-
-const queryMap = new QueryMap('./queryMap.json');
-
-async function requestListener(req, res) {
-  if (req.method === 'POST') {
-    const buffers = [];
-    for await (const chunk of req) {
-      buffers.push(chunk);
-    }
-    const data = Buffer.concat(buffers).toString();
-    res.writeHead(200, {
-      'Content-Type': 'application/json'
-    });
-    try {
-      if (req.headers['content-type'] !== 'application/x-www-form-urlencoded') {
-        throw new Error(
-          'Only "application/x-www-form-urlencoded" requests are supported.'
-        );
-      }
-      const text = new URLSearchParams(data).get('text');
-      if (text == null) {
-        throw new Error('Expected to have `text` parameter in the POST.');
-      }
-      const id = queryMap.saveQuery(text);
-      res.end(JSON.stringify({"id": id}));
-    } catch (e) {
-      console.error(e);
-      res.writeHead(400);
-      res.end(`Unable to save query: ${e}.`);
-    }
-  } else {
-    res.writeHead(400);
-    res.end("Request is not supported.")
-  }
-}
-
-const PORT = 2999;
-const server = http.createServer(requestListener);
-server.listen(PORT);
-
-console.log(`Relay persisting server listening on ${PORT} port.`);
-```
-
-The example above writes the complete query map file to `./queryMap.json`.
-To use this, you'll need to update `package.json`:
-
+With the following config, you can generate a local JSON file which contains a map of `operation_id => full operation text`.
 
 ```
 "scripts": {
-  "persist-server": "node ./relayLocalPersisting.js",
   "relay": "relay-compiler"
+},
+"relay": {
+  "src": "./src",
+  "schema": "./schema.graphql",
+  "persistConfig": {
+    "file": "./persisted_queries.json",
+    "algorithm": "MD5" // this can be one of MD5, SHA256, SHA1
+  }
 }
 ```
+
+Ideally, you'll take this file and ship it to your server at deploy time so your server knows about all the queries it could possibly receive. If you don't want to do that, you'll have to implement the [Automatic Persisted Queries handshake](https://www.apollographql.com/docs/apollo-server/performance/apq/).
+
+#### Tradeoffs
+
+- ✅ If your server's persisted query datastore gets wiped, you can recover automatically through your client's requests.
+- ❌ When there's a cache miss, it'll cost you an extra round trip to the server.
+- ❌ You'll have to ship your `persisted_queries.json` file to the browser which will increase your bundle size.
+
 
 </OssOnly>
 

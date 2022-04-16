@@ -54,6 +54,7 @@ serde = { version = "1.0.136", features = ["derive", "rc"] }
 serde_bser = "0.3"
 serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }
 sha-1 = "0.8"
+sha256 = "1.0.3"
 signedsource = { path = "../signedsource" }
 thiserror = "1.0.30"
 tokio = { version = "1.15", features = ["full", "test-util", "tracing"] }

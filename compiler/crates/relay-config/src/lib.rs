@@ -17,7 +17,7 @@ mod typegen_config;
 pub use connection_interface::ConnectionInterface;
 pub use js_module_format::JsModuleFormat;
 pub use project_config::{
-    LocalPersistConfig, PersistConfig, ProjectConfig, ProjectName, RemotePersistConfig,
-    SchemaConfig, SchemaLocation,
+    LocalPersistAlgorithm, LocalPersistConfig, PersistConfig, ProjectConfig, ProjectName,
+    RemotePersistConfig, SchemaConfig, SchemaLocation,
 };
 pub use typegen_config::{FlowTypegenConfig, TypegenConfig, TypegenLanguage};

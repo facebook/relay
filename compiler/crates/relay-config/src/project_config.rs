@@ -53,9 +53,26 @@ where
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum LocalPersistAlgorithm {
+    MD5,
+    SHA1,
+    SHA256,
+}
+
+impl Default for LocalPersistAlgorithm {
+    // For backwards compatibility
+    fn default() -> Self {
+        Self::MD5
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LocalPersistConfig {
     pub file: PathBuf,
+
+    #[serde(default)]
+    pub algorithm: LocalPersistAlgorithm,
 }
 
 #[derive(Debug, Serialize, Clone)]

@@ -110,6 +110,7 @@ pub fn extract_feature_from_text(
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
     let source_location_key = SourceLocationKey::embedded(uri.as_ref(), index);
+
     match javascript_feature {
         JavaScriptSourceFeature::GraphQL(graphql_source) => {
             let document = parse_executable_with_error_recovery(
@@ -139,10 +140,13 @@ pub fn extract_feature_from_text(
             Ok((Feature::GraphQLDocument(document), position_span))
         }
         JavaScriptSourceFeature::Docblock(docblock_source) => {
+            let executable_definitions_in_file =
+                extract_executable_definitions_from_text_document(uri, source_feature_cache)?;
+
             let text_source = &docblock_source.text_source();
             let text = &text_source.text;
             let docblock_ir = parse_docblock(text, source_location_key)
-                .and_then(|ast| parse_docblock_ast(&ast, Default::default()))
+                .and_then(|ast| parse_docblock_ast(&ast, Some(&executable_definitions_in_file)))
                 .map_err(|_| {
                     LSPRuntimeError::UnexpectedError("Failed to parse docblock".to_string())
                 })?

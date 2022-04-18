@@ -15,6 +15,7 @@ use crate::errors::ErrorMessages;
 use common::{Diagnostic, Location};
 use common::{DiagnosticsResult, WithLocation};
 use docblock_syntax::{DocblockAST, DocblockField, DocblockSection};
+use errors::ErrorMessagesWithData;
 use graphql_syntax::ExecutableDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
@@ -129,10 +130,15 @@ impl RelayResolverParser {
             })
         });
 
-        if definitions_in_file.is_some() && fragment_definition.is_none() {
+        if fragment_definition.is_none() {
+            let suggestions = definitions_in_file
+                .map(|defs| defs.iter().filter_map(|def| def.name()).collect::<Vec<_>>())
+                .unwrap_or_default();
+
             self.errors.push(Diagnostic::error(
-                ErrorMessages::FragmentNotFound {
+                ErrorMessagesWithData::FragmentNotFound {
                     fragment_name: root_fragment.item,
+                    suggestions,
                 },
                 root_fragment.location,
             ));

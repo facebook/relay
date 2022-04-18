@@ -40,9 +40,6 @@ pub enum ErrorMessages {
         "Expected either `onType` or `onInterface` to be defined in a @RelayResolver docblock."
     )]
     ExpectedOnTypeOrOnInterface,
-
-    #[error("Fragment \"{fragment_name}\" not found.")]
-    FragmentNotFound { fragment_name: StringKey },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -69,12 +66,19 @@ pub enum ErrorMessagesWithData {
         "Found `@onInterface` docblock field referring to an object type. Did you mean `@onType`?"
     )]
     OnInterfaceForType,
+
+    #[error("Fragment \"{fragment_name}\" not found.{suggestions}", suggestions = did_you_mean(suggestions))]
+    FragmentNotFound {
+        fragment_name: StringKey,
+        suggestions: Vec<StringKey>,
+    },
 }
 
 impl WithDiagnosticData for ErrorMessagesWithData {
     fn get_data(&self) -> Vec<Box<dyn DiagnosticDisplay>> {
         match self {
             ErrorMessagesWithData::InvalidOnInterface { suggestions, .. }
+            | ErrorMessagesWithData::FragmentNotFound { suggestions, .. }
             | ErrorMessagesWithData::InvalidOnType { suggestions, .. } => suggestions
                 .iter()
                 .map(|suggestion| into_box(*suggestion))

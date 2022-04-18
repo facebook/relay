@@ -218,7 +218,7 @@ pub fn build_project(
     config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
-    graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
+    graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
     perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<BuildProjectOutput, BuildProjectFailure> {
     let log_event = perf_logger.create_event("build_project");
@@ -227,19 +227,10 @@ pub fn build_project(
     log_event.string("project", project_name.to_string());
     info!("[{}] compiling...", project_name);
 
-    let ProjectAstData {
-        project_asts,
-        base_fragment_names,
-    } = get_project_asts(graphql_asts, project_config)?;
-
     // Construct a schema instance including project specific extensions.
     let schema = log_event
         .time("build_schema_time", || {
-            build_schema(
-                compiler_state,
-                project_config,
-                graphql_asts.get(&project_name),
-            )
+            build_schema(compiler_state, project_config, graphql_asts_map)
         })
         .map_err(|errors| {
             BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
@@ -247,6 +238,11 @@ pub fn build_project(
                 project_name: project_config.name,
             })
         })?;
+
+    let ProjectAstData {
+        project_asts,
+        base_fragment_names,
+    } = get_project_asts(graphql_asts_map, project_config)?;
 
     if compiler_state.should_cancel_current_build() {
         debug!("Build is cancelled: updates in source code/or new file changes are pending.");

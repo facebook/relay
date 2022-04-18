@@ -112,12 +112,7 @@ jobs:
             os: ubuntu-latest
             build-name: relay
             artifact-name: relay-bin-linux-arm64
-            packages:
-              - musl-tools:arm64
-              - gcc:arm64
-              - cpp:arm64
-              - gcc-9:arm64
-              - binutils:arm64
+            packages: musl-tools:arm64 gcc:arm64 cpp:arm64 gcc-9:arm64 binutils:arm64
             features: vendored
           - target: x86_64-apple-darwin
             os: macos-latest

@@ -8,20 +8,16 @@
 mod errors;
 mod ir;
 
-use std::collections::HashMap;
-
 use crate::errors::ErrorMessages;
-
-use common::{Diagnostic, Location};
-use common::{DiagnosticsResult, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, SourceLocationKey, WithLocation};
 use docblock_syntax::{DocblockAST, DocblockField, DocblockSection};
 use errors::ErrorMessagesWithData;
-use graphql_syntax::ExecutableDefinition;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-pub use ir::{DocblockIr, On, RelayResolverIr};
+use graphql_syntax::{parse_type, ConstantValue, ExecutableDefinition, FragmentDefinition};
+use intern::string_key::{Intern, StringKey};
+pub use ir::{Argument, DocblockIr, On, RelayResolverIr};
 use ir::{IrField, PopulatedIrField};
 use lazy_static::lazy_static;
+use std::collections::HashMap;
 
 lazy_static! {
     static ref RELAY_RESOLVER_FIELD: StringKey = "RelayResolver".intern();
@@ -33,6 +29,9 @@ lazy_static! {
     static ref LIVE_FIELD: StringKey = "live".intern();
     static ref ROOT_FRAGMENT_FIELD: StringKey = "rootFragment".intern();
     static ref EMPTY_STRING: StringKey = "".intern();
+    static ref ARGUMENT_DEFINITIONS: StringKey = "argumentDefinitions".intern();
+    static ref ARGUMENT_TYPE: StringKey = "type".intern();
+    static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
 }
 
 pub fn parse_docblock_ast(
@@ -79,9 +78,9 @@ impl RelayResolverParser {
     fn parse(
         mut self,
         ast: &DocblockAST,
-        definitions: Option<&Vec<ExecutableDefinition>>,
+        definitions_in_file: Option<&Vec<ExecutableDefinition>>,
     ) -> DiagnosticsResult<RelayResolverIr> {
-        let result = self.parse_sections(ast, definitions);
+        let result = self.parse_sections(ast, definitions_in_file);
         if !self.errors.is_empty() {
             Err(self.errors)
         } else {
@@ -120,31 +119,9 @@ impl RelayResolverParser {
         let live = self.fields.get(&LIVE_FIELD).copied();
 
         let root_fragment = self.assert_field_value_exists(*ROOT_FRAGMENT_FIELD, ast.location)?;
-        let fragment_definition = definitions_in_file.and_then(|defs| {
-            defs.iter().find(|item| {
-                if let ExecutableDefinition::Fragment(fragment) = item {
-                    fragment.name.value == root_fragment.item
-                } else {
-                    false
-                }
-            })
-        });
-
-        if fragment_definition.is_none() {
-            let suggestions = definitions_in_file
-                .map(|defs| defs.iter().filter_map(|def| def.name()).collect::<Vec<_>>())
-                .unwrap_or_default();
-
-            self.errors.push(Diagnostic::error(
-                ErrorMessagesWithData::FragmentNotFound {
-                    fragment_name: root_fragment.item,
-                    suggestions,
-                },
-                root_fragment.location,
-            ));
-
-            return Err(());
-        }
+        let fragment_definition =
+            self.assert_fragment_definition(root_fragment, definitions_in_file)?;
+        let arguments = self.extract_arguments(&fragment_definition)?;
 
         Ok(RelayResolverIr {
             field_name: field_name?,
@@ -158,6 +135,7 @@ impl RelayResolverParser {
             location: ast.location,
             deprecated,
             live,
+            arguments,
         })
     }
 
@@ -258,5 +236,93 @@ impl RelayResolverParser {
             },
             None => Ok(None),
         }
+    }
+
+    fn assert_fragment_definition(
+        &mut self,
+        root_fragment: WithLocation<StringKey>,
+        definitions_in_file: Option<&Vec<ExecutableDefinition>>,
+    ) -> ParseResult<FragmentDefinition> {
+        let fragment_definition = definitions_in_file.and_then(|defs| {
+            defs.iter().find(|item| {
+                if let ExecutableDefinition::Fragment(fragment) = item {
+                    fragment.name.value == root_fragment.item
+                } else {
+                    false
+                }
+            })
+        });
+        if let Some(ExecutableDefinition::Fragment(fragment_definition)) = fragment_definition {
+            Ok(fragment_definition.clone())
+        } else {
+            let suggestions = definitions_in_file
+                .map(|defs| defs.iter().filter_map(|def| def.name()).collect::<Vec<_>>())
+                .unwrap_or_default();
+
+            self.errors.push(Diagnostic::error(
+                ErrorMessagesWithData::FragmentNotFound {
+                    fragment_name: root_fragment.item,
+                    suggestions,
+                },
+                root_fragment.location,
+            ));
+
+            Err(())
+        }
+    }
+
+    fn extract_arguments(
+        &mut self,
+        fragment_definition: &FragmentDefinition,
+    ) -> ParseResult<Option<Vec<Argument>>> {
+        Ok(fragment_definition
+            .directives
+            .named(*ARGUMENT_DEFINITIONS)
+            .and_then(|directive| directive.arguments.as_ref())
+            .map(|arguments| {
+                arguments
+                    .items
+                    .iter()
+                    .map(|arg: &graphql_syntax::Argument| {
+                        let (type_, default_value) = if let graphql_syntax::Value::Constant(
+                            graphql_syntax::ConstantValue::Object(object),
+                        ) = &arg.value
+                        {
+                            let type_value = &object
+                                .items
+                                .iter()
+                                .find(|item| item.name.value == *ARGUMENT_TYPE)
+                                .map(|type_| type_.value.clone());
+
+                            let default_value = &object
+                                .items
+                                .iter()
+                                .find(|item| item.name.value == *DEFAULT_VALUE)
+                                .map(|default_value| default_value.value.clone());
+
+                            if let Some(ConstantValue::String(string_value)) = type_value {
+                                (
+                                    parse_type(
+                                        string_value.value.lookup(),
+                                        SourceLocationKey::generated(),
+                                    ),
+                                    default_value.clone(),
+                                )
+                            } else {
+                                panic!("Expect ConstantValue::String as a type");
+                            }
+                        } else {
+                            panic!("Expect the constant value for the argDef: {:?}", &arg.value);
+                        };
+
+                        type_.map(|type_| Argument {
+                            name: arg.name.clone(),
+                            type_,
+                            default_value,
+                        })
+                    })
+                    .filter_map(|result| result.map_err(|err| self.errors.extend(err)).ok())
+                    .collect::<Vec<_>>()
+            }))
     }
 }

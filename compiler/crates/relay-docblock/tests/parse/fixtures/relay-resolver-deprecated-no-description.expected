@@ -56,5 +56,6 @@ RelayResolver(
         ),
         live: None,
         location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:0:130,
+        arguments: None,
     },
 )

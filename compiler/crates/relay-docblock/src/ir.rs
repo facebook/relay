@@ -9,8 +9,8 @@ use crate::errors::ErrorMessagesWithData;
 use common::{Diagnostic, DiagnosticsResult, Location, Span, WithLocation};
 use graphql_syntax::{
     BooleanNode, ConstantArgument, ConstantDirective, ConstantValue, FieldDefinition, Identifier,
-    InterfaceTypeExtension, List, NamedTypeAnnotation, ObjectTypeExtension, SchemaDocument,
-    StringNode, Token, TokenKind, TypeAnnotation, TypeSystemDefinition,
+    InputValueDefinition, InterfaceTypeExtension, List, NamedTypeAnnotation, ObjectTypeExtension,
+    SchemaDocument, StringNode, Token, TokenKind, TypeAnnotation, TypeSystemDefinition,
 };
 use intern::string_key::{Intern, StringKey};
 
@@ -65,6 +65,13 @@ pub enum On {
 }
 
 #[derive(Debug, PartialEq)]
+pub struct Argument {
+    pub name: Identifier,
+    pub type_: TypeAnnotation,
+    pub default_value: Option<ConstantValue>,
+}
+
+#[derive(Debug, PartialEq)]
 pub struct RelayResolverIr {
     pub field_name: WithLocation<StringKey>,
     pub on: On,
@@ -74,6 +81,7 @@ pub struct RelayResolverIr {
     pub deprecated: Option<IrField>,
     pub live: Option<IrField>,
     pub location: Location,
+    pub arguments: Option<Vec<Argument>>,
 }
 
 impl RelayResolverIr {
@@ -213,10 +221,25 @@ impl RelayResolverIr {
         List::generated(vec![FieldDefinition {
             name: as_identifier(self.field_name),
             type_: TypeAnnotation::Named(NamedTypeAnnotation { name: edge_to }),
-            arguments: None,
+            arguments: self.arguments(),
             directives: self.directives(),
             description: self.description.map(as_string_node),
         }])
+    }
+
+    fn arguments(&self) -> Option<List<InputValueDefinition>> {
+        self.arguments.as_ref().map(|args| {
+            List::generated(
+                args.iter()
+                    .map(|arg| InputValueDefinition {
+                        name: arg.name.clone(),
+                        type_: arg.type_.clone(),
+                        default_value: arg.default_value.clone(),
+                        directives: vec![],
+                    })
+                    .collect::<Vec<_>>(),
+            )
+        })
     }
 
     fn directives(&self) -> Vec<ConstantDirective> {

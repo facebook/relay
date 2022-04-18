@@ -149,7 +149,25 @@ jobs:
           RELEASE_COMMIT_SHA: ${{ github.sha }}
       - name: Configure Multiarch for Linux ARM64
         if: matrix.target.target == 'aarch64-unknown-linux-musl'
-        run: sudo dpkg --add-architecture arm64 && sudo apt-get update
+        # Following https://askubuntu.com/a/1307721 for Ubuntu 20.04
+        run: |
+          sudo dpkg --add-architecture arm64
+          
+          sudo sed -i "s/deb h/deb [arch=amd64] h/g" /etc/apt/sources.list
+          sudo echo "# arm64 repositories" >> /etc/apt/sources.list
+          sudo echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports focal main restricted" >> /etc/apt/sources.list
+          sudo echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports focal-updates main restricted" >> /etc/apt/sources.list
+          sudo echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports focal universe" >> /etc/apt/sources.list
+          sudo echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports focal-updates universe" >> /etc/apt/sources.list
+          sudo echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports focal multiverse" >> /etc/apt/sources.list
+          sudo echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports focal-updates multiverse" >> /etc/apt/sources.list
+          sudo echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports focal-backports main restricted universe multiverse" >> /etc/apt/sources.list
+          sudo echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports focal-security main restricted" >> /etc/apt/sources.list
+          sudo echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports focal-security universe" >> /etc/apt/sources.list
+          sudo echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports focal-security multiverse" >> /etc/apt/sources.list
+
+          sudo apt-get update
+
       - name: Install packages
         if: matrix.target.os == 'ubuntu-latest' && matrix.target.packages
         run: sudo apt install ${{ matrix.target.packages }} -y

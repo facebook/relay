@@ -118,6 +118,61 @@ pub enum ValidationMessage {
         operation_or_fragment_name: StringKey,
     },
 
-    #[error("Directives are not allowed on spreads of updatable fragments")]
+    #[error("Directives are not allowed on spreads of updatable fragments.")]
     UpdatableFragmentSpreadNoDirectives,
+
+    #[error("Updatable fragments cannot be spread at the top level.")]
+    UpdatableFragmentTopLevel,
+
+    #[error("Updatable fragments cannot be contained in @skip or @if.")]
+    UpdatableFragmentSpreadNoCondition,
+
+    #[error("Updatable fragments can only be nested within at most a single inline fragment.")]
+    UpdatableFragmentSpreadContainingInlineFragmentSingleNesting,
+
+    #[error(
+        "This updatable fragment has type `{updatable_fragment_type}`, and is found within a linked field with type `{linked_field_type}`. However, if a record has the type `{linked_field_inner_type}`, it does not necessarily have the type `{updatable_fragment_type}`."
+    )]
+    UpdatableFragmentSpreadSubtypeOrEqualLinkedField {
+        updatable_fragment_type: StringKey,
+        linked_field_type: String,
+        linked_field_inner_type: StringKey,
+    },
+
+    #[error(
+        "An updatable fragment was spread in an inline fragment in this linked field. This linked field must have an abstract type, meaning its type must be an Interface or a Union. However, `{linked_field_type}` is a `{linked_field_type_variant}`."
+    )]
+    UpdatableFragmentSpreadContainedInConcreteLinkedField {
+        linked_field_type: StringKey,
+        linked_field_type_variant: String,
+    },
+
+    #[error(
+        "Because an updatable fragment was spread in an inline fragment in this linked field (`{linked_field_name_or_alias}`), this linked field can only contain inline fragments, and any inline fragments cannot have @skip or @if."
+    )]
+    UpdatableFragmentSpreadLinkedFieldContainsNonInlineFragment {
+        linked_field_name_or_alias: StringKey,
+    },
+
+    #[error(
+        "Because an updatable fragment was spread in an inline fragment in this linked field, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, an inline fragment in this linked field does not refine to a concrete type."
+    )]
+    UpdatableFragmentSpreadLinkedFieldContainsInlineFragmentRefinement,
+
+    #[error(
+        "Because an updatable fragment was spread in an inline fragment in this linked field, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, multiple inline fragments in this linked field refine to the concrete type `{concrete_type}`."
+    )]
+    UpdatableFragmentSpreadLinkedFieldContainsInlineFragmentClashingRefinement {
+        concrete_type: StringKey,
+    },
+
+    #[error(
+        "Because an updatable fragment was spread in an inline fragment in this linked field, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, an inline fragment in this linked field does not contain an unaliased __typename selection with no directives."
+    )]
+    UpdatableFragmentSpreadLinkedFieldContainsInlineFragmentTypename,
+
+    #[error(
+        "Because an updatable fragment was spread in an inline fragment in this linked field, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, an inline fragment in this linked field contains directives."
+    )]
+    UpdatableFragmentSpreadLinkedFieldContainsInlineFragmentDirectives,
 }

@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on Query {
+  node {
+    ...Updatable_query
+  }
+}
+
+fragment Updatable_query on Query @updatable {
+  __id
+}
+==================================== ERROR ====================================
+✖︎ Invalid fragment spread 'Updatable_query', the type of this fragment ('Query') can never occur for parent type 'Node'
+
+  updatable_fragment_spread_concrete_in_non_matching_abstract.invalid.graphql:4:5
+    3 │   node {
+    4 │     ...Updatable_query
+      │     ^^^^^^^^^^^^^^^^^^
+    5 │   }

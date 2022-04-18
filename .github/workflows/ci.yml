@@ -112,7 +112,12 @@ jobs:
             os: ubuntu-latest
             build-name: relay
             artifact-name: relay-bin-linux-arm64
-            packages: "musl-tools:arm64"
+            packages:
+              - musl-tools:arm64
+              - gcc:arm64
+              - cpp:arm64
+              - gcc-9:arm64
+              - binutils:arm64
             features: vendored
           - target: x86_64-apple-darwin
             os: macos-latest
@@ -167,7 +172,6 @@ jobs:
           echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports focal-security multiverse" | sudo tee -a /etc/apt/sources.list
 
           sudo apt-get update
-
       - name: Install packages
         if: matrix.target.os == 'ubuntu-latest' && matrix.target.packages
         run: sudo apt install ${{ matrix.target.packages }} -y

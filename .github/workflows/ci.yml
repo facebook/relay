@@ -108,6 +108,12 @@ jobs:
             artifact-name: relay-bin-linux-x64
             packages: musl-tools
             features: vendored
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            build-name: relay
+            artifact-name: relay-bin-linux-arm64
+            packages: musl-tools
+            features: vendored
           - target: x86_64-apple-darwin
             os: macos-latest
             build-name: relay
@@ -173,6 +179,11 @@ jobs:
         with:
           name: relay-bin-linux-x64
           path: artifacts/linux-x64
+      - name: Download artifact relay-bin-linux-arm64
+        uses: actions/download-artifact@v2
+        with:
+          name: relay-bin-linux-arm64
+          path: artifacts/linux-arm64
       - name: Download artifact relay-bin-macos-x64
         uses: actions/download-artifact@v2
         with:
@@ -192,6 +203,7 @@ jobs:
         working-directory: artifacts
         run: |
           chmod +x linux-x64/relay
+          chmod +x linux-arm64/relay
           chmod +x macos-x64/relay
           chmod +x macos-arm64/relay
 

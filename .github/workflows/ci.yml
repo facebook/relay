@@ -112,7 +112,7 @@ jobs:
             os: ubuntu-latest
             build-name: relay
             artifact-name: relay-bin-linux-arm64
-            packages: musl-tools
+            packages: "musl-tools:arm64"
             features: vendored
           - target: x86_64-apple-darwin
             os: macos-latest
@@ -147,6 +147,9 @@ jobs:
         run: yarn gulp setCompilerMainVersion
         env:
           RELEASE_COMMIT_SHA: ${{ github.sha }}
+      - name: Configure Multiarch for Linux ARM64
+        if: matrix.target.target == 'aarch64-unknown-linux-musl'
+        run: sudo dpkg --add-architecture && sudo apt-get update
       - name: Install packages
         if: matrix.target.os == 'ubuntu-latest' && matrix.target.packages
         run: sudo apt install ${{ matrix.target.packages }} -y

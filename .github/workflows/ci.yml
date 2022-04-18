@@ -149,7 +149,7 @@ jobs:
           RELEASE_COMMIT_SHA: ${{ github.sha }}
       - name: Configure Multiarch for Linux ARM64
         if: matrix.target.target == 'aarch64-unknown-linux-musl'
-        run: sudo dpkg --add-architecture && sudo apt-get update
+        run: sudo dpkg --add-architecture arm64 && sudo apt-get update
       - name: Install packages
         if: matrix.target.os == 'ubuntu-latest' && matrix.target.packages
         run: sudo apt install ${{ matrix.target.packages }} -y

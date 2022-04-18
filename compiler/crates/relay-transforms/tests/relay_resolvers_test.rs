@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4ddd14affc6f8400bb65aa1e188e078e>>
+ * @generated SignedSource<<19ec8f0b0a0664781867f50df5ae50ce>>
  */
 
 mod relay_resolvers;
@@ -17,6 +17,13 @@ fn field_alias() {
     let input = include_str!("relay_resolvers/fixtures/field-alias.graphql");
     let expected = include_str!("relay_resolvers/fixtures/field-alias.expected");
     test_fixture(transform_fixture, "field-alias.graphql", "relay_resolvers/fixtures/field-alias.expected", input, expected);
+}
+
+#[test]
+fn fragment_spread_usage_invalid() {
+    let input = include_str!("relay_resolvers/fixtures/fragment-spread-usage.invalid.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/fragment-spread-usage.invalid.expected");
+    test_fixture(transform_fixture, "fragment-spread-usage.invalid.graphql", "relay_resolvers/fixtures/fragment-spread-usage.invalid.expected", input, expected);
 }
 
 #[test]

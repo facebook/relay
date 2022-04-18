@@ -12,8 +12,8 @@ extend type User {
 ==================================== ERROR ====================================
 ✖︎ The Relay Resolver backing this field is missing a 'fragment_name' argument in its `@relay_resolver` directive.
 
-  missing-fragment-name.invalid.graphql:3:3
-    2 │ fragment Foo_user on User {
-    3 │   pop_star_name
+  missing-fragment-name.invalid.graphql:4:3
+    3 │ extend type User {
+    4 │   pop_star_name: String @relay_resolver(import_path: "PopStarNameResolver")
       │   ^^^^^^^^^^^^^
-    4 │ }
+    5 │ }

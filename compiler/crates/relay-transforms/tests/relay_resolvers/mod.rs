@@ -12,22 +12,28 @@ use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
 use graphql_text_printer::{print_fragment, print_operation, PrinterOptions};
 use relay_test_schema::get_test_schema_with_located_extensions;
-use relay_transforms::{find_resolver_dependencies, relay_resolvers, DependencyMap};
+use relay_transforms::{
+    find_resolver_dependencies, relay_resolvers, validate_resolver_fragments, DependencyMap,
+};
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
     if let [base, extensions] = parts.as_slice() {
-        let grapqhl_location = SourceLocationKey::embedded(fixture.file_name, 0);
+        let graphql_location = SourceLocationKey::embedded(fixture.file_name, 0);
         let extension_location = SourceLocationKey::embedded(fixture.file_name, 1);
 
-        let ast = parse_executable(base, grapqhl_location).unwrap();
+        let ast = parse_executable(base, graphql_location).unwrap();
         let schema = get_test_schema_with_located_extensions(extensions, extension_location);
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(Arc::clone(&schema), ir);
 
         let mut implicit_dependencies = Default::default();
         find_resolver_dependencies(&mut implicit_dependencies, &program);
+
+        validate_resolver_fragments(&program)
+            .map_err(|diagnostics| diagnostics_to_sorted_string(base, extensions, &diagnostics))?;
+
         let next_program = relay_resolvers(&program, true)
             .map_err(|diagnostics| diagnostics_to_sorted_string(base, extensions, &diagnostics))?;
 

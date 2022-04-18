@@ -382,7 +382,7 @@ fn get_resolver_info(
         })
 }
 
-fn get_argument_value(
+pub(crate) fn get_argument_value(
     arguments: &[ArgumentValue],
     argument_name: StringKey,
     error_location: Location,

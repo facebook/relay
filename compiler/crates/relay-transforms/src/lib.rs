@@ -147,7 +147,8 @@ pub use relay_directive::RelayDirective;
 pub use relay_node_identifier::RelayLocationAgnosticBehavior;
 pub use relay_resolvers::{
     find_resolver_dependencies, relay_resolvers, RelayResolverSpreadMetadata, ResolverFieldFinder,
-    RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+    RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
+    RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
 };
 pub use remove_base_fragments::remove_base_fragments;
 pub use required_directive::{

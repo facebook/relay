@@ -222,12 +222,19 @@ fn apply_reader_transforms(
     program = log_event.time("client_edges", || {
         client_edges(&program, &project_config.schema_config)
     })?;
+    if project_config.feature_flags.enable_relay_resolver_transform {
+        log_event.time("validate_resolver_fragments", || {
+            validate_resolver_fragments(&program)
+        })?;
+    }
+
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(
             &program,
             project_config.feature_flags.enable_relay_resolver_transform,
         )
     })?;
+
     program = log_event.time("client_extensions", || client_extensions(&program));
     program = log_event.time("handle_field_transform", || {
         handle_field_transform(&program)

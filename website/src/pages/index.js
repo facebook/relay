@@ -233,7 +233,7 @@ const artistsQuery = graphql\`
 const artistsQueryReference = loadQuery(
   environment,
   artistsQuery,
-  {artistId: "1"}
+  {artistID: "1"}
 );
 
 export default function ArtistPage() {

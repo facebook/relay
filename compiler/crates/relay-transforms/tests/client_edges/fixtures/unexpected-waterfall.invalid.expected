@@ -9,7 +9,7 @@ fragment Foo_user on User {
 
 # %extensions%
 ==================================== ERROR ====================================
-✖︎ Unexpeceted `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.
+✖︎ Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.
 
   unexpected-waterfall.invalid.graphql:3:8
     2 │ fragment Foo_user on User {
@@ -18,7 +18,7 @@ fragment Foo_user on User {
     4 │   nearest_neighbor @waterfall {
 
 
-✖︎ Unexpeceted `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.
+✖︎ Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive.
 
   unexpected-waterfall.invalid.graphql:4:20
     3 │   name @waterfall

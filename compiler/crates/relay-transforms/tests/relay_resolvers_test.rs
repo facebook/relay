@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<19ec8f0b0a0664781867f50df5ae50ce>>
+ * @generated SignedSource<<76347501a41804fbf755fba9b03be410>>
  */
 
 mod relay_resolvers;
@@ -80,6 +80,20 @@ fn relay_resolver_required() {
     let input = include_str!("relay_resolvers/fixtures/relay-resolver-required.graphql");
     let expected = include_str!("relay_resolvers/fixtures/relay-resolver-required.expected");
     test_fixture(transform_fixture, "relay-resolver-required.graphql", "relay_resolvers/fixtures/relay-resolver-required.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_global_vars_directive_invalid() {
+    let input = include_str!("relay_resolvers/fixtures/relay-resolver-with-global-vars-directive.invalid.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/relay-resolver-with-global-vars-directive.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-global-vars-directive.invalid.graphql", "relay_resolvers/fixtures/relay-resolver-with-global-vars-directive.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_global_vars_invalid() {
+    let input = include_str!("relay_resolvers/fixtures/relay-resolver-with-global-vars.invalid.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/relay-resolver-with-global-vars.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-global-vars.invalid.graphql", "relay_resolvers/fixtures/relay-resolver-with-global-vars.invalid.expected", input, expected);
 }
 
 #[test]

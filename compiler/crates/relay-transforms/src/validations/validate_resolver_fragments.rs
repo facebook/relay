@@ -6,9 +6,13 @@
  */
 
 use crate::relay_resolvers::get_argument_value;
-use crate::{RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME};
+use crate::{
+    ValidationMessage, RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
+};
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{FragmentDefinition, FragmentSpread, OperationDefinition, Program, Validator};
+use graphql_ir::{
+    FragmentDefinition, FragmentSpread, OperationDefinition, Program, Validator, Variable,
+};
 use intern::string_key::StringKeySet;
 use schema::{SDLSchema, Schema};
 
@@ -18,12 +22,14 @@ pub fn validate_resolver_fragments(program: &Program) -> DiagnosticsResult<()> {
 
 struct ValidateResolverFragments {
     resolver_fragments: StringKeySet,
+    current_fragment: Option<FragmentDefinition>,
 }
 
 impl ValidateResolverFragments {
     fn new(schema: &SDLSchema) -> DiagnosticsResult<Self> {
         let mut errors = vec![];
         let validator = Self {
+            current_fragment: None,
             resolver_fragments: schema
                 .fields()
                 .filter_map(|field| {
@@ -60,8 +66,8 @@ impl ValidateResolverFragments {
 
 impl Validator for ValidateResolverFragments {
     const NAME: &'static str = "ValidateResolverFragments";
-    const VALIDATE_ARGUMENTS: bool = false;
-    const VALIDATE_DIRECTIVES: bool = false;
+    const VALIDATE_ARGUMENTS: bool = true;
+    const VALIDATE_DIRECTIVES: bool = true;
 
     fn validate_operation(&mut self, _operation: &OperationDefinition) -> DiagnosticsResult<()> {
         Ok(())
@@ -69,7 +75,11 @@ impl Validator for ValidateResolverFragments {
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
         if self.resolver_fragments.contains(&fragment.name.item) {
-            self.default_validate_fragment(fragment)
+            self.current_fragment = Some(fragment.clone());
+            let result = self.default_validate_fragment(fragment);
+            self.current_fragment = None;
+
+            result
         } else {
             Ok(())
         }
@@ -83,5 +93,24 @@ impl Validator for ValidateResolverFragments {
             ),
             spread.fragment.location,
         )])
+    }
+
+    fn validate_variable(&mut self, variable: &Variable) -> DiagnosticsResult<()> {
+        let current_fragment = self.current_fragment.as_ref().unwrap();
+        if !current_fragment
+            .variable_definitions
+            .iter()
+            .any(|var| var.name.item == variable.name.item)
+        {
+            return Err(vec![Diagnostic::error(
+                ValidationMessage::UnsupportedGlobalVariablesInResolverFragment {
+                    variable_name: variable.name.item,
+                    fragment_name: current_fragment.name.item,
+                },
+                variable.name.location,
+            )]);
+        }
+
+        Ok(())
     }
 }

@@ -63,6 +63,13 @@ pub enum ValidationMessage {
         "The Relay Resolver backing this field is defined with an invalid `fragment_name`. Could not find a fragment named '{fragment_name}'."
     )]
     InvalidRelayResolverFragmentName { fragment_name: StringKey },
+    #[error(
+        "The usage of global variable `${variable_name}` is not supported in the Relay resolvers fragments. Please, add this variable to the `@argumentDefinitions` of the `{fragment_name}` fragment."
+    )]
+    UnsupportedGlobalVariablesInResolverFragment {
+        variable_name: StringKey,
+        fragment_name: StringKey,
+    },
 
     #[error(
         "Field with actor change (@as_actor) directive expected to have only one item in its selection, and it should be a fragment spread."
@@ -152,7 +159,7 @@ pub enum ValidationMessageWithData {
     RelayResolversMissingWaterfall { field_name: StringKey },
 
     #[error(
-        "Unexpeceted `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive."
+        "Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive."
     )]
     RelayResolversUnexpectedWaterfall,
 }

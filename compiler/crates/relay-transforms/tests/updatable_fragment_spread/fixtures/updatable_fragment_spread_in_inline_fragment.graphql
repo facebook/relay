@@ -1,0 +1,12 @@
+fragment Foo on Query {
+  node(id: "4") {
+    ... on User {
+      __typename
+      ...Updatable_user
+    }
+  }
+}
+
+fragment Updatable_user on User @updatable {
+  __typename
+}

@@ -234,6 +234,7 @@ describe('ReactRelayTestMocker', () => {
 
     it('properly updates a component wrapped in a fragment container', () => {
       let Component = ({me}) => <div>{'My name is ' + me.name}</div>;
+      // $FlowFixMe[incompatible-type]
       Component = createFragmentContainer(
         Component,
         ReactRelayTestMockerTest_meFragmentDefinition,

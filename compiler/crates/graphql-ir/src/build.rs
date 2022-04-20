@@ -1179,7 +1179,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         }?;
 
         // Check for missing required (non-nullable) arguments we do this after
-        // checking for invalid/duplicate because invalid/duplicte might be fixable.
+        // checking for invalid/duplicate because invalid/duplicate might be fixable.
         let missing_arg_names = argument_definitions
             .iter()
             .filter(|arg_def| arg_def.type_.is_non_null())
@@ -1333,7 +1333,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 &variable_definition.type_
             };
             // Inner types compatibility check removed for loose level
-            // to keep the same behvior as the JS compiler T61653642
+            // to keep the same behavior as the JS compiler T61653642
             if validation == ValidationLevel::Strict
                 && !self.schema.is_type_subtype_of(effective_type, used_as_type)
             {

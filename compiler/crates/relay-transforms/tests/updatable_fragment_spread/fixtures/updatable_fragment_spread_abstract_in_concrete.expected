@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+fragment Foo on Query {
+  me {
+    ...Updatable_node
+  }
+}
+
+fragment Updatable_node on Node @updatable {
+  __id
+}
+==================================== OUTPUT ===================================
+OK

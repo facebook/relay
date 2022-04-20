@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {window} from 'vscode';
-import {CloseAction, ErrorAction, ErrorHandler} from 'vscode-languageclient';
-import {RelayExtensionContext} from './context';
+import { window } from 'vscode';
+import { CloseAction, ErrorAction, ErrorHandler } from 'vscode-languageclient';
+import { RelayExtensionContext } from './context';
 
 export function createErrorHandler(
   context: RelayExtensionContext,

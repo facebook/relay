@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on Query {
+  node(id: "4") {
+    ... on User {
+      __typename
+      ...Updatable_user
+    }
+    ... @skip(if: true) {
+      __typename
+    }
+  }
+}
+
+fragment Foo_node on Node {
+  __id
+}
+==================================== ERROR ====================================
+✖︎ Undefined fragment 'Updatable_user'.
+
+  updatable_fragment_spread_in_inline_fragment_other_selections_wrong_type.invalid_1.graphql:6:10
+    5 │       __typename
+    6 │       ...Updatable_user
+      │          ^^^^^^^^^^^^^^
+    7 │     }

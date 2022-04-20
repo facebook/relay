@@ -22,7 +22,7 @@ graphql`
  * @rootFragment missingFragment
  */
 ==================================== ERROR ====================================
-✖︎ Fragment "missingFragment" not found.
+✖︎ Fragment "missingFragment" not found. Did you mean `myRootFragment`?
 
   /path/to/test/fixture/relay-resolver-with-fragment.invalid.js:6:18
     5 │  * @fieldName my_field

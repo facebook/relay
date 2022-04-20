@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<33d8ff21010be3d648977f76f75a2a02>>
+ * @generated SignedSource<<c2d728003a17cb8ac535c2a97fe5d539>>
  */
 
 mod parse;
@@ -73,6 +73,13 @@ fn relay_resolver_on_type_no_value_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-on-type-no-value.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-on-type-no-value.invalid.expected");
     test_fixture(transform_fixture, "relay-resolver-on-type-no-value.invalid.js", "parse/fixtures/relay-resolver-on-type-no-value.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_args() {
+    let input = include_str!("parse/fixtures/relay-resolver-with-args.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-with-args.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-args.js", "parse/fixtures/relay-resolver-with-args.expected", input, expected);
 }
 
 #[test]

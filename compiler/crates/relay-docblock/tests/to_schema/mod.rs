@@ -9,6 +9,7 @@ use common::{DiagnosticsResult, SourceLocationKey};
 use docblock_syntax::{parse_docblock, DocblockSource};
 use extract_graphql::{self, JavaScriptSourceFeature};
 use fixture_tests::Fixture;
+use graphql_syntax::{parse_executable, ExecutableDefinition};
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use intern::string_key::Intern;
 use relay_docblock::parse_docblock_ast;
@@ -16,6 +17,25 @@ use relay_test_schema::TEST_SCHEMA;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let js_features = extract_graphql::extract(fixture.content);
+
+    let executable_documents = js_features
+        .iter()
+        .enumerate()
+        .filter_map(|(_, source)| match source {
+            JavaScriptSourceFeature::GraphQL(source) => Some(
+                parse_executable(&source.text_source().text, SourceLocationKey::Generated)
+                    .map_err(|diagnostics| {
+                        diagnostics_to_sorted_string(&source.text_source().text, &diagnostics)
+                    })
+                    .map(|document| document.definitions),
+            ),
+            JavaScriptSourceFeature::Docblock(_) => None,
+        })
+        .collect::<Result<Vec<_>, String>>()?
+        .iter()
+        .flatten()
+        .cloned()
+        .collect::<Vec<ExecutableDefinition>>();
 
     let stringify = |i: usize, source: &DocblockSource| -> DiagnosticsResult<String> {
         let ast = parse_docblock(
@@ -25,7 +45,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 index: i as u16,
             },
         )?;
-        let ir = parse_docblock_ast(&ast, Default::default())?.unwrap();
+        let ir = parse_docblock_ast(&ast, Some(&executable_documents))?.unwrap();
 
         ir.to_sdl_string(&TEST_SCHEMA)
     };

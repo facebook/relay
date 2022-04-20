@@ -13,6 +13,9 @@
 
 'use strict';
 
+import type {Sink} from '../../../relay-runtime/network/RelayObservable';
+import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
+
 const {loadQuery} = require('../loadQuery');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 const usePreloadedQuery_REACT_CACHE = require('../react-cache/usePreloadedQuery_REACT_CACHE');
@@ -123,7 +126,7 @@ describe.each([
     });
 
     let data;
-    let dataSource;
+    let dataSource: ?Sink<GraphQLResponse>;
     let environment;
     let fetch;
     const Component = function (props) {

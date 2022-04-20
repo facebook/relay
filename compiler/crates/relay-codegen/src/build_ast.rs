@@ -714,11 +714,8 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         relay_resolver_spread_metadata: &RelayResolverSpreadMetadata,
     ) -> Primitive {
         let module = relay_resolver_spread_metadata.import_path;
-
         let field_name = relay_resolver_spread_metadata.field_name;
-
         let field_alias = relay_resolver_spread_metadata.field_alias;
-
         let path = relay_resolver_spread_metadata.field_path;
 
         let kind = if relay_resolver_spread_metadata.live {
@@ -727,7 +724,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             CODEGEN_CONSTANTS.relay_resolver
         };
 
-        // TODO(T86853359): Support non-haste environments when generating Relay Resolver RederAST
+        // TODO(T86853359): Support non-haste environments when generating Relay Resolver Reader AST
         let haste_import_name = Path::new(&module.to_string())
             .file_stem()
             .unwrap()

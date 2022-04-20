@@ -31,11 +31,11 @@ const query = graphql`
 const generatedQuery = getRequest(query);
 const defaultOptions = {};
 
-let renderCount;
+let renderCount: ?number;
 let loadedQuery;
 let instance;
 let queryLoaderCallback;
-let dispose;
+let dispose: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
 let disposeQuery;
 
 let render;

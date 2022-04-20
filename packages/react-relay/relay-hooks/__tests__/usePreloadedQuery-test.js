@@ -12,8 +12,9 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {Sink} from '../../../relay-runtime/network/RelayObservable';
+import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
-jest.mock('warning');
 const {loadQuery} = require('../loadQuery');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
 const usePreloadedQuery_REACT_CACHE = require('../react-cache/usePreloadedQuery_REACT_CACHE');
@@ -33,6 +34,8 @@ const {
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 const warning = require('warning');
+
+jest.mock('warning');
 
 const query = graphql`
   query usePreloadedQueryTestQuery($id: ID!) {
@@ -80,7 +83,7 @@ const responseRefetch = {
   },
 };
 
-let dataSource;
+let dataSource: ?Sink<GraphQLResponse>;
 let environment;
 let fetch;
 

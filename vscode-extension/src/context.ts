@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import {ExtensionContext, OutputChannel, StatusBarItem} from 'vscode';
-import {LanguageClient} from 'vscode-languageclient/node';
+import { ExtensionContext, OutputChannel, StatusBarItem } from 'vscode';
+import { LanguageClient } from 'vscode-languageclient/node';
 
 // Mutable object to pass around to command handlers so they
 // can reference the current state of the extension

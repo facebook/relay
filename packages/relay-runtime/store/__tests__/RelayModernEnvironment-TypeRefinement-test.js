@@ -12,7 +12,36 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  RelayModernEnvironmentTypeRefinementTest1Query$data,
+  RelayModernEnvironmentTypeRefinementTest1Query$variables,
+} from './__generated__/RelayModernEnvironmentTypeRefinementTest1Query.graphql';
+import type {
+  RelayModernEnvironmentTypeRefinementTest2Query$data,
+  RelayModernEnvironmentTypeRefinementTest2Query$variables,
+} from './__generated__/RelayModernEnvironmentTypeRefinementTest2Query.graphql';
+import type {
+  RelayModernEnvironmentTypeRefinementTest3Query$data,
+  RelayModernEnvironmentTypeRefinementTest3Query$variables,
+} from './__generated__/RelayModernEnvironmentTypeRefinementTest3Query.graphql';
+import type {
+  RelayModernEnvironmentTypeRefinementTest4Query$data,
+  RelayModernEnvironmentTypeRefinementTest4Query$variables,
+} from './__generated__/RelayModernEnvironmentTypeRefinementTest4Query.graphql';
+import type {
+  RelayModernEnvironmentTypeRefinementTest5Query$data,
+  RelayModernEnvironmentTypeRefinementTest5Query$variables,
+} from './__generated__/RelayModernEnvironmentTypeRefinementTest5Query.graphql';
+import type {
+  RelayModernEnvironmentTypeRefinementTest6Query$data,
+  RelayModernEnvironmentTypeRefinementTest6Query$variables,
+} from './__generated__/RelayModernEnvironmentTypeRefinementTest6Query.graphql';
+import type {
+  RelayModernEnvironmentTypeRefinementTestParentQuery$data,
+  RelayModernEnvironmentTypeRefinementTestParentQuery$variables,
+} from './__generated__/RelayModernEnvironmentTypeRefinementTestParentQuery.graphql';
 import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const {graphql} = require('../../query/GraphQLTag');
@@ -33,7 +62,35 @@ const {
 disallowWarnings();
 
 describe('missing data detection', () => {
-  let ParentQuery;
+  let ParentQuery:
+    | Query<
+        RelayModernEnvironmentTypeRefinementTest1Query$variables,
+        RelayModernEnvironmentTypeRefinementTest1Query$data,
+      >
+    | Query<
+        RelayModernEnvironmentTypeRefinementTest2Query$variables,
+        RelayModernEnvironmentTypeRefinementTest2Query$data,
+      >
+    | Query<
+        RelayModernEnvironmentTypeRefinementTest3Query$variables,
+        RelayModernEnvironmentTypeRefinementTest3Query$data,
+      >
+    | Query<
+        RelayModernEnvironmentTypeRefinementTest4Query$variables,
+        RelayModernEnvironmentTypeRefinementTest4Query$data,
+      >
+    | Query<
+        RelayModernEnvironmentTypeRefinementTest5Query$variables,
+        RelayModernEnvironmentTypeRefinementTest5Query$data,
+      >
+    | Query<
+        RelayModernEnvironmentTypeRefinementTest6Query$variables,
+        RelayModernEnvironmentTypeRefinementTest6Query$data,
+      >
+    | Query<
+        RelayModernEnvironmentTypeRefinementTestParentQuery$variables,
+        RelayModernEnvironmentTypeRefinementTestParentQuery$data,
+      >;
   let AbstractQuery;
   let ConcreteQuery;
   let ConcreteUserFragment;

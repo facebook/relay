@@ -22,7 +22,8 @@ where
 {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let schema = get_test_schema();
-    let ast = parse_executable(fixture.content, source_location).unwrap();
+    let ast = parse_executable(fixture.content, source_location)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let ir_result = build_ir_with_extra_features(
         &schema,
         &ast.definitions,

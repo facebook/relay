@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bf70d60ebd25b4a0d02fb709e001a81c>>
+ * @generated SignedSource<<ce6dad29c7ae96fbf45a13fbd691ce03>>
  */
 
 mod compile_relay_artifacts;
@@ -402,6 +402,13 @@ fn flight_props_transform() {
     let input = include_str!("compile_relay_artifacts/fixtures/flight-props-transform.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/flight-props-transform.expected");
     test_fixture(transform_fixture, "flight-props-transform.graphql", "compile_relay_artifacts/fixtures/flight-props-transform.expected", input, expected);
+}
+
+#[test]
+fn fragment_alias_not_enabled_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/fragment-alias-not-enabled.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-alias-not-enabled.invalid.expected");
+    test_fixture(transform_fixture, "fragment-alias-not-enabled.invalid.graphql", "compile_relay_artifacts/fixtures/fragment-alias-not-enabled.invalid.expected", input, expected);
 }
 
 #[test]

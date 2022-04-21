@@ -1,0 +1,10 @@
+# expected-to-throw
+query fragmentAliasNotEnabled_Query {
+  ...fragmentAliasNotEnabled_fragment @alias
+}
+
+fragment fragmentAliasNotEnabled_fragment on Query {
+  me {
+    id
+  }
+}

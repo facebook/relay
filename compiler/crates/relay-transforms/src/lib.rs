@@ -24,6 +24,7 @@ mod defer_stream;
 mod directive_finder;
 mod errors;
 mod flatten;
+mod fragment_alias_directive;
 mod generate_data_driven_dependency_metadata;
 mod generate_id_field;
 mod generate_live_query_metadata;
@@ -106,6 +107,7 @@ pub use defer_stream::{
 };
 pub use directive_finder::DirectiveFinder;
 pub use flatten::flatten;
+pub use fragment_alias_directive::fragment_alias_directive;
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
 };

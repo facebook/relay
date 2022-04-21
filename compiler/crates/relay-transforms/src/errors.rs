@@ -149,6 +149,20 @@ pub enum ValidationMessage {
         "Client Edges that reference client-defined union types are not currently supported in Relay."
     )]
     ClientEdgeToClientUnion,
+
+    #[error("Invalid directive combination. @alias may not be combined with other directives.")]
+    FragmentAliasIncompatibleDirective,
+
+    #[error("Unexpected directive @alias. @alias is not currently enabled in this location.")]
+    FragmentAliasDirectiveDisabled,
+
+    #[error("Expected the `as` argument of the @alias directive to be a static string.")]
+    FragmentAliasDirectiveDynamicNameArg,
+
+    #[error(
+        "Missing required argument `as`. The `as` argument of the @alias directive is required on inline fragments without a type condition."
+    )]
+    FragmentAliasDirectiveMissingAs,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

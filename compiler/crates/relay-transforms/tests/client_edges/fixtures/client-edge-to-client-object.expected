@@ -36,6 +36,7 @@ fragment Foo_user on User {
     #     field_name: "best_friend",
     #     field_alias: None,
     #     field_path: "best_friend",
+    #     field_arguments: [],
     #     live: false,
     # }
     

@@ -13,8 +13,9 @@ use crate::{
 use super::ValidationMessage;
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
-    associated_data_impl, Directive, Field as IrField, FragmentDefinition, FragmentSpread,
-    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer, Visitor,
+    associated_data_impl, Argument, Directive, Field as IrField, FragmentDefinition,
+    FragmentSpread, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
+    Visitor,
 };
 use graphql_ir::{InlineFragment, LinkedField};
 use graphql_syntax::{BooleanNode, ConstantValue};
@@ -53,6 +54,7 @@ pub struct RelayResolverSpreadMetadata {
     pub field_name: StringKey,
     pub field_alias: Option<StringKey>,
     pub field_path: StringKey,
+    pub field_arguments: Vec<Argument>,
     pub live: bool,
 }
 associated_data_impl!(RelayResolverSpreadMetadata);
@@ -86,12 +88,29 @@ impl<'program> RelayResolverSpreadTransform<'program> {
 
     fn transformed_field(&self, field: &impl IrField) -> Option<Selection> {
         RelayResolverFieldMetadata::find(field.directives()).map(|field_metadata| {
+            let fragment_definition = self
+                .program
+                .fragment(field_metadata.fragment_name)
+                .expect("Previous validation passes ensured this exists.");
+
+            let (fragment_arguments, field_arguments) = field
+                .arguments()
+                .iter()
+                .map(|arg| arg.clone())
+                .partition(|arg| {
+                    fragment_definition
+                        .variable_definitions
+                        .named(arg.name.item)
+                        .is_some()
+                });
+
             let spread_metadata = RelayResolverSpreadMetadata {
                 field_parent_type: field_metadata.field_parent_type,
                 import_path: field_metadata.import_path,
                 field_name: self.program.schema.field(field.definition().item).name.item,
                 field_alias: field.alias().map(|alias| alias.item),
                 field_path: field_metadata.field_path,
+                field_arguments,
                 live: field_metadata.live,
             };
 
@@ -106,7 +125,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
             Selection::FragmentSpread(Arc::new(FragmentSpread {
                 fragment: WithLocation::generated(field_metadata.fragment_name),
                 directives: new_directives,
-                arguments: field.arguments().to_vec(),
+                arguments: fragment_arguments,
             }))
         })
     }

@@ -107,7 +107,7 @@ pub use defer_stream::{
 };
 pub use directive_finder::DirectiveFinder;
 pub use flatten::flatten;
-pub use fragment_alias_directive::fragment_alias_directive;
+pub use fragment_alias_directive::{fragment_alias_directive, FragmentAliasMetadata};
 pub use generate_data_driven_dependency_metadata::{
     generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
 };

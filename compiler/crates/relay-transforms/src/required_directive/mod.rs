@@ -19,7 +19,7 @@ use lazy_static::lazy_static;
 use requireable_field::{RequireableField, RequiredMetadata};
 use std::{borrow::Cow, mem, sync::Arc};
 
-use crate::DirectiveFinder;
+use crate::{DirectiveFinder, FragmentAliasMetadata};
 
 use self::validation_message::ValidationMessage;
 
@@ -432,12 +432,22 @@ impl<'s> Transformer for RequiredDirective<'s> {
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         let previous = self.within_abstract_inline_fragment;
 
-        if let Some(type_) = fragment.type_condition {
+        let maybe_alias =
+            FragmentAliasMetadata::find(&fragment.directives).map(|metadata| metadata.alias.item);
+
+        if let Some(alias) = maybe_alias {
+            self.path.push(alias.lookup())
+        } else if let Some(type_) = fragment.type_condition {
             if type_.is_abstract_type() {
                 self.within_abstract_inline_fragment = true;
             }
         }
+
         let next_fragment = self.default_transform_inline_fragment(fragment);
+
+        if maybe_alias.is_some() {
+            self.path.pop();
+        }
 
         self.within_abstract_inline_fragment = previous;
         next_fragment

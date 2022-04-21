@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<16f525898aa9ce54742452d6a11b6f23>>
+ * @generated SignedSource<<846437b5fcde35da46d23dd1a8b03509>>
  */
 
 mod to_schema;
@@ -80,4 +80,18 @@ fn relay_resolver_with_args() {
     let input = include_str!("to_schema/fixtures/relay-resolver-with-args.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-with-args.expected");
     test_fixture(transform_fixture, "relay-resolver-with-args.js", "to_schema/fixtures/relay-resolver-with-args.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_field_and_fragment_args() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-with-field-and-fragment-args.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-with-field-and-fragment-args.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-field-and-fragment-args.js", "to_schema/fixtures/relay-resolver-with-field-and-fragment-args.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_field_args() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-with-field-args.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-with-field-args.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-field-args.js", "to_schema/fixtures/relay-resolver-with-field-args.expected", input, expected);
 }

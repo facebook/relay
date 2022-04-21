@@ -12,7 +12,10 @@ use crate::errors::ErrorMessages;
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use docblock_syntax::{DocblockAST, DocblockField, DocblockSection};
 use errors::ErrorMessagesWithData;
-use graphql_syntax::{parse_type, ConstantValue, ExecutableDefinition, FragmentDefinition};
+use graphql_syntax::{
+    parse_field_definition_stub, parse_type, ConstantValue, ExecutableDefinition,
+    FieldDefinitionStub, FragmentDefinition,
+};
 use intern::string_key::{Intern, StringKey};
 pub use ir::{Argument, DocblockIr, On, RelayResolverIr};
 use ir::{IrField, PopulatedIrField};
@@ -112,7 +115,6 @@ impl RelayResolverParser {
             }
         }
 
-        let field_name = self.assert_field_value_exists(*FIELD_NAME_FIELD, ast.location);
         let on = self.assert_on(ast.location);
 
         let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
@@ -121,10 +123,35 @@ impl RelayResolverParser {
         let root_fragment = self.assert_field_value_exists(*ROOT_FRAGMENT_FIELD, ast.location)?;
         let fragment_definition =
             self.assert_fragment_definition(root_fragment, definitions_in_file)?;
-        let arguments = self.extract_arguments(&fragment_definition)?;
+        let fragment_arguments = self.extract_fragment_arguments(&fragment_definition)?;
+
+        let field_string = self.assert_field_value_exists(*FIELD_NAME_FIELD, ast.location)?;
+        let field = self.parse_field_definition(field_string)?;
+
+        // Validate that the field arguments don't collide with the fragment arguments.
+        if let (Some(field_arguments), Some(fragment_arguments)) =
+            (&field.arguments, &fragment_arguments)
+        {
+            for field_arg in &field_arguments.items {
+                if let Some(fragment_arg) = fragment_arguments.named(field_arg.name.value) {
+                    self.errors.push(
+                        Diagnostic::error(
+                            ErrorMessages::ConflictingArguments,
+                            field_string.location.with_span(field_arg.name.span),
+                        )
+                        .annotate(
+                            "conflicts with this fragment argument",
+                            fragment_definition
+                                .location
+                                .with_span(fragment_arg.name.span),
+                        ),
+                    );
+                }
+            }
+        }
 
         Ok(RelayResolverIr {
-            field_name: field_name?,
+            field,
             on: on?,
             root_fragment,
             edge_to: self
@@ -135,7 +162,7 @@ impl RelayResolverParser {
             location: ast.location,
             deprecated,
             live,
-            arguments,
+            fragment_arguments,
         })
     }
 
@@ -271,7 +298,7 @@ impl RelayResolverParser {
         }
     }
 
-    fn extract_arguments(
+    fn extract_fragment_arguments(
         &mut self,
         fragment_definition: &FragmentDefinition,
     ) -> ParseResult<Option<Vec<Argument>>> {
@@ -328,5 +355,18 @@ impl RelayResolverParser {
                     .filter_map(|result| result.map_err(|err| self.errors.extend(err)).ok())
                     .collect::<Vec<_>>()
             }))
+    }
+
+    fn parse_field_definition(
+        &mut self,
+        field_string: WithLocation<StringKey>,
+    ) -> ParseResult<FieldDefinitionStub> {
+        let field_string_offset = field_string.location.span().start;
+        parse_field_definition_stub(
+            field_string.item.lookup(),
+            field_string.location.source_location(),
+            field_string_offset,
+        )
+        .map_err(|mut errors| self.errors.append(&mut errors))
     }
 }

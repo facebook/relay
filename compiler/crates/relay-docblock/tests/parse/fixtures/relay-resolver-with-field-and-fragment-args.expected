@@ -10,18 +10,14 @@
  * @RelayResolver
  *
  * @onType User
- * @fieldName favorite_page
+ * @fieldName greeting(salutation: String!)
  * @rootFragment myRootFragment
  *
- * The user's favorite page! They probably clicked something in the UI
- * to tell us that it was their favorite page and then we put that in a
- * database or something. Then we got that info out again and put it out
- * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
  */
 
 graphql`
   fragment myRootFragment on User @argumentDefinitions(first: {type: "Int", defaultValue: 10}, userID: {type: "ID!"}) {
-    id
+    name
   }
 `
 ==================================== OUTPUT ===================================
@@ -29,38 +25,80 @@ RelayResolver(
     RelayResolverIr {
         field: FieldDefinitionStub {
             name: Identifier {
-                span: 53:66,
+                span: 53:61,
                 token: Token {
-                    span: 53:66,
+                    span: 53:61,
                     kind: Identifier,
                 },
-                value: "favorite_page",
+                value: "greeting",
             },
-            arguments: None,
+            arguments: Some(
+                List {
+                    span: 61:82,
+                    start: Token {
+                        span: 61:62,
+                        kind: OpenParen,
+                    },
+                    items: [
+                        InputValueDefinition {
+                            name: Identifier {
+                                span: 62:72,
+                                token: Token {
+                                    span: 62:72,
+                                    kind: Identifier,
+                                },
+                                value: "salutation",
+                            },
+                            type_: NonNull(
+                                NonNullTypeAnnotation {
+                                    span: 74:81,
+                                    type_: Named(
+                                        NamedTypeAnnotation {
+                                            name: Identifier {
+                                                span: 74:80,
+                                                token: Token {
+                                                    span: 74:80,
+                                                    kind: Identifier,
+                                                },
+                                                value: "String",
+                                            },
+                                        },
+                                    ),
+                                    exclamation: Token {
+                                        span: 80:81,
+                                        kind: Exclamation,
+                                    },
+                                },
+                            ),
+                            default_value: None,
+                            directives: [],
+                        },
+                    ],
+                    end: Token {
+                        span: 81:82,
+                        kind: CloseParen,
+                    },
+                },
+            ),
         },
         on: Type(
             PopulatedIrField {
-                key_location: /path/to/test/fixture/relay-resolver-with-args.js:27:33,
+                key_location: /path/to/test/fixture/relay-resolver-with-field-and-fragment-args.js:27:33,
                 value: WithLocation {
-                    location: /path/to/test/fixture/relay-resolver-with-args.js:34:38,
+                    location: /path/to/test/fixture/relay-resolver-with-field-and-fragment-args.js:34:38,
                     item: "User",
                 },
             },
         ),
         root_fragment: WithLocation {
-            location: /path/to/test/fixture/relay-resolver-with-args.js:84:98,
+            location: /path/to/test/fixture/relay-resolver-with-field-and-fragment-args.js:100:114,
             item: "myRootFragment",
         },
         edge_to: None,
-        description: Some(
-            WithLocation {
-                location: /path/to/test/fixture/relay-resolver-with-args.js:101:392,
-                item: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
-            },
-        ),
+        description: None,
         deprecated: None,
         live: None,
-        location: /path/to/test/fixture/relay-resolver-with-args.js:0:393,
+        location: /path/to/test/fixture/relay-resolver-with-field-and-fragment-args.js:0:118,
         fragment_arguments: Some(
             [
                 Argument {

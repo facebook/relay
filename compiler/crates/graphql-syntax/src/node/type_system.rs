@@ -370,6 +370,14 @@ impl fmt::Display for InputValueDefinition {
     }
 }
 
+/// A field definition which includes just the field name and arguments.
+/// Used by Relay Resolvers.
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
+pub struct FieldDefinitionStub {
+    pub name: Identifier,
+    pub arguments: Option<List<InputValueDefinition>>,
+}
+
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub struct FieldDefinition {
     pub name: Identifier,

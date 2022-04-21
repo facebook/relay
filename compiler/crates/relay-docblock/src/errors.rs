@@ -40,6 +40,10 @@ pub enum ErrorMessages {
         "Expected either `onType` or `onInterface` to be defined in a @RelayResolver docblock."
     )]
     ExpectedOnTypeOrOnInterface,
+
+    // The rest of this sentence is epxected to be supplied by `.annotate`.
+    #[error("Unexpected conflicting argument name. This field argument")]
+    ConflictingArguments,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

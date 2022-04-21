@@ -103,6 +103,17 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Parses a string containing a field name with optional arguments
+    pub fn parse_field_definition_stub(mut self) -> DiagnosticsResult<FieldDefinitionStub> {
+        let stub = self.parse_field_definition_stub_impl();
+        if self.errors.is_empty() {
+            self.parse_eof()?;
+            Ok(stub.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
     /// Parses a document consisting only of executable nodes: operations and
     /// fragments.
     pub fn parse_executable_document(mut self) -> WithDiagnostics<ExecutableDocument> {
@@ -871,6 +882,12 @@ impl<'a> Parser<'a> {
             directives,
             description,
         })
+    }
+
+    fn parse_field_definition_stub_impl(&mut self) -> ParseResult<FieldDefinitionStub> {
+        let name = self.parse_identifier()?;
+        let arguments = self.parse_argument_defs()?;
+        Ok(FieldDefinitionStub { name, arguments })
     }
 
     /**

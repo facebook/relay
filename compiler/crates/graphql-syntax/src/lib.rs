@@ -101,6 +101,16 @@ pub fn parse_schema_document(
     parser.parse_schema_document()
 }
 
+pub fn parse_field_definition_stub(
+    source: &str,
+    source_location: SourceLocationKey,
+    offset: u32,
+) -> DiagnosticsResult<FieldDefinitionStub> {
+    let features = ParserFeatures::default();
+    let parser = Parser::with_offset(source, source_location, features, offset);
+    parser.parse_field_definition_stub()
+}
+
 /// Parses a GraphQL type, such as `ID` or `[User!]!`.
 pub fn parse_type(
     source: &str,

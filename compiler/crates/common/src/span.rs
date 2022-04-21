@@ -36,6 +36,10 @@ impl Span {
     pub fn contains(self, subspan: Span) -> bool {
         subspan.start >= self.start && subspan.start < self.end && subspan.end <= self.end
     }
+
+    pub fn with_offset(self, offset: u32) -> Self {
+        Self::new(self.start + offset, self.end + offset)
+    }
 }
 
 impl fmt::Debug for Span {

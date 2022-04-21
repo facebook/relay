@@ -105,9 +105,10 @@ pub fn parse_schema_document(
 pub fn parse_type(
     source: &str,
     source_location: SourceLocationKey,
+    offset: u32,
 ) -> DiagnosticsResult<TypeAnnotation> {
     let features = ParserFeatures::default();
-    let parser = Parser::new(source, source_location, features);
+    let parser = Parser::with_offset(source, source_location, features, offset);
     parser.parse_type()
 }
 
@@ -116,8 +117,9 @@ pub fn parse_type(
 pub fn parse_directive(
     source: &str,
     source_location: SourceLocationKey,
+    offset: u32,
 ) -> DiagnosticsResult<Directive> {
     let features = ParserFeatures::default();
-    let parser = Parser::new(source, source_location, features);
+    let parser = Parser::with_offset(source, source_location, features, offset);
     parser.parse_directive()
 }

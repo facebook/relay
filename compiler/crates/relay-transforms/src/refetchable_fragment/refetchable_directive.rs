@@ -60,10 +60,11 @@ impl RefetchableDirective {
                             if let ConstantValue::String(directive_string) = item {
                                 let ast_directive = graphql_syntax::parse_directive(
                                     directive_string.lookup(),
-                                    // We currently don't have the ability to pass offset locations
-                                    // to the parser call, so we first use a generated location and
-                                    // later override it with an approximation.
                                     SourceLocationKey::generated(),
+                                    // We don't currently have span information
+                                    // for constant values, so we can't derive a
+                                    // reasonable offset here.
+                                    0
                                 )
                                 .map_err(|mut diagnostics| {
                                     for diagnostic in &mut diagnostics {
@@ -75,9 +76,10 @@ impl RefetchableDirective {
                                     schema,
                                     &ast_directive,
                                     graphql_syntax::DirectiveLocation::Query,
-                                    // We currently don't have the ability to pass offset locations
-                                    // to the parser call, so we first use a generated location and
-                                    // later override it with an approximation.
+                                    // We don't currently have span information
+                                    // for constant values, so we can't derive a
+                                    // reasonable offset, which means the spans
+                                    // attached to `ast_directive` are invalid.
                                     Location::generated(),
                                 )
                                 .map_err(|mut diagnostics| {

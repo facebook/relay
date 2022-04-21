@@ -27,7 +27,7 @@ fragment TestFragment on User
                     directives: [
                         Directive {
                             name: WithLocation {
-                                location: <generated>:0:13,
+                                location: <generated>:89:102,
                                 item: "configurable",
                             },
                             arguments: [],

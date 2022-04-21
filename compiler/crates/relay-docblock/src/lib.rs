@@ -9,7 +9,7 @@ mod errors;
 mod ir;
 
 use crate::errors::ErrorMessages;
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, SourceLocationKey, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use docblock_syntax::{DocblockAST, DocblockField, DocblockSection};
 use errors::ErrorMessagesWithData;
 use graphql_syntax::{parse_type, ConstantValue, ExecutableDefinition, FragmentDefinition};
@@ -304,7 +304,11 @@ impl RelayResolverParser {
                                 (
                                     parse_type(
                                         string_value.value.lookup(),
-                                        SourceLocationKey::generated(),
+                                        fragment_definition.location.source_location(),
+                                        // We don't currently have span information
+                                        // for constant values, so we can't derive a
+                                        // reasonable offset here.
+                                        0,
                                     ),
                                     default_value.clone(),
                                 )

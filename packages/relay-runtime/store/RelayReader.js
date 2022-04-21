@@ -527,7 +527,7 @@ class RelayReader {
     data: SelectorData,
   ): mixed {
     const {resolverModule, fragment} = field;
-    const storageKey = getStorageKey(field, this._variables);
+    const storageKey = getStorageKey(fragment, this._variables);
     const resolverID = ClientID.generateClientID(
       RelayModernRecord.getDataID(record),
       storageKey,
@@ -560,7 +560,9 @@ class RelayReader {
         __id: RelayModernRecord.getDataID(record),
         __fragmentOwner: this._owner,
         __fragments: {
-          [fragment.name]: {}, // Arguments to this fragment; not yet supported.
+          [fragment.name]: fragment.args
+            ? getArgumentValues(fragment.args, this._variables)
+            : {},
         },
       };
       return withResolverContext(resolverContext, () => {

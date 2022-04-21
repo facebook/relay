@@ -223,6 +223,7 @@ export type ReaderRequiredField = {|
 export type ReaderRelayResolver = {|
   +kind: 'RelayResolver',
   +alias: ?string,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
   +name: string,
   +fragment: ReaderFragmentSpread,
   +path: string,
@@ -237,6 +238,7 @@ export type ReaderRelayResolver = {|
 export type ReaderRelayLiveResolver = {|
   +kind: 'RelayLiveResolver',
   +alias: ?string,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
   +name: string,
   +fragment: ReaderFragmentSpread,
   +path: string,

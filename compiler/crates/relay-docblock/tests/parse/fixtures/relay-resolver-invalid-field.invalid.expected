@@ -25,8 +25,8 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ Unexpected docblock field "@notValid"
 
-  /path/to/test/fixture/relay-resolver-invalid-field.invalid.js:7:5
-    6 │  * @rootFragment myRootFragment
-    7 │  * @notValid myRootFragment
+  /path/to/test/fixture/relay-resolver-invalid-field.invalid.js:16:5
+   15 │  * @rootFragment myRootFragment
+   16 │  * @notValid myRootFragment
       │     ^^^^^^^^
-    8 │
+   17 │

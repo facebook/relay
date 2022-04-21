@@ -28,3 +28,4 @@ extract-graphql = { path = "../extract-graphql" }
 fixture-tests = { path = "../fixture-tests" }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
 relay-test-schema = { path = "../relay-test-schema" }
+graphql-cli = { path = "../graphql-cli" }

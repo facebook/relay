@@ -25,8 +25,8 @@ graphql`
 ==================================== ERROR ====================================
 ✖︎ Expected docblock field "@onInterface" to have specified a value.
 
-  /path/to/test/fixture/relay-resolver-on-interface-no-value.invalid.js:4:5
-    3 │  *
-    4 │  * @onInterface
+  /path/to/test/fixture/relay-resolver-on-interface-no-value.invalid.js:13:5
+   12 │  *
+   13 │  * @onInterface
       │     ^^^^^^^^^^^
-    5 │  * @fieldName favorite_page
+   14 │  * @fieldName favorite_page

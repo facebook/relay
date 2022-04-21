@@ -1,0 +1,75 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  pop_star_name(fragment_arg: 1, field_arg: 2)
+}
+
+fragment PopStarNameResolverFragment_name on User
+  @argumentDefinitions(fragment_arg: {type: "Int"}) {
+  __typename
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name(field_arg: Int, fragment_arg: Int): String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [
+    {
+      "defaultValue": null,
+      "kind": "LocalArgument",
+      "name": "fragment_arg"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "PopStarNameResolverFragment_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__typename",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "Foo_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "field_arg",
+          "value": 2
+        }
+      ],
+      "fragment": {
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "fragment_arg",
+            "value": 1
+          }
+        ],
+        "kind": "FragmentSpread",
+        "name": "PopStarNameResolverFragment_name"
+      },
+      "kind": "RelayResolver",
+      "name": "pop_star_name",
+      "resolverModule": require('PopStarNameResolver'),
+      "path": "pop_star_name"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

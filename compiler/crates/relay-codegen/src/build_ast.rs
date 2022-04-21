@@ -717,6 +717,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
         let field_name = relay_resolver_spread_metadata.field_name;
         let field_alias = relay_resolver_spread_metadata.field_alias;
         let path = relay_resolver_spread_metadata.field_path;
+        let field_arguments = &relay_resolver_spread_metadata.field_arguments;
 
         let kind = if relay_resolver_spread_metadata.live {
             CODEGEN_CONSTANTS.relay_live_resolver
@@ -731,8 +732,14 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             .to_string_lossy()
             .intern();
 
+        let args = self.build_arguments(field_arguments);
+
         Primitive::Key(self.object(object! {
             :build_alias(field_alias, field_name),
+            args: match args {
+                None => Primitive::SkippableNull,
+                Some(key) => Primitive::Key(key),
+            },
             fragment: fragment_primitive,
             kind: Primitive::String(kind),
             name: Primitive::String(field_name),

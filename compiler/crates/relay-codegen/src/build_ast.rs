@@ -24,13 +24,14 @@ use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
     remove_directive, ClientEdgeMetadata, ClientEdgeMetadataDirective, ConnectionConstants,
-    ConnectionMetadata, DeferDirective, InlineDirectiveMetadata, ModuleMetadata,
-    RefetchableMetadata, RelayDirective, RelayResolverSpreadMetadata, RequiredMetadataDirective,
-    StreamDirective, CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS,
-    DIRECTIVE_SPLIT_OPERATION, INLINE_DIRECTIVE_NAME, INTERNAL_METADATA_DIRECTIVE,
-    NO_INLINE_DIRECTIVE_NAME, REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
-    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
-    RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME, TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
+    ConnectionMetadata, DeferDirective, FragmentAliasMetadata, InlineDirectiveMetadata,
+    ModuleMetadata, RefetchableMetadata, RelayDirective, RelayResolverSpreadMetadata,
+    RequiredMetadataDirective, StreamDirective, CLIENT_EXTENSION_DIRECTIVE_NAME,
+    DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION, INLINE_DIRECTIVE_NAME,
+    INTERNAL_METADATA_DIRECTIVE, NO_INLINE_DIRECTIVE_NAME,
+    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+    RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
+    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
 
@@ -692,7 +693,25 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             name: Primitive::String(frag_spread.fragment.item),
         }));
 
-        if let Some(resolver_spread_metadata) =
+        if let Some(fragment_alias_metadata) = FragmentAliasMetadata::find(&frag_spread.directives)
+        {
+            let type_condition = fragment_alias_metadata.type_condition;
+            Primitive::Key(self.object(object! {
+                fragment: primitive,
+                kind: Primitive::String(CODEGEN_CONSTANTS.aliased_fragment_spread),
+                name: Primitive::String(fragment_alias_metadata.alias.item),
+                type_: match type_condition {
+                    Some(_type) => Primitive::String(self.schema.get_type_name(_type)),
+                    None => Primitive::SkippableNull
+                },
+                abstract_key: type_condition.filter(|t| t.is_abstract_type()).map_or(Primitive::SkippableNull, |t| {
+                    Primitive::String(generate_abstract_type_refinement_key(
+                        self.schema,
+                        t,
+                    ))
+                }),
+            }))
+        } else if let Some(resolver_spread_metadata) =
             RelayResolverSpreadMetadata::find(&frag_spread.directives)
         {
             let resolver_primitive = self.build_relay_resolver(primitive, resolver_spread_metadata);
@@ -991,7 +1010,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                     }
                 }
                 let selections = self.build_selections(inline_frag.selections.iter());
-                Primitive::Key(self.object(object! {
+                let primitive = Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.inline_fragment),
                     selections: selections,
                     type_: Primitive::String(self.schema.get_type_name(type_condition)),
@@ -1003,7 +1022,18 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
                         } else {
                             Primitive::SkippableNull
                         },
-                }))
+                }));
+                if let Some(fragment_alias_metadata) =
+                    FragmentAliasMetadata::find(&inline_frag.directives)
+                {
+                    Primitive::Key(self.object(object! {
+                        fragment: primitive,
+                        kind: Primitive::String(CODEGEN_CONSTANTS.aliased_inline_fragment_spread),
+                        name: Primitive::String(fragment_alias_metadata.alias.item),
+                    }))
+                } else {
+                    primitive
+                }
             }
         }
     }

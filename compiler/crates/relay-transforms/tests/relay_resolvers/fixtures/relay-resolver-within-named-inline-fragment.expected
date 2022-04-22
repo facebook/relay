@@ -28,6 +28,7 @@ fragment Foo_user on Node {
   #     type_condition: Some(
   #         Object(68),
   #     ),
+  #     selection_type: Object(68),
   # }
    {
     ...PopStarNameResolverFragment_name @__RelayResolverSpreadMetadata

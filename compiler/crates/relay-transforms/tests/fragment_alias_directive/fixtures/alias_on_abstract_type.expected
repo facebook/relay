@@ -20,6 +20,7 @@ query RelayReaderNamedFragmentsTest2Query {
     #     type_condition: Some(
     #         Interface(0),
     #     ),
+    #     selection_type: Interface(0),
     # }
     
   }

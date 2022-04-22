@@ -18,6 +18,7 @@ query RelayReaderNamedFragmentsTest2Query {
     #         item: "named_fragment",
     #     },
     #     type_condition: None,
+    #     selection_type: Object(68),
     # }
      {
       name

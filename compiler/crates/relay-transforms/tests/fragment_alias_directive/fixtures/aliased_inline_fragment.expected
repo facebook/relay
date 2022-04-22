@@ -20,6 +20,7 @@ query RelayReaderNamedFragmentsTest2Query {
     #     type_condition: Some(
     #         Object(68),
     #     ),
+    #     selection_type: Object(68),
     # }
      {
       name

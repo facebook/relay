@@ -10,7 +10,8 @@ use std::sync::Arc;
 use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Named, NamedItem, WithLocation};
 use graphql_ir::{
     associated_data_impl, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
-    OperationDefinition, Program, Selection, Transformed, TransformedValue, Transformer,
+    LinkedField, OperationDefinition, Program, Selection, Transformed, TransformedValue,
+    Transformer,
 };
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -27,6 +28,7 @@ lazy_static! {
 pub struct FragmentAliasMetadata {
     pub alias: WithLocation<StringKey>,
     pub type_condition: Option<Type>,
+    pub selection_type: Type,
 }
 associated_data_impl!(FragmentAliasMetadata);
 
@@ -49,6 +51,7 @@ struct FragmentAliasTransform<'program> {
     program: &'program Program,
     feature_flag: &'program FeatureFlag,
     document_name: Option<StringKey>,
+    parent_type: Option<Type>,
     errors: Vec<Diagnostic>,
 }
 
@@ -58,6 +61,7 @@ impl<'program> FragmentAliasTransform<'program> {
             program,
             feature_flag,
             document_name: None,
+            parent_type: None,
             errors: Vec::new(),
         }
     }
@@ -125,6 +129,11 @@ impl<'program> FragmentAliasTransform<'program> {
                 FragmentAliasMetadata {
                     alias,
                     type_condition,
+                    selection_type: type_condition.unwrap_or(
+                        inner_self
+                            .parent_type
+                            .expect("Selection should be within a parent type."),
+                    ),
                 }
                 .into(),
             )
@@ -142,7 +151,9 @@ impl Transformer for FragmentAliasTransform<'_> {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         self.document_name = Some(fragment.name.item);
+        self.parent_type = Some(fragment.type_condition);
         let transformed = self.default_transform_fragment(fragment);
+        self.parent_type = None;
         self.document_name = None;
         transformed
     }
@@ -152,7 +163,9 @@ impl Transformer for FragmentAliasTransform<'_> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         self.document_name = Some(operation.name.item);
+        self.parent_type = Some(operation.type_);
         let transformed = self.default_transform_operation(operation);
+        self.parent_type = None;
         self.document_name = None;
         transformed
     }
@@ -163,7 +176,13 @@ impl Transformer for FragmentAliasTransform<'_> {
                 .type_condition
                 .map(|type_| self.program.schema.get_type_name(type_))
         };
-        match self.transform_alias_directives(
+        let previous_parent_type = self.parent_type;
+
+        if let Some(type_condition) = fragment.type_condition {
+            self.parent_type = Some(type_condition);
+        }
+
+        let transformed = match self.transform_alias_directives(
             &fragment.directives,
             fragment.type_condition,
             get_default_name,
@@ -178,7 +197,11 @@ impl Transformer for FragmentAliasTransform<'_> {
                         .replace_or_else(|| fragment.selections.clone()),
                 })))
             }
-        }
+        };
+
+        self.parent_type = previous_parent_type;
+
+        transformed
     }
 
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
@@ -198,5 +221,23 @@ impl Transformer for FragmentAliasTransform<'_> {
                 }))
             })
             .into()
+    }
+
+    fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
+        let previous_parent_type = self.parent_type;
+
+        self.parent_type = Some(
+            self.program
+                .schema
+                .field(field.definition.item)
+                .type_
+                .inner(),
+        );
+
+        let transformed = self.default_transform_linked_field(field);
+
+        self.parent_type = previous_parent_type;
+
+        transformed
     }
 }

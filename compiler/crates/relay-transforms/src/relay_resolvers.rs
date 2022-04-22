@@ -6,7 +6,7 @@
  */
 
 use crate::{
-    ClientEdgeMetadata, DependencyMap, RequiredMetadataDirective,
+    ClientEdgeMetadata, DependencyMap, FragmentAliasMetadata, RequiredMetadataDirective,
     CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME, REQUIRED_DIRECTIVE_NAME,
 };
 
@@ -331,7 +331,14 @@ impl Transformer for RelayResolverFieldTransform<'_> {
         &mut self,
         fragment: &graphql_ir::InlineFragment,
     ) -> Transformed<Selection> {
-        match ClientEdgeMetadata::find(fragment) {
+        let maybe_alias =
+            FragmentAliasMetadata::find(&fragment.directives).map(|metadata| metadata.alias.item);
+
+        if let Some(alias) = maybe_alias {
+            self.path.push(alias.lookup())
+        }
+
+        let transformed = match ClientEdgeMetadata::find(fragment) {
             Some(client_edge_metadata) => {
                 let backing_id_field = self
                     .transform_selection(client_edge_metadata.backing_field)
@@ -359,7 +366,13 @@ impl Transformer for RelayResolverFieldTransform<'_> {
                 })))
             }
             None => self.default_transform_inline_fragment(fragment),
+        };
+
+        if maybe_alias.is_some() {
+            self.path.pop();
         }
+
+        transformed
     }
 }
 

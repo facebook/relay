@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a935ec196bceda41e640b0f20d7d96eb>>
+ * @generated SignedSource<<9e9506c40560a52867eb9b5bfd43ba15>>
  */
 
 mod relay_resolvers;
@@ -101,6 +101,13 @@ fn relay_resolver_with_global_vars_invalid() {
     let input = include_str!("relay_resolvers/fixtures/relay-resolver-with-global-vars.invalid.graphql");
     let expected = include_str!("relay_resolvers/fixtures/relay-resolver-with-global-vars.invalid.expected");
     test_fixture(transform_fixture, "relay-resolver-with-global-vars.invalid.graphql", "relay_resolvers/fixtures/relay-resolver-with-global-vars.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_within_named_inline_fragment() {
+    let input = include_str!("relay_resolvers/fixtures/relay-resolver-within-named-inline-fragment.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/relay-resolver-within-named-inline-fragment.expected");
+    test_fixture(transform_fixture, "relay-resolver-within-named-inline-fragment.graphql", "relay_resolvers/fixtures/relay-resolver-within-named-inline-fragment.expected", input, expected);
 }
 
 #[test]

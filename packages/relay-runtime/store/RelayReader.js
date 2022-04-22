@@ -183,13 +183,10 @@ class RelayReader {
     // implement the interface. If we aren't sure whether the record implements
     // the interface, that itself constitutes "expected" data being missing.
     if (isDataExpectedToBePresent && abstractKey != null && record != null) {
-      const recordType = RelayModernRecord.getType(record);
-      const typeID = generateTypeID(recordType);
-      const typeRecord = this._recordSource.get(typeID);
-      const implementsInterface =
-        typeRecord != null
-          ? RelayModernRecord.getValue(typeRecord, abstractKey)
-          : null;
+      const implementsInterface = this._implementsInterface(
+        record,
+        abstractKey,
+      );
       if (implementsInterface === false) {
         // Type known to not implement the interface
         isDataExpectedToBePresent = false;
@@ -375,13 +372,10 @@ class RelayReader {
             const parentIsWithinUnmatchedTypeRefinement =
               this._isWithinUnmatchedTypeRefinement;
 
-            const typeName = RelayModernRecord.getType(record);
-            const typeID = generateTypeID(typeName);
-            const typeRecord = this._recordSource.get(typeID);
-            const implementsInterface =
-              typeRecord != null
-                ? RelayModernRecord.getValue(typeRecord, abstractKey)
-                : null;
+            const implementsInterface = this._implementsInterface(
+              record,
+              abstractKey,
+            );
             this._isWithinUnmatchedTypeRefinement =
               parentIsWithinUnmatchedTypeRefinement ||
               implementsInterface === false;
@@ -983,6 +977,17 @@ class RelayReader {
       action: 'LOG',
       fields: [...this._missingRequiredFields.fields, ...additional.fields],
     };
+  }
+
+  _implementsInterface(record: Record, abstractKey: string): ?boolean {
+    const typeName = RelayModernRecord.getType(record);
+    const typeRecord = this._recordSource.get(generateTypeID(typeName));
+    const implementsInterface =
+      typeRecord != null
+        ? RelayModernRecord.getValue(typeRecord, abstractKey)
+        : null;
+    // $FlowFixMe Casting record value
+    return implementsInterface;
   }
 }
 

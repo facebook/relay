@@ -1,0 +1,109 @@
+==================================== INPUT ====================================
+query fragmentAliasNotEnabled_Query {
+  ...fragmentAliasNotEnabled_fragment @alias
+}
+
+fragment fragmentAliasNotEnabled_fragment on Query {
+  me {
+    id
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "fragmentAliasNotEnabled_Query",
+    "selections": [
+      {
+        "fragment": {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "fragmentAliasNotEnabled_fragment"
+        },
+        "kind": "AliasedFragmentSpread",
+        "name": "fragmentAliasNotEnabled_fragment",
+        "type": "Query",
+        "abstractKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "fragmentAliasNotEnabled_Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "fragmentAliasNotEnabled_Query",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query fragmentAliasNotEnabled_Query {
+  ...fragmentAliasNotEnabled_fragment
+}
+
+fragment fragmentAliasNotEnabled_fragment on Query {
+  me {
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "fragmentAliasNotEnabled_fragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Query",
+  "abstractKey": null
+}

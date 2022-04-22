@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ce6dad29c7ae96fbf45a13fbd691ce03>>
+ * @generated SignedSource<<dbdab2b591c1ebbc2ab40a34ecb37262>>
  */
 
 mod compile_relay_artifacts;
@@ -405,10 +405,17 @@ fn flight_props_transform() {
 }
 
 #[test]
-fn fragment_alias_not_enabled_invalid() {
-    let input = include_str!("compile_relay_artifacts/fixtures/fragment-alias-not-enabled.invalid.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-alias-not-enabled.invalid.expected");
-    test_fixture(transform_fixture, "fragment-alias-not-enabled.invalid.graphql", "compile_relay_artifacts/fixtures/fragment-alias-not-enabled.invalid.expected", input, expected);
+fn fragment_alias() {
+    let input = include_str!("compile_relay_artifacts/fixtures/fragment-alias.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-alias.expected");
+    test_fixture(transform_fixture, "fragment-alias.graphql", "compile_relay_artifacts/fixtures/fragment-alias.expected", input, expected);
+}
+
+#[test]
+fn fragment_alias_on_inline_fragment_does_not_get_flattened() {
+    let input = include_str!("compile_relay_artifacts/fixtures/fragment-alias-on-inline-fragment-does-not-get-flattened.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/fragment-alias-on-inline-fragment-does-not-get-flattened.expected");
+    test_fixture(transform_fixture, "fragment-alias-on-inline-fragment-does-not-get-flattened.graphql", "compile_relay_artifacts/fixtures/fragment-alias-on-inline-fragment-does-not-get-flattened.expected", input, expected);
 }
 
 #[test]

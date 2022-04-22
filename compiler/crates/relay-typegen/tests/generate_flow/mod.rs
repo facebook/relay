@@ -52,6 +52,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_relay_resolver_transform: true,
         actor_change_support: FeatureFlag::Enabled,
         enable_provided_variables: FeatureFlag::Enabled,
+        enable_fragment_aliases: FeatureFlag::Enabled,
         ..Default::default()
     };
     let ir = build_ir_with_relay_feature_flags(&schema, &ast.definitions, &feature_flags)

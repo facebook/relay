@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8b85c44986b34de76ca74cfa4ae31975>>
+ * @generated SignedSource<<bfff8cb063bc8f770eea1861c3673792>>
  */
 
 mod generate_flow;
@@ -24,6 +24,55 @@ fn actor_change_with_query() {
     let input = include_str!("generate_flow/fixtures/actor-change-with-query.graphql");
     let expected = include_str!("generate_flow/fixtures/actor-change-with-query.expected");
     test_fixture(transform_fixture, "actor-change-with-query.graphql", "generate_flow/fixtures/actor-change-with-query.expected", input, expected);
+}
+
+#[test]
+fn aliased_fragment_raw_response_type() {
+    let input = include_str!("generate_flow/fixtures/aliased-fragment-raw-response-type.graphql");
+    let expected = include_str!("generate_flow/fixtures/aliased-fragment-raw-response-type.expected");
+    test_fixture(transform_fixture, "aliased-fragment-raw-response-type.graphql", "generate_flow/fixtures/aliased-fragment-raw-response-type.expected", input, expected);
+}
+
+#[test]
+fn aliased_fragment_spread() {
+    let input = include_str!("generate_flow/fixtures/aliased-fragment-spread.graphql");
+    let expected = include_str!("generate_flow/fixtures/aliased-fragment-spread.expected");
+    test_fixture(transform_fixture, "aliased-fragment-spread.graphql", "generate_flow/fixtures/aliased-fragment-spread.expected", input, expected);
+}
+
+#[test]
+fn aliased_fragment_spread_in_abstract_selection() {
+    let input = include_str!("generate_flow/fixtures/aliased-fragment-spread-in-abstract-selection.graphql");
+    let expected = include_str!("generate_flow/fixtures/aliased-fragment-spread-in-abstract-selection.expected");
+    test_fixture(transform_fixture, "aliased-fragment-spread-in-abstract-selection.graphql", "generate_flow/fixtures/aliased-fragment-spread-in-abstract-selection.expected", input, expected);
+}
+
+#[test]
+fn aliased_inline_fragment_spread() {
+    let input = include_str!("generate_flow/fixtures/aliased-inline-fragment-spread.graphql");
+    let expected = include_str!("generate_flow/fixtures/aliased-inline-fragment-spread.expected");
+    test_fixture(transform_fixture, "aliased-inline-fragment-spread.graphql", "generate_flow/fixtures/aliased-inline-fragment-spread.expected", input, expected);
+}
+
+#[test]
+fn aliased_inline_fragment_spread_without_type_condition_fragment_root() {
+    let input = include_str!("generate_flow/fixtures/aliased-inline-fragment-spread-without-type-condition-fragment-root.graphql");
+    let expected = include_str!("generate_flow/fixtures/aliased-inline-fragment-spread-without-type-condition-fragment-root.expected");
+    test_fixture(transform_fixture, "aliased-inline-fragment-spread-without-type-condition-fragment-root.graphql", "generate_flow/fixtures/aliased-inline-fragment-spread-without-type-condition-fragment-root.expected", input, expected);
+}
+
+#[test]
+fn aliased_inline_fragment_spread_without_type_condition_linked_field() {
+    let input = include_str!("generate_flow/fixtures/aliased-inline-fragment-spread-without-type-condition-linked-field.graphql");
+    let expected = include_str!("generate_flow/fixtures/aliased-inline-fragment-spread-without-type-condition-linked-field.expected");
+    test_fixture(transform_fixture, "aliased-inline-fragment-spread-without-type-condition-linked-field.graphql", "generate_flow/fixtures/aliased-inline-fragment-spread-without-type-condition-linked-field.expected", input, expected);
+}
+
+#[test]
+fn aliased_inline_fragment_spread_without_type_condition_query_root() {
+    let input = include_str!("generate_flow/fixtures/aliased-inline-fragment-spread-without-type-condition-query-root.graphql");
+    let expected = include_str!("generate_flow/fixtures/aliased-inline-fragment-spread-without-type-condition-query-root.expected");
+    test_fixture(transform_fixture, "aliased-inline-fragment-spread-without-type-condition-query-root.graphql", "generate_flow/fixtures/aliased-inline-fragment-spread-without-type-condition-query-root.expected", input, expected);
 }
 
 #[test]
@@ -430,6 +479,20 @@ fn required_throws_within_non_null_plural_linked_field() {
     let input = include_str!("generate_flow/fixtures/required-throws-within-non-null-plural-linked-field.graphql");
     let expected = include_str!("generate_flow/fixtures/required-throws-within-non-null-plural-linked-field.expected");
     test_fixture(transform_fixture, "required-throws-within-non-null-plural-linked-field.graphql", "generate_flow/fixtures/required-throws-within-non-null-plural-linked-field.expected", input, expected);
+}
+
+#[test]
+fn required_within_aliased_inline_fragment() {
+    let input = include_str!("generate_flow/fixtures/required-within-aliased-inline-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-within-aliased-inline-fragment.expected");
+    test_fixture(transform_fixture, "required-within-aliased-inline-fragment.graphql", "generate_flow/fixtures/required-within-aliased-inline-fragment.expected", input, expected);
+}
+
+#[test]
+fn required_within_aliased_inline_fragment_on_abstract() {
+    let input = include_str!("generate_flow/fixtures/required-within-aliased-inline-fragment-on-abstract.graphql");
+    let expected = include_str!("generate_flow/fixtures/required-within-aliased-inline-fragment-on-abstract.expected");
+    test_fixture(transform_fixture, "required-within-aliased-inline-fragment-on-abstract.graphql", "generate_flow/fixtures/required-within-aliased-inline-fragment-on-abstract.expected", input, expected);
 }
 
 #[test]

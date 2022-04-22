@@ -32,8 +32,8 @@ use lazy_static::lazy_static;
 use relay_config::{JsModuleFormat, ProjectConfig, SchemaConfig};
 pub use relay_config::{TypegenConfig, TypegenLanguage};
 use relay_transforms::{
-    ModuleMetadata, RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective,
-    RelayResolverSpreadMetadata, RequiredMetadataDirective, TypeConditionInfo,
+    FragmentAliasMetadata, ModuleMetadata, RefetchableDerivedFromMetadata, RefetchableMetadata,
+    RelayDirective, RelayResolverSpreadMetadata, RequiredMetadataDirective, TypeConditionInfo,
     ASSIGNABLE_DIRECTIVE, ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, CHILDREN_CAN_BUBBLE_METADATA_KEY,
     CLIENT_EXTENSION_DIRECTIVE_NAME, NO_INLINE_DIRECTIVE_NAME,
     RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE, UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
@@ -527,7 +527,8 @@ impl<'a> TypeGenerator<'a> {
         } else {
             let name = fragment_spread.fragment.item;
             self.used_fragments.insert(name);
-            type_selections.push(TypeSelection::FragmentSpread(TypeSelectionFragmentSpread {
+
+            let spread_selection = TypeSelection::FragmentSpread(TypeSelectionFragmentSpread {
                 fragment_name: name,
                 conditional: false,
                 concrete_type: None,
@@ -536,7 +537,25 @@ impl<'a> TypeGenerator<'a> {
                     .directives
                     .named(*UPDATABLE_DIRECTIVE_FOR_TYPEGEN)
                     .is_some(),
-            }));
+            });
+
+            let selection = if let Some(fragment_alias_metadata) =
+                FragmentAliasMetadata::find(&fragment_spread.directives)
+            {
+                // We will model the types as a linked filed containing just the fragment spread.
+                TypeSelection::LinkedField(TypeSelectionLinkedField {
+                    field_name_or_alias: fragment_alias_metadata.alias.item,
+                    // If/when @required is supported here, we would apply that to this type reference.
+                    // TODO: What about plural fragments, is that just handled by the parent?
+                    node_type: TypeReference::Named(fragment_alias_metadata.selection_type),
+                    node_selections: selections_to_map(vec![spread_selection].into_iter(), true),
+                    conditional: false,
+                    concrete_type: None,
+                })
+            } else {
+                spread_selection
+            };
+            type_selections.push(selection);
         }
     }
 
@@ -623,16 +642,50 @@ impl<'a> TypeGenerator<'a> {
         {
             self.visit_actor_change(type_selections, inline_fragment);
         } else {
-            let mut selections = self.visit_selections(&inline_fragment.selections);
-            if let Some(type_condition) = inline_fragment.type_condition {
-                for selection in &mut selections {
-                    if type_condition.is_abstract_type() {
-                        selection.set_conditional(true);
-                    } else {
-                        selection.set_concrete_type(type_condition);
+            let mut inline_selections = self.visit_selections(&inline_fragment.selections);
+
+            let mut selections = if let Some(fragment_alias_metadata) =
+                FragmentAliasMetadata::find(&inline_fragment.directives)
+            {
+                // We will model the types as a linked filed containing just the fragment spread.
+                vec![TypeSelection::LinkedField(TypeSelectionLinkedField {
+                    field_name_or_alias: fragment_alias_metadata.alias.item,
+                    // We currently make inline fragment aliases always nullable
+                    // because we want to be able to use them to be able to null
+                    // them out in the case of missing data.  If we choose to
+                    // change that decsion, ane make them non-nullable in the
+                    // case where the type condition will always match, we must
+                    // be sure to update this logic to account for the
+                    // possiblity that a `@required` has bubbled up to this
+                    // field.
+
+                    // Additionally, if/when @required is supported _on_ aliased
+                    // fragments, we would apply that to this type reference.
+                    node_type: TypeReference::Named(fragment_alias_metadata.selection_type),
+                    node_selections: selections_to_map(inline_selections.into_iter(), true),
+                    conditional: false,
+                    concrete_type: None,
+                })]
+            } else {
+                // If the inline fragment is on an abstract type, its selections must be
+                // made nullable since the type condition may not match, and
+                // there will be no way for the user to refine the type to
+                // ensure it did match. However, inline fragments with @alias are
+                // not subject to this limitation since RelayReader will make the field null
+                // if the type does not match, allowing the user to perfrom a
+                // field (alias) null check to ensure the type matched.
+                if let Some(type_condition) = inline_fragment.type_condition {
+                    for selection in &mut inline_selections {
+                        if type_condition.is_abstract_type() {
+                            selection.set_conditional(true);
+                        } else {
+                            selection.set_concrete_type(type_condition);
+                        }
                     }
                 }
-            }
+
+                inline_selections
+            };
             type_selections.append(&mut selections);
         }
     }

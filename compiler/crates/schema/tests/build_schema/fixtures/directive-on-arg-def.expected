@@ -1,38 +1,16 @@
 ==================================== INPUT ====================================
-schema {
-  query: Query
+enum RequiredFieldAction {
+  NONE
+  LOG
+  THROW
 }
+
+directive @required(action: RequiredFieldAction! @static) on FIELD
+
+directive @static on ARGUMENT_DEFINITION
 
 type Query {
-  foo: Foo
-}
-
-type Foo {
-  "Single line field description"
-  line: String
-  """
-  Block field description
-  """
-  block: String
-  """
-  Multiline block field description which is so long
-  that it spans onto a second line.
-  """
-  multiline_block: String
-}
-
-extend type Foo {
-  "Single line extended field description"
-  extended_line: String
-  """
-  Block field description
-  """
-  extended_block: String
-  """
-  Multiline block field description which is so long
-  that it spans onto a second line.
-  """
-  extended_multiline_block: String
+  foo: String
 }
 ==================================== OUTPUT ===================================
 Text Schema:Schema {
@@ -67,6 +45,33 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
+        name: "required",
+        arguments: [
+            Argument {
+                name: "action",
+                type_: NonNull(
+                    Named(
+                        Enum(0),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+                directives: [
+                    DirectiveValue {
+                        name: "static",
+                        arguments: [],
+                    },
+                ],
+            },
+        ],
+        locations: [
+            Field,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
         name: "skip",
         arguments: [
             Argument {
@@ -90,141 +95,67 @@ Text Schema:Schema {
         is_extension: false,
         description: None,
     },
+    Directive {
+        name: "static",
+        arguments: [],
+        locations: [
+            ArgumentDefinition,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
 ]
   type_map: {
     "Boolean": Scalar(3),
     "Float": Scalar(1),
-    "Foo": Object(1),
     "ID": Scalar(4),
     "Int": Scalar(0),
     "Query": Object(0),
+    "RequiredFieldAction": Enum(0),
     "String": Scalar(2),
 }
-  enums: []
+  enums: [
+    Enum {
+        name: WithLocation {
+            location: <generated>:5:24,
+            item: "RequiredFieldAction",
+        },
+        is_extension: false,
+        values: [
+            EnumValue {
+                value: "NONE",
+                directives: [],
+            },
+            EnumValue {
+                value: "LOG",
+                directives: [],
+            },
+            EnumValue {
+                value: "THROW",
+                directives: [],
+            },
+        ],
+        directives: [],
+        description: None,
+    },
+]
   fields: [
     Field {
         name: WithLocation {
-            location: <generated>:42:45,
+            location: <generated>:176:179,
             item: "foo",
         },
         is_extension: false,
         arguments: [],
         type_: Named(
-            Object(1),
+            Scalar(2),
         ),
         directives: [],
         parent_type: Some(
             Object(0),
         ),
         description: None,
-    },
-    Field {
-        name: WithLocation {
-            location: <generated>:101:105,
-            item: "line",
-        },
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(1),
-        ),
-        description: Some(
-            "Single line field description",
-        ),
-    },
-    Field {
-        name: WithLocation {
-            location: <generated>:154:159,
-            item: "block",
-        },
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(1),
-        ),
-        description: Some(
-            "Block field description",
-        ),
-    },
-    Field {
-        name: WithLocation {
-            location: <generated>:271:286,
-            item: "multiline_block",
-        },
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(1),
-        ),
-        description: Some(
-            "Multiline block field description which is so long\nthat it spans onto a second line.",
-        ),
-    },
-    Field {
-        name: WithLocation {
-            location: <generated>:361:374,
-            item: "extended_line",
-        },
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(1),
-        ),
-        description: Some(
-            "Single line extended field description",
-        ),
-    },
-    Field {
-        name: WithLocation {
-            location: <generated>:423:437,
-            item: "extended_block",
-        },
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(1),
-        ),
-        description: Some(
-            "Block field description",
-        ),
-    },
-    Field {
-        name: WithLocation {
-            location: <generated>:549:573,
-            item: "extended_multiline_block",
-        },
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(1),
-        ),
-        description: Some(
-            "Multiline block field description which is so long\nthat it spans onto a second line.",
-        ),
     },
     Field {
         name: WithLocation {
@@ -322,30 +253,12 @@ Text Schema:Schema {
   objects: [
     Object {
         name: WithLocation {
-            location: <generated>:32:37,
+            location: <generated>:166:171,
             item: "Query",
         },
         is_extension: false,
         fields: [
             FieldID(0),
-        ],
-        interfaces: [],
-        directives: [],
-        description: None,
-    },
-    Object {
-        name: WithLocation {
-            location: <generated>:59:62,
-            item: "Foo",
-        },
-        is_extension: false,
-        fields: [
-            FieldID(1),
-            FieldID(2),
-            FieldID(3),
-            FieldID(4),
-            FieldID(5),
-            FieldID(6),
         ],
         interfaces: [],
         directives: [],
@@ -429,6 +342,28 @@ directives: [
         description: None,
     },
     Directive {
+        name: "required",
+        arguments: [
+            Argument {
+                name: "action",
+                type_: NonNull(
+                    Named(
+                        Enum(0),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+                directives: [],
+            },
+        ],
+        locations: [
+            Field,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
         name: "skip",
         arguments: [
             Argument {
@@ -452,105 +387,43 @@ directives: [
         is_extension: false,
         description: None,
     },
+    Directive {
+        name: "static",
+        arguments: [],
+        locations: [
+            ArgumentDefinition,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
 ]
-enums: []
+enums: [
+    Enum {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "RequiredFieldAction",
+        },
+        is_extension: false,
+        values: [
+            EnumValue {
+                value: "NONE",
+                directives: [],
+            },
+            EnumValue {
+                value: "LOG",
+                directives: [],
+            },
+            EnumValue {
+                value: "THROW",
+                directives: [],
+            },
+        ],
+        directives: [],
+        description: None,
+    },
+]
 fields: [
-    Field {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: "line",
-        },
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-        description: None,
-    },
-    Field {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: "block",
-        },
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-        description: None,
-    },
-    Field {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: "multiline_block",
-        },
-        is_extension: false,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-        description: None,
-    },
-    Field {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: "extended_line",
-        },
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-        description: None,
-    },
-    Field {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: "extended_block",
-        },
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-        description: None,
-    },
-    Field {
-        name: WithLocation {
-            location: <generated>:0:0,
-            item: "extended_multiline_block",
-        },
-        is_extension: true,
-        arguments: [],
-        type_: Named(
-            Scalar(2),
-        ),
-        directives: [],
-        parent_type: Some(
-            Object(0),
-        ),
-        description: None,
-    },
     Field {
         name: WithLocation {
             location: <generated>:0:0,
@@ -559,11 +432,11 @@ fields: [
         is_extension: false,
         arguments: [],
         type_: Named(
-            Object(0),
+            Scalar(4),
         ),
         directives: [],
         parent_type: Some(
-            Object(1),
+            Object(0),
         ),
         description: None,
     },
@@ -574,29 +447,11 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Foo",
-        },
-        is_extension: false,
-        fields: [
-            FieldID(0),
-            FieldID(1),
-            FieldID(2),
-            FieldID(3),
-            FieldID(4),
-            FieldID(5),
-        ],
-        interfaces: [],
-        directives: [],
-        description: None,
-    },
-    Object {
-        name: WithLocation {
-            location: <generated>:0:0,
             item: "Query",
         },
         is_extension: false,
         fields: [
-            FieldID(6),
+            FieldID(0),
         ],
         interfaces: [],
         directives: [],

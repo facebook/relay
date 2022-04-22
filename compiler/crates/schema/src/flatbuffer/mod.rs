@@ -323,6 +323,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             },
             type_: self.parse_type_reference(argument.type_()?)?,
             description: None,
+            directives: Default::default(),
         })
     }
 

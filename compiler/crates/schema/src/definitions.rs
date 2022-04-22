@@ -341,15 +341,16 @@ pub struct Argument {
     pub type_: TypeReference,
     pub default_value: Option<ConstantValue>,
     pub description: Option<StringKey>,
+    pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct ArgumentValue {
     pub name: StringKey,
     pub value: ConstantValue,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct DirectiveValue {
     pub name: StringKey,
     pub arguments: Vec<ArgumentValue>,

@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 query RelayReaderNamedFragmentsTest2Query {
   node(id: "1") {
-    ... on MaybeNodeInterface @alias(as: "named_fragment") {
+    ... on MaybeNodeInterface @alias(as: "aliased_fragment") {
       name @required(action: NONE)
     }
   }
@@ -10,7 +10,7 @@ query RelayReaderNamedFragmentsTest2Query {
 export type RelayReaderNamedFragmentsTest2Query$variables = {||};
 export type RelayReaderNamedFragmentsTest2Query$data = {|
   +node: ?{|
-    +named_fragment: ?{|
+    +aliased_fragment: ?{|
       +name: string,
     |},
   |},

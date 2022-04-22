@@ -5,7 +5,7 @@ fragment RelayReaderNamedFragmentsTest_maybe_node_interface on MaybeNodeInterfac
 
 query RelayReaderNamedFragmentsTest2Query {
   node(id: "1") {
-    ...RelayReaderNamedFragmentsTest_maybe_node_interface @alias(as: "named_fragment")
+    ...RelayReaderNamedFragmentsTest_maybe_node_interface @alias(as: "aliased_fragment")
   }
 }
 ==================================== OUTPUT ===================================
@@ -53,7 +53,7 @@ query RelayReaderNamedFragmentsTest2Query {
             "name": "RelayReaderNamedFragmentsTest_maybe_node_interface"
           },
           "kind": "AliasedFragmentSpread",
-          "name": "named_fragment",
+          "name": "aliased_fragment",
           "type": "MaybeNodeInterface",
           "abstractKey": "__isMaybeNodeInterface"
         }

@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 query RelayReaderNamedFragmentsTest2Query {
-  ... @alias(as: "named_fragment") {
+  ... @alias(as: "aliased_fragment") {
     me {
       id
       name
@@ -10,7 +10,7 @@ query RelayReaderNamedFragmentsTest2Query {
 ==================================== OUTPUT ===================================
 export type RelayReaderNamedFragmentsTest2Query$variables = {||};
 export type RelayReaderNamedFragmentsTest2Query$data = {|
-  +named_fragment: ?{|
+  +aliased_fragment: ?{|
     +me: ?{|
       +id: string,
       +name: ?string,

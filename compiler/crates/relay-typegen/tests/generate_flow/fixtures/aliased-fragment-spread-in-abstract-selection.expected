@@ -5,7 +5,7 @@ fragment RelayReaderNamedFragmentsTest_maybe_node_interface on User {
 
 query RelayReaderNamedFragmentsTest2Query {
   node(id: "1") {
-    ...RelayReaderNamedFragmentsTest_maybe_node_interface @alias(as: "named_fragment")
+    ...RelayReaderNamedFragmentsTest_maybe_node_interface @alias(as: "aliased_fragment")
   }
 }
 ==================================== OUTPUT ===================================
@@ -13,7 +13,7 @@ import type { RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType } 
 export type RelayReaderNamedFragmentsTest2Query$variables = {||};
 export type RelayReaderNamedFragmentsTest2Query$data = {|
   +node: ?{|
-    +named_fragment: ?{|
+    +aliased_fragment: ?{|
       +$fragmentSpreads: RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType,
     |},
   |},

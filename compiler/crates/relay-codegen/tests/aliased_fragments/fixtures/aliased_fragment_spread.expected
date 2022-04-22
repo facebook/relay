@@ -5,7 +5,7 @@ fragment RelayReaderNamedFragmentsTest_user on User {
 
 query RelayReaderNamedFragmentsTest2Query {
   me {
-    ...RelayReaderNamedFragmentsTest_user @alias(as: "named_fragment")
+    ...RelayReaderNamedFragmentsTest_user @alias(as: "aliased_fragment")
   }
 }
 ==================================== OUTPUT ===================================
@@ -47,7 +47,7 @@ query RelayReaderNamedFragmentsTest2Query {
             "name": "RelayReaderNamedFragmentsTest_user"
           },
           "kind": "AliasedFragmentSpread",
-          "name": "named_fragment",
+          "name": "aliased_fragment",
           "type": "User",
           "abstractKey": null
         }

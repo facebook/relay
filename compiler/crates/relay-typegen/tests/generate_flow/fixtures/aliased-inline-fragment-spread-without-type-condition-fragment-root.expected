@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 fragment Foo on User {
-  ... @alias(as: "named_fragment") {
+  ... @alias(as: "aliased_fragment") {
     name
   }
 }
@@ -8,7 +8,7 @@ fragment Foo on User {
 import type { FragmentType } from "relay-runtime";
 declare export opaque type Foo$fragmentType: FragmentType;
 export type Foo$data = {|
-  +named_fragment: ?{|
+  +aliased_fragment: ?{|
     +name: ?string,
   |},
   +$fragmentType: Foo$fragmentType,

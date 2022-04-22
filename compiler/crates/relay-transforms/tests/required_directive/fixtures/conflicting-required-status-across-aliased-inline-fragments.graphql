@@ -1,5 +1,5 @@
 fragment Foo on Node {
-    ... on MaybeNodeInterface @alias(as: "named_fragment") {
+    ... on MaybeNodeInterface @alias(as: "aliased_fragment") {
         name @required(action: NONE)
     }
     name

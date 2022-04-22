@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 fragment Foo_user on Node {
-  ... on User @alias(as: "named_fragment") {
-    # Ensure the field_path we derive inlcudes "named_fragment"
+  ... on User @alias(as: "aliased_fragment") {
+    # Ensure the field_path we derive inlcudes "aliased_fragment"
     pop_star_name
   }
 }
@@ -23,7 +23,7 @@ fragment Foo_user on Node {
   # FragmentAliasMetadata {
   #     alias: WithLocation {
   #         location: relay-resolver-within-named-inline-fragment.graphql:49:51,
-  #         item: "named_fragment",
+  #         item: "aliased_fragment",
   #     },
   #     type_condition: Some(
   #         Object(68),
@@ -37,7 +37,7 @@ fragment Foo_user on Node {
     #     import_path: "PopStarNameResolver",
     #     field_name: "pop_star_name",
     #     field_alias: None,
-    #     field_path: "named_fragment.pop_star_name",
+    #     field_path: "aliased_fragment.pop_star_name",
     #     field_arguments: [],
     #     live: false,
     # }

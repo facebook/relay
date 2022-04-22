@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+query RelayReaderNamedFragmentsTest2Query {
+  me {
+    id
+    ... on User @alias(as: "named_fragment") {
+      name
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type RelayReaderNamedFragmentsTest2Query$variables = {};
+export type RelayReaderNamedFragmentsTest2Query$data = {
+  readonly me: {
+    readonly id: string;
+    readonly named_fragment: {
+      readonly name: string | null;
+    } | null;
+  } | null;
+};
+export type RelayReaderNamedFragmentsTest2Query = {
+  response: RelayReaderNamedFragmentsTest2Query$data;
+  variables: RelayReaderNamedFragmentsTest2Query$variables;
+};

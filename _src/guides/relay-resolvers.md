@@ -66,13 +66,13 @@ function MyGreeting({userKey}) {
 
 The Relay compiler looks for the following fields in any docblocks that includes `@RelayResolver`:
 
-- `@RelayResolvers` (required)
+- `@RelayResolver` (required)
 - `@onType` or `@onInterface` (required) The GraphQL type/interface on which the new field should be exposed
 - `@fieldName` (required) The name of the new field
 - `@rootFragment` (required) The name of the fragment read by `readFragment`
 - `@deprecated` (optional) Indicates that the field is [deprecated](https://spec.graphql.org/June2018/#sec--deprecated). May be optionally followed text giving the reason that the field is deprecated.
 
-The  docblock may also contain free text. This free text will be used as the field’s human-readable description, which will be surfaced in Relay’s editor support on hover and in autocomplete results.
+The docblock may also contain free text. This free text will be used as the field’s human-readable description, which will be surfaced in Relay’s editor support on hover and in autocomplete results.
 
 ## Relay Resolver Signature
 
@@ -100,7 +100,7 @@ When the field is first read by a component, Relay will evaluate the Relay Resol
 
 ## Error Handling
 
-In order to make product code as robust as possible, Relay Resolvers follow the GraphQL spec’s documented [best practice](https://graphql.org/learn/best-practices/#nullability) of returning null when a field resolver errors. Instead of throwing, errors thrown by Relay Resolves will be logged to your environment's configured `requiredFieldLogger` with an event of kind `"relay_resolver.error"`. If you make use of Relay Resolves you should be sure to configure your environment with a `requiredFieldLogger` which reports those events to whatever system you use for tracking runtime errors.
+In order to make product code as robust as possible, Relay Resolvers follow the GraphQL spec’s documented [best practice](https://graphql.org/learn/best-practices/#nullability) of returning null when a field resolver errors. Instead of throwing, errors thrown by Relay Resolvers will be logged to your environment's configured `requiredFieldLogger` with an event of kind `"relay_resolver.error"`. If you make use of Relay Resolves you should be sure to configure your environment with a `requiredFieldLogger` which reports those events to whatever system you use for tracking runtime errors.
 
 If your component requires a non-null value in order to render, and can’t provide a reasonable fallback experience, you can annotate the field access with `@required`.
 

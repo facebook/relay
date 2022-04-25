@@ -98,7 +98,7 @@ lazy_static! {
         ProvidedVariableMetadata::directive_name(),
         FragmentAliasMetadata::directive_name(),
     ];
-    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [StringKey; 12] = [
+    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [StringKey; 11] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
         *HANDLE_FIELD_DIRECTIVE_NAME,
@@ -109,7 +109,6 @@ lazy_static! {
         *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
         ReactFlightLocalComponentsMetadata::directive_name(),
         *REQUIRED_DIRECTIVE_NAME,
-        RelayResolverSpreadMetadata::directive_name(),
         RelayClientComponentMetadata::directive_name(),
     ];
     static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 7] = [

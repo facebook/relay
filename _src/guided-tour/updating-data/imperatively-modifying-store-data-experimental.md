@@ -169,7 +169,7 @@ extend type User {
 ```js
 // UserSelectToggle.react.js
 import type {RecordSourceSelectorProxy} from 'react-relay';
-import type {UserSelectToggle_user$key, UserSelectToggle_user} from 'UserSelectToggle_user.graphql';
+import type {UserSelectToggle_viewer$key} from 'UserSelectToggle_viewer.graphql';
 
 const {useRelayEnvironment, commitLocalUpdate} = require('react-relay');
 
@@ -177,7 +177,7 @@ function UserSelectToggle({ userId, viewerRef }: {
   userId: string,
   viewerRef: UserSelectToggle_viewer$key,
 }) {
-  const viewer = useFragment<UserSelectToggle_viewer>(graphql`
+  const viewer = useFragment(graphql`
     fragment UserSelectToggle_viewer on Viewer {
       user(user_id: $user_id) {
         id

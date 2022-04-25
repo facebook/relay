@@ -16,14 +16,12 @@ import DocsRating from '@site/src/core/DocsRating';
 Hook used to fetch a GraphQL query during render. This hook can trigger multiple nested or waterfalling round trips if used without caution, and waits until render to start a data fetch (when it can usually start a lot sooner than render), thereby degrading performance. Instead, prefer [`usePreloadedQuery`](../use-preloaded-query).
 
 ```js
-import type {AppQuery} from 'AppQuery.graphql';
-
 const React = require('React');
 
 const {graphql, useLazyLoadQuery} = require('react-relay');
 
 function App() {
-  const data = useLazyLoadQuery<AppQuery>(
+  const data = useLazyLoadQuery(
     graphql`
       query AppQuery($id: ID!) {
         user(id: $id) {

@@ -92,7 +92,7 @@ In order to create a subscription in Relay, we can use the `useSubscription` and
 
 ```js
 import type {Environment} from 'react-relay';
-import type {FeedbackLikeSubscribeData, FeedbackLikeSubscription} from 'FeedbackLikeSubscription.graphql';
+import type {FeedbackLikeSubscribeData} from 'FeedbackLikeSubscription.graphql';
 
 const {graphql, useSubscription} = require('react-relay');
 const {useMemo} = require('React');
@@ -115,7 +115,7 @@ function useFeedbackSubscription(
     variables: {input},
   }, [input])
 
-  return useSubscription<FeedbackLikeSubscription>(config);
+  return useSubscription(config);
 }
 ```
 

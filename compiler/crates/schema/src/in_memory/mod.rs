@@ -932,6 +932,7 @@ impl InMemorySchema {
                 type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
                 default_value: None,
                 description: None,
+                directives: Default::default(),
             }]),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
             directives: Vec::new(),
@@ -1421,6 +1422,7 @@ impl InMemorySchema {
                         type_: self.build_input_object_reference(&arg_def.type_)?,
                         default_value: arg_def.default_value.clone(),
                         description: None,
+                        directives: self.build_directive_values(&arg_def.directives),
                     })
                 })
                 .collect();

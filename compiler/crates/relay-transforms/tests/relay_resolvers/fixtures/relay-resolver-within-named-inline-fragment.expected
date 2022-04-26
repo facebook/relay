@@ -1,0 +1,56 @@
+==================================== INPUT ====================================
+fragment Foo_user on Node {
+  ... on User @alias(as: "aliased_fragment") {
+    # Ensure the field_path we derive inlcudes "aliased_fragment"
+    pop_star_name
+  }
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}
+==================================== OUTPUT ===================================
+fragment Foo_user on Node {
+  ... on User @__FragmentAliasMetadata
+  # FragmentAliasMetadata {
+  #     alias: WithLocation {
+  #         location: relay-resolver-within-named-inline-fragment.graphql:49:51,
+  #         item: "aliased_fragment",
+  #     },
+  #     type_condition: Some(
+  #         Object(68),
+  #     ),
+  #     selection_type: Object(68),
+  # }
+   {
+    ...PopStarNameResolverFragment_name @__RelayResolverSpreadMetadata
+    # RelayResolverSpreadMetadata {
+    #     field_parent_type: "User",
+    #     import_path: "PopStarNameResolver",
+    #     field_name: "pop_star_name",
+    #     field_alias: None,
+    #     field_path: "aliased_fragment.pop_star_name",
+    #     field_arguments: [],
+    #     live: false,
+    # }
+    
+  }
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  parents {
+    lastName
+  }
+}
+
+# Implicit Dependencies:
+#
+# Foo_user --> {PopStarNameResolverFragment_name}

@@ -24,9 +24,16 @@ graphql`
 ==================================== OUTPUT ===================================
 RelayResolver(
     RelayResolverIr {
-        field_name: WithLocation {
-            location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:53:66,
-            item: "favorite_page",
+        field: FieldDefinitionStub {
+            name: Identifier {
+                span: 53:66,
+                token: Token {
+                    span: 53:66,
+                    kind: Identifier,
+                },
+                value: "favorite_page",
+            },
+            arguments: None,
         },
         on: Type(
             PopulatedIrField {
@@ -56,5 +63,6 @@ RelayResolver(
         ),
         live: None,
         location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:0:130,
+        fragment_arguments: None,
     },
 )

@@ -43,6 +43,7 @@ extend type User {
             "selections": [
               {
                 "alias": "pop_star_name_alias",
+                "args": null,
                 "fragment": {
                   "args": null,
                   "kind": "FragmentSpread",

@@ -18,6 +18,12 @@ const {
   expectConsoleErrorsMany,
   expectConsoleErrorWillFire,
 } = require('./consoleError');
+const {
+  disallowConsoleWarnings,
+  expectConsoleWarning,
+  expectConsoleWarningsMany,
+  expectConsoleWarningWillFire,
+} = require('./consoleWarning');
 const describeWithFeatureFlags = require('./describeWithFeatureFlags');
 const {
   FIXTURE_TAG,
@@ -57,10 +63,14 @@ module.exports = {
   createMockEnvironment,
   describeWithFeatureFlags,
   disallowConsoleErrors,
+  disallowConsoleWarnings,
   disallowWarnings,
   expectConsoleError,
   expectConsoleErrorsMany,
   expectConsoleErrorWillFire,
+  expectConsoleWarningWillFire,
+  expectConsoleWarning,
+  expectConsoleWarningsMany,
   expectToWarn,
   expectToWarnMany,
   expectWarningWillFire,

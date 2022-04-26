@@ -12,8 +12,8 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
 import type {OperationDescriptor} from '../RelayStoreTypes';
+import type {Variables} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {graphql} = require('../../query/GraphQLTag');
 const {
@@ -40,7 +40,7 @@ describe('RelayModernSelector', () => {
   let UsersFragment;
   let environment;
   let zuck;
-  let variables;
+  let variables: Variables;
   let operationVariables;
   let operationDescriptor: OperationDescriptor;
   let owner;

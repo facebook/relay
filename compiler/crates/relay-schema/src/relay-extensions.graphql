@@ -249,3 +249,11 @@ Marks a given fragment as assignable.
 [Read More](https://fb.quip.com/4FZaADvkQPPl)
 """
 directive @assignable on FRAGMENT_DEFINITION
+
+"""
+(Relay Only)
+
+Exposes a fragment's data as a new field which can be null checked to ensure it
+matches the parent selection.
+"""
+directive @alias(as: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT

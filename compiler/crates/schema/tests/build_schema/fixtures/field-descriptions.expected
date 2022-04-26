@@ -54,6 +54,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -77,6 +78,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -302,6 +304,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         type_: NonNull(
@@ -413,6 +416,7 @@ directives: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -436,6 +440,7 @@ directives: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [

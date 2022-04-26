@@ -192,7 +192,7 @@ describe('requestSubscription-test', () => {
   });
 
   describe('requestSubscription() cacheConfig', () => {
-    let cacheMetadata;
+    let cacheMetadata: ?{[key: string]: mixed};
     let environment;
     let CommentCreateSubscription;
     const feedbackId = 'foo';

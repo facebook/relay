@@ -5,14 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Named, WithLocation};
+use common::{Named, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, ExecutableDefinition,
     FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, OperationDefinition,
     ScalarField, Selection, Value, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
-use intern::string_key::StringKey;
+use intern::string_key::{Intern, StringKey};
 use schema::{SDLSchema, Schema};
 use std::fmt::{Result as FmtResult, Write};
 
@@ -187,12 +187,16 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_fragment(mut self, fragment: &FragmentDefinition) -> FmtResult {
         let fragment_name = fragment.name.item;
         let type_condition_name = self.schema.get_type_name(fragment.type_condition);
-        write!(
-            self.writer,
-            "fragment {} on {}",
-            fragment_name, type_condition_name
-        )
-        .unwrap();
+        write!(self.writer, "fragment {}", fragment_name)?;
+        if fragment
+            .directives
+            .named("argumentDefinitions".intern())
+            .is_none()
+        {
+            self.print_variable_definitions(&fragment.variable_definitions)?;
+        }
+        write!(self.writer, " on {}", type_condition_name)?;
+
         self.print_directives(
             &fragment.directives,
             None,

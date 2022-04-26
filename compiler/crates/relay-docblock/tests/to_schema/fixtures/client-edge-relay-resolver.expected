@@ -19,6 +19,12 @@
  * database or something. Then we got that info out again and put it out
  * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
  */
+
+graphql`
+  fragment myRootFragment on User {
+    id
+  }
+`
 ==================================== OUTPUT ===================================
 extend type User {
   favorite_page: Page @relay_resolver(fragment_name: "myRootFragment", import_path: "/path/to/test/fixture/client-edge-relay-resolver.js")

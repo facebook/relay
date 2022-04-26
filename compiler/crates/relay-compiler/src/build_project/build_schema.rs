@@ -5,10 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::config::ProjectConfig;
-use crate::docblocks::extract_schema_from_docblock_sources;
-use crate::{compiler_state::CompilerState, GraphQLAsts};
+use crate::{
+    compiler_state::{CompilerState, ProjectName},
+    config::ProjectConfig,
+    docblocks::extract_schema_from_docblock_sources,
+    GraphQLAsts,
+};
 use common::DiagnosticsResult;
+use fnv::FnvHashMap;
 use graphql_syntax::TypeSystemDefinition;
 use schema::SDLSchema;
 use std::sync::Arc;
@@ -16,7 +20,7 @@ use std::sync::Arc;
 pub fn build_schema(
     compiler_state: &CompilerState,
     project_config: &ProjectConfig,
-    graphql_asts: Option<&GraphQLAsts>,
+    graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
 ) -> DiagnosticsResult<Arc<SDLSchema>> {
     let schema = compiler_state.schema_cache.get(&project_config.name);
     match schema {
@@ -49,43 +53,50 @@ pub fn build_schema(
                 let mut projects = vec![project_config.name];
                 projects.extend(project_config.base);
 
-                let docblock_sources = projects
-                    .iter()
-                    .map(|name| compiler_state.docblocks.get(name))
-                    .flatten();
+                let docblock_ast_sources = projects.iter().map(|project_name| {
+                    (
+                        compiler_state.docblocks.get(project_name),
+                        graphql_asts_map.get(project_name),
+                    )
+                });
 
-                for docblocks in docblock_sources {
-                    for (file_path, docblock_sources) in &docblocks.get_all() {
-                        let executable_definitions = graphql_asts
-                            .and_then(|asts| asts.get_executable_definitions_for_file(file_path));
+                for docblock_ast in docblock_ast_sources {
+                    if let (Some(docblocks), Some(graphql_asts)) = docblock_ast {
+                        for (file_path, docblock_sources) in &docblocks.get_all() {
+                            let executable_definitions =
+                                graphql_asts.get_executable_definitions_for_file(file_path);
 
-                        for schema_document in extract_schema_from_docblock_sources(
-                            file_path,
-                            docblock_sources,
-                            &schema,
-                            executable_definitions,
-                        )? {
-                            for definition in schema_document.definitions {
-                                match definition {
-                                    TypeSystemDefinition::ObjectTypeExtension(extension) => schema
-                                        .add_object_type_extension(
-                                            extension,
-                                            schema_document.location.source_location(),
-                                            true,
-                                        )?,
-                                    TypeSystemDefinition::InterfaceTypeExtension(extension) => {
-                                        schema.add_interface_type_extension(
-                                            extension,
-                                            schema_document.location.source_location(),
-                                            true,
-                                        )?
+                            for schema_document in extract_schema_from_docblock_sources(
+                                file_path,
+                                docblock_sources,
+                                &schema,
+                                executable_definitions,
+                            )? {
+                                for definition in schema_document.definitions {
+                                    match definition {
+                                        TypeSystemDefinition::ObjectTypeExtension(extension) => {
+                                            schema.add_object_type_extension(
+                                                extension,
+                                                schema_document.location.source_location(),
+                                                true,
+                                            )?
+                                        }
+                                        TypeSystemDefinition::InterfaceTypeExtension(extension) => {
+                                            schema.add_interface_type_extension(
+                                                extension,
+                                                schema_document.location.source_location(),
+                                                true,
+                                            )?
+                                        }
+                                        _ => panic!(
+                                            "Expected docblocks to only expose object and interface extensions"
+                                        ),
                                     }
-                                    _ => panic!(
-                                        "Expected docblocks to only expose object and interface extensions"
-                                    ),
                                 }
                             }
                         }
+                    } else {
+                        panic!("Expected to have access to AST and docblock sources.");
                     }
                 }
             }

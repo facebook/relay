@@ -55,6 +55,7 @@ function createOperationLoader() {
       if (entry == null) {
         let resolveFn = _x => undefined;
         const promise = new Promise(resolve_ => {
+          // $FlowFixMe[incompatible-type]
           resolveFn = resolve_;
         });
         entry = {kind: 'promise', promise, resolve: resolveFn};

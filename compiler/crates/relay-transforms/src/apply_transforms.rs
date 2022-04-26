@@ -218,16 +218,30 @@ fn apply_reader_transforms(
         None,
     )?;
 
+    program = log_event.time("fragment_alias_directive", || {
+        fragment_alias_directive(
+            &program,
+            &project_config.feature_flags.enable_fragment_aliases,
+        )
+    })?;
+
     program = log_event.time("required_directive", || required_directive(&program))?;
     program = log_event.time("client_edges", || {
         client_edges(&program, &project_config.schema_config)
     })?;
+    if project_config.feature_flags.enable_relay_resolver_transform {
+        log_event.time("validate_resolver_fragments", || {
+            validate_resolver_fragments(&program)
+        })?;
+    }
+
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(
             &program,
             project_config.feature_flags.enable_relay_resolver_transform,
         )
     })?;
+
     program = log_event.time("client_extensions", || client_extensions(&program));
     program = log_event.time("handle_field_transform", || {
         handle_field_transform(&program)
@@ -539,6 +553,13 @@ fn apply_typegen_transforms(
         &log_event,
         None,
     )?;
+
+    program = log_event.time("fragment_alias_directive", || {
+        fragment_alias_directive(
+            &program,
+            &project_config.feature_flags.enable_fragment_aliases,
+        )
+    })?;
 
     program = log_event.time("mask", || mask(&program));
     program = log_event.time("transform_match", || {

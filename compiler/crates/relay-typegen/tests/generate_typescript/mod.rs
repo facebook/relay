@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, SourceLocationKey};
+use common::{ConsoleLogger, FeatureFlag, FeatureFlags, SourceLocationKey};
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_ir::{build, Program};
@@ -44,6 +44,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             language: TypegenLanguage::TypeScript,
             ..Default::default()
         },
+        feature_flags: Arc::new(FeatureFlags {
+            enable_fragment_aliases: FeatureFlag::Enabled,
+            ..Default::default()
+        }),
         ..Default::default()
     };
     let programs = apply_transforms(

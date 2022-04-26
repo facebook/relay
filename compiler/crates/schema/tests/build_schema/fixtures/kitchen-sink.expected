@@ -77,6 +77,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -100,6 +101,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -123,6 +125,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
             Argument {
                 name: "name",
@@ -133,6 +136,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -224,6 +228,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         type_: Named(
@@ -255,6 +260,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         type_: NonNull(
@@ -482,6 +488,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         type_: NonNull(
@@ -510,6 +517,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
             Argument {
                 name: "lon",
@@ -520,6 +528,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
             Argument {
                 name: "city",
@@ -528,6 +537,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
             Argument {
                 name: "zip",
@@ -536,6 +546,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
             Argument {
                 name: "previous_cities",
@@ -548,6 +559,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         directives: [
@@ -807,6 +819,7 @@ directives: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -830,6 +843,7 @@ directives: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -853,6 +867,7 @@ directives: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
             Argument {
                 name: "name",
@@ -863,6 +878,7 @@ directives: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -1004,6 +1020,7 @@ fields: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         type_: Named(
@@ -1035,6 +1052,7 @@ fields: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         type_: NonNull(
@@ -1135,6 +1153,7 @@ input_objects: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
             Argument {
                 name: "lon",
@@ -1145,6 +1164,7 @@ input_objects: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
             Argument {
                 name: "city",
@@ -1153,6 +1173,7 @@ input_objects: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
             Argument {
                 name: "zip",
@@ -1161,6 +1182,7 @@ input_objects: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
             Argument {
                 name: "previous_cities",
@@ -1173,6 +1195,7 @@ input_objects: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         directives: [

@@ -227,7 +227,9 @@ function executeOperationAndKeepUpToDate(
   promise.displayName = 'Relay(' + operation.request.node.operation.name + ')';
 
   let isFirstPayload = true;
-  let entry;
+  let entry:
+    | {|error: Error, status: 'rejected'|}
+    | {|result: QueryResult, status: 'resolved'|};
 
   // FIXME We may still need to cancel network requests for live queries.
   const fetchObservable =

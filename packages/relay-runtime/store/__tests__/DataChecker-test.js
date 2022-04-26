@@ -13,6 +13,24 @@
 
 'use strict';
 
+import type {
+  DataCheckerTest10Query$data,
+  DataCheckerTest10Query$variables,
+} from './__generated__/DataCheckerTest10Query.graphql';
+import type {
+  DataCheckerTest6Query$data,
+  DataCheckerTest6Query$variables,
+} from './__generated__/DataCheckerTest6Query.graphql';
+import type {
+  DataCheckerTest9Query$data,
+  DataCheckerTest9Query$variables,
+} from './__generated__/DataCheckerTest9Query.graphql';
+import type {
+  DataCheckerTestQuery$data,
+  DataCheckerTestQuery$variables,
+} from './__generated__/DataCheckerTestQuery.graphql';
+import type {Query as $IMPORTED_TYPE$_Query} from 'relay-runtime/util/RelayRuntimeTypes';
+
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
   getActorIdentifier,
@@ -36,7 +54,23 @@ const {createMockEnvironment} = require('relay-test-utils-internal');
 // This is not correct, and Flow is reporting these errors correctly. We need to prioritize fixing this.
 
 describe('check()', () => {
-  let Query;
+  let Query:
+    | $IMPORTED_TYPE$_Query<
+        DataCheckerTest10Query$variables,
+        DataCheckerTest10Query$data,
+      >
+    | $IMPORTED_TYPE$_Query<
+        DataCheckerTest6Query$variables,
+        DataCheckerTest6Query$data,
+      >
+    | $IMPORTED_TYPE$_Query<
+        DataCheckerTest9Query$variables,
+        DataCheckerTest9Query$data,
+      >
+    | $IMPORTED_TYPE$_Query<
+        DataCheckerTestQuery$variables,
+        DataCheckerTestQuery$data,
+      >;
   let sampleData;
   beforeEach(() => {
     sampleData = {
@@ -2361,6 +2395,7 @@ describe('check()', () => {
       beforeEach(() => {
         sampleData = {
           ...sampleData,
+          // $FlowFixMe[prop-missing]
           'client:4': {
             __id: 'client:4',
             __typename: 'Photo',
@@ -2473,6 +2508,7 @@ describe('check()', () => {
       });
 
       it('returns null invalidation epoch when stale record is unreachable', () => {
+        // $FlowFixMe[prop-missing]
         sampleData = {
           // Root record is missing, so none of the descendants are reachable
           '1': {
@@ -2487,9 +2523,11 @@ describe('check()', () => {
             __id: 'client:1',
             __typename: 'FriendsConnection',
             edges: {
+              // $FlowFixMe[incompatible-type]
               __refs: [],
             },
           },
+          // $FlowFixMe[prop-missing]
           'client:4': {
             __id: 'client:4',
             __typename: 'Photo',

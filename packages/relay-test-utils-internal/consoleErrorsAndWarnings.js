@@ -15,6 +15,7 @@
 
 export type WillFireOptions = {
   count?: number,
+  optional?: boolean,
 };
 
 type API = $ReadOnly<{|
@@ -33,6 +34,7 @@ function createConsoleInterceptionSystem(
 ): API {
   let installed = false;
   const expectedMessages: Array<string> = [];
+  const optionalMessages: Array<string> = [];
   const contextualExpectedMessage: Array<string> = [];
 
   const typenameCap = typename.charAt(0).toUpperCase() + typename.slice(1);
@@ -43,6 +45,9 @@ function createConsoleInterceptionSystem(
     const index = expectedMessages.findIndex(expected =>
       message.startsWith(expected),
     );
+    const optionalIndex = optionalMessages.findIndex(expected =>
+      message.startsWith(expected),
+    );
     if (
       contextualExpectedMessage.length > 0 &&
       message.startsWith(contextualExpectedMessage[0])
@@ -50,6 +55,8 @@ function createConsoleInterceptionSystem(
       contextualExpectedMessage.shift();
     } else if (index >= 0) {
       expectedMessages.splice(index, 1);
+    } else if (optionalIndex >= 0) {
+      optionalMessages.splice(optionalIndex, 1);
     } else {
       // log to console in case the error gets swallowed somewhere
       originalConsoleError(`Unexpected ${typenameCap}: ` + message);
@@ -65,6 +72,7 @@ function createConsoleInterceptionSystem(
     setUpMock(handleMessage);
 
     afterEach(() => {
+      optionalMessages.length = 0;
       contextualExpectedMessage.length = 0;
       if (expectedMessages.length > 0) {
         const error = new Error(
@@ -89,8 +97,9 @@ function createConsoleInterceptionSystem(
         `${installerName} needs to be called before expect${typenameCapPlural}WillFire`,
       );
     }
+    const optional = options?.optional === true; // avoid "sketchy null check"
     for (let i = 0; i < (options?.count ?? 1); i++) {
-      expectedMessages.push(message);
+      (optional ? optionalMessages : expectedMessages).push(message);
     }
   }
 

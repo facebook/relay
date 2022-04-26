@@ -13,6 +13,52 @@
 
 'use strict';
 
+import type {
+  FragmentResourceTest1Fragment$data,
+  FragmentResourceTest1Fragment$fragmentType,
+} from './__generated__/FragmentResourceTest1Fragment.graphql';
+import type {
+  FragmentResourceTest1Query$data,
+  FragmentResourceTest1Query$variables,
+} from './__generated__/FragmentResourceTest1Query.graphql';
+import type {
+  FragmentResourceTest3Fragment$data,
+  FragmentResourceTest3Fragment$fragmentType,
+} from './__generated__/FragmentResourceTest3Fragment.graphql';
+import type {
+  FragmentResourceTest4Fragment$data,
+  FragmentResourceTest4Fragment$fragmentType,
+} from './__generated__/FragmentResourceTest4Fragment.graphql';
+import type {
+  FragmentResourceTest4Query$data,
+  FragmentResourceTest4Query$variables,
+} from './__generated__/FragmentResourceTest4Query.graphql';
+import type {
+  FragmentResourceTest5Fragment$data,
+  FragmentResourceTest5Fragment$fragmentType,
+} from './__generated__/FragmentResourceTest5Fragment.graphql';
+import type {
+  FragmentResourceTest5Query$data,
+  FragmentResourceTest5Query$variables,
+} from './__generated__/FragmentResourceTest5Query.graphql';
+import type {
+  FragmentResourceTest6Fragment$data,
+  FragmentResourceTest6Fragment$fragmentType,
+} from './__generated__/FragmentResourceTest6Fragment.graphql';
+import type {
+  FragmentResourceTest6Query$data,
+  FragmentResourceTest6Query$variables,
+} from './__generated__/FragmentResourceTest6Query.graphql';
+import type {
+  FragmentResourceTest7Fragment$data,
+  FragmentResourceTest7Fragment$fragmentType,
+} from './__generated__/FragmentResourceTest7Fragment.graphql';
+import type {
+  FragmentResourceTest8Fragment$data,
+  FragmentResourceTest8Fragment$fragmentType,
+} from './__generated__/FragmentResourceTest8Fragment.graphql';
+import type {Fragment, Query} from 'relay-runtime/util/RelayRuntimeTypes';
+
 const {getFragmentResourceForEnvironment} = require('../FragmentResource');
 const {
   __internal: {fetchQuery},
@@ -28,12 +74,56 @@ describe('FragmentResource', () => {
   let queryPlural;
   let FragmentResource;
   let createMockEnvironment;
-  let UserQuery;
-  let UserFragment;
+  let UserQuery:
+    | Query<
+        FragmentResourceTest1Query$variables,
+        FragmentResourceTest1Query$data,
+      >
+    | Query<
+        FragmentResourceTest4Query$variables,
+        FragmentResourceTest4Query$data,
+      >
+    | Query<
+        FragmentResourceTest5Query$variables,
+        FragmentResourceTest5Query$data,
+      >
+    | Query<
+        FragmentResourceTest6Query$variables,
+        FragmentResourceTest6Query$data,
+      >;
+  let UserFragment:
+    | Fragment<
+        FragmentResourceTest1Fragment$fragmentType,
+        FragmentResourceTest1Fragment$data,
+      >
+    | Fragment<
+        FragmentResourceTest4Fragment$fragmentType,
+        FragmentResourceTest4Fragment$data,
+      >
+    | Fragment<
+        FragmentResourceTest5Fragment$fragmentType,
+        FragmentResourceTest5Fragment$data,
+      >
+    | Fragment<
+        FragmentResourceTest6Fragment$fragmentType,
+        FragmentResourceTest6Fragment$data,
+      >;
   let UserQueryMissing;
   let UserFragmentMissing;
   let UsersQuery;
-  let UsersFragment;
+  let UsersFragment:
+    | Fragment<
+        FragmentResourceTest3Fragment$fragmentType,
+        FragmentResourceTest3Fragment$data,
+      >
+    | Fragment<
+        FragmentResourceTest7Fragment$fragmentType,
+        FragmentResourceTest7Fragment$data,
+      >
+    | Fragment<
+        FragmentResourceTest8Fragment$fragmentType,
+        FragmentResourceTest8Fragment$data,
+      >;
   const variables = {
     id: '4',
   };
@@ -1333,7 +1423,7 @@ describe('FragmentResource', () => {
 
   describe('subscribeSpec', () => {
     let unsubscribe;
-    let callback;
+    let callback: JestMockFn<$ReadOnlyArray<mixed>, void>;
     beforeEach(() => {
       unsubscribe = jest.fn();
       callback = jest.fn();

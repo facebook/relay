@@ -392,7 +392,9 @@ class QueryResourceImpl {
 
     let shouldFetch;
     let shouldAllowRender;
-    let resolveNetworkPromise = () => {};
+    // Different definitions for Promise in our repos can cause this variable
+    // to cause errors when synced elsewhere
+    let resolveNetworkPromise: $FlowFixMe = () => {};
     switch (fetchPolicy) {
       case 'store-only': {
         shouldFetch = false;
@@ -436,7 +438,7 @@ class QueryResourceImpl {
 
     if (shouldFetch) {
       const queryResult = getQueryResult(operation, cacheIdentifier);
-      let networkSubscription;
+      let networkSubscription: ?Subscription;
       fetchObservable.subscribe({
         start: subscription => {
           networkSubscription = subscription;

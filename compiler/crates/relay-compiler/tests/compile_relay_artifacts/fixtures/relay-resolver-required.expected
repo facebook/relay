@@ -45,6 +45,7 @@ extend type User {
                 "kind": "RequiredField",
                 "field": {
                   "alias": null,
+                  "args": null,
                   "fragment": {
                     "args": null,
                     "kind": "FragmentSpread",

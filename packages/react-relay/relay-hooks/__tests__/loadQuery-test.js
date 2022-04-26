@@ -13,6 +13,12 @@
 
 'use strict';
 
+import type {
+  loadQueryTestQuery$data,
+  loadQueryTestQuery$variables,
+} from './__generated__/loadQueryTestQuery.graphql';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
+
 const {loadQuery, useTrackLoadQueryInRender} = require('../loadQuery');
 // Need React require for OSS build
 // eslint-disable-next-line no-unused-vars
@@ -71,15 +77,18 @@ describe('loadQuery', () => {
   let fetch;
   let environment;
 
-  let executeUnsubscribe;
+  let executeUnsubscribe: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
   let executeObservable;
 
   let networkUnsubscribe;
 
-  let disposeEnvironmentRetain;
+  let disposeEnvironmentRetain: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
 
-  let resolvedModule;
-  let mockAvailability;
+  let resolvedModule: ?Query<
+    loadQueryTestQuery$variables,
+    loadQueryTestQuery$data,
+  >;
+  let mockAvailability: {|fetchTime?: number, status: string|};
   let disposeOnloadCallback;
   let executeOnloadCallback;
 

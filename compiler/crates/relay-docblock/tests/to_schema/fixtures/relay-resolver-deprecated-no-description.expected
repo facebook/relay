@@ -8,13 +8,19 @@
 
 /**
  * @RelayResolver
- * 
+ *
  * @onType User
  * @fieldName favorite_page
  * @edgeTo Page
  * @rootFragment myRootFragment
  * @deprecated
  */
+
+graphql`
+  fragment myRootFragment on User {
+    id
+  }
+`
 ==================================== OUTPUT ===================================
 extend type User {
   favorite_page: Page @relay_resolver(fragment_name: "myRootFragment", import_path: "/path/to/test/fixture/relay-resolver-deprecated-no-description.js") @deprecated

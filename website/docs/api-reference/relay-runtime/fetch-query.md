@@ -17,13 +17,11 @@ import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 If you want to fetch a query outside of React, you can use the `fetchQuery` function from `react-relay`:
 
 ```js
-import type {AppQuery} from 'AppQuery.graphql';
-
 // You should prefer passing an environment that was returned from useRelayEnvironment()
 const MyEnvironment = require('MyEnvironment');
 const {fetchQuery} = require('react-relay');
 
-fetchQuery<AppQuery>(
+fetchQuery(
   environment,
   graphql`
     query AppQuery($id: ID!) {
@@ -90,11 +88,9 @@ fetchQuery<AppQuery>(
 If desired, you can convert the request into a Promise using `**.toPromise()**`. Note that toPromise will start the query and return a Promise that will resolve when the *first* piece of data returns from the server and *cancel further processing*. That means any deferred or 3D data in the query may not be processed. **We generally recommend against using toPromise() for this reason.**
 
 ```js
-import type {AppQuery} from 'AppQuery.graphql';
-
 const {fetchQuery} = require('react-relay');
 
-fetchQuery<AppQuery>(
+fetchQuery(
   environment,
   graphql`
     query AppQuery($id: ID!) {

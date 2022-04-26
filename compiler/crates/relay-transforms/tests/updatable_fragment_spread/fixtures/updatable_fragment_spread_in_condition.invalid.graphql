@@ -1,0 +1,10 @@
+# expected-to-throw
+fragment Foo on Query {
+  node(id: "4") {
+    ...Updatable_node @skip(if: true)
+  }
+}
+
+fragment Updatable_node on Node @updatable {
+  __id
+}

@@ -45,9 +45,9 @@ pub fn create_docblock_resolution_info(
                 ));
             }
 
-            if resolver_ir.field_name.location.contains(position_span) {
+            if resolver_ir.field.name.span.contains(position_span) {
                 return Ok(DocblockResolutionInfo::FieldName(
-                    resolver_ir.field_name.item,
+                    resolver_ir.field.name.value,
                 ));
             }
 

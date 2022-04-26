@@ -78,7 +78,7 @@ let next;
 let error;
 let complete;
 let executeObservable;
-let executeUnsubscribe;
+let executeUnsubscribe: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
 let networkUnsubscribe;
 
 beforeEach(() => {

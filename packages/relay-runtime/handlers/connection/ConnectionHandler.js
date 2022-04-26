@@ -141,7 +141,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
       connection.setLinkedRecord(prevPageInfo, PAGE_INFO);
     }
 
-    let nextEdges = [];
+    let nextEdges: Array<?RecordProxy> = [];
     const args = payload.args;
     if (prevEdges && serverEdges) {
       if (args.after != null) {
@@ -189,6 +189,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     } else if (serverEdges) {
       nextEdges = serverEdges;
     } else {
+      // $FlowFixMe[incompatible-type]
       nextEdges = prevEdges;
     }
     // Update edges only if they were updated, the null check is

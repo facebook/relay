@@ -11,7 +11,7 @@ fragment EnabledFoo on Node {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing because the inline fragment did not match
+✖︎ Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing because the inline fragment did not match. Consider using `@alias` to give your inline fragment a name.
 
   inline-fragment-on-interface-in-concrete.invalid.graphql:8:12
     7 │       # be fine to just not allow it.

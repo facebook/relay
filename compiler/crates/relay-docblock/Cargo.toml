@@ -26,5 +26,6 @@ thiserror = "1.0.30"
 [dev-dependencies]
 extract-graphql = { path = "../extract-graphql" }
 fixture-tests = { path = "../fixture-tests" }
+graphql-cli = { path = "../graphql-cli" }
 graphql-test-helpers = { path = "../graphql-test-helpers" }
 relay-test-schema = { path = "../relay-test-schema" }

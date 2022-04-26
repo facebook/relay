@@ -108,6 +108,12 @@ jobs:
             artifact-name: relay-bin-linux-x64
             packages: musl-tools
             features: vendored
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+            build-name: relay
+            artifact-name: relay-bin-linux-arm64
+            features: vendored
+            cross: true
           - target: x86_64-apple-darwin
             os: macos-latest
             build-name: relay
@@ -144,11 +150,19 @@ jobs:
       - name: Install packages
         if: matrix.target.os == 'ubuntu-latest' && matrix.target.packages
         run: sudo apt install ${{ matrix.target.packages }} -y
-      - uses: actions-rs/cargo@v1
+      - name: Install cross
+        if: matrix.target.cross
+        uses: actions-rs/cargo@v1
         with:
-          command: build
-          # add --locked back when we have a better way to ensure it's up to date
-          args: --manifest-path=compiler/Cargo.toml --release --target ${{ matrix.target.target }} ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
+          command: install
+          args: cross
+      # Current published version of cross only works correctly if run from compiler directory
+      # See related issue https://github.com/cross-rs/cross/issues/615
+      # actions-rs/cargo@v1 does not support this option https://github.com/actions-rs/cargo/pull/59
+      # Either we need to install cross from git or manually run cargo / cross instead of using action
+      - name: Build project
+        working-directory: compiler
+        run: ${{ matrix.target.cross && 'cross' || 'cargo' }} build --release --target ${{ matrix.target.target }} ${{ matrix.target.features && '--features' }} ${{ matrix.target.features }}
       - uses: actions/upload-artifact@v2
         with:
           name: ${{ matrix.target.artifact-name }}
@@ -173,6 +187,11 @@ jobs:
         with:
           name: relay-bin-linux-x64
           path: artifacts/linux-x64
+      - name: Download artifact relay-bin-linux-arm64
+        uses: actions/download-artifact@v2
+        with:
+          name: relay-bin-linux-arm64
+          path: artifacts/linux-arm64
       - name: Download artifact relay-bin-macos-x64
         uses: actions/download-artifact@v2
         with:
@@ -192,6 +211,7 @@ jobs:
         working-directory: artifacts
         run: |
           chmod +x linux-x64/relay
+          chmod +x linux-arm64/relay
           chmod +x macos-x64/relay
           chmod +x macos-arm64/relay
 

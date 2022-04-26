@@ -1,0 +1,49 @@
+==================================== INPUT ====================================
+query MyQuery @raw_response_type {
+  me {
+    ...MyUserFragment @alias(as: "my_user")
+    ... on User @alias(as: "my_inline_fragment") {
+      name
+    }
+  }
+}
+
+fragment MyUserFragment on User {
+  name
+}
+==================================== OUTPUT ===================================
+import type { MyUserFragment$fragmentType } from "MyUserFragment.graphql";
+export type MyQuery$variables = {||};
+export type MyQuery$data = {|
+  +me: ?{|
+    +my_inline_fragment: ?{|
+      +name: ?string,
+    |},
+    +my_user: ?{|
+      +$fragmentSpreads: MyUserFragment$fragmentType,
+    |},
+  |},
+|};
+export type MyQuery$rawResponse = {|
+  +me: ?{|
+    +id: string,
+    +name: ?string,
+  |},
+|};
+export type MyQuery = {|
+  rawResponse: MyQuery$rawResponse,
+  response: MyQuery$data,
+  variables: MyQuery$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type MyUserFragment$fragmentType: FragmentType;
+export type MyUserFragment$data = {|
+  +name: ?string,
+  +$fragmentType: MyUserFragment$fragmentType,
+|};
+export type MyUserFragment$key = {
+  +$data?: MyUserFragment$data,
+  +$fragmentSpreads: MyUserFragment$fragmentType,
+  ...
+};

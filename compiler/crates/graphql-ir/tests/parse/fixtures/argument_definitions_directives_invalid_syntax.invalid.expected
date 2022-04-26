@@ -11,8 +11,8 @@ fragment InvalidArgumentDirectives on User
 ==================================== ERROR ====================================
 ✖︎ Expected a at ('@')
 
-  argument_definitions_directives_invalid_syntax.invalid.graphql:6:46
+  argument_definitions_directives_invalid_syntax.invalid.graphql:6:47
     5 │   # should have @
     6 │   invalid_syntax: { type: "ID", directives: ["live_query"] }
-      │                                              ^^^^^^^^^^^^
+      │                                               ^^^^^^^^^^
     7 │ ) {

@@ -12,9 +12,7 @@ use crate::constants::ARGUMENT_DEFINITION;
 use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::{ConstantValue, VariableDefinition};
 use crate::{associated_data_impl, build_directive};
-use common::{
-    Diagnostic, DiagnosticsResult, FeatureFlag, Location, SourceLocationKey, WithLocation,
-};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Location, WithLocation};
 use errors::{par_try_map, try2};
 use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
@@ -315,17 +313,10 @@ fn build_fragment_variable_definitions(
                                 if let graphql_syntax::ConstantValue::String(directive_string) = item {
                                     let ast_directive = graphql_syntax::parse_directive(
                                         directive_string.value.lookup(),
-                                        // We currently don't have the ability to pass offset locations
-                                        // to the parser call, so we first use a generated location and
-                                        // later override it with an approximation.
-                                        SourceLocationKey::generated(),
-                                    )
-                                    .map_err(|mut diagnostics| {
-                                        for diagnostic in &mut diagnostics {
-                                            diagnostic.override_location(fragment.location.with_span(directive_string.token.span));
-                                        }
-                                        diagnostics
-                                    })?;
+                                        fragment.location.source_location(),
+                                        // Add 1 to account for the leading quote
+                                        directive_string.token.span.start + 1
+                                    )?;
                                     let directive = build_directive(
                                         schema,
                                         &ast_directive,
@@ -387,35 +378,24 @@ fn get_argument_type(
     type_arg: Option<&graphql_syntax::ConstantArgument>,
     object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
 ) -> DiagnosticsResult<TypeReference> {
-    let type_name_and_span = match type_arg {
+    let type_name_and_offset = match type_arg {
         Some(graphql_syntax::ConstantArgument {
             value: graphql_syntax::ConstantValue::String(type_name_node),
-            span,
             ..
-        }) => Some((type_name_node.value, span)),
+        }) => Some((
+            type_name_node.value,
+            // Add 1 to account for the leading quote
+            type_name_node.token.span.start + 1,
+        )),
         Some(graphql_syntax::ConstantArgument {
             value: graphql_syntax::ConstantValue::Enum(type_name_node),
-            span,
             ..
-        }) => Some((type_name_node.value, span)),
+        }) => Some((type_name_node.value, type_name_node.token.span.start)),
         _ => None,
     };
-    if let Some((type_name, &span)) = type_name_and_span {
-        let type_ast = graphql_syntax::parse_type(type_name.lookup(), location.source_location())
-            .map_err(|diagnostics| {
-            diagnostics
-                .into_iter()
-                .map(|diagnostic| {
-                    let message = diagnostic.message().to_string();
-                    Diagnostic::error(
-                        message,
-                        // TODO: ideally, `parse_type()` would take in the offset
-                        // location and report the error at the right location.
-                        location.with_span(span),
-                    )
-                })
-                .collect::<Vec<_>>()
-        })?;
+    if let Some((type_name, offset)) = type_name_and_offset {
+        let type_ast =
+            graphql_syntax::parse_type(type_name.lookup(), location.source_location(), offset)?;
         let type_ = build_type_annotation(schema, &type_ast, location)?;
         Ok(type_)
     } else {

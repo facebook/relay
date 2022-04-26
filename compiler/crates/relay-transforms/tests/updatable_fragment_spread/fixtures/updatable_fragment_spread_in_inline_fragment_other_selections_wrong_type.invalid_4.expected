@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on Query {
+  node(id: "4") {
+    ... on User {
+      __typename
+      ...Updatable_user
+    }
+    ...Foo_node
+  }
+}
+
+
+fragment Updatable_user on User @updatable {
+  __typename
+}
+
+fragment Foo_node on Node {
+  __id
+}
+==================================== ERROR ====================================
+✖︎ Because an updatable fragment was spread in an inline fragment in this linked field (`node`), this linked field can only contain inline fragments, and any inline fragments cannot have @skip or @if.
+
+  updatable_fragment_spread_in_inline_fragment_other_selections_wrong_type.invalid_4.graphql:3:3
+    2 │ fragment Foo on Query {
+    3 │   node(id: "4") {
+      │   ^^^^
+    4 │     ... on User {

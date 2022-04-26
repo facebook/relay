@@ -33,6 +33,7 @@ fragment Foo_user on User {
   #     field_name: "pop_star_name",
   #     field_alias: None,
   #     field_path: "pop_star_name",
+  #     field_arguments: [],
   #     live: false,
   # }
   
@@ -43,6 +44,7 @@ fragment Foo_user on User {
   #     field_name: "hobbit_name",
   #     field_alias: None,
   #     field_path: "hobbit_name",
+  #     field_arguments: [],
   #     live: false,
   # }
   

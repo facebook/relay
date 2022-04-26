@@ -21,6 +21,7 @@ import type {
   ReaderActorChange,
   ReaderArgument,
   ReaderField,
+  ReaderFragmentSpread,
 } from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
@@ -125,6 +126,7 @@ function getHandleStorageKey(
  */
 function getStorageKey(
   field:
+    | ReaderFragmentSpread
     | NormalizationField
     | NormalizationHandle
     | ReaderField

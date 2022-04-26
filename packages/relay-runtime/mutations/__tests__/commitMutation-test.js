@@ -12,9 +12,17 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
 import type {GraphQLResponseWithoutData} from '../../network/RelayNetworkTypes';
 import type {RecordSourceSelectorProxy} from '../../store/RelayStoreTypes';
+import type {
+  commitMutationTest4Query$data,
+  commitMutationTest4Query$variables,
+} from './__generated__/commitMutationTest4Query.graphql';
+import type {
+  commitMutationTest5Query$data,
+  commitMutationTest5Query$variables,
+} from './__generated__/commitMutationTest5Query.graphql';
+import type {CacheConfig, Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const ConnectionHandler = require('../../handlers/connection/ConnectionHandler');
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -434,14 +442,19 @@ describe('Configs: RANGE_DELETE', () => {
 
 describe('Configs: RANGE_ADD', () => {
   let callback,
-    CommentQuery,
+    CommentQuery:
+      | Query<commitMutationTest4Query$variables, commitMutationTest4Query$data>
+      | Query<
+          commitMutationTest5Query$variables,
+          commitMutationTest5Query$data,
+        >,
     data,
     environment,
     mutation,
     optimisticUpdater,
     payload: {...},
     store,
-    updater;
+    updater: (updaterStore: RecordSourceSelectorProxy) => void;
   const commentID = 'comment123';
 
   const feedbackID = 'feedback123';
@@ -880,7 +893,7 @@ describe('Configs: RANGE_ADD', () => {
   });
 
   it('does not overwrite previous edge when appended multiple times in updater function', () => {
-    updater = (updaterStore: $FlowFixMe | RecordSourceSelectorProxy) => {
+    updater = (updaterStore: RecordSourceSelectorProxy) => {
       const rootField = updaterStore.getRootField('commentCreate');
       const newEdge = nullthrows(rootField).getLinkedRecord(
         'feedbackCommentEdge',
@@ -1466,7 +1479,7 @@ describe('commitMutation()', () => {
 });
 
 describe('commitMutation() cacheConfig', () => {
-  let cacheConfig;
+  let cacheConfig: ?CacheConfig;
   let environment;
   let fragment;
   let mutation;

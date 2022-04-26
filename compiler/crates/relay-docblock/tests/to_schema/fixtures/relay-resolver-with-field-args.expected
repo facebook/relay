@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @RelayResolver
+ *
+ * @onType User
+ * @fieldName greeting(salutation: String!)
+ * @rootFragment myRootFragment
+ *
+ */
+
+graphql`
+  fragment myRootFragment on User {
+    name
+  }
+`
+==================================== OUTPUT ===================================
+extend type User {
+  greeting(salutation: String!): Int @relay_resolver(fragment_name: "myRootFragment", import_path: "/path/to/test/fixture/relay-resolver-with-field-args.js")
+}

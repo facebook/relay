@@ -62,7 +62,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
   let QueryComponent;
   let LoaderComponent;
   let queryRenderLogs;
-  let loaderRenderLogs;
+  let loaderRenderLogs: Array<any | string>;
 
   beforeEach(() => {
     jest.mock('scheduler', () => require('scheduler/unstable_mock'));

@@ -36,6 +36,7 @@ fragment Foo_user on User {
     #     field_name: "best_friend",
     #     field_alias: None,
     #     field_path: "best_friend",
+    #     field_arguments: [],
     #     live: false,
     # }
      @waterfall
@@ -53,6 +54,7 @@ fragment Foo_user on User {
         #     field_name: "best_friend",
         #     field_alias: None,
         #     field_path: "best_friend",
+        #     field_arguments: [],
         #     live: false,
         # }
          @waterfall
@@ -89,6 +91,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGe
     #     field_name: "best_friend",
     #     field_alias: None,
     #     field_path: "best_friend",
+    #     field_arguments: [],
     #     live: false,
     # }
      @waterfall

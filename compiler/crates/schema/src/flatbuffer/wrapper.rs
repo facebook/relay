@@ -145,6 +145,7 @@ impl SchemaWrapper {
                 ))),
                 default_value: None,
                 description: None,
+                directives: Default::default(),
             }]),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(
                 result.get_type("Boolean".intern()).unwrap(),

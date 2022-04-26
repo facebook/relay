@@ -48,6 +48,7 @@ extend type User {
       "concreteType": "ClientOnlyType",
       "backingField": {
         "alias": null,
+        "args": null,
         "fragment": {
           "args": null,
           "kind": "FragmentSpread",

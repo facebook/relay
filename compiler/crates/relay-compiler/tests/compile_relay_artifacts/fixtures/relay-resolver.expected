@@ -43,6 +43,7 @@ extend type User {
             "selections": [
               {
                 "alias": null,
+                "args": null,
                 "fragment": {
                   "args": null,
                   "kind": "FragmentSpread",

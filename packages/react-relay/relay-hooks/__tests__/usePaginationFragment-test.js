@@ -12,8 +12,24 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
+import type {
+  usePaginationFragmentTestStoryFragmentRefetchQuery$data,
+  usePaginationFragmentTestStoryFragmentRefetchQuery$variables,
+} from './__generated__/usePaginationFragmentTestStoryFragmentRefetchQuery.graphql';
+import type {
+  usePaginationFragmentTestStoryQuery$data,
+  usePaginationFragmentTestStoryQuery$variables,
+} from './__generated__/usePaginationFragmentTestStoryQuery.graphql';
+import type {
+  usePaginationFragmentTestUserFragmentPaginationQuery$data,
+  usePaginationFragmentTestUserFragmentPaginationQuery$variables,
+} from './__generated__/usePaginationFragmentTestUserFragmentPaginationQuery.graphql';
+import type {
+  usePaginationFragmentTestUserQuery$data,
+  usePaginationFragmentTestUserQuery$variables,
+} from './__generated__/usePaginationFragmentTestUserQuery.graphql';
 import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const usePaginationFragmentOriginal = require('../usePaginationFragment');
 const invariant = require('invariant');
@@ -36,12 +52,28 @@ const {useMemo, useState} = React;
 describe('usePaginationFragment', () => {
   let environment;
   let initialUser;
-  let gqlQuery;
+  let gqlQuery:
+    | Query<
+        usePaginationFragmentTestStoryQuery$variables,
+        usePaginationFragmentTestStoryQuery$data,
+      >
+    | Query<
+        usePaginationFragmentTestUserQuery$variables,
+        usePaginationFragmentTestUserQuery$data,
+      >;
   let gqlQueryNestedFragment;
   let gqlQueryWithoutID;
   let gqlQueryWithLiteralArgs;
   let gqlQueryWithStreaming;
-  let gqlPaginationQuery;
+  let gqlPaginationQuery:
+    | Query<
+        usePaginationFragmentTestStoryFragmentRefetchQuery$variables,
+        usePaginationFragmentTestStoryFragmentRefetchQuery$data,
+      >
+    | Query<
+        usePaginationFragmentTestUserFragmentPaginationQuery$variables,
+        usePaginationFragmentTestUserFragmentPaginationQuery$data,
+      >;
   let gqlFragment;
   let gqlFragmentWithStreaming;
   let query;
@@ -3971,6 +4003,8 @@ describe('usePaginationFragment', () => {
           }
         `;
 
+        // $FlowFixMe[prop-missing]
+        // $FlowFixMe[incompatible-type-arg]
         gqlFragment = graphql`
           fragment usePaginationFragmentTestStoryFragment on NonNodeStory
           @argumentDefinitions(

@@ -10,7 +10,7 @@ fragment updatableFragmentSpreadWithInclude_user on User @updatable {
   firstName
 }
 ==================================== ERROR ====================================
-✖︎ Directives are not allowed on spreads of updatable fragments
+✖︎ Updatable fragments cannot be contained in @skip or @if.
 
   updatable-fragment-spread-with-include.invalid.graphql:4:8
     3 │   me {

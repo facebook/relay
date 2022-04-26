@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+fragment Foo on User {
+  ... @alias(as: "aliased_fragment") {
+    name
+  }
+}
+==================================== OUTPUT ===================================
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Foo$fragmentType: FragmentType;
+export type Foo$data = {|
+  +aliased_fragment: ?{|
+    +name: ?string,
+  |},
+  +$fragmentType: Foo$fragmentType,
+|};
+export type Foo$key = {
+  +$data?: Foo$data,
+  +$fragmentSpreads: Foo$fragmentType,
+  ...
+};

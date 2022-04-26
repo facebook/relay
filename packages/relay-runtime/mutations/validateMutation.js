@@ -49,7 +49,13 @@ type ValidationContext = {|
 // $FlowFixMe[method-unbinding] added when improving typing for this parameters
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
-let validateMutation = () => {};
+let validateMutation:
+  | (() => void)
+  | ((
+      optimisticResponse: any,
+      mutation: ConcreteRequest,
+      variables: ?any,
+    ) => void) = () => {};
 if (__DEV__) {
   const addFieldToDiff = (
     path: string,

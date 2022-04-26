@@ -45,6 +45,7 @@ fragment Foo_node on Node {
         #     field_name: "best_friend",
         #     field_alias: None,
         #     field_path: "author.best_friend",
+        #     field_arguments: [],
         #     live: false,
         # }
          @waterfall
@@ -68,6 +69,7 @@ fragment Foo_node on Node {
         #     field_name: "best_friend",
         #     field_alias: None,
         #     field_path: "author.best_friend",
+        #     field_arguments: [],
         #     live: false,
         # }
          @waterfall

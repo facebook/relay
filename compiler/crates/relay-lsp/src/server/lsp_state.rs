@@ -218,15 +218,18 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .get(&project_name)
             .ok_or(LSPRuntimeError::ExpectedError)?;
 
+        let mut executable_definitions = vec![];
+        let mut docblock_sources = vec![];
+
         for (index, feature) in javascript_features.iter().enumerate() {
             let source_location_key = SourceLocationKey::embedded(&url.to_string(), index);
+
             match feature {
                 JavaScriptSourceFeature::GraphQL(graphql_source) => {
                     let result = parse_executable_with_error_recovery(
                         &graphql_source.text_source().text,
                         source_location_key,
                     );
-
                     diagnostics.extend(result.errors.iter().map(|diagnostic| {
                         convert_diagnostic(graphql_source.text_source(), diagnostic)
                     }));
@@ -264,22 +267,28 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                     diagnostics.extend(compiler_diagnostics.iter().map(|diagnostic| {
                         convert_diagnostic(graphql_source.text_source(), diagnostic)
                     }));
+
+                    executable_definitions.extend(result.item.definitions);
                 }
                 JavaScriptSourceFeature::Docblock(docblock_source) => {
-                    let text_source = docblock_source.text_source();
-                    let text = &text_source.text;
-                    // TODO: Pass &[ExecutableDocuments]
-                    let result = parse_docblock(text, source_location_key)
-                        .and_then(|ast| parse_docblock_ast(&ast, Default::default()));
-
-                    if let Err(errors) = result {
-                        diagnostics.extend(
-                            errors
-                                .iter()
-                                .map(|diagnostic| convert_diagnostic(text_source, diagnostic)),
-                        );
-                    }
+                    docblock_sources.push(docblock_source);
                 }
+            }
+        }
+
+        for (index, docblock_source) in docblock_sources.iter().enumerate() {
+            let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
+            let text_source = docblock_source.text_source();
+            let text = &text_source.text;
+            let result = parse_docblock(text, source_location_key)
+                .and_then(|ast| parse_docblock_ast(&ast, Some(&executable_definitions)));
+
+            if let Err(errors) = result {
+                diagnostics.extend(
+                    errors
+                        .iter()
+                        .map(|diagnostic| convert_diagnostic(text_source, diagnostic)),
+                );
             }
         }
         self.diagnostic_reporter

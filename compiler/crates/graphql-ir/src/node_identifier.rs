@@ -71,6 +71,8 @@ impl<TBehavior: LocationAgnosticBehavior> NodeIdentifier<TBehavior> {
             (Selection::FragmentSpread(a), Selection::FragmentSpread(b)) => {
                 a.fragment.item == b.fragment.item
                     && a.arguments.location_agnostic_eq::<TBehavior>(&b.arguments)
+                    && a.directives
+                        .location_agnostic_eq::<TBehavior>(&b.directives)
             }
             (Selection::InlineFragment(a), Selection::InlineFragment(b)) => {
                 a.type_condition == b.type_condition
@@ -109,6 +111,8 @@ impl<TBehavior: LocationAgnosticBehavior> PartialEq for NodeIdentifier<TBehavior
             (NodeIdentifierInner::FragmentSpread(l), NodeIdentifierInner::FragmentSpread(r)) => {
                 l.fragment.item == r.fragment.item
                     && l.arguments.location_agnostic_eq::<TBehavior>(&r.arguments)
+                    && l.directives
+                        .location_agnostic_eq::<TBehavior>(&r.directives)
             }
             (NodeIdentifierInner::InlineFragment(l), NodeIdentifierInner::InlineFragment(r)) => {
                 l.type_condition == r.type_condition
@@ -138,6 +142,7 @@ impl<TBehavior: LocationAgnosticBehavior> Hash for NodeIdentifier<TBehavior> {
             NodeIdentifierInner::FragmentSpread(v) => {
                 v.fragment.item.hash(state);
                 v.arguments.location_agnostic_hash::<_, TBehavior>(state);
+                v.directives.location_agnostic_hash::<_, TBehavior>(state);
             }
             NodeIdentifierInner::InlineFragment(v) => {
                 v.type_condition.hash(state);

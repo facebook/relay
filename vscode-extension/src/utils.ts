@@ -26,6 +26,8 @@ function getBinaryPathRelativeToPackageJson() {
     binaryPathRelativeToPackageJson = path.join('macos-arm64', 'relay');
   } else if (process.platform === 'linux' && process.arch === 'x64') {
     binaryPathRelativeToPackageJson = path.join('linux-x64', 'relay');
+  } else if (process.platform === 'linux' && process.arch === 'arm64') {
+    binaryPathRelativeToPackageJson = path.join('linux-arm64', 'relay');
   } else if (process.platform === 'win32' && process.arch === 'x64') {
     binaryPathRelativeToPackageJson = path.join('win-x64', 'relay.exe');
   } else {

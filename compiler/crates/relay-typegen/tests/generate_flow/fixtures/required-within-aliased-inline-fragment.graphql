@@ -1,0 +1,8 @@
+query RelayReaderNamedFragmentsTest2Query {
+  me {
+    id
+    ... on User @alias(as: "aliased_fragment") {
+      name @required(action: NONE)
+    }
+  }
+}

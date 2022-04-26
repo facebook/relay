@@ -6,11 +6,12 @@
  */
 
 use crate::errors::ErrorMessagesWithData;
-use common::{Diagnostic, DiagnosticsResult, Location, Span, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, Named, Span, WithLocation};
 use graphql_syntax::{
-    BooleanNode, ConstantArgument, ConstantDirective, ConstantValue, FieldDefinition, Identifier,
-    InterfaceTypeExtension, List, NamedTypeAnnotation, ObjectTypeExtension, SchemaDocument,
-    StringNode, Token, TokenKind, TypeAnnotation, TypeSystemDefinition,
+    BooleanNode, ConstantArgument, ConstantDirective, ConstantValue, FieldDefinition,
+    FieldDefinitionStub, Identifier, InputValueDefinition, InterfaceTypeExtension, List,
+    NamedTypeAnnotation, ObjectTypeExtension, SchemaDocument, StringNode, Token, TokenKind,
+    TypeAnnotation, TypeSystemDefinition,
 };
 use intern::string_key::{Intern, StringKey};
 
@@ -65,8 +66,21 @@ pub enum On {
 }
 
 #[derive(Debug, PartialEq)]
+pub struct Argument {
+    pub name: Identifier,
+    pub type_: TypeAnnotation,
+    pub default_value: Option<ConstantValue>,
+}
+
+impl Named for Argument {
+    fn name(&self) -> StringKey {
+        self.name.value
+    }
+}
+
+#[derive(Debug, PartialEq)]
 pub struct RelayResolverIr {
-    pub field_name: WithLocation<StringKey>,
+    pub field: FieldDefinitionStub,
     pub on: On,
     pub root_fragment: WithLocation<StringKey>,
     pub edge_to: Option<WithLocation<StringKey>>,
@@ -74,6 +88,7 @@ pub struct RelayResolverIr {
     pub deprecated: Option<IrField>,
     pub live: Option<IrField>,
     pub location: Location,
+    pub fragment_arguments: Option<Vec<Argument>>,
 }
 
 impl RelayResolverIr {
@@ -210,13 +225,40 @@ impl RelayResolverIr {
             .edge_to
             .map_or_else(|| string_key_as_identifier(*INT_TYPE), as_identifier);
 
+        let args = match (self.fragment_arguments(), self.field.arguments.as_ref()) {
+            (None, None) => None,
+            (None, Some(b)) => Some(b.clone()),
+            (Some(a), None) => Some(a),
+            (Some(a), Some(b)) => Some(List::generated(
+                a.items
+                    .into_iter()
+                    .chain(b.clone().items.into_iter())
+                    .collect::<Vec<_>>(),
+            )),
+        };
+
         List::generated(vec![FieldDefinition {
-            name: as_identifier(self.field_name),
+            name: self.field.name.clone(),
             type_: TypeAnnotation::Named(NamedTypeAnnotation { name: edge_to }),
-            arguments: None,
+            arguments: args,
             directives: self.directives(),
             description: self.description.map(as_string_node),
         }])
+    }
+
+    fn fragment_arguments(&self) -> Option<List<InputValueDefinition>> {
+        self.fragment_arguments.as_ref().map(|args| {
+            List::generated(
+                args.iter()
+                    .map(|arg| InputValueDefinition {
+                        name: arg.name.clone(),
+                        type_: arg.type_.clone(),
+                        default_value: arg.default_value.clone(),
+                        directives: vec![],
+                    })
+                    .collect::<Vec<_>>(),
+            )
+        })
     }
 
     fn directives(&self) -> Vec<ConstantDirective> {

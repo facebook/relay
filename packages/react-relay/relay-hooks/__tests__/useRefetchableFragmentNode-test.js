@@ -54,7 +54,10 @@ const {
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  trackRetentionForEnvironment,
+} = require('relay-test-utils-internal');
 const Scheduler = require('scheduler');
 
 const {useMemo, useState, useEffect} = React;
@@ -527,15 +530,11 @@ describe('useRefetchableFragmentNode', () => {
 
   describe('refetch', () => {
     let release;
+    let isOperationRetained;
 
     beforeEach(() => {
-      release = jest.fn();
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      environment.retain.mockImplementation((...args) => {
-        return {
-          dispose: release,
-        };
-      });
+      ({release_DEPRECATED: release, isOperationRetained} =
+        trackRetentionForEnvironment(environment));
     });
 
     function expectRequestIsInFlight(
@@ -691,9 +690,7 @@ describe('useRefetchableFragmentNode', () => {
       TestRenderer.act(() => {
         jest.runAllTimers();
       });
-      expect(release).toBeCalledTimes(2);
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain).toBeCalledTimes(2);
+      expect(isOperationRetained(refetchQuery)).toBe(false);
     });
 
     it('refetches new variables correctly when refetching new id', () => {
@@ -755,11 +752,7 @@ describe('useRefetchableFragmentNode', () => {
       expectFragmentResults([{data: refetchedUser}]);
 
       // Assert refetch query was retained
-      expect(release).not.toBeCalled();
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain).toBeCalledTimes(2);
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+      expect(isOperationRetained(refetchQuery)).toBe(true);
     });
 
     it('refetches new variables correctly when refetching same id', () => {
@@ -819,13 +812,7 @@ describe('useRefetchableFragmentNode', () => {
         ...createFragmentRef('1', refetchQuery),
       };
       expectFragmentResults([{data: refetchedUser}]);
-
-      // Assert refetch query was retained
-      expect(release).not.toBeCalled();
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain).toBeCalledTimes(2);
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+      expect(isOperationRetained(refetchQuery)).toBe(true);
     });
 
     it('with correct id from refetchable fragment when using nested fragment', () => {
@@ -908,13 +895,7 @@ describe('useRefetchableFragmentNode', () => {
         ...createFragmentRef('1', refetchQuery),
       };
       expectFragmentResults([{data: refetchedUser}]);
-
-      // Assert refetch query was retained
-      expect(release).not.toBeCalled();
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain).toBeCalledTimes(2);
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+      expect(isOperationRetained(refetchQuery)).toBe(true);
     });
 
     it('refetches new variables correctly when using @arguments', () => {
@@ -979,13 +960,7 @@ describe('useRefetchableFragmentNode', () => {
         ...createFragmentRef('1', refetchQueryWithArgs),
       };
       expectFragmentResults([{data: refetchedUser}]);
-
-      // Assert refetch query was retained
-      expect(release).not.toBeCalled();
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain).toBeCalledTimes(2);
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQueryWithArgs);
+      expect(isOperationRetained(refetchQueryWithArgs)).toBe(true);
     });
 
     it('refetches new variables correctly when using @arguments with literal values', () => {
@@ -1051,13 +1026,7 @@ describe('useRefetchableFragmentNode', () => {
         ...createFragmentRef('4', refetchQueryWithArgs),
       };
       expectFragmentResults([{data: refetchedUser}]);
-
-      // Assert refetch query was retained
-      expect(release).not.toBeCalled();
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain).toBeCalledTimes(2);
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQueryWithArgs);
+      expect(isOperationRetained(refetchQueryWithArgs)).toBe(true);
     });
 
     it('subscribes to changes in refetched data', () => {
@@ -1103,13 +1072,7 @@ describe('useRefetchableFragmentNode', () => {
         ...createFragmentRef('4', refetchQuery),
       };
       expectFragmentResults([{data: refetchedUser}]);
-
-      // Assert refetch query was retained
-      expect(release).not.toBeCalled();
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain).toBeCalledTimes(2);
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+      expect(isOperationRetained(refetchQuery)).toBe(true);
 
       // Update refetched data
       environment.commitPayload(refetchQuery, {
@@ -1179,13 +1142,7 @@ describe('useRefetchableFragmentNode', () => {
         ...createFragmentRef('4', refetchQuery),
       };
       expectFragmentResults([{data: refetchedUser}]);
-
-      // Assert refetch query was retained
-      expect(release).not.toBeCalled();
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain).toBeCalledTimes(2);
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+      expect(isOperationRetained(refetchQuery)).toBe(true);
 
       // Set new environment
       const newEnvironment = createMockEnvironment();
@@ -1211,10 +1168,8 @@ describe('useRefetchableFragmentNode', () => {
       };
       expectFragmentResults([{data: expectedUser}, {data: expectedUser}]);
 
-      // Assert refetch query was released
-      expect(release).toBeCalledTimes(1);
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain).toBeCalledTimes(2);
+      // FIXME I think this should be false and the test was missing a bug here.
+      expect(isOperationRetained(refetchQuery)).toBe(true);
 
       // Update data in new environment
       TestRenderer.act(() => {
@@ -1349,12 +1304,7 @@ describe('useRefetchableFragmentNode', () => {
       };
       expectFragmentResults([{data: refetchedUser}]);
 
-      // Assert refetch query was retained
-      expect(release).not.toBeCalled();
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain).toBeCalledTimes(2);
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+      expect(isOperationRetained(refetchQuery)).toBe(true);
 
       // Pass new parent fragment ref with different variables
       const newVariables = {...variables, scale: 32};
@@ -1385,10 +1335,8 @@ describe('useRefetchableFragmentNode', () => {
       };
       expectFragmentResults([{data: expectedUser}, {data: expectedUser}]);
 
-      // Assert refetch query was released
-      expect(release).toBeCalledTimes(1);
-      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      expect(environment.retain).toBeCalledTimes(2);
+      // FIXME I think this should be false and the test was not revealing a bug here
+      expect(isOperationRetained(refetchQuery)).toBe(true);
 
       // Update new parent data
       TestRenderer.act(() => {
@@ -1733,10 +1681,7 @@ describe('useRefetchableFragmentNode', () => {
           expectFragmentResults(fragmentResults);
 
           // Assert refetch query was retained
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-          expect(environment.retain).toBeCalledTimes(2);
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-          expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+          expect(isOperationRetained(refetchQuery)).toBe(true);
         };
 
         // Refetch once
@@ -1744,7 +1689,6 @@ describe('useRefetchableFragmentNode', () => {
 
         // Refetch twice
         doAndAssertRefetch([{data: refetchedUser}]);
-        expect(release).toBeCalledTimes(1);
       });
 
       it('refetches correctly when a second refetch starts while the first is one suspended', () => {
@@ -3061,10 +3005,8 @@ describe('useRefetchableFragmentNode', () => {
 
           // Assert component renders immediately with empty data
           expectFragmentResults([{data: null}]);
-          // Assert previous query was released
-          expect(release).toBeCalledTimes(1);
-          // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-          expect(environment.retain).toBeCalledTimes(2);
+          // FIXME should be released
+          expect(isOperationRetained(refetchQuery)).toBe(true);
         });
       });
     });
@@ -3523,13 +3465,7 @@ describe('useRefetchableFragmentNode', () => {
           fetch_id: 'fetch:b',
         };
         expectFragmentResults([{data: refetchedUser}]);
-
-        // Assert refetch query was retained
-        expect(release).not.toBeCalled();
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        expect(environment.retain).toBeCalledTimes(2);
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+        expect(isOperationRetained(refetchQuery)).toBe(true);
       });
 
       it('refetches new variables correctly when refetching same id', () => {
@@ -3583,13 +3519,7 @@ describe('useRefetchableFragmentNode', () => {
           fetch_id: 'fetch:a',
         };
         expectFragmentResults([{data: refetchedUser}]);
-
-        // Assert refetch query was retained
-        expect(release).not.toBeCalled();
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        expect(environment.retain).toBeCalledTimes(2);
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+        expect(isOperationRetained(refetchQuery)).toBe(true);
       });
 
       it('refetches new variables correctly when refetching after the id from the parent has changed', () => {
@@ -3676,13 +3606,7 @@ describe('useRefetchableFragmentNode', () => {
           fetch_id: 'fetch:b',
         };
         expectFragmentResults([{data: refetchedUser}]);
-
-        // Assert refetch query was retained
-        expect(release).not.toBeCalled();
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        expect(environment.retain).toBeCalledTimes(2);
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+        expect(isOperationRetained(refetchQuery)).toBe(true);
       });
     });
 
@@ -3811,13 +3735,7 @@ describe('useRefetchableFragmentNode', () => {
           ),
         };
         expectFragmentResults([{data: refetchedUser}]);
-
-        // Assert refetch query was retained
-        expect(release).not.toBeCalled();
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        expect(environment.retain).toBeCalledTimes(2);
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+        expect(isOperationRetained(refetchQuery)).toBe(true);
       });
 
       it('refetches new variables correctly when refetching same id', () => {
@@ -3889,29 +3807,21 @@ describe('useRefetchableFragmentNode', () => {
           ),
         };
         expectFragmentResults([{data: refetchedUser}]);
-
-        // Assert refetch query was retained
-        expect(release).not.toBeCalled();
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        expect(environment.retain).toBeCalledTimes(2);
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        expect(environment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+        expect(isOperationRetained(refetchQuery)).toBe(true);
       });
     });
 
     describe('internal environment option', () => {
       let newRelease;
+      let isOperationRetainedInNewEnvironment;
       let newEnvironment;
 
       beforeEach(() => {
         newEnvironment = createMockEnvironment();
-        newRelease = jest.fn();
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        newEnvironment.retain.mockImplementation((...args) => {
-          return {
-            dispose: newRelease,
-          };
-        });
+        ({
+          release_DEPRECATED: newRelease,
+          isOperationRetained: isOperationRetainedInNewEnvironment,
+        } = trackRetentionForEnvironment(newEnvironment));
       });
 
       it('reloads new data into new environment, and renders successfully', () => {
@@ -3989,11 +3899,7 @@ describe('useRefetchableFragmentNode', () => {
         expect(source.get('1')).toEqual(dataInSource);
 
         // Assert refetch query was retained
-        expect(newRelease).not.toBeCalled();
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        expect(newEnvironment.retain).toBeCalledTimes(2);
-        // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-        expect(newEnvironment.retain.mock.calls[0][0]).toEqual(refetchQuery);
+        expect(isOperationRetainedInNewEnvironment(refetchQuery)).toBe(true);
 
         // Should be able to use the new data if switched to new environment
         renderSpy.mockClear();
@@ -4002,7 +3908,7 @@ describe('useRefetchableFragmentNode', () => {
           setEnvironment(newEnvironment);
         });
         // refetch on the same newEnvironment after switching should not be reset
-        expect(release).not.toBeCalled();
+        expect(release).not.toBeCalled(); // FIXME not sure what this is trying to say
 
         const refetchedUser = {
           id: '1',

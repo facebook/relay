@@ -32,6 +32,7 @@ const {
 const Matchers = require('./Matchers');
 const printAST = require('./printAST');
 const simpleClone = require('./simpleClone');
+const trackRetentionForEnvironment = require('./trackRetentionForEnvironment');
 const {
   disallowWarnings,
   expectToWarn,
@@ -79,5 +80,6 @@ module.exports = {
   matchers: Matchers,
   printAST,
   simpleClone,
+  trackRetentionForEnvironment,
   unwrapContainer,
 };

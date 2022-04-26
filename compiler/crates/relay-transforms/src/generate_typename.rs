@@ -186,6 +186,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
                     type_condition: fragment.type_condition,
                     directives: fragment.directives.clone(),
                     selections,
+                    spread_location: fragment.spread_location,
                 })))
             }
         };

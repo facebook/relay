@@ -6,7 +6,7 @@
  */
 
 use crate::client_edges::ClientEdgeMetadataDirective;
-use common::{PointerAddress, WithLocation};
+use common::{Location, PointerAddress, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     Directive, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
@@ -111,6 +111,7 @@ impl Transformer for ClientExtensionsTransform<'_> {
                     type_condition: None,
                     directives: vec![self.build_client_extension_directive()],
                     selections: client_selections,
+                    spread_location: Location::generated(),
                 })));
             }
             TransformedValue::Replace(server_selections)

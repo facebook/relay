@@ -7,7 +7,9 @@
 
 use std::sync::Arc;
 
-use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Named, NamedItem, WithLocation};
+use common::{
+    Diagnostic, DiagnosticsResult, FeatureFlag, Location, Named, NamedItem, WithLocation,
+};
 use graphql_ir::{
     associated_data_impl, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
     LinkedField, OperationDefinition, Program, Selection, Transformed, TransformedValue,
@@ -195,6 +197,7 @@ impl Transformer for FragmentAliasTransform<'_> {
                     selections: self
                         .transform_selections(&fragment.selections)
                         .replace_or_else(|| fragment.selections.clone()),
+                    spread_location: Location::generated(),
                 })))
             }
         };

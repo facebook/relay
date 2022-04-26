@@ -82,6 +82,7 @@ fragment Foo on User {
                                     directives: [],
                                 },
                             ],
+                            spread_location: directive-include.graphql:59:62,
                         },
                     ],
                     value: Variable(

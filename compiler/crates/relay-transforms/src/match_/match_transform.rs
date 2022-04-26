@@ -511,7 +511,9 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                             .into(),
                         ],
                         selections: vec![next_spread, operation_field, component_field],
+                        spread_location: Location::generated(),
                     }))],
+                    spread_location: Location::generated(),
                 },
             ))))
         } else {

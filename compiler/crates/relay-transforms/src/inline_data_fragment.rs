@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
     associated_data_impl, FragmentSpread, InlineFragment, Program, Selection, Transformed,
     Transformer,
@@ -156,7 +156,9 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
                     type_condition: Some(fragment.type_condition),
                     directives: vec![],
                     selections,
+                    spread_location: Location::generated(),
                 }))],
+                spread_location: Location::generated(),
             };
 
             Transformed::Replace(Selection::InlineFragment(Arc::new(inline_fragment)))

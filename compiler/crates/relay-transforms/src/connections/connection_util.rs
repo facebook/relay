@@ -9,7 +9,7 @@ use crate::{
     connections::{ConnectionConstants, ConnectionInterface},
     util::extract_variable_name,
 };
-use common::{NamedItem, WithLocation};
+use common::{Location, NamedItem, WithLocation};
 use graphql_ir::{
     associated_data_impl, Directive, InlineFragment, LinkedField, ScalarField, Selection,
 };
@@ -162,6 +162,7 @@ pub fn build_edge_selections(
                 ],
             })),
         ],
+        spread_location: Location::generated(),
     }))
 }
 
@@ -205,6 +206,7 @@ pub fn build_page_info_selections(
                     directives: Vec::new(),
                 })),
             ],
+            spread_location: Location::generated(),
         }))
     } else if connection_metadata.direction == connection_constants.direction_backward {
         Selection::InlineFragment(From::from(InlineFragment {
@@ -224,6 +226,7 @@ pub fn build_page_info_selections(
                     directives: Vec::new(),
                 })),
             ],
+            spread_location: Location::generated(),
         }))
     } else if connection_metadata.direction == connection_constants.direction_bidirectional {
         Selection::InlineFragment(From::from(InlineFragment {
@@ -255,6 +258,7 @@ pub fn build_page_info_selections(
                     directives: Vec::new(),
                 })),
             ],
+            spread_location: Location::generated(),
         }))
     } else {
         unreachable!()

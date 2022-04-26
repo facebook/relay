@@ -238,6 +238,7 @@ impl FlattenTransform {
                     type_condition: fragment.type_condition,
                     directives: fragment.directives.clone(),
                     selections: next_selections,
+                    spread_location: fragment.spread_location,
                 })
             });
         if should_cache {

@@ -226,6 +226,8 @@ pub struct InlineFragment {
     pub type_condition: Option<Type>,
     pub directives: Vec<Directive>,
     pub selections: Vec<Selection>,
+    /// Points to "..."
+    pub spread_location: Location,
 }
 pub trait Field {
     fn alias(&self) -> Option<WithLocation<StringKey>>;

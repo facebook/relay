@@ -10,6 +10,7 @@ use crate::{
     relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
     RelayLocationAgnosticBehavior,
 };
+use common::Location;
 use fnv::FnvHashMap;
 use graphql_ir::{
     node_identifier::{LocationAgnosticHash, LocationAgnosticPartialEq},
@@ -77,6 +78,7 @@ impl<'s> InlineFragmentsTransform<'s> {
                 type_condition: None,
                 directives: Default::default(),
                 selections: Default::default(),
+                spread_location: Location::generated(),
             }),
         );
         let fragment = self
@@ -93,6 +95,7 @@ impl<'s> InlineFragmentsTransform<'s> {
             type_condition: Some(fragment.type_condition),
             directives: spread.directives.clone(),
             selections: selections.replace_or_else(|| fragment.selections.clone()),
+            spread_location: Location::generated(),
         });
         self.seen.insert(key, Arc::clone(&result));
         result

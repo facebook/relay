@@ -898,10 +898,12 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let directives =
             self.build_directives(&fragment.directives, DirectiveLocation::InlineFragment);
         let (directives, selections) = try2(directives, selections)?;
+        let spread_location = self.location.with_span(fragment.spread.span);
         Ok(InlineFragment {
             type_condition,
             directives,
             selections,
+            spread_location,
         })
     }
 

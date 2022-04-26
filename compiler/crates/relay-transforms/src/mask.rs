@@ -6,6 +6,7 @@
  */
 
 use crate::relay_directive::RelayDirective;
+use common::Location;
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, InlineFragment, OperationDefinition, Program, ScalarField,
     Selection, Transformed, Transformer, VariableDefinition,
@@ -119,6 +120,7 @@ impl<'s> Transformer for Mask<'s> {
                 selections: self
                     .transform_selections(&fragment.selections)
                     .replace_or_else(|| fragment.selections.to_vec()),
+                spread_location: Location::generated(),
             })))
         } else {
             Transformed::Keep

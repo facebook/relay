@@ -6,7 +6,7 @@
  */
 
 use super::ValidationMessage;
-use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Location, NamedItem, WithLocation};
 use graphql_ir::{
     Directive, Field, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
     Transformer,
@@ -165,6 +165,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                     selections: next_selections,
                     ..field.clone()
                 }))],
+                spread_location: Location::generated(),
             }));
 
             Transformed::Replace(next_selection)

@@ -14,7 +14,7 @@ use crate::{
     defer_stream::DEFER_STREAM_CONSTANTS,
     handle_fields::{build_handle_field_directive_from_connection_directive, KEY_ARG_NAME},
 };
-use common::{NamedItem, WithLocation};
+use common::{Location, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,
     OperationDefinition, Program, Selection, Transformed, Transformer, Value,
@@ -232,6 +232,7 @@ impl<'s> ConnectionTransform<'s> {
                     arguments,
                     data: None,
                 }],
+                spread_location: Location::generated(),
             }))
         } else {
             Selection::LinkedField(From::from(transformed_page_info_field))

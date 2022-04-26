@@ -13,7 +13,7 @@ use crate::{
     no_inline::{is_raw_response_type_enabled, NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG},
     util::get_normalization_operation_name,
 };
-use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Location, NamedItem, WithLocation};
 use graphql_ir::{
     Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
     InlineFragment, OperationDefinition, Program, ProvidedVariableMetadata, Selection, Transformed,
@@ -250,6 +250,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                         directives: Default::default(),
                         selections: vec![next_spread],
                         type_condition: Some(fragment.type_condition),
+                        spread_location: Location::generated(),
                     })))
                 } else {
                     Transformed::Replace(next_spread)

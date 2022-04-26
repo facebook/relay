@@ -12,7 +12,7 @@ use super::{
     CONSTANTS,
 };
 use crate::root_variables::VariableMap;
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
     Argument, Field, FragmentDefinition, InlineFragment, LinkedField, ScalarField, Selection,
     Value, Variable, VariableDefinition,
@@ -211,6 +211,7 @@ fn enforce_selections_with_id_field(
                     arguments: vec![],
                     directives: vec![],
                 }))],
+                spread_location: Location::generated(),
             }))
         } else {
             Selection::ScalarField(Arc::new(ScalarField {

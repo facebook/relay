@@ -143,6 +143,7 @@ pub fn write_value(schema: &SDLSchema, value: &Value, mut result: &mut impl Writ
 pub struct PrinterOptions {
     pub compact: bool,
     pub sort_keys: bool,
+    pub print_enums_as_str: bool,
     /// Print `data` from Directive nodes
     pub debug_directive_data: bool,
 }
@@ -549,11 +550,17 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_constant_value(&mut self, constant_val: &ConstantValue) -> FmtResult {
         match &constant_val {
             ConstantValue::String(val) => write!(self.writer, "\"{}\"", val),
-            ConstantValue::Enum(val) => write!(self.writer, "{}", val),
             ConstantValue::Float(val) => write!(self.writer, "{}", val),
             ConstantValue::Int(val) => write!(self.writer, "{}", val),
             ConstantValue::Boolean(val) => write!(self.writer, "{}", val),
             ConstantValue::Null() => write!(self.writer, "null"),
+            ConstantValue::Enum(val) => {
+                if self.options.print_enums_as_str {
+                    write!(self.writer, "\"{}\"", val)
+                } else {
+                    write!(self.writer, "{}", val)
+                }
+            }
             ConstantValue::Object(object) => {
                 write!(self.writer, "{{")?;
                 let mut first = true;

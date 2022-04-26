@@ -62,7 +62,8 @@
     "typecheck": "tsc --noEmit",
     "prettier-check": "prettier -c .",
     "lint": "eslint --max-warnings 0 .",
-    "vscode:prepublish": "tsc"
+    "vscode:prepublish": "tsc",
+    "build-local": "vsce package"
   },
   "engines": {
     "vscode": "^1.65.0"

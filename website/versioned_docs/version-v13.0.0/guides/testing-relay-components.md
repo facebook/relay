@@ -49,7 +49,7 @@ With `createMockEnvironment,` you will be able to create an instance of `RelayMo
 
 The main purpose of `MockPayloadGenerator` is to improve the process of creating and maintaining the mock data for tested components.
 
-One of the patterns you may see in the tests for Relay components: 95% of the test code is the test preparation—the gigantic mock object with dummy data, manually created, or just a copy of a sample server response that needs to be passed as the network response. And the rmaining 5% is actual test code. As a result, people don't test much. It's hard to create and manage all these dummy payloads for different cases. Hence, writing tests is time-consuming and tests are sometimes painful to maintain.
+One of the patterns you may see in the tests for Relay components: 95% of the test code is the test preparation—the gigantic mock object with dummy data, manually created, or just a copy of a sample server response that needs to be passed as the network response. And the remaining 5% is actual test code. As a result, people don't test much. It's hard to create and manage all these dummy payloads for different cases. Hence, writing tests is time-consuming and tests are sometimes painful to maintain.
 
 With the `MockPayloadGenerator` and `@relay_test_operation`, we want to get rid of this pattern and switch the developer's focus from the preparation of the test to the actual testing.
 

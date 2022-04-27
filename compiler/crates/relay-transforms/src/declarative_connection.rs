@@ -16,7 +16,7 @@ use graphql_ir::{
 };
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
-use schema::{SDLSchema, Schema, Type};
+use schema::{SDLSchema, Schema, Type, TypeWithFields};
 use std::sync::Arc;
 use thiserror::Error;
 
@@ -61,6 +61,20 @@ impl<'a> DeclarativeConnectionMutationTransform<'a> {
             connection_interface,
             errors: vec![],
         }
+    }
+
+    fn has_cursor_and_node_field(&self, type_: &impl TypeWithFields) -> bool {
+        let mut has_cursor_field = false;
+        let mut has_node_field = false;
+        for field_id in type_.fields() {
+            let current_field_name = self.schema.field(*field_id).name.item;
+            if current_field_name == self.connection_interface.cursor {
+                has_cursor_field = true;
+            } else if current_field_name == self.connection_interface.node {
+                has_node_field = true;
+            }
+        }
+        has_cursor_field && has_node_field
     }
 }
 
@@ -179,20 +193,18 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                     }
                     Some(connections_arg) => {
                         let field_definition = self.schema.field(field.definition.item);
-                        let mut has_cursor_field = false;
-                        let mut has_node_field = false;
-                        if let Type::Object(id) = field_definition.type_.inner() {
-                            let object = self.schema.object(id);
-                            for field_id in &object.fields {
-                                let current_field_name = self.schema.field(*field_id).name.item;
-                                if current_field_name == self.connection_interface.cursor {
-                                    has_cursor_field = true;
-                                } else if current_field_name == self.connection_interface.node {
-                                    has_node_field = true;
-                                }
+                        let has_cursor_and_node_field = match field_definition.type_.inner() {
+                            Type::Object(id) => {
+                                let object = self.schema.object(id);
+                                self.has_cursor_and_node_field(object)
                             }
-                        }
-                        if has_cursor_field && has_node_field {
+                            Type::Interface(id) => {
+                                let interface = self.schema.interface(id);
+                                self.has_cursor_and_node_field(interface)
+                            }
+                            _ => false,
+                        };
+                        if has_cursor_and_node_field {
                             let handle_directive =
                                 build_handle_field_directive(HandleFieldDirectiveValues {
                                     handle: edge_directive.name.item,

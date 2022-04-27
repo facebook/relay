@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<261efcc28b37d85d772bfcf80464cfaf>>
+ * @generated SignedSource<<6df44ce314d80534af81820b43cbb4ce>>
  */
 
 mod compile_relay_artifacts;
@@ -122,6 +122,13 @@ fn append_edge() {
     let input = include_str!("compile_relay_artifacts/fixtures/append-edge.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/append-edge.expected");
     test_fixture(transform_fixture, "append-edge.graphql", "compile_relay_artifacts/fixtures/append-edge.expected", input, expected);
+}
+
+#[test]
+fn append_edge_on_interface() {
+    let input = include_str!("compile_relay_artifacts/fixtures/append-edge-on-interface.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/append-edge-on-interface.expected");
+    test_fixture(transform_fixture, "append-edge-on-interface.graphql", "compile_relay_artifacts/fixtures/append-edge-on-interface.expected", input, expected);
 }
 
 #[test]

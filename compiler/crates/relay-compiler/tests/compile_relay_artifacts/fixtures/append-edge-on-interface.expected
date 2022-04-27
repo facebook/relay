@@ -1,0 +1,159 @@
+==================================== INPUT ====================================
+mutation appendEdgeOnInterfaceMutation(
+  $connections: [ID!]!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    feedbackCommentEdgeUsingInterface @appendEdge(connections: $connections) {
+      __typename
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "connections"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "appendEdgeOnInterfaceMutation",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "CommentCreateResponsePayload",
+        "kind": "LinkedField",
+        "name": "commentCreate",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "feedbackCommentEdgeUsingInterface",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Mutation",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "connections"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "input"
+      }
+    ],
+    "kind": "Operation",
+    "name": "appendEdgeOnInterfaceMutation",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "input",
+            "variableName": "input"
+          }
+        ],
+        "concreteType": "CommentCreateResponsePayload",
+        "kind": "LinkedField",
+        "name": "commentCreate",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "feedbackCommentEdgeUsingInterface",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "filters": null,
+            "handle": "appendEdge",
+            "key": "",
+            "kind": "LinkedHandle",
+            "name": "feedbackCommentEdgeUsingInterface",
+            "handleArgs": [
+              {
+                "kind": "Variable",
+                "name": "connections",
+                "variableName": "connections"
+              }
+            ]
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "appendEdgeOnInterfaceMutation",
+    "operationKind": "mutation",
+    "text": null
+  }
+}
+
+QUERY:
+
+mutation appendEdgeOnInterfaceMutation(
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    feedbackCommentEdgeUsingInterface {
+      __typename
+    }
+  }
+}

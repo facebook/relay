@@ -45,6 +45,7 @@ lazy_static! {
     static ref PREPEND_EDGE: StringKey = "prependEdge".intern();
     static ref PREPEND_NODE: StringKey = "prependNode".intern();
     static ref EDGE_TYPENAME_ARG: StringKey = "edgeTypeName".intern();
+    static ref EMPTY_STRING: StringKey = "".intern();
 }
 
 struct DeclarativeConnectionMutationTransform<'a> {
@@ -111,7 +112,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                     let handle_directive =
                         build_handle_field_directive(HandleFieldDirectiveValues {
                             handle: delete_directive.name.item,
-                            key: "".intern(),
+                            key: *EMPTY_STRING,
                             dynamic_key: None,
                             filters: None,
                             handle_args: connections_arg
@@ -195,7 +196,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                             let handle_directive =
                                 build_handle_field_directive(HandleFieldDirectiveValues {
                                     handle: edge_directive.name.item,
-                                    key: "".intern(),
+                                    key: *EMPTY_STRING,
                                     dynamic_key: None,
                                     filters: None,
                                     handle_args: Some(vec![connections_arg.clone()]),
@@ -253,7 +254,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                                     let handle_directive =
                                         build_handle_field_directive(HandleFieldDirectiveValues {
                                             handle: node_directive.name.item,
-                                            key: "".intern(),
+                                            key: *EMPTY_STRING,
                                             dynamic_key: None,
                                             filters: None,
                                             handle_args: Some(vec![

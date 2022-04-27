@@ -24,6 +24,7 @@ import type {
   RequestDescriptor,
   Snapshot,
 } from 'relay-runtime';
+import type {MissingLiveResolverField} from 'relay-runtime/store/RelayStoreTypes';
 
 const LRUCache = require('./LRUCache');
 const {getQueryResourceForEnvironment} = require('./QueryResource');
@@ -41,6 +42,7 @@ const {
   isPromise,
   recycleNodesInto,
 } = require('relay-runtime');
+const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 
 export type FragmentResource = FragmentResourceImpl;
 
@@ -90,6 +92,18 @@ function hasMissingClientEdges(snapshot: SingularOrPluralSnapshot): boolean {
     return snapshot.some(s => (s.missingClientEdges?.length ?? 0) > 0);
   }
   return (snapshot.missingClientEdges?.length ?? 0) > 0;
+}
+
+function missingLiveResolverFields(
+  snapshot: SingularOrPluralSnapshot,
+): ?$ReadOnlyArray<MissingLiveResolverField> {
+  if (Array.isArray(snapshot)) {
+    return snapshot
+      .map(s => s.missingLiveResolverFields)
+      .filter(Boolean)
+      .flat();
+  }
+  return snapshot.missingLiveResolverFields;
 }
 
 function singularOrPluralForEach(
@@ -288,7 +302,11 @@ class FragmentResourceImpl {
         throw cachedValue.promise;
       }
 
-      if (cachedValue.kind === 'done' && cachedValue.result.snapshot) {
+      if (
+        cachedValue.kind === 'done' &&
+        cachedValue.result.snapshot &&
+        missingLiveResolverFields(cachedValue.result.snapshot)?.length === 0
+      ) {
         this._handlePotentialSnapshotErrorsInSnapshot(
           cachedValue.result.snapshot,
         );
@@ -384,11 +402,11 @@ class FragmentResourceImpl {
         queryResults,
       );
     }
-    let clientEdgePromises = null;
+    let clientEdgePromises: Array<Promise<void>> = [];
     if (RelayFeatureFlags.ENABLE_CLIENT_EDGES && clientEdgeRequests) {
       clientEdgePromises = clientEdgeRequests
         .map(request => getPromiseForActiveRequest(this._environment, request))
-        .filter(p => p != null);
+        .filter(Boolean);
     }
 
     // Finally look for operations in flight for our parent query:
@@ -404,9 +422,20 @@ class FragmentResourceImpl {
         fragmentResult,
       );
     const parentQueryPromiseResultPromise = parentQueryPromiseResult?.promise; // for refinement
+    const missingResolverFieldPromises =
+      missingLiveResolverFields(snapshot)?.map(({liveStateID}) => {
+        const store = environment.getStore();
+        invariant(
+          store instanceof LiveResolverStore,
+          'Expect store to be instancec of `LiveResolverStore`',
+        );
+
+        return store.getLiveResolverPromise(liveStateID);
+      }) ?? [];
 
     if (
-      clientEdgePromises?.length ||
+      clientEdgePromises.length ||
+      missingResolverFieldPromises.length ||
       isPromise(parentQueryPromiseResultPromise)
     ) {
       environment.__log({
@@ -416,14 +445,29 @@ class FragmentResourceImpl {
         isRelayHooks: true,
         isPromiseCached: false,
         isMissingData: fragmentResult.isMissingData,
+        // TODO! Attach information here about missing live resolver fields
         pendingOperations: [
           ...(parentQueryPromiseResult?.pendingOperations ?? []),
           ...(clientEdgeRequests ?? []),
         ],
       });
-      throw clientEdgePromises?.length
-        ? Promise.all([parentQueryPromiseResultPromise, ...clientEdgePromises])
-        : parentQueryPromiseResultPromise;
+      let promises = [];
+      if (clientEdgePromises.length > 0) {
+        promises = promises.concat(clientEdgePromises);
+      }
+      if (missingResolverFieldPromises.length > 0) {
+        promises = promises.concat(missingResolverFieldPromises);
+      }
+
+      if (promises.length > 0) {
+        if (parentQueryPromiseResultPromise) {
+          promises.push(parentQueryPromiseResultPromise);
+        }
+        throw Promise.all(promises);
+      }
+      if (parentQueryPromiseResultPromise) {
+        throw parentQueryPromiseResultPromise;
+      }
     }
 
     this._handlePotentialSnapshotErrorsInSnapshot(snapshot);
@@ -642,6 +686,7 @@ class FragmentResourceImpl {
       data: updatedData,
       isMissingData: currentSnapshot.isMissingData,
       missingClientEdges: currentSnapshot.missingClientEdges,
+      missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
       seenRecords: currentSnapshot.seenRecords,
       selector: currentSnapshot.selector,
       missingRequiredFields: currentSnapshot.missingRequiredFields,

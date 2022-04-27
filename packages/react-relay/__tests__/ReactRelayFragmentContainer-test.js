@@ -28,6 +28,7 @@ const {
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
+//disallowConsoleErrors();
 
 describe('ReactRelayFragmentContainer', () => {
   let TestComponent;
@@ -263,6 +264,7 @@ describe('ReactRelayFragmentContainer', () => {
         name: 'Zuck',
       },
       missingRequiredFields: null,
+      missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
       isMissingData: false,
@@ -355,6 +357,7 @@ describe('ReactRelayFragmentContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),
@@ -407,6 +410,7 @@ describe('ReactRelayFragmentContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      missingLiveResolverFields: [],
       relayResolverErrors: [],
       missingClientEdges: null,
       seenRecords: expect.any(Object),

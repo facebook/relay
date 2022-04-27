@@ -31,7 +31,7 @@ import type {
   Store,
   StoreSubscriptions,
 } from '../RelayStoreTypes';
-import type {ResolverCache} from '../ResolverCache';
+import type {LiveResolverSuspenseSentinel} from './LiveResolverCache';
 
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
@@ -58,10 +58,15 @@ export type LiveState<T> = {|
   subscribe(cb: () => void): () => void,
 |};
 
+export type SuspendingLiveState<T> = {|
+  read(): T | LiveResolverSuspenseSentinel,
+  subscribe(cb: () => void): () => void,
+|};
+
 // HACK
 // The type of Store is defined using an opaque type that only RelayModernStore
 // can create. For now, we just lie via any/FlowFixMe and pretend we really have
-// the opaque version, but in reality it's our local verison.
+// the opaque version, but in reality it's our local version.
 opaque type InvalidationState = {|
   dataIDs: $ReadOnlyArray<DataID>,
   invalidations: Map<DataID, ?number>,
@@ -94,7 +99,7 @@ class LiveResolverStore implements Store {
   _operationLoader: ?OperationLoader;
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
-  _resolverCache: ResolverCache;
+  _resolverCache: LiveResolverCache;
   _releaseBuffer: Array<string>;
   _roots: Map<
     string,
@@ -171,6 +176,10 @@ class LiveResolverStore implements Store {
 
   _getMutableRecordSource(): MutableRecordSource {
     return this._optimisticSource ?? this._recordSource;
+  }
+
+  getLiveResolverPromise(recordID: DataID): Promise<void> {
+    return this._resolverCache.getLiveResolverPromise(recordID);
   }
 
   check(

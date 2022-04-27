@@ -145,12 +145,18 @@ export type RelayResolverError = {|
 
 export type RelayResolverErrors = Array<RelayResolverError>;
 
+export type MissingLiveResolverField = {|
+  +path: string,
+  +liveStateID: DataID,
+|};
+
 /**
  * A representation of a selector and its results at a particular point in time.
  */
 export type Snapshot = {|
   +data: ?SelectorData,
   +isMissingData: boolean,
+  +missingLiveResolverFields?: $ReadOnlyArray<MissingLiveResolverField>,
   +missingClientEdges: null | $ReadOnlyArray<MissingClientEdgeRequestInfo>,
   +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,

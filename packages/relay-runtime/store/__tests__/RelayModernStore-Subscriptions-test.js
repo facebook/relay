@@ -363,6 +363,7 @@ function cloneEventWithSets(event) {
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
           missingRequiredFields: null,
+          missingLiveResolverFields: [],
           isMissingData: false,
           data: {
             name: 'Zuck',
@@ -406,6 +407,7 @@ function cloneEventWithSets(event) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          missingLiveResolverFields: [],
           isMissingData: true,
           seenRecords: new Set(Object.keys(nextSource.toJSON())),
         });
@@ -445,6 +447,7 @@ function cloneEventWithSets(event) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          missingLiveResolverFields: [],
           isMissingData: true,
           seenRecords: new Set(['842472']),
         });

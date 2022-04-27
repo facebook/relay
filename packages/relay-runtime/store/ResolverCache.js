@@ -60,6 +60,7 @@ export interface ResolverCache {
     ?DataID /* Seen record */,
     ?RelayResolverError,
     ?Snapshot,
+    ?DataID /* ID of record containing a suspended Live field */,
   ];
   invalidateDataIDs(
     updatedDataIDs: Set<DataID>, // Mutated in place
@@ -82,6 +83,7 @@ class NoopResolverCache implements ResolverCache {
     ?DataID /* Seen record */,
     ?RelayResolverError,
     ?Snapshot,
+    ?DataID /* ID of record containing a suspended Live field */,
   ] {
     invariant(
       field.kind !== RELAY_LIVE_RESOLVER,
@@ -89,7 +91,7 @@ class NoopResolverCache implements ResolverCache {
     );
     const {resolverResult, snapshot, error} = evaluate();
 
-    return [resolverResult, undefined, error, snapshot];
+    return [resolverResult, undefined, error, snapshot, undefined];
   }
   invalidateDataIDs(updatedDataIDs: Set<DataID>): void {}
   createClientRecord(id: string, typeName: string): string {
@@ -136,6 +138,7 @@ class RecordResolverCache implements ResolverCache {
     ?DataID /* Seen record */,
     ?RelayResolverError,
     ?Snapshot,
+    ?DataID /* ID of record containing a suspended Live field */,
   ] {
     const recordSource = this._getRecordSource();
     const recordID = RelayModernRecord.getDataID(record);
@@ -197,7 +200,7 @@ class RecordResolverCache implements ResolverCache {
     // $FlowFixMe[incompatible-type] - casting mixed
     const error: ?RelayResolverError = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
 
-    return [answer, linkedID, error, snapshot];
+    return [answer, linkedID, error, snapshot, undefined];
   }
 
   invalidateDataIDs(

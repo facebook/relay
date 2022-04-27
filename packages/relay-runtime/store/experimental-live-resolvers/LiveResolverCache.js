@@ -50,15 +50,15 @@ const RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY =
 const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
 
+export opaque type LiveResolverSuspenseSentinel = mixed;
+const LIVE_RESOLVER_SUSPENSE: LiveResolverSuspenseSentinel = {};
+
 /**
  * An experimental fork of store/ResolverCache.js intended to let us experiment
  * with Live Resolvers.
  */
 
 type ResolverID = string;
-
-// $FlowFixMe[unclear-type] - will always be empty
-const emptySet: $ReadOnlySet<any> = new Set();
 
 function addDependencyEdge(
   edges: Map<ResolverID, Set<DataID>> | Map<DataID, Set<ResolverID>>,
@@ -101,6 +101,7 @@ class LiveResolverCache implements ResolverCache {
     ?DataID /* Seen record */,
     ?RelayResolverError,
     ?Snapshot,
+    ?DataID /* ID of record containing a suspended Live field */,
   ] {
     const recordSource = this._getRecordSource();
     const recordID = RelayModernRecord.getDataID(record);
@@ -183,6 +184,7 @@ class LiveResolverCache implements ResolverCache {
         linkedRecord,
         RELAY_RESOLVER_LIVE_STATE_VALUE,
       );
+
       // Set the new value for this and future reads.
       RelayModernRecord.setValue(
         linkedRecord,
@@ -205,7 +207,36 @@ class LiveResolverCache implements ResolverCache {
     // $FlowFixMe[incompatible-type] - casting mixed
     const error: ?RelayResolverError = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
 
-    return [answer, linkedID, error, snapshot];
+    let suspenseID = null;
+
+    if (answer === LIVE_RESOLVER_SUSPENSE) {
+      suspenseID = linkedID ?? generateClientID(recordID, storageKey);
+    }
+
+    return [answer, linkedID, error, snapshot, suspenseID];
+  }
+
+  getLiveResolverPromise(liveStateID: DataID): Promise<void> {
+    const recordSource = this._getRecordSource();
+    const liveStateRecord = recordSource.get(liveStateID);
+
+    invariant(
+      liveStateRecord != null,
+      'Expected to find record for live resolver.',
+    );
+
+    // $FlowFixMe[incompatible-type] - casting mixed
+    const liveState: LiveState<mixed> = RelayModernRecord.getValue(
+      liveStateRecord,
+      RELAY_RESOLVER_LIVE_STATE_VALUE,
+    );
+
+    return new Promise(resolve => {
+      const unsubscribe = liveState.subscribe(() => {
+        unsubscribe();
+        resolve();
+      });
+    });
   }
 
   // Register a new Live State object in the store, subscribing to future
@@ -270,7 +301,7 @@ class LiveResolverCache implements ResolverCache {
       const currentRecord = currentSource.get(linkedID);
       if (!currentRecord) {
         // If there is no record yet, it means the subscribe function fired an
-        // update syncronously on subscribe (before we even created the record).
+        // update synchronously on subscribe (before we even created the record).
         // In this case we can safely ignore this update, since we will be
         // reading the new value when we create the record.
         return;
@@ -305,12 +336,17 @@ class LiveResolverCache implements ResolverCache {
     while (recordsToVisit.length) {
       const recordID = recordsToVisit.pop();
       updatedDataIDs.add(recordID);
-      for (const fragment of this._recordIDToResolverIDs.get(recordID) ??
-        emptySet) {
+      const fragmentSet = this._recordIDToResolverIDs.get(recordID);
+      if (fragmentSet == null) {
+        continue;
+      }
+      for (const fragment of fragmentSet) {
         if (!visited.has(fragment)) {
-          for (const anotherRecordID of this._resolverIDToRecordIDs.get(
-            fragment,
-          ) ?? emptySet) {
+          const recordSet = this._resolverIDToRecordIDs.get(fragment);
+          if (recordSet == null) {
+            continue;
+          }
+          for (const anotherRecordID of recordSet) {
             this._markInvalidatedResolverRecord(anotherRecordID, recordSource);
             if (!visited.has(anotherRecordID)) {
               recordsToVisit.push(anotherRecordID);
@@ -386,15 +422,20 @@ class LiveResolverCache implements ResolverCache {
 }
 
 // Validate that a value is live state
-// $FlowFixMe
-function isLiveStateValue(v: Object): boolean {
+function isLiveStateValue(v: mixed): boolean {
   return (
     v != null &&
+    typeof v === 'object' &&
     typeof v.read === 'function' &&
     typeof v.subscribe === 'function'
   );
 }
 
+function suspenseSentinel(): LiveResolverSuspenseSentinel {
+  return LIVE_RESOLVER_SUSPENSE;
+}
+
 module.exports = {
   LiveResolverCache,
+  suspenseSentinel,
 };

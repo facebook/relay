@@ -34,6 +34,7 @@ import type {
   ClientEdgeTraversalInfo,
   DataIDSet,
   MissingClientEdgeRequestInfo,
+  MissingLiveResolverField,
   MissingRequiredFields,
   Record,
   RecordSource,
@@ -106,6 +107,7 @@ class RelayReader {
   _clientEdgeTraversalPath: Array<ClientEdgeTraversalInfo | null>;
   _isMissingData: boolean;
   _missingClientEdges: Array<MissingClientEdgeRequestInfo>;
+  _missingLiveResolverFields: Array<MissingLiveResolverField>;
   _isWithinUnmatchedTypeRefinement: boolean;
   _missingRequiredFields: ?MissingRequiredFields;
   _owner: RequestDescriptor;
@@ -128,6 +130,7 @@ class RelayReader {
         ? [...selector.clientEdgeTraversalPath]
         : [];
     this._missingClientEdges = [];
+    this._missingLiveResolverFields = [];
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
     this._missingRequiredFields = null;
@@ -205,6 +208,7 @@ class RelayReader {
         RelayFeatureFlags.ENABLE_CLIENT_EDGES && this._missingClientEdges.length
           ? this._missingClientEdges
           : null,
+      missingLiveResolverFields: this._missingLiveResolverFields,
       seenRecords: this._seenRecords,
       selector: this._selector,
       missingRequiredFields: this._missingRequiredFields,
@@ -593,7 +597,7 @@ class RelayReader {
       });
     };
 
-    const [result, seenRecord, resolverError, cachedSnapshot] =
+    const [result, seenRecord, resolverError, cachedSnapshot, suspenseID] =
       this._resolverCache.readFromCacheOrEvaluate(
         record,
         field,
@@ -611,6 +615,14 @@ class RelayReader {
           this._missingClientEdges.push(missing);
         }
       }
+      if (cachedSnapshot.missingLiveResolverFields != null) {
+        this._isMissingData =
+          cachedSnapshot.missingLiveResolverFields.length > 0;
+
+        for (const missingResolverField of cachedSnapshot.missingLiveResolverFields) {
+          this._missingLiveResolverFields.push(missingResolverField);
+        }
+      }
       for (const error of cachedSnapshot.relayResolverErrors) {
         this._resolverErrors.push(error);
       }
@@ -621,6 +633,14 @@ class RelayReader {
     }
     if (seenRecord != null) {
       this._seenRecords.add(seenRecord);
+    }
+
+    if (suspenseID != null) {
+      this._isMissingData = true;
+      this._missingLiveResolverFields.push({
+        path: `${this._fragmentName}.${field.path}`,
+        liveStateID: suspenseID,
+      });
     }
 
     const applicationName = field.alias ?? field.name;

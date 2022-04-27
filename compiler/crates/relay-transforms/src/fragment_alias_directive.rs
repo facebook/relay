@@ -11,9 +11,9 @@ use common::{
     Diagnostic, DiagnosticsResult, FeatureFlag, Location, Named, NamedItem, WithLocation,
 };
 use graphql_ir::{
-    associated_data_impl, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
-    LinkedField, OperationDefinition, Program, Selection, Transformed, TransformedValue,
-    Transformer,
+    associated_data_impl, transform_list, Directive, FragmentDefinition, FragmentSpread,
+    InlineFragment, LinkedField, OperationDefinition, Program, Selection, Transformed,
+    TransformedValue, Transformer,
 };
 use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
@@ -77,18 +77,18 @@ impl<'program> FragmentAliasTransform<'program> {
     where
         N: Fn() -> Option<StringKey>,
     {
-        self.transform_list(directives, |inner_self, directive| {
+        transform_list(directives, |directive| {
             if directive.name() != *FRAGMENT_ALIAS_DIRECTIVE_NAME {
                 return Transformed::Keep;
             }
 
-            let allowed = match inner_self.document_name {
-                Some(name) => inner_self.feature_flag.is_enabled_for(name),
+            let allowed = match self.document_name {
+                Some(name) => self.feature_flag.is_enabled_for(name),
                 None => false,
             };
 
             if !allowed {
-                inner_self.errors.push(Diagnostic::error(
+                self.errors.push(Diagnostic::error(
                     ValidationMessage::FragmentAliasDirectiveDisabled,
                     directive.name.location,
                 ));
@@ -98,7 +98,7 @@ impl<'program> FragmentAliasTransform<'program> {
                 Some(arg) => match arg.value.item.get_string_literal() {
                     Some(name) => WithLocation::new(arg.name.location, name),
                     None => {
-                        inner_self.errors.push(Diagnostic::error(
+                        self.errors.push(Diagnostic::error(
                             ValidationMessage::FragmentAliasDirectiveDynamicNameArg,
                             arg.value.location,
                         ));
@@ -107,7 +107,7 @@ impl<'program> FragmentAliasTransform<'program> {
                 },
                 None => match get_default_name() {
                     None => {
-                        inner_self.errors.push(Diagnostic::error(
+                        self.errors.push(Diagnostic::error(
                             ValidationMessage::FragmentAliasDirectiveMissingAs,
                             directive.name.location,
                         ));
@@ -121,7 +121,7 @@ impl<'program> FragmentAliasTransform<'program> {
             // to avoid having to consider how @alias would interact
             // with all other directives like @defer.
             if directives.len() > 1 {
-                inner_self.errors.push(Diagnostic::error(
+                self.errors.push(Diagnostic::error(
                     ValidationMessage::FragmentAliasIncompatibleDirective,
                     directive.name.location,
                 ));
@@ -132,8 +132,7 @@ impl<'program> FragmentAliasTransform<'program> {
                     alias,
                     type_condition,
                     selection_type: type_condition.unwrap_or(
-                        inner_self
-                            .parent_type
+                        self.parent_type
                             .expect("Selection should be within a parent type."),
                     ),
                 }

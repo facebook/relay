@@ -7,8 +7,8 @@
 
 use common::PointerAddress;
 use graphql_ir::{
-    Field, FragmentDefinition, OperationDefinition, Program, Selection, Transformed,
-    TransformedValue, Transformer,
+    transform_list, Field, FragmentDefinition, OperationDefinition, Program, Selection,
+    Transformed, TransformedValue, Transformer,
 };
 use std::{cmp::Ordering, collections::HashMap};
 
@@ -45,9 +45,9 @@ impl Transformer for SortSelectionsTransform<'_> {
         &mut self,
         selections: &[Selection],
     ) -> TransformedValue<Vec<Selection>> {
-        let mut next_selections = self
-            .transform_list(selections, Self::transform_selection)
-            .replace_or_else(|| selections.to_vec());
+        let mut next_selections =
+            transform_list(selections, |selection| self.transform_selection(selection))
+                .replace_or_else(|| selections.to_vec());
         next_selections.sort_unstable_by(|a, b| self.compare_selections(a, b));
         TransformedValue::Replace(next_selections)
     }

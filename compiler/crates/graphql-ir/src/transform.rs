@@ -139,10 +139,9 @@ pub trait Transformer {
         &mut self,
         variable_definitions: &[VariableDefinition],
     ) -> TransformedValue<Vec<VariableDefinition>> {
-        self.transform_list(
-            variable_definitions,
-            Self::default_transform_variable_definition,
-        )
+        transform_list(variable_definitions, |variable_definition| {
+            self.default_transform_variable_definition(variable_definition)
+        })
     }
 
     fn transform_variable_definition(
@@ -171,7 +170,7 @@ pub trait Transformer {
         &mut self,
         selections: &[Selection],
     ) -> TransformedValue<Vec<Selection>> {
-        self.transform_list(selections, Self::transform_selection)
+        transform_list(selections, |selection| self.transform_selection(selection))
     }
 
     fn transform_selection(&mut self, selection: &Selection) -> Transformed<Selection> {
@@ -330,7 +329,7 @@ pub trait Transformer {
         directives: &[Directive],
     ) -> TransformedValue<Vec<Directive>> {
         if Self::VISIT_DIRECTIVES {
-            self.transform_list(directives, Self::transform_directive)
+            transform_list(directives, |directive| self.transform_directive(directive))
         } else {
             TransformedValue::Keep
         }
@@ -354,7 +353,7 @@ pub trait Transformer {
     // Arguments
     fn transform_arguments(&mut self, arguments: &[Argument]) -> TransformedValue<Vec<Argument>> {
         if Self::VISIT_ARGUMENTS {
-            self.transform_list(arguments, Self::transform_argument)
+            transform_list(arguments, |argument| self.transform_argument(argument))
         } else {
             TransformedValue::Keep
         }
@@ -383,9 +382,9 @@ pub trait Transformer {
         match value {
             Value::Variable(variable) => self.transform_variable(variable).map(Value::Variable),
             Value::Constant(_) => TransformedValue::Keep,
-            Value::List(items) => self
-                .transform_list(items, Self::transform_value)
-                .map(Value::List),
+            Value::List(items) => {
+                transform_list(items, |item| self.transform_value(item)).map(Value::List)
+            }
             Value::Object(arguments) => self.transform_arguments(arguments).map(Value::Object),
         }
     }
@@ -393,110 +392,110 @@ pub trait Transformer {
     fn transform_variable(&mut self, _variable: &Variable) -> TransformedValue<Variable> {
         TransformedValue::Keep
     }
+}
 
-    // Helpers
-    fn transform_list<T, F, R>(&mut self, list: &[T], f: F) -> TransformedValue<Vec<T>>
-    where
-        T: Clone,
-        F: Fn(&mut Self, &T) -> R,
-        R: Into<Transformed<T>>,
-    {
-        let mut result = Vec::new();
-        let mut has_changes = false;
-        for (index, prev_item) in list.iter().enumerate() {
-            let next_item: Transformed<_> = f(self, prev_item).into();
-            match next_item {
-                Transformed::Keep => {
-                    if has_changes {
-                        result.push(prev_item.clone());
-                    }
-                }
-                Transformed::Delete => {
-                    if !has_changes {
-                        debug_assert!(result.capacity() == 0);
-                        // assume most items won't be skipped and allocate space for all items
-                        result.reserve(list.len());
-                        result.extend(list.iter().take(index).cloned());
-                    }
-                    has_changes = true;
-                }
-                Transformed::Replace(next_item) => {
-                    if !has_changes {
-                        debug_assert!(result.capacity() == 0);
-                        // assume most items won't be skipped and allocate space for all items
-                        result.reserve(list.len());
-                        result.extend(list.iter().take(index).cloned());
-                    }
-                    result.push(next_item);
-                    has_changes = true;
+// Helpers
+pub fn transform_list<T, F, R>(list: &[T], mut transform: F) -> TransformedValue<Vec<T>>
+where
+    T: Clone,
+    F: FnMut(&T) -> R,
+    R: Into<Transformed<T>>,
+{
+    let mut result = Vec::new();
+    let mut has_changes = false;
+    for (index, prev_item) in list.iter().enumerate() {
+        let next_item: Transformed<_> = transform(prev_item).into();
+        match next_item {
+            Transformed::Keep => {
+                if has_changes {
+                    result.push(prev_item.clone());
                 }
             }
-        }
-        if has_changes {
-            // Note that result can be empty if the input was empty and all items were skipped
-            TransformedValue::Replace(result)
-        } else {
-            TransformedValue::Keep
+            Transformed::Delete => {
+                if !has_changes {
+                    debug_assert!(result.capacity() == 0);
+                    // assume most items won't be skipped and allocate space for all items
+                    result.reserve(list.len());
+                    result.extend(list.iter().take(index).cloned());
+                }
+                has_changes = true;
+            }
+            Transformed::Replace(next_item) => {
+                if !has_changes {
+                    debug_assert!(result.capacity() == 0);
+                    // assume most items won't be skipped and allocate space for all items
+                    result.reserve(list.len());
+                    result.extend(list.iter().take(index).cloned());
+                }
+                result.push(next_item);
+                has_changes = true;
+            }
         }
     }
+    if has_changes {
+        // Note that result can be empty if the input was empty and all items were skipped
+        TransformedValue::Replace(result)
+    } else {
+        TransformedValue::Keep
+    }
+}
 
-    /// Similar to `transform_list`, but replaces the return value of the item
-    /// callback with `TransformedMulti<T>` which allows more than one item to
-    /// be returned and grow the list. This helper is unused by the default
-    /// implementations and one has to override `transform_selections` or a
-    /// similar list transform function.
-    fn transform_list_multi<T, F>(&mut self, list: &[T], f: F) -> TransformedValue<Vec<T>>
-    where
-        T: Clone,
-        F: Fn(&mut Self, &T) -> TransformedMulti<T>,
-    {
-        let mut result = Vec::new();
-        let mut has_changes = false;
-        for (index, prev_item) in list.iter().enumerate() {
-            let next_item = f(self, prev_item);
-            match next_item {
-                TransformedMulti::Keep => {
-                    if has_changes {
-                        result.push(prev_item.clone());
-                    }
-                }
-                TransformedMulti::Delete => {
-                    if !has_changes {
-                        debug_assert!(result.capacity() == 0);
-                        // assume most items won't be skipped and allocate space for all items
-                        result.reserve(list.len());
-                        result.extend(list.iter().take(index).cloned());
-                    }
-                    has_changes = true;
-                }
-                TransformedMulti::Replace(next_item) => {
-                    if !has_changes {
-                        debug_assert!(result.capacity() == 0);
-                        // assume most items won't be skipped and allocate space for all items
-                        result.reserve(list.len());
-                        result.extend(list.iter().take(index).cloned());
-                    }
-                    result.push(next_item);
-                    has_changes = true;
-                }
-                TransformedMulti::ReplaceMultiple(next_items) => {
-                    if !has_changes {
-                        debug_assert!(result.capacity() == 0);
-                        // assume most items won't be skipped and allocate space for all items
-                        result.reserve(list.len() + next_items.len() - 1);
-                        result.extend(list.iter().take(index).cloned());
-                    }
-                    result.extend(next_items);
-                    has_changes = true;
+/// Similar to `transform_list`, but replaces the return value of the item
+/// callback with `TransformedMulti<T>` which allows more than one item to
+/// be returned and grow the list. This helper is unused by the default
+/// implementations and one has to override `transform_selections` or a
+/// similar list transform function.
+pub fn transform_list_multi<T, F>(list: &[T], mut transform: F) -> TransformedValue<Vec<T>>
+where
+    T: Clone,
+    F: FnMut(&T) -> TransformedMulti<T>,
+{
+    let mut result = Vec::new();
+    let mut has_changes = false;
+    for (index, prev_item) in list.iter().enumerate() {
+        let next_item = transform(prev_item);
+        match next_item {
+            TransformedMulti::Keep => {
+                if has_changes {
+                    result.push(prev_item.clone());
                 }
             }
+            TransformedMulti::Delete => {
+                if !has_changes {
+                    debug_assert!(result.capacity() == 0);
+                    // assume most items won't be skipped and allocate space for all items
+                    result.reserve(list.len());
+                    result.extend(list.iter().take(index).cloned());
+                }
+                has_changes = true;
+            }
+            TransformedMulti::Replace(next_item) => {
+                if !has_changes {
+                    debug_assert!(result.capacity() == 0);
+                    // assume most items won't be skipped and allocate space for all items
+                    result.reserve(list.len());
+                    result.extend(list.iter().take(index).cloned());
+                }
+                result.push(next_item);
+                has_changes = true;
+            }
+            TransformedMulti::ReplaceMultiple(next_items) => {
+                if !has_changes {
+                    debug_assert!(result.capacity() == 0);
+                    // assume most items won't be skipped and allocate space for all items
+                    result.reserve(list.len() + next_items.len() - 1);
+                    result.extend(list.iter().take(index).cloned());
+                }
+                result.extend(next_items);
+                has_changes = true;
+            }
         }
-        if has_changes {
-            // Note that result can be empty if the input was empty and all items were skipped
-            TransformedValue::Replace(result)
-        } else {
-            TransformedValue::Keep
-        }
+    }
+    if has_changes {
+        // Note that result can be empty if the input was empty and all items were skipped
+        TransformedValue::Replace(result)
+    } else {
+        TransformedValue::Keep
     }
 }
 

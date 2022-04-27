@@ -563,8 +563,18 @@ class RelayReader {
         let resolverResult = null;
         let resolverError = null;
         try {
-          // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
-          resolverResult = resolverModule(key);
+          const args = field.args
+            ? getArgumentValues(field.args, this._variables)
+            : undefined;
+
+          resolverResult = resolverModule(
+            // $FlowFixMe[prop-missing] - Resolver's generated type signature is a lie
+            key,
+            // The Relay Compiler enforces that only resolvers that
+            // define arguments will have args in the Reader AST.
+            // $FlowFixMe[extra-arg]
+            args,
+          );
         } catch (e) {
           // `field.path` is typed as nullable while we rollout compiler changes.
           const path = field.path ?? '[UNKNOWN]';

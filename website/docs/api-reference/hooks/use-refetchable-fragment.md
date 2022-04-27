@@ -40,6 +40,7 @@ function CommentBody(props: Props) {
   const [data, refetch] = useRefetchableFragment<CommentBodyRefetchQuery, _>(
     graphql`
       fragment CommentBody_comment on Comment
+      @argumentDefinitions($lang: String)
       @refetchable(queryName: "CommentBodyRefetchQuery") {
         body(lang: $lang) {
           text
@@ -50,7 +51,7 @@ function CommentBody(props: Props) {
   );
 
   return (
-    <>
+    <React.Suspense fallback={"Loading…"}
       <p>{data.body?.text}</p>
       <Button
         onClick={() => {
@@ -59,7 +60,7 @@ function CommentBody(props: Props) {
       >
         Translate Comment
       </Button>
-    </>
+    </React.Suspense>
   );
 }
 

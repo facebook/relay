@@ -42,7 +42,6 @@ const {
   isPromise,
   recycleNodesInto,
 } = require('relay-runtime');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 
 export type FragmentResource = FragmentResourceImpl;
 
@@ -425,11 +424,8 @@ class FragmentResourceImpl {
     const missingResolverFieldPromises =
       missingLiveResolverFields(snapshot)?.map(({liveStateID}) => {
         const store = environment.getStore();
-        invariant(
-          store instanceof LiveResolverStore,
-          'Expect store to be instancec of `LiveResolverStore`',
-        );
 
+        // $FlowFixMe[prop-missing] This is expected to be a LiveResolverStore
         return store.getLiveResolverPromise(liveStateID);
       }) ?? [];
 

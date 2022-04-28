@@ -202,7 +202,7 @@ function UserSelectToggle({ userId, viewerRef }: {
 
           const {updatableData} = store.readUpdatableFragment_EXPERIMENTAL(
             graphql`
-              fragment UserSelectToggle_updatable_user($id: ID!) on User @updatable {
+              fragment UserSelectToggle_updatable_user on User @updatable {
                 is_selected
               }
             `,

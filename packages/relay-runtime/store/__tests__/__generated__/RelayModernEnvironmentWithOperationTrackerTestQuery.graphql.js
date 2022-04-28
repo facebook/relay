@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a9222460740b50f8616900a54a44e840>>
+ * @generated SignedSource<<fc97ff39e7c38ebbc9397a67fb00ed5b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -14,6 +14,8 @@
 
 'use strict';
 
+// @indirectDataDrivenDependency RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment.author.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+// @indirectDataDrivenDependency RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment.author.plainNameRenderer {"branches":{"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType = any;

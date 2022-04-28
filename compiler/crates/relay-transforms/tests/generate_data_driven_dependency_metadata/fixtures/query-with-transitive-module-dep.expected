@@ -28,7 +28,7 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 ==================================== OUTPUT ===================================
-query QueryWithTransitiveModuleDep {
+query QueryWithTransitiveModuleDep @__indirectDataDrivenDependencyMetadata(FragmentWithModuleDep.nameRenderer: "{"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"MarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"PlainUserNameRenderer_name$normalization.graphql"}},"plural":false}") {
   node {
     ...FragmentWithModuleDep
   }

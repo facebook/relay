@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ecca1f45990bf2a2e9652013276c580b>>
+ * @generated SignedSource<<fbc7fdaedf9217a56411ce00f5febeb5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -14,6 +14,7 @@
 
 'use strict';
 
+// @indirectDataDrivenDependency RelayReferenceMarkerTest3Fragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayReferenceMarkerTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayReferenceMarkerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type RelayReferenceMarkerTest3Fragment$fragmentType = any;

@@ -13,6 +13,7 @@ use relay_codegen::{build_request_params, Printer, QueryID, TopLevelStatement, C
 use relay_transforms::{
     is_operation_preloadable, ReactFlightLocalComponentsMetadata, RelayClientComponentMetadata,
     ASSIGNABLE_DIRECTIVE, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
+    INDIRECT_DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
 };
 use relay_typegen::{
     generate_fragment_type_exports_section, generate_named_validator_export,
@@ -150,6 +151,27 @@ fn write_data_driven_dependency_annotation(
         writeln!(
             content,
             "// @dataDrivenDependency {} {}",
+            arg.name.item, value
+        )?;
+    }
+
+    Ok(())
+}
+
+fn write_indirect_data_driven_dependency_annotation(
+    content: &mut String,
+    indirect_data_driven_dependency_directive: &Directive,
+) -> FmtResult {
+    for arg in &indirect_data_driven_dependency_directive.arguments {
+        let value = match arg.value.item {
+            graphql_ir::Value::Constant(graphql_ir::ConstantValue::String(value)) => value,
+            _ => panic!(
+                "Unexpected argument value for @__indirectDataDrivenDependencyMetadata directive"
+            ),
+        };
+        writeln!(
+            content,
+            "// @indirectDataDrivenDependency {} {}",
             arg.name.item, value
         )?;
     }
@@ -356,6 +378,16 @@ fn generate_operation(
         .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
     if let Some(data_driven_dependency_metadata) = data_driven_dependency_metadata {
         write_data_driven_dependency_annotation(&mut content, data_driven_dependency_metadata)?;
+    }
+    let indirect_data_driven_dependency_metadata = operation_fragment
+        .directives
+        .named(*INDIRECT_DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
+    if let Some(indirect_data_driven_dependency_metadata) = indirect_data_driven_dependency_metadata
+    {
+        write_indirect_data_driven_dependency_annotation(
+            &mut content,
+            indirect_data_driven_dependency_metadata,
+        )?;
     }
     if let Some(flight_metadata) =
         ReactFlightLocalComponentsMetadata::find(&operation_fragment.directives)

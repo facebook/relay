@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6be3f20589d934b8d6a7a63c54027867>>
+ * @generated SignedSource<<46e92dc2b3e792787e5ef89c824c815a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,6 +16,7 @@
 
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery.node.outerRendererA {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$normalization.graphql"}},"plural":false}
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery.node.outerRendererB {"branches":{"PlainUserNameRenderer":{"component":"PlainTextUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+// @indirectDataDrivenDependency RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name.user.innerRenderer {"branches":{"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';

@@ -7,9 +7,11 @@
 
 use async_trait::async_trait;
 use dashmap::DashMap;
+use md5::Md5;
 use persist_query::PersistError;
-use relay_config::LocalPersistConfig;
+use relay_config::{LocalPersistAlgorithm, LocalPersistConfig};
 use sha1::{Digest, Sha1};
+use sha2::Sha256;
 use std::collections::BTreeMap;
 
 use crate::OperationPersister;
@@ -35,9 +37,23 @@ impl LocalPersister {
     }
 
     fn hash_operation(&self, operation_text: String) -> String {
-        let mut hash = Sha1::new();
-        hash.input(&operation_text);
-        hex::encode(hash.result())
+        match self.config.algorithm {
+            LocalPersistAlgorithm::MD5 => {
+                let mut md5 = Md5::new();
+                md5.input(operation_text);
+                hex::encode(md5.result())
+            }
+            LocalPersistAlgorithm::SHA1 => {
+                let mut hash = Sha1::new();
+                hash.input(&operation_text);
+                hex::encode(hash.result())
+            }
+            LocalPersistAlgorithm::SHA256 => {
+                let mut hash = Sha256::new();
+                hash.input(&operation_text);
+                hex::encode(hash.result())
+            }
+        }
     }
 }
 

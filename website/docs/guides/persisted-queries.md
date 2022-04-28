@@ -106,6 +106,32 @@ You can also add additional request body parameters via the `params` option.
 }
 ```
 
+### Local Persisted Queries
+
+With the following config, you can generate a local JSON file which contains a map of `operation_id => full operation text`.
+
+```
+"scripts": {
+  "relay": "relay-compiler"
+},
+"relay": {
+  "src": "./src",
+  "schema": "./schema.graphql",
+  "persistConfig": {
+    "file": "./persisted_queries.json",
+    "algorithm": "MD5" // this can be one of MD5, SHA256, SHA1
+  }
+}
+```
+
+Ideally, you'll take this file and ship it to your server at deploy time so your server knows about all the queries it could possibly receive. If you don't want to do that, you'll have to implement the [Automatic Persisted Queries handshake](https://www.apollographql.com/docs/apollo-server/performance/apq/).
+
+#### Tradeoffs
+
+- ✅ If your server's persisted query datastore gets wiped, you can recover automatically through your client's requests.
+- ❌ When there's a cache miss, it'll cost you an extra round trip to the server.
+- ❌ You'll have to ship your `persisted_queries.json` file to the browser which will increase your bundle size.
+
 ### Example implemetation of `relayLocalPersisting.js`
 
 Here's an example of a simple persist server that will save query text to the `queryMap.json` file.

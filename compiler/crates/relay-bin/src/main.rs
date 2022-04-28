@@ -7,6 +7,7 @@
 
 use clap::{ArgEnum, Parser};
 use common::ConsoleLogger;
+use intern::string_key::Intern;
 use log::{error, info};
 use relay_compiler::{
     build_project::artifact_writer::ArtifactValidationWriter, compiler::Compiler, config::Config,
@@ -55,6 +56,11 @@ struct CompileCommand {
     /// Compile and watch for changes
     #[clap(long, short)]
     watch: bool,
+
+    /// Compile only this project. You can pass this argument multiple times.
+    /// to compile multiple projects. If excluded, all projects will be compiled.
+    #[clap(name = "project", long, short)]
+    projects: Vec<String>,
 
     /// Compile using this config file. If not provided, searches for a config in
     /// package.json under the `relay` key or `relay.config.json` files among other up
@@ -191,6 +197,39 @@ fn configure_logger(output: OutputKind, terminal_mode: TerminalMode) {
     TermLogger::init(log_level, log_config, terminal_mode, ColorChoice::Auto).unwrap();
 }
 
+/// Update Config if the `project` flag is set
+fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Error> {
+    if projects.is_empty() {
+        return Ok(());
+    }
+
+    for project_config in config.projects.values_mut() {
+        project_config.enabled = false;
+    }
+    for selected_project in projects {
+        let selected_project = selected_project.intern();
+
+        if let Some(project_config) = config.projects.get_mut(&selected_project) {
+            project_config.enabled = true;
+        } else {
+            return Err(Error::ProjectFilterError {
+                details: format!(
+                    "Project `{}` not found, available projects: {}.",
+                    selected_project,
+                    config
+                        .projects
+                        .keys()
+                        .map(|name| name.lookup())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ),
+            });
+        }
+    }
+
+    return Ok(());
+}
+
 async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     configure_logger(command.output, TerminalMode::Mixed);
 
@@ -204,6 +243,8 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     }
 
     let mut config = get_config(command.config)?;
+
+    set_project_flag(&mut config, command.projects)?;
 
     if command.validate {
         config.artifact_writer = Box::new(ArtifactValidationWriter::default());

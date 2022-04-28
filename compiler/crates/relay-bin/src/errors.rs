@@ -9,6 +9,9 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum Error {
+    #[error("Unable to filter projects. Error details: \n{details}")]
+    ProjectFilterError { details: String },
+
     #[error("Unable to run the relay language server. Error details: \n{details}")]
     LSPError { details: String },
 

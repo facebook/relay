@@ -28,7 +28,7 @@ pub fn validate_selection_conflict<B: LocationAgnosticBehavior + Sync>(
 #[derive(Clone, PartialEq, Debug)]
 enum Field<'s> {
     LinkedField(&'s LinkedField),
-    ScalarFeild(&'s ScalarField),
+    ScalarField(&'s ScalarField),
 }
 
 type Fields<'s> = Vec<Field<'s>>;
@@ -82,7 +82,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 self.validate_and_insert_field_selection(fields, field, false)
             }
             Selection::ScalarField(field) => {
-                let field = Field::ScalarFeild(field.as_ref());
+                let field = Field::ScalarField(field.as_ref());
                 self.validate_and_insert_field_selection(fields, field, false)
             }
             Selection::Condition(condition) => {
@@ -218,7 +218,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                         );
                     }
                 }
-                (Field::ScalarFeild(l), Field::ScalarFeild(r)) => {
+                (Field::ScalarField(l), Field::ScalarField(r)) => {
                     if !is_parent_fields_mutually_exclusive() {
                         if let Err(err) = self.validate_same_field(
                             key,
@@ -386,21 +386,21 @@ impl<'s> Field<'s> {
     fn get_response_key(&self, schema: &SDLSchema) -> StringKey {
         match self {
             Field::LinkedField(f) => f.alias_or_name(schema),
-            Field::ScalarFeild(f) => f.alias_or_name(schema),
+            Field::ScalarField(f) => f.alias_or_name(schema),
         }
     }
 
     fn get_field_definition(&self, schema: &'s SDLSchema) -> &'s schema::definitions::Field {
         match self {
             Field::LinkedField(f) => schema.field(f.definition.item),
-            Field::ScalarFeild(f) => schema.field(f.definition.item),
+            Field::ScalarField(f) => schema.field(f.definition.item),
         }
     }
 
     fn loc(&self) -> Location {
         match self {
             Field::LinkedField(f) => f.definition.location,
-            Field::ScalarFeild(f) => f.definition.location,
+            Field::ScalarField(f) => f.definition.location,
         }
     }
 }

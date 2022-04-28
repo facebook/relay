@@ -465,6 +465,10 @@ class FragmentResourceImpl {
         }
         throw Promise.all(promises);
       }
+
+      // Note: we are re-throwing the `parentQueryPromiseResultPromise` here,
+      // because some of our suspense-related code is relying on the instance equality
+      // of thrown promises. See FragmentResource-test.js
       if (parentQueryPromiseResultPromise) {
         throw parentQueryPromiseResultPromise;
       }

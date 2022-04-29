@@ -311,7 +311,7 @@ function merge(record1: Record, record2: Record): Record {
       nextType,
     );
   }
-  return Object.assign({}, record1, record2);
+  return {...record1, ...record2};
 }
 
 /**

@@ -17,7 +17,6 @@ errors = { path = "../errors" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 intern = { path = "../intern" }
-itertools = "0.10.3"
 schema = { path = "../schema" }
 thiserror = "1.0.30"
 

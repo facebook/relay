@@ -6,6 +6,7 @@
  */
 
 mod annotate_updatable_fragment_spreads;
+mod ensure_discriminated_union_is_created;
 mod errors;
 mod replace_updatable_fragment_spreads;
 mod transform_assignable_fragment_spreads_in_regular_queries;
@@ -24,6 +25,7 @@ lazy_static! {
 
 use self::errors::ValidationMessage;
 pub use annotate_updatable_fragment_spreads::*;
+use ensure_discriminated_union_is_created::*;
 pub use replace_updatable_fragment_spreads::*;
 pub use transform_assignable_fragment_spreads_in_regular_queries::*;
 pub use transform_assignable_fragment_spreads_in_updatable_queries::*;

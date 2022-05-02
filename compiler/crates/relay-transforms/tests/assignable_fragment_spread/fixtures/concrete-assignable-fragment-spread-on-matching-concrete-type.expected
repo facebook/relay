@@ -14,8 +14,8 @@ query TestQuery {
     ... {
       ...Assignable_user
       __typename
+      __id
     }
-    __id
   }
 }
 

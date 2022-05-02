@@ -8,7 +8,7 @@
 use std::collections::HashSet;
 
 use common::{Diagnostic, DiagnosticsResult, Location};
-use graphql_ir::{Field, InlineFragment, LinkedField, Selection};
+use graphql_ir::{InlineFragment, LinkedField, Selection};
 use schema::{SDLSchema, Schema, Type};
 
 use super::errors::ValidationMessage;
@@ -21,13 +21,15 @@ use super::errors::ValidationMessage;
 pub(super) fn ensure_discriminated_union_is_created(
     schema: &SDLSchema,
     linked_field: &LinkedField,
+    reason_message: &'static str,
 ) -> DiagnosticsResult<()> {
     let mut errors = vec![];
     let type_reference = &schema.field(linked_field.definition.item).type_;
 
     if !type_reference.inner().is_abstract_type() {
         errors.push(Diagnostic::error(
-            ValidationMessage::UpdatableFragmentSpreadContainedInConcreteLinkedField {
+            ValidationMessage::EnsureDiscriminatedUnionConcreteOuterLinkedField {
+                reason_message,
                 linked_field_type: schema.get_type_name(type_reference.inner()),
                 linked_field_type_variant: match type_reference.inner() {
                     Type::Enum(_) => "Enum",
@@ -52,14 +54,13 @@ pub(super) fn ensure_discriminated_union_is_created(
                     inline_fragment,
                     linked_field.definition.location,
                     &mut encountered_type_conditions,
+                    reason_message,
                 ) {
                     errors.extend(e.into_iter());
                 }
             }
             _ => errors.push(Diagnostic::error(
-                ValidationMessage::UpdatableFragmentSpreadLinkedFieldContainsNonInlineFragment {
-                    linked_field_name_or_alias: linked_field.alias_or_name(schema),
-                },
+                ValidationMessage::EnsureDiscriminatedUnionNonInlineFragment { reason_message },
                 linked_field.definition.location,
             )),
         }
@@ -80,6 +81,7 @@ fn ensure_inline_fragment_is_valid(
     inline_fragment: &InlineFragment,
     linked_field_location: Location,
     encountered_type_conditions: &mut HashSet<Type>,
+    reason_message: &'static str,
 ) -> DiagnosticsResult<()> {
     let mut errors = vec![];
 
@@ -87,13 +89,16 @@ fn ensure_inline_fragment_is_valid(
     if let Some(type_condition) = inline_fragment.type_condition {
         if type_condition.is_abstract_type() {
             errors.push(Diagnostic::error(
-                    ValidationMessage::UpdatableFragmentSpreadLinkedFieldContainsInlineFragmentRefinement,
-                    linked_field_location
-                ));
+                ValidationMessage::EnsureDiscriminatedUnionInlineFragmentNotRefineToConcreteType {
+                    reason_message,
+                },
+                linked_field_location,
+            ));
         } else {
             if encountered_type_conditions.contains(&type_condition) {
                 errors.push(Diagnostic::error(
-                        ValidationMessage::UpdatableFragmentSpreadLinkedFieldContainsInlineFragmentClashingRefinement {
+                        ValidationMessage::EnsureDiscriminatedUnionInlineFragmentDuplicateConcreteTypeRefinement {
+							reason_message,
                             concrete_type: schema.get_type_name(type_condition),
                         },
                         linked_field_location
@@ -103,7 +108,9 @@ fn ensure_inline_fragment_is_valid(
         }
     } else {
         errors.push(Diagnostic::error(
-            ValidationMessage::UpdatableFragmentSpreadLinkedFieldContainsInlineFragmentRefinement,
+            ValidationMessage::EnsureDiscriminatedUnionInlineFragmentNotRefineToConcreteType {
+                reason_message,
+            },
             linked_field_location,
         ));
     }
@@ -122,14 +129,18 @@ fn ensure_inline_fragment_is_valid(
         })
     {
         errors.push(Diagnostic::error(
-            ValidationMessage::UpdatableFragmentSpreadLinkedFieldContainsInlineFragmentTypename,
+            ValidationMessage::EnsureDiscriminatedUnionInlineFragmentNoValidTypename {
+                reason_message,
+            },
             linked_field_location,
         ));
     }
 
     if !inline_fragment.directives.is_empty() {
         errors.push(Diagnostic::error(
-            ValidationMessage::UpdatableFragmentSpreadLinkedFieldContainsInlineFragmentDirectives,
+            ValidationMessage::EnsureDiscriminatedUnionNoInlineFragmentWithDirectives {
+                reason_message,
+            },
             linked_field_location,
         ));
     }

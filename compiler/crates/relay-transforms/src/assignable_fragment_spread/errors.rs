@@ -140,39 +140,39 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "An updatable fragment was spread in an inline fragment in this linked field. This linked field must have an abstract type, meaning its type must be an Interface or a Union. However, `{linked_field_type}` is a `{linked_field_type_variant}`."
+        "Because {reason_message}, this linked field must have an abstract type, meaning its type must be an Interface or a Union. However, `{linked_field_type}` is a `{linked_field_type_variant}`."
     )]
-    UpdatableFragmentSpreadContainedInConcreteLinkedField {
+    EnsureDiscriminatedUnionConcreteOuterLinkedField {
+        reason_message: &'static str,
         linked_field_type: StringKey,
         linked_field_type_variant: String,
     },
 
     #[error(
-        "Because an updatable fragment was spread in an inline fragment in this linked field (`{linked_field_name_or_alias}`), this linked field can only contain inline fragments, and any inline fragments cannot have @skip or @if."
+        "Because {reason_message}, this linked field can only contain inline fragments, and any inline fragments cannot have @skip or @if."
     )]
-    UpdatableFragmentSpreadLinkedFieldContainsNonInlineFragment {
-        linked_field_name_or_alias: StringKey,
-    },
+    EnsureDiscriminatedUnionNonInlineFragment { reason_message: &'static str },
 
     #[error(
-        "Because an updatable fragment was spread in an inline fragment in this linked field, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, an inline fragment in this linked field does not refine to a concrete type."
+        "Because {reason_message}, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, an inline fragment in this linked field does not refine to a concrete type."
     )]
-    UpdatableFragmentSpreadLinkedFieldContainsInlineFragmentRefinement,
+    EnsureDiscriminatedUnionInlineFragmentNotRefineToConcreteType { reason_message: &'static str },
 
     #[error(
-        "Because an updatable fragment was spread in an inline fragment in this linked field, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, multiple inline fragments in this linked field refine to the concrete type `{concrete_type}`."
+        "Because {reason_message}, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, multiple inline fragments in this linked field refine to the concrete type `{concrete_type}`."
     )]
-    UpdatableFragmentSpreadLinkedFieldContainsInlineFragmentClashingRefinement {
+    EnsureDiscriminatedUnionInlineFragmentDuplicateConcreteTypeRefinement {
         concrete_type: StringKey,
+        reason_message: &'static str,
     },
 
     #[error(
-        "Because an updatable fragment was spread in an inline fragment in this linked field, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, an inline fragment in this linked field does not contain an unaliased __typename selection with no directives."
+        "Because {reason_message}, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, an inline fragment in this linked field does not contain an unaliased __typename selection with no directives."
     )]
-    UpdatableFragmentSpreadLinkedFieldContainsInlineFragmentTypename,
+    EnsureDiscriminatedUnionInlineFragmentNoValidTypename { reason_message: &'static str },
 
     #[error(
-        "Because an updatable fragment was spread in an inline fragment in this linked field, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, an inline fragment in this linked field contains directives."
+        "Because {reason_message}, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, an inline fragment in this linked field contains directives."
     )]
-    UpdatableFragmentSpreadLinkedFieldContainsInlineFragmentDirectives,
+    EnsureDiscriminatedUnionNoInlineFragmentWithDirectives { reason_message: &'static str },
 }

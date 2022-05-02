@@ -200,9 +200,11 @@ impl<'a> Validator for UpdatableFragmentSpread<'a> {
         };
 
         if linked_field_item.should_ensure_discriminated_union_is_created {
-            if let Err(e) =
-                ensure_discriminated_union_is_created(&self.program.schema, linked_field)
-            {
+            if let Err(e) = ensure_discriminated_union_is_created(
+                &self.program.schema,
+                linked_field,
+                "an updatable fragment was spread in an inline fragment in this linked field",
+            ) {
                 errors.extend(e)
             }
         }

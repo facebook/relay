@@ -3,6 +3,7 @@
 query TestQuery($skip: Boolean!) {
   node(id: "4") {
     ... on User {
+      __typename
       ...Assignable_user
     }
   }
@@ -14,8 +15,8 @@ fragment Assignable_user on User @assignable {
 ==================================== ERROR ====================================
 ✖︎ Assignable fragments cannot appear within inline fragments
 
-  assignable-fragment-spread-within-inline-fragment.invalid.graphql:5:10
-    4 │     ... on User {
-    5 │       ...Assignable_user
+  assignable-fragment-spread-within-inline-fragment.invalid.graphql:6:10
+    5 │       __typename
+    6 │       ...Assignable_user
       │          ^^^^^^^^^^^^^^^
-    6 │     }
+    7 │     }

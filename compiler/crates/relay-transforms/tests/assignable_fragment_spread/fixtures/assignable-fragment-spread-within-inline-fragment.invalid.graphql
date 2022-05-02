@@ -2,6 +2,7 @@
 query TestQuery($skip: Boolean!) {
   node(id: "4") {
     ... on User {
+      __typename
       ...Assignable_user
     }
   }

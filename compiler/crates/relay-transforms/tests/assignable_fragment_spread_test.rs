@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b084bca445010020052e379fcacc39d6>>
+ * @generated SignedSource<<7e199fca5115686b17339b3e81aeaf9d>>
  */
 
 mod assignable_fragment_spread;
@@ -55,17 +55,17 @@ fn assignable_fragment_spread_with_directives_invalid() {
 }
 
 #[test]
+fn assignable_fragment_spread_within_inline_fragment() {
+    let input = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment.graphql");
+    let expected = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment.expected");
+    test_fixture(transform_fixture, "assignable-fragment-spread-within-inline-fragment.graphql", "assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment.expected", input, expected);
+}
+
+#[test]
 fn assignable_fragment_spread_within_inline_fragment_and_linked_field() {
     let input = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment-and-linked-field.graphql");
     let expected = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment-and-linked-field.expected");
     test_fixture(transform_fixture, "assignable-fragment-spread-within-inline-fragment-and-linked-field.graphql", "assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment-and-linked-field.expected", input, expected);
-}
-
-#[test]
-fn assignable_fragment_spread_within_inline_fragment_invalid() {
-    let input = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment.invalid.graphql");
-    let expected = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment.invalid.expected");
-    test_fixture(transform_fixture, "assignable-fragment-spread-within-inline-fragment.invalid.graphql", "assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment.invalid.expected", input, expected);
 }
 
 #[test]

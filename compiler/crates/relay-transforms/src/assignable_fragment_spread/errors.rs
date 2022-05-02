@@ -17,8 +17,8 @@ pub enum ValidationMessage {
         disallowed_directive_name: StringKey,
     },
 
-    #[error("Assignable fragments cannot appear within inline fragments")]
-    AssignableFragmentSpreadNotWithinInlineFragment,
+    #[error("Assignable fragments can only be nested within at most a single inline fragment.")]
+    AssignableFragmentSpreadContainingInlineFragmentSingleNesting,
 
     #[error("Top-level spreads of assignable fragments are not supported.")]
     AssignableNoTopLevelFragmentSpreads,

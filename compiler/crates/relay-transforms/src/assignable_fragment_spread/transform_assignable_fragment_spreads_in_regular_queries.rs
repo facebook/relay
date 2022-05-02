@@ -14,7 +14,10 @@ use intern::string_key::Intern;
 use schema::Schema;
 use std::sync::Arc;
 
-use super::{errors::ValidationMessage, ASSIGNABLE_DIRECTIVE, UPDATABLE_DIRECTIVE};
+use super::{
+    ensure_discriminated_union_is_created, errors::ValidationMessage, ASSIGNABLE_DIRECTIVE,
+    UPDATABLE_DIRECTIVE,
+};
 
 pub fn transform_assignable_fragment_spreads_in_regular_queries(
     program: &Program,
@@ -67,11 +70,22 @@ impl<'s> AssignableFragmentSpread<'s> {
                         directly_in_condition = Some(*c);
                     }
                 }
-                PathSegment::LinkedField => {
+                PathSegment::LinkedField {
+                    valid_generated_flow_type,
+                } => {
                     in_linked_field = true;
+                    if in_inline_fragment {
+                        *valid_generated_flow_type = ValidGeneratedFlowType::OnlyDiscriminatedUnion;
+                    }
                     break;
                 }
                 PathSegment::InlineFragment => {
+                    if in_inline_fragment {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::AssignableFragmentSpreadContainingInlineFragmentSingleNesting,
+                            fragment_spread.fragment.location
+                        ));
+                    }
                     in_inline_fragment = true;
                 }
             }
@@ -82,12 +96,6 @@ impl<'s> AssignableFragmentSpread<'s> {
                 ValidationMessage::AssignableFragmentSpreadNoOtherDirectives {
                     disallowed_directive_name: condition_directive_name.intern(),
                 },
-                fragment_spread.fragment.location,
-            ));
-        }
-        if in_inline_fragment {
-            self.errors.push(Diagnostic::error(
-                ValidationMessage::AssignableFragmentSpreadNotWithinInlineFragment,
                 fragment_spread.fragment.location,
             ));
         }
@@ -104,8 +112,16 @@ impl<'s> AssignableFragmentSpread<'s> {
 #[derive(Debug)]
 enum PathSegment {
     Condition(&'static str),
-    LinkedField,
+    LinkedField {
+        valid_generated_flow_type: ValidGeneratedFlowType,
+    },
     InlineFragment,
+}
+
+#[derive(Debug)]
+enum ValidGeneratedFlowType {
+    OnlyDiscriminatedUnion,
+    Any,
 }
 
 impl<'s> Transformer for AssignableFragmentSpread<'s> {
@@ -234,9 +250,34 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
     }
 
     fn transform_linked_field(&mut self, linked_field: &LinkedField) -> Transformed<Selection> {
-        self.path.push(PathSegment::LinkedField);
+        self.path.push(PathSegment::LinkedField {
+            valid_generated_flow_type: ValidGeneratedFlowType::Any,
+        });
         let response = self.default_transform_linked_field(linked_field);
-        self.path.pop().expect("path should not be empty");
+
+        // If we encountered an assignable fragment in an inline fragment, the linked field
+        // must result in a discriminated union being created
+        let valid_generated_flow_type = if let PathSegment::LinkedField {
+            valid_generated_flow_type,
+        } = self.path.pop().expect("path should not be empty")
+        {
+            valid_generated_flow_type
+        } else {
+            panic!("Unexpected non-linked field");
+        };
+        if matches!(
+            valid_generated_flow_type,
+            ValidGeneratedFlowType::OnlyDiscriminatedUnion
+        ) {
+            if let Err(e) = ensure_discriminated_union_is_created(
+                &self.program.schema,
+                linked_field,
+                "an assignable fragment was spread in this linked field",
+            ) {
+                self.errors.extend(e.into_iter());
+            }
+        }
+
         response
     }
 

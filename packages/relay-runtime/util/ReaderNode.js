@@ -21,6 +21,14 @@ export type ReaderFragmentSpread = {|
   +args?: ?$ReadOnlyArray<ReaderArgument>,
 |};
 
+export type ReaderAliasedFragmentSpread = {|
+  +kind: 'AliasedFragmentSpread',
+  +name: string,
+  +type: string,
+  +abstractKey?: ?string,
+  +fragment: ReaderFragmentSpread,
+|};
+
 export type ReaderInlineDataFragmentSpread = {|
   +kind: 'InlineDataFragmentSpread',
   +name: string,
@@ -124,6 +132,12 @@ export type ReaderInlineFragment = {|
   +selections: $ReadOnlyArray<ReaderSelection>,
   +type: string,
   +abstractKey?: ?string,
+|};
+
+export type ReaderAliasedInlineFragmentSpread = {|
+  +kind: 'AliasedInlineFragmentSpread',
+  +name: string,
+  +fragment: ReaderInlineFragment,
 |};
 
 export type ReaderLinkedField = {|
@@ -280,7 +294,9 @@ export type ReaderSelection =
   | ReaderActorChange
   | ReaderFlightField
   | ReaderFragmentSpread
+  | ReaderAliasedFragmentSpread
   | ReaderInlineDataFragmentSpread
+  | ReaderAliasedInlineFragmentSpread
   | ReaderInlineFragment
   | ReaderModuleImport
   | ReaderStream

@@ -97,6 +97,8 @@ const RelayConcreteNode = {
   LIST_VALUE: 'ListValue',
   LOCAL_ARGUMENT: 'LocalArgument',
   MODULE_IMPORT: 'ModuleImport',
+  ALIASED_FRAGMENT_SPREAD: 'AliasedFragmentSpread',
+  ALIASED_INLINE_FRAGMENT_SPREAD: 'AliasedInlineFragmentSpread',
   RELAY_RESOLVER: 'RelayResolver',
   RELAY_LIVE_RESOLVER: 'RelayLiveResolver',
   REQUIRED_FIELD: 'RequiredField',

@@ -14,12 +14,14 @@
 
 import type {
   ReaderActorChange,
+  ReaderAliasedFragmentSpread,
   ReaderClientEdgeToClientObject,
   ReaderClientEdgeToServerObject,
   ReaderFlightField,
   ReaderFragment,
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
+  ReaderInlineFragment,
   ReaderLinkedField,
   ReaderModuleImport,
   ReaderNode,
@@ -48,6 +50,8 @@ import type {EvaluationResult, ResolverCache} from './ResolverCache';
 
 const {
   ACTOR_CHANGE,
+  ALIASED_FRAGMENT_SPREAD,
+  ALIASED_INLINE_FRAGMENT_SPREAD,
   CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EDGE_TO_SERVER_OBJECT,
   CLIENT_EXTENSION,
@@ -313,7 +317,7 @@ class RelayReader {
     for (let i = 0; i < selections.length; i++) {
       const selection = selections[i];
       switch (selection.kind) {
-        case REQUIRED_FIELD:
+        case REQUIRED_FIELD: {
           const fieldValue = this._readRequiredField(selection, record, data);
           if (fieldValue == null) {
             const {action} = selection;
@@ -326,6 +330,7 @@ class RelayReader {
             return false;
           }
           break;
+        }
         case SCALAR_FIELD:
           this._readScalar(selection, record, data);
           break;
@@ -352,48 +357,8 @@ class RelayReader {
           }
           break;
         case INLINE_FRAGMENT: {
-          const {abstractKey} = selection;
-          if (abstractKey == null) {
-            // concrete type refinement: only read data if the type exactly matches
-            const typeName = RelayModernRecord.getType(record);
-            if (typeName != null && typeName === selection.type) {
-              const hasExpectedData = this._traverseSelections(
-                selection.selections,
-                record,
-                data,
-              );
-              if (!hasExpectedData) {
-                return false;
-              }
-            }
-          } else {
-            // Similar to the logic in read(): data is only expected to be present
-            // if the record is known to conform to the interface. If we don't know
-            // whether the type conforms or not, that constitutes missing data.
-
-            // store flags to reset after reading
-            const parentIsMissingData = this._isMissingData;
-            const parentIsWithinUnmatchedTypeRefinement =
-              this._isWithinUnmatchedTypeRefinement;
-
-            const implementsInterface = this._implementsInterface(
-              record,
-              abstractKey,
-            );
-            this._isWithinUnmatchedTypeRefinement =
-              parentIsWithinUnmatchedTypeRefinement ||
-              implementsInterface === false;
-            this._traverseSelections(selection.selections, record, data);
-            this._isWithinUnmatchedTypeRefinement =
-              parentIsWithinUnmatchedTypeRefinement;
-
-            if (implementsInterface === false) {
-              // Type known to not implement the interface, no data expected
-              this._isMissingData = parentIsMissingData;
-            } else if (implementsInterface == null) {
-              // Don't know if the type implements the interface or not
-              this._markDataAsMissing();
-            }
+          if (this._readInlineFragment(selection, record, data) === false) {
+            return false;
           }
           break;
         }
@@ -408,6 +373,24 @@ class RelayReader {
         case FRAGMENT_SPREAD:
           this._createFragmentPointer(selection, record, data);
           break;
+        case ALIASED_FRAGMENT_SPREAD:
+          data[selection.name] = this._createAliasedFragmentSpread(
+            selection,
+            record,
+          );
+          break;
+        case ALIASED_INLINE_FRAGMENT_SPREAD: {
+          let fieldValue = this._readInlineFragment(
+            selection.fragment,
+            record,
+            {},
+          );
+          if (fieldValue === false) {
+            fieldValue = null;
+          }
+          data[selection.name] = fieldValue;
+          break;
+        }
         case MODULE_IMPORT:
           this._readModuleImport(selection, record, data);
           break;
@@ -920,6 +903,106 @@ class RelayReader {
     );
     data[FRAGMENT_PROP_NAME_KEY] = moduleImport.fragmentPropName;
     data[MODULE_COMPONENT_KEY] = component;
+  }
+
+  _createAliasedFragmentSpread(
+    namedFragmentSpread: ReaderAliasedFragmentSpread,
+    record: Record,
+  ): ?Record {
+    const {abstractKey} = namedFragmentSpread;
+    if (abstractKey == null) {
+      // concrete type refinement: only read data if the type exactly matches
+      const typeName = RelayModernRecord.getType(record);
+      if (typeName == null || typeName !== namedFragmentSpread.type) {
+        // This selection does not match the fragment spread. Do nothing.
+        return null;
+      }
+    } else {
+      const implementsInterface = this._implementsInterface(
+        record,
+        abstractKey,
+      );
+
+      if (implementsInterface === false) {
+        // Type known to not implement the interface, no data expected
+        return null;
+      } else if (implementsInterface == null) {
+        // Don't know if the type implements the interface or not
+        this._markDataAsMissing();
+        // Judgement call here. In some cases this will cause us to hide data that is actually valid.
+        return undefined;
+      }
+    }
+    const fieldData = {};
+    this._createFragmentPointer(
+      namedFragmentSpread.fragment,
+      record,
+      fieldData,
+    );
+    return fieldData;
+  }
+
+  // Has three possible return values:
+  // * null: The type condition did not match
+  // * undefined: We are missing data
+  // * false: The selection contained missing @required fields
+  // * data: The successfully populated SelectorData object
+  _readInlineFragment(
+    inlineFragment: ReaderInlineFragment,
+    record: Record,
+    data: SelectorData,
+  ): ?(SelectorData | false) {
+    const {abstractKey} = inlineFragment;
+    if (abstractKey == null) {
+      // concrete type refinement: only read data if the type exactly matches
+      const typeName = RelayModernRecord.getType(record);
+      if (typeName == null || typeName !== inlineFragment.type) {
+        // This selection does not match the fragment spread. Do nothing.
+        return null;
+      } else {
+        const hasExpectedData = this._traverseSelections(
+          inlineFragment.selections,
+          record,
+          data,
+        );
+        if (!hasExpectedData) {
+          // Bubble up null due to a missing @required field
+          return false;
+        }
+      }
+    } else {
+      const implementsInterface = this._implementsInterface(
+        record,
+        abstractKey,
+      );
+
+      // store flags to reset after reading
+      const parentIsMissingData = this._isMissingData;
+      const parentIsWithinUnmatchedTypeRefinement =
+        this._isWithinUnmatchedTypeRefinement;
+
+      this._isWithinUnmatchedTypeRefinement =
+        parentIsWithinUnmatchedTypeRefinement || implementsInterface === false;
+
+      // @required is not allowed within inline fragments on abstract types, so
+      // we can ignore the `hasMissingData` result of `_traverseSelections`.
+      this._traverseSelections(inlineFragment.selections, record, data);
+
+      // Reset
+      this._isWithinUnmatchedTypeRefinement =
+        parentIsWithinUnmatchedTypeRefinement;
+
+      if (implementsInterface === false) {
+        // Type known to not implement the interface, no data expected
+        this._isMissingData = parentIsMissingData;
+        return undefined;
+      } else if (implementsInterface == null) {
+        // Don't know if the type implements the interface or not
+        this._markDataAsMissing();
+        return null;
+      }
+    }
+    return data;
   }
 
   _createFragmentPointer(

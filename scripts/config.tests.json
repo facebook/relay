@@ -28,6 +28,12 @@
         },
         "actor_change_support": {
           "kind": "enabled"
+        },
+        "enable_provided_variables": {
+          "kind": "enabled"
+        },
+        "enable_fragment_aliases": {
+          "kind": "enabled"
         }
       },
       "language": "flow"

@@ -1,0 +1,9 @@
+fragment requiredUnderConnection on User @refetchable(queryName: "SomeNewQuery") {
+  friends(first: $first, after: $after) @connection(key: "AnythingHere__friends") {
+    edges {
+      node @required(action: THROW) {
+        id
+      }
+    }
+  }
+}

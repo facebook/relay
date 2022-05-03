@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+fragment requiredUnderConnection on User @refetchable(queryName: "SomeNewQuery") {
+  topLevelComments(first: 10) @connection(key: "AnythingHere__topLevelComments") {
+    edges {
+      node @required(action: THROW) {
+        id
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+fragment requiredUnderConnection on User @refetchable(queryName: "SomeNewQuery") {
+  topLevelComments(first: 10) @connection(key: "SomeConnectionKey") {
+    edges {
+      node @required(action: THROW) @__RequiredMetadataDirective
+      # RequiredMetadataDirective {
+      #     action: Throw,
+      #     path: "topLevelComments.edges.node",
+      # }
+       {
+        id
+      }
+    }
+  }
+}

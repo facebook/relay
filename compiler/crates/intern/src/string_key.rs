@@ -39,6 +39,18 @@ impl StringKey {
     pub fn lookup(self) -> &'static str {
         self.0.as_str()
     }
+
+    pub fn index(self) -> u32 {
+        self.0.index()
+    }
+
+    pub fn from_index_checked(index: u32) -> Option<Self> {
+        StringId::from_index_checked(index).map(Self)
+    }
+
+    pub unsafe fn from_index(index: u32) -> Self {
+        Self(StringId::from_index(index))
+    }
 }
 
 impl fmt::Display for StringKey {

@@ -94,6 +94,14 @@ impl StringId {
         (self.0).0.index() as u32
     }
 
+    pub fn from_index_checked(index: u32) -> Option<Self> {
+        BytesId::from_index_checked(index).map(Self)
+    }
+
+    pub unsafe fn from_index(index: u32) -> Self {
+        Self(BytesId::from_index(index))
+    }
+
     /// 0-cost conversion to interned bytes.
     pub fn as_bytes(self) -> BytesId {
         self.0

@@ -304,7 +304,7 @@ class FragmentResourceImpl {
       if (
         cachedValue.kind === 'done' &&
         cachedValue.result.snapshot &&
-        missingLiveResolverFields(cachedValue.result.snapshot)?.length === 0
+        !missingLiveResolverFields(cachedValue.result.snapshot)?.length
       ) {
         this._handlePotentialSnapshotErrorsInSnapshot(
           cachedValue.result.snapshot,

@@ -177,7 +177,7 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
 impl<'schema> Transformer for ProvidedVariableFragmentTransform<'schema> {
     const NAME: &'static str = "ApplyFragmentProvidedVariables";
     const VISIT_ARGUMENTS: bool = true;
-    const VISIT_DIRECTIVES: bool = false;
+    const VISIT_DIRECTIVES: bool = true;
 
     fn transform_variable(&mut self, variable: &Variable) -> TransformedValue<Variable> {
         if let Some(transformed_name) = self.in_scope_providers.get(&variable.name.item) {

@@ -400,7 +400,10 @@ fn generate_operation(
         write_react_flight_client_annotation(&mut content, relay_client_component_metadata)?;
     }
 
-    if request_parameters.id.is_some() || data_driven_dependency_metadata.is_some() {
+    if request_parameters.id.is_some()
+        || data_driven_dependency_metadata.is_some()
+        || indirect_data_driven_dependency_metadata.is_some()
+    {
         writeln!(content)?;
     }
 

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6de6270d0c2cd182388bf519f5977cb7>>
+ * @generated SignedSource<<4b14ddebec4787644e46d5f131adb0a5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,6 +15,7 @@
 'use strict';
 
 // @indirectDataDrivenDependency RelayReaderTestWhenMatchDirectiveIsPresentBarFragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType = any;

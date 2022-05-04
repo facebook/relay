@@ -149,7 +149,13 @@ function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
     // TODO: Perform this transformation in RelayReader so that unchanged
     // output of subscriptions already has a stable identity.
     if (__fragmentPropName != null && __id != null && __fragments != null) {
-      const fragProps = {};
+      const fragProps: {
+        [string]: {|
+          __fragmentOwner: $FlowFixMe,
+          __fragments: $FlowFixMe,
+          __id: string,
+        |},
+      } = {};
       fragProps[__fragmentPropName] = {__id, __fragments, __fragmentOwner};
       return fragProps;
     }
@@ -158,6 +164,7 @@ function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
 
   if (LoadedContainer != null && fragmentProps != null) {
     // $FlowFixMe[incompatible-type]
+    // $FlowFixMe[cannot-spread-indexer]
     return <LoadedContainer {...props} {...fragmentProps} />;
   } else {
     return fallback ?? null;

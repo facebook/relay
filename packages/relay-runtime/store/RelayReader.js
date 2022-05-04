@@ -11,7 +11,6 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
 import type {
   ReaderActorChange,
   ReaderAliasedFragmentSpread,
@@ -46,6 +45,7 @@ import type {
   SingularReaderSelector,
   Snapshot,
 } from './RelayStoreTypes';
+import type {Arguments} from './RelayStoreUtils';
 import type {EvaluationResult, ResolverCache} from './ResolverCache';
 
 const {
@@ -1012,7 +1012,9 @@ class RelayReader {
   ): void {
     let fragmentPointers = data[FRAGMENTS_KEY];
     if (fragmentPointers == null) {
-      fragmentPointers = data[FRAGMENTS_KEY] = {};
+      fragmentPointers = data[FRAGMENTS_KEY] = ({}: {
+        [string]: Arguments | {...},
+      });
     }
     invariant(
       typeof fragmentPointers === 'object' && fragmentPointers != null,
@@ -1049,7 +1051,7 @@ class RelayReader {
   ): void {
     let fragmentPointers = data[FRAGMENTS_KEY];
     if (fragmentPointers == null) {
-      fragmentPointers = data[FRAGMENTS_KEY] = {};
+      fragmentPointers = data[FRAGMENTS_KEY] = ({}: {[string]: {...}});
     }
     invariant(
       typeof fragmentPointers === 'object' && fragmentPointers != null,

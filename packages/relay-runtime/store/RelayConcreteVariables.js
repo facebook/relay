@@ -88,7 +88,7 @@ function getOperationVariables(
   providedVariables: ?ProvidedVariablesType,
   variables: Variables,
 ): Variables {
-  const operationVariables = {};
+  const operationVariables: {[string]: mixed} = {};
   operation.argumentDefinitions.forEach(def => {
     let value = def.defaultValue;
     if (variables[def.name] != null) {

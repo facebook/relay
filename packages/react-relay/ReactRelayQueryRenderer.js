@@ -55,7 +55,12 @@ export type RenderProps<T> = {|
  * constructor. If a request is already in flight from a previous call to the
  * constructor, just reuse the query fetcher and wait for the response.
  */
-const requestCache = {};
+const requestCache: {
+  [string]: void | {|
+    queryFetcher: ReactRelayQueryFetcher,
+    snapshot: ?Snapshot,
+  |},
+} = {};
 
 const queryRendererContext: ReactRelayQueryRendererContextType = {
   rootIsQueryRenderer: true,

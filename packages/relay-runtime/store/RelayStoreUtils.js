@@ -48,7 +48,7 @@ function getArgumentValue(
     // The Relay compiler generates stable ConcreteArgument values.
     return arg.value;
   } else if (arg.kind === OBJECT_VALUE) {
-    const value = {};
+    const value: {[string]: mixed} = {};
     arg.fields.forEach(field => {
       value[field.name] = getArgumentValue(field, variables);
     });
@@ -70,7 +70,7 @@ function getArgumentValues(
   args: $ReadOnlyArray<NormalizationArgument | ReaderArgument>,
   variables: Variables,
 ): Arguments {
-  const values = {};
+  const values: {[string]: mixed} = {};
   args.forEach(arg => {
     values[arg.name] = getArgumentValue(arg, variables);
   });

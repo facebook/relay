@@ -579,7 +579,7 @@ class RelayMockPayloadGenerator {
     mockData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
-    const data = mockData ?? {};
+    const data = mockData ?? ({}: {[string]: mixed});
     const applicationName = field.alias ?? field.name;
     if (data.hasOwnProperty(applicationName) && field.name !== TYPENAME_KEY) {
       return data;
@@ -658,7 +658,7 @@ class RelayMockPayloadGenerator {
     defaultValues: ?MockData,
   ): MockData | null {
     const applicationName = field.alias ?? field.name;
-    const data = prevData ?? {};
+    const data: MockData = prevData ?? {};
     const args = this._getFieldArgs(field);
 
     // Let's check if we have a custom mock resolver for the object type
@@ -792,7 +792,7 @@ class RelayMockPayloadGenerator {
    * Get object with variables for field
    */
   _getFieldArgs(field: NormalizationField): {[string]: mixed, ...} {
-    const args = {};
+    const args: {[string]: mixed} = {};
     if (field.args != null) {
       field.args.forEach(arg => {
         args[arg.name] = this._getArgValue(arg);
@@ -808,7 +808,7 @@ class RelayMockPayloadGenerator {
       case 'Variable':
         return this._getVariableValue(arg.variableName);
       case 'ObjectValue': {
-        const value = {};
+        const value: {[string]: mixed} = {};
         arg.fields.forEach(field => {
           value[field.name] = this._getArgValue(field);
         });

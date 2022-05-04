@@ -207,7 +207,7 @@ function getSelectorsFromObject(
   fragments: {[key: string]: ReaderFragment, ...},
   object: {[key: string]: mixed, ...},
 ): {[key: string]: ?ReaderSelector, ...} {
-  const selectors = {};
+  const selectors: {[string]: ?ReaderSelector} = {};
   for (const key in fragments) {
     if (fragments.hasOwnProperty(key)) {
       const fragment = fragments[key];
@@ -231,7 +231,7 @@ function getDataIDsFromObject(
   fragments: {[key: string]: ReaderFragment, ...},
   object: {[key: string]: mixed, ...},
 ): {[key: string]: ?(DataID | Array<DataID>), ...} {
-  const ids = {};
+  const ids: {[string]: ?(DataID | Array<DataID>)} = {};
   for (const key in fragments) {
     if (fragments.hasOwnProperty(key)) {
       const fragment = fragments[key];
@@ -245,7 +245,7 @@ function getDataIDsFromObject(
 function getDataIDsFromFragment(
   fragment: ReaderFragment,
   item: mixed | Array<mixed>,
-): ?DataID | ?$ReadOnlyArray<DataID> {
+): ?DataID | ?Array<DataID> {
   if (item == null) {
     return item;
   } else if (fragment.metadata && fragment.metadata.plural === true) {
@@ -277,7 +277,7 @@ function getDataIDsFromFragment(
 function getDataIDs(
   fragment: ReaderFragment,
   items: $ReadOnlyArray<mixed>,
-): ?$ReadOnlyArray<DataID> {
+): ?Array<DataID> {
   let ids = null;
   items.forEach(item => {
     const id = item != null ? getDataID(fragment, item) : null;

@@ -31,7 +31,7 @@ function withProvidedVariables(
   providedVariables: ?ProvidedVariablesType,
 ): Variables {
   if (providedVariables != null) {
-    const operationVariables = {};
+    const operationVariables: {[string]: mixed} = {};
     Object.assign(operationVariables, userSuppliedVariables);
     Object.keys(providedVariables).forEach((varName: string) => {
       const providerFunction = providedVariables[varName].get;

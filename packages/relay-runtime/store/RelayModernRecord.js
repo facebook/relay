@@ -113,7 +113,7 @@ function copyFields(source: Record, sink: Record): void {
  */
 function create(dataID: DataID, typeName: string): Record {
   // See perf note above for why we aren't using computed property access.
-  const record = {};
+  const record: Record = {};
   record[ID_KEY] = dataID;
   record[TYPENAME_KEY] = typeName;
   return record;
@@ -372,7 +372,7 @@ function setLinkedRecordID(
   linkedID: DataID,
 ): void {
   // See perf note above for why we aren't using computed property access.
-  const link = {};
+  const link: {[string]: DataID} = {};
   link[REF_KEY] = linkedID;
   record[storageKey] = link;
 }
@@ -388,7 +388,7 @@ function setLinkedRecordIDs(
   linkedIDs: Array<?DataID>,
 ): void {
   // See perf note above for why we aren't using computed property access.
-  const links = {};
+  const links: {[string]: Array<?DataID>} = {};
   links[REFS_KEY] = linkedIDs;
   record[storageKey] = links;
 }
@@ -405,7 +405,7 @@ function setActorLinkedRecordID(
   linkedID: DataID,
 ): void {
   // See perf note above for why we aren't using computed property access.
-  const link = {};
+  const link: {[string]: ActorIdentifier | DataID} = {};
   link[REF_KEY] = linkedID;
   link[ACTOR_IDENTIFIER_KEY] = actorIdentifier;
   record[storageKey] = link;

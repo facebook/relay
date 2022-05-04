@@ -529,7 +529,7 @@ class FragmentResourceImpl {
     fragmentRefs: {[string]: mixed, ...},
     componentDisplayName: string,
   ): {[string]: FragmentResult, ...} {
-    const result = {};
+    const result: {[string]: FragmentResult} = {};
     for (const key in fragmentNodes) {
       result[key] = this.read(
         fragmentNodes[key],

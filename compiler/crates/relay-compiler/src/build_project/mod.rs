@@ -8,7 +8,6 @@
 //! This module is responsible to build a single project. It does not handle
 //! watch mode or other state.
 
-mod artifact_content;
 mod artifact_generated_types;
 mod artifact_locator;
 pub mod artifact_writer;
@@ -24,6 +23,7 @@ mod validate;
 
 use self::log_program_stats::print_stats;
 pub use self::project_asts::{get_project_asts, ProjectAstData, ProjectAsts};
+use super::artifact_content;
 use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
 use crate::config::{Config, ProjectConfig};
 use crate::errors::BuildProjectError;

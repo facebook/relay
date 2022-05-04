@@ -9,6 +9,7 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+pub mod artifact_content;
 mod artifact_map;
 pub mod build_project;
 pub mod compiler;

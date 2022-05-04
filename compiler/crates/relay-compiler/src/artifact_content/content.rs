@@ -51,18 +51,11 @@ pub fn generate_updatable_query(
     let mut content_sections = ContentSections::default();
 
     // -- Begin Docblock Section --
-    let mut docblock_section = DocblockSection::default();
-    write_docblock_start(config, &mut docblock_section)?;
-    writeln!(docblock_section, "{}", SIGNING_TOKEN)?;
-    if project_config.typegen_config.language == TypegenLanguage::Flow {
-        writeln!(docblock_section, "@flow")?;
-    }
-    writeln!(docblock_section, "@lightSyntaxTransform")?;
-    writeln!(docblock_section, "@nogrep")?;
-    if let Some(codegen_command) = &config.codegen_command {
-        writeln!(docblock_section, "@codegen-command: {}", codegen_command)?;
-    }
-    content_sections.push(ContentSection::Docblock(docblock_section));
+    content_sections.push(ContentSection::Docblock(generate_docblock_section(
+        config,
+        project_config,
+        vec![],
+    )?));
     // -- End Docblock Section --
 
     // -- Begin Disable Lint Section --
@@ -195,21 +188,15 @@ pub fn generate_operation(
     let mut content_sections = ContentSections::default();
 
     // -- Begin Docblock Section --
-    let mut docblock_section = DocblockSection::default();
-    write_docblock_start(config, &mut docblock_section)?;
-    writeln!(docblock_section, "{}", SIGNING_TOKEN)?;
-    if let Some(QueryID::Persisted { text_hash, .. }) = id_and_text_hash {
-        writeln!(docblock_section, "@relayHash {}", text_hash)?;
+    let v = match id_and_text_hash {
+        Some(QueryID::Persisted { text_hash, .. }) => vec![format!("@relayHash {}", text_hash)],
+        _ => vec![],
     };
-    if project_config.typegen_config.language == TypegenLanguage::Flow {
-        writeln!(docblock_section, "@flow")?;
-    }
-    writeln!(docblock_section, "@lightSyntaxTransform")?;
-    writeln!(docblock_section, "@nogrep")?;
-    if let Some(codegen_command) = &config.codegen_command {
-        writeln!(docblock_section, "@codegen-command: {}", codegen_command)?;
-    }
-    content_sections.push(ContentSection::Docblock(docblock_section));
+    content_sections.push(ContentSection::Docblock(generate_docblock_section(
+        config,
+        project_config,
+        v,
+    )?));
     // -- End Docblock Section --
 
     // -- Begin Disable Lint Section --
@@ -436,18 +423,11 @@ pub fn generate_split_operation(
     let mut content_sections = ContentSections::default();
 
     // -- Begin Docblock Section --
-    let mut docblock_section = DocblockSection::default();
-    write_docblock_start(config, &mut docblock_section)?;
-    writeln!(docblock_section, "{}", SIGNING_TOKEN)?;
-    if project_config.typegen_config.language == TypegenLanguage::Flow {
-        writeln!(docblock_section, "@flow")?;
-    }
-    writeln!(docblock_section, "@lightSyntaxTransform")?;
-    writeln!(docblock_section, "@nogrep")?;
-    if let Some(codegen_command) = &config.codegen_command {
-        writeln!(docblock_section, "@codegen-command: {}", codegen_command)?;
-    }
-    content_sections.push(ContentSection::Docblock(docblock_section));
+    content_sections.push(ContentSection::Docblock(generate_docblock_section(
+        config,
+        project_config,
+        vec![],
+    )?));
     // -- End Docblock Section --
 
     // -- Begin Disable Lint Section --
@@ -585,18 +565,11 @@ fn generate_read_only_fragment(
     let mut content_sections = ContentSections::default();
 
     // -- Begin Docblock Section --
-    let mut docblock_section = DocblockSection::default();
-    write_docblock_start(config, &mut docblock_section)?;
-    writeln!(docblock_section, "{}", SIGNING_TOKEN)?;
-    if project_config.typegen_config.language == TypegenLanguage::Flow {
-        writeln!(docblock_section, "@flow")?;
-    }
-    writeln!(docblock_section, "@lightSyntaxTransform")?;
-    writeln!(docblock_section, "@nogrep")?;
-    if let Some(codegen_command) = &config.codegen_command {
-        writeln!(docblock_section, "@codegen-command: {}", codegen_command)?;
-    }
-    content_sections.push(ContentSection::Docblock(docblock_section));
+    content_sections.push(ContentSection::Docblock(generate_docblock_section(
+        config,
+        project_config,
+        vec![],
+    )?));
     // -- End Docblock Section --
 
     // -- Begin Disable Lint Section --
@@ -722,18 +695,11 @@ fn generate_assignable_fragment(
     let mut content_sections = ContentSections::default();
 
     // -- Begin Docblock Section --
-    let mut docblock_section = DocblockSection::default();
-    write_docblock_start(config, &mut docblock_section)?;
-    writeln!(docblock_section, "{}", SIGNING_TOKEN)?;
-    if project_config.typegen_config.language == TypegenLanguage::Flow {
-        writeln!(docblock_section, "@flow")?;
-    }
-    writeln!(docblock_section, "@lightSyntaxTransform")?;
-    writeln!(docblock_section, "@nogrep")?;
-    if let Some(codegen_command) = &config.codegen_command {
-        writeln!(docblock_section, "@codegen-command: {}", codegen_command)?;
-    }
-    content_sections.push(ContentSection::Docblock(docblock_section));
+    content_sections.push(ContentSection::Docblock(generate_docblock_section(
+        config,
+        project_config,
+        vec![],
+    )?));
     // -- End Docblock Section --
 
     // -- Begin Disable Lint Section --
@@ -857,7 +823,12 @@ fn write_export_generated_node(
     }
 }
 
-fn write_docblock_start(config: &Config, section: &mut DocblockSection) -> FmtResult {
+fn generate_docblock_section(
+    config: &Config,
+    project_config: &ProjectConfig,
+    extra_annotations: Vec<String>,
+) -> Result<DocblockSection, FmtError> {
+    let mut section = DocblockSection::default();
     if !config.header.is_empty() {
         for header_line in &config.header {
             if header_line.is_empty() {
@@ -869,7 +840,19 @@ fn write_docblock_start(config: &Config, section: &mut DocblockSection) -> FmtRe
         }
         writeln!(section)?;
     }
-    Ok(())
+    writeln!(section, "{}", SIGNING_TOKEN)?;
+    for annotation in extra_annotations {
+        writeln!(section, "{}", annotation)?;
+    }
+    if project_config.typegen_config.language == TypegenLanguage::Flow {
+        writeln!(section, "@flow")?;
+    }
+    writeln!(section, "@lightSyntaxTransform")?;
+    writeln!(section, "@nogrep")?;
+    if let Some(codegen_command) = &config.codegen_command {
+        writeln!(section, "@codegen-command: {}", codegen_command)?;
+    }
+    Ok(section)
 }
 
 fn write_source_hash(

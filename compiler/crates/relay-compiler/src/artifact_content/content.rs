@@ -59,9 +59,9 @@ pub fn generate_updatable_query(
     // -- End Docblock Section --
 
     // -- Begin Disable Lint Section --
-    let mut section = GenericSection::default();
-    write_disable_lint_header(&project_config.typegen_config.language, &mut section)?;
-    content_sections.push(ContentSection::Generic(section));
+    content_sections.push(ContentSection::Generic(generate_disable_lint_section(
+        &project_config.typegen_config.language,
+    )?));
     // -- End Disable Lint Section --
 
     // -- Begin Use Strict Section --
@@ -200,9 +200,9 @@ pub fn generate_operation(
     // -- End Docblock Section --
 
     // -- Begin Disable Lint Section --
-    let mut section = GenericSection::default();
-    write_disable_lint_header(&project_config.typegen_config.language, &mut section)?;
-    content_sections.push(ContentSection::Generic(section));
+    content_sections.push(ContentSection::Generic(generate_disable_lint_section(
+        &project_config.typegen_config.language,
+    )?));
     // -- End Disable Lint Section --
 
     // -- Begin Use Strict Section --
@@ -431,9 +431,9 @@ pub fn generate_split_operation(
     // -- End Docblock Section --
 
     // -- Begin Disable Lint Section --
-    let mut section = GenericSection::default();
-    write_disable_lint_header(&project_config.typegen_config.language, &mut section)?;
-    content_sections.push(ContentSection::Generic(section));
+    content_sections.push(ContentSection::Generic(generate_disable_lint_section(
+        &project_config.typegen_config.language,
+    )?));
     // -- End Disable Lint Section --
 
     // -- Begin Use Strict Section --
@@ -573,9 +573,9 @@ fn generate_read_only_fragment(
     // -- End Docblock Section --
 
     // -- Begin Disable Lint Section --
-    let mut section = GenericSection::default();
-    write_disable_lint_header(&project_config.typegen_config.language, &mut section)?;
-    content_sections.push(ContentSection::Generic(section));
+    content_sections.push(ContentSection::Generic(generate_disable_lint_section(
+        &project_config.typegen_config.language,
+    )?));
     // -- End Disable Lint Section --
 
     // -- Begin Use Strict Section --
@@ -703,9 +703,9 @@ fn generate_assignable_fragment(
     // -- End Docblock Section --
 
     // -- Begin Disable Lint Section --
-    let mut section = GenericSection::default();
-    write_disable_lint_header(&project_config.typegen_config.language, &mut section)?;
-    content_sections.push(ContentSection::Generic(section));
+    content_sections.push(ContentSection::Generic(generate_disable_lint_section(
+        &project_config.typegen_config.language,
+    )?));
     // -- End Disable Lint Section --
 
     // -- Begin Use Strict Section --
@@ -772,17 +772,19 @@ fn write_variable_value_with_type(
     }
 }
 
-fn write_disable_lint_header(language: &TypegenLanguage, section: &mut dyn Write) -> FmtResult {
+fn generate_disable_lint_section(language: &TypegenLanguage) -> Result<GenericSection, FmtError> {
+    let mut section = GenericSection::default();
     match language {
         TypegenLanguage::TypeScript => {
             writeln!(section, "/* tslint:disable */")?;
             writeln!(section, "/* eslint-disable */")?;
-            writeln!(section, "// @ts-nocheck")
+            writeln!(section, "// @ts-nocheck")?;
         }
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
-            writeln!(section, "/* eslint-disable */")
+            writeln!(section, "/* eslint-disable */")?;
         }
     }
+    Ok(section)
 }
 
 fn write_import_type_from(

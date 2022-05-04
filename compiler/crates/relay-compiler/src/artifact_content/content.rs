@@ -65,13 +65,9 @@ pub fn generate_updatable_query(
     // -- End Disable Lint Section --
 
     // -- Begin Use Strict Section --
-    let mut section = GenericSection::default();
-    if project_config.typegen_config.language == TypegenLanguage::Flow
-        || project_config.typegen_config.language == TypegenLanguage::JavaScript
-    {
-        writeln!(section, "'use strict';")?;
-    }
-    content_sections.push(ContentSection::Generic(section));
+    content_sections.push(ContentSection::Generic(generate_use_strict_section(
+        &project_config.typegen_config.language,
+    )?));
     // -- End Use Strict Section --
 
     // -- Begin Types Section --
@@ -206,13 +202,9 @@ pub fn generate_operation(
     // -- End Disable Lint Section --
 
     // -- Begin Use Strict Section --
-    let mut section = GenericSection::default();
-    if project_config.typegen_config.language == TypegenLanguage::Flow
-        || project_config.typegen_config.language == TypegenLanguage::JavaScript
-    {
-        writeln!(section, "'use strict';")?;
-    }
-    content_sections.push(ContentSection::Generic(section));
+    content_sections.push(ContentSection::Generic(generate_use_strict_section(
+        &project_config.typegen_config.language,
+    )?));
     // -- End Use Strict Section --
 
     // -- Begin Metadata Annotations Section --
@@ -437,11 +429,9 @@ pub fn generate_split_operation(
     // -- End Disable Lint Section --
 
     // -- Begin Use Strict Section --
-    let mut section = GenericSection::default();
-    if project_config.typegen_config.language == TypegenLanguage::Flow {
-        writeln!(section, "'use strict';")?;
-    }
-    content_sections.push(ContentSection::Generic(section));
+    content_sections.push(ContentSection::Generic(generate_use_strict_section(
+        &project_config.typegen_config.language,
+    )?));
     // -- End Use Strict Section --
 
     // -- Begin Types Section --
@@ -579,11 +569,9 @@ fn generate_read_only_fragment(
     // -- End Disable Lint Section --
 
     // -- Begin Use Strict Section --
-    let mut section = GenericSection::default();
-    if project_config.typegen_config.language == TypegenLanguage::Flow {
-        writeln!(section, "'use strict';")?;
-    }
-    content_sections.push(ContentSection::Generic(section));
+    content_sections.push(ContentSection::Generic(generate_use_strict_section(
+        &project_config.typegen_config.language,
+    )?));
     // -- End Use Strict Section --
 
     // -- Begin Metadata Annotations Section --
@@ -709,11 +697,9 @@ fn generate_assignable_fragment(
     // -- End Disable Lint Section --
 
     // -- Begin Use Strict Section --
-    let mut section = GenericSection::default();
-    if project_config.typegen_config.language == TypegenLanguage::Flow {
-        writeln!(section, "'use strict';")?;
-    }
-    content_sections.push(ContentSection::Generic(section));
+    content_sections.push(ContentSection::Generic(generate_use_strict_section(
+        &project_config.typegen_config.language,
+    )?));
     // -- End Use Strict Section --
 
     // -- Begin Types Section --
@@ -782,6 +768,17 @@ fn generate_disable_lint_section(language: &TypegenLanguage) -> Result<GenericSe
         }
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
             writeln!(section, "/* eslint-disable */")?;
+        }
+    }
+    Ok(section)
+}
+
+fn generate_use_strict_section(language: &TypegenLanguage) -> Result<GenericSection, FmtError> {
+    let mut section = GenericSection::default();
+    match language {
+        TypegenLanguage::TypeScript => {}
+        TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+            writeln!(section, "'use strict';")?;
         }
     }
     Ok(section)

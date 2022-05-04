@@ -966,7 +966,7 @@ fn write_source_hash(
             TypegenLanguage::Flow => {
                 writeln!(content, "  (node/*: any*/).hash = \"{}\";", source_hash)?
             }
-            TypegenLanguage::JavaScript => writeln!(content, "node.hash = \"{}\";", source_hash)?,
+            TypegenLanguage::JavaScript => writeln!(content, "  node.hash = \"{}\";", source_hash)?,
             TypegenLanguage::TypeScript => {
                 writeln!(content, "  (node as any).hash = \"{}\";", source_hash)?
             }
@@ -977,7 +977,7 @@ fn write_source_hash(
             TypegenLanguage::Flow => {
                 writeln!(content, "(node/*: any*/).hash = \"{}\";\n", source_hash)?
             }
-            TypegenLanguage::JavaScript => writeln!(content, "node.hash = \"{}\";", source_hash)?,
+            TypegenLanguage::JavaScript => writeln!(content, "node.hash = \"{}\";\n", source_hash)?,
             TypegenLanguage::TypeScript => {
                 writeln!(content, "(node as any).hash = \"{}\";\n", source_hash)?
             }

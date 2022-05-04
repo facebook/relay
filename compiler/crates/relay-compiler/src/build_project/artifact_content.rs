@@ -220,6 +220,7 @@ fn generate_updatable_query(
         directives: reader_operation.directives.clone(),
         type_condition: reader_operation.type_,
     };
+    // -- Begin Docblock Section --
     let mut content = get_content_start(config)?;
     writeln!(content, " * {}", SIGNING_TOKEN)?;
 
@@ -235,14 +236,21 @@ fn generate_updatable_query(
         writeln!(content, " * @codegen-command: {}", codegen_command)?;
     }
     writeln!(content, " */\n")?;
+    // -- End Docblock Section --
 
+    // -- Begin Disable Lint Section --
     write_disable_lint_header(&project_config.typegen_config.language, &mut content)?;
+    // -- End Disable Lint Section --
+
+    // -- Begin Use Strict Section --
     if project_config.typegen_config.language == TypegenLanguage::Flow
         || project_config.typegen_config.language == TypegenLanguage::JavaScript
     {
         writeln!(content, "'use strict';\n")?;
     }
+    // -- End Use Strict Section --
 
+    // -- Begin Types Section --
     let generated_types = ArtifactGeneratedTypes {
         imported_types: "UpdatableQuery, ConcreteUpdatableQuery",
         ast_type: "ConcreteUpdatableQuery",
@@ -280,7 +288,9 @@ fn generate_updatable_query(
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
         TypegenLanguage::TypeScript | TypegenLanguage::JavaScript => writeln!(content)?,
     }
+    // -- End Types Section --
 
+    // -- Begin Query Node Section --
     let request = printer.print_updatable_query(schema, &operation_fragment);
 
     write_variable_value_with_type(
@@ -290,20 +300,25 @@ fn generate_updatable_query(
         generated_types.ast_type,
         &request,
     )?;
+    // -- End Query Node Section --
 
+    // -- Begin Query Node Hash Section --
     write_source_hash(
         config,
         &project_config.typegen_config.language,
         &mut content,
         &source_hash,
     )?;
+    // -- End Query Node Hash Section --
 
+    // -- Begin Export Query Node Section --
     write_export_generated_node(
         &project_config.typegen_config,
         &mut content,
         "node",
         generated_types.exported_type,
     )?;
+    // -- End Export Query Node Section --
 
     Ok(sign_file(&content).into_bytes())
 }
@@ -336,6 +351,8 @@ fn generate_operation(
         directives: reader_operation.directives.clone(),
         type_condition: reader_operation.type_,
     };
+
+    // -- Begin Docblock Section --
     let mut content = get_content_start(config)?;
     writeln!(content, " * {}", SIGNING_TOKEN)?;
 
@@ -355,14 +372,21 @@ fn generate_operation(
         writeln!(content, " * @codegen-command: {}", codegen_command)?;
     }
     writeln!(content, " */\n")?;
+    // -- End Docblock Section --
 
+    // -- Begin Disable Lint Section --
     write_disable_lint_header(&project_config.typegen_config.language, &mut content)?;
+    // -- End Disable Lint Section --
+
+    // -- Begin Use Strict Section --
     if project_config.typegen_config.language == TypegenLanguage::Flow
         || project_config.typegen_config.language == TypegenLanguage::JavaScript
     {
         writeln!(content, "'use strict';\n")?;
     }
+    // -- End Use Strict Section --
 
+    // -- Begin Metadata Annotations Section --
     if let Some(QueryID::Persisted { id, .. }) = &request_parameters.id {
         writeln!(content, "// @relayRequestID {}", id)?;
     }
@@ -406,7 +430,9 @@ fn generate_operation(
     {
         writeln!(content)?;
     }
+    // -- End Metadata Annotations Section --
 
+    // -- Begin Types Section --
     let generated_types = ArtifactGeneratedTypes::from_operation(typegen_operation, skip_types);
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
@@ -437,6 +463,9 @@ fn generate_operation(
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
         TypegenLanguage::TypeScript | TypegenLanguage::JavaScript => writeln!(content)?,
     }
+    // -- End Types Section --
+
+    // -- Begin Top Level Statements Section --
     let mut top_level_statements = Default::default();
     if let Some(provided_variables) =
         printer.print_provided_variables(schema, normalization_operation, &mut top_level_statements)
@@ -465,7 +494,9 @@ fn generate_operation(
     );
 
     write!(content, "{}", &top_level_statements)?;
+    // -- End Top Level Statements Section --
 
+    // -- Begin Query Node Section --
     write_variable_value_with_type(
         &project_config.typegen_config.language,
         &mut content,
@@ -473,14 +504,18 @@ fn generate_operation(
         generated_types.ast_type,
         &request,
     )?;
+    // -- End Query Node Section --
 
+    // -- Begin Query Node Hash Section --
     write_source_hash(
         config,
         &project_config.typegen_config.language,
         &mut content,
         &source_hash,
     )?;
+    // -- End Query Node Hash Section --
 
+    // -- Begin PreloadableQueryRegistry Section --
     if is_operation_preloadable(normalization_operation) && id_and_text_hash.is_some() {
         match project_config.typegen_config.language {
             TypegenLanguage::Flow => {
@@ -503,13 +538,16 @@ fn generate_operation(
             }
         }
     }
+    // -- End PreloadableQueryRegistry Section --
 
+    // -- Begin Export Section --
     write_export_generated_node(
         &project_config.typegen_config,
         &mut content,
         "node",
         generated_types.exported_type,
     )?;
+    // -- End Export Section --
 
     Ok(sign_file(&content).into_bytes())
 }
@@ -523,6 +561,7 @@ fn generate_split_operation(
     typegen_operation: &Option<Arc<OperationDefinition>>,
     source_hash: &str,
 ) -> Result<Vec<u8>, FmtError> {
+    // -- Begin Docblock Section --
     let mut content = get_content_start(config)?;
     writeln!(content, " * {}", SIGNING_TOKEN)?;
     if project_config.typegen_config.language == TypegenLanguage::Flow {
@@ -537,12 +576,20 @@ fn generate_split_operation(
         writeln!(content, " * @codegen-command: {}", codegen_command)?;
     }
     writeln!(content, " */\n")?;
+    // -- End Docblock Section --
+
+    // -- Begin Disable Lint Section --
     write_disable_lint_header(&project_config.typegen_config.language, &mut content)?;
+    // -- End Disable Lint Section --
+
+    // -- Begin Use Strict Section --
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(content, "'use strict';\n")?;
         writeln!(content, "/*::")?;
     }
+    // -- End Use Strict Section --
 
+    // -- Begin Types Section --
     write_import_type_from(
         &project_config.typegen_config.language,
         &mut content,
@@ -567,13 +614,17 @@ fn generate_split_operation(
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
         TypegenLanguage::TypeScript | TypegenLanguage::JavaScript => writeln!(content)?,
     }
+    // -- End Types Section --
 
+    // -- Begin Top Level Statements Section --
     let mut top_level_statements = Default::default();
     let operation =
         printer.print_operation(schema, normalization_operation, &mut top_level_statements);
 
     write!(content, "{}", &top_level_statements)?;
+    // -- End Top Level Statements Section --
 
+    // -- Begin Operation Node Section --
     write_variable_value_with_type(
         &project_config.typegen_config.language,
         &mut content,
@@ -581,13 +632,20 @@ fn generate_split_operation(
         "NormalizationSplitOperation",
         &operation,
     )?;
+    // -- End Operation Node Section --
+
+    // -- Begin Operation Node Hash Section --
     write_source_hash(
         config,
         &project_config.typegen_config.language,
         &mut content,
         source_hash,
     )?;
+    // -- End Operation Node Hash Section --
+
+    // -- Begin Export Section --
     write_export_generated_node(&project_config.typegen_config, &mut content, "node", None)?;
+    // -- End Export Section --
 
     Ok(sign_file(&content).into_bytes())
 }
@@ -634,6 +692,7 @@ fn generate_read_only_fragment(
     source_hash: &str,
     skip_types: bool,
 ) -> Result<Vec<u8>, FmtError> {
+    // -- Begin Docblock Section --
     let mut content = get_content_start(config)?;
     writeln!(content, " * {}", SIGNING_TOKEN)?;
     if project_config.typegen_config.language == TypegenLanguage::Flow {
@@ -648,11 +707,19 @@ fn generate_read_only_fragment(
         writeln!(content, " * @codegen-command: {}", codegen_command)?;
     }
     writeln!(content, " */\n")?;
+    // -- End Docblock Section --
+
+    // -- Begin Disable Lint Section --
     write_disable_lint_header(&project_config.typegen_config.language, &mut content)?;
+    // -- End Disable Lint Section --
+
+    // -- Begin Use Strict Section --
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(content, "'use strict';\n")?;
     }
+    // -- End Use Strict Section --
 
+    // -- Begin Metadata Annotations Section --
     let data_driven_dependency_metadata = reader_fragment
         .directives
         .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
@@ -670,7 +737,9 @@ fn generate_read_only_fragment(
     if let Some(relay_client_component_metadata) = relay_client_component_metadata {
         write_react_flight_client_annotation(&mut content, relay_client_component_metadata)?;
     }
+    // -- End Metadata Annotations Section --
 
+    // -- Begin Types Section --
     let generated_types = ArtifactGeneratedTypes::from_fragment(typegen_fragment, skip_types);
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
@@ -696,11 +765,16 @@ fn generate_read_only_fragment(
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
         TypegenLanguage::TypeScript | TypegenLanguage::JavaScript => writeln!(content)?,
     }
+    // -- End Types Section --
+
+    // -- Begin Top Level Statements Section --
     let mut top_level_statements = Default::default();
     let fragment = printer.print_fragment(schema, reader_fragment, &mut top_level_statements);
 
     write!(content, "{}", &top_level_statements)?;
+    // -- End Top Level Statements Section --
 
+    // -- Begin Fragment Node Section --
     write_variable_value_with_type(
         &project_config.typegen_config.language,
         &mut content,
@@ -708,20 +782,25 @@ fn generate_read_only_fragment(
         generated_types.ast_type,
         &fragment,
     )?;
+    // -- End Fragment Node Section --
 
+    // -- Begin Fragment Node Hash Section --
     write_source_hash(
         config,
         &project_config.typegen_config.language,
         &mut content,
         source_hash,
     )?;
+    // -- End Fragment Node Hash Section --
 
+    // -- Begin Fragment Node Export Section --
     write_export_generated_node(
         &project_config.typegen_config,
         &mut content,
         "node",
         generated_types.exported_type,
     )?;
+    // -- End Fragment Node Export Section --
 
     Ok(sign_file(&content).into_bytes())
 }
@@ -733,6 +812,7 @@ fn generate_assignable_fragment(
     typegen_fragment: &FragmentDefinition,
     skip_types: bool,
 ) -> Result<Vec<u8>, FmtError> {
+    // -- Begin Docblock Section --
     let mut content = get_content_start(config)?;
     writeln!(content, " * {}", SIGNING_TOKEN)?;
     if project_config.typegen_config.language == TypegenLanguage::Flow {
@@ -747,11 +827,19 @@ fn generate_assignable_fragment(
         writeln!(content, " * @codegen-command: {}", codegen_command)?;
     }
     writeln!(content, " */\n")?;
+    // -- End Docblock Section --
+
+    // -- Begin Disable Lint Section --
     write_disable_lint_header(&project_config.typegen_config.language, &mut content)?;
+    // -- End Disable Lint Section --
+
+    // -- Begin Use Strict Section --
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(content, "'use strict';\n")?;
     }
+    // -- End Use Strict Section --
 
+    // -- Begin Types Section --
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(content, "/*::")?;
     }
@@ -768,6 +856,9 @@ fn generate_assignable_fragment(
         TypegenLanguage::Flow => writeln!(content, "*/\n")?,
         TypegenLanguage::TypeScript | TypegenLanguage::JavaScript => writeln!(content)?,
     }
+    // -- End Types Section --
+
+    // -- Begin Export Section --
 
     // Assignable fragments should never be passed to useFragment, and thus, we
     // don't need to emit a reader fragment.
@@ -776,6 +867,7 @@ fn generate_assignable_fragment(
     let named_validator_export =
         generate_named_validator_export(typegen_fragment, schema, project_config);
     writeln!(content, "{}", named_validator_export).unwrap();
+    // -- End Export Section --
 
     Ok(sign_file(&content).into_bytes())
 }

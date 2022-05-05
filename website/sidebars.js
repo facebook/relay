@@ -129,11 +129,10 @@ module.exports = {
             ...fbContent({
               internal: [
                 'guided-tour/updating-data/imperatively-modifying-store-data',
-                'guided-tour/updating-data/imperatively-modifying-store-data-experimental',
-                'guided-tour/updating-data/imperatively-modifying-linked-fields-experimental',
+                'guided-tour/updating-data/imperatively-modifying-linked-fields',
               ],
               external: [
-                'guided-tour/updating-data/imperatively-modifying-store-data',
+                'guided-tour/updating-data/imperatively-modifying-store-data-unsafe',
               ],
             }),
             'guided-tour/updating-data/local-data-updates',

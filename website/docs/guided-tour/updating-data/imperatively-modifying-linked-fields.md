@@ -1,7 +1,7 @@
 ---
-id: imperatively-modifying-linked-fields-experimental
-title: Imperatively modifying linked fields (EXPERIMENTAL)
-slug: /guided-tour/updating-data/imperatively-modifying-linked-fields-experimental/
+id: imperatively-modifying-linked-fields
+title: Imperatively modifying linked fields
+slug: /guided-tour/updating-data/imperatively-modifying-linked-fields/
 description: Using readUpdatableQuery_EXPERIMENTAL to update linked fields in the store
 keywords:
 - record source
@@ -14,16 +14,6 @@ keywords:
 import DocsRating from '@site/src/core/DocsRating';
 import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
-<FbInternalOnly>
-
-:::caution
-This section describes **experimental** APIs. Please reach out to [Robert Balicki](https://fb.workplace.com/profile.php?id=100042823931887) if you would like to adopt these APIs.
-
-Please also see the [early adopter guide](https://fb.quip.com/4FZaADvkQPPl).
-:::
-
-</FbInternalOnly>
-
 <OssOnly>
 
 :::caution
@@ -35,11 +25,11 @@ Because in TypeScript, [getters and setters cannot have different types](https:/
 </OssOnly>
 
 :::note
-See also [using readUpdatableQuery_EXPERIMENTAL to update scalar fields in the store](../imperatively-modifying-store-data-experimental).
+See also [using readUpdatableQuery_EXPERIMENTAL to update scalar fields in the store](../imperatively-modifying-store-data).
 :::
 
 
-The examples in the [previous section](../imperatively-modifying-store-data-experimental/) showed how to use the `readUpdatableQuery_EXPERIMENTAL` API to update scalar fields like `is_new_comment` and `is_selected`.
+The examples in the [previous section](../imperatively-modifying-store-data/) showed how to use the `readUpdatableQuery_EXPERIMENTAL` API to update scalar fields like `is_new_comment` and `is_selected`.
 
 The examples did **not** cover how to assign to linked fields. Let's start with an example of a component which allows the user of the application to update the Viewer's `best_friend` field.
 

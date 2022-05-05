@@ -63,7 +63,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
   let variables;
   let release;
   let cancelNetworkRequest;
-  let renderLogs;
+  let renderLogs: Array<string>;
   let QueryComponent;
   let FragmentComponent;
   let render;

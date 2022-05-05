@@ -48,12 +48,16 @@ pub fn generate_updatable_query(
     };
 
     let mut content_sections = ContentSections::default();
+    let use_consistent_spacing = project_config
+        .rollout
+        .check(reader_operation.name.item.lookup());
 
     // -- Begin Docblock Section --
     content_sections.push(ContentSection::Docblock(generate_docblock_section(
         config,
         project_config,
         vec![],
+        use_consistent_spacing,
     )?));
     // -- End Docblock Section --
 
@@ -104,12 +108,18 @@ pub fn generate_updatable_query(
         )?;
     }
 
-    match project_config.typegen_config.language {
-        TypegenLanguage::Flow => writeln!(section, "*/")?,
-        TypegenLanguage::TypeScript => {}
-        // temporary addition to keep output unchanged
-        TypegenLanguage::JavaScript => writeln!(section)?,
-    };
+    if use_consistent_spacing {
+        if project_config.typegen_config.language == TypegenLanguage::Flow {
+            writeln!(section, "*/")?;
+        }
+    } else {
+        match project_config.typegen_config.language {
+            TypegenLanguage::Flow => writeln!(section, "*/")?,
+            TypegenLanguage::TypeScript => {}
+            // temporary addition to keep output unchanged
+            TypegenLanguage::JavaScript => writeln!(section)?,
+        };
+    }
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
@@ -181,6 +191,9 @@ pub fn generate_operation(
     };
 
     let mut content_sections = ContentSections::default();
+    let use_consistent_spacing = project_config
+        .rollout
+        .check(reader_operation.name.item.lookup());
 
     // -- Begin Docblock Section --
     let v = match id_and_text_hash {
@@ -191,6 +204,7 @@ pub fn generate_operation(
         config,
         project_config,
         v,
+        use_consistent_spacing,
     )?));
     // -- End Docblock Section --
 
@@ -228,9 +242,11 @@ pub fn generate_operation(
     {
         write_react_flight_server_annotation(&mut section, flight_metadata)?;
 
-        // temporary addition to keep output unchanged
-        if flight_metadata.components.is_empty() || data_driven_dependency_metadata.is_some() {
-            writeln!(section)?;
+        if !use_consistent_spacing {
+            // temporary addition to keep output unchanged
+            if flight_metadata.components.is_empty() || data_driven_dependency_metadata.is_some() {
+                writeln!(section)?;
+            }
         }
     }
     let relay_client_component_metadata =
@@ -239,11 +255,13 @@ pub fn generate_operation(
         write_react_flight_client_annotation(&mut section, relay_client_component_metadata)?;
     }
 
-    // temporary addition to keep output unchanged
-    if matches!(&request_parameters.id, Some(QueryID::External(_)))
-        && data_driven_dependency_metadata.is_none()
-    {
-        writeln!(section)?;
+    if !use_consistent_spacing {
+        // temporary addition to keep output unchanged
+        if matches!(&request_parameters.id, Some(QueryID::External(_)))
+            && data_driven_dependency_metadata.is_none()
+        {
+            writeln!(section)?;
+        }
     }
 
     content_sections.push(ContentSection::CommentAnnotations(section));
@@ -277,12 +295,18 @@ pub fn generate_operation(
         )?;
     }
 
-    match project_config.typegen_config.language {
-        TypegenLanguage::Flow => writeln!(section, "*/")?,
-        TypegenLanguage::TypeScript => {}
-        // temporary addition to keep output unchanged
-        TypegenLanguage::JavaScript => writeln!(section)?,
-    };
+    if use_consistent_spacing {
+        if project_config.typegen_config.language == TypegenLanguage::Flow {
+            writeln!(section, "*/")?;
+        }
+    } else {
+        match project_config.typegen_config.language {
+            TypegenLanguage::Flow => writeln!(section, "*/")?,
+            TypegenLanguage::TypeScript => {}
+            // temporary addition to keep output unchanged
+            TypegenLanguage::JavaScript => writeln!(section)?,
+        };
+    }
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
@@ -397,12 +421,16 @@ pub fn generate_split_operation(
     source_hash: &str,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
+    let use_consistent_spacing = project_config
+        .rollout
+        .check(normalization_operation.name.item.lookup());
 
     // -- Begin Docblock Section --
     content_sections.push(ContentSection::Docblock(generate_docblock_section(
         config,
         project_config,
         vec![],
+        use_consistent_spacing,
     )?));
     // -- End Docblock Section --
 
@@ -443,12 +471,19 @@ pub fn generate_split_operation(
             )
         )?;
     }
-    match project_config.typegen_config.language {
-        TypegenLanguage::Flow => writeln!(section, "*/")?,
-        TypegenLanguage::TypeScript => {}
-        // temporary addition to keep output unchanged
-        TypegenLanguage::JavaScript => writeln!(section)?,
-    };
+
+    if use_consistent_spacing {
+        if project_config.typegen_config.language == TypegenLanguage::Flow {
+            writeln!(section, "*/")?;
+        }
+    } else {
+        match project_config.typegen_config.language {
+            TypegenLanguage::Flow => writeln!(section, "*/")?,
+            TypegenLanguage::TypeScript => {}
+            // temporary addition to keep output unchanged
+            TypegenLanguage::JavaScript => writeln!(section)?,
+        };
+    }
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
@@ -537,12 +572,16 @@ fn generate_read_only_fragment(
     skip_types: bool,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
+    let use_consistent_spacing = project_config
+        .rollout
+        .check(reader_fragment.name.item.lookup());
 
     // -- Begin Docblock Section --
     content_sections.push(ContentSection::Docblock(generate_docblock_section(
         config,
         project_config,
         vec![],
+        use_consistent_spacing,
     )?));
     // -- End Docblock Section --
 
@@ -601,12 +640,18 @@ fn generate_read_only_fragment(
         )?;
     }
 
-    match project_config.typegen_config.language {
-        TypegenLanguage::Flow => writeln!(section, "*/")?,
-        TypegenLanguage::TypeScript => {}
-        // temporary addition to keep output unchanged
-        TypegenLanguage::JavaScript => writeln!(section)?,
-    };
+    if use_consistent_spacing {
+        if project_config.typegen_config.language == TypegenLanguage::Flow {
+            writeln!(section, "*/")?;
+        }
+    } else {
+        match project_config.typegen_config.language {
+            TypegenLanguage::Flow => writeln!(section, "*/")?,
+            TypegenLanguage::TypeScript => {}
+            // temporary addition to keep output unchanged
+            TypegenLanguage::JavaScript => writeln!(section)?,
+        };
+    }
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
@@ -664,12 +709,16 @@ fn generate_assignable_fragment(
     skip_types: bool,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
+    let use_consistent_spacing = project_config
+        .rollout
+        .check(typegen_fragment.name.item.lookup());
 
     // -- Begin Docblock Section --
     content_sections.push(ContentSection::Docblock(generate_docblock_section(
         config,
         project_config,
         vec![],
+        use_consistent_spacing,
     )?));
     // -- End Docblock Section --
 
@@ -699,12 +748,18 @@ fn generate_assignable_fragment(
         )?;
     }
 
-    match project_config.typegen_config.language {
-        TypegenLanguage::Flow => writeln!(section, "*/")?,
-        TypegenLanguage::TypeScript => {}
-        // temporary addition to keep output unchanged
-        TypegenLanguage::JavaScript => writeln!(section)?,
-    };
+    if use_consistent_spacing {
+        if project_config.typegen_config.language == TypegenLanguage::Flow {
+            writeln!(section, "*/")?;
+        }
+    } else {
+        match project_config.typegen_config.language {
+            TypegenLanguage::Flow => writeln!(section, "*/")?,
+            TypegenLanguage::TypeScript => {}
+            // temporary addition to keep output unchanged
+            TypegenLanguage::JavaScript => writeln!(section)?,
+        };
+    }
     content_sections.push(ContentSection::Generic(section));
     // -- End Types Section --
 
@@ -809,15 +864,20 @@ fn generate_docblock_section(
     config: &Config,
     project_config: &ProjectConfig,
     extra_annotations: Vec<String>,
+    use_consistent_spacing: bool,
 ) -> Result<DocblockSection, FmtError> {
     let mut section = DocblockSection::default();
     if !config.header.is_empty() {
         for header_line in &config.header {
-            if header_line.is_empty() {
-                // temporary addition to keep output unchanged
-                writeln!(section, " ")?;
-            } else {
+            if use_consistent_spacing {
                 writeln!(section, "{}", header_line)?;
+            } else {
+                if header_line.is_empty() {
+                    // temporary addition to keep output unchanged
+                    writeln!(section, " ")?;
+                } else {
+                    writeln!(section, "{}", header_line)?;
+                }
             }
         }
         writeln!(section)?;

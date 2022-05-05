@@ -11,12 +11,12 @@ import {
   RevealOutputChannelOn,
 } from 'vscode-languageclient';
 import { ServerOptions, LanguageClient } from 'vscode-languageclient/node';
+import * as semver from 'semver';
 import { getConfig } from './config';
 import { RelayExtensionContext } from './context';
 import { createErrorHandler } from './errorHandler';
 import { LSPStatusBarFeature } from './lspStatusBarFeature';
 import { findRelayBinary, findRelayCompilerVersion } from './utils';
-import * as semver from 'semver';
 import { SEMVER_RANGE } from './constants';
 
 export async function createAndStartClient(context: RelayExtensionContext) {
@@ -35,12 +35,12 @@ export async function createAndStartClient(context: RelayExtensionContext) {
 
       if (!isSemverRangeSatisfied) {
         window.showErrorMessage(
-          // I'm writing the message as an array here so you can read it one a few lines rather than one long line.
+          // Array syntax so it's easier to read this message in the source code.
           [
             `The installed version of the Relay Compiler is version: '${version}'.`,
             `We found this version in the package.json at the following path: ${path}`,
             `This version of the extension supports the following semver range: '${SEMVER_RANGE}'.`,
-            `Please update your extension / relay-compiler to accomodate the version requirements.`,
+            'Please update your extension / relay-compiler to accomodate the version requirements.',
           ].join(' '),
           'Okay',
         );
@@ -55,7 +55,7 @@ export async function createAndStartClient(context: RelayExtensionContext) {
     }
   } else {
     window.showWarningMessage(
-      `You've manually specified 'relay.pathToBinary'. We cannot confirm this version of the Relay Compiler is supported by this verison of the extension. I hope you know what you're doing.`,
+      "You've manually specified 'relay.pathToBinary'. We cannot confirm this version of the Relay Compiler is supported by this verison of the extension. I hope you know what you're doing.",
       'Okay',
     );
   }

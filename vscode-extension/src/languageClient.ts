@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { workspace } from 'vscode';
+import { window, workspace } from 'vscode';
 import {
   LanguageClientOptions,
   RevealOutputChannelOn,
@@ -15,16 +15,54 @@ import { getConfig } from './config';
 import { RelayExtensionContext } from './context';
 import { createErrorHandler } from './errorHandler';
 import { LSPStatusBarFeature } from './lspStatusBarFeature';
-import { findRelayBinary } from './utils';
+import { findRelayBinary, findRelayCompilerVersion } from './utils';
+import * as semver from 'semver';
+import { SEMVER_RANGE } from './constants';
 
 export async function createAndStartClient(context: RelayExtensionContext) {
   const config = getConfig();
+  const rootPath = workspace.rootPath || process.cwd();
+
+  // If they set the `pathToRelay`, we can assume the user knows what they're doing
+  // If they haven't set it, we need to check their `relay-compiler` package
+  // to ensure they have a version supported by the published extension
+  if (!config.pathToRelay) {
+    const compilerVersionResult = await findRelayCompilerVersion(rootPath);
+
+    if (compilerVersionResult) {
+      const { version, path } = compilerVersionResult;
+      const isSemverRangeSatisfied = semver.satisfies(version, SEMVER_RANGE);
+
+      if (!isSemverRangeSatisfied) {
+        window.showErrorMessage(
+          // I'm writing the message as an array here so you can read it one a few lines rather than one long line.
+          [
+            `The installed version of the Relay Compiler is version: '${version}'.`,
+            `We found this version in the package.json at the following path: ${path}`,
+            `This version of the extension supports the following semver range: '${SEMVER_RANGE}'.`,
+            `Please update your extension / relay-compiler to accomodate the version requirements.`,
+          ].join(' '),
+          'Okay',
+        );
+
+        return;
+      }
+    } else {
+      window.showWarningMessage(
+        'Could not determine version of Relay Compiler',
+        'Okay',
+      );
+    }
+  } else {
+    window.showWarningMessage(
+      `You've manually specified 'relay.pathToBinary'. We cannot confirm this version of the Relay Compiler is supported by this verison of the extension. I hope you know what you're doing.`,
+      'Okay',
+    );
+  }
 
   // TODO: Support multi folder workspaces by not using rootPath.
   // Maybe initialize a client once for each workspace?
-  const relayBinary =
-    config.pathToRelay ||
-    (await findRelayBinary(workspace.rootPath ?? process.cwd()));
+  const relayBinary = config.pathToRelay || (await findRelayBinary(rootPath));
 
   context.outputChannel.appendLine('Starting the Relay GraphQL extension...');
 

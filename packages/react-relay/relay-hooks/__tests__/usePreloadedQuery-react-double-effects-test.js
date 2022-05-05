@@ -32,7 +32,11 @@ const {
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
-function expectToHaveFetched(environment, query, {count} = {}) {
+function expectToHaveFetched(
+  environment,
+  query,
+  {count} = ({...null}: {|count?: number|}),
+) {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.executeWithSource).toBeCalledTimes(count ?? 1);
   expect(

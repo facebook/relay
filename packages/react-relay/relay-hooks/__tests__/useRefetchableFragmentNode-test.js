@@ -309,7 +309,7 @@ describe('useRefetchableFragmentNode', () => {
     const Container = (props: {
       userRef?: {...},
       owner: OperationDescriptor,
-      fragment: $FlowFixMe,
+      fragment?: $FlowFixMe,
       callDuringRenderKey?: ?number,
       ...
     }) => {

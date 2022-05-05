@@ -386,7 +386,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       const Container = (props: {
         userRef?: {...},
         owner: $FlowFixMe,
-        fragment: $FlowFixMe,
+        fragment?: $FlowFixMe,
         ...
       }) => {
         // We need a render a component to run a Hook

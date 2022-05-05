@@ -6,8 +6,6 @@ The official extension to support Relay in VSCode.
   <img src="https://github.com/facebook/relay/raw/main/vscode-extension/readme/demo.gif"/>
 </p>
 
-Want to help make this extension even better? Get started by [following this guide](https://github.com/facebook/relay/blob/main/vscode-extension/CONTRIBUTING.md) easily.
-
 ## Installation
 
 Search for "Relay for VSCode" in the VS Code extensions panel or install through [the marketplace](https://marketplace.visualstudio.com/items?itemName=meta.relay).

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<576ce18bf48e9b9b364c77ccafde9a2e>>
+ * @generated SignedSource<<faa58de8e7aa70d2fcb75e985a31f01b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep

@@ -20,9 +20,6 @@ Search for "Relay for VSCode" in the VS Code extensions panel or install through
 - Make sure you are able to run the `relay-compiler` command from the command line. If `yarn relay-compiler` works, it's very likely that the extension will work. See more on [debugging below](#debugging).
 - Remove any conflicting GraphQL extensions you have installed. We recommend using [GraphQL for VSCode](https://marketplace.visualstudio.com/items?itemName=kumar-harsh.graphql-for-vscode) since this one seems to have the least conflicts with the Relay extension.
 
-- If you install Flow via `flow-bin` (recommended), then we will by default try to use this installation of flow by looking for it in `node_modules`. This behavior can be disabled by setting the `flow.useNPMPackagedFlow` setting to `false`.
-- If you install Flow globally (for example, `npm install -g flow-bin`), make sure `flow` is available on your `PATH`. If neither are true, then a version bundled with this extension will be used, but this is discouraged as it may change over time.
-
 ## Configuration
 
 - `relay.outputLevel` (default: `quiet-with-errors`) Specify the output level of the Relay language server. The available options are

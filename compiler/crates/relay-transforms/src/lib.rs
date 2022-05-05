@@ -109,8 +109,7 @@ pub use directive_finder::DirectiveFinder;
 pub use flatten::flatten;
 pub use fragment_alias_directive::{fragment_alias_directive, FragmentAliasMetadata};
 pub use generate_data_driven_dependency_metadata::{
-    generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
-    INDIRECT_DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
+    generate_data_driven_dependency_metadata, RelayDataDrivenDependencyMetadata,
 };
 pub use generate_id_field::generate_id_field;
 pub use generate_live_query_metadata::generate_live_query_metadata;

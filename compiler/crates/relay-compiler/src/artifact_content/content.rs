@@ -11,12 +11,11 @@ use super::content_section::{
 };
 use crate::config::{Config, ProjectConfig};
 use common::NamedItem;
-use graphql_ir::{Directive, FragmentDefinition, OperationDefinition};
+use graphql_ir::{FragmentDefinition, OperationDefinition};
 use relay_codegen::{build_request_params, Printer, QueryID, TopLevelStatement, CODEGEN_CONSTANTS};
 use relay_transforms::{
     is_operation_preloadable, ReactFlightLocalComponentsMetadata, RelayClientComponentMetadata,
-    ASSIGNABLE_DIRECTIVE, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
-    INDIRECT_DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
+    RelayDataDrivenDependencyMetadata, ASSIGNABLE_DIRECTIVE,
 };
 use relay_typegen::{
     generate_fragment_type_exports_section, generate_named_validator_export,
@@ -219,21 +218,10 @@ pub fn generate_operation(
         }
         writeln!(section)?;
     }
-    let data_driven_dependency_metadata = operation_fragment
-        .directives
-        .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
+    let data_driven_dependency_metadata =
+        RelayDataDrivenDependencyMetadata::find(&operation_fragment.directives);
     if let Some(data_driven_dependency_metadata) = data_driven_dependency_metadata {
         write_data_driven_dependency_annotation(&mut section, data_driven_dependency_metadata)?;
-    }
-    let indirect_data_driven_dependency_metadata = operation_fragment
-        .directives
-        .named(*INDIRECT_DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
-    if let Some(indirect_data_driven_dependency_metadata) = indirect_data_driven_dependency_metadata
-    {
-        write_indirect_data_driven_dependency_annotation(
-            &mut section,
-            indirect_data_driven_dependency_metadata,
-        )?;
     }
     if let Some(flight_metadata) =
         ReactFlightLocalComponentsMetadata::find(&operation_fragment.directives)
@@ -241,10 +229,7 @@ pub fn generate_operation(
         write_react_flight_server_annotation(&mut section, flight_metadata)?;
 
         // temporary addition to keep output unchanged
-        if flight_metadata.components.len() == 0
-            || data_driven_dependency_metadata.is_some()
-            || indirect_data_driven_dependency_metadata.is_some()
-        {
+        if flight_metadata.components.is_empty() || data_driven_dependency_metadata.is_some() {
             writeln!(section)?;
         }
     }
@@ -257,7 +242,6 @@ pub fn generate_operation(
     // temporary addition to keep output unchanged
     if matches!(&request_parameters.id, Some(QueryID::External(_)))
         && data_driven_dependency_metadata.is_none()
-        && indirect_data_driven_dependency_metadata.is_none()
     {
         writeln!(section)?;
     }
@@ -576,10 +560,9 @@ fn generate_read_only_fragment(
 
     // -- Begin Metadata Annotations Section --
     let mut section = CommentAnnotationsSection::default();
-    let data_driven_dependency_metadata = reader_fragment
-        .directives
-        .named(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY);
-    if let Some(data_driven_dependency_metadata) = data_driven_dependency_metadata {
+    if let Some(data_driven_dependency_metadata) =
+        RelayDataDrivenDependencyMetadata::find(&reader_fragment.directives)
+    {
         write_data_driven_dependency_annotation(&mut section, data_driven_dependency_metadata)?;
     }
     if let Some(flight_metadata) =
@@ -889,37 +872,22 @@ fn write_source_hash(
 
 fn write_data_driven_dependency_annotation(
     section: &mut CommentAnnotationsSection,
-    data_driven_dependency_directive: &Directive,
+    data_driven_dependency_metadata: &RelayDataDrivenDependencyMetadata,
 ) -> FmtResult {
-    for arg in &data_driven_dependency_directive.arguments {
-        let value = match arg.value.item {
-            graphql_ir::Value::Constant(graphql_ir::ConstantValue::String(value)) => value,
-            _ => panic!("Unexpected argument value for @__dataDrivenDependencyMetadata directive"),
-        };
-        writeln!(section, "@dataDrivenDependency {} {}", arg.name.item, value)?;
+    for (key, value) in data_driven_dependency_metadata
+        .direct_dependencies
+        .iter()
+        .flatten()
+    {
+        writeln!(section, "@dataDrivenDependency {} {}", key, value)?;
     }
-
-    Ok(())
-}
-
-fn write_indirect_data_driven_dependency_annotation(
-    section: &mut CommentAnnotationsSection,
-    indirect_data_driven_dependency_directive: &Directive,
-) -> FmtResult {
-    for arg in &indirect_data_driven_dependency_directive.arguments {
-        let value = match arg.value.item {
-            graphql_ir::Value::Constant(graphql_ir::ConstantValue::String(value)) => value,
-            _ => panic!(
-                "Unexpected argument value for @__indirectDataDrivenDependencyMetadata directive"
-            ),
-        };
-        writeln!(
-            section,
-            "@indirectDataDrivenDependency {} {}",
-            arg.name.item, value
-        )?;
+    for (key, value) in data_driven_dependency_metadata
+        .indirect_dependencies
+        .iter()
+        .flatten()
+    {
+        writeln!(section, "@indirectDataDrivenDependency {} {}", key, value)?;
     }
-
     Ok(())
 }
 

@@ -36,7 +36,26 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 ==================================== OUTPUT ===================================
-query QueryWithDirectAndTransitiveModuleDep @__dataDrivenDependencyMetadata(QueryWithDirectAndTransitiveModuleDep.node.nameRenderer: "{"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"MarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"PlainUserNameRenderer_name$normalization.graphql"}},"plural":false}") @__indirectDataDrivenDependencyMetadata(FragmentWithModuleDep.nameRenderer: "{"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"MarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"PlainUserNameRenderer_name$normalization.graphql"}},"plural":false}") {
+query QueryWithDirectAndTransitiveModuleDep @__RelayDataDrivenDependencyMetadata
+# RelayDataDrivenDependencyMetadata {
+#     direct_dependencies: Some(
+#         [
+#             (
+#                 "QueryWithDirectAndTransitiveModuleDep.node.nameRenderer",
+#                 "{\"branches\":{\"MarkdownUserNameRenderer\":{\"component\":\"MarkdownUserNameRenderer.react\",\"fragment\":\"MarkdownUserNameRenderer_name$normalization.graphql\"},\"PlainUserNameRenderer\":{\"component\":\"PlainUserNameRenderer.react\",\"fragment\":\"PlainUserNameRenderer_name$normalization.graphql\"}},\"plural\":false}",
+#             ),
+#         ],
+#     ),
+#     indirect_dependencies: Some(
+#         [
+#             (
+#                 "FragmentWithModuleDep.nameRenderer",
+#                 "{\"branches\":{\"MarkdownUserNameRenderer\":{\"component\":\"MarkdownUserNameRenderer.react\",\"fragment\":\"MarkdownUserNameRenderer_name$normalization.graphql\"},\"PlainUserNameRenderer\":{\"component\":\"PlainUserNameRenderer.react\",\"fragment\":\"PlainUserNameRenderer_name$normalization.graphql\"}},\"plural\":false}",
+#             ),
+#         ],
+#     ),
+# }
+ {
   node {
     ...FragmentWithModuleDep
     ... on User {
@@ -80,7 +99,19 @@ query QueryWithDirectAndTransitiveModuleDep @__dataDrivenDependencyMetadata(Quer
   }
 }
 
-fragment FragmentWithModuleDep on User @__dataDrivenDependencyMetadata(FragmentWithModuleDep.nameRenderer: "{"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"MarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"PlainUserNameRenderer_name$normalization.graphql"}},"plural":false}") {
+fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
+# RelayDataDrivenDependencyMetadata {
+#     direct_dependencies: Some(
+#         [
+#             (
+#                 "FragmentWithModuleDep.nameRenderer",
+#                 "{\"branches\":{\"MarkdownUserNameRenderer\":{\"component\":\"MarkdownUserNameRenderer.react\",\"fragment\":\"MarkdownUserNameRenderer_name$normalization.graphql\"},\"PlainUserNameRenderer\":{\"component\":\"PlainUserNameRenderer.react\",\"fragment\":\"PlainUserNameRenderer_name$normalization.graphql\"}},\"plural\":false}",
+#             ),
+#         ],
+#     ),
+#     indirect_dependencies: None,
+# }
+ {
   nameRenderer {
     ... on PlainUserNameRenderer {
       ... on PlainUserNameRenderer @__ModuleMetadata

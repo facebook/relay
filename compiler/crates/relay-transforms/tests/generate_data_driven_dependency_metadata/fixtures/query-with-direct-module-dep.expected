@@ -26,7 +26,19 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 ==================================== OUTPUT ===================================
-query QueryWithDirectModuleDep @__dataDrivenDependencyMetadata(QueryWithDirectModuleDep.node.nameRenderer: "{"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"MarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"PlainUserNameRenderer_name$normalization.graphql"}},"plural":false}") {
+query QueryWithDirectModuleDep @__RelayDataDrivenDependencyMetadata
+# RelayDataDrivenDependencyMetadata {
+#     direct_dependencies: Some(
+#         [
+#             (
+#                 "QueryWithDirectModuleDep.node.nameRenderer",
+#                 "{\"branches\":{\"MarkdownUserNameRenderer\":{\"component\":\"MarkdownUserNameRenderer.react\",\"fragment\":\"MarkdownUserNameRenderer_name$normalization.graphql\"},\"PlainUserNameRenderer\":{\"component\":\"PlainUserNameRenderer.react\",\"fragment\":\"PlainUserNameRenderer_name$normalization.graphql\"}},\"plural\":false}",
+#             ),
+#         ],
+#     ),
+#     indirect_dependencies: None,
+# }
+ {
   node {
     ... on User {
       nameRenderer {

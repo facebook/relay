@@ -6,21 +6,21 @@
  */
 
 use crate::{util::get_fragment_filename, ModuleMetadata};
-use common::WithLocation;
 use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, OperationDefinition, Program,
-    Selection, Transformed, Transformer, Value,
+    associated_data_impl, Directive, FragmentDefinition, OperationDefinition, Program, Selection,
+    Transformed, Transformer,
 };
 use intern::string_key::{Intern, StringKey, StringKeyMap};
-use lazy_static::lazy_static;
+use itertools::Itertools;
 use schema::{Schema, TypeReference};
 
-lazy_static! {
-    pub static ref DATA_DRIVEN_DEPENDENCY_METADATA_KEY: StringKey =
-        "__dataDrivenDependencyMetadata".intern();
-    pub static ref INDIRECT_DATA_DRIVEN_DEPENDENCY_METADATA_KEY: StringKey =
-        "__indirectDataDrivenDependencyMetadata".intern();
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct RelayDataDrivenDependencyMetadata {
+    pub direct_dependencies: Option<Vec<(StringKey, StringKey)>>,
+    // always None for fragments
+    pub indirect_dependencies: Option<Vec<(StringKey, StringKey)>>,
 }
+associated_data_impl!(RelayDataDrivenDependencyMetadata);
 
 pub fn generate_data_driven_dependency_metadata(program: &Program) -> Program {
     let mut transformer = GenerateDataDrivenDependencyMetadata::new(program);
@@ -200,6 +200,7 @@ struct ModuleEntry {
     plural: bool,
 }
 #[derive(Debug, PartialEq, Eq)]
+
 enum ModuleEntriesKind {
     Direct,
     Indirect,
@@ -231,24 +232,21 @@ impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
             &operation.selections,
             ModuleEntriesKind::Direct,
         );
-        let num_new_directives =
-            indirect_module_entries.is_some() as usize + direct_module_entries.is_some() as usize;
-        if num_new_directives > 0 {
+        if direct_module_entries.is_some() || indirect_module_entries.is_some() {
             let mut next_directives: Vec<Directive> =
-                Vec::with_capacity(operation.directives.len() + num_new_directives);
+                Vec::with_capacity(operation.directives.len() + 1);
             next_directives.extend(operation.directives.iter().cloned());
-            if let Some(direct_module_entries) = direct_module_entries {
-                next_directives.push(create_metadata_directive(
-                    &direct_module_entries,
-                    *DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
-                ));
-            }
-            if let Some(indirect_module_entries) = indirect_module_entries {
-                next_directives.push(create_metadata_directive(
-                    &indirect_module_entries,
-                    *INDIRECT_DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
-                ));
-            }
+            next_directives.push(
+                RelayDataDrivenDependencyMetadata {
+                    direct_dependencies: direct_module_entries
+                        .as_ref()
+                        .map(get_metadata_from_module_entries),
+                    indirect_dependencies: indirect_module_entries
+                        .as_ref()
+                        .map(get_metadata_from_module_entries),
+                }
+                .into(),
+            );
             Transformed::Replace(OperationDefinition {
                 directives: next_directives,
                 ..operation.clone()
@@ -266,10 +264,13 @@ impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
             let mut next_directives: Vec<Directive> =
                 Vec::with_capacity(fragment.directives.len() + 1);
             next_directives.extend(fragment.directives.iter().cloned());
-            next_directives.push(create_metadata_directive(
-                module_entries,
-                *DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
-            ));
+            next_directives.push(
+                RelayDataDrivenDependencyMetadata {
+                    direct_dependencies: Some(get_metadata_from_module_entries(module_entries)),
+                    indirect_dependencies: None,
+                }
+                .into(),
+            );
             Transformed::Replace(FragmentDefinition {
                 directives: next_directives,
                 ..fragment.clone()
@@ -280,53 +281,28 @@ impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
     }
 }
 
-fn create_metadata_directive(
-    module_entries: &ModuleEntries,
-    directive_name: StringKey,
-) -> Directive {
-    let mut arguments: Vec<Argument> = Vec::with_capacity(module_entries.len());
-    for (key, module_entry) in module_entries {
-        arguments.push(Argument {
-            name: WithLocation::generated(*key),
-            value: WithLocation::generated(Value::Constant(ConstantValue::String(From::from(
-                module_entry,
-            )))),
-        })
-    }
-    arguments.sort_unstable_by(|a, b| a.name.item.cmp(&b.name.item));
-
-    Directive {
-        name: WithLocation::generated(directive_name),
-        arguments,
-        data: None,
-    }
-}
-
-impl From<&ModuleEntry> for StringKey {
-    fn from(module_entry: &ModuleEntry) -> Self {
-        let mut serialized_branches: Vec<(String, String)> =
-            Vec::with_capacity(module_entry.branches.len());
-        for (id, branch) in module_entry.branches.iter() {
-            serialized_branches.push((
-                id.to_string(),
+fn get_metadata_from_module_entries(module_entries: &ModuleEntries) -> Vec<(StringKey, StringKey)> {
+    module_entries
+        .iter()
+        .map(|(key, entry)| {
+            (
+                *key,
                 format!(
-                    "\"{}\":{{\"component\":\"{}\",\"fragment\":\"{}\"}}",
-                    id, branch.component, branch.fragment
-                ),
-            ));
-        }
-
-        serialized_branches.sort_unstable_by(|a, b| a.0.cmp(&b.0));
-
-        format!(
-            "{{\"branches\":{{{}}},\"plural\":{}}}",
-            serialized_branches
-                .into_iter()
-                .map(|(_, value)| value)
-                .collect::<Vec<String>>()
-                .join(","),
-            module_entry.plural
-        )
-        .intern()
-    }
+                    "{{\"branches\":{{{}}},\"plural\":{}}}",
+                    entry
+                        .branches
+                        .iter()
+                        .sorted_unstable_by(|a, b| a.0.cmp(b.0))
+                        .map(|(id, branch)| format!(
+                            "\"{}\":{{\"component\":\"{}\",\"fragment\":\"{}\"}}",
+                            id, branch.component, branch.fragment
+                        ))
+                        .join(","),
+                    entry.plural,
+                )
+                .intern(),
+            )
+        })
+        .sorted_unstable_by(|a, b| a.0.cmp(&b.0))
+        .collect()
 }

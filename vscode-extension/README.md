@@ -37,7 +37,7 @@ Search for "Relay for VSCode" in the VS Code extensions panel or install through
 ## Features
 
 - IntelliSense
-- Go to Definition
+- Go to Definition for fragments, fields, GraphQL types, etc.
 - Diagnostics (Errors, Warnings)
 - Hover type information
 

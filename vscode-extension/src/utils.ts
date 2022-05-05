@@ -89,3 +89,50 @@ export async function findRelayBinary(
 
   return null;
 }
+
+export async function findRelayCompilerVersion(
+  rootPath: string,
+): Promise<{ version: string; path: string } | null> {
+  let counter = 0;
+  let currentPath = rootPath;
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    if (counter >= 5000) {
+      throw new Error(
+        'Could not find Relay binary after 5000 traversals. This is likely a bug in the extension code and should be reported to https://github.com/facebook/relay/issues',
+      );
+    }
+
+    counter += 1;
+
+    const possiblePacakgeJsonPath = path.join(
+      currentPath,
+      'node_modules',
+      'relay-compiler',
+      'package.json',
+    );
+
+    if (await exists(possiblePacakgeJsonPath)) {
+      const packageJsonContents = JSON.parse(
+        await fs.readFile(possiblePacakgeJsonPath, 'utf-8'),
+      );
+
+      return {
+        version: packageJsonContents.version,
+        path: possiblePacakgeJsonPath,
+      };
+    }
+
+    const nextPath = path.normalize(path.join(currentPath, '..'));
+
+    // Eventually we'll get to `/` and get stuck in a loop.
+    if (nextPath === currentPath) {
+      break;
+    } else {
+      currentPath = nextPath;
+    }
+  }
+
+  return null;
+}

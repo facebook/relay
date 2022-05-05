@@ -40,7 +40,7 @@ export async function createAndStartClient(context: RelayExtensionContext) {
             `The installed version of the Relay Compiler is version: '${version}'.`,
             `We found this version in the package.json at the following path: ${path}`,
             `This version of the extension supports the following semver range: '${SEMVER_RANGE}'.`,
-            'Please update your extension / relay-compiler to accomodate the version requirements.',
+            'Please update your extension / relay-compiler to accommodate the version requirements.',
           ].join(' '),
           'Okay',
         );
@@ -54,9 +54,8 @@ export async function createAndStartClient(context: RelayExtensionContext) {
       );
     }
   } else {
-    window.showWarningMessage(
-      "You've manually specified 'relay.pathToBinary'. We cannot confirm this version of the Relay Compiler is supported by this verison of the extension. I hope you know what you're doing.",
-      'Okay',
+    context.outputChannel.appendLine(
+      "You've manually specified 'relay.pathToBinary'. We cannot confirm this version of the Relay Compiler is supported by this version of the extension. I hope you know what you're doing.",
     );
   }
 

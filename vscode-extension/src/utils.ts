@@ -7,6 +7,8 @@
 
 import * as path from 'path';
 import * as fs from 'fs/promises';
+import * as semver from 'semver';
+import { SEMVER_RANGE } from './constants';
 
 async function exists(file: string): Promise<boolean> {
   return fs
@@ -18,8 +20,8 @@ async function exists(file: string): Promise<boolean> {
 // This is derived from the relay-compiler npm package.
 // If you update this, please update accordingly here
 // https://github.com/facebook/relay/blob/main/packages/relay-compiler/index.js
-function getBinaryPathRelativeToPackageJson() {
-  let binaryPathRelativeToPackageJson;
+function getBinaryPathRelativeToPackage() {
+  let binaryPathRelativeToPackageJson = null;
   if (process.platform === 'darwin' && process.arch === 'x64') {
     binaryPathRelativeToPackageJson = path.join('macos-x64', 'relay');
   } else if (process.platform === 'darwin' && process.arch === 'arm64') {
@@ -34,27 +36,11 @@ function getBinaryPathRelativeToPackageJson() {
     binaryPathRelativeToPackageJson = null;
   }
 
-  if (binaryPathRelativeToPackageJson) {
-    return path.join(
-      '.',
-      'node_modules',
-      'relay-compiler',
-      binaryPathRelativeToPackageJson,
-    );
-  }
-
-  return null;
+  return binaryPathRelativeToPackageJson;
 }
-
-export async function findRelayBinary(
+export async function findRelayCompilerDirectory(
   rootPath: string,
 ): Promise<string | null> {
-  const binaryPathRelativeToPackageJson = getBinaryPathRelativeToPackageJson();
-
-  if (!binaryPathRelativeToPackageJson) {
-    return null;
-  }
-
   let counter = 0;
   let currentPath = rootPath;
 
@@ -62,7 +48,7 @@ export async function findRelayBinary(
   while (true) {
     if (counter >= 5000) {
       throw new Error(
-        'Could not find Relay binary after 5000 traversals. This is likely a bug in the extension code and should be reported to https://github.com/facebook/relay/issues',
+        'Could not find relay-compiler directory after 5000 traversals. This is likely a bug in the extension code and should be reported to https://github.com/facebook/relay/issues',
       );
     }
 
@@ -70,7 +56,8 @@ export async function findRelayBinary(
 
     const possibleBinaryPath = path.join(
       currentPath,
-      binaryPathRelativeToPackageJson,
+      'node_modules',
+      'relay-compiler',
     );
 
     if (await exists(possibleBinaryPath)) {
@@ -90,49 +77,59 @@ export async function findRelayBinary(
   return null;
 }
 
-export async function findRelayCompilerVersion(
+type RelayCompilerPackageInformation =
+  | { kind: 'compilerFound'; path: string }
+  | { kind: 'architectureNotSupported' }
+  | { kind: 'packageNotFound' }
+  | {
+      kind: 'versionDidNotMatch';
+      path: string;
+      version: string;
+      expectedRange: string;
+    };
+
+export async function findRelayCompilerBinary(
   rootPath: string,
-): Promise<{ version: string; path: string } | null> {
-  let counter = 0;
-  let currentPath = rootPath;
+): Promise<RelayCompilerPackageInformation> {
+  const relayCompilerDirectory = await findRelayCompilerDirectory(rootPath);
+  const relayBinaryRelativeToPackage = getBinaryPathRelativeToPackage();
 
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    if (counter >= 5000) {
-      throw new Error(
-        'Could not find Relay binary after 5000 traversals. This is likely a bug in the extension code and should be reported to https://github.com/facebook/relay/issues',
-      );
-    }
-
-    counter += 1;
-
-    const possiblePacakgeJsonPath = path.join(
-      currentPath,
-      'node_modules',
-      'relay-compiler',
-      'package.json',
-    );
-
-    if (await exists(possiblePacakgeJsonPath)) {
-      const packageJsonContents = JSON.parse(
-        await fs.readFile(possiblePacakgeJsonPath, 'utf-8'),
-      );
-
-      return {
-        version: packageJsonContents.version,
-        path: possiblePacakgeJsonPath,
-      };
-    }
-
-    const nextPath = path.normalize(path.join(currentPath, '..'));
-
-    // Eventually we'll get to `/` and get stuck in a loop.
-    if (nextPath === currentPath) {
-      break;
-    } else {
-      currentPath = nextPath;
-    }
+  if (!relayCompilerDirectory) {
+    return { kind: 'packageNotFound' };
   }
 
-  return null;
+  const packageManifest = JSON.parse(
+    await fs.readFile(
+      path.join(relayCompilerDirectory, 'package.json'),
+      'utf-8',
+    ),
+  );
+
+  const isSemverRangeSatisfied = semver.satisfies(
+    packageManifest.version,
+    SEMVER_RANGE,
+  );
+
+  if (!relayBinaryRelativeToPackage) {
+    return { kind: 'architectureNotSupported' };
+  }
+
+  const relayBinaryPath = path.join(
+    relayCompilerDirectory,
+    relayBinaryRelativeToPackage,
+  );
+
+  if (isSemverRangeSatisfied) {
+    return {
+      kind: 'compilerFound',
+      path: relayBinaryPath,
+    };
+  }
+
+  return {
+    kind: 'versionDidNotMatch',
+    path: relayBinaryPath,
+    expectedRange: SEMVER_RANGE,
+    version: packageManifest.version,
+  };
 }

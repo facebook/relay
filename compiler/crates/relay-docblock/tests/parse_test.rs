@@ -4,13 +4,34 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a616560dfb3c2c6ee24feebc663200b9>>
+ * @generated SignedSource<<715500b63584474523c0fb5330bfa7b3>>
  */
 
 mod parse;
 
 use parse::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn edge_to_non_null_invalid() {
+    let input = include_str!("parse/fixtures/edge-to-non-null.invalid.js");
+    let expected = include_str!("parse/fixtures/edge-to-non-null.invalid.expected");
+    test_fixture(transform_fixture, "edge-to-non-null.invalid.js", "parse/fixtures/edge-to-non-null.invalid.expected", input, expected);
+}
+
+#[test]
+fn edge_to_not_identifier_invalid() {
+    let input = include_str!("parse/fixtures/edge-to-not-identifier.invalid.js");
+    let expected = include_str!("parse/fixtures/edge-to-not-identifier.invalid.expected");
+    test_fixture(transform_fixture, "edge-to-not-identifier.invalid.js", "parse/fixtures/edge-to-not-identifier.invalid.expected", input, expected);
+}
+
+#[test]
+fn edge_to_plural_invalid() {
+    let input = include_str!("parse/fixtures/edge-to-plural.invalid.js");
+    let expected = include_str!("parse/fixtures/edge-to-plural.invalid.expected");
+    test_fixture(transform_fixture, "edge-to-plural.invalid.js", "parse/fixtures/edge-to-plural.invalid.expected", input, expected);
+}
 
 #[test]
 fn relay_resolver() {

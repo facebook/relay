@@ -44,6 +44,13 @@ pub enum ErrorMessages {
     // The rest of this sentence is epxected to be supplied by `.annotate`.
     #[error("Unexpected conflicting argument name. This field argument")]
     ConflictingArguments,
+
+    #[error("Unexpected non-nullable type given in `@edgeTo`.")]
+    UnexpectedNonNullableEdgeTo,
+
+    // In the future we plan to support this, but not currently
+    #[error("Unexpected plural type given in `@edgeTo`.")]
+    UnexpectedPluralEdgeTo,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

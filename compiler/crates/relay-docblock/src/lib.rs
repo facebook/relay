@@ -14,7 +14,7 @@ use docblock_syntax::{DocblockAST, DocblockField, DocblockSection};
 use errors::ErrorMessagesWithData;
 use graphql_syntax::{
     parse_field_definition_stub, parse_type, ConstantValue, ExecutableDefinition,
-    FieldDefinitionStub, FragmentDefinition,
+    FieldDefinitionStub, FragmentDefinition, TypeAnnotation,
 };
 use intern::string_key::{Intern, StringKey};
 pub use ir::{Argument, DocblockIr, On, RelayResolverIr};
@@ -150,20 +150,62 @@ impl RelayResolverParser {
             }
         }
 
+        let edge_to = match self
+            .fields
+            .get(&EDGE_TO_FIELD)
+            .and_then(|f| f.value)
+            .map(|type_str| self.parse_edge_to(type_str))
+            .transpose()
+        {
+            Ok(edge_to) => edge_to,
+            Err(mut errors) => {
+                self.errors.append(&mut errors);
+                None
+            }
+        };
+
         Ok(RelayResolverIr {
             field,
             on: on?,
             root_fragment,
-            edge_to: self
-                .fields
-                .get(&EDGE_TO_FIELD)
-                .and_then(|f| f.value.clone()),
+            edge_to,
             description: self.description,
             location: ast.location,
             deprecated,
             live,
             fragment_arguments,
         })
+    }
+
+    fn parse_edge_to(
+        &mut self,
+        type_str: WithLocation<StringKey>,
+    ) -> DiagnosticsResult<WithLocation<TypeAnnotation>> {
+        let type_annotation = parse_type(
+            type_str.item.lookup(),
+            type_str.location.source_location(),
+            type_str.location.span().start,
+        )?;
+
+        let valid_type_annotation = match type_annotation {
+            TypeAnnotation::Named(_) => type_annotation,
+            TypeAnnotation::List(_) => {
+                return Err(vec![Diagnostic::error(
+                    ErrorMessages::UnexpectedPluralEdgeTo {},
+                    type_str.location,
+                )]);
+            }
+            TypeAnnotation::NonNull(_) => {
+                return Err(vec![Diagnostic::error(
+                    ErrorMessages::UnexpectedNonNullableEdgeTo {},
+                    type_str.location,
+                )]);
+            }
+        };
+        Ok(WithLocation::new(
+            type_str.location.clone(),
+            valid_type_annotation,
+        ))
     }
 
     fn parse_field(&mut self, field: &DocblockField) {

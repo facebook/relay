@@ -55,7 +55,18 @@ RelayResolver(
         edge_to: Some(
             WithLocation {
                 location: /path/to/test/fixture/relay-resolver.js:78:82,
-                item: "Page",
+                item: Named(
+                    NamedTypeAnnotation {
+                        name: Identifier {
+                            span: 78:82,
+                            token: Token {
+                                span: 78:82,
+                                kind: Identifier,
+                            },
+                            value: "Page",
+                        },
+                    },
+                ),
             },
         ),
         description: Some(

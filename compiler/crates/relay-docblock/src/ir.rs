@@ -83,7 +83,7 @@ pub struct RelayResolverIr {
     pub field: FieldDefinitionStub,
     pub on: On,
     pub root_fragment: WithLocation<StringKey>,
-    pub edge_to: Option<WithLocation<StringKey>>,
+    pub edge_to: Option<WithLocation<TypeAnnotation>>,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
     pub live: Option<IrField>,
@@ -221,9 +221,18 @@ impl RelayResolverIr {
     }
 
     fn fields(&self) -> List<FieldDefinition> {
-        let edge_to = self
-            .edge_to
-            .map_or_else(|| string_key_as_identifier(*INT_TYPE), as_identifier);
+        let edge_to = self.edge_to.as_ref().map_or_else(
+            || {
+                // Resolvers return arbitrary JavaScript values. However, we
+                // need some GraphQL type to use in the schema. As a placeholder
+                // we arbitrarily use Int. In the future we may want to use a custom
+                // scalar here.
+                TypeAnnotation::Named(NamedTypeAnnotation {
+                    name: string_key_as_identifier(*INT_TYPE),
+                })
+            },
+            |annotation| annotation.item.clone(),
+        );
 
         let args = match (self.fragment_arguments(), self.field.arguments.as_ref()) {
             (None, None) => None,
@@ -239,7 +248,7 @@ impl RelayResolverIr {
 
         List::generated(vec![FieldDefinition {
             name: self.field.name.clone(),
-            type_: TypeAnnotation::Named(NamedTypeAnnotation { name: edge_to }),
+            type_: edge_to,
             arguments: args,
             directives: self.directives(),
             description: self.description.map(as_string_node),

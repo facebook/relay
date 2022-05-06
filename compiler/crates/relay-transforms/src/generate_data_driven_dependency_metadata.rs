@@ -10,15 +10,15 @@ use graphql_ir::{
     associated_data_impl, Directive, FragmentDefinition, OperationDefinition, Program, Selection,
     Transformed, Transformer,
 };
-use intern::string_key::{Intern, StringKey, StringKeyMap};
+use intern::string_key::{StringKey, StringKeyMap};
 use itertools::Itertools;
 use schema::{Schema, TypeReference};
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RelayDataDrivenDependencyMetadata {
-    pub direct_dependencies: Option<Vec<(StringKey, StringKey)>>,
+    pub direct_dependencies: Option<Vec<(StringKey, String)>>,
     // always None for fragments
-    pub indirect_dependencies: Option<Vec<(StringKey, StringKey)>>,
+    pub indirect_dependencies: Option<Vec<(StringKey, String)>>,
 }
 associated_data_impl!(RelayDataDrivenDependencyMetadata);
 
@@ -281,7 +281,7 @@ impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
     }
 }
 
-fn get_metadata_from_module_entries(module_entries: &ModuleEntries) -> Vec<(StringKey, StringKey)> {
+fn get_metadata_from_module_entries(module_entries: &ModuleEntries) -> Vec<(StringKey, String)> {
     module_entries
         .iter()
         .map(|(key, entry)| {
@@ -299,8 +299,7 @@ fn get_metadata_from_module_entries(module_entries: &ModuleEntries) -> Vec<(Stri
                         ))
                         .join(","),
                     entry.plural,
-                )
-                .intern(),
+                ),
             )
         })
         .sorted_unstable_by(|a, b| a.0.cmp(&b.0))

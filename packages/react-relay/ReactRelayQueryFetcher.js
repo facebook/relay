@@ -194,6 +194,7 @@ class ReactRelayQueryFetcher {
       onDataChange &&
       this._fetchOptions.onDataChangeCallbacks.indexOf(onDataChange) === -1
     ) {
+      // $FlowFixMe[incompatible-use]
       this._fetchOptions.onDataChangeCallbacks.push(onDataChange);
     }
 

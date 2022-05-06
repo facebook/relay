@@ -53,16 +53,11 @@ impl Write for CommentAnnotationsSection {
 
 impl std::fmt::Display for CommentAnnotationsSection {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> FmtResult {
-        if self.0.trim_end().is_empty() {
-            // temporary addition to keep output unchanged
-            write!(f, "{}", "\n".repeat(self.0.lines().count() - 1))?;
-        } else {
-            for line in self.0.lines() {
-                if line.is_empty() {
-                    writeln!(f)?;
-                } else {
-                    writeln!(f, "// {}", line)?;
-                }
+        for line in self.0.lines() {
+            if line.is_empty() {
+                writeln!(f)?;
+            } else {
+                writeln!(f, "// {}", line)?;
             }
         }
         Ok(())
@@ -85,9 +80,6 @@ impl std::fmt::Display for DocblockSection {
             for line in self.0.lines() {
                 if line.is_empty() {
                     writeln!(f, " *")?;
-                } else if line == " " {
-                    // temporary addition to keep output unchanged
-                    writeln!(f, " * ")?;
                 } else {
                     writeln!(f, " * {}", line)?;
                 }
@@ -110,14 +102,7 @@ impl Write for GenericSection {
 
 impl std::fmt::Display for GenericSection {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> FmtResult {
-        if self.0.trim_end().is_empty() {
-            // temporary addition to keep output unchanged
-            write!(f, "{}", "\n".repeat(self.0.lines().count() - 1))
-        } else if !self.0.is_empty() {
-            write!(f, "{}", self.0)
-        } else {
-            Ok(())
-        }
+        write!(f, "{}", self.0)
     }
 }
 

@@ -20,23 +20,28 @@ async function exists(file: string): Promise<boolean> {
 // This is derived from the relay-compiler npm package.
 // If you update this, please update accordingly here
 // https://github.com/facebook/relay/blob/main/packages/relay-compiler/index.js
-function getBinaryPathRelativeToPackage() {
-  let binaryPathRelativeToPackageJson = null;
+function getBinaryPathRelativeToPackage(): string | null {
   if (process.platform === 'darwin' && process.arch === 'x64') {
-    binaryPathRelativeToPackageJson = path.join('macos-x64', 'relay');
-  } else if (process.platform === 'darwin' && process.arch === 'arm64') {
-    binaryPathRelativeToPackageJson = path.join('macos-arm64', 'relay');
-  } else if (process.platform === 'linux' && process.arch === 'x64') {
-    binaryPathRelativeToPackageJson = path.join('linux-x64', 'relay');
-  } else if (process.platform === 'linux' && process.arch === 'arm64') {
-    binaryPathRelativeToPackageJson = path.join('linux-arm64', 'relay');
-  } else if (process.platform === 'win32' && process.arch === 'x64') {
-    binaryPathRelativeToPackageJson = path.join('win-x64', 'relay.exe');
-  } else {
-    binaryPathRelativeToPackageJson = null;
+    return path.join('macos-x64', 'relay');
   }
 
-  return binaryPathRelativeToPackageJson;
+  if (process.platform === 'darwin' && process.arch === 'arm64') {
+    return path.join('macos-arm64', 'relay');
+  }
+
+  if (process.platform === 'linux' && process.arch === 'x64') {
+    return path.join('linux-x64', 'relay');
+  }
+
+  if (process.platform === 'linux' && process.arch === 'arm64') {
+    return path.join('linux-arm64', 'relay');
+  }
+
+  if (process.platform === 'win32' && process.arch === 'x64') {
+    return path.join('win-x64', 'relay.exe');
+  }
+
+  return null;
 }
 export async function findRelayCompilerDirectory(
   rootPath: string,

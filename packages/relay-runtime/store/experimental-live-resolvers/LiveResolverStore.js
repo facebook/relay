@@ -58,11 +58,6 @@ export type LiveState<T> = {|
   subscribe(cb: () => void): () => void,
 |};
 
-export type SuspendingLiveState<T> = {|
-  read(): T | LiveResolverSuspenseSentinel,
-  subscribe(cb: () => void): () => void,
-|};
-
 // HACK
 // The type of Store is defined using an opaque type that only RelayModernStore
 // can create. For now, we just lie via any/FlowFixMe and pretend we really have

@@ -189,7 +189,7 @@ class LiveResolverCache implements ResolverCache {
       RelayModernRecord.setValue(
         linkedRecord,
         RELAY_RESOLVER_VALUE_KEY,
-        liveState.read(),
+        readLiveStateValue(liveState),
       );
       // Mark the resolver as clean again.
       RelayModernRecord.setValue(
@@ -259,7 +259,7 @@ class LiveResolverCache implements ResolverCache {
 
     // Subscribe to future values
     // Note: We subscribe before reading, since subscribing could potentially
-    // trigger a syncronous update. By reading second way we will always
+    // trigger a synchronous update. By reading second way we will always
     // observe the new value, without needing to double render.
     const handler = this._makeLiveStateHandler(linkedID);
     const unsubscribe = liveState.subscribe(handler);
@@ -275,7 +275,7 @@ class LiveResolverCache implements ResolverCache {
     RelayModernRecord.setValue(
       linkedRecord,
       RELAY_RESOLVER_VALUE_KEY,
-      liveState.read(),
+      readLiveStateValue(liveState),
     );
 
     // Mark the field as clean.
@@ -431,8 +431,22 @@ function isLiveStateValue(v: mixed): boolean {
   );
 }
 
-function suspenseSentinel(): LiveResolverSuspenseSentinel {
-  return LIVE_RESOLVER_SUSPENSE;
+function suspenseSentinel<T>(): T {
+  throw LIVE_RESOLVER_SUSPENSE;
+}
+
+function readLiveStateValue<T>(
+  liveState: LiveState<T>,
+): T | LiveResolverSuspenseSentinel {
+  try {
+    return liveState.read();
+  } catch (e) {
+    if (e === LIVE_RESOLVER_SUSPENSE) {
+      return e;
+    } else {
+      throw e;
+    }
+  }
 }
 
 module.exports = {

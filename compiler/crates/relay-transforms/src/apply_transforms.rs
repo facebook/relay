@@ -229,11 +229,6 @@ fn apply_reader_transforms(
     program = log_event.time("client_edges", || {
         client_edges(&program, &project_config.schema_config)
     })?;
-    if project_config.feature_flags.enable_relay_resolver_transform {
-        log_event.time("validate_resolver_fragments", || {
-            validate_resolver_fragments(&program)
-        })?;
-    }
 
     program = log_event.time("relay_resolvers", || {
         relay_resolvers(

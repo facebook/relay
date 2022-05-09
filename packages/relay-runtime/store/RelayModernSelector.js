@@ -425,21 +425,25 @@ function areEqualSelectors(
   a: ?(SingularReaderSelector | PluralReaderSelector),
   b: ?(SingularReaderSelector | PluralReaderSelector),
 ): boolean {
-  if (
-    a?.kind === 'SingularReaderSelector' &&
-    b?.kind === 'SingularReaderSelector'
+  if (a === b) {
+    return true;
+  } else if (a == null) {
+    return b == null;
+  } else if (b == null) {
+    return a == null;
+  } else if (
+    a.kind === 'SingularReaderSelector' &&
+    b.kind === 'SingularReaderSelector'
   ) {
     return areEqualSingularSelectors(a, b);
   } else if (
-    a?.kind === 'PluralReaderSelector' &&
-    b?.kind === 'PluralReaderSelector'
+    a.kind === 'PluralReaderSelector' &&
+    b.kind === 'PluralReaderSelector'
   ) {
     return (
       a.selectors.length === b.selectors.length &&
       a.selectors.every((s, i) => areEqualSingularSelectors(s, b.selectors[i]))
     );
-  } else if (a == null && b == null) {
-    return true;
   } else {
     return false;
   }

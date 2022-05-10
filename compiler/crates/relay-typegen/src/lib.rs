@@ -250,16 +250,17 @@ impl<'a> TypeGenerator<'a> {
     ) -> FmtResult {
         let input_variables_type = self.generate_input_variables_type(typegen_operation);
 
-        let selections = self.visit_selections(&typegen_operation.selections);
-        let mut response_type = self.selections_to_babel(selections.into_iter(), false, None);
-
-        response_type = match typegen_operation
-            .directives
-            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
-        {
-            Some(_) => AST::Nullable(response_type.into()),
-            None => response_type,
-        };
+        let type_selections = self.visit_selections(&typegen_operation.selections);
+        let data_type = self.get_data_type(
+            type_selections.into_iter(),
+            false, // Queries are never unmasked
+            None,
+            typegen_operation
+                .directives
+                .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+                .is_some(),
+            false, // Query types can never be plural
+        );
 
         let raw_response_type = if has_raw_response_type_directive(normalization_operation) {
             let raw_response_selections =
@@ -299,7 +300,7 @@ impl<'a> TypeGenerator<'a> {
         let response_identifier = format!("{}$data", typegen_operation.name.item);
         let response_identifier_key = response_identifier.as_str().intern();
         self.writer
-            .write_export_type(&response_identifier, &response_type)?;
+            .write_export_type(&response_identifier, &data_type)?;
 
         let operation_types = {
             let mut operation_types = vec![
@@ -379,14 +380,14 @@ impl<'a> TypeGenerator<'a> {
             .named(*ASSIGNABLE_DIRECTIVE)
             .is_some();
 
-        let mut selections = self.visit_selections(&fragment_definition.selections);
+        let mut type_selections = self.visit_selections(&fragment_definition.selections);
         if !fragment_definition.type_condition.is_abstract_type() {
-            let num_concrete_selections = selections
+            let num_concrete_selections = type_selections
                 .iter()
                 .filter(|sel| sel.get_enclosing_concrete_type().is_some())
                 .count();
             if num_concrete_selections <= 1 {
-                for selection in selections.iter_mut().filter(|sel| sel.is_typename()) {
+                for selection in type_selections.iter_mut().filter(|sel| sel.is_typename()) {
                     selection.set_concrete_type(fragment_definition.type_condition);
                 }
             }
@@ -425,23 +426,16 @@ impl<'a> TypeGenerator<'a> {
 
         let unmasked = RelayDirective::is_unmasked_fragment_definition(fragment_definition);
 
-        let mut type_ = self.selections_to_babel(
-            selections.into_iter(),
+        let data_type = self.get_data_type(
+            type_selections.into_iter(),
             unmasked,
             if unmasked { None } else { Some(fragment_name) },
+            fragment_definition
+                .directives
+                .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+                .is_some(),
+            is_plural_fragment,
         );
-
-        if fragment_definition
-            .directives
-            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
-            .is_some()
-        {
-            type_ = AST::Nullable(type_.into());
-        };
-
-        if is_plural_fragment {
-            type_ = AST::ReadOnlyArray(type_.into())
-        }
 
         self.runtime_imports.fragment_reference = true;
         self.write_import_actor_change_point()?;
@@ -477,7 +471,7 @@ impl<'a> TypeGenerator<'a> {
         }
 
         if !is_assignable_fragment {
-            self.writer.write_export_type(&data_type_name, &type_)?;
+            self.writer.write_export_type(&data_type_name, &data_type)?;
             self.writer
                 .write_export_type(&format!("{}$key", fragment_definition.name.item), &ref_type)?;
         }
@@ -831,6 +825,26 @@ impl<'a> TypeGenerator<'a> {
             selection.set_conditional(true);
         }
         type_selections.append(&mut selections);
+    }
+
+    /// Generates the `...$data` type representing the value read out using the
+    /// fragment or operation fragment.
+    fn get_data_type(
+        &mut self,
+        selections: impl Iterator<Item = TypeSelection>,
+        unmasked: bool,
+        fragment_type_name: Option<StringKey>,
+        emit_optional_type: bool,
+        emit_plural_type: bool,
+    ) -> AST {
+        let mut data_type = self.selections_to_babel(selections, unmasked, fragment_type_name);
+        if emit_optional_type {
+            data_type = AST::Nullable(Box::new(data_type))
+        }
+        if emit_plural_type {
+            data_type = AST::ReadOnlyArray(Box::new(data_type))
+        }
+        data_type
     }
 
     fn selections_to_babel(

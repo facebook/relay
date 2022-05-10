@@ -41,7 +41,7 @@ pub enum ErrorMessages {
     )]
     ExpectedOnTypeOrOnInterface,
 
-    // The rest of this sentence is epxected to be supplied by `.annotate`.
+    // The rest of this sentence is expected to be supplied by `.annotate`.
     #[error("Unexpected conflicting argument name. This field argument")]
     ConflictingArguments,
 
@@ -51,6 +51,14 @@ pub enum ErrorMessages {
     // In the future we plan to support this, but not currently
     #[error("Unexpected plural type given in `@edgeTo`.")]
     UnexpectedPluralEdgeTo,
+
+    #[error(
+        "The type specified in the fragment (`{fragment_type_condition}`) and the type specified in @onInterface (`{interface_type}`) are different. Please make sure these are exactly the same."
+    )]
+    MismatchRootFragmentTypeConditionOnInterface {
+        fragment_type_condition: StringKey,
+        interface_type: StringKey,
+    },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

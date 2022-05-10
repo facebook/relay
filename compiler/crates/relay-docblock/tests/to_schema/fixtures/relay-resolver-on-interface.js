@@ -20,7 +20,7 @@
 
 
 graphql`
-  fragment myRootFragment on User {
+  fragment myRootFragment on UserNameRenderable {
     id
   }
 `

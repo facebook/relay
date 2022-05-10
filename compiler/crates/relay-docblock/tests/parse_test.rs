@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<715500b63584474523c0fb5330bfa7b3>>
+ * @generated SignedSource<<754324ec0de8e140e618244a58490801>>
  */
 
 mod parse;
@@ -73,6 +73,13 @@ fn relay_resolver_missing_multiple_fields_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-missing-multiple-fields.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-missing-multiple-fields.invalid.expected");
     test_fixture(transform_fixture, "relay-resolver-missing-multiple-fields.invalid.js", "parse/fixtures/relay-resolver-missing-multiple-fields.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_on_interface_mismatch_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-on-interface-mismatch.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-on-interface-mismatch.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-on-interface-mismatch.invalid.js", "parse/fixtures/relay-resolver-on-interface-mismatch.invalid.expected", input, expected);
 }
 
 #[test]

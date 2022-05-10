@@ -78,6 +78,39 @@ lazy_static! {
     static ref SPREAD_KEY: StringKey = "\0SPREAD".intern();
 }
 
+/// Determines whether a generated data type is "unmasked", which controls whether
+/// the generated AST objects are exact (e.g. `{| foo: Foo |}`) or inexact
+/// (e.g. `{ foo: Foo, ... }`).
+///
+/// The $data type of a fragment definition with the `@relay(mask: false)` directive
+/// is unmasked, i.e. inexact. Fragments without this directive and queries are
+/// masked, i.e. exact.
+///
+/// # Why?
+///
+/// * An unmasked fragment definition is meant to be used with an unmasked fragment
+///   spread, though this is not enforced.
+/// * An unmasked fragment spread "inlines" the child type into the parent type.
+///   This occurs in the transforms pipeline, before hitting the typegen.
+/// * An unmasked child fragment can be spread in multiple different fragments.
+/// * Functions/components that accept a read-out unmasked fragment will receive
+///   an object with the child fragment's fields and the parent fragment's fields.
+/// * These parent fields can vary, depending on where the child fragment was spread.
+/// * So, the type of the child fragment must be inexact, to account for the fact
+///   that we don't know the parent's fields.
+/// * We could theoretically emit exact types for children that are only spread in
+///   a single parent, which itself is non-masked, as in those cases, we would know
+///   all of the fields that are present. However, we do not want to do this, as we
+///   do not want the child component to depend (even implicitly or accidentally) on
+///   the fields selected by the parent.
+/// * Obviously, unmasked child fragments do receive their parents fields, hence
+///   `@relay(mask: false)` is discouraged in favor of `@inline`.
+#[derive(Copy, Clone, Eq, PartialEq)]
+enum MaskStatus {
+    Unmasked,
+    Masked,
+}
+
 pub fn generate_fragment_type_exports_section(
     fragment_definition: &FragmentDefinition,
     schema: &SDLSchema,
@@ -253,7 +286,7 @@ impl<'a> TypeGenerator<'a> {
         let type_selections = self.visit_selections(&typegen_operation.selections);
         let data_type = self.get_data_type(
             type_selections.into_iter(),
-            false, // Queries are never unmasked
+            MaskStatus::Masked, // Queries are never unmasked
             None,
             typegen_operation
                 .directives
@@ -424,12 +457,20 @@ impl<'a> TypeGenerator<'a> {
             ref_type = AST::ReadOnlyArray(Box::new(ref_type));
         }
 
-        let unmasked = RelayDirective::is_unmasked_fragment_definition(fragment_definition);
+        let mask_status = if RelayDirective::is_unmasked_fragment_definition(fragment_definition) {
+            MaskStatus::Unmasked
+        } else {
+            MaskStatus::Masked
+        };
 
         let data_type = self.get_data_type(
             type_selections.into_iter(),
-            unmasked,
-            if unmasked { None } else { Some(fragment_name) },
+            mask_status,
+            if mask_status == MaskStatus::Unmasked {
+                None
+            } else {
+                Some(fragment_name)
+            },
             fragment_definition
                 .directives
                 .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
@@ -713,7 +754,11 @@ impl<'a> TypeGenerator<'a> {
                 self.schema_config,
             ),
             value: AST::Nullable(Box::new(AST::ActorChangePoint(Box::new(
-                self.selections_to_babel(linked_field_selections.into_iter(), false, None),
+                self.selections_to_babel(
+                    linked_field_selections.into_iter(),
+                    MaskStatus::Masked,
+                    None,
+                ),
             )))),
             conditional: false,
             concrete_type: None,
@@ -832,12 +877,12 @@ impl<'a> TypeGenerator<'a> {
     fn get_data_type(
         &mut self,
         selections: impl Iterator<Item = TypeSelection>,
-        unmasked: bool,
+        mask_status: MaskStatus,
         fragment_type_name: Option<StringKey>,
         emit_optional_type: bool,
         emit_plural_type: bool,
     ) -> AST {
-        let mut data_type = self.selections_to_babel(selections, unmasked, fragment_type_name);
+        let mut data_type = self.selections_to_babel(selections, mask_status, fragment_type_name);
         if emit_optional_type {
             data_type = AST::Nullable(Box::new(data_type))
         }
@@ -850,7 +895,7 @@ impl<'a> TypeGenerator<'a> {
     fn selections_to_babel(
         &mut self,
         selections: impl Iterator<Item = TypeSelection>,
-        unmasked: bool,
+        mask_status: MaskStatus,
         fragment_type_name: Option<StringKey>,
     ) -> AST {
         let mut base_fields: TypeSelectionMap = Default::default();
@@ -901,7 +946,7 @@ impl<'a> TypeGenerator<'a> {
                                 "Just checked this exists by checking that the field is typename",
                             ));
                             }
-                            self.make_prop(selection, unmasked, Some(concrete_type))
+                            self.make_prop(selection, mask_status, Some(concrete_type))
                         })
                         .collect(),
                 );
@@ -947,7 +992,7 @@ impl<'a> TypeGenerator<'a> {
                                 scalar_field.conditional = false;
                                 return self.make_prop(
                                     TypeSelection::ScalarField(scalar_field),
-                                    unmasked,
+                                    mask_status,
                                     Some(type_condition),
                                 );
                             }
@@ -958,13 +1003,13 @@ impl<'a> TypeGenerator<'a> {
                             linked_field.concrete_type = None;
                             return self.make_prop(
                                 TypeSelection::LinkedField(linked_field),
-                                unmasked,
+                                mask_status,
                                 Some(concrete_type),
                             );
                         }
                     }
 
-                    self.make_prop(sel, unmasked, None)
+                    self.make_prop(sel, mask_status, None)
                 })
                 .collect();
             types.push(selection_map_values);
@@ -982,7 +1027,7 @@ impl<'a> TypeGenerator<'a> {
                             value: AST::FragmentReferenceType(fragment_type_name),
                         }));
                     }
-                    if unmasked {
+                    if mask_status == MaskStatus::Unmasked {
                         AST::InexactObject(InexactObject::new(props))
                     } else {
                         AST::ExactObject(ExactObject::new(props))
@@ -1087,7 +1132,7 @@ impl<'a> TypeGenerator<'a> {
     fn make_prop(
         &mut self,
         type_selection: TypeSelection,
-        unmasked: bool,
+        mask_status: MaskStatus,
         concrete_type: Option<Type>,
     ) -> Prop {
         let optional = type_selection.is_conditional();
@@ -1110,7 +1155,7 @@ impl<'a> TypeGenerator<'a> {
                         extract_fragments(linked_field.node_selections);
 
                     let getter_object_props =
-                        self.selections_to_babel(no_fragments.into_iter(), unmasked, None);
+                        self.selections_to_babel(no_fragments.into_iter(), mask_status, None);
                     let getter_return_value = self
                         .transform_scalar_type(&linked_field.node_type, Some(getter_object_props));
 
@@ -1177,7 +1222,7 @@ impl<'a> TypeGenerator<'a> {
                 } else {
                     let object_props = self.selections_to_babel(
                         hashmap_into_values(linked_field.node_selections),
-                        unmasked,
+                        mask_status,
                         None,
                     );
                     let value =

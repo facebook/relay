@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { workspace } from 'vscode';
+import { window, workspace } from 'vscode';
 import {
   LanguageClientOptions,
   RevealOutputChannelOn,
@@ -15,22 +15,55 @@ import { getConfig } from './config';
 import { RelayExtensionContext } from './context';
 import { createErrorHandler } from './errorHandler';
 import { LSPStatusBarFeature } from './lspStatusBarFeature';
-import { findRelayBinary } from './utils';
+import { findRelayCompilerBinary } from './utils';
 
 export async function createAndStartClient(context: RelayExtensionContext) {
-  const config = getConfig();
-
-  // TODO: Support multi folder workspaces by not using rootPath.
-  // Maybe initialize a client once for each workspace?
-  const relayBinary =
-    config.pathToRelay ||
-    (await findRelayBinary(workspace.rootPath ?? process.cwd()));
-
   context.outputChannel.appendLine('Starting the Relay GraphQL extension...');
+
+  const config = getConfig();
+  const rootPath = workspace.rootPath || process.cwd();
+
+  const relayBinaryResult = await findRelayCompilerBinary(rootPath);
+
+  let relayBinary: string | undefined;
+  if (config.pathToRelay) {
+    context.outputChannel.appendLine(
+      "You've manually specified 'relay.pathToBinary'. We cannot confirm this version of the Relay Compiler is supported by this version of the extension. I hope you know what you're doing.",
+    );
+
+    relayBinary = config.pathToRelay;
+  } else if (relayBinaryResult.kind === 'versionDidNotMatch') {
+    window.showErrorMessage(
+      // Array syntax so it's easier to read this message in the source code.
+      [
+        `The installed version of the Relay Compiler is version: '${relayBinaryResult.version}'.`,
+        `We found this version in the package.json at the following path: ${relayBinaryResult.path}`,
+        `This version of the extension supports the following semver range: '${relayBinaryResult.expectedRange}'.`,
+        'Please update your extension / relay-compiler to accommodate the version requirements.',
+      ].join(' '),
+      'Okay',
+    );
+
+    return;
+  } else if (relayBinaryResult.kind === 'packageNotFound') {
+    context.outputChannel.appendLine(
+      "Could not find the 'relay-compiler' package in your node_modules. Maybe you're not inside of a project with relay installed.",
+    );
+
+    return;
+  } else if (relayBinaryResult.kind === 'architectureNotSupported') {
+    context.outputChannel.appendLine(
+      `The 'relay-compiler' does not ship a binary for the architecture: ${process.arch}`,
+    );
+
+    return;
+  } else if (relayBinaryResult.kind === 'compilerFound') {
+    relayBinary = relayBinaryResult.path;
+  }
 
   if (!relayBinary) {
     context.outputChannel.appendLine(
-      "Could not find relay binary in path. Maybe you're not inside of a project with relay installed.",
+      'Stopping execution of the Relay VSCode extension since we could not find a valid compiler binary.',
     );
 
     return;

@@ -281,7 +281,7 @@ impl<'a> TypeGenerator<'a> {
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
     ) -> FmtResult {
-        let input_variables_type = self.generate_input_variables_type(typegen_operation);
+        let input_variables_type = self.get_input_variables_type(typegen_operation);
 
         let type_selections = self.visit_selections(&typegen_operation.selections);
         let data_type = self.get_data_type(
@@ -328,55 +328,70 @@ impl<'a> TypeGenerator<'a> {
         let variables_identifier_key = variables_identifier.as_str().intern();
 
         self.writer
-            .write_export_type(&variables_identifier, &input_variables_type)?;
+            .write_export_type(&variables_identifier, &input_variables_type.into())?;
 
         let response_identifier = format!("{}$data", typegen_operation.name.item);
         let response_identifier_key = response_identifier.as_str().intern();
         self.writer
             .write_export_type(&response_identifier, &data_type)?;
 
-        let operation_types = {
-            let mut operation_types = vec![
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: *VARIABLES,
-                    read_only: false,
-                    optional: false,
-                    value: AST::Identifier(variables_identifier_key),
-                }),
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: *RESPONSE,
-                    read_only: false,
-                    optional: false,
-                    value: AST::Identifier(response_identifier_key),
-                }),
-            ];
-
-            if let Some(raw_response_type) = raw_response_type {
-                for (key, ast) in self.match_fields.iter() {
-                    self.writer.write_export_type(key.lookup(), ast)?;
-                }
-                let raw_response_identifier =
-                    format!("{}$rawResponse", typegen_operation.name.item);
-                self.writer
-                    .write_export_type(&raw_response_identifier, &raw_response_type)?;
-
-                operation_types.push(Prop::KeyValuePair(KeyValuePairProp {
-                    key: *KEY_RAW_RESPONSE,
-                    read_only: false,
-                    optional: false,
-                    value: AST::Identifier(raw_response_identifier.intern()),
-                }));
-            }
-
-            operation_types
-        };
+        let query_wrapper_type = self.get_operation_type_export(
+            raw_response_type,
+            typegen_operation,
+            variables_identifier_key,
+            response_identifier_key,
+        )?;
         self.writer.write_export_type(
             typegen_operation.name.item.lookup(),
-            &AST::ExactObject(ExactObject::new(operation_types)),
+            &query_wrapper_type.into(),
         )?;
 
         self.generate_provided_variables_type(normalization_operation)?;
         Ok(())
+    }
+
+    /// Returns the type of the generated query. This is the type parameter that you would have
+    /// passed to useLazyLoadQuery before we inferred types from queries.
+    /// Example:
+    /// {| response: MyQuery$data, variables: MyQuery$variables |}
+    fn get_operation_type_export(
+        &mut self,
+        raw_response_type: Option<AST>,
+        typegen_operation: &OperationDefinition,
+        variables_identifier_key: StringKey,
+        response_identifier_key: StringKey,
+    ) -> Result<ExactObject, std::fmt::Error> {
+        let mut operation_types = vec![
+            Prop::KeyValuePair(KeyValuePairProp {
+                key: *VARIABLES,
+                read_only: false,
+                optional: false,
+                value: AST::Identifier(variables_identifier_key),
+            }),
+            Prop::KeyValuePair(KeyValuePairProp {
+                key: *RESPONSE,
+                read_only: false,
+                optional: false,
+                value: AST::Identifier(response_identifier_key),
+            }),
+        ];
+        if let Some(raw_response_type) = raw_response_type {
+            for (key, ast) in self.match_fields.iter() {
+                self.writer.write_export_type(key.lookup(), ast)?;
+            }
+            let raw_response_identifier = format!("{}$rawResponse", typegen_operation.name.item);
+            self.writer
+                .write_export_type(&raw_response_identifier, &raw_response_type)?;
+
+            operation_types.push(Prop::KeyValuePair(KeyValuePairProp {
+                key: *KEY_RAW_RESPONSE,
+                read_only: false,
+                optional: false,
+                value: AST::Identifier(raw_response_identifier.intern()),
+            }));
+        }
+
+        Ok(ExactObject::new(operation_types))
     }
 
     fn write_split_operation_type_exports_section(
@@ -1571,8 +1586,8 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn generate_input_variables_type(&mut self, node: &OperationDefinition) -> AST {
-        AST::ExactObject(ExactObject::new(
+    fn get_input_variables_type(&mut self, node: &OperationDefinition) -> ExactObject {
+        ExactObject::new(
             node.variable_definitions
                 .iter()
                 .map(|var_def| {
@@ -1584,7 +1599,7 @@ impl<'a> TypeGenerator<'a> {
                     })
                 })
                 .collect(),
-        ))
+        )
     }
 
     fn write_input_object_types(&mut self) -> FmtResult {

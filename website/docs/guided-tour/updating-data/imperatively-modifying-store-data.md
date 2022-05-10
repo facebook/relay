@@ -9,6 +9,8 @@ keywords:
 - updater
 - typesafe updaters
 - readUpdatableQuery
+- readUpdatableFragment
+- updatable
 ---
 
 import DocsRating from '@site/src/core/DocsRating';

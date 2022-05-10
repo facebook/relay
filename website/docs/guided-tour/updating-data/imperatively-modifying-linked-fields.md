@@ -9,6 +9,9 @@ keywords:
 - updater
 - typesafe updaters
 - readUpdatableQuery
+- readUpdatableFragment
+- updatable
+- assignable
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
@@ -18,7 +21,7 @@ import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
 
 :::caution
 
-Because in TypeScript, [getters and setters cannot have different types](https://github.com/microsoft/TypeScript/issues/43662), and the generated types of getters and setters is not the same, `readUpdatableQuery_EXPERIMENTAL` is currently unusable with TypeScript.
+Because in TypeScript, [getters and setters cannot have different types](https://github.com/microsoft/TypeScript/issues/43662), and the generated types of getters and setters is not the same, `readUpdatableQuery_EXPERIMENTAL` is currently unusable with TypeScript. `readUpdatableFragment_EXPERIMENTAL` is usable, as long as the updatable fragment contains only scalar fields.
 
 :::
 

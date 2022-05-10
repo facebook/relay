@@ -57,6 +57,26 @@ impl ArtifactGeneratedTypes {
         }
     }
 
+    pub fn from_updatable_query(typegen_operation: &OperationDefinition, skip_types: bool) -> Self {
+        if skip_types {
+            Self {
+                imported_types: "ConcreteUpdatableQuery",
+                ast_type: "ConcreteUpdatableQuery",
+                exported_type: None,
+            }
+        } else {
+            let exported_type = format!(
+                "UpdatableQuery<\n  {name}$variables,\n  {name}$data,\n>",
+                name = typegen_operation.name.item,
+            );
+            Self {
+                imported_types: "UpdatableQuery, ConcreteUpdatableQuery",
+                ast_type: "ConcreteUpdatableQuery",
+                exported_type: Some(exported_type),
+            }
+        }
+    }
+
     pub fn from_fragment(fragment: &FragmentDefinition, skip_types: bool) -> Self {
         let is_inline_data_fragment = fragment.directives.named(*INLINE_DIRECTIVE_NAME).is_some();
         let is_updatable_fragment = fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some();

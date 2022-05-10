@@ -292,7 +292,26 @@ impl RelayResolverParser {
                 }
             }
             // Only onType was defined
-            (Some(on_type), None) => Ok(On::Type(on_type)),
+            (Some(on_type), None) => {
+                if on_type.value.item == fragment_type_condition.item {
+                    Ok(On::Type(on_type))
+                } else {
+                    self.errors.push(
+                        Diagnostic::error(
+                            ErrorMessages::MismatchRootFragmentTypeConditionOnType {
+                                fragment_type_condition: fragment_type_condition.item,
+                                type_name: on_type.value.item,
+                            },
+                            on_type.value.location,
+                        )
+                        .annotate(
+                            "with fragment type condition",
+                            fragment_type_condition.location,
+                        ),
+                    );
+                    Err(())
+                }
+            }
         }
     }
 

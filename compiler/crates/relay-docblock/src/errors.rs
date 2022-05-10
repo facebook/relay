@@ -59,6 +59,14 @@ pub enum ErrorMessages {
         fragment_type_condition: StringKey,
         interface_type: StringKey,
     },
+
+    #[error(
+        "The type specified in the fragment (`{fragment_type_condition}`) and the type specified in @onType (`{type_name}`) are different. Please make sure these are exactly the same."
+    )]
+    MismatchRootFragmentTypeConditionOnType {
+        fragment_type_condition: StringKey,
+        type_name: StringKey,
+    },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

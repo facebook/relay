@@ -95,6 +95,12 @@ impl ExactObject {
     }
 }
 
+impl From<ExactObject> for AST {
+    fn from(other: ExactObject) -> AST {
+        AST::ExactObject(other)
+    }
+}
+
 impl PartialOrd for ExactObject {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))

@@ -78,6 +78,39 @@ lazy_static! {
     static ref SPREAD_KEY: StringKey = "\0SPREAD".intern();
 }
 
+/// Determines whether a generated data type is "unmasked", which controls whether
+/// the generated AST objects are exact (e.g. `{| foo: Foo |}`) or inexact
+/// (e.g. `{ foo: Foo, ... }`).
+///
+/// The $data type of a fragment definition with the `@relay(mask: false)` directive
+/// is unmasked, i.e. inexact. Fragments without this directive and queries are
+/// masked, i.e. exact.
+///
+/// # Why?
+///
+/// * An unmasked fragment definition is meant to be used with an unmasked fragment
+///   spread, though this is not enforced.
+/// * An unmasked fragment spread "inlines" the child type into the parent type.
+///   This occurs in the transforms pipeline, before hitting the typegen.
+/// * An unmasked child fragment can be spread in multiple different fragments.
+/// * Functions/components that accept a read-out unmasked fragment will receive
+///   an object with the child fragment's fields and the parent fragment's fields.
+/// * These parent fields can vary, depending on where the child fragment was spread.
+/// * So, the type of the child fragment must be inexact, to account for the fact
+///   that we don't know the parent's fields.
+/// * We could theoretically emit exact types for children that are only spread in
+///   a single parent, which itself is non-masked, as in those cases, we would know
+///   all of the fields that are present. However, we do not want to do this, as we
+///   do not want the child component to depend (even implicitly or accidentally) on
+///   the fields selected by the parent.
+/// * Obviously, unmasked child fragments do receive their parents fields, hence
+///   `@relay(mask: false)` is discouraged in favor of `@inline`.
+#[derive(Copy, Clone, Eq, PartialEq)]
+enum MaskStatus {
+    Unmasked,
+    Masked,
+}
+
 pub fn generate_fragment_type_exports_section(
     fragment_definition: &FragmentDefinition,
     schema: &SDLSchema,
@@ -248,18 +281,19 @@ impl<'a> TypeGenerator<'a> {
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
     ) -> FmtResult {
-        let input_variables_type = self.generate_input_variables_type(typegen_operation);
+        let input_variables_type = self.get_input_variables_type(typegen_operation);
 
-        let selections = self.visit_selections(&typegen_operation.selections);
-        let mut response_type = self.selections_to_babel(selections.into_iter(), false, None);
-
-        response_type = match typegen_operation
-            .directives
-            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
-        {
-            Some(_) => AST::Nullable(response_type.into()),
-            None => response_type,
-        };
+        let type_selections = self.visit_selections(&typegen_operation.selections);
+        let data_type = self.get_data_type(
+            type_selections.into_iter(),
+            MaskStatus::Masked, // Queries are never unmasked
+            None,
+            typegen_operation
+                .directives
+                .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+                .is_some(),
+            false, // Query types can never be plural
+        );
 
         let raw_response_type = if has_raw_response_type_directive(normalization_operation) {
             let raw_response_selections =
@@ -294,55 +328,70 @@ impl<'a> TypeGenerator<'a> {
         let variables_identifier_key = variables_identifier.as_str().intern();
 
         self.writer
-            .write_export_type(&variables_identifier, &input_variables_type)?;
+            .write_export_type(&variables_identifier, &input_variables_type.into())?;
 
         let response_identifier = format!("{}$data", typegen_operation.name.item);
         let response_identifier_key = response_identifier.as_str().intern();
         self.writer
-            .write_export_type(&response_identifier, &response_type)?;
+            .write_export_type(&response_identifier, &data_type)?;
 
-        let operation_types = {
-            let mut operation_types = vec![
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: *VARIABLES,
-                    read_only: false,
-                    optional: false,
-                    value: AST::Identifier(variables_identifier_key),
-                }),
-                Prop::KeyValuePair(KeyValuePairProp {
-                    key: *RESPONSE,
-                    read_only: false,
-                    optional: false,
-                    value: AST::Identifier(response_identifier_key),
-                }),
-            ];
-
-            if let Some(raw_response_type) = raw_response_type {
-                for (key, ast) in self.match_fields.iter() {
-                    self.writer.write_export_type(key.lookup(), ast)?;
-                }
-                let raw_response_identifier =
-                    format!("{}$rawResponse", typegen_operation.name.item);
-                self.writer
-                    .write_export_type(&raw_response_identifier, &raw_response_type)?;
-
-                operation_types.push(Prop::KeyValuePair(KeyValuePairProp {
-                    key: *KEY_RAW_RESPONSE,
-                    read_only: false,
-                    optional: false,
-                    value: AST::Identifier(raw_response_identifier.intern()),
-                }));
-            }
-
-            operation_types
-        };
+        let query_wrapper_type = self.get_operation_type_export(
+            raw_response_type,
+            typegen_operation,
+            variables_identifier_key,
+            response_identifier_key,
+        )?;
         self.writer.write_export_type(
             typegen_operation.name.item.lookup(),
-            &AST::ExactObject(ExactObject::new(operation_types)),
+            &query_wrapper_type.into(),
         )?;
 
         self.generate_provided_variables_type(normalization_operation)?;
         Ok(())
+    }
+
+    /// Returns the type of the generated query. This is the type parameter that you would have
+    /// passed to useLazyLoadQuery before we inferred types from queries.
+    /// Example:
+    /// {| response: MyQuery$data, variables: MyQuery$variables |}
+    fn get_operation_type_export(
+        &mut self,
+        raw_response_type: Option<AST>,
+        typegen_operation: &OperationDefinition,
+        variables_identifier_key: StringKey,
+        response_identifier_key: StringKey,
+    ) -> Result<ExactObject, std::fmt::Error> {
+        let mut operation_types = vec![
+            Prop::KeyValuePair(KeyValuePairProp {
+                key: *VARIABLES,
+                read_only: false,
+                optional: false,
+                value: AST::Identifier(variables_identifier_key),
+            }),
+            Prop::KeyValuePair(KeyValuePairProp {
+                key: *RESPONSE,
+                read_only: false,
+                optional: false,
+                value: AST::Identifier(response_identifier_key),
+            }),
+        ];
+        if let Some(raw_response_type) = raw_response_type {
+            for (key, ast) in self.match_fields.iter() {
+                self.writer.write_export_type(key.lookup(), ast)?;
+            }
+            let raw_response_identifier = format!("{}$rawResponse", typegen_operation.name.item);
+            self.writer
+                .write_export_type(&raw_response_identifier, &raw_response_type)?;
+
+            operation_types.push(Prop::KeyValuePair(KeyValuePairProp {
+                key: *KEY_RAW_RESPONSE,
+                read_only: false,
+                optional: false,
+                value: AST::Identifier(raw_response_identifier.intern()),
+            }));
+        }
+
+        Ok(ExactObject::new(operation_types))
     }
 
     fn write_split_operation_type_exports_section(
@@ -379,14 +428,14 @@ impl<'a> TypeGenerator<'a> {
             .named(*ASSIGNABLE_DIRECTIVE)
             .is_some();
 
-        let mut selections = self.visit_selections(&fragment_definition.selections);
+        let mut type_selections = self.visit_selections(&fragment_definition.selections);
         if !fragment_definition.type_condition.is_abstract_type() {
-            let num_concrete_selections = selections
+            let num_concrete_selections = type_selections
                 .iter()
                 .filter(|sel| sel.get_enclosing_concrete_type().is_some())
                 .count();
             if num_concrete_selections <= 1 {
-                for selection in selections.iter_mut().filter(|sel| sel.is_typename()) {
+                for selection in type_selections.iter_mut().filter(|sel| sel.is_typename()) {
                     selection.set_concrete_type(fragment_definition.type_condition);
                 }
             }
@@ -423,25 +472,26 @@ impl<'a> TypeGenerator<'a> {
             ref_type = AST::ReadOnlyArray(Box::new(ref_type));
         }
 
-        let unmasked = RelayDirective::is_unmasked_fragment_definition(fragment_definition);
-
-        let mut type_ = self.selections_to_babel(
-            selections.into_iter(),
-            unmasked,
-            if unmasked { None } else { Some(fragment_name) },
-        );
-
-        if fragment_definition
-            .directives
-            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
-            .is_some()
-        {
-            type_ = AST::Nullable(type_.into());
+        let mask_status = if RelayDirective::is_unmasked_fragment_definition(fragment_definition) {
+            MaskStatus::Unmasked
+        } else {
+            MaskStatus::Masked
         };
 
-        if is_plural_fragment {
-            type_ = AST::ReadOnlyArray(type_.into())
-        }
+        let data_type = self.get_data_type(
+            type_selections.into_iter(),
+            mask_status,
+            if mask_status == MaskStatus::Unmasked {
+                None
+            } else {
+                Some(fragment_name)
+            },
+            fragment_definition
+                .directives
+                .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+                .is_some(),
+            is_plural_fragment,
+        );
 
         self.runtime_imports.fragment_reference = true;
         self.write_import_actor_change_point()?;
@@ -477,7 +527,7 @@ impl<'a> TypeGenerator<'a> {
         }
 
         if !is_assignable_fragment {
-            self.writer.write_export_type(&data_type_name, &type_)?;
+            self.writer.write_export_type(&data_type_name, &data_type)?;
             self.writer
                 .write_export_type(&format!("{}$key", fragment_definition.name.item), &ref_type)?;
         }
@@ -719,7 +769,11 @@ impl<'a> TypeGenerator<'a> {
                 self.schema_config,
             ),
             value: AST::Nullable(Box::new(AST::ActorChangePoint(Box::new(
-                self.selections_to_babel(linked_field_selections.into_iter(), false, None),
+                self.selections_to_babel(
+                    linked_field_selections.into_iter(),
+                    MaskStatus::Masked,
+                    None,
+                ),
             )))),
             conditional: false,
             concrete_type: None,
@@ -833,10 +887,30 @@ impl<'a> TypeGenerator<'a> {
         type_selections.append(&mut selections);
     }
 
+    /// Generates the `...$data` type representing the value read out using the
+    /// fragment or operation fragment.
+    fn get_data_type(
+        &mut self,
+        selections: impl Iterator<Item = TypeSelection>,
+        mask_status: MaskStatus,
+        fragment_type_name: Option<StringKey>,
+        emit_optional_type: bool,
+        emit_plural_type: bool,
+    ) -> AST {
+        let mut data_type = self.selections_to_babel(selections, mask_status, fragment_type_name);
+        if emit_optional_type {
+            data_type = AST::Nullable(Box::new(data_type))
+        }
+        if emit_plural_type {
+            data_type = AST::ReadOnlyArray(Box::new(data_type))
+        }
+        data_type
+    }
+
     fn selections_to_babel(
         &mut self,
         selections: impl Iterator<Item = TypeSelection>,
-        unmasked: bool,
+        mask_status: MaskStatus,
         fragment_type_name: Option<StringKey>,
     ) -> AST {
         let mut base_fields: TypeSelectionMap = Default::default();
@@ -887,7 +961,7 @@ impl<'a> TypeGenerator<'a> {
                                 "Just checked this exists by checking that the field is typename",
                             ));
                             }
-                            self.make_prop(selection, unmasked, Some(concrete_type))
+                            self.make_prop(selection, mask_status, Some(concrete_type))
                         })
                         .collect(),
                 );
@@ -933,7 +1007,7 @@ impl<'a> TypeGenerator<'a> {
                                 scalar_field.conditional = false;
                                 return self.make_prop(
                                     TypeSelection::ScalarField(scalar_field),
-                                    unmasked,
+                                    mask_status,
                                     Some(type_condition),
                                 );
                             }
@@ -944,13 +1018,13 @@ impl<'a> TypeGenerator<'a> {
                             linked_field.concrete_type = None;
                             return self.make_prop(
                                 TypeSelection::LinkedField(linked_field),
-                                unmasked,
+                                mask_status,
                                 Some(concrete_type),
                             );
                         }
                     }
 
-                    self.make_prop(sel, unmasked, None)
+                    self.make_prop(sel, mask_status, None)
                 })
                 .collect();
             types.push(selection_map_values);
@@ -968,7 +1042,7 @@ impl<'a> TypeGenerator<'a> {
                             value: AST::FragmentReferenceType(fragment_type_name),
                         }));
                     }
-                    if unmasked {
+                    if mask_status == MaskStatus::Unmasked {
                         AST::InexactObject(InexactObject::new(props))
                     } else {
                         AST::ExactObject(ExactObject::new(props))
@@ -1073,7 +1147,7 @@ impl<'a> TypeGenerator<'a> {
     fn make_prop(
         &mut self,
         type_selection: TypeSelection,
-        unmasked: bool,
+        mask_status: MaskStatus,
         concrete_type: Option<Type>,
     ) -> Prop {
         let optional = type_selection.is_conditional();
@@ -1096,7 +1170,7 @@ impl<'a> TypeGenerator<'a> {
                         extract_fragments(linked_field.node_selections);
 
                     let getter_object_props =
-                        self.selections_to_babel(no_fragments.into_iter(), unmasked, None);
+                        self.selections_to_babel(no_fragments.into_iter(), mask_status, None);
                     let getter_return_value = self
                         .transform_scalar_type(&linked_field.node_type, Some(getter_object_props));
 
@@ -1163,7 +1237,7 @@ impl<'a> TypeGenerator<'a> {
                 } else {
                     let object_props = self.selections_to_babel(
                         hashmap_into_values(linked_field.node_selections),
-                        unmasked,
+                        mask_status,
                         None,
                     );
                     let value =
@@ -1512,8 +1586,8 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn generate_input_variables_type(&mut self, node: &OperationDefinition) -> AST {
-        AST::ExactObject(ExactObject::new(
+    fn get_input_variables_type(&mut self, node: &OperationDefinition) -> ExactObject {
+        ExactObject::new(
             node.variable_definitions
                 .iter()
                 .map(|var_def| {
@@ -1525,7 +1599,7 @@ impl<'a> TypeGenerator<'a> {
                     })
                 })
                 .collect(),
-        ))
+        )
     }
 
     fn write_input_object_types(&mut self) -> FmtResult {

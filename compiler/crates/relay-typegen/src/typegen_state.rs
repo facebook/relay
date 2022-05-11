@@ -81,3 +81,6 @@ impl EncounteredEnums {
 
 #[derive(Default)]
 pub(crate) struct MatchFields(pub(crate) IndexMap<StringKey, AST>);
+
+#[derive(Default)]
+pub(crate) struct EncounteredFragments(pub(crate) FnvHashSet<StringKey>);

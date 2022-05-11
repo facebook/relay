@@ -5,7 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{writer::Writer, LOCAL_3D_PAYLOAD, RELAY_RUNTIME};
+use crate::{
+    writer::{ExactObject, Writer},
+    LOCAL_3D_PAYLOAD, RELAY_RUNTIME,
+};
+use indexmap::IndexMap;
+use intern::string_key::StringKey;
 use std::fmt::Result as FmtResult;
 
 /// A struct that is mutated as we iterate through an operation/fragment and
@@ -41,3 +46,20 @@ impl RuntimeImports {
         }
     }
 }
+
+/// An enum used to prevent redundantly processing input objects.
+pub(crate) enum GeneratedInputObject {
+    Pending,
+    Resolved(ExactObject),
+}
+
+impl GeneratedInputObject {
+    pub(crate) fn unwrap_resolved_type(self) -> ExactObject {
+        match self {
+            GeneratedInputObject::Pending => panic!("Unexpected pending type"),
+            GeneratedInputObject::Resolved(exact_object) => exact_object,
+        }
+    }
+}
+
+pub(crate) type InputObjectTypes = IndexMap<StringKey, GeneratedInputObject>;

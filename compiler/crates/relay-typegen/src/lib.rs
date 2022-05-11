@@ -212,16 +212,10 @@ pub fn generate_split_operation_type_exports_section(
     generator.into_string()
 }
 
-enum GeneratedInputObject {
-    Pending,
-    Resolved(AST),
-}
-
 struct TypeGenerator<'a> {
     schema: &'a SDLSchema,
     schema_config: &'a SchemaConfig,
     generated_fragments: FnvHashSet<StringKey>,
-    generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
     imported_raw_response_types: IndexSet<StringKey>,
     imported_resolvers: IndexMap<StringKey, StringKey>,
     used_enums: FnvHashSet<EnumID>,
@@ -248,7 +242,6 @@ impl<'a> TypeGenerator<'a> {
             schema,
             schema_config,
             generated_fragments: Default::default(),
-            generated_input_object_types: Default::default(),
             imported_raw_response_types: Default::default(),
             imported_resolvers: Default::default(),
             used_enums: Default::default(),
@@ -277,8 +270,6 @@ impl<'a> TypeGenerator<'a> {
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
     ) -> FmtResult {
-        let input_variables_type = self.get_input_variables_type(typegen_operation);
-
         let type_selections = self.visit_selections(&typegen_operation.selections);
         let data_type = self.get_data_type(
             type_selections.into_iter(),
@@ -320,8 +311,14 @@ impl<'a> TypeGenerator<'a> {
         self.write_fragment_imports()?;
         self.write_relay_resolver_imports()?;
         self.write_split_raw_response_type_imports()?;
+
+        // Note: this must go before write_enum_definitions because this call mutates self.used_enums,
+        // which is used write_enum_definitions. This is fixed in the next diff.
+        let (input_variables_type, input_object_types) =
+            self.get_input_variables_type(typegen_operation);
+
         self.write_enum_definitions()?;
-        self.write_input_object_types()?;
+        self.write_input_object_types(input_object_types)?;
 
         let variables_identifier = format!("{}$variables", typegen_operation.name.item);
         let variables_identifier_key = variables_identifier.as_str().intern();
@@ -345,7 +342,12 @@ impl<'a> TypeGenerator<'a> {
             &query_wrapper_type.into(),
         )?;
 
-        self.generate_provided_variables_type(normalization_operation)?;
+        // Note: this is a "bug", though in practice probably affects nothing.
+        // We pass an unused InputObjectTypes, which is mutated by some of the nested calls.
+        // However, we never end up using this. Pre-cleanup:
+        // - self.generated_input_object_types was used in write_input_object_types (above)
+        // - generate_provided_variables_type would nonetheless mutate this field
+        self.generate_provided_variables_type(normalization_operation, &mut Default::default())?;
         Ok(())
     }
 
@@ -1529,7 +1531,11 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn generate_provided_variables_type(&mut self, node: &OperationDefinition) -> FmtResult {
+    fn generate_provided_variables_type(
+        &mut self,
+        node: &OperationDefinition,
+        input_object_types: &mut InputObjectTypes,
+    ) -> FmtResult {
         let fields = node
             .variable_definitions
             .iter()
@@ -1537,7 +1543,9 @@ impl<'a> TypeGenerator<'a> {
                 def.directives
                     .named(ProvidedVariableMetadata::directive_name())?;
 
-                let provider_func = AST::Callable(Box::new(self.transform_input_type(&def.type_)));
+                let provider_func = AST::Callable(Box::new(
+                    self.transform_input_type(&def.type_, input_object_types),
+                ));
                 let provider_module = Prop::KeyValuePair(KeyValuePairProp {
                     key: "get".intern(),
                     read_only: true,
@@ -1561,57 +1569,74 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn get_input_variables_type(&mut self, node: &OperationDefinition) -> ExactObject {
-        ExactObject::new(
-            node.variable_definitions
-                .iter()
-                .map(|var_def| {
-                    Prop::KeyValuePair(KeyValuePairProp {
-                        key: var_def.name.item,
-                        read_only: false,
-                        optional: !var_def.type_.is_non_null(),
-                        value: self.transform_input_type(&var_def.type_),
+    fn get_input_variables_type(
+        &mut self,
+        node: &OperationDefinition,
+    ) -> (ExactObject, impl Iterator<Item = (StringKey, ExactObject)>) {
+        let mut input_object_types = IndexMap::new();
+        (
+            ExactObject::new(
+                node.variable_definitions
+                    .iter()
+                    .map(|var_def| {
+                        Prop::KeyValuePair(KeyValuePairProp {
+                            key: var_def.name.item,
+                            read_only: false,
+                            optional: !var_def.type_.is_non_null(),
+                            value: self
+                                .transform_input_type(&var_def.type_, &mut input_object_types),
+                        })
                     })
-                })
-                .collect(),
+                    .collect(),
+            ),
+            input_object_types
+                .into_iter()
+                .map(|(key, val)| (key, val.unwrap_resolved_type())),
         )
     }
 
-    fn write_input_object_types(&mut self) -> FmtResult {
-        for (type_identifier, input_object_type) in self.generated_input_object_types.iter() {
-            match input_object_type {
-                GeneratedInputObject::Resolved(input_object_type) => {
-                    self.writer
-                        .write_export_type(type_identifier.lookup(), input_object_type)?;
-                }
-                GeneratedInputObject::Pending => panic!("expected a resolved type here"),
-            }
+    fn write_input_object_types(
+        &mut self,
+        input_object_types: impl Iterator<Item = (StringKey, ExactObject)>,
+    ) -> FmtResult {
+        for (type_identifier, input_object_type) in input_object_types {
+            self.writer
+                .write_export_type(type_identifier.lookup(), &input_object_type.into())?;
         }
         Ok(())
     }
 
-    fn transform_input_type(&mut self, type_ref: &TypeReference) -> AST {
+    fn transform_input_type(
+        &mut self,
+        type_ref: &TypeReference,
+        input_object_types: &mut InputObjectTypes,
+    ) -> AST {
         match type_ref {
-            TypeReference::NonNull(of_type) => self.transform_non_nullable_input_type(of_type),
-            _ => AST::Nullable(Box::new(self.transform_non_nullable_input_type(type_ref))),
+            TypeReference::NonNull(of_type) => {
+                self.transform_non_nullable_input_type(of_type, input_object_types)
+            }
+            _ => AST::Nullable(Box::new(
+                self.transform_non_nullable_input_type(type_ref, input_object_types),
+            )),
         }
     }
 
-    fn transform_non_nullable_input_type(&mut self, type_ref: &TypeReference) -> AST {
+    fn transform_non_nullable_input_type(
+        &mut self,
+        type_ref: &TypeReference,
+        input_object_types: &mut InputObjectTypes,
+    ) -> AST {
         match type_ref {
-            TypeReference::List(of_type) => {
-                AST::ReadOnlyArray(Box::new(self.transform_input_type(of_type)))
-            }
+            TypeReference::List(of_type) => AST::ReadOnlyArray(Box::new(
+                self.transform_input_type(of_type, input_object_types),
+            )),
             TypeReference::Named(named_type) => match named_type {
                 Type::Scalar(scalar) => self.transform_graphql_scalar_type(*scalar),
                 Type::Enum(enum_id) => self.transform_graphql_enum_type(*enum_id),
                 Type::InputObject(input_object_id) => {
                     let input_object = self.schema.input_object(*input_object_id);
-                    if !self
-                        .generated_input_object_types
-                        .contains_key(&input_object.name.item)
-                    {
-                        self.generated_input_object_types
+                    if !input_object_types.contains_key(&input_object.name.item) {
+                        input_object_types
                             .insert(input_object.name.item, GeneratedInputObject::Pending);
 
                         let props = ExactObject::new(
@@ -1627,14 +1652,15 @@ impl<'a> TypeGenerator<'a> {
                                                 .typegen_config
                                                 .optional_input_fields
                                                 .contains(&field.name),
-                                        value: self.transform_input_type(&field.type_),
+                                        value: self
+                                            .transform_input_type(&field.type_, input_object_types),
                                     })
                                 })
                                 .collect(),
                         );
-                        self.generated_input_object_types.insert(
+                        input_object_types.insert(
                             input_object.name.item,
-                            GeneratedInputObject::Resolved(AST::ExactObject(props)),
+                            GeneratedInputObject::Resolved(props),
                         );
                     }
                     AST::Identifier(input_object.name.item)

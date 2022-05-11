@@ -264,8 +264,6 @@ impl<'program> RelayResolverFieldTransform<'program> {
                     }
                     let parent_type = field_type.parent_type.unwrap();
 
-                    println!("Found import_path: {}", import_path);
-
                     let resolver_field_metadata = RelayResolverFieldMetadata {
                         import_path,
                         field_parent_type: self.program.schema.get_type_name(parent_type),

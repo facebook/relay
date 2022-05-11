@@ -49,14 +49,14 @@
           ],
           "description": "Absolute path to the relay binary. If not provided, the extension will look in the nearest node_modules directory"
         },
-        "relay.lspWorkingDirectory": {
+        "relay.rootDirectory": {
           "scope": "workspace",
           "default": null,
           "type": [
             "string",
             "null"
           ],
-          "description": "Path to set as the current working directory relative to the project root when running the LSP. This is helpful if your relay project is in a nested directory."
+          "description": "A path relative to the root of your VSCode project for the extension to work from. The default value is the root of your project. This will change where we start looking for the relay-compiler node module. This will also affect where the LSP server is started, therefore affecting how the relay config is found. This is helpful if your project is in a nested directory."
         },
         "relay.pathToConfig": {
           "scope": "workspace",
@@ -65,7 +65,7 @@
             "string",
             "null"
           ],
-          "description": "Path to a relay config relative to the project root. This is helpful if your relay project is in a nested directory."
+          "description": "Path to a relay config relative to the `rootDirectory`. This is helpful if your relay project is in a nested directory."
         }
       }
     }

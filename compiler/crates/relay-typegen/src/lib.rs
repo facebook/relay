@@ -608,20 +608,17 @@ impl<'a> TypeGenerator<'a> {
                     imported_resolvers,
                     actor_change_status,
                 ),
-                Selection::LinkedField(linked_field) => self.gen_visit_linked_field(
-                    &mut type_selections,
-                    linked_field,
-                    |type_generator, selections| {
-                        Self::visit_selections(
-                            type_generator,
+                Selection::LinkedField(linked_field) => {
+                    self.gen_visit_linked_field(&mut type_selections, linked_field, |selections| {
+                        self.visit_selections(
                             selections,
                             encountered_enums,
                             encountered_fragments,
                             imported_resolvers,
                             actor_change_status,
                         )
-                    },
-                ),
+                    })
+                }
                 Selection::ScalarField(scalar_field) => {
                     self.visit_scalar_field(&mut type_selections, scalar_field, encountered_enums)
                 }
@@ -956,7 +953,7 @@ impl<'a> TypeGenerator<'a> {
         &self,
         type_selections: &mut Vec<TypeSelection>,
         linked_field: &LinkedField,
-        mut visit_selections_fn: impl FnMut(&Self, &[Selection]) -> Vec<TypeSelection>,
+        mut visit_selections_fn: impl FnMut(&[Selection]) -> Vec<TypeSelection>,
     ) {
         let field = self.schema.field(linked_field.definition.item);
         let schema_name = field.name.item;
@@ -965,7 +962,7 @@ impl<'a> TypeGenerator<'a> {
         } else {
             schema_name
         };
-        let selections = visit_selections_fn(self, &linked_field.selections);
+        let selections = visit_selections_fn(&linked_field.selections);
 
         let node_type =
             apply_required_directive_nullability(&field.type_, &linked_field.directives);
@@ -1982,12 +1979,9 @@ impl<'a> TypeGenerator<'a> {
                         imported_raw_response_types,
                         runtime_imports,
                     ),
-                Selection::LinkedField(linked_field) => self.gen_visit_linked_field(
-                    &mut type_selections,
-                    linked_field,
-                    |type_generator, selections| {
-                        Self::raw_response_visit_selections(
-                            type_generator,
+                Selection::LinkedField(linked_field) => {
+                    self.gen_visit_linked_field(&mut type_selections, linked_field, |selections| {
+                        self.raw_response_visit_selections(
                             selections,
                             encountered_enums,
                             match_fields,
@@ -1995,8 +1989,8 @@ impl<'a> TypeGenerator<'a> {
                             imported_raw_response_types,
                             runtime_imports,
                         )
-                    },
-                ),
+                    })
+                }
                 Selection::ScalarField(scalar_field) => {
                     self.visit_scalar_field(&mut type_selections, scalar_field, encountered_enums)
                 }

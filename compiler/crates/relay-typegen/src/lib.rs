@@ -11,6 +11,7 @@
 
 mod flow;
 mod javascript;
+mod typegen_state;
 mod typescript;
 mod writer;
 
@@ -40,6 +41,7 @@ use relay_transforms::{
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::{fmt::Result as FmtResult, hash::Hash, path::Path};
+use typegen_state::*;
 use typescript::TypeScriptPrinter;
 use writer::{
     ExactObject, GetterSetterPairProp, InexactObject, KeyValuePairProp, Prop, SortedASTList,
@@ -215,12 +217,6 @@ enum GeneratedInputObject {
     Resolved(AST),
 }
 
-#[derive(Default)]
-struct RuntimeImports {
-    local_3d_payload: bool,
-    fragment_reference: bool,
-}
-
 struct TypeGenerator<'a> {
     schema: &'a SDLSchema,
     schema_config: &'a SchemaConfig,
@@ -306,18 +302,21 @@ impl<'a> TypeGenerator<'a> {
         let refetchable_fragment_name =
             RefetchableDerivedFromMetadata::find(&typegen_operation.directives);
         if refetchable_fragment_name.is_some() {
-            self.runtime_imports.fragment_reference = true;
+            self.runtime_imports
+                .generic_fragment_type_should_be_imported = true;
         }
 
         // Always include 'FragmentRef' for typescript codegen for operations that have fragment spreads
         if self.typegen_config.language == TypegenLanguage::TypeScript
             && has_fragment_spread(&typegen_operation.selections)
         {
-            self.runtime_imports.fragment_reference = true;
+            self.runtime_imports
+                .generic_fragment_type_should_be_imported = true;
         }
 
         self.write_import_actor_change_point()?;
-        self.write_runtime_imports()?;
+        self.runtime_imports
+            .write_runtime_imports(&mut self.writer)?;
         self.write_fragment_imports()?;
         self.write_relay_resolver_imports()?;
         self.write_split_raw_response_type_imports()?;
@@ -404,7 +403,8 @@ impl<'a> TypeGenerator<'a> {
         let raw_response_type =
             self.raw_response_selections_to_babel(raw_response_selections.into_iter(), None);
 
-        self.write_runtime_imports()?;
+        self.runtime_imports
+            .write_runtime_imports(&mut self.writer)?;
         self.write_fragment_imports()?;
         self.write_split_raw_response_type_imports()?;
         self.write_enum_definitions()?;
@@ -493,11 +493,13 @@ impl<'a> TypeGenerator<'a> {
             is_plural_fragment,
         );
 
-        self.runtime_imports.fragment_reference = true;
+        self.runtime_imports
+            .generic_fragment_type_should_be_imported = true;
         self.write_import_actor_change_point()?;
         self.write_fragment_imports()?;
         self.write_enum_definitions()?;
-        self.write_runtime_imports()?;
+        self.runtime_imports
+            .write_runtime_imports(&mut self.writer)?;
         self.write_relay_resolver_imports()?;
 
         let refetchable_metadata = RefetchableMetadata::find(&fragment_definition.directives);
@@ -1129,7 +1131,8 @@ impl<'a> TypeGenerator<'a> {
                 None
             }
         }) {
-            self.runtime_imports.local_3d_payload = true;
+            self.runtime_imports
+                .local_3d_payload_type_should_be_imported = true;
 
             types.push(AST::Local3DPayload(
                 module_import.document_name,
@@ -1420,34 +1423,6 @@ impl<'a> TypeGenerator<'a> {
     fn transform_graphql_enum_type(&mut self, enum_id: EnumID) -> AST {
         self.used_enums.insert(enum_id);
         AST::Identifier(self.schema.enum_(enum_id).name.item)
-    }
-
-    fn write_runtime_imports(&mut self) -> FmtResult {
-        match self.runtime_imports {
-            RuntimeImports {
-                local_3d_payload: true,
-                fragment_reference: true,
-            } => self.writer.write_import_type(
-                &[self.writer.get_runtime_fragment_import(), LOCAL_3D_PAYLOAD],
-                RELAY_RUNTIME,
-            ),
-            RuntimeImports {
-                local_3d_payload: true,
-                fragment_reference: false,
-            } => self
-                .writer
-                .write_import_type(&[LOCAL_3D_PAYLOAD], RELAY_RUNTIME),
-            RuntimeImports {
-                local_3d_payload: false,
-                fragment_reference: true,
-            } => self
-                .writer
-                .write_import_type(&[self.writer.get_runtime_fragment_import()], RELAY_RUNTIME),
-            RuntimeImports {
-                local_3d_payload: false,
-                fragment_reference: false,
-            } => Ok(()),
-        }
     }
 
     fn write_fragment_imports(&mut self) -> FmtResult {

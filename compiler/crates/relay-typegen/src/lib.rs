@@ -584,7 +584,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn visit_selections(
-        &mut self,
+        &self,
         selections: &[Selection],
         encountered_enums: &mut EncounteredEnums,
         encountered_fragments: &mut EncounteredFragments,
@@ -639,7 +639,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn visit_fragment_spread(
-        &mut self,
+        &self,
         type_selections: &mut Vec<TypeSelection>,
         fragment_spread: &FragmentSpread,
         encountered_fragments: &mut EncounteredFragments,
@@ -690,7 +690,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn visit_relay_resolver_fragment(
-        &mut self,
+        &self,
         type_selections: &mut Vec<TypeSelection>,
         resolver_spread_metadata: &RelayResolverSpreadMetadata,
         required: bool,
@@ -741,7 +741,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn visit_inline_fragment(
-        &mut self,
+        &self,
         type_selections: &mut Vec<TypeSelection>,
         inline_fragment: &InlineFragment,
         encountered_enums: &mut EncounteredEnums,
@@ -840,7 +840,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn visit_actor_change(
-        &mut self,
+        &self,
         type_selections: &mut Vec<TypeSelection>,
         inline_fragment: &InlineFragment,
         encountered_enums: &mut EncounteredEnums,
@@ -893,7 +893,7 @@ impl<'a> TypeGenerator<'a> {
 
     #[allow(clippy::too_many_arguments)]
     fn raw_response_visit_inline_fragment(
-        &mut self,
+        &self,
         type_selections: &mut Vec<TypeSelection>,
         inline_fragment: &InlineFragment,
         encountered_enums: &mut EncounteredEnums,
@@ -953,10 +953,10 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn gen_visit_linked_field(
-        &mut self,
+        &self,
         type_selections: &mut Vec<TypeSelection>,
         linked_field: &LinkedField,
-        mut visit_selections_fn: impl FnMut(&mut Self, &[Selection]) -> Vec<TypeSelection>,
+        mut visit_selections_fn: impl FnMut(&Self, &[Selection]) -> Vec<TypeSelection>,
     ) {
         let field = self.schema.field(linked_field.definition.item);
         let schema_name = field.name.item;
@@ -980,7 +980,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn visit_scalar_field(
-        &mut self,
+        &self,
         type_selections: &mut Vec<TypeSelection>,
         scalar_field: &ScalarField,
         encountered_enums: &mut EncounteredEnums,
@@ -1007,7 +1007,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn visit_condition(
-        &mut self,
+        &self,
         type_selections: &mut Vec<TypeSelection>,
         condition: &Condition,
         encountered_enums: &mut EncounteredEnums,
@@ -1032,7 +1032,7 @@ impl<'a> TypeGenerator<'a> {
     /// fragment or operation fragment.
     #[allow(clippy::too_many_arguments)]
     fn get_data_type(
-        &mut self,
+        &self,
         selections: impl Iterator<Item = TypeSelection>,
         mask_status: MaskStatus,
         fragment_type_name: Option<StringKey>,
@@ -1058,7 +1058,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn selections_to_babel(
-        &mut self,
+        &self,
         selections: impl Iterator<Item = TypeSelection>,
         mask_status: MaskStatus,
         fragment_type_name: Option<StringKey>,
@@ -1221,7 +1221,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn raw_response_selections_to_babel(
-        &mut self,
+        &self,
         selections: impl Iterator<Item = TypeSelection>,
         concrete_type: Option<Type>,
         encountered_enums: &mut EncounteredEnums,
@@ -1311,7 +1311,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn append_local_3d_payload(
-        &mut self,
+        &self,
         types: &mut Vec<AST>,
         type_selections: &[TypeSelection],
         concrete_type: Option<Type>,
@@ -1348,7 +1348,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn make_prop(
-        &mut self,
+        &self,
         type_selection: TypeSelection,
         mask_status: MaskStatus,
         concrete_type: Option<Type>,
@@ -1508,7 +1508,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn raw_response_make_prop(
-        &mut self,
+        &self,
         type_selection: TypeSelection,
         concrete_type: Option<Type>,
         encountered_enums: &mut EncounteredEnums,
@@ -1585,7 +1585,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn transform_scalar_type(
-        &mut self,
+        &self,
         type_reference: &TypeReference,
         object_props: Option<AST>,
         encountered_enums: &mut EncounteredEnums,
@@ -1605,7 +1605,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn transform_non_nullable_scalar_type(
-        &mut self,
+        &self,
         type_reference: &TypeReference,
         object_props: Option<AST>,
         encountered_enums: &mut EncounteredEnums,
@@ -1626,7 +1626,7 @@ impl<'a> TypeGenerator<'a> {
         }
     }
 
-    fn transform_graphql_scalar_type(&mut self, scalar: ScalarID) -> AST {
+    fn transform_graphql_scalar_type(&self, scalar: ScalarID) -> AST {
         let scalar_name = self.schema.scalar(scalar).name;
         if let Some(&custom_scalar) = self
             .typegen_config
@@ -1652,7 +1652,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn transform_graphql_enum_type(
-        &mut self,
+        &self,
         enum_id: EnumID,
         encountered_enums: &mut EncounteredEnums,
     ) -> AST {
@@ -1827,7 +1827,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn get_input_variables_type(
-        &mut self,
+        &self,
         node: &OperationDefinition,
         encountered_enums: &mut EncounteredEnums,
     ) -> (ExactObject, impl Iterator<Item = (StringKey, ExactObject)>) {
@@ -1868,7 +1868,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn transform_input_type(
-        &mut self,
+        &self,
         type_ref: &TypeReference,
         input_object_types: &mut InputObjectTypes,
         encountered_enums: &mut EncounteredEnums,
@@ -1888,7 +1888,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn transform_non_nullable_input_type(
-        &mut self,
+        &self,
         type_ref: &TypeReference,
         input_object_types: &mut InputObjectTypes,
         encountered_enums: &mut EncounteredEnums,
@@ -1946,7 +1946,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn raw_response_visit_selections(
-        &mut self,
+        &self,
         selections: &[Selection],
         encountered_enums: &mut EncounteredEnums,
         match_fields: &mut MatchFields,

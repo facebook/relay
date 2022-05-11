@@ -215,7 +215,6 @@ struct TypeGenerator<'a> {
     schema: &'a SDLSchema,
     schema_config: &'a SchemaConfig,
     imported_raw_response_types: IndexSet<StringKey>,
-    imported_resolvers: IndexMap<StringKey, StringKey>,
     typegen_config: &'a TypegenConfig,
     js_module_format: JsModuleFormat,
     has_unified_output: bool,
@@ -237,7 +236,6 @@ impl<'a> TypeGenerator<'a> {
             schema,
             schema_config,
             imported_raw_response_types: Default::default(),
-            imported_resolvers: Default::default(),
             js_module_format,
             has_unified_output,
             typegen_config,
@@ -263,10 +261,12 @@ impl<'a> TypeGenerator<'a> {
     ) -> FmtResult {
         let mut encountered_enums = Default::default();
         let mut encountered_fragments = Default::default();
+        let mut imported_resolvers = Default::default();
         let type_selections = self.visit_selections(
             &typegen_operation.selections,
             &mut encountered_enums,
             &mut encountered_fragments,
+            &mut imported_resolvers,
         );
         let data_type = self.get_data_type(
             type_selections.into_iter(),
@@ -321,7 +321,7 @@ impl<'a> TypeGenerator<'a> {
         self.runtime_imports
             .write_runtime_imports(&mut self.writer)?;
         self.write_fragment_imports(None, encountered_fragments)?;
-        self.write_relay_resolver_imports()?;
+        self.write_relay_resolver_imports(imported_resolvers)?;
         self.write_split_raw_response_type_imports()?;
 
         let (input_variables_type, input_object_types) =
@@ -460,10 +460,12 @@ impl<'a> TypeGenerator<'a> {
 
         let mut encountered_enums = Default::default();
         let mut encountered_fragments = Default::default();
+        let mut imported_resolvers = Default::default();
         let mut type_selections = self.visit_selections(
             &fragment_definition.selections,
             &mut encountered_enums,
             &mut encountered_fragments,
+            &mut imported_resolvers,
         );
         if !fragment_definition.type_condition.is_abstract_type() {
             let num_concrete_selections = type_selections
@@ -538,7 +540,7 @@ impl<'a> TypeGenerator<'a> {
 
         self.runtime_imports
             .write_runtime_imports(&mut self.writer)?;
-        self.write_relay_resolver_imports()?;
+        self.write_relay_resolver_imports(imported_resolvers)?;
 
         let refetchable_metadata = RefetchableMetadata::find(&fragment_definition.directives);
         let fragment_type_name = format!("{}$fragmentType", fragment_name);
@@ -580,6 +582,7 @@ impl<'a> TypeGenerator<'a> {
         selections: &[Selection],
         encountered_enums: &mut EncounteredEnums,
         encountered_fragments: &mut EncounteredFragments,
+        imported_resolvers: &mut ImportedResolvers,
     ) -> Vec<TypeSelection> {
         let mut type_selections = Vec::new();
         for selection in selections {
@@ -588,12 +591,14 @@ impl<'a> TypeGenerator<'a> {
                     &mut type_selections,
                     fragment_spread,
                     encountered_fragments,
+                    imported_resolvers,
                 ),
                 Selection::InlineFragment(inline_fragment) => self.visit_inline_fragment(
                     &mut type_selections,
                     inline_fragment,
                     encountered_enums,
                     encountered_fragments,
+                    imported_resolvers,
                 ),
                 Selection::LinkedField(linked_field) => self.gen_visit_linked_field(
                     &mut type_selections,
@@ -604,6 +609,7 @@ impl<'a> TypeGenerator<'a> {
                             selections,
                             encountered_enums,
                             encountered_fragments,
+                            imported_resolvers,
                         )
                     },
                 ),
@@ -615,6 +621,7 @@ impl<'a> TypeGenerator<'a> {
                     condition,
                     encountered_enums,
                     encountered_fragments,
+                    imported_resolvers,
                 ),
             }
         }
@@ -626,6 +633,7 @@ impl<'a> TypeGenerator<'a> {
         type_selections: &mut Vec<TypeSelection>,
         fragment_spread: &FragmentSpread,
         encountered_fragments: &mut EncounteredFragments,
+        imported_resolvers: &mut ImportedResolvers,
     ) {
         if let Some(resolver_spread_metadata) =
             RelayResolverSpreadMetadata::find(&fragment_spread.directives)
@@ -634,6 +642,7 @@ impl<'a> TypeGenerator<'a> {
                 type_selections,
                 resolver_spread_metadata,
                 RequiredMetadataDirective::find(&fragment_spread.directives).is_some(),
+                imported_resolvers,
             );
         } else {
             let name = fragment_spread.fragment.item;
@@ -675,6 +684,7 @@ impl<'a> TypeGenerator<'a> {
         type_selections: &mut Vec<TypeSelection>,
         resolver_spread_metadata: &RelayResolverSpreadMetadata,
         required: bool,
+        imported_resolvers: &mut ImportedResolvers,
     ) {
         let field_name = resolver_spread_metadata.field_name;
 
@@ -694,7 +704,8 @@ impl<'a> TypeGenerator<'a> {
             .to_string_lossy()
             .intern();
 
-        self.imported_resolvers
+        imported_resolvers
+            .0
             .entry(haste_import_name)
             .or_insert(local_resolver_name);
 
@@ -725,6 +736,7 @@ impl<'a> TypeGenerator<'a> {
         inline_fragment: &InlineFragment,
         encountered_enums: &mut EncounteredEnums,
         encountered_fragments: &mut EncounteredFragments,
+        imported_resolvers: &mut ImportedResolvers,
     ) {
         if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
             let name = module_metadata.fragment_name;
@@ -758,12 +770,14 @@ impl<'a> TypeGenerator<'a> {
                 inline_fragment,
                 encountered_enums,
                 encountered_fragments,
+                imported_resolvers,
             );
         } else {
             let mut inline_selections = self.visit_selections(
                 &inline_fragment.selections,
                 encountered_enums,
                 encountered_fragments,
+                imported_resolvers,
             );
 
             let mut selections = if let Some(fragment_alias_metadata) =
@@ -818,6 +832,7 @@ impl<'a> TypeGenerator<'a> {
         inline_fragment: &InlineFragment,
         encountered_enums: &mut EncounteredEnums,
         encountered_fragments: &mut EncounteredFragments,
+        imported_resolvers: &mut ImportedResolvers,
     ) {
         let linked_field = match &inline_fragment.selections[0] {
             Selection::LinkedField(linked_field) => linked_field,
@@ -839,6 +854,7 @@ impl<'a> TypeGenerator<'a> {
             &linked_field.selections,
             encountered_enums,
             encountered_fragments,
+            imported_resolvers,
         );
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: key,
@@ -975,11 +991,13 @@ impl<'a> TypeGenerator<'a> {
         condition: &Condition,
         encountered_enums: &mut EncounteredEnums,
         encountered_fragments: &mut EncounteredFragments,
+        imported_resolvers: &mut ImportedResolvers,
     ) {
         let mut selections = self.visit_selections(
             &condition.selections,
             encountered_enums,
             encountered_fragments,
+            imported_resolvers,
         );
         for selection in selections.iter_mut() {
             selection.set_conditional(true);
@@ -1654,8 +1672,12 @@ impl<'a> TypeGenerator<'a> {
         }
     }
 
-    fn write_relay_resolver_imports(&mut self) -> FmtResult {
-        for (from, name) in self.imported_resolvers.iter().sorted() {
+    fn write_relay_resolver_imports(
+        &mut self,
+        mut imported_resolvers: ImportedResolvers,
+    ) -> FmtResult {
+        imported_resolvers.0.sort_keys();
+        for (from, name) in imported_resolvers.0 {
             self.writer
                 .write_import_module_default(name.lookup(), from.lookup())?
         }

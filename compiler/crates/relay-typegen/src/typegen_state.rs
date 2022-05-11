@@ -84,3 +84,6 @@ pub(crate) struct MatchFields(pub(crate) IndexMap<StringKey, AST>);
 
 #[derive(Default)]
 pub(crate) struct EncounteredFragments(pub(crate) FnvHashSet<StringKey>);
+
+#[derive(Default)]
+pub(crate) struct ImportedResolvers(pub(crate) IndexMap<StringKey, StringKey>);

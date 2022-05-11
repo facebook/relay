@@ -41,13 +41,31 @@
           "description": "Controls what is logged to the Output Channel."
         },
         "relay.pathToRelay": {
-          "scope": "window",
+          "scope": "workspace",
           "default": null,
           "type": [
             "string",
             "null"
           ],
           "description": "Absolute path to the relay binary. If not provided, the extension will look in the nearest node_modules directory"
+        },
+        "relay.lspWorkingDirectory": {
+          "scope": "workspace",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Path to set as the current working directory relative to the project root when running the LSP. This is helpful if your relay project is in a nested directory."
+        },
+        "relay.pathToConfig": {
+          "scope": "workspace",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Path to a relay config relative to the project root. This is helpful if your relay project is in a nested directory."
         }
       }
     }

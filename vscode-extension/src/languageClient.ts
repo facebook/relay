@@ -6,6 +6,7 @@
  */
 
 import { window, workspace } from 'vscode';
+import path = require('path');
 import {
   LanguageClientOptions,
   RevealOutputChannelOn,
@@ -71,9 +72,20 @@ export async function createAndStartClient(context: RelayExtensionContext) {
 
   context.outputChannel.appendLine(`Using relay binary: ${relayBinary}`);
 
+  const args = ['lsp', `--output=${config.outputLevel}`];
+
+  if (config.pathToConfig) {
+    args.push(config.pathToConfig);
+  }
+
   const serverOptions: ServerOptions = {
+    options: {
+      cwd: config.lspWorkingDirectory
+        ? path.join(rootPath, config.lspWorkingDirectory)
+        : undefined,
+    },
     command: relayBinary,
-    args: ['lsp', `--output=${config.outputLevel}`],
+    args,
   };
 
   // Options to control the language client

@@ -9,8 +9,10 @@ use crate::{
     writer::{ExactObject, Writer},
     LOCAL_3D_PAYLOAD, RELAY_RUNTIME,
 };
+use fnv::FnvHashSet;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
+use schema::{EnumID, SDLSchema, Schema};
 use std::fmt::Result as FmtResult;
 
 /// A struct that is mutated as we iterate through an operation/fragment and
@@ -63,3 +65,16 @@ impl GeneratedInputObject {
 }
 
 pub(crate) type InputObjectTypes = IndexMap<StringKey, GeneratedInputObject>;
+
+/// Because EncounteredEnums is passed around everywhere, we use a newtype
+/// to make it easy to track.
+#[derive(Default)]
+pub(crate) struct EncounteredEnums(pub(crate) FnvHashSet<EnumID>);
+
+impl EncounteredEnums {
+    pub(crate) fn into_sorted_vec(self, schema: &SDLSchema) -> Vec<EnumID> {
+        let mut sorted_vec_of_enum_ids: Vec<_> = self.0.into_iter().collect();
+        sorted_vec_of_enum_ids.sort_by_key(|enum_id| schema.enum_(*enum_id).name);
+        sorted_vec_of_enum_ids
+    }
+}

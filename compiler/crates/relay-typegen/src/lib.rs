@@ -218,7 +218,6 @@ struct TypeGenerator<'a> {
     generated_fragments: FnvHashSet<StringKey>,
     imported_raw_response_types: IndexSet<StringKey>,
     imported_resolvers: IndexMap<StringKey, StringKey>,
-    used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
     typegen_config: &'a TypegenConfig,
     js_module_format: JsModuleFormat,
@@ -244,7 +243,6 @@ impl<'a> TypeGenerator<'a> {
             generated_fragments: Default::default(),
             imported_raw_response_types: Default::default(),
             imported_resolvers: Default::default(),
-            used_enums: Default::default(),
             used_fragments: Default::default(),
             js_module_format,
             has_unified_output,
@@ -270,7 +268,9 @@ impl<'a> TypeGenerator<'a> {
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
     ) -> FmtResult {
-        let type_selections = self.visit_selections(&typegen_operation.selections);
+        let mut encountered_enums = Default::default();
+        let type_selections =
+            self.visit_selections(&typegen_operation.selections, &mut encountered_enums);
         let data_type = self.get_data_type(
             type_selections.into_iter(),
             MaskStatus::Masked, // Queries are never unmasked
@@ -280,12 +280,19 @@ impl<'a> TypeGenerator<'a> {
                 .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
                 .is_some(),
             false, // Query types can never be plural
+            &mut encountered_enums,
         );
 
         let raw_response_type = if has_raw_response_type_directive(normalization_operation) {
-            let raw_response_selections =
-                self.raw_response_visit_selections(&normalization_operation.selections);
-            Some(self.raw_response_selections_to_babel(raw_response_selections.into_iter(), None))
+            let raw_response_selections = self.raw_response_visit_selections(
+                &normalization_operation.selections,
+                &mut encountered_enums,
+            );
+            Some(self.raw_response_selections_to_babel(
+                raw_response_selections.into_iter(),
+                None,
+                &mut encountered_enums,
+            ))
         } else {
             None
         };
@@ -312,12 +319,10 @@ impl<'a> TypeGenerator<'a> {
         self.write_relay_resolver_imports()?;
         self.write_split_raw_response_type_imports()?;
 
-        // Note: this must go before write_enum_definitions because this call mutates self.used_enums,
-        // which is used write_enum_definitions. This is fixed in the next diff.
         let (input_variables_type, input_object_types) =
-            self.get_input_variables_type(typegen_operation);
+            self.get_input_variables_type(typegen_operation, &mut encountered_enums);
 
-        self.write_enum_definitions()?;
+        self.write_enum_definitions(encountered_enums)?;
         self.write_input_object_types(input_object_types)?;
 
         let variables_identifier = format!("{}$variables", typegen_operation.name.item);
@@ -347,7 +352,13 @@ impl<'a> TypeGenerator<'a> {
         // However, we never end up using this. Pre-cleanup:
         // - self.generated_input_object_types was used in write_input_object_types (above)
         // - generate_provided_variables_type would nonetheless mutate this field
-        self.generate_provided_variables_type(normalization_operation, &mut Default::default())?;
+        //
+        // Likewise, there is the same bug withencountered_enums
+        self.generate_provided_variables_type(
+            normalization_operation,
+            &mut Default::default(),
+            &mut Default::default(),
+        )?;
         Ok(())
     }
 
@@ -400,16 +411,24 @@ impl<'a> TypeGenerator<'a> {
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
     ) -> FmtResult {
-        let raw_response_selections =
-            self.raw_response_visit_selections(&normalization_operation.selections);
-        let raw_response_type =
-            self.raw_response_selections_to_babel(raw_response_selections.into_iter(), None);
+        let mut encountered_enums = Default::default();
+        let raw_response_selections = self.raw_response_visit_selections(
+            &normalization_operation.selections,
+            &mut encountered_enums,
+        );
+        let raw_response_type = self.raw_response_selections_to_babel(
+            raw_response_selections.into_iter(),
+            None,
+            &mut encountered_enums,
+        );
 
         self.runtime_imports
             .write_runtime_imports(&mut self.writer)?;
         self.write_fragment_imports()?;
         self.write_split_raw_response_type_imports()?;
-        self.write_enum_definitions()?;
+
+        self.write_enum_definitions(encountered_enums)?;
+
         for (key, ast) in self.match_fields.iter() {
             self.writer.write_export_type(key.lookup(), ast)?;
         }
@@ -430,7 +449,9 @@ impl<'a> TypeGenerator<'a> {
             .named(*ASSIGNABLE_DIRECTIVE)
             .is_some();
 
-        let mut type_selections = self.visit_selections(&fragment_definition.selections);
+        let mut encountered_enums = Default::default();
+        let mut type_selections =
+            self.visit_selections(&fragment_definition.selections, &mut encountered_enums);
         if !fragment_definition.type_condition.is_abstract_type() {
             let num_concrete_selections = type_selections
                 .iter()
@@ -493,13 +514,16 @@ impl<'a> TypeGenerator<'a> {
                 .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
                 .is_some(),
             is_plural_fragment,
+            &mut encountered_enums,
         );
 
         self.runtime_imports
             .generic_fragment_type_should_be_imported = true;
         self.write_import_actor_change_point()?;
         self.write_fragment_imports()?;
-        self.write_enum_definitions()?;
+
+        self.write_enum_definitions(encountered_enums)?;
+
         self.runtime_imports
             .write_runtime_imports(&mut self.writer)?;
         self.write_relay_resolver_imports()?;
@@ -539,26 +563,34 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn visit_selections(&mut self, selections: &[Selection]) -> Vec<TypeSelection> {
+    fn visit_selections(
+        &mut self,
+        selections: &[Selection],
+        encountered_enums: &mut EncounteredEnums,
+    ) -> Vec<TypeSelection> {
         let mut type_selections = Vec::new();
         for selection in selections {
             match selection {
                 Selection::FragmentSpread(fragment_spread) => {
                     self.visit_fragment_spread(&mut type_selections, fragment_spread)
                 }
-                Selection::InlineFragment(inline_fragment) => {
-                    self.visit_inline_fragment(&mut type_selections, inline_fragment)
-                }
+                Selection::InlineFragment(inline_fragment) => self.visit_inline_fragment(
+                    &mut type_selections,
+                    inline_fragment,
+                    encountered_enums,
+                ),
                 Selection::LinkedField(linked_field) => self.gen_visit_linked_field(
                     &mut type_selections,
                     linked_field,
-                    Self::visit_selections,
+                    |type_generator, selections| {
+                        Self::visit_selections(type_generator, selections, encountered_enums)
+                    },
                 ),
                 Selection::ScalarField(scalar_field) => {
-                    self.visit_scalar_field(&mut type_selections, scalar_field)
+                    self.visit_scalar_field(&mut type_selections, scalar_field, encountered_enums)
                 }
                 Selection::Condition(condition) => {
-                    self.visit_condition(&mut type_selections, condition)
+                    self.visit_condition(&mut type_selections, condition, encountered_enums)
                 }
             }
         }
@@ -666,6 +698,7 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         type_selections: &mut Vec<TypeSelection>,
         inline_fragment: &InlineFragment,
+        encountered_enums: &mut EncounteredEnums,
     ) {
         if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
             let name = module_metadata.fragment_name;
@@ -694,9 +727,10 @@ impl<'a> TypeGenerator<'a> {
             .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
             .is_some()
         {
-            self.visit_actor_change(type_selections, inline_fragment);
+            self.visit_actor_change(type_selections, inline_fragment, encountered_enums);
         } else {
-            let mut inline_selections = self.visit_selections(&inline_fragment.selections);
+            let mut inline_selections =
+                self.visit_selections(&inline_fragment.selections, encountered_enums);
 
             let mut selections = if let Some(fragment_alias_metadata) =
                 FragmentAliasMetadata::find(&inline_fragment.directives)
@@ -748,6 +782,7 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         type_selections: &mut Vec<TypeSelection>,
         inline_fragment: &InlineFragment,
+        encountered_enums: &mut EncounteredEnums,
     ) {
         let linked_field = match &inline_fragment.selections[0] {
             Selection::LinkedField(linked_field) => linked_field,
@@ -765,7 +800,8 @@ impl<'a> TypeGenerator<'a> {
             schema_name
         };
 
-        let linked_field_selections = self.visit_selections(&linked_field.selections);
+        let linked_field_selections =
+            self.visit_selections(&linked_field.selections, encountered_enums);
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: key,
             special_field: ScalarFieldSpecialSchemaField::from_schema_name(
@@ -777,6 +813,7 @@ impl<'a> TypeGenerator<'a> {
                     linked_field_selections.into_iter(),
                     MaskStatus::Masked,
                     None,
+                    encountered_enums,
                 ),
             )))),
             conditional: false,
@@ -788,8 +825,10 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         type_selections: &mut Vec<TypeSelection>,
         inline_fragment: &InlineFragment,
+        encountered_enums: &mut EncounteredEnums,
     ) {
-        let mut selections = self.raw_response_visit_selections(&inline_fragment.selections);
+        let mut selections =
+            self.raw_response_visit_selections(&inline_fragment.selections, encountered_enums);
         if inline_fragment
             .directives
             .named(*CLIENT_EXTENSION_DIRECTIVE_NAME)
@@ -806,6 +845,7 @@ impl<'a> TypeGenerator<'a> {
                 let match_field = self.raw_response_selections_to_babel(
                     selections.iter().filter(|sel| !sel.is_js_field()).cloned(),
                     None,
+                    encountered_enums,
                 );
                 self.match_fields.insert(fragment_name, match_field);
             }
@@ -861,6 +901,7 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         type_selections: &mut Vec<TypeSelection>,
         scalar_field: &ScalarField,
+        encountered_enums: &mut EncounteredEnums,
     ) {
         let field = self.schema.field(scalar_field.definition.item);
         let schema_name = field.name.item;
@@ -877,14 +918,19 @@ impl<'a> TypeGenerator<'a> {
                 schema_name,
                 self.schema_config,
             ),
-            value: self.transform_scalar_type(&field_type, None),
+            value: self.transform_scalar_type(&field_type, None, encountered_enums),
             conditional: false,
             concrete_type: None,
         }));
     }
 
-    fn visit_condition(&mut self, type_selections: &mut Vec<TypeSelection>, condition: &Condition) {
-        let mut selections = self.visit_selections(&condition.selections);
+    fn visit_condition(
+        &mut self,
+        type_selections: &mut Vec<TypeSelection>,
+        condition: &Condition,
+        encountered_enums: &mut EncounteredEnums,
+    ) {
+        let mut selections = self.visit_selections(&condition.selections, encountered_enums);
         for selection in selections.iter_mut() {
             selection.set_conditional(true);
         }
@@ -900,8 +946,14 @@ impl<'a> TypeGenerator<'a> {
         fragment_type_name: Option<StringKey>,
         emit_optional_type: bool,
         emit_plural_type: bool,
+        encountered_enums: &mut EncounteredEnums,
     ) -> AST {
-        let mut data_type = self.selections_to_babel(selections, mask_status, fragment_type_name);
+        let mut data_type = self.selections_to_babel(
+            selections,
+            mask_status,
+            fragment_type_name,
+            encountered_enums,
+        );
         if emit_optional_type {
             data_type = AST::Nullable(Box::new(data_type))
         }
@@ -916,6 +968,7 @@ impl<'a> TypeGenerator<'a> {
         selections: impl Iterator<Item = TypeSelection>,
         mask_status: MaskStatus,
         fragment_type_name: Option<StringKey>,
+        encountered_enums: &mut EncounteredEnums,
     ) -> AST {
         let mut base_fields: TypeSelectionMap = Default::default();
         let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
@@ -965,7 +1018,12 @@ impl<'a> TypeGenerator<'a> {
                                 "Just checked this exists by checking that the field is typename",
                             ));
                             }
-                            self.make_prop(selection, mask_status, Some(concrete_type))
+                            self.make_prop(
+                                selection,
+                                mask_status,
+                                Some(concrete_type),
+                                encountered_enums,
+                            )
                         })
                         .collect(),
                 );
@@ -1013,6 +1071,7 @@ impl<'a> TypeGenerator<'a> {
                                     TypeSelection::ScalarField(scalar_field),
                                     mask_status,
                                     Some(type_condition),
+                                    encountered_enums,
                                 );
                             }
                         }
@@ -1024,11 +1083,12 @@ impl<'a> TypeGenerator<'a> {
                                 TypeSelection::LinkedField(linked_field),
                                 mask_status,
                                 Some(concrete_type),
+                                encountered_enums,
                             );
                         }
                     }
 
-                    self.make_prop(sel, mask_status, None)
+                    self.make_prop(sel, mask_status, None, encountered_enums)
                 })
                 .collect();
             types.push(selection_map_values);
@@ -1060,6 +1120,7 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         selections: impl Iterator<Item = TypeSelection>,
         concrete_type: Option<Type>,
+        encountered_enums: &mut EncounteredEnums,
     ) -> AST {
         let mut base_fields = Vec::new();
         let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
@@ -1098,11 +1159,20 @@ impl<'a> TypeGenerator<'a> {
                         .iter()
                         .cloned()
                         .map(|selection| {
-                            self.raw_response_make_prop(selection, Some(concrete_type))
+                            self.raw_response_make_prop(
+                                selection,
+                                Some(concrete_type),
+                                encountered_enums,
+                            )
                         })
                         .collect(),
                 )));
-                self.append_local_3d_payload(&mut types, &merged_selections, Some(concrete_type));
+                self.append_local_3d_payload(
+                    &mut types,
+                    &merged_selections,
+                    Some(concrete_type),
+                    encountered_enums,
+                );
             }
         }
 
@@ -1111,10 +1181,17 @@ impl<'a> TypeGenerator<'a> {
                 base_fields
                     .iter()
                     .cloned()
-                    .map(|selection| self.raw_response_make_prop(selection, concrete_type))
+                    .map(|selection| {
+                        self.raw_response_make_prop(selection, concrete_type, encountered_enums)
+                    })
                     .collect(),
             )));
-            self.append_local_3d_payload(&mut types, &base_fields, concrete_type);
+            self.append_local_3d_payload(
+                &mut types,
+                &base_fields,
+                concrete_type,
+                encountered_enums,
+            );
         }
 
         AST::Union(SortedASTList::new(types))
@@ -1125,6 +1202,7 @@ impl<'a> TypeGenerator<'a> {
         types: &mut Vec<AST>,
         type_selections: &[TypeSelection],
         concrete_type: Option<Type>,
+        encountered_enums: &mut EncounteredEnums,
     ) {
         if let Some(module_import) = type_selections.iter().find_map(|sel| {
             if let TypeSelection::ModuleDirective(m) = sel {
@@ -1142,7 +1220,13 @@ impl<'a> TypeGenerator<'a> {
                     type_selections
                         .iter()
                         .filter(|sel| !sel.is_js_field())
-                        .map(|sel| self.raw_response_make_prop(sel.clone(), concrete_type))
+                        .map(|sel| {
+                            self.raw_response_make_prop(
+                                sel.clone(),
+                                concrete_type,
+                                encountered_enums,
+                            )
+                        })
                         .collect(),
                 ))),
             ));
@@ -1154,6 +1238,7 @@ impl<'a> TypeGenerator<'a> {
         type_selection: TypeSelection,
         mask_status: MaskStatus,
         concrete_type: Option<Type>,
+        encountered_enums: &mut EncounteredEnums,
     ) -> Prop {
         let optional = type_selection.is_conditional();
         if self.generating_updatable_types && optional {
@@ -1174,10 +1259,17 @@ impl<'a> TypeGenerator<'a> {
                     let (just_fragments, no_fragments) =
                         extract_fragments(linked_field.node_selections);
 
-                    let getter_object_props =
-                        self.selections_to_babel(no_fragments.into_iter(), mask_status, None);
-                    let getter_return_value = self
-                        .transform_scalar_type(&linked_field.node_type, Some(getter_object_props));
+                    let getter_object_props = self.selections_to_babel(
+                        no_fragments.into_iter(),
+                        mask_status,
+                        None,
+                        encountered_enums,
+                    );
+                    let getter_return_value = self.transform_scalar_type(
+                        &linked_field.node_type,
+                        Some(getter_object_props),
+                        encountered_enums,
+                    );
 
                     let setter_parameter = if just_fragments.is_empty() {
                         if linked_field.node_type.is_list() {
@@ -1244,9 +1336,13 @@ impl<'a> TypeGenerator<'a> {
                         hashmap_into_values(linked_field.node_selections),
                         mask_status,
                         None,
+                        encountered_enums,
                     );
-                    let value =
-                        self.transform_scalar_type(&linked_field.node_type, Some(object_props));
+                    let value = self.transform_scalar_type(
+                        &linked_field.node_type,
+                        Some(object_props),
+                        encountered_enums,
+                    );
 
                     Prop::KeyValuePair(KeyValuePairProp {
                         key,
@@ -1298,6 +1394,7 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         type_selection: TypeSelection,
         concrete_type: Option<Type>,
+        encountered_enums: &mut EncounteredEnums,
     ) -> Prop {
         let optional = type_selection.is_conditional();
         match type_selection {
@@ -1317,10 +1414,15 @@ impl<'a> TypeGenerator<'a> {
                 let object_props = self.raw_response_selections_to_babel(
                     hashmap_into_values(linked_field.node_selections),
                     inner_concrete_type,
+                    encountered_enums,
                 );
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: linked_field.field_name_or_alias,
-                    value: self.transform_scalar_type(&node_type, Some(object_props)),
+                    value: self.transform_scalar_type(
+                        &node_type,
+                        Some(object_props),
+                        encountered_enums,
+                    ),
                     read_only: true,
                     optional,
                 })
@@ -1367,14 +1469,19 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         type_reference: &TypeReference,
         object_props: Option<AST>,
+        encountered_enums: &mut EncounteredEnums,
     ) -> AST {
         match type_reference {
-            TypeReference::NonNull(non_null_ref) => {
-                self.transform_non_nullable_scalar_type(&(*non_null_ref), object_props)
-            }
-            _ => AST::Nullable(Box::new(
-                self.transform_non_nullable_scalar_type(type_reference, object_props),
-            )),
+            TypeReference::NonNull(non_null_ref) => self.transform_non_nullable_scalar_type(
+                &(*non_null_ref),
+                object_props,
+                encountered_enums,
+            ),
+            _ => AST::Nullable(Box::new(self.transform_non_nullable_scalar_type(
+                type_reference,
+                object_props,
+                encountered_enums,
+            ))),
         }
     }
 
@@ -1382,15 +1489,18 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         type_reference: &TypeReference,
         object_props: Option<AST>,
+        encountered_enums: &mut EncounteredEnums,
     ) -> AST {
         match type_reference {
-            TypeReference::List(of_type) => {
-                AST::ReadOnlyArray(Box::new(self.transform_scalar_type(of_type, object_props)))
-            }
+            TypeReference::List(of_type) => AST::ReadOnlyArray(Box::new(
+                self.transform_scalar_type(of_type, object_props, encountered_enums),
+            )),
             TypeReference::Named(named_type) => match named_type {
                 Type::Object(_) | Type::Union(_) | Type::Interface(_) => object_props.unwrap(),
                 Type::Scalar(scalar_id) => self.transform_graphql_scalar_type(*scalar_id),
-                Type::Enum(enum_id) => self.transform_graphql_enum_type(*enum_id),
+                Type::Enum(enum_id) => {
+                    self.transform_graphql_enum_type(*enum_id, encountered_enums)
+                }
                 _ => panic!(),
             },
             TypeReference::NonNull(_) => panic!("unexpected NonNull"),
@@ -1422,8 +1532,12 @@ impl<'a> TypeGenerator<'a> {
         }
     }
 
-    fn transform_graphql_enum_type(&mut self, enum_id: EnumID) -> AST {
-        self.used_enums.insert(enum_id);
+    fn transform_graphql_enum_type(
+        &mut self,
+        enum_id: EnumID,
+        encountered_enums: &mut EncounteredEnums,
+    ) -> AST {
+        encountered_enums.0.insert(enum_id);
         AST::Identifier(self.schema.enum_(enum_id).name.item)
     }
 
@@ -1501,9 +1615,8 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn write_enum_definitions(&mut self) -> FmtResult {
-        let mut enum_ids: Vec<_> = self.used_enums.iter().cloned().collect();
-        enum_ids.sort_by_key(|enum_id| self.schema.enum_(*enum_id).name);
+    fn write_enum_definitions(&mut self, encountered_enums: EncounteredEnums) -> FmtResult {
+        let enum_ids = encountered_enums.into_sorted_vec(self.schema);
         for enum_id in enum_ids {
             let enum_type = self.schema.enum_(enum_id);
             if let Some(enum_module_suffix) = &self.typegen_config.enum_module_suffix {
@@ -1535,6 +1648,7 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         node: &OperationDefinition,
         input_object_types: &mut InputObjectTypes,
+        encountered_enums: &mut EncounteredEnums,
     ) -> FmtResult {
         let fields = node
             .variable_definitions
@@ -1543,9 +1657,11 @@ impl<'a> TypeGenerator<'a> {
                 def.directives
                     .named(ProvidedVariableMetadata::directive_name())?;
 
-                let provider_func = AST::Callable(Box::new(
-                    self.transform_input_type(&def.type_, input_object_types),
-                ));
+                let provider_func = AST::Callable(Box::new(self.transform_input_type(
+                    &def.type_,
+                    input_object_types,
+                    encountered_enums,
+                )));
                 let provider_module = Prop::KeyValuePair(KeyValuePairProp {
                     key: "get".intern(),
                     read_only: true,
@@ -1572,6 +1688,7 @@ impl<'a> TypeGenerator<'a> {
     fn get_input_variables_type(
         &mut self,
         node: &OperationDefinition,
+        encountered_enums: &mut EncounteredEnums,
     ) -> (ExactObject, impl Iterator<Item = (StringKey, ExactObject)>) {
         let mut input_object_types = IndexMap::new();
         (
@@ -1583,8 +1700,11 @@ impl<'a> TypeGenerator<'a> {
                             key: var_def.name.item,
                             read_only: false,
                             optional: !var_def.type_.is_non_null(),
-                            value: self
-                                .transform_input_type(&var_def.type_, &mut input_object_types),
+                            value: self.transform_input_type(
+                                &var_def.type_,
+                                &mut input_object_types,
+                                encountered_enums,
+                            ),
                         })
                     })
                     .collect(),
@@ -1610,14 +1730,19 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         type_ref: &TypeReference,
         input_object_types: &mut InputObjectTypes,
+        encountered_enums: &mut EncounteredEnums,
     ) -> AST {
         match type_ref {
-            TypeReference::NonNull(of_type) => {
-                self.transform_non_nullable_input_type(of_type, input_object_types)
-            }
-            _ => AST::Nullable(Box::new(
-                self.transform_non_nullable_input_type(type_ref, input_object_types),
-            )),
+            TypeReference::NonNull(of_type) => self.transform_non_nullable_input_type(
+                of_type,
+                input_object_types,
+                encountered_enums,
+            ),
+            _ => AST::Nullable(Box::new(self.transform_non_nullable_input_type(
+                type_ref,
+                input_object_types,
+                encountered_enums,
+            ))),
         }
     }
 
@@ -1625,14 +1750,17 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         type_ref: &TypeReference,
         input_object_types: &mut InputObjectTypes,
+        encountered_enums: &mut EncounteredEnums,
     ) -> AST {
         match type_ref {
             TypeReference::List(of_type) => AST::ReadOnlyArray(Box::new(
-                self.transform_input_type(of_type, input_object_types),
+                self.transform_input_type(of_type, input_object_types, encountered_enums),
             )),
             TypeReference::Named(named_type) => match named_type {
                 Type::Scalar(scalar) => self.transform_graphql_scalar_type(*scalar),
-                Type::Enum(enum_id) => self.transform_graphql_enum_type(*enum_id),
+                Type::Enum(enum_id) => {
+                    self.transform_graphql_enum_type(*enum_id, encountered_enums)
+                }
                 Type::InputObject(input_object_id) => {
                     let input_object = self.schema.input_object(*input_object_id);
                     if !input_object_types.contains_key(&input_object.name.item) {
@@ -1652,8 +1780,11 @@ impl<'a> TypeGenerator<'a> {
                                                 .typegen_config
                                                 .optional_input_fields
                                                 .contains(&field.name),
-                                        value: self
-                                            .transform_input_type(&field.type_, input_object_types),
+                                        value: self.transform_input_type(
+                                            &field.type_,
+                                            input_object_types,
+                                            encountered_enums,
+                                        ),
                                     })
                                 })
                                 .collect(),
@@ -1673,7 +1804,11 @@ impl<'a> TypeGenerator<'a> {
         }
     }
 
-    fn raw_response_visit_selections(&mut self, selections: &[Selection]) -> Vec<TypeSelection> {
+    fn raw_response_visit_selections(
+        &mut self,
+        selections: &[Selection],
+        encountered_enums: &mut EncounteredEnums,
+    ) -> Vec<TypeSelection> {
         let mut type_selections = Vec::new();
         for selection in selections {
             match selection {
@@ -1692,20 +1827,33 @@ impl<'a> TypeGenerator<'a> {
                         ))
                     }
                 }
-                Selection::InlineFragment(inline_fragment) => {
-                    self.raw_response_visit_inline_fragment(&mut type_selections, inline_fragment)
-                }
+                Selection::InlineFragment(inline_fragment) => self
+                    .raw_response_visit_inline_fragment(
+                        &mut type_selections,
+                        inline_fragment,
+                        encountered_enums,
+                    ),
                 Selection::LinkedField(linked_field) => self.gen_visit_linked_field(
                     &mut type_selections,
                     linked_field,
-                    Self::raw_response_visit_selections,
+                    |type_generator, selections| {
+                        Self::raw_response_visit_selections(
+                            type_generator,
+                            selections,
+                            encountered_enums,
+                        )
+                    },
                 ),
                 Selection::ScalarField(scalar_field) => {
-                    self.visit_scalar_field(&mut type_selections, scalar_field)
+                    self.visit_scalar_field(&mut type_selections, scalar_field, encountered_enums)
                 }
                 Selection::Condition(condition) => {
-                    type_selections
-                        .extend(self.raw_response_visit_selections(&condition.selections));
+                    type_selections.extend(
+                        self.raw_response_visit_selections(
+                            &condition.selections,
+                            encountered_enums,
+                        ),
+                    );
                 }
             }
         }

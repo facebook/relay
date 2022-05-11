@@ -24,32 +24,32 @@ The content is focused mostly on jest unit-tests (testing individual components)
 
 What are the benefits of writing jest tests:
 
-* In general, it improves the stability of the system. Flow really helps with catching a various set of javascript errors, but it is still possible to introduce regressions to the components. Unit-tests may help to find, reproduce and fix those regressions, and prevent them in the future.
-* It simplifies refactoring process: when properly written (testing public interface, not implementation) - tests really helps with changing the internal implementation of the components.
-* It may speed up and improve the development workflow. Some people may call it Test Driven Development (TM). But essentially it's just writing tests for public interfaces of your components, and then writing the components that are implementing those interfaces. Jest —watch mode is really shining in this case.
-* It will simplify the on-boarding process for new developers, having tests really help to ramp up on the new code base, fixing bugs, and delivering features.
+* In general, it improves the stability of the system. Flow helps with catching a various set of Javascript errors, but it is still possible to introduce regressions to the components. Unit-tests help find, reproduce, and fix regressions, and prevent them in the future.
+* It simplifies the refactoring process: when properly written (testing public interface, not implementation) - tests help with changing the internal implementation of the components.
+* It may speed up and improve the development workflow. Some people may call it Test Driven Development (TM). But essentially it's just writing tests for public interfaces of your components, and then writing the components that implement those interfaces. Jest —watch mode really shines in this case.
+* It will simplify the on-boarding process for new developers. Having tests helps new developers ramp up on the new code base, allowing them to fix bugs and deliver features.
 
-One thing to notice - while jest unit- and integration tests will help improve the stability of the system, they should be considered as a part of a bigger stability infrastructure with multiple layers of automated testing: flow, e2e, screenshot, "Redbox", performance tests.
+One thing to notice: while jest unit- and integration tests will help improve the stability of the system, they should be considered one part of a bigger stability infrastructure with multiple layers of automated testing: flow, e2e, screenshot, "Redbox", performance tests.
 
 ## Testing with Relay
 
-Testing applications that are using Relay may be challenging, because of the additional data fetching layer that is wrapping the actual product code.
+Testing applications that use Relay may be challenging, because of the additional data fetching layer that wraps the actual product code.
 
 And it's not always easy to understand the mechanics of all processes that are happening behind Relay, and how to properly handle interactions with the framework.
 
 Fortunately, there are tools that aim to simplify the process of writing tests for Relay components, by providing imperative APIs for controlling the request/response flow and additional API for mock data generation.
 
-There are two main modules that you may using in your tests:
+There are two main modules that you may use in your tests:
 
 * `createMockEnvironment(options): RelayMockEnvironment`
 * `MockPayloadGenerator` and the `@relay_test_operation` directive
 
 
-With `createMockEnvironment,` you will be able to create an instance of `RelayMockEnvironment`, a Relay environment specifically for your tests. The instance created by `createMockEnvironment` is implementing the Relay Environment Interface and it also has an additional Mock layer, with methods that allow to resolve/reject and control the flow of operations (queries/mutations/subscriptions).
+With `createMockEnvironment,` you will be able to create an instance of `RelayMockEnvironment`, a Relay environment specifically for your tests. The instance created by `createMockEnvironment` implements the Relay Environment Interface and it also has an additional Mock layer, with methods that allow you to resolve/reject and control the flow of operations (queries/mutations/subscriptions).
 
 The main purpose of `MockPayloadGenerator` is to improve the process of creating and maintaining the mock data for tested components.
 
-One of the patterns you may see in the tests for Relay components: 95% of the test code is the test preparation: the gigantic mock object with dummy data, manually created, or just a copy of a sample server response that needs to be passed as the network response. And rest 5% is actual test. As a result, people don't test much. It's hard to create and manage all these dummy payloads for different cases. Hence, writing tests are time-consuming and painful to maintain.
+One of the patterns you may see in the tests for Relay components: 95% of the test code is the test preparation—the gigantic mock object with dummy data, manually created, or just a copy of a sample server response that needs to be passed as the network response. And the remaining 5% is actual test code. As a result, people don't test much. It's hard to create and manage all these dummy payloads for different cases. Hence, writing tests is time-consuming and tests are sometimes painful to maintain.
 
 With the `MockPayloadGenerator` and `@relay_test_operation`, we want to get rid of this pattern and switch the developer's focus from the preparation of the test to the actual testing.
 
@@ -81,7 +81,7 @@ RelayMockEnvironment is a special version of Relay Environment with additional A
 
 ## Mock Payload Generator and the `@relay_test_operation` Directive
 
-MockPayloadGenerator may drastically simplify the process of creating and maintaining mock data for your tests. MockPayloadGenerator is the module that can generate dummy data for the selection that you have in your operation. There is an API to modify the generated data - Mock Resolvers. With Mock Resolvers, you may adjust the data for your needs. Collection of Mock Resolvers it's an object where **keys are names of GraphQL types (ID, String, User, Feedback, Comment, etc),** and values are functions which will return the default data for the type.
+`MockPayloadGenerator` may drastically simplify the process of creating and maintaining mock data for your tests. `MockPayloadGenerator` can generate dummy data for the selection that you have in your operation. There is an API to modify the generated data - Mock Resolvers. With Mock Resolvers, you may adjust the data for your needs. Mock Resolvers are defined as an object where **keys are names of GraphQL types (`ID`, `String`, `User`, `Comment`, etc),** and values are functions that return the default data for the type.
 
 Example of a simple Mock Resolver:
 
@@ -141,7 +141,7 @@ The first argument of the MockResolver is the object that contains Mock Resolver
 
 ### ID Generation
 
-The second argument of the Mock Resolver its a function that will generate a sequence of integers, useful to generate unique ids in the tests
+The second argument of the Mock Resolver is a function that will generate a sequence of integers, useful to generate unique ids in the tests
 
 ```js
 {
@@ -186,7 +186,7 @@ Operation with the @relay_test_operation directive will have additional metadata
 
 ### Relay Component Test
 
-Using `createMockEnvironment` and `MockPayloadGenerator` allows writing concise tests for components that are using Relay hooks. Both those modules can be imported from `relay-test-utils`
+Using `createMockEnvironment` and `MockPayloadGenerator` allows writing concise tests for components that use Relay hooks. Both those modules can be imported from `relay-test-utils`
 
 
 ```javascript
@@ -256,7 +256,7 @@ test('Error State', () => {
 
 ### Fragment Component Tests
 
-Essentially, in the example above will `resolveMostRecentOperation` will generate data for all child fragment containers (pagination, refetch). But, usually the root component may have many child fragment components and you may want to exercise a specific component that uses `useFragment`. The solution for that would be to wrap your fragment container with the `useLazyLoadQuery` component that renders a Query that's spreads fragments from your fragment component:
+Essentially, in the example above, `resolveMostRecentOperation` will generate data for all child fragment containers (pagination, refetch). But, usually the root component may have many child fragment components and you may want to exercise a specific component that uses `useFragment`. The solution for that would be to wrap your fragment container with the `useLazyLoadQuery` component that renders a Query that spreads fragments from your fragment component:
 
 ```javascript
 test('Fragment', () => {
@@ -379,7 +379,7 @@ test('`Pagination` Container', () => {
 
 ### Refetch Component
 
-We can use similar approach here with wrapping the component with a query. And for the sake of completeness, we will add example here:
+We can use similar approach here with wrapping the component with a query. And for the sake of completeness, we will add an example here:
 
 ```js
 test('Refetch Container', () => {
@@ -435,12 +435,11 @@ test('Refetch Container', () => {
 
 ### Mutations
 
-Mutations itself are operations so we can test them independently (unit-test) for specific mutation, or in combination with the view from which this mutation is called.
+Mutations themselves are operations, so we can test them independently (unit-test) for a specific mutation, or in combination with the view from which this mutation is called.
 
 :::note
 the `useMutation` API is an improvement over calling `commitMutation` directly.
 :::
-
 
 ```js
 // Say, you have a mutation function
@@ -511,7 +510,7 @@ test('it should subscribe', () => {
 ### Example with `queueOperationResolver`
 
 
-With `queueOperationResolver` it possible to define responses for operations that will be executed on the environment
+With `queueOperationResolver` it is possible to define responses for operations that will be executed on the environment
 
 ```javascript
 // Say you have a component with the QueryRenderer

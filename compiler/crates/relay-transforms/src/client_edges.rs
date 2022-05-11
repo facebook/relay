@@ -18,7 +18,7 @@ use std::sync::Arc;
 
 use super::ValidationMessageWithData;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
     associated_data_impl, Argument, ConstantValue, Directive, Field, FragmentDefinition,
     InlineFragment, LinkedField, OperationDefinition, Program, Selection, Transformed, Transformer,
@@ -249,7 +249,6 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             .transform_selections(&field.selections)
             .replace_or_else(|| field.selections.clone());
 
-
         let metadata_directive = if is_edge_to_client_object {
             // We assume edges to client objects will be resolved on the client
             // and thus not incur a waterfall. This will change in the furture
@@ -318,6 +317,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 Selection::LinkedField(transformed_field.clone()),
                 Selection::LinkedField(transformed_field),
             ],
+            spread_location: Location::generated(),
         };
 
         Transformed::Replace(Selection::InlineFragment(Arc::new(inline_fragment)))

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<652fe171665060938efd489481776a6f>>
+ * @generated SignedSource<<9ba0e623a1f996f25783d412a824e537>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -13,6 +13,8 @@
 /* eslint-disable */
 
 'use strict';
+
+// @indirectDataDrivenDependency RelayResponseNormalizerTestFragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayResponseNormalizerTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayResponseNormalizerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';

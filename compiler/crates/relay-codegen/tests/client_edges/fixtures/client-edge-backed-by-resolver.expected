@@ -80,6 +80,7 @@ extend type User {
       "operation": require('ClientEdgeQuery_Foo_user_best_friend.graphql'),
       "backingField": {
         "alias": null,
+        "args": null,
         "fragment": {
           "args": null,
           "kind": "FragmentSpread",

@@ -315,6 +315,7 @@ type CommentCreateResponsePayload {
   comment: Comment
   feedback: Feedback
   feedbackCommentEdge: CommentsEdge
+  feedbackCommentEdgeUsingInterface: CommentsEdgeInterface
   viewer: Viewer
   js: JSDependency
 }
@@ -342,10 +343,15 @@ type CommentsConnection {
   pageInfo: PageInfo
 }
 
-type CommentsEdge {
+interface CommentsEdgeInterface {
   cursor: String
   node: Comment
   source: Feedback
+}
+
+type CommentsEdge implements CommentsEdgeInterface {
+  cursor: String
+  node: Comment
 }
 
 type CommentBodiesConnection {

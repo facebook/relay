@@ -31,6 +31,7 @@ pub struct Parser<'a> {
     source: &'a str,
     /// the byte offset of the *end* of the previous token
     end_index: u32,
+    offset: u32,
 }
 
 /// Parser for the *executable* subset of the GraphQL specification:
@@ -41,6 +42,20 @@ impl<'a> Parser<'a> {
         source_location: SourceLocationKey,
         features: ParserFeatures,
     ) -> Self {
+        Self::with_offset(source, source_location, features, 0)
+    }
+
+    /// When parsing GraphQL syntax that is embedded within a parent
+    /// SourceLocation, such as a field definition within a docblock, you may
+    /// not be starting at the initial character of the SourceLocation.
+    /// Specifying an `offset` allows the Spans attached to each node to reflect
+    /// this fact.
+    pub fn with_offset(
+        source: &'a str,
+        source_location: SourceLocationKey,
+        features: ParserFeatures,
+        offset: u32,
+    ) -> Self {
         // To enable fast lookahead the parser needs to store at least the 'kind' (TokenKind)
         // of the next token: the simplest option is to store the full current token, but
         // the Parser requires an initial value. Rather than incur runtime/code overhead
@@ -50,7 +65,7 @@ impl<'a> Parser<'a> {
         let lexer = TokenKind::lexer(source);
         let dummy = Token {
             kind: TokenKind::EndOfFile,
-            span: Span::empty(),
+            span: Span::new(offset, offset),
         };
         let mut parser = Parser {
             current: dummy,
@@ -59,7 +74,8 @@ impl<'a> Parser<'a> {
             lexer,
             source_location,
             source,
-            end_index: 0,
+            end_index: offset,
+            offset,
         };
         // Advance to the first real token before doing any work
         parser.parse_token();
@@ -87,6 +103,17 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Parses a string containing a field name with optional arguments
+    pub fn parse_field_definition_stub(mut self) -> DiagnosticsResult<FieldDefinitionStub> {
+        let stub = self.parse_field_definition_stub_impl();
+        if self.errors.is_empty() {
+            self.parse_eof()?;
+            Ok(stub.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
     /// Parses a document consisting only of executable nodes: operations and
     /// fragments.
     pub fn parse_executable_document(mut self) -> WithDiagnostics<ExecutableDocument> {
@@ -95,7 +122,7 @@ impl<'a> Parser<'a> {
             let _ = self.parse_kind(TokenKind::EndOfFile);
         }
         let document = document.unwrap_or_else(|_| ExecutableDocument {
-            span: Span::new(0, 0),
+            span: Span::new(self.index(), self.index()),
             definitions: Default::default(),
         });
         WithDiagnostics {
@@ -855,6 +882,12 @@ impl<'a> Parser<'a> {
             directives,
             description,
         })
+    }
+
+    fn parse_field_definition_stub_impl(&mut self) -> ParseResult<FieldDefinitionStub> {
+        let name = self.parse_identifier()?;
+        let arguments = self.parse_argument_defs()?;
+        Ok(FieldDefinitionStub { name, arguments })
     }
 
     /**
@@ -1879,7 +1912,10 @@ impl<'a> Parser<'a> {
 
     /// A &str for the source of the inner span of the given token.
     fn source(&self, token: &Token) -> &str {
-        let (start, end) = token.span.as_usize();
+        let (raw_start, raw_end) = token.span.as_usize();
+        let start = raw_start - self.offset as usize;
+        let end = raw_end - self.offset as usize;
+
         &self.source[start..end]
     }
 
@@ -1963,34 +1999,35 @@ impl<'a> Parser<'a> {
                         // If error_token is set, return that error token
                         // instead of a generic error.
                         self.end_index = self.current.span.end;
+                        let span = self.lexer_span();
                         return std::mem::replace(
                             &mut self.current,
                             Token {
                                 kind: error_token_kind,
-                                span: self.lexer.span().into(),
+                                span,
                             },
                         );
                     } else {
                         // Record and skip over unknown character errors
                         let error = Diagnostic::error(
                             SyntaxError::UnsupportedCharacter,
-                            Location::new(self.source_location, self.lexer.span().into()),
+                            Location::new(self.source_location, self.lexer_span()),
                         );
                         self.record_error(error);
                     }
                 }
                 _ => {
                     self.end_index = self.current.span.end;
-                    return std::mem::replace(
-                        &mut self.current,
-                        Token {
-                            kind,
-                            span: self.lexer.span().into(),
-                        },
-                    );
+                    let span = self.lexer_span();
+                    return std::mem::replace(&mut self.current, Token { kind, span });
                 }
             }
         }
+    }
+
+    fn lexer_span(&self) -> Span {
+        let span: Span = self.lexer.span().into();
+        span.with_offset(self.offset)
     }
 
     fn record_error(&mut self, error: Diagnostic) {

@@ -1,0 +1,89 @@
+{
+  "name": "relay",
+  "displayName": "Relay GraphQL",
+  "version": "0.0.1",
+  "description": "Relay-powered IDE experience",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/facebook/relay",
+    "directory": "vscode-extension"
+  },
+  "license": "MIT",
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onLanguage:plaintext",
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "relay.restartLanguageServer",
+        "title": "Relay: Restart Language Server"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Relay",
+      "properties": {
+        "relay.outputLevel": {
+          "scope": "window",
+          "type": "string",
+          "default": "quiet-with-errors",
+          "enum": [
+            "quiet",
+            "quiet-with-errors",
+            "verbose",
+            "debug"
+          ],
+          "description": "Controls what is logged to the Output Channel."
+        },
+        "relay.pathToRelay": {
+          "scope": "window",
+          "default": null,
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Absolute path to the relay binary. If not provided, the extension will look in the nearest node_modules directory"
+        }
+      }
+    }
+  },
+  "prettier": {
+    "bracketSameLine": true,
+    "bracketSpacing": true,
+    "singleQuote": true,
+    "trailingComma": "all"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "prettier-check": "prettier -c .",
+    "lint": "eslint --max-warnings 0 .",
+    "vscode:prepublish": "tsc",
+    "build-local": "vsce package"
+  },
+  "engines": {
+    "vscode": "^1.65.0"
+  },
+  "dependencies": {
+    "semver": "^7.3.7",
+    "vscode-languageclient": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.23",
+    "@types/semver": "^7.3.9",
+    "@types/vscode": "^1.65.0",
+    "@typescript-eslint/eslint-plugin": "^5.13.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "eslint": "^8.12.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "prettier": "^2.6.2",
+    "typescript": "^4.6.3",
+    "vsce": "^2.7.0"
+  }
+}

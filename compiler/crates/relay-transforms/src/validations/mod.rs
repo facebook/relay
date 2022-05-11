@@ -17,7 +17,7 @@ mod validate_no_double_underscore_alias;
 mod validate_no_inline_with_raw_response_type;
 mod validate_relay_directives;
 mod validate_required_arguments;
-mod validate_selection_conflict;
+mod validate_resolver_fragments;
 mod validate_server_only_directives;
 mod validate_unused_fragment_variables;
 mod validate_unused_variables;
@@ -34,7 +34,7 @@ pub use validate_no_double_underscore_alias::validate_no_double_underscore_alias
 pub use validate_no_inline_with_raw_response_type::validate_no_inline_fragments_with_raw_response_type;
 pub use validate_relay_directives::validate_relay_directives;
 pub use validate_required_arguments::validate_required_arguments;
-pub use validate_selection_conflict::validate_selection_conflict;
+pub use validate_resolver_fragments::validate_resolver_fragments;
 pub use validate_server_only_directives::validate_server_only_directives;
 pub use validate_unused_fragment_variables::validate_unused_fragment_variables;
 pub use validate_unused_variables::validate_unused_variables;

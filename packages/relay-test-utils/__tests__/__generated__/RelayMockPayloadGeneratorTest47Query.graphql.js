@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<59bb5a7d75471cdadfb3b7b6d1c4bff3>>
+ * @generated SignedSource<<efabebde071f2514c122e56c340fd725>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -13,6 +13,8 @@
 /* eslint-disable */
 
 'use strict';
+
+// @indirectDataDrivenDependency RelayMockPayloadGeneratorTest33Fragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayMockPayloadGeneratorTest4MarkdownUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';

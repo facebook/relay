@@ -258,6 +258,7 @@ it('renders synchronously when the component has already loaded and the data arr
 });
 
 it('warns if the entryPointReference has already been disposed', () => {
+  // $FlowFixMe[incompatible-type]
   entryPointReference = loadEntryPoint(
     {
       getEnvironment: () => environment,

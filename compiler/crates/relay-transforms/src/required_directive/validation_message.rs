@@ -11,7 +11,7 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub(super) enum ValidationMessage {
     #[error(
-        "Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing because the inline fragment did not match"
+        "Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing because the inline fragment did not match. Consider using `@alias` to give your inline fragment a name."
     )]
     RequiredWithinAbstractInlineFragment,
 

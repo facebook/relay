@@ -14,7 +14,7 @@
 const {
   getActorIdentifier,
 } = require('../../multi-actor-environment/ActorIdentifier');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const defaultGetDataID = require('../defaultGetDataID');
 const {
@@ -96,7 +96,7 @@ describe('RelayResponseNormalizer', () => {
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     normalize(
       recordSource,
-      createNormalizationSelector(getRequest(FooQuery).operation, ROOT_ID, {
+      createNormalizationSelector(FooQuery.operation, ROOT_ID, {
         id: '1',
         size: 32,
       }),
@@ -202,7 +202,7 @@ describe('RelayResponseNormalizer', () => {
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     const {fieldPayloads} = normalize(
       recordSource,
-      createNormalizationSelector(getRequest(UserFriends).operation, ROOT_ID, {
+      createNormalizationSelector(UserFriends.operation, ROOT_ID, {
         id: '1',
       }),
       payload,
@@ -293,7 +293,7 @@ describe('RelayResponseNormalizer', () => {
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     let {fieldPayloads} = normalize(
       recordSource,
-      createNormalizationSelector(getRequest(UserFriends).operation, ROOT_ID, {
+      createNormalizationSelector(UserFriends.operation, ROOT_ID, {
         id: '1',
         orderBy: ['last name'],
         isViewerFriend: true,
@@ -339,7 +339,7 @@ describe('RelayResponseNormalizer', () => {
     };
     fieldPayloads = normalize(
       recordSource,
-      createNormalizationSelector(getRequest(UserFriends).operation, ROOT_ID, {
+      createNormalizationSelector(UserFriends.operation, ROOT_ID, {
         id: '1',
         orderBy: ['first name'],
         isViewerFriend: true,
@@ -426,7 +426,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {followupPayloads} = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+        createNormalizationSelector(BarQuery.operation, ROOT_ID, {
           id: '1',
         }),
         payload,
@@ -507,7 +507,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {followupPayloads} = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+        createNormalizationSelector(BarQuery.operation, ROOT_ID, {
           id: '1',
         }),
         payload,
@@ -584,7 +584,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       normalize(
         recordSource,
-        createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+        createNormalizationSelector(BarQuery.operation, ROOT_ID, {
           id: '1',
         }),
         payload,
@@ -628,7 +628,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       normalize(
         recordSource,
-        createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+        createNormalizationSelector(BarQuery.operation, ROOT_ID, {
           id: '1',
         }),
         payload,
@@ -715,7 +715,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {followupPayloads} = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+        createNormalizationSelector(BarQuery.operation, ROOT_ID, {
           id: '1',
         }),
         payload,
@@ -792,7 +792,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {followupPayloads} = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+        createNormalizationSelector(BarQuery.operation, ROOT_ID, {
           id: '1',
         }),
         payload,
@@ -865,7 +865,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       normalize(
         recordSource,
-        createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+        createNormalizationSelector(BarQuery.operation, ROOT_ID, {
           id: '1',
         }),
         payload,
@@ -925,7 +925,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
+        createNormalizationSelector(Query.operation, ROOT_ID, {
           id: '1',
           enableDefer: false,
         }),
@@ -975,7 +975,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
+        createNormalizationSelector(Query.operation, ROOT_ID, {
           id: '1',
         }),
         payload,
@@ -1041,7 +1041,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
+        createNormalizationSelector(Query.operation, ROOT_ID, {
           id: '1',
           enableDefer: true,
         }),
@@ -1111,7 +1111,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
+        createNormalizationSelector(Query.operation, ROOT_ID, {
           id: '1',
         }),
         payload,
@@ -1196,7 +1196,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
+        createNormalizationSelector(Query.operation, ROOT_ID, {
           id: '1',
         }),
         payload,
@@ -1253,7 +1253,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
+        createNormalizationSelector(Query.operation, ROOT_ID, {
           id: '1',
           enableStream: false,
         }),
@@ -1311,7 +1311,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
+        createNormalizationSelector(Query.operation, ROOT_ID, {
           id: '1',
         }),
         payload,
@@ -1380,7 +1380,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
+        createNormalizationSelector(Query.operation, ROOT_ID, {
           id: '1',
           enableStream: true,
         }),
@@ -1454,7 +1454,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
+        createNormalizationSelector(Query.operation, ROOT_ID, {
           id: '1',
         }),
         payload,
@@ -1536,7 +1536,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       const {incrementalPlaceholders} = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {
+        createNormalizationSelector(Query.operation, ROOT_ID, {
           id: '1',
         }),
         payload,
@@ -1605,14 +1605,10 @@ describe('RelayResponseNormalizer', () => {
         () => {
           normalize(
             recordSource,
-            createNormalizationSelector(
-              getRequest(StrippedQuery).operation,
-              ROOT_ID,
-              {
-                id: '1',
-                size: 32,
-              },
-            ),
+            createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+              id: '1',
+              size: 32,
+            }),
             payload,
             defaultOptions,
           );
@@ -1635,14 +1631,10 @@ describe('RelayResponseNormalizer', () => {
       expect(recordSource.toJSON()).toEqual(result);
       normalize(
         recordSource,
-        createNormalizationSelector(
-          getRequest(StrippedQuery).operation,
-          ROOT_ID,
-          {
-            id: '1',
-            size: 32,
-          },
-        ),
+        createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
         payload,
         defaultOptions,
       );
@@ -1668,14 +1660,10 @@ describe('RelayResponseNormalizer', () => {
       );
       normalize(
         recordSource,
-        createNormalizationSelector(
-          getRequest(StrippedQuery).operation,
-          ROOT_ID,
-          {
-            id: '1',
-            size: 32,
-          },
-        ),
+        createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
         payload,
         defaultOptions,
       );
@@ -1695,14 +1683,10 @@ describe('RelayResponseNormalizer', () => {
       expect(recordSource.toJSON()).toEqual(result);
       normalize(
         recordSource,
-        createNormalizationSelector(
-          getRequest(StrippedQuery).operation,
-          ROOT_ID,
-          {
-            id: '1',
-            size: 32,
-          },
-        ),
+        createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
         payload,
         defaultOptions,
       );
@@ -1743,14 +1727,10 @@ describe('RelayResponseNormalizer', () => {
       );
       normalize(
         recordSource,
-        createNormalizationSelector(
-          getRequest(StrippedQuery).operation,
-          ROOT_ID,
-          {
-            id: '1',
-            size: 32,
-          },
-        ),
+        createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
         payload,
         defaultOptions,
       );
@@ -1785,14 +1765,10 @@ describe('RelayResponseNormalizer', () => {
       expect(recordSource.toJSON()).toEqual(result);
       normalize(
         recordSource,
-        createNormalizationSelector(
-          getRequest(StrippedQuery).operation,
-          ROOT_ID,
-          {
-            id: '1',
-            size: 32,
-          },
-        ),
+        createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
         payload,
         defaultOptions,
       );
@@ -1825,14 +1801,10 @@ describe('RelayResponseNormalizer', () => {
       );
       normalize(
         recordSource,
-        createNormalizationSelector(
-          getRequest(StrippedQuery).operation,
-          ROOT_ID,
-          {
-            id: '1',
-            size: 32,
-          },
-        ),
+        createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
         payload,
         defaultOptions,
       );
@@ -1859,14 +1831,10 @@ describe('RelayResponseNormalizer', () => {
       expect(recordSource.toJSON()).toEqual(result);
       normalize(
         recordSource,
-        createNormalizationSelector(
-          getRequest(StrippedQuery).operation,
-          ROOT_ID,
-          {
-            id: '1',
-            size: 32,
-          },
-        ),
+        createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
         payload,
         defaultOptions,
       );
@@ -1972,7 +1940,7 @@ describe('RelayResponseNormalizer', () => {
         );
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(Foo).operation, ROOT_ID, {
+          createNormalizationSelector(Foo.operation, ROOT_ID, {
             id: '1',
           }),
           fooPayload,
@@ -2045,7 +2013,7 @@ describe('RelayResponseNormalizer', () => {
         );
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(Foo).operation, ROOT_ID, {
+          createNormalizationSelector(Foo.operation, ROOT_ID, {
             id: '1',
           }),
           fooPayload0,
@@ -2053,7 +2021,7 @@ describe('RelayResponseNormalizer', () => {
         );
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(Foo).operation, ROOT_ID, {
+          createNormalizationSelector(Foo.operation, ROOT_ID, {
             id: '1',
           }),
           fooPayload1,
@@ -2093,7 +2061,7 @@ describe('RelayResponseNormalizer', () => {
       it('stores user-defined id when function returns an string', () => {
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+          createNormalizationSelector(BarQuery.operation, ROOT_ID, {
             id: '1',
           }),
           payload,
@@ -2162,7 +2130,7 @@ describe('RelayResponseNormalizer', () => {
         recordSource = new RelayRecordSource(previousData);
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+          createNormalizationSelector(BarQuery.operation, ROOT_ID, {
             id: '1',
           }),
           payload,
@@ -2175,7 +2143,7 @@ describe('RelayResponseNormalizer', () => {
       it('falls through to generateClientID when the function returns null, and no previously generated ID', () => {
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+          createNormalizationSelector(BarQuery.operation, ROOT_ID, {
             id: '1',
           }),
           payload,
@@ -2251,7 +2219,7 @@ describe('RelayResponseNormalizer', () => {
       it('stores user-defined ids when function returns an string', () => {
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+          createNormalizationSelector(BarQuery.operation, ROOT_ID, {
             id: '1',
           }),
           payload,
@@ -2322,7 +2290,7 @@ describe('RelayResponseNormalizer', () => {
         const expectedData = JSON.parse(JSON.stringify(previousData));
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+          createNormalizationSelector(BarQuery.operation, ROOT_ID, {
             id: '1',
           }),
           payload,
@@ -2358,7 +2326,7 @@ describe('RelayResponseNormalizer', () => {
         recordSource = new RelayRecordSource(data);
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+          createNormalizationSelector(BarQuery.operation, ROOT_ID, {
             id: '1',
           }),
           payload,
@@ -2387,7 +2355,7 @@ describe('RelayResponseNormalizer', () => {
       it('falls through to generateClientID when the function returns null and no previously generated IDs', () => {
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+          createNormalizationSelector(BarQuery.operation, ROOT_ID, {
             id: '1',
           }),
           payload,
@@ -2474,7 +2442,7 @@ describe('RelayResponseNormalizer', () => {
         );
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(Foo).operation, ROOT_ID, {
+          createNormalizationSelector(Foo.operation, ROOT_ID, {
             id: '1',
           }),
           payload0,
@@ -2482,7 +2450,7 @@ describe('RelayResponseNormalizer', () => {
         );
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(Foo).operation, ROOT_ID, {
+          createNormalizationSelector(Foo.operation, ROOT_ID, {
             id: '1',
           }),
           payload1,
@@ -2635,7 +2603,7 @@ describe('RelayResponseNormalizer', () => {
       () => {
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+          createNormalizationSelector(BarQuery.operation, ROOT_ID, {
             id: '1',
           }),
           payload,
@@ -2667,7 +2635,7 @@ describe('RelayResponseNormalizer', () => {
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     normalize(
       recordSource,
-      createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {}),
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {}),
       payload,
       defaultOptions,
     );
@@ -2727,7 +2695,7 @@ describe('RelayResponseNormalizer', () => {
       () => {
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+          createNormalizationSelector(BarQuery.operation, ROOT_ID, {
             id: '1',
           }),
           payload,
@@ -2785,7 +2753,7 @@ describe('RelayResponseNormalizer', () => {
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     normalize(
       recordSource,
-      createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {
         id: '1',
       }),
       payload,
@@ -2841,7 +2809,7 @@ describe('RelayResponseNormalizer', () => {
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     normalize(
       recordSource,
-      createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {
         id: '1',
       }),
       payload,
@@ -2921,7 +2889,7 @@ describe('RelayResponseNormalizer', () => {
     );
     normalize(
       recordSource,
-      createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {
         id: '1',
       }),
       payload,
@@ -3017,7 +2985,7 @@ describe('RelayResponseNormalizer', () => {
       () => {
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+          createNormalizationSelector(BarQuery.operation, ROOT_ID, {
             id: '1',
           }),
           payload,
@@ -3113,7 +3081,7 @@ describe('RelayResponseNormalizer', () => {
       () => {
         normalize(
           recordSource,
-          createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+          createNormalizationSelector(BarQuery.operation, ROOT_ID, {
             id: '1',
           }),
           payload,
@@ -3176,7 +3144,7 @@ describe('RelayResponseNormalizer', () => {
     );
     normalize(
       recordSource,
-      createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {
         id: '1',
       }),
       payload,
@@ -3202,7 +3170,7 @@ describe('RelayResponseNormalizer', () => {
     );
     normalize(
       recordSource,
-      createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {
         id: '1',
       }),
       payload,
@@ -3250,7 +3218,7 @@ describe('RelayResponseNormalizer', () => {
     recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
     normalize(
       recordSource,
-      createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {
         id: '1',
       }),
       payload,
@@ -3258,7 +3226,7 @@ describe('RelayResponseNormalizer', () => {
     );
     normalize(
       recordSource,
-      createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+      createNormalizationSelector(BarQuery.operation, ROOT_ID, {
         id: '1',
       }),
       payload,
@@ -3299,14 +3267,10 @@ describe('RelayResponseNormalizer', () => {
 
     normalize(
       recordSource,
-      createNormalizationSelector(
-        getRequest(StrippedQuery).operation,
-        ROOT_ID,
-        {
-          id: '1',
-          size: 32,
-        },
-      ),
+      createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+        id: '1',
+        size: 32,
+      }),
       payload,
       defaultOptions,
     );
@@ -3357,14 +3321,10 @@ describe('RelayResponseNormalizer', () => {
 
       normalize(
         recordSource,
-        createNormalizationSelector(
-          getRequest(StrippedQuery).operation,
-          ROOT_ID,
-          {
-            id: '1',
-            size: 32,
-          },
-        ),
+        createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
         payload,
         {...defaultOptions, treatMissingFieldsAsNull: true},
       );
@@ -3432,14 +3392,10 @@ describe('RelayResponseNormalizer', () => {
       );
       normalize(
         recordSource,
-        createNormalizationSelector(
-          getRequest(StrippedQuery).operation,
-          ROOT_ID,
-          {
-            id: '1',
-            size: 32,
-          },
-        ),
+        createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
         payload,
         {...defaultOptions, treatMissingFieldsAsNull: true},
       );
@@ -3460,14 +3416,10 @@ describe('RelayResponseNormalizer', () => {
       expect(recordSource.toJSON()).toEqual(result);
       normalize(
         recordSource,
-        createNormalizationSelector(
-          getRequest(StrippedQuery).operation,
-          ROOT_ID,
-          {
-            id: '1',
-            size: 32,
-          },
-        ),
+        createNormalizationSelector(StrippedQuery.operation, ROOT_ID, {
+          id: '1',
+          size: 32,
+        }),
         payload,
         defaultOptions,
       );
@@ -3520,7 +3472,7 @@ describe('RelayResponseNormalizer', () => {
       recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
       normalize(
         recordSource,
-        createNormalizationSelector(getRequest(BarQuery).operation, ROOT_ID, {
+        createNormalizationSelector(BarQuery.operation, ROOT_ID, {
           id: '1',
         }),
         payload,
@@ -3647,14 +3599,10 @@ describe('RelayResponseNormalizer', () => {
         };
         normalize(
           recordSource,
-          createNormalizationSelector(
-            getRequest(FlightQuery).operation,
-            ROOT_ID,
-            {
-              count: 10,
-              id: '1',
-            },
-          ),
+          createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+            count: 10,
+            id: '1',
+          }),
           payload,
           {
             ...defaultOptions,
@@ -3725,14 +3673,10 @@ describe('RelayResponseNormalizer', () => {
         expect(() => {
           normalize(
             recordSource,
-            createNormalizationSelector(
-              getRequest(FlightQuery).operation,
-              ROOT_ID,
-              {
-                count: 10,
-                id: '1',
-              },
-            ),
+            createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+              count: 10,
+              id: '1',
+            }),
             payload,
             {
               ...defaultOptions,
@@ -3744,14 +3688,10 @@ describe('RelayResponseNormalizer', () => {
         expect(() => {
           normalize(
             recordSource,
-            createNormalizationSelector(
-              getRequest(FlightQuery).operation,
-              ROOT_ID,
-              {
-                count: 10,
-                id: '1',
-              },
-            ),
+            createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+              count: 10,
+              id: '1',
+            }),
             payload,
             defaultOptions,
           );
@@ -3783,14 +3723,10 @@ describe('RelayResponseNormalizer', () => {
           };
           normalize(
             recordSource,
-            createNormalizationSelector(
-              getRequest(FlightQuery).operation,
-              ROOT_ID,
-              {
-                count: 10,
-                id: '1',
-              },
-            ),
+            createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+              count: 10,
+              id: '1',
+            }),
             payload,
             {
               ...defaultOptions,
@@ -3837,14 +3773,10 @@ describe('RelayResponseNormalizer', () => {
             () => {
               normalize(
                 recordSource,
-                createNormalizationSelector(
-                  getRequest(FlightQuery).operation,
-                  ROOT_ID,
-                  {
-                    count: 10,
-                    id: '1',
-                  },
-                ),
+                createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+                  count: 10,
+                  id: '1',
+                }),
                 payload,
                 {
                   ...defaultOptions,
@@ -3869,14 +3801,10 @@ describe('RelayResponseNormalizer', () => {
         };
         normalize(
           recordSource,
-          createNormalizationSelector(
-            getRequest(FlightQuery).operation,
-            ROOT_ID,
-            {
-              count: 10,
-              id: '1',
-            },
-          ),
+          createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+            count: 10,
+            id: '1',
+          }),
           payload,
           {
             ...defaultOptions,
@@ -3912,14 +3840,10 @@ describe('RelayResponseNormalizer', () => {
         expect(() => {
           normalize(
             recordSource,
-            createNormalizationSelector(
-              getRequest(FlightQuery).operation,
-              ROOT_ID,
-              {
-                count: 10,
-                id: '1',
-              },
-            ),
+            createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+              count: 10,
+              id: '1',
+            }),
             payload,
             {
               ...defaultOptions,
@@ -3949,14 +3873,10 @@ describe('RelayResponseNormalizer', () => {
           () => {
             normalize(
               recordSource,
-              createNormalizationSelector(
-                getRequest(FlightQuery).operation,
-                ROOT_ID,
-                {
-                  count: 10,
-                  id: '1',
-                },
-              ),
+              createNormalizationSelector(FlightQuery.operation, ROOT_ID, {
+                count: 10,
+                id: '1',
+              }),
               payload,
               {
                 ...defaultOptions,
@@ -3992,7 +3912,7 @@ describe('RelayResponseNormalizer', () => {
           normalize(
             recordSource,
             createNormalizationSelector(
-              getRequest(ServerOrClientQuery).operation,
+              ServerOrClientQuery.operation,
               ROOT_ID,
               {
                 id: '1',
@@ -4046,7 +3966,7 @@ describe('RelayResponseNormalizer', () => {
           normalize(
             recordSource,
             createNormalizationSelector(
-              getRequest(ServerOrClientQuery).operation,
+              ServerOrClientQuery.operation,
               ROOT_ID,
               {
                 id: '1',
@@ -4087,7 +4007,7 @@ describe('RelayResponseNormalizer', () => {
           normalize(
             recordSource,
             createNormalizationSelector(
-              getRequest(ServerOrClientQuery).operation,
+              ServerOrClientQuery.operation,
               ROOT_ID,
               {
                 id: '1',
@@ -4155,7 +4075,7 @@ describe('RelayResponseNormalizer', () => {
       };
       normalize(
         recordSource,
-        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+        createNormalizationSelector(Query.operation, ROOT_ID, {}),
         queryPayload,
         defaultOptions,
       );
@@ -4196,7 +4116,7 @@ describe('RelayResponseNormalizer', () => {
       };
       normalize(
         recordSource,
-        createNormalizationSelector(getRequest(Query).operation, ROOT_ID, {}),
+        createNormalizationSelector(Query.operation, ROOT_ID, {}),
         queryPayload,
         defaultOptions,
       );
@@ -4253,11 +4173,7 @@ describe('RelayResponseNormalizer', () => {
       };
       normalize(
         recordSource,
-        createNormalizationSelector(
-          getRequest(QueryWithList).operation,
-          ROOT_ID,
-          {},
-        ),
+        createNormalizationSelector(QueryWithList.operation, ROOT_ID, {}),
         queryPayload,
         defaultOptions,
       );
@@ -4340,7 +4256,7 @@ describe('RelayResponseNormalizer', () => {
 
       const result = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(query).operation, ROOT_ID, {}),
+        createNormalizationSelector(query.operation, ROOT_ID, {}),
         payload,
         {...defaultOptions, actorIdentifier: getActorIdentifier('actor-1234')},
       );
@@ -4409,7 +4325,7 @@ describe('RelayResponseNormalizer', () => {
 
       const result = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(query).operation, ROOT_ID, {}),
+        createNormalizationSelector(query.operation, ROOT_ID, {}),
         payload,
         {...defaultOptions, actorIdentifier: getActorIdentifier('actor-1234')},
       );
@@ -4478,7 +4394,7 @@ describe('RelayResponseNormalizer', () => {
 
       const result = normalize(
         recordSource,
-        createNormalizationSelector(getRequest(query).operation, ROOT_ID, {}),
+        createNormalizationSelector(query.operation, ROOT_ID, {}),
         payload,
         {...defaultOptions, actorIdentifier: getActorIdentifier('actor-1234')},
       );
@@ -4558,11 +4474,7 @@ describe('RelayResponseNormalizer', () => {
         () => {
           return normalize(
             recordSource,
-            createNormalizationSelector(
-              getRequest(query).operation,
-              ROOT_ID,
-              {},
-            ),
+            createNormalizationSelector(query.operation, ROOT_ID, {}),
             payload,
             defaultOptions,
           );
@@ -4606,11 +4518,7 @@ describe('RelayResponseNormalizer', () => {
         () => {
           return normalize(
             recordSource,
-            createNormalizationSelector(
-              getRequest(query).operation,
-              ROOT_ID,
-              {},
-            ),
+            createNormalizationSelector(query.operation, ROOT_ID, {}),
             payload,
             defaultOptions,
           );
@@ -4675,11 +4583,7 @@ describe('RelayResponseNormalizer', () => {
 
       const result = normalize(
         recordSource,
-        createNormalizationSelector(
-          getRequest(queryWithAlias).operation,
-          ROOT_ID,
-          {},
-        ),
+        createNormalizationSelector(queryWithAlias.operation, ROOT_ID, {}),
         payload,
         {...defaultOptions, actorIdentifier: getActorIdentifier('actor-1234')},
       );

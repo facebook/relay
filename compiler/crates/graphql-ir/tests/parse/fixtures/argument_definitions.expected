@@ -27,7 +27,7 @@ fragment TestFragment on User
                     directives: [
                         Directive {
                             name: WithLocation {
-                                location: <generated>:0:13,
+                                location: <generated>:89:102,
                                 item: "configurable",
                             },
                             arguments: [],
@@ -77,7 +77,7 @@ fragment TestFragment on User
                     alias: None,
                     definition: WithLocation {
                         location: argument_definitions.graphql:161:171,
-                        item: FieldID(513),
+                        item: FieldID(516),
                     },
                     arguments: [],
                     directives: [],

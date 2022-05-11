@@ -172,9 +172,11 @@ See the [Thinking in Relay guide](../principles-and-architecture/thinking-in-rel
 
 ## @defer
 
-A directive which can be added to a fragment spread to avoid blocking on that fragment's data.
+A directive which can be added to a fragment spread or inline fragment to avoid blocking on that fragment's data.
 
+<FbInternalOnly>
 See the [documentation](https://www.internalfb.com/intern/wiki/Relay/Web/incremental-data-delivery-defer-stream/#defer).
+</FbInternalOnly>
 
 ## Descriptor
 
@@ -184,7 +186,7 @@ Can refer to an `OperationDescriptor` or `RequestDescriptor`. Descriptors are ty
 
 An awesome Chrome extension for debugging Relay network requests, the Relay store and Relay events. Helpful for answering questions like "Why am I not seeing the data I expect to see?" "Why did this component suspend?" etc.
 
-See the [documentation](https://www.internalfb.com/intern/wiki/Relay/Debugging_Guides/Relay_DevTools_Guide_For_Users/).
+See the [documentation](https://relay.dev/docs/debugging/relay-devtools/).
 
 ## Document
 
@@ -306,7 +308,7 @@ In order for a fragment to be spread in a particular location, the types must ma
 
 Relay can periodically garbage collect data from queries which are no longer being retained.
 
-See more information in the [guided tour](https://www.internalfb.com/intern/wiki/Relay/guided-tour-of-relay/reusing-cached-data-for-rendering/#garbage-collection-in-re).
+See more information in the [guided tour](https://relay.dev/docs/guided-tour/reusing-cached-data/presence-of-data/#garbage-collection-in-relay).
 
 ## GraphQLTaggedNode
 
@@ -348,7 +350,7 @@ In certain cases, it is easy to determine the outcome of a mutation. For example
 
 For situations like these, Relay allows you to invalidate a record (or the whole store), which will cause the data to be re-fetched the next time it is rendered.
 
-See the [section in the guide](https://www.internalfb.com/intern/wiki/Relay/guided-tour-of-relay/updating-data/#invalidating-data-during).
+See the [section in the guide](https://relay.dev/docs/guided-tour/reusing-cached-data/staleness-of-data/).
 
 ## JSResource
 

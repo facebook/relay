@@ -14,10 +14,11 @@ use crate::{
     refetchable_fragment::RefetchableMetadata,
     relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
     required_directive::{CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME},
-    ClientEdgeMetadataDirective, ModuleMetadata, ReactFlightLocalComponentsMetadata,
-    RefetchableDerivedFromMetadata, RelayClientComponentMetadata, RelayResolverSpreadMetadata,
-    RequiredMetadataDirective, CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_QUERY_METADATA_KEY,
-    DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE,
+    ClientEdgeMetadataDirective, FragmentAliasMetadata, ModuleMetadata,
+    ReactFlightLocalComponentsMetadata, RefetchableDerivedFromMetadata,
+    RelayClientComponentMetadata, RelayResolverSpreadMetadata, RequiredMetadataDirective,
+    CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_QUERY_METADATA_KEY, DIRECTIVE_SPLIT_OPERATION,
+    INTERNAL_METADATA_DIRECTIVE,
 };
 
 use graphql_ir::{
@@ -28,22 +29,6 @@ use intern::string_key::{Intern, StringKey};
 use lazy_static::lazy_static;
 use regex::Regex;
 use schema::{SDLSchema, Schema, Type};
-
-// A wrapper type that allows comparing pointer equality of references. Two
-// `PointerAddress` values are equal if they point to the same memory location.
-//
-// This type is _sound_, but misuse can easily lead to logical bugs if the memory
-// of one PointerAddress could not have been freed and reused for a subsequent
-// PointerAddress.
-#[derive(Hash, Eq, PartialEq, Clone, Copy)]
-pub struct PointerAddress(usize);
-
-impl PointerAddress {
-    pub fn new<T>(ptr: &T) -> Self {
-        let ptr_address: usize = unsafe { std::mem::transmute(ptr) };
-        Self(ptr_address)
-    }
-}
 
 /// This function will return a new Vec[...] of directives,
 /// where one will be missing. The one with `remove_directive_name` name
@@ -88,7 +73,7 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 22] = [
+    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 23] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
         *HANDLE_FIELD_DIRECTIVE_NAME,
@@ -111,8 +96,9 @@ lazy_static! {
         *UNUSED_LOCAL_VARIABLE_DEPRECATED,
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
         ProvidedVariableMetadata::directive_name(),
+        FragmentAliasMetadata::directive_name(),
     ];
-    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [StringKey; 12] = [
+    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [StringKey; 11] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
         *HANDLE_FIELD_DIRECTIVE_NAME,
@@ -123,16 +109,16 @@ lazy_static! {
         *REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
         ReactFlightLocalComponentsMetadata::directive_name(),
         *REQUIRED_DIRECTIVE_NAME,
-        RelayResolverSpreadMetadata::directive_name(),
         RelayClientComponentMetadata::directive_name(),
     ];
-    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 6] = [
+    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 7] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ModuleMetadata::directive_name(),
         InlineDirectiveMetadata::directive_name(),
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
         ClientEdgeMetadataDirective::directive_name(),
         "defer".intern(),
+        FragmentAliasMetadata::directive_name(),
     ];
     static ref VALID_PROVIDED_VARIABLE_NAME: Regex = Regex::new(r#"^[A-Za-z0-9_]*$"#).unwrap();
     pub static ref INTERNAL_RELAY_VARIABLES_PREFIX: StringKey = "__relay_internal".intern();

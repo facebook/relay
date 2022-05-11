@@ -1,0 +1,165 @@
+==================================== INPUT ====================================
+query QueryWithDirectAndTransitiveModuleDep {
+  node {
+    ...FragmentWithModuleDep
+    ... on User {
+      nameRenderer {
+        ...PlainUserNameRenderer_name
+          @module(name: "PlainUserNameRenderer.react")
+        ...MarkdownUserNameRenderer_name
+          @module(name: "MarkdownUserNameRenderer.react")
+      }
+    }
+  }
+}
+
+fragment FragmentWithModuleDep on User {
+  nameRenderer {
+    ...PlainUserNameRenderer_name
+      @module(name: "PlainUserNameRenderer.react")
+    ...MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+==================================== OUTPUT ===================================
+query QueryWithDirectAndTransitiveModuleDep @__RelayDataDrivenDependencyMetadata
+# RelayDataDrivenDependencyMetadata {
+#     direct_dependencies: Some(
+#         [
+#             (
+#                 "QueryWithDirectAndTransitiveModuleDep.node.nameRenderer",
+#                 "{\"branches\":{\"MarkdownUserNameRenderer\":{\"component\":\"MarkdownUserNameRenderer.react\",\"fragment\":\"MarkdownUserNameRenderer_name$normalization.graphql\"},\"PlainUserNameRenderer\":{\"component\":\"PlainUserNameRenderer.react\",\"fragment\":\"PlainUserNameRenderer_name$normalization.graphql\"}},\"plural\":false}",
+#             ),
+#         ],
+#     ),
+#     indirect_dependencies: Some(
+#         [
+#             (
+#                 "FragmentWithModuleDep.nameRenderer",
+#                 "{\"branches\":{\"MarkdownUserNameRenderer\":{\"component\":\"MarkdownUserNameRenderer.react\",\"fragment\":\"MarkdownUserNameRenderer_name$normalization.graphql\"},\"PlainUserNameRenderer\":{\"component\":\"PlainUserNameRenderer.react\",\"fragment\":\"PlainUserNameRenderer_name$normalization.graphql\"}},\"plural\":false}",
+#             ),
+#         ],
+#     ),
+# }
+ {
+  node {
+    ...FragmentWithModuleDep
+    ... on User {
+      nameRenderer {
+        ... on PlainUserNameRenderer {
+          ... on PlainUserNameRenderer @__ModuleMetadata
+          # ModuleMetadata {
+          #     location: query-with-direct-and-transitive-module-dep.graphql:171:178,
+          #     key: "QueryWithDirectAndTransitiveModuleDep",
+          #     module_id: "QueryWithDirectAndTransitiveModuleDep.node.nameRenderer",
+          #     module_name: "PlainUserNameRenderer.react",
+          #     source_document_name: "QueryWithDirectAndTransitiveModuleDep",
+          #     fragment_name: "PlainUserNameRenderer_name",
+          #     no_inline: false,
+          # }
+           {
+            ...PlainUserNameRenderer_name
+            __module_operation_QueryWithDirectAndTransitiveModuleDep: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "QueryWithDirectAndTransitiveModuleDep.node.nameRenderer")
+            __module_component_QueryWithDirectAndTransitiveModuleDep: js(module: "PlainUserNameRenderer.react", id: "QueryWithDirectAndTransitiveModuleDep.node.nameRenderer")
+          }
+        }
+        ... on MarkdownUserNameRenderer {
+          ... on MarkdownUserNameRenderer @__ModuleMetadata
+          # ModuleMetadata {
+          #     location: query-with-direct-and-transitive-module-dep.graphql:267:274,
+          #     key: "QueryWithDirectAndTransitiveModuleDep",
+          #     module_id: "QueryWithDirectAndTransitiveModuleDep.node.nameRenderer",
+          #     module_name: "MarkdownUserNameRenderer.react",
+          #     source_document_name: "QueryWithDirectAndTransitiveModuleDep",
+          #     fragment_name: "MarkdownUserNameRenderer_name",
+          #     no_inline: false,
+          # }
+           {
+            ...MarkdownUserNameRenderer_name
+            __module_operation_QueryWithDirectAndTransitiveModuleDep: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "QueryWithDirectAndTransitiveModuleDep.node.nameRenderer")
+            __module_component_QueryWithDirectAndTransitiveModuleDep: js(module: "MarkdownUserNameRenderer.react", id: "QueryWithDirectAndTransitiveModuleDep.node.nameRenderer")
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
+# RelayDataDrivenDependencyMetadata {
+#     direct_dependencies: Some(
+#         [
+#             (
+#                 "FragmentWithModuleDep.nameRenderer",
+#                 "{\"branches\":{\"MarkdownUserNameRenderer\":{\"component\":\"MarkdownUserNameRenderer.react\",\"fragment\":\"MarkdownUserNameRenderer_name$normalization.graphql\"},\"PlainUserNameRenderer\":{\"component\":\"PlainUserNameRenderer.react\",\"fragment\":\"PlainUserNameRenderer_name$normalization.graphql\"}},\"plural\":false}",
+#             ),
+#         ],
+#     ),
+#     indirect_dependencies: None,
+# }
+ {
+  nameRenderer {
+    ... on PlainUserNameRenderer {
+      ... on PlainUserNameRenderer @__ModuleMetadata
+      # ModuleMetadata {
+      #     location: query-with-direct-and-transitive-module-dep.graphql:434:441,
+      #     key: "FragmentWithModuleDep",
+      #     module_id: "FragmentWithModuleDep.nameRenderer",
+      #     module_name: "PlainUserNameRenderer.react",
+      #     source_document_name: "FragmentWithModuleDep",
+      #     fragment_name: "PlainUserNameRenderer_name",
+      #     no_inline: false,
+      # }
+       {
+        ...PlainUserNameRenderer_name
+        __module_operation_FragmentWithModuleDep: js(module: "PlainUserNameRenderer_name$normalization.graphql", id: "FragmentWithModuleDep.nameRenderer")
+        __module_component_FragmentWithModuleDep: js(module: "PlainUserNameRenderer.react", id: "FragmentWithModuleDep.nameRenderer")
+      }
+    }
+    ... on MarkdownUserNameRenderer {
+      ... on MarkdownUserNameRenderer @__ModuleMetadata
+      # ModuleMetadata {
+      #     location: query-with-direct-and-transitive-module-dep.graphql:522:529,
+      #     key: "FragmentWithModuleDep",
+      #     module_id: "FragmentWithModuleDep.nameRenderer",
+      #     module_name: "MarkdownUserNameRenderer.react",
+      #     source_document_name: "FragmentWithModuleDep",
+      #     fragment_name: "MarkdownUserNameRenderer_name",
+      #     no_inline: false,
+      # }
+       {
+        ...MarkdownUserNameRenderer_name
+        __module_operation_FragmentWithModuleDep: js(module: "MarkdownUserNameRenderer_name$normalization.graphql", id: "FragmentWithModuleDep.nameRenderer")
+        __module_component_FragmentWithModuleDep: js(module: "MarkdownUserNameRenderer.react", id: "FragmentWithModuleDep.nameRenderer")
+      }
+    }
+  }
+}
+
+fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+fragment PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}

@@ -9,7 +9,7 @@ mod directives;
 
 use super::get_applied_fragment_name;
 use crate::util::{remove_directive, replace_directive};
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 pub use directives::{DeferDirective, StreamDirective};
 use graphql_ir::{
     Argument, ConstantValue, Directive, Field, FragmentDefinition, FragmentSpread, InlineFragment,
@@ -154,6 +154,7 @@ impl DeferStreamTransform<'_> {
                     directives: remove_directive(&spread.directives, defer.name.item),
                     ..spread.clone()
                 }))],
+                spread_location: Location::generated(),
             },
         ))))
     }

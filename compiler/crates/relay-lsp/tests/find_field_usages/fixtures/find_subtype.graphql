@@ -1,0 +1,7 @@
+# should not match, since this could be a false positive
+fragment TestLinkedFieldFragment on Actor {
+  name
+}
+
+%arguments%
+User name

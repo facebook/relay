@@ -14,7 +14,7 @@
 import type {readUpdatableFragmentEXPERIMENTALTestRegularQuery} from './__generated__/readUpdatableFragmentEXPERIMENTALTestRegularQuery.graphql';
 
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -58,7 +58,7 @@ describe('readUpdatableFragment', () => {
   let rootRequest;
 
   beforeEach(() => {
-    rootRequest = getRequest(regularQuery);
+    rootRequest = regularQuery;
     operation = createOperationDescriptor(rootRequest, {if2: true, if3: false});
     const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
@@ -97,7 +97,7 @@ describe('readUpdatableFragment', () => {
       const updatableData = store.readUpdatableFragment_EXPERIMENTAL(
         updatableFragment,
         me,
-      );
+      ).updatableData;
 
       expect(updatableData.firstName).toEqual('Mark');
       expect(updatableData.firstName2).toEqual('Twain');
@@ -142,7 +142,7 @@ describe('readUpdatableFragment', () => {
       const updatableData = store.readUpdatableFragment_EXPERIMENTAL(
         updatableFragment2,
         me,
-      );
+      ).updatableData;
 
       expect(updatableData.firstName2).toEqual('Twain');
       expect(updatableData.firstName3).toEqual('Wahlburg');

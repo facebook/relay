@@ -179,14 +179,14 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let name = scalar.name;
         let directives = &self.serialize_directive_values(&scalar.directives);
         let args = schema_flatbuffer::ScalarArgs {
-            name: Some(self.bldr.create_string(name.lookup())),
+            name: Some(self.bldr.create_string(name.item.lookup())),
             is_extension: scalar.is_extension,
             directives: Some(self.bldr.create_vector(directives)),
         };
         self.add_to_type_map(
             self.scalars.len(),
             schema_flatbuffer::TypeKind::Scalar,
-            name,
+            name.item,
         );
         self.scalars
             .push(schema_flatbuffer::Scalar::create(&mut self.bldr, &args));
@@ -197,7 +197,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let name = input_object.name;
         // Reserve idx and add to typemap. Else we could endup in a cycle
         let idx = self.input_objects.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::InputObject, name);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::InputObject, name.item);
         self.input_objects
             .push(schema_flatbuffer::InputObject::create(
                 &mut self.bldr,
@@ -206,7 +206,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let items = &self.serialize_directive_values(&input_object.directives);
         let fields = &self.serialize_arguments(&input_object.fields);
         let args = schema_flatbuffer::InputObjectArgs {
-            name: Some(self.bldr.create_string(name.lookup())),
+            name: Some(self.bldr.create_string(name.item.lookup())),
             directives: Some(self.bldr.create_vector(items)),
             fields: Some(self.bldr.create_vector(fields)),
         };
@@ -219,12 +219,16 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let directives = &self.serialize_directive_values(&enum_.directives);
         let values = &self.serialize_enum_values(&enum_.values);
         let args = schema_flatbuffer::EnumArgs {
-            name: Some(self.bldr.create_string(name.lookup())),
+            name: Some(self.bldr.create_string(name.item.lookup())),
             is_extension: enum_.is_extension,
             directives: Some(self.bldr.create_vector(directives)),
             values: Some(self.bldr.create_vector(values)),
         };
-        self.add_to_type_map(self.enums.len(), schema_flatbuffer::TypeKind::Enum, name);
+        self.add_to_type_map(
+            self.enums.len(),
+            schema_flatbuffer::TypeKind::Enum,
+            name.item,
+        );
         self.enums
             .push(schema_flatbuffer::Enum::create(&mut self.bldr, &args));
     }
@@ -267,7 +271,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let interface = self.schema.interface(id);
         let name = interface.name;
         let idx = self.interfaces.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Interface, name);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Interface, name.item);
         self.interfaces.push(schema_flatbuffer::Interface::create(
             &mut self.bldr,
             &schema_flatbuffer::InterfaceArgs::default(),
@@ -293,7 +297,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             .map(|object_id| self.get_type_args(Type::Object(*object_id)).object_id)
             .collect::<Vec<_>>();
         let args = schema_flatbuffer::InterfaceArgs {
-            name: Some(self.bldr.create_string(name.lookup())),
+            name: Some(self.bldr.create_string(name.item.lookup())),
             is_extension: interface.is_extension,
             directives: Some(self.bldr.create_vector(directives)),
             fields: Some(self.bldr.create_vector(fields)),
@@ -307,7 +311,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let union = self.schema.union(id);
         let name = union.name;
         let idx = self.unions.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Union, name);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Union, name.item);
         self.unions.push(schema_flatbuffer::Union::create(
             &mut self.bldr,
             &schema_flatbuffer::UnionArgs::default(),
@@ -320,7 +324,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             .map(|object_id| self.get_type_args(Type::Object(*object_id)).object_id)
             .collect::<Vec<_>>();
         let args = schema_flatbuffer::UnionArgs {
-            name: Some(self.bldr.create_string(name.lookup())),
+            name: Some(self.bldr.create_string(name.item.lookup())),
             is_extension: union.is_extension,
             members: Some(self.bldr.create_vector(members)),
             directives: Some(self.bldr.create_vector(directives)),

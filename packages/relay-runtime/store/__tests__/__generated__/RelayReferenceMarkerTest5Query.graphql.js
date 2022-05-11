@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ecca1f45990bf2a2e9652013276c580b>>
+ * @generated SignedSource<<0c28cb99861663b0c8fc23035dbf9bd7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -13,6 +13,8 @@
 /* eslint-disable */
 
 'use strict';
+
+// @indirectDataDrivenDependency RelayReferenceMarkerTest3Fragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayReferenceMarkerTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayReferenceMarkerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';

@@ -12,8 +12,8 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
 import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
+import type {Disposable} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useBlockingPaginationFragmentOriginal = require('../useBlockingPaginationFragment');
 const invariant = require('invariant');
@@ -87,7 +87,9 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         fragmentRef,
       );
       loadNext = (...args) => {
-        let disposable = {dispose: () => {}};
+        let disposable: Disposable | {|dispose: () => void|} = {
+          dispose: () => {},
+        };
         startTransition(() => {
           disposable = result.loadNext(...args);
         });
@@ -384,7 +386,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       const Container = (props: {
         userRef?: {...},
         owner: $FlowFixMe,
-        fragment: $FlowFixMe,
+        fragment?: $FlowFixMe,
         ...
       }) => {
         // We need a render a component to run a Hook

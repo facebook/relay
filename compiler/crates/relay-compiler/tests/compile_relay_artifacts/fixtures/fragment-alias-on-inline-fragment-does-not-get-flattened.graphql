@@ -1,0 +1,7 @@
+query fragmentAliasOnInlineFragmentDoesNotGetFlattenedQuery {
+  me {
+    ... on User @alias(as: "aliased_fragment") {
+      name @required(action: NONE)
+    }
+  }
+}

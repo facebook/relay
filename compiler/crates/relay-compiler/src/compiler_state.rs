@@ -141,10 +141,37 @@ pub struct IncrementalSources<V: Source> {
     pub processed: IncrementalSourceSet<V>,
 }
 
-impl<V: Source> IncrementalSources<V> {
+impl<V: Source + Clone> IncrementalSources<V> {
     /// Merges additional pending sources into this states pending sources.
-    fn merge_pending_sources(&mut self, additional_pending_sources: IncrementalSourceSet<V>) {
-        self.pending.extend(additional_pending_sources.into_iter());
+    /// Skip if a pending source is empty and the processed source doesn't exist.
+    /// A pending source can be empty when a file doesn't contain any source (GraphQL,
+    /// Docblock, .etc). We need to keep the empty source only when there is a
+    /// corresponding source in `processed`, and compiler needs to do the work to remove it.
+    fn merge_pending_sources(&mut self, additional_pending_sources: &IncrementalSourceSet<V>) {
+        if self.processed.is_empty() {
+            self.pending.extend(
+                additional_pending_sources
+                    .iter()
+                    .filter(|&(_, value)| !value.is_empty())
+                    .map(|(k, v)| (k.clone(), v.clone())),
+            );
+        } else {
+            self.pending.extend(
+                additional_pending_sources
+                    .iter()
+                    .filter(|&(key, value)| {
+                        if value.is_empty() {
+                            match self.processed.get(key) {
+                                Some(v) => !v.is_empty(),
+                                None => false,
+                            }
+                        } else {
+                            true
+                        }
+                    })
+                    .map(|(k, v)| (k.clone(), v.clone())),
+            );
+        }
     }
 
     /// Remove deleted sources from both pending sources and processed sources.
@@ -237,7 +264,7 @@ pub enum ArtifactMapKind {
     Mapping(ArtifactMap),
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct CompilerState {
     pub graphql_sources: FnvHashMap<ProjectName, GraphQLSources>,
     pub schemas: FnvHashMap<ProjectName, SchemaSources>,
@@ -273,19 +300,9 @@ impl CompilerState {
         });
 
         let mut result = Self {
-            graphql_sources: Default::default(),
-            artifacts: Default::default(),
-            implicit_dependencies: Default::default(),
-            extensions: Default::default(),
-            docblocks: Default::default(),
-            schemas: Default::default(),
             clock: file_source_changes.clock(),
             saved_state_version: config.saved_state_version.clone(),
-            dirty_artifact_paths: Default::default(),
-            pending_implicit_dependencies: Default::default(),
-            pending_file_source_changes: Default::default(),
-            schema_cache: Default::default(),
-            source_control_update_status: Default::default(),
+            ..Default::default()
         };
 
         for (category, files) in categorized {
@@ -300,8 +317,8 @@ impl CompilerState {
                     )?;
 
                     for project_name in project_set {
-                        result.set_pending_source_set(project_name, graphql_sources.clone());
-                        result.set_pending_docblock_set(project_name, docblock_sources.clone());
+                        result.set_pending_source_set(project_name, &graphql_sources);
+                        result.set_pending_docblock_set(project_name, &docblock_sources);
                     }
                 }
                 FileGroup::Schema { project_set } => {
@@ -393,8 +410,14 @@ impl CompilerState {
         if schema_change == SchemaChange::None {
             true
         } else {
+            let current_sources_with_location = sources
+                .get_sources_with_location()
+                .into_iter()
+                .map(|(schema, location_key)| (schema.as_str(), location_key))
+                .collect::<Vec<_>>();
+
             match relay_schema::build_schema_with_extensions(
-                &current,
+                &current_sources_with_location,
                 &Vec::<(&str, SourceLocationKey)>::new(),
             ) {
                 Ok(schema) => schema_change.is_safe(&schema, schema_config),
@@ -478,11 +501,11 @@ impl CompilerState {
                             self.graphql_sources
                                 .entry(project_name)
                                 .or_default()
-                                .merge_pending_sources(graphql_sources.clone());
+                                .merge_pending_sources(&graphql_sources);
                             self.docblocks
                                 .entry(project_name)
                                 .or_default()
-                                .merge_pending_sources(docblock_sources.clone());
+                                .merge_pending_sources(&docblock_sources);
                         }
                     }
                     FileGroup::Schema { project_set } => {
@@ -644,30 +667,18 @@ impl CompilerState {
         !self.pending_file_source_changes.read().unwrap().is_empty()
     }
 
-    fn set_pending_source_set(&mut self, project_name: ProjectName, source_set: GraphQLSourceSet) {
-        let pending_entry = &mut self
-            .graphql_sources
-            .entry(project_name)
-            .or_default()
-            .pending;
-        if pending_entry.is_empty() {
-            *pending_entry = source_set;
-        } else {
-            pending_entry.extend(source_set);
-        }
+    fn set_pending_source_set(&mut self, project_name: ProjectName, source_set: &GraphQLSourceSet) {
+        let entry = &mut self.graphql_sources.entry(project_name).or_default();
+        entry.merge_pending_sources(source_set);
     }
 
     fn set_pending_docblock_set(
         &mut self,
         project_name: ProjectName,
-        source_set: DocblockSourceSet,
+        source_set: &DocblockSourceSet,
     ) {
-        let pending_entry = &mut self.docblocks.entry(project_name).or_default().pending;
-        if pending_entry.is_empty() {
-            *pending_entry = source_set;
-        } else {
-            pending_entry.extend(source_set);
-        }
+        let entry = &mut self.docblocks.entry(project_name).or_default();
+        entry.merge_pending_sources(source_set);
     }
 
     fn process_schema_change(
@@ -689,7 +700,7 @@ impl CompilerState {
         for project_name in project_set {
             let entry = source_map.entry(project_name).or_default();
             entry.remove_sources(&removed_sources);
-            entry.merge_pending_sources(added_sources.clone());
+            entry.merge_pending_sources(&added_sources);
         }
         Ok(())
     }

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<be76cad687dd948134c5b40b10222461>>
+ * @generated SignedSource<<e5d5986268fbd6b56856929f2ef4feeb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -13,6 +13,8 @@
 /* eslint-disable */
 
 'use strict';
+
+// @indirectDataDrivenDependency DataCheckerTest4Fragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"DataCheckerTestMarkdownUserNameRenderer_nameFragment$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql"}},"plural":false}
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';

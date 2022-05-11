@@ -12,10 +12,10 @@ fragment Assignable_user on User @assignable {
   __typename
 }
 ==================================== ERROR ====================================
-✖︎ Assignable fragments cannot appear within inline fragments
+✖︎ Because an assignable fragment was spread in this linked field, this linked field can only contain inline fragments, and any inline fragments cannot have @skip or @if.
 
-  assignable-fragment-spread-within-skipped-inline-fragment.invalid.graphql:5:10
+  assignable-fragment-spread-within-skipped-inline-fragment.invalid.graphql:3:3
+    2 │ query TestQuery($skip: Boolean!) {
+    3 │   node(id: "4") {
+      │   ^^^^
     4 │     ... @skip(if: $skip) {
-    5 │       ...Assignable_user
-      │          ^^^^^^^^^^^^^^^
-    6 │     }

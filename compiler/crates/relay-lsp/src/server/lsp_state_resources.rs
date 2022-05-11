@@ -11,10 +11,11 @@ use common::{PerfLogEvent, PerfLogger};
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
-use intern::string_key::StringKey;
+use intern::string_key::{StringKey, StringKeySet};
 use log::debug;
 use rayon::iter::ParallelIterator;
 use relay_compiler::{
+    build_project::{get_project_asts, ProjectAstData, ProjectAsts},
     build_raw_program, build_schema,
     compiler_state::{CompilerState, ProjectName},
     config::ProjectConfig,
@@ -42,6 +43,8 @@ pub(crate) struct LSPStateResources<
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
 }
 
+const MAX_ERROR_COUNT: usize = 3;
+
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation + 'static>
     LSPStateResources<TPerfLogger, TSchemaDocumentation>
 {
@@ -51,12 +54,17 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub(crate) fn watch(self) {
         tokio::spawn(async move {
+            // Wait for a notify from VSCode document events. This is for preventing
+            // starting the loop when the current workspace doesn't have any Relay file.
+            self.lsp_state.notify_lsp_state_resources.notified().await;
             self.internal_watch().await;
         });
     }
 
     /// Create an end-less loop of keeping the resources up-to-date with the source control changes
     async fn internal_watch(&self) {
+        // avoid dead loop when watchman has an error
+        let mut error_count = 0;
         'outer: loop {
             debug!("Initializing resources for LSP server");
 
@@ -76,6 +84,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 Ok(f) => f,
                 Err(error) => {
                     self.log_errors("watch_build_error", &error);
+                    error_count += 1;
+                    if error_count == MAX_ERROR_COUNT {
+                        panic!("{}", error);
+                    }
                     continue;
                 }
             };
@@ -86,6 +98,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 Ok(f) => f,
                 Err(error) => {
                     self.log_errors("watch_build_error", &error);
+                    error_count += 1;
+                    if error_count == MAX_ERROR_COUNT {
+                        panic!("{}", error);
+                    }
                     continue;
                 }
             };
@@ -123,9 +139,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             setup_event.complete();
 
             debug!("LSP server initialization completed!");
+            error_count = 0;
 
             // Here we will wait for changes from watchman
             'inner: loop {
+                // Wait for a notify from watchman updates, or when a Relay file
+                // from an unactivated project is opened in VSCode
                 self.lsp_state.notify_lsp_state_resources.notified().await;
 
                 // Source control update started, we can ignore all pending changes, and wait for it to complete,
@@ -273,7 +292,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         project_config: &ProjectConfig,
         compiler_state: &CompilerState,
-        graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
+        graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
     ) -> Result<StringKey, BuildProjectFailure> {
         self.lsp_state
             .project_status
@@ -284,16 +303,23 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         log_event.string("project", project_name.to_string());
 
         let schema = log_event.time("build_schema_time", || {
-            self.build_schema(compiler_state, project_config)
+            self.build_schema(compiler_state, project_config, graphql_asts_map)
         })?;
+
+        let ProjectAstData {
+            project_asts,
+            base_fragment_names,
+        } = get_project_asts(graphql_asts_map, project_config)?;
 
         // This will kick-off the validation for all synced sources
         self.lsp_state.schedule_task(Task::ValidateSyncedSources);
 
         self.build_programs(
             project_config,
+            project_asts,
+            base_fragment_names,
             compiler_state,
-            graphql_asts,
+            graphql_asts_map,
             schema,
             &log_event,
         )?;
@@ -306,15 +332,17 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         compiler_state: &CompilerState,
         project_config: &ProjectConfig,
+        graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
     ) -> Result<Arc<SDLSchema>, BuildProjectFailure> {
         match self.lsp_state.schemas.entry(project_config.name) {
             Entry::Vacant(e) => {
-                let schema = build_schema(compiler_state, project_config).map_err(|errors| {
-                    BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
-                        errors,
-                        project_name: project_config.name,
-                    })
-                })?;
+                let schema = build_schema(compiler_state, project_config, graphql_asts_map)
+                    .map_err(|errors| {
+                        BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                            errors,
+                            project_name: project_config.name,
+                        })
+                    })?;
                 e.insert(Arc::clone(&schema));
                 Ok(schema)
             }
@@ -322,8 +350,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 if !compiler_state.project_has_pending_schema_changes(project_config.name) {
                     Ok(Arc::clone(e.get()))
                 } else {
-                    let schema =
-                        build_schema(compiler_state, project_config).map_err(|errors| {
+                    let schema = build_schema(compiler_state, project_config, graphql_asts_map)
+                        .map_err(|errors| {
                             debug!("build error");
                             BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
                                 errors,
@@ -340,6 +368,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn build_programs(
         &self,
         project_config: &ProjectConfig,
+        project_asts: ProjectAsts,
+        base_fragment_names: StringKeySet,
         compiler_state: &CompilerState,
         graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
         schema: Arc<SDLSchema>,
@@ -358,10 +388,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 true
             };
 
-        let (base_program, base_fragment_names, _) = build_raw_program(
+        let (base_program, _) = build_raw_program(
             project_config,
             &compiler_state.implicit_dependencies.read().unwrap(),
-            graphql_asts,
+            project_asts,
             schema,
             log_event,
             is_incremental_build,

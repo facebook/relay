@@ -17,6 +17,7 @@ import type {
   FragmentType,
   HasUpdatableSpread,
   RecordSourceProxy,
+  UpdatableData,
 } from '../store/RelayStoreTypes';
 import type {UpdatableFragment} from '../util/RelayRuntimeTypes';
 
@@ -31,7 +32,7 @@ function readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
   fragment: UpdatableFragment<TFragmentType, TData>,
   fragmentReference: HasUpdatableSpread<TFragmentType>,
   proxy: RecordSourceProxy,
-): TData {
+): UpdatableData<TData> {
   const updatableFragment = getFragment(fragment);
   const fragmentVariables = getVariablesFromFragment(
     updatableFragment,
@@ -46,12 +47,14 @@ function readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
     `No record with ${id} was found. This likely indicates a problem with Relay.`,
   );
 
-  return createUpdatableProxy(
-    fragmentRoot,
-    fragmentVariables,
-    updatableFragment.selections,
-    proxy,
-  );
+  return {
+    updatableData: createUpdatableProxy(
+      fragmentRoot,
+      fragmentVariables,
+      updatableFragment.selections,
+      proxy,
+    ),
+  };
 }
 
 module.exports = {readUpdatableFragment_EXPERIMENTAL};

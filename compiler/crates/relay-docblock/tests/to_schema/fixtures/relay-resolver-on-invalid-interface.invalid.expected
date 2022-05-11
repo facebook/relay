@@ -11,7 +11,7 @@
 /**
  * @RelayResolver
  *
- * @onInterface Loser
+ * @onInterface User
  * @fieldName favorite_page
  * @rootFragment myRootFragment
  *
@@ -20,11 +20,18 @@
  * database or something. Then we got that info out again and put it out
  * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
  */
-==================================== ERROR ====================================
-✖︎ Invalid interface given for `onInterface`. "Loser" is not an existing GraphQL interface. Did you mean `Node`?
 
-  /path/to/test/fixture/relay-resolver-on-invalid-interface.invalid.js:4:17
+
+graphql`
+  fragment myRootFragment on User {
+    id
+  }
+`
+==================================== ERROR ====================================
+✖︎ Found `@onInterface` docblock field referring to an object type. Did you mean `@onType`?
+
+  /path/to/test/fixture/relay-resolver-on-invalid-interface.invalid.js:4:5
     3 │  *
-    4 │  * @onInterface Loser
-      │                 ^^^^^
+    4 │  * @onInterface User
+      │     ^^^^^^^^^^^
     5 │  * @fieldName favorite_page

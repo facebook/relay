@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on Query {
+  node(id: "4") {
+    ... on Node {
+      __typename
+      ...Updatable_node
+    }
+  }
+}
+
+fragment Updatable_node on Node @updatable {
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ Because an updatable fragment was spread in an inline fragment in this linked field, each of this linked field's selections must be an inline fragment with no directives, refining the type to a unique concrete type and containing an unaliased __typename field with no directives. However, an inline fragment in this linked field does not refine to a concrete type.
+
+  updatable_fragment_spread_in_inline_fragment_with_abstract_type_condition.invalid.graphql:3:3
+    2 │ fragment Foo on Query {
+    3 │   node(id: "4") {
+      │   ^^^^
+    4 │     ... on Node {

@@ -6,11 +6,12 @@
  */
 
 use crate::errors::ErrorMessagesWithData;
-use common::{Diagnostic, DiagnosticsResult, Location, Span, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, Named, Span, WithLocation};
 use graphql_syntax::{
-    BooleanNode, ConstantArgument, ConstantDirective, ConstantValue, FieldDefinition, Identifier,
-    InterfaceTypeExtension, List, NamedTypeAnnotation, ObjectTypeExtension, SchemaDocument,
-    StringNode, Token, TokenKind, TypeAnnotation, TypeSystemDefinition,
+    BooleanNode, ConstantArgument, ConstantDirective, ConstantValue, FieldDefinition,
+    FieldDefinitionStub, Identifier, InputValueDefinition, InterfaceTypeExtension, List,
+    NamedTypeAnnotation, ObjectTypeExtension, SchemaDocument, StringNode, Token, TokenKind,
+    TypeAnnotation, TypeSystemDefinition,
 };
 use intern::string_key::{Intern, StringKey};
 
@@ -22,7 +23,7 @@ lazy_static! {
     static ref RELAY_RESOLVER_DIRECTIVE_NAME: StringKey = "relay_resolver".intern();
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: StringKey = "deprecated".intern();
     static ref FRAGMENT_KEY_ARGUMENT_NAME: StringKey = "fragment_name".intern();
-    static ref IMPORT_PATH_AGUMENT_NAME: StringKey = "import_path".intern();
+    static ref IMPORT_PATH_ARGUMENT_NAME: StringKey = "import_path".intern();
     static ref LIVE_ARGUMENT_NAME: StringKey = "live".intern();
     static ref DEPRECATED_REASON_ARGUMENT_NAME: StringKey = "reason".intern();
 }
@@ -65,15 +66,29 @@ pub enum On {
 }
 
 #[derive(Debug, PartialEq)]
+pub struct Argument {
+    pub name: Identifier,
+    pub type_: TypeAnnotation,
+    pub default_value: Option<ConstantValue>,
+}
+
+impl Named for Argument {
+    fn name(&self) -> StringKey {
+        self.name.value
+    }
+}
+
+#[derive(Debug, PartialEq)]
 pub struct RelayResolverIr {
-    pub field_name: WithLocation<StringKey>,
+    pub field: FieldDefinitionStub,
     pub on: On,
     pub root_fragment: WithLocation<StringKey>,
-    pub edge_to: Option<WithLocation<StringKey>>,
+    pub edge_to: Option<WithLocation<TypeAnnotation>>,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
     pub live: Option<IrField>,
     pub location: Location,
+    pub fragment_arguments: Option<Vec<Argument>>,
 }
 
 impl RelayResolverIr {
@@ -181,9 +196,9 @@ impl RelayResolverIr {
         {
             definitions.extend(
                 self.interface_definitions(
-                    WithLocation::new(interface_name.location, existing_interface.name),
+                    WithLocation::new(interface_name.location, existing_interface.name.item),
                     schema
-                        .get_type(existing_interface.name)
+                        .get_type(existing_interface.name.item)
                         .unwrap()
                         .get_interface_id()
                         .unwrap(),
@@ -206,17 +221,53 @@ impl RelayResolverIr {
     }
 
     fn fields(&self) -> List<FieldDefinition> {
-        let edge_to = self
-            .edge_to
-            .map_or_else(|| string_key_as_identifier(*INT_TYPE), as_identifier);
+        let edge_to = self.edge_to.as_ref().map_or_else(
+            || {
+                // Resolvers return arbitrary JavaScript values. However, we
+                // need some GraphQL type to use in the schema. As a placeholder
+                // we arbitrarily use Int. In the future we may want to use a custom
+                // scalar here.
+                TypeAnnotation::Named(NamedTypeAnnotation {
+                    name: string_key_as_identifier(*INT_TYPE),
+                })
+            },
+            |annotation| annotation.item.clone(),
+        );
+
+        let args = match (self.fragment_arguments(), self.field.arguments.as_ref()) {
+            (None, None) => None,
+            (None, Some(b)) => Some(b.clone()),
+            (Some(a), None) => Some(a),
+            (Some(a), Some(b)) => Some(List::generated(
+                a.items
+                    .into_iter()
+                    .chain(b.clone().items.into_iter())
+                    .collect::<Vec<_>>(),
+            )),
+        };
 
         List::generated(vec![FieldDefinition {
-            name: as_identifier(self.field_name),
-            type_: TypeAnnotation::Named(NamedTypeAnnotation { name: edge_to }),
-            arguments: None,
+            name: self.field.name.clone(),
+            type_: edge_to,
+            arguments: args,
             directives: self.directives(),
             description: self.description.map(as_string_node),
         }])
+    }
+
+    fn fragment_arguments(&self) -> Option<List<InputValueDefinition>> {
+        self.fragment_arguments.as_ref().map(|args| {
+            List::generated(
+                args.iter()
+                    .map(|arg| InputValueDefinition {
+                        name: arg.name.clone(),
+                        type_: arg.type_.clone(),
+                        default_value: arg.default_value.clone(),
+                        directives: vec![],
+                    })
+                    .collect::<Vec<_>>(),
+            )
+        })
     }
 
     fn directives(&self) -> Vec<ConstantDirective> {
@@ -246,7 +297,7 @@ impl RelayResolverIr {
         let mut arguments = vec![
             string_argument(*FRAGMENT_KEY_ARGUMENT_NAME, self.root_fragment),
             string_argument(
-                *IMPORT_PATH_AGUMENT_NAME,
+                *IMPORT_PATH_ARGUMENT_NAME,
                 WithLocation::new(self.location, import_path),
             ),
         ];

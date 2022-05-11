@@ -11,7 +11,6 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
 import type {
   MutationParameters,
   RecordSourceSelectorProxy,
@@ -19,6 +18,7 @@ import type {
 } from '../store/RelayStoreTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
+import type {RecordProxy} from 'relay-runtime/store/RelayStoreTypes';
 
 const ConnectionHandler = require('../handlers/connection/ConnectionHandler');
 const warning = require('warning');
@@ -334,7 +334,7 @@ function deleteNode(
     );
     return;
   }
-  let recordProxy = parent;
+  let recordProxy: ?RecordProxy = parent;
   for (let i = 1; i < pathToConnection.length - 1; i++) {
     if (recordProxy) {
       recordProxy = recordProxy.getLinkedRecord(pathToConnection[i]);

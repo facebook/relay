@@ -1,0 +1,18 @@
+fragment relayResolversWithDifferentFieldArgsAreNotMerged_PopStarNameResolverFragment_name on User {
+  name
+}
+
+query relayResolversWithDifferentFieldArgsAreNotMerged_Query {
+  node(id: "SOME_ID") {
+    ... on User {
+      ten: pop_star_name(some_arg: 10)
+      twenty: pop_star_name(some_arg: 20)
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name(some_arg: Int!): String @relay_resolver(fragment_name: "relayResolversWithDifferentFieldArgsAreNotMerged_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js")
+}

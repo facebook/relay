@@ -61,8 +61,8 @@ describe.skip('useQueryLoader-react-double-effects', () => {
   let render;
   let QueryComponent;
   let LoaderComponent;
-  let queryRenderLogs;
-  let loaderRenderLogs;
+  let queryRenderLogs: Array<string>;
+  let loaderRenderLogs: Array<string>;
 
   beforeEach(() => {
     jest.mock('scheduler', () => require('scheduler/unstable_mock'));
@@ -159,7 +159,10 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       );
     };
 
-    render = function (initialQueryRef, {suspendWholeTree} = {}): $FlowFixMe {
+    render = function (
+      initialQueryRef,
+      {suspendWholeTree} = ({...null}: {|suspendWholeTree?: boolean|}),
+    ): $FlowFixMe {
       let instance;
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(

@@ -7,9 +7,8 @@
 
 use crate::util::{
     generate_abstract_type_refinement_key, is_relay_custom_inline_fragment_directive,
-    PointerAddress,
 };
-use common::{Location, WithLocation};
+use common::{Location, PointerAddress, WithLocation};
 use fnv::FnvHashMap;
 use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
@@ -187,6 +186,7 @@ impl<'s> Transformer for GenerateTypenameTransform<'s> {
                     type_condition: fragment.type_condition,
                     directives: fragment.directives.clone(),
                     selections,
+                    spread_location: fragment.spread_location,
                 })))
             }
         };

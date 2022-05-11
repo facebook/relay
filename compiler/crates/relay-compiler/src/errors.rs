@@ -147,6 +147,14 @@ pub enum ConfigValidationError {
     ProjectSourceMissing { project_name: ProjectName },
 
     #[error(
+        "Source dir `{source_dir}` tries to use project `{project_name}`, but no such project exists."
+    )]
+    ProjectDefinitionMissing {
+        source_dir: PathBuf,
+        project_name: ProjectName,
+    },
+
+    #[error(
         "The project `{project_name}` defines the base project `{base_project_name}`, but no such project exists."
     )]
     ProjectBaseMissing {
@@ -246,7 +254,4 @@ pub enum BuildProjectError {
 
     #[error("Failed to write file `{file}`: {source}")]
     WriteFileError { file: PathBuf, source: io::Error },
-
-    #[error("Unable to get schema for project {project_name}")]
-    SchemaNotFoundForProject { project_name: ProjectName },
 }

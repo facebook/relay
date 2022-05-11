@@ -1,0 +1,204 @@
+==================================== INPUT ====================================
+query providedVariableDirectiveQuery {
+  me {
+    ...providedVariableDirectiveFragment
+  }
+}
+
+fragment providedVariableDirectiveFragment on User
+@argumentDefinitions(
+  shouldDefer: {type: "Boolean!", provider: "jsProvider"}
+) {
+  profile_picture(scale: 5) {
+    ...providedVariableDirective_DeferredFragment @defer(if: $shouldDefer)
+  }
+}
+
+fragment providedVariableDirective_DeferredFragment on Image {
+  uri
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "providedVariableDirectiveQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "providedVariableDirectiveFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__jsProvider"
+      }
+    ],
+    "kind": "Operation",
+    "name": "providedVariableDirectiveQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "scale",
+                "value": 5
+              }
+            ],
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profile_picture",
+            "plural": false,
+            "selections": [
+              {
+                "if": "__relay_internal__pv__jsProvider",
+                "kind": "Defer",
+                "label": "providedVariableDirectiveFragment$defer$providedVariableDirective_DeferredFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "uri",
+                    "storageKey": null
+                  }
+                ]
+              }
+            ],
+            "storageKey": "profile_picture(scale:5)"
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "providedVariableDirectiveQuery",
+    "operationKind": "query",
+    "text": null,
+    "providedVariables": {
+      "__relay_internal__pv__jsProvider": require('jsProvider')
+    }
+  }
+}
+
+QUERY:
+
+query providedVariableDirectiveQuery(
+  $__relay_internal__pv__jsProvider: Boolean!
+) {
+  me {
+    ...providedVariableDirectiveFragment
+    id
+  }
+}
+
+fragment providedVariableDirectiveFragment on User {
+  profile_picture(scale: 5) {
+    ...providedVariableDirective_DeferredFragment @defer(label: "providedVariableDirectiveFragment$defer$providedVariableDirective_DeferredFragment", if: $__relay_internal__pv__jsProvider)
+  }
+}
+
+fragment providedVariableDirective_DeferredFragment on Image {
+  uri
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__jsProvider"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableDirectiveFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "scale",
+          "value": 5
+        }
+      ],
+      "concreteType": "Image",
+      "kind": "LinkedField",
+      "name": "profile_picture",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "Defer",
+          "selections": [
+            {
+              "args": null,
+              "kind": "FragmentSpread",
+              "name": "providedVariableDirective_DeferredFragment"
+            }
+          ]
+        }
+      ],
+      "storageKey": "profile_picture(scale:5)"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableDirective_DeferredFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "uri",
+      "storageKey": null
+    }
+  ],
+  "type": "Image",
+  "abstractKey": null
+}

@@ -11,7 +11,10 @@ mod loader;
 pub use error::{ConfigError, ErrorCode};
 use loader::{JsLoader, JsonLoader, Loader, PackageJsonLoader, YamlLoader};
 use serde::Deserialize;
-use std::path::{Path, PathBuf};
+use std::{
+    fmt::Display,
+    path::{Path, PathBuf},
+};
 
 #[derive(Debug)]
 pub struct Config<T> {
@@ -19,25 +22,50 @@ pub struct Config<T> {
     pub value: T,
 }
 
-pub fn search<T>(name: &str, dir: &Path) -> Result<Option<Config<T>>, ConfigError>
+pub enum LoaderSource {
+    PackageJson(String),
+    Json(String),
+    Js(String),
+    Yaml(String),
+}
+
+impl Display for LoaderSource {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::PackageJson(name) => format!("`package.json` (\"{}\" key)", name),
+                Self::Js(name) | Self::Json(name) | Self::Yaml(name) => format!("`{}`", name),
+            }
+        )
+    }
+}
+
+pub fn load<T>(dir: &Path, sources: &[LoaderSource]) -> Result<Option<Config<T>>, ConfigError>
 where
     T: for<'de> Deserialize<'de> + 'static,
 {
-    let loaders: Vec<(String, Box<dyn Loader<T>>)> = vec![
-        (
-            String::from("package.json"),
-            Box::new(PackageJsonLoader { key: name }),
-        ),
-        (format!(".{}rc", name), Box::new(JsonLoader)),
-        (format!(".{}rc.json", name), Box::new(JsonLoader)),
-        (format!(".{}rc.yaml", name), Box::new(YamlLoader)),
-        (format!(".{}rc.yml", name), Box::new(YamlLoader)),
-        (format!(".{}rc.js", name), Box::new(JsLoader)),
-        (format!(".{}rc.cjs", name), Box::new(JsLoader)),
-        (format!("{}.config.js", name), Box::new(JsLoader)),
-        (format!("{}.config.json", name), Box::new(JsonLoader)),
-        (format!("{}.config.cjs", name), Box::new(JsLoader)),
-    ];
+    let mut loaders: Vec<(String, Box<dyn Loader<T>>)> = Vec::with_capacity(sources.len());
+    for source in sources {
+        match source {
+            LoaderSource::PackageJson(name) => {
+                loaders.push((
+                    String::from("package.json"),
+                    Box::new(PackageJsonLoader { key: name }),
+                ));
+            }
+            LoaderSource::Js(name) => {
+                loaders.push((name.clone(), Box::new(JsLoader)));
+            }
+            LoaderSource::Json(name) => {
+                loaders.push((name.clone(), Box::new(JsonLoader)));
+            }
+            LoaderSource::Yaml(name) => {
+                loaders.push((name.clone(), Box::new(YamlLoader)));
+            }
+        }
+    }
 
     for search_dir in dir.ancestors() {
         for (file_name, loader) in &loaders {
@@ -63,4 +91,24 @@ where
     }
 
     Ok(None)
+}
+
+pub fn search<T>(name: &str, dir: &Path) -> Result<Option<Config<T>>, ConfigError>
+where
+    T: for<'de> Deserialize<'de> + 'static,
+{
+    load(
+        dir,
+        &[
+            LoaderSource::PackageJson(name.to_string()),
+            LoaderSource::Json(format!(".{}rc", name)),
+            LoaderSource::Json(format!("{}.config.json", name)),
+            LoaderSource::Yaml(format!(".{}rc.yaml", name)),
+            LoaderSource::Yaml(format!(".{}rc.yml", name)),
+            LoaderSource::Js(format!(".{}.rc.js", name)),
+            LoaderSource::Js(format!(".{}.rc.cjs", name)),
+            LoaderSource::Js(format!("{}.config.js", name)),
+            LoaderSource::Js(format!("{}.config.cjs", name)),
+        ],
+    )
 }

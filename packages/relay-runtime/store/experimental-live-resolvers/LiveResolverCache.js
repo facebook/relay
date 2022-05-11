@@ -18,13 +18,13 @@ import type {
 } from '../../util/ReaderNode';
 import type {DataID, Variables} from '../../util/RelayRuntimeTypes';
 import type {
-  MissingRequiredFields,
   MutableRecordSource,
   Record,
-  RelayResolverErrors,
+  RelayResolverError,
   SingularReaderSelector,
+  Snapshot,
 } from '../RelayStoreTypes';
-import type {ResolverCache} from '../ResolverCache';
+import type {EvaluationResult, ResolverCache} from '../ResolverCache';
 import type {LiveState} from './LiveResolverStore';
 
 const recycleNodesInto = require('../../util/recycleNodesInto');
@@ -34,10 +34,8 @@ const RelayModernRecord = require('../RelayModernRecord');
 const RelayRecordSource = require('../RelayRecordSource');
 const {
   RELAY_RESOLVER_ERROR_KEY,
-  RELAY_RESOLVER_INPUTS_KEY,
   RELAY_RESOLVER_INVALIDATION_KEY,
-  RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY,
-  RELAY_RESOLVER_READER_SELECTOR_KEY,
+  RELAY_RESOLVER_SNAPSHOT_KEY,
   RELAY_RESOLVER_VALUE_KEY,
   getStorageKey,
 } = require('../RelayStoreUtils');
@@ -52,25 +50,15 @@ const RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY =
 const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
 
+export opaque type LiveResolverSuspenseSentinel = mixed;
+const LIVE_RESOLVER_SUSPENSE: LiveResolverSuspenseSentinel = {};
+
 /**
  * An experimental fork of store/ResolverCache.js intended to let us experiment
  * with Live Resolvers.
  */
 
 type ResolverID = string;
-
-type EvaluationResult<T> = {|
-  resolverResult: T,
-  fragmentValue: {...},
-  resolverID: ResolverID,
-  seenRecordIDs: Set<DataID>,
-  readerSelector: SingularReaderSelector,
-  errors: RelayResolverErrors,
-  missingRequiredFields: ?MissingRequiredFields,
-|};
-
-// $FlowFixMe[unclear-type] - will always be empty
-const emptySet: $ReadOnlySet<any> = new Set();
 
 function addDependencyEdge(
   edges: Map<ResolverID, Set<DataID>> | Map<DataID, Set<ResolverID>>,
@@ -111,8 +99,9 @@ class LiveResolverCache implements ResolverCache {
   ): [
     T /* Answer */,
     ?DataID /* Seen record */,
-    RelayResolverErrors,
-    ?MissingRequiredFields,
+    ?RelayResolverError,
+    ?Snapshot,
+    ?DataID /* ID of record containing a suspended Live field */,
   ] {
     const recordSource = this._getRecordSource();
     const recordID = RelayModernRecord.getDataID(record);
@@ -151,23 +140,13 @@ class LiveResolverCache implements ResolverCache {
       }
       RelayModernRecord.setValue(
         linkedRecord,
-        RELAY_RESOLVER_INPUTS_KEY,
-        evaluationResult.fragmentValue,
-      );
-      RelayModernRecord.setValue(
-        linkedRecord,
-        RELAY_RESOLVER_READER_SELECTOR_KEY,
-        evaluationResult.readerSelector,
-      );
-      RelayModernRecord.setValue(
-        linkedRecord,
-        RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY,
-        evaluationResult.missingRequiredFields,
+        RELAY_RESOLVER_SNAPSHOT_KEY,
+        evaluationResult.snapshot,
       );
       RelayModernRecord.setValue(
         linkedRecord,
         RELAY_RESOLVER_ERROR_KEY,
-        evaluationResult.errors,
+        evaluationResult.error,
       );
       recordSource.set(linkedID, linkedRecord);
 
@@ -180,12 +159,15 @@ class LiveResolverCache implements ResolverCache {
       const resolverID = evaluationResult.resolverID;
       addDependencyEdge(this._resolverIDToRecordIDs, resolverID, linkedID);
       addDependencyEdge(this._recordIDToResolverIDs, recordID, resolverID);
-      for (const seenRecordID of evaluationResult.seenRecordIDs) {
-        addDependencyEdge(
-          this._recordIDToResolverIDs,
-          seenRecordID,
-          resolverID,
-        );
+      const seenRecordIds = evaluationResult.snapshot?.seenRecords;
+      if (seenRecordIds != null) {
+        for (const seenRecordID of seenRecordIds) {
+          addDependencyEdge(
+            this._recordIDToResolverIDs,
+            seenRecordID,
+            resolverID,
+          );
+        }
       }
     } else if (
       field.kind === RELAY_LIVE_RESOLVER &&
@@ -202,11 +184,12 @@ class LiveResolverCache implements ResolverCache {
         linkedRecord,
         RELAY_RESOLVER_LIVE_STATE_VALUE,
       );
+
       // Set the new value for this and future reads.
       RelayModernRecord.setValue(
         linkedRecord,
         RELAY_RESOLVER_VALUE_KEY,
-        liveState.read(),
+        readLiveStateValue(liveState),
       );
       // Mark the resolver as clean again.
       RelayModernRecord.setValue(
@@ -219,14 +202,41 @@ class LiveResolverCache implements ResolverCache {
 
     // $FlowFixMe[incompatible-type] - will always be empty
     const answer: T = linkedRecord[RELAY_RESOLVER_VALUE_KEY];
+    // $FlowFixMe[incompatible-type] - casting mixed
+    const snapshot: ?Snapshot = linkedRecord[RELAY_RESOLVER_SNAPSHOT_KEY];
+    // $FlowFixMe[incompatible-type] - casting mixed
+    const error: ?RelayResolverError = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
 
-    const missingRequiredFields: ?MissingRequiredFields =
-      // $FlowFixMe[incompatible-type] - casting mixed
-      linkedRecord[RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY];
+    let suspenseID = null;
+
+    if (answer === LIVE_RESOLVER_SUSPENSE) {
+      suspenseID = linkedID ?? generateClientID(recordID, storageKey);
+    }
+
+    return [answer, linkedID, error, snapshot, suspenseID];
+  }
+
+  getLiveResolverPromise(liveStateID: DataID): Promise<void> {
+    const recordSource = this._getRecordSource();
+    const liveStateRecord = recordSource.get(liveStateID);
+
+    invariant(
+      liveStateRecord != null,
+      'Expected to find record for live resolver.',
+    );
 
     // $FlowFixMe[incompatible-type] - casting mixed
-    const errors: RelayResolverErrors = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
-    return [answer, linkedID, errors, missingRequiredFields];
+    const liveState: LiveState<mixed> = RelayModernRecord.getValue(
+      liveStateRecord,
+      RELAY_RESOLVER_LIVE_STATE_VALUE,
+    );
+
+    return new Promise(resolve => {
+      const unsubscribe = liveState.subscribe(() => {
+        unsubscribe();
+        resolve();
+      });
+    });
   }
 
   // Register a new Live State object in the store, subscribing to future
@@ -249,7 +259,7 @@ class LiveResolverCache implements ResolverCache {
 
     // Subscribe to future values
     // Note: We subscribe before reading, since subscribing could potentially
-    // trigger a syncronous update. By reading second way we will always
+    // trigger a synchronous update. By reading second way we will always
     // observe the new value, without needing to double render.
     const handler = this._makeLiveStateHandler(linkedID);
     const unsubscribe = liveState.subscribe(handler);
@@ -265,7 +275,7 @@ class LiveResolverCache implements ResolverCache {
     RelayModernRecord.setValue(
       linkedRecord,
       RELAY_RESOLVER_VALUE_KEY,
-      liveState.read(),
+      readLiveStateValue(liveState),
     );
 
     // Mark the field as clean.
@@ -291,7 +301,7 @@ class LiveResolverCache implements ResolverCache {
       const currentRecord = currentSource.get(linkedID);
       if (!currentRecord) {
         // If there is no record yet, it means the subscribe function fired an
-        // update syncronously on subscribe (before we even created the record).
+        // update synchronously on subscribe (before we even created the record).
         // In this case we can safely ignore this update, since we will be
         // reading the new value when we create the record.
         return;
@@ -326,12 +336,17 @@ class LiveResolverCache implements ResolverCache {
     while (recordsToVisit.length) {
       const recordID = recordsToVisit.pop();
       updatedDataIDs.add(recordID);
-      for (const fragment of this._recordIDToResolverIDs.get(recordID) ??
-        emptySet) {
+      const fragmentSet = this._recordIDToResolverIDs.get(recordID);
+      if (fragmentSet == null) {
+        continue;
+      }
+      for (const fragment of fragmentSet) {
         if (!visited.has(fragment)) {
-          for (const anotherRecordID of this._resolverIDToRecordIDs.get(
-            fragment,
-          ) ?? emptySet) {
+          const recordSet = this._resolverIDToRecordIDs.get(fragment);
+          if (recordSet == null) {
+            continue;
+          }
+          for (const anotherRecordID of recordSet) {
             this._markInvalidatedResolverRecord(anotherRecordID, recordSource);
             if (!visited.has(anotherRecordID)) {
               recordsToVisit.push(anotherRecordID);
@@ -371,15 +386,13 @@ class LiveResolverCache implements ResolverCache {
     if (!RelayModernRecord.getValue(record, RELAY_RESOLVER_INVALIDATION_KEY)) {
       return false;
     }
-    const originalInputs = RelayModernRecord.getValue(
-      record,
-      RELAY_RESOLVER_INPUTS_KEY,
-    );
     // $FlowFixMe[incompatible-type] - storing values in records is not typed
-    const readerSelector: ?SingularReaderSelector = RelayModernRecord.getValue(
+    const snapshot: ?Snapshot = RelayModernRecord.getValue(
       record,
-      RELAY_RESOLVER_READER_SELECTOR_KEY,
+      RELAY_RESOLVER_SNAPSHOT_KEY,
     );
+    const originalInputs = snapshot?.data;
+    const readerSelector: ?SingularReaderSelector = snapshot?.selector;
     if (originalInputs == null || readerSelector == null) {
       warning(
         false,
@@ -409,15 +422,34 @@ class LiveResolverCache implements ResolverCache {
 }
 
 // Validate that a value is live state
-// $FlowFixMe
-function isLiveStateValue(v: Object): boolean {
+function isLiveStateValue(v: mixed): boolean {
   return (
     v != null &&
+    typeof v === 'object' &&
     typeof v.read === 'function' &&
     typeof v.subscribe === 'function'
   );
 }
 
+function suspenseSentinel<T>(): T {
+  throw LIVE_RESOLVER_SUSPENSE;
+}
+
+function readLiveStateValue<T>(
+  liveState: LiveState<T>,
+): T | LiveResolverSuspenseSentinel {
+  try {
+    return liveState.read();
+  } catch (e) {
+    if (e === LIVE_RESOLVER_SUSPENSE) {
+      return e;
+    } else {
+      throw e;
+    }
+  }
+}
+
 module.exports = {
   LiveResolverCache,
+  suspenseSentinel,
 };

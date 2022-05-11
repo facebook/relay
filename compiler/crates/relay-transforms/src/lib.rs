@@ -24,6 +24,7 @@ mod defer_stream;
 mod directive_finder;
 mod errors;
 mod flatten;
+mod fragment_alias_directive;
 mod generate_data_driven_dependency_metadata;
 mod generate_id_field;
 mod generate_live_query_metadata;
@@ -37,7 +38,6 @@ mod match_;
 mod metadata_directive;
 mod murmurhash;
 mod no_inline;
-mod node_identifier;
 mod preloadable_directive;
 mod provided_variable_fragment_transform;
 mod react_flight;
@@ -45,6 +45,7 @@ mod refetchable_fragment;
 mod relay_actor_change;
 mod relay_client_component;
 mod relay_directive;
+mod relay_node_identifier;
 mod relay_resolvers;
 mod remove_base_fragments;
 mod required_directive;
@@ -106,8 +107,9 @@ pub use defer_stream::{
 };
 pub use directive_finder::DirectiveFinder;
 pub use flatten::flatten;
+pub use fragment_alias_directive::{fragment_alias_directive, FragmentAliasMetadata};
 pub use generate_data_driven_dependency_metadata::{
-    generate_data_driven_dependency_metadata, DATA_DRIVEN_DEPENDENCY_METADATA_KEY,
+    generate_data_driven_dependency_metadata, RelayDataDrivenDependencyMetadata,
 };
 pub use generate_id_field::generate_id_field;
 pub use generate_live_query_metadata::generate_live_query_metadata;
@@ -127,7 +129,6 @@ pub use match_::{
     SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION, MATCH_CONSTANTS,
 };
 pub use no_inline::NO_INLINE_DIRECTIVE_NAME;
-pub use node_identifier::NodeIdentifier;
 pub use preloadable_directive::{is_operation_preloadable, should_generate_hack_preloader};
 pub use provided_variable_fragment_transform::provided_variable_fragment_transform;
 pub use react_flight::{
@@ -145,9 +146,11 @@ pub use relay_client_component::{
     RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
 };
 pub use relay_directive::RelayDirective;
+pub use relay_node_identifier::RelayLocationAgnosticBehavior;
 pub use relay_resolvers::{
     find_resolver_dependencies, relay_resolvers, RelayResolverSpreadMetadata, ResolverFieldFinder,
-    RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+    RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
+    RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
 };
 pub use remove_base_fragments::remove_base_fragments;
 pub use required_directive::{
@@ -166,7 +169,7 @@ pub use transform_connections::transform_connections;
 pub use unwrap_custom_directive_selection::unwrap_custom_directive_selection;
 pub use util::{
     extract_variable_name, generate_abstract_type_refinement_key, get_fragment_filename,
-    remove_directive, PointerAddress,
+    remove_directive,
 };
 pub use validate_operation_variables::validate_operation_variables;
 pub use validations::*;

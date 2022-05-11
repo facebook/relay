@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+query Foo {
+  viewer {
+    ...Assignable_viewer
+  }
+}
+
+fragment Assignable_viewer on Viewer @assignable {
+  __typename
+}
+==================================== OUTPUT ===================================
+import type { Assignable_viewer$fragmentType } from "Assignable_viewer.graphql";
+export type Foo$variables = {||};
+export type Foo$data = {|
+  +viewer: ?{|
+    +__typename: string,
+    +__id: string,
+    +$fragmentSpreads: Assignable_viewer$fragmentType,
+  |},
+|};
+export type Foo = {|
+  response: Foo$data,
+  variables: Foo$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Assignable_viewer$fragmentType: FragmentType;

@@ -9,9 +9,15 @@
 
 /**
  * @RelayResolver
- * 
+ *
  * @onInterface
  * @fieldName favorite_page
  * @edgeTo Page
  * @rootFragment myRootFragment
  */
+
+graphql`
+  fragment myRootFragment on User {
+    name
+  }
+`

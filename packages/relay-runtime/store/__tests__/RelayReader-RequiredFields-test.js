@@ -16,7 +16,7 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {read} = require('../RelayReader');
 const RelayRecordSource = require('../RelayRecordSource');
-const {createReaderSelector} = require('relay-runtime');
+const {createReaderSelector, getPluralSelector} = require('relay-runtime');
 
 describe('RelayReader @required', () => {
   it('bubbles @required(action: LOG) scalars up to LinkedField', () => {
@@ -750,5 +750,45 @@ describe('RelayReader @required', () => {
     );
     expect(isMissingData).toBe(true);
     expect(data).toEqual(null);
+  });
+
+  it('bubbles to list item when used in plural fragment', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'nodes(ids:["1","2"])': {__refs: ['1', '2']},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        username: 'Wendy',
+      },
+      '2': {
+        __id: '2',
+        id: '2',
+        __typename: 'User',
+        username: null,
+      },
+    });
+    const BarFragment = graphql`
+      fragment RelayReaderRequiredFieldsTest6Fragment on User
+      @relay(plural: true) {
+        username @required(action: LOG)
+      }
+    `;
+    const UserQuery = graphql`
+      query RelayReaderRequiredFieldsTest24Query {
+        nodes(ids: ["1", "2"]) {
+          ...RelayReaderRequiredFieldsTest6Fragment
+        }
+      }
+    `;
+    const owner = createOperationDescriptor(UserQuery);
+    const {nodes} = read(source, owner.fragment).data;
+    const pluralSelector = getPluralSelector(BarFragment, nodes);
+    const data = pluralSelector.selectors.map(s => read(source, s).data);
+    expect(data).toEqual([{username: 'Wendy'}, null]);
   });
 });

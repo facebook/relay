@@ -1,0 +1,18 @@
+{
+  "root": true,
+  "ignorePatterns": "out/*",
+  "parserOptions": {
+    "project": "./tsconfig.json"
+  },
+  "extends": ["airbnb-base", "airbnb-typescript/base"],
+  "rules": {
+    // The following rules conflict with prettier
+    "operator-linebreak": "off",
+    "@typescript-eslint/indent": "off",
+    "@typescript-eslint/object-curly-spacing": "off",
+
+    // Opinionated
+    "import/prefer-default-export": "off",
+    "no-await-in-loop": "off"
+  }
+}

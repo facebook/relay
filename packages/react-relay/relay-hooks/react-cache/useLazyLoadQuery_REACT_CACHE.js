@@ -50,8 +50,10 @@ function useLazyLoadQuery_REACT_CACHE<TVariables: Variables, TData>(
   const queryResult = getQueryResultOrFetchQuery(
     environment,
     queryOperationDescriptor,
-    options?.fetchPolicy,
-    options?.UNSTABLE_renderPolicy,
+    {
+      fetchPolicy: options?.fetchPolicy,
+      renderPolicy: options?.UNSTABLE_renderPolicy,
+    },
   );
 
   // Read the query's root fragment -- this may suspend.

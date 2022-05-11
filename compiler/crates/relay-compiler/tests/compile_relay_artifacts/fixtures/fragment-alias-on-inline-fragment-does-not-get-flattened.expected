@@ -1,0 +1,104 @@
+==================================== INPUT ====================================
+query fragmentAliasOnInlineFragmentDoesNotGetFlattenedQuery {
+  me {
+    ... on User @alias(as: "aliased_fragment") {
+      name @required(action: NONE)
+    }
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "fragmentAliasOnInlineFragmentDoesNotGetFlattenedQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "kind": "RequiredField",
+                  "field": {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  },
+                  "action": "NONE",
+                  "path": "me.aliased_fragment.name"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "AliasedInlineFragmentSpread",
+            "name": "aliased_fragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "fragmentAliasOnInlineFragmentDoesNotGetFlattenedQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "id": null,
+    "metadata": {},
+    "name": "fragmentAliasOnInlineFragmentDoesNotGetFlattenedQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query fragmentAliasOnInlineFragmentDoesNotGetFlattenedQuery {
+  me {
+    name
+    id
+  }
+}

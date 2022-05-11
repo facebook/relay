@@ -45,15 +45,17 @@ pub fn create_docblock_resolution_info(
                 ));
             }
 
-            if resolver_ir.field_name.location.contains(position_span) {
+            if resolver_ir.field.name.span.contains(position_span) {
                 return Ok(DocblockResolutionInfo::FieldName(
-                    resolver_ir.field_name.item,
+                    resolver_ir.field.name.value,
                 ));
             }
 
             if let Some(edge_to) = resolver_ir.edge_to {
                 if edge_to.location.contains(position_span) {
-                    return Ok(DocblockResolutionInfo::EdgeTo(edge_to.item));
+                    return Ok(DocblockResolutionInfo::EdgeTo(
+                        edge_to.item.inner().name.value,
+                    ));
                 }
             }
 

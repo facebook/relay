@@ -457,23 +457,25 @@ describe('RelayReferenceMarker', () => {
     let loader;
 
     beforeEach(() => {
-      const nodes = {};
-      nodes.RelayReferenceMarkerTestPlainUserNameRenderer_name = graphql`
-        fragment RelayReferenceMarkerTestPlainUserNameRenderer_name on PlainUserNameRenderer {
-          plaintext
-          data {
-            text
+      const nodes = {
+        RelayReferenceMarkerTestPlainUserNameRenderer_name: graphql`
+          fragment RelayReferenceMarkerTestPlainUserNameRenderer_name on PlainUserNameRenderer {
+            plaintext
+            data {
+              text
+            }
           }
-        }
-      `;
-      nodes.RelayReferenceMarkerTestMarkdownUserNameRenderer_name = graphql`
-        fragment RelayReferenceMarkerTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          markdown
-          data {
-            markup
+        `,
+
+        RelayReferenceMarkerTestMarkdownUserNameRenderer_name: graphql`
+          fragment RelayReferenceMarkerTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+            markdown
+            data {
+              markup
+            }
           }
-        }
-      `;
+        `,
+      };
       graphql`
         fragment RelayReferenceMarkerTest3Fragment on User {
           id
@@ -853,23 +855,25 @@ describe('RelayReferenceMarker', () => {
     let loader;
 
     beforeEach(() => {
-      const nodes = {};
-      nodes.RelayReferenceMarkerTest2PlainUserNameRenderer_name = graphql`
-        fragment RelayReferenceMarkerTest2PlainUserNameRenderer_name on PlainUserNameRenderer {
-          plaintext
-          data {
-            text
+      const nodes = {
+        RelayReferenceMarkerTest2PlainUserNameRenderer_name: graphql`
+          fragment RelayReferenceMarkerTest2PlainUserNameRenderer_name on PlainUserNameRenderer {
+            plaintext
+            data {
+              text
+            }
           }
-        }
-      `;
-      nodes.RelayReferenceMarkerTest2MarkdownUserNameRenderer_name = graphql`
-        fragment RelayReferenceMarkerTest2MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
-          markdown
-          data {
-            markup
+        `,
+
+        RelayReferenceMarkerTest2MarkdownUserNameRenderer_name: graphql`
+          fragment RelayReferenceMarkerTest2MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+            markdown
+            data {
+              markup
+            }
           }
-        }
-      `;
+        `,
+      };
       graphql`
         fragment RelayReferenceMarkerTest4Fragment on User {
           id

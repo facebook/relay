@@ -53,7 +53,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   let selector;
   let source;
   let store;
-  let variables;
+  let variables: {|after: ?string, enableStream: boolean|};
 
   beforeEach(() => {
     query = graphql`

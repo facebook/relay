@@ -1,0 +1,5 @@
+fragment Foo on Node {
+    ... on User @alias {
+        name
+    }
+}

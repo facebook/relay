@@ -127,8 +127,7 @@ describe('requestSubscription-test', () => {
       configs,
       subscription: CommentCreateSubscription,
       variables: {
-        feedbackId,
-        text: secondCommentBody,
+        input: {feedbackId, text: secondCommentBody},
       },
     });
 
@@ -193,7 +192,7 @@ describe('requestSubscription-test', () => {
   });
 
   describe('requestSubscription() cacheConfig', () => {
-    let cacheMetadata;
+    let cacheMetadata: ?{[key: string]: mixed};
     let environment;
     let CommentCreateSubscription;
     const feedbackId = 'foo';
@@ -202,8 +201,10 @@ describe('requestSubscription-test', () => {
       text: 'Gave Relay',
     };
     const variables = {
-      feedbackId,
-      text: secondCommentBody,
+      input: {
+        feedbackId,
+        text: secondCommentBody,
+      },
     };
 
     beforeEach(() => {
@@ -461,7 +462,7 @@ describe('requestSubscription-test', () => {
 
     requestSubscription(environment, {
       subscription,
-      variables: {},
+      variables: {input: {}},
       updater,
       onNext,
     });

@@ -1,0 +1,9 @@
+==================================== INPUT ====================================
+fragment TestLinkedFieldFragment on User {
+  name
+}
+
+%arguments%
+User name
+==================================== OUTPUT ===================================
+("TestLinkedFieldFragment", fragment_field.graphql:45:49)

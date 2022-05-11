@@ -13,11 +13,12 @@ use crate::{
     no_inline::{is_raw_response_type_enabled, NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG},
     util::get_normalization_operation_name,
 };
-use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Location, NamedItem, WithLocation};
 use graphql_ir::{
-    Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
-    InlineFragment, OperationDefinition, Program, ProvidedVariableMetadata, Selection, Transformed,
-    TransformedMulti, TransformedValue, Transformer, Value, Variable, VariableDefinition,
+    transform_list, transform_list_multi, Condition, ConditionValue, ConstantValue, Directive,
+    FragmentDefinition, FragmentSpread, InlineFragment, OperationDefinition, Program,
+    ProvidedVariableMetadata, Selection, Transformed, TransformedMulti, TransformedValue,
+    Transformer, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use intern::string_key::{Intern, StringKey, StringKeyIndexMap, StringKeyMap, StringKeySet};
@@ -250,6 +251,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                         directives: Default::default(),
                         selections: vec![next_spread],
                         type_condition: Some(fragment.type_condition),
+                        spread_location: Location::generated(),
                     })))
                 } else {
                     Transformed::Replace(next_spread)
@@ -275,7 +277,9 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         &mut self,
         selections: &[Selection],
     ) -> TransformedValue<Vec<Selection>> {
-        self.transform_list_multi(selections, Self::transform_selection_multi)
+        transform_list_multi(selections, |selection| {
+            self.transform_selection_multi(selection)
+        })
     }
 
     fn transform_value(&mut self, value: &Value) -> TransformedValue<Value> {
@@ -301,9 +305,9 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 }
             }
             Value::Constant(_) => TransformedValue::Keep,
-            Value::List(items) => self
-                .transform_list(items, Self::transform_value)
-                .map(Value::List),
+            Value::List(items) => {
+                transform_list(items, |value| self.transform_value(value)).map(Value::List)
+            }
             Value::Object(arguments) => self.transform_arguments(arguments).map(Value::Object),
         }
     }

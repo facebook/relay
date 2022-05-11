@@ -1,0 +1,14 @@
+fragment Foo_user on User {
+  pop_star_name(fragment_arg: 1, field_arg: 2)
+}
+
+fragment PopStarNameResolverFragment_name on User
+  @argumentDefinitions(fragment_arg: {type: "Int"}) {
+  __typename
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name(field_arg: Int, fragment_arg: Int): String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}

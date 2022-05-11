@@ -61,7 +61,6 @@ impl ProvidedVariableDefinitions {
         usages.push(variable_def.name.location);
     }
 
-
     fn get_errors(&self, schema: &SDLSchema, errors: &mut Vec<Diagnostic>) {
         if self.usages_map.len() > 1 {
             // The most frequently used definition is likely the intended one
@@ -123,7 +122,6 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
         }
     }
 
-
     fn get_errors(&self) -> Vec<Diagnostic> {
         let mut errors = Vec::new();
 
@@ -179,7 +177,7 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
 impl<'schema> Transformer for ProvidedVariableFragmentTransform<'schema> {
     const NAME: &'static str = "ApplyFragmentProvidedVariables";
     const VISIT_ARGUMENTS: bool = true;
-    const VISIT_DIRECTIVES: bool = false;
+    const VISIT_DIRECTIVES: bool = true;
 
     fn transform_variable(&mut self, variable: &Variable) -> TransformedValue<Variable> {
         if let Some(transformed_name) = self.in_scope_providers.get(&variable.name.item) {

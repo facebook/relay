@@ -1,0 +1,18 @@
+fragment Foo_user on Node {
+  ... on User @alias(as: "aliased_fragment") {
+    # Ensure the field_path we derive inlcudes "aliased_fragment"
+    pop_star_name
+  }
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}

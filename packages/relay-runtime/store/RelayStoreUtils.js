@@ -21,6 +21,9 @@ import type {
   ReaderActorChange,
   ReaderArgument,
   ReaderField,
+  ReaderFragmentSpread,
+  ReaderRelayLiveResolver,
+  ReaderRelayResolver,
 } from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
@@ -47,7 +50,7 @@ function getArgumentValue(
     // The Relay compiler generates stable ConcreteArgument values.
     return arg.value;
   } else if (arg.kind === OBJECT_VALUE) {
-    const value = {};
+    const value: {[string]: mixed} = {};
     arg.fields.forEach(field => {
       value[field.name] = getArgumentValue(field, variables);
     });
@@ -69,7 +72,7 @@ function getArgumentValues(
   args: $ReadOnlyArray<NormalizationArgument | ReaderArgument>,
   variables: Variables,
 ): Arguments {
-  const values = {};
+  const values: {[string]: mixed} = {};
   args.forEach(arg => {
     values[arg.name] = getArgumentValue(arg, variables);
   });
@@ -125,6 +128,9 @@ function getHandleStorageKey(
  */
 function getStorageKey(
   field:
+    | ReaderRelayResolver
+    | ReaderRelayLiveResolver
+    | ReaderFragmentSpread
     | NormalizationField
     | NormalizationHandle
     | ReaderField
@@ -135,11 +141,40 @@ function getStorageKey(
     // TODO T23663664: Handle nodes do not yet define a static storageKey.
     return (field: $FlowFixMe).storageKey;
   }
-  const args = typeof field.args === 'undefined' ? undefined : field.args;
+
+  const args = getArguments(field);
   const name = field.name;
   return args && args.length !== 0
     ? formatStorageKey(name, getArgumentValues(args, variables))
     : name;
+}
+
+/**
+ * Given a field the method returns an array of arguments.
+ * For Relay resolver fields, we store arguments on the field and fragment
+ * and this method return combined list of arguments.
+ */
+function getArguments(
+  field:
+    | ReaderRelayResolver
+    | ReaderRelayLiveResolver
+    | ReaderFragmentSpread
+    | NormalizationField
+    | NormalizationHandle
+    | ReaderField
+    | ReaderActorChange,
+): ?$ReadOnlyArray<NormalizationArgument | ReaderArgument> {
+  if (field.kind === 'RelayResolver' || field.kind === 'RelayLiveResolver') {
+    if (field.args == null) {
+      return field.fragment.args;
+    }
+    if (field.fragment.args == null) {
+      return field.args;
+    }
+    return field.args.concat(field.fragment.args);
+  }
+  const args = typeof field.args === 'undefined' ? undefined : field.args;
+  return args;
 }
 
 /**
@@ -217,9 +252,7 @@ const RelayStoreUtils = {
   IS_WITHIN_UNMATCHED_TYPE_REFINEMENT: '__isWithinUnmatchedTypeRefinement',
   RELAY_RESOLVER_VALUE_KEY: '__resolverValue',
   RELAY_RESOLVER_INVALIDATION_KEY: '__resolverValueMayBeInvalid',
-  RELAY_RESOLVER_INPUTS_KEY: '__resolverInputValues',
-  RELAY_RESOLVER_READER_SELECTOR_KEY: '__resolverReaderSelector',
-  RELAY_RESOLVER_MISSING_REQUIRED_FIELDS_KEY: '__resolverMissingRequiredFields',
+  RELAY_RESOLVER_SNAPSHOT_KEY: '__resolverSnapshot',
   RELAY_RESOLVER_ERROR_KEY: '__resolverError',
 
   formatStorageKey,

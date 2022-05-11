@@ -63,6 +63,13 @@ pub enum ValidationMessage {
         "The Relay Resolver backing this field is defined with an invalid `fragment_name`. Could not find a fragment named '{fragment_name}'."
     )]
     InvalidRelayResolverFragmentName { fragment_name: StringKey },
+    #[error(
+        "The usage of global variable `${variable_name}` is not supported in the Relay resolvers fragments. Please, add this variable to the `@argumentDefinitions` of the `{fragment_name}` fragment."
+    )]
+    UnsupportedGlobalVariablesInResolverFragment {
+        variable_name: StringKey,
+        fragment_name: StringKey,
+    },
 
     #[error(
         "Field with actor change (@as_actor) directive expected to have only one item in its selection, and it should be a fragment spread."
@@ -119,49 +126,11 @@ pub enum ValidationMessage {
     EmptyOperationResult { name: StringKey },
 
     #[error(
-        "Field '{response_key}' is ambiguous because it references two different fields: '{l_name}' and '{r_name}'"
-    )]
-    AmbiguousFieldAlias {
-        response_key: StringKey,
-        l_name: StringKey,
-        r_name: StringKey,
-    },
-
-    #[error(
-        "Field '{response_key}' is ambiguous because it references fields with different types: '{l_name}' with type '{l_type_string}' and '{r_name}' with type '{r_type_string}'"
-    )]
-    AmbiguousFieldType {
-        response_key: StringKey,
-        l_name: StringKey,
-        l_type_string: String,
-        r_name: StringKey,
-        r_type_string: String,
-    },
-
-    #[error(
-        "Field '{response_key}' is marked with @stream in one place, and not marked in another place. Please use alias to distinguish the 2 fields.'"
-    )]
-    StreamConflictOnlyUsedInOnePlace { response_key: StringKey },
-
-    #[error(
-        "Field '{response_key}' is marked with @stream in multiple places. Please use an alias to distinguish them'"
-    )]
-    StreamConflictUsedInMultiplePlaces { response_key: StringKey },
-
-    #[error(
         "The `@relay_test_operation` directive is only allowed within test \
         files because it creates larger generated files we don't want to \
         include in production. File does not match test regex: {test_path_regex}"
     )]
     TestOperationOutsideTestDirectory { test_path_regex: String },
-
-    #[error(
-        "Expected all fields on the same parent with the name or alias `{field_name}` to have the same argument values after applying fragment arguments. This field has the applied argument values: {arguments_a}"
-    )]
-    InvalidSameFieldWithDifferentArguments {
-        field_name: StringKey,
-        arguments_a: String,
-    },
 
     #[error("Undefined fragment '{0}'")]
     UndefinedFragment(StringKey),
@@ -180,6 +149,20 @@ pub enum ValidationMessage {
         "Client Edges that reference client-defined union types are not currently supported in Relay."
     )]
     ClientEdgeToClientUnion,
+
+    #[error("Invalid directive combination. @alias may not be combined with other directives.")]
+    FragmentAliasIncompatibleDirective,
+
+    #[error("Unexpected directive @alias. @alias is not currently enabled in this location.")]
+    FragmentAliasDirectiveDisabled,
+
+    #[error("Expected the `as` argument of the @alias directive to be a static string.")]
+    FragmentAliasDirectiveDynamicNameArg,
+
+    #[error(
+        "Missing required argument `as`. The `as` argument of the @alias directive is required on inline fragments without a type condition."
+    )]
+    FragmentAliasDirectiveMissingAs,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -190,7 +173,7 @@ pub enum ValidationMessageWithData {
     RelayResolversMissingWaterfall { field_name: StringKey },
 
     #[error(
-        "Unexpeceted `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive."
+        "Unexpected `@waterfall` directive. Only fields that are backed by a Client Edge and point to a server object should be annotated with the `@waterfall` directive."
     )]
     RelayResolversUnexpectedWaterfall,
 }

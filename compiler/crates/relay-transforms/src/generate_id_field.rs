@@ -263,6 +263,7 @@ impl<'s> GenerateIDFieldTransform<'s> {
             type_condition: Some(type_),
             directives: Default::default(),
             selections: vec![self.create_id_selection(location, id_field_id)],
+            spread_location: Location::generated(),
         })
     }
 }

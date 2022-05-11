@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<20992903f2cba51587d85fb8d5378656>>
+ * @generated SignedSource<<d3a6ddf559f420d55e6c13d89f9af4d4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,6 +15,7 @@
 'use strict';
 
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery.node.outerRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql"}},"plural":false}
+// @indirectDataDrivenDependency RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name.user.innerRenderer {"branches":{"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';

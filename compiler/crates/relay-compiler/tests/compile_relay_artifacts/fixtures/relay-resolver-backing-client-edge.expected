@@ -166,6 +166,7 @@ fragment RefetchableClientEdgeQuery_relayResolverBackingClientEdgeQuery_me__best
             "operation": require('ClientEdgeQuery_relayResolverBackingClientEdgeQuery_me__best_friend.graphql'),
             "backingField": {
               "alias": null,
+              "args": null,
               "fragment": {
                 "args": null,
                 "kind": "FragmentSpread",

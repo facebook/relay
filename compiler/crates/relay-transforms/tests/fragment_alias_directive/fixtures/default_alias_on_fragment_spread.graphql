@@ -1,0 +1,9 @@
+fragment RelayReaderNamedFragmentsTest_user on User {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  me {
+    ...RelayReaderNamedFragmentsTest_user @alias
+  }
+}

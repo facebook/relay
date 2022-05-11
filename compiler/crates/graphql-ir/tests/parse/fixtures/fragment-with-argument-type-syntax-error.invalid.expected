@@ -10,8 +10,8 @@ fragment Foo on User @argumentDefinitions(
 ==================================== ERROR ====================================
 ✖︎ Unsupported character
 
-  fragment-with-argument-type-syntax-error.invalid.graphql:5:9
+  fragment-with-argument-type-syntax-error.invalid.graphql:5:21
     4 │   # syntax error, should be [ID]
     5 │   ids: {type: "Array<ID>"}
-      │         ^^^^^^^^^^^^^^^^^
+      │                     ^
     6 │ ) {

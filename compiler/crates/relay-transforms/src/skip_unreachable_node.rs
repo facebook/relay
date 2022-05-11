@@ -11,9 +11,9 @@ use crate::{
 };
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use graphql_ir::{
-    Condition, ConditionValue, ConstantValue, FragmentDefinition, FragmentSpread, InlineFragment,
-    LinkedField, Program, Selection, Transformed, TransformedMulti, TransformedValue, Transformer,
-    Value,
+    transform_list_multi, Condition, ConditionValue, ConstantValue, FragmentDefinition,
+    FragmentSpread, InlineFragment, LinkedField, Program, Selection, Transformed, TransformedMulti,
+    TransformedValue, Transformer, Value,
 };
 use intern::string_key::{StringKey, StringKeyMap};
 use std::sync::Arc;
@@ -128,7 +128,7 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
         &mut self,
         selections: &[Selection],
     ) -> TransformedValue<Vec<Selection>> {
-        self.transform_list_multi(selections, Self::map_selection_multi)
+        transform_list_multi(selections, |selection| self.map_selection_multi(selection))
     }
 
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {

@@ -1,0 +1,54 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  pop_star_name(fragment_arg: 1, field_arg: 2)
+}
+
+fragment PopStarNameResolverFragment_name on User
+  @argumentDefinitions(fragment_arg: {type: "Int"}) {
+  __typename
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name(field_arg: Int, fragment_arg: Int): String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}
+==================================== OUTPUT ===================================
+fragment Foo_user on User {
+  ...PopStarNameResolverFragment_name @__RelayResolverSpreadMetadata
+  # RelayResolverSpreadMetadata {
+  #     field_parent_type: "User",
+  #     import_path: "PopStarNameResolver",
+  #     field_name: "pop_star_name",
+  #     field_alias: None,
+  #     field_path: "pop_star_name",
+  #     field_arguments: [
+  #         Argument {
+  #             name: WithLocation {
+  #                 location: relay-resolver-field-and-fragment-arguments.graphql:61:70,
+  #                 item: "field_arg",
+  #             },
+  #             value: WithLocation {
+  #                 location: relay-resolver-field-and-fragment-arguments.graphql:72:73,
+  #                 item: Constant(
+  #                     Int(
+  #                         2,
+  #                     ),
+  #                 ),
+  #             },
+  #         },
+  #     ],
+  #     live: false,
+  # }
+   @arguments(fragment_arg: 1)
+}
+
+fragment PopStarNameResolverFragment_name on User @argumentDefinitions(
+  fragment_arg: {type: "Int"}
+) {
+  __typename
+}
+
+# Implicit Dependencies:
+#
+# Foo_user --> {PopStarNameResolverFragment_name}

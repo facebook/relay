@@ -13,6 +13,7 @@ pub mod completion;
 pub mod diagnostic_reporter;
 mod docblock_resolution_info;
 mod explore_schema_for_type;
+pub mod find_field_usages;
 pub mod goto_definition;
 mod graphql_tools;
 pub mod hover;
@@ -39,7 +40,7 @@ pub use hover::ContentConsumerType;
 pub use js_language_server::JSLanguageServer;
 use log::debug;
 pub use lsp_extra_data_provider::{
-    FieldDefinitionSourceInfo, FieldSchemaInfo, LSPExtraDataProvider,
+    DummyExtraDataProvider, FieldDefinitionSourceInfo, FieldSchemaInfo, LSPExtraDataProvider,
 };
 use lsp_process_error::LSPProcessResult;
 pub use lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};

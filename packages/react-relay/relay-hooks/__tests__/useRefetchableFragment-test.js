@@ -131,7 +131,11 @@ describe('useRefetchableFragment', () => {
     // Set up renderers
     Renderer = props => null;
 
-    const Container = (props: {userRef?: {...}, fragment: $FlowFixMe, ...}) => {
+    const Container = (props: {
+      userRef?: {...},
+      fragment?: $FlowFixMe,
+      ...
+    }) => {
       // We need a render a component to run a Hook
       const artificialUserRef = useMemo(
         () => ({

@@ -1,0 +1,31 @@
+==================================== INPUT ====================================
+fragment RelayReaderNamedFragmentsTest_user on User {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  me {
+    ...RelayReaderNamedFragmentsTest_user @alias(as: "aliased_fragment")
+  }
+}
+==================================== OUTPUT ===================================
+query RelayReaderNamedFragmentsTest2Query {
+  me {
+    ...RelayReaderNamedFragmentsTest_user @__FragmentAliasMetadata
+    # FragmentAliasMetadata {
+    #     alias: WithLocation {
+    #         location: alias_on_named_fragment.graphql:164:166,
+    #         item: "aliased_fragment",
+    #     },
+    #     type_condition: Some(
+    #         Object(68),
+    #     ),
+    #     selection_type: Object(68),
+    # }
+    
+  }
+}
+
+fragment RelayReaderNamedFragmentsTest_user on User {
+  name
+}

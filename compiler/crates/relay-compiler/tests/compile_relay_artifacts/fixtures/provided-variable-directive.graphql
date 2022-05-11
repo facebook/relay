@@ -1,0 +1,18 @@
+query providedVariableDirectiveQuery {
+  me {
+    ...providedVariableDirectiveFragment
+  }
+}
+
+fragment providedVariableDirectiveFragment on User
+@argumentDefinitions(
+  shouldDefer: {type: "Boolean!", provider: "jsProvider"}
+) {
+  profile_picture(scale: 5) {
+    ...providedVariableDirective_DeferredFragment @defer(if: $shouldDefer)
+  }
+}
+
+fragment providedVariableDirective_DeferredFragment on Image {
+  uri
+}

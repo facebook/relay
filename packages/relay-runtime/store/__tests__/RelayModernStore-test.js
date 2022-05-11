@@ -12,8 +12,24 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
 import type {Disposable} from '../../util/RelayRuntimeTypes';
+import type {
+  RelayModernStoreTest2Fragment$data,
+  RelayModernStoreTest2Fragment$fragmentType,
+} from './__generated__/RelayModernStoreTest2Fragment.graphql';
+import type {
+  RelayModernStoreTest3Fragment$data,
+  RelayModernStoreTest3Fragment$fragmentType,
+} from './__generated__/RelayModernStoreTest3Fragment.graphql';
+import type {
+  RelayModernStoreTest5Fragment$data,
+  RelayModernStoreTest5Fragment$fragmentType,
+} from './__generated__/RelayModernStoreTest5Fragment.graphql';
+import type {
+  RelayModernStoreTest6Fragment$data,
+  RelayModernStoreTest6Fragment$fragmentType,
+} from './__generated__/RelayModernStoreTest6Fragment.graphql';
+import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
@@ -199,7 +215,15 @@ function cloneEventWithSets(event) {
 
     describe('lookup()', () => {
       let UserQuery;
-      let UserFragment;
+      let UserFragment:
+        | Fragment<
+            RelayModernStoreTest2Fragment$fragmentType,
+            RelayModernStoreTest2Fragment$data,
+          >
+        | Fragment<
+            RelayModernStoreTest3Fragment$fragmentType,
+            RelayModernStoreTest3Fragment$data,
+          >;
       let data;
       let source;
       let store;
@@ -256,6 +280,7 @@ function cloneEventWithSets(event) {
           },
           seenRecords: new Set(Object.keys(data)),
           missingRequiredFields: null,
+          missingLiveResolverFields: [],
           relayResolverErrors: [],
           missingClientEdges: null,
           isMissingData: false,
@@ -310,6 +335,7 @@ function cloneEventWithSets(event) {
           },
           seenRecords: new Set(Object.keys(data)),
           missingRequiredFields: null,
+          missingLiveResolverFields: [],
           relayResolverErrors: [],
           missingClientEdges: null,
           isMissingData: false,
@@ -367,6 +393,7 @@ function cloneEventWithSets(event) {
           },
           seenRecords: new Set(['client:2', '4']),
           missingRequiredFields: null,
+          missingLiveResolverFields: [],
           relayResolverErrors: [],
           missingClientEdges: null,
           isMissingData: false,
@@ -376,7 +403,15 @@ function cloneEventWithSets(event) {
 
     describe('notify/publish/subscribe', () => {
       let UserQuery;
-      let UserFragment;
+      let UserFragment:
+        | Fragment<
+            RelayModernStoreTest5Fragment$fragmentType,
+            RelayModernStoreTest5Fragment$data,
+          >
+        | Fragment<
+            RelayModernStoreTest6Fragment$fragmentType,
+            RelayModernStoreTest6Fragment$data,
+          >;
       let data;
       let source;
       let store;
@@ -598,7 +633,7 @@ function cloneEventWithSets(event) {
       });
 
       it('notifies subscribers and sets updated value for isMissingData', () => {
-        data = {
+        const dataObj = {
           '4': {
             __id: '4',
             id: '4',
@@ -611,7 +646,7 @@ function cloneEventWithSets(event) {
             uri: 'https://photo1.jpg',
           },
         };
-        source = getRecordSourceImplementation(data);
+        source = getRecordSourceImplementation(dataObj);
         store = new RelayModernStore(source, {gcReleaseBufferSize: 0});
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
@@ -683,6 +718,7 @@ function cloneEventWithSets(event) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          missingLiveResolverFields: [],
           missingClientEdges: null,
           isMissingData: true,
           seenRecords: new Set(Object.keys(nextSource.toJSON())),

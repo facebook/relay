@@ -4,7 +4,8 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 
-GITHUB_ROOT=$(dirname $(dirname $(realpath "$0")))
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
+GITHUB_ROOT=$(dirname "$SCRIPT_DIR")
 
 cd "$GITHUB_ROOT"/compiler
 cargo run --bin relay --release -- "$GITHUB_ROOT"/scripts/config.tests.json

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9b074242b9ad34fdcd5f87b33ca98a87>>
+ * @generated SignedSource<<9a992617ccf54c64581a6442f06d1ea6>>
  */
 
 mod required_directive;
@@ -17,6 +17,13 @@ fn action_argument_omitted_invalid() {
     let input = include_str!("required_directive/fixtures/action-argument-omitted.invalid.graphql");
     let expected = include_str!("required_directive/fixtures/action-argument-omitted.invalid.expected");
     test_fixture(transform_fixture, "action-argument-omitted.invalid.graphql", "required_directive/fixtures/action-argument-omitted.invalid.expected", input, expected);
+}
+
+#[test]
+fn conflicting_required_status_across_aliased_inline_fragments() {
+    let input = include_str!("required_directive/fixtures/conflicting-required-status-across-aliased-inline-fragments.graphql");
+    let expected = include_str!("required_directive/fixtures/conflicting-required-status-across-aliased-inline-fragments.expected");
+    test_fixture(transform_fixture, "conflicting-required-status-across-aliased-inline-fragments.graphql", "required_directive/fixtures/conflicting-required-status-across-aliased-inline-fragments.expected", input, expected);
 }
 
 #[test]

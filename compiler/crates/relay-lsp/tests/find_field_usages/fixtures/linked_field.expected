@@ -1,0 +1,11 @@
+==================================== INPUT ====================================
+fragment TestLinkedFieldFragment on Query {
+    me { # User type
+        name
+    }
+}
+
+%arguments%
+User name
+==================================== OUTPUT ===================================
+("TestLinkedFieldFragment", linked_field.graphql:73:77)

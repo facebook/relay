@@ -84,10 +84,7 @@ export type {
   RangeOperation,
 } from './mutations/RelayDeclarativeMutationConfig';
 export type {OptimisticMutationConfig} from './mutations/applyOptimisticMutation';
-export type {
-  DEPRECATED_MutationConfig,
-  MutationConfig,
-} from './mutations/commitMutation';
+export type {MutationConfig} from './mutations/commitMutation';
 export type {
   ExecuteFunction,
   FetchFunction,
@@ -161,11 +158,10 @@ export type {
   SingularReaderSelector,
   Snapshot,
   StoreUpdater,
+  UpdatableData,
 } from './store/RelayStoreTypes';
 export type {
-  DEPRECATED_GraphQLSubscriptionConfig,
   GraphQLSubscriptionConfig,
-  GraphQLSubscriptionConfigX,
   SubscriptionParameters,
 } from './subscription/requestSubscription';
 export type {JSResourceReference} from './util/JSResourceTypes.flow';

@@ -20,6 +20,7 @@ import type {
   RecordSourceProxy,
   RecordSourceSelectorProxy,
   SingularReaderSelector,
+  UpdatableData,
 } from '../store/RelayStoreTypes';
 import type {ReaderLinkedField} from '../util/ReaderNode';
 import type {
@@ -136,14 +137,14 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
     query: UpdatableQuery<TVariables, TData>,
     variables: TVariables,
-  ): TData {
+  ): UpdatableData<TData> {
     return readUpdatableQuery_EXPERIMENTAL(query, variables, this);
   }
 
   readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
     fragment: UpdatableFragment<TFragmentType, TData>,
     fragmentReference: HasUpdatableSpread<TFragmentType>,
-  ): TData {
+  ): UpdatableData<TData> {
     return readUpdatableFragment_EXPERIMENTAL(
       fragment,
       fragmentReference,

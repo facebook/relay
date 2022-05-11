@@ -21,6 +21,14 @@ export type ReaderFragmentSpread = {|
   +args?: ?$ReadOnlyArray<ReaderArgument>,
 |};
 
+export type ReaderAliasedFragmentSpread = {|
+  +kind: 'AliasedFragmentSpread',
+  +name: string,
+  +type: string,
+  +abstractKey?: ?string,
+  +fragment: ReaderFragmentSpread,
+|};
+
 export type ReaderInlineDataFragmentSpread = {|
   +kind: 'InlineDataFragmentSpread',
   +name: string,
@@ -126,6 +134,12 @@ export type ReaderInlineFragment = {|
   +abstractKey?: ?string,
 |};
 
+export type ReaderAliasedInlineFragmentSpread = {|
+  +kind: 'AliasedInlineFragmentSpread',
+  +name: string,
+  +fragment: ReaderInlineFragment,
+|};
+
 export type ReaderLinkedField = {|
   +kind: 'LinkedField',
   +alias?: ?string,
@@ -220,32 +234,40 @@ export type ReaderRequiredField = {|
   +path: string,
 |};
 
+type ResolverRootKey = {
+  +$data?: any, // flowlint-line unclear-type:off
+  +$fragmentSpreads: any, // flowlint-line unclear-type:off
+  +$fragmentRefs: any, // flowlint-line unclear-type:off
+  ...
+};
+
+type ResolverModuleWithArgs = (
+  rootKey: ResolverRootKey,
+  args: any, // flowlint-line unclear-type:off
+) => mixed;
+
+type ResolverModuleWithoutArg = (rootKey: ResolverRootKey) => mixed;
+
+type ResolverModule = ResolverModuleWithArgs | ResolverModuleWithoutArg;
+
 export type ReaderRelayResolver = {|
   +kind: 'RelayResolver',
   +alias: ?string,
   +name: string,
+  +args: ?$ReadOnlyArray<ReaderArgument>,
   +fragment: ReaderFragmentSpread,
   +path: string,
-  +resolverModule: (rootKey: {
-    +$data?: any, // flowlint-line unclear-type:off
-    +$fragmentSpreads: any, // flowlint-line unclear-type:off
-    +$fragmentRefs: any, // flowlint-line unclear-type:off
-    ...
-  }) => mixed,
+  +resolverModule: ResolverModule,
 |};
 
 export type ReaderRelayLiveResolver = {|
   +kind: 'RelayLiveResolver',
   +alias: ?string,
   +name: string,
+  +args: ?$ReadOnlyArray<ReaderArgument>,
   +fragment: ReaderFragmentSpread,
   +path: string,
-  +resolverModule: (rootKey: {
-    +$data?: any, // flowlint-line unclear-type:off
-    +$fragmentSpreads: any, // flowlint-line unclear-type:off
-    +$fragmentRefs: any, // flowlint-line unclear-type:off
-    ...
-  }) => mixed,
+  +resolverModule: ResolverModule,
 |};
 
 export type ReaderClientEdgeToClientObject = {|
@@ -272,7 +294,9 @@ export type ReaderSelection =
   | ReaderActorChange
   | ReaderFlightField
   | ReaderFragmentSpread
+  | ReaderAliasedFragmentSpread
   | ReaderInlineDataFragmentSpread
+  | ReaderAliasedInlineFragmentSpread
   | ReaderInlineFragment
   | ReaderModuleImport
   | ReaderStream

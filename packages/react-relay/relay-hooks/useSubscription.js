@@ -16,27 +16,33 @@ import type {
   Disposable,
   GraphQLSubscriptionConfig,
   IEnvironment,
-  SubscriptionParameters,
 } from 'relay-runtime';
 
 const useRelayEnvironment = require('./useRelayEnvironment');
 const {useEffect} = require('react');
 const {requestSubscription} = require('relay-runtime');
 
-type RequestSubscriptionFn<TSubscriptionParameters: SubscriptionParameters> = (
+type RequestSubscriptionFn<TVariables, TData, TRawResponse> = (
   environment: IEnvironment,
-  config: GraphQLSubscriptionConfig<TSubscriptionParameters>,
+  config: GraphQLSubscriptionConfig<TVariables, TData, TRawResponse>,
 ) => Disposable;
 
-function useSubscription<TSubscriptionParameters: SubscriptionParameters>(
-  config: GraphQLSubscriptionConfig<TSubscriptionParameters>,
-  requestSubscriptionFn?: RequestSubscriptionFn<TSubscriptionParameters>,
+function useSubscription<TVariables, TData, TRawResponse>(
+  config: GraphQLSubscriptionConfig<TVariables, TData, TRawResponse>,
+  requestSubscriptionFn?: RequestSubscriptionFn<
+    TVariables,
+    TData,
+    TRawResponse,
+  >,
 ): void {
   // N.B. this will re-subscribe every render if config or requestSubscriptionFn
   // are not memoized.
   // Please do not pass an object defined in-line.
-  const actualRequestSubscription: RequestSubscriptionFn<TSubscriptionParameters> =
-    requestSubscriptionFn ?? (requestSubscription: $FlowFixMe);
+  const actualRequestSubscription: RequestSubscriptionFn<
+    TVariables,
+    TData,
+    TRawResponse,
+  > = requestSubscriptionFn ?? (requestSubscription: $FlowFixMe);
   const environment = useRelayEnvironment();
   useEffect(() => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters

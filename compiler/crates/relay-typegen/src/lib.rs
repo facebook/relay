@@ -215,7 +215,6 @@ pub fn generate_split_operation_type_exports_section(
 struct TypeGenerator<'a> {
     schema: &'a SDLSchema,
     schema_config: &'a SchemaConfig,
-    generated_fragments: FnvHashSet<StringKey>,
     imported_raw_response_types: IndexSet<StringKey>,
     imported_resolvers: IndexMap<StringKey, StringKey>,
     used_fragments: FnvHashSet<StringKey>,
@@ -239,7 +238,6 @@ impl<'a> TypeGenerator<'a> {
         Self {
             schema,
             schema_config,
-            generated_fragments: Default::default(),
             imported_raw_response_types: Default::default(),
             imported_resolvers: Default::default(),
             used_fragments: Default::default(),
@@ -319,7 +317,7 @@ impl<'a> TypeGenerator<'a> {
         self.write_import_actor_change_point()?;
         self.runtime_imports
             .write_runtime_imports(&mut self.writer)?;
-        self.write_fragment_imports()?;
+        self.write_fragment_imports(None)?;
         self.write_relay_resolver_imports()?;
         self.write_split_raw_response_type_imports()?;
 
@@ -430,7 +428,7 @@ impl<'a> TypeGenerator<'a> {
 
         self.runtime_imports
             .write_runtime_imports(&mut self.writer)?;
-        self.write_fragment_imports()?;
+        self.write_fragment_imports(None)?;
         self.write_split_raw_response_type_imports()?;
 
         self.write_enum_definitions(encountered_enums)?;
@@ -469,8 +467,6 @@ impl<'a> TypeGenerator<'a> {
                 }
             }
         }
-        self.generated_fragments
-            .insert(fragment_definition.name.item);
 
         let data_type = fragment_definition.name.item;
         let data_type_name = format!("{}$data", data_type);
@@ -526,7 +522,7 @@ impl<'a> TypeGenerator<'a> {
         self.runtime_imports
             .generic_fragment_type_should_be_imported = true;
         self.write_import_actor_change_point()?;
-        self.write_fragment_imports()?;
+        self.write_fragment_imports(Some(fragment_definition.name.item))?;
 
         self.write_enum_definitions(encountered_enums)?;
 
@@ -1551,16 +1547,23 @@ impl<'a> TypeGenerator<'a> {
         AST::Identifier(self.schema.enum_(enum_id).name.item)
     }
 
-    fn write_fragment_imports(&mut self) -> FmtResult {
-        for used_fragment in self.used_fragments.iter().sorted() {
-            if !self.generated_fragments.contains(used_fragment) {
-                let fragment_type_name = format!("{}$fragmentType", used_fragment);
+    fn write_fragment_imports(&mut self, fragment_name_to_skip: Option<StringKey>) -> FmtResult {
+        for current_referenced_fragment in self.used_fragments.iter().sorted() {
+            // Do not write the fragment if it is the "top-level" fragment that we are
+            // working on.
+            let should_write_current_referenced_fragment = fragment_name_to_skip
+                .map_or(true, |fragment_name_to_skip| {
+                    fragment_name_to_skip != *current_referenced_fragment
+                });
+
+            if should_write_current_referenced_fragment {
+                let fragment_type_name = format!("{}$fragmentType", current_referenced_fragment);
                 match self.js_module_format {
                     JsModuleFormat::CommonJS => {
                         if self.has_unified_output {
                             self.writer.write_import_fragment_type(
                                 &[&fragment_type_name],
-                                &format!("./{}.graphql", used_fragment),
+                                &format!("./{}.graphql", current_referenced_fragment),
                             )?;
                         } else {
                             self.writer.write_any_type_definition(&fragment_type_name)?;
@@ -1569,7 +1572,7 @@ impl<'a> TypeGenerator<'a> {
                     JsModuleFormat::Haste => {
                         self.writer.write_import_fragment_type(
                             &[&fragment_type_name],
-                            &format!("{}.graphql", used_fragment),
+                            &format!("{}.graphql", current_referenced_fragment),
                         )?;
                     }
                 }

@@ -6,6 +6,7 @@
  */
 
 use std::path::Path;
+use std::str::FromStr;
 
 use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
@@ -20,6 +21,7 @@ use graphql_ir::{
 use graphql_syntax::OperationKind;
 use intern::string_key::{Intern, StringKey};
 use md5::{Digest, Md5};
+use relay_config::{ProjectConfig, TypegenLanguage};
 use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
@@ -35,15 +37,75 @@ use relay_transforms::{
 };
 use schema::{SDLSchema, Schema};
 
+use common::SourceLocationKey;
+use std::path::PathBuf;
+
+/// This function will create a correct path for artifact based on the project configuration
+pub fn create_path_for_artifact(
+    project_config: &ProjectConfig,
+    source_file: SourceLocationKey,
+    artifact_file_name: String,
+) -> PathBuf {
+    if let Some(output) = &project_config.output {
+        // If an output directory is specified, output into that directory.
+        if project_config.shard_output {
+            if let Some(ref regex) = project_config.shard_strip_regex {
+                let full_source_path = regex.replace_all(source_file.path(), "");
+                let mut output = output.join(full_source_path.to_string());
+                output.pop();
+                output
+            } else {
+                output.join(source_file.get_dir())
+            }
+            .join(artifact_file_name)
+        } else {
+            output.join(artifact_file_name)
+        }
+    } else {
+        // Otherwise, output into a file relative to the source.
+        source_file
+            .get_dir()
+            .join("__generated__")
+            .join(artifact_file_name)
+    }
+}
+
+pub fn path_for_artifact(
+    project_config: &ProjectConfig,
+    source_file: SourceLocationKey,
+    definition_name: StringKey,
+) -> PathBuf {
+    let filename = if let Some(filename_for_artifact) = &project_config.filename_for_artifact {
+        filename_for_artifact(source_file, definition_name)
+    } else {
+        match &project_config.typegen_config.language {
+            TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+                format!("{}.graphql.js", definition_name)
+            }
+            TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
+        }
+    };
+    create_path_for_artifact(project_config, source_file, filename)
+}
+
+type DefinitionSourceLocation = Option<WithLocation<StringKey>>;
+
 pub fn build_request_params_ast_key(
     schema: &SDLSchema,
     request_parameters: RequestParameters<'_>,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
     top_level_statements: &TopLevelStatements,
+    definition_source_location: DefinitionSourceLocation,
+    project_config: &ProjectConfig,
 ) -> AstKey {
-    let mut operation_builder =
-        CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let mut operation_builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Normalization,
+        ast_builder,
+        project_config,
+        definition_source_location,
+    );
     operation_builder.build_request_parameters(operation, request_parameters, top_level_statements)
 }
 
@@ -51,9 +113,16 @@ pub fn build_provided_variables(
     schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
+    definition_source_location: DefinitionSourceLocation,
+    project_config: &ProjectConfig,
 ) -> Option<AstKey> {
-    let mut operation_builder =
-        CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let mut operation_builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Normalization,
+        ast_builder,
+        project_config,
+        definition_source_location,
+    );
 
     operation_builder.build_operation_provided_variables(&operation.variable_definitions)
 }
@@ -64,11 +133,24 @@ pub fn build_request(
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
     request_parameters: AstKey,
+    definition_source_location: DefinitionSourceLocation,
+    project_config: &ProjectConfig,
 ) -> AstKey {
-    let mut operation_builder =
-        CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let mut operation_builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Normalization,
+        ast_builder,
+        project_config,
+        definition_source_location,
+    );
     let operation = Primitive::Key(operation_builder.build_operation(operation));
-    let mut fragment_builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
+    let mut fragment_builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Reader,
+        ast_builder,
+        project_config,
+        definition_source_location,
+    );
     let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
 
     ast_builder.intern(Ast::Object(object! {
@@ -92,8 +174,16 @@ pub fn build_operation(
     schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
+    definition_source_location: DefinitionSourceLocation,
+    project_config: &ProjectConfig,
 ) -> AstKey {
-    let mut builder = CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let mut builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Normalization,
+        ast_builder,
+        project_config,
+        definition_source_location,
+    );
     builder.build_operation(operation)
 }
 
@@ -101,16 +191,26 @@ pub fn build_fragment(
     schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     fragment: &FragmentDefinition,
+    definition_source_location: DefinitionSourceLocation,
+    project_config: &ProjectConfig,
 ) -> AstKey {
-    let mut builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
+    let mut builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Reader,
+        ast_builder,
+        project_config,
+        definition_source_location,
+    );
     builder.build_fragment(fragment, false)
 }
 
-pub struct CodegenBuilder<'schema, 'builder> {
+pub struct CodegenBuilder<'schema, 'builder, 'config> {
     connection_constants: ConnectionConstants,
     schema: &'schema SDLSchema,
     variant: CodegenVariant,
     ast_builder: &'builder mut AstBuilder,
+    project_config: &'config ProjectConfig,
+    definitiion_source_location: Option<WithLocation<StringKey>>,
 }
 
 #[derive(PartialEq)]
@@ -119,17 +219,21 @@ pub enum CodegenVariant {
     Normalization,
 }
 
-impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
+impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     pub fn new(
         schema: &'schema SDLSchema,
         variant: CodegenVariant,
         ast_builder: &'builder mut AstBuilder,
+        project_config: &'config ProjectConfig,
+        definitiion_source_location: Option<WithLocation<StringKey>>,
     ) -> Self {
         Self {
             connection_constants: Default::default(),
             schema,
             variant,
             ast_builder,
+            project_config,
+            definitiion_source_location,
         }
     }
 
@@ -740,12 +844,36 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             CODEGEN_CONSTANTS.relay_resolver
         };
 
+        let definition_artifact_location = path_for_artifact(
+            self.project_config,
+            self.definitiion_source_location
+                .unwrap()
+                .location
+                .source_location(),
+            self.definitiion_source_location.unwrap().item,
+        );
+
+        let module_location = PathBuf::from_str(module.lookup()).unwrap();
+
+        let module_path = module_location.parent().unwrap();
+        let definition_artifact_location_path = definition_artifact_location.parent().unwrap();
+
+        println!(
+            "Diffing paths: {:?} : {:?}",
+            definition_artifact_location_path, module_path
+        );
+
+        let resolver_module_location =
+            pathdiff::diff_paths(module_path, definition_artifact_location_path).unwrap();
+
+        let import_path = resolver_module_location.join(module_location.file_name().unwrap());
+
         // TODO(T86853359): Support non-haste environments when generating Relay Resolver Reader AST
-        let haste_import_name = Path::new(&module.to_string())
-            .file_stem()
-            .unwrap()
-            .to_string_lossy()
-            .intern();
+        // let haste_import_name = Path::new(&module.to_string())
+        //     .file_stem()
+        //     .unwrap()
+        //     .to_string_lossy()
+        //     .intern();
 
         let args = self.build_arguments(field_arguments);
 
@@ -758,7 +886,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             fragment: fragment_primitive,
             kind: Primitive::String(kind),
             name: Primitive::String(field_name),
-            resolver_module: Primitive::JSModuleDependency("lolol".parse().unwrap()),
+            resolver_module: Primitive::JSModuleDependency(import_path.to_str().unwrap().intern()),
             path: Primitive::String(path),
         }))
     }

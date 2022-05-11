@@ -10,7 +10,7 @@ use crate::{
     LOCAL_3D_PAYLOAD, RELAY_RUNTIME,
 };
 use fnv::FnvHashSet;
-use indexmap::IndexMap;
+use indexmap::{IndexMap, IndexSet};
 use intern::string_key::StringKey;
 use schema::{EnumID, SDLSchema, Schema};
 use std::fmt::Result as FmtResult;
@@ -87,3 +87,6 @@ pub(crate) struct EncounteredFragments(pub(crate) FnvHashSet<StringKey>);
 
 #[derive(Default)]
 pub(crate) struct ImportedResolvers(pub(crate) IndexMap<StringKey, StringKey>);
+
+#[derive(Default)]
+pub(crate) struct ImportedRawResponseTypes(pub(crate) IndexSet<StringKey>);

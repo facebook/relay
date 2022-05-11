@@ -214,7 +214,6 @@ pub fn generate_split_operation_type_exports_section(
 struct TypeGenerator<'a> {
     schema: &'a SDLSchema,
     schema_config: &'a SchemaConfig,
-    imported_raw_response_types: IndexSet<StringKey>,
     typegen_config: &'a TypegenConfig,
     js_module_format: JsModuleFormat,
     has_unified_output: bool,
@@ -235,7 +234,6 @@ impl<'a> TypeGenerator<'a> {
         Self {
             schema,
             schema_config,
-            imported_raw_response_types: Default::default(),
             js_module_format,
             has_unified_output,
             typegen_config,
@@ -268,6 +266,7 @@ impl<'a> TypeGenerator<'a> {
             &mut encountered_fragments,
             &mut imported_resolvers,
         );
+        let mut imported_raw_response_types = Default::default();
         let data_type = self.get_data_type(
             type_selections.into_iter(),
             MaskStatus::Masked, // Queries are never unmasked
@@ -289,6 +288,7 @@ impl<'a> TypeGenerator<'a> {
                     &mut encountered_enums,
                     &mut match_fields,
                     &mut encountered_fragments,
+                    &mut imported_raw_response_types,
                 );
                 Some((
                     self.raw_response_selections_to_babel(
@@ -322,7 +322,7 @@ impl<'a> TypeGenerator<'a> {
             .write_runtime_imports(&mut self.writer)?;
         self.write_fragment_imports(None, encountered_fragments)?;
         self.write_relay_resolver_imports(imported_resolvers)?;
-        self.write_split_raw_response_type_imports()?;
+        self.write_split_raw_response_type_imports(imported_raw_response_types)?;
 
         let (input_variables_type, input_object_types) =
             self.get_input_variables_type(typegen_operation, &mut encountered_enums);
@@ -419,11 +419,13 @@ impl<'a> TypeGenerator<'a> {
         let mut encountered_enums = Default::default();
         let mut match_fields = Default::default();
         let mut encountered_fragments = Default::default();
+        let mut imported_raw_response_types = Default::default();
         let raw_response_selections = self.raw_response_visit_selections(
             &normalization_operation.selections,
             &mut encountered_enums,
             &mut match_fields,
             &mut encountered_fragments,
+            &mut imported_raw_response_types,
         );
         let raw_response_type = self.raw_response_selections_to_babel(
             raw_response_selections.into_iter(),
@@ -434,7 +436,7 @@ impl<'a> TypeGenerator<'a> {
         self.runtime_imports
             .write_runtime_imports(&mut self.writer)?;
         self.write_fragment_imports(None, encountered_fragments)?;
-        self.write_split_raw_response_type_imports()?;
+        self.write_split_raw_response_type_imports(imported_raw_response_types)?;
 
         self.write_enum_definitions(encountered_enums)?;
 
@@ -883,12 +885,14 @@ impl<'a> TypeGenerator<'a> {
         encountered_enums: &mut EncounteredEnums,
         match_fields: &mut MatchFields,
         encountered_fragments: &mut EncounteredFragments,
+        imported_raw_response_types: &mut ImportedRawResponseTypes,
     ) {
         let mut selections = self.raw_response_visit_selections(
             &inline_fragment.selections,
             encountered_enums,
             match_fields,
             encountered_fragments,
+            imported_raw_response_types,
         );
         if inline_fragment
             .directives
@@ -1684,12 +1688,16 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn write_split_raw_response_type_imports(&mut self) -> FmtResult {
-        if self.imported_raw_response_types.is_empty() {
+    fn write_split_raw_response_type_imports(
+        &mut self,
+        mut imported_raw_response_types: ImportedRawResponseTypes,
+    ) -> FmtResult {
+        if imported_raw_response_types.0.is_empty() {
             return Ok(());
         }
 
-        for &imported_raw_response_type in self.imported_raw_response_types.iter().sorted() {
+        imported_raw_response_types.0.sort();
+        for imported_raw_response_type in imported_raw_response_types.0 {
             match self.js_module_format {
                 JsModuleFormat::CommonJS => {
                     if self.has_unified_output {
@@ -1909,6 +1917,7 @@ impl<'a> TypeGenerator<'a> {
         encountered_enums: &mut EncounteredEnums,
         match_fields: &mut MatchFields,
         encountered_fragments: &mut EncounteredFragments,
+        imported_raw_response_types: &mut ImportedRawResponseTypes,
     ) -> Vec<TypeSelection> {
         let mut type_selections = Vec::new();
         for selection in selections {
@@ -1918,7 +1927,7 @@ impl<'a> TypeGenerator<'a> {
                     // @no_inline if no_inline isn't enabled for the fragment.
                     if spread.directives.named(*NO_INLINE_DIRECTIVE_NAME).is_some() {
                         let spread_type = spread.fragment.item;
-                        self.imported_raw_response_types.insert(spread_type);
+                        imported_raw_response_types.0.insert(spread_type);
                         type_selections.push(TypeSelection::RawResponseFragmentSpread(
                             RawResponseFragmentSpread {
                                 value: spread_type,
@@ -1935,6 +1944,7 @@ impl<'a> TypeGenerator<'a> {
                         encountered_enums,
                         match_fields,
                         encountered_fragments,
+                        imported_raw_response_types,
                     ),
                 Selection::LinkedField(linked_field) => self.gen_visit_linked_field(
                     &mut type_selections,
@@ -1946,6 +1956,7 @@ impl<'a> TypeGenerator<'a> {
                             encountered_enums,
                             match_fields,
                             encountered_fragments,
+                            imported_raw_response_types,
                         )
                     },
                 ),
@@ -1958,6 +1969,7 @@ impl<'a> TypeGenerator<'a> {
                         encountered_enums,
                         match_fields,
                         encountered_fragments,
+                        imported_raw_response_types,
                     ));
                 }
             }

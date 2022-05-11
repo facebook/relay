@@ -22,8 +22,15 @@ export async function createAndStartClient(context: RelayExtensionContext) {
   context.outputChannel.appendLine('Starting the Relay GraphQL extension...');
 
   const config = getConfig();
-  const rootPath = workspace.rootPath || process.cwd();
 
+  let rootPath = workspace.rootPath || process.cwd();
+  if (config.rootDirectory) {
+    rootPath = path.join(rootPath, config.rootDirectory);
+  }
+
+  context.outputChannel.appendLine(
+    `Searching for the relay-compiler starting at: ${rootPath}`,
+  );
   const relayBinaryResult = await findRelayCompilerBinary(rootPath);
 
   let relayBinary: string | undefined;
@@ -80,9 +87,7 @@ export async function createAndStartClient(context: RelayExtensionContext) {
 
   const serverOptions: ServerOptions = {
     options: {
-      cwd: config.lspWorkingDirectory
-        ? path.join(rootPath, config.lspWorkingDirectory)
-        : undefined,
+      cwd: rootPath,
     },
     command: relayBinary,
     args,
@@ -125,6 +130,11 @@ export async function createAndStartClient(context: RelayExtensionContext) {
 
   client.registerFeature(new LSPStatusBarFeature(context));
 
+  context.outputChannel.appendLine(
+    `Starting the Relay Langauge Server with these options: ${JSON.stringify(
+      serverOptions,
+    )}`,
+  );
   // Start the client. This will also launch the server
   client.start();
   context.client = client;

@@ -217,7 +217,6 @@ struct TypeGenerator<'a> {
     typegen_config: &'a TypegenConfig,
     js_module_format: JsModuleFormat,
     has_unified_output: bool,
-    runtime_imports: RuntimeImports,
     writer: Box<dyn Writer>,
     generating_updatable_types: bool,
 }
@@ -236,7 +235,6 @@ impl<'a> TypeGenerator<'a> {
             js_module_format,
             has_unified_output,
             typegen_config,
-            runtime_imports: RuntimeImports::default(),
             writer: match &typegen_config.language {
                 TypegenLanguage::JavaScript => Box::new(JavaScriptPrinter::default()),
                 TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
@@ -259,6 +257,7 @@ impl<'a> TypeGenerator<'a> {
         let mut encountered_fragments = Default::default();
         let mut imported_resolvers = Default::default();
         let mut actor_change_status = ActorChangeStatus::NoActorChange;
+        let mut runtime_imports = Default::default();
         let type_selections = self.visit_selections(
             &typegen_operation.selections,
             &mut encountered_enums,
@@ -289,12 +288,14 @@ impl<'a> TypeGenerator<'a> {
                     &mut match_fields,
                     &mut encountered_fragments,
                     &mut imported_raw_response_types,
+                    &mut runtime_imports,
                 );
                 Some((
                     self.raw_response_selections_to_babel(
                         raw_response_selections.into_iter(),
                         None,
                         &mut encountered_enums,
+                        &mut runtime_imports,
                     ),
                     match_fields,
                 ))
@@ -305,21 +306,18 @@ impl<'a> TypeGenerator<'a> {
         let refetchable_fragment_name =
             RefetchableDerivedFromMetadata::find(&typegen_operation.directives);
         if refetchable_fragment_name.is_some() {
-            self.runtime_imports
-                .generic_fragment_type_should_be_imported = true;
+            runtime_imports.generic_fragment_type_should_be_imported = true;
         }
 
         // Always include 'FragmentRef' for typescript codegen for operations that have fragment spreads
         if self.typegen_config.language == TypegenLanguage::TypeScript
             && has_fragment_spread(&typegen_operation.selections)
         {
-            self.runtime_imports
-                .generic_fragment_type_should_be_imported = true;
+            runtime_imports.generic_fragment_type_should_be_imported = true;
         }
 
         self.write_import_actor_change_point(actor_change_status)?;
-        self.runtime_imports
-            .write_runtime_imports(&mut self.writer)?;
+        runtime_imports.write_runtime_imports(&mut self.writer)?;
         self.write_fragment_imports(None, encountered_fragments)?;
         self.write_relay_resolver_imports(imported_resolvers)?;
         self.write_split_raw_response_type_imports(imported_raw_response_types)?;
@@ -420,21 +418,24 @@ impl<'a> TypeGenerator<'a> {
         let mut match_fields = Default::default();
         let mut encountered_fragments = Default::default();
         let mut imported_raw_response_types = Default::default();
+        let mut runtime_imports = Default::default();
+
         let raw_response_selections = self.raw_response_visit_selections(
             &normalization_operation.selections,
             &mut encountered_enums,
             &mut match_fields,
             &mut encountered_fragments,
             &mut imported_raw_response_types,
+            &mut runtime_imports,
         );
         let raw_response_type = self.raw_response_selections_to_babel(
             raw_response_selections.into_iter(),
             None,
             &mut encountered_enums,
+            &mut runtime_imports,
         );
 
-        self.runtime_imports
-            .write_runtime_imports(&mut self.writer)?;
+        runtime_imports.write_runtime_imports(&mut self.writer)?;
         self.write_fragment_imports(None, encountered_fragments)?;
         self.write_split_raw_response_type_imports(imported_raw_response_types)?;
 
@@ -535,15 +536,16 @@ impl<'a> TypeGenerator<'a> {
             &mut encountered_fragments,
         );
 
-        self.runtime_imports
-            .generic_fragment_type_should_be_imported = true;
+        let runtime_imports = RuntimeImports {
+            generic_fragment_type_should_be_imported: true,
+            ..Default::default()
+        };
         self.write_import_actor_change_point(actor_change_status)?;
         self.write_fragment_imports(Some(fragment_definition.name.item), encountered_fragments)?;
 
         self.write_enum_definitions(encountered_enums)?;
 
-        self.runtime_imports
-            .write_runtime_imports(&mut self.writer)?;
+        runtime_imports.write_runtime_imports(&mut self.writer)?;
         self.write_relay_resolver_imports(imported_resolvers)?;
 
         let refetchable_metadata = RefetchableMetadata::find(&fragment_definition.directives);
@@ -889,6 +891,7 @@ impl<'a> TypeGenerator<'a> {
         }));
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn raw_response_visit_inline_fragment(
         &mut self,
         type_selections: &mut Vec<TypeSelection>,
@@ -897,6 +900,7 @@ impl<'a> TypeGenerator<'a> {
         match_fields: &mut MatchFields,
         encountered_fragments: &mut EncounteredFragments,
         imported_raw_response_types: &mut ImportedRawResponseTypes,
+        runtime_imports: &mut RuntimeImports,
     ) {
         let mut selections = self.raw_response_visit_selections(
             &inline_fragment.selections,
@@ -904,6 +908,7 @@ impl<'a> TypeGenerator<'a> {
             match_fields,
             encountered_fragments,
             imported_raw_response_types,
+            runtime_imports,
         );
         if inline_fragment
             .directives
@@ -922,6 +927,7 @@ impl<'a> TypeGenerator<'a> {
                     selections.iter().filter(|sel| !sel.is_js_field()).cloned(),
                     None,
                     encountered_enums,
+                    runtime_imports,
                 );
                 match_fields.0.insert(fragment_name, match_field);
             }
@@ -1219,6 +1225,7 @@ impl<'a> TypeGenerator<'a> {
         selections: impl Iterator<Item = TypeSelection>,
         concrete_type: Option<Type>,
         encountered_enums: &mut EncounteredEnums,
+        runtime_imports: &mut RuntimeImports,
     ) -> AST {
         let mut base_fields = Vec::new();
         let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
@@ -1261,6 +1268,7 @@ impl<'a> TypeGenerator<'a> {
                                 selection,
                                 Some(concrete_type),
                                 encountered_enums,
+                                runtime_imports,
                             )
                         })
                         .collect(),
@@ -1270,6 +1278,7 @@ impl<'a> TypeGenerator<'a> {
                     &merged_selections,
                     Some(concrete_type),
                     encountered_enums,
+                    runtime_imports,
                 );
             }
         }
@@ -1280,7 +1289,12 @@ impl<'a> TypeGenerator<'a> {
                     .iter()
                     .cloned()
                     .map(|selection| {
-                        self.raw_response_make_prop(selection, concrete_type, encountered_enums)
+                        self.raw_response_make_prop(
+                            selection,
+                            concrete_type,
+                            encountered_enums,
+                            runtime_imports,
+                        )
                     })
                     .collect(),
             )));
@@ -1289,6 +1303,7 @@ impl<'a> TypeGenerator<'a> {
                 &base_fields,
                 concrete_type,
                 encountered_enums,
+                runtime_imports,
             );
         }
 
@@ -1301,6 +1316,7 @@ impl<'a> TypeGenerator<'a> {
         type_selections: &[TypeSelection],
         concrete_type: Option<Type>,
         encountered_enums: &mut EncounteredEnums,
+        runtime_imports: &mut RuntimeImports,
     ) {
         if let Some(module_import) = type_selections.iter().find_map(|sel| {
             if let TypeSelection::ModuleDirective(m) = sel {
@@ -1309,8 +1325,7 @@ impl<'a> TypeGenerator<'a> {
                 None
             }
         }) {
-            self.runtime_imports
-                .local_3d_payload_type_should_be_imported = true;
+            runtime_imports.local_3d_payload_type_should_be_imported = true;
 
             types.push(AST::Local3DPayload(
                 module_import.document_name,
@@ -1323,6 +1338,7 @@ impl<'a> TypeGenerator<'a> {
                                 sel.clone(),
                                 concrete_type,
                                 encountered_enums,
+                                runtime_imports,
                             )
                         })
                         .collect(),
@@ -1496,6 +1512,7 @@ impl<'a> TypeGenerator<'a> {
         type_selection: TypeSelection,
         concrete_type: Option<Type>,
         encountered_enums: &mut EncounteredEnums,
+        runtime_imports: &mut RuntimeImports,
     ) -> Prop {
         let optional = type_selection.is_conditional();
         match type_selection {
@@ -1516,6 +1533,7 @@ impl<'a> TypeGenerator<'a> {
                     hashmap_into_values(linked_field.node_selections),
                     inner_concrete_type,
                     encountered_enums,
+                    runtime_imports,
                 );
                 Prop::KeyValuePair(KeyValuePairProp {
                     key: linked_field.field_name_or_alias,
@@ -1934,6 +1952,7 @@ impl<'a> TypeGenerator<'a> {
         match_fields: &mut MatchFields,
         encountered_fragments: &mut EncounteredFragments,
         imported_raw_response_types: &mut ImportedRawResponseTypes,
+        runtime_imports: &mut RuntimeImports,
     ) -> Vec<TypeSelection> {
         let mut type_selections = Vec::new();
         for selection in selections {
@@ -1961,6 +1980,7 @@ impl<'a> TypeGenerator<'a> {
                         match_fields,
                         encountered_fragments,
                         imported_raw_response_types,
+                        runtime_imports,
                     ),
                 Selection::LinkedField(linked_field) => self.gen_visit_linked_field(
                     &mut type_selections,
@@ -1973,6 +1993,7 @@ impl<'a> TypeGenerator<'a> {
                             match_fields,
                             encountered_fragments,
                             imported_raw_response_types,
+                            runtime_imports,
                         )
                     },
                 ),
@@ -1986,6 +2007,7 @@ impl<'a> TypeGenerator<'a> {
                         match_fields,
                         encountered_fragments,
                         imported_raw_response_types,
+                        runtime_imports,
                     ));
                 }
             }

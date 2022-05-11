@@ -219,7 +219,6 @@ struct TypeGenerator<'a> {
     has_unified_output: bool,
     runtime_imports: RuntimeImports,
     writer: Box<dyn Writer>,
-    has_actor_change: bool,
     generating_updatable_types: bool,
 }
 impl<'a> TypeGenerator<'a> {
@@ -243,7 +242,6 @@ impl<'a> TypeGenerator<'a> {
                 TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
                 TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(typegen_config)),
             },
-            has_actor_change: false,
             generating_updatable_types,
         }
     }
@@ -260,11 +258,13 @@ impl<'a> TypeGenerator<'a> {
         let mut encountered_enums = Default::default();
         let mut encountered_fragments = Default::default();
         let mut imported_resolvers = Default::default();
+        let mut actor_change_status = ActorChangeStatus::NoActorChange;
         let type_selections = self.visit_selections(
             &typegen_operation.selections,
             &mut encountered_enums,
             &mut encountered_fragments,
             &mut imported_resolvers,
+            &mut actor_change_status,
         );
         let mut imported_raw_response_types = Default::default();
         let data_type = self.get_data_type(
@@ -317,7 +317,7 @@ impl<'a> TypeGenerator<'a> {
                 .generic_fragment_type_should_be_imported = true;
         }
 
-        self.write_import_actor_change_point()?;
+        self.write_import_actor_change_point(actor_change_status)?;
         self.runtime_imports
             .write_runtime_imports(&mut self.writer)?;
         self.write_fragment_imports(None, encountered_fragments)?;
@@ -463,11 +463,13 @@ impl<'a> TypeGenerator<'a> {
         let mut encountered_enums = Default::default();
         let mut encountered_fragments = Default::default();
         let mut imported_resolvers = Default::default();
+        let mut actor_change_status = ActorChangeStatus::NoActorChange;
         let mut type_selections = self.visit_selections(
             &fragment_definition.selections,
             &mut encountered_enums,
             &mut encountered_fragments,
             &mut imported_resolvers,
+            &mut actor_change_status,
         );
         if !fragment_definition.type_condition.is_abstract_type() {
             let num_concrete_selections = type_selections
@@ -535,7 +537,7 @@ impl<'a> TypeGenerator<'a> {
 
         self.runtime_imports
             .generic_fragment_type_should_be_imported = true;
-        self.write_import_actor_change_point()?;
+        self.write_import_actor_change_point(actor_change_status)?;
         self.write_fragment_imports(Some(fragment_definition.name.item), encountered_fragments)?;
 
         self.write_enum_definitions(encountered_enums)?;
@@ -585,6 +587,7 @@ impl<'a> TypeGenerator<'a> {
         encountered_enums: &mut EncounteredEnums,
         encountered_fragments: &mut EncounteredFragments,
         imported_resolvers: &mut ImportedResolvers,
+        actor_change_status: &mut ActorChangeStatus,
     ) -> Vec<TypeSelection> {
         let mut type_selections = Vec::new();
         for selection in selections {
@@ -601,6 +604,7 @@ impl<'a> TypeGenerator<'a> {
                     encountered_enums,
                     encountered_fragments,
                     imported_resolvers,
+                    actor_change_status,
                 ),
                 Selection::LinkedField(linked_field) => self.gen_visit_linked_field(
                     &mut type_selections,
@@ -612,6 +616,7 @@ impl<'a> TypeGenerator<'a> {
                             encountered_enums,
                             encountered_fragments,
                             imported_resolvers,
+                            actor_change_status,
                         )
                     },
                 ),
@@ -624,6 +629,7 @@ impl<'a> TypeGenerator<'a> {
                     encountered_enums,
                     encountered_fragments,
                     imported_resolvers,
+                    actor_change_status,
                 ),
             }
         }
@@ -739,6 +745,7 @@ impl<'a> TypeGenerator<'a> {
         encountered_enums: &mut EncounteredEnums,
         encountered_fragments: &mut EncounteredFragments,
         imported_resolvers: &mut ImportedResolvers,
+        actor_change_status: &mut ActorChangeStatus,
     ) {
         if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
             let name = module_metadata.fragment_name;
@@ -773,6 +780,7 @@ impl<'a> TypeGenerator<'a> {
                 encountered_enums,
                 encountered_fragments,
                 imported_resolvers,
+                actor_change_status,
             );
         } else {
             let mut inline_selections = self.visit_selections(
@@ -780,6 +788,7 @@ impl<'a> TypeGenerator<'a> {
                 encountered_enums,
                 encountered_fragments,
                 imported_resolvers,
+                actor_change_status,
             );
 
             let mut selections = if let Some(fragment_alias_metadata) =
@@ -835,6 +844,7 @@ impl<'a> TypeGenerator<'a> {
         encountered_enums: &mut EncounteredEnums,
         encountered_fragments: &mut EncounteredFragments,
         imported_resolvers: &mut ImportedResolvers,
+        actor_change_status: &mut ActorChangeStatus,
     ) {
         let linked_field = match &inline_fragment.selections[0] {
             Selection::LinkedField(linked_field) => linked_field,
@@ -843,7 +853,7 @@ impl<'a> TypeGenerator<'a> {
             }
         };
 
-        self.has_actor_change = true;
+        *actor_change_status = ActorChangeStatus::HasActorChange;
         let field = self.schema.field(linked_field.definition.item);
         let schema_name = field.name.item;
         let key = if let Some(alias) = linked_field.alias {
@@ -857,6 +867,7 @@ impl<'a> TypeGenerator<'a> {
             encountered_enums,
             encountered_fragments,
             imported_resolvers,
+            actor_change_status,
         );
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: key,
@@ -996,12 +1007,14 @@ impl<'a> TypeGenerator<'a> {
         encountered_enums: &mut EncounteredEnums,
         encountered_fragments: &mut EncounteredFragments,
         imported_resolvers: &mut ImportedResolvers,
+        actor_change_status: &mut ActorChangeStatus,
     ) {
         let mut selections = self.visit_selections(
             &condition.selections,
             encountered_enums,
             encountered_fragments,
             imported_resolvers,
+            actor_change_status,
         );
         for selection in selections.iter_mut() {
             selection.set_conditional(true);
@@ -1667,8 +1680,11 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn write_import_actor_change_point(&mut self) -> FmtResult {
-        if self.has_actor_change {
+    fn write_import_actor_change_point(
+        &mut self,
+        actor_change_status: ActorChangeStatus,
+    ) -> FmtResult {
+        if matches!(actor_change_status, ActorChangeStatus::HasActorChange) {
             self.writer
                 .write_import_type(&[ACTOR_CHANGE_POINT], REACT_RELAY_MULTI_ACTOR)
         } else {

@@ -90,3 +90,10 @@ pub(crate) struct ImportedResolvers(pub(crate) IndexMap<StringKey, StringKey>);
 
 #[derive(Default)]
 pub(crate) struct ImportedRawResponseTypes(pub(crate) IndexSet<StringKey>);
+
+/// Have we encountered an actor change? Use an enum for bookkeeping, since it
+/// will be passed around in many places.
+pub(crate) enum ActorChangeStatus {
+    HasActorChange,
+    NoActorChange,
+}

@@ -6,7 +6,7 @@
  */
 
 use crate::{
-    writer::{ExactObject, Writer},
+    writer::{ExactObject, Writer, AST},
     LOCAL_3D_PAYLOAD, RELAY_RUNTIME,
 };
 use fnv::FnvHashSet;
@@ -78,3 +78,6 @@ impl EncounteredEnums {
         sorted_vec_of_enum_ids
     }
 }
+
+#[derive(Default)]
+pub(crate) struct MatchFields(pub(crate) IndexMap<StringKey, AST>);

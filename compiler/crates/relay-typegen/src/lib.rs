@@ -223,7 +223,6 @@ struct TypeGenerator<'a> {
     js_module_format: JsModuleFormat,
     has_unified_output: bool,
     runtime_imports: RuntimeImports,
-    match_fields: IndexMap<StringKey, AST>,
     writer: Box<dyn Writer>,
     has_actor_change: bool,
     generating_updatable_types: bool,
@@ -247,7 +246,6 @@ impl<'a> TypeGenerator<'a> {
             js_module_format,
             has_unified_output,
             typegen_config,
-            match_fields: Default::default(),
             runtime_imports: RuntimeImports::default(),
             writer: match &typegen_config.language {
                 TypegenLanguage::JavaScript => Box::new(JavaScriptPrinter::default()),
@@ -283,19 +281,25 @@ impl<'a> TypeGenerator<'a> {
             &mut encountered_enums,
         );
 
-        let raw_response_type = if has_raw_response_type_directive(normalization_operation) {
-            let raw_response_selections = self.raw_response_visit_selections(
-                &normalization_operation.selections,
-                &mut encountered_enums,
-            );
-            Some(self.raw_response_selections_to_babel(
-                raw_response_selections.into_iter(),
-                None,
-                &mut encountered_enums,
-            ))
-        } else {
-            None
-        };
+        let raw_response_type_and_match_fields =
+            if has_raw_response_type_directive(normalization_operation) {
+                let mut match_fields = Default::default();
+                let raw_response_selections = self.raw_response_visit_selections(
+                    &normalization_operation.selections,
+                    &mut encountered_enums,
+                    &mut match_fields,
+                );
+                Some((
+                    self.raw_response_selections_to_babel(
+                        raw_response_selections.into_iter(),
+                        None,
+                        &mut encountered_enums,
+                    ),
+                    match_fields,
+                ))
+            } else {
+                None
+            };
 
         let refetchable_fragment_name =
             RefetchableDerivedFromMetadata::find(&typegen_operation.directives);
@@ -337,7 +341,7 @@ impl<'a> TypeGenerator<'a> {
             .write_export_type(&response_identifier, &data_type)?;
 
         let query_wrapper_type = self.get_operation_type_export(
-            raw_response_type,
+            raw_response_type_and_match_fields,
             typegen_operation,
             variables_identifier_key,
             response_identifier_key,
@@ -368,7 +372,7 @@ impl<'a> TypeGenerator<'a> {
     /// {| response: MyQuery$data, variables: MyQuery$variables |}
     fn get_operation_type_export(
         &mut self,
-        raw_response_type: Option<AST>,
+        raw_response_type_and_match_fields: Option<(AST, MatchFields)>,
         typegen_operation: &OperationDefinition,
         variables_identifier_key: StringKey,
         response_identifier_key: StringKey,
@@ -387,9 +391,9 @@ impl<'a> TypeGenerator<'a> {
                 value: AST::Identifier(response_identifier_key),
             }),
         ];
-        if let Some(raw_response_type) = raw_response_type {
-            for (key, ast) in self.match_fields.iter() {
-                self.writer.write_export_type(key.lookup(), ast)?;
+        if let Some((raw_response_type, match_fields)) = raw_response_type_and_match_fields {
+            for (key, ast) in match_fields.0 {
+                self.writer.write_export_type(key.lookup(), &ast)?;
             }
             let raw_response_identifier = format!("{}$rawResponse", typegen_operation.name.item);
             self.writer
@@ -412,9 +416,11 @@ impl<'a> TypeGenerator<'a> {
         normalization_operation: &OperationDefinition,
     ) -> FmtResult {
         let mut encountered_enums = Default::default();
+        let mut match_fields = Default::default();
         let raw_response_selections = self.raw_response_visit_selections(
             &normalization_operation.selections,
             &mut encountered_enums,
+            &mut match_fields,
         );
         let raw_response_type = self.raw_response_selections_to_babel(
             raw_response_selections.into_iter(),
@@ -429,8 +435,8 @@ impl<'a> TypeGenerator<'a> {
 
         self.write_enum_definitions(encountered_enums)?;
 
-        for (key, ast) in self.match_fields.iter() {
-            self.writer.write_export_type(key.lookup(), ast)?;
+        for (key, ast) in match_fields.0 {
+            self.writer.write_export_type(key.lookup(), &ast)?;
         }
 
         self.writer
@@ -826,9 +832,13 @@ impl<'a> TypeGenerator<'a> {
         type_selections: &mut Vec<TypeSelection>,
         inline_fragment: &InlineFragment,
         encountered_enums: &mut EncounteredEnums,
+        match_fields: &mut MatchFields,
     ) {
-        let mut selections =
-            self.raw_response_visit_selections(&inline_fragment.selections, encountered_enums);
+        let mut selections = self.raw_response_visit_selections(
+            &inline_fragment.selections,
+            encountered_enums,
+            match_fields,
+        );
         if inline_fragment
             .directives
             .named(*CLIENT_EXTENSION_DIRECTIVE_NAME)
@@ -841,13 +851,13 @@ impl<'a> TypeGenerator<'a> {
 
         if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
             let fragment_name = module_metadata.fragment_name;
-            if !self.match_fields.contains_key(&fragment_name) {
+            if !match_fields.0.contains_key(&fragment_name) {
                 let match_field = self.raw_response_selections_to_babel(
                     selections.iter().filter(|sel| !sel.is_js_field()).cloned(),
                     None,
                     encountered_enums,
                 );
-                self.match_fields.insert(fragment_name, match_field);
+                match_fields.0.insert(fragment_name, match_field);
             }
 
             type_selections.extend(selections.iter().filter(|sel| sel.is_js_field()).cloned());
@@ -1808,6 +1818,7 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         selections: &[Selection],
         encountered_enums: &mut EncounteredEnums,
+        match_fields: &mut MatchFields,
     ) -> Vec<TypeSelection> {
         let mut type_selections = Vec::new();
         for selection in selections {
@@ -1832,6 +1843,7 @@ impl<'a> TypeGenerator<'a> {
                         &mut type_selections,
                         inline_fragment,
                         encountered_enums,
+                        match_fields,
                     ),
                 Selection::LinkedField(linked_field) => self.gen_visit_linked_field(
                     &mut type_selections,
@@ -1841,6 +1853,7 @@ impl<'a> TypeGenerator<'a> {
                             type_generator,
                             selections,
                             encountered_enums,
+                            match_fields,
                         )
                     },
                 ),
@@ -1848,12 +1861,11 @@ impl<'a> TypeGenerator<'a> {
                     self.visit_scalar_field(&mut type_selections, scalar_field, encountered_enums)
                 }
                 Selection::Condition(condition) => {
-                    type_selections.extend(
-                        self.raw_response_visit_selections(
-                            &condition.selections,
-                            encountered_enums,
-                        ),
-                    );
+                    type_selections.extend(self.raw_response_visit_selections(
+                        &condition.selections,
+                        encountered_enums,
+                        match_fields,
+                    ));
                 }
             }
         }

@@ -88,15 +88,13 @@ pub fn path_for_artifact(
     create_path_for_artifact(project_config, source_file, filename)
 }
 
-type DefinitionSourceLocation = Option<WithLocation<StringKey>>;
-
 pub fn build_request_params_ast_key(
     schema: &SDLSchema,
     request_parameters: RequestParameters<'_>,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
     top_level_statements: &TopLevelStatements,
-    definition_source_location: DefinitionSourceLocation,
+    definition_source_location: WithLocation<StringKey>,
     project_config: &ProjectConfig,
 ) -> AstKey {
     let mut operation_builder = CodegenBuilder::new(
@@ -113,7 +111,7 @@ pub fn build_provided_variables(
     schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
-    definition_source_location: DefinitionSourceLocation,
+    definition_source_location: WithLocation<StringKey>,
     project_config: &ProjectConfig,
 ) -> Option<AstKey> {
     let mut operation_builder = CodegenBuilder::new(
@@ -133,7 +131,7 @@ pub fn build_request(
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
     request_parameters: AstKey,
-    definition_source_location: DefinitionSourceLocation,
+    definition_source_location: WithLocation<StringKey>,
     project_config: &ProjectConfig,
 ) -> AstKey {
     let mut operation_builder = CodegenBuilder::new(
@@ -174,7 +172,7 @@ pub fn build_operation(
     schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
-    definition_source_location: DefinitionSourceLocation,
+    definition_source_location: WithLocation<StringKey>,
     project_config: &ProjectConfig,
 ) -> AstKey {
     let mut builder = CodegenBuilder::new(
@@ -191,7 +189,7 @@ pub fn build_fragment(
     schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     fragment: &FragmentDefinition,
-    definition_source_location: DefinitionSourceLocation,
+    definition_source_location: WithLocation<StringKey>,
     project_config: &ProjectConfig,
 ) -> AstKey {
     let mut builder = CodegenBuilder::new(
@@ -210,7 +208,7 @@ pub struct CodegenBuilder<'schema, 'builder, 'config> {
     variant: CodegenVariant,
     ast_builder: &'builder mut AstBuilder,
     project_config: &'config ProjectConfig,
-    definitiion_source_location: Option<WithLocation<StringKey>>,
+    definitiion_source_location: WithLocation<StringKey>,
 }
 
 #[derive(PartialEq)]
@@ -225,7 +223,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         variant: CodegenVariant,
         ast_builder: &'builder mut AstBuilder,
         project_config: &'config ProjectConfig,
-        definitiion_source_location: Option<WithLocation<StringKey>>,
+        definitiion_source_location: WithLocation<StringKey>,
     ) -> Self {
         Self {
             connection_constants: Default::default(),
@@ -844,36 +842,39 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             CODEGEN_CONSTANTS.relay_resolver
         };
 
-        let definition_artifact_location = path_for_artifact(
-            self.project_config,
-            self.definitiion_source_location
+        let import_path = match self.project_config.js_module_format {
+            relay_config::JsModuleFormat::CommonJS => {
+                let definition_artifact_location = path_for_artifact(
+                    self.project_config,
+                    self.definitiion_source_location.location.source_location(),
+                    self.definitiion_source_location.item,
+                );
+
+                let module_location = PathBuf::from_str(module.lookup()).unwrap();
+
+                let module_path = module_location.parent().unwrap();
+                let definition_artifact_location_path =
+                    definition_artifact_location.parent().unwrap();
+
+                println!(
+                    "Diffing paths: {:?} : {:?}",
+                    definition_artifact_location_path, module_path
+                );
+
+                let resolver_module_location =
+                    pathdiff::diff_paths(module_path, definition_artifact_location_path).unwrap();
+
+                resolver_module_location
+                    .join(module_location.file_name().unwrap())
+                    .to_string_lossy()
+                    .intern()
+            }
+            relay_config::JsModuleFormat::Haste => Path::new(&module.to_string())
+                .file_stem()
                 .unwrap()
-                .location
-                .source_location(),
-            self.definitiion_source_location.unwrap().item,
-        );
-
-        let module_location = PathBuf::from_str(module.lookup()).unwrap();
-
-        let module_path = module_location.parent().unwrap();
-        let definition_artifact_location_path = definition_artifact_location.parent().unwrap();
-
-        println!(
-            "Diffing paths: {:?} : {:?}",
-            definition_artifact_location_path, module_path
-        );
-
-        let resolver_module_location =
-            pathdiff::diff_paths(module_path, definition_artifact_location_path).unwrap();
-
-        let import_path = resolver_module_location.join(module_location.file_name().unwrap());
-
-        // TODO(T86853359): Support non-haste environments when generating Relay Resolver Reader AST
-        // let haste_import_name = Path::new(&module.to_string())
-        //     .file_stem()
-        //     .unwrap()
-        //     .to_string_lossy()
-        //     .intern();
+                .to_string_lossy()
+                .intern(),
+        };
 
         let args = self.build_arguments(field_arguments);
 
@@ -886,7 +887,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             fragment: fragment_primitive,
             kind: Primitive::String(kind),
             name: Primitive::String(field_name),
-            resolver_module: Primitive::JSModuleDependency(import_path.to_str().unwrap().intern()),
+            resolver_module: Primitive::JSModuleDependency(import_path),
             path: Primitive::String(path),
         }))
     }

@@ -77,7 +77,7 @@ pub fn print_request_params(
         &mut builder,
         operation,
         top_level_statements,
-        Some(operation.name),
+        operation.name,
         project_config,
     );
     let printer = JSONPrinter::new(&builder, project_config, top_level_statements);
@@ -117,7 +117,7 @@ impl<'p> Printer<'p> {
             schema,
             &mut self.builder,
             operation,
-            Some(operation.name),
+            operation.name,
             self.project_config,
         )?;
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
@@ -134,7 +134,7 @@ impl<'p> Printer<'p> {
             CodegenVariant::Reader,
             &mut self.builder,
             self.project_config,
-            Some(fragment.name),
+            fragment.name,
         );
         let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
         let key = self.builder.intern(Ast::Object(object! {
@@ -165,7 +165,7 @@ impl<'p> Printer<'p> {
             &mut self.builder,
             operation,
             top_level_statements,
-            Some(operation.name),
+            operation.name,
             self.project_config,
         );
         let key = build_request(
@@ -174,7 +174,7 @@ impl<'p> Printer<'p> {
             operation,
             fragment,
             request_parameters,
-            Some(fragment.name),
+            fragment.name,
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
@@ -191,7 +191,7 @@ impl<'p> Printer<'p> {
             schema,
             &mut self.builder,
             operation,
-            Some(operation.name),
+            operation.name,
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
@@ -208,7 +208,7 @@ impl<'p> Printer<'p> {
             schema,
             &mut self.builder,
             fragment,
-            Some(fragment.name),
+            fragment.name,
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
@@ -228,7 +228,7 @@ impl<'p> Printer<'p> {
             &mut self.builder,
             operation,
             top_level_statements,
-            Some(operation.name),
+            operation.name,
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);

@@ -21,7 +21,7 @@ use relay_transforms::{
     CLIENT_EXTENSION_DIRECTIVE_NAME, NO_INLINE_DIRECTIVE_NAME,
     RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
 };
-use schema::{EnumID, ScalarID, Schema, Type, TypeReference};
+use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::{hash::Hash, path::Path};
 
 use crate::{
@@ -68,7 +68,7 @@ pub(crate) fn visit_selections(
                 actor_change_status,
             ),
             Selection::LinkedField(linked_field) => gen_visit_linked_field(
-                type_generator,
+                type_generator.schema,
                 &mut type_selections,
                 linked_field,
                 |selections| {
@@ -421,12 +421,12 @@ fn raw_response_visit_inline_fragment(
 }
 
 fn gen_visit_linked_field(
-    type_generator: &'_ TypeGenerator<'_>,
+    schema: &SDLSchema,
     type_selections: &mut Vec<TypeSelection>,
     linked_field: &LinkedField,
     mut visit_selections_fn: impl FnMut(&[Selection]) -> Vec<TypeSelection>,
 ) {
-    let field = type_generator.schema.field(linked_field.definition.item);
+    let field = schema.field(linked_field.definition.item);
     let schema_name = field.name.item;
     let key = if let Some(alias) = linked_field.alias {
         alias.item
@@ -1103,7 +1103,7 @@ fn transform_non_nullable_scalar_type(
             Type::Object(_) | Type::Union(_) | Type::Interface(_) => object_props.unwrap(),
             Type::Scalar(scalar_id) => transform_graphql_scalar_type(type_generator, *scalar_id),
             Type::Enum(enum_id) => {
-                transform_graphql_enum_type(type_generator, *enum_id, encountered_enums)
+                transform_graphql_enum_type(type_generator.schema, *enum_id, encountered_enums)
             }
             _ => panic!(),
         },
@@ -1137,12 +1137,12 @@ fn transform_graphql_scalar_type(type_generator: &'_ TypeGenerator<'_>, scalar: 
 }
 
 fn transform_graphql_enum_type(
-    type_generator: &'_ TypeGenerator<'_>,
+    schema: &SDLSchema,
     enum_id: EnumID,
     encountered_enums: &mut EncounteredEnums,
 ) -> AST {
     encountered_enums.0.insert(enum_id);
-    AST::Identifier(type_generator.schema.enum_(enum_id).name.item)
+    AST::Identifier(schema.enum_(enum_id).name.item)
 }
 
 pub(crate) fn raw_response_visit_selections(
@@ -1183,7 +1183,7 @@ pub(crate) fn raw_response_visit_selections(
                 runtime_imports,
             ),
             Selection::LinkedField(linked_field) => gen_visit_linked_field(
-                type_generator,
+                type_generator.schema,
                 &mut type_selections,
                 linked_field,
                 |selections| {
@@ -1236,7 +1236,7 @@ fn transform_non_nullable_input_type(
         TypeReference::Named(named_type) => match named_type {
             Type::Scalar(scalar) => transform_graphql_scalar_type(type_generator, *scalar),
             Type::Enum(enum_id) => {
-                transform_graphql_enum_type(type_generator, *enum_id, encountered_enums)
+                transform_graphql_enum_type(type_generator.schema, *enum_id, encountered_enums)
             }
             Type::InputObject(input_object_id) => {
                 let input_object = type_generator.schema.input_object(*input_object_id);

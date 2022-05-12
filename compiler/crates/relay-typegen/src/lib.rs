@@ -113,7 +113,7 @@ pub fn generate_fragment_type_exports_section(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(
+    let generator = TypegenOptions::new(
         schema,
         &project_config.schema_config,
         project_config.js_module_format,
@@ -136,7 +136,7 @@ pub fn generate_named_validator_export(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(
+    let generator = TypegenOptions::new(
         schema,
         &project_config.schema_config,
         project_config.js_module_format,
@@ -169,7 +169,7 @@ pub fn generate_operation_type_exports_section(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(
+    let generator = TypegenOptions::new(
         schema,
         &project_config.schema_config,
         project_config.js_module_format,
@@ -197,7 +197,7 @@ pub fn generate_split_operation_type_exports_section(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> String {
-    let mut generator = TypeGenerator::new(
+    let generator = TypegenOptions::new(
         schema,
         &project_config.schema_config,
         project_config.js_module_format,
@@ -219,7 +219,8 @@ pub fn generate_split_operation_type_exports_section(
     writer.into_string()
 }
 
-struct TypeGenerator<'a> {
+/// An immutable grab bag of configuration, etc. for type generation.
+struct TypegenOptions<'a> {
     schema: &'a SDLSchema,
     schema_config: &'a SchemaConfig,
     typegen_config: &'a TypegenConfig,
@@ -227,7 +228,8 @@ struct TypeGenerator<'a> {
     has_unified_output: bool,
     generating_updatable_types: bool,
 }
-impl<'a> TypeGenerator<'a> {
+
+impl<'a> TypegenOptions<'a> {
     fn new(
         schema: &'a SDLSchema,
         schema_config: &'a SchemaConfig,
@@ -247,7 +249,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn write_operation_type_exports_section(
-        &mut self,
+        &self,
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
         writer: &mut Box<dyn Writer>,
@@ -373,7 +375,7 @@ impl<'a> TypeGenerator<'a> {
     /// Example:
     /// {| response: MyQuery$data, variables: MyQuery$variables |}
     fn get_operation_type_export(
-        &mut self,
+        &self,
         raw_response_type_and_match_fields: Option<(AST, MatchFields)>,
         typegen_operation: &OperationDefinition,
         variables_identifier_key: StringKey,
@@ -413,7 +415,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn write_split_operation_type_exports_section(
-        &mut self,
+        &self,
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
         writer: &mut Box<dyn Writer>,
@@ -457,7 +459,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn write_fragment_type_exports_section(
-        &mut self,
+        &self,
         fragment_definition: &FragmentDefinition,
         writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
@@ -595,7 +597,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn write_fragment_imports(
-        &mut self,
+        &self,
         fragment_name_to_skip: Option<StringKey>,
         encountered_fragments: EncounteredFragments,
         writer: &mut Box<dyn Writer>,
@@ -634,7 +636,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn write_import_actor_change_point(
-        &mut self,
+        &self,
         actor_change_status: ActorChangeStatus,
         writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
@@ -646,7 +648,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn write_relay_resolver_imports(
-        &mut self,
+        &self,
         mut imported_resolvers: ImportedResolvers,
         writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
@@ -658,7 +660,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn write_split_raw_response_type_imports(
-        &mut self,
+        &self,
         mut imported_raw_response_types: ImportedRawResponseTypes,
         writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
@@ -692,7 +694,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn write_enum_definitions(
-        &mut self,
+        &self,
         encountered_enums: EncounteredEnums,
         writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
@@ -725,7 +727,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn generate_provided_variables_type(
-        &mut self,
+        &self,
         node: &OperationDefinition,
         input_object_types: &mut InputObjectTypes,
         encountered_enums: &mut EncounteredEnums,
@@ -768,7 +770,7 @@ impl<'a> TypeGenerator<'a> {
     }
 
     fn write_input_object_types(
-        &mut self,
+        &self,
         input_object_types: impl Iterator<Item = (StringKey, ExactObject)>,
         writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
@@ -801,7 +803,7 @@ impl<'a> TypeGenerator<'a> {
     /// Validators return the parameter (unmodified) if it did pass validation, but with
     /// a changed flowtype.
     fn write_validator_function(
-        &mut self,
+        &self,
         fragment_definition: &FragmentDefinition,
         schema: &SDLSchema,
         writer: &mut Box<dyn Writer>,
@@ -828,7 +830,7 @@ impl<'a> TypeGenerator<'a> {
     ///   return value.__isAssignable_node != null ? (value/*: any*/) : null
     /// };
     fn write_abstract_validator_function(
-        &mut self,
+        &self,
         fragment_definition: &FragmentDefinition,
         writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
@@ -915,7 +917,7 @@ impl<'a> TypeGenerator<'a> {
     ///   return value.__typename === 'User' ? (value/*: any*/) : null
     /// };
     fn write_concrete_validator_function(
-        &mut self,
+        &self,
         fragment_definition: &FragmentDefinition,
         schema: &SDLSchema,
         writer: &mut Box<dyn Writer>,

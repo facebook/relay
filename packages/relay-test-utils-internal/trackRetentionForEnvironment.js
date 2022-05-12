@@ -38,8 +38,8 @@ function trackRetentionForEnvironment(environment: IEnvironment): {|
     }
   });
 
-  // $FlowFixMe[method-unbinding] safe to do for mocking
-  environment.retain.mockImplementation(operation => {
+  // $FlowFixMe[cannot-write] safe to do for mocking
+  environment.retain = jest.fn(operation => {
     const id = operation.request.identifier;
     const existing = retainCountsByOperation.get(id) ?? 0;
     retainCountsByOperation.set(id, existing + 1);

@@ -208,7 +208,7 @@ pub struct CodegenBuilder<'schema, 'builder, 'config> {
     variant: CodegenVariant,
     ast_builder: &'builder mut AstBuilder,
     project_config: &'config ProjectConfig,
-    definitiion_source_location: WithLocation<StringKey>,
+    definition_source_location: WithLocation<StringKey>,
 }
 
 #[derive(PartialEq)]
@@ -231,7 +231,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             variant,
             ast_builder,
             project_config,
-            definitiion_source_location,
+            definition_source_location: definitiion_source_location,
         }
     }
 
@@ -846,8 +846,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             relay_config::JsModuleFormat::CommonJS => {
                 let definition_artifact_location = path_for_artifact(
                     self.project_config,
-                    self.definitiion_source_location.location.source_location(),
-                    self.definitiion_source_location.item,
+                    self.definition_source_location.location.source_location(),
+                    self.definition_source_location.item,
                 );
 
                 let module_location = PathBuf::from_str(module.lookup()).unwrap();

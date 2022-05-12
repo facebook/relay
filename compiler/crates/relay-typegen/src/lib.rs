@@ -21,11 +21,9 @@ use ::intern::{
     string_key::{Intern, StringKey},
 };
 use common::NamedItem;
-use flow::FlowPrinter;
 use graphql_ir::{FragmentDefinition, OperationDefinition, ProvidedVariableMetadata, Selection};
 use indexmap::IndexMap;
 use itertools::Itertools;
-use javascript::JavaScriptPrinter;
 use lazy_static::lazy_static;
 use relay_config::{JsModuleFormat, ProjectConfig, SchemaConfig};
 pub use relay_config::{TypegenConfig, TypegenLanguage};
@@ -36,14 +34,13 @@ use relay_transforms::{
 use schema::{SDLSchema, Schema, Type, TypeReference};
 use std::fmt::Result as FmtResult;
 use typegen_state::*;
-use typescript::TypeScriptPrinter;
 use visit::{
     get_data_type, get_input_variables_type, raw_response_selections_to_babel,
     raw_response_visit_selections, transform_input_type, visit_selections,
 };
 use writer::{
-    ExactObject, InexactObject, KeyValuePairProp, Prop, SortedASTList, SortedStringKeyList,
-    StringLiteral, Writer, AST,
+    new_writer_from_config, ExactObject, InexactObject, KeyValuePairProp, Prop, SortedASTList,
+    SortedStringKeyList, StringLiteral, Writer, AST,
 };
 
 static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
@@ -127,10 +124,11 @@ pub fn generate_fragment_type_exports_section(
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
     );
+    let mut writer = new_writer_from_config(&project_config.typegen_config);
     generator
-        .write_fragment_type_exports_section(fragment_definition)
+        .write_fragment_type_exports_section(fragment_definition, &mut writer)
         .unwrap();
-    generator.into_string()
+    writer.into_string()
 }
 
 pub fn generate_named_validator_export(
@@ -149,10 +147,11 @@ pub fn generate_named_validator_export(
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
     );
+    let mut writer = new_writer_from_config(&project_config.typegen_config);
     generator
-        .write_validator_function(fragment_definition, schema)
+        .write_validator_function(fragment_definition, schema, &mut writer)
         .unwrap();
-    let validator_function_body = generator.into_string();
+    let validator_function_body = writer.into_string();
 
     if project_config.typegen_config.eager_es_modules {
         format!("export {}", validator_function_body)
@@ -181,10 +180,15 @@ pub fn generate_operation_type_exports_section(
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
     );
+    let mut writer = new_writer_from_config(&project_config.typegen_config);
     generator
-        .write_operation_type_exports_section(typegen_operation, normalization_operation)
+        .write_operation_type_exports_section(
+            typegen_operation,
+            normalization_operation,
+            &mut writer,
+        )
         .unwrap();
-    generator.into_string()
+    writer.into_string()
 }
 
 pub fn generate_split_operation_type_exports_section(
@@ -204,10 +208,15 @@ pub fn generate_split_operation_type_exports_section(
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
     );
+    let mut writer = new_writer_from_config(&project_config.typegen_config);
     generator
-        .write_split_operation_type_exports_section(typegen_operation, normalization_operation)
+        .write_split_operation_type_exports_section(
+            typegen_operation,
+            normalization_operation,
+            &mut writer,
+        )
         .unwrap();
-    generator.into_string()
+    writer.into_string()
 }
 
 struct TypeGenerator<'a> {
@@ -216,7 +225,6 @@ struct TypeGenerator<'a> {
     typegen_config: &'a TypegenConfig,
     js_module_format: JsModuleFormat,
     has_unified_output: bool,
-    writer: Box<dyn Writer>,
     generating_updatable_types: bool,
 }
 impl<'a> TypeGenerator<'a> {
@@ -234,23 +242,15 @@ impl<'a> TypeGenerator<'a> {
             js_module_format,
             has_unified_output,
             typegen_config,
-            writer: match &typegen_config.language {
-                TypegenLanguage::JavaScript => Box::new(JavaScriptPrinter::default()),
-                TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
-                TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(typegen_config)),
-            },
             generating_updatable_types,
         }
-    }
-
-    fn into_string(self) -> String {
-        self.writer.into_string()
     }
 
     fn write_operation_type_exports_section(
         &mut self,
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
+        writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
         let mut encountered_enums = Default::default();
         let mut encountered_fragments = Default::default();
@@ -319,36 +319,35 @@ impl<'a> TypeGenerator<'a> {
             runtime_imports.generic_fragment_type_should_be_imported = true;
         }
 
-        self.write_import_actor_change_point(actor_change_status)?;
-        runtime_imports.write_runtime_imports(&mut self.writer)?;
-        self.write_fragment_imports(None, encountered_fragments)?;
-        self.write_relay_resolver_imports(imported_resolvers)?;
-        self.write_split_raw_response_type_imports(imported_raw_response_types)?;
+        self.write_import_actor_change_point(actor_change_status, writer)?;
+        runtime_imports.write_runtime_imports(writer)?;
+        self.write_fragment_imports(None, encountered_fragments, writer)?;
+        self.write_relay_resolver_imports(imported_resolvers, writer)?;
+        self.write_split_raw_response_type_imports(imported_raw_response_types, writer)?;
 
         let (input_variables_type, input_object_types) =
             get_input_variables_type(self, typegen_operation, &mut encountered_enums);
 
-        self.write_enum_definitions(encountered_enums)?;
-        self.write_input_object_types(input_object_types)?;
+        self.write_enum_definitions(encountered_enums, writer)?;
+        self.write_input_object_types(input_object_types, writer)?;
 
         let variables_identifier = format!("{}$variables", typegen_operation.name.item);
         let variables_identifier_key = variables_identifier.as_str().intern();
 
-        self.writer
-            .write_export_type(&variables_identifier, &input_variables_type.into())?;
+        writer.write_export_type(&variables_identifier, &input_variables_type.into())?;
 
         let response_identifier = format!("{}$data", typegen_operation.name.item);
         let response_identifier_key = response_identifier.as_str().intern();
-        self.writer
-            .write_export_type(&response_identifier, &data_type)?;
+        writer.write_export_type(&response_identifier, &data_type)?;
 
         let query_wrapper_type = self.get_operation_type_export(
             raw_response_type_and_match_fields,
             typegen_operation,
             variables_identifier_key,
             response_identifier_key,
+            writer,
         )?;
-        self.writer.write_export_type(
+        writer.write_export_type(
             typegen_operation.name.item.lookup(),
             &query_wrapper_type.into(),
         )?;
@@ -364,6 +363,7 @@ impl<'a> TypeGenerator<'a> {
             normalization_operation,
             &mut Default::default(),
             &mut Default::default(),
+            writer,
         )?;
         Ok(())
     }
@@ -378,6 +378,7 @@ impl<'a> TypeGenerator<'a> {
         typegen_operation: &OperationDefinition,
         variables_identifier_key: StringKey,
         response_identifier_key: StringKey,
+        writer: &mut Box<dyn Writer>,
     ) -> Result<ExactObject, std::fmt::Error> {
         let mut operation_types = vec![
             Prop::KeyValuePair(KeyValuePairProp {
@@ -395,11 +396,10 @@ impl<'a> TypeGenerator<'a> {
         ];
         if let Some((raw_response_type, match_fields)) = raw_response_type_and_match_fields {
             for (key, ast) in match_fields.0 {
-                self.writer.write_export_type(key.lookup(), &ast)?;
+                writer.write_export_type(key.lookup(), &ast)?;
             }
             let raw_response_identifier = format!("{}$rawResponse", typegen_operation.name.item);
-            self.writer
-                .write_export_type(&raw_response_identifier, &raw_response_type)?;
+            writer.write_export_type(&raw_response_identifier, &raw_response_type)?;
 
             operation_types.push(Prop::KeyValuePair(KeyValuePairProp {
                 key: *KEY_RAW_RESPONSE,
@@ -416,6 +416,7 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         typegen_operation: &OperationDefinition,
         normalization_operation: &OperationDefinition,
+        writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
         let mut encountered_enums = Default::default();
         let mut match_fields = Default::default();
@@ -440,18 +441,17 @@ impl<'a> TypeGenerator<'a> {
             &mut runtime_imports,
         );
 
-        runtime_imports.write_runtime_imports(&mut self.writer)?;
-        self.write_fragment_imports(None, encountered_fragments)?;
-        self.write_split_raw_response_type_imports(imported_raw_response_types)?;
+        runtime_imports.write_runtime_imports(writer)?;
+        self.write_fragment_imports(None, encountered_fragments, writer)?;
+        self.write_split_raw_response_type_imports(imported_raw_response_types, writer)?;
 
-        self.write_enum_definitions(encountered_enums)?;
+        self.write_enum_definitions(encountered_enums, writer)?;
 
         for (key, ast) in match_fields.0 {
-            self.writer.write_export_type(key.lookup(), &ast)?;
+            writer.write_export_type(key.lookup(), &ast)?;
         }
 
-        self.writer
-            .write_export_type(typegen_operation.name.item.lookup(), &raw_response_type)?;
+        writer.write_export_type(typegen_operation.name.item.lookup(), &raw_response_type)?;
 
         Ok(())
     }
@@ -459,6 +459,7 @@ impl<'a> TypeGenerator<'a> {
     fn write_fragment_type_exports_section(
         &mut self,
         fragment_definition: &FragmentDefinition,
+        writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
         // Assignable fragments do not require $data and $ref type exports, and their aliases
         let is_assignable_fragment = fragment_definition
@@ -547,33 +548,36 @@ impl<'a> TypeGenerator<'a> {
             generic_fragment_type_should_be_imported: true,
             ..Default::default()
         };
-        self.write_import_actor_change_point(actor_change_status)?;
-        self.write_fragment_imports(Some(fragment_definition.name.item), encountered_fragments)?;
+        self.write_import_actor_change_point(actor_change_status, writer)?;
+        self.write_fragment_imports(
+            Some(fragment_definition.name.item),
+            encountered_fragments,
+            writer,
+        )?;
 
-        self.write_enum_definitions(encountered_enums)?;
+        self.write_enum_definitions(encountered_enums, writer)?;
 
-        runtime_imports.write_runtime_imports(&mut self.writer)?;
-        self.write_relay_resolver_imports(imported_resolvers)?;
+        runtime_imports.write_runtime_imports(writer)?;
+        self.write_relay_resolver_imports(imported_resolvers, writer)?;
 
         let refetchable_metadata = RefetchableMetadata::find(&fragment_definition.directives);
         let fragment_type_name = format!("{}$fragmentType", fragment_name);
-        self.writer
-            .write_export_fragment_type(&fragment_type_name)?;
+        writer.write_export_fragment_type(&fragment_type_name)?;
         if let Some(refetchable_metadata) = refetchable_metadata {
             let variables_name = format!("{}$variables", refetchable_metadata.operation_name);
             match self.js_module_format {
                 JsModuleFormat::CommonJS => {
                     if self.has_unified_output {
-                        self.writer.write_import_fragment_type(
+                        writer.write_import_fragment_type(
                             &[&variables_name],
                             &format!("./{}.graphql", refetchable_metadata.operation_name),
                         )?;
                     } else {
-                        self.writer.write_any_type_definition(&variables_name)?;
+                        writer.write_any_type_definition(&variables_name)?;
                     }
                 }
                 JsModuleFormat::Haste => {
-                    self.writer.write_import_fragment_type(
+                    writer.write_import_fragment_type(
                         &[&variables_name],
                         &format!("{}.graphql", refetchable_metadata.operation_name),
                     )?;
@@ -582,8 +586,8 @@ impl<'a> TypeGenerator<'a> {
         }
 
         if !is_assignable_fragment {
-            self.writer.write_export_type(&data_type_name, &data_type)?;
-            self.writer
+            writer.write_export_type(&data_type_name, &data_type)?;
+            writer
                 .write_export_type(&format!("{}$key", fragment_definition.name.item), &ref_type)?;
         }
 
@@ -594,6 +598,7 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         fragment_name_to_skip: Option<StringKey>,
         encountered_fragments: EncounteredFragments,
+        writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
         for current_referenced_fragment in encountered_fragments.0.into_iter().sorted() {
             // Do not write the fragment if it is the "top-level" fragment that we are
@@ -608,16 +613,16 @@ impl<'a> TypeGenerator<'a> {
                 match self.js_module_format {
                     JsModuleFormat::CommonJS => {
                         if self.has_unified_output {
-                            self.writer.write_import_fragment_type(
+                            writer.write_import_fragment_type(
                                 &[&fragment_type_name],
                                 &format!("./{}.graphql", current_referenced_fragment),
                             )?;
                         } else {
-                            self.writer.write_any_type_definition(&fragment_type_name)?;
+                            writer.write_any_type_definition(&fragment_type_name)?;
                         }
                     }
                     JsModuleFormat::Haste => {
-                        self.writer.write_import_fragment_type(
+                        writer.write_import_fragment_type(
                             &[&fragment_type_name],
                             &format!("{}.graphql", current_referenced_fragment),
                         )?;
@@ -631,10 +636,10 @@ impl<'a> TypeGenerator<'a> {
     fn write_import_actor_change_point(
         &mut self,
         actor_change_status: ActorChangeStatus,
+        writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
         if matches!(actor_change_status, ActorChangeStatus::HasActorChange) {
-            self.writer
-                .write_import_type(&[ACTOR_CHANGE_POINT], REACT_RELAY_MULTI_ACTOR)
+            writer.write_import_type(&[ACTOR_CHANGE_POINT], REACT_RELAY_MULTI_ACTOR)
         } else {
             Ok(())
         }
@@ -643,11 +648,11 @@ impl<'a> TypeGenerator<'a> {
     fn write_relay_resolver_imports(
         &mut self,
         mut imported_resolvers: ImportedResolvers,
+        writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
         imported_resolvers.0.sort_keys();
         for (from, name) in imported_resolvers.0 {
-            self.writer
-                .write_import_module_default(name.lookup(), from.lookup())?
+            writer.write_import_module_default(name.lookup(), from.lookup())?
         }
         Ok(())
     }
@@ -655,6 +660,7 @@ impl<'a> TypeGenerator<'a> {
     fn write_split_raw_response_type_imports(
         &mut self,
         mut imported_raw_response_types: ImportedRawResponseTypes,
+        writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
         if imported_raw_response_types.0.is_empty() {
             return Ok(());
@@ -665,17 +671,16 @@ impl<'a> TypeGenerator<'a> {
             match self.js_module_format {
                 JsModuleFormat::CommonJS => {
                     if self.has_unified_output {
-                        self.writer.write_import_fragment_type(
+                        writer.write_import_fragment_type(
                             &[imported_raw_response_type.lookup()],
                             &format!("./{}.graphql", imported_raw_response_type),
                         )?;
                     } else {
-                        self.writer
-                            .write_any_type_definition(imported_raw_response_type.lookup())?;
+                        writer.write_any_type_definition(imported_raw_response_type.lookup())?;
                     }
                 }
                 JsModuleFormat::Haste => {
-                    self.writer.write_import_fragment_type(
+                    writer.write_import_fragment_type(
                         &[imported_raw_response_type.lookup()],
                         &format!("{}.graphql", imported_raw_response_type),
                     )?;
@@ -686,12 +691,16 @@ impl<'a> TypeGenerator<'a> {
         Ok(())
     }
 
-    fn write_enum_definitions(&mut self, encountered_enums: EncounteredEnums) -> FmtResult {
+    fn write_enum_definitions(
+        &mut self,
+        encountered_enums: EncounteredEnums,
+        writer: &mut Box<dyn Writer>,
+    ) -> FmtResult {
         let enum_ids = encountered_enums.into_sorted_vec(self.schema);
         for enum_id in enum_ids {
             let enum_type = self.schema.enum_(enum_id);
             if let Some(enum_module_suffix) = &self.typegen_config.enum_module_suffix {
-                self.writer.write_import_type(
+                writer.write_import_type(
                     &[enum_type.name.item.lookup()],
                     &format!("{}{}", enum_type.name.item, enum_module_suffix),
                 )?;
@@ -706,7 +715,7 @@ impl<'a> TypeGenerator<'a> {
                     members.push(AST::StringLiteral(StringLiteral(*FUTURE_ENUM_VALUE)));
                 }
 
-                self.writer.write_export_type(
+                writer.write_export_type(
                     enum_type.name.item.lookup(),
                     &AST::Union(SortedASTList::new(members)),
                 )?;
@@ -720,6 +729,7 @@ impl<'a> TypeGenerator<'a> {
         node: &OperationDefinition,
         input_object_types: &mut InputObjectTypes,
         encountered_enums: &mut EncounteredEnums,
+        writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
         let fields = node
             .variable_definitions
@@ -749,7 +759,7 @@ impl<'a> TypeGenerator<'a> {
             })
             .collect_vec();
         if !fields.is_empty() {
-            self.writer.write_local_type(
+            writer.write_local_type(
                 PROVIDED_VARIABLE_TYPE,
                 &AST::ExactObject(ExactObject::new(fields)),
             )?;
@@ -760,10 +770,10 @@ impl<'a> TypeGenerator<'a> {
     fn write_input_object_types(
         &mut self,
         input_object_types: impl Iterator<Item = (StringKey, ExactObject)>,
+        writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
         for (type_identifier, input_object_type) in input_object_types {
-            self.writer
-                .write_export_type(type_identifier.lookup(), &input_object_type.into())?;
+            writer.write_export_type(type_identifier.lookup(), &input_object_type.into())?;
         }
         Ok(())
     }
@@ -794,11 +804,12 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         fragment_definition: &FragmentDefinition,
         schema: &SDLSchema,
+        writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
         if fragment_definition.type_condition.is_abstract_type() {
-            self.write_abstract_validator_function(fragment_definition)
+            self.write_abstract_validator_function(fragment_definition, writer)
         } else {
-            self.write_concrete_validator_function(fragment_definition, schema)
+            self.write_concrete_validator_function(fragment_definition, schema, writer)
         }
     }
 
@@ -819,6 +830,7 @@ impl<'a> TypeGenerator<'a> {
     fn write_abstract_validator_function(
         &mut self,
         fragment_definition: &FragmentDefinition,
+        writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
         let fragment_name = fragment_definition.name.item.lookup();
         let abstract_fragment_spread_marker = format!("__is{}", fragment_name).intern();
@@ -867,23 +879,23 @@ impl<'a> TypeGenerator<'a> {
         };
 
         write!(
-            self.writer,
+            writer,
             "function {}(value{}: ",
             VALIDATOR_EXPORT_NAME, &open_comment
         )?;
 
-        self.writer.write(&parameter_type)?;
-        write!(self.writer, "{}){}: ", &close_comment, &open_comment)?;
-        self.writer.write(&return_type)?;
+        writer.write(&parameter_type)?;
+        write!(writer, "{}){}: ", &close_comment, &open_comment)?;
+        writer.write(&return_type)?;
         write!(
-            self.writer,
+            writer,
             "{} {{\n  return value.{} != null ? (value{}: ",
             &close_comment,
             abstract_fragment_spread_marker.lookup(),
             open_comment
         )?;
-        self.writer.write(&AST::Any)?;
-        write!(self.writer, "{}) : false;\n}}", &close_comment)?;
+        writer.write(&AST::Any)?;
+        write!(writer, "{}) : false;\n}}", &close_comment)?;
 
         Ok(())
     }
@@ -906,6 +918,7 @@ impl<'a> TypeGenerator<'a> {
         &mut self,
         fragment_definition: &FragmentDefinition,
         schema: &SDLSchema,
+        writer: &mut Box<dyn Writer>,
     ) -> FmtResult {
         let fragment_name = fragment_definition.name.item.lookup();
         let concrete_typename = schema.get_type_name(fragment_definition.type_condition);
@@ -954,23 +967,23 @@ impl<'a> TypeGenerator<'a> {
         };
 
         write!(
-            self.writer,
+            writer,
             "function {}(value{}: ",
             VALIDATOR_EXPORT_NAME, &open_comment
         )?;
-        self.writer.write(&parameter_type)?;
-        write!(self.writer, "{}){}: ", &close_comment, &open_comment)?;
-        self.writer.write(&return_type)?;
+        writer.write(&parameter_type)?;
+        write!(writer, "{}){}: ", &close_comment, &open_comment)?;
+        writer.write(&return_type)?;
         write!(
-            self.writer,
+            writer,
             "{} {{\n  return value.{} === '{}' ? (value{}: ",
             &close_comment,
             KEY_TYPENAME.lookup(),
             concrete_typename.lookup(),
             open_comment
         )?;
-        self.writer.write(&AST::Any)?;
-        write!(self.writer, "{}) : false;\n}}", &close_comment)?;
+        writer.write(&AST::Any)?;
+        write!(writer, "{}) : false;\n}}", &close_comment)?;
 
         Ok(())
     }

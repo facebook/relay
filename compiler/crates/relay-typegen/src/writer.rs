@@ -6,13 +6,17 @@
  */
 
 use intern::string_key::StringKey;
+use relay_config::{TypegenConfig, TypegenLanguage};
 use std::{
     cmp::Ordering,
     fmt::{Result as FmtResult, Write},
     ops::Deref,
 };
 
-use crate::{FUTURE_ENUM_VALUE, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_TYPENAME};
+use crate::{
+    flow::FlowPrinter, javascript::JavaScriptPrinter, typescript::TypeScriptPrinter,
+    FUTURE_ENUM_VALUE, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_TYPENAME,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AST {
@@ -389,5 +393,13 @@ mod tests {
                 StringLiteral(*FUTURE_ENUM_VALUE),
             ]
         )
+    }
+}
+
+pub(crate) fn new_writer_from_config(config: &TypegenConfig) -> Box<dyn Writer> {
+    match config.language {
+        TypegenLanguage::JavaScript => Box::new(JavaScriptPrinter::default()),
+        TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
+        TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(config)),
     }
 }

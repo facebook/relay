@@ -1,0 +1,5 @@
+﻿# expected-to-throw
+
+type User {
+  id: ID!
+}

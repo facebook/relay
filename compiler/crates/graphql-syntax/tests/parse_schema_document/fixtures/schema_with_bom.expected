@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+﻿# expected-to-throw
+
+type User {
+  id: ID!
+}
+==================================== ERROR ====================================
+✖︎ Unsupported character
+
+  schema_with_bom.graphql:1:1
+    1 │ ﻿# expected-to-throw
+      │ ^^^
+    2 │

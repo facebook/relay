@@ -11,6 +11,7 @@
 
 mod flow;
 mod javascript;
+mod type_selection;
 mod typegen_state;
 mod typescript;
 mod visit;
@@ -20,18 +21,17 @@ mod writer;
 use ::intern::string_key::{Intern, StringKey};
 use common::NamedItem;
 use graphql_ir::{FragmentDefinition, OperationDefinition};
-use indexmap::IndexMap;
 use lazy_static::lazy_static;
 use relay_config::{JsModuleFormat, ProjectConfig, SchemaConfig};
 pub use relay_config::{TypegenConfig, TypegenLanguage};
-use relay_transforms::{TypeConditionInfo, UPDATABLE_DIRECTIVE};
-use schema::{SDLSchema, Type, TypeReference};
+use relay_transforms::UPDATABLE_DIRECTIVE;
+use schema::SDLSchema;
 pub use write::has_raw_response_type_directive;
 use write::{
     write_fragment_type_exports_section, write_operation_type_exports_section,
     write_split_operation_type_exports_section, write_validator_function,
 };
-use writer::{new_writer_from_config, AST};
+use writer::new_writer_from_config;
 
 static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
 static RELAY_RUNTIME: &str = "relay-runtime";
@@ -233,185 +233,6 @@ impl<'a> TypegenOptions<'a> {
             has_unified_output,
             typegen_config,
             generating_updatable_types,
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-enum TypeSelection {
-    RawResponseFragmentSpread(RawResponseFragmentSpread),
-    ModuleDirective(ModuleDirective),
-    LinkedField(TypeSelectionLinkedField),
-    ScalarField(TypeSelectionScalarField),
-    InlineFragment(TypeSelectionInlineFragment),
-    FragmentSpread(TypeSelectionFragmentSpread),
-}
-
-#[derive(Debug, Clone)]
-struct RawResponseFragmentSpread {
-    value: StringKey,
-    conditional: bool,
-    concrete_type: Option<Type>,
-}
-
-impl TypeSelection {
-    fn set_concrete_type(&mut self, type_: Type) {
-        match self {
-            TypeSelection::LinkedField(l) => l.concrete_type = Some(type_),
-            TypeSelection::ScalarField(s) => s.concrete_type = Some(type_),
-            TypeSelection::InlineFragment(f) => f.concrete_type = Some(type_),
-            TypeSelection::FragmentSpread(f) => f.concrete_type = Some(type_),
-            TypeSelection::ModuleDirective(m) => m.concrete_type = Some(type_),
-            TypeSelection::RawResponseFragmentSpread(f) => f.concrete_type = Some(type_),
-        }
-    }
-
-    fn set_conditional(&mut self, conditional: bool) {
-        match self {
-            TypeSelection::LinkedField(l) => l.conditional = conditional,
-            TypeSelection::ScalarField(s) => s.conditional = conditional,
-            TypeSelection::InlineFragment(f) => f.conditional = conditional,
-            TypeSelection::FragmentSpread(f) => f.conditional = conditional,
-            TypeSelection::ModuleDirective(m) => m.conditional = conditional,
-            TypeSelection::RawResponseFragmentSpread(f) => f.conditional = conditional,
-        }
-    }
-
-    fn is_conditional(&self) -> bool {
-        match self {
-            TypeSelection::LinkedField(l) => l.conditional,
-            TypeSelection::ScalarField(s) => s.conditional,
-            TypeSelection::FragmentSpread(f) => f.conditional,
-            TypeSelection::InlineFragment(f) => f.conditional,
-            TypeSelection::ModuleDirective(m) => m.conditional,
-            TypeSelection::RawResponseFragmentSpread(f) => f.conditional,
-        }
-    }
-
-    fn get_enclosing_concrete_type(&self) -> Option<Type> {
-        match self {
-            TypeSelection::LinkedField(l) => l.concrete_type,
-            TypeSelection::ScalarField(s) => s.concrete_type,
-            TypeSelection::FragmentSpread(f) => f.concrete_type,
-            TypeSelection::InlineFragment(f) => f.concrete_type,
-            TypeSelection::ModuleDirective(m) => m.concrete_type,
-            TypeSelection::RawResponseFragmentSpread(f) => f.concrete_type,
-        }
-    }
-
-    fn is_typename(&self) -> bool {
-        matches!(
-            self,
-            TypeSelection::ScalarField(TypeSelectionScalarField {
-                special_field: Some(ScalarFieldSpecialSchemaField::TypeName),
-                ..
-            }),
-        )
-    }
-
-    fn is_js_field(&self) -> bool {
-        matches!(
-            self,
-            TypeSelection::ScalarField(TypeSelectionScalarField {
-                special_field: Some(ScalarFieldSpecialSchemaField::JS),
-                ..
-            }),
-        )
-    }
-
-    fn get_field_name_or_alias(&self) -> Option<StringKey> {
-        match self {
-            TypeSelection::LinkedField(l) => Some(l.field_name_or_alias),
-            TypeSelection::ScalarField(s) => Some(s.field_name_or_alias),
-            _ => None,
-        }
-    }
-
-    fn get_string_key(&self) -> StringKey {
-        match self {
-            TypeSelection::LinkedField(l) => l.field_name_or_alias,
-            TypeSelection::ScalarField(s) => s.field_name_or_alias,
-            TypeSelection::FragmentSpread(i) => format!("__fragments_{}", i.fragment_name).intern(),
-            TypeSelection::InlineFragment(i) => format!("__fragments_{}", i.fragment_name).intern(),
-            TypeSelection::ModuleDirective(md) => md.fragment_name,
-            TypeSelection::RawResponseFragmentSpread(_) => *SPREAD_KEY,
-        }
-    }
-}
-
-#[derive(Debug, Clone)]
-struct ModuleDirective {
-    fragment_name: StringKey,
-    document_name: StringKey,
-    conditional: bool,
-    concrete_type: Option<Type>,
-}
-
-#[derive(Debug, Clone)]
-struct TypeSelectionLinkedField {
-    field_name_or_alias: StringKey,
-    node_type: TypeReference,
-    node_selections: TypeSelectionMap,
-    conditional: bool,
-    concrete_type: Option<Type>,
-}
-
-#[derive(Debug, Clone)]
-struct TypeSelectionScalarField {
-    field_name_or_alias: StringKey,
-    special_field: Option<ScalarFieldSpecialSchemaField>,
-    value: AST,
-    conditional: bool,
-    concrete_type: Option<Type>,
-}
-
-#[derive(Debug, Clone)]
-struct TypeSelectionInlineFragment {
-    fragment_name: StringKey,
-    conditional: bool,
-    concrete_type: Option<Type>,
-}
-
-#[derive(Debug, Clone)]
-struct TypeSelectionFragmentSpread {
-    fragment_name: StringKey,
-    conditional: bool,
-    concrete_type: Option<Type>,
-    // Why are we using TypeSelectionInfo instead of re-using concrete_type?
-    // Because concrete_type is poorly named and does not refer to the concrete
-    // type of the fragment spread.
-    type_condition_info: Option<TypeConditionInfo>,
-    is_updatable_fragment_spread: bool,
-}
-
-type TypeSelectionMap = IndexMap<TypeSelectionKey, TypeSelection>;
-
-#[derive(Eq, Hash, PartialEq, Clone, Copy, Debug)]
-struct TypeSelectionKey {
-    key: StringKey,
-    concrete_type: Option<Type>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-enum ScalarFieldSpecialSchemaField {
-    JS,
-    TypeName,
-    Id,
-    ClientId,
-}
-
-impl ScalarFieldSpecialSchemaField {
-    fn from_schema_name(key: StringKey, schema_config: &SchemaConfig) -> Option<Self> {
-        if key == *JS_FIELD_NAME {
-            Some(ScalarFieldSpecialSchemaField::JS)
-        } else if key == *KEY_TYPENAME {
-            Some(ScalarFieldSpecialSchemaField::TypeName)
-        } else if key == *KEY_CLIENTID {
-            Some(ScalarFieldSpecialSchemaField::ClientId)
-        } else if key == schema_config.node_interface_id_field {
-            Some(ScalarFieldSpecialSchemaField::Id)
-        } else {
-            None
         }
     }
 }

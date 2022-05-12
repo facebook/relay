@@ -25,6 +25,11 @@ use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::{hash::Hash, path::Path};
 
 use crate::{
+    type_selection::{
+        ModuleDirective, RawResponseFragmentSpread, ScalarFieldSpecialSchemaField, TypeSelection,
+        TypeSelectionFragmentSpread, TypeSelectionInlineFragment, TypeSelectionKey,
+        TypeSelectionLinkedField, TypeSelectionMap, TypeSelectionScalarField,
+    },
     typegen_state::{
         ActorChangeStatus, EncounteredEnums, EncounteredFragments, GeneratedInputObject,
         ImportedRawResponseTypes, ImportedResolvers, InputObjectTypes, MatchFields, RuntimeImports,
@@ -33,11 +38,9 @@ use crate::{
         ExactObject, GetterSetterPairProp, InexactObject, KeyValuePairProp, Prop, SortedASTList,
         SortedStringKeyList, SpreadProp, StringLiteral, AST,
     },
-    MaskStatus, ModuleDirective, RawResponseFragmentSpread, ScalarFieldSpecialSchemaField,
-    TypeSelection, TypeSelectionFragmentSpread, TypeSelectionInlineFragment, TypeSelectionKey,
-    TypeSelectionLinkedField, TypeSelectionMap, TypeSelectionScalarField, TypegenOptions,
-    FRAGMENT_PROP_NAME, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_UPDATABLE_FRAGMENT_SPREADS,
-    MODULE_COMPONENT, TYPE_BOOLEAN, TYPE_FLOAT, TYPE_ID, TYPE_INT, TYPE_STRING,
+    MaskStatus, TypegenOptions, FRAGMENT_PROP_NAME, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE,
+    KEY_UPDATABLE_FRAGMENT_SPREADS, MODULE_COMPONENT, TYPE_BOOLEAN, TYPE_FLOAT, TYPE_ID, TYPE_INT,
+    TYPE_STRING,
 };
 
 pub(crate) fn visit_selections(

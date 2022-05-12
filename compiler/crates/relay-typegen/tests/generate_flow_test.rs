@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bfff8cb063bc8f770eea1861c3673792>>
+ * @generated SignedSource<<6a46e36a943abaa5018fa6db41b84ece>>
  */
 
 mod generate_flow;
@@ -514,6 +514,13 @@ fn simple() {
     let input = include_str!("generate_flow/fixtures/simple.graphql");
     let expected = include_str!("generate_flow/fixtures/simple.expected");
     test_fixture(transform_fixture, "simple.graphql", "generate_flow/fixtures/simple.expected", input, expected);
+}
+
+#[test]
+fn typename_in_union_with_other_fields() {
+    let input = include_str!("generate_flow/fixtures/typename-in-union-with-other-fields.graphql");
+    let expected = include_str!("generate_flow/fixtures/typename-in-union-with-other-fields.expected");
+    test_fixture(transform_fixture, "typename-in-union-with-other-fields.graphql", "generate_flow/fixtures/typename-in-union-with-other-fields.expected", input, expected);
 }
 
 #[test]

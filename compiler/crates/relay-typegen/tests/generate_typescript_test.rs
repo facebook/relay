@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<47084502ee60a2d9ddbcd3e2803cf0f8>>
+ * @generated SignedSource<<4d8fca221acc0d4c3cfd7b4df86fba71>>
  */
 
 mod generate_typescript;
@@ -346,6 +346,13 @@ fn simple() {
     let input = include_str!("generate_typescript/fixtures/simple.graphql");
     let expected = include_str!("generate_typescript/fixtures/simple.expected");
     test_fixture(transform_fixture, "simple.graphql", "generate_typescript/fixtures/simple.expected", input, expected);
+}
+
+#[test]
+fn typename_in_union_with_other_fields() {
+    let input = include_str!("generate_typescript/fixtures/typename-in-union-with-other-fields.graphql");
+    let expected = include_str!("generate_typescript/fixtures/typename-in-union-with-other-fields.expected");
+    test_fixture(transform_fixture, "typename-in-union-with-other-fields.graphql", "generate_typescript/fixtures/typename-in-union-with-other-fields.expected", input, expected);
 }
 
 #[test]

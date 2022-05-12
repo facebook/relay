@@ -24,7 +24,11 @@ import type {
   SingularReaderSelector,
   Snapshot,
 } from '../RelayStoreTypes';
-import type {EvaluationResult, ResolverCache} from '../ResolverCache';
+import type {
+  EvaluationResult,
+  ResolverCache,
+  ResolverFragmentResult,
+} from '../ResolverCache';
 import type {LiveState} from './LiveResolverStore';
 
 const recycleNodesInto = require('../../util/recycleNodesInto');
@@ -93,9 +97,9 @@ class LiveResolverCache implements ResolverCache {
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
-    getDataForResolverFragment: SingularReaderSelector => mixed,
+    getDataForResolverFragment: SingularReaderSelector => ResolverFragmentResult,
   ): [
-    T /* Answer */,
+    ?T /* Answer */,
     ?DataID /* Seen record */,
     ?RelayResolverError,
     ?Snapshot,
@@ -119,16 +123,18 @@ class LiveResolverCache implements ResolverCache {
       const evaluationResult = evaluate();
 
       if (field.kind === RELAY_LIVE_RESOLVER) {
-        if (__DEV__) {
-          invariant(
-            isLiveStateValue(evaluationResult.resolverResult),
-            'Expected a @live Relay Resolver to return a value that implements LiveState.',
-          );
+        if (evaluationResult.resolverResult !== undefined) {
+          if (__DEV__) {
+            invariant(
+              isLiveStateValue(evaluationResult.resolverResult),
+              'Expected a @live Relay Resolver to return a value that implements LiveState.',
+            );
+          }
+          const liveState: LiveState<mixed> =
+            // $FlowFixMe[incompatible-type] - casting mixed
+            evaluationResult.resolverResult;
+          this._setLiveStateValue(linkedRecord, linkedID, liveState);
         }
-        const liveState: LiveState<mixed> =
-          // $FlowFixMe[incompatible-type] - casting mixed
-          evaluationResult.resolverResult;
-        this._setLiveStateValue(linkedRecord, linkedID, liveState);
       } else {
         RelayModernRecord.setValue(
           linkedRecord,
@@ -379,7 +385,7 @@ class LiveResolverCache implements ResolverCache {
 
   _isInvalid(
     record: Record,
-    getDataForResolverFragment: SingularReaderSelector => mixed,
+    getDataForResolverFragment: SingularReaderSelector => ResolverFragmentResult,
   ): boolean {
     if (!RelayModernRecord.getValue(record, RELAY_RESOLVER_INVALIDATION_KEY)) {
       return false;
@@ -399,7 +405,8 @@ class LiveResolverCache implements ResolverCache {
       );
       return true;
     }
-    const latestValues = getDataForResolverFragment(readerSelector);
+    const {data: latestValues} = getDataForResolverFragment(readerSelector);
+
     const recycled = recycleNodesInto(originalInputs, latestValues);
     if (recycled !== originalInputs) {
       return true;

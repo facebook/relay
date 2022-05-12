@@ -224,6 +224,12 @@ pub enum Prop {
     GetterSetterPair(GetterSetterPairProp),
 }
 
+impl From<KeyValuePairProp> for Prop {
+    fn from(other: KeyValuePairProp) -> Self {
+        Prop::KeyValuePair(other)
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct KeyValuePairProp {
     pub key: StringKey,

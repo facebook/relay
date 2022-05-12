@@ -39,8 +39,8 @@ use crate::{
         SortedStringKeyList, SpreadProp, StringLiteral, AST,
     },
     MaskStatus, TypegenOptions, FRAGMENT_PROP_NAME, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE,
-    KEY_UPDATABLE_FRAGMENT_SPREADS, MODULE_COMPONENT, TYPE_BOOLEAN, TYPE_FLOAT, TYPE_ID, TYPE_INT,
-    TYPE_STRING,
+    KEY_UPDATABLE_FRAGMENT_SPREADS, MODULE_COMPONENT, RESPONSE, TYPE_BOOLEAN, TYPE_FLOAT, TYPE_ID,
+    TYPE_INT, TYPE_STRING, VARIABLES,
 };
 
 pub(crate) fn visit_selections(
@@ -1539,4 +1539,33 @@ fn get_type_condition_info(fragment_spread: &FragmentSpread) -> Option<TypeCondi
                 .and_then(|data| data.downcast_ref().copied())
                 .expect("If a fragment spread contains an __updatable directive, the associated data should be present and have type TypeConditionInfo")
         })
+}
+
+/// Returns the type of the generated query. This is the type parameter that you would have
+/// Example:
+/// {| response: MyQuery$data, variables: MyQuery$variables |}
+pub(crate) fn get_operation_type_export(
+    variables_identifier_key: StringKey,
+    response_identifier_key: StringKey,
+    raw_response_prop: Option<KeyValuePairProp>,
+) -> Result<ExactObject, std::fmt::Error> {
+    let mut operation_types = vec![
+        Prop::KeyValuePair(KeyValuePairProp {
+            key: *VARIABLES,
+            read_only: false,
+            optional: false,
+            value: AST::Identifier(variables_identifier_key),
+        }),
+        Prop::KeyValuePair(KeyValuePairProp {
+            key: *RESPONSE,
+            read_only: false,
+            optional: false,
+            value: AST::Identifier(response_identifier_key),
+        }),
+    ];
+    if let Some(raw_response_prop) = raw_response_prop {
+        operation_types.push(raw_response_prop.into());
+    }
+
+    Ok(ExactObject::new(operation_types))
 }

@@ -93,7 +93,7 @@ lazy_static! {
 /// * Obviously, unmasked child fragments do receive their parents fields, hence
 ///   `@relay(mask: false)` is discouraged in favor of `@inline`.
 #[derive(Copy, Clone, Eq, PartialEq)]
-enum MaskStatus {
+pub(crate) enum MaskStatus {
     Unmasked,
     Masked,
 }

@@ -31,7 +31,6 @@ import type {
   Store,
   StoreSubscriptions,
 } from '../RelayStoreTypes';
-import type {LiveResolverSuspenseSentinel} from './LiveResolverCache';
 
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,

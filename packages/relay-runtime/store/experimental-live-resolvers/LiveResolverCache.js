@@ -40,6 +40,7 @@ const {
   getStorageKey,
 } = require('../RelayStoreUtils');
 const LiveResolverStore = require('./LiveResolverStore');
+const {isSuspenseSentinel} = require('./LiveResolverSuspenseSentinel');
 const invariant = require('invariant');
 const warning = require('warning');
 
@@ -49,9 +50,6 @@ const RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY =
   '__resolverLieStateSubscription';
 const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
-
-export opaque type LiveResolverSuspenseSentinel = mixed;
-const LIVE_RESOLVER_SUSPENSE: LiveResolverSuspenseSentinel = {};
 
 /**
  * An experimental fork of store/ResolverCache.js intended to let us experiment
@@ -189,7 +187,7 @@ class LiveResolverCache implements ResolverCache {
       RelayModernRecord.setValue(
         linkedRecord,
         RELAY_RESOLVER_VALUE_KEY,
-        readLiveStateValue(liveState),
+        liveState.read(),
       );
       // Mark the resolver as clean again.
       RelayModernRecord.setValue(
@@ -209,7 +207,7 @@ class LiveResolverCache implements ResolverCache {
 
     let suspenseID = null;
 
-    if (answer === LIVE_RESOLVER_SUSPENSE) {
+    if (isSuspenseSentinel(answer)) {
       suspenseID = linkedID ?? generateClientID(recordID, storageKey);
     }
 
@@ -275,7 +273,7 @@ class LiveResolverCache implements ResolverCache {
     RelayModernRecord.setValue(
       linkedRecord,
       RELAY_RESOLVER_VALUE_KEY,
-      readLiveStateValue(liveState),
+      liveState.read(),
     );
 
     // Mark the field as clean.
@@ -431,25 +429,6 @@ function isLiveStateValue(v: mixed): boolean {
   );
 }
 
-function suspenseSentinel<T>(): T {
-  throw LIVE_RESOLVER_SUSPENSE;
-}
-
-function readLiveStateValue<T>(
-  liveState: LiveState<T>,
-): T | LiveResolverSuspenseSentinel {
-  try {
-    return liveState.read();
-  } catch (e) {
-    if (e === LIVE_RESOLVER_SUSPENSE) {
-      return e;
-    } else {
-      throw e;
-    }
-  }
-}
-
 module.exports = {
   LiveResolverCache,
-  suspenseSentinel,
 };

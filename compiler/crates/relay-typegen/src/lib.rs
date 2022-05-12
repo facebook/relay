@@ -208,16 +208,13 @@ impl<'a> TypeGenerator<'a> {
     ) -> Self {
         Self {
             schema,
-            // schema_config: project_config.schema_config,
             generated_fragments: Default::default(),
             generated_input_object_types: Default::default(),
             imported_raw_response_types: Default::default(),
             imported_resolvers: Default::default(),
             used_enums: Default::default(),
             used_fragments: Default::default(),
-            // js_module_format,
             has_unified_output: project_config.output.is_some(),
-            // typegen_config,
             match_fields: Default::default(),
             runtime_imports: RuntimeImports::default(),
             writer: match &project_config.typegen_config.language {

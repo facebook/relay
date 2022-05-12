@@ -65,6 +65,17 @@ export async function createAndStartClient(context: RelayExtensionContext) {
     );
 
     return;
+  } else if (relayBinaryResult.kind === 'prereleaseCompilerFound') {
+    context.outputChannel.appendLine(
+      [
+        'You have a pre-release version of the relay-compiler package installed.',
+        'We are unable to confirm if this version is compatible with the Relay',
+        'VSCode Extension. Proceeding on the assumption that you know what you are',
+        'doing.',
+      ].join(' '),
+    );
+
+    relayBinary = relayBinaryResult.path;
   } else if (relayBinaryResult.kind === 'compilerFound') {
     relayBinary = relayBinaryResult.path;
   }

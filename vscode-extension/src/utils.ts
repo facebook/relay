@@ -84,6 +84,7 @@ export async function findRelayCompilerDirectory(
 
 type RelayCompilerPackageInformation =
   | { kind: 'compilerFound'; path: string }
+  | { kind: 'prereleaseCompilerFound'; path: string }
   | { kind: 'architectureNotSupported' }
   | { kind: 'packageNotFound' }
   | {
@@ -120,11 +121,21 @@ export async function findRelayCompilerBinary(
     SEMVER_RANGE,
   );
 
+  // If you are using a pre-release version of the compiler, we assume you know
+  // what you are doing.
+  const isPrerelease = semver.prerelease(packageManifest.version) != null;
+
   const relayBinaryPath = path.join(
     relayCompilerDirectory,
     relayBinaryRelativeToPackage,
   );
 
+  if (isPrerelease) {
+    return {
+      kind: 'prereleaseCompilerFound',
+      path: relayBinaryPath,
+    };
+  }
   if (isSemverRangeSatisfied) {
     return {
       kind: 'compilerFound',

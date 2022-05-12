@@ -11,7 +11,7 @@
 /**
  * @RelayResolver
  *
- * @onInterface Loser
+ * @onInterface User
  * @fieldName favorite_page
  * @rootFragment myRootFragment
  *
@@ -28,10 +28,10 @@ graphql`
   }
 `
 ==================================== ERROR ====================================
-✖︎ Invalid interface given for `onInterface`. "Loser" is not an existing GraphQL interface. Did you mean `Node`?
+✖︎ Found `@onInterface` docblock field referring to an object type. Did you mean `@onType`?
 
-  /path/to/test/fixture/relay-resolver-on-invalid-interface.invalid.js:4:17
+  /path/to/test/fixture/relay-resolver-on-invalid-interface.invalid.js:4:5
     3 │  *
-    4 │  * @onInterface Loser
-      │                 ^^^^^
+    4 │  * @onInterface User
+      │     ^^^^^^^^^^^
     5 │  * @fieldName favorite_page

@@ -24,7 +24,11 @@ import type {
   SingularReaderSelector,
   Snapshot,
 } from '../RelayStoreTypes';
-import type {EvaluationResult, ResolverCache} from '../ResolverCache';
+import type {
+  EvaluationResult,
+  ResolverCache,
+  ResolverFragmentResult,
+} from '../ResolverCache';
 import type {LiveState} from './LiveResolverStore';
 
 const recycleNodesInto = require('../../util/recycleNodesInto');
@@ -40,6 +44,7 @@ const {
   getStorageKey,
 } = require('../RelayStoreUtils');
 const LiveResolverStore = require('./LiveResolverStore');
+const {isSuspenseSentinel} = require('./LiveResolverSuspenseSentinel');
 const invariant = require('invariant');
 const warning = require('warning');
 
@@ -49,9 +54,6 @@ const RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY =
   '__resolverLieStateSubscription';
 const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
-
-export opaque type LiveResolverSuspenseSentinel = mixed;
-const LIVE_RESOLVER_SUSPENSE: LiveResolverSuspenseSentinel = {};
 
 /**
  * An experimental fork of store/ResolverCache.js intended to let us experiment
@@ -95,9 +97,9 @@ class LiveResolverCache implements ResolverCache {
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
-    getDataForResolverFragment: SingularReaderSelector => mixed,
+    getDataForResolverFragment: SingularReaderSelector => ResolverFragmentResult,
   ): [
-    T /* Answer */,
+    ?T /* Answer */,
     ?DataID /* Seen record */,
     ?RelayResolverError,
     ?Snapshot,
@@ -121,16 +123,18 @@ class LiveResolverCache implements ResolverCache {
       const evaluationResult = evaluate();
 
       if (field.kind === RELAY_LIVE_RESOLVER) {
-        if (__DEV__) {
-          invariant(
-            isLiveStateValue(evaluationResult.resolverResult),
-            'Expected a @live Relay Resolver to return a value that implements LiveState.',
-          );
+        if (evaluationResult.resolverResult !== undefined) {
+          if (__DEV__) {
+            invariant(
+              isLiveStateValue(evaluationResult.resolverResult),
+              'Expected a @live Relay Resolver to return a value that implements LiveState.',
+            );
+          }
+          const liveState: LiveState<mixed> =
+            // $FlowFixMe[incompatible-type] - casting mixed
+            evaluationResult.resolverResult;
+          this._setLiveStateValue(linkedRecord, linkedID, liveState);
         }
-        const liveState: LiveState<mixed> =
-          // $FlowFixMe[incompatible-type] - casting mixed
-          evaluationResult.resolverResult;
-        this._setLiveStateValue(linkedRecord, linkedID, liveState);
       } else {
         RelayModernRecord.setValue(
           linkedRecord,
@@ -209,7 +213,7 @@ class LiveResolverCache implements ResolverCache {
 
     let suspenseID = null;
 
-    if (answer === LIVE_RESOLVER_SUSPENSE) {
+    if (isSuspenseSentinel(answer)) {
       suspenseID = linkedID ?? generateClientID(recordID, storageKey);
     }
 
@@ -259,7 +263,7 @@ class LiveResolverCache implements ResolverCache {
 
     // Subscribe to future values
     // Note: We subscribe before reading, since subscribing could potentially
-    // trigger a syncronous update. By reading second way we will always
+    // trigger a synchronous update. By reading second way we will always
     // observe the new value, without needing to double render.
     const handler = this._makeLiveStateHandler(linkedID);
     const unsubscribe = liveState.subscribe(handler);
@@ -381,7 +385,7 @@ class LiveResolverCache implements ResolverCache {
 
   _isInvalid(
     record: Record,
-    getDataForResolverFragment: SingularReaderSelector => mixed,
+    getDataForResolverFragment: SingularReaderSelector => ResolverFragmentResult,
   ): boolean {
     if (!RelayModernRecord.getValue(record, RELAY_RESOLVER_INVALIDATION_KEY)) {
       return false;
@@ -401,7 +405,8 @@ class LiveResolverCache implements ResolverCache {
       );
       return true;
     }
-    const latestValues = getDataForResolverFragment(readerSelector);
+    const {data: latestValues} = getDataForResolverFragment(readerSelector);
+
     const recycled = recycleNodesInto(originalInputs, latestValues);
     if (recycled !== originalInputs) {
       return true;
@@ -431,11 +436,6 @@ function isLiveStateValue(v: mixed): boolean {
   );
 }
 
-function suspenseSentinel(): LiveResolverSuspenseSentinel {
-  return LIVE_RESOLVER_SUSPENSE;
-}
-
 module.exports = {
   LiveResolverCache,
-  suspenseSentinel,
 };

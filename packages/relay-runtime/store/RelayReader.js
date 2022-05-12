@@ -11,6 +11,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+
 import type {
   ReaderActorChange,
   ReaderAliasedFragmentSpread,
@@ -87,7 +88,10 @@ const {
   getStorageKey,
 } = require('./RelayStoreUtils');
 const {NoopResolverCache} = require('./ResolverCache');
-const {withResolverContext} = require('./ResolverFragments');
+const {
+  RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL,
+  withResolverContext,
+} = require('./ResolverFragments');
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
 
@@ -524,7 +528,10 @@ class RelayReader {
         // It was already read when checking for input staleness; no need to read it again.
         // Note that the variables like fragmentSeenRecordIDs in the outer closure will have
         // already been set and will still be used in this case.
-        return snapshot.data;
+        return {
+          data: snapshot.data,
+          isMissingData: snapshot.isMissingData,
+        };
       }
 
       snapshot = read(
@@ -532,7 +539,11 @@ class RelayReader {
         singularReaderSelector,
         this._resolverCache,
       );
-      return snapshot.data;
+
+      return {
+        data: snapshot.data,
+        isMissingData: snapshot.isMissingData,
+      };
     };
     const resolverContext = {getDataForResolverFragment};
 
@@ -553,7 +564,6 @@ class RelayReader {
           const args = field.args
             ? getArgumentValues(field.args, this._variables)
             : undefined;
-
           resolverResult = resolverModule(
             // $FlowFixMe[prop-missing] - Resolver's generated type signature is a lie
             key,
@@ -563,12 +573,16 @@ class RelayReader {
             args,
           );
         } catch (e) {
-          // `field.path` is typed as nullable while we rollout compiler changes.
-          const path = field.path ?? '[UNKNOWN]';
-          resolverError = {
-            field: {path, owner: this._fragmentName},
-            error: e,
-          };
+          if (e === RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL) {
+            resolverResult = undefined;
+          } else {
+            // `field.path` is typed as nullable while we rollout compiler changes.
+            const path = field.path ?? '[UNKNOWN]';
+            resolverError = {
+              field: {path, owner: this._fragmentName},
+              error: e,
+            };
+          }
         }
 
         return {

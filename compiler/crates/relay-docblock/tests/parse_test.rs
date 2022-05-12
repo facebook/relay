@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<715500b63584474523c0fb5330bfa7b3>>
+ * @generated SignedSource<<025396b9f04d17af36fa5b1b3f85d5ce>>
  */
 
 mod parse;
@@ -76,6 +76,13 @@ fn relay_resolver_missing_multiple_fields_invalid() {
 }
 
 #[test]
+fn relay_resolver_on_interface_mismatch_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-on-interface-mismatch.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-on-interface-mismatch.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-on-interface-mismatch.invalid.js", "parse/fixtures/relay-resolver-on-interface-mismatch.invalid.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_on_interface_no_value_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-on-interface-no-value.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-on-interface-no-value.invalid.expected");
@@ -87,6 +94,13 @@ fn relay_resolver_on_type_and_on_interface_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-on-type-and-on-interface.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-on-type-and-on-interface.invalid.expected");
     test_fixture(transform_fixture, "relay-resolver-on-type-and-on-interface.invalid.js", "parse/fixtures/relay-resolver-on-type-and-on-interface.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_on_type_mismatch_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-on-type-mismatch.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-on-type-mismatch.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-on-type-mismatch.invalid.js", "parse/fixtures/relay-resolver-on-type-mismatch.invalid.expected", input, expected);
 }
 
 #[test]

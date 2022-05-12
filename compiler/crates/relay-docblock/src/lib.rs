@@ -115,14 +115,21 @@ impl RelayResolverParser {
             }
         }
 
-        let on = self.assert_on(ast.location);
-
-        let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
-        let live = self.fields.get(&LIVE_FIELD).copied();
-
         let root_fragment = self.assert_field_value_exists(*ROOT_FRAGMENT_FIELD, ast.location)?;
         let fragment_definition =
             self.assert_fragment_definition(root_fragment, definitions_in_file)?;
+
+        let on = self.assert_on(
+            ast.location,
+            WithLocation::from_span(
+                fragment_definition.location.source_location(),
+                fragment_definition.type_condition.span,
+                fragment_definition.type_condition.type_.value,
+            ),
+        );
+        let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
+        let live = self.fields.get(&LIVE_FIELD).copied();
+
         let fragment_arguments = self.extract_fragment_arguments(&fragment_definition)?;
 
         let field_string = self.assert_field_value_exists(*FIELD_NAME_FIELD, ast.location)?;
@@ -236,7 +243,11 @@ impl RelayResolverParser {
         }
     }
 
-    fn assert_on(&mut self, docblock_location: Location) -> ParseResult<On> {
+    fn assert_on(
+        &mut self,
+        docblock_location: Location,
+        fragment_type_condition: WithLocation<StringKey>,
+    ) -> ParseResult<On> {
         let maybe_on_type = self.get_field_with_value(*ON_TYPE_FIELD)?;
         let maybe_on_interface = self.get_field_with_value(*ON_INTERFACE_FIELD)?;
         match (maybe_on_type, maybe_on_interface) {
@@ -260,9 +271,47 @@ impl RelayResolverParser {
                 Err(())
             }
             // Only onInterface was defined
-            (None, Some(on_interface)) => Ok(On::Interface(on_interface)),
+            (None, Some(on_interface)) => {
+                if on_interface.value.item == fragment_type_condition.item {
+                    Ok(On::Interface(on_interface))
+                } else {
+                    self.errors.push(
+                        Diagnostic::error(
+                            ErrorMessages::MismatchRootFragmentTypeConditionOnInterface {
+                                fragment_type_condition: fragment_type_condition.item,
+                                interface_type: on_interface.value.item,
+                            },
+                            on_interface.value.location,
+                        )
+                        .annotate(
+                            "with fragment type condition",
+                            fragment_type_condition.location,
+                        ),
+                    );
+                    Err(())
+                }
+            }
             // Only onType was defined
-            (Some(on_type), None) => Ok(On::Type(on_type)),
+            (Some(on_type), None) => {
+                if on_type.value.item == fragment_type_condition.item {
+                    Ok(On::Type(on_type))
+                } else {
+                    self.errors.push(
+                        Diagnostic::error(
+                            ErrorMessages::MismatchRootFragmentTypeConditionOnType {
+                                fragment_type_condition: fragment_type_condition.item,
+                                type_name: on_type.value.item,
+                            },
+                            on_type.value.location,
+                        )
+                        .annotate(
+                            "with fragment type condition",
+                            fragment_type_condition.location,
+                        ),
+                    );
+                    Err(())
+                }
+            }
         }
     }
 

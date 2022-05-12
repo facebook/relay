@@ -31,7 +31,6 @@ import type {
   Store,
   StoreSubscriptions,
 } from '../RelayStoreTypes';
-import type {LiveResolverSuspenseSentinel} from './LiveResolverCache';
 
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
@@ -55,11 +54,6 @@ const invariant = require('invariant');
 
 export type LiveState<T> = {|
   read(): T,
-  subscribe(cb: () => void): () => void,
-|};
-
-export type SuspendingLiveState<T> = {|
-  read(): T | LiveResolverSuspenseSentinel,
   subscribe(cb: () => void): () => void,
 |};
 

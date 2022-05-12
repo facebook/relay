@@ -130,6 +130,7 @@ module.exports = {
               internal: [
                 'guided-tour/updating-data/imperatively-modifying-store-data',
                 'guided-tour/updating-data/imperatively-modifying-linked-fields',
+                'guided-tour/updating-data/typesafe-updaters-faq',
               ],
               external: [
                 'guided-tour/updating-data/imperatively-modifying-store-data-unsafe',

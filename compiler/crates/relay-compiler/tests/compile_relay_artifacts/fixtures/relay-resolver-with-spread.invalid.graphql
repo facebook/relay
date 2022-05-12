@@ -1,0 +1,25 @@
+# expected-to-throw
+
+fragment relayResolverWithSpread_PopStarNameResolverFragment_name on User {
+  name
+  ...relayResolverWithSpread_UserFragment
+}
+
+fragment relayResolverWithSpread_UserFragment on User {
+  id
+}
+
+
+query relayResolverWithSpread_Query {
+  node(id: "SOME_ID") {
+    ... on User {
+      pop_star_name
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "relayResolverWithSpread_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js")
+}

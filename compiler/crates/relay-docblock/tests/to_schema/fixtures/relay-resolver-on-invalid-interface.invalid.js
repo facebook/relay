@@ -10,7 +10,7 @@
 /**
  * @RelayResolver
  *
- * @onInterface Loser
+ * @onInterface User
  * @fieldName favorite_page
  * @rootFragment myRootFragment
  *

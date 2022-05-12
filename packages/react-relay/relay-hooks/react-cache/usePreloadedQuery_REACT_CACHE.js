@@ -26,7 +26,7 @@ const useRelayEnvironment = require('../useRelayEnvironment');
 const getQueryResultOrFetchQuery = require('./getQueryResultOrFetchQuery_REACT_CACHE');
 const useFragmentInternal = require('./useFragmentInternal_REACT_CACHE');
 const invariant = require('invariant');
-const {useDebugValue} = require('react');
+const {useDebugValue, useEffect} = require('react');
 const {
   __internal: {fetchQueryDeduped, fetchQuery},
 } = require('relay-runtime');
@@ -109,12 +109,18 @@ function usePreloadedQuery_REACT_CACHE<TQuery: OperationType>(
   }
 
   // Get the query going if needed -- this may suspend.
-  const queryResult = getQueryResultOrFetchQuery(environment, operation, {
-    fetchPolicy,
-    renderPolicy: options?.UNSTABLE_renderPolicy,
-    fetchKey,
-    fetchObservable,
-  });
+  const [queryResult, effect] = getQueryResultOrFetchQuery(
+    environment,
+    operation,
+    {
+      fetchPolicy,
+      renderPolicy: options?.UNSTABLE_renderPolicy,
+      fetchKey,
+      fetchObservable,
+    },
+  );
+
+  useEffect(effect);
 
   // Read the query's root fragment -- this may suspend.
   const {fragmentNode, fragmentRef} = queryResult;

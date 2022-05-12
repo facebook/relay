@@ -1,13 +1,73 @@
 ==================================== INPUT ====================================
-﻿# expected-to-throw
-
-type User {
+﻿type User {
   id: ID!
 }
-==================================== ERROR ====================================
-✖︎ Unsupported character
-
-  schema_with_bom.graphql:1:1
-    1 │ ﻿# expected-to-throw
-      │ ^^^
-    2 │
+==================================== OUTPUT ===================================
+SchemaDocument {
+    location: schema_with_bom.graphql:3:28,
+    definitions: [
+        ObjectTypeDefinition(
+            ObjectTypeDefinition {
+                name: Identifier {
+                    span: 8:12,
+                    token: Token {
+                        span: 8:12,
+                        kind: Identifier,
+                    },
+                    value: "User",
+                },
+                interfaces: [],
+                directives: [],
+                fields: Some(
+                    List {
+                        span: 13:28,
+                        start: Token {
+                            span: 13:14,
+                            kind: OpenBrace,
+                        },
+                        items: [
+                            FieldDefinition {
+                                name: Identifier {
+                                    span: 18:20,
+                                    token: Token {
+                                        span: 18:20,
+                                        kind: Identifier,
+                                    },
+                                    value: "id",
+                                },
+                                type_: NonNull(
+                                    NonNullTypeAnnotation {
+                                        span: 22:25,
+                                        type_: Named(
+                                            NamedTypeAnnotation {
+                                                name: Identifier {
+                                                    span: 22:24,
+                                                    token: Token {
+                                                        span: 22:24,
+                                                        kind: Identifier,
+                                                    },
+                                                    value: "ID",
+                                                },
+                                            },
+                                        ),
+                                        exclamation: Token {
+                                            span: 24:25,
+                                            kind: Exclamation,
+                                        },
+                                    },
+                                ),
+                                arguments: None,
+                                directives: [],
+                                description: None,
+                            },
+                        ],
+                        end: Token {
+                            span: 27:28,
+                            kind: CloseBrace,
+                        },
+                    },
+                ),
+            },
+        ),
+    ],
+}

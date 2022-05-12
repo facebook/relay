@@ -26,19 +26,18 @@ use std::{hash::Hash, path::Path};
 
 use crate::{
     typegen_state::{
-        EncounteredEnums, EncounteredFragments, GeneratedInputObject, ImportedRawResponseTypes,
-        ImportedResolvers, InputObjectTypes, MatchFields, RuntimeImports,
+        ActorChangeStatus, EncounteredEnums, EncounteredFragments, GeneratedInputObject,
+        ImportedRawResponseTypes, ImportedResolvers, InputObjectTypes, MatchFields, RuntimeImports,
     },
     writer::{
         ExactObject, GetterSetterPairProp, InexactObject, KeyValuePairProp, Prop, SortedASTList,
         SortedStringKeyList, SpreadProp, StringLiteral, AST,
     },
-    ActorChangeStatus, MaskStatus, ModuleDirective, RawResponseFragmentSpread,
-    ScalarFieldSpecialSchemaField, TypeSelection, TypeSelectionFragmentSpread,
-    TypeSelectionInlineFragment, TypeSelectionKey, TypeSelectionLinkedField, TypeSelectionMap,
-    TypeSelectionScalarField, TypegenOptions, FRAGMENT_PROP_NAME, KEY_FRAGMENT_SPREADS,
-    KEY_FRAGMENT_TYPE, KEY_UPDATABLE_FRAGMENT_SPREADS, MODULE_COMPONENT, TYPE_BOOLEAN, TYPE_FLOAT,
-    TYPE_ID, TYPE_INT, TYPE_STRING,
+    MaskStatus, ModuleDirective, RawResponseFragmentSpread, ScalarFieldSpecialSchemaField,
+    TypeSelection, TypeSelectionFragmentSpread, TypeSelectionInlineFragment, TypeSelectionKey,
+    TypeSelectionLinkedField, TypeSelectionMap, TypeSelectionScalarField, TypegenOptions,
+    FRAGMENT_PROP_NAME, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_UPDATABLE_FRAGMENT_SPREADS,
+    MODULE_COMPONENT, TYPE_BOOLEAN, TYPE_FLOAT, TYPE_ID, TYPE_INT, TYPE_STRING,
 };
 
 pub(crate) fn visit_selections(

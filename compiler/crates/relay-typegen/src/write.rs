@@ -26,9 +26,8 @@ use crate::{
         ImportedResolvers, InputObjectTypes, MatchFields, RuntimeImports,
     },
     visit::{
-        get_data_type, get_input_variables_type, get_operation_type_export,
-        raw_response_selections_to_babel, raw_response_visit_selections, transform_input_type,
-        visit_selections,
+        get_data_type, get_input_variables_type, raw_response_selections_to_babel,
+        raw_response_visit_selections, transform_input_type, visit_selections,
     },
     writer::{
         ExactObject, InexactObject, KeyValuePairProp, Prop, SortedASTList, SortedStringKeyList,
@@ -37,7 +36,7 @@ use crate::{
     MaskStatus, TypegenOptions, ACTOR_CHANGE_POINT, FUTURE_ENUM_VALUE, KEY_CLIENTID, KEY_DATA,
     KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_RAW_RESPONSE, KEY_TYPENAME,
     KEY_UPDATABLE_FRAGMENT_SPREADS, PROVIDED_VARIABLE_TYPE, RAW_RESPONSE_TYPE_DIRECTIVE_NAME,
-    REACT_RELAY_MULTI_ACTOR, VALIDATOR_EXPORT_NAME,
+    REACT_RELAY_MULTI_ACTOR, RESPONSE, VALIDATOR_EXPORT_NAME, VARIABLES,
 };
 
 pub(crate) fn write_operation_type_exports_section(
@@ -134,15 +133,12 @@ pub(crate) fn write_operation_type_exports_section(
     let response_identifier_key = response_identifier.as_str().intern();
     writer.write_export_type(&response_identifier, &data_type)?;
 
-    let raw_response_prop = write_raw_response_and_get_raw_response_prop(
-        raw_response_type_and_match_fields,
-        writer,
-        typegen_operation,
-    )?;
     let query_wrapper_type = get_operation_type_export(
+        raw_response_type_and_match_fields,
+        typegen_operation,
         variables_identifier_key,
         response_identifier_key,
-        raw_response_prop,
+        writer,
     )?;
     writer.write_export_type(
         typegen_operation.name.item.lookup(),
@@ -166,11 +162,30 @@ pub(crate) fn write_operation_type_exports_section(
     Ok(())
 }
 
-fn write_raw_response_and_get_raw_response_prop(
-    raw_response_type_and_match_fields: Option<(SortedASTList, MatchFields)>,
-    writer: &mut Box<dyn Writer>,
+/// Returns the type of the generated query. This is the type parameter that you would have
+/// Example:
+/// {| response: MyQuery$data, variables: MyQuery$variables |}
+fn get_operation_type_export(
+    raw_response_type_and_match_fields: Option<(AST, MatchFields)>,
     typegen_operation: &OperationDefinition,
-) -> Result<Option<KeyValuePairProp>, std::fmt::Error> {
+    variables_identifier_key: StringKey,
+    response_identifier_key: StringKey,
+    writer: &mut Box<dyn Writer>,
+) -> Result<ExactObject, std::fmt::Error> {
+    let mut operation_types = vec![
+        Prop::KeyValuePair(KeyValuePairProp {
+            key: *VARIABLES,
+            read_only: false,
+            optional: false,
+            value: AST::Identifier(variables_identifier_key),
+        }),
+        Prop::KeyValuePair(KeyValuePairProp {
+            key: *RESPONSE,
+            read_only: false,
+            optional: false,
+            value: AST::Identifier(response_identifier_key),
+        }),
+    ];
     if let Some((raw_response_type, match_fields)) = raw_response_type_and_match_fields {
         for (key, ast) in match_fields.0 {
             writer.write_export_type(key.lookup(), &ast)?;
@@ -178,15 +193,15 @@ fn write_raw_response_and_get_raw_response_prop(
         let raw_response_identifier = format!("{}$rawResponse", typegen_operation.name.item);
         writer.write_export_type(&raw_response_identifier, &raw_response_type)?;
 
-        Ok(Some(KeyValuePairProp {
+        operation_types.push(Prop::KeyValuePair(KeyValuePairProp {
             key: *KEY_RAW_RESPONSE,
             read_only: false,
             optional: false,
             value: AST::Identifier(raw_response_identifier.intern()),
-        }))
-    } else {
-        Ok(None)
+        }));
     }
+
+    Ok(ExactObject::new(operation_types))
 }
 
 pub(crate) fn write_split_operation_type_exports_section(

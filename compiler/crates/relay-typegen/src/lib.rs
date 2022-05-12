@@ -18,7 +18,7 @@ use ::intern::{
     intern,
     string_key::{Intern, StringKey},
 };
-use common::NamedItem;
+use common::{NamedItem, WithLocation};
 use flow::FlowPrinter;
 use fnv::FnvHashSet;
 use graphql_ir::{
@@ -39,12 +39,63 @@ use relay_transforms::{
     RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE, UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
-use std::{fmt::Result as FmtResult, hash::Hash, path::Path};
+use std::{fmt::Result as FmtResult, hash::Hash, path::Path, str::FromStr};
 use typescript::TypeScriptPrinter;
 use writer::{
     ExactObject, GetterSetterPairProp, InexactObject, KeyValuePairProp, Prop, SortedASTList,
     SortedStringKeyList, SpreadProp, StringLiteral, Writer, AST,
 };
+
+use common::SourceLocationKey;
+use std::path::PathBuf;
+
+/// This function will create a correct path for artifact based on the project configuration
+pub fn create_path_for_artifact(
+    project_config: &ProjectConfig,
+    source_file: SourceLocationKey,
+    artifact_file_name: String,
+) -> PathBuf {
+    if let Some(output) = &project_config.output {
+        // If an output directory is specified, output into that directory.
+        if project_config.shard_output {
+            if let Some(ref regex) = project_config.shard_strip_regex {
+                let full_source_path = regex.replace_all(source_file.path(), "");
+                let mut output = output.join(full_source_path.to_string());
+                output.pop();
+                output
+            } else {
+                output.join(source_file.get_dir())
+            }
+            .join(artifact_file_name)
+        } else {
+            output.join(artifact_file_name)
+        }
+    } else {
+        // Otherwise, output into a file relative to the source.
+        source_file
+            .get_dir()
+            .join("__generated__")
+            .join(artifact_file_name)
+    }
+}
+
+pub fn path_for_artifact(
+    project_config: &ProjectConfig,
+    source_file: SourceLocationKey,
+    definition_name: StringKey,
+) -> PathBuf {
+    let filename = if let Some(filename_for_artifact) = &project_config.filename_for_artifact {
+        filename_for_artifact(source_file, definition_name)
+    } else {
+        match &project_config.typegen_config.language {
+            TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+                format!("{}.graphql.js", definition_name)
+            }
+            TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
+        }
+    };
+    create_path_for_artifact(project_config, source_file, filename)
+}
 
 static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
 static RELAY_RUNTIME: &str = "relay-runtime";
@@ -85,14 +136,12 @@ pub fn generate_fragment_type_exports_section(
 ) -> String {
     let mut generator = TypeGenerator::new(
         schema,
-        &project_config.schema_config,
-        project_config.js_module_format,
-        project_config.output.is_some(),
-        &project_config.typegen_config,
+        project_config,
         fragment_definition
             .directives
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
+        fragment_definition.name,
     );
     generator
         .write_fragment_type_exports_section(fragment_definition)
@@ -107,14 +156,12 @@ pub fn generate_named_validator_export(
 ) -> String {
     let mut generator = TypeGenerator::new(
         schema,
-        &project_config.schema_config,
-        project_config.js_module_format,
-        project_config.output.is_some(),
-        &project_config.typegen_config,
+        &project_config,
         fragment_definition
             .directives
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
+        fragment_definition.name,
     );
     generator
         .write_validator_function(fragment_definition, schema)
@@ -139,14 +186,12 @@ pub fn generate_operation_type_exports_section(
 ) -> String {
     let mut generator = TypeGenerator::new(
         schema,
-        &project_config.schema_config,
-        project_config.js_module_format,
-        project_config.output.is_some(),
-        &project_config.typegen_config,
+        project_config,
         typegen_operation
             .directives
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
+        typegen_operation.name,
     );
     generator
         .write_operation_type_exports_section(typegen_operation, normalization_operation)
@@ -162,14 +207,12 @@ pub fn generate_split_operation_type_exports_section(
 ) -> String {
     let mut generator = TypeGenerator::new(
         schema,
-        &project_config.schema_config,
-        project_config.js_module_format,
-        project_config.output.is_some(),
-        &project_config.typegen_config,
+        project_config,
         typegen_operation
             .directives
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
+        typegen_operation.name,
     );
     generator
         .write_split_operation_type_exports_section(typegen_operation, normalization_operation)
@@ -190,52 +233,53 @@ struct RuntimeImports {
 
 struct TypeGenerator<'a> {
     schema: &'a SDLSchema,
-    schema_config: &'a SchemaConfig,
     generated_fragments: FnvHashSet<StringKey>,
     generated_input_object_types: IndexMap<StringKey, GeneratedInputObject>,
     imported_raw_response_types: IndexSet<StringKey>,
     imported_resolvers: IndexMap<StringKey, StringKey>,
     used_enums: FnvHashSet<EnumID>,
     used_fragments: FnvHashSet<StringKey>,
-    typegen_config: &'a TypegenConfig,
-    js_module_format: JsModuleFormat,
     has_unified_output: bool,
     runtime_imports: RuntimeImports,
     match_fields: IndexMap<StringKey, AST>,
     writer: Box<dyn Writer>,
     has_actor_change: bool,
     generating_updatable_types: bool,
+    project_config: &'a ProjectConfig,
+    definition_source_location: WithLocation<StringKey>,
 }
 impl<'a> TypeGenerator<'a> {
     fn new(
         schema: &'a SDLSchema,
-        schema_config: &'a SchemaConfig,
-        js_module_format: JsModuleFormat,
-        has_unified_output: bool,
-        typegen_config: &'a TypegenConfig,
+        project_config: &'a ProjectConfig,
         generating_updatable_types: bool,
+        definition_source_location: WithLocation<StringKey>,
     ) -> Self {
         Self {
             schema,
-            schema_config,
+            // schema_config: project_config.schema_config,
             generated_fragments: Default::default(),
             generated_input_object_types: Default::default(),
             imported_raw_response_types: Default::default(),
             imported_resolvers: Default::default(),
             used_enums: Default::default(),
             used_fragments: Default::default(),
-            js_module_format,
-            has_unified_output,
-            typegen_config,
+            // js_module_format,
+            has_unified_output: project_config.output.is_some(),
+            // typegen_config,
             match_fields: Default::default(),
             runtime_imports: RuntimeImports::default(),
-            writer: match &typegen_config.language {
+            writer: match &project_config.typegen_config.language {
                 TypegenLanguage::JavaScript => Box::new(JavaScriptPrinter::default()),
                 TypegenLanguage::Flow => Box::new(FlowPrinter::new()),
-                TypegenLanguage::TypeScript => Box::new(TypeScriptPrinter::new(typegen_config)),
+                TypegenLanguage::TypeScript => {
+                    Box::new(TypeScriptPrinter::new(&project_config.typegen_config))
+                }
             },
             has_actor_change: false,
             generating_updatable_types,
+            project_config,
+            definition_source_location,
         }
     }
 
@@ -276,7 +320,7 @@ impl<'a> TypeGenerator<'a> {
         }
 
         // Always include 'FragmentRef' for typescript codegen for operations that have fragment spreads
-        if self.typegen_config.language == TypegenLanguage::TypeScript
+        if self.project_config.typegen_config.language == TypegenLanguage::TypeScript
             && has_fragment_spread(&typegen_operation.selections)
         {
             self.runtime_imports.fragment_reference = true;
@@ -456,7 +500,7 @@ impl<'a> TypeGenerator<'a> {
             .write_export_fragment_type(&fragment_type_name)?;
         if let Some(refetchable_metadata) = refetchable_metadata {
             let variables_name = format!("{}$variables", refetchable_metadata.operation_name);
-            match self.js_module_format {
+            match self.project_config.js_module_format {
                 JsModuleFormat::CommonJS => {
                     if self.has_unified_output {
                         self.writer.write_import_fragment_type(
@@ -576,15 +620,45 @@ impl<'a> TypeGenerator<'a> {
         ))
         .intern();
 
-        // TODO(T86853359): Support non-haste environments when generating Relay Resolver types
-        let haste_import_name = Path::new(&resolver_spread_metadata.import_path.to_string())
-            .file_stem()
-            .unwrap()
-            .to_string_lossy()
-            .intern();
+        let import_path = match self.project_config.js_module_format {
+            relay_config::JsModuleFormat::CommonJS => {
+                let definition_artifact_location = path_for_artifact(
+                    self.project_config,
+                    self.definition_source_location.location.source_location(),
+                    self.definition_source_location.item,
+                );
+
+                let module_location =
+                    PathBuf::from_str(resolver_spread_metadata.import_path.lookup()).unwrap();
+
+                let module_path = module_location.parent().unwrap();
+                let definition_artifact_location_path =
+                    definition_artifact_location.parent().unwrap();
+
+                println!(
+                    "Diffing paths: {:?} : {:?}",
+                    definition_artifact_location_path, module_path
+                );
+
+                let resolver_module_location =
+                    pathdiff::diff_paths(module_path, definition_artifact_location_path).unwrap();
+
+                resolver_module_location
+                    .join(module_location.file_name().unwrap())
+                    .to_string_lossy()
+                    .intern()
+            }
+            relay_config::JsModuleFormat::Haste => {
+                Path::new(&resolver_spread_metadata.import_path.to_string())
+                    .file_stem()
+                    .unwrap()
+                    .to_string_lossy()
+                    .intern()
+            }
+        };
 
         self.imported_resolvers
-            .entry(haste_import_name)
+            .entry(import_path)
             .or_insert(local_resolver_name);
 
         let mut inner_value = Box::new(AST::ReturnTypeOfFunctionWithName(local_resolver_name));
@@ -716,7 +790,7 @@ impl<'a> TypeGenerator<'a> {
             field_name_or_alias: key,
             special_field: ScalarFieldSpecialSchemaField::from_schema_name(
                 schema_name,
-                self.schema_config,
+                &self.project_config.schema_config,
             ),
             value: AST::Nullable(Box::new(AST::ActorChangePoint(Box::new(
                 self.selections_to_babel(linked_field_selections.into_iter(), false, None),
@@ -817,7 +891,7 @@ impl<'a> TypeGenerator<'a> {
             field_name_or_alias: key,
             special_field: ScalarFieldSpecialSchemaField::from_schema_name(
                 schema_name,
-                self.schema_config,
+                &self.project_config.schema_config,
             ),
             value: self.transform_scalar_type(&field_type, None),
             conditional: false,
@@ -1321,6 +1395,7 @@ impl<'a> TypeGenerator<'a> {
     fn transform_graphql_scalar_type(&mut self, scalar: ScalarID) -> AST {
         let scalar_name = self.schema.scalar(scalar).name;
         if let Some(&custom_scalar) = self
+            .project_config
             .typegen_config
             .custom_scalar_types
             .get(&scalar_name.item)
@@ -1333,7 +1408,11 @@ impl<'a> TypeGenerator<'a> {
         } else if scalar_name.item == *TYPE_BOOLEAN {
             AST::Boolean
         } else {
-            if self.typegen_config.require_custom_scalar_types {
+            if self
+                .project_config
+                .typegen_config
+                .require_custom_scalar_types
+            {
                 panic!(
                     "Expected the JS type for '{}' to be defined, please update 'customScalarTypes' in your compiler config.",
                     scalar_name.item
@@ -1380,7 +1459,7 @@ impl<'a> TypeGenerator<'a> {
         for used_fragment in self.used_fragments.iter().sorted() {
             if !self.generated_fragments.contains(used_fragment) {
                 let fragment_type_name = format!("{}$fragmentType", used_fragment);
-                match self.js_module_format {
+                match self.project_config.js_module_format {
                     JsModuleFormat::CommonJS => {
                         if self.has_unified_output {
                             self.writer.write_import_fragment_type(
@@ -1426,7 +1505,7 @@ impl<'a> TypeGenerator<'a> {
         }
 
         for &imported_raw_response_type in self.imported_raw_response_types.iter().sorted() {
-            match self.js_module_format {
+            match self.project_config.js_module_format {
                 JsModuleFormat::CommonJS => {
                     if self.has_unified_output {
                         self.writer.write_import_fragment_type(
@@ -1455,7 +1534,8 @@ impl<'a> TypeGenerator<'a> {
         enum_ids.sort_by_key(|enum_id| self.schema.enum_(*enum_id).name);
         for enum_id in enum_ids {
             let enum_type = self.schema.enum_(enum_id);
-            if let Some(enum_module_suffix) = &self.typegen_config.enum_module_suffix {
+            if let Some(enum_module_suffix) = &self.project_config.typegen_config.enum_module_suffix
+            {
                 self.writer.write_import_type(
                     &[enum_type.name.item.lookup()],
                     &format!("{}{}", enum_type.name.item, enum_module_suffix),
@@ -1467,7 +1547,12 @@ impl<'a> TypeGenerator<'a> {
                     .map(|enum_value| AST::StringLiteral(StringLiteral(enum_value.value)))
                     .collect();
 
-                if !self.typegen_config.flow_typegen.no_future_proof_enums {
+                if !self
+                    .project_config
+                    .typegen_config
+                    .flow_typegen
+                    .no_future_proof_enums
+                {
                     members.push(AST::StringLiteral(StringLiteral(*FUTURE_ENUM_VALUE)));
                 }
 
@@ -1575,6 +1660,7 @@ impl<'a> TypeGenerator<'a> {
                                         read_only: false,
                                         optional: !field.type_.is_non_null()
                                             || self
+                                                .project_config
                                                 .typegen_config
                                                 .optional_input_fields
                                                 .contains(&field.name),
@@ -1730,7 +1816,7 @@ impl<'a> TypeGenerator<'a> {
             AST::RawType(intern!("false")),
         ]));
 
-        let (open_comment, close_comment) = match self.typegen_config.language {
+        let (open_comment, close_comment) = match self.project_config.typegen_config.language {
             TypegenLanguage::Flow | TypegenLanguage::JavaScript => ("/*", "*/"),
             TypegenLanguage::TypeScript => ("", ""),
         };
@@ -1817,7 +1903,7 @@ impl<'a> TypeGenerator<'a> {
             AST::RawType(intern!("false")),
         ]));
 
-        let (open_comment, close_comment) = match self.typegen_config.language {
+        let (open_comment, close_comment) = match self.project_config.typegen_config.language {
             TypegenLanguage::Flow | TypegenLanguage::JavaScript => ("/*", "*/"),
             TypegenLanguage::TypeScript => ("", ""),
         };

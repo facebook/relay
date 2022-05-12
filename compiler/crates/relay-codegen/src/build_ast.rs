@@ -21,7 +21,7 @@ use graphql_ir::{
 use graphql_syntax::OperationKind;
 use intern::string_key::{Intern, StringKey};
 use md5::{Digest, Md5};
-use relay_config::{ProjectConfig, TypegenLanguage};
+use relay_config::ProjectConfig;
 use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
@@ -37,56 +37,7 @@ use relay_transforms::{
 };
 use schema::{SDLSchema, Schema};
 
-use common::SourceLocationKey;
 use std::path::PathBuf;
-
-/// This function will create a correct path for artifact based on the project configuration
-pub fn create_path_for_artifact(
-    project_config: &ProjectConfig,
-    source_file: SourceLocationKey,
-    artifact_file_name: String,
-) -> PathBuf {
-    if let Some(output) = &project_config.output {
-        // If an output directory is specified, output into that directory.
-        if project_config.shard_output {
-            if let Some(ref regex) = project_config.shard_strip_regex {
-                let full_source_path = regex.replace_all(source_file.path(), "");
-                let mut output = output.join(full_source_path.to_string());
-                output.pop();
-                output
-            } else {
-                output.join(source_file.get_dir())
-            }
-            .join(artifact_file_name)
-        } else {
-            output.join(artifact_file_name)
-        }
-    } else {
-        // Otherwise, output into a file relative to the source.
-        source_file
-            .get_dir()
-            .join("__generated__")
-            .join(artifact_file_name)
-    }
-}
-
-pub fn path_for_artifact(
-    project_config: &ProjectConfig,
-    source_file: SourceLocationKey,
-    definition_name: StringKey,
-) -> PathBuf {
-    let filename = if let Some(filename_for_artifact) = &project_config.filename_for_artifact {
-        filename_for_artifact(source_file, definition_name)
-    } else {
-        match &project_config.typegen_config.language {
-            TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
-                format!("{}.graphql.js", definition_name)
-            }
-            TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
-        }
-    };
-    create_path_for_artifact(project_config, source_file, filename)
-}
 
 pub fn build_request_params_ast_key(
     schema: &SDLSchema,
@@ -844,8 +795,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         let import_path = match self.project_config.js_module_format {
             relay_config::JsModuleFormat::CommonJS => {
-                let definition_artifact_location = path_for_artifact(
-                    self.project_config,
+                let definition_artifact_location = self.project_config.path_for_artifact(
                     self.definition_source_location.location.source_location(),
                     self.definition_source_location.item,
                 );
@@ -855,11 +805,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 let module_path = module_location.parent().unwrap();
                 let definition_artifact_location_path =
                     definition_artifact_location.parent().unwrap();
-
-                println!(
-                    "Diffing paths: {:?} : {:?}",
-                    definition_artifact_location_path, module_path
-                );
 
                 let resolver_module_location =
                     pathdiff::diff_paths(module_path, definition_artifact_location_path).unwrap();

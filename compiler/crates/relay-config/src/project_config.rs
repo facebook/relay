@@ -15,7 +15,9 @@ use serde::{de::Error, Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use std::{fmt, path::PathBuf, sync::Arc, usize};
 
-use crate::{connection_interface::ConnectionInterface, JsModuleFormat, TypegenConfig};
+use crate::{
+    connection_interface::ConnectionInterface, JsModuleFormat, TypegenConfig, TypegenLanguage,
+};
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -256,5 +258,55 @@ impl Debug for ProjectConfig {
             .field("rollout", rollout)
             .field("js_module_format", js_module_format)
             .finish()
+    }
+}
+
+impl ProjectConfig {
+    /// This function will create a correct path for artifact based on the project configuration
+    fn create_path_for_artifact(
+        &self,
+        source_file: SourceLocationKey,
+        artifact_file_name: String,
+    ) -> PathBuf {
+        if let Some(output) = &self.output {
+            // If an output directory is specified, output into that directory.
+            if self.shard_output {
+                if let Some(ref regex) = self.shard_strip_regex {
+                    let full_source_path = regex.replace_all(source_file.path(), "");
+                    let mut output = output.join(full_source_path.to_string());
+                    output.pop();
+                    output
+                } else {
+                    output.join(source_file.get_dir())
+                }
+                .join(artifact_file_name)
+            } else {
+                output.join(artifact_file_name)
+            }
+        } else {
+            // Otherwise, output into a file relative to the source.
+            source_file
+                .get_dir()
+                .join("__generated__")
+                .join(artifact_file_name)
+        }
+    }
+
+    pub fn path_for_artifact(
+        &self,
+        source_file: SourceLocationKey,
+        definition_name: StringKey,
+    ) -> PathBuf {
+        let filename = if let Some(filename_for_artifact) = &self.filename_for_artifact {
+            filename_for_artifact(source_file, definition_name)
+        } else {
+            match &self.typegen_config.language {
+                TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+                    format!("{}.graphql.js", definition_name)
+                }
+                TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
+            }
+        };
+        self.create_path_for_artifact(source_file, filename)
     }
 }

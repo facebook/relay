@@ -1663,6 +1663,7 @@ dependencies = [
  "intern",
  "itertools",
  "lazy_static",
+ "pathdiff",
  "relay-codegen",
  "relay-config",
  "relay-test-schema",

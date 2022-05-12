@@ -6,6 +6,7 @@
  */
 
 import { window, workspace } from 'vscode';
+import path = require('path');
 import {
   LanguageClientOptions,
   RevealOutputChannelOn,
@@ -21,8 +22,15 @@ export async function createAndStartClient(context: RelayExtensionContext) {
   context.outputChannel.appendLine('Starting the Relay GraphQL extension...');
 
   const config = getConfig();
-  const rootPath = workspace.rootPath || process.cwd();
 
+  let rootPath = workspace.rootPath || process.cwd();
+  if (config.rootDirectory) {
+    rootPath = path.join(rootPath, config.rootDirectory);
+  }
+
+  context.outputChannel.appendLine(
+    `Searching for the relay-compiler starting at: ${rootPath}`,
+  );
   const relayBinaryResult = await findRelayCompilerBinary(rootPath);
 
   let relayBinary: string | undefined;
@@ -71,9 +79,18 @@ export async function createAndStartClient(context: RelayExtensionContext) {
 
   context.outputChannel.appendLine(`Using relay binary: ${relayBinary}`);
 
+  const args = ['lsp', `--output=${config.outputLevel}`];
+
+  if (config.pathToConfig) {
+    args.push(config.pathToConfig);
+  }
+
   const serverOptions: ServerOptions = {
+    options: {
+      cwd: rootPath,
+    },
     command: relayBinary,
-    args: ['lsp', `--output=${config.outputLevel}`],
+    args,
   };
 
   // Options to control the language client
@@ -113,6 +130,11 @@ export async function createAndStartClient(context: RelayExtensionContext) {
 
   client.registerFeature(new LSPStatusBarFeature(context));
 
+  context.outputChannel.appendLine(
+    `Starting the Relay Langauge Server with these options: ${JSON.stringify(
+      serverOptions,
+    )}`,
+  );
   // Start the client. This will also launch the server
   client.start();
   context.client = client;

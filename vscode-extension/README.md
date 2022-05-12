@@ -29,6 +29,10 @@ Search for "Relay for VSCode" in the VS Code extensions panel or install through
 
 - `relay.pathToBinary` (default: null) A path relative to the Relay binary relative to the root of your project. If this is not specified, we will try to find one in your `node_modules` folder.
 
+- `relay.rootDirectory` (default: VSCode project root) A path relative to the root of your VSCode project for the extension to work from. The default value is the root of your project. This will change where we start looking for the relay-compiler node module. This will also affect where the LSP server is started, therefore affecting how the relay config is found. This is helpful if your project is in a nested directory.
+
+- `relay.pathToConfig` (default: null) Path to a relay config relative to the `rootDirectory`. Without this, the compiler will search for your config. This is helpful if your relay project is in a nested directory.
+
 ## Features
 
 - IntelliSense

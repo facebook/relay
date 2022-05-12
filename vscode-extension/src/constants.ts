@@ -5,4 +5,4 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-export const SEMVER_RANGE = '>=13.2.x <14';
+export const SEMVER_RANGE = '>=13.3.x <14';

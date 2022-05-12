@@ -8,7 +8,9 @@
 import { ConfigurationScope, workspace } from 'vscode';
 
 export type Config = {
+  rootDirectory: string | null;
   pathToRelay: string | null;
+  pathToConfig: string | null;
   outputLevel: string;
 };
 
@@ -17,6 +19,8 @@ export function getConfig(scope?: ConfigurationScope): Config {
 
   return {
     pathToRelay: configuration.get('pathToRelay') ?? null,
+    pathToConfig: configuration.get('pathToConfig') ?? null,
     outputLevel: configuration.get('outputLevel') ?? 'quiet-with-errros',
+    rootDirectory: configuration.get('rootDirectory') ?? null,
   };
 }

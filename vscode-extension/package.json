@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "displayName": "Relay GraphQL",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "Relay-powered IDE experience",
   "repository": {
     "type": "git",
@@ -9,7 +9,12 @@
     "directory": "vscode-extension"
   },
   "license": "MIT",
+  "publisher": "meta",
   "main": "./out/extension.js",
+  "icon": "assets/relay-logo-icon.png",
+  "categories": [
+    "Programming Languages"
+  ],
   "activationEvents": [
     "onLanguage:plaintext",
     "onLanguage:javascript",

@@ -1,7 +1,0 @@
-{
-    "folders": [
-        {"path": "./compiler"},
-        {"path": "./vscode-extension"},
-        {"path": "./packages"}
-    ]
-}

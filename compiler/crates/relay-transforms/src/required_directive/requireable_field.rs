@@ -9,7 +9,7 @@ use crate::RequiredAction;
 
 use super::{validation_message::ValidationMessage, ACTION_ARGUMENT, REQUIRED_DIRECTIVE_NAME};
 use common::{Diagnostic, Location, NamedItem, WithLocation};
-use graphql_ir::{ConstantValue, Directive, Field, LinkedField, ScalarField, Value};
+use graphql_ir::{Directive, Field, LinkedField, ScalarField};
 use intern::string_key::StringKey;
 use schema::SDLSchema;
 
@@ -66,20 +66,9 @@ fn get_action_argument(
         )
     })?;
 
-    match &action_arg.value.item {
-        Value::Constant(value) => match value {
-            ConstantValue::Enum(action) => Ok(WithLocation::new(
-                action_arg.value.location,
-                RequiredAction::from(*action),
-            )),
-            _ => Err(Diagnostic::error(
-                ValidationMessage::RequiredActionArgumentEnum,
-                action_arg.value.location,
-            )),
-        },
-        _ => Err(Diagnostic::error(
-            ValidationMessage::RequiredActionArgumentConstant,
-            action_arg.value.location,
-        )),
-    }
+    let action = action_arg.value.item.expect_constant().unwrap_enum();
+    Ok(WithLocation::new(
+        action_arg.value.location,
+        RequiredAction::from(action),
+    ))
 }

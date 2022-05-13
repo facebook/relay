@@ -103,7 +103,7 @@ pub fn generate_fragment_type_exports_section(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> String {
-    let typegen_options = TypegenOptions::new(
+    let typgen_context = TypegenContext::new(
         schema,
         project_config,
         fragment_definition
@@ -113,8 +113,7 @@ pub fn generate_fragment_type_exports_section(
         fragment_definition.name,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
-    write_fragment_type_exports_section(&typegen_options, fragment_definition, &mut writer)
-        .unwrap();
+    write_fragment_type_exports_section(&typgen_context, fragment_definition, &mut writer).unwrap();
     writer.into_string()
 }
 
@@ -123,7 +122,7 @@ pub fn generate_named_validator_export(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> String {
-    let typegen_options = TypegenOptions::new(
+    let typgen_context = TypegenContext::new(
         schema,
         project_config,
         fragment_definition
@@ -133,7 +132,7 @@ pub fn generate_named_validator_export(
         fragment_definition.name,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
-    write_validator_function(&typegen_options, fragment_definition, &mut writer).unwrap();
+    write_validator_function(&typgen_context, fragment_definition, &mut writer).unwrap();
     let validator_function_body = writer.into_string();
 
     if project_config.typegen_config.eager_es_modules {
@@ -152,7 +151,7 @@ pub fn generate_operation_type_exports_section(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> String {
-    let typegen_options = TypegenOptions::new(
+    let typgen_context = TypegenContext::new(
         schema,
         project_config,
         typegen_operation
@@ -163,7 +162,7 @@ pub fn generate_operation_type_exports_section(
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_operation_type_exports_section(
-        &typegen_options,
+        &typgen_context,
         typegen_operation,
         normalization_operation,
         &mut writer,
@@ -178,7 +177,7 @@ pub fn generate_split_operation_type_exports_section(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> String {
-    let typegen_options = TypegenOptions::new(
+    let typgen_context = TypegenContext::new(
         schema,
         project_config,
         typegen_operation
@@ -190,7 +189,7 @@ pub fn generate_split_operation_type_exports_section(
     let mut writer = new_writer_from_config(&project_config.typegen_config);
 
     write_split_operation_type_exports_section(
-        &typegen_options,
+        &typgen_context,
         typegen_operation,
         normalization_operation,
         &mut writer,
@@ -200,7 +199,7 @@ pub fn generate_split_operation_type_exports_section(
 }
 
 /// An immutable grab bag of configuration, etc. for type generation.
-struct TypegenOptions<'a> {
+struct TypegenContext<'a> {
     schema: &'a SDLSchema,
     project_config: &'a ProjectConfig,
     has_unified_output: bool,
@@ -208,7 +207,7 @@ struct TypegenOptions<'a> {
     definition_source_location: WithLocation<StringKey>,
 }
 
-impl<'a> TypegenOptions<'a> {
+impl<'a> TypegenContext<'a> {
     fn new(
         schema: &'a SDLSchema,
         project_config: &'a ProjectConfig,

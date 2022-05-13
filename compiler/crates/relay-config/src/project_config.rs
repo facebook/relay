@@ -328,17 +328,38 @@ impl ProjectConfig {
                     definition_source_location.item,
                 );
 
-                let module_location = PathBuf::from_str(target_module.lookup()).unwrap();
+                let module_location = PathBuf::from_str(target_module.lookup()).expect(
+                    format!(
+                        "expected to be able to build a path from target_module : {}",
+                        target_module.lookup()
+                    )
+                    .as_str(),
+                );
 
-                let module_path = module_location.parent().unwrap();
+                let module_path = module_location.parent().expect(
+                    format!(
+                        "expected module_location: {:?} to have a parent path, maybe it's not a file?",
+                        module_location
+                    )
+                    .as_str(),
+                );
+
                 let definition_artifact_location_path =
-                    definition_artifact_location.parent().unwrap();
+                    definition_artifact_location.parent().expect(format!("expected definition_artifact_location: {:?} to have a parent path, maybe it's not a file?", definition_artifact_location).as_str());
 
                 let resolver_module_location =
                     pathdiff::diff_paths(module_path, definition_artifact_location_path).unwrap();
 
+                let module_file_name = module_location.file_name().expect(
+                    format!(
+                        "expected module_location: {:?} to have a file name",
+                        module_location
+                    )
+                    .as_str(),
+                );
+
                 resolver_module_location
-                    .join(module_location.file_name().unwrap())
+                    .join(module_file_name)
                     .to_string_lossy()
                     .intern()
             }

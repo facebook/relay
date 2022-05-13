@@ -58,7 +58,7 @@ The `hackPreloader` argument is FB only and generates a Hack preloader file.
 
 [Read More](https://relay.dev/docs/glossary/#preloadable)
 """
-directive @preloadable(hackPreloader: Boolean = false) on QUERY
+directive @preloadable(hackPreloader: Boolean = false @static) on QUERY
 
 """
 (Relay Only)
@@ -94,7 +94,7 @@ has a certain type. See [3D](https://relay.dev/docs/glossary/#3d).
 
 [Read More](https://relay.dev/docs/glossary/#match)
 """
-directive @match(key: String) on FIELD
+directive @match(key: String @static) on FIELD
 
 """
 (Relay Only)
@@ -151,7 +151,7 @@ null".
 
 [Read More](https://www.internalfb.com/intern/staticdocs/relay/docs/guides/required-directive/) (FB only)
 """
-directive @required(action: RequiredFieldAction!) on FIELD
+directive @required(action: RequiredFieldAction! @static) on FIELD
 
 # DeclarativeConnection
 """

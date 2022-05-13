@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9a992617ccf54c64581a6442f06d1ea6>>
+ * @generated SignedSource<<d8711219e10b1f666a01fa60e6b5d967>>
  */
 
 mod required_directive;
@@ -192,13 +192,6 @@ fn none_action_bubble_to_throw_invalid() {
     let input = include_str!("required_directive/fixtures/none-action-bubble-to-throw.invalid.graphql");
     let expected = include_str!("required_directive/fixtures/none-action-bubble-to-throw.invalid.expected");
     test_fixture(transform_fixture, "none-action-bubble-to-throw.invalid.graphql", "required_directive/fixtures/none-action-bubble-to-throw.invalid.expected", input, expected);
-}
-
-#[test]
-fn required_dynamic_arg_invalid() {
-    let input = include_str!("required_directive/fixtures/required-dynamic-arg.invalid.graphql");
-    let expected = include_str!("required_directive/fixtures/required-dynamic-arg.invalid.expected");
-    test_fixture(transform_fixture, "required-dynamic-arg.invalid.graphql", "required_directive/fixtures/required-dynamic-arg.invalid.expected", input, expected);
 }
 
 #[test]

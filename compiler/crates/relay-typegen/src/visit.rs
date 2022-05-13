@@ -175,12 +175,10 @@ fn visit_relay_resolver_fragment(
     ))
     .intern();
 
-    let import_path = typgen_context
-        .project_config
-        .relative_import_between_definition_and_js_module(
-            typgen_context.definition_source_location,
-            resolver_spread_metadata.import_path,
-        );
+    let import_path = typgen_context.project_config.js_module_import_path(
+        typgen_context.definition_source_location,
+        resolver_spread_metadata.import_path,
+    );
 
     imported_resolvers
         .0

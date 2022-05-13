@@ -316,7 +316,8 @@ impl ProjectConfig {
         self.create_path_for_artifact(source_file, filename)
     }
 
-    pub fn relative_import_between_definition_and_js_module(
+    /// Generates a relative import path in Common JS projects, and a module name in Haste projects.
+    pub fn js_module_import_path(
         &self,
         definition_source_location: WithLocation<StringKey>,
         target_module: StringKey,

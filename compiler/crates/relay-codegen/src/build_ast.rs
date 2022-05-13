@@ -790,10 +790,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         let import_path = self
             .project_config
-            .relative_import_between_definition_and_js_module(
-                self.definition_source_location,
-                module,
-            );
+            .js_module_import_path(self.definition_source_location, module);
 
         let args = self.build_arguments(field_arguments);
 

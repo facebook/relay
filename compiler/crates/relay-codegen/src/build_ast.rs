@@ -5,9 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::path::Path;
-use std::str::FromStr;
-
 use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::object;
@@ -36,8 +33,6 @@ use relay_transforms::{
     TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
 };
 use schema::{SDLSchema, Schema};
-
-use std::path::PathBuf;
 
 pub fn build_request_params_ast_key(
     schema: &SDLSchema,
@@ -793,33 +788,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             CODEGEN_CONSTANTS.relay_resolver
         };
 
-        let import_path = match self.project_config.js_module_format {
-            relay_config::JsModuleFormat::CommonJS => {
-                let definition_artifact_location = self.project_config.path_for_artifact(
-                    self.definition_source_location.location.source_location(),
-                    self.definition_source_location.item,
-                );
-
-                let module_location = PathBuf::from_str(module.lookup()).unwrap();
-
-                let module_path = module_location.parent().unwrap();
-                let definition_artifact_location_path =
-                    definition_artifact_location.parent().unwrap();
-
-                let resolver_module_location =
-                    pathdiff::diff_paths(module_path, definition_artifact_location_path).unwrap();
-
-                resolver_module_location
-                    .join(module_location.file_name().unwrap())
-                    .to_string_lossy()
-                    .intern()
-            }
-            relay_config::JsModuleFormat::Haste => Path::new(&module.to_string())
-                .file_stem()
-                .unwrap()
-                .to_string_lossy()
-                .intern(),
-        };
+        let import_path = self
+            .project_config
+            .relative_import_between_definition_and_js_module(
+                self.definition_source_location,
+                module,
+            );
 
         let args = self.build_arguments(field_arguments);
 

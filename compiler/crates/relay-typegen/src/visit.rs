@@ -22,11 +22,7 @@ use relay_transforms::{
     RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
-use std::{
-    hash::Hash,
-    path::{Path, PathBuf},
-    str::FromStr,
-};
+use std::hash::Hash;
 
 use crate::{
     type_selection::{
@@ -179,38 +175,12 @@ fn visit_relay_resolver_fragment(
     ))
     .intern();
 
-    let import_path = match typegen_options.project_config.js_module_format {
-        relay_config::JsModuleFormat::CommonJS => {
-            let definition_artifact_location = typegen_options.project_config.path_for_artifact(
-                typegen_options
-                    .definition_source_location
-                    .location
-                    .source_location(),
-                typegen_options.definition_source_location.item,
-            );
-
-            let module_location =
-                PathBuf::from_str(resolver_spread_metadata.import_path.lookup()).unwrap();
-
-            let module_path = module_location.parent().unwrap();
-            let definition_artifact_location_path = definition_artifact_location.parent().unwrap();
-
-            let resolver_module_location =
-                pathdiff::diff_paths(module_path, definition_artifact_location_path).unwrap();
-
-            resolver_module_location
-                .join(module_location.file_name().unwrap())
-                .to_string_lossy()
-                .intern()
-        }
-        relay_config::JsModuleFormat::Haste => {
-            Path::new(&resolver_spread_metadata.import_path.to_string())
-                .file_stem()
-                .unwrap()
-                .to_string_lossy()
-                .intern()
-        }
-    };
+    let import_path = typegen_options
+        .project_config
+        .relative_import_between_definition_and_js_module(
+            typegen_options.definition_source_location,
+            resolver_spread_metadata.import_path,
+        );
 
     imported_resolvers
         .0

@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+#![deny(warnings)]
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 

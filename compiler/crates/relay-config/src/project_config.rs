@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{FeatureFlags, Rollout, SourceLocationKey};
+use common::{FeatureFlags, Rollout, SourceLocationKey, WithLocation};
 use fmt::Debug;
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
@@ -13,7 +13,13 @@ use intern::string_key::{Intern, StringKey};
 use regex::Regex;
 use serde::{de::Error, Deserialize, Deserializer, Serialize};
 use serde_json::Value;
-use std::{fmt, path::PathBuf, sync::Arc, usize};
+use std::{
+    fmt,
+    path::{Path, PathBuf},
+    str::FromStr,
+    sync::Arc,
+    usize,
+};
 
 use crate::{
     connection_interface::ConnectionInterface, JsModuleFormat, TypegenConfig, TypegenLanguage,
@@ -308,5 +314,39 @@ impl ProjectConfig {
             }
         };
         self.create_path_for_artifact(source_file, filename)
+    }
+
+    pub fn relative_import_between_definition_and_js_module(
+        &self,
+        definition_source_location: WithLocation<StringKey>,
+        target_module: StringKey,
+    ) -> StringKey {
+        match self.js_module_format {
+            JsModuleFormat::CommonJS => {
+                let definition_artifact_location = self.path_for_artifact(
+                    definition_source_location.location.source_location(),
+                    definition_source_location.item,
+                );
+
+                let module_location = PathBuf::from_str(target_module.lookup()).unwrap();
+
+                let module_path = module_location.parent().unwrap();
+                let definition_artifact_location_path =
+                    definition_artifact_location.parent().unwrap();
+
+                let resolver_module_location =
+                    pathdiff::diff_paths(module_path, definition_artifact_location_path).unwrap();
+
+                resolver_module_location
+                    .join(module_location.file_name().unwrap())
+                    .to_string_lossy()
+                    .intern()
+            }
+            JsModuleFormat::Haste => Path::new(&target_module.to_string())
+                .file_stem()
+                .unwrap()
+                .to_string_lossy()
+                .intern(),
+        }
     }
 }

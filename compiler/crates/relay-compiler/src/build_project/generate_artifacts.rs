@@ -8,7 +8,6 @@
 pub use super::artifact_content::ArtifactContent;
 use super::build_ir::SourceHashes;
 use crate::config::{Config, ProjectConfig};
-use crate::path_for_artifact;
 use common::{NamedItem, SourceLocationKey};
 use fnv::FnvHashMap;
 use graphql_ir::{FragmentDefinition, OperationDefinition};
@@ -63,11 +62,8 @@ pub fn generate_artifacts(
 
                 Artifact {
                     source_definition_names: metadata.parent_documents.into_iter().collect(),
-                    path: path_for_artifact(
-                        project_config,
-                        source_file,
-                        operations.normalization.name.item,
-                    ),
+                    path: project_config
+                        .path_for_artifact(source_file, operations.normalization.name.item),
                     content: ArtifactContent::SplitOperation {
                         normalization_operation: Arc::clone(operations.normalization),
                         typegen_operation,
@@ -191,11 +187,7 @@ fn generate_normalization_artifact(
     let text = operation_printer.print(operations.expect_operation_text());
     Artifact {
         source_definition_names: vec![source_definition_name],
-        path: path_for_artifact(
-            project_config,
-            source_file,
-            operations.normalization.name.item,
-        ),
+        path: project_config.path_for_artifact(source_file, operations.normalization.name.item),
         content: ArtifactContent::Operation {
             normalization_operation: Arc::clone(operations.normalization),
             reader_operation: operations.expect_reader(),
@@ -217,11 +209,7 @@ fn generate_updatable_query_artifact(
 ) -> Artifact {
     Artifact {
         source_definition_names: vec![source_definition_name],
-        path: path_for_artifact(
-            project_config,
-            source_file,
-            operations.normalization.name.item,
-        ),
+        path: project_config.path_for_artifact(source_file, operations.normalization.name.item),
         content: ArtifactContent::UpdatableQuery {
             reader_operation: operations.expect_reader(),
             typegen_operation: operations.expect_typegen(),
@@ -244,11 +232,8 @@ fn generate_reader_artifact(
         .expect("a type fragment should be generated for this fragment");
     Artifact {
         source_definition_names: vec![name],
-        path: path_for_artifact(
-            project_config,
-            reader_fragment.name.location.source_location(),
-            name,
-        ),
+        path: project_config
+            .path_for_artifact(reader_fragment.name.location.source_location(), name),
         content: ArtifactContent::Fragment {
             reader_fragment: Arc::clone(reader_fragment),
             typegen_fragment: Arc::clone(typegen_fragment),

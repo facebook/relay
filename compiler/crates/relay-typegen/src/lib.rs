@@ -19,10 +19,10 @@ mod write;
 mod writer;
 
 use ::intern::string_key::{Intern, StringKey};
-use common::NamedItem;
+use common::{NamedItem, WithLocation};
 use graphql_ir::{FragmentDefinition, OperationDefinition};
 use lazy_static::lazy_static;
-use relay_config::{JsModuleFormat, ProjectConfig, SchemaConfig};
+use relay_config::ProjectConfig;
 pub use relay_config::{TypegenConfig, TypegenLanguage};
 use relay_transforms::UPDATABLE_DIRECTIVE;
 use schema::SDLSchema;
@@ -103,20 +103,17 @@ pub fn generate_fragment_type_exports_section(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> String {
-    let typegen_options = TypegenOptions::new(
+    let typgen_context = TypegenContext::new(
         schema,
-        &project_config.schema_config,
-        project_config.js_module_format,
-        project_config.output.is_some(),
-        &project_config.typegen_config,
+        project_config,
         fragment_definition
             .directives
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
+        fragment_definition.name,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
-    write_fragment_type_exports_section(&typegen_options, fragment_definition, &mut writer)
-        .unwrap();
+    write_fragment_type_exports_section(&typgen_context, fragment_definition, &mut writer).unwrap();
     writer.into_string()
 }
 
@@ -125,19 +122,17 @@ pub fn generate_named_validator_export(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> String {
-    let typegen_options = TypegenOptions::new(
+    let typgen_context = TypegenContext::new(
         schema,
-        &project_config.schema_config,
-        project_config.js_module_format,
-        project_config.output.is_some(),
-        &project_config.typegen_config,
+        project_config,
         fragment_definition
             .directives
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
+        fragment_definition.name,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
-    write_validator_function(&typegen_options, fragment_definition, &mut writer).unwrap();
+    write_validator_function(&typgen_context, fragment_definition, &mut writer).unwrap();
     let validator_function_body = writer.into_string();
 
     if project_config.typegen_config.eager_es_modules {
@@ -156,20 +151,18 @@ pub fn generate_operation_type_exports_section(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> String {
-    let typegen_options = TypegenOptions::new(
+    let typgen_context = TypegenContext::new(
         schema,
-        &project_config.schema_config,
-        project_config.js_module_format,
-        project_config.output.is_some(),
-        &project_config.typegen_config,
+        project_config,
         typegen_operation
             .directives
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
+        typegen_operation.name,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_operation_type_exports_section(
-        &typegen_options,
+        &typgen_context,
         typegen_operation,
         normalization_operation,
         &mut writer,
@@ -184,21 +177,19 @@ pub fn generate_split_operation_type_exports_section(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
 ) -> String {
-    let typegen_options = TypegenOptions::new(
+    let typgen_context = TypegenContext::new(
         schema,
-        &project_config.schema_config,
-        project_config.js_module_format,
-        project_config.output.is_some(),
-        &project_config.typegen_config,
+        project_config,
         typegen_operation
             .directives
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
+        typegen_operation.name,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
 
     write_split_operation_type_exports_section(
-        &typegen_options,
+        &typgen_context,
         typegen_operation,
         normalization_operation,
         &mut writer,
@@ -208,31 +199,27 @@ pub fn generate_split_operation_type_exports_section(
 }
 
 /// An immutable grab bag of configuration, etc. for type generation.
-struct TypegenOptions<'a> {
+struct TypegenContext<'a> {
     schema: &'a SDLSchema,
-    schema_config: &'a SchemaConfig,
-    typegen_config: &'a TypegenConfig,
-    js_module_format: JsModuleFormat,
+    project_config: &'a ProjectConfig,
     has_unified_output: bool,
     generating_updatable_types: bool,
+    definition_source_location: WithLocation<StringKey>,
 }
 
-impl<'a> TypegenOptions<'a> {
+impl<'a> TypegenContext<'a> {
     fn new(
         schema: &'a SDLSchema,
-        schema_config: &'a SchemaConfig,
-        js_module_format: JsModuleFormat,
-        has_unified_output: bool,
-        typegen_config: &'a TypegenConfig,
+        project_config: &'a ProjectConfig,
         generating_updatable_types: bool,
+        definition_source_location: WithLocation<StringKey>,
     ) -> Self {
         Self {
             schema,
-            schema_config,
-            js_module_format,
-            has_unified_output,
-            typegen_config,
+            project_config,
+            has_unified_output: project_config.output.is_some(),
             generating_updatable_types,
+            definition_source_location,
         }
     }
 }

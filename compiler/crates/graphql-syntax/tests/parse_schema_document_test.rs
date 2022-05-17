@@ -41,13 +41,6 @@ fn schema_with_leading_comment() {
 }
 
 #[test]
-fn schema_with_bom() {
-    let input = include_str!("parse_schema_document/fixtures/schema_with_bom.graphql");
-    let expected = include_str!("parse_schema_document/fixtures/schema_with_bom.expected");
-    test_fixture(transform_fixture, "schema_with_bom.graphql", "parse_schema_document/fixtures/schema_with_bom.expected", input, expected);
-}
-
-#[test]
 fn type_definition() {
     let input = include_str!("parse_schema_document/fixtures/type_definition.graphql");
     let expected = include_str!("parse_schema_document/fixtures/type_definition.expected");

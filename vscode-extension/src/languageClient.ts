@@ -12,30 +12,33 @@ import {
   RevealOutputChannelOn,
 } from 'vscode-languageclient';
 import { ServerOptions, LanguageClient } from 'vscode-languageclient/node';
-import { getConfig } from './config';
+import { spawn } from 'child_process';
 import { RelayExtensionContext } from './context';
 import { createErrorHandler } from './errorHandler';
 import { LSPStatusBarFeature } from './lspStatusBarFeature';
 import { findRelayCompilerBinary } from './utils';
+import { getConfig } from './config';
 
 export async function createAndStartClient(context: RelayExtensionContext) {
-  context.outputChannel.appendLine('Starting the Relay GraphQL extension...');
-
   const config = getConfig();
+
+  context.primaryOutputChannel.appendLine(
+    'Starting the Relay GraphQL extension...',
+  );
 
   let rootPath = workspace.rootPath || process.cwd();
   if (config.rootDirectory) {
     rootPath = path.join(rootPath, config.rootDirectory);
   }
 
-  context.outputChannel.appendLine(
+  context.primaryOutputChannel.appendLine(
     `Searching for the relay-compiler starting at: ${rootPath}`,
   );
   const relayBinaryResult = await findRelayCompilerBinary(rootPath);
 
   let relayBinary: string | undefined;
   if (config.pathToRelay) {
-    context.outputChannel.appendLine(
+    context.primaryOutputChannel.appendLine(
       "You've manually specified 'relay.pathToBinary'. We cannot confirm this version of the Relay Compiler is supported by this version of the extension. I hope you know what you're doing.",
     );
 
@@ -54,19 +57,19 @@ export async function createAndStartClient(context: RelayExtensionContext) {
 
     return;
   } else if (relayBinaryResult.kind === 'packageNotFound') {
-    context.outputChannel.appendLine(
+    context.primaryOutputChannel.appendLine(
       "Could not find the 'relay-compiler' package in your node_modules. Maybe you're not inside of a project with relay installed.",
     );
 
     return;
   } else if (relayBinaryResult.kind === 'architectureNotSupported') {
-    context.outputChannel.appendLine(
+    context.primaryOutputChannel.appendLine(
       `The 'relay-compiler' does not ship a binary for the architecture: ${process.arch}`,
     );
 
     return;
   } else if (relayBinaryResult.kind === 'prereleaseCompilerFound') {
-    context.outputChannel.appendLine(
+    context.primaryOutputChannel.appendLine(
       [
         'You have a pre-release version of the relay-compiler package installed.',
         'We are unable to confirm if this version is compatible with the Relay',
@@ -81,14 +84,72 @@ export async function createAndStartClient(context: RelayExtensionContext) {
   }
 
   if (!relayBinary) {
-    context.outputChannel.appendLine(
+    context.primaryOutputChannel.appendLine(
       'Stopping execution of the Relay VSCode extension since we could not find a valid compiler binary.',
     );
 
     return;
   }
 
-  context.outputChannel.appendLine(`Using relay binary: ${relayBinary}`);
+  context.primaryOutputChannel.appendLine(`Using relay binary: ${relayBinary}`);
+
+  startClient({ rootPath, relayBinary, context });
+
+  if (config.startCompiler) {
+    startCompiler({ rootPath, relayBinary, context });
+  } else {
+    context.primaryOutputChannel.appendLine(
+      [
+        'Not starting the Relay Compiler.',
+        'Please enable relay.startCompiler in your settings if you want the compiler to start when you open your project.',
+      ].join(' '),
+    );
+  }
+}
+
+type StartCompilerArgs = {
+  rootPath: string;
+  relayBinary: string;
+  context: RelayExtensionContext;
+};
+
+function startCompiler({ rootPath, relayBinary, context }: StartCompilerArgs) {
+  const config = getConfig();
+
+  const args: string[] = ['--watch', `--output=${config.outputLevel}`];
+
+  if (config.pathToConfig) {
+    args.push(config.pathToConfig);
+  }
+
+  context.primaryOutputChannel.appendLine(
+    [
+      'Starting the Relay Compiler with the following command:',
+      `${relayBinary} ${args.join(' ')}`,
+    ].join(' '),
+  );
+
+  const process = spawn(relayBinary, args, { cwd: rootPath });
+
+  process.stdout.on('data', (data) => {
+    context.primaryOutputChannel.append(`${data}`);
+  });
+
+  process.stderr.on('data', (data) => {
+    context.primaryOutputChannel.append(`${data}`);
+  });
+
+  context.compilerProcess = process;
+}
+
+type StartClientArgs = {
+  rootPath: string;
+  relayBinary: string;
+  context: RelayExtensionContext;
+};
+
+function startClient({ rootPath, relayBinary, context }: StartClientArgs) {
+  const config = getConfig();
 
   const args = ['lsp', `--output=${config.outputLevel}`];
 
@@ -116,14 +177,16 @@ export async function createAndStartClient(context: RelayExtensionContext) {
       { scheme: 'file', language: 'javascriptreact' },
     ],
 
-    outputChannel: context.outputChannel,
+    outputChannel: context.lspOutputChannel,
 
     // Since we use stderr for debug logs, the "Something went wrong" popup
     // in VSCode shows up a lot. This tells vscode not to show it in any case.
     revealOutputChannelOn: RevealOutputChannelOn.Never,
 
     initializationFailedHandler: (error) => {
-      context?.outputChannel.appendLine(`initializationFailedHandler ${error}`);
+      context?.primaryOutputChannel.appendLine(
+        `initializationFailedHandler ${error}`,
+      );
 
       return true;
     },
@@ -141,7 +204,7 @@ export async function createAndStartClient(context: RelayExtensionContext) {
 
   client.registerFeature(new LSPStatusBarFeature(context));
 
-  context.outputChannel.appendLine(
+  context.primaryOutputChannel.appendLine(
     `Starting the Relay Langauge Server with these options: ${JSON.stringify(
       serverOptions,
     )}`,

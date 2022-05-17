@@ -25,8 +25,8 @@
   "contributes": {
     "commands": [
       {
-        "command": "relay.restartLanguageServer",
-        "title": "Relay: Restart Language Server"
+        "command": "relay.restart",
+        "title": "Relay: Restart"
       }
     ],
     "configuration": {

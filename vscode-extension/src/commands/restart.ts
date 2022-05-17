@@ -16,6 +16,18 @@ export function handleRestartLanguageServerCommand(
     return;
   }
 
+  if (context.compilerProcess) {
+    const killedCompilerSuccessfully = context.compilerProcess.kill();
+
+    if (!killedCompilerSuccessfully) {
+      window.showErrorMessage(
+        'An error occurred while trying to stop the Relay Compiler. Try restarting VSCode.',
+      );
+
+      return;
+    }
+  }
+
   context.client
     .stop()
     .then(() => {
@@ -24,6 +36,7 @@ export function handleRestartLanguageServerCommand(
       );
 
       context.client = null;
+      context.compilerProcess = null;
 
       createAndStartClient(context);
     })

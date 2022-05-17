@@ -16,7 +16,7 @@ Search for "Relay for VSCode" in the VS Code extensions panel or install through
   - We support standard config file formats (`.yml`, `.js`, `.json`), and the the `relay` field in your `package.json`
 - Make sure you have the `relay-compiler` installed in your project. The bare minimum for this extension is v13.
 - Make sure you are able to run the `relay-compiler` command from the command line. If `yarn relay-compiler` works, it's very likely that the extension will work. See more on [debugging below](#debugging).
-- Remove any conflicting GraphQL extensions you have installed. We recommend using [GraphQL for VSCode](https://marketplace.visualstudio.com/items?itemName=kumar-harsh.graphql-for-vscode) since this one seems to have the least conflicts with the Relay extension.
+- Remove / disable any conflicting GraphQL extensions you have installed.
 
 ## Configuration
 
@@ -36,9 +36,10 @@ Search for "Relay for VSCode" in the VS Code extensions panel or install through
 ## Features
 
 - IntelliSense
-- Go to Definition for fragments, fields, GraphQL types, etc.
-- Diagnostics (Errors, Warnings)
 - Hover type information
+- GraphQL syntax highlighting
+- Diagnostics (Errors, Warnings)
+- Go to Definition for fragments, fields, GraphQL types, etc.
 
 ## Commands
 

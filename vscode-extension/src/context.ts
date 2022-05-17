@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+import { ChildProcess } from 'child_process';
 import { ExtensionContext, OutputChannel, StatusBarItem } from 'vscode';
 import { LanguageClient } from 'vscode-languageclient/node';
 
@@ -22,7 +23,9 @@ import { LanguageClient } from 'vscode-languageclient/node';
 // https://code.visualstudio.com/api/extension-capabilities/common-capabilities#data-storage
 export type RelayExtensionContext = {
   client: LanguageClient | null;
-  outputChannel: OutputChannel;
+  primaryOutputChannel: OutputChannel;
+  lspOutputChannel: OutputChannel;
   extensionContext: ExtensionContext;
   statusBar: StatusBarItem;
+  compilerProcess: ChildProcess | null;
 };

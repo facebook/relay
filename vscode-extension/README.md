@@ -20,6 +20,8 @@ Search for "Relay for VSCode" in the VS Code extensions panel or install through
 
 ## Configuration
 
+- `relay.startCompiler` (default: `false`) Whether or not we should automatically start the Relay Compiler in watch mode when you open a project.
+
 - `relay.outputLevel` (default: `quiet-with-errors`) Specify the output level of the Relay language server. The available options are
 
   - quiet

@@ -12,6 +12,7 @@ export type Config = {
   pathToRelay: string | null;
   pathToConfig: string | null;
   outputLevel: string;
+  startCompiler: boolean;
 };
 
 export function getConfig(scope?: ConfigurationScope): Config {
@@ -22,5 +23,6 @@ export function getConfig(scope?: ConfigurationScope): Config {
     pathToConfig: configuration.get('pathToConfig') ?? null,
     outputLevel: configuration.get('outputLevel') ?? 'quiet-with-errros',
     rootDirectory: configuration.get('rootDirectory') ?? null,
+    startCompiler: configuration.get('startCompiler') ?? false,
   };
 }

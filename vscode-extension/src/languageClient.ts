@@ -93,7 +93,7 @@ export async function createAndStartClient(context: RelayExtensionContext) {
 
   context.primaryOutputChannel.appendLine(`Using relay binary: ${relayBinary}`);
 
-  startClient({ rootPath, relayBinary, context });
+  startLspClient({ rootPath, relayBinary, context });
 
   if (config.startCompiler) {
     startCompiler({ rootPath, relayBinary, context });
@@ -116,7 +116,7 @@ type StartCompilerArgs = {
 function startCompiler({ rootPath, relayBinary, context }: StartCompilerArgs) {
   const config = getConfig();
 
-  const args: string[] = ['--watch', `--output=${config.outputLevel}`];
+  const args: string[] = ['--watch', `--output=${config.compilerOutpuLevel}`];
 
   if (config.pathToConfig) {
     args.push(config.pathToConfig);
@@ -142,16 +142,20 @@ function startCompiler({ rootPath, relayBinary, context }: StartCompilerArgs) {
   context.compilerProcess = process;
 }
 
-type StartClientArgs = {
+type StartLspClientArgs = {
   rootPath: string;
   relayBinary: string;
   context: RelayExtensionContext;
 };
 
-function startClient({ rootPath, relayBinary, context }: StartClientArgs) {
+function startLspClient({
+  rootPath,
+  relayBinary,
+  context,
+}: StartLspClientArgs) {
   const config = getConfig();
 
-  const args = ['lsp', `--output=${config.outputLevel}`];
+  const args = ['lsp', `--output=${config.lspOutputLevel}`];
 
   if (config.pathToConfig) {
     args.push(config.pathToConfig);

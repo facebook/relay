@@ -11,7 +11,8 @@ export type Config = {
   rootDirectory: string | null;
   pathToRelay: string | null;
   pathToConfig: string | null;
-  outputLevel: string;
+  lspOutputLevel: string;
+  compilerOutpuLevel: string;
   startCompiler: boolean;
 };
 
@@ -21,7 +22,8 @@ export function getConfig(scope?: ConfigurationScope): Config {
   return {
     pathToRelay: configuration.get('pathToRelay') ?? null,
     pathToConfig: configuration.get('pathToConfig') ?? null,
-    outputLevel: configuration.get('outputLevel') ?? 'quiet-with-errros',
+    lspOutputLevel: configuration.get('lspOutputLevel') ?? 'quiet-with-errros',
+    compilerOutpuLevel: configuration.get('compilerOutputLevel') ?? 'info',
     rootDirectory: configuration.get('rootDirectory') ?? null,
     startCompiler: configuration.get('startCompiler') ?? false,
   };

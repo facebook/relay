@@ -30,10 +30,10 @@ pub use build_project::{
         ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactValidationWriter, ArtifactWriter,
         NoopArtifactWriter,
     },
-    build_programs, build_raw_program, build_schema, create_path_for_artifact, generate_artifacts,
+    build_programs, build_raw_program, build_schema, generate_artifacts,
     generate_extra_artifacts::GenerateExtraArtifactsFn,
-    path_for_artifact, transform_program, validate, validate_program, AdditionalValidations,
-    Artifact, ArtifactContent, ArtifactGeneratedTypes, BuildProjectFailure, SourceHashes,
+    transform_program, validate, validate_program, AdditionalValidations, Artifact,
+    ArtifactContent, ArtifactGeneratedTypes, BuildProjectFailure, SourceHashes,
 };
 pub use config::{
     ConfigFileProject, FileSourceKind, LocalPersistConfig, OperationPersister, PersistConfig,

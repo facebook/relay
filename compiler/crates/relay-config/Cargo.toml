@@ -11,6 +11,7 @@ common = { path = "../common" }
 fnv = "1.0"
 indexmap = { version = "1.8.0", features = ["rayon", "serde-1"] }
 intern = { path = "../intern" }
+pathdiff = "0.2"
 regex = "1.5.4"
 serde = { version = "1.0.136", features = ["derive", "rc"] }
 serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }

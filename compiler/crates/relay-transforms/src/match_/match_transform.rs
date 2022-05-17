@@ -530,12 +530,11 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         let field_definition = self.program.schema.field(field.definition.item);
         let key_arg = match_directive.arguments.named(MATCH_CONSTANTS.key_arg);
         if let Some(arg) = key_arg {
-            if let Value::Constant(ConstantValue::String(str)) = arg.value.item {
-                if str.lookup().starts_with(self.document_name.lookup()) {
-                    self.match_directive_key_argument = Some(str);
-                }
-            }
-            if self.match_directive_key_argument.is_none() {
+            let str = arg.value.item.expect_constant().unwrap_string();
+
+            if str.lookup().starts_with(self.document_name.lookup()) {
+                self.match_directive_key_argument = Some(str);
+            } else {
                 return Err(Diagnostic::error(
                     ValidationMessage::InvalidMatchKeyArgument {
                         document_name: self.document_name,

@@ -55,6 +55,12 @@ pub fn print_selections(schema: &SDLSchema, selections: &[Selection]) -> String 
     result
 }
 
+pub fn print_selection(schema: &SDLSchema, selection: &Selection) -> String {
+    let mut result = String::new();
+    write_selection(schema, selection, &mut result).unwrap();
+    result
+}
+
 pub fn print_arguments(
     schema: &SDLSchema,
     arguments: &[Argument],
@@ -113,6 +119,15 @@ pub fn write_selections(
 ) -> FmtResult {
     let mut printer = Printer::new(schema, &mut result, PrinterOptions::default());
     printer.print_selections(selections)
+}
+
+pub fn write_selection(
+    schema: &SDLSchema,
+    selection: &Selection,
+    mut result: &mut impl Write,
+) -> FmtResult {
+    let mut printer = Printer::new(schema, &mut result, PrinterOptions::default());
+    printer.print_selection(selection, None)
 }
 
 pub fn write_arguments(

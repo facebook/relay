@@ -492,6 +492,7 @@ test('it should dispose nested entry points', () => {
               },
             },
             variables: {
+              // $FlowFixMe[prop-missing]
               id: params.id,
             },
           },
@@ -500,6 +501,8 @@ test('it should dispose nested entry points', () => {
           myNestedEntryPoint: {
             entryPoint: nestedEntryPoint,
             entryPointParams: {
+              // $FlowFixMe[incompatible-type]
+              // $FlowFixMe[prop-missing]
               id: 'nested-' + params.id,
             },
           },
@@ -513,7 +516,7 @@ test('it should dispose nested entry points', () => {
       getEnvironment: () => env,
     },
     entryPoint,
-    {},
+    {...null},
   );
   const nestedEntryPointDisposeSpy = jest.spyOn(
     preloadedEntryPoint.entryPoints.myNestedEntryPoint,

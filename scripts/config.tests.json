@@ -22,6 +22,7 @@
       ],
       "jsModuleFormat": "commonjs",
       "featureFlags": {
+        "enable_relay_resolver_transform": true,
         "enable_flight_transform": true,
         "no_inline": {
           "kind": "enabled"

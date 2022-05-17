@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<444d9acf9d36777b68702bc6e3979aa2>>
+ * @generated SignedSource<<6ceea57f7f79144d256f2d62f19f19a0>>
  */
 
 mod compile_relay_artifacts;
@@ -584,13 +584,6 @@ fn match_with_invalid_key_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/match-with-invalid-key.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/match-with-invalid-key.invalid.expected");
     test_fixture(transform_fixture, "match-with-invalid-key.invalid.graphql", "compile_relay_artifacts/fixtures/match-with-invalid-key.invalid.expected", input, expected);
-}
-
-#[test]
-fn match_with_variable_key_invalid() {
-    let input = include_str!("compile_relay_artifacts/fixtures/match-with-variable-key.invalid.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/match-with-variable-key.invalid.expected");
-    test_fixture(transform_fixture, "match-with-variable-key.invalid.graphql", "compile_relay_artifacts/fixtures/match-with-variable-key.invalid.expected", input, expected);
 }
 
 #[test]

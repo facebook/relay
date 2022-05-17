@@ -14,8 +14,8 @@ use relay_transforms::{
     validate_assignable_directive, validate_connections, validate_global_variable_names,
     validate_module_names, validate_no_double_underscore_alias,
     validate_no_inline_fragments_with_raw_response_type, validate_relay_directives,
-    validate_resolver_fragments, validate_unused_fragment_variables, validate_unused_variables,
-    validate_updatable_directive, validate_updatable_fragment_spread,
+    validate_resolver_fragments, validate_static_args, validate_unused_fragment_variables,
+    validate_unused_variables, validate_updatable_directive, validate_updatable_fragment_spread,
 };
 
 pub type AdditionalValidations =
@@ -37,6 +37,7 @@ pub fn validate(
         validate_module_names(program),
         validate_no_inline_fragments_with_raw_response_type(program),
         disallow_typename_on_root(program),
+        validate_static_args(program),
         if let Some(ref validate) = additional_validations {
             validate(program, &project_config.feature_flags)
         } else {

@@ -21,12 +21,6 @@ pub(super) enum ValidationMessage {
     #[error("Missing `action` argument. @required expects an `action` argument")]
     RequiredActionArgumentRequired,
 
-    #[error("Expected `action` argument to be a literal")]
-    RequiredActionArgumentConstant,
-
-    #[error("Expected `action` argument to be one of `NONE`, `LOG` or `THROW`")]
-    RequiredActionArgumentEnum,
-
     #[error(
         "All references to a @required field must have matching `action` arguments. The `action` used for '{field_name}'"
     )]

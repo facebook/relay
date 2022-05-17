@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::path::Path;
-
 use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::object;
@@ -20,6 +18,7 @@ use graphql_ir::{
 use graphql_syntax::OperationKind;
 use intern::string_key::{Intern, StringKey};
 use md5::{Digest, Md5};
+use relay_config::ProjectConfig;
 use relay_transforms::{
     extract_connection_metadata_from_directive, extract_handle_field_directives,
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
@@ -41,9 +40,16 @@ pub fn build_request_params_ast_key(
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
     top_level_statements: &TopLevelStatements,
+    definition_source_location: WithLocation<StringKey>,
+    project_config: &ProjectConfig,
 ) -> AstKey {
-    let mut operation_builder =
-        CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let mut operation_builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Normalization,
+        ast_builder,
+        project_config,
+        definition_source_location,
+    );
     operation_builder.build_request_parameters(operation, request_parameters, top_level_statements)
 }
 
@@ -51,9 +57,16 @@ pub fn build_provided_variables(
     schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
+    definition_source_location: WithLocation<StringKey>,
+    project_config: &ProjectConfig,
 ) -> Option<AstKey> {
-    let mut operation_builder =
-        CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let mut operation_builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Normalization,
+        ast_builder,
+        project_config,
+        definition_source_location,
+    );
 
     operation_builder.build_operation_provided_variables(&operation.variable_definitions)
 }
@@ -64,11 +77,24 @@ pub fn build_request(
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
     request_parameters: AstKey,
+    definition_source_location: WithLocation<StringKey>,
+    project_config: &ProjectConfig,
 ) -> AstKey {
-    let mut operation_builder =
-        CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let mut operation_builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Normalization,
+        ast_builder,
+        project_config,
+        definition_source_location,
+    );
     let operation = Primitive::Key(operation_builder.build_operation(operation));
-    let mut fragment_builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
+    let mut fragment_builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Reader,
+        ast_builder,
+        project_config,
+        definition_source_location,
+    );
     let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
 
     ast_builder.intern(Ast::Object(object! {
@@ -92,8 +118,16 @@ pub fn build_operation(
     schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     operation: &OperationDefinition,
+    definition_source_location: WithLocation<StringKey>,
+    project_config: &ProjectConfig,
 ) -> AstKey {
-    let mut builder = CodegenBuilder::new(schema, CodegenVariant::Normalization, ast_builder);
+    let mut builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Normalization,
+        ast_builder,
+        project_config,
+        definition_source_location,
+    );
     builder.build_operation(operation)
 }
 
@@ -101,16 +135,26 @@ pub fn build_fragment(
     schema: &SDLSchema,
     ast_builder: &mut AstBuilder,
     fragment: &FragmentDefinition,
+    definition_source_location: WithLocation<StringKey>,
+    project_config: &ProjectConfig,
 ) -> AstKey {
-    let mut builder = CodegenBuilder::new(schema, CodegenVariant::Reader, ast_builder);
+    let mut builder = CodegenBuilder::new(
+        schema,
+        CodegenVariant::Reader,
+        ast_builder,
+        project_config,
+        definition_source_location,
+    );
     builder.build_fragment(fragment, false)
 }
 
-pub struct CodegenBuilder<'schema, 'builder> {
+pub struct CodegenBuilder<'schema, 'builder, 'config> {
     connection_constants: ConnectionConstants,
     schema: &'schema SDLSchema,
     variant: CodegenVariant,
     ast_builder: &'builder mut AstBuilder,
+    project_config: &'config ProjectConfig,
+    definition_source_location: WithLocation<StringKey>,
 }
 
 #[derive(PartialEq)]
@@ -119,17 +163,21 @@ pub enum CodegenVariant {
     Normalization,
 }
 
-impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
+impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     pub fn new(
         schema: &'schema SDLSchema,
         variant: CodegenVariant,
         ast_builder: &'builder mut AstBuilder,
+        project_config: &'config ProjectConfig,
+        definitiion_source_location: WithLocation<StringKey>,
     ) -> Self {
         Self {
             connection_constants: Default::default(),
             schema,
             variant,
             ast_builder,
+            project_config,
+            definition_source_location: definitiion_source_location,
         }
     }
 
@@ -744,12 +792,9 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             CODEGEN_CONSTANTS.relay_resolver
         };
 
-        // TODO(T86853359): Support non-haste environments when generating Relay Resolver Reader AST
-        let haste_import_name = Path::new(&module.to_string())
-            .file_stem()
-            .unwrap()
-            .to_string_lossy()
-            .intern();
+        let import_path = self
+            .project_config
+            .js_module_import_path(self.definition_source_location, module);
 
         let args = self.build_arguments(field_arguments);
 
@@ -762,7 +807,7 @@ impl<'schema, 'builder> CodegenBuilder<'schema, 'builder> {
             fragment: fragment_primitive,
             kind: Primitive::String(kind),
             name: Primitive::String(field_name),
-            resolver_module: Primitive::JSModuleDependency(haste_import_name),
+            resolver_module: Primitive::JSModuleDependency(import_path),
             path: Primitive::String(path),
         }))
     }

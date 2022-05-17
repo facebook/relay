@@ -34,14 +34,14 @@ use crate::{
         ExactObject, InexactObject, KeyValuePairProp, Prop, SortedASTList, SortedStringKeyList,
         StringLiteral, Writer, AST,
     },
-    MaskStatus, TypegenOptions, ACTOR_CHANGE_POINT, FUTURE_ENUM_VALUE, KEY_CLIENTID, KEY_DATA,
+    MaskStatus, TypegenContext, ACTOR_CHANGE_POINT, FUTURE_ENUM_VALUE, KEY_CLIENTID, KEY_DATA,
     KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_RAW_RESPONSE, KEY_TYPENAME,
     KEY_UPDATABLE_FRAGMENT_SPREADS, PROVIDED_VARIABLE_TYPE, RAW_RESPONSE_TYPE_DIRECTIVE_NAME,
     REACT_RELAY_MULTI_ACTOR, VALIDATOR_EXPORT_NAME,
 };
 
 pub(crate) fn write_operation_type_exports_section(
-    typegen_options: &'_ TypegenOptions<'_>,
+    typgen_context: &'_ TypegenContext<'_>,
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     writer: &mut Box<dyn Writer>,
@@ -52,7 +52,7 @@ pub(crate) fn write_operation_type_exports_section(
     let mut actor_change_status = ActorChangeStatus::NoActorChange;
     let mut runtime_imports = Default::default();
     let type_selections = visit_selections(
-        typegen_options,
+        typgen_context,
         &typegen_operation.selections,
         &mut encountered_enums,
         &mut encountered_fragments,
@@ -61,7 +61,7 @@ pub(crate) fn write_operation_type_exports_section(
     );
     let mut imported_raw_response_types = Default::default();
     let data_type = get_data_type(
-        typegen_options,
+        typgen_context,
         type_selections.into_iter(),
         MaskStatus::Masked, // Queries are never unmasked
         None,
@@ -78,7 +78,7 @@ pub(crate) fn write_operation_type_exports_section(
         if has_raw_response_type_directive(normalization_operation) {
             let mut match_fields = Default::default();
             let raw_response_selections = raw_response_visit_selections(
-                typegen_options,
+                typgen_context,
                 &normalization_operation.selections,
                 &mut encountered_enums,
                 &mut match_fields,
@@ -88,7 +88,7 @@ pub(crate) fn write_operation_type_exports_section(
             );
             Some((
                 raw_response_selections_to_babel(
-                    typegen_options,
+                    typgen_context,
                     raw_response_selections.into_iter(),
                     None,
                     &mut encountered_enums,
@@ -107,7 +107,7 @@ pub(crate) fn write_operation_type_exports_section(
     }
 
     // Always include 'FragmentRef' for typescript codegen for operations that have fragment spreads
-    if typegen_options.typegen_config.language == TypegenLanguage::TypeScript
+    if typgen_context.project_config.typegen_config.language == TypegenLanguage::TypeScript
         && has_fragment_spread(&typegen_operation.selections)
     {
         runtime_imports.generic_fragment_type_should_be_imported = true;
@@ -115,14 +115,14 @@ pub(crate) fn write_operation_type_exports_section(
 
     write_import_actor_change_point(actor_change_status, writer)?;
     runtime_imports.write_runtime_imports(writer)?;
-    write_fragment_imports(typegen_options, None, encountered_fragments, writer)?;
+    write_fragment_imports(typgen_context, None, encountered_fragments, writer)?;
     write_relay_resolver_imports(imported_resolvers, writer)?;
-    write_split_raw_response_type_imports(typegen_options, imported_raw_response_types, writer)?;
+    write_split_raw_response_type_imports(typgen_context, imported_raw_response_types, writer)?;
 
     let (input_variables_type, input_object_types) =
-        get_input_variables_type(typegen_options, typegen_operation, &mut encountered_enums);
+        get_input_variables_type(typgen_context, typegen_operation, &mut encountered_enums);
 
-    write_enum_definitions(typegen_options, encountered_enums, writer)?;
+    write_enum_definitions(typgen_context, encountered_enums, writer)?;
     write_input_object_types(input_object_types, writer)?;
 
     let variables_identifier = format!("{}$variables", typegen_operation.name.item);
@@ -157,7 +157,7 @@ pub(crate) fn write_operation_type_exports_section(
     //
     // Likewise, there is the same bug with enountered_enums
     generate_provided_variables_type(
-        typegen_options,
+        typgen_context,
         normalization_operation,
         &mut Default::default(),
         &mut Default::default(),
@@ -167,7 +167,7 @@ pub(crate) fn write_operation_type_exports_section(
 }
 
 fn write_raw_response_and_get_raw_response_prop(
-    raw_response_type_and_match_fields: Option<(SortedASTList, MatchFields)>,
+    raw_response_type_and_match_fields: Option<(AST, MatchFields)>,
     writer: &mut Box<dyn Writer>,
     typegen_operation: &OperationDefinition,
 ) -> Result<Option<KeyValuePairProp>, std::fmt::Error> {
@@ -190,7 +190,7 @@ fn write_raw_response_and_get_raw_response_prop(
 }
 
 pub(crate) fn write_split_operation_type_exports_section(
-    typegen_options: &'_ TypegenOptions<'_>,
+    typgen_context: &'_ TypegenContext<'_>,
     typegen_operation: &OperationDefinition,
     normalization_operation: &OperationDefinition,
     writer: &mut Box<dyn Writer>,
@@ -202,7 +202,7 @@ pub(crate) fn write_split_operation_type_exports_section(
     let mut runtime_imports = Default::default();
 
     let raw_response_selections = raw_response_visit_selections(
-        typegen_options,
+        typgen_context,
         &normalization_operation.selections,
         &mut encountered_enums,
         &mut match_fields,
@@ -211,7 +211,7 @@ pub(crate) fn write_split_operation_type_exports_section(
         &mut runtime_imports,
     );
     let raw_response_type = raw_response_selections_to_babel(
-        typegen_options,
+        typgen_context,
         raw_response_selections.into_iter(),
         None,
         &mut encountered_enums,
@@ -219,10 +219,10 @@ pub(crate) fn write_split_operation_type_exports_section(
     );
 
     runtime_imports.write_runtime_imports(writer)?;
-    write_fragment_imports(typegen_options, None, encountered_fragments, writer)?;
-    write_split_raw_response_type_imports(typegen_options, imported_raw_response_types, writer)?;
+    write_fragment_imports(typgen_context, None, encountered_fragments, writer)?;
+    write_split_raw_response_type_imports(typgen_context, imported_raw_response_types, writer)?;
 
-    write_enum_definitions(typegen_options, encountered_enums, writer)?;
+    write_enum_definitions(typgen_context, encountered_enums, writer)?;
 
     for (key, ast) in match_fields.0 {
         writer.write_export_type(key.lookup(), &ast)?;
@@ -234,7 +234,7 @@ pub(crate) fn write_split_operation_type_exports_section(
 }
 
 pub(crate) fn write_fragment_type_exports_section(
-    typegen_options: &'_ TypegenOptions<'_>,
+    typgen_context: &'_ TypegenContext<'_>,
     fragment_definition: &FragmentDefinition,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
@@ -249,7 +249,7 @@ pub(crate) fn write_fragment_type_exports_section(
     let mut imported_resolvers = Default::default();
     let mut actor_change_status = ActorChangeStatus::NoActorChange;
     let mut type_selections = visit_selections(
-        typegen_options,
+        typgen_context,
         &fragment_definition.selections,
         &mut encountered_enums,
         &mut encountered_fragments,
@@ -279,7 +279,7 @@ pub(crate) fn write_fragment_type_exports_section(
     });
     let fragment_name = fragment_definition.name.item;
     let ref_type_fragment_spreads_property = Prop::KeyValuePair(KeyValuePairProp {
-        key: if typegen_options.generating_updatable_types {
+        key: if typgen_context.generating_updatable_types {
             *KEY_UPDATABLE_FRAGMENT_SPREADS
         } else {
             *KEY_FRAGMENT_SPREADS
@@ -304,7 +304,7 @@ pub(crate) fn write_fragment_type_exports_section(
     };
 
     let data_type = get_data_type(
-        typegen_options,
+        typgen_context,
         type_selections.into_iter(),
         mask_status,
         if mask_status == MaskStatus::Unmasked {
@@ -327,13 +327,13 @@ pub(crate) fn write_fragment_type_exports_section(
     };
     write_import_actor_change_point(actor_change_status, writer)?;
     write_fragment_imports(
-        typegen_options,
+        typgen_context,
         Some(fragment_definition.name.item),
         encountered_fragments,
         writer,
     )?;
 
-    write_enum_definitions(typegen_options, encountered_enums, writer)?;
+    write_enum_definitions(typgen_context, encountered_enums, writer)?;
 
     runtime_imports.write_runtime_imports(writer)?;
     write_relay_resolver_imports(imported_resolvers, writer)?;
@@ -343,9 +343,9 @@ pub(crate) fn write_fragment_type_exports_section(
     writer.write_export_fragment_type(&fragment_type_name)?;
     if let Some(refetchable_metadata) = refetchable_metadata {
         let variables_name = format!("{}$variables", refetchable_metadata.operation_name);
-        match typegen_options.js_module_format {
+        match typgen_context.project_config.js_module_format {
             JsModuleFormat::CommonJS => {
-                if typegen_options.has_unified_output {
+                if typgen_context.has_unified_output {
                     writer.write_import_fragment_type(
                         &[&variables_name],
                         &format!("./{}.graphql", refetchable_metadata.operation_name),
@@ -372,7 +372,7 @@ pub(crate) fn write_fragment_type_exports_section(
 }
 
 fn write_fragment_imports(
-    typegen_options: &'_ TypegenOptions<'_>,
+    typgen_context: &'_ TypegenContext<'_>,
     fragment_name_to_skip: Option<StringKey>,
     encountered_fragments: EncounteredFragments,
     writer: &mut Box<dyn Writer>,
@@ -387,9 +387,9 @@ fn write_fragment_imports(
 
         if should_write_current_referenced_fragment {
             let fragment_type_name = format!("{}$fragmentType", current_referenced_fragment);
-            match typegen_options.js_module_format {
+            match typgen_context.project_config.js_module_format {
                 JsModuleFormat::CommonJS => {
-                    if typegen_options.has_unified_output {
+                    if typgen_context.has_unified_output {
                         writer.write_import_fragment_type(
                             &[&fragment_type_name],
                             &format!("./{}.graphql", current_referenced_fragment),
@@ -433,7 +433,7 @@ fn write_relay_resolver_imports(
 }
 
 fn write_split_raw_response_type_imports(
-    typegen_options: &'_ TypegenOptions<'_>,
+    typgen_context: &'_ TypegenContext<'_>,
     mut imported_raw_response_types: ImportedRawResponseTypes,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
@@ -443,9 +443,9 @@ fn write_split_raw_response_type_imports(
 
     imported_raw_response_types.0.sort();
     for imported_raw_response_type in imported_raw_response_types.0 {
-        match typegen_options.js_module_format {
+        match typgen_context.project_config.js_module_format {
             JsModuleFormat::CommonJS => {
-                if typegen_options.has_unified_output {
+                if typgen_context.has_unified_output {
                     writer.write_import_fragment_type(
                         &[imported_raw_response_type.lookup()],
                         &format!("./{}.graphql", imported_raw_response_type),
@@ -467,14 +467,18 @@ fn write_split_raw_response_type_imports(
 }
 
 fn write_enum_definitions(
-    typegen_options: &'_ TypegenOptions<'_>,
+    typgen_context: &'_ TypegenContext<'_>,
     encountered_enums: EncounteredEnums,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
-    let enum_ids = encountered_enums.into_sorted_vec(typegen_options.schema);
+    let enum_ids = encountered_enums.into_sorted_vec(typgen_context.schema);
     for enum_id in enum_ids {
-        let enum_type = typegen_options.schema.enum_(enum_id);
-        if let Some(enum_module_suffix) = &typegen_options.typegen_config.enum_module_suffix {
+        let enum_type = typgen_context.schema.enum_(enum_id);
+        if let Some(enum_module_suffix) = &typgen_context
+            .project_config
+            .typegen_config
+            .enum_module_suffix
+        {
             writer.write_import_type(
                 &[enum_type.name.item.lookup()],
                 &format!("{}{}", enum_type.name.item, enum_module_suffix),
@@ -486,7 +490,8 @@ fn write_enum_definitions(
                 .map(|enum_value| AST::StringLiteral(StringLiteral(enum_value.value)))
                 .collect();
 
-            if !typegen_options
+            if !typgen_context
+                .project_config
                 .typegen_config
                 .flow_typegen
                 .no_future_proof_enums
@@ -504,7 +509,7 @@ fn write_enum_definitions(
 }
 
 fn generate_provided_variables_type(
-    typegen_options: &'_ TypegenOptions<'_>,
+    typgen_context: &'_ TypegenContext<'_>,
     node: &OperationDefinition,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
@@ -518,7 +523,7 @@ fn generate_provided_variables_type(
                 .named(ProvidedVariableMetadata::directive_name())?;
 
             let provider_func = AST::Callable(Box::new(transform_input_type(
-                typegen_options,
+                typgen_context,
                 &def.type_,
                 input_object_types,
                 encountered_enums,
@@ -579,18 +584,18 @@ fn write_input_object_types(
 /// Validators return the parameter (unmodified) if it did pass validation, but with
 /// a changed flowtype.
 pub(crate) fn write_validator_function(
-    typegen_options: &'_ TypegenOptions<'_>,
+    typgen_context: &'_ TypegenContext<'_>,
     fragment_definition: &FragmentDefinition,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     if fragment_definition.type_condition.is_abstract_type() {
         write_abstract_validator_function(
-            typegen_options.typegen_config.language,
+            typgen_context.project_config.typegen_config.language,
             fragment_definition,
             writer,
         )
     } else {
-        write_concrete_validator_function(typegen_options, fragment_definition, writer)
+        write_concrete_validator_function(typgen_context, fragment_definition, writer)
     }
 }
 
@@ -696,12 +701,12 @@ fn write_abstract_validator_function(
 ///   return value.__typename === 'User' ? (value/*: any*/) : null
 /// };
 fn write_concrete_validator_function(
-    typegen_options: &'_ TypegenOptions<'_>,
+    typgen_context: &'_ TypegenContext<'_>,
     fragment_definition: &FragmentDefinition,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     let fragment_name = fragment_definition.name.item.lookup();
-    let concrete_typename = typegen_options
+    let concrete_typename = typgen_context
         .schema
         .get_type_name(fragment_definition.type_condition);
     let id_prop = Prop::KeyValuePair(KeyValuePairProp {
@@ -743,7 +748,8 @@ fn write_concrete_validator_function(
         AST::RawType(intern!("false")),
     ]));
 
-    let (open_comment, close_comment) = match typegen_options.typegen_config.language {
+    let (open_comment, close_comment) = match typgen_context.project_config.typegen_config.language
+    {
         TypegenLanguage::Flow | TypegenLanguage::JavaScript => ("/*", "*/"),
         TypegenLanguage::TypeScript => ("", ""),
     };

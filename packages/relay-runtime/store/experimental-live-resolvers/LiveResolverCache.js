@@ -54,6 +54,7 @@ const RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY =
   '__resolverLieStateSubscription';
 const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
+const RELAY_RESOLVER_RECORD_TYPENAME = '__RELAY_RESOLVER__';
 
 /**
  * An experimental fork of store/ResolverCache.js intended to let us experiment
@@ -118,7 +119,10 @@ class LiveResolverCache implements ResolverCache {
     ) {
       // Cache miss; evaluate the selector and store the result in a new record:
       linkedID = linkedID ?? generateClientID(recordID, storageKey);
-      linkedRecord = RelayModernRecord.create(linkedID, '__RELAY_RESOLVER__');
+      linkedRecord = RelayModernRecord.create(
+        linkedID,
+        RELAY_RESOLVER_RECORD_TYPENAME,
+      );
 
       const evaluationResult = evaluate();
 
@@ -423,6 +427,26 @@ class LiveResolverCache implements ResolverCache {
     RelayModernRecord.setValue(newRecord, 'id', id);
     recordSource.set(key, newRecord);
     return key;
+  }
+
+  // Given the set of possible invalidated DataID
+  // (Example may be: records from the reverted optimistic update)
+  // this method will remove resolver records from the store,
+  // which will force a reader to re-evaluate the value of this field.
+  invalidateResolverRecords(invalidatedDataIDs: Set<DataID>): void {
+    if (invalidatedDataIDs.size === 0) {
+      return;
+    }
+
+    for (const dataID of invalidatedDataIDs) {
+      const record = this._getRecordSource().get(dataID);
+      if (
+        record != null &&
+        RelayModernRecord.getType(record) === RELAY_RESOLVER_RECORD_TYPENAME
+      ) {
+        this._getRecordSource().delete(dataID);
+      }
+    }
   }
 }
 

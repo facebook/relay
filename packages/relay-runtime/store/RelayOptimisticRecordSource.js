@@ -21,6 +21,7 @@ import type {
 } from './RelayStoreTypes';
 
 const RelayRecordSource = require('./RelayRecordSource');
+const invariant = require('invariant');
 
 const UNPUBLISH_RECORD_SENTINEL = Object.freeze({
   __UNPUBLISH_RECORD_SENTINEL: true,
@@ -110,10 +111,23 @@ class RelayOptimisticRecordSource implements MutableRecordSource {
     });
     return merged;
   }
+
+  getOptimisticRecordIDs(): Set<DataID> {
+    return new Set(this._sink.getRecordIDs());
+  }
 }
 
 function create(base: RecordSource): MutableRecordSource {
   return new RelayOptimisticRecordSource(base);
 }
 
-module.exports = {create};
+function getOptimisticRecordIDs(source: MutableRecordSource): Set<DataID> {
+  invariant(
+    source instanceof RelayOptimisticRecordSource,
+    'getOptimisticRecordIDs: Instance of RelayOptimisticRecordSource is expected',
+  );
+
+  return source.getOptimisticRecordIDs();
+}
+
+module.exports = {create, getOptimisticRecordIDs};

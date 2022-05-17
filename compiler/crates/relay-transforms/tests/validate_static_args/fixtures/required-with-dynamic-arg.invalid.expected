@@ -5,10 +5,12 @@ query EnabledUserQuery($action: RequiredFieldAction!) {
     id
   }
 }
-==================================== ERROR ====================================
-✖︎ Expected `action` argument to be a literal
 
-  required-dynamic-arg.invalid.graphql:3:24
+# %extensions%
+==================================== ERROR ====================================
+✖︎ Unexpected dynamic argument. required's 'action' argument must be a constant value because it is read by the Relay compiler.
+
+  required-with-dynamic-arg.invalid.graphql:3:24
     2 │ query EnabledUserQuery($action: RequiredFieldAction!) {
     3 │   me @required(action: $action) {
       │                        ^^^^^^^

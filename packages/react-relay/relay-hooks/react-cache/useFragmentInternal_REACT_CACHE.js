@@ -171,7 +171,7 @@ function handleMissingClientEdge(
   parentFragmentRef: mixed,
   missingClientEdgeRequestInfo: MissingClientEdgeRequestInfo,
   queryOptions?: FragmentQueryOptions,
-): void {
+): () => () => void {
   const originalVariables = getVariablesFromFragment(
     parentFragmentNode,
     parentFragmentRef,
@@ -189,9 +189,14 @@ function handleMissingClientEdge(
   // doing here is started the query if needed and retaining and releasing it
   // according to the component mount/suspense cycle; getQueryResultOrFetchQuery
   // already handles this by itself.
-  getQueryResultOrFetchQuery(environment, queryOperationDescriptor, {
-    fetchPolicy: queryOptions?.fetchPolicy,
-  });
+  const [_, effect] = getQueryResultOrFetchQuery(
+    environment,
+    queryOperationDescriptor,
+    {
+      fetchPolicy: queryOptions?.fetchPolicy,
+    },
+  );
+  return effect;
 }
 
 function subscribeToSnapshot(
@@ -363,17 +368,35 @@ function useFragmentInternal_REACT_CACHE(
   // Handle the queries for any missing client edges; this may suspend.
   // FIXME handle client edges in parallel.
   const missingClientEdges = getMissingClientEdges(state);
+  let effects;
   if (missingClientEdges?.length) {
+    effects = [];
     for (const edge of missingClientEdges) {
-      handleMissingClientEdge(
-        environment,
-        fragmentNode,
-        fragmentRef,
-        edge,
-        queryOptions,
+      effects.push(
+        handleMissingClientEdge(
+          environment,
+          fragmentNode,
+          fragmentRef,
+          edge,
+          queryOptions,
+        ),
       );
     }
   }
+
+  useEffect(() => {
+    if (effects?.length) {
+      const cleanups = [];
+      for (const effect of effects) {
+        cleanups.push(effect());
+      }
+      return () => {
+        for (const cleanup of cleanups) {
+          cleanup();
+        }
+      };
+    }
+  });
 
   if (isMissingData(state)) {
     // Suspend if an active operation bears on this fragment, either the

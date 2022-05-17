@@ -6,10 +6,10 @@
  */
 
 use crate::writer::{Prop, SortedASTList, SortedStringKeyList, StringLiteral, Writer, AST};
-use crate::TypegenConfig;
 use crate::{KEY_DATA, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE};
 use intern::string_key::{Intern, StringKey};
 use itertools::Itertools;
+use relay_config::TypegenConfig;
 use std::fmt::{Result as FmtResult, Write};
 
 pub struct TypeScriptPrinter {
@@ -295,11 +295,11 @@ mod tests {
     use intern::string_key::Intern;
 
     fn print_type(ast: &AST) -> String {
-        print_type_with_config(ast, &Default::default())
+        print_type_with_config(ast)
     }
 
-    fn print_type_with_config(ast: &AST, config: &TypegenConfig) -> String {
-        let mut printer = Box::new(TypeScriptPrinter::new(config));
+    fn print_type_with_config(ast: &AST) -> String {
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
         printer.write(ast).unwrap();
         printer.into_string()
     }
@@ -497,7 +497,7 @@ mod tests {
 
     #[test]
     fn import_type() {
-        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(printer.into_string(), "import { A, B } from \"module\";\n");
 
@@ -511,7 +511,7 @@ mod tests {
 
     #[test]
     fn import_module() {
-        let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig::default()));
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
     }

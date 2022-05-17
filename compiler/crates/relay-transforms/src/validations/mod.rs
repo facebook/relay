@@ -19,6 +19,7 @@ mod validate_relay_directives;
 mod validate_required_arguments;
 mod validate_resolver_fragments;
 mod validate_server_only_directives;
+mod validate_static_args;
 mod validate_unused_fragment_variables;
 mod validate_unused_variables;
 
@@ -36,5 +37,6 @@ pub use validate_relay_directives::validate_relay_directives;
 pub use validate_required_arguments::validate_required_arguments;
 pub use validate_resolver_fragments::validate_resolver_fragments;
 pub use validate_server_only_directives::validate_server_only_directives;
+pub use validate_static_args::validate_static_args;
 pub use validate_unused_fragment_variables::validate_unused_fragment_variables;
 pub use validate_unused_variables::validate_unused_variables;

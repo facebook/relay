@@ -26,6 +26,7 @@ const useMemoOperationDescriptor = require('../useMemoOperationDescriptor');
 const useRelayEnvironment = require('../useRelayEnvironment');
 const getQueryResultOrFetchQuery = require('./getQueryResultOrFetchQuery_REACT_CACHE');
 const useFragmentInternal = require('./useFragmentInternal_REACT_CACHE');
+const {useEffect} = require('react');
 
 function useLazyLoadQuery_REACT_CACHE<TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
@@ -47,7 +48,7 @@ function useLazyLoadQuery_REACT_CACHE<TVariables: Variables, TData>(
   );
 
   // Get the query going if needed -- this may suspend.
-  const queryResult = getQueryResultOrFetchQuery(
+  const [queryResult, effect] = getQueryResultOrFetchQuery(
     environment,
     queryOperationDescriptor,
     {
@@ -55,6 +56,8 @@ function useLazyLoadQuery_REACT_CACHE<TVariables: Variables, TData>(
       renderPolicy: options?.UNSTABLE_renderPolicy,
     },
   );
+
+  useEffect(effect);
 
   // Read the query's root fragment -- this may suspend.
   const {fragmentNode, fragmentRef} = queryResult;

@@ -71,14 +71,8 @@ pub fn generate_updatable_query(
 
     // -- Begin Types Section --
     let mut section = GenericSection::default();
-    let generated_types = ArtifactGeneratedTypes {
-        imported_types: "UpdatableQuery, ConcreteUpdatableQuery",
-        ast_type: "ConcreteUpdatableQuery",
-        exported_type: Some(format!(
-            "UpdatableQuery<\n  {name}$variables,\n  {name}$data,\n>",
-            name = reader_operation.name.item
-        )),
-    };
+    let generated_types =
+        ArtifactGeneratedTypes::from_updatable_query(typegen_operation, skip_types);
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "/*::")?;

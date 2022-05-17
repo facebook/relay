@@ -42,10 +42,15 @@ const warning = require('warning');
 type ResolverID = string;
 
 export type EvaluationResult<T> = {|
-  resolverResult: T,
+  resolverResult: ?T,
   resolverID: ResolverID,
   snapshot: ?Snapshot,
   error: ?RelayResolverError,
+|};
+
+export type ResolverFragmentResult = {|
+  data: mixed,
+  isMissingData: boolean,
 |};
 
 export interface ResolverCache {
@@ -54,9 +59,11 @@ export interface ResolverCache {
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
-    getDataForResolverFragment: (SingularReaderSelector) => mixed,
+    getDataForResolverFragment: (
+      SingularReaderSelector,
+    ) => ResolverFragmentResult,
   ): [
-    T /* Answer */,
+    ?T /* Answer */,
     ?DataID /* Seen record */,
     ?RelayResolverError,
     ?Snapshot,
@@ -79,7 +86,7 @@ class NoopResolverCache implements ResolverCache {
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: SingularReaderSelector => mixed,
   ): [
-    T /* Answer */,
+    ?T /* Answer */,
     ?DataID /* Seen record */,
     ?RelayResolverError,
     ?Snapshot,
@@ -132,9 +139,9 @@ class RecordResolverCache implements ResolverCache {
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
-    getDataForResolverFragment: SingularReaderSelector => mixed,
+    getDataForResolverFragment: SingularReaderSelector => ResolverFragmentResult,
   ): [
-    T /* Answer */,
+    ?T /* Answer */,
     ?DataID /* Seen record */,
     ?RelayResolverError,
     ?Snapshot,
@@ -257,7 +264,7 @@ class RecordResolverCache implements ResolverCache {
 
   _isInvalid(
     record: Record,
-    getDataForResolverFragment: SingularReaderSelector => mixed,
+    getDataForResolverFragment: SingularReaderSelector => ResolverFragmentResult,
   ): boolean {
     if (!RelayModernRecord.getValue(record, RELAY_RESOLVER_INVALIDATION_KEY)) {
       return false;
@@ -277,7 +284,8 @@ class RecordResolverCache implements ResolverCache {
       );
       return true;
     }
-    const latestValues = getDataForResolverFragment(readerSelector);
+
+    const {data: latestValues} = getDataForResolverFragment(readerSelector);
     const recycled = recycleNodesInto(originalInputs, latestValues);
     if (recycled !== originalInputs) {
       return true;

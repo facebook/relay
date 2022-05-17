@@ -23,12 +23,16 @@ import type {
   RenderPolicy,
 } from 'relay-runtime';
 
+const SuspenseResource = require('../SuspenseResource');
 const {getCacheForType, getCacheSignal} = require('./RelayReactCache');
 const invariant = require('invariant');
 const {
+  RelayFeatureFlags,
   __internal: {fetchQuery: fetchQueryInternal},
 } = require('relay-runtime');
 const warning = require('warning');
+
+type QueryCacheCommitable = () => () => void;
 
 type QueryResult = {|
   fragmentNode: ReaderFragment,
@@ -38,10 +42,31 @@ type QueryResult = {|
 // Note that the status of a cache entry will be 'resolved' when partial
 // rendering is allowed, even if a fetch is ongoing. The pending status
 // is specifically to indicate that we should suspend.
-type QueryCacheEntry =
-  | {|status: 'resolved', result: QueryResult|}
-  | {|status: 'pending', promise: Promise<void>|}
-  | {|status: 'rejected', error: Error|};
+// Note also that the retainCount is different from the retain count of
+// an operation, which is maintained by the Environment. This retain
+// count is used in Legacy Timeouts mode to count how many components
+// are mounted that use the entry, plus one count for the temporary retain
+// before any components have mounted. It is unused when Legacy Timeouts
+// mode is off.
+type QueryCacheEntryStatus =
+  | {|
+      status: 'resolved',
+      result: QueryResult,
+    |}
+  | {|
+      status: 'pending',
+      promise: Promise<void>,
+    |}
+  | {|
+      status: 'rejected',
+      error: Error,
+    |};
+
+type QueryCacheEntry = {|
+  ...QueryCacheEntryStatus,
+  onCommit: QueryCacheCommitable,
+  suspenseResource: SuspenseResource | null,
+|};
 
 type QueryCache = Map<string, QueryCacheEntry>;
 
@@ -50,6 +75,12 @@ const DEFAULT_FETCH_POLICY = 'store-or-network';
 function createQueryCache(): QueryCache {
   return new Map();
 }
+
+const noopOnCommit = () => {
+  return () => undefined;
+};
+
+const noopPromise = new Promise(() => {});
 
 function getQueryCacheKey(
   operation: OperationDescriptor,
@@ -77,6 +108,15 @@ function constructQueryResult(operation: OperationDescriptor): QueryResult {
   };
 }
 
+function makeInitialCacheEntry() {
+  return {
+    status: 'pending',
+    promise: noopPromise,
+    onCommit: noopOnCommit,
+    suspenseResource: null,
+  };
+}
+
 function getQueryResultOrFetchQuery_REACT_CACHE(
   environment: IEnvironment,
   queryOperationDescriptor: OperationDescriptor,
@@ -86,7 +126,7 @@ function getQueryResultOrFetchQuery_REACT_CACHE(
     fetchKey?: ?string | ?number,
     fetchObservable?: Observable<GraphQLResponse>,
   |},
-): QueryResult {
+): [QueryResult, QueryCacheCommitable] {
   const fetchPolicy = options?.fetchPolicy ?? DEFAULT_FETCH_POLICY;
   const renderPolicy =
     options?.renderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
@@ -100,43 +140,106 @@ function getQueryResultOrFetchQuery_REACT_CACHE(
     options?.fetchKey,
   );
 
-  let entry = cache.get(cacheKey);
+  const initialEntry = cache.get(cacheKey);
 
-  if (entry === undefined) {
-    // Initiate a query to fetch the data if needed:
-    entry = onCacheMiss(
-      environment,
-      queryOperationDescriptor,
-      fetchPolicy,
-      renderPolicy,
-      newCacheEntry => {
-        cache.set(cacheKey, newCacheEntry);
-      },
-      options?.fetchObservable,
-    );
-    cache.set(cacheKey, entry);
-
-    // Since this is the first time rendering, retain the query. React will
-    // trigger the abort signal when this cache entry is no longer needed.
-    const retention = environment.retain(queryOperationDescriptor);
-    const abortSignal = getCacheSignal();
-    abortSignal.addEventListener(
-      'abort',
-      () => {
-        retention.dispose();
-        cache.delete(cacheKey);
-      },
-      {once: true},
-    );
+  function updateCache(updater) {
+    let currentEntry = cache.get(cacheKey);
+    if (!currentEntry) {
+      currentEntry = makeInitialCacheEntry();
+      cache.set(cacheKey, currentEntry);
+    }
+    // $FlowExpectedError[prop-missing] Extra properties are passed in -- this is fine
+    const newStatus: {...} = updater(currentEntry);
+    // $FlowExpectedError[cannot-spread-inexact] Flow cannot understand that this is valid...
+    cache.set(cacheKey, {...currentEntry, ...newStatus});
+    // ... but we can because QueryCacheEntry spreads QueryCacheEntryStatus, so spreading
+    // a QueryCacheEntryStatus into a QueryCacheEntry will result in a valid QueryCacheEntry.
   }
 
+  // Initiate a query to fetch the data if needed:
+  if (RelayFeatureFlags.USE_REACT_CACHE_LEGACY_TIMEOUTS) {
+    let entry;
+    if (initialEntry === undefined) {
+      onCacheMiss(
+        environment,
+        queryOperationDescriptor,
+        fetchPolicy,
+        renderPolicy,
+        updateCache,
+        options?.fetchObservable,
+      );
+      const createdEntry = cache.get(cacheKey);
+      invariant(
+        createdEntry !== undefined,
+        'An entry should have been created by onCacheMiss. This is a bug in Relay.',
+      );
+      entry = createdEntry;
+    } else {
+      entry = initialEntry;
+    }
+    if (!entry.suspenseResource) {
+      entry.suspenseResource = new SuspenseResource(() => {
+        const retention = environment.retain(queryOperationDescriptor);
+        return {
+          dispose: () => {
+            retention.dispose();
+            cache.delete(cacheKey);
+          },
+        };
+      });
+    }
+    if (entry.onCommit === noopOnCommit) {
+      entry.onCommit = () => {
+        invariant(
+          entry.suspenseResource,
+          'SuspenseResource should have been initialized. This is a bug in Relay.',
+        );
+        const retention = entry.suspenseResource.permanentRetain(environment);
+        return () => {
+          retention.dispose();
+        };
+      };
+    }
+    entry.suspenseResource.temporaryRetain(environment);
+  } else {
+    if (initialEntry === undefined) {
+      // This is the behavior we eventually want: We retain the query until the
+      // presiding Cache component unmounts, at which point the AbortSignal
+      // will be triggered.
+      onCacheMiss(
+        environment,
+        queryOperationDescriptor,
+        fetchPolicy,
+        renderPolicy,
+        updateCache,
+        options?.fetchObservable,
+      );
+
+      // Since this is the first time rendering, retain the query. React will
+      // trigger the abort signal when this cache entry is no longer needed.
+      const retention = environment.retain(queryOperationDescriptor);
+
+      const dispose = () => {
+        retention.dispose();
+        cache.delete(cacheKey);
+      };
+      const abortSignal = getCacheSignal();
+      abortSignal.addEventListener('abort', dispose, {once: true});
+    }
+  }
+
+  const entry = cache.get(cacheKey); // could be a different entry now if synchronously resolved
+  invariant(
+    entry !== undefined,
+    'An entry should have been created by onCacheMiss. This is a bug in Relay.',
+  );
   switch (entry.status) {
     case 'pending':
       throw entry.promise;
     case 'rejected':
       throw entry.error;
     case 'resolved':
-      return entry.result;
+      return [entry.result, entry.onCommit];
   }
   invariant(false, 'switch statement should be exhaustive');
 }
@@ -146,9 +249,9 @@ function onCacheMiss(
   operation: OperationDescriptor,
   fetchPolicy: FetchPolicy,
   renderPolicy: RenderPolicy,
-  updateCache: QueryCacheEntry => void,
+  updateCache: ((QueryCacheEntryStatus) => QueryCacheEntryStatus) => void,
   customFetchObservable?: Observable<GraphQLResponse>,
-): QueryCacheEntry {
+): void {
   // NB: Besides checking if the data is available, calling `check` will write missing
   // data to the store using any missing data handlers specified in the environment.
   const queryAvailability = environment.check(operation);
@@ -183,42 +286,46 @@ function onCacheMiss(
     }
   }
 
-  let cacheEntry;
   if (shouldFetch) {
-    cacheEntry = executeOperationAndKeepUpToDate(
+    executeOperationAndKeepUpToDate(
       environment,
       operation,
       updateCache,
       customFetchObservable,
     );
-  }
-
-  if (cacheEntry) {
-    switch (cacheEntry.status) {
-      case 'resolved':
-        return cacheEntry;
-      case 'rejected':
-        return cacheEntry;
-      case 'pending':
-        return shouldRenderNow
-          ? {status: 'resolved', result: constructQueryResult(operation)}
-          : cacheEntry;
-    }
+    updateCache(existing => {
+      switch (existing.status) {
+        case 'resolved':
+          return existing;
+        case 'rejected':
+          return existing;
+        case 'pending':
+          return shouldRenderNow
+            ? {
+                status: 'resolved',
+                result: constructQueryResult(operation),
+              }
+            : existing;
+      }
+    });
   } else {
     invariant(
       shouldRenderNow,
       'Should either fetch or be willing to render. This is a bug in Relay.',
     );
-    return {status: 'resolved', result: constructQueryResult(operation)};
+    updateCache(_existing => ({
+      status: 'resolved',
+      result: constructQueryResult(operation),
+    }));
   }
 }
 
 function executeOperationAndKeepUpToDate(
   environment: IEnvironment,
   operation: OperationDescriptor,
-  updateCache: QueryCacheEntry => void,
+  updateCache: ((QueryCacheEntryStatus) => QueryCacheEntryStatus) => void,
   customFetchObservable?: Observable<GraphQLResponse>,
-): QueryCacheEntry {
+) {
   let resolvePromise;
   const promise = new Promise(r => {
     resolvePromise = r;
@@ -227,9 +334,6 @@ function executeOperationAndKeepUpToDate(
   promise.displayName = 'Relay(' + operation.request.node.operation.name + ')';
 
   let isFirstPayload = true;
-  let entry:
-    | {|error: Error, status: 'rejected'|}
-    | {|result: QueryResult, status: 'resolved'|};
 
   // FIXME We may still need to cancel network requests for live queries.
   const fetchObservable =
@@ -238,8 +342,10 @@ function executeOperationAndKeepUpToDate(
     start: subscription => {},
     error: error => {
       if (isFirstPayload) {
-        entry = {status: 'rejected', error};
-        updateCache(entry);
+        updateCache(_existing => ({
+          status: 'rejected',
+          error,
+        }));
       } else {
         // TODO:T92030819 Remove this warning and actually throw the network error
         // To complete this task we need to have a way of precisely tracking suspendable points
@@ -256,27 +362,21 @@ function executeOperationAndKeepUpToDate(
     },
     next: response => {
       // Stop suspending on the first payload because of streaming, defer, etc.
-      entry = {
+      updateCache(_existing => ({
         status: 'resolved',
         result: constructQueryResult(operation),
-      };
-      updateCache(entry);
-      resolvePromise();
-      isFirstPayload = false;
-    },
-    complete: () => {
-      // FIXME I don't think we need to do anything further on complete.
-      entry = {
-        status: 'resolved',
-        result: constructQueryResult(operation),
-      };
-      updateCache(entry);
+      }));
       resolvePromise();
       isFirstPayload = false;
     },
   });
 
-  return entry ?? {status: 'pending', promise};
+  // If the above subscription yields a value synchronously, then one of the updates
+  // above will have already happened and we'll now be in a resolved or rejected state.
+  // But in the usual case, we save the promise to the entry here:
+  updateCache(existing =>
+    existing.status === 'pending' ? {status: 'pending', promise} : existing,
+  );
 }
 
 module.exports = getQueryResultOrFetchQuery_REACT_CACHE;

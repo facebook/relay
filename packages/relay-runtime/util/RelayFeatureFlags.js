@@ -30,6 +30,7 @@ export type FeatureFlags = {|
   MAX_DATA_ID_LENGTH: ?number,
   STRING_INTERN_LEVEL: number,
   USE_REACT_CACHE: boolean,
+  USE_REACT_CACHE_LEGACY_TIMEOUTS: boolean,
 |};
 
 const RelayFeatureFlags: FeatureFlags = {
@@ -48,6 +49,7 @@ const RelayFeatureFlags: FeatureFlags = {
   MAX_DATA_ID_LENGTH: null,
   STRING_INTERN_LEVEL: 0,
   USE_REACT_CACHE: false,
+  USE_REACT_CACHE_LEGACY_TIMEOUTS: true,
 };
 
 module.exports = RelayFeatureFlags;

@@ -186,7 +186,7 @@ Now that we have a schema we can modify `package.json` to run the compiler first
     ...
     "start": "yarn run relay && react-scripts start",
     "build": "yarn run relay && react-scripts build",
-    "relay": "yarn run relay-compiler $@"
+    "relay": "yarn run relay-compiler"
     ...
   },
   "relay": {

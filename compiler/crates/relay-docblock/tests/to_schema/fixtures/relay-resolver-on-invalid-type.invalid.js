@@ -21,7 +21,7 @@
  */
 
 graphql`
-  fragment myRootFragment on User {
+  fragment myRootFragment on Loser {
     id
   }
 `

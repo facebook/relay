@@ -163,6 +163,14 @@ pub enum ValidationMessage {
         "Missing required argument `as`. The `as` argument of the @alias directive is required on inline fragments without a type condition."
     )]
     FragmentAliasDirectiveMissingAs,
+
+    #[error(
+        "Unexpected dynamic argument. {field_name}'s '{argument_name}' argument must be a constant value because it is read by the Relay compiler."
+    )]
+    InvalidStaticArgument {
+        field_name: StringKey,
+        argument_name: StringKey,
+    },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

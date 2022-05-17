@@ -361,6 +361,15 @@ pub enum Value {
     Object(Vec<Argument>),
 }
 impl Value {
+    /// If the value is a constant, return the value, otherwise None.
+    pub fn get_constant(&self) -> Option<&ConstantValue> {
+        if let Value::Constant(val) = self {
+            Some(val)
+        } else {
+            None
+        }
+    }
+
     /// If the value is a constant string literal, return the value, otherwise None.
     pub fn get_string_literal(&self) -> Option<StringKey> {
         if let Value::Constant(ConstantValue::String(val)) = self {
@@ -368,6 +377,14 @@ impl Value {
         } else {
             None
         }
+    }
+
+    /// Return the constant of this value.
+    /// Panics if the value is not a constant.
+    pub fn expect_constant(&self) -> &ConstantValue {
+        self.get_constant().unwrap_or_else(|| {
+            panic!("expected a constant, got {:?}", self);
+        })
     }
 
     /// Return the constant string literal of this value.
@@ -394,6 +411,17 @@ pub struct ConstantArgument {
 impl Named for ConstantArgument {
     fn name(&self) -> StringKey {
         self.name.item
+    }
+}
+
+macro_rules! generate_unwrap_fn {
+    ($fn_name:ident,$self:ident,$t:ty,$cv:pat => $result:expr) => {
+        pub fn $fn_name(&$self) -> $t {
+            match $self {
+                $cv => $result,
+                other => panic!("expected constant {} but got {:#?}", stringify!($cv), other),
+            }
+        }
     }
 }
 
@@ -424,6 +452,14 @@ impl ConstantValue {
             _ => None,
         }
     }
+
+    generate_unwrap_fn!(unwrap_int, self, i64, ConstantValue::Int(i) => *i);
+    generate_unwrap_fn!(unwrap_float, self, FloatValue, ConstantValue::Float(f) => *f);
+    generate_unwrap_fn!(unwrap_boolean, self, bool, ConstantValue::Boolean(b) => *b);
+    generate_unwrap_fn!(unwrap_string, self, StringKey, ConstantValue::String(s) => *s);
+    generate_unwrap_fn!(unwrap_enum, self, StringKey, ConstantValue::Enum(e) => *e);
+    generate_unwrap_fn!(unwrap_list, self, &Vec<ConstantValue>, ConstantValue::List(l) => l);
+    generate_unwrap_fn!(unwrap_object, self, &Vec<ConstantArgument>, ConstantValue::Object(o) => o);
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

@@ -6,6 +6,7 @@
  */
 
 import { spawn } from 'child_process';
+import { window } from 'vscode';
 import { RelayExtensionContext } from './context';
 import { getConfig } from './config';
 
@@ -38,4 +39,30 @@ export function createAndStartCompiler(context: RelayExtensionContext) {
   });
 
   context.compilerProcess = process;
+}
+
+type DidNotError = boolean;
+
+export function killCompiler(context: RelayExtensionContext): DidNotError {
+  if (!context.compilerProcess) {
+    return true;
+  }
+
+  const killedCompilerSuccessfully = context.compilerProcess.kill();
+
+  if (!killedCompilerSuccessfully) {
+    window.showErrorMessage(
+      'An error occurred while trying to stop the Relay Compiler. Try restarting VSCode.',
+    );
+
+    return false;
+  }
+
+  context.primaryOutputChannel.appendLine(
+    'Successfully stopped existing relay compiler',
+  );
+
+  context.compilerProcess = null;
+
+  return true;
 }

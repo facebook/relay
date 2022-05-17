@@ -27,6 +27,14 @@
       {
         "command": "relay.restart",
         "title": "Relay: Restart"
+      },
+      {
+        "command": "relay.startCompiler",
+        "title": "Relay: Start Compiler"
+      },
+      {
+        "command": "relay.stopCompiler",
+        "title": "Relay: Stop Compiler"
       }
     ],
     "configuration": {

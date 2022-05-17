@@ -5,44 +5,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { window } from 'vscode';
+import { createAndStartCompiler, killCompiler } from '../compiler';
+import { getConfig } from '../config';
 import { RelayExtensionContext } from '../context';
-import { createAndStartLanguageClient } from '../languageClient';
+import {
+  createAndStartLanguageClient,
+  killLanguageClient,
+} from '../languageClient';
 
 export function handleRestartLanguageServerCommand(
   context: RelayExtensionContext,
 ): void {
-  if (!context.client) {
-    return;
+  const config = getConfig();
+
+  // Was the relay compiler running? Should we auto start it based on their config?
+  const shouldRestartCompiler =
+    Boolean(context.compilerProcess) || config.autoStartCompiler;
+
+  const compilerKilledSuccessfully = killCompiler(context);
+
+  if (compilerKilledSuccessfully && shouldRestartCompiler) {
+    createAndStartCompiler(context);
   }
 
-  if (context.compilerProcess) {
-    const killedCompilerSuccessfully = context.compilerProcess.kill();
-
-    if (!killedCompilerSuccessfully) {
-      window.showErrorMessage(
-        'An error occurred while trying to stop the Relay Compiler. Try restarting VSCode.',
-      );
-
-      return;
-    }
-  }
-
-  context.client
-    .stop()
-    .then(() => {
-      context.primaryOutputChannel.appendLine(
-        'Successfully stopped existing relay lsp client',
-      );
-
-      context.client = null;
-      context.compilerProcess = null;
-
+  killLanguageClient(context).then((languageClientKilledSuccessfully) => {
+    if (languageClientKilledSuccessfully) {
       createAndStartLanguageClient(context);
-    })
-    .catch(() => {
-      window.showErrorMessage(
-        'An error occurred while trying to stop the Relay LSP Client. Try restarting VSCode.',
-      );
-    });
+    }
+  });
 }

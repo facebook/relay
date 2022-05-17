@@ -10,6 +10,7 @@ import {
   RevealOutputChannelOn,
 } from 'vscode-languageclient';
 import { ServerOptions, LanguageClient } from 'vscode-languageclient/node';
+import { window } from 'vscode';
 import { RelayExtensionContext } from './context';
 import { createErrorHandler } from './errorHandler';
 import { LSPStatusBarFeature } from './lspStatusBarFeature';
@@ -84,4 +85,33 @@ export function createAndStartLanguageClient(context: RelayExtensionContext) {
   // Start the client. This will also launch the server
   client.start();
   context.client = client;
+}
+
+type DidNotError = boolean;
+
+export async function killLanguageClient(
+  context: RelayExtensionContext,
+): Promise<DidNotError> {
+  if (!context.client) {
+    return true;
+  }
+
+  return context.client
+    .stop()
+    .then(() => {
+      context.primaryOutputChannel.appendLine(
+        'Successfully stopped existing relay lsp client',
+      );
+
+      context.client = null;
+
+      return true;
+    })
+    .catch(() => {
+      window.showErrorMessage(
+        'An error occurred while trying to stop the Relay LSP Client. Try restarting VSCode.',
+      );
+
+      return false;
+    });
 }

@@ -358,7 +358,7 @@ test('`Pagination` Container', () => {
   // are fully updated to their final state.
   ReactTestRenderer.act(() => {
     environment.mock.resolveMostRecentOperation(operation =>
-      MockPayloadGenerator.`generate`(operation, {
+      MockPayloadGenerator.generate(operation, {
         ID(_, generateId) {
           // See, the second page IDs will be different
           return `second-page-id-${generateId()}`;

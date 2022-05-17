@@ -19,7 +19,7 @@ export function handleRestartLanguageServerCommand(
   context.client
     .stop()
     .then(() => {
-      context.outputChannel.appendLine(
+      context.primaryOutputChannel.appendLine(
         'Successfully stopped existing relay lsp client',
       );
 

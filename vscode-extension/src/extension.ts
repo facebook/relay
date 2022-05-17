@@ -15,17 +15,22 @@ import { createStatusBarItem, intializeStatusBarItem } from './statusBarItem';
 let relayExtensionContext: RelayExtensionContext | undefined;
 
 export async function activate(extensionContext: ExtensionContext) {
-  const outputChannel = window.createOutputChannel('Relay Language Server');
+  const primaryOutputChannel = window.createOutputChannel('Relay');
+
+  const lspOutputChannel = window.createOutputChannel('Relay LSP Logs');
+
   const statusBar = createStatusBarItem();
 
   relayExtensionContext = {
     statusBar,
     client: null,
-    outputChannel,
     extensionContext,
+    lspOutputChannel,
+    primaryOutputChannel,
+    compilerProcess: null,
   };
 
-  extensionContext.subscriptions.push(outputChannel);
+  extensionContext.subscriptions.push(primaryOutputChannel);
   extensionContext.subscriptions.push(statusBar);
 
   intializeStatusBarItem(relayExtensionContext);
@@ -34,7 +39,7 @@ export async function activate(extensionContext: ExtensionContext) {
 }
 
 export function deactivate(): Thenable<void> | undefined {
-  relayExtensionContext?.outputChannel.dispose();
+  relayExtensionContext?.primaryOutputChannel.dispose();
 
   return relayExtensionContext?.client?.stop();
 }

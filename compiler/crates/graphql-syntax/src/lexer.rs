@@ -507,4 +507,13 @@ mod tests {
         // Unterminated string just consumes the starting quotes
         assert_eq!(lexer.slice(), r#"""""#);
     }
+
+    #[test]
+    fn test_bom_lexing() {
+        let input = "\u{feff}";
+
+        let mut lexer = TokenKind::lexer(input);
+
+        assert_eq!(lexer.next(), None);
+    }
 }

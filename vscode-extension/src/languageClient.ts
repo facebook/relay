@@ -95,13 +95,13 @@ export async function createAndStartClient(context: RelayExtensionContext) {
 
   startLspClient({ rootPath, relayBinary, context });
 
-  if (config.startCompiler) {
+  if (config.autoStartCompiler) {
     startCompiler({ rootPath, relayBinary, context });
   } else {
     context.primaryOutputChannel.appendLine(
       [
         'Not starting the Relay Compiler.',
-        'Please enable relay.startCompiler in your settings if you want the compiler to start when you open your project.',
+        'Please enable relay.autoStartCompiler in your settings if you want the compiler to start when you open your project.',
       ].join(' '),
     );
   }

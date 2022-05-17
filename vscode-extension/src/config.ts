@@ -13,7 +13,7 @@ export type Config = {
   pathToConfig: string | null;
   lspOutputLevel: string;
   compilerOutpuLevel: string;
-  startCompiler: boolean;
+  autoStartCompiler: boolean;
 };
 
 export function getConfig(scope?: ConfigurationScope): Config {
@@ -25,6 +25,6 @@ export function getConfig(scope?: ConfigurationScope): Config {
     lspOutputLevel: configuration.get('lspOutputLevel') ?? 'quiet-with-errros',
     compilerOutpuLevel: configuration.get('compilerOutputLevel') ?? 'info',
     rootDirectory: configuration.get('rootDirectory') ?? null,
-    startCompiler: configuration.get('startCompiler') ?? false,
+    autoStartCompiler: configuration.get('autoStartCompiler') ?? false,
   };
 }

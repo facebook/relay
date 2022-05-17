@@ -22,10 +22,14 @@ import { LanguageClient } from 'vscode-languageclient/node';
 // as it's persisted to disk.
 // https://code.visualstudio.com/api/extension-capabilities/common-capabilities#data-storage
 export type RelayExtensionContext = {
+  statusBar: StatusBarItem;
   client: LanguageClient | null;
-  primaryOutputChannel: OutputChannel;
   lspOutputChannel: OutputChannel;
   extensionContext: ExtensionContext;
-  statusBar: StatusBarItem;
+  primaryOutputChannel: OutputChannel;
   compilerProcess: ChildProcess | null;
+  relayBinaryExecutionOptions: {
+    rootPath: string;
+    binaryPath: string;
+  };
 };

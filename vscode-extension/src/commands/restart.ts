@@ -7,7 +7,7 @@
 
 import { window } from 'vscode';
 import { RelayExtensionContext } from '../context';
-import { createAndStartClient } from '../languageClient';
+import { createAndStartLanguageClient } from '../languageClient';
 
 export function handleRestartLanguageServerCommand(
   context: RelayExtensionContext,
@@ -38,7 +38,7 @@ export function handleRestartLanguageServerCommand(
       context.client = null;
       context.compilerProcess = null;
 
-      createAndStartClient(context);
+      createAndStartLanguageClient(context);
     })
     .catch(() => {
       window.showErrorMessage(

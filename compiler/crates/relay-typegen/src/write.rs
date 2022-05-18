@@ -11,6 +11,7 @@ use ::intern::{
 };
 use common::NamedItem;
 use graphql_ir::{FragmentDefinition, OperationDefinition, ProvidedVariableMetadata, Selection};
+use indexmap::IndexMap;
 use itertools::Itertools;
 use relay_config::{JsModuleFormat, TypegenLanguage};
 use relay_transforms::{
@@ -128,12 +129,25 @@ pub(crate) fn write_operation_type_exports_section(
     write_relay_resolver_imports(imported_resolvers, writer)?;
     write_split_raw_response_type_imports(typgen_context, imported_raw_response_types, writer)?;
 
-    let (input_variables_type, input_object_types) = get_input_variables_type(
+    let mut input_object_types = IndexMap::default();
+    let provided_variables_object = generate_provided_variables_type(
         typgen_context,
-        typegen_operation,
+        normalization_operation,
+        &mut input_object_types,
         &mut encountered_enums,
         &mut custom_scalars,
     );
+
+    let input_variables_type = get_input_variables_type(
+        typgen_context,
+        typegen_operation,
+        &mut input_object_types,
+        &mut encountered_enums,
+        &mut custom_scalars,
+    );
+    let input_object_types = input_object_types
+        .into_iter()
+        .map(|(key, val)| (key, val.unwrap_resolved_type()));
 
     write_enum_definitions(typgen_context, encountered_enums, writer)?;
     write_custom_scalar_imports(custom_scalars, writer)?;
@@ -163,21 +177,10 @@ pub(crate) fn write_operation_type_exports_section(
         &query_wrapper_type.into(),
     )?;
 
-    // Note: this is a "bug", though in practice probably affects nothing.
-    // We pass an unused InputObjectTypes, which is mutated by some of the nested calls.
-    // However, we never end up using this. Pre-cleanup:
-    // - generated_input_object_types was used in write_input_object_types (above)
-    // - generate_provided_variables_type would nonetheless mutate this field
-    //
-    // Likewise, there is the same bug with encountered_enums
-    generate_provided_variables_type(
-        typgen_context,
-        normalization_operation,
-        &mut Default::default(),
-        &mut Default::default(),
-        &mut Default::default(),
-        writer,
-    )?;
+    if let Some(provided_variables) = provided_variables_object {
+        writer.write_local_type(PROVIDED_VARIABLE_TYPE, &provided_variables)?;
+    }
+
     Ok(())
 }
 
@@ -537,8 +540,7 @@ fn generate_provided_variables_type(
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
-    writer: &mut Box<dyn Writer>,
-) -> FmtResult {
+) -> Option<AST> {
     let fields = node
         .variable_definitions
         .iter()
@@ -568,12 +570,10 @@ fn generate_provided_variables_type(
         })
         .collect_vec();
     if !fields.is_empty() {
-        writer.write_local_type(
-            PROVIDED_VARIABLE_TYPE,
-            &AST::ExactObject(ExactObject::new(fields)),
-        )?;
+        Some(AST::ExactObject(ExactObject::new(fields)))
+    } else {
+        None
     }
-    Ok(())
 }
 
 fn write_input_object_types(

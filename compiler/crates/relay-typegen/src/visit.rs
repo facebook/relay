@@ -1396,36 +1396,31 @@ pub(crate) fn transform_input_type(
     }
 }
 
-pub(crate) fn get_input_variables_type(
-    typgen_context: &'_ TypegenContext<'_>,
+pub(crate) fn get_input_variables_type<'a>(
+    typgen_context: &'a TypegenContext<'_>,
     node: &OperationDefinition,
-    encountered_enums: &mut EncounteredEnums,
-    custom_scalars: &mut CustomScalarsImports,
-) -> (ExactObject, impl Iterator<Item = (StringKey, ExactObject)>) {
-    let mut input_object_types = IndexMap::new();
-    (
-        ExactObject::new(
-            node.variable_definitions
-                .iter()
-                .map(|var_def| {
-                    Prop::KeyValuePair(KeyValuePairProp {
-                        key: var_def.name.item,
-                        read_only: false,
-                        optional: !var_def.type_.is_non_null(),
-                        value: transform_input_type(
-                            typgen_context,
-                            &var_def.type_,
-                            &mut input_object_types,
-                            encountered_enums,
-                            custom_scalars,
-                        ),
-                    })
+    input_object_types: &'a mut InputObjectTypes,
+    encountered_enums: &'a mut EncounteredEnums,
+    custom_scalars: &'a mut CustomScalarsImports,
+) -> ExactObject {
+    ExactObject::new(
+        node.variable_definitions
+            .iter()
+            .map(|var_def| {
+                Prop::KeyValuePair(KeyValuePairProp {
+                    key: var_def.name.item,
+                    read_only: false,
+                    optional: !var_def.type_.is_non_null(),
+                    value: transform_input_type(
+                        typgen_context,
+                        &var_def.type_,
+                        input_object_types,
+                        encountered_enums,
+                        custom_scalars,
+                    ),
                 })
-                .collect(),
-        ),
-        input_object_types
-            .into_iter()
-            .map(|(key, val)| (key, val.unwrap_resolved_type())),
+            })
+            .collect(),
     )
 }
 

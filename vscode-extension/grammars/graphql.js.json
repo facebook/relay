@@ -1,17 +1,5 @@
 {
-  "fileTypes": [
-    "js",
-    "jsx",
-    "mjs",
-    "cjs",
-    "es6",
-    "es",
-    "esm",
-    "ts",
-    "tsx",
-    "vue",
-    "svelte"
-  ],
+  "fileTypes": ["js", "jsx", "mjs", "cjs", "es6", "es", "esm", "ts", "tsx"],
   "injectionSelector": "L:source -string -comment",
   "patterns": [
     {

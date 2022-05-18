@@ -20,7 +20,7 @@ export function handleRestartLanguageServerCommand(
 
   // Was the relay compiler running? Should we auto start it based on their config?
   const shouldRestartCompiler =
-    Boolean(context.compilerProcess) || config.autoStartCompiler;
+    Boolean(context.compilerTerminal) || config.autoStartCompiler;
 
   const compilerKilledSuccessfully = killCompiler(context);
 

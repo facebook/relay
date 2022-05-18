@@ -12,7 +12,7 @@ import { createAndStartCompiler } from '../compiler';
 export function handleStartCompilerCommand(
   context: RelayExtensionContext,
 ): void {
-  if (context.compilerProcess) {
+  if (context.compilerTerminal) {
     window.showWarningMessage(
       'Relay Compiler already running. Restart it with relay.restart',
     );

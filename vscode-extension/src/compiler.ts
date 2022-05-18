@@ -5,12 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { spawn } from 'child_process';
 import { window } from 'vscode';
 import { RelayExtensionContext } from './context';
 import { getConfig } from './config';
 
 export function createAndStartCompiler(context: RelayExtensionContext) {
+  if (context.compilerTerminal) {
+    return;
+  }
+
   const config = getConfig();
 
   const args: string[] = ['--watch', `--output=${config.compilerOutpuLevel}`];
@@ -19,50 +22,36 @@ export function createAndStartCompiler(context: RelayExtensionContext) {
     args.push(config.pathToConfig);
   }
 
-  context.primaryOutputChannel.appendLine(
-    [
-      'Starting the Relay Compiler with the following command:',
-      `${context.relayBinaryExecutionOptions.binaryPath} ${args.join(' ')}`,
-    ].join(' '),
-  );
-
-  const process = spawn(context.relayBinaryExecutionOptions.binaryPath, args, {
+  const terminal = window.createTerminal({
+    name: 'Relay Compiler',
     cwd: context.relayBinaryExecutionOptions.rootPath,
   });
 
-  process.stdout.on('data', (data) => {
-    context.primaryOutputChannel.append(`${data}`);
-  });
+  terminal.sendText(
+    `${context.relayBinaryExecutionOptions.binaryPath} ${args.join(' ')}`,
+  );
 
-  process.stderr.on('data', (data) => {
-    context.primaryOutputChannel.append(`${data}`);
-  });
+  terminal.show();
 
-  context.compilerProcess = process;
+  context.extensionContext.subscriptions.push(terminal);
+
+  context.compilerTerminal = terminal;
 }
 
 type DidNotError = boolean;
 
 export function killCompiler(context: RelayExtensionContext): DidNotError {
-  if (!context.compilerProcess) {
+  if (!context.compilerTerminal) {
     return true;
   }
 
-  const killedCompilerSuccessfully = context.compilerProcess.kill();
-
-  if (!killedCompilerSuccessfully) {
-    window.showErrorMessage(
-      'An error occurred while trying to stop the Relay Compiler. Try restarting VSCode.',
-    );
-
-    return false;
-  }
+  context.compilerTerminal.dispose();
 
   context.primaryOutputChannel.appendLine(
     'Successfully stopped existing relay compiler',
   );
 
-  context.compilerProcess = null;
+  context.compilerTerminal = null;
 
   return true;
 }

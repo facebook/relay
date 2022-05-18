@@ -45,7 +45,7 @@ async function buildRelayExtensionContext(
       extensionContext,
       lspOutputChannel,
       primaryOutputChannel,
-      compilerProcess: null,
+      compilerTerminal: null,
       relayBinaryExecutionOptions: {
         rootPath,
         binaryPath,

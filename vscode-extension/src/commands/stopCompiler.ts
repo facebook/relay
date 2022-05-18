@@ -12,7 +12,7 @@ import { killCompiler } from '../compiler';
 export function handleStopCompilerCommand(
   context: RelayExtensionContext,
 ): void {
-  if (!context.compilerProcess) {
+  if (!context.compilerTerminal) {
     window.showWarningMessage('Relay Compiler not running.');
 
     return;

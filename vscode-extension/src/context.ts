@@ -5,8 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ChildProcess } from 'child_process';
-import { ExtensionContext, OutputChannel, StatusBarItem } from 'vscode';
+import {
+  ExtensionContext,
+  OutputChannel,
+  StatusBarItem,
+  Terminal,
+} from 'vscode';
 import { LanguageClient } from 'vscode-languageclient/node';
 
 // Mutable object to pass around to command handlers so they
@@ -27,7 +31,7 @@ export type RelayExtensionContext = {
   lspOutputChannel: OutputChannel;
   extensionContext: ExtensionContext;
   primaryOutputChannel: OutputChannel;
-  compilerProcess: ChildProcess | null;
+  compilerTerminal: Terminal | null;
   relayBinaryExecutionOptions: {
     rootPath: string;
     binaryPath: string;

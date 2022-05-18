@@ -69,7 +69,9 @@ const response = {
 let dataSource;
 let environment;
 let fetch;
-let entryPoint;
+let entryPoint: React.ElementProps<
+  typeof LazyLoadEntryPointContainer_DEPRECATED,
+>['entryPoint'];
 let params;
 
 class FakeJSResource<T> {

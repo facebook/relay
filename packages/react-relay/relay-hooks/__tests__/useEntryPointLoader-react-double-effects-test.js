@@ -66,8 +66,8 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
   let QueryComponent;
   let LoaderComponent;
   let MockJSResourceReference;
-  let queryRenderLogs;
-  let loaderRenderLogs: Array<any | string>;
+  let queryRenderLogs: Array<string>;
+  let loaderRenderLogs: Array<string>;
 
   beforeEach(() => {
     jest.mock('ReactFeatureFlags', () => {

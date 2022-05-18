@@ -12,6 +12,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {LogEvent} from '../../../relay-runtime/store/RelayStoreTypes';
 import type {
   useLazyLoadQueryNodeTest1Query$data,
   useLazyLoadQueryNodeTest1Query$variables,
@@ -101,7 +102,7 @@ describe('useLazyLoadQueryNode', () => {
   let variables;
   let Container;
   let setProps;
-  let logs;
+  let logs: Array<LogEvent>;
   let errorBoundaryDidCatchFn;
 
   beforeEach(() => {

@@ -37,9 +37,9 @@ Search for "Relay for VSCode" in the VS Code extensions panel or install through
 
 - IntelliSense
 - Hover type information
-- GraphQL syntax highlighting
 - Diagnostics (Errors, Warnings)
 - Go to Definition for fragments, fields, GraphQL types, etc.
+- GraphQL syntax highlighting within .graphql and JavaScript/TypeScript files.
 
 ## Commands
 
@@ -64,3 +64,7 @@ If you open the nested directory as the root workspace in VSCode, the extension 
 ### VSCode Workspaces
 
 We do not support running multiple instances of the LSP at once. We currently use the deprecated `rootPath` property from the VSCode API. This means we will start the Relay Compiler at the directory which your VSCode project is opened. **Once we fix this, we will be able to support multiple Relay configs.**
+
+## Credits
+
+- [`vscode-graphql`](https://github.com/graphql/graphiql/tree/main/packages/vscode-graphql). All of the grammars for syntax highlighting were taken directly from vscode-graphql.

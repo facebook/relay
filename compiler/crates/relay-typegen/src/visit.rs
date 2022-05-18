@@ -15,6 +15,7 @@ use graphql_ir::{
     ScalarField, Selection,
 };
 use indexmap::{map::Entry, IndexMap, IndexSet};
+use relay_config::{CustomScalarType, CustomScalarTypeImport};
 use relay_transforms::{
     FragmentAliasMetadata, ModuleMetadata, RelayResolverSpreadMetadata, RequiredMetadataDirective,
     TypeConditionInfo, ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, CHILDREN_CAN_BUBBLE_METADATA_KEY,
@@ -1117,13 +1118,17 @@ fn transform_non_nullable_scalar_type(
 
 fn transform_graphql_scalar_type(typgen_context: &'_ TypegenContext<'_>, scalar: ScalarID) -> AST {
     let scalar_name = typgen_context.schema.scalar(scalar).name;
-    if let Some(&custom_scalar) = typgen_context
+    if let Some(custom_scalar) = typgen_context
         .project_config
         .typegen_config
         .custom_scalar_types
         .get(&scalar_name.item)
     {
-        AST::RawType(custom_scalar)
+        match custom_scalar {
+            CustomScalarType::Name(custom_scalar) => AST::RawType(*custom_scalar),
+            // TODO: Implement import the type from the `path`
+            CustomScalarType::Path(CustomScalarTypeImport { name, .. }) => AST::RawType(*name),
+        }
     } else if scalar_name.item == *TYPE_ID || scalar_name.item == *TYPE_STRING {
         AST::String
     } else if scalar_name.item == *TYPE_FLOAT || scalar_name.item == *TYPE_INT {

@@ -9,6 +9,7 @@ use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use serde::{Deserialize, Serialize};
+use std::path::PathBuf;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
@@ -46,6 +47,20 @@ impl TypegenLanguage {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
+pub enum CustomScalarType {
+    Name(StringKey),
+    Path(CustomScalarTypeImport),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+
+pub struct CustomScalarTypeImport {
+    pub name: StringKey,
+    pub path: PathBuf,
+}
+
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
@@ -74,8 +89,9 @@ pub struct TypegenConfig {
 
     /// A map from GraphQL scalar types to a custom JS type, example:
     /// { "Url": "String" }
+    /// { "Url": ["MyURL", "../src/MyUrlTypes"]}
     #[serde(default)]
-    pub custom_scalar_types: FnvIndexMap<StringKey, StringKey>,
+    pub custom_scalar_types: FnvIndexMap<StringKey, CustomScalarType>,
 
     /// Require all GraphQL scalar types mapping to be defined, will throw
     /// if a GraphQL scalar type doesn't have a JS type

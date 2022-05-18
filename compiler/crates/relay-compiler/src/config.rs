@@ -26,7 +26,8 @@ use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_config::{
-    FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig, TypegenLanguage,
+    CustomScalarType, FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig,
+    TypegenLanguage,
 };
 pub use relay_config::{
     LocalPersistConfig, PersistConfig, ProjectConfig, RemotePersistConfig, SchemaLocation,
@@ -647,7 +648,7 @@ pub struct SingleProjectConfigFile {
 
     /// Mappings from custom scalars in your schema to built-in GraphQL
     /// types, for type emission purposes.
-    pub custom_scalars: FnvIndexMap<StringKey, StringKey>,
+    pub custom_scalars: FnvIndexMap<StringKey, CustomScalarType>,
 
     /// This option enables emitting es modules artifacts.
     pub eager_es_modules: bool,

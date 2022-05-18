@@ -55,7 +55,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let mut custom_scalar_types = FnvIndexMap::default();
-    custom_scalar_types.insert("Boolean".intern(), "CustomBoolean".intern());
+    custom_scalar_types.insert(
+        "Boolean".intern(),
+        relay_config::CustomScalarType::Name("CustomBoolean".intern()),
+    );
     let project_config = ProjectConfig {
         name: "test".intern(),
         js_module_format: JsModuleFormat::Haste,

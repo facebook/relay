@@ -1,0 +1,11 @@
+query Viewer($params: JSON) {
+  viewer {
+    actor {
+      ... on User {
+        profilePicture2(additionalParameters: $params) {
+          __typename
+        }
+      }
+    }
+  }
+}

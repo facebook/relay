@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6a46e36a943abaa5018fa6db41b84ece>>
+ * @generated SignedSource<<8016ead984291e475d996180d1bd044f>>
  */
 
 mod generate_flow;
@@ -80,6 +80,13 @@ fn conditional() {
     let input = include_str!("generate_flow/fixtures/conditional.graphql");
     let expected = include_str!("generate_flow/fixtures/conditional.expected");
     test_fixture(transform_fixture, "conditional.graphql", "generate_flow/fixtures/conditional.expected", input, expected);
+}
+
+#[test]
+fn custom_scalar_type_import() {
+    let input = include_str!("generate_flow/fixtures/custom-scalar-type-import.graphql");
+    let expected = include_str!("generate_flow/fixtures/custom-scalar-type-import.expected");
+    test_fixture(transform_fixture, "custom-scalar-type-import.graphql", "generate_flow/fixtures/custom-scalar-type-import.expected", input, expected);
 }
 
 #[test]

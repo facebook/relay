@@ -89,7 +89,7 @@ pub struct TypegenConfig {
 
     /// A map from GraphQL scalar types to a custom JS type, example:
     /// { "Url": "String" }
-    /// { "Url": ["MyURL", "../src/MyUrlTypes"]}
+    /// { "Url": {"name:: "MyURL", "path": "../src/MyUrlTypes"} }
     #[serde(default)]
     pub custom_scalar_types: FnvIndexMap<StringKey, CustomScalarType>,
 

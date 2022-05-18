@@ -7,16 +7,19 @@
 
 use common::{ConsoleLogger, FeatureFlag, FeatureFlags, SourceLocationKey};
 use fixture_tests::Fixture;
-use fnv::FnvHashMap;
+use fnv::{FnvBuildHasher, FnvHashMap};
 use graphql_ir::{build, Program};
 use graphql_syntax::parse_executable;
+use indexmap::IndexMap;
 use intern::string_key::Intern;
 use relay_codegen::JsModuleFormat;
-use relay_config::ProjectConfig;
+use relay_config::{CustomScalarType, CustomScalarTypeImport, ProjectConfig};
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::apply_transforms;
 use relay_typegen::{self, TypegenConfig, TypegenLanguage};
 use std::sync::Arc;
+
+type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts = fixture.content.split("%extensions%").collect::<Vec<_>>();
@@ -37,11 +40,20 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         panic!("Encountered error building IR {:?}", e);
     });
     let program = Program::from_definitions(Arc::clone(&schema), ir);
+    let mut custom_scalar_types = FnvIndexMap::default();
+    custom_scalar_types.insert(
+        "JSON".intern(),
+        CustomScalarType::Path(CustomScalarTypeImport {
+            name: "JSON".intern(),
+            path: "TypeDefsFile".into(),
+        }),
+    );
     let project_config = ProjectConfig {
         name: "test".intern(),
         js_module_format: JsModuleFormat::Haste,
         typegen_config: TypegenConfig {
             language: TypegenLanguage::TypeScript,
+            custom_scalar_types,
             ..Default::default()
         },
         feature_flags: Arc::new(FeatureFlags {

@@ -20,7 +20,7 @@ pub struct TokenKindExtras {
 #[derive(Logos, Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[logos(extras = TokenKindExtras)]
 pub enum TokenKind {
-    #[regex(r"[ \t\r\n\f,]+|#[^\n\r]*", logos::skip)]
+    #[regex(r"[ \t\r\n\f,\ufeff]+|#[^\n\r]*", logos::skip)]
     #[error]
     Error,
 
@@ -506,5 +506,14 @@ mod tests {
         );
         // Unterminated string just consumes the starting quotes
         assert_eq!(lexer.slice(), r#"""""#);
+    }
+
+    #[test]
+    fn test_bom_lexing() {
+        let input = "\u{feff}";
+
+        let mut lexer = TokenKind::lexer(input);
+
+        assert_eq!(lexer.next(), None);
     }
 }

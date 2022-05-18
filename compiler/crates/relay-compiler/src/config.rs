@@ -210,7 +210,8 @@ You can also pass the path to the configuration file as `relay-compiler ./path-t
 Example file:
 {{
   "src": "./src",
-  "schema": "./path-to/schema.graphql"
+  "schema": "./path-to/schema.graphql",
+  "language": "javascript"
 }}
 "#,
                     match loaders_sources.len() {

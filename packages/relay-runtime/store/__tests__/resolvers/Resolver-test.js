@@ -98,3 +98,13 @@ describe('Relay Resolver', () => {
     expect(data.me.name).toEqual(undefined); // Fields needed by resolver's fragment don't end up in the result
   });
 });
+
+graphql`
+  query ResolverTest3Query {
+    me {
+      client_edge @waterfall {
+        __typename
+      }
+    }
+  }
+`;

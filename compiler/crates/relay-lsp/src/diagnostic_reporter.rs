@@ -7,8 +7,7 @@
 
 //! Utilities for reporting errors to an LSP client
 use crate::lsp_process_error::LSPProcessResult;
-use crate::server::convert_diagnostic;
-use common::{Diagnostic as CompilerDiagnostic, Location};
+use common::{convert_diagnostic, Diagnostic as CompilerDiagnostic, Location};
 use crossbeam::channel::Sender;
 use dashmap::{mapref::entry::Entry, DashMap};
 use lsp_server::{Message, Notification as ServerNotification};
@@ -20,7 +19,6 @@ use relay_compiler::{
     errors::{BuildProjectError, Error},
     source_for_location, FsSourceReader, SourceReader,
 };
-use serde_json::Value;
 use std::path::PathBuf;
 
 /// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
@@ -245,20 +243,6 @@ impl DiagnosticReporter {
 fn is_sub_range(inner: Range, outer: Range) -> bool {
     (outer.start.character <= inner.start.character && outer.start.line <= inner.start.line)
         && (outer.end.character >= inner.end.character && outer.end.line >= inner.end.line)
-}
-
-pub fn get_diagnostics_data(diagnostic: &CompilerDiagnostic) -> Option<Value> {
-    let diagnostic_data = diagnostic.get_data();
-    if !diagnostic_data.is_empty() {
-        Some(Value::Array(
-            diagnostic_data
-                .iter()
-                .map(|item| Value::String(item.to_string()))
-                .collect(),
-        ))
-    } else {
-        None
-    }
 }
 
 /// Publish diagnostics to the client

@@ -5,7 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ExtensionContext, OutputChannel, StatusBarItem } from 'vscode';
+import {
+  ExtensionContext,
+  OutputChannel,
+  StatusBarItem,
+  Terminal,
+} from 'vscode';
 import { LanguageClient } from 'vscode-languageclient/node';
 
 // Mutable object to pass around to command handlers so they
@@ -21,8 +26,14 @@ import { LanguageClient } from 'vscode-languageclient/node';
 // as it's persisted to disk.
 // https://code.visualstudio.com/api/extension-capabilities/common-capabilities#data-storage
 export type RelayExtensionContext = {
-  client: LanguageClient | null;
-  outputChannel: OutputChannel;
-  extensionContext: ExtensionContext;
   statusBar: StatusBarItem;
+  client: LanguageClient | null;
+  lspOutputChannel: OutputChannel;
+  extensionContext: ExtensionContext;
+  primaryOutputChannel: OutputChannel;
+  compilerTerminal: Terminal | null;
+  relayBinaryExecutionOptions: {
+    rootPath: string;
+    binaryPath: string;
+  };
 };

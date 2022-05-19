@@ -8,7 +8,9 @@
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as semver from 'semver';
-import { SEMVER_RANGE } from './constants';
+import { OutputChannel, window, workspace } from 'vscode';
+import { SEMVER_RANGE } from '../constants';
+import { getConfig } from '../config';
 
 async function exists(file: string): Promise<boolean> {
   return fs
@@ -43,7 +45,8 @@ function getBinaryPathRelativeToPackage(): string | null {
 
   return null;
 }
-export async function findRelayCompilerDirectory(
+
+async function findRelayCompilerDirectory(
   rootPath: string,
 ): Promise<string | null> {
   let counter = 0;
@@ -94,7 +97,7 @@ type RelayCompilerPackageInformation =
       expectedRange: string;
     };
 
-export async function findRelayCompilerBinary(
+async function findRelayCompilerBinary(
   rootPath: string,
 ): Promise<RelayCompilerPackageInformation> {
   const relayCompilerDirectory = await findRelayCompilerDirectory(rootPath);
@@ -149,4 +152,74 @@ export async function findRelayCompilerBinary(
     expectedRange: SEMVER_RANGE,
     version: packageManifest.version,
   };
+}
+
+export async function findRelayBinaryWithWarnings(
+  outputChannel: OutputChannel,
+): Promise<string | null> {
+  const config = getConfig();
+
+  let rootPath = workspace.rootPath || process.cwd();
+  if (config.rootDirectory) {
+    rootPath = path.join(rootPath, config.rootDirectory);
+  }
+
+  outputChannel.appendLine(
+    `Searching for the relay-compiler starting at: ${rootPath}`,
+  );
+  const relayBinaryResult = await findRelayCompilerBinary(rootPath);
+
+  if (config.pathToRelay) {
+    outputChannel.appendLine(
+      "You've manually specified 'relay.pathToBinary'. We cannot confirm this version of the Relay Compiler is supported by this version of the extension. I hope you know what you're doing.",
+    );
+
+    return config.pathToRelay;
+  }
+  if (relayBinaryResult.kind === 'versionDidNotMatch') {
+    window.showErrorMessage(
+      // Array syntax so it's easier to read this message in the source code.
+      [
+        `The installed version of the Relay Compiler is version: '${relayBinaryResult.version}'.`,
+        `We found this version in the package.json at the following path: ${relayBinaryResult.path}`,
+        `This version of the extension supports the following semver range: '${relayBinaryResult.expectedRange}'.`,
+        'Please update your extension / relay-compiler to accommodate the version requirements.',
+      ].join(' '),
+      'Okay',
+    );
+
+    return null;
+  }
+  if (relayBinaryResult.kind === 'packageNotFound') {
+    outputChannel.appendLine(
+      "Could not find the 'relay-compiler' package in your node_modules. Maybe you're not inside of a project with relay installed.",
+    );
+
+    return null;
+  }
+  if (relayBinaryResult.kind === 'architectureNotSupported') {
+    outputChannel.appendLine(
+      `The 'relay-compiler' does not ship a binary for the architecture: ${process.arch}`,
+    );
+
+    return null;
+  }
+  if (relayBinaryResult.kind === 'prereleaseCompilerFound') {
+    outputChannel.appendLine(
+      [
+        'You have a pre-release version of the relay-compiler package installed.',
+        'We are unable to confirm if this version is compatible with the Relay',
+        'VSCode Extension. Proceeding on the assumption that you know what you are',
+        'doing.',
+      ].join(' '),
+    );
+
+    return relayBinaryResult.path;
+  }
+
+  if (relayBinaryResult.kind === 'compilerFound') {
+    return relayBinaryResult.path;
+  }
+
+  return null;
 }

@@ -56,16 +56,6 @@
         "embeddedLanguages": {
           "meta.embedded.block.graphql": "graphql"
         }
-      },
-      {
-        "injectTo": [
-          "source.rescript"
-        ],
-        "scopeName": "inline.graphql.res",
-        "path": "./grammars/graphql.rescript.json",
-        "embeddedLanguages": {
-          "meta.embedded.block.graphql": "graphql"
-        }
       }
     ],
     "commands": [

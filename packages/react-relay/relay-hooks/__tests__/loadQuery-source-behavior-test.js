@@ -18,6 +18,7 @@ import type {
   PreloadableConcreteRequest,
 } from '../EntryPointTypes.flow';
 import type {GraphQLTaggedNode, OperationType} from 'relay-runtime';
+import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const {loadQuery} = require('../loadQuery');
 const {
@@ -74,9 +75,9 @@ let environment;
 let fetch;
 let writeDataToStore;
 let sink;
-let next;
-let error;
-let complete;
+let next: JestMockFn<Array<GraphQLResponse>, empty>;
+let error: JestMockFn<Array<Error>, empty>;
+let complete: JestMockFn<Array<empty>, empty>;
 let executeObservable;
 let executeUnsubscribe: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
 let networkUnsubscribe;

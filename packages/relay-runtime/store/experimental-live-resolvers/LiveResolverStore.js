@@ -37,7 +37,6 @@ const {
   assertInternalActorIndentifier,
 } = require('../../multi-actor-environment/ActorIdentifier');
 const deepFreeze = require('../../util/deepFreeze');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const resolveImmediate = require('../../util/resolveImmediate');
 const DataChecker = require('../DataChecker');
 const defaultGetDataID = require('../defaultGetDataID');
@@ -332,13 +331,12 @@ class LiveResolverStore implements Store {
       this._globalInvalidationEpoch = this._currentWriteEpoch;
     }
 
-    if (RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
-      // When a record is updated, we need to also handle records that depend on it,
-      // specifically Relay Resolver result records containing results based on the
-      // updated records. This both adds to updatedRecordIDs and invalidates any
-      // cached data as needed.
-      this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
-    }
+    // When a record is updated, we need to also handle records that depend on it,
+    // specifically Relay Resolver result records containing results based on the
+    // updated records. This both adds to updatedRecordIDs and invalidates any
+    // cached data as needed.
+    this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
+
     const source = this.getSource();
     const updatedOwners = [];
     this._storeSubscriptions.updateSubscriptions(
@@ -566,8 +564,9 @@ class LiveResolverStore implements Store {
   }
 
   restore(): void {
+    const optimisticSource = this._optimisticSource;
     invariant(
-      this._optimisticSource != null,
+      optimisticSource,
       'LiveResolverStore: Unexpected call to restore(), expected a snapshot ' +
         'to exist (make sure to call snapshot()).',
     );
@@ -577,11 +576,15 @@ class LiveResolverStore implements Store {
         name: 'store.restore',
       });
     }
+    const optimisticIDs =
+      RelayOptimisticRecordSource.getOptimisticRecordIDs(optimisticSource);
+
     this._optimisticSource = null;
     if (this._shouldScheduleGC) {
       this.scheduleGC();
     }
     this._storeSubscriptions.restoreSubscriptions();
+    this._resolverCache.invalidateResolverRecords(optimisticIDs);
   }
 
   scheduleGC() {

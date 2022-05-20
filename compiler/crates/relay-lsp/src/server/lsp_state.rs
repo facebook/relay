@@ -6,7 +6,7 @@
  */
 
 use crate::{
-    diagnostic_reporter::{get_diagnostics_data, DiagnosticReporter},
+    diagnostic_reporter::DiagnosticReporter,
     docblock_resolution_info::create_docblock_resolution_info,
     graphql_tools::get_query_text,
     js_language_server::JSLanguageServer,
@@ -17,7 +17,7 @@ use crate::{
     ContentConsumerType, Feature, FeatureResolutionInfo,
 };
 use crate::{LSPExtraDataProvider, LSPRuntimeError};
-use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span, TextSource};
+use common::{convert_diagnostic, PerfLogger, SourceLocationKey, Span};
 use crossbeam::channel::{SendError, Sender};
 use dashmap::{mapref::entry::Entry, DashMap};
 use docblock_syntax::parse_docblock;
@@ -32,7 +32,7 @@ use graphql_syntax::{
 use intern::string_key::{Intern, StringKey};
 use log::debug;
 use lsp_server::Message;
-use lsp_types::{Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url};
+use lsp_types::{Diagnostic, Range, TextDocumentPositionParams, Url};
 use relay_compiler::{config::Config, FileCategorizer};
 use relay_docblock::parse_docblock_ast;
 use relay_transforms::deprecated_fields_for_executable_definition;
@@ -333,22 +333,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         self.synced_javascript_features.remove(url);
         self.diagnostic_reporter
             .clear_quick_diagnostics_for_url(url);
-    }
-}
-
-pub fn convert_diagnostic(text_source: &TextSource, diagnostic: &CompilerDiagnostic) -> Diagnostic {
-    let tags: Vec<DiagnosticTag> = diagnostic.tags();
-
-    Diagnostic {
-        code: None,
-        data: get_diagnostics_data(diagnostic),
-        message: diagnostic.message().to_string(),
-        range: text_source.to_span_range(diagnostic.location().span()),
-        related_information: None,
-        severity: Some(diagnostic.severity()),
-        tags: if tags.is_empty() { None } else { Some(tags) },
-        source: None,
-        ..Default::default()
     }
 }
 

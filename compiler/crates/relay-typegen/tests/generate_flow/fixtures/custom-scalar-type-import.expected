@@ -1,0 +1,30 @@
+==================================== INPUT ====================================
+query Viewer($params: JSON) {
+  viewer {
+    actor {
+      ... on User {
+        profilePicture2(additionalParameters: $params) {
+          __typename
+        }
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+import type { JSON } from "TypeDefsFile";
+export type Viewer$variables = {|
+  params?: ?JSON,
+|};
+export type Viewer$data = {|
+  +viewer: ?{|
+    +actor: ?{|
+      +profilePicture2?: ?{|
+        +__typename: string,
+      |},
+    |},
+  |},
+|};
+export type Viewer = {|
+  response: Viewer$data,
+  variables: Viewer$variables,
+|};

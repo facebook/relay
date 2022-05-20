@@ -5,36 +5,90 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ExtensionContext, window } from 'vscode';
+import path = require('path');
+import { ExtensionContext, window, workspace } from 'vscode';
 import { registerCommands } from './commands/register';
+import { createAndStartCompiler } from './compiler';
+import { getConfig } from './config';
 
 import { RelayExtensionContext } from './context';
-import { createAndStartClient } from './languageClient';
+import { createAndStartLanguageClient } from './languageClient';
 import { createStatusBarItem, intializeStatusBarItem } from './statusBarItem';
+import { findRelayBinaryWithWarnings } from './utils/findRelayBinary';
 
-let relayExtensionContext: RelayExtensionContext | undefined;
+let relayExtensionContext: RelayExtensionContext | null = null;
+
+async function buildRelayExtensionContext(
+  extensionContext: ExtensionContext,
+): Promise<RelayExtensionContext | null> {
+  const config = getConfig();
+
+  const statusBar = createStatusBarItem();
+  const primaryOutputChannel = window.createOutputChannel('Relay');
+  const lspOutputChannel = window.createOutputChannel('Relay LSP Logs');
+
+  extensionContext.subscriptions.push(statusBar);
+  extensionContext.subscriptions.push(lspOutputChannel);
+  extensionContext.subscriptions.push(primaryOutputChannel);
+
+  let rootPath = workspace.rootPath || process.cwd();
+  if (config.rootDirectory) {
+    rootPath = path.join(rootPath, config.rootDirectory);
+  }
+
+  const binaryPath = await findRelayBinaryWithWarnings(primaryOutputChannel);
+
+  if (binaryPath) {
+    return {
+      statusBar,
+      client: null,
+      extensionContext,
+      lspOutputChannel,
+      primaryOutputChannel,
+      compilerTerminal: null,
+      relayBinaryExecutionOptions: {
+        rootPath,
+        binaryPath,
+      },
+    };
+  }
+
+  primaryOutputChannel.appendLine(
+    'Stopping execution of the Relay VSCode extension since we could not find a valid compiler binary.',
+  );
+
+  return null;
+}
 
 export async function activate(extensionContext: ExtensionContext) {
-  const outputChannel = window.createOutputChannel('Relay Language Server');
-  const statusBar = createStatusBarItem();
+  const config = getConfig();
 
-  relayExtensionContext = {
-    statusBar,
-    client: null,
-    outputChannel,
-    extensionContext,
-  };
+  relayExtensionContext = await buildRelayExtensionContext(extensionContext);
 
-  extensionContext.subscriptions.push(outputChannel);
-  extensionContext.subscriptions.push(statusBar);
+  if (relayExtensionContext) {
+    relayExtensionContext.primaryOutputChannel.appendLine(
+      'Starting the Relay GraphQL extension...',
+    );
 
-  intializeStatusBarItem(relayExtensionContext);
-  registerCommands(relayExtensionContext);
-  createAndStartClient(relayExtensionContext);
+    intializeStatusBarItem(relayExtensionContext);
+    registerCommands(relayExtensionContext);
+    createAndStartLanguageClient(relayExtensionContext);
+
+    if (config.autoStartCompiler) {
+      createAndStartCompiler(relayExtensionContext);
+    } else {
+      relayExtensionContext.primaryOutputChannel.appendLine(
+        [
+          'Not starting the Relay Compiler.',
+          'Please enable relay.autoStartCompiler in your settings if you want the compiler to start when you open your project.',
+        ].join(' '),
+      );
+    }
+  }
 }
 
 export function deactivate(): Thenable<void> | undefined {
-  relayExtensionContext?.outputChannel.dispose();
+  relayExtensionContext?.primaryOutputChannel.dispose();
 
   return relayExtensionContext?.client?.stop();
 }

@@ -14,7 +14,7 @@ use graphql_test_helpers::diagnostics_to_sorted_string;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use relay_codegen::JsModuleFormat;
-use relay_config::ProjectConfig;
+use relay_config::{CustomScalarType, CustomScalarTypeImport, ProjectConfig};
 use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
 use relay_transforms::apply_transforms;
 use relay_typegen::{self, TypegenConfig, TypegenLanguage};
@@ -60,7 +60,17 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let mut custom_scalar_types = FnvIndexMap::default();
-    custom_scalar_types.insert("Boolean".intern(), "CustomBoolean".intern());
+    custom_scalar_types.insert(
+        "Boolean".intern(),
+        CustomScalarType::Name("CustomBoolean".intern()),
+    );
+    custom_scalar_types.insert(
+        "JSON".intern(),
+        CustomScalarType::Path(CustomScalarTypeImport {
+            name: "JSON".intern(),
+            path: "TypeDefsFile".into(),
+        }),
+    );
     let project_config = ProjectConfig {
         name: "test".intern(),
         js_module_format: JsModuleFormat::Haste,

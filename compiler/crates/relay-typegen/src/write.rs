@@ -11,6 +11,7 @@ use ::intern::{
 };
 use common::NamedItem;
 use graphql_ir::{FragmentDefinition, OperationDefinition, ProvidedVariableMetadata, Selection};
+use indexmap::IndexMap;
 use itertools::Itertools;
 use relay_config::{JsModuleFormat, TypegenLanguage};
 use relay_transforms::{
@@ -18,7 +19,7 @@ use relay_transforms::{
     CHILDREN_CAN_BUBBLE_METADATA_KEY,
 };
 use schema::Schema;
-use std::fmt::Result as FmtResult;
+use std::{collections::HashSet, fmt::Result as FmtResult, path::PathBuf};
 
 use crate::{
     typegen_state::{
@@ -40,6 +41,8 @@ use crate::{
     REACT_RELAY_MULTI_ACTOR, VALIDATOR_EXPORT_NAME,
 };
 
+pub(crate) type CustomScalarsImports = HashSet<(StringKey, PathBuf)>;
+
 pub(crate) fn write_operation_type_exports_section(
     typgen_context: &'_ TypegenContext<'_>,
     typegen_operation: &OperationDefinition,
@@ -51,6 +54,8 @@ pub(crate) fn write_operation_type_exports_section(
     let mut imported_resolvers = Default::default();
     let mut actor_change_status = ActorChangeStatus::NoActorChange;
     let mut runtime_imports = Default::default();
+    let mut custom_scalars = CustomScalarsImports::default();
+
     let type_selections = visit_selections(
         typgen_context,
         &typegen_operation.selections,
@@ -58,7 +63,9 @@ pub(crate) fn write_operation_type_exports_section(
         &mut encountered_fragments,
         &mut imported_resolvers,
         &mut actor_change_status,
+        &mut custom_scalars,
     );
+
     let mut imported_raw_response_types = Default::default();
     let data_type = get_data_type(
         typgen_context,
@@ -72,6 +79,7 @@ pub(crate) fn write_operation_type_exports_section(
         false, // Query types can never be plural
         &mut encountered_enums,
         &mut encountered_fragments,
+        &mut custom_scalars,
     );
 
     let raw_response_type_and_match_fields =
@@ -85,6 +93,7 @@ pub(crate) fn write_operation_type_exports_section(
                 &mut encountered_fragments,
                 &mut imported_raw_response_types,
                 &mut runtime_imports,
+                &mut custom_scalars,
             );
             Some((
                 raw_response_selections_to_babel(
@@ -93,6 +102,7 @@ pub(crate) fn write_operation_type_exports_section(
                     None,
                     &mut encountered_enums,
                     &mut runtime_imports,
+                    &mut custom_scalars,
                 ),
                 match_fields,
             ))
@@ -119,10 +129,28 @@ pub(crate) fn write_operation_type_exports_section(
     write_relay_resolver_imports(imported_resolvers, writer)?;
     write_split_raw_response_type_imports(typgen_context, imported_raw_response_types, writer)?;
 
-    let (input_variables_type, input_object_types) =
-        get_input_variables_type(typgen_context, typegen_operation, &mut encountered_enums);
+    let mut input_object_types = IndexMap::default();
+    let provided_variables_object = generate_provided_variables_type(
+        typgen_context,
+        normalization_operation,
+        &mut input_object_types,
+        &mut encountered_enums,
+        &mut custom_scalars,
+    );
+
+    let input_variables_type = get_input_variables_type(
+        typgen_context,
+        typegen_operation,
+        &mut input_object_types,
+        &mut encountered_enums,
+        &mut custom_scalars,
+    );
+    let input_object_types = input_object_types
+        .into_iter()
+        .map(|(key, val)| (key, val.unwrap_resolved_type()));
 
     write_enum_definitions(typgen_context, encountered_enums, writer)?;
+    write_custom_scalar_imports(custom_scalars, writer)?;
     write_input_object_types(input_object_types, writer)?;
 
     let variables_identifier = format!("{}$variables", typegen_operation.name.item);
@@ -149,20 +177,10 @@ pub(crate) fn write_operation_type_exports_section(
         &query_wrapper_type.into(),
     )?;
 
-    // Note: this is a "bug", though in practice probably affects nothing.
-    // We pass an unused InputObjectTypes, which is mutated by some of the nested calls.
-    // However, we never end up using this. Pre-cleanup:
-    // - generated_input_object_types was used in write_input_object_types (above)
-    // - generate_provided_variables_type would nonetheless mutate this field
-    //
-    // Likewise, there is the same bug with enountered_enums
-    generate_provided_variables_type(
-        typgen_context,
-        normalization_operation,
-        &mut Default::default(),
-        &mut Default::default(),
-        writer,
-    )?;
+    if let Some(provided_variables) = provided_variables_object {
+        writer.write_local_type(PROVIDED_VARIABLE_TYPE, &provided_variables)?;
+    }
+
     Ok(())
 }
 
@@ -200,6 +218,7 @@ pub(crate) fn write_split_operation_type_exports_section(
     let mut encountered_fragments = Default::default();
     let mut imported_raw_response_types = Default::default();
     let mut runtime_imports = Default::default();
+    let mut custom_scalars = CustomScalarsImports::default();
 
     let raw_response_selections = raw_response_visit_selections(
         typgen_context,
@@ -209,6 +228,7 @@ pub(crate) fn write_split_operation_type_exports_section(
         &mut encountered_fragments,
         &mut imported_raw_response_types,
         &mut runtime_imports,
+        &mut custom_scalars,
     );
     let raw_response_type = raw_response_selections_to_babel(
         typgen_context,
@@ -216,6 +236,7 @@ pub(crate) fn write_split_operation_type_exports_section(
         None,
         &mut encountered_enums,
         &mut runtime_imports,
+        &mut custom_scalars,
     );
 
     runtime_imports.write_runtime_imports(writer)?;
@@ -223,6 +244,7 @@ pub(crate) fn write_split_operation_type_exports_section(
     write_split_raw_response_type_imports(typgen_context, imported_raw_response_types, writer)?;
 
     write_enum_definitions(typgen_context, encountered_enums, writer)?;
+    write_custom_scalar_imports(custom_scalars, writer)?;
 
     for (key, ast) in match_fields.0 {
         writer.write_export_type(key.lookup(), &ast)?;
@@ -248,6 +270,7 @@ pub(crate) fn write_fragment_type_exports_section(
     let mut encountered_fragments = Default::default();
     let mut imported_resolvers = Default::default();
     let mut actor_change_status = ActorChangeStatus::NoActorChange;
+    let mut custom_scalars = CustomScalarsImports::default();
     let mut type_selections = visit_selections(
         typgen_context,
         &fragment_definition.selections,
@@ -255,6 +278,7 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut encountered_fragments,
         &mut imported_resolvers,
         &mut actor_change_status,
+        &mut custom_scalars,
     );
     if !fragment_definition.type_condition.is_abstract_type() {
         let num_concrete_selections = type_selections
@@ -319,6 +343,7 @@ pub(crate) fn write_fragment_type_exports_section(
         is_plural_fragment,
         &mut encountered_enums,
         &mut encountered_fragments,
+        &mut custom_scalars,
     );
 
     let runtime_imports = RuntimeImports {
@@ -334,6 +359,7 @@ pub(crate) fn write_fragment_type_exports_section(
     )?;
 
     write_enum_definitions(typgen_context, encountered_enums, writer)?;
+    write_custom_scalar_imports(custom_scalars, writer)?;
 
     runtime_imports.write_runtime_imports(writer)?;
     write_relay_resolver_imports(imported_resolvers, writer)?;
@@ -513,8 +539,8 @@ fn generate_provided_variables_type(
     node: &OperationDefinition,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
-    writer: &mut Box<dyn Writer>,
-) -> FmtResult {
+    custom_scalars: &mut CustomScalarsImports,
+) -> Option<AST> {
     let fields = node
         .variable_definitions
         .iter()
@@ -527,6 +553,7 @@ fn generate_provided_variables_type(
                 &def.type_,
                 input_object_types,
                 encountered_enums,
+                custom_scalars,
             )));
             let provider_module = Prop::KeyValuePair(KeyValuePairProp {
                 key: "get".intern(),
@@ -543,12 +570,10 @@ fn generate_provided_variables_type(
         })
         .collect_vec();
     if !fields.is_empty() {
-        writer.write_local_type(
-            PROVIDED_VARIABLE_TYPE,
-            &AST::ExactObject(ExactObject::new(fields)),
-        )?;
+        Some(AST::ExactObject(ExactObject::new(fields)))
+    } else {
+        None
     }
-    Ok(())
 }
 
 fn write_input_object_types(
@@ -797,4 +822,15 @@ pub fn has_raw_response_type_directive(operation: &OperationDefinition) -> bool 
         .directives
         .named(*RAW_RESPONSE_TYPE_DIRECTIVE_NAME)
         .is_some()
+}
+
+fn write_custom_scalar_imports(
+    custom_scalars: CustomScalarsImports,
+    writer: &mut Box<dyn Writer>,
+) -> FmtResult {
+    for (name, path) in custom_scalars.iter() {
+        writer.write_import_type(&[name.lookup()], path.to_str().unwrap())?
+    }
+
+    Ok(())
 }

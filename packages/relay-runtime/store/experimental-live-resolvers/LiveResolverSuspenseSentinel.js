@@ -11,7 +11,9 @@
 
 'use strict';
 
-const LIVE_RESOLVER_SUSPENSE_SENTINEL: mixed = {};
+const LIVE_RESOLVER_SUSPENSE_SENTINEL: mixed = Object.freeze({
+  __LIVE_RESOLVER_SUSPENSE_SENTINEL: true,
+});
 
 function suspenseSentinel(): empty {
   // $FlowFixMe[incompatible-return]

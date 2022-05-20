@@ -1,0 +1,47 @@
+==================================== INPUT ====================================
+query testQuery {
+  node(id: 4) {
+    ...FragmentWithJSONProvidedVar,
+  }
+}
+
+fragment FragmentWithJSONProvidedVar on User
+  @argumentDefinitions(
+    additionalParameters: {type: "JSON", provider: "includeNameProvider"}
+) {
+  profilePicture2(additionalParameters: $additionalParameters) {
+    __typename
+  }
+}
+==================================== OUTPUT ===================================
+import type { FragmentWithJSONProvidedVar$fragmentType } from "FragmentWithJSONProvidedVar.graphql";
+import type { JSON } from "TypeDefsFile";
+export type testQuery$variables = {||};
+export type testQuery$data = {|
+  +node: ?{|
+    +$fragmentSpreads: FragmentWithJSONProvidedVar$fragmentType,
+  |},
+|};
+export type testQuery = {|
+  response: testQuery$data,
+  variables: testQuery$variables,
+|};
+type ProvidedVariablesType = {|
+  +__relay_internal__pv__includeNameProvider: {|
+    +get: () => ?JSON,
+  |},
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FragmentWithJSONProvidedVar$fragmentType: FragmentType;
+export type FragmentWithJSONProvidedVar$data = {|
+  +profilePicture2: ?{|
+    +__typename: string,
+  |},
+  +$fragmentType: FragmentWithJSONProvidedVar$fragmentType,
+|};
+export type FragmentWithJSONProvidedVar$key = {
+  +$data?: FragmentWithJSONProvidedVar$data,
+  +$fragmentSpreads: FragmentWithJSONProvidedVar$fragmentType,
+  ...
+};

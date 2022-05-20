@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4d8fca221acc0d4c3cfd7b4df86fba71>>
+ * @generated SignedSource<<6665d3a544e0cdf6da2455d0ec024390>>
  */
 
 mod generate_typescript;
@@ -66,6 +66,13 @@ fn conditional() {
     let input = include_str!("generate_typescript/fixtures/conditional.graphql");
     let expected = include_str!("generate_typescript/fixtures/conditional.expected");
     test_fixture(transform_fixture, "conditional.graphql", "generate_typescript/fixtures/conditional.expected", input, expected);
+}
+
+#[test]
+fn custom_scalar_type_import() {
+    let input = include_str!("generate_typescript/fixtures/custom-scalar-type-import.graphql");
+    let expected = include_str!("generate_typescript/fixtures/custom-scalar-type-import.expected");
+    test_fixture(transform_fixture, "custom-scalar-type-import.graphql", "generate_typescript/fixtures/custom-scalar-type-import.expected", input, expected);
 }
 
 #[test]

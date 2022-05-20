@@ -23,8 +23,8 @@ mod text_source;
 
 pub use console_logger::{print_time, ConsoleLogEvent, ConsoleLogger};
 pub use diagnostic::{
-    diagnostics_result, Diagnostic, DiagnosticDisplay, DiagnosticsResult, WithDiagnosticData,
-    WithDiagnostics,
+    convert_diagnostic, diagnostics_result, get_diagnostics_data, Diagnostic, DiagnosticDisplay,
+    DiagnosticsResult, WithDiagnosticData, WithDiagnostics,
 };
 pub use feature_flags::{FeatureFlag, FeatureFlags};
 pub use location::{Location, SourceLocationKey, WithLocation};

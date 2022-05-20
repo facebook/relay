@@ -7,13 +7,23 @@
 
 import { commands } from 'vscode';
 import { RelayExtensionContext } from '../context';
-import { handleRestartLanguageServerCommand } from './restartLanguageServer';
+import { handleRestartLanguageServerCommand } from './restart';
 import { handleShowOutputCommand } from './showOutput';
+import { handleStartCompilerCommand } from './startCompiler';
+import { handleStopCompilerCommand } from './stopCompiler';
 
 export function registerCommands(context: RelayExtensionContext) {
   context.extensionContext.subscriptions.push(
     commands.registerCommand(
-      'relay.restartLanguageServer',
+      'relay.startCompiler',
+      handleStartCompilerCommand.bind(null, context),
+    ),
+    commands.registerCommand(
+      'relay.stopCompiler',
+      handleStopCompilerCommand.bind(null, context),
+    ),
+    commands.registerCommand(
+      'relay.restart',
       handleRestartLanguageServerCommand.bind(null, context),
     ),
     commands.registerCommand(

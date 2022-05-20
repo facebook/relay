@@ -234,7 +234,22 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     .collect();
                 let mut directives = Vec::with_capacity(spread.directives.len() + 1);
                 directives.extend(spread.directives.iter().cloned());
-                directives.push(directive.clone());
+
+                let mut new_directive = directive.clone();
+
+                new_directive.arguments.push(graphql_ir::Argument {
+                    name: WithLocation::generated("__sourceLocation".intern()),
+                    value: WithLocation::generated(Value::Constant(ConstantValue::String(
+                        match fragment.name.location.source_location() {
+                            common::SourceLocationKey::Embedded { path, .. } => path,
+                            common::SourceLocationKey::Standalone { .. } => todo!(),
+                            common::SourceLocationKey::Generated => todo!(),
+                        },
+                    ))),
+                });
+
+                directives.push(new_directive);
+
                 let normalization_name =
                     get_normalization_operation_name(fragment.name.item).intern();
                 let next_spread = Selection::FragmentSpread(Arc::new(FragmentSpread {

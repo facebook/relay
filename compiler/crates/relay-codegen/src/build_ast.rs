@@ -9,7 +9,7 @@ use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, Reque
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::object;
 use crate::top_level_statements::TopLevelStatements;
-use common::{NamedItem, WithLocation};
+use common::{NamedItem, SourceLocationKey, WithLocation};
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
     FragmentSpread, InlineFragment, LinkedField, OperationDefinition, ProvidedVariableMetadata,
@@ -434,12 +434,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 {
                     // If inline fragment has @__inline directive (created by inline_data_fragment transform)
                     // we will return selection wrapped with InlineDataFragmentSpread
-                    vec![
-                        self.build_inline_data_fragment_spread(
-                            inline_fragment,
-                            inline_data_directive,
-                        ),
-                    ]
+                    vec![self
+                        .build_inline_data_fragment_spread(inline_fragment, inline_data_directive)]
                 } else if let Some(module_metadata) =
                     ModuleMetadata::find(&inline_fragment.directives)
                 {
@@ -716,12 +712,42 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     }
 
     fn build_fragment_spread(&mut self, frag_spread: &FragmentSpread) -> Primitive {
-        if frag_spread
-            .directives
-            .named(*NO_INLINE_DIRECTIVE_NAME)
-            .is_some()
-        {
-            return self.build_normalization_fragment_spread(frag_spread);
+        if let Some(directive) = frag_spread.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
+            let arguments = &directive.arguments;
+
+            let argument_value = &arguments
+                .named("__sourceLocation".intern())
+                .unwrap()
+                .value
+                .item;
+
+            let fragment_source_location_key = match argument_value {
+                Value::Constant(constant) => match constant {
+                    ConstantValue::String(value) => value,
+                    _ => {
+                        panic!("yikes");
+                    }
+                },
+                _ => {
+                    panic!("yikes")
+                }
+            };
+
+            let path_for_artifact = self.project_config.create_path_for_artifact(
+                SourceLocationKey::Embedded {
+                    path: *fragment_source_location_key,
+                    index: 0,
+                },
+                frag_spread.fragment.item.lookup().to_string(),
+            );
+
+            let normalizataion_import_path = self.project_config.js_module_import_path(
+                self.definition_source_location,
+                path_for_artifact.to_str().unwrap().intern(),
+            );
+
+            return self
+                .build_normalization_fragment_spread(frag_spread, normalizataion_import_path);
         }
         if self.variant == CodegenVariant::Normalization
             && frag_spread
@@ -812,7 +838,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }))
     }
 
-    fn build_normalization_fragment_spread(&mut self, frag_spread: &FragmentSpread) -> Primitive {
+    fn build_normalization_fragment_spread(
+        &mut self,
+        frag_spread: &FragmentSpread,
+        normalization_import_path: StringKey,
+    ) -> Primitive {
         let args = self.build_arguments(&frag_spread.arguments);
 
         Primitive::Key(self.object(object! {
@@ -820,7 +850,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         None => Primitive::SkippableNull,
                         Some(key) => Primitive::Key(key),
                     },
-                fragment: Primitive::GraphQLModuleDependency(frag_spread.fragment.item),
+                fragment: Primitive::GraphQLModuleDependency(normalization_import_path),
                 kind: Primitive::String(
                         if frag_spread
                             .directives

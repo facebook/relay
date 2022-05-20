@@ -18,7 +18,14 @@ const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('relay-runtime/store/RelayModernOperationDescriptor');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
@@ -96,5 +103,20 @@ describe('Relay Resolver', () => {
 
     expect(data.me.greeting).toEqual('Hello, Alice!'); // Resolver result
     expect(data.me.name).toEqual(undefined); // Fields needed by resolver's fragment don't end up in the result
+  });
+
+  it('can create a client edge query in our test enviornment that has valid import', () => {
+    // This is not really a runtime test, but more a test to confirm that this query generates
+    // an artifact with valid imports in our non-Haste test environment.
+    const clientEdgeRuntimeArtifact = graphql`
+      query ResolverTest3Query {
+        me {
+          client_edge @waterfall {
+            __typename
+          }
+        }
+      }
+    `;
+    expect(clientEdgeRuntimeArtifact.operation.name).toBe('ResolverTest3Query');
   });
 });

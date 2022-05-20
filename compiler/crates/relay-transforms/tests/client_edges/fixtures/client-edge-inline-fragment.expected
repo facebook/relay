@@ -113,7 +113,14 @@ fragment RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend on User 
 
 query ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend(
   $id: ID!
-) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_node") {
+) @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-inline-fragment.graphql:9:17,
+#         item: "Foo_node",
+#     },
+# }
+ {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_node_PhotoStory__author__best_friend
   }
@@ -121,7 +128,14 @@ query ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend(
 
 query ClientEdgeQuery_Foo_node_Story__author__best_friend(
   $id: ID!
-) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_node") {
+) @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-inline-fragment.graphql:9:17,
+#         item: "Foo_node",
+#     },
+# }
+ {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_node_Story__author__best_friend
   }

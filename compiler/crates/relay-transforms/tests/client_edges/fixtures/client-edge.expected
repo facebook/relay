@@ -59,7 +59,14 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGe
 
 query ClientEdgeQuery_Foo_user_best_friend(
   $id: ID!
-) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_user") {
+) @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge.graphql:9:17,
+#         item: "Foo_user",
+#     },
+# }
+ {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_user_best_friend
   }

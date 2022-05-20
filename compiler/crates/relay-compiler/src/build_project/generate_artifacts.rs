@@ -14,8 +14,8 @@ use graphql_ir::{FragmentDefinition, OperationDefinition};
 use graphql_text_printer::OperationPrinter;
 use intern::string_key::StringKey;
 use relay_transforms::{
-    Programs, RefetchableDerivedFromMetadata, SplitOperationMetadata,
-    CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_QUERY_METADATA_KEY, CLIENT_EDGE_SOURCE_NAME,
+    ClientEdgeGeneratedQueryMetadataDirective, Programs, RefetchableDerivedFromMetadata,
+    SplitOperationMetadata, CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_SOURCE_NAME,
     DIRECTIVE_SPLIT_OPERATION, UPDATABLE_DIRECTIVE,
 };
 use std::path::PathBuf;
@@ -89,30 +89,16 @@ pub fn generate_artifacts(
                     source_hash,
                     source_fragment.name.location.source_location(),
                 )
-            } else if let Some(client_edges_directive) = operations
-                .normalization
-                .directives
-                .named(*CLIENT_EDGE_QUERY_METADATA_KEY)
+            } else if let Some(client_edges_directive) =
+                ClientEdgeGeneratedQueryMetadataDirective::find(
+                    &operations.normalization.directives,
+                )
             {
-                let source_name = client_edges_directive
-                    .arguments
-                    .named(*CLIENT_EDGE_SOURCE_NAME)
-                    .expect("Client edges should have a source argument")
-                    .value
-                    .item
-                    .expect_string_literal();
-
-                let source_file = programs
-                    .source
-                    .fragment(source_name)
-                    .map(|fragment| fragment.name.location.source_location())
-                    .or_else(|| {
-                        programs
-                            .source
-                            .operation(source_name)
-                            .map(|operation| operation.name.location.source_location())
-                    })
-                    .unwrap();
+                let source_name = client_edges_directive.source_name.item;
+                let source_file = client_edges_directive
+                    .source_name
+                    .location
+                    .source_location();
                 let source_hash = source_hashes.get(&source_name).cloned().unwrap();
                 generate_normalization_artifact(
                     &mut operation_printer,

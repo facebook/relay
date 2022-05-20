@@ -93,8 +93,9 @@ pub use assignable_fragment_spread::{
 };
 pub use client_edges::{
     client_edges, preserve_client_edge_backing_ids, preserve_client_edge_selections,
-    ClientEdgeMetadata, ClientEdgeMetadataDirective, CLIENT_EDGE_GENERATED_FRAGMENT_KEY,
-    CLIENT_EDGE_QUERY_METADATA_KEY, CLIENT_EDGE_SOURCE_NAME, CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME,
+    ClientEdgeGeneratedQueryMetadataDirective, ClientEdgeMetadata, ClientEdgeMetadataDirective,
+    CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_SOURCE_NAME,
+    CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME,
 };
 pub use client_extensions::{client_extensions, CLIENT_EXTENSION_DIRECTIVE_NAME};
 pub use connections::{

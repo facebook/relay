@@ -28,7 +28,6 @@ use schema::Schema;
 
 lazy_static! {
     // This gets attached to the generated query
-    pub static ref CLIENT_EDGE_QUERY_METADATA_KEY: StringKey = "__clientEdgeQuery".intern();
     pub static ref QUERY_NAME_ARG: StringKey = "queryName".intern();
     pub static ref TYPE_NAME_ARG: StringKey = "typeName".intern();
     pub static ref CLIENT_EDGE_SOURCE_NAME: StringKey = "clientEdgeSourceDocument".intern();
@@ -43,6 +42,13 @@ pub enum ClientEdgeMetadataDirective {
     ClientObject { type_name: StringKey },
 }
 associated_data_impl!(ClientEdgeMetadataDirective);
+
+/// Metadata directive attached to generated queries
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ClientEdgeGeneratedQueryMetadataDirective {
+    pub source_name: WithLocation<StringKey>,
+}
+associated_data_impl!(ClientEdgeGeneratedQueryMetadataDirective);
 
 pub struct ClientEdgeMetadata<'a> {
     pub backing_field: &'a Selection,
@@ -101,7 +107,7 @@ pub fn client_edges(program: &Program, schema_config: &SchemaConfig) -> Diagnost
 
 struct ClientEdgesTransform<'program, 'sc> {
     path: Vec<&'program str>,
-    document_name: Option<StringKey>,
+    document_name: Option<WithLocation<StringKey>>,
     query_names: StringKeyMap<usize>,
     program: &'program Program,
     new_fragments: Vec<Arc<FragmentDefinition>>,
@@ -126,8 +132,12 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
     fn generate_query_name(&mut self) -> StringKey {
         let document_name = self.document_name.expect("We are within a document");
-        let name_root =
-            format!("ClientEdgeQuery_{}_{}", document_name, self.path.join("__")).intern();
+        let name_root = format!(
+            "ClientEdgeQuery_{}_{}",
+            document_name.item,
+            self.path.join("__")
+        )
+        .intern();
 
         // Due to duplicate inline fragments, or inline fragmetns without type
         // conditions, it's possible that multiple fields will have the same
@@ -151,8 +161,18 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
         field_type: Type,
         selections: Vec<Selection>,
     ) {
-        let synthetic_fragment_name =
-            WithLocation::generated(format!("Refetchable{}", generated_query_name).intern());
+        let synthetic_fragment_name = WithLocation::new(
+            // The artifact for the refetchable fragment and query derived from
+            // this fragment will be placed on disk based on this source
+            // location. Currently non-Haste environments assume that this
+            // fragment and the query derived from it will use the same location
+            // source, and thus will be placed in the same `__generated__`
+            // directory. Based on this assumption they import the file using `./`.
+            self.document_name
+                .expect("Expect to be within a document")
+                .location,
+            format!("Refetchable{}", generated_query_name).intern(),
+        );
 
         let synthetic_refetchable_fragment = FragmentDefinition {
             name: synthetic_fragment_name,
@@ -164,7 +184,9 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 arguments: vec![Argument {
                     name: WithLocation::generated(*CLIENT_EDGE_SOURCE_NAME),
                     value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                        self.document_name.expect("Expect to be within a document"),
+                        self.document_name
+                            .expect("Expect to be within a document")
+                            .item,
                     ))),
                 }],
                 data: None,
@@ -190,16 +212,15 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 let query_type = self.program.schema.query_type().unwrap();
 
                 let mut directives = refetchable_directive.directives;
-                directives.push(Directive {
-                    name: WithLocation::generated(*CLIENT_EDGE_QUERY_METADATA_KEY),
-                    arguments: vec![Argument {
-                        name: WithLocation::generated(*CLIENT_EDGE_SOURCE_NAME),
-                        value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                            self.document_name.expect("Expect to be within a document"),
-                        ))),
-                    }],
-                    data: None,
-                });
+                directives.push(
+                    // Used to influence where we place this generated file, and
+                    // the document from which we derive the source hash for the
+                    // Client Edge generated query's artifact.
+                    ClientEdgeGeneratedQueryMetadataDirective {
+                        source_name: self.document_name.expect("Expect to be within a document."),
+                    }
+                    .into(),
+                );
                 self.new_operations.push(OperationDefinition {
                     kind: OperationKind::Query,
                     name: WithLocation::generated(refetchable_directive.query_name.item),
@@ -333,7 +354,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.document_name = Some(fragment.name.item);
+        self.document_name = Some(fragment.name);
         let new_fragment = self.default_transform_fragment(fragment);
         self.document_name = None;
         new_fragment
@@ -343,7 +364,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = Some(operation.name.item);
+        self.document_name = Some(operation.name);
         let new_operation = self.default_transform_operation(operation);
         self.document_name = None;
         new_operation

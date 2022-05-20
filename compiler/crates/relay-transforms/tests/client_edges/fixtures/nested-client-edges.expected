@@ -114,7 +114,14 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend on User @_
 
 query ClientEdgeQuery_Foo_user_best_friend(
   $id: ID!
-) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_user") {
+) @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: nested-client-edges.graphql:9:17,
+#         item: "Foo_user",
+#     },
+# }
+ {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_user_best_friend
   }
@@ -122,7 +129,14 @@ query ClientEdgeQuery_Foo_user_best_friend(
 
 query ClientEdgeQuery_Foo_user_best_friend__best_friend(
   $id: ID!
-) @__clientEdgeQuery(clientEdgeSourceDocument: "Foo_user") {
+) @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: nested-client-edges.graphql:9:17,
+#         item: "Foo_user",
+#     },
+# }
+ {
   node(id: $id) {
     ...RefetchableClientEdgeQuery_Foo_user_best_friend__best_friend
   }

@@ -194,14 +194,17 @@ impl RelayResolverParser {
             type_str.location.span().start,
         )?;
 
-        let valid_type_annotation = match type_annotation {
+        let valid_type_annotation = match &type_annotation {
             TypeAnnotation::Named(_) => type_annotation,
-            TypeAnnotation::List(_) => {
-                return Err(vec![Diagnostic::error(
-                    ErrorMessages::UnexpectedPluralEdgeTo {},
-                    type_str.location,
-                )]);
-            }
+            TypeAnnotation::List(item_type) => match &item_type.type_ {
+                TypeAnnotation::NonNull(_) => {
+                    return Err(vec![Diagnostic::error(
+                        ErrorMessages::UnexpectedNonNullableItemInListEdgeTo {},
+                        type_str.location,
+                    )]);
+                }
+                _ => type_annotation,
+            },
             TypeAnnotation::NonNull(_) => {
                 return Err(vec![Diagnostic::error(
                     ErrorMessages::UnexpectedNonNullableEdgeTo {},

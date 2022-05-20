@@ -13,7 +13,7 @@
  *
  * @onType User
  * @fieldName favorite_page
- * @edgeTo [Page]
+ * @edgeTo [Page!]
  * @rootFragment myRootFragment
  *
  * The user's favorite page! They probably clicked something in the UI
@@ -28,10 +28,10 @@ graphql`
  }
 `
 ==================================== ERROR ====================================
-✖︎ Unexpected plural type given in `@edgeTo`.
+✖︎ Unexpected non-nullable item in list type given in `@edgeTo`.
 
-  /path/to/test/fixture/edge-to-plural.invalid.js:15:12
+  /path/to/test/fixture/edge-to-non-null-plural-item.invalid.js:15:12
    14 │  * @fieldName favorite_page
-   15 │  * @edgeTo [Page]
-      │            ^^^^^^
+   15 │  * @edgeTo [Page!]
+      │            ^^^^^^^
    16 │  * @rootFragment myRootFragment

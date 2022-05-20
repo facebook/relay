@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<846437b5fcde35da46d23dd1a8b03509>>
+ * @generated SignedSource<<f82b154aa22252d4f3d6477091534f4a>>
  */
 
 mod to_schema;
@@ -17,6 +17,20 @@ fn client_edge_relay_resolver() {
     let input = include_str!("to_schema/fixtures/client-edge-relay-resolver.js");
     let expected = include_str!("to_schema/fixtures/client-edge-relay-resolver.expected");
     test_fixture(transform_fixture, "client-edge-relay-resolver.js", "to_schema/fixtures/client-edge-relay-resolver.expected", input, expected);
+}
+
+#[test]
+fn client_edge_to_non_null_plural_server_object_relay_resolver_invalid() {
+    let input = include_str!("to_schema/fixtures/client-edge-to-non-null-plural-server-object-relay-resolver.invalid.js");
+    let expected = include_str!("to_schema/fixtures/client-edge-to-non-null-plural-server-object-relay-resolver.invalid.expected");
+    test_fixture(transform_fixture, "client-edge-to-non-null-plural-server-object-relay-resolver.invalid.js", "to_schema/fixtures/client-edge-to-non-null-plural-server-object-relay-resolver.invalid.expected", input, expected);
+}
+
+#[test]
+fn client_edge_to_plural_server_object_relay_resolver_invalid() {
+    let input = include_str!("to_schema/fixtures/client-edge-to-plural-server-object-relay-resolver.invalid.js");
+    let expected = include_str!("to_schema/fixtures/client-edge-to-plural-server-object-relay-resolver.invalid.expected");
+    test_fixture(transform_fixture, "client-edge-to-plural-server-object-relay-resolver.invalid.js", "to_schema/fixtures/client-edge-to-plural-server-object-relay-resolver.invalid.expected", input, expected);
 }
 
 #[test]

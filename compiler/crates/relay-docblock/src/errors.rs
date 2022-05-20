@@ -48,9 +48,8 @@ pub enum ErrorMessages {
     #[error("Unexpected non-nullable type given in `@edgeTo`.")]
     UnexpectedNonNullableEdgeTo,
 
-    // In the future we plan to support this, but not currently
-    #[error("Unexpected plural type given in `@edgeTo`.")]
-    UnexpectedPluralEdgeTo,
+    #[error("Unexpected non-nullable item in list type given in `@edgeTo`.")]
+    UnexpectedNonNullableItemInListEdgeTo,
 
     #[error(
         "The type specified in the fragment (`{fragment_type_condition}`) and the type specified in @onInterface (`{interface_type}`) are different. Please make sure these are exactly the same."
@@ -67,6 +66,11 @@ pub enum ErrorMessages {
         fragment_type_condition: StringKey,
         type_name: StringKey,
     },
+
+    #[error(
+        "Unexpected plural server type in `@edgeTo` field. Currently Relay Resolvers only support plural `@edgeTo` if the type is defined via Client Schema Extensions."
+    )]
+    ClientEdgeToPluralServerType,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

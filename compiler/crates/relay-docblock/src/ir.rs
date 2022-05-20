@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::errors::ErrorMessagesWithData;
+use crate::errors::{ErrorMessages, ErrorMessagesWithData};
 use common::{Diagnostic, DiagnosticsResult, Location, Named, Span, WithLocation};
 use graphql_syntax::{
     BooleanNode, ConstantArgument, ConstantDirective, ConstantValue, FieldDefinition,
@@ -109,6 +109,19 @@ impl RelayResolverIr {
     }
 
     fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+        if let Some(edge_to_with_location) = &self.edge_to {
+            if let TypeAnnotation::List(edge_to_type) = &edge_to_with_location.item {
+                if let Some(false) = schema
+                    .get_type(edge_to_type.type_.inner().name.value)
+                    .map(|t| schema.is_extension_type(t))
+                {
+                    return Err(vec![Diagnostic::error(
+                        ErrorMessages::ClientEdgeToPluralServerType,
+                        edge_to_with_location.location,
+                    )]);
+                }
+            }
+        }
         match self.on {
             On::Type(PopulatedIrField {
                 key_location,

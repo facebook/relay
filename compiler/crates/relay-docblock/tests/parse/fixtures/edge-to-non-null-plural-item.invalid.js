@@ -12,7 +12,7 @@
  *
  * @onType User
  * @fieldName favorite_page
- * @edgeTo [Page]
+ * @edgeTo [Page!]
  * @rootFragment myRootFragment
  *
  * The user's favorite page! They probably clicked something in the UI

@@ -72,7 +72,7 @@ export interface ResolverCache {
   invalidateDataIDs(
     updatedDataIDs: Set<DataID>, // Mutated in place
   ): void;
-  createClientRecord(id: string, typename: string): string;
+  createClientRecord(id: string, typename: string): DataID;
 }
 
 // $FlowFixMe[unclear-type] - will always be empty
@@ -101,7 +101,7 @@ class NoopResolverCache implements ResolverCache {
     return [resolverResult, undefined, error, snapshot, undefined];
   }
   invalidateDataIDs(updatedDataIDs: Set<DataID>): void {}
-  createClientRecord(id: string, typeName: string): string {
+  createClientRecord(id: string, typeName: string): DataID {
     invariant(
       false,
       'Client Edges to Client Objects are not supported in this version of Relay Store',
@@ -293,7 +293,7 @@ class RecordResolverCache implements ResolverCache {
     return false;
   }
 
-  createClientRecord(id: string, typename: string): string {
+  createClientRecord(id: string, typename: string): DataID {
     invariant(
       false,
       'Client Edges to Client Objects are not supported in this version of Relay Store',

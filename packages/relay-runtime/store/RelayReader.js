@@ -670,20 +670,37 @@ class RelayReader {
       return;
     }
 
-    invariant(
-      typeof destinationDataID === 'string',
-      'Plural client edges not are yet implemented',
-    ); // FIXME support plural
+    if (field.linkedField.plural) {
+      invariant(
+        Array.isArray(destinationDataID),
+        'Expected plural Client Edge Relay Resolver to return an array of IDs.',
+      );
+    } else {
+      invariant(
+        typeof destinationDataID === 'string',
+        'Expected a Client Edge Relay Resolver to return an ID of type `string`.',
+      );
+    }
 
     if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
       // Client objects might use ids that are not gobally unique and instead are just
       // local within their type. ResolverCache will derive a namespaced ID for us.
-      destinationDataID = this._resolverCache.createClientRecord(
-        destinationDataID,
-        field.concreteType,
-      );
+      if (field.linkedField.plural) {
+        destinationDataID = destinationDataID.map(id =>
+          this._resolverCache.createClientRecord(id, field.concreteType),
+        );
+      } else {
+        destinationDataID = this._resolverCache.createClientRecord(
+          destinationDataID,
+          field.concreteType,
+        );
+      }
       this._clientEdgeTraversalPath.push(null);
     } else {
+      invariant(
+        !field.linkedField.plural,
+        'Unexpected Client Edge to plural server type. This should be prevented by the compiler.',
+      );
       // Not wrapping the push/pop in a try/finally because if we throw, the
       // Reader object is not usable after that anyway.
       this._clientEdgeTraversalPath.push({
@@ -692,22 +709,31 @@ class RelayReader {
       });
     }
 
-    const prevData = data[applicationName];
-    invariant(
-      prevData == null || typeof prevData === 'object',
-      'RelayReader(): Expected data for field `%s` on record `%s` ' +
-        'to be an object, got `%s`.',
-      applicationName,
-      RelayModernRecord.getDataID(record),
-      prevData,
-    );
-    const value = this._traverse(
-      field.linkedField,
-      destinationDataID,
-      // $FlowFixMe[incompatible-variance]
-      prevData,
-    );
-    data[applicationName] = value;
+    if (field.linkedField.plural) {
+      data[applicationName] = this._readLinkedIds(
+        field.linkedField,
+        // $FlowFixMe[incompatible-call]
+        destinationDataID,
+        record,
+        data,
+      );
+    } else {
+      const prevData = data[applicationName];
+      invariant(
+        prevData == null || typeof prevData === 'object',
+        'RelayReader(): Expected data for field `%s` on record `%s` ' +
+          'to be an object, got `%s`.',
+        applicationName,
+        RelayModernRecord.getDataID(record),
+        prevData,
+      );
+      data[applicationName] = this._traverse(
+        field.linkedField,
+        destinationDataID,
+        // $FlowFixMe[incompatible-variance]
+        prevData,
+      );
+    }
 
     this._clientEdgeTraversalPath.pop();
   }
@@ -833,9 +859,18 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?mixed {
-    const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
+    return this._readLinkedIds(field, linkedIDs, record, data);
+  }
+
+  _readLinkedIds(
+    field: ReaderLinkedField,
+    linkedIDs: ?Array<?DataID>,
+    record: Record,
+    data: SelectorData,
+  ): ?mixed {
+    const applicationName = field.alias ?? field.name;
 
     if (linkedIDs == null) {
       data[applicationName] = linkedIDs;

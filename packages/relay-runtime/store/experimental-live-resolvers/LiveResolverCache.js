@@ -420,7 +420,7 @@ class LiveResolverCache implements ResolverCache {
 
   // Create an empty record consisting of just an `id` field, along with a
   // namespaced `__id` field and insert it into the store.
-  createClientRecord(id: string, typeName: string): string {
+  createClientRecord(id: string, typeName: string): DataID {
     const key = generateClientObjectClientID(typeName, id);
     const recordSource = this._getRecordSource();
     const newRecord = RelayModernRecord.create(key, typeName);

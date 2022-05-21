@@ -82,7 +82,7 @@ pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_custom_transforms::{
     BaseFragmentNames, CustomTransform, CustomTransforms, CustomTransformsConfig,
 };
-pub use apply_fragment_arguments::apply_fragment_arguments;
+pub use apply_fragment_arguments::{apply_fragment_arguments, NoInlineFragmentSpreadMetadata};
 pub use apply_transforms::{apply_transforms, Programs};
 pub use assignable_fragment_spread::{
     transform_assignable_fragment_spreads_in_regular_queries,

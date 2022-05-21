@@ -9,7 +9,7 @@ use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, Reque
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::object;
 use crate::top_level_statements::TopLevelStatements;
-use common::{NamedItem, SourceLocationKey, WithLocation};
+use common::{NamedItem, WithLocation};
 use graphql_ir::{
     Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
     FragmentSpread, InlineFragment, LinkedField, OperationDefinition, ProvidedVariableMetadata,
@@ -24,10 +24,10 @@ use relay_transforms::{
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
     remove_directive, ClientEdgeMetadata, ClientEdgeMetadataDirective, ConnectionConstants,
     ConnectionMetadata, DeferDirective, FragmentAliasMetadata, InlineDirectiveMetadata,
-    ModuleMetadata, RefetchableMetadata, RelayDirective, RelayResolverSpreadMetadata,
-    RequiredMetadataDirective, StreamDirective, CLIENT_EXTENSION_DIRECTIVE_NAME,
-    DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION, INLINE_DIRECTIVE_NAME,
-    INTERNAL_METADATA_DIRECTIVE, NO_INLINE_DIRECTIVE_NAME,
+    ModuleMetadata, NoInlineFragmentSpreadMetadata, RefetchableMetadata, RelayDirective,
+    RelayResolverSpreadMetadata, RequiredMetadataDirective, StreamDirective,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
+    INLINE_DIRECTIVE_NAME, INTERNAL_METADATA_DIRECTIVE,
     REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
     RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
     TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
@@ -712,32 +712,13 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     }
 
     fn build_fragment_spread(&mut self, frag_spread: &FragmentSpread) -> Primitive {
-        if let Some(directive) = frag_spread.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
-            let arguments = &directive.arguments;
-
-            let argument_value = &arguments
-                .named("__sourceLocation".intern())
-                .unwrap()
-                .value
-                .item;
-
-            let fragment_source_location_key = match argument_value {
-                Value::Constant(constant) => match constant {
-                    ConstantValue::String(value) => value,
-                    _ => {
-                        panic!("yikes");
-                    }
-                },
-                _ => {
-                    panic!("yikes")
-                }
-            };
+        if let Some(no_inline_metadata) =
+            NoInlineFragmentSpreadMetadata::find(&frag_spread.directives)
+        {
+            let fragment_source_location_key = no_inline_metadata.location;
 
             let path_for_artifact = self.project_config.create_path_for_artifact(
-                SourceLocationKey::Embedded {
-                    path: *fragment_source_location_key,
-                    index: 0,
-                },
+                fragment_source_location_key,
                 frag_spread.fragment.item.lookup().to_string(),
             );
 

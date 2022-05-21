@@ -566,7 +566,14 @@ fn selections_to_babel(
     encountered_fragments: &mut EncounteredFragments,
     custom_scalars: &mut CustomScalarsImports,
 ) -> AST {
-    let mut base_fields: TypeSelectionMap = Default::default();
+    // A map of "key" to TypeSelection. The key can be thought of as the field name or alias
+    // for scalar/linked fields. See [TypeSelection::get_string_key] for the key's behavior
+    // for non scalar/linked fields.
+    // When we encounter additional TypeSelections with matching keys (e.g. multiple linked
+    // fields with the same name?), we merge those into the existing TypeSelection.
+    let mut base_fields: IndexMap<StringKey, TypeSelection> = Default::default();
+
+    // A map of Type => Vec<TypeSelection> of all types that are found within inline fragments.
     let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
 
     for selection in selections {
@@ -577,10 +584,6 @@ fn selections_to_babel(
                 .push(selection);
         } else {
             let key = selection.get_string_key();
-            let key = TypeSelectionKey {
-                key,
-                concrete_type: None,
-            };
             match base_fields.entry(key) {
                 Entry::Occupied(entry) => {
                     let previous_sel = entry.get().clone();
@@ -595,15 +598,26 @@ fn selections_to_babel(
 
     let mut types: Vec<Vec<Prop>> = Vec::new();
 
-    #[allow(clippy::ptr_arg)]
-    fn has_typename_selection(selections: &Vec<TypeSelection>) -> bool {
-        selections.iter().any(TypeSelection::is_typename)
-    }
-
+    // In the following condition, if base_fields is empty, the .all will return true
+    // but the .any will return false.
+    //
+    // So, we can read this as:
+    //
+    // If base fields is empty
+    //   * if we have a type refinement to a concrete type
+    //   * and within each type refinement, there is a __typename selection
+    //
+    // If base fields is not empty
+    //   * if we have a type refinement to a concrete type
+    //   * and all fields are outside of type refinements are __typename selections
+    //
+    // If this condition passes, we emit a discriminated union
     if !by_concrete_type.is_empty()
         && base_fields.values().all(TypeSelection::is_typename)
         && (base_fields.values().any(TypeSelection::is_typename)
-            || by_concrete_type.values().all(has_typename_selection))
+            || by_concrete_type
+                .values()
+                .all(|selections| has_typename_selection(selections)))
     {
         let mut typename_aliases = IndexSet::new();
         for (concrete_type, selections) in by_concrete_type {
@@ -648,7 +662,7 @@ fn selections_to_babel(
     } else {
         let mut selection_map = selections_to_map(hashmap_into_values(base_fields), false);
         for concrete_type_selections in hashmap_into_values(by_concrete_type) {
-            merge_selections(
+            merge_selection_maps(
                 &mut selection_map,
                 selections_to_map(
                     concrete_type_selections.into_iter().map(|mut sel| {
@@ -712,6 +726,8 @@ fn selections_to_babel(
         types
             .into_iter()
             .map(|mut props: Vec<Prop>| {
+                // If we are in a masked fragment, add the $fragmentType: NameOfFragment$fragmentType
+                // type to the generated object.
                 if let Some(fragment_type_name) = fragment_type_name {
                     props.push(Prop::KeyValuePair(KeyValuePairProp {
                         key: *KEY_FRAGMENT_TYPE,
@@ -764,7 +780,7 @@ pub(crate) fn raw_response_selections_to_babel(
         let base_fields_map = selections_to_map(base_fields.clone().into_iter(), false);
         for (concrete_type, selections) in by_concrete_type {
             let mut base_fields_map = base_fields_map.clone();
-            merge_selections(
+            merge_selection_maps(
                 &mut base_fields_map,
                 selections_to_map(selections.into_iter(), false),
                 false,
@@ -1487,7 +1503,7 @@ fn merge_selection(
 
         let mut new_type_selection = if let TypeSelection::LinkedField(mut lf_a) = a {
             if let TypeSelection::LinkedField(lf_b) = b {
-                merge_selections(
+                merge_selection_maps(
                     &mut lf_a.node_selections,
                     lf_b.node_selections,
                     should_set_conditional,
@@ -1522,7 +1538,11 @@ fn merge_selection(
     }
 }
 
-fn merge_selections(a: &mut TypeSelectionMap, b: TypeSelectionMap, should_set_conditional: bool) {
+fn merge_selection_maps(
+    a: &mut TypeSelectionMap,
+    b: TypeSelectionMap,
+    should_set_conditional: bool,
+) {
     for (key, value) in b {
         a.insert(
             key,
@@ -1655,4 +1675,8 @@ pub(crate) fn get_operation_type_export(
     }
 
     Ok(ExactObject::new(operation_types))
+}
+
+fn has_typename_selection(selections: &[TypeSelection]) -> bool {
+    selections.iter().any(TypeSelection::is_typename)
 }

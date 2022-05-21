@@ -1607,10 +1607,8 @@ fn merge_selection_maps(
     should_set_conditional: bool,
 ) {
     for (key, value) in b {
-        a.insert(
-            key,
-            merge_selection(a.get(&key).cloned(), value, should_set_conditional),
-        );
+        let item = a.remove(&key);
+        a.insert(key, merge_selection(item, value, should_set_conditional));
     }
 }
 

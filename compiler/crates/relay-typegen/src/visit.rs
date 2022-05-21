@@ -596,132 +596,169 @@ fn selections_to_babel(
         }
     }
 
+    if should_emit_discriminated_union(&by_concrete_type, &base_fields) {
+        get_discriminated_union_ast(
+            by_concrete_type,
+            &base_fields,
+            typegen_context,
+            encountered_enums,
+            encountered_fragments,
+            mask_status,
+            fragment_type_name,
+            custom_scalars,
+        )
+    } else {
+        get_merged_object_with_optional_fields(
+            base_fields,
+            by_concrete_type,
+            typegen_context,
+            encountered_enums,
+            encountered_fragments,
+            mask_status,
+            fragment_type_name,
+            custom_scalars,
+        )
+    }
+}
+
+/// If we have top-level non-__typename selections, then selections within type refinements to concrete
+/// types are flattened to the top and made optional
+#[allow(clippy::too_many_arguments)]
+fn get_merged_object_with_optional_fields(
+    base_fields: IndexMap<StringKey, TypeSelection>,
+    by_concrete_type: IndexMap<Type, Vec<TypeSelection>>,
+    typegen_context: &'_ TypegenContext<'_>,
+    encountered_enums: &mut EncounteredEnums,
+    encountered_fragments: &mut EncounteredFragments,
+    mask_status: MaskStatus,
+    fragment_type_name: Option<StringKey>,
+    custom_scalars: &mut CustomScalarsImports,
+) -> AST {
+    let mut selection_map = selections_to_map(hashmap_into_values(base_fields), false);
+    for concrete_type_selections in hashmap_into_values(by_concrete_type) {
+        merge_selection_maps(
+            &mut selection_map,
+            selections_to_map(
+                concrete_type_selections.into_iter().map(|mut sel| {
+                    sel.set_conditional(true);
+                    sel
+                }),
+                false,
+            ),
+            true,
+        );
+    }
+    let mut props = group_refs(hashmap_into_values(selection_map))
+        .map(|mut sel| {
+            if sel.is_typename() {
+                if let Some(concrete_type) = sel.get_enclosing_concrete_type() {
+                    sel.set_conditional(false);
+                    return make_prop(
+                        typegen_context,
+                        sel,
+                        mask_status,
+                        Some(concrete_type),
+                        encountered_enums,
+                        encountered_fragments,
+                        custom_scalars,
+                    );
+                }
+            }
+            if let TypeSelection::LinkedField(ref linked_field) = sel {
+                if let Some(concrete_type) = linked_field.concrete_type {
+                    let mut linked_field = linked_field.clone();
+                    linked_field.concrete_type = None;
+                    return make_prop(
+                        typegen_context,
+                        TypeSelection::LinkedField(linked_field),
+                        mask_status,
+                        Some(concrete_type),
+                        encountered_enums,
+                        encountered_fragments,
+                        custom_scalars,
+                    );
+                }
+            }
+
+            make_prop(
+                typegen_context,
+                sel,
+                mask_status,
+                None,
+                encountered_enums,
+                encountered_fragments,
+                custom_scalars,
+            )
+        })
+        .collect::<Vec<_>>();
+
+    // If we are in a masked fragment, add the $fragmentType: NameOfFragment$fragmentType
+    // type to the generated object.
+    if let Some(fragment_type_name) = fragment_type_name {
+        props.push(Prop::KeyValuePair(KeyValuePairProp {
+            key: *KEY_FRAGMENT_TYPE,
+            optional: false,
+            read_only: true,
+            value: AST::FragmentReferenceType(fragment_type_name),
+        }));
+    }
+
+    if mask_status == MaskStatus::Unmasked {
+        AST::InexactObject(InexactObject::new(props))
+    } else {
+        AST::ExactObject(ExactObject::new(props))
+    }
+}
+
+fn get_discriminated_union_ast(
+    by_concrete_type: IndexMap<Type, Vec<TypeSelection>>,
+    base_fields: &IndexMap<StringKey, TypeSelection>,
+    typegen_context: &'_ TypegenContext<'_>,
+    encountered_enums: &mut EncounteredEnums,
+    encountered_fragments: &mut EncounteredFragments,
+    mask_status: MaskStatus,
+    fragment_type_name: Option<StringKey>,
+    custom_scalars: &mut CustomScalarsImports,
+) -> AST {
     let mut types: Vec<Vec<Prop>> = Vec::new();
-
-    // In the following condition, if base_fields is empty, the .all will return true
-    // but the .any will return false.
-    //
-    // So, we can read this as:
-    //
-    // If base fields is empty
-    //   * if we have a type refinement to a concrete type
-    //   * and within each type refinement, there is a __typename selection
-    //
-    // If base fields is not empty
-    //   * if we have a type refinement to a concrete type
-    //   * and all fields are outside of type refinements are __typename selections
-    //
-    // If this condition passes, we emit a discriminated union
-    if !by_concrete_type.is_empty()
-        && base_fields.values().all(TypeSelection::is_typename)
-        && (base_fields.values().any(TypeSelection::is_typename)
-            || by_concrete_type
-                .values()
-                .all(|selections| has_typename_selection(selections)))
-    {
-        let mut typename_aliases = IndexSet::new();
-        for (concrete_type, selections) in by_concrete_type {
-            types.push(
-                group_refs(base_fields.values().cloned().chain(selections))
-                    .map(|selection| {
-                        if selection.is_typename() {
-                            typename_aliases.insert(selection.get_field_name_or_alias().expect(
-                                "Just checked this exists by checking that the field is typename",
-                            ));
-                        }
-                        make_prop(
-                            typegen_context,
-                            selection,
-                            mask_status,
-                            Some(concrete_type),
-                            encountered_enums,
-                            encountered_fragments,
-                            custom_scalars,
-                        )
-                    })
-                    .collect(),
-            );
-        }
-
-        // It might be some other type then the listed concrete types. Ideally, we
-        // would set the type to diff(string, set of listed concrete types), but
-        // this doesn't exist in Flow at the time.
+    let mut typename_aliases = IndexSet::new();
+    for (concrete_type, selections) in by_concrete_type {
         types.push(
-            typename_aliases
-                .iter()
-                .map(|typename_alias| {
-                    Prop::KeyValuePair(KeyValuePairProp {
-                        key: *typename_alias,
-                        read_only: true,
-                        optional: false,
-                        value: AST::OtherTypename,
-                    })
+            group_refs(base_fields.values().cloned().chain(selections))
+                .map(|selection| {
+                    if selection.is_typename() {
+                        typename_aliases.insert(selection.get_field_name_or_alias().expect(
+                            "Just checked this exists by checking that the field is typename",
+                        ));
+                    }
+                    make_prop(
+                        typegen_context,
+                        selection,
+                        mask_status,
+                        Some(concrete_type),
+                        encountered_enums,
+                        encountered_fragments,
+                        custom_scalars,
+                    )
                 })
                 .collect(),
         );
-    } else {
-        let mut selection_map = selections_to_map(hashmap_into_values(base_fields), false);
-        for concrete_type_selections in hashmap_into_values(by_concrete_type) {
-            merge_selection_maps(
-                &mut selection_map,
-                selections_to_map(
-                    concrete_type_selections.into_iter().map(|mut sel| {
-                        sel.set_conditional(true);
-                        sel
-                    }),
-                    false,
-                ),
-                true,
-            );
-        }
-        let selection_map_values = group_refs(hashmap_into_values(selection_map))
-            .map(|sel| {
-                if let TypeSelection::ScalarField(ref scalar_field) = sel {
-                    if sel.is_typename() {
-                        if let Some(type_condition) = scalar_field.concrete_type {
-                            let mut scalar_field = scalar_field.clone();
-                            scalar_field.conditional = false;
-                            return make_prop(
-                                typegen_context,
-                                TypeSelection::ScalarField(scalar_field),
-                                mask_status,
-                                Some(type_condition),
-                                encountered_enums,
-                                encountered_fragments,
-                                custom_scalars,
-                            );
-                        }
-                    }
-                } else if let TypeSelection::LinkedField(ref linked_field) = sel {
-                    if let Some(concrete_type) = linked_field.concrete_type {
-                        let mut linked_field = linked_field.clone();
-                        linked_field.concrete_type = None;
-                        return make_prop(
-                            typegen_context,
-                            TypeSelection::LinkedField(linked_field),
-                            mask_status,
-                            Some(concrete_type),
-                            encountered_enums,
-                            encountered_fragments,
-                            custom_scalars,
-                        );
-                    }
-                }
-
-                make_prop(
-                    typegen_context,
-                    sel,
-                    mask_status,
-                    None,
-                    encountered_enums,
-                    encountered_fragments,
-                    custom_scalars,
-                )
-            })
-            .collect();
-        types.push(selection_map_values);
     }
 
+    // Add the __typename: "%other" branch of the discriminated union.
+    types.push(
+        typename_aliases
+            .iter()
+            .map(|typename_alias| {
+                Prop::KeyValuePair(KeyValuePairProp {
+                    key: *typename_alias,
+                    read_only: true,
+                    optional: false,
+                    value: AST::OtherTypename,
+                })
+            })
+            .collect(),
+    );
     AST::Union(SortedASTList::new(
         types
             .into_iter()
@@ -744,6 +781,32 @@ fn selections_to_babel(
             })
             .collect(),
     ))
+}
+
+/// In the following condition, if base_fields is empty, the .all will return true
+/// but the .any will return false.
+///
+/// So, we can read this as:
+///
+/// If base fields is empty
+///   * if we have a type refinement to a concrete type
+///   * and within each type refinement, there is a __typename selection
+///
+/// If base fields is not empty
+///   * if we have a type refinement to a concrete type
+///   * and all fields are outside of type refinements are __typename selections
+///
+/// If this condition passes, we emit a discriminated union
+fn should_emit_discriminated_union(
+    by_concrete_type: &IndexMap<Type, Vec<TypeSelection>>,
+    base_fields: &IndexMap<StringKey, TypeSelection>,
+) -> bool {
+    !by_concrete_type.is_empty()
+        && base_fields.values().all(TypeSelection::is_typename)
+        && (base_fields.values().any(TypeSelection::is_typename)
+            || by_concrete_type
+                .values()
+                .all(|selections| has_typename_selection(selections)))
 }
 
 pub(crate) fn raw_response_selections_to_babel(

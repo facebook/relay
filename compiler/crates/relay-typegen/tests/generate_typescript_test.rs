@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6665d3a544e0cdf6da2455d0ec024390>>
+ * @generated SignedSource<<a58c4e9a6c17915f3f6a98c532b7058c>>
  */
 
 mod generate_typescript;
@@ -374,6 +374,13 @@ fn typename_on_union() {
     let input = include_str!("generate_typescript/fixtures/typename-on-union.graphql");
     let expected = include_str!("generate_typescript/fixtures/typename-on-union.expected");
     test_fixture(transform_fixture, "typename-on-union.graphql", "generate_typescript/fixtures/typename-on-union.expected", input, expected);
+}
+
+#[test]
+fn typename_on_union_with_non_matching_aliases() {
+    let input = include_str!("generate_typescript/fixtures/typename-on-union-with-non-matching-aliases.graphql");
+    let expected = include_str!("generate_typescript/fixtures/typename-on-union-with-non-matching-aliases.expected");
+    test_fixture(transform_fixture, "typename-on-union-with-non-matching-aliases.graphql", "generate_typescript/fixtures/typename-on-union-with-non-matching-aliases.expected", input, expected);
 }
 
 #[test]

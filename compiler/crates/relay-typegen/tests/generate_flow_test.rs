@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<02b9c7bd888dded8866d91eac4653727>>
+ * @generated SignedSource<<de67643d7f3583d1e576f9c37463e3f2>>
  */
 
 mod generate_flow;
@@ -549,6 +549,13 @@ fn typename_on_union() {
     let input = include_str!("generate_flow/fixtures/typename-on-union.graphql");
     let expected = include_str!("generate_flow/fixtures/typename-on-union.expected");
     test_fixture(transform_fixture, "typename-on-union.graphql", "generate_flow/fixtures/typename-on-union.expected", input, expected);
+}
+
+#[test]
+fn typename_on_union_with_non_matching_aliases() {
+    let input = include_str!("generate_flow/fixtures/typename-on-union-with-non-matching-aliases.graphql");
+    let expected = include_str!("generate_flow/fixtures/typename-on-union-with-non-matching-aliases.expected");
+    test_fixture(transform_fixture, "typename-on-union-with-non-matching-aliases.graphql", "generate_flow/fixtures/typename-on-union-with-non-matching-aliases.expected", input, expected);
 }
 
 #[test]

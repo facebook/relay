@@ -21,7 +21,7 @@ The relay compiler supports persisted queries. This is useful because:
 -   The client operation text becomes just an md5 hash which is usually shorter than the real
     query string. This saves upload bytes from the client to the server.
 
--   The server can now whitelist queries which improves security by restricting the operations
+-   The server can now allowlist queries which improves security by restricting the operations
     that can be executed by a client.
 
 <OssOnly>

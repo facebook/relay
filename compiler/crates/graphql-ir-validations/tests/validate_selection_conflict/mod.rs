@@ -51,7 +51,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     };
 
     let program = Program::from_definitions(Arc::clone(&TEST_SCHEMA), ir);
-    validate_selection_conflict::<LocationAgnosticBehaviorForTestOnly>(&program)
+    validate_selection_conflict::<LocationAgnosticBehaviorForTestOnly>(&program, false)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
     Ok("OK".to_owned())

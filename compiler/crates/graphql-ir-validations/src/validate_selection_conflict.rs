@@ -7,7 +7,7 @@
 
 use self::ignoring_type_and_location::arguments_equals;
 use common::{Diagnostic, DiagnosticsResult, Location, PointerAddress};
-use dashmap::DashMap;
+use dashmap::{DashMap, DashSet};
 use errors::{par_try_map, validate_map};
 use graphql_ir::{
     node_identifier::LocationAgnosticBehavior, Argument, Field as IRField, FragmentDefinition,
@@ -15,14 +15,16 @@ use graphql_ir::{
 };
 use intern::string_key::StringKey;
 use schema::{SDLSchema, Schema, Type, TypeReference};
+use std::collections::HashMap;
 use std::marker::PhantomData;
 use std::sync::Arc;
 use thiserror::Error;
 
 pub fn validate_selection_conflict<B: LocationAgnosticBehavior + Sync>(
     program: &Program,
+    cache_verified_fields: bool,
 ) -> DiagnosticsResult<()> {
-    ValidateSelectionConflict::<B>::new(program).validate_program(program)
+    ValidateSelectionConflict::<B>::new(program, cache_verified_fields).validate_program(program)
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -31,26 +33,34 @@ enum Field<'s> {
     ScalarField(&'s ScalarField),
 }
 
-type Fields<'s> = Vec<Field<'s>>;
+type Fields<'s> = HashMap<StringKey, Vec<Field<'s>>>;
 
 struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     program: &'s Program,
     fragment_cache: DashMap<StringKey, Arc<Fields<'s>>>,
     fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
+    cache_verified_fields: bool,
+    verified_fields_pair: DashSet<(PointerAddress, PointerAddress)>,
     _behavior: PhantomData<TBehavior>,
 }
 
 impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
-    fn new(program: &'s Program) -> Self {
+    fn new(program: &'s Program, cache_verified_fields: bool) -> Self {
         Self {
             program,
             fragment_cache: Default::default(),
             fields_cache: Default::default(),
+            cache_verified_fields,
+            verified_fields_pair: DashSet::new(),
             _behavior: PhantomData::<B>,
         }
     }
 
     fn validate_program(&self, program: &'s Program) -> DiagnosticsResult<()> {
+        // NOTE: Fragments may be visited multiple times due to the parallel traversal for
+        // operations! Today the extra overhead is acceptable, compared to single thread
+        // `try_map` for opeartions.
+        // TODO: visit the fragments in parallel with topology order before visiting the operations.
         par_try_map(&program.operations, |operation| {
             self.validate_operation(operation)
         })?;
@@ -63,7 +73,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     }
 
     fn validate_selections(&self, selections: &'s [Selection]) -> DiagnosticsResult<Fields<'s>> {
-        let mut fields = Vec::new();
+        let mut fields = Default::default();
         validate_map(selections, |selection| {
             self.validate_selection(&mut fields, selection)
         })?;
@@ -79,24 +89,24 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             Selection::LinkedField(field) => {
                 self.validate_linked_field_selections(field)?;
                 let field = Field::LinkedField(field.as_ref());
-                self.validate_and_insert_field_selection(fields, field, false)
+                self.validate_and_insert_field_selection(fields, &field, false)
             }
             Selection::ScalarField(field) => {
                 let field = Field::ScalarField(field.as_ref());
-                self.validate_and_insert_field_selection(fields, field, false)
+                self.validate_and_insert_field_selection(fields, &field, false)
             }
             Selection::Condition(condition) => {
                 let new_fields = self.validate_selections(&condition.selections)?;
-                self.validate_and_merge_fields(fields, new_fields, false)
+                self.validate_and_merge_fields(fields, &new_fields, false)
             }
             Selection::InlineFragment(fragment) => {
                 let new_fields = self.validate_selections(&fragment.selections)?;
-                self.validate_and_merge_fields(fields, new_fields, false)
+                self.validate_and_merge_fields(fields, &new_fields, false)
             }
             Selection::FragmentSpread(spread) => {
                 let fragment = self.program.fragment(spread.fragment.item).unwrap();
                 let new_fields = self.validate_and_collect_fragment(fragment)?;
-                self.validate_and_merge_fields(fields, new_fields.to_vec(), false)
+                self.validate_and_merge_fields(fields, &new_fields, false)
             }
         }
     }
@@ -130,10 +140,10 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     fn validate_and_merge_fields(
         &self,
         left: &mut Fields<'s>,
-        right: Fields<'s>,
+        right: &Fields<'s>,
         parent_fields_mutually_exclusive: bool,
     ) -> DiagnosticsResult<()> {
-        validate_map(right, |field| {
+        validate_map(right.values().flatten(), |field| {
             self.validate_and_insert_field_selection(left, field, parent_fields_mutually_exclusive)
         })
     }
@@ -141,22 +151,37 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     fn validate_and_insert_field_selection(
         &self,
         fields: &mut Fields<'s>,
-        field: Field<'s>,
+        field: &Field<'s>,
         parent_fields_mutually_exclusive: bool,
     ) -> DiagnosticsResult<()> {
         let key = field.get_response_key(&self.program.schema);
+        if !fields.contains_key(&key) {
+            fields.entry(key).or_default().push(field.clone());
+            return Ok(());
+        }
+
         let mut errors = vec![];
 
-        for existing_field in fields
-            .iter_mut()
-            .filter(|field| key == field.get_response_key(&self.program.schema))
-        {
-            if &field == existing_field {
+        for existing_field in fields.get(&key).unwrap() {
+            if field == existing_field {
                 return if errors.is_empty() {
                     Ok(())
                 } else {
                     Err(errors)
                 };
+            }
+
+            if self.cache_verified_fields {
+                let addr1 = PointerAddress::new(&field);
+                let addr2 = PointerAddress::new(existing_field);
+                let pair_hash = (addr1, addr2);
+                let pair_hash2 = (addr2, addr1);
+
+                if self.verified_fields_pair.contains(&pair_hash)
+                    || self.verified_fields_pair.contains(&pair_hash2)
+                {
+                    continue;
+                }
             }
 
             let l_definition = existing_field.get_field_definition(&self.program.schema);
@@ -191,7 +216,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
 
                         if let Err(errs) = self.validate_and_merge_fields(
                             Arc::make_mut(&mut l_fields),
-                            r_fields.to_vec(),
+                            &r_fields,
                             fields_mutually_exclusive,
                         ) {
                             errors.extend(errs);
@@ -273,9 +298,17 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                     );
                 }
             }
+
+            // save the verified pair into cache
+            if self.cache_verified_fields && errors.is_empty() {
+                let addr1 = PointerAddress::new(&field);
+                let addr2 = PointerAddress::new(existing_field);
+                let pair_hash = (addr1, addr2);
+                self.verified_fields_pair.insert(pair_hash);
+            }
         }
         if errors.is_empty() {
-            fields.push(field);
+            fields.entry(key).or_default().push(field.clone());
             Ok(())
         } else {
             Err(errors)

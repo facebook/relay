@@ -687,10 +687,10 @@ class RelayReader {
       // local within their type. ResolverCache will derive a namespaced ID for us.
       if (field.linkedField.plural) {
         destinationDataID = destinationDataID.map(id =>
-          this._resolverCache.createClientRecord(id, field.concreteType),
+          this._resolverCache.ensureClientRecord(id, field.concreteType),
         );
       } else {
-        destinationDataID = this._resolverCache.createClientRecord(
+        destinationDataID = this._resolverCache.ensureClientRecord(
           destinationDataID,
           field.concreteType,
         );

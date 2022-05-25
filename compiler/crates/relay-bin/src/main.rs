@@ -289,7 +289,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
             .compile()
             .await
             .map_err(|err| Error::CompilerError {
-                details: format!("{:?}", err),
+                details: format!("{}", err),
             })?;
     }
 

@@ -24,6 +24,7 @@ use relay_transforms::DependencyMap;
 use schema::SDLSchema;
 use schema_diff::{definitions::SchemaChange, detect_changes};
 use serde::{Deserialize, Serialize};
+use std::collections::hash_map::Entry;
 use std::{
     env, fmt,
     fs::File as FsFile,
@@ -148,29 +149,18 @@ impl<V: Source + Clone> IncrementalSources<V> {
     /// Docblock, .etc). We need to keep the empty source only when there is a
     /// corresponding source in `processed`, and compiler needs to do the work to remove it.
     fn merge_pending_sources(&mut self, additional_pending_sources: &IncrementalSourceSet<V>) {
-        if self.processed.is_empty() {
-            self.pending.extend(
-                additional_pending_sources
-                    .iter()
-                    .filter(|&(_, value)| !value.is_empty())
-                    .map(|(k, v)| (k.clone(), v.clone())),
-            );
-        } else {
-            self.pending.extend(
-                additional_pending_sources
-                    .iter()
-                    .filter(|&(key, value)| {
-                        if value.is_empty() {
-                            match self.processed.get(key) {
-                                Some(v) => !v.is_empty(),
-                                None => false,
-                            }
-                        } else {
-                            true
-                        }
-                    })
-                    .map(|(k, v)| (k.clone(), v.clone())),
-            );
+        for (key, value) in additional_pending_sources.iter() {
+            match self.pending.entry(key.to_path_buf()) {
+                Entry::Occupied(mut entry) => {
+                    entry.insert(value.clone());
+                }
+                Entry::Vacant(vacant) => {
+                    if !value.is_empty() || self.processed.get(key).map_or(false, |v| !v.is_empty())
+                    {
+                        vacant.insert(value.clone());
+                    }
+                }
+            }
         }
     }
 
@@ -794,5 +784,75 @@ mod clock_json_string {
         fn visit_str<E: Error>(self, v: &str) -> Result<Option<Clock>, E> {
             Ok(serde_json::from_str(v).unwrap())
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    impl Source for Vec<u32> {
+        fn is_empty(&self) -> bool {
+            self.is_empty()
+        }
+    }
+
+    #[test]
+    fn empty_pending_incremental_source_overwrites_existing_pending_source() {
+        let mut incremental_source: IncrementalSources<Vec<u32>> = IncrementalSources::default();
+
+        let a = PathBuf::new();
+
+        let mut initial = FnvHashMap::default();
+        initial.insert(a.clone(), vec![1, 2, 3]);
+
+        // Starting with a pending source of a => [1, 2, 3]
+        incremental_source.merge_pending_sources(&initial);
+
+        assert_eq!(incremental_source.pending.get(&a), Some(&vec![1, 2, 3]));
+
+        let mut update: FnvHashMap<PathBuf, Vec<u32>> = FnvHashMap::default();
+        update.insert(a.clone(), Vec::new());
+
+        // Merge in a pending source of a => []
+        incremental_source.merge_pending_sources(&update);
+
+        // Pending for a should now be empty
+        assert_eq!(incremental_source.pending.get(&a), Some(&vec![]));
+    }
+
+    #[test]
+    fn empty_pending_incremental_is_ignored_if_no_processed_source_exists() {
+        let mut incremental_source: IncrementalSources<Vec<u32>> = IncrementalSources::default();
+
+        let a = PathBuf::new();
+
+        let mut update: FnvHashMap<PathBuf, Vec<u32>> = FnvHashMap::default();
+        update.insert(a.clone(), Vec::new());
+
+        // Merge in a pending source of a => []
+        incremental_source.merge_pending_sources(&update);
+
+        // Pending for a should not be populated
+        assert_eq!(incremental_source.pending.get(&a), None);
+    }
+
+    #[test]
+    fn empty_pending_incremental_is_ignored_if_no_processed_source_is_empty() {
+        let mut incremental_source: IncrementalSources<Vec<u32>> = IncrementalSources::default();
+
+        let a = PathBuf::new();
+
+        incremental_source.processed.insert(a.clone(), Vec::new());
+
+        let mut update: FnvHashMap<PathBuf, Vec<u32>> = FnvHashMap::default();
+        update.insert(a.clone(), Vec::new());
+
+        // Merge in a pending source of a => []
+        incremental_source.merge_pending_sources(&update);
+
+        // Pending for a should not be populated
+        assert_eq!(incremental_source.pending.get(&a), None);
     }
 }

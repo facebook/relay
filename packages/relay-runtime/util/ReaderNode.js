@@ -248,7 +248,9 @@ type ResolverModuleWithArgs = (
 
 type ResolverModuleWithoutArg = (rootKey: ResolverRootKey) => mixed;
 
-type ResolverModule = ResolverModuleWithArgs | ResolverModuleWithoutArg;
+type ResolverFunction = ResolverModuleWithArgs | ResolverModuleWithoutArg;
+// With ES6 imports, a resolver function might be exported under the `default` key.
+type ResolverModule = ResolverFunction | {|default: ResolverFunction|};
 
 export type ReaderRelayResolver = {|
   +kind: 'RelayResolver',

@@ -608,6 +608,7 @@ class RelayReader {
       }
       if (cachedSnapshot.missingLiveResolverFields != null) {
         this._isMissingData =
+          this._isMissingData ||
           cachedSnapshot.missingLiveResolverFields.length > 0;
 
         for (const missingResolverField of cachedSnapshot.missingLiveResolverFields) {

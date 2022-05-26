@@ -185,6 +185,7 @@ function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
           'getLinkedRecords() instead of getLinkedRecord()?'
       : '',
   );
+  // $FlowFixMe[incompatible-return]
   return link[REF_KEY];
 }
 

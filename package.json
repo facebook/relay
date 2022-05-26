@@ -50,7 +50,7 @@
     "eslint-plugin-react": "7.21.5",
     "eslint-plugin-relay": "1.7.1",
     "fbjs": "^3.0.2",
-    "flow-bin": "^0.178.0",
+    "flow-bin": "^0.178.1",
     "glob": "^7.1.1",
     "graphql": "15.3.0",
     "gulp": "4.0.2",

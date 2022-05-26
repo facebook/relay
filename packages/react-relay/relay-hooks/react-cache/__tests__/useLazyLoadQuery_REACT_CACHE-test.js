@@ -39,7 +39,6 @@ const {
   disallowConsoleWarnings,
   disallowWarnings,
   expectConsoleErrorWillFire,
-  expectConsoleWarningWillFire,
   trackRetentionForEnvironment,
 } = require('relay-test-utils-internal');
 
@@ -835,6 +834,60 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
           );
         },
       );
+
+      it('Distinguishes environments', () => {
+        // Ensures that the pending/error/resolved state of a query (as opposed
+        // to just the resulting value) is distinguished from one environment
+        // to another. A regression test.
+        // Create two enviroments where one has the data available and the other not:
+        const env1 = new Environment({
+          network: RelayNetwork.create(fetch),
+          store: new Store(new RecordSource()),
+        });
+        const env2 = new Environment({
+          network: RelayNetwork.create(fetch),
+          store: new Store(new RecordSource()),
+        });
+        env1.commitPayload(operation, responsePayload);
+
+        // Render the same component within each of the enviroments but
+        // sharing a React Cache component:
+        function UsesQuery(_props) {
+          const data = useLazyLoadQuery(query, variables);
+          return data.node?.username ?? 'Data is missing';
+        }
+        function TestComponent(_props) {
+          return (
+            <RelayEnvironmentProvider environment={env1}>
+              <UsesQuery />
+              <RelayEnvironmentProvider environment={env2}>
+                <React.Suspense fallback="Fallback">
+                  <UsesQuery />
+                </React.Suspense>
+              </RelayEnvironmentProvider>
+            </RelayEnvironmentProvider>
+          );
+        }
+
+        const container = ReactTestRenderer.create(
+          <Cache>
+            <Wrappers env={environment}>
+              <TestComponent />
+            </Wrappers>
+          </Cache>,
+        );
+
+        // If this behavior were not met, it would be 'Data missing' instead of
+        // 'Fallback' because the read in the second environment would have seen
+        // the 'resolved' state of the query from the first environment since they
+        // share a Cache.
+        expect(container.toJSON()).toEqual(['abc', 'Fallback']);
+
+        container.unmount();
+        ReactTestRenderer.act(() => {
+          jest.runAllImmediates();
+        });
+      });
 
       it('Retains the query when two components use the same query and one of them unmounts while the other is suspended', () => {
         function UsesQuery(_props) {

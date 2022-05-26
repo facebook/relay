@@ -68,12 +68,53 @@ type QueryCacheEntry = {|
   suspenseResource: SuspenseResource | null,
 |};
 
-type QueryCache = Map<string, QueryCacheEntry>;
-
 const DEFAULT_FETCH_POLICY = 'store-or-network';
 
+type QueryCacheKey = string;
+
+class QueryCache {
+  _map: Map<IEnvironment, Map<QueryCacheKey, QueryCacheEntry>>;
+
+  constructor() {
+    this._map = new Map();
+  }
+
+  get(environment: IEnvironment, key: QueryCacheKey): QueryCacheEntry | void {
+    let forEnv = this._map.get(environment);
+    if (!forEnv) {
+      forEnv = new Map();
+      this._map.set(environment, forEnv);
+    }
+    return forEnv.get(key);
+  }
+
+  set(
+    environment: IEnvironment,
+    key: QueryCacheKey,
+    value: QueryCacheEntry,
+  ): void {
+    let forEnv = this._map.get(environment);
+    if (!forEnv) {
+      forEnv = new Map();
+      this._map.set(environment, forEnv);
+    }
+    forEnv.set(key, value);
+  }
+
+  delete(environment: IEnvironment, key: QueryCacheKey): void {
+    const forEnv = this._map.get(environment);
+    if (!forEnv) {
+      return;
+    }
+    forEnv.delete(key);
+    if (forEnv.size === 0) {
+      this._map.delete(environment);
+    }
+  }
+}
+
 function createQueryCache(): QueryCache {
-  return new Map();
+  return new QueryCache();
 }
 
 const noopOnCommit = () => {
@@ -87,11 +128,10 @@ function getQueryCacheKey(
   fetchPolicy: FetchPolicy,
   renderPolicy: RenderPolicy,
   fetchKey?: ?string | ?number,
-): string {
-  const cacheIdentifier = `${fetchPolicy}-${renderPolicy}-${
-    operation.request.identifier
-  }-${fetchKey ?? ''}`;
-  return cacheIdentifier;
+): QueryCacheKey {
+  return `${fetchPolicy}-${renderPolicy}-${operation.request.identifier}-${
+    fetchKey ?? ''
+  }`;
 }
 
 function constructQueryResult(operation: OperationDescriptor): QueryResult {
@@ -140,18 +180,18 @@ function getQueryResultOrFetchQuery_REACT_CACHE(
     options?.fetchKey,
   );
 
-  const initialEntry = cache.get(cacheKey);
+  const initialEntry = cache.get(environment, cacheKey);
 
   function updateCache(updater) {
-    let currentEntry = cache.get(cacheKey);
+    let currentEntry = cache.get(environment, cacheKey);
     if (!currentEntry) {
       currentEntry = makeInitialCacheEntry();
-      cache.set(cacheKey, currentEntry);
+      cache.set(environment, cacheKey, currentEntry);
     }
     // $FlowExpectedError[prop-missing] Extra properties are passed in -- this is fine
     const newStatus: {...} = updater(currentEntry);
     // $FlowExpectedError[cannot-spread-inexact] Flow cannot understand that this is valid...
-    cache.set(cacheKey, {...currentEntry, ...newStatus});
+    cache.set(environment, cacheKey, {...currentEntry, ...newStatus});
     // ... but we can because QueryCacheEntry spreads QueryCacheEntryStatus, so spreading
     // a QueryCacheEntryStatus into a QueryCacheEntry will result in a valid QueryCacheEntry.
   }
@@ -168,7 +208,7 @@ function getQueryResultOrFetchQuery_REACT_CACHE(
         updateCache,
         options?.fetchObservable,
       );
-      const createdEntry = cache.get(cacheKey);
+      const createdEntry = cache.get(environment, cacheKey);
       invariant(
         createdEntry !== undefined,
         'An entry should have been created by onCacheMiss. This is a bug in Relay.',
@@ -183,7 +223,7 @@ function getQueryResultOrFetchQuery_REACT_CACHE(
         return {
           dispose: () => {
             retention.dispose();
-            cache.delete(cacheKey);
+            cache.delete(environment, cacheKey);
           },
         };
       });
@@ -221,14 +261,14 @@ function getQueryResultOrFetchQuery_REACT_CACHE(
 
       const dispose = () => {
         retention.dispose();
-        cache.delete(cacheKey);
+        cache.delete(environment, cacheKey);
       };
       const abortSignal = getCacheSignal();
       abortSignal.addEventListener('abort', dispose, {once: true});
     }
   }
 
-  const entry = cache.get(cacheKey); // could be a different entry now if synchronously resolved
+  const entry = cache.get(environment, cacheKey); // could be a different entry now if synchronously resolved
   invariant(
     entry !== undefined,
     'An entry should have been created by onCacheMiss. This is a bug in Relay.',

@@ -273,7 +273,10 @@ function useFragmentInternal_REACT_CACHE(
   queryOptions?: FragmentQueryOptions,
   fragmentKey?: string,
 ): ?SelectorData | Array<?SelectorData> {
-  const fragmentSelector = getSelector(fragmentNode, fragmentRef);
+  const fragmentSelector = useMemo(
+    () => getSelector(fragmentNode, fragmentRef),
+    [fragmentNode, fragmentRef],
+  );
 
   const isPlural = fragmentNode?.metadata?.plural === true;
 

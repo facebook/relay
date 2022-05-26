@@ -511,13 +511,8 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): mixed {
-    const {resolverModule, fragment} = field;
-    // Support for languages that work (best) with ES6 modules, such as TypeScript.
-    const resolverFunction =
-      typeof resolverModule === 'function'
-        ? resolverModule
-        : resolverModule.default;
-    const storageKey = getStorageKey(fragment, this._variables);
+    const {fragment} = field;
+    const storageKey = getStorageKey(fragment ?? field, this._variables);
     const resolverID = ClientID.generateClientID(
       RelayModernRecord.getDataID(record),
       storageKey,
@@ -553,50 +548,44 @@ class RelayReader {
     const resolverContext = {getDataForResolverFragment};
 
     const evaluate = (): EvaluationResult<mixed> => {
-      const key = {
-        __id: RelayModernRecord.getDataID(record),
-        __fragmentOwner: this._owner,
-        __fragments: {
-          [fragment.name]: fragment.args
-            ? getArgumentValues(fragment.args, this._variables)
-            : {},
-        },
-      };
-      return withResolverContext(resolverContext, () => {
-        let resolverResult = null;
-        let resolverError = null;
-        try {
-          const args = field.args
-            ? getArgumentValues(field.args, this._variables)
-            : undefined;
-          resolverResult = resolverFunction(
-            // $FlowFixMe[prop-missing] - Resolver's generated type signature is a lie
+      if (fragment != null) {
+        const key = {
+          __id: RelayModernRecord.getDataID(record),
+          __fragmentOwner: this._owner,
+          __fragments: {
+            [fragment.name]: fragment.args
+              ? getArgumentValues(fragment.args, this._variables)
+              : {},
+          },
+        };
+        return withResolverContext(resolverContext, () => {
+          const [resolverResult, resolverError] = getResolverValue(
+            field,
+            this._variables,
             key,
-            // The Relay Compiler enforces that only resolvers that
-            // define arguments will have args in the Reader AST.
-            // $FlowFixMe[extra-arg]
-            args,
+            this._fragmentName,
           );
-        } catch (e) {
-          if (e === RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL) {
-            resolverResult = undefined;
-          } else {
-            // `field.path` is typed as nullable while we rollout compiler changes.
-            const path = field.path ?? '[UNKNOWN]';
-            resolverError = {
-              field: {path, owner: this._fragmentName},
-              error: e,
-            };
-          }
-        }
-
+          return {
+            resolverResult,
+            snapshot: snapshot,
+            resolverID,
+            error: resolverError,
+          };
+        });
+      } else {
+        const [resolverResult, resolverError] = getResolverValue(
+          field,
+          this._variables,
+          null,
+          this._fragmentName,
+        );
         return {
           resolverResult,
-          snapshot: snapshot,
+          snapshot: undefined,
           resolverID,
           error: resolverError,
         };
-      });
+      }
     };
 
     const [result, seenRecord, resolverError, cachedSnapshot, suspenseID] =
@@ -1158,6 +1147,47 @@ class RelayReader {
     // $FlowFixMe Casting record value
     return implementsInterface;
   }
+}
+
+function getResolverValue(
+  field: ReaderRelayResolver | ReaderRelayLiveResolver,
+  variables: Variables,
+  fragmentKey: mixed,
+  ownerName: string,
+) {
+  // Support for languages that work (best) with ES6 modules, such as TypeScript.
+  const resolverFunction =
+    typeof field.resolverModule === 'function'
+      ? field.resolverModule
+      : field.resolverModule.default;
+
+  let resolverResult = null;
+  let resolverError = null;
+  try {
+    const resolverFunctionArgs = [];
+    if (field.fragment != null) {
+      resolverFunctionArgs.push(fragmentKey);
+    }
+    const args = field.args
+      ? getArgumentValues(field.args, variables)
+      : undefined;
+
+    resolverFunctionArgs.push(args);
+
+    resolverResult = resolverFunction.apply(null, resolverFunctionArgs);
+  } catch (e) {
+    if (e === RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL) {
+      resolverResult = undefined;
+    } else {
+      // `field.path` is typed as nullable while we rollout compiler changes.
+      const path = field.path ?? '[UNKNOWN]';
+      resolverError = {
+        field: {path, owner: ownerName},
+        error: e,
+      };
+    }
+  }
+  return [resolverResult, resolverError];
 }
 
 module.exports = {read};

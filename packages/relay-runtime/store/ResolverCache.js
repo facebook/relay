@@ -53,15 +53,16 @@ export type ResolverFragmentResult = {|
   isMissingData: boolean,
 |};
 
+export type GetDataForResolverFragmentFn =
+  SingularReaderSelector => ResolverFragmentResult;
+
 export interface ResolverCache {
   readFromCacheOrEvaluate<T>(
     record: Record,
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
-    getDataForResolverFragment: (
-      SingularReaderSelector,
-    ) => ResolverFragmentResult,
+    getDataForResolverFragment: GetDataForResolverFragmentFn,
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
@@ -84,7 +85,7 @@ class NoopResolverCache implements ResolverCache {
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
-    getDataForResolverFragment: SingularReaderSelector => mixed,
+    getDataForResolverFragment: GetDataForResolverFragmentFn,
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
@@ -139,7 +140,7 @@ class RecordResolverCache implements ResolverCache {
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
-    getDataForResolverFragment: SingularReaderSelector => ResolverFragmentResult,
+    getDataForResolverFragment: GetDataForResolverFragmentFn,
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
@@ -264,7 +265,7 @@ class RecordResolverCache implements ResolverCache {
 
   _isInvalid(
     record: Record,
-    getDataForResolverFragment: SingularReaderSelector => ResolverFragmentResult,
+    getDataForResolverFragment: GetDataForResolverFragmentFn,
   ): boolean {
     if (!RelayModernRecord.getValue(record, RELAY_RESOLVER_INVALIDATION_KEY)) {
       return false;

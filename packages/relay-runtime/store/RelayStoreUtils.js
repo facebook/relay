@@ -166,9 +166,9 @@ function getArguments(
 ): ?$ReadOnlyArray<NormalizationArgument | ReaderArgument> {
   if (field.kind === 'RelayResolver' || field.kind === 'RelayLiveResolver') {
     if (field.args == null) {
-      return field.fragment.args;
+      return field.fragment?.args;
     }
-    if (field.fragment.args == null) {
+    if (field.fragment?.args == null) {
       return field.args;
     }
     return field.args.concat(field.fragment.args);

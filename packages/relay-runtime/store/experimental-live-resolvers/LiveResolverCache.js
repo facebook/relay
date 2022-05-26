@@ -26,8 +26,8 @@ import type {
 } from '../RelayStoreTypes';
 import type {
   EvaluationResult,
+  GetDataForResolverFragmentFn,
   ResolverCache,
-  ResolverFragmentResult,
 } from '../ResolverCache';
 import type {LiveState} from './LiveResolverStore';
 
@@ -98,7 +98,7 @@ class LiveResolverCache implements ResolverCache {
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
-    getDataForResolverFragment: SingularReaderSelector => ResolverFragmentResult,
+    getDataForResolverFragment: GetDataForResolverFragmentFn,
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
@@ -389,7 +389,7 @@ class LiveResolverCache implements ResolverCache {
 
   _isInvalid(
     record: Record,
-    getDataForResolverFragment: SingularReaderSelector => ResolverFragmentResult,
+    getDataForResolverFragment: GetDataForResolverFragmentFn,
   ): boolean {
     if (!RelayModernRecord.getValue(record, RELAY_RESOLVER_INVALIDATION_KEY)) {
       return false;

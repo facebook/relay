@@ -42,10 +42,12 @@ RelayResolver(
                 },
             },
         ),
-        root_fragment: WithLocation {
-            location: /path/to/test/fixture/relay-resolver-with-fragment.js:79:93,
-            item: "myRootFragment",
-        },
+        root_fragment: Some(
+            WithLocation {
+                location: /path/to/test/fixture/relay-resolver-with-fragment.js:79:93,
+                item: "myRootFragment",
+            },
+        ),
         edge_to: None,
         description: None,
         deprecated: None,

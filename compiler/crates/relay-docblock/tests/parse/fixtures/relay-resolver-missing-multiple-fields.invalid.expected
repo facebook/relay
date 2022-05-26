@@ -18,6 +18,26 @@ graphql`
   }
 `
 ==================================== ERROR ====================================
+✖︎ Expected either `onType` or `onInterface` to be defined in a @RelayResolver docblock.
+
+  /path/to/test/fixture/relay-resolver-missing-multiple-fields.invalid.js:10:3
+   10 │ *
+      │ ^
+   11 │  * @RelayResolver
+      │ ^^^^^^^^^^^^^^^^^
+   12 │  
+
+
+✖︎ Missing docblock field "@fieldName"
+
+  /path/to/test/fixture/relay-resolver-missing-multiple-fields.invalid.js:10:3
+   10 │ *
+      │ ^
+   11 │  * @RelayResolver
+      │ ^^^^^^^^^^^^^^^^^
+   12 │  
+
+
 ✖︎ Missing docblock field "@rootFragment"
 
   /path/to/test/fixture/relay-resolver-missing-multiple-fields.invalid.js:10:3

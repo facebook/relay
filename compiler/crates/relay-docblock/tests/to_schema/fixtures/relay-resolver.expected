@@ -26,5 +26,5 @@ graphql`
 `
 ==================================== OUTPUT ===================================
 extend type User {
-  favorite_page: Int @relay_resolver(fragment_name: "myRootFragment", import_path: "/path/to/test/fixture/relay-resolver.js")
+  favorite_page: Int @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver.js", fragment_name: "myRootFragment")
 }

@@ -114,30 +114,42 @@ impl RelayResolverParser {
                 }
             }
         }
+        let live = self.fields.get(&LIVE_FIELD).copied();
+        let root_fragment = self.get_field_with_value(*ROOT_FRAGMENT_FIELD)?;
+        if live.is_none() && root_fragment.is_none() {
+            self.errors.push(Diagnostic::error(
+                ErrorMessages::MissingField {
+                    field_name: *ROOT_FRAGMENT_FIELD,
+                },
+                ast.location,
+            ));
+        }
+        let fragment_definition = root_fragment
+            .map(|root_fragment| {
+                self.assert_fragment_definition(root_fragment.value, definitions_in_file)
+            })
+            .transpose()?;
 
-        let root_fragment = self.assert_field_value_exists(*ROOT_FRAGMENT_FIELD, ast.location)?;
-        let fragment_definition =
-            self.assert_fragment_definition(root_fragment, definitions_in_file)?;
-
-        let on = self.assert_on(
-            ast.location,
+        let fragment_type_condition = fragment_definition.as_ref().map(|fragment_definition| {
             WithLocation::from_span(
                 fragment_definition.location.source_location(),
                 fragment_definition.type_condition.span,
                 fragment_definition.type_condition.type_.value,
-            ),
-        );
-        let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
-        let live = self.fields.get(&LIVE_FIELD).copied();
-
-        let fragment_arguments = self.extract_fragment_arguments(&fragment_definition)?;
-
+            )
+        });
+        let on = self.assert_on(ast.location, &fragment_type_condition);
         let field_string = self.assert_field_value_exists(*FIELD_NAME_FIELD, ast.location)?;
         let field = self.parse_field_definition(field_string)?;
+        let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
+        let fragment_arguments = fragment_definition
+            .as_ref()
+            .map(|fragment_definition| self.extract_fragment_arguments(fragment_definition))
+            .transpose()?
+            .flatten();
 
         // Validate that the field arguments don't collide with the fragment arguments.
-        if let (Some(field_arguments), Some(fragment_arguments)) =
-            (&field.arguments, &fragment_arguments)
+        if let (Some(field_arguments), Some(fragment_definition), Some(fragment_arguments)) =
+            (&field.arguments, &fragment_definition, &fragment_arguments)
         {
             for field_arg in &field_arguments.items {
                 if let Some(fragment_arg) = fragment_arguments.named(field_arg.name.value) {
@@ -174,7 +186,7 @@ impl RelayResolverParser {
         Ok(RelayResolverIr {
             field,
             on: on?,
-            root_fragment,
+            root_fragment: root_fragment.map(|root_fragment| root_fragment.value),
             edge_to,
             description: self.description,
             location: ast.location,
@@ -249,13 +261,13 @@ impl RelayResolverParser {
     fn assert_on(
         &mut self,
         docblock_location: Location,
-        fragment_type_condition: WithLocation<StringKey>,
+        fragment_type_condition: &Option<WithLocation<StringKey>>,
     ) -> ParseResult<On> {
         let maybe_on_type = self.get_field_with_value(*ON_TYPE_FIELD)?;
         let maybe_on_interface = self.get_field_with_value(*ON_INTERFACE_FIELD)?;
-        match (maybe_on_type, maybe_on_interface) {
+        match (maybe_on_type, maybe_on_interface, fragment_type_condition) {
             // Neither field was defined
-            (None, None) => {
+            (None, None, _) => {
                 self.errors.push(Diagnostic::error(
                     ErrorMessages::ExpectedOnTypeOrOnInterface,
                     docblock_location,
@@ -263,7 +275,7 @@ impl RelayResolverParser {
                 Err(())
             }
             // Both fields were defined
-            (Some(on_type), Some(on_interface)) => {
+            (Some(on_type), Some(on_interface), _) => {
                 self.errors.push(
                     Diagnostic::error(
                         ErrorMessages::UnexpectedOnTypeAndOnInterface,
@@ -274,7 +286,7 @@ impl RelayResolverParser {
                 Err(())
             }
             // Only onInterface was defined
-            (None, Some(on_interface)) => {
+            (None, Some(on_interface), Some(fragment_type_condition)) => {
                 if on_interface.value.item == fragment_type_condition.item {
                     Ok(On::Interface(on_interface))
                 } else {
@@ -295,7 +307,7 @@ impl RelayResolverParser {
                 }
             }
             // Only onType was defined
-            (Some(on_type), None) => {
+            (Some(on_type), None, Some(fragment_type_condition)) => {
                 if on_type.value.item == fragment_type_condition.item {
                     Ok(On::Type(on_type))
                 } else {
@@ -315,6 +327,8 @@ impl RelayResolverParser {
                     Err(())
                 }
             }
+            (Some(on_type), None, None) => Ok(On::Type(on_type)),
+            (None, Some(on_interface), None) => Ok(On::Interface(on_interface)),
         }
     }
 

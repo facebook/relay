@@ -38,11 +38,10 @@ pub fn create_docblock_resolution_info(
                     }
                 }
             };
-
-            if resolver_ir.root_fragment.location.contains(position_span) {
-                return Ok(DocblockResolutionInfo::RootFragment(
-                    resolver_ir.root_fragment.item,
-                ));
+            if let Some(root_fragment) = resolver_ir.root_fragment {
+                if root_fragment.location.contains(position_span) {
+                    return Ok(DocblockResolutionInfo::RootFragment(root_fragment.item));
+                }
             }
 
             if resolver_ir.field.name.span.contains(position_span) {

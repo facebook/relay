@@ -48,10 +48,12 @@ RelayResolver(
                 },
             },
         ),
-        root_fragment: WithLocation {
-            location: /path/to/test/fixture/relay-resolver.js:100:114,
-            item: "myRootFragment",
-        },
+        root_fragment: Some(
+            WithLocation {
+                location: /path/to/test/fixture/relay-resolver.js:100:114,
+                item: "myRootFragment",
+            },
+        ),
         edge_to: Some(
             WithLocation {
                 location: /path/to/test/fixture/relay-resolver.js:78:82,

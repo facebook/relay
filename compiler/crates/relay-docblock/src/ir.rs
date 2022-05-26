@@ -82,7 +82,7 @@ impl Named for Argument {
 pub struct RelayResolverIr {
     pub field: FieldDefinitionStub,
     pub on: On,
-    pub root_fragment: WithLocation<StringKey>,
+    pub root_fragment: Option<WithLocation<StringKey>>,
     pub edge_to: Option<WithLocation<TypeAnnotation>>,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
@@ -137,11 +137,11 @@ impl RelayResolverIr {
                         )]);
                     }
                 }
-                let suggestor = GraphQLSuggestions::new(schema);
+                let suggester = GraphQLSuggestions::new(schema);
                 Err(vec![Diagnostic::error_with_data(
                     ErrorMessagesWithData::InvalidOnType {
                         type_name: value.item,
-                        suggestions: suggestor.object_type_suggestions(value.item),
+                        suggestions: suggester.object_type_suggestions(value.item),
                     },
                     value.location,
                 )])
@@ -160,11 +160,11 @@ impl RelayResolverIr {
                         )]);
                     }
                 }
-                let suggestor = GraphQLSuggestions::new(schema);
+                let suggester = GraphQLSuggestions::new(schema);
                 Err(vec![Diagnostic::error_with_data(
                     ErrorMessagesWithData::InvalidOnInterface {
                         interface_name: value.item,
-                        suggestions: suggestor.interface_type_suggestions(value.item),
+                        suggestions: suggester.interface_type_suggestions(value.item),
                     },
                     value.location,
                 )])
@@ -307,13 +307,15 @@ impl RelayResolverIr {
     fn directive(&self) -> ConstantDirective {
         let span = self.location.span();
         let import_path = self.location.source_location().path().intern();
-        let mut arguments = vec![
-            string_argument(*FRAGMENT_KEY_ARGUMENT_NAME, self.root_fragment),
-            string_argument(
-                *IMPORT_PATH_ARGUMENT_NAME,
-                WithLocation::new(self.location, import_path),
-            ),
-        ];
+        let mut arguments = vec![string_argument(
+            *IMPORT_PATH_ARGUMENT_NAME,
+            WithLocation::new(self.location, import_path),
+        )];
+
+        if let Some(root_fragment) = self.root_fragment {
+            arguments.push(string_argument(*FRAGMENT_KEY_ARGUMENT_NAME, root_fragment));
+        }
+
         if let Some(live_field) = self.live {
             arguments.push(true_argument(*LIVE_ARGUMENT_NAME, live_field.key_location))
         }

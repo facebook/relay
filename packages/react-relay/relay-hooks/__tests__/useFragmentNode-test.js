@@ -90,12 +90,12 @@ function useFragmentNode_REACT_CACHE<TFragmentData: mixed>(
   key,
   displayName,
 ): ReturnType<TFragmentData> {
-  const answer = useFragmentInternal_REACT_CACHE(fragment, key, displayName);
+  const data = useFragmentInternal_REACT_CACHE(fragment, key, displayName);
   return {
     // $FlowFixMe[incompatible-return]
-    data: answer.data,
-    disableStoreUpdates: answer.disableStoreUpdates,
-    enableStoreUpdates: answer.enableStoreUpdates,
+    data,
+    disableStoreUpdates: () => {},
+    enableStoreUpdates: () => {},
   };
 }
 
@@ -1491,26 +1491,61 @@ describe.each([
       ]);
     });
 
-    describe('disableStoreUpdates', () => {
-      it('does not listen to store updates after disableStoreUpdates is called', () => {
-        internalAct(() => {
-          renderSingularFragment();
-        });
-        assertFragmentResults([
-          {
-            data: {
-              id: '1',
-              name: 'Alice',
-              profile_picture: null,
-              ...createFragmentRef('1', singularQuery),
+    if (useFragmentNodeOriginal === useFragmentNode_LEGACY) {
+      describe('disableStoreUpdates', () => {
+        it('does not listen to store updates after disableStoreUpdates is called', () => {
+          internalAct(() => {
+            renderSingularFragment();
+          });
+          assertFragmentResults([
+            {
+              data: {
+                id: '1',
+                name: 'Alice',
+                profile_picture: null,
+                ...createFragmentRef('1', singularQuery),
+              },
             },
-          },
-        ]);
+          ]);
 
-        disableStoreUpdates();
+          disableStoreUpdates();
 
-        // Update data in the store
-        internalAct(() =>
+          // Update data in the store
+          internalAct(() =>
+            environment.commitPayload(singularQuery, {
+              node: {
+                __typename: 'User',
+                id: '1',
+                name: 'Alice updated',
+                profile_picture: null,
+                username: null,
+              },
+            }),
+          );
+
+          // Assert that component did not re-render
+          internalAct(() => {
+            jest.runAllImmediates();
+          });
+          expect(commitSpy).toBeCalledTimes(0);
+        });
+
+        it('re-renders with latest data after re-enabling updates, if any updates were missed', () => {
+          renderSingularFragment();
+          assertFragmentResults([
+            {
+              data: {
+                id: '1',
+                name: 'Alice',
+                profile_picture: null,
+                ...createFragmentRef('1', singularQuery),
+              },
+            },
+          ]);
+
+          disableStoreUpdates();
+
+          // Update data in the store
           environment.commitPayload(singularQuery, {
             node: {
               __typename: 'User',
@@ -1519,122 +1554,89 @@ describe.each([
               profile_picture: null,
               username: null,
             },
-          }),
-        );
+          });
 
-        // Assert that component did not re-render
-        internalAct(() => {
-          jest.runAllImmediates();
-        });
-        expect(commitSpy).toBeCalledTimes(0);
-      });
+          // Assert that component did not re-render while updates are disabled
+          internalAct(() => {
+            jest.runAllImmediates();
+          });
+          expect(commitSpy).toBeCalledTimes(0);
 
-      it('re-renders with latest data after re-enabling updates, if any updates were missed', () => {
-        renderSingularFragment();
-        assertFragmentResults([
-          {
-            data: {
-              id: '1',
-              name: 'Alice',
-              profile_picture: null,
-              ...createFragmentRef('1', singularQuery),
+          internalAct(() => {
+            enableStoreUpdates();
+          });
+
+          // Assert that component re-renders with latest updated data
+          assertFragmentResults([
+            {
+              data: {
+                id: '1',
+                name: 'Alice updated',
+                profile_picture: null,
+                ...createFragmentRef('1', singularQuery),
+              },
             },
-          },
-        ]);
-
-        disableStoreUpdates();
-
-        // Update data in the store
-        environment.commitPayload(singularQuery, {
-          node: {
-            __typename: 'User',
-            id: '1',
-            name: 'Alice updated',
-            profile_picture: null,
-            username: null,
-          },
+          ]);
         });
 
-        // Assert that component did not re-render while updates are disabled
-        internalAct(() => {
-          jest.runAllImmediates();
-        });
-        expect(commitSpy).toBeCalledTimes(0);
+        it('does not re-render after re-enabling updates, if no updates were missed', () => {
+          renderSingularFragment();
+          assertFragmentResults([
+            {
+              data: {
+                id: '1',
+                name: 'Alice',
+                profile_picture: null,
+                ...createFragmentRef('1', singularQuery),
+              },
+            },
+          ]);
 
-        internalAct(() => {
+          disableStoreUpdates();
+          expect(commitSpy).toBeCalledTimes(0);
+
           enableStoreUpdates();
+
+          // Assert that component did not re-render after enabling updates
+          internalAct(() => jest.runAllImmediates());
+          expect(commitSpy).toBeCalledTimes(0);
         });
 
-        // Assert that component re-renders with latest updated data
-        assertFragmentResults([
-          {
-            data: {
-              id: '1',
-              name: 'Alice updated',
-              profile_picture: null,
-              ...createFragmentRef('1', singularQuery),
+        it('does not re-render after re-enabling updates, if data did not change', () => {
+          renderSingularFragment();
+          assertFragmentResults([
+            {
+              data: {
+                id: '1',
+                name: 'Alice',
+                profile_picture: null,
+                ...createFragmentRef('1', singularQuery),
+              },
             },
-          },
-        ]);
-      });
+          ]);
 
-      it('does not re-render after re-enabling updates, if no updates were missed', () => {
-        renderSingularFragment();
-        assertFragmentResults([
-          {
-            data: {
+          disableStoreUpdates();
+
+          environment.commitPayload(singularQuery, {
+            node: {
+              __typename: 'User',
               id: '1',
               name: 'Alice',
               profile_picture: null,
-              ...createFragmentRef('1', singularQuery),
+              username: null,
             },
-          },
-        ]);
+          });
 
-        disableStoreUpdates();
-        expect(commitSpy).toBeCalledTimes(0);
+          internalAct(() => jest.runAllImmediates());
+          expect(commitSpy).toBeCalledTimes(0);
 
-        enableStoreUpdates();
+          enableStoreUpdates();
 
-        // Assert that component did not re-render after enabling updates
-        internalAct(() => jest.runAllImmediates());
-        expect(commitSpy).toBeCalledTimes(0);
-      });
-
-      it('does not re-render after re-enabling updates, if data did not change', () => {
-        renderSingularFragment();
-        assertFragmentResults([
-          {
-            data: {
-              id: '1',
-              name: 'Alice',
-              profile_picture: null,
-              ...createFragmentRef('1', singularQuery),
-            },
-          },
-        ]);
-
-        disableStoreUpdates();
-
-        environment.commitPayload(singularQuery, {
-          node: {
-            __typename: 'User',
-            id: '1',
-            name: 'Alice',
-            profile_picture: null,
-            username: null,
-          },
+          // Assert that component did not re-render after enabling updates
+          internalAct(() => jest.runAllImmediates());
+          expect(commitSpy).toBeCalledTimes(0);
         });
-
-        internalAct(() => jest.runAllImmediates());
-        expect(commitSpy).toBeCalledTimes(0);
-
-        enableStoreUpdates();
-
-        // Assert that component did not re-render after enabling updates
-        internalAct(() => jest.runAllImmediates());
-        expect(commitSpy).toBeCalledTimes(0);
       });
-    });
+    }
   },
 );

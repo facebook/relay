@@ -272,11 +272,7 @@ function useFragmentInternal_REACT_CACHE(
   hookDisplayName: string,
   queryOptions?: FragmentQueryOptions,
   fragmentKey?: string,
-): {|
-  data: ?SelectorData | Array<?SelectorData>,
-  disableStoreUpdates: () => void,
-  enableStoreUpdates: () => void,
-|} {
+): ?SelectorData | Array<?SelectorData> {
   const fragmentSelector = getSelector(fragmentNode, fragmentRef);
 
   const isPlural = fragmentNode?.metadata?.plural === true;
@@ -419,37 +415,24 @@ function useFragmentInternal_REACT_CACHE(
     handlePotentialSnapshotErrorsForState(environment, state);
   }
 
-  // Subscriptions:
-  const isListeningForUpdatesRef = useRef(true);
-  function enableStoreUpdates() {
-    isListeningForUpdatesRef.current = true;
-    handleMissedUpdates(environment, state, setState);
-  }
-  function disableStoreUpdates() {
-    isListeningForUpdatesRef.current = false;
-  }
-
   useEffect(() => {
     handleMissedUpdates(environment, subscribedState, setState);
     return subscribeToSnapshot(environment, subscribedState, updater => {
-      if (isListeningForUpdatesRef.current) {
-        setState(latestState => {
-          if (
-            latestState.snapshot?.selector !==
-            subscribedState.snapshot?.selector
-          ) {
-            // Ignore updates to the subscription if it's for a previous fragment selector
-            // than the latest one to be rendered. This can happen if the store is updated
-            // after we re-render with a new fragmentRef prop but before the effect fires
-            // in which we unsubscribe to the old one and subscribe to the new one.
-            // (NB: it's safe to compare the selectors by reference because the selector
-            // is recycled into new snapshots.)
-            return latestState;
-          } else {
-            return updater(latestState);
-          }
-        });
-      }
+      setState(latestState => {
+        if (
+          latestState.snapshot?.selector !== subscribedState.snapshot?.selector
+        ) {
+          // Ignore updates to the subscription if it's for a previous fragment selector
+          // than the latest one to be rendered. This can happen if the store is updated
+          // after we re-render with a new fragmentRef prop but before the effect fires
+          // in which we unsubscribe to the old one and subscribe to the new one.
+          // (NB: it's safe to compare the selectors by reference because the selector
+          // is recycled into new snapshots.)
+          return latestState;
+        } else {
+          return updater(latestState);
+        }
+      });
     });
   }, [environment, subscribedState]);
 
@@ -493,11 +476,7 @@ function useFragmentInternal_REACT_CACHE(
     useDebugValue({fragment: fragmentNode.name, data});
   }
 
-  return {
-    data,
-    disableStoreUpdates,
-    enableStoreUpdates,
-  };
+  return data;
 }
 
 module.exports = useFragmentInternal_REACT_CACHE;

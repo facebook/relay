@@ -125,7 +125,7 @@ function usePreloadedQuery_REACT_CACHE<TQuery: OperationType>(
   // Read the query's root fragment -- this may suspend.
   const {fragmentNode, fragmentRef} = queryResult;
   // $FlowExpectedError[incompatible-return] Is this a fixable incompatible-return?
-  const {data} = useFragmentInternal(
+  const data = useFragmentInternal(
     fragmentNode,
     fragmentRef,
     'usePreloadedQuery()',

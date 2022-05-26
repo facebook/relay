@@ -54,6 +54,7 @@ function useLazyLoadQuery_REACT_CACHE<TVariables: Variables, TData>(
     {
       fetchPolicy: options?.fetchPolicy,
       renderPolicy: options?.UNSTABLE_renderPolicy,
+      fetchKey: options?.fetchKey,
     },
   );
 

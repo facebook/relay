@@ -13,7 +13,7 @@
 
 'use strict';
 
-import type {FetchPolicy, RenderPolicy} from 'relay-runtime';
+import type {FetchPolicy, GraphQLResponse, RenderPolicy} from 'relay-runtime';
 
 const React = require('react');
 const useLazyLoadQuery_REACT_CACHE = require('react-relay/relay-hooks/react-cache/useLazyLoadQuery_REACT_CACHE');
@@ -170,7 +170,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
 
       let environment;
       let fetch;
-      let subject;
+      let subject: RelayReplaySubject<GraphQLResponse>;
       let logs;
       let release;
       let isOperationRetained;
@@ -886,6 +886,52 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
         container.unmount();
         ReactTestRenderer.act(() => {
           jest.runAllImmediates();
+        });
+      });
+
+      it('Honors fetchKey', () => {
+        let setFetchKey;
+        function TestComponent(_props) {
+          let fetchKey;
+          [fetchKey, setFetchKey] = useState(0);
+          return useLazyLoadQuery(query, variables, {
+            fetchKey,
+            fetchPolicy: 'network-only',
+          })?.node?.username;
+        }
+        const container = ReactTestRenderer.create(
+          <Cache>
+            <Wrappers env={environment}>
+              <TestComponent />
+            </Wrappers>
+          </Cache>,
+        );
+        expect(container.toJSON()).toBe('Fallback');
+
+        ReactTestRenderer.act(() => {
+          subject.next({data: responsePayload});
+          subject.complete();
+          jest.runAllImmediates();
+        });
+        expect(container.toJSON()).toBe('abc');
+
+        // When we set the fetchKey, the component should suspend again as it initiates a
+        // new network request and awaits its response:
+        ReactTestRenderer.act(() => {
+          subject = new RelayReplaySubject(); // prepare new network response instead of replaying last one
+          setFetchKey(1);
+        });
+        expect(container.toJSON()).toBe('Fallback');
+
+        ReactTestRenderer.act(() => {
+          subject.next({data: responsePayload});
+          subject.complete();
+          jest.runAllImmediates();
+        });
+        expect(container.toJSON()).toBe('abc');
+
+        ReactTestRenderer.act(() => {
+          container.unmount();
         });
       });
 

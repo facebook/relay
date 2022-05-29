@@ -162,66 +162,63 @@ fragment AgeFragment on User {
 `;
 
 exports[`Ok types (flow) 1`] = `
-"import type { FragmentReference } from \\"relay-runtime\\";
-declare export opaque type AgeFragment$ref: FragmentReference;
-declare export opaque type AgeFragment$fragmentType: AgeFragment$ref;
-export type AgeFragment = {|
+"import type { FragmentType } from \\"relay-runtime\\";
+declare export opaque type AgeFragment$fragmentType: FragmentType;
+export type AgeFragment$data = {|
   +age: ?number,
-  +$refType: AgeFragment$ref,
+  +$fragmentType: AgeFragment$fragmentType,
 |};
-export type AgeFragment$data = AgeFragment;
 export type AgeFragment$key = {
   +$data?: AgeFragment$data,
-  +$fragmentRefs: AgeFragment$ref,
+  +$fragmentSpreads: AgeFragment$fragmentType,
   ...
 };
 
 
-import type { AgeFragment$ref } from \\"AgeFragment.graphql\\";
-export type MyQueryVariables = {||};
-export type MyQueryResponse = {|
+type AgeFragment$fragmentType = any;
+export type MyQuery$variables = {||};
+export type MyQuery$data = {|
   +me: ?{|
-    +name: ?string,
     +best_friend: ?{|
-      +$fragmentRefs: AgeFragment$ref,
+      +$fragmentSpreads: AgeFragment$fragmentType,
     |},
-    +$fragmentRefs: AgeFragment$ref,
+    +name: ?string,
+    +$fragmentSpreads: AgeFragment$fragmentType,
   |},
 |};
 export type MyQuery = {|
-  variables: MyQueryVariables,
-  response: MyQueryResponse,
+  response: MyQuery$data,
+  variables: MyQuery$variables,
 |};
 "
 `;
 
 exports[`Ok types (typescript) 1`] = `
 "import { FragmentRefs } from \\"relay-runtime\\";
-export type AgeFragment = {
+export type AgeFragment$data = {
   readonly age: number | null;
-  readonly \\" $refType\\": \\"AgeFragment\\";
+  readonly \\" $fragmentType\\": \\"AgeFragment\\";
 };
-export type AgeFragment$data = AgeFragment;
 export type AgeFragment$key = {
   readonly \\" $data\\"?: AgeFragment$data;
-  readonly \\" $fragmentRefs\\": FragmentRefs<\\"AgeFragment\\">;
+  readonly \\" $fragmentSpreads\\": FragmentRefs<\\"AgeFragment\\">;
 };
 
 
 import { FragmentRefs } from \\"relay-runtime\\";
-export type MyQueryVariables = {};
-export type MyQueryResponse = {
+export type MyQuery$variables = {};
+export type MyQuery$data = {
   readonly me: {
-    readonly name: string | null;
     readonly best_friend: {
-      readonly \\" $fragmentRefs\\": FragmentRefs<\\"AgeFragment\\">;
+      readonly \\" $fragmentSpreads\\": FragmentRefs<\\"AgeFragment\\">;
     } | null;
-    readonly \\" $fragmentRefs\\": FragmentRefs<\\"AgeFragment\\">;
+    readonly name: string | null;
+    readonly \\" $fragmentSpreads\\": FragmentRefs<\\"AgeFragment\\">;
   } | null;
 };
 export type MyQuery = {
-  variables: MyQueryVariables;
-  response: MyQueryResponse;
+  response: MyQuery$data;
+  variables: MyQuery$variables;
 };
 "
 `;

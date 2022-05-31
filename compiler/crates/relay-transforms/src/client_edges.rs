@@ -18,7 +18,7 @@ use std::sync::Arc;
 
 use super::ValidationMessageWithData;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, Named, NamedItem, WithLocation};
 use graphql_ir::{
     associated_data_impl, Argument, ConstantValue, Directive, Field, FragmentDefinition,
     InlineFragment, LinkedField, OperationDefinition, Program, Selection, Transformed, Transformer,
@@ -260,6 +260,21 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 ));
             }
             return self.default_transform_linked_field(field);
+        }
+
+        let other_directives = field
+            .directives
+            .iter()
+            .filter(|directive| directive.name() != *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
+            .collect::<Vec<_>>();
+
+        for directive in other_directives {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::ClientEdgeUnsupportedDirective {
+                    directive_name: directive.name(),
+                },
+                directive.name.location,
+            ));
         }
 
         let edge_to_type = field_type.type_.inner();

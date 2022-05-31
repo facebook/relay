@@ -171,6 +171,11 @@ pub enum ValidationMessage {
         field_name: StringKey,
         argument_name: StringKey,
     },
+
+    #[error(
+        "Unexpected directive on Client Edge field. The `@{directive_name}` directive is not currently supported on fields backed by Client Edges."
+    )]
+    ClientEdgeUnsupportedDirective { directive_name: StringKey },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<07b95700db40432163d917aeafbb6f51>>
+ * @generated SignedSource<<597702f87175914bbdfaa45bc91c59f8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -98,12 +98,12 @@ var node/*: ConcreteRequest*/ = {
     ]
   },
   "params": {
-    "cacheID": "687d480cb46756192e2fa7951783d79d",
+    "cacheID": "9ac5d21016361585514ac99107e009db",
     "id": null,
     "metadata": {},
     "name": "RelayReaderResolverTest5Query",
     "operationKind": "query",
-    "text": "query RelayReaderResolverTest5Query {\n  me {\n    ...UserShoutedGreetingResolver\n    id\n  }\n}\n\nfragment DummyUserGreetingResolver on User {\n  name\n}\n\nfragment UserShoutedGreetingResolver on User {\n  ...DummyUserGreetingResolver\n}\n"
+    "text": "query RelayReaderResolverTest5Query {\n  me {\n    ...UserShoutedGreetingResolver\n    id\n  }\n}\n\nfragment UserGreetingResolver on User {\n  name\n}\n\nfragment UserShoutedGreetingResolver on User {\n  ...UserGreetingResolver\n}\n"
   }
 };
 

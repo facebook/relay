@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<73c81e4a548d0b0c1606e9bc06f9ee35>>
+ * @generated SignedSource<<21a8d00a37f4814d3d50eda23b0d17d3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -147,12 +147,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "0b197d0a328fd7d072700201d2a92f1a",
+    "cacheID": "b275539f1f2c1b437128915082d22f32",
     "id": null,
     "metadata": {},
     "name": "RelayReaderResolverTest6Query",
     "operationKind": "query",
-    "text": "query RelayReaderResolverTest6Query {\n  me {\n    ...UserBestFriendShoutedGreetingResolver\n    id\n  }\n}\n\nfragment DummyUserGreetingResolver on User {\n  name\n}\n\nfragment UserBestFriendShoutedGreetingResolver on User {\n  friends(first: 1) {\n    edges {\n      cursor\n      node {\n        ...DummyUserGreetingResolver\n        id\n      }\n    }\n  }\n}\n"
+    "text": "query RelayReaderResolverTest6Query {\n  me {\n    ...UserBestFriendShoutedGreetingResolver\n    id\n  }\n}\n\nfragment UserBestFriendShoutedGreetingResolver on User {\n  friends(first: 1) {\n    edges {\n      cursor\n      node {\n        ...UserGreetingResolver\n        id\n      }\n    }\n  }\n}\n\nfragment UserGreetingResolver on User {\n  name\n}\n"
   }
 };
 })();

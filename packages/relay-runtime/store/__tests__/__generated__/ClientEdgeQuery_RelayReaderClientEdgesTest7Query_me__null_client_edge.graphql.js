@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<aed68ad3cef8dee76a2abeca3776f648>>
+ * @generated SignedSource<<01d9378592a221c60cf9aeb420fa3e8c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,19 +16,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import type { FragmentType } from "relay-runtime";
-type ResolverTest2Fragment$fragmentType = any;
-export type ResolverTest1FragmentRefetchableQuery$variables = {|
+type RefetchableClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$fragmentType = any;
+export type ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$variables = {|
   id: string,
 |};
-export type ResolverTest1FragmentRefetchableQuery$data = {|
+export type ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$data = {|
   +node: ?{|
-    +$fragmentSpreads: ResolverTest2Fragment$fragmentType,
+    +$fragmentSpreads: RefetchableClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$fragmentType,
   |},
 |};
-export type ResolverTest1FragmentRefetchableQuery = {|
-  response: ResolverTest1FragmentRefetchableQuery$data,
-  variables: ResolverTest1FragmentRefetchableQuery$variables,
+export type ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge = {|
+  response: ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$data,
+  variables: ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$variables,
 |};
 */
 
@@ -52,7 +51,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "ResolverTest1FragmentRefetchableQuery",
+    "name": "ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge",
     "selections": [
       {
         "alias": null,
@@ -65,7 +64,7 @@ return {
           {
             "args": null,
             "kind": "FragmentSpread",
-            "name": "ResolverTest2Fragment"
+            "name": "RefetchableClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge"
           }
         ],
         "storageKey": null
@@ -78,7 +77,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "ResolverTest1FragmentRefetchableQuery",
+    "name": "ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge",
     "selections": [
       {
         "alias": null,
@@ -122,21 +121,21 @@ return {
     ]
   },
   "params": {
-    "cacheID": "0b557eb9529a9c3ed7d525932fc431f9",
+    "cacheID": "dbb7dbdbfc0267308653945ce93e02bc",
     "id": null,
     "metadata": {},
-    "name": "ResolverTest1FragmentRefetchableQuery",
+    "name": "ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge",
     "operationKind": "query",
-    "text": "query ResolverTest1FragmentRefetchableQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...ResolverTest2Fragment\n    id\n  }\n}\n\nfragment ResolverTest2Fragment on User {\n  ...UserGreetingResolver\n  id\n}\n\nfragment UserGreetingResolver on User {\n  name\n}\n"
+    "text": "query ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...RefetchableClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge\n    id\n  }\n}\n\nfragment RefetchableClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge on User {\n  name\n  id\n}\n"
   }
 };
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "9064332782abe615b663971d3f85a3ea";
+  (node/*: any*/).hash = "2bb6b1ba5045fb1a37b30e4f29e7b0df";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  ResolverTest1FragmentRefetchableQuery$variables,
-  ResolverTest1FragmentRefetchableQuery$data,
+  ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$variables,
+  ClientEdgeQuery_RelayReaderClientEdgesTest7Query_me__null_client_edge$data,
 >*/);

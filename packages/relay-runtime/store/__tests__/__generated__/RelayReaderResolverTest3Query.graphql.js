@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d052fdb192ae5fd790f16b999f6ca2d0>>
+ * @generated SignedSource<<05eaaedf63e8a95ccc459b9166c02a25>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userGreetingResolver from "../resolvers/DummyUserGreetingResolver.js";
+import userGreetingResolver from "../../../../relay-test-utils-internal/resolvers/UserGreetingResolver.js";
 export type RelayReaderResolverTest3Query$variables = {||};
 export type RelayReaderResolverTest3Query$data = {|
   +me: ?{|
@@ -50,11 +50,11 @@ var node/*: ConcreteRequest*/ = {
             "fragment": {
               "args": null,
               "kind": "FragmentSpread",
-              "name": "DummyUserGreetingResolver"
+              "name": "UserGreetingResolver"
             },
             "kind": "RelayResolver",
             "name": "greeting",
-            "resolverModule": require('./../resolvers/DummyUserGreetingResolver.js'),
+            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserGreetingResolver.js'),
             "path": "me.greeting"
           }
         ],
@@ -98,12 +98,12 @@ var node/*: ConcreteRequest*/ = {
     ]
   },
   "params": {
-    "cacheID": "e4ab53858306a3c8ad737477b12f99c8",
+    "cacheID": "1d5b641d3646a328e79dbc75e2715413",
     "id": null,
     "metadata": {},
     "name": "RelayReaderResolverTest3Query",
     "operationKind": "query",
-    "text": "query RelayReaderResolverTest3Query {\n  me {\n    ...DummyUserGreetingResolver\n    id\n  }\n}\n\nfragment DummyUserGreetingResolver on User {\n  name\n}\n"
+    "text": "query RelayReaderResolverTest3Query {\n  me {\n    ...UserGreetingResolver\n    id\n  }\n}\n\nfragment UserGreetingResolver on User {\n  name\n}\n"
   }
 };
 

@@ -13,30 +13,31 @@
 
 'use strict';
 
-import type {DataID} from '../../../util/RelayRuntimeTypes';
-import type {DummyUserClientEdgeResolver$key} from './__generated__/DummyUserClientEdgeResolver.graphql';
+import type {UserAnotherClientEdgeResolver$key} from './__generated__/UserAnotherClientEdgeResolver.graphql';
+import type {DataID} from 'relay-runtime';
 
 const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
  * @RelayResolver
- * @fieldName client_edge
- * @rootFragment DummyUserClientEdgeResolver
+ * @fieldName another_client_edge
+ * @rootFragment UserAnotherClientEdgeResolver
  * @onType User
  * @edgeTo User
  */
-function userGreeting(rootKey: DummyUserClientEdgeResolver$key): DataID {
-  const user = readFragment(
+function UserAnotherClientEdgeResolver(
+  rootKey: UserAnotherClientEdgeResolver$key,
+): DataID {
+  readFragment(
     graphql`
-      fragment DummyUserClientEdgeResolver on User {
-        id @required(action: THROW)
+      fragment UserAnotherClientEdgeResolver on User {
+        __typename
       }
     `,
     rootKey,
   );
-
-  return user.id;
+  return '1338';
 }
 
-module.exports = userGreeting;
+module.exports = UserAnotherClientEdgeResolver;

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a56521f45d9f0d3443e0fa24e9aaddc5>>
+ * @generated SignedSource<<d623627d1cce32f16ac0842020c41eaa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,17 +16,18 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type ResolverTest3Query$variables = {||};
-export type ResolverTest3Query$data = {|
+type RelayReaderClientEdgesTestFragmentOnUser$fragmentType = any;
+export type RelayReaderClientEdgesTest3Query$variables = {||};
+export type RelayReaderClientEdgesTest3Query$data = {|
   +me: ?{|
     +client_edge: ?{|
-      +__typename: string,
+      +$fragmentSpreads: RelayReaderClientEdgesTestFragmentOnUser$fragmentType,
     |},
   |},
 |};
-export type ResolverTest3Query = {|
-  response: ResolverTest3Query$data,
-  variables: ResolverTest3Query$variables,
+export type RelayReaderClientEdgesTest3Query = {|
+  response: RelayReaderClientEdgesTest3Query$data,
+  variables: RelayReaderClientEdgesTest3Query$variables,
 |};
 */
 
@@ -35,7 +36,7 @@ var node/*: ConcreteRequest*/ = {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "ResolverTest3Query",
+    "name": "RelayReaderClientEdgesTest3Query",
     "selections": [
       {
         "alias": null,
@@ -47,7 +48,7 @@ var node/*: ConcreteRequest*/ = {
         "selections": [
           {
             "kind": "ClientEdgeToServerObject",
-            "operation": require('./ClientEdgeQuery_ResolverTest3Query_me__client_edge.graphql'),
+            "operation": require('./ClientEdgeQuery_RelayReaderClientEdgesTest3Query_me__client_edge.graphql'),
             "backingField": {
               "alias": null,
               "args": null,
@@ -58,7 +59,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "client_edge",
-              "resolverModule": require('./../../../../../relay-test-utils-internal/resolvers/UserClientEdgeResolver.js'),
+              "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserClientEdgeResolver.js'),
               "path": "me.client_edge"
             },
             "linkedField": {
@@ -70,11 +71,9 @@ var node/*: ConcreteRequest*/ = {
               "plural": false,
               "selections": [
                 {
-                  "alias": null,
                   "args": null,
-                  "kind": "ScalarField",
-                  "name": "__typename",
-                  "storageKey": null
+                  "kind": "FragmentSpread",
+                  "name": "RelayReaderClientEdgesTestFragmentOnUser"
                 }
               ],
               "storageKey": null
@@ -91,7 +90,7 @@ var node/*: ConcreteRequest*/ = {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "ResolverTest3Query",
+    "name": "RelayReaderClientEdgesTest3Query",
     "selections": [
       {
         "alias": null,
@@ -121,20 +120,20 @@ var node/*: ConcreteRequest*/ = {
     ]
   },
   "params": {
-    "cacheID": "38e50d351a7b6bded015fe883e7be216",
+    "cacheID": "bee3ad0602eb2c2d400a233e9bb2c721",
     "id": null,
     "metadata": {},
-    "name": "ResolverTest3Query",
+    "name": "RelayReaderClientEdgesTest3Query",
     "operationKind": "query",
-    "text": "query ResolverTest3Query {\n  me {\n    ...UserClientEdgeResolver\n    id\n  }\n}\n\nfragment UserClientEdgeResolver on User {\n  name\n}\n"
+    "text": "query RelayReaderClientEdgesTest3Query {\n  me {\n    ...UserClientEdgeResolver\n    id\n  }\n}\n\nfragment UserClientEdgeResolver on User {\n  name\n}\n"
   }
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "23af1732ca2b8848723c3de2d3c7231e";
+  (node/*: any*/).hash = "1631a4297aeb4909e68ea6822af044cb";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  ResolverTest3Query$variables,
-  ResolverTest3Query$data,
+  RelayReaderClientEdgesTest3Query$variables,
+  RelayReaderClientEdgesTest3Query$data,
 >*/);

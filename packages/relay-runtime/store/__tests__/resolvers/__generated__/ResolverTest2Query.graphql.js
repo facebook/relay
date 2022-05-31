@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e4db3103f99bdfae17a072be5e26f776>>
+ * @generated SignedSource<<f5b09dd5abd81b4292c2f401fd28d173>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -90,12 +90,12 @@ var node/*: ConcreteRequest*/ = {
     ]
   },
   "params": {
-    "cacheID": "d73d34afe90c0359a2f786d2ef310a57",
+    "cacheID": "24caff87848df5f06ebe65d0fdba4533",
     "id": null,
     "metadata": {},
     "name": "ResolverTest2Query",
     "operationKind": "query",
-    "text": "query ResolverTest2Query {\n  me {\n    ...ResolverTest2Fragment\n    id\n  }\n}\n\nfragment DummyUserGreetingResolver on User {\n  name\n}\n\nfragment ResolverTest2Fragment on User {\n  ...DummyUserGreetingResolver\n  id\n}\n"
+    "text": "query ResolverTest2Query {\n  me {\n    ...ResolverTest2Fragment\n    id\n  }\n}\n\nfragment ResolverTest2Fragment on User {\n  ...UserGreetingResolver\n  id\n}\n\nfragment UserGreetingResolver on User {\n  name\n}\n"
   }
 };
 

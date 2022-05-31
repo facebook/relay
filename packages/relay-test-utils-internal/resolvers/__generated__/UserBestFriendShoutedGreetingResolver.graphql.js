@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cd7c493582b79b82c8595a2612f60428>>
+ * @generated SignedSource<<4885f50027b402984c1da9edcfb958e7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,7 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-import userGreetingResolver from "../../../relay-runtime/store/__tests__/resolvers/DummyUserGreetingResolver.js";
+import userGreetingResolver from "../UserGreetingResolver.js";
 declare export opaque type UserBestFriendShoutedGreetingResolver$fragmentType: FragmentType;
 export type UserBestFriendShoutedGreetingResolver$data = {|
   +friends: ?{|
@@ -86,11 +86,11 @@ var node/*: ReaderFragment*/ = {
                   "fragment": {
                     "args": null,
                     "kind": "FragmentSpread",
-                    "name": "DummyUserGreetingResolver"
+                    "name": "UserGreetingResolver"
                   },
                   "kind": "RelayResolver",
                   "name": "greeting",
-                  "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/DummyUserGreetingResolver.js'),
+                  "resolverModule": require('./../UserGreetingResolver.js'),
                   "path": "friends.edges.node.greeting"
                 }
               ],

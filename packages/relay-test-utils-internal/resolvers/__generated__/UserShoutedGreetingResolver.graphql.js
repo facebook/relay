@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a5d07ca259b93689a0a2a335b7edc85b>>
+ * @generated SignedSource<<b93751a211daa34cb342b94f97d51006>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,7 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-import userGreetingResolver from "../../../relay-runtime/store/__tests__/resolvers/DummyUserGreetingResolver.js";
+import userGreetingResolver from "../UserGreetingResolver.js";
 declare export opaque type UserShoutedGreetingResolver$fragmentType: FragmentType;
 export type UserShoutedGreetingResolver$data = {|
   +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolver>,
@@ -42,11 +42,11 @@ var node/*: ReaderFragment*/ = {
       "fragment": {
         "args": null,
         "kind": "FragmentSpread",
-        "name": "DummyUserGreetingResolver"
+        "name": "UserGreetingResolver"
       },
       "kind": "RelayResolver",
       "name": "greeting",
-      "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/DummyUserGreetingResolver.js'),
+      "resolverModule": require('./../UserGreetingResolver.js'),
       "path": "greeting"
     }
   ],

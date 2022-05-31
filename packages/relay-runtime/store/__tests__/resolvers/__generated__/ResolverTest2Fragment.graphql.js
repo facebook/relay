@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cc3c9de4054f8d3beb6a47f5d05b60fe>>
+ * @generated SignedSource<<3e3c02ca325550970336f2737d4fd530>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,7 @@
 /*::
 import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-import userGreetingResolver from "../DummyUserGreetingResolver.js";
+import userGreetingResolver from "../../../../../relay-test-utils-internal/resolvers/UserGreetingResolver.js";
 declare export opaque type ResolverTest2Fragment$fragmentType: FragmentType;
 type ResolverTest1FragmentRefetchableQuery$variables = any;
 export type ResolverTest2Fragment$data = {|
@@ -53,11 +53,11 @@ var node/*: ReaderFragment*/ = {
       "fragment": {
         "args": null,
         "kind": "FragmentSpread",
-        "name": "DummyUserGreetingResolver"
+        "name": "UserGreetingResolver"
       },
       "kind": "RelayResolver",
       "name": "greeting",
-      "resolverModule": require('./../DummyUserGreetingResolver.js'),
+      "resolverModule": require('./../../../../../relay-test-utils-internal/resolvers/UserGreetingResolver.js'),
       "path": "greeting"
     },
     {

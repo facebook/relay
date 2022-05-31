@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a56521f45d9f0d3443e0fa24e9aaddc5>>
+ * @generated SignedSource<<596b128af7adc3d858537d628aca1729>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,26 +16,34 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-export type ResolverTest3Query$variables = {||};
-export type ResolverTest3Query$data = {|
+export type RelayReaderClientEdgesTest6Query$variables = {||};
+export type RelayReaderClientEdgesTest6Query$data = {|
   +me: ?{|
-    +client_edge: ?{|
-      +__typename: string,
+    +the_alias: ?{|
+      +name: ?string,
     |},
   |},
 |};
-export type ResolverTest3Query = {|
-  response: ResolverTest3Query$data,
-  variables: ResolverTest3Query$variables,
+export type RelayReaderClientEdgesTest6Query = {|
+  response: RelayReaderClientEdgesTest6Query$data,
+  variables: RelayReaderClientEdgesTest6Query$variables,
 |};
 */
 
-var node/*: ConcreteRequest*/ = {
+var node/*: ConcreteRequest*/ = (function(){
+var v0 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
+  "storageKey": null
+};
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "ResolverTest3Query",
+    "name": "RelayReaderClientEdgesTest6Query",
     "selections": [
       {
         "alias": null,
@@ -47,9 +55,9 @@ var node/*: ConcreteRequest*/ = {
         "selections": [
           {
             "kind": "ClientEdgeToServerObject",
-            "operation": require('./ClientEdgeQuery_ResolverTest3Query_me__client_edge.graphql'),
+            "operation": require('./ClientEdgeQuery_RelayReaderClientEdgesTest6Query_me__the_alias.graphql'),
             "backingField": {
-              "alias": null,
+              "alias": "the_alias",
               "args": null,
               "fragment": {
                 "args": null,
@@ -58,24 +66,18 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "client_edge",
-              "resolverModule": require('./../../../../../relay-test-utils-internal/resolvers/UserClientEdgeResolver.js'),
-              "path": "me.client_edge"
+              "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserClientEdgeResolver.js'),
+              "path": "me.the_alias"
             },
             "linkedField": {
-              "alias": null,
+              "alias": "the_alias",
               "args": null,
               "concreteType": "User",
               "kind": "LinkedField",
               "name": "client_edge",
               "plural": false,
               "selections": [
-                {
-                  "alias": null,
-                  "args": null,
-                  "kind": "ScalarField",
-                  "name": "__typename",
-                  "storageKey": null
-                }
+                (v0/*: any*/)
               ],
               "storageKey": null
             }
@@ -91,7 +93,7 @@ var node/*: ConcreteRequest*/ = {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "ResolverTest3Query",
+    "name": "RelayReaderClientEdgesTest6Query",
     "selections": [
       {
         "alias": null,
@@ -101,13 +103,7 @@ var node/*: ConcreteRequest*/ = {
         "name": "me",
         "plural": false,
         "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
-          },
+          (v0/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -121,20 +117,21 @@ var node/*: ConcreteRequest*/ = {
     ]
   },
   "params": {
-    "cacheID": "38e50d351a7b6bded015fe883e7be216",
+    "cacheID": "80412f2805c0f96efd2fb86ce6ef3008",
     "id": null,
     "metadata": {},
-    "name": "ResolverTest3Query",
+    "name": "RelayReaderClientEdgesTest6Query",
     "operationKind": "query",
-    "text": "query ResolverTest3Query {\n  me {\n    ...UserClientEdgeResolver\n    id\n  }\n}\n\nfragment UserClientEdgeResolver on User {\n  name\n}\n"
+    "text": "query RelayReaderClientEdgesTest6Query {\n  me {\n    ...UserClientEdgeResolver\n    id\n  }\n}\n\nfragment UserClientEdgeResolver on User {\n  name\n}\n"
   }
 };
+})();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "23af1732ca2b8848723c3de2d3c7231e";
+  (node/*: any*/).hash = "9b8dd5eefbc4ad7a0eb7a42257b6abb5";
 }
 
 module.exports = ((node/*: any*/)/*: Query<
-  ResolverTest3Query$variables,
-  ResolverTest3Query$data,
+  RelayReaderClientEdgesTest6Query$variables,
+  RelayReaderClientEdgesTest6Query$data,
 >*/);

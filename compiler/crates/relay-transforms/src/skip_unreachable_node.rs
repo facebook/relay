@@ -6,9 +6,7 @@
  */
 
 use super::defer_stream::DEFER_STREAM_CONSTANTS;
-use crate::{
-    no_inline::NO_INLINE_DIRECTIVE_NAME, DeferDirective, StreamDirective, ValidationMessage,
-};
+use crate::{DeferDirective, NoInlineFragmentSpreadMetadata, StreamDirective, ValidationMessage};
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use graphql_ir::{
     transform_list_multi, Condition, ConditionValue, ConstantValue, FragmentDefinition,
@@ -132,7 +130,11 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
     }
 
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
-        if spread.directives.named(*NO_INLINE_DIRECTIVE_NAME).is_some() {
+        if spread
+            .directives
+            .named(NoInlineFragmentSpreadMetadata::directive_name())
+            .is_some()
+        {
             return Transformed::Keep;
         }
         if self.should_delete_fragment_definition(spread.fragment.item) {

@@ -17,10 +17,11 @@ use graphql_ir::{
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use relay_config::{CustomScalarType, CustomScalarTypeImport};
 use relay_transforms::{
-    FragmentAliasMetadata, ModuleMetadata, RelayResolverSpreadMetadata, RequiredMetadataDirective,
-    TypeConditionInfo, ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, CHILDREN_CAN_BUBBLE_METADATA_KEY,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, NO_INLINE_DIRECTIVE_NAME,
-    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
+    FragmentAliasMetadata, ModuleMetadata, NoInlineFragmentSpreadMetadata,
+    RelayResolverSpreadMetadata, RequiredMetadataDirective, TypeConditionInfo,
+    ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, CHILDREN_CAN_BUBBLE_METADATA_KEY,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+    UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
@@ -1318,7 +1319,7 @@ pub(crate) fn raw_response_visit_selections(
             Selection::FragmentSpread(spread) => {
                 // @relay_client_component generate fragment spreads without
                 // @no_inline if no_inline isn't enabled for the fragment.
-                if spread.directives.named(*NO_INLINE_DIRECTIVE_NAME).is_some() {
+                if NoInlineFragmentSpreadMetadata::find(&spread.directives).is_some() {
                     let spread_type = spread.fragment.item;
                     imported_raw_response_types.0.insert(spread_type);
                     type_selections.push(TypeSelection::RawResponseFragmentSpread(

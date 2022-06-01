@@ -13,12 +13,15 @@ use crate::{
     no_inline::{is_raw_response_type_enabled, NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG},
     util::get_normalization_operation_name,
 };
-use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Location, NamedItem, WithLocation};
+use common::{
+    Diagnostic, DiagnosticsResult, FeatureFlag, Location, NamedItem, SourceLocationKey,
+    WithLocation,
+};
 use graphql_ir::{
-    transform_list, transform_list_multi, Condition, ConditionValue, ConstantValue, Directive,
-    FragmentDefinition, FragmentSpread, InlineFragment, OperationDefinition, Program,
-    ProvidedVariableMetadata, Selection, Transformed, TransformedMulti, TransformedValue,
-    Transformer, Value, Variable, VariableDefinition,
+    associated_data_impl, transform_list, transform_list_multi, Condition, ConditionValue,
+    ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
+    OperationDefinition, Program, ProvidedVariableMetadata, Selection, Transformed,
+    TransformedMulti, TransformedValue, Transformer, Value, Variable, VariableDefinition,
 };
 use graphql_syntax::OperationKind;
 use intern::string_key::{Intern, StringKey, StringKeyIndexMap, StringKeyMap, StringKeySet};
@@ -109,6 +112,13 @@ enum PendingFragment {
         provided_variables: ProvidedVariablesMap,
     },
 }
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct NoInlineFragmentSpreadMetadata {
+    pub location: SourceLocationKey,
+}
+
+associated_data_impl!(NoInlineFragmentSpreadMetadata);
 
 struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
     base_fragment_names: &'base_fragments StringKeySet,
@@ -234,7 +244,14 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     .collect();
                 let mut directives = Vec::with_capacity(spread.directives.len() + 1);
                 directives.extend(spread.directives.iter().cloned());
-                directives.push(directive.clone());
+
+                directives.push(
+                    NoInlineFragmentSpreadMetadata {
+                        location: fragment.name.location.source_location(),
+                    }
+                    .into(),
+                );
+
                 let normalization_name =
                     get_normalization_operation_name(fragment.name.item).intern();
                 let next_spread = Selection::FragmentSpread(Arc::new(FragmentSpread {

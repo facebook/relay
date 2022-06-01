@@ -6,9 +6,8 @@
  */
 
 use crate::{
-    no_inline::NO_INLINE_DIRECTIVE_NAME,
     relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
-    RelayLocationAgnosticBehavior,
+    NoInlineFragmentSpreadMetadata, RelayLocationAgnosticBehavior,
 };
 use common::Location;
 use fnv::FnvHashMap;
@@ -118,7 +117,7 @@ impl<'s> Transformer for InlineFragmentsTransform<'s> {
         match selection {
             Selection::FragmentSpread(selection) => {
                 let should_skip_inline = selection.directives.iter().any(|directive| {
-                    directive.name.item == *NO_INLINE_DIRECTIVE_NAME
+                    directive.name.item == NoInlineFragmentSpreadMetadata::directive_name()
                         || directive.name.item == *RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME
                 });
                 if should_skip_inline {

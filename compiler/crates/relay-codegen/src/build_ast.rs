@@ -24,10 +24,10 @@ use relay_transforms::{
     extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
     remove_directive, ClientEdgeMetadata, ClientEdgeMetadataDirective, ConnectionConstants,
     ConnectionMetadata, DeferDirective, FragmentAliasMetadata, InlineDirectiveMetadata,
-    ModuleMetadata, RefetchableMetadata, RelayDirective, RelayResolverSpreadMetadata,
-    RequiredMetadataDirective, StreamDirective, CLIENT_EXTENSION_DIRECTIVE_NAME,
-    DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION, INLINE_DIRECTIVE_NAME,
-    INTERNAL_METADATA_DIRECTIVE, NO_INLINE_DIRECTIVE_NAME,
+    ModuleMetadata, NoInlineFragmentSpreadMetadata, RefetchableMetadata, RelayDirective,
+    RelayResolverSpreadMetadata, RequiredMetadataDirective, StreamDirective,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
+    INLINE_DIRECTIVE_NAME, INTERNAL_METADATA_DIRECTIVE,
     REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
     RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
     TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
@@ -745,12 +745,23 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     }
 
     fn build_fragment_spread(&mut self, frag_spread: &FragmentSpread) -> Primitive {
-        if frag_spread
-            .directives
-            .named(*NO_INLINE_DIRECTIVE_NAME)
-            .is_some()
+        if let Some(no_inline_metadata) =
+            NoInlineFragmentSpreadMetadata::find(&frag_spread.directives)
         {
-            return self.build_normalization_fragment_spread(frag_spread);
+            let fragment_source_location_key = no_inline_metadata.location;
+
+            let path_for_artifact = self.project_config.create_path_for_artifact(
+                fragment_source_location_key,
+                frag_spread.fragment.item.lookup().to_string(),
+            );
+
+            let normalizataion_import_path = self.project_config.js_module_import_path(
+                self.definition_source_location,
+                path_for_artifact.to_str().unwrap().intern(),
+            );
+
+            return self
+                .build_normalization_fragment_spread(frag_spread, normalizataion_import_path);
         }
         if self.variant == CodegenVariant::Normalization
             && frag_spread
@@ -841,7 +852,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }))
     }
 
-    fn build_normalization_fragment_spread(&mut self, frag_spread: &FragmentSpread) -> Primitive {
+    fn build_normalization_fragment_spread(
+        &mut self,
+        frag_spread: &FragmentSpread,
+        normalization_import_path: StringKey,
+    ) -> Primitive {
         let args = self.build_arguments(&frag_spread.arguments);
 
         Primitive::Key(self.object(object! {
@@ -849,7 +864,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         None => Primitive::SkippableNull,
                         Some(key) => Primitive::Key(key),
                     },
-                fragment: Primitive::GraphQLModuleDependency(frag_spread.fragment.item),
+                fragment: Primitive::GraphQLModuleDependency(normalization_import_path),
                 kind: Primitive::String(
                         if frag_spread
                             .directives

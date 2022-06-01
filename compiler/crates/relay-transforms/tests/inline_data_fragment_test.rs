@@ -18,10 +18,3 @@ fn recursive() {
     let expected = include_str!("inline_data_fragment/fixtures/recursive.expected");
     test_fixture(transform_fixture, "recursive.graphql", "inline_data_fragment/fixtures/recursive.expected", input, expected);
 }
-
-#[test]
-fn variables_invalid() {
-    let input = include_str!("inline_data_fragment/fixtures/variables.invalid.graphql");
-    let expected = include_str!("inline_data_fragment/fixtures/variables.invalid.expected");
-    test_fixture(transform_fixture, "variables.invalid.graphql", "inline_data_fragment/fixtures/variables.invalid.expected", input, expected);
-}

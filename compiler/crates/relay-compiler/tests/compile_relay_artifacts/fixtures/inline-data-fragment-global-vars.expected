@@ -53,7 +53,8 @@ fragment inlineDataFragmentGlobalVarsProfile on User @inline {
               ],
               "storageKey": null
             }
-          ]
+          ],
+          "args": null
         }
       ],
       "storageKey": null

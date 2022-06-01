@@ -80,6 +80,11 @@ export const FEAUTRE_FLAGS = [
   },
 ];
 
+// Current version indicating our URL encoding scheme.
+// If we change this scheme in the future, we can use this to detect
+// old versions of the URL and transform them into the new format.
+const ENCODING_VERSION = '1';
+
 const DEFAULT_STATE = {
   schemaText: DEFAULT_SCHEMA,
   documentText: DEFAULT_DOCUMENT,
@@ -97,9 +102,8 @@ export function useExplorerState() {
 
   // Persist the current state to the URL hash and local storage.
   useEffect(() => {
-    const serializedState = JSON.stringify(state);
-    const encoded = LZString.compressToEncodedURIComponent(serializedState);
-    const hash = `#0${encoded}`;
+    const serialized = serializeState(state);
+    const hash = `#${serialized}`;
     window.history.replaceState(null, null, hash);
     localStorage.setItem(LOCAL_STORAGE_KEY, hash);
   }, [state]);
@@ -148,18 +152,62 @@ function reducer(state, action) {
 function initializeState() {
   const hash = window.location.hash || localStorage.getItem(LOCAL_STORAGE_KEY);
   if (hash[0] === '#' && hash.length > 1) {
-    const version = hash.slice(1, 2);
-    const encoded = hash.slice(2);
-    if (version === '0' && encoded.match(/^[a-zA-Z0-9+/=_-]+$/)) {
-      try {
-        return JSON.parse(LZString.decompressFromEncodedURIComponent(encoded));
-      } catch (e) {
-        console.warn('Failed to decode previous state: ', e);
-        return DEFAULT_STATE;
-      }
+    const serialized = hash.slice(1);
+    try {
+      return deserializeState(new URLSearchParams(serialized)) || DEFAULT_STATE;
+    } catch (e) {
+      console.warn('Failed to decode previous state: ', e);
+      return DEFAULT_STATE;
     }
   }
   return DEFAULT_STATE;
+}
+
+// Serialize the state of the explorer into a string, using query param style
+// encoding to make the string more understandable to humans.
+function serializeState(state) {
+  const params = new URLSearchParams();
+  params.set('enc', ENCODING_VERSION);
+  for (const [key, value] of Object.entries(state)) {
+    if (key == 'schemaText' || key == 'documentText') {
+      params.set(key, LZString.compressToEncodedURIComponent(value));
+    } else if (key == 'featureFlags') {
+      for (const [flag, enabled] of Object.entries(value)) {
+        // Note: We flatten feature flags into the same namespace as top level state.
+        // If we ever have a feature flag which conflicts with a top-level state value
+        // we will need to find a way to deal with that. However, it's unlikely
+        // and it makes the URL easier to read.
+        params.set(flag, enabled);
+      }
+    } else {
+      params.set(key, value);
+    }
+  }
+  return params.toString();
+}
+
+function deserializeState(params) {
+  // Here
+  if (params.get('enc') !== ENCODING_VERSION) {
+    console.warn('Unexpected encoding version: ' + params.get('enc'));
+    return null;
+  }
+  const state = {};
+  for (const key of Object.keys(DEFAULT_STATE)) {
+    const value = params.get(key);
+    if (key == 'schemaText' || key == 'documentText') {
+      state[key] = LZString.decompressFromEncodedURIComponent(value);
+    } else if (key == 'featureFlags') {
+      const featureFlags = {};
+      for (const {key} of FEAUTRE_FLAGS) {
+        featureFlags[key] = Boolean(params.get(key));
+      }
+      state[key] = featureFlags;
+    } else {
+      state[key] = params.get(key);
+    }
+  }
+  return state;
 }
 
 // The wasm compiler expects feature flags as a JSON string with some flags modeled as an enum.

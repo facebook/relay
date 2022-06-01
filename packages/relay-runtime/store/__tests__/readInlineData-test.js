@@ -12,6 +12,7 @@
 
 const {getRequest, graphql} = require('../../query/GraphQLTag');
 const readInlineData = require('../readInlineData');
+const {getSelector} = require('../../store/RelayModernSelector');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -52,54 +53,6 @@ test('unwrap inline fragment data', () => {
   expect(readInlineData(UserFragment, userRef)).toEqual({
     name: 'John',
     id: '67',
-  });
-});
-
-test.only('works with fragment variables', () => {
-  const FragmentVariablesFragment = graphql`
-    fragment readInlineDataTestFragmentVariables on User
-    @inline
-    @argumentDefinitions(theScale: {type: "Float"}) {
-      profile_picture(scale: $theScale) {
-        uri
-      }
-    }
-  `;
-
-  const FragmentVariablesQuery = graphql`
-    query readInlineDataTestFragmentVariablesQuery($scale: Float) {
-      me {
-        ...readInlineDataTestFragmentVariables @arguments(theScale: $scale)
-      }
-    }
-  `;
-
-  const environment = createMockEnvironment();
-  environment.commitPayload(
-    createOperationDescriptor(FragmentVariablesQuery, {scale: 2}),
-    {
-      me: {
-        id: '7',
-        __typename: 'User',
-        profile_picture: {
-          uri: 'some_url',
-        },
-      },
-    },
-  );
-
-  const variables = {
-    scale: 2,
-  };
-
-  const request = getRequest(FragmentVariablesQuery);
-  const operation = createOperationDescriptor(request, variables);
-  const snapshot = environment.lookup(operation.fragment, operation);
-
-  expect(readInlineData(FragmentVariablesFragment, snapshot.data.me)).toEqual({
-    profile_picture: {
-      uri: 'some_url',
-    },
   });
 });
 

@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
+
 use crate::errors::{ErrorMessages, ErrorMessagesWithData};
 use common::{Diagnostic, DiagnosticsResult, Location, Named, Span, WithLocation};
 use graphql_syntax::{
@@ -16,7 +18,7 @@ use graphql_syntax::{
 use intern::string_key::{Intern, StringKey};
 
 use lazy_static::lazy_static;
-use schema::{suggestion_list::GraphQLSuggestions, InterfaceID, SDLSchema, Schema};
+use schema::{suggestion_list::GraphQLSuggestions, InterfaceID, ObjectID, SDLSchema, Schema};
 
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();
@@ -180,6 +182,23 @@ impl RelayResolverIr {
         interface_id: InterfaceID,
         schema: &SDLSchema,
     ) -> Vec<TypeSystemDefinition> {
+        self.interface_definitions_impl(
+            interface_name,
+            interface_id,
+            schema,
+            &mut HashSet::default(),
+            &mut HashSet::default(),
+        )
+    }
+
+    fn interface_definitions_impl(
+        &self,
+        interface_name: WithLocation<StringKey>,
+        interface_id: InterfaceID,
+        schema: &SDLSchema,
+        seen_objects: &mut HashSet<ObjectID>,
+        seen_interfaces: &mut HashSet<InterfaceID>,
+    ) -> Vec<TypeSystemDefinition> {
         let fields = self.fields();
 
         // First we extend the interface itself...
@@ -194,10 +213,13 @@ impl RelayResolverIr {
 
         // Secondly we extend every object which implements this interface
         for object_id in &schema.interface(interface_id).implementing_objects {
-            definitions.extend(self.object_definitions(WithLocation::new(
-                interface_name.location,
-                schema.object(*object_id).name.item,
-            )))
+            if !seen_objects.contains(object_id) {
+                seen_objects.insert(*object_id);
+                definitions.extend(self.object_definitions(WithLocation::new(
+                    interface_name.location,
+                    schema.object(*object_id).name.item,
+                )))
+            }
         }
 
         // Thirdly we recursively extend every interface which implements
@@ -207,17 +229,29 @@ impl RelayResolverIr {
             .interfaces()
             .filter(|i| i.interfaces.contains(&interface_id))
         {
-            definitions.extend(
-                self.interface_definitions(
-                    WithLocation::new(interface_name.location, existing_interface.name.item),
-                    schema
-                        .get_type(existing_interface.name.item)
-                        .unwrap()
-                        .get_interface_id()
-                        .unwrap(),
-                    schema,
-                ),
-            )
+            let interface_id = match schema
+                .get_type(existing_interface.name.item)
+                .expect("Expect to find type for interface.")
+            {
+                schema::Type::Interface(interface_id) => interface_id,
+                _ => panic!("Expected interface to have an interface type"),
+            };
+            if !seen_interfaces.contains(&interface_id) {
+                seen_interfaces.insert(interface_id);
+                definitions.extend(
+                    self.interface_definitions_impl(
+                        WithLocation::new(interface_name.location, existing_interface.name.item),
+                        schema
+                            .get_type(existing_interface.name.item)
+                            .unwrap()
+                            .get_interface_id()
+                            .unwrap(),
+                        schema,
+                        seen_objects,
+                        seen_interfaces,
+                    ),
+                )
+            }
         }
         definitions
     }

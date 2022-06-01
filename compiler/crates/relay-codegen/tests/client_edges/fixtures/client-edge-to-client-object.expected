@@ -40,7 +40,9 @@ extend type User {
 {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "hasClientEdges": true
+  },
   "name": "Foo_user",
   "selections": [
     {

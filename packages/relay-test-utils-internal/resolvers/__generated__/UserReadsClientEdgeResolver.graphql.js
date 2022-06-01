@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2dad1288c69b78aa92e9b2d7530ce163>>
+ * @generated SignedSource<<bf35a38fc9e4df650c3c249f9897b4c9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -34,7 +34,9 @@ export type UserReadsClientEdgeResolver$key = {
 var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "hasClientEdges": true
+  },
   "name": "UserReadsClientEdgeResolver",
   "selections": [
     {

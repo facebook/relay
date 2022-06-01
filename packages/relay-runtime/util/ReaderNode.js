@@ -43,6 +43,7 @@ export type ReaderFragment = {|
   +abstractKey?: ?string,
   +metadata?: ?{|
     +connection?: $ReadOnlyArray<ConnectionMetadata>,
+    +hasClientEdges?: boolean,
     +mask?: boolean,
     +plural?: boolean,
     +refetch?: ReaderRefetchMetadata,
@@ -56,6 +57,7 @@ export type ReaderRefetchableFragment = {|
   ...ReaderFragment,
   +metadata: {|
     +connection?: [ConnectionMetadata],
+    +hasClientEdges?: boolean,
     +refetch: ReaderRefetchMetadata,
   |},
 |};
@@ -65,6 +67,7 @@ export type ReaderPaginationFragment = {|
   ...ReaderFragment,
   +metadata: {|
     +connection: [ConnectionMetadata],
+    +hasClientEdges?: boolean,
     +refetch: {|
       ...ReaderRefetchMetadata,
       connection: ReaderPaginationMetadata,

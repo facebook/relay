@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ca7714eedf64c41530c4a0468f3acbb1>>
+ * @generated SignedSource<<cbd16ecf7ed7f6c8372e52c2a00add11>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -37,6 +37,7 @@ var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": {
+    "hasClientEdges": true,
     "refetch": {
       "connection": null,
       "fragmentPathInResult": [

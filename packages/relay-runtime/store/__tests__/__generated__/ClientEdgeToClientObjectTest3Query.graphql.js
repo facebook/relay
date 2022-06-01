@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2dc8749cd02986d917d4e0ae22f78103>>
+ * @generated SignedSource<<0471404fd8a1c8e7de5ddc00edc03bfb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -37,7 +37,9 @@ var node/*: ConcreteRequest*/ = {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
-    "metadata": null,
+    "metadata": {
+      "hasClientEdges": true
+    },
     "name": "ClientEdgeToClientObjectTest3Query",
     "selections": [
       {

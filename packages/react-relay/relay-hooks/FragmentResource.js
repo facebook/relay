@@ -369,6 +369,7 @@ class FragmentResourceImpl {
     let clientEdgeRequests: ?Array<RequestDescriptor> = null;
     if (
       RelayFeatureFlags.ENABLE_CLIENT_EDGES &&
+      fragmentNode.metadata?.hasClientEdges === true &&
       hasMissingClientEdges(snapshot)
     ) {
       clientEdgeRequests = [];

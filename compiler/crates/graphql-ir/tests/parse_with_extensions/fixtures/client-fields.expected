@@ -123,14 +123,14 @@ type Foo {
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(68),
+            type_condition: Object(69),
             directives: [],
             selections: [
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
                         location: client-fields.graphql:171:173,
-                        item: FieldID(459),
+                        item: FieldID(460),
                     },
                     arguments: [],
                     directives: [],
@@ -139,7 +139,7 @@ type Foo {
                     alias: None,
                     definition: WithLocation {
                         location: client-fields.graphql:226:238,
-                        item: FieldID(516),
+                        item: FieldID(517),
                     },
                     arguments: [],
                     directives: [],
@@ -175,7 +175,7 @@ type Foo {
                                             alias: None,
                                             definition: WithLocation {
                                                 location: client-fields.graphql:287:289,
-                                                item: FieldID(459),
+                                                item: FieldID(460),
                                             },
                                             arguments: [],
                                             directives: [],
@@ -208,7 +208,7 @@ type Foo {
                 },
                 InlineFragment {
                     type_condition: Some(
-                        Object(68),
+                        Object(69),
                     ),
                     directives: [],
                     selections: [
@@ -216,7 +216,7 @@ type Foo {
                             alias: None,
                             definition: WithLocation {
                                 location: client-fields.graphql:367:370,
-                                item: FieldID(517),
+                                item: FieldID(518),
                             },
                             arguments: [],
                             directives: [],
@@ -231,7 +231,7 @@ type Foo {
                                 },
                                 InlineFragment {
                                     type_condition: Some(
-                                        Object(77),
+                                        Object(78),
                                     ),
                                     directives: [],
                                     selections: [
@@ -239,7 +239,7 @@ type Foo {
                                             alias: None,
                                             definition: WithLocation {
                                                 location: client-fields.graphql:470:472,
-                                                item: FieldID(518),
+                                                item: FieldID(519),
                                             },
                                             arguments: [],
                                             directives: [],
@@ -263,14 +263,14 @@ type Foo {
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(77),
+            type_condition: Object(78),
             directives: [],
             selections: [
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
                         location: client-fields.graphql:526:528,
-                        item: FieldID(518),
+                        item: FieldID(519),
                     },
                     arguments: [],
                     directives: [],

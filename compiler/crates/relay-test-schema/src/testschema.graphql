@@ -966,6 +966,10 @@ type ImplementsImplementsUserNameRenderable implements ImplementsUserNameRendera
   name: String
 }
 
+type ImplementsImplementsUserNameRenderableAndUserNameRenderable implements ImplementsUserNameRenderable & UserNameRenderable {
+  name: String
+}
+
 input ProfilePictureOptions {
   newName: String
 }

@@ -150,7 +150,9 @@ fragment RefetchableClientEdgeQuery_relayResolverBackingClientEdgeQuery_me__best
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
-    "metadata": null,
+    "metadata": {
+      "hasClientEdges": true
+    },
     "name": "relayResolverBackingClientEdgeQuery",
     "selections": [
       {

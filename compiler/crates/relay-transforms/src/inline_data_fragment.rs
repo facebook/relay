@@ -7,8 +7,8 @@
 
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
-    associated_data_impl, FragmentSpread, InlineFragment, Program, Selection, Transformed,
-    Transformer,
+    associated_data_impl, Argument, FragmentSpread, InlineFragment, Program, Selection,
+    Transformed, Transformer,
 };
 
 use intern::string_key::{Intern, StringKey};
@@ -50,6 +50,7 @@ impl<'s> InlineDataFragmentsTransform<'s> {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct InlineDirectiveMetadata {
     pub fragment_name: StringKey,
+    pub arguments: Vec<Argument>,
 }
 associated_data_impl!(InlineDirectiveMetadata);
 
@@ -130,12 +131,11 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
 
             let inline_fragment = InlineFragment {
                 type_condition: None,
-                directives: vec![
-                    InlineDirectiveMetadata {
-                        fragment_name: name,
-                    }
-                    .into(),
-                ],
+                directives: vec![InlineDirectiveMetadata {
+                    fragment_name: name,
+                    arguments: spread.arguments.clone(),
+                }
+                .into()],
                 selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
                     type_condition: Some(fragment.type_condition),
                     directives: vec![],

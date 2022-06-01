@@ -434,12 +434,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 {
                     // If inline fragment has @__inline directive (created by inline_data_fragment transform)
                     // we will return selection wrapped with InlineDataFragmentSpread
-                    vec![
-                        self.build_inline_data_fragment_spread(
-                            inline_fragment,
-                            inline_data_directive,
-                        ),
-                    ]
+                    vec![self
+                        .build_inline_data_fragment_spread(inline_fragment, inline_data_directive)]
                 } else if let Some(module_metadata) =
                     ModuleMetadata::find(&inline_fragment.directives)
                 {
@@ -1338,10 +1334,16 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         inline_directive_data: &InlineDirectiveMetadata,
     ) -> Primitive {
         let selections = self.build_selections(inline_fragment.selections.iter());
+        let args = self.build_arguments(&inline_directive_data.arguments);
+
         Primitive::Key(self.object(object! {
             kind: Primitive::String(CODEGEN_CONSTANTS.inline_data_fragment_spread),
             name: Primitive::String(inline_directive_data.fragment_name),
             selections: selections,
+            args: match args {
+                None => Primitive::SkippableNull,
+                Some(key) => Primitive::Key(key),
+            },
         }))
     }
 

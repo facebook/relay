@@ -5,8 +5,7 @@ playground.
 
 ## Build The Wasm Module
 
-Ensure you have wasm-pack >= 0.10.0 installed. Go
-[here](https://rustwasm.github.io/wasm-pack/installer/) if you don't.
+Ensure you have wasm-pack >= 0.10.0 installed. Type `cargo install wasm-pack` if you don't.
 
 To build the wasm module:
 
@@ -57,4 +56,4 @@ yarn link relay-compiler-playground
 yarn start
 ```
 
-Navigate to `http://localhost:3000/compiler-playground`
+Navigate to `http://localhost:3000/compiler-explorer`

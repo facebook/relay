@@ -523,7 +523,7 @@ class RelayReader {
     // inputs have changed since a previous evaluation:
     let snapshot: ?Snapshot;
 
-    const getDataForResolverFragment = singularReaderSelector => {
+    const getDataForResolverFragment = (singularReaderSelector) => {
       if (snapshot != null) {
         // It was already read when checking for input staleness; no need to read it again.
         // Note that the variables like fragmentSeenRecordIDs in the outer closure will have
@@ -682,7 +682,7 @@ class RelayReader {
       // local within their type. ResolverCache will derive a namespaced ID for us.
       if (field.linkedField.plural) {
         // $FlowFixMe[prop-missing]
-        destinationDataID = destinationDataID.map(id =>
+        destinationDataID = destinationDataID.map((id) =>
           this._resolverCache.ensureClientRecord(id, field.concreteType),
         );
       } else {
@@ -1109,11 +1109,35 @@ class RelayReader {
     const inlineData = {};
     const parentFragmentName = this._fragmentName;
     this._fragmentName = fragmentSpreadOrFragment.name;
+
+    let temporaryTraversalVariables = this._variables;
+
+    // If the inline fragment spread has arguments, we need to temporarily
+    // switch this._variables to include the fragment spread's arguments
+    // for the duration of its traversal.
+    if (fragmentSpreadOrFragment.args) {
+      const spreadArguments = getArgumentValues(
+        fragmentSpreadOrFragment.args,
+        this._variables,
+      );
+
+      // Inherit the operation's arguments and give local fragment arguments higher priority
+      temporaryTraversalVariables = {...this._variables, ...spreadArguments};
+    }
+
+    // Swap out the variables
+    let oldVariables = this._variables;
+    this._variables = temporaryTraversalVariables;
+
     this._traverseSelections(
       fragmentSpreadOrFragment.selections,
       record,
       inlineData,
     );
+
+    // Put the old variables back
+    this._variables = oldVariables;
+
     this._fragmentName = parentFragmentName;
     // $FlowFixMe[cannot-write] - writing into read-only field
     fragmentPointers[fragmentSpreadOrFragment.name] = inlineData;

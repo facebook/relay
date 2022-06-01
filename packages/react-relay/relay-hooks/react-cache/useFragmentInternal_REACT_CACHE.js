@@ -366,36 +366,48 @@ function useFragmentInternal_REACT_CACHE(
 
   // Handle the queries for any missing client edges; this may suspend.
   // FIXME handle client edges in parallel.
-  const missingClientEdges = getMissingClientEdges(state);
-  let effects;
-  if (missingClientEdges?.length) {
-    effects = [];
-    for (const edge of missingClientEdges) {
-      effects.push(
-        handleMissingClientEdge(
-          environment,
-          fragmentNode,
-          fragmentRef,
-          edge,
-          queryOptions,
-        ),
-      );
-    }
-  }
-
-  useEffect(() => {
-    if (effects?.length) {
-      const cleanups = [];
-      for (const effect of effects) {
-        cleanups.push(effect());
-      }
-      return () => {
-        for (const cleanup of cleanups) {
-          cleanup();
+  if (fragmentNode.metadata?.hasClientEdges === true) {
+    // The fragment is validated to be static (in useFragment) and hasClientEdges is
+    // a static (constant) property of the fragment. In practice, this effect will
+    // always or never run for a given invocation of this hook.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const effects = useMemo(() => {
+      const missingClientEdges = getMissingClientEdges(state);
+      // eslint-disable-next-line no-shadow
+      let effects;
+      if (missingClientEdges?.length) {
+        effects = [];
+        for (const edge of missingClientEdges) {
+          effects.push(
+            handleMissingClientEdge(
+              environment,
+              fragmentNode,
+              fragmentRef,
+              edge,
+              queryOptions,
+            ),
+          );
         }
-      };
-    }
-  });
+      }
+      return effects;
+    }, [state, environment, fragmentNode, fragmentRef, queryOptions]);
+
+    // See above note
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useEffect(() => {
+      if (effects?.length) {
+        const cleanups = [];
+        for (const effect of effects) {
+          cleanups.push(effect());
+        }
+        return () => {
+          for (const cleanup of cleanups) {
+            cleanup();
+          }
+        };
+      }
+    }, [effects]);
+  }
 
   if (isMissingData(state)) {
     // Suspend if an active operation bears on this fragment, either the

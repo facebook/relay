@@ -9,4 +9,3 @@ license = "MIT"
 [dependencies]
 colored = "1.9"
 common = { path = "../common" }
-graphql-syntax = { path = "../graphql-syntax" }

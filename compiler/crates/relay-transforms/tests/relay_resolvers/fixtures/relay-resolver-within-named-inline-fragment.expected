@@ -26,9 +26,9 @@ fragment Foo_user on Node {
   #         item: "aliased_fragment",
   #     },
   #     type_condition: Some(
-  #         Object(68),
+  #         Object(69),
   #     ),
-  #     selection_type: Object(68),
+  #     selection_type: Object(69),
   # }
    {
     ...PopStarNameResolverFragment_name @__RelayResolverSpreadMetadata

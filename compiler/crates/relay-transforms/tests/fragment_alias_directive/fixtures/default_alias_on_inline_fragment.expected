@@ -13,9 +13,9 @@ fragment Foo on Node {
   #         item: "User",
   #     },
   #     type_condition: Some(
-  #         Object(68),
+  #         Object(69),
   #     ),
-  #     selection_type: Object(68),
+  #     selection_type: Object(69),
   # }
    {
     name

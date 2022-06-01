@@ -78,7 +78,7 @@ fragment Foo($localId: ID!) on User {
                     directives: [],
                 },
             ],
-            type_condition: Object(68),
+            type_condition: Object(69),
             directives: [
                 Directive {
                     name: WithLocation {
@@ -94,7 +94,7 @@ fragment Foo($localId: ID!) on User {
                     alias: None,
                     definition: WithLocation {
                         location: fragment-with-variable-definitions-syntax.graphql:131:145,
-                        item: FieldID(473),
+                        item: FieldID(474),
                     },
                     arguments: [
                         Argument {
@@ -142,7 +142,7 @@ fragment Foo($localId: ID!) on User {
                     ),
                     definition: WithLocation {
                         location: fragment-with-variable-definitions-syntax.graphql:198:212,
-                        item: FieldID(473),
+                        item: FieldID(474),
                     },
                     arguments: [
                         Argument {
@@ -237,14 +237,14 @@ fragment Foo($localId: ID!) on User {
                 },
             ],
             used_global_variables: [],
-            type_condition: Object(68),
+            type_condition: Object(69),
             directives: [],
             selections: [
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
                         location: fragment-with-variable-definitions-syntax.graphql:317:319,
-                        item: FieldID(459),
+                        item: FieldID(460),
                     },
                     arguments: [],
                     directives: [],

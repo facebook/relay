@@ -15,14 +15,14 @@ fragment LinkedHandleField on User {
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(68),
+            type_condition: Object(69),
             directives: [],
             selections: [
                 LinkedField {
                     alias: None,
                     definition: WithLocation {
                         location: linked-handle-field-with-key.graphql:39:46,
-                        item: FieldID(457),
+                        item: FieldID(458),
                     },
                     arguments: [
                         Argument {

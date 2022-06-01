@@ -68,7 +68,9 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
         if fragment.directives.named(*INLINE_DIRECTIVE_NAME).is_none() {
             next_fragment_spread
         } else {
-            if !fragment.variable_definitions.is_empty() {
+            if !fragment.variable_definitions.is_empty()
+                || !fragment.used_global_variables.is_empty()
+            {
                 let mut error = Diagnostic::error(
                     ValidationMessage::InlineDataFragmentArgumentsNotSupported,
                     fragment.name.location,
@@ -80,7 +82,7 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
                 {
                     error = error.annotate("Variable used:", var.name.location);
                 }
-                // self.errors.push(error);
+                self.errors.push(error);
             }
             match &next_fragment_spread {
                 Transformed::Keep => {
@@ -144,10 +146,12 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
 
             let inline_fragment = InlineFragment {
                 type_condition: None,
-                directives: vec![InlineDirectiveMetadata {
-                    fragment_name: name,
-                }
-                .into()],
+                directives: vec![
+                    InlineDirectiveMetadata {
+                        fragment_name: name,
+                    }
+                    .into(),
+                ],
                 selections: vec![Selection::InlineFragment(Arc::new(InlineFragment {
                     type_condition: Some(fragment.type_condition),
                     directives: vec![],

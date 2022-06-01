@@ -56,49 +56,51 @@ test('unwrap inline fragment data', () => {
   });
 });
 
-test('works with query variables', () => {
-  const QueryVariablesFragment = graphql`
-    fragment readInlineDataTestQueryVariables on User @inline {
-      profile_picture(scale: $scale) {
-        uri
+describe('integration test with variables', () => {
+  test('works with query variables', () => {
+    const QueryVariablesFragment = graphql`
+      fragment readInlineDataTestQueryVariables on User @inline {
+        profile_picture(scale: $scale) {
+          uri
+        }
       }
-    }
-  `;
+    `;
 
-  const QueryVariablesQuery = graphql`
-    query readInlineDataTestQueryVariablesQuery($scale: Float) {
-      me {
-        ...readInlineDataTestQueryVariables
+    const QueryVariablesQuery = graphql`
+      query readInlineDataTestQueryVariablesQuery($scale: Float) {
+        me {
+          ...readInlineDataTestQueryVariables
+        }
       }
-    }
-  `;
+    `;
 
-  const environment = createMockEnvironment();
-  environment.commitPayload(
-    createOperationDescriptor(QueryVariablesQuery, {scale: 2}),
-    {
-      me: {
-        id: '7',
-        __typename: 'User',
-        profile_picture: {
-          uri: 'some_url',
+    const variables = {
+      scale: 2,
+    };
+
+    const environment = createMockEnvironment();
+    environment.commitPayload(
+      createOperationDescriptor(QueryVariablesQuery, variables),
+      {
+        me: {
+          id: '7',
+          __typename: 'User',
+          profile_picture: {
+            uri: 'some_url',
+          },
         },
       },
-    },
-  );
+    );
 
-  const variables = {
-    scale: 2,
-  };
+    const request = getRequest(QueryVariablesQuery);
+    const operation = createOperationDescriptor(request, variables);
+    const snapshot = environment.lookup(operation.fragment, operation);
 
-  const request = getRequest(QueryVariablesQuery);
-  const operation = createOperationDescriptor(request, variables);
-  const snapshot = environment.lookup(operation.fragment, operation);
-
-  expect(readInlineData(QueryVariablesFragment, snapshot.data.me)).toEqual({
-    profile_picture: {
-      uri: 'some_url',
-    },
+    expect(readInlineData(QueryVariablesFragment, snapshot.data.me)).toEqual({
+      profile_picture: {
+        uri: 'some_url',
+      },
+    });
   });
 });
 

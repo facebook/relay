@@ -20,7 +20,7 @@ fragment inlineDataFragmentLocalArgsProfile on User
   }
 }
 ==================================== ERROR ====================================
-✖︎ Variables are not yet supported inside @inline fragments.
+✖︎ Variables from @argumentDefinitions are not yet supported inside @inline fragments.
 
   inline-data-fragment-local-args.graphql:14:10
    13 │ 
@@ -37,7 +37,7 @@ fragment inlineDataFragmentLocalArgsProfile on User
    17 │   profilePicture(size: $sizeArg) {
 
 
-✖︎ Variables are not yet supported inside @inline fragments.
+✖︎ Variables from @argumentDefinitions are not yet supported inside @inline fragments.
 
   inline-data-fragment-local-args.graphql:14:10
    13 │ 
@@ -54,7 +54,7 @@ fragment inlineDataFragmentLocalArgsProfile on User
    17 │   profilePicture(size: $sizeArg) {
 
 
-✖︎ Variables are not yet supported inside @inline fragments.
+✖︎ Variables from @argumentDefinitions are not yet supported inside @inline fragments.
 
   inline-data-fragment-local-args.graphql:14:10
    13 │ 

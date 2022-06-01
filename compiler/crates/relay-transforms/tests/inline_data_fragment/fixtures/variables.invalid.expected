@@ -1,27 +1,27 @@
 ==================================== INPUT ====================================
 # expected-to-throw
 fragment User on User {
-  ...UserProfile
+  ...UserProfile @arguments(profilePictureSize: [1, 1])
 }
 
-fragment UserProfile on User @inline {
-  profilePicture(size: $ProfilePicture_SIZE) {
+fragment UserProfile on User @inline @argumentDefinitions(profilePictureSize: { type: "[Int]" }) {
+  profilePicture(size: $profilePictureSize) {
     uri
   }
 }
 ==================================== ERROR ====================================
-✖︎ Variables are not yet supported inside @inline fragments.
+✖︎ Variables from @argumentDefinitions are not yet supported inside @inline fragments.
 
   variables.invalid.graphql:6:10
     5 │ 
-    6 │ fragment UserProfile on User @inline {
+    6 │ fragment UserProfile on User @inline @argumentDefinitions(profilePictureSize: { type: "[Int]" }) {
       │          ^^^^^^^^^^^
-    7 │   profilePicture(size: $ProfilePicture_SIZE) {
+    7 │   profilePicture(size: $profilePictureSize) {
 
   ℹ︎ Variable used:
 
-  variables.invalid.graphql:7:24
-    6 │ fragment UserProfile on User @inline {
-    7 │   profilePicture(size: $ProfilePicture_SIZE) {
-      │                        ^^^^^^^^^^^^^^^^^^^^
-    8 │     uri
+  variables.invalid.graphql:6:59
+    5 │ 
+    6 │ fragment UserProfile on User @inline @argumentDefinitions(profilePictureSize: { type: "[Int]" }) {
+      │                                                           ^^^^^^^^^^^^^^^^^^
+    7 │   profilePicture(size: $profilePictureSize) {

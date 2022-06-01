@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<596b128af7adc3d858537d628aca1729>>
+ * @generated SignedSource<<d97ebbb754ac1b261441ebd7a6bbb54f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -42,7 +42,9 @@ return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
-    "metadata": null,
+    "metadata": {
+      "hasClientEdges": true
+    },
     "name": "RelayReaderClientEdgesTest6Query",
     "selections": [
       {

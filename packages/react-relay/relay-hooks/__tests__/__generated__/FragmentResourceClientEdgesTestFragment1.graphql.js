@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f379b0bfa194ad5823ab1a391593dfa5>>
+ * @generated SignedSource<<2487d5d4d654b8754800f8997dfdb601>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -34,7 +34,9 @@ export type FragmentResourceClientEdgesTestFragment1$key = {
 var node/*: ReaderFragment*/ = {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "hasClientEdges": true
+  },
   "name": "FragmentResourceClientEdgesTestFragment1",
   "selections": [
     {

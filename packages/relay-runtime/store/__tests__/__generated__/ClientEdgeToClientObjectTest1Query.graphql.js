@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ec9124e2c280e8764718c1873371347d>>
+ * @generated SignedSource<<232e352367bc7c9943bad4a7096ecaae>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -94,7 +94,9 @@ return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
-    "metadata": null,
+    "metadata": {
+      "hasClientEdges": true
+    },
     "name": "ClientEdgeToClientObjectTest1Query",
     "selections": [
       {

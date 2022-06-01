@@ -21,6 +21,7 @@ import type {
   Variables,
 } from 'relay-runtime';
 
+const HooksImplementation = require('./HooksImplementation');
 const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
@@ -29,7 +30,21 @@ const {
   __internal: {fetchQuery},
 } = require('relay-runtime');
 
-function useLazyLoadQuery<TVariables: Variables, TData>(
+// This separate type export is only needed as long as we are injecting
+// a separate hooks implementation in ./HooksImplementation -- it can
+// be removed after we stop doing that.
+export type UseLazyLoadQueryHookType = <TVariables: Variables, TData>(
+  gqlQuery: Query<TVariables, TData>,
+  variables: TVariables,
+  options?: {|
+    fetchKey?: string | number,
+    fetchPolicy?: FetchPolicy,
+    networkCacheConfig?: CacheConfig,
+    UNSTABLE_renderPolicy?: RenderPolicy,
+  |},
+) => TData;
+
+function useLazyLoadQuery_LEGACY<TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
   options?: {|
@@ -63,4 +78,23 @@ function useLazyLoadQuery<TVariables: Variables, TData>(
   return data;
 }
 
-module.exports = useLazyLoadQuery;
+function useLazyLoadQuery<TVariables: Variables, TData>(
+  gqlQuery: Query<TVariables, TData>,
+  variables: TVariables,
+  options?: {|
+    fetchKey?: string | number,
+    fetchPolicy?: FetchPolicy,
+    networkCacheConfig?: CacheConfig,
+    UNSTABLE_renderPolicy?: RenderPolicy,
+  |},
+): TData {
+  const impl = HooksImplementation.get();
+  if (impl) {
+    return impl.useLazyLoadQuery(gqlQuery, variables, options);
+  } else {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useLazyLoadQuery_LEGACY(gqlQuery, variables, options);
+  }
+}
+
+module.exports = (useLazyLoadQuery: UseLazyLoadQueryHookType);

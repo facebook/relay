@@ -33,6 +33,7 @@ export type ReaderInlineDataFragmentSpread = {|
   +kind: 'InlineDataFragmentSpread',
   +name: string,
   +selections: $ReadOnlyArray<ReaderSelection>,
+  +args?: ?$ReadOnlyArray<ReaderArgument>,
 |};
 
 export type ReaderFragment = {|

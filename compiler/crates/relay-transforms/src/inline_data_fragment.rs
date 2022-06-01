@@ -169,7 +169,7 @@ enum ValidationMessage {
     #[error("Found a circular reference from fragment '{fragment_name}'.")]
     CircularFragmentReference { fragment_name: StringKey },
 
-    #[error("Variables are not yet supported inside @inline fragments.")]
+    #[error("Variables from @argumentDefinitions are not yet supported inside @inline fragments.")]
     InlineDataFragmentArgumentsNotSupported,
 
     #[error("Directives on fragment spreads for @inline fragments are not yet supported")]

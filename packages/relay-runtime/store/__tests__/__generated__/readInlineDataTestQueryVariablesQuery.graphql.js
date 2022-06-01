@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f5559f711b5ec6819bcbcd697dbc60c3>>
+ * @generated SignedSource<<6844948c1d1b77099a9e2230cdac8036>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -83,7 +83,8 @@ return {
             "name": "readInlineDataTestQueryVariables",
             "selections": [
               (v1/*: any*/)
-            ]
+            ],
+            "args": null
           }
         ],
         "storageKey": null

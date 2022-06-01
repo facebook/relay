@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0dd81da0c676054856c17226d1df6acb>>
+ * @generated SignedSource<<db423ebcf5df9f923b80264663c792d4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -72,7 +72,8 @@ var node/*: ReaderFragment*/ = {
           ],
           "storageKey": "profilePicture(size:32)"
         }
-      ]
+      ],
+      "args": null
     }
   ],
   "type": "User",

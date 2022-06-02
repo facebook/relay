@@ -8,39 +8,17 @@
  */
 
 /* eslint-disable lint/no-value-import */
+import {
+  useExplorerState,
+  useSerializedFeatureFlags,
+} from '../compiler-explorer/ExplorerState';
+import {FEATURE_FLAGS} from '../compiler-explorer/ExplorerStateConstants';
 import Layout from '@theme/Layout';
 import clsx from 'clsx';
 import * as React from 'react';
 
-const {useState, useEffect, useLayoutEffect, useMemo} = React;
-
-const DEFAULT_SCHEMA = `
-type User {
-  name: String
-  age: Int
-  best_friend: User
-}
-
-type Query {
-  me: User
-}
- `.trim();
-
-const DEFAULT_DOCUMENT = `
-query MyQuery {
-  me {
-    name
-    ...AgeFragment
-    best_friend {
-      ...AgeFragment
-    }
-  }
-}
-
-fragment AgeFragment on User {
-  age
-}
- `.trim();
+const {useState, useEffect, useLayoutEffect, useMemo, useReducer, useCallback} =
+  React;
 
 export default function App() {
   return (
@@ -75,18 +53,15 @@ function FillRemainingHeight({children, minHeight}) {
 }
 
 function CompilerExplorer() {
-  const [featureFlags, setFeatureFlags] = useState('{}');
-  const [typegenConfig, setTypegenConfig] = useState('{}');
-  const [schemaText, setSchemaText] = useState(DEFAULT_SCHEMA);
-  const [documentText, setDocumentText] = useState(DEFAULT_DOCUMENT);
-  const [outputType, setOutputType] = useState('operation');
-  const results = useResults({
-    schemaText,
-    documentText,
-    outputType,
-    featureFlags,
-    typegenConfig,
-  });
+  const {
+    state,
+    setOutputType,
+    setDocumentText,
+    setSchemaText,
+    setFeatureFlag,
+    setLanguage,
+  } = useExplorerState();
+  const results = useResults(state);
   const output = results.Ok ?? '';
   const schemaDiagnostics = results.Err?.SchemaDiagnostics;
   const documentDiagnostics = results.Err?.DocumentDiagnostics;
@@ -121,7 +96,7 @@ function CompilerExplorer() {
               {value: 'reader', label: 'Reader AST'},
               {value: 'types', label: 'Types'},
             ]}
-            selectedValue={outputType}
+            selectedValue={state.outputType}
             setSelectedValue={(selected) => setOutputType(selected)}
           />
         </div>
@@ -129,7 +104,7 @@ function CompilerExplorer() {
       <div style={{display: 'flex', flexGrow: 1, columnGap: padding}}>
         <div style={{width: '50%', display: 'flex', flexDirection: 'column'}}>
           <Editor
-            text={schemaText}
+            text={state.schemaText}
             onDidChange={setSchemaText}
             style={{flexGrow: 1}}
             // We don't actually track spans when we parse the schema, so the
@@ -138,14 +113,17 @@ function CompilerExplorer() {
           />
           <ExplorerHeading>Document</ExplorerHeading>
           <Editor
-            text={documentText}
+            text={state.documentText}
             onDidChange={setDocumentText}
             style={{flexGrow: 3}}
             diagnostics={documentDiagnostics}
           />
           <ExplorerHeading>Feature Flags</ExplorerHeading>
-          <Config onFeatureFlagsChanged={setFeatureFlags} />
-          <TypegenConfig onTypegenConfigChanged={setTypegenConfig} />
+          <Config
+            setFeatureFlag={setFeatureFlag}
+            featureFlags={state.featureFlags}
+          />
+          <TypegenConfig setLanguage={setLanguage} language={state.language} />
         </div>
         <div style={{width: '50%', display: 'flex'}}>
           <div style={{flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
@@ -157,104 +135,40 @@ function CompilerExplorer() {
   );
 }
 
-function Config({onFeatureFlagsChanged}) {
-  const [flight, setFlight] = useState(true);
-  const [hashArgs, setHashArgs] = useState(true);
-  const [noInline, setNoInline] = useState(true);
-  const [threeDBranchArg, set3DBranchArg] = useState(true);
-  const [actorChangeSupport, setActorChangeSupport] = useState(true);
-  const [textArtifacts, setTextArtifacts] = useState(true);
-  const [clientEdges, setClientEdges] = useState(true);
-
-  useEffect(() => {
-    onFeatureFlagsChanged(
-      JSON.stringify({
-        enable_flight_transform: flight,
-        hash_supported_argument: {kind: hashArgs ? 'enabled' : 'disabled'},
-        no_inline: {kind: noInline ? 'enabled' : 'disabled'},
-        enable_3d_branch_arg_generation: threeDBranchArg,
-        actor_change_support: {
-          kind: actorChangeSupport ? 'enabled' : 'disabled',
-        },
-        text_artifacts: {kind: textArtifacts ? 'enabled' : 'disabled'},
-        enable_client_edges: {kind: clientEdges ? 'enabled' : 'disabled'},
-      }),
-    );
-  }, [
-    flight,
-    hashArgs,
-    noInline,
-    threeDBranchArg,
-    actorChangeSupport,
-    textArtifacts,
-    clientEdges,
-    onFeatureFlagsChanged,
-  ]);
-
+function Config({featureFlags, setFeatureFlag}) {
   return (
     <div
       style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(2, 1fr)',
       }}>
-      <ConfigOption checked={flight} set={setFlight}>
-        Flight Transform
-      </ConfigOption>
-      <ConfigOption checked={hashArgs} set={setHashArgs}>
-        Hash Supported Arguments
-      </ConfigOption>
-      <ConfigOption checked={noInline} set={setNoInline}>
-        @no_inline
-      </ConfigOption>
-      <ConfigOption checked={threeDBranchArg} set={set3DBranchArg}>
-        3D Branch Arg Generation
-      </ConfigOption>
-      <ConfigOption checked={actorChangeSupport} set={setActorChangeSupport}>
-        Actor Change Support
-      </ConfigOption>
-      <ConfigOption checked={textArtifacts} set={setTextArtifacts}>
-        Text Artifacts
-      </ConfigOption>
-      <ConfigOption checked={clientEdges} set={setClientEdges}>
-        Client Edges
-      </ConfigOption>
+      {FEATURE_FLAGS.map(({key, label}) => {
+        return (
+          <label key={key} style={{display: 'block'}}>
+            <input
+              type="checkbox"
+              checked={featureFlags[key]}
+              onChange={(e) => setFeatureFlag(key, e.target.checked)}
+            />
+            {label}
+          </label>
+        );
+      })}
     </div>
   );
 }
 
-function TypegenConfig({onTypegenConfigChanged}) {
-  const [language, setLangauge] = useState('flow');
-  useEffect(() => {
-    onTypegenConfigChanged(
-      JSON.stringify({
-        language,
-      }),
-    );
-  }, [language, onTypegenConfigChanged]);
-
+function TypegenConfig({setLanguage, language}) {
   return (
     <div>
       <label>
         Type Generation Language:
-        <select onChange={(e) => setLangauge(e.target.value)}>
+        <select onChange={(e) => setLanguage(e.target.value)} value={language}>
           <option value="flow">Flow</option>
           <option value="typescript">TypeScript</option>
         </select>
       </label>
     </div>
-  );
-}
-
-function ConfigOption({checked, set, children}) {
-  return (
-    <label style={{display: 'block'}}>
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => set(e.target.checked)}
-      />
-      {children}
-    </label>
   );
 }
 
@@ -291,13 +205,10 @@ function ExplorerHeading({children}) {
   return <h3 style={{margin: 0, padding}}>{children}</h3>;
 }
 
-function useResults({
-  schemaText,
-  documentText,
-  outputType,
-  featureFlags,
-  typegenConfig,
-}) {
+function useResults(state) {
+  const {schemaText, documentText, language, outputType} = state;
+  const featureFlags = useSerializedFeatureFlags(state);
+
   const wasm = useWasm();
   return useMemo(() => {
     if (wasm == null) {
@@ -333,6 +244,7 @@ function useResults({
           );
         }
         case 'types': {
+          const typegenConfig = JSON.stringify({language});
           return JSON.parse(
             wasm.parse_to_types(
               featureFlags,
@@ -350,7 +262,7 @@ function useResults({
       // diagnostic, so we return this as an `Ok`.
       return {Ok: `Error: The compiler crashed: ${e.message}`};
     }
-  }, [schemaText, documentText, outputType, wasm, featureFlags, typegenConfig]);
+  }, [schemaText, documentText, outputType, wasm, featureFlags, language]);
 }
 
 // The Wasm module must be initialized async. Return `null` until the module is ready.

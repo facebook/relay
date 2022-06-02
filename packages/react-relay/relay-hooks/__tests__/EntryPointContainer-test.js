@@ -117,12 +117,12 @@ beforeEach(() => {
   nestedEntryPointResource = new FakeJSResource();
 
   entrypoint = {
-    getPreloadProps(entryPointParams) {
+    getPreloadProps(entryPointParams: any) {
       return {
         entryPoints: {
           nestedEntryPoint: {
             entryPoint: {
-              getPreloadProps(nestedEntryPointParams) {
+              getPreloadProps(nestedEntryPointParams: any) {
                 return {
                   queries: {
                     preloadedQuery: {
@@ -201,7 +201,7 @@ it('suspends then updates when the query and component load', () => {
   TestRenderer.act(() => jest.runAllImmediates());
   expect(renderer.toJSON()).toEqual('Fallback');
   let preloadedQuery = null;
-  function Component(props) {
+  function Component(props: any) {
     expect(props.queries.preloadedQuery.variables.id).toBe('my-id');
     preloadedQuery = props.queries.preloadedQuery;
     const data = usePreloadedQuery(query, props.queries.preloadedQuery);
@@ -221,7 +221,7 @@ it('suspends then updates when the query and component load', () => {
 
 it('renders synchronously when the component has already loaded and the data arrives before render', () => {
   let preloadedQuery = null;
-  function Component(props) {
+  function Component(props: any) {
     expect(props.queries.preloadedQuery.variables.id).toBe('my-id');
     preloadedQuery = props.queries.preloadedQuery;
     const data = usePreloadedQuery(query, props.queries.preloadedQuery);

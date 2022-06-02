@@ -13,6 +13,8 @@
 
 'use strict';
 
+import type {fetchQueryTest1Query$data} from './__generated__/fetchQueryTest1Query.graphql';
+
 const fetchQuery = require('../fetchQuery');
 const {
   createOperationDescriptor,
@@ -78,7 +80,7 @@ describe('fetchQuery', () => {
   it('provides data snapshot on next', () => {
     let calledNext = false;
     const observer = {
-      next: data => {
+      next: (data: fetchQueryTest1Query$data) => {
         calledNext = true;
         expect(retained.length).toEqual(0);
         expect(data).toEqual({

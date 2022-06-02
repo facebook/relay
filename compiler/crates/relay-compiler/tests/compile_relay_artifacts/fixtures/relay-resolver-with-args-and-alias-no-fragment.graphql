@@ -1,0 +1,16 @@
+# expected-to-throw
+
+query relayResolverWithArgsAndAliasNoFragment_Query {
+  node(id: "SOME_ID") {
+    ... on User {
+      pop_star_name(scale: 1.5)
+      big_pop_star_name: pop_star_name(scale: 2.5)
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name(scale: Float!): String @relay_resolver(import_path: "./path/to/PopStarNameResolver.js")
+}

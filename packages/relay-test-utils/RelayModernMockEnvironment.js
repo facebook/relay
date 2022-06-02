@@ -449,7 +449,7 @@ function createMockEnvironment(
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       | IEnvironment['executeMutation'],
   ) => {
-    return (...argumentsList) => {
+    return (...argumentsList: $FlowFixMe) => {
       const [{operation}] = argumentsList;
       pendingOperations = pendingOperations.concat([operation]);
       return fn.apply(env, argumentsList);

@@ -117,11 +117,15 @@ describe('when loading and disposing same query multiple times', () => {
     let loadedQuery;
     let queryLoaderCallback;
 
-    const QueryRenderer = function ({queryRef}) {
+    const QueryRenderer = function ({queryRef}: $FlowFixMe) {
       const data = usePreloadedQuery(query, queryRef);
       return data.node.id;
     };
-    const Inner = function ({initialPreloadedQuery}) {
+    const Inner = function ({
+      initialPreloadedQuery,
+    }: {|
+      initialPreloadedQuery: $FlowFixMe,
+    |}) {
       [loadedQuery, queryLoaderCallback] = useQueryLoader(
         preloadableConcreteRequest,
         initialPreloadedQuery,
@@ -134,7 +138,7 @@ describe('when loading and disposing same query multiple times', () => {
         </React.Suspense>
       );
     };
-    const Container = function ({initialPreloadedQuery = undefined}) {
+    const Container = function ({initialPreloadedQuery = undefined}: {||}) {
       return (
         <RelayEnvironmentProvider environment={environment}>
           <Inner initialPreloadedQuery={initialPreloadedQuery} />

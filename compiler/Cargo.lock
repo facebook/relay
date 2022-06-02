@@ -229,6 +229,7 @@ dependencies = [
  "md-5",
  "rayon",
  "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -349,7 +350,6 @@ version = "0.0.0"
 dependencies = [
  "common",
  "fixture-tests",
- "fnv",
  "graphql-ir",
  "graphql-syntax",
  "intern",
@@ -608,7 +608,6 @@ version = "0.0.0"
 dependencies = [
  "colored",
  "common",
- "graphql-syntax",
 ]
 
 [[package]]

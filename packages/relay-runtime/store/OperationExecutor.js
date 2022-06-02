@@ -1156,7 +1156,7 @@ class Executor<TMutation: MutationParameters> {
         parentRecord,
       );
       const handlePayloads = new Map();
-      const dedupePayload = payload => {
+      const dedupePayload = (payload: HandleFieldPayload) => {
         const key = stableStringify(payload);
         handlePayloads.set(key, payload);
       };

@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query relayResolverWithArgsAndAliasNoFragment_Query {
+  node(id: "SOME_ID") {
+    ... on User {
+      pop_star_name(scale: 1.5)
+      big_pop_star_name: pop_star_name(scale: 2.5)
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name(scale: Float!): String @relay_resolver(import_path: "./path/to/PopStarNameResolver.js")
+}
+==================================== ERROR ====================================
+✖︎ The Relay Resolver backing this field is missing a 'fragment_name' argument in its `@relay_resolver` directive.
+
+  <generated>:3:3
+    2 │ 
+    3 │ query relayResolverWithArgsAndAliasNoFragment_Query {
+      │   ^^^^^^^^^^^^^
+    4 │   node(id: "SOME_ID") {

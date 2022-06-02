@@ -55,7 +55,7 @@ test('it should preload entry point with queries', () => {
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
   const entryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: {|id: string|}) {
       return {
         queries: {
           myTestQuery: {
@@ -96,7 +96,7 @@ test('it should preload entry point with nested entry points', () => {
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
   const nestedEntryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: $FlowFixMe) {
       return {
         queries: {
           myNestedQuery: {
@@ -120,7 +120,7 @@ test('it should preload entry point with nested entry points', () => {
     root: (new FakeJSResource(null): $FlowFixMe),
   };
   const entryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: {|id: string|}) {
       return {
         entryPoints: {
           myNestedEntryPoint: {
@@ -154,7 +154,7 @@ test('it should preload entry point with both queries and nested entry points', 
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
   const nestedEntryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: $FlowFixMe) {
       return {
         queries: {
           myNestedQuery: {
@@ -178,7 +178,7 @@ test('it should preload entry point with both queries and nested entry points', 
     root: (new FakeJSResource(null): $FlowFixMe),
   };
   const entryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: {|id: string|}) {
       return {
         queries: {
           myTestQuery: {
@@ -229,7 +229,7 @@ test('with `getEnvironment` function', () => {
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
   const entryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: {|id: string|}) {
       return {
         queries: {
           myTestQuery: {

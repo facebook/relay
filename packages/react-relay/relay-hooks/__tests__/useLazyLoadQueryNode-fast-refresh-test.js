@@ -12,6 +12,11 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
+import type {
+  OperationDescriptor,
+  SelectorData,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
@@ -24,7 +29,10 @@ const {
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
-function expectToBeRendered(renderFn, readyState) {
+function expectToBeRendered(
+  renderFn: JestMockFn<Array<mixed>, any & React$Node>,
+  readyState: ?SelectorData,
+) {
   // Ensure useEffect is called before other timers
   ReactTestRenderer.act(() => {
     jest.runAllImmediates();
@@ -34,7 +42,18 @@ function expectToBeRendered(renderFn, readyState) {
   renderFn.mockClear();
 }
 
-function expectToHaveFetched(environment, query, cacheConfig) {
+function expectToHaveFetched(
+  environment: RelayMockEnvironment,
+  query: OperationDescriptor,
+  cacheConfig: {|
+    force?: ?boolean,
+    liveConfigId?: ?string,
+    metadata?: {[key: string]: mixed},
+    onSubscribe?: () => void,
+    poll?: ?number,
+    transactionId?: ?string,
+  |},
+) {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute).toBeCalledTimes(1);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -84,6 +103,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     `;
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
+    // $FlowFixMe[incompatible-use]
     renderFn = jest.fn(result => result?.node?.name ?? 'Empty');
   });
 
@@ -96,7 +116,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     // $FlowFixMe[cannot-resolve-module] This module is not available on www.
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
-    const V1 = function (props) {
+    const V1 = function (props: {|variables: {|id: string|}|}) {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
       const result = useLazyLoadQueryNode<_>({
         query: _query,
@@ -117,7 +137,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     );
 
     expect(instance.toJSON()).toEqual('Fallback');
-    expectToHaveFetched(environment, query, {});
+    expectToHaveFetched(environment, query, {...null});
     expect(renderFn).not.toBeCalled();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
@@ -140,7 +160,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
     renderFn.mockClear();
-    function V2(props) {
+    function V2(props: any) {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
       const result = useLazyLoadQueryNode<_>({
         query: _query,
@@ -156,7 +176,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
       ReactRefreshRuntime.performReactRefresh();
     });
     // It should start a new fetch in fast refresh
-    expectToHaveFetched(environment, query, {});
+    expectToHaveFetched(environment, query, {...null});
     expect(renderFn).toBeCalledTimes(1);
     expect(instance.toJSON()).toEqual('Fallback');
     // It should render with the result of the new fetch

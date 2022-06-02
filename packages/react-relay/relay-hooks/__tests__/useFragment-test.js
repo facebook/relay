@@ -12,6 +12,16 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {
+  useFragmentTestUserFragment$data,
+  useFragmentTestUserFragment$fragmentType,
+} from './__generated__/useFragmentTestUserFragment.graphql';
+import type {
+  useFragmentTestUsersFragment$data,
+  useFragmentTestUsersFragment$fragmentType,
+} from './__generated__/useFragmentTestUsersFragment.graphql';
+import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
+import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useFragmentOriginal_REACT_CACHE = require('../react-cache/useFragment_REACT_CACHE');
 const useFragmentOriginal_LEGACY = require('../useFragment');
@@ -65,14 +75,25 @@ describe.each([
   let PluralRenderer;
   let ContextProvider;
 
-  function useFragment(fragmentNode, fragmentRef) {
+  function useFragment(
+    fragmentNode:
+      | Fragment<
+          useFragmentTestUserFragment$fragmentType,
+          useFragmentTestUserFragment$data,
+        >
+      | Fragment<
+          useFragmentTestUsersFragment$fragmentType,
+          useFragmentTestUsersFragment$data,
+        >,
+    fragmentRef: any,
+  ) {
     // $FlowFixMe[incompatible-call] non-generated fragmentRef is disallowd
     const data = useFragmentOriginal(fragmentNode, fragmentRef);
     renderSpy(data);
     return data;
   }
 
-  function assertFragmentResults(expected) {
+  function assertFragmentResults(expected: any) {
     // This ensures that useEffect runs
     jest.runAllImmediates();
     expect(renderSpy).toBeCalledTimes(1);
@@ -81,7 +102,7 @@ describe.each([
     renderSpy.mockClear();
   }
 
-  function createFragmentRef(id, owner) {
+  function createFragmentRef(id: string, owner: OperationDescriptor) {
     return {
       [ID_KEY]: id,
       [FRAGMENTS_KEY]: {
@@ -165,8 +186,18 @@ describe.each([
     });
 
     // Set up renderers
-    SingularRenderer = props => null;
-    PluralRenderer = props => null;
+    SingularRenderer = (props: {|
+      user: ?(
+        | useFragmentTestUserFragment$data
+        | useFragmentTestUsersFragment$data
+      ),
+    |}) => null;
+    PluralRenderer = (props: {|
+      users: ?(
+        | useFragmentTestUserFragment$data
+        | useFragmentTestUsersFragment$data
+      ),
+    |}) => null;
     const SingularContainer = (props: {
       userRef?: {$data?: {...}, ...},
       owner: $FlowFixMe,
@@ -209,7 +240,7 @@ describe.each([
     };
 
     const relayContext = {environment};
-    ContextProvider = ({children}) => {
+    ContextProvider = ({children}: {|children: React.Node|}) => {
       return (
         <ReactRelayContext.Provider value={relayContext}>
           {children}
@@ -223,7 +254,7 @@ describe.each([
         userRef?: $FlowFixMe,
         ...
       },
-      existing,
+      existing: $FlowFixMe,
     ) => {
       const elements = (
         <React.Suspense fallback="Singular Fallback">
@@ -246,7 +277,7 @@ describe.each([
         userRef?: $FlowFixMe,
         ...
       },
-      existing,
+      existing: $FlowFixMe,
     ) => {
       const elements = (
         <React.Suspense fallback="Plural Fallback">

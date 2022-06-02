@@ -69,7 +69,7 @@ describe('useBlockingPaginationFragment', () => {
 
   class ErrorBoundary extends React.Component<any, any> {
     state = {error: null};
-    componentDidCatch(error) {
+    componentDidCatch(error: Error) {
       this.setState({error});
     }
     render() {
@@ -82,7 +82,10 @@ describe('useBlockingPaginationFragment', () => {
     }
   }
 
-  function useBlockingPaginationFragment(fragmentNode, fragmentRef) {
+  function useBlockingPaginationFragment(
+    fragmentNode: any,
+    fragmentRef: mixed,
+  ) {
     // $FlowFixMe[incompatible-call]
     const {data, ...result} = useBlockingPaginationFragmentOriginal(
       fragmentNode,
@@ -96,7 +99,10 @@ describe('useBlockingPaginationFragment', () => {
     return {data, ...result};
   }
 
-  function assertCall(expected, idx) {
+  function assertCall(
+    expected: {|data: any, hasNext: boolean, hasPrevious: boolean|},
+    idx: number,
+  ) {
     const actualData = renderSpy.mock.calls[idx][0];
     const actualResult = renderSpy.mock.calls[idx][1];
     const actualHasNext = actualResult.hasNext;
@@ -122,8 +128,8 @@ describe('useBlockingPaginationFragment', () => {
   }
 
   function createFragmentRef(
-    id,
-    owner,
+    id: string,
+    owner: OperationDescriptor,
     fragmentName: string = 'useBlockingPaginationFragmentTestNestedUserFragment',
   ) {
     return {
@@ -381,7 +387,7 @@ describe('useBlockingPaginationFragment', () => {
     });
 
     // Set up renderers
-    Renderer = props => null;
+    Renderer = (props: {|user: any|}) => null;
 
     const Container = (props: {
       userRef?: {...},
@@ -408,7 +414,7 @@ describe('useBlockingPaginationFragment', () => {
       return <Renderer user={userData} />;
     };
 
-    const ContextProvider = ({children}) => {
+    const ContextProvider = ({children}: {|children: React.Node|}) => {
       const [env, _setEnv] = useState(environment);
       const relayContext = useMemo(() => ({environment: env}), [env]);
 
@@ -722,7 +728,7 @@ describe('useBlockingPaginationFragment', () => {
       });
     });
 
-    function expectRequestIsInFlight(expected) {
+    function expectRequestIsInFlight(expected: any) {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toBeCalledTimes(expected.requestCount);
       expect(
@@ -735,7 +741,7 @@ describe('useBlockingPaginationFragment', () => {
     }
 
     function expectFragmentIsLoadingMore(
-      renderer,
+      renderer: any,
       direction: Direction,
       expected: {|
         data: mixed,
@@ -3725,7 +3731,7 @@ describe('useBlockingPaginationFragment', () => {
     describe('refetch', () => {
       // The bulk of refetch behavior is covered in useRefetchableFragmentNode-test,
       // so this suite covers the pagination-related test cases.
-      function expectRefetchRequestIsInFlight(expected) {
+      function expectRefetchRequestIsInFlight(expected: any) {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toBeCalledTimes(
           expected.requestCount,
@@ -3740,7 +3746,7 @@ describe('useBlockingPaginationFragment', () => {
       }
 
       function expectFragmentIsRefetching(
-        renderer,
+        renderer: any,
         expected: {|
           data: mixed,
           hasNext: boolean,

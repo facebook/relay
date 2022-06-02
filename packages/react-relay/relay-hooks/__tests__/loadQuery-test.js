@@ -880,7 +880,7 @@ describe('loadQuery', () => {
     let LoadDuringRender;
 
     beforeEach(() => {
-      Container = props => {
+      Container = (props: {|children: React.Node|}) => {
         useTrackLoadQueryInRender();
         return props.children;
       };

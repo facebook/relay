@@ -20,6 +20,7 @@ import type {
   RenderPolicy,
 } from 'relay-runtime';
 
+const HooksImplementation = require('./HooksImplementation');
 const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
@@ -31,7 +32,18 @@ const {
 } = require('relay-runtime');
 const warning = require('warning');
 
-function usePreloadedQuery<TQuery: OperationType>(
+// This separate type export is only needed as long as we are injecting
+// a separate hooks implementation in ./HooksImplementation -- it can
+// be removed after we stop doing that.
+export type UsePreloadedQueryHookType = <TQuery: OperationType>(
+  gqlQuery: GraphQLTaggedNode,
+  preloadedQuery: PreloadedQuery<TQuery>,
+  options?: {|
+    UNSTABLE_renderPolicy?: RenderPolicy,
+  |},
+) => TQuery['response'];
+
+function usePreloadedQuery_LEGACY<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
   preloadedQuery: PreloadedQuery<TQuery>,
   options?: {|
@@ -142,4 +154,20 @@ function usePreloadedQuery<TQuery: OperationType>(
   return data;
 }
 
-module.exports = usePreloadedQuery;
+function usePreloadedQuery<TQuery: OperationType>(
+  gqlQuery: GraphQLTaggedNode,
+  preloadedQuery: PreloadedQuery<TQuery>,
+  options?: {|
+    UNSTABLE_renderPolicy?: RenderPolicy,
+  |},
+): TQuery['response'] {
+  const impl = HooksImplementation.get();
+  if (impl) {
+    return impl.usePreloadedQuery(gqlQuery, preloadedQuery, options);
+  } else {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return usePreloadedQuery_LEGACY(gqlQuery, preloadedQuery, options);
+  }
+}
+
+module.exports = (usePreloadedQuery: UsePreloadedQueryHookType);

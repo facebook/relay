@@ -12,6 +12,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {OperationDescriptor, Variables} from 'relay-runtime';
 import type {Disposable} from 'relay-runtime/util/RelayRuntimeTypes';
 
@@ -52,8 +53,8 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     let Renderer;
 
     function useRefetchableFragmentNodeWithSuspenseTransition(
-      fragmentNode,
-      fragmentRef,
+      fragmentNode: any,
+      fragmentRef: any,
     ) {
       const [isPending, startTransition] = useTransition();
       const {fragmentData: data, ...result} =
@@ -62,7 +63,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           fragmentRef,
           'TestComponent',
         );
-      refetch = (...args) => {
+      refetch = (...args: any) => {
         let disposable: Disposable | {|dispose: () => void|} = {
           dispose: () => {},
         };
@@ -89,7 +90,10 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       }
     }
 
-    function assertYield(expected, actual) {
+    function assertYield(
+      expected: {|data: any, isPending: boolean|},
+      actual: any,
+    ) {
       expect(actual.isPending).toEqual(expected.isPending);
       expect(actual.data).toEqual(expected.data);
     }
@@ -117,8 +121,8 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     }
 
     function expectRequestIsInFlight(
-      expected,
-      requestEnvironment = environment,
+      expected: any,
+      requestEnvironment: RelayMockEnvironment = environment,
     ) {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(requestEnvironment.executeWithSource).toBeCalledTimes(
@@ -134,7 +138,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     }
 
     function expectFragmentIsPendingOnRefetch(
-      renderer,
+      renderer: any,
       expected: {|
         data: mixed,
         refetchQuery?: OperationDescriptor,
@@ -162,7 +166,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       );
     }
 
-    function createFragmentRef(id, owner) {
+    function createFragmentRef(id: string, owner: OperationDescriptor) {
       return {
         [ID_KEY]: id,
         [FRAGMENTS_KEY]: {
@@ -243,7 +247,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       });
 
       // Set up renderers
-      Renderer = props => null;
+      Renderer = (props: {|user: mixed|}) => null;
 
       const Container = (props: {
         userRef?: {...},
@@ -278,7 +282,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         return <Renderer user={userData} />;
       };
 
-      const ContextProvider = ({children}) => {
+      const ContextProvider = ({children}: {|children: React.Node|}) => {
         // TODO(T39494051) - We set empty variables in relay context to make
         // Flow happy, but useRefetchableFragmentNode does not use them, instead it uses
         // the variables from the fragment owner.

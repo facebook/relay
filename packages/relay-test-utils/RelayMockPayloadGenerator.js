@@ -99,7 +99,7 @@ function createIdGenerator() {
 }
 
 const DEFAULT_MOCK_RESOLVERS = {
-  ID(context, generateId: () => number) {
+  ID(context: MockResolverContext, generateId: () => number) {
     return `<${
       context.parentType != null && context.parentType !== DEFAULT_MOCK_TYPENAME
         ? context.parentType + '-'
@@ -701,7 +701,7 @@ class RelayMockPayloadGenerator {
     const isAbstractType =
       field.concreteType == null && typeName === typeFromSelection.type;
 
-    const generateDataForField = possibleDefaultValue => {
+    const generateDataForField = (possibleDefaultValue: mixed) => {
       const fieldDefaultValue =
         this._getDefaultValuesForObject(
           field.concreteType ?? typeFromSelection.type,

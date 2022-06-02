@@ -12,6 +12,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {
   useRefetchableFragmentNodeTest1FragmentRefetchQuery$data,
   useRefetchableFragmentNodeTest1FragmentRefetchQuery$variables,
@@ -120,7 +121,7 @@ describe('useRefetchableFragmentNode', () => {
 
   class ErrorBoundary extends React.Component<any, any> {
     state = {error: null};
-    componentDidCatch(error) {
+    componentDidCatch(error: Error) {
       this.setState({error});
     }
     render() {
@@ -133,7 +134,7 @@ describe('useRefetchableFragmentNode', () => {
     }
   }
 
-  function useRefetchableFragmentNode(fragmentNode, fragmentRef) {
+  function useRefetchableFragmentNode(fragmentNode: any, fragmentRef: any) {
     const result = useRefetchableFragmentNodeOriginal(
       fragmentNode,
       fragmentRef,
@@ -144,7 +145,7 @@ describe('useRefetchableFragmentNode', () => {
     return result;
   }
 
-  function assertCall(expected, idx) {
+  function assertCall(expected: {|data: any|}, idx: number) {
     const actualData = renderSpy.mock.calls[idx][0];
 
     expect(actualData).toEqual(expected.data);
@@ -161,8 +162,8 @@ describe('useRefetchableFragmentNode', () => {
   }
 
   function createFragmentRef(
-    id,
-    owner,
+    id: string,
+    owner: OperationDescriptor,
     fragmentName: string = 'useRefetchableFragmentNodeTestNestedUserFragment',
   ) {
     return {
@@ -304,7 +305,7 @@ describe('useRefetchableFragmentNode', () => {
     });
 
     // Set up renderers
-    Renderer = props => null;
+    Renderer = (props: {|user: mixed|}) => null;
 
     const Container = (props: {
       userRef?: {...},
@@ -349,7 +350,7 @@ describe('useRefetchableFragmentNode', () => {
       return <Renderer user={userData} />;
     };
 
-    const ContextProvider = ({children}) => {
+    const ContextProvider = ({children}: {|children: React.Node|}) => {
       useTrackLoadQueryInRender();
       const [env, _setEnv] = useState(environment);
       const relayContext = useMemo(() => ({environment: env}), [env]);
@@ -538,8 +539,8 @@ describe('useRefetchableFragmentNode', () => {
     });
 
     function expectRequestIsInFlight(
-      expected,
-      requestEnvironment = environment,
+      expected: any,
+      requestEnvironment: RelayMockEnvironment = environment,
     ) {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(requestEnvironment.executeWithSource).toBeCalledTimes(
@@ -555,13 +556,13 @@ describe('useRefetchableFragmentNode', () => {
     }
 
     function expectFragmentIsRefetching(
-      renderer,
+      renderer: any,
       expected: {|
         refetchVariables: Variables,
         refetchQuery?: OperationDescriptor,
         gqlRefetchQuery?: $FlowFixMe,
       |},
-      env = environment,
+      env: RelayMockEnvironment = environment,
     ) {
       expect(renderSpy).toBeCalledTimes(0);
       renderSpy.mockClear();
@@ -1640,7 +1641,7 @@ describe('useRefetchableFragmentNode', () => {
           ...createFragmentRef('1', refetchQuery),
         };
 
-        const doAndAssertRefetch = fragmentResults => {
+        const doAndAssertRefetch = (fragmentResults: Array<{|data: any|}>) => {
           renderSpy.mockClear();
           // $FlowFixMe[method-unbinding] added when improving typing for this parameters
           environment.executeWithSource.mockClear();

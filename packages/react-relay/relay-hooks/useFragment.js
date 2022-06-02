@@ -15,6 +15,7 @@
 
 import type {Fragment, FragmentType, GraphQLTaggedNode} from 'relay-runtime';
 
+const HooksImplementation = require('./HooksImplementation');
 const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useFragmentNode = require('./useFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
@@ -44,7 +45,7 @@ declare function useFragment<TFragmentType: FragmentType, TData>(
   key: null | void,
 ): null | void;
 
-function useFragment(fragment: GraphQLTaggedNode, key: mixed): mixed {
+function useFragment_LEGACY(fragment: GraphQLTaggedNode, key: mixed): mixed {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
   useTrackLoadQueryInRender();
@@ -57,6 +58,18 @@ function useFragment(fragment: GraphQLTaggedNode, key: mixed): mixed {
     useDebugValue({fragment: fragmentNode.name, data});
   }
   return data;
+}
+
+function useFragment(fragment: GraphQLTaggedNode, key: mixed): mixed {
+  const impl = HooksImplementation.get();
+  if (impl) {
+    // $FlowFixMe This is safe because impl.useFragment has the type of useFragment...
+    return impl.useFragment(fragment, key);
+    // (i.e. type declared above, but not the supertype used in this function definition)
+  } else {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useFragment_LEGACY(fragment, key);
+  }
 }
 
 module.exports = useFragment;

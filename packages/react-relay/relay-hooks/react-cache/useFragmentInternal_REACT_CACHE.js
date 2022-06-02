@@ -282,7 +282,7 @@ function useFragmentInternal_REACT_CACHE(
 
   if (isPlural) {
     invariant(
-      Array.isArray(fragmentRef),
+      fragmentRef == null || Array.isArray(fragmentRef),
       'Relay: Expected fragment pointer%s for fragment `%s` to be ' +
         'an array, instead got `%s`. Remove `@relay(plural: true)` ' +
         'from fragment `%s` to allow the prop to be an object.',

@@ -332,7 +332,7 @@ function useFragmentInternal_REACT_CACHE(
   // On second look this separate rawState may not be needed at all, it can just be
   // put into getFragmentState. Exception: can we properly handle the case where the
   // fragmentRef goes from non-null to null?
-  const stateFromRawState = state => {
+  const stateFromRawState = (state: FragmentState) => {
     if (fragmentRef == null) {
       return {kind: 'bailout', plural: false};
     } else if (state.kind === 'plural' && state.snapshots.length === 0) {

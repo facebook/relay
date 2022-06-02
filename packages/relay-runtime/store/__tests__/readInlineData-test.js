@@ -65,7 +65,7 @@ test('unwrap inline fragment data', () => {
 
 describe('integration test with variables', () => {
   test.only('works with fragment variables & query variables', () => {
-    const QueryVariablesFragment = graphql`
+    const Fragment = graphql`
       fragment readInlineDataTestFragmentAndQueryVariables on User
       @inline
       @argumentDefinitions(theScale: {type: "Float"}) {
@@ -78,7 +78,7 @@ describe('integration test with variables', () => {
       }
     `;
 
-    const QueryVariablesQuery = graphql`
+    const Query = graphql`
       query readInlineDataTestFragmentAndQueryVariablesQuery(
         $scale1: Float
         $scale2: Float
@@ -96,27 +96,24 @@ describe('integration test with variables', () => {
     };
 
     const environment = createMockEnvironment();
-    environment.commitPayload(
-      createOperationDescriptor(QueryVariablesQuery, variables),
-      {
-        me: {
-          id: '7',
-          __typename: 'User',
-          fragmentVariable: {
-            uri: 'fragment_url',
-          },
-          queryVariable: {
-            uri: 'query_url',
-          },
+    environment.commitPayload(createOperationDescriptor(Query, variables), {
+      me: {
+        id: '7',
+        __typename: 'User',
+        fragmentVariable: {
+          uri: 'fragment_url',
+        },
+        queryVariable: {
+          uri: 'query_url',
         },
       },
-    );
+    });
 
-    const request = getRequest(QueryVariablesQuery);
+    const request = getRequest(Query);
     const operation = createOperationDescriptor(request, variables);
     const snapshot = environment.lookup(operation.fragment, operation);
 
-    expect(readInlineData(QueryVariablesFragment, snapshot.data.me)).toEqual({
+    expect(readInlineData(Fragment, snapshot.data.me)).toEqual({
       fragmentVariable: {
         uri: 'fragment_url',
       },
@@ -127,7 +124,7 @@ describe('integration test with variables', () => {
   });
 
   test('works with fragment variables', () => {
-    const QueryVariablesFragment = graphql`
+    const Fragment = graphql`
       fragment readInlineDataTestFragmentVariables on User
       @inline
       @argumentDefinitions(theScale: {type: "Float"}) {
@@ -137,7 +134,7 @@ describe('integration test with variables', () => {
       }
     `;
 
-    const QueryVariablesQuery = graphql`
+    const Query = graphql`
       query readInlineDataTestFragmentVariablesQuery($scale: Float) {
         me {
           ...readInlineDataTestFragmentVariables @arguments(theScale: $scale)
@@ -150,24 +147,21 @@ describe('integration test with variables', () => {
     };
 
     const environment = createMockEnvironment();
-    environment.commitPayload(
-      createOperationDescriptor(QueryVariablesQuery, variables),
-      {
-        me: {
-          id: '7',
-          __typename: 'User',
-          profile_picture: {
-            uri: 'some_url',
-          },
+    environment.commitPayload(createOperationDescriptor(Query, variables), {
+      me: {
+        id: '7',
+        __typename: 'User',
+        profile_picture: {
+          uri: 'some_url',
         },
       },
-    );
+    });
 
-    const request = getRequest(QueryVariablesQuery);
+    const request = getRequest(Query);
     const operation = createOperationDescriptor(request, variables);
     const snapshot = environment.lookup(operation.fragment, operation);
 
-    expect(readInlineData(QueryVariablesFragment, snapshot.data.me)).toEqual({
+    expect(readInlineData(Fragment, snapshot.data.me)).toEqual({
       profile_picture: {
         uri: 'some_url',
       },
@@ -175,7 +169,7 @@ describe('integration test with variables', () => {
   });
 
   test('works with query variables', () => {
-    const QueryVariablesFragment = graphql`
+    const Fragment = graphql`
       fragment readInlineDataTestQueryVariables on User @inline {
         profile_picture(scale: $scale) {
           uri
@@ -183,7 +177,7 @@ describe('integration test with variables', () => {
       }
     `;
 
-    const QueryVariablesQuery = graphql`
+    const Query = graphql`
       query readInlineDataTestQueryVariablesQuery($scale: Float) {
         me {
           ...readInlineDataTestQueryVariables
@@ -196,24 +190,21 @@ describe('integration test with variables', () => {
     };
 
     const environment = createMockEnvironment();
-    environment.commitPayload(
-      createOperationDescriptor(QueryVariablesQuery, variables),
-      {
-        me: {
-          id: '7',
-          __typename: 'User',
-          profile_picture: {
-            uri: 'some_url',
-          },
+    environment.commitPayload(createOperationDescriptor(Query, variables), {
+      me: {
+        id: '7',
+        __typename: 'User',
+        profile_picture: {
+          uri: 'some_url',
         },
       },
-    );
+    });
 
-    const request = getRequest(QueryVariablesQuery);
+    const request = getRequest(Query);
     const operation = createOperationDescriptor(request, variables);
     const snapshot = environment.lookup(operation.fragment, operation);
 
-    expect(readInlineData(QueryVariablesFragment, snapshot.data.me)).toEqual({
+    expect(readInlineData(Fragment, snapshot.data.me)).toEqual({
       profile_picture: {
         uri: 'some_url',
       },

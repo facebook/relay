@@ -837,3 +837,43 @@ test('apply optimistic updates to live resolver field', () => {
   });
   expect(renderer.toJSON()).toEqual('Hello, Alice! Picture Url: scale 1.5');
 });
+
+// Regression test for a case where we were resetting the parent snapshot's
+// `isMissingData` to false when reading a live resolver field.
+test('Missing data is not clobbered by non-null empty missingLiveResolverFields on snapshot', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+      me: {__ref: '1'},
+    },
+    '1': {
+      __id: '1',
+      __typename: 'User',
+      id: '1',
+    },
+  });
+  const FooQuery = graphql`
+    query LiveResolversTest10Query {
+      me {
+        # Should be tracked as missing data
+        name
+      }
+      counter
+    }
+  `;
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const store = new LiveResolverStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  const snapshot = environment.lookup(operation.fragment);
+  expect(snapshot.missingLiveResolverFields).toEqual([]);
+  expect(snapshot.isMissingData).toBe(true);
+});

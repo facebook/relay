@@ -14,6 +14,11 @@
 'use strict';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {
   MultiActorEnvironment,
@@ -135,7 +140,11 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           error = jest.fn();
           next = jest.fn();
           callbacks = {complete, error, next};
-          fetch = (_query, _variables, _cacheConfig) => {
+          fetch = (
+            _query: RequestParameters,
+            _variables: Variables,
+            _cacheConfig: CacheConfig,
+          ) => {
             return RelayObservable.create(sink => {
               dataSource = sink;
             });

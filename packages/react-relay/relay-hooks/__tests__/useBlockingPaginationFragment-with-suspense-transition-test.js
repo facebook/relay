@@ -61,7 +61,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
     class ErrorBoundary extends React.Component<any, any> {
       state = {error: null};
-      componentDidCatch(error) {
+      componentDidCatch(error: Error) {
         this.setState({error});
       }
       render() {
@@ -75,8 +75,8 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     }
 
     function useBlockingPaginationFragmentWithSuspenseTransition(
-      fragmentNode,
-      fragmentRef,
+      fragmentNode: any,
+      fragmentRef: any,
     ) {
       const [isPendingNext, startTransition] = useTransition();
       // $FlowFixMe[incompatible-call]
@@ -86,7 +86,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         // $FlowFixMe[incompatible-call]
         fragmentRef,
       );
-      loadNext = (...args) => {
+      loadNext = (...args: Array<any>) => {
         let disposable: Disposable | {|dispose: () => void|} = {
           dispose: () => {},
         };
@@ -116,7 +116,15 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       }
     }
 
-    function assertYield(expected, actual) {
+    function assertYield(
+      expected: {|
+        data: any,
+        hasNext: boolean,
+        hasPrevious: boolean,
+        isPendingNext: boolean,
+      |},
+      actual: any,
+    ) {
       expect(actual.data).toEqual(expected.data);
       expect(actual.isPendingNext).toEqual(expected.isPendingNext);
       expect(actual.hasNext).toEqual(expected.hasNext);
@@ -140,7 +148,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       );
     }
 
-    function expectRequestIsInFlight(expected) {
+    function expectRequestIsInFlight(expected: any) {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toBeCalledTimes(expected.requestCount);
       expect(
@@ -153,7 +161,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     }
 
     function expectFragmentIsPendingOnPagination(
-      renderer,
+      renderer: any,
       direction: Direction,
       expected: {|
         data: mixed,
@@ -176,7 +184,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       expectRequestIsInFlight({...expected, inFlight: true, requestCount: 1});
     }
 
-    function createFragmentRef(id, owner) {
+    function createFragmentRef(id: string, owner: OperationDescriptor) {
       return {
         [ID_KEY]: id,
         [FRAGMENTS_KEY]: {
@@ -381,7 +389,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       });
 
       // Set up renderers
-      Renderer = props => null;
+      Renderer = (props: {|user: any|}) => null;
 
       const Container = (props: {
         userRef?: {...},
@@ -412,7 +420,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         return <Renderer user={userData} />;
       };
 
-      const ContextProvider = ({children}) => {
+      const ContextProvider = ({children}: {|children: React.Node|}) => {
         // TODO(T39494051) - We set empty variables in relay context to make
         // Flow happy, but useBlockingPaginationFragment does not use them, instead it uses
         // the variables from the fragment owner.
@@ -1016,7 +1024,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     describe('refetch', () => {
       // The bulk of refetch behavior is covered in useRefetchableFragmentNode-test,
       // so this suite covers the pagination-related test cases.
-      function expectRefetchRequestIsInFlight(expected) {
+      function expectRefetchRequestIsInFlight(expected: any) {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toBeCalledTimes(
           expected.requestCount,
@@ -1031,7 +1039,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       }
 
       function expectFragmentSuspendedOnRefetch(
-        renderer,
+        renderer: any,
         expected: {|
           data: mixed,
           hasNext: boolean,

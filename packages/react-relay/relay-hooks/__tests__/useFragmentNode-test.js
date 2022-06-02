@@ -12,8 +12,16 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
+import type {
+  useFragmentNodeTestUserFragment$data,
+  useFragmentNodeTestUserFragment$fragmentType,
+} from './__generated__/useFragmentNodeTestUserFragment.graphql';
+import type {
+  useFragmentNodeTestUsersFragment$data,
+  useFragmentNodeTestUsersFragment$fragmentType,
+} from './__generated__/useFragmentNodeTestUsersFragment.graphql';
 import type {OperationDescriptor} from 'relay-runtime';
+import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {act: internalAct} = require('../../jest-react');
 const useFragmentInternal_REACT_CACHE = require('../react-cache/useFragmentInternal_REACT_CACHE');
@@ -41,7 +49,7 @@ disallowWarnings();
 
 const {useEffect, useMemo, useState} = React;
 
-function assertYieldsWereCleared(_scheduler) {
+function assertYieldsWereCleared(_scheduler: any) {
   const actualYields = _scheduler.unstable_clearYields();
   if (actualYields.length !== 0) {
     throw new Error(
@@ -51,7 +59,7 @@ function assertYieldsWereCleared(_scheduler) {
   }
 }
 
-function expectSchedulerToHaveYielded(expectedYields) {
+function expectSchedulerToHaveYielded(expectedYields: any) {
   const Scheduler = require('scheduler');
   const actualYields = Scheduler.unstable_clearYields();
   expect(actualYields).toEqual(expectedYields);
@@ -64,12 +72,12 @@ function flushScheduler() {
   return Scheduler.unstable_clearYields();
 }
 
-function expectSchedulerToFlushAndYield(expectedYields) {
+function expectSchedulerToFlushAndYield(expectedYields: any) {
   const actualYields = flushScheduler();
   expect(actualYields).toEqual(expectedYields);
 }
 
-function expectSchedulerToFlushAndYieldThrough(expectedYields) {
+function expectSchedulerToFlushAndYieldThrough(expectedYields: any) {
   const Scheduler = require('scheduler');
   assertYieldsWereCleared(Scheduler);
   Scheduler.unstable_flushNumberOfYields(expectedYields.length);
@@ -86,9 +94,17 @@ type ReturnType<TFragmentData: mixed> = {|
   enableStoreUpdates: () => void,
 |};
 function useFragmentNode_REACT_CACHE<TFragmentData: mixed>(
-  fragment,
-  key,
-  displayName,
+  fragment:
+    | Fragment<
+        useFragmentNodeTestUserFragment$fragmentType,
+        useFragmentNodeTestUserFragment$data,
+      >
+    | Fragment<
+        useFragmentNodeTestUsersFragment$fragmentType,
+        useFragmentNodeTestUsersFragment$data,
+      >,
+  key: any,
+  displayName: string,
 ): ReturnType<TFragmentData> {
   const data = useFragmentInternal_REACT_CACHE(fragment, key, displayName);
   return {
@@ -139,7 +155,18 @@ describe.each([
     let SingularRenderer;
     let PluralRenderer;
 
-    function useFragmentNode(fragmentNode, fragmentRef) {
+    function useFragmentNode(
+      fragmentNode:
+        | Fragment<
+            useFragmentNodeTestUserFragment$fragmentType,
+            useFragmentNodeTestUserFragment$data,
+          >
+        | Fragment<
+            useFragmentNodeTestUsersFragment$fragmentType,
+            useFragmentNodeTestUsersFragment$data,
+          >,
+      fragmentRef: any,
+    ) {
       const result = useFragmentNodeOriginal(
         fragmentNode,
         fragmentRef,
@@ -170,7 +197,7 @@ describe.each([
       commitSpy.mockClear();
     }
 
-    function createFragmentRef(id, owner) {
+    function createFragmentRef(id: string, owner: OperationDescriptor) {
       return {
         [ID_KEY]: id,
         [FRAGMENTS_KEY]: {
@@ -282,8 +309,8 @@ describe.each([
       });
 
       // Set up renderers
-      SingularRenderer = props => null;
-      PluralRenderer = props => null;
+      SingularRenderer = (props: {|user: any|}) => null;
+      PluralRenderer = (props: {|users: any|}) => null;
 
       const SingularContainer = (props: {
         userRef?: {...},
@@ -333,7 +360,7 @@ describe.each([
         return <PluralRenderer users={usersData} />;
       };
 
-      const ContextProvider = ({children}) => {
+      const ContextProvider = ({children}: {|children: React.Node|}) => {
         const [env, _setEnv] = useState(environment);
         const relayContext = useMemo(() => ({environment: env}), [env]);
 
@@ -374,7 +401,7 @@ describe.each([
           usersRef?: $FlowFixMe,
           ...
         },
-        existing,
+        existing: any,
       ) => {
         const {isConcurrent = false, ...props} = args ?? {};
         const elements = (
@@ -787,13 +814,13 @@ describe.each([
 
     it('should ignore updates to initially rendered data when fragment pointers change', () => {
       const Scheduler = require('scheduler');
-      const YieldChild = props => {
+      const YieldChild = (props: any) => {
         // NOTE the unstable_yield method will move to the static renderer.
         // When React sync runs we need to update this.
         Scheduler.unstable_yieldValue(props.children);
         return props.children;
       };
-      const YieldyUserComponent = ({user}) => (
+      const YieldyUserComponent = ({user}: any) => (
         <>
           <YieldChild>Hey user,</YieldChild>
           <YieldChild>{user.name}</YieldChild>
@@ -991,11 +1018,11 @@ describe.each([
 
     it('should ignore updates to initially rendered data when variables change', () => {
       const Scheduler = require('scheduler');
-      const YieldChild = props => {
+      const YieldChild = (props: any) => {
         Scheduler.unstable_yieldValue(props.children);
         return props.children;
       };
-      const YieldyUserComponent = ({user}) => (
+      const YieldyUserComponent = ({user}: any) => (
         <>
           <YieldChild>Hey user,</YieldChild>
           <YieldChild>{user.profile_picture?.uri ?? 'no uri'}</YieldChild>
@@ -1320,11 +1347,11 @@ describe.each([
 
     it('upon commit, it should pick up changes in data that happened before comitting', () => {
       const Scheduler = require('scheduler');
-      const YieldChild = props => {
+      const YieldChild = (props: any) => {
         Scheduler.unstable_yieldValue(props.children);
         return props.children;
       };
-      const YieldyUserComponent = ({user}) => {
+      const YieldyUserComponent = ({user}: any) => {
         return (
           <>
             <YieldChild>Hey user,</YieldChild>

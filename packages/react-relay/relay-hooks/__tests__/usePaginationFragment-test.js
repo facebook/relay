@@ -95,7 +95,7 @@ describe('usePaginationFragment', () => {
 
   class ErrorBoundary extends React.Component<any, any> {
     state = {error: null};
-    componentDidCatch(error) {
+    componentDidCatch(error: Error) {
       this.setState({error});
     }
     render() {
@@ -108,7 +108,7 @@ describe('usePaginationFragment', () => {
     }
   }
 
-  function usePaginationFragment(fragmentNode, fragmentRef) {
+  function usePaginationFragment(fragmentNode: any, fragmentRef: any) {
     const {data, ...result} = usePaginationFragmentOriginal(
       fragmentNode,
       fragmentRef,
@@ -119,7 +119,16 @@ describe('usePaginationFragment', () => {
     return {data, ...result};
   }
 
-  function assertCall(expected, idx) {
+  function assertCall(
+    expected: {|
+      data: any,
+      hasNext: boolean,
+      hasPrevious: boolean,
+      isLoadingNext: boolean,
+      isLoadingPrevious: boolean,
+    |},
+    idx: number,
+  ) {
     const actualData = renderSpy.mock.calls[idx][0];
     const actualResult = renderSpy.mock.calls[idx][1];
     const actualIsLoadingNext = actualResult.isLoadingNext;
@@ -151,8 +160,12 @@ describe('usePaginationFragment', () => {
   }
 
   function createFragmentRef(
-    id,
-    owner,
+    id:
+      | $TEMPORARY$string<'node:1'>
+      | $TEMPORARY$string<'node:100'>
+      | $TEMPORARY$string<'node:2'>
+      | $TEMPORARY$string<'node:200'>,
+    owner: OperationDescriptor,
     fragmentName: string = 'usePaginationFragmentTestNestedUserFragment',
   ) {
     return {
@@ -491,7 +504,7 @@ describe('usePaginationFragment', () => {
     });
 
     // Set up renderers
-    Renderer = props => null;
+    Renderer = (props: {|user: any|}) => null;
 
     const Container = (props: {
       userRef?: {...},
@@ -531,7 +544,7 @@ describe('usePaginationFragment', () => {
       return <Renderer user={userData} />;
     };
 
-    const ContextProvider = ({children}) => {
+    const ContextProvider = ({children}: {|children: React.Node|}) => {
       const [env, _setEnv] = useState(environment);
       const relayContext = useMemo(() => ({environment: env}), [env]);
 
@@ -811,7 +824,7 @@ describe('usePaginationFragment', () => {
       });
     });
 
-    function expectRequestIsInFlight(expected) {
+    function expectRequestIsInFlight(expected: any) {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toBeCalledTimes(expected.requestCount);
       expect(
@@ -824,7 +837,7 @@ describe('usePaginationFragment', () => {
     }
 
     function expectFragmentIsLoadingMore(
-      renderer,
+      renderer: any,
       direction: Direction,
       expected: {|
         data: mixed,
@@ -3296,7 +3309,16 @@ describe('usePaginationFragment', () => {
     describe('refetch', () => {
       // The bulk of refetch behavior is covered in useRefetchableFragmentNode-test,
       // so this suite covers the pagination-related test cases.
-      function expectRefetchRequestIsInFlight(expected) {
+      function expectRefetchRequestIsInFlight(expected: {|
+        data: mixed,
+        gqlRefetchQuery?: any,
+        hasNext: boolean,
+        hasPrevious: boolean,
+        inFlight: boolean,
+        refetchQuery?: OperationDescriptor,
+        refetchVariables: Variables,
+        requestCount: number,
+      |}) {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toBeCalledTimes(
           expected.requestCount,
@@ -3311,7 +3333,7 @@ describe('usePaginationFragment', () => {
       }
 
       function expectFragmentIsRefetching(
-        renderer,
+        renderer: any,
         expected: {|
           data: mixed,
           hasNext: boolean,

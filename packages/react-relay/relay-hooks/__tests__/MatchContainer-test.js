@@ -26,7 +26,13 @@ function createMatchPointer({
   variables,
   propName,
   module,
-}): MatchPointer {
+}: {|
+  fragment: {|name: string|},
+  id: string,
+  module: string,
+  propName: string,
+  variables: any,
+|}): MatchPointer {
   const pointer = {
     $fragmentSpreads: {},
     [ID_KEY]: id,

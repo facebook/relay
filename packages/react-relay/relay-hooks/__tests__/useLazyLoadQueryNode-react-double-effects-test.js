@@ -12,11 +12,12 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$key} from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment.graphql';
 import typeof useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment.graphql';
 import typeof useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery.graphql';
 import typeof useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryWithDeferQuery.graphql';
+import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragment = require('../useFragment');
@@ -31,7 +32,10 @@ const {
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
-function expectToHaveFetched(environment, query) {
+function expectToHaveFetched(
+  environment: RelayMockEnvironment,
+  query: OperationDescriptor,
+) {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute).toBeCalledTimes(1);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters

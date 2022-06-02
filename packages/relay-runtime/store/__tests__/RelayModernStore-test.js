@@ -29,6 +29,7 @@ import type {
   RelayModernStoreTest6Fragment$data,
   RelayModernStoreTest6Fragment$fragmentType,
 } from './__generated__/RelayModernStoreTest6Fragment.graphql';
+import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {graphql} = require('../../query/GraphQLTag');
@@ -68,7 +69,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
   }
 }
 
-function cloneEventWithSets(event) {
+function cloneEventWithSets(event: LogEvent) {
   const nextEvent = {};
   for (const key in event) {
     if (event.hasOwnProperty(key)) {
@@ -84,9 +85,10 @@ function cloneEventWithSets(event) {
 }
 
 [
-  [data => new RelayRecordSource(data), 'Map'],
+  [(data: $FlowFixMe) => new RelayRecordSource(data), 'Map'],
   [
-    data => RelayOptimisticRecordSource.create(new RelayRecordSource(data)),
+    (data: $FlowFixMe) =>
+      RelayOptimisticRecordSource.create(new RelayRecordSource(data)),
     'Optimistic',
   ],
 ].forEach(([getRecordSourceImplementation, ImplementationName]) => {
@@ -2296,7 +2298,7 @@ function cloneEventWithSets(event) {
         job();
       }
 
-      function mockScheduler(job) {
+      function mockScheduler(job: () => void) {
         schedulerQueue.push(job);
       }
 

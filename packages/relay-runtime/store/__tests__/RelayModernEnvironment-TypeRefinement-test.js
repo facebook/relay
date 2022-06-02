@@ -188,7 +188,7 @@ describe('missing data detection', () => {
   // Commit the given payload, immediately running GC to prune any data
   // that wouldn't be retained by the query
   // eslint-disable-next-line no-shadow
-  function commitPayload(operation: OperationDescriptor, payload) {
+  function commitPayload(operation: OperationDescriptor, payload: $FlowFixMe) {
     environment.retain(operation);
     environment.commitPayload(operation, payload);
     (environment.getStore(): $FlowFixMe).scheduleGC();

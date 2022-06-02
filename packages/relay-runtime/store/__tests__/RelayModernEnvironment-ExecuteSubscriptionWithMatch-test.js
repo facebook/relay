@@ -14,6 +14,10 @@
 'use strict';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -155,7 +159,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
 
         const MarkupHandler = {
-          update(storeProxy, payload) {
+          update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
             const record = storeProxy.get(payload.dataID);
             if (record != null) {
               const markup = record.getValue(payload.fieldKey);
@@ -703,10 +707,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           taskID = 0;
           tasks = new Map();
           scheduler = {
-            cancel: id => {
+            cancel: (id: string) => {
               tasks.delete(id);
             },
-            schedule: task => {
+            schedule: (task: () => void) => {
               const id = String(taskID++);
               tasks.set(id, task);
               return id;

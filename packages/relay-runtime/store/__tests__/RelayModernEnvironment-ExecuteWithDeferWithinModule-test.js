@@ -13,7 +13,15 @@
 
 'use strict';
 
-import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {
+  NormalizationRootNode,
+  NormalizationSplitOperation,
+} from '../../util/NormalizationNode';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {
   MultiActorEnvironment,
@@ -35,7 +43,7 @@ disallowWarnings();
 
 function createOperationLoader() {
   const cache = new Map();
-  const resolve = operation => {
+  const resolve = (operation: NormalizationSplitOperation) => {
     const moduleName = `${operation.name}.graphql`;
     const entry = cache.get(moduleName);
     if (entry && entry.kind === 'promise') {
@@ -53,7 +61,7 @@ function createOperationLoader() {
     load: jest.fn(moduleName => {
       let entry = cache.get(moduleName);
       if (entry == null) {
-        let resolveFn = _x => undefined;
+        let resolveFn = (_x: NormalizationSplitOperation) => undefined;
         const promise = new Promise(resolve_ => {
           // $FlowFixMe[incompatible-type]
           resolveFn = resolve_;
@@ -153,7 +161,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         error = jest.fn();
         next = jest.fn();
         callbacks = {complete, error, next};
-        fetch = (_query, _variables, _cacheConfig) => {
+        fetch = (
+          _query: RequestParameters,
+          _variables: Variables,
+          _cacheConfig: CacheConfig,
+        ) => {
           return RelayObservable.create(sink => {
             dataSource = sink;
           });
@@ -452,10 +464,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           taskID = 0;
           tasks = new Map();
           scheduler = {
-            cancel: id => {
+            cancel: (id: string) => {
               tasks.delete(id);
             },
-            schedule: task => {
+            schedule: (task: () => void) => {
               const id = String(taskID++);
               tasks.set(id, task);
               return id;

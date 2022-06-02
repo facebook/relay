@@ -12,6 +12,7 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useSubscribeToInvalidationState = require('../useSubscribeToInvalidationState');
@@ -68,13 +69,20 @@ beforeEach(() => {
   environment = createMockEnvironment({store});
   callback = jest.fn();
 
-  function Renderer({initialDataIDs, initialCallback}) {
+  function Renderer({
+    initialDataIDs,
+    initialCallback,
+  }: {|
+    initialCallback: JestMockFn<Array<mixed>, void>,
+    initialDataIDs: Array<string>,
+  |}) {
     const [dataIDs, _setDataIDs] = useState(initialDataIDs);
     const [cbState, _setCallback] = useState({callback: initialCallback});
     const cb = cbState.callback;
 
     setDataIDs = _setDataIDs;
-    setCallback = _cb => _setCallback({callback: _cb});
+    setCallback = (_cb: JestMockFn<Array<mixed>, void>) =>
+      _setCallback({callback: _cb});
 
     const _disposable = useSubscribeToInvalidationState(dataIDs, cb);
     useEffect(() => {
@@ -84,7 +92,11 @@ beforeEach(() => {
     return null;
   }
 
-  function Container(props) {
+  function Container(props: {|
+    callback: JestMockFn<Array<mixed>, void>,
+    dataIDs: Array<string>,
+    environment: RelayMockEnvironment,
+  |}) {
     const [env, setEnv] = useState(props.environment);
     setEnvironment = setEnv;
     return (
@@ -97,7 +109,11 @@ beforeEach(() => {
     );
   }
 
-  render = (env, dataIDs, cb) => {
+  render = (
+    env: RelayMockEnvironment,
+    dataIDs: Array<string>,
+    cb: JestMockFn<Array<mixed>, void>,
+  ) => {
     ReactTestRenderer.act(() => {
       renderedInstance = ReactTestRenderer.create(
         <Container environment={env} dataIDs={dataIDs} callback={cb} />,

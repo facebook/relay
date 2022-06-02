@@ -12,7 +12,6 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
 import type {
   RelayModernStoreSubscriptionsTest1Fragment$data,
   RelayModernStoreSubscriptionsTest1Fragment$fragmentType,
@@ -29,6 +28,7 @@ import type {
   RelayModernStoreSubscriptionsTest2Query$data,
   RelayModernStoreSubscriptionsTest2Query$variables,
 } from './__generated__/RelayModernStoreSubscriptionsTest2Query.graphql';
+import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 import type {Fragment, Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {graphql} = require('../../query/GraphQLTag');
@@ -59,7 +59,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
   }
 }
 
-function cloneEventWithSets(event) {
+function cloneEventWithSets(event: LogEvent) {
   const nextEvent = {};
   for (const key in event) {
     if (event.hasOwnProperty(key)) {
@@ -75,9 +75,10 @@ function cloneEventWithSets(event) {
 }
 
 [
-  [data => new RelayRecordSource(data), 'Map'],
+  [(data: $FlowFixMe) => new RelayRecordSource(data), 'Map'],
   [
-    data => RelayOptimisticRecordSource.create(new RelayRecordSource(data)),
+    (data: $FlowFixMe) =>
+      RelayOptimisticRecordSource.create(new RelayRecordSource(data)),
     'Optimistic',
   ],
 ].forEach(([getRecordSourceImplementation, ImplementationName]) => {

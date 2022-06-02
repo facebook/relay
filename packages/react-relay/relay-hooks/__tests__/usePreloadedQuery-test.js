@@ -164,7 +164,7 @@ describe.each([
         },
       );
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data?.node?.name;
       }
@@ -187,7 +187,7 @@ describe.each([
         {},
       );
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data?.node?.name ?? 'Error: should have suspended';
       }
@@ -222,7 +222,7 @@ describe.each([
       }
 
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data?.node?.name ?? 'MISSING NAME';
       }
@@ -258,7 +258,7 @@ describe.each([
       }
 
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data.node.name;
       }
@@ -286,7 +286,7 @@ describe.each([
       );
 
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data.node.name;
       }
@@ -336,7 +336,7 @@ describe.each([
       expect(fetch).toBeCalledTimes(2);
 
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data.node.name;
       }
@@ -398,7 +398,7 @@ describe.each([
       expect(fetch).toBeCalledTimes(1);
 
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data.node.name;
       }
@@ -450,7 +450,7 @@ describe.each([
       expect(fetch).toBeCalledTimes(1);
 
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data.node.name;
       }
@@ -512,7 +512,7 @@ describe.each([
       );
 
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data.node.name;
       }
@@ -561,7 +561,7 @@ describe.each([
           id: '4',
         });
         let data;
-        function Component(props) {
+        function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data?.node?.name ?? 'MISSING NAME';
         }
@@ -604,7 +604,7 @@ describe.each([
           id: '4',
         });
         let data;
-        function Component(props) {
+        function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data?.node?.name ?? 'MISSING NAME';
         }
@@ -654,7 +654,7 @@ describe.each([
         }
         TestRenderer.act(() => jest.runAllImmediates());
 
-        function Component(props) {
+        function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data.node.name;
         }
@@ -687,7 +687,7 @@ describe.each([
         }
         TestRenderer.act(() => jest.runAllImmediates());
 
-        function Component(props) {
+        function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data.node.name;
         }
@@ -718,7 +718,7 @@ describe.each([
           }
           TestRenderer.act(() => jest.runAllImmediates());
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -749,7 +749,7 @@ describe.each([
           }
           TestRenderer.act(() => jest.runAllImmediates());
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -775,7 +775,7 @@ describe.each([
           let data;
           expect(dataSource).toBeDefined();
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -809,7 +809,7 @@ describe.each([
           let data;
           expect(dataSource).toBeDefined();
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -860,7 +860,7 @@ describe.each([
           }
           TestRenderer.act(() => jest.runAllImmediates());
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -895,7 +895,7 @@ describe.each([
           }
           TestRenderer.act(() => jest.runAllImmediates());
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -925,7 +925,7 @@ describe.each([
           let data;
           expect(dataSource).toBeDefined();
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -963,7 +963,7 @@ describe.each([
           let data;
           expect(dataSource).toBeDefined();
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -1012,7 +1012,7 @@ describe.each([
         TestRenderer.act(() => jest.runAllImmediates());
 
         expect(altFetch).not.toHaveBeenCalled();
-        function Component(props) {
+        function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data.node.name;
         }
@@ -1047,7 +1047,7 @@ describe.each([
           {},
         );
 
-        function Component(props) {
+        function Component(props: any) {
           const data = usePreloadedQuery(query, props.prefetched);
           return data?.node?.name ?? 'MISSING NAME';
         }
@@ -1093,7 +1093,7 @@ describe.each([
           },
         );
         let data;
-        function Component(props) {
+        function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data.node.name;
         }
@@ -1194,7 +1194,7 @@ describe.each([
           },
         );
         let data;
-        function Component(props) {
+        function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data.node.name;
         }

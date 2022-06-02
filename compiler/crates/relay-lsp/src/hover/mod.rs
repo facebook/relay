@@ -16,7 +16,7 @@ use resolution_path::ResolvePosition;
 use serde::Serialize;
 
 mod with_resolution_path;
-use with_resolution_path::get_hover;
+pub use with_resolution_path::get_hover;
 
 pub use self::with_resolution_path::ContentConsumerType;
 

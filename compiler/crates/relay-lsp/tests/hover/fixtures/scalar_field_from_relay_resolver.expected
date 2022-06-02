@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+query MyQuery {
+  me {
+    client_sc|hema_field
+  }
+}
+
+%extension%
+
+extend type User {
+  client_schema_field: Int @relay_resolver(
+    fragment_name: "MyResolverFragment"
+    import_path: "./some_path.js"
+  )
+}
+==================================== OUTPUT ===================================
+Field: **client_schema_field**
+--
+**Relay Resolver**: This field is backed by a Relay Resolver, and is therefore only avaliable in Relay code. [Learn More](https://relay.dev/docs/next/guides/relay-resolvers/).

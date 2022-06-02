@@ -1,0 +1,14 @@
+query MyQuery {
+  me {
+    client_sc|hema_field
+  }
+}
+
+%extension%
+
+extend type User {
+  client_schema_field: Int @relay_resolver(
+    fragment_name: "MyResolverFragment"
+    import_path: "./some_path.js"
+  )
+}

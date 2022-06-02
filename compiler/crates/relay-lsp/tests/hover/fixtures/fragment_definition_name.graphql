@@ -1,0 +1,9 @@
+query MyQuery {
+  me {
+    ...MyFragment
+  }
+}
+
+fragment MyFra|gment on User {
+  __typename
+}

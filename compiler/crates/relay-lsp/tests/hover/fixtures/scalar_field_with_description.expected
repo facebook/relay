@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+query MyQuery {
+  me {
+    na|me
+  }
+}
+==================================== OUTPUT ===================================
+Field: **name**
+--
+The user's name (first, last)
+--
+Type: **[String](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Query%22,%22User%22,%22String%22],%22schemaName%22:%22Some%20Schema%20Name%22})**

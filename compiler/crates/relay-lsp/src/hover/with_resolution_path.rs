@@ -54,7 +54,7 @@ impl ContentConsumerType {
     }
 }
 
-pub(crate) fn get_hover<'a>(
+pub fn get_hover<'a>(
     path: &'a ResolutionPath<'a>,
     schema: &SDLSchema,
     schema_name: StringKey,

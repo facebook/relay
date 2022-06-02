@@ -1,0 +1,6 @@
+# expected-to-throw
+query MyQuery {
+  me {
+    name
+  }
+} |

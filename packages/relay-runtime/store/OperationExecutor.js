@@ -1478,6 +1478,7 @@ class Executor<TMutation: MutationParameters> {
       // https://github.com/prettier/prettier/issues/6403
       // prettier-ignore
       (this._getDataID(data, typeName) ??
+        // $FlowFixMe[sketchy-null-string]
         (prevIDs && prevIDs[itemIndex])) || // Reuse previously generated client IDs
       generateClientID(parentID, storageKey, itemIndex);
     invariant(

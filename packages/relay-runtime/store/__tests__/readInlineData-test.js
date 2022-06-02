@@ -16,6 +16,13 @@ const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
 const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  disallowWarnings,
+  disallowConsoleErrors,
+} = require(`relay-test-utils-internal`);
+
+disallowConsoleErrors();
+disallowWarnings();
 
 const UserQuery = graphql`
   query readInlineDataTestUserQuery($id: ID!) {
@@ -52,6 +59,50 @@ test('unwrap inline fragment data', () => {
   expect(readInlineData(UserFragment, userRef)).toEqual({
     name: 'John',
     id: '67',
+  });
+});
+
+describe('integration test with variables', () => {
+  test('works with query variables', () => {
+    const QueryVariablesFragment = graphql`
+      fragment readInlineDataTestQueryVariables on User @inline {
+        profile_picture(scale: $scale) {
+          uri
+        }
+      }
+    `;
+
+    const QueryVariablesQuery = graphql`
+      query readInlineDataTestQueryVariablesQuery($scale: Float) {
+        me {
+          ...readInlineDataTestQueryVariables
+        }
+      }
+    `;
+
+    const variables = {
+      scale: 2,
+    };
+
+    const environment = createMockEnvironment();
+    const operation = createOperationDescriptor(QueryVariablesQuery, variables);
+    environment.commitPayload(operation, {
+      me: {
+        id: '7',
+        __typename: 'User',
+        profile_picture: {
+          uri: 'some_url',
+        },
+      },
+    });
+
+    const snapshot = environment.lookup(operation.fragment, operation);
+
+    expect(readInlineData(QueryVariablesFragment, snapshot.data.me)).toEqual({
+      profile_picture: {
+        uri: 'some_url',
+      },
+    });
   });
 });
 

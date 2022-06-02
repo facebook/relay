@@ -68,9 +68,7 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
         if fragment.directives.named(*INLINE_DIRECTIVE_NAME).is_none() {
             next_fragment_spread
         } else {
-            if !fragment.variable_definitions.is_empty()
-                || !fragment.used_global_variables.is_empty()
-            {
+            if !fragment.variable_definitions.is_empty() {
                 let mut error = Diagnostic::error(
                     ValidationMessage::InlineDataFragmentArgumentsNotSupported,
                     fragment.name.location,
@@ -171,7 +169,7 @@ enum ValidationMessage {
     #[error("Found a circular reference from fragment '{fragment_name}'.")]
     CircularFragmentReference { fragment_name: StringKey },
 
-    #[error("Variables are not yet supported inside @inline fragments.")]
+    #[error("Variables from @argumentDefinitions are not yet supported inside @inline fragments.")]
     InlineDataFragmentArgumentsNotSupported,
 
     #[error("Directives on fragment spreads for @inline fragments are not yet supported")]

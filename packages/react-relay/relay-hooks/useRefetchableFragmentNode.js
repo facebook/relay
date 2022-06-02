@@ -15,6 +15,7 @@
 
 import type {LoaderFn} from './useQueryLoader';
 import type {
+  ConcreteRequest,
   Disposable,
   FetchPolicy,
   IEnvironment,
@@ -241,7 +242,7 @@ function useRefetchableFragmentNode<
       );
     }
 
-    const handleQueryCompleted = maybeError => {
+    const handleQueryCompleted = (maybeError: void | Error) => {
       onComplete && onComplete(maybeError ?? null);
     };
 
@@ -358,17 +359,31 @@ function useRefetchableFragmentNode<
 }
 
 function useRefetchFunction<TQuery: OperationType>(
-  componentDisplayName,
-  dispatch,
-  disposeQuery,
-  fragmentData,
-  fragmentIdentifier,
-  fragmentNode,
-  fragmentRefPathInResponse,
-  identifierField,
+  componentDisplayName: string,
+  dispatch: (
+    | {|
+        environment: IEnvironment,
+        fragmentIdentifier: string,
+        type: 'reset',
+      |}
+    | {|
+        fetchPolicy?: FetchPolicy,
+        onComplete?: (Error | null) => void,
+        refetchEnvironment: ?IEnvironment,
+        refetchQuery: OperationDescriptor,
+        renderPolicy?: RenderPolicy,
+        type: 'refetch',
+      |},
+  ) => void,
+  disposeQuery: () => void,
+  fragmentData: mixed,
+  fragmentIdentifier: string,
+  fragmentNode: ReaderFragment,
+  fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
+  identifierField: ?string,
   loadQuery: LoaderFn<TQuery>,
-  parentFragmentRef,
-  refetchableRequest,
+  parentFragmentRef: mixed,
+  refetchableRequest: ConcreteRequest,
 ): RefetchFn<TQuery, InternalOptions> {
   const isMountedRef = useIsMountedRef();
   const identifierValue =

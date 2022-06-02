@@ -24,6 +24,7 @@ import type {
   Disposable,
   FragmentMap,
   GraphQLTaggedNode,
+  IEnvironment,
   RelayContext,
   Subscription,
   Variables,
@@ -86,7 +87,7 @@ function createContainerWithFragments<
     _queryFetcher: ?ReactRelayQueryFetcher;
     _isUnmounted: boolean;
 
-    constructor(props) {
+    constructor(props: any) {
       super(props);
       const relayContext = assertRelayContext(props.__relayContext);
       const rootIsQueryRenderer = props.__rootIsQueryRenderer ?? false;
@@ -217,7 +218,10 @@ function createContainerWithFragments<
       this._refetchSubscription && this._refetchSubscription.unsubscribe();
     }
 
-    shouldComponentUpdate(nextProps, nextState): boolean {
+    shouldComponentUpdate(
+      nextProps: ContainerProps,
+      nextState: ContainerState,
+    ): boolean {
       // Short-circuit if any Relay-related data has changed
       if (
         nextState.data !== this.state.data ||
@@ -465,7 +469,10 @@ function createContainerWithFragments<
   };
 }
 
-function getRelayProp(environment, refetch): RelayRefetchProp {
+function getRelayProp(
+  environment: IEnvironment,
+  refetch: RelayRefetchProp['refetch'],
+): RelayRefetchProp {
   return {
     environment,
     refetch,

@@ -345,7 +345,7 @@ class RelayObservable<+T> implements Subscribable<T> {
     return RelayObservable.create(sink => {
       const subscriptions = [];
 
-      function start(subscription) {
+      function start(subscription: Subscription) {
         this._sub = subscription;
         subscriptions.push(subscription);
       }
@@ -448,7 +448,7 @@ class RelayObservable<+T> implements Subscribable<T> {
 declare function isObservable(p: mixed): boolean %checks(p instanceof
   RelayObservable);
 
-function isObservable(obj) {
+function isObservable(obj: mixed) {
   return (
     typeof obj === 'object' &&
     obj !== null &&

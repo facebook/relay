@@ -182,7 +182,9 @@ function getQueryResultOrFetchQuery_REACT_CACHE(
 
   const initialEntry = cache.get(environment, cacheKey);
 
-  function updateCache(updater) {
+  function updateCache(
+    updater: QueryCacheEntryStatus => QueryCacheEntryStatus,
+  ) {
     let currentEntry = cache.get(environment, cacheKey);
     if (!currentEntry) {
       currentEntry = makeInitialCacheEntry();

@@ -523,7 +523,9 @@ class RelayReader {
     // inputs have changed since a previous evaluation:
     let snapshot: ?Snapshot;
 
-    const getDataForResolverFragment = singularReaderSelector => {
+    const getDataForResolverFragment = (
+      singularReaderSelector: SingularReaderSelector,
+    ) => {
       if (snapshot != null) {
         // It was already read when checking for input staleness; no need to read it again.
         // Note that the variables like fragmentSeenRecordIDs in the outer closure will have

@@ -11,11 +11,11 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
-
 import type {GeneratedNodeMap, RelayProp, $RelayProps} from './ReactRelayTypes';
 import type {
   FragmentMap,
   FragmentSpecResolver,
+  IEnvironment,
   RelayContext,
 } from 'relay-runtime';
 
@@ -58,7 +58,7 @@ function createContainerWithFragments<
 
   return class extends React.Component<ContainerProps, ContainerState> {
     static displayName = containerName;
-    constructor(props) {
+    constructor(props: $FlowFixMe) {
       super(props);
       const relayContext = assertRelayContext(props.__relayContext);
       const rootIsQueryRenderer = props.__rootIsQueryRenderer ?? false;
@@ -163,7 +163,10 @@ function createContainerWithFragments<
       this.state.resolver.dispose();
     }
 
-    shouldComponentUpdate(nextProps, nextState): boolean {
+    shouldComponentUpdate(
+      nextProps: ContainerProps,
+      nextState: ContainerState,
+    ): boolean {
       // Short-circuit if any Relay-related data has changed
       if (nextState.data !== this.state.data) {
         return true;
@@ -247,7 +250,7 @@ function createContainerWithFragments<
   };
 }
 
-function getRelayProp(environment) {
+function getRelayProp(environment: IEnvironment) {
   return {
     environment,
   };

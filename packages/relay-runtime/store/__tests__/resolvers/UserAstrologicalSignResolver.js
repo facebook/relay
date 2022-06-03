@@ -13,10 +13,10 @@
 
 'use strict';
 
-import type {AstrologicalSignID} from '../AstrologicalSignUtils';
 import type {UserAstrologicalSignResolver$key} from './__generated__/UserAstrologicalSignResolver.graphql';
+import type {AstrologicalSignID} from './AstrologicalSignUtils';
 
-const {findSign} = require('../AstrologicalSignUtils');
+const {findSign} = require('./AstrologicalSignUtils');
 const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<010df93a4111540105581818c12dc5bd>>
+ * @generated SignedSource<<ce585a82cd8d8364432087218861119e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import queryThrowBeforeReadResolver from "../../../../relay-test-utils-internal/resolvers/ThrowBeforeReadResolver.js";
+import queryThrowBeforeReadResolver from "../resolvers/ThrowBeforeReadResolver.js";
 export type RelayReaderResolverTest14Query$variables = {||};
 export type RelayReaderResolverTest14Query$data = {|
   +throw_before_read: ?$Call<<R>((...empty[]) => R) => R, typeof queryThrowBeforeReadResolver>,
@@ -44,7 +44,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "throw_before_read",
-        "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/ThrowBeforeReadResolver.js'),
+        "resolverModule": require('./../resolvers/ThrowBeforeReadResolver.js'),
         "path": "throw_before_read"
       }
     ],

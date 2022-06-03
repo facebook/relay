@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8f537677f279de98c89c60c18dda36ef>>
+ * @generated SignedSource<<60047109ddd16e022b9ace9ae82e29f8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userReadsClientEdgeResolver from "../../../../relay-test-utils-internal/resolvers/UserReadsClientEdgeResolver.js";
+import userReadsClientEdgeResolver from "../resolvers/UserReadsClientEdgeResolver.js";
 export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$variables = {||};
 export type RelayReaderClientEdgesTestMissingClientEdgeDataQuery$data = {|
   +me: ?{|
@@ -54,7 +54,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "reads_client_edge",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserReadsClientEdgeResolver.js'),
+            "resolverModule": require('./../resolvers/UserReadsClientEdgeResolver.js'),
             "path": "me.reads_client_edge"
           }
         ],

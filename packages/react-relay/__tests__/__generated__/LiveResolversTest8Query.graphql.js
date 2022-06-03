@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1980874c25089c9293f96de45d27301e>>
+ * @generated SignedSource<<2bda17d11527c925355a2266e75f473e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userResolverThatThrowsResolver from "../../../relay-test-utils-internal/resolvers/ResolverThatThrows.js";
+import userResolverThatThrowsResolver from "../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js";
 export type LiveResolversTest8Query$variables = {|
   id: string,
 |};
@@ -83,7 +83,7 @@ return {
                 },
                 "kind": "RelayLiveResolver",
                 "name": "resolver_that_throws",
-                "resolverModule": require('./../../../relay-test-utils-internal/resolvers/ResolverThatThrows.js'),
+                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js'),
                 "path": "node.resolver_that_throws"
               }
             ],

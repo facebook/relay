@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1e3356fa54e31c52da52932097d19477>>
+ * @generated SignedSource<<e799d3497724e7e55d66e7130890b7e1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userUserProfilePictureUriWithScaleAndAdditionalArgumentResolver from "../../../../relay-test-utils-internal/resolvers/UserProfilePictureWithRuntimeArgumentResolver.js";
+import userUserProfilePictureUriWithScaleAndAdditionalArgumentResolver from "../resolvers/UserProfilePictureWithRuntimeArgumentResolver.js";
 export type RelayReaderResolverTest22Query$variables = {|
   name?: ?string,
   scale: number,
@@ -84,7 +84,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "user_profile_picture_uri_with_scale_and_additional_argument",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserProfilePictureWithRuntimeArgumentResolver.js'),
+            "resolverModule": require('./../resolvers/UserProfilePictureWithRuntimeArgumentResolver.js'),
             "path": "me.profile_picture"
           }
         ],

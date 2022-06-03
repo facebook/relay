@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ea6f0ed63945ff184390ae31175b1964>>
+ * @generated SignedSource<<811eb0cab3fa6bfe6b0bd7c5f4c314cb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,7 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-import queryCounterSuspendsWhenOddResolver from "../../../relay-test-utils-internal/resolvers/CounterSuspendsWhenOdd.js";
+import queryCounterSuspendsWhenOddResolver from "../../../relay-runtime/store/__tests__/resolvers/CounterSuspendsWhenOdd.js";
 declare export opaque type LiveResolversTest5Fragment$fragmentType: FragmentType;
 export type LiveResolversTest5Fragment$data = {|
   +counter_suspends_when_odd: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterSuspendsWhenOddResolver>["read"]>,
@@ -46,7 +46,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayLiveResolver",
       "name": "counter_suspends_when_odd",
-      "resolverModule": require('./../../../relay-test-utils-internal/resolvers/CounterSuspendsWhenOdd.js'),
+      "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/CounterSuspendsWhenOdd.js'),
       "path": "counter_suspends_when_odd"
     }
   ],

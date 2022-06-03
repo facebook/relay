@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d5c049b73500a1bbaf812bb7b69c118e>>
+ * @generated SignedSource<<c61ccd3dea55207654d77ae8d5121654>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import queryCounterPlusOneResolver from "../../../relay-test-utils-internal/resolvers/CounterPlusOneResolver.js";
+import queryCounterPlusOneResolver from "../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver.js";
 export type LiveResolversTest3Query$variables = {||};
 export type LiveResolversTest3Query$data = {|
   +counter_plus_one: ?$Call<<R>((...empty[]) => R) => R, typeof queryCounterPlusOneResolver>,
@@ -44,7 +44,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "counter_plus_one",
-        "resolverModule": require('./../../../relay-test-utils-internal/resolvers/CounterPlusOneResolver.js'),
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver.js'),
         "path": "counter_plus_one"
       }
     ],

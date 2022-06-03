@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f312056dee16f0ccad1eb1184a060470>>
+ * @generated SignedSource<<5a72d8e82b9ff5068393aa64bd0fd68a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import queryPingResolver from "../../../relay-test-utils-internal/resolvers/LivePingPongResolver.js";
+import queryPingResolver from "../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver.js";
 export type LiveResolversTest4Query$variables = {||};
 export type LiveResolversTest4Query$data = {|
   +ping: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryPingResolver>["read"]>,
@@ -44,7 +44,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayLiveResolver",
         "name": "ping",
-        "resolverModule": require('./../../../relay-test-utils-internal/resolvers/LivePingPongResolver.js'),
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver.js'),
         "path": "ping"
       }
     ],

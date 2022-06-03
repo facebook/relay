@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ae72de2782d8019cd4c77c9155045a51>>
+ * @generated SignedSource<<6eeb26d9b4a16a284da4b9430800ea71>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userAlwaysThrowsResolver from "../../../../relay-test-utils-internal/resolvers/UserAlwaysThrowsResolver.js";
+import userAlwaysThrowsResolver from "../resolvers/UserAlwaysThrowsResolver.js";
 export type RelayReaderResolverTest12Query$variables = {||};
 export type RelayReaderResolverTest12Query$data = {|
   +me: ?{|
@@ -54,7 +54,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "always_throws",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserAlwaysThrowsResolver.js'),
+            "resolverModule": require('./../resolvers/UserAlwaysThrowsResolver.js'),
             "path": "me.always_throws"
           }
         ],

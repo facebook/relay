@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e1692e40e7999beee3caa290e9d06bc7>>
+ * @generated SignedSource<<d1a3380886228c6561fc41e2215548aa>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userCustomGreetingResolver from "../../../../relay-test-utils-internal/resolvers/UserCustomGreetingResolver.js";
+import userCustomGreetingResolver from "../resolvers/UserCustomGreetingResolver.js";
 export type RelayReaderResolverTestCustomGreetingDynamicQuery$variables = {|
   salutation: string,
 |};
@@ -73,7 +73,7 @@ return {
             "fragment": (v1/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserCustomGreetingResolver.js'),
+            "resolverModule": require('./../resolvers/UserCustomGreetingResolver.js'),
             "path": "me.dynamic_greeting"
           },
           {
@@ -88,7 +88,7 @@ return {
             "fragment": (v1/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserCustomGreetingResolver.js'),
+            "resolverModule": require('./../resolvers/UserCustomGreetingResolver.js'),
             "path": "me.greetz"
           },
           {
@@ -103,7 +103,7 @@ return {
             "fragment": (v1/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserCustomGreetingResolver.js'),
+            "resolverModule": require('./../resolvers/UserCustomGreetingResolver.js'),
             "path": "me.willkommen"
           }
         ],

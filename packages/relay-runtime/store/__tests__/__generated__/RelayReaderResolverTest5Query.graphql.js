@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<597702f87175914bbdfaa45bc91c59f8>>
+ * @generated SignedSource<<e173c6e0d0c0f23866c9e71dcb228538>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userShoutedGreetingResolver from "../../../../relay-test-utils-internal/resolvers/UserShoutedGreetingResolver.js";
+import userShoutedGreetingResolver from "../resolvers/UserShoutedGreetingResolver.js";
 export type RelayReaderResolverTest5Query$variables = {||};
 export type RelayReaderResolverTest5Query$data = {|
   +me: ?{|
@@ -54,7 +54,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "shouted_greeting",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserShoutedGreetingResolver.js'),
+            "resolverModule": require('./../resolvers/UserShoutedGreetingResolver.js'),
             "path": "me.shouted_greeting"
           }
         ],

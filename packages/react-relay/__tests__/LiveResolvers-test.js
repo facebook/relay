@@ -23,6 +23,10 @@ const TestRenderer = require('react-test-renderer');
 const {RelayFeatureFlags, getRequest} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
+const {
+  GLOBAL_STORE,
+  resetStore,
+} = require('relay-runtime/store/__tests__/resolvers/ExampleExternalStateStore');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
@@ -33,10 +37,6 @@ const {
   disallowConsoleErrors,
   disallowWarnings,
 } = require('relay-test-utils-internal');
-const {
-  GLOBAL_STORE,
-  resetStore,
-} = require('relay-test-utils-internal/ExampleExternalStateStore');
 
 disallowWarnings();
 disallowConsoleErrors();

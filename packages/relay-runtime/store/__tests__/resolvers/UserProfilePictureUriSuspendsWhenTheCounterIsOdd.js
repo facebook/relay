@@ -16,7 +16,7 @@
 import type {UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key} from './__generated__/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.graphql';
 import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
-const {GLOBAL_STORE, Selectors} = require('../ExampleExternalStateStore');
+const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
 const {graphql} = require('relay-runtime');
 const {
   suspenseSentinel,

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<00ff724f15733b2efe472cf6ffca5e9e>>
+ * @generated SignedSource<<8b2366dcec9ccbd587f89ecf8fd638cc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolver from "../../../relay-test-utils-internal/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js";
+import userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolver from "../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js";
 export type LiveResolversTest9Query$variables = {|
   id: string,
   scale: number,
@@ -87,7 +87,7 @@ return {
                 },
                 "kind": "RelayLiveResolver",
                 "name": "user_profile_picture_uri_suspends_when_the_counter_is_odd",
-                "resolverModule": require('./../../../relay-test-utils-internal/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js'),
+                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js'),
                 "path": "node.profile_picture_uri"
               }
             ],

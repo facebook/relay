@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0471404fd8a1c8e7de5ddc00edc03bfb>>
+ * @generated SignedSource<<64381f69ed559031c7978051be2c49b6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import astrologicalSignNameResolver from "../../../../relay-test-utils-internal/resolvers/AstrologicalSignNameResolver.js";
+import astrologicalSignNameResolver from "../resolvers/AstrologicalSignNameResolver.js";
 export type ClientEdgeToClientObjectTest3Query$variables = {||};
 export type ClientEdgeToClientObjectTest3Query$data = {|
   +me: ?{|
@@ -63,7 +63,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "astrological_sign",
-              "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserAstrologicalSignResolver.js'),
+              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver.js'),
               "path": "me.astrological_sign"
             },
             "linkedField": {
@@ -91,7 +91,7 @@ var node/*: ConcreteRequest*/ = {
                   },
                   "kind": "RelayResolver",
                   "name": "name",
-                  "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/AstrologicalSignNameResolver.js'),
+                  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver.js'),
                   "path": "me.name"
                 },
                 {

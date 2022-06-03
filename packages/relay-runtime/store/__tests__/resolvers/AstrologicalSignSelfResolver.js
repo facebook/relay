@@ -11,13 +11,13 @@
 
 'use strict';
 
+import type {AstrologicalSignSelfResolver$key} from './__generated__/AstrologicalSignSelfResolver.graphql';
 import type {
   AstrologicalSignID,
   ClientAstrologicalSignData,
-} from '../AstrologicalSignUtils';
-import type {AstrologicalSignSelfResolver$key} from './__generated__/AstrologicalSignSelfResolver.graphql';
+} from './AstrologicalSignUtils';
 
-const {getHouse, getOpposite} = require('../AstrologicalSignUtils');
+const {getHouse, getOpposite} = require('./AstrologicalSignUtils');
 const {graphql} = require('relay-runtime');
 const {readFragment} = require('relay-runtime/store/ResolverFragments');
 

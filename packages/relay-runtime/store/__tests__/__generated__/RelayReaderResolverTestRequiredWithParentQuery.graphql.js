@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d7e33834a165a030278e67f2122109f9>>
+ * @generated SignedSource<<546c830c219966cbb706382741b386e2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userRequiredNameResolver from "../../../../relay-test-utils-internal/resolvers/UserRequiredNameResolver.js";
+import userRequiredNameResolver from "../resolvers/UserRequiredNameResolver.js";
 export type RelayReaderResolverTestRequiredWithParentQuery$variables = {||};
 export type RelayReaderResolverTestRequiredWithParentQuery$data = {|
   +me: ?{|
@@ -63,7 +63,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "required_name",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserRequiredNameResolver.js'),
+            "resolverModule": require('./../resolvers/UserRequiredNameResolver.js'),
             "path": "me.required_name"
           },
           {

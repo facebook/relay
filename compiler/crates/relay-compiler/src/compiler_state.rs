@@ -549,21 +549,6 @@ impl CompilerState {
         self.dirty_artifact_paths.clear();
     }
 
-    pub fn complete_project_compilation(&mut self, project_name: &ProjectName) {
-        if let Some(sources) = self.graphql_sources.get_mut(project_name) {
-            sources.commit_pending_sources();
-        }
-        if let Some(sources) = self.schemas.get_mut(project_name) {
-            sources.commit_pending_sources();
-        }
-        if let Some(sources) = self.extensions.get_mut(project_name) {
-            sources.commit_pending_sources();
-        }
-        if let Some(sources) = self.docblocks.get_mut(project_name) {
-            sources.commit_pending_sources();
-        }
-    }
-
     /// Calculate dirty definitions from dirty artifacts
     pub fn get_dirty_definitions(
         &self,

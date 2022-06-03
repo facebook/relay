@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8e360dc20ff4755e31c1b41585165d6b>>
+ * @generated SignedSource<<68d9e3b91517cf2903eff4cdab2e7ac6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type QueryAllAstrologicalSignsResolver$fragmentType: FragmentType;
 export type QueryAllAstrologicalSignsResolver$data = {|
   +me: ?{|
-    +__typename: string,
+    +__typename: "User",
   |},
   +$fragmentType: QueryAllAstrologicalSignsResolver$fragmentType,
 |};

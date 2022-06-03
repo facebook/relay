@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7deb249c1f48b89d621c20063d73ef87>>
+ * @generated SignedSource<<57a1a362a54386d52a11c2ed2404a38e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@ export type ResolverTest3Query$variables = {||};
 export type ResolverTest3Query$data = {|
   +me: ?{|
     +client_edge: ?{|
-      +__typename: string,
+      +__typename: "User",
     |},
   |},
 |};

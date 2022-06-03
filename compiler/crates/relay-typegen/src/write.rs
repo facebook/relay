@@ -64,6 +64,7 @@ pub(crate) fn write_operation_type_exports_section(
         &mut imported_resolvers,
         &mut actor_change_status,
         &mut custom_scalars,
+        None,
     );
 
     let mut imported_raw_response_types = Default::default();
@@ -94,6 +95,7 @@ pub(crate) fn write_operation_type_exports_section(
                 &mut imported_raw_response_types,
                 &mut runtime_imports,
                 &mut custom_scalars,
+                None,
             );
             Some((
                 raw_response_selections_to_babel(
@@ -229,6 +231,7 @@ pub(crate) fn write_split_operation_type_exports_section(
         &mut imported_raw_response_types,
         &mut runtime_imports,
         &mut custom_scalars,
+        None,
     );
     let raw_response_type = raw_response_selections_to_babel(
         typgen_context,
@@ -279,6 +282,7 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut imported_resolvers,
         &mut actor_change_status,
         &mut custom_scalars,
+        None,
     );
     if !fragment_definition.type_condition.is_abstract_type() {
         let num_concrete_selections = type_selections

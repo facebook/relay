@@ -54,6 +54,7 @@ pub(crate) fn visit_selections(
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
 ) -> Vec<TypeSelection> {
     let mut type_selections = Vec::new();
     for selection in selections {
@@ -74,29 +75,45 @@ pub(crate) fn visit_selections(
                 imported_resolvers,
                 actor_change_status,
                 custom_scalars,
+                enclosing_linked_field_concrete_type,
             ),
-            Selection::LinkedField(linked_field) => gen_visit_linked_field(
-                typegen_context.schema,
-                &mut type_selections,
-                linked_field,
-                |selections| {
-                    visit_selections(
-                        typegen_context,
-                        selections,
-                        encountered_enums,
-                        encountered_fragments,
-                        imported_resolvers,
-                        actor_change_status,
-                        custom_scalars,
-                    )
-                },
-            ),
+            Selection::LinkedField(linked_field) => {
+                let linked_field_type = typegen_context
+                    .schema
+                    .field(linked_field.definition.item)
+                    .type_
+                    .inner();
+                let nested_enclosing_linked_field_concrete_type =
+                    if linked_field_type.is_abstract_type() {
+                        None
+                    } else {
+                        Some(linked_field_type)
+                    };
+                gen_visit_linked_field(
+                    typegen_context.schema,
+                    &mut type_selections,
+                    linked_field,
+                    |selections| {
+                        visit_selections(
+                            typegen_context,
+                            selections,
+                            encountered_enums,
+                            encountered_fragments,
+                            imported_resolvers,
+                            actor_change_status,
+                            custom_scalars,
+                            nested_enclosing_linked_field_concrete_type,
+                        )
+                    },
+                )
+            }
             Selection::ScalarField(scalar_field) => visit_scalar_field(
                 typegen_context,
                 &mut type_selections,
                 scalar_field,
                 encountered_enums,
                 custom_scalars,
+                enclosing_linked_field_concrete_type,
             ),
             Selection::Condition(condition) => visit_condition(
                 typegen_context,
@@ -107,6 +124,7 @@ pub(crate) fn visit_selections(
                 imported_resolvers,
                 actor_change_status,
                 custom_scalars,
+                enclosing_linked_field_concrete_type,
             ),
         }
     }
@@ -224,6 +242,7 @@ fn visit_inline_fragment(
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
         let name = module_metadata.fragment_name;
@@ -261,6 +280,7 @@ fn visit_inline_fragment(
             imported_resolvers,
             actor_change_status,
             custom_scalars,
+            enclosing_linked_field_concrete_type,
         );
     } else {
         let mut inline_selections = visit_selections(
@@ -271,6 +291,7 @@ fn visit_inline_fragment(
             imported_resolvers,
             actor_change_status,
             custom_scalars,
+            enclosing_linked_field_concrete_type,
         );
 
         let mut selections = if let Some(fragment_alias_metadata) =
@@ -329,6 +350,7 @@ fn visit_actor_change(
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     let linked_field = match &inline_fragment.selections[0] {
         Selection::LinkedField(linked_field) => linked_field,
@@ -354,6 +376,7 @@ fn visit_actor_change(
         imported_resolvers,
         actor_change_status,
         custom_scalars,
+        enclosing_linked_field_concrete_type,
     );
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
@@ -388,6 +411,7 @@ fn raw_response_visit_inline_fragment(
     imported_raw_response_types: &mut ImportedRawResponseTypes,
     runtime_imports: &mut RuntimeImports,
     custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     let mut selections = raw_response_visit_selections(
         typegen_context,
@@ -398,6 +422,7 @@ fn raw_response_visit_inline_fragment(
         imported_raw_response_types,
         runtime_imports,
         custom_scalars,
+        enclosing_linked_field_concrete_type,
     );
     if inline_fragment
         .directives
@@ -475,6 +500,7 @@ fn visit_scalar_field(
     scalar_field: &ScalarField,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     let field = typegen_context.schema.field(scalar_field.definition.item);
     let schema_name = field.name.item;
@@ -484,12 +510,45 @@ fn visit_scalar_field(
         schema_name
     };
     let field_type = apply_required_directive_nullability(&field.type_, &scalar_field.directives);
+    let special_field = ScalarFieldSpecialSchemaField::from_schema_name(
+        schema_name,
+        &typegen_context.project_config.schema_config,
+    );
+
+    if typegen_context
+        .project_config
+        .typegen_config
+        .precise_typename_types_within_linked_fields
+        .is_enabled_for(typegen_context.definition_source_location.item)
+        && matches!(special_field, Some(ScalarFieldSpecialSchemaField::TypeName))
+    {
+        if let Some(concrete_type) = enclosing_linked_field_concrete_type {
+            // If we are creating a typename selection within a linked field with a concrete type, we generate
+            // the type e.g. "User", i.e. the concrete string name of the concrete type.
+            //
+            // This cannot be done within abstract fields and at the top level (even in fragments), because
+            // we have the following type hole. With `node { ...Fragment_user }`, `Fragment_user` can be
+            // unconditionally read out, without checking whether the `node` field actually has a matching
+            // type at runtime.
+            //
+            // Note that passing concrete_type: enclosing_linked_field_concrete_type here has the effect
+            // of making the emitted fields left-hand-optional, causing the compiler to panic (because
+            // within updatable fragments/queries, we expect never to generate an optional type.)
+            return type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
+                field_name_or_alias: key,
+                special_field,
+                value: AST::StringLiteral(StringLiteral(
+                    typegen_context.schema.get_type_name(concrete_type),
+                )),
+                conditional: false,
+                concrete_type: None,
+            }));
+        }
+    }
+
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
-        special_field: ScalarFieldSpecialSchemaField::from_schema_name(
-            schema_name,
-            &typegen_context.project_config.schema_config,
-        ),
+        special_field,
         value: transform_scalar_type(
             typegen_context,
             &field_type,
@@ -512,6 +571,7 @@ fn visit_condition(
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     let mut selections = visit_selections(
         typegen_context,
@@ -521,6 +581,7 @@ fn visit_condition(
         imported_resolvers,
         actor_change_status,
         custom_scalars,
+        enclosing_linked_field_concrete_type,
     );
     for selection in selections.iter_mut() {
         selection.set_conditional(true);
@@ -1312,6 +1373,7 @@ pub(crate) fn raw_response_visit_selections(
     imported_raw_response_types: &mut ImportedRawResponseTypes,
     runtime_imports: &mut RuntimeImports,
     custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
 ) -> Vec<TypeSelection> {
     let mut type_selections = Vec::new();
     for selection in selections {
@@ -1341,30 +1403,46 @@ pub(crate) fn raw_response_visit_selections(
                 imported_raw_response_types,
                 runtime_imports,
                 custom_scalars,
+                enclosing_linked_field_concrete_type,
             ),
-            Selection::LinkedField(linked_field) => gen_visit_linked_field(
-                typegen_context.schema,
-                &mut type_selections,
-                linked_field,
-                |selections| {
-                    raw_response_visit_selections(
-                        typegen_context,
-                        selections,
-                        encountered_enums,
-                        match_fields,
-                        encountered_fragments,
-                        imported_raw_response_types,
-                        runtime_imports,
-                        custom_scalars,
-                    )
-                },
-            ),
+            Selection::LinkedField(linked_field) => {
+                let linked_field_type = typegen_context
+                    .schema
+                    .field(linked_field.definition.item)
+                    .type_
+                    .inner();
+                let nested_enclosing_linked_field_concrete_type =
+                    if linked_field_type.is_abstract_type() {
+                        None
+                    } else {
+                        Some(linked_field_type)
+                    };
+                gen_visit_linked_field(
+                    typegen_context.schema,
+                    &mut type_selections,
+                    linked_field,
+                    |selections| {
+                        raw_response_visit_selections(
+                            typegen_context,
+                            selections,
+                            encountered_enums,
+                            match_fields,
+                            encountered_fragments,
+                            imported_raw_response_types,
+                            runtime_imports,
+                            custom_scalars,
+                            nested_enclosing_linked_field_concrete_type,
+                        )
+                    },
+                )
+            }
             Selection::ScalarField(scalar_field) => visit_scalar_field(
                 typegen_context,
                 &mut type_selections,
                 scalar_field,
                 encountered_enums,
                 custom_scalars,
+                enclosing_linked_field_concrete_type,
             ),
             Selection::Condition(condition) => {
                 type_selections.extend(raw_response_visit_selections(
@@ -1376,6 +1454,7 @@ pub(crate) fn raw_response_visit_selections(
                     imported_raw_response_types,
                     runtime_imports,
                     custom_scalars,
+                    enclosing_linked_field_concrete_type,
                 ));
             }
         }

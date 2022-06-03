@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::FeatureFlag;
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
@@ -86,6 +87,9 @@ pub struct TypegenConfig {
     /// version 3.8. This will prevent warnings from `importsNotUsedAsValues`.
     #[serde(default)]
     pub use_import_type_syntax: bool,
+
+    /// This feature is used to rollout precise __typename type generation.
+    pub precise_typename_types_within_linked_fields: FeatureFlag,
 
     /// A map from GraphQL scalar types to a custom JS type, example:
     /// { "Url": "String" }

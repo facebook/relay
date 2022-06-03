@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bbec68145de667bbdd8908483236e893>>
+ * @generated SignedSource<<42ded6de0028876e8626fb9747722146>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestFeed
     +comments: ?{|
       +__id: string,
       +edges: ?$ReadOnlyArray<?{|
-        +__typename: string,
+        +__typename: "CommentsEdge",
         +node: ?{|
           +id: string,
         |},

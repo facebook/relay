@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0bb989e10e6b3340a2489294bd4f58b7>>
+ * @generated SignedSource<<4195c24df962688a655ebf20c36db2d8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@ export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTyp
 export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$data = {|
   +node: ?{|
     +author?: ?{|
-      +__typename: string,
+      +__typename: "User",
     |},
     +name?: ?string,
   |},

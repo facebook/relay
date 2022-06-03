@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<915101dbf1215900c857d45d671a1317>>
+ * @generated SignedSource<<c33e0b9da939db5c0b885e237463c6a5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,7 +31,7 @@ export type RelayOperationTrackerTest1Mutation$variables = {|
 |};
 export type RelayOperationTrackerTest1Mutation$data = {|
   +commentCreate: ?{|
-    +__typename: string,
+    +__typename: "CommentCreateResponsePayload",
   |},
 |};
 export type RelayOperationTrackerTest1Mutation = {|

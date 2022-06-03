@@ -374,23 +374,38 @@ mod tests {
                     },
                     "projects": {
                         "public": {
+                            "preciseTypenameTypesWithinLinkedFields": {
+                                "kind": "enabled"
+                            },
                             "schema": "graphql/public.graphql",
                             "language": "flow"
                         },
                         "internal": {
+                            "preciseTypenameTypesWithinLinkedFields": {
+                                "kind": "enabled"
+                            },
                             "schema": "graphql/__generated__/internal.graphql",
                             "language": "flow"
                         },
                         "with_custom_generated_dir": {
+                            "preciseTypenameTypesWithinLinkedFields": {
+                                "kind": "enabled"
+                            },
                             "schema": "graphql/__generated__/custom.graphql",
                             "output": "graphql/custom-generated",
                             "language": "flow"
                         },
                         "typescript": {
+                            "preciseTypenameTypesWithinLinkedFields": {
+                                "kind": "enabled"
+                            },
                             "schema": "graphql/ts_schema.graphql",
                             "language": "typescript"
                         },
                         "overlapping_generated_dir": {
+                            "preciseTypenameTypesWithinLinkedFields": {
+                                "kind": "enabled"
+                            },
                             "schema": "graphql/__generated__/custom.graphql",
                             "language": "flow"
                         }

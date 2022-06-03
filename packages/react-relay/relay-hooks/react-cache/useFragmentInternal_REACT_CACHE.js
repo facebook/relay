@@ -45,7 +45,7 @@ type FragmentQueryOptions = {|
 |};
 
 type FragmentState = $ReadOnly<
-  | {|kind: 'bailout', plural: boolean|}
+  | {|kind: 'bailout'|}
   | {|kind: 'singular', snapshot: Snapshot, epoch: number|}
   | {|kind: 'plural', snapshots: $ReadOnlyArray<Snapshot>, epoch: number|},
 >;
@@ -249,7 +249,7 @@ function getFragmentState(
   isPlural: boolean,
 ): FragmentState {
   if (fragmentSelector == null) {
-    return {kind: 'bailout', plural: isPlural};
+    return {kind: 'bailout'};
   } else if (fragmentSelector.kind === 'PluralReaderSelector') {
     return {
       kind: 'plural',
@@ -334,9 +334,9 @@ function useFragmentInternal_REACT_CACHE(
   // fragmentRef goes from non-null to null?
   const stateFromRawState = (state: FragmentState) => {
     if (fragmentRef == null) {
-      return {kind: 'bailout', plural: false};
+      return {kind: 'bailout'};
     } else if (state.kind === 'plural' && state.snapshots.length === 0) {
-      return {kind: 'bailout', plural: true};
+      return {kind: 'bailout'};
     } else {
       return state;
     }
@@ -451,17 +451,36 @@ function useFragmentInternal_REACT_CACHE(
     });
   }, [environment, subscribedState]);
 
-  const data = useMemo(
-    () =>
-      state.kind === 'bailout'
-        ? state.plural
-          ? []
-          : null
-        : state.kind === 'singular'
-        ? state.snapshot.data
-        : state.snapshots.map(s => s.data),
-    [state],
-  );
+  let data: ?SelectorData | Array<?SelectorData>;
+  if (isPlural) {
+    // Plural fragments require allocating an array of the snasphot data values,
+    // which has to be memoized to avoid triggering downstream re-renders.
+    //
+    // Note that isPlural is a constant property of the fragment and does not change
+    // for a particular useFragment invocation site
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    data = useMemo(() => {
+      if (state.kind === 'bailout') {
+        return [];
+      } else {
+        invariant(
+          state.kind === 'plural',
+          'Expected state to be plural because fragment is plural',
+        );
+        return state.snapshots.map(s => s.data);
+      }
+    }, [state]);
+  } else if (state.kind === 'bailout') {
+    // This case doesn't allocate a new object so it doesn't have to be memoized
+    data = null;
+  } else {
+    // This case doesn't allocate a new object so it doesn't have to be memoized
+    invariant(
+      state.kind === 'singular',
+      'Expected state to be singular because fragment is singular',
+    );
+    data = state.snapshot.data;
+  }
 
   if (__DEV__) {
     if (

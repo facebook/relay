@@ -29,8 +29,8 @@ fragment Foo_user on User {
   #     type_name: "ClientOnlyType",
   # }
    {
-    ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
-    # RelayResolverSpreadMetadata {
+    ...BestFriendResolverFragment_name @__RelayResolverMetadata
+    # RelayResolverMetadata {
     #     field_parent_type: "User",
     #     import_path: "BestFriendResolver",
     #     field_name: "best_friend",

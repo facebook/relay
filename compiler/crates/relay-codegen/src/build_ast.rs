@@ -25,7 +25,7 @@ use relay_transforms::{
     remove_directive, ClientEdgeMetadata, ClientEdgeMetadataDirective, ConnectionConstants,
     ConnectionMetadata, DeferDirective, FragmentAliasMetadata, InlineDirectiveMetadata,
     ModuleMetadata, NoInlineFragmentSpreadMetadata, RefetchableMetadata, RelayDirective,
-    RelayResolverSpreadMetadata, RequiredMetadataDirective, StreamDirective,
+    RelayResolverMetadata, RequiredMetadataDirective, StreamDirective,
     CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
     INLINE_DIRECTIVE_NAME, INTERNAL_METADATA_DIRECTIVE,
     REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
@@ -799,10 +799,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     ))
                 }),
             }))
-        } else if let Some(resolver_spread_metadata) =
-            RelayResolverSpreadMetadata::find(&frag_spread.directives)
+        } else if let Some(resolver_metadata) = RelayResolverMetadata::find(&frag_spread.directives)
         {
-            let resolver_primitive = self.build_relay_resolver(primitive, resolver_spread_metadata);
+            let resolver_primitive = self.build_relay_resolver(Some(primitive), resolver_metadata);
             if let Some(required_metadata) =
                 RequiredMetadataDirective::find(&frag_spread.directives)
             {
@@ -817,16 +816,16 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
     fn build_relay_resolver(
         &mut self,
-        fragment_primitive: Primitive,
-        relay_resolver_spread_metadata: &RelayResolverSpreadMetadata,
+        fragment_primitive: Option<Primitive>,
+        relay_resolver_metadata: &RelayResolverMetadata,
     ) -> Primitive {
-        let module = relay_resolver_spread_metadata.import_path;
-        let field_name = relay_resolver_spread_metadata.field_name;
-        let field_alias = relay_resolver_spread_metadata.field_alias;
-        let path = relay_resolver_spread_metadata.field_path;
-        let field_arguments = &relay_resolver_spread_metadata.field_arguments;
+        let module = relay_resolver_metadata.import_path;
+        let field_name = relay_resolver_metadata.field_name;
+        let field_alias = relay_resolver_metadata.field_alias;
+        let path = relay_resolver_metadata.field_path;
+        let field_arguments = &relay_resolver_metadata.field_arguments;
 
-        let kind = if relay_resolver_spread_metadata.live {
+        let kind = if relay_resolver_metadata.live {
             CODEGEN_CONSTANTS.relay_live_resolver
         } else {
             CODEGEN_CONSTANTS.relay_resolver
@@ -844,7 +843,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 None => Primitive::SkippableNull,
                 Some(key) => Primitive::Key(key),
             },
-            fragment: fragment_primitive,
+            fragment: match fragment_primitive {
+                None => Primitive::SkippableNull,
+                Some(fragment_primitive) => fragment_primitive,
+            },
             kind: Primitive::String(kind),
             name: Primitive::String(field_name),
             resolver_module: Primitive::JSModuleDependency(import_path),
@@ -1019,7 +1021,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 self.build_fragment_spread(fragment_spread)
             }
             _ => panic!(
-                "Expected Client Edge backing field to be an inline fragment representing a Relay Resolver. {:?}",
+                "Expected Client Edge backing field to be a fragment spread representing a Relay Resolver. {:?}",
                 client_edge_metadata.backing_field
             ),
         };
@@ -1068,6 +1070,34 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         kind: Primitive::String(CODEGEN_CONSTANTS.client_extension),
                         selections: selections,
                     }))
+                } else if let Some(resolver_metadata) =
+                    RelayResolverMetadata::find(&inline_frag.directives)
+                {
+                    match self.variant {
+                        CodegenVariant::Reader => {
+                            let resolver_primitive =
+                                self.build_relay_resolver(None, resolver_metadata);
+                            if let Some(required_metadata) =
+                                RequiredMetadataDirective::find(&inline_frag.directives)
+                            {
+                                self.build_required_field(required_metadata, resolver_primitive)
+                            } else {
+                                resolver_primitive
+                            }
+                        }
+                        CodegenVariant::Normalization => {
+                            if let Some(Selection::ScalarField(scalar)) =
+                                inline_frag.selections.first()
+                            {
+                                self.build_scalar_field(scalar)
+                            } else {
+                                panic!(
+                                    "Expected a single `__typename` selection on the Relay Resolver inline fragment. Got {:?}.",
+                                    &inline_frag
+                                );
+                            }
+                        }
+                    }
                 } else {
                     // TODO(T63559346): Handle anonymous inline fragments with no directives
                     panic!(

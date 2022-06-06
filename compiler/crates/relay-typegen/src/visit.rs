@@ -17,11 +17,10 @@ use graphql_ir::{
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use relay_config::{CustomScalarType, CustomScalarTypeImport};
 use relay_transforms::{
-    FragmentAliasMetadata, ModuleMetadata, NoInlineFragmentSpreadMetadata,
-    RelayResolverSpreadMetadata, RequiredMetadataDirective, TypeConditionInfo,
-    ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, CHILDREN_CAN_BUBBLE_METADATA_KEY,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-    UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
+    FragmentAliasMetadata, ModuleMetadata, NoInlineFragmentSpreadMetadata, RelayResolverMetadata,
+    RequiredMetadataDirective, TypeConditionInfo, ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN,
+    CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME,
+    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
@@ -138,13 +137,11 @@ fn visit_fragment_spread(
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
 ) {
-    if let Some(resolver_spread_metadata) =
-        RelayResolverSpreadMetadata::find(&fragment_spread.directives)
-    {
-        visit_relay_resolver_fragment(
+    if let Some(resolver_metadata) = RelayResolverMetadata::find(&fragment_spread.directives) {
+        visit_relay_resolver(
             typegen_context,
             type_selections,
-            resolver_spread_metadata,
+            resolver_metadata,
             RequiredMetadataDirective::find(&fragment_spread.directives).is_some(),
             imported_resolvers,
         );
@@ -183,27 +180,27 @@ fn visit_fragment_spread(
     }
 }
 
-fn visit_relay_resolver_fragment(
+fn visit_relay_resolver(
     typegen_context: &'_ TypegenContext<'_>,
     type_selections: &mut Vec<TypeSelection>,
-    resolver_spread_metadata: &RelayResolverSpreadMetadata,
+    resolver_metadata: &RelayResolverMetadata,
     required: bool,
     imported_resolvers: &mut ImportedResolvers,
 ) {
-    let field_name = resolver_spread_metadata.field_name;
+    let field_name = resolver_metadata.field_name;
 
-    let key = resolver_spread_metadata.field_alias.unwrap_or(field_name);
-    let live = resolver_spread_metadata.live;
+    let key = resolver_metadata.field_alias.unwrap_or(field_name);
+    let live = resolver_metadata.live;
 
     let local_resolver_name = to_camel_case(format!(
         "{}_{}_resolver",
-        resolver_spread_metadata.field_parent_type, field_name
+        resolver_metadata.field_parent_type, field_name
     ))
     .intern();
 
     let import_path = typegen_context.project_config.js_module_import_path(
         typegen_context.definition_source_location,
-        resolver_spread_metadata.import_path,
+        resolver_metadata.import_path,
     );
 
     imported_resolvers
@@ -281,6 +278,15 @@ fn visit_inline_fragment(
             actor_change_status,
             custom_scalars,
             enclosing_linked_field_concrete_type,
+        );
+    } else if let Some(resolver_metadata) = RelayResolverMetadata::find(&inline_fragment.directives)
+    {
+        visit_relay_resolver(
+            typegen_context,
+            type_selections,
+            resolver_metadata,
+            RequiredMetadataDirective::find(&inline_fragment.directives).is_some(),
+            imported_resolvers,
         );
     } else {
         let mut inline_selections = visit_selections(

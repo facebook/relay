@@ -17,7 +17,7 @@ use intern::string_key::StringKeySet;
 use schema::{SDLSchema, Schema};
 
 pub fn validate_resolver_fragments(program: &Program) -> DiagnosticsResult<()> {
-    ValidateResolverFragments::new(&program.schema)?.validate_program(program)
+    ValidateResolverFragments::new(&program.schema).validate_program(program)
 }
 
 struct ValidateResolverFragments {
@@ -26,8 +26,7 @@ struct ValidateResolverFragments {
 }
 
 impl ValidateResolverFragments {
-    fn new(schema: &SDLSchema) -> DiagnosticsResult<Self> {
-        let mut errors = vec![];
+    fn new(schema: &SDLSchema) -> Self {
         let validator = Self {
             current_fragment: None,
             resolver_fragments: schema
@@ -47,20 +46,13 @@ impl ValidateResolverFragments {
                                 *RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
                                 field.name.location,
                             )
-                            .map_err(|err| {
-                                errors.extend(err);
-                            })
                             .ok()
                         })
                 })
                 .collect::<StringKeySet>(),
         };
 
-        if errors.is_empty() {
-            Ok(validator)
-        } else {
-            Err(errors)
-        }
+        validator
     }
 }
 

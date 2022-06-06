@@ -13,10 +13,11 @@ use crate::{
     react_flight::REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
     refetchable_fragment::RefetchableMetadata,
     relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+    relay_resolvers::RelayResolverInlineFragmentMetadata,
     required_directive::{CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME},
     ClientEdgeGeneratedQueryMetadataDirective, ClientEdgeMetadataDirective, FragmentAliasMetadata,
     ModuleMetadata, ReactFlightLocalComponentsMetadata, RefetchableDerivedFromMetadata,
-    RelayClientComponentMetadata, RelayResolverSpreadMetadata, RequiredMetadataDirective,
+    RelayClientComponentMetadata, RelayResolverMetadata, RequiredMetadataDirective,
     CLIENT_EDGE_GENERATED_FRAGMENT_KEY, DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE,
 };
 
@@ -72,7 +73,7 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 23] = [
+    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 24] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
         *HANDLE_FIELD_DIRECTIVE_NAME,
@@ -90,12 +91,13 @@ lazy_static! {
         ClientEdgeGeneratedQueryMetadataDirective::directive_name(),
         *CLIENT_EDGE_GENERATED_FRAGMENT_KEY,
         *CHILDREN_CAN_BUBBLE_METADATA_KEY,
-        RelayResolverSpreadMetadata::directive_name(),
+        RelayResolverMetadata::directive_name(),
         RelayClientComponentMetadata::directive_name(),
         *UNUSED_LOCAL_VARIABLE_DEPRECATED,
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
         ProvidedVariableMetadata::directive_name(),
         FragmentAliasMetadata::directive_name(),
+        RelayResolverInlineFragmentMetadata::directive_name(),
     ];
     static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [StringKey; 11] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
@@ -110,7 +112,7 @@ lazy_static! {
         *REQUIRED_DIRECTIVE_NAME,
         RelayClientComponentMetadata::directive_name(),
     ];
-    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 7] = [
+    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 8] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ModuleMetadata::directive_name(),
         InlineDirectiveMetadata::directive_name(),
@@ -118,6 +120,7 @@ lazy_static! {
         ClientEdgeMetadataDirective::directive_name(),
         "defer".intern(),
         FragmentAliasMetadata::directive_name(),
+        RelayResolverInlineFragmentMetadata::directive_name(),
     ];
     static ref VALID_PROVIDED_VARIABLE_NAME: Regex = Regex::new(r#"^[A-Za-z0-9_]*$"#).unwrap();
     pub static ref INTERNAL_RELAY_VARIABLES_PREFIX: StringKey = "__relay_internal".intern();

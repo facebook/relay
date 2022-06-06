@@ -1,5 +1,3 @@
-# expected-to-throw
-
 query relayResolverWithArgsAndAliasNoFragment_Query {
   node(id: "SOME_ID") {
     ... on User {

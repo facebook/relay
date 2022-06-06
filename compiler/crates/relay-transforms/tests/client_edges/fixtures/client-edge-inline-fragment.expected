@@ -38,8 +38,8 @@ fragment Foo_node on Node {
       #     query_name: "ClientEdgeQuery_Foo_node_Story__author__best_friend",
       # }
        {
-        ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
-        # RelayResolverSpreadMetadata {
+        ...BestFriendResolverFragment_name @__RelayResolverMetadata
+        # RelayResolverMetadata {
         #     field_parent_type: "User",
         #     import_path: "BestFriendResolver",
         #     field_name: "best_friend",
@@ -62,8 +62,8 @@ fragment Foo_node on Node {
       #     query_name: "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend",
       # }
        {
-        ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
-        # RelayResolverSpreadMetadata {
+        ...BestFriendResolverFragment_name @__RelayResolverMetadata
+        # RelayResolverMetadata {
         #     field_parent_type: "User",
         #     import_path: "BestFriendResolver",
         #     field_name: "best_friend",

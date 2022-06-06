@@ -3,24 +3,16 @@ fragment Foo_user on User {
   pop_star_name
 }
 
-fragment PopStarNameResolverFragment_name on User {
-  name
-  address {
-    street
-  }
-  parents {
-    lastName
-  }
-}
-
 # %extensions%
 
 extend type User {
-  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+  pop_star_name: String @relay_resolver(import_path: "PopStarNameResolver", live: true)
 }
 ==================================== OUTPUT ===================================
 fragment Foo_user on User {
-  ...PopStarNameResolverFragment_name @__RelayResolverMetadata
+  ... @__RelayResolverInlineFragmentMetadata
+  # RelayResolverInlineFragmentMetadata
+   @__RelayResolverMetadata
   # RelayResolverMetadata {
   #     field_parent_type: "User",
   #     import_path: "PopStarNameResolver",
@@ -28,21 +20,12 @@ fragment Foo_user on User {
   #     field_alias: None,
   #     field_path: "pop_star_name",
   #     field_arguments: [],
-  #     live: false,
+  #     live: true,
   # }
-  
-}
-
-fragment PopStarNameResolverFragment_name on User {
-  name
-  address {
-    street
-  }
-  parents {
-    lastName
+   {
+    __typename
   }
 }
 
 # Implicit Dependencies:
 #
-# Foo_user --> {PopStarNameResolverFragment_name}

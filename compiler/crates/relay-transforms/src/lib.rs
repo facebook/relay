@@ -149,7 +149,7 @@ pub use relay_client_component::{
 pub use relay_directive::RelayDirective;
 pub use relay_node_identifier::RelayLocationAgnosticBehavior;
 pub use relay_resolvers::{
-    find_resolver_dependencies, relay_resolvers, RelayResolverSpreadMetadata, ResolverFieldFinder,
+    find_resolver_dependencies, relay_resolvers, RelayResolverMetadata, ResolverFieldFinder,
     RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
     RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
 };

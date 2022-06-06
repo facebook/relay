@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e799d3497724e7e55d66e7130890b7e1>>
+ * @generated SignedSource<<9a73f0d0cda7927165c89771868c6909>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,17 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+type UserProfilePictureWithRuntimeArgumentResolver$key = any;
 import userUserProfilePictureUriWithScaleAndAdditionalArgumentResolver from "../resolvers/UserProfilePictureWithRuntimeArgumentResolver.js";
+// Type assertion validating that `userUserProfilePictureUriWithScaleAndAdditionalArgumentResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userUserProfilePictureUriWithScaleAndAdditionalArgumentResolver: (
+  rootKey: UserProfilePictureWithRuntimeArgumentResolver$key, 
+  args: {|
+    name: ?string,
+    scale: ?number,
+  |}, 
+) => mixed);
 export type RelayReaderResolverTest22Query$variables = {|
   name?: ?string,
   scale: number,

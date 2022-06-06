@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f0902139f4fb2b2f381ddf32258c373b>>
+ * @generated SignedSource<<686321291799ff1fd09807d15fcd9c25>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +16,20 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+type AstrologicalSignHouseResolver$key = any;
+type AstrologicalSignNameResolver$key = any;
 import astrologicalSignHouseResolver from "../resolvers/AstrologicalSignHouseResolver.js";
+// Type assertion validating that `astrologicalSignHouseResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(astrologicalSignHouseResolver: (
+  rootKey: AstrologicalSignHouseResolver$key, 
+) => mixed);
 import astrologicalSignNameResolver from "../resolvers/AstrologicalSignNameResolver.js";
+// Type assertion validating that `astrologicalSignNameResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(astrologicalSignNameResolver: (
+  rootKey: AstrologicalSignNameResolver$key, 
+) => mixed);
 export type ClientEdgeToClientObjectTest1Query$variables = {||};
 export type ClientEdgeToClientObjectTest1Query$data = {|
   +me: ?{|

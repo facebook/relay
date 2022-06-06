@@ -43,6 +43,14 @@ pub enum AST {
     ReturnTypeOfFunctionWithName(StringKey),
     ReturnTypeOfMethodCall(Box<AST>, StringKey),
     ActorChangePoint(Box<AST>),
+    AssertFunctionType(FunctionTypeAssertion),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct FunctionTypeAssertion {
+    pub function_name: StringKey,
+    pub arguments: Vec<KeyValuePairProp>,
+    pub return_type: Box<AST>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -230,7 +238,7 @@ impl From<KeyValuePairProp> for Prop {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct KeyValuePairProp {
     pub key: StringKey,
     pub value: AST,
@@ -298,7 +306,7 @@ pub struct GetterSetterPairProp {
 /// StringKey, by default, will sort alphabetically.
 ///
 /// This exception is to preserve the "natural" order of enums, which
-/// are Union's containining StringLiteral's, i.e. we want
+/// are Union's containing StringLiteral's, i.e. we want
 /// "%future added value" to follow the variants.
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct StringLiteral(pub StringKey);

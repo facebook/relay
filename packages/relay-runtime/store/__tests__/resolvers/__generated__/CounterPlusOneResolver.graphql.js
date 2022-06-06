@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<eb738b6fb952bb79354a0312cb347408>>
+ * @generated SignedSource<<83323ba2763e0db45f5b49634c40974d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +16,14 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
+type LiveCounterResolver$key = any;
 import type { FragmentType } from "relay-runtime";
 import queryCounterResolver from "../LiveCounterResolver.js";
+// Type assertion validating that `queryCounterResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(queryCounterResolver: (
+  rootKey: LiveCounterResolver$key, 
+) => mixed);
 declare export opaque type CounterPlusOneResolver$fragmentType: FragmentType;
 export type CounterPlusOneResolver$data = {|
   +counter: $NonMaybeType<$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterResolver>["read"]>>,

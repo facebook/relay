@@ -169,7 +169,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         variant: CodegenVariant,
         ast_builder: &'builder mut AstBuilder,
         project_config: &'config ProjectConfig,
-        definitiion_source_location: WithLocation<StringKey>,
+        definition_source_location: WithLocation<StringKey>,
     ) -> Self {
         Self {
             connection_constants: Default::default(),
@@ -177,7 +177,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             variant,
             ast_builder,
             project_config,
-            definition_source_location: definitiion_source_location,
+            definition_source_location,
         }
     }
 

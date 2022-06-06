@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d1a3380886228c6561fc41e2215548aa>>
+ * @generated SignedSource<<d908216520e283a0b9dfbc90b32c2b6d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+type UserCustomGreetingResolver$key = any;
 import userCustomGreetingResolver from "../resolvers/UserCustomGreetingResolver.js";
+// Type assertion validating that `userCustomGreetingResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userCustomGreetingResolver: (
+  rootKey: UserCustomGreetingResolver$key, 
+  args: {|
+    salutation: string,
+  |}, 
+) => mixed);
 export type RelayReaderResolverTestCustomGreetingDynamicQuery$variables = {|
   salutation: string,
 |};

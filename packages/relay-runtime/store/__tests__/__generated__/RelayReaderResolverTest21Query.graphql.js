@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0566314c8d1375f79e220b1f852a34bb>>
+ * @generated SignedSource<<3a66141fe1fd5ede68262cea8b1063cb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+type UserProfilePictureResolver$key = any;
 import userUserProfilePictureUriWithScaleResolver from "../resolvers/UserProfilePictureResolver.js";
+// Type assertion validating that `userUserProfilePictureUriWithScaleResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userUserProfilePictureUriWithScaleResolver: (
+  rootKey: UserProfilePictureResolver$key, 
+  args: {|
+    scale: ?number,
+  |}, 
+) => mixed);
 export type RelayReaderResolverTest21Query$variables = {|
   scale: number,
 |};

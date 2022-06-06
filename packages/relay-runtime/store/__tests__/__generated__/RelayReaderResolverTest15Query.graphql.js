@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<294627e13af16f0311700e6f991f314d>>
+ * @generated SignedSource<<088055ab58f999bdd940c32cf328da7d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+type UndefinedFieldResolver$key = any;
 import queryUndefinedFieldResolver from "../resolvers/UndefinedFieldResolver.js";
+// Type assertion validating that `queryUndefinedFieldResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(queryUndefinedFieldResolver: (
+  rootKey: UndefinedFieldResolver$key, 
+) => mixed);
 export type RelayReaderResolverTest15Query$variables = {||};
 export type RelayReaderResolverTest15Query$data = {|
   +undefined_field: ?$Call<<R>((...empty[]) => R) => R, typeof queryUndefinedFieldResolver>,

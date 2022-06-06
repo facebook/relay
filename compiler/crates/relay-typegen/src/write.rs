@@ -23,8 +23,8 @@ use std::{collections::HashSet, fmt::Result as FmtResult, path::PathBuf};
 
 use crate::{
     typegen_state::{
-        ActorChangeStatus, EncounteredEnums, EncounteredFragments, ImportedRawResponseTypes,
-        ImportedResolvers, InputObjectTypes, MatchFields, RuntimeImports,
+        ActorChangeStatus, EncounteredEnums, EncounteredFragment, EncounteredFragments,
+        ImportedRawResponseTypes, ImportedResolvers, InputObjectTypes, MatchFields, RuntimeImports,
     },
     visit::{
         get_data_type, get_input_variables_type, get_operation_type_export,
@@ -55,10 +55,12 @@ pub(crate) fn write_operation_type_exports_section(
     let mut actor_change_status = ActorChangeStatus::NoActorChange;
     let mut runtime_imports = Default::default();
     let mut custom_scalars = CustomScalarsImports::default();
+    let mut input_object_types = Default::default();
 
     let type_selections = visit_selections(
         typgen_context,
         &typegen_operation.selections,
+        &mut input_object_types,
         &mut encountered_enums,
         &mut encountered_fragments,
         &mut imported_resolvers,
@@ -274,9 +276,11 @@ pub(crate) fn write_fragment_type_exports_section(
     let mut imported_resolvers = Default::default();
     let mut actor_change_status = ActorChangeStatus::NoActorChange;
     let mut custom_scalars = CustomScalarsImports::default();
+    let mut input_object_types = Default::default();
     let mut type_selections = visit_selections(
         typgen_context,
         &fragment_definition.selections,
+        &mut input_object_types,
         &mut encountered_enums,
         &mut encountered_fragments,
         &mut imported_resolvers,
@@ -355,6 +359,11 @@ pub(crate) fn write_fragment_type_exports_section(
         ..Default::default()
     };
     write_import_actor_change_point(actor_change_status, writer)?;
+    let input_object_types = input_object_types
+        .into_iter()
+        .map(|(key, val)| (key, val.unwrap_resolved_type()));
+
+    write_input_object_types(input_object_types, writer)?;
     write_fragment_imports(
         typgen_context,
         Some(fragment_definition.name.item),
@@ -408,32 +417,42 @@ fn write_fragment_imports(
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     for current_referenced_fragment in encountered_fragments.0.into_iter().sorted() {
-        // Do not write the fragment if it is the "top-level" fragment that we are
-        // working on.
+        let (current_referenced_fragment, fragment_type_name) = match current_referenced_fragment {
+            EncounteredFragment::Key(current_referenced_fragment) => (
+                current_referenced_fragment,
+                format!("{}$key", current_referenced_fragment),
+            ),
+            EncounteredFragment::Spread(current_referenced_fragment) => (
+                current_referenced_fragment,
+                format!("{}$fragmentType", current_referenced_fragment),
+            ),
+        };
+
         let should_write_current_referenced_fragment = fragment_name_to_skip
             .map_or(true, |fragment_name_to_skip| {
                 fragment_name_to_skip != current_referenced_fragment
             });
 
-        if should_write_current_referenced_fragment {
-            let fragment_type_name = format!("{}$fragmentType", current_referenced_fragment);
-            match typgen_context.project_config.js_module_format {
-                JsModuleFormat::CommonJS => {
-                    if typgen_context.has_unified_output {
-                        writer.write_import_fragment_type(
-                            &[&fragment_type_name],
-                            &format!("./{}.graphql", current_referenced_fragment),
-                        )?;
-                    } else {
-                        writer.write_any_type_definition(&fragment_type_name)?;
-                    }
-                }
-                JsModuleFormat::Haste => {
+        if !should_write_current_referenced_fragment {
+            continue;
+        }
+
+        match typgen_context.project_config.js_module_format {
+            JsModuleFormat::CommonJS => {
+                if typgen_context.has_unified_output {
                     writer.write_import_fragment_type(
                         &[&fragment_type_name],
-                        &format!("{}.graphql", current_referenced_fragment),
+                        &format!("./{}.graphql", current_referenced_fragment),
                     )?;
+                } else {
+                    writer.write_any_type_definition(&fragment_type_name)?;
                 }
+            }
+            JsModuleFormat::Haste => {
+                writer.write_import_fragment_type(
+                    &[&fragment_type_name],
+                    &format!("{}.graphql", current_referenced_fragment),
+                )?;
             }
         }
     }
@@ -456,8 +475,9 @@ fn write_relay_resolver_imports(
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     imported_resolvers.0.sort_keys();
-    for (from, name) in imported_resolvers.0 {
-        writer.write_import_module_default(name.lookup(), from.lookup())?
+    for (from, resolver) in imported_resolvers.0 {
+        writer.write_import_module_default(resolver.resolver_name.lookup(), from.lookup())?;
+        writer.write(&resolver.resolver_type)?;
     }
     Ok(())
 }

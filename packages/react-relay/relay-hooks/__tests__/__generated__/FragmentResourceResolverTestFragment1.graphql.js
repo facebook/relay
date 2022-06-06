@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2685227a907e2a0cad67014826392a38>>
+ * @generated SignedSource<<11bd8f8b325180e98b72605f45b3991d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +16,14 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
+type UserAlwaysThrowsResolver$key = any;
 import type { FragmentType } from "relay-runtime";
 import userAlwaysThrowsResolver from "../../../../relay-runtime/store/__tests__/resolvers/UserAlwaysThrowsResolver.js";
+// Type assertion validating that `userAlwaysThrowsResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userAlwaysThrowsResolver: (
+  rootKey: UserAlwaysThrowsResolver$key, 
+) => mixed);
 declare export opaque type FragmentResourceResolverTestFragment1$fragmentType: FragmentType;
 export type FragmentResourceResolverTestFragment1$data = {|
   +always_throws: ?$Call<<R>((...empty[]) => R) => R, typeof userAlwaysThrowsResolver>,

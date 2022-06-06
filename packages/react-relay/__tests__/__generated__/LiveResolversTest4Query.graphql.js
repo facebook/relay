@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5a72d8e82b9ff5068393aa64bd0fd68a>>
+ * @generated SignedSource<<c4e7a2c4d19cfba7e75ea7488be56829>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+type LivePingPongResolver$key = any;
 import queryPingResolver from "../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver.js";
+// Type assertion validating that `queryPingResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(queryPingResolver: (
+  rootKey: LivePingPongResolver$key, 
+) => mixed);
 export type LiveResolversTest4Query$variables = {||};
 export type LiveResolversTest4Query$data = {|
   +ping: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryPingResolver>["read"]>,

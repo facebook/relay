@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b93751a211daa34cb342b94f97d51006>>
+ * @generated SignedSource<<d286177c6d4258ee61f63f5a9f70ec85>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +16,14 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
+type UserGreetingResolver$key = any;
 import type { FragmentType } from "relay-runtime";
 import userGreetingResolver from "../UserGreetingResolver.js";
+// Type assertion validating that `userGreetingResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userGreetingResolver: (
+  rootKey: UserGreetingResolver$key, 
+) => mixed);
 declare export opaque type UserShoutedGreetingResolver$fragmentType: FragmentType;
 export type UserShoutedGreetingResolver$data = {|
   +greeting: ?$Call<<R>((...empty[]) => R) => R, typeof userGreetingResolver>,

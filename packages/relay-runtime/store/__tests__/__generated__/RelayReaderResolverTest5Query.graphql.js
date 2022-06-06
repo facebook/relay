@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e173c6e0d0c0f23866c9e71dcb228538>>
+ * @generated SignedSource<<e4ed35cc1a9762da1776f948c66fb9b8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+type UserShoutedGreetingResolver$key = any;
 import userShoutedGreetingResolver from "../resolvers/UserShoutedGreetingResolver.js";
+// Type assertion validating that `userShoutedGreetingResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userShoutedGreetingResolver: (
+  rootKey: UserShoutedGreetingResolver$key, 
+) => mixed);
 export type RelayReaderResolverTest5Query$variables = {||};
 export type RelayReaderResolverTest5Query$data = {|
   +me: ?{|

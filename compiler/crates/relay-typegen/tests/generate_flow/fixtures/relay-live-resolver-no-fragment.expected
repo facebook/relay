@@ -12,6 +12,9 @@ extend type User {
 }
 ==================================== OUTPUT ===================================
 import userPopStarNameResolver from "PopStarNameResolver";
+// Type assertion validating that `userPopStarNameResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userPopStarNameResolver: () => mixed);
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|

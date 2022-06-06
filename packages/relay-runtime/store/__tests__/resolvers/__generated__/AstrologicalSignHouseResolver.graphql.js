@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5b48110aa623eaab31a23fcf98eee6e0>>
+ * @generated SignedSource<<201eb25e1e81a782f562bedfa7605ba4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +16,14 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
+type AstrologicalSignSelfResolver$key = any;
 import type { FragmentType } from "relay-runtime";
 import astrologicalSignSelfResolver from "../AstrologicalSignSelfResolver.js";
+// Type assertion validating that `astrologicalSignSelfResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(astrologicalSignSelfResolver: (
+  rootKey: AstrologicalSignSelfResolver$key, 
+) => mixed);
 declare export opaque type AstrologicalSignHouseResolver$fragmentType: FragmentType;
 export type AstrologicalSignHouseResolver$data = {|
   +self: ?$Call<<R>((...empty[]) => R) => R, typeof astrologicalSignSelfResolver>,

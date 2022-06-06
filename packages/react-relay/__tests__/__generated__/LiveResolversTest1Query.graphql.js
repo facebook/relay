@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<864aa3f2ac29518cf19e93d903ea97a2>>
+ * @generated SignedSource<<e9ed00320ad0b80c034452f57eb47720>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+type LiveCounterResolver$key = any;
 import queryCounterResolver from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterResolver.js";
+// Type assertion validating that `queryCounterResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(queryCounterResolver: (
+  rootKey: LiveCounterResolver$key, 
+) => mixed);
 export type LiveResolversTest1Query$variables = {||};
 export type LiveResolversTest1Query$data = {|
   +counter: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterResolver>["read"]>,

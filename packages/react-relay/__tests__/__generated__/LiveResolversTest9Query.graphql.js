@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8b2366dcec9ccbd587f89ecf8fd638cc>>
+ * @generated SignedSource<<c5498c15b218393f9cc7dc53d2b9bdc6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key = any;
 import userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolver from "../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js";
+// Type assertion validating that `userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolver: (
+  rootKey: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key, 
+  args: {|
+    scale: ?number,
+  |}, 
+) => mixed);
 export type LiveResolversTest9Query$variables = {|
   id: string,
   scale: number,

@@ -59,10 +59,6 @@ pub struct RelayResolverMetadata {
 }
 associated_data_impl!(RelayResolverMetadata);
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct RelayResolverInlineFragmentMetadata;
-associated_data_impl!(RelayResolverInlineFragmentMetadata);
-
 /// Convert fields with Relay Resolver metadata attached to them into fragment spreads.
 fn relay_resolvers_spread_transform(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = RelayResolverSpreadTransform::new(program);
@@ -137,17 +133,11 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                     directives: new_directives,
                 }))
             } else {
-                let inline_fragment_metadata = RelayResolverInlineFragmentMetadata {};
-                Selection::InlineFragment(Arc::new(InlineFragment {
-                    type_condition: None,
-                    directives: [vec![inline_fragment_metadata.into()], new_directives].concat(),
-                    selections: vec![Selection::ScalarField(Arc::new(ScalarField {
-                        alias: None,
-                        definition: WithLocation::generated(self.program.schema.typename_field()),
-                        arguments: vec![],
-                        directives: vec![],
-                    }))],
-                    spread_location: Location::generated(),
+                Selection::ScalarField(Arc::new(ScalarField {
+                    alias: None,
+                    definition: WithLocation::generated(self.program.schema.typename_field()),
+                    arguments: vec![],
+                    directives: new_directives,
                 }))
             }
         })

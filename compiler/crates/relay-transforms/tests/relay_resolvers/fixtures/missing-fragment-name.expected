@@ -10,9 +10,7 @@ extend type User {
 }
 ==================================== OUTPUT ===================================
 fragment Foo_user on User {
-  ... @__RelayResolverInlineFragmentMetadata
-  # RelayResolverInlineFragmentMetadata
-   @__RelayResolverMetadata
+  __typename @__RelayResolverMetadata
   # RelayResolverMetadata {
   #     field_parent_type: "User",
   #     import_path: "PopStarNameResolver",
@@ -22,9 +20,7 @@ fragment Foo_user on User {
   #     field_arguments: [],
   #     live: true,
   # }
-   {
-    __typename
-  }
+  
 }
 
 # Implicit Dependencies:

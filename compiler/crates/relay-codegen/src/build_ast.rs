@@ -508,6 +508,23 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     }
 
     fn build_scalar_field_and_handles(&mut self, field: &ScalarField) -> Vec<Primitive> {
+        if let Some(resolver_metadata) = RelayResolverMetadata::find(&field.directives) {
+            return match self.variant {
+                CodegenVariant::Reader => {
+                    let resolver_primitive = self.build_relay_resolver(None, resolver_metadata);
+                    if let Some(required_metadata) =
+                        RequiredMetadataDirective::find(&field.directives)
+                    {
+                        vec![self.build_required_field(required_metadata, resolver_primitive)]
+                    } else {
+                        vec![resolver_primitive]
+                    }
+                }
+                CodegenVariant::Normalization => {
+                    vec![self.build_scalar_field(field)]
+                }
+            };
+        }
         match self.variant {
             CodegenVariant::Reader => vec![self.build_scalar_field(field)],
             CodegenVariant::Normalization => {
@@ -1070,34 +1087,6 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         kind: Primitive::String(CODEGEN_CONSTANTS.client_extension),
                         selections: selections,
                     }))
-                } else if let Some(resolver_metadata) =
-                    RelayResolverMetadata::find(&inline_frag.directives)
-                {
-                    match self.variant {
-                        CodegenVariant::Reader => {
-                            let resolver_primitive =
-                                self.build_relay_resolver(None, resolver_metadata);
-                            if let Some(required_metadata) =
-                                RequiredMetadataDirective::find(&inline_frag.directives)
-                            {
-                                self.build_required_field(required_metadata, resolver_primitive)
-                            } else {
-                                resolver_primitive
-                            }
-                        }
-                        CodegenVariant::Normalization => {
-                            if let Some(Selection::ScalarField(scalar)) =
-                                inline_frag.selections.first()
-                            {
-                                self.build_scalar_field(scalar)
-                            } else {
-                                panic!(
-                                    "Expected a single `__typename` selection on the Relay Resolver inline fragment. Got {:?}.",
-                                    &inline_frag
-                                );
-                            }
-                        }
-                    }
                 } else {
                     // TODO(T63559346): Handle anonymous inline fragments with no directives
                     panic!(

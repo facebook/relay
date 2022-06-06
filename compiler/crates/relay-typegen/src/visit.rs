@@ -114,14 +114,33 @@ pub(crate) fn visit_selections(
                     },
                 )
             }
-            Selection::ScalarField(scalar_field) => visit_scalar_field(
-                typegen_context,
-                &mut type_selections,
-                scalar_field,
-                encountered_enums,
-                custom_scalars,
-                enclosing_linked_field_concrete_type,
-            ),
+            Selection::ScalarField(scalar_field) => {
+                if let Some(resolver_metadata) =
+                    RelayResolverMetadata::find(&scalar_field.directives)
+                {
+                    visit_relay_resolver(
+                        typegen_context,
+                        None,
+                        input_object_types,
+                        encountered_enums,
+                        custom_scalars,
+                        encountered_fragments,
+                        &mut type_selections,
+                        resolver_metadata,
+                        RequiredMetadataDirective::find(&scalar_field.directives).is_some(),
+                        imported_resolvers,
+                    );
+                } else {
+                    visit_scalar_field(
+                        typegen_context,
+                        &mut type_selections,
+                        scalar_field,
+                        encountered_enums,
+                        custom_scalars,
+                        enclosing_linked_field_concrete_type,
+                    )
+                }
+            }
             Selection::Condition(condition) => visit_condition(
                 typegen_context,
                 &mut type_selections,
@@ -395,20 +414,6 @@ fn visit_inline_fragment(
             actor_change_status,
             custom_scalars,
             enclosing_linked_field_concrete_type,
-        );
-    } else if let Some(resolver_metadata) = RelayResolverMetadata::find(&inline_fragment.directives)
-    {
-        visit_relay_resolver(
-            typegen_context,
-            None,
-            input_object_types,
-            encountered_enums,
-            custom_scalars,
-            encountered_fragments,
-            type_selections,
-            resolver_metadata,
-            RequiredMetadataDirective::find(&inline_fragment.directives).is_some(),
-            imported_resolvers,
         );
     } else {
         let mut inline_selections = visit_selections(

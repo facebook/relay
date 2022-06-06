@@ -13,7 +13,7 @@ import type { Assignable_viewer$fragmentType } from "Assignable_viewer.graphql";
 export type Foo$variables = {||};
 export type Foo$data = {|
   +viewer: ?{|
-    +__typename: string,
+    +__typename: "Viewer",
     +__id: string,
     +$fragmentSpreads: Assignable_viewer$fragmentType,
   |},

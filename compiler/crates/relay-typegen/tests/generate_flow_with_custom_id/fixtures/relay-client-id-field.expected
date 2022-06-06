@@ -33,7 +33,7 @@ export type RelayClientIDFieldQuery$variables = {|
 export type RelayClientIDFieldQuery$data = {|
   +__id: string,
   +me: ?{|
-    +__typename: string,
+    +__typename: "User",
     +__id: string,
     +global_id: string,
   |},
@@ -44,7 +44,7 @@ export type RelayClientIDFieldQuery$data = {|
       +__typename: string,
       +__id: string,
       +text?: ?{|
-        +__typename: string,
+        +__typename: "Text",
         +__id: string,
         +text: ?string,
       |},

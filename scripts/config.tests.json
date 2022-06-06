@@ -21,9 +21,6 @@
         "packages/relay-test-utils-internal/schema-extensions"
       ],
       "jsModuleFormat": "commonjs",
-      "preciseTypenameTypesWithinLinkedFields": {
-        "kind": "enabled"
-      },
       "featureFlags": {
         "enable_relay_resolver_transform": true,
         "enable_flight_transform": true,

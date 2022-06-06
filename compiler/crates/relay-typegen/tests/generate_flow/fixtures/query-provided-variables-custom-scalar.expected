@@ -36,7 +36,7 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type FragmentWithJSONProvidedVar$fragmentType: FragmentType;
 export type FragmentWithJSONProvidedVar$data = {|
   +profilePicture2: ?{|
-    +__typename: string,
+    +__typename: "Image",
   |},
   +$fragmentType: FragmentWithJSONProvidedVar$fragmentType,
 |};

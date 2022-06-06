@@ -651,13 +651,7 @@ fn visit_scalar_field(
         &typegen_context.project_config.schema_config,
     );
 
-    if typegen_context
-        .project_config
-        .typegen_config
-        .precise_typename_types_within_linked_fields
-        .is_enabled_for(typegen_context.definition_source_location.item)
-        && matches!(special_field, Some(ScalarFieldSpecialSchemaField::TypeName))
-    {
+    if matches!(special_field, Some(ScalarFieldSpecialSchemaField::TypeName)) {
         if let Some(concrete_type) = enclosing_linked_field_concrete_type {
             // If we are creating a typename selection within a linked field with a concrete type, we generate
             // the type e.g. "User", i.e. the concrete string name of the concrete type.

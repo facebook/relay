@@ -21,9 +21,6 @@ fragment refetchableFragmentWithConnectionEsModules_PaginationFragment on Node
 
 %project_config%
 {
-  "preciseTypenameTypesWithinLinkedFields": {
-      "kind": "enabled"
-  },
   "eagerEsModules": true,
   "language": "flow"
 }

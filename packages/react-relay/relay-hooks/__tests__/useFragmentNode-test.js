@@ -12,6 +12,8 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+
+import type {RecordSourceProxy} from '../../../relay-runtime/store/RelayStoreTypes';
 import type {
   useFragmentNodeTestUserFragment$data,
   useFragmentNodeTestUserFragment$fragmentType,
@@ -1447,6 +1449,81 @@ describe.each([
           },
         ]);
       });
+    });
+
+    it('checks for missed updates, subscribing to the latest snapshot even if fragment data is unchanged', () => {
+      // Render the component, updating the store to simulate concurrent modifications during async render
+      let pendingUpdate: any = null;
+      const SideEffectfulComponent = ({user}: any) => {
+        if (pendingUpdate) {
+          environment.commitUpdate(pendingUpdate);
+          pendingUpdate = null;
+        }
+        return user.id;
+      };
+      // $FlowFixMe[incompatible-type]
+      SingularRenderer = SideEffectfulComponent;
+
+      // Render with profile_picture initially set to the default client record, with null uri
+      environment.commitPayload(singularQuery, {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+          profile_picture: {
+            uri: null,
+          },
+          username: null,
+        },
+      });
+      // But during render, update profile_picture to point to a different image, also with a
+      // null uri. The fragment result does not change, but the set of ids to subscribe to changes
+      pendingUpdate = (store: RecordSourceProxy) => {
+        const userRecord = store.get('1');
+        const picture = store.create('profile_picture_id', 'Image');
+        picture.setValue(null, 'uri');
+        userRecord?.setLinkedRecord(picture, 'profile_picture', {
+          scale: singularVariables.scale,
+        });
+      };
+      internalAct(() => {
+        renderSingularFragment();
+        jest.runAllTimers();
+      });
+      assertFragmentResults([
+        {
+          data: {
+            id: '1',
+            name: 'Alice',
+            profile_picture: {
+              uri: null,
+            },
+            ...createFragmentRef('1', singularQuery),
+          },
+        },
+      ]);
+
+      // Now update the new profile picture to set its uri to confirm that the component is
+      // correctly subscribed to the changed profile picture relationship in the graph.
+      internalAct(() => {
+        environment.commitUpdate((store: RecordSourceProxy) => {
+          const picture = store.get('profile_picture_id');
+          picture?.setValue('uri16', 'uri');
+        });
+        jest.runAllTimers();
+      });
+      assertFragmentResults([
+        {
+          data: {
+            id: '1',
+            name: 'Alice',
+            profile_picture: {
+              uri: 'uri16', // updated from previous null value
+            },
+            ...createFragmentRef('1', singularQuery),
+          },
+        },
+      ]);
     });
 
     it('should subscribe for updates to plural fragments even if there is missing data', () => {

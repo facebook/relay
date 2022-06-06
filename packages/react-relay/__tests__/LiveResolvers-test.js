@@ -12,6 +12,7 @@
 'use strict';
 
 import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
+import type {IEnvironment} from 'relay-runtime';
 
 const React = require('react');
 const {
@@ -876,4 +877,64 @@ test('Missing data is not clobbered by non-null empty missingLiveResolverFields 
   const snapshot = environment.lookup(operation.fragment);
   expect(snapshot.missingLiveResolverFields).toEqual([]);
   expect(snapshot.isMissingData).toBe(true);
+});
+
+test('with client-only field', () => {
+  let renderer;
+
+  function InnerTestComponent() {
+    const data = useLazyLoadQuery(
+      graphql`
+        query LiveResolversTest11Query {
+          counter_no_fragment
+        }
+      `,
+      {},
+      {fetchPolicy: 'store-only'},
+    );
+    return data.counter_no_fragment;
+  }
+
+  function TestComponent({environment}: {|environment: IEnvironment|}) {
+    return (
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Loading...">
+          <InnerTestComponent />
+        </React.Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+
+  function createEnvironment(source: MutableRecordSource) {
+    return new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store: new LiveResolverStore(source),
+    });
+  }
+
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+  const environment = createEnvironment(source);
+
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(<TestComponent environment={environment} />);
+  });
+
+  if (renderer == null) {
+    throw new Error('Renderer is expected to be defined.');
+  }
+
+  expect(renderer.toJSON()).toEqual('0');
+  TestRenderer.act(() => {
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+  });
+  expect(renderer.toJSON()).toEqual('1');
+  TestRenderer.act(() => {
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+  });
+  expect(renderer.toJSON()).toEqual('2');
 });

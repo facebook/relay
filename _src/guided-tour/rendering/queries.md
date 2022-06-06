@@ -76,6 +76,7 @@ To *render* a query in Relay, you can use the `usePreloadedQuery` hook. `usePrel
 
 ```js
 import type {HomeTabQuery} from 'HomeTabQuery.graphql';
+import type {PreloadedQuery} from 'react-relay';
 
 const React = require('React');
 const {graphql, usePreloadedQuery} = require('react-relay');

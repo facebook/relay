@@ -938,3 +938,71 @@ test('with client-only field', () => {
   });
   expect(renderer.toJSON()).toEqual('2');
 });
+
+test('with client-only field and args', () => {
+  let renderer;
+
+  function InnerTestComponent({prefix}: {|prefix: string|}) {
+    const data = useLazyLoadQuery(
+      graphql`
+        query LiveResolversTest12Query($prefix: String!) {
+          counter_no_fragment_with_arg(prefix: $prefix)
+        }
+      `,
+      {prefix},
+      {fetchPolicy: 'store-only'},
+    );
+    return data.counter_no_fragment_with_arg;
+  }
+
+  function TestComponent({
+    environment,
+    ...rest
+  }: {|
+    environment: IEnvironment,
+    prefix: string,
+  |}) {
+    return (
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Loading...">
+          <InnerTestComponent {...rest} />
+        </React.Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+
+  function createEnvironment(source: MutableRecordSource) {
+    return new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store: new LiveResolverStore(source),
+    });
+  }
+
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+  const environment = createEnvironment(source);
+
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <TestComponent prefix="Counter is" environment={environment} />,
+    );
+  });
+
+  if (renderer == null) {
+    throw new Error('Renderer is expected to be defined.');
+  }
+
+  expect(renderer.toJSON()).toEqual('Counter is 0');
+  TestRenderer.act(() => {
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+  });
+  expect(renderer.toJSON()).toEqual('Counter is 1');
+  TestRenderer.act(() => {
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+  });
+  expect(renderer.toJSON()).toEqual('Counter is 2');
+});

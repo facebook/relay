@@ -21,7 +21,14 @@ const {
   getRequest,
   graphql,
 } = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 const response = {
   data: {
@@ -249,6 +256,7 @@ describe('fetchQuery with missing @required value', () => {
     environment.mock.nextValue(queryNode, {
       data: {
         me: {
+          id: 'ID-1',
           name: null,
         },
       },
@@ -280,7 +288,9 @@ describe('fetchQuery with missing @required value', () => {
     expect(observer.next).not.toHaveBeenCalled();
     expect(observer.error).not.toHaveBeenCalled();
 
-    environment.mock.nextValue(queryNode, {data: {me: {name: null}}});
+    environment.mock.nextValue(queryNode, {
+      data: {me: {id: 'ID-1', name: null}},
+    });
     subscription.unsubscribe();
     expect(requiredFieldLogger).toHaveBeenCalledWith({
       fieldPath: 'me.name',
@@ -313,7 +323,9 @@ describe('fetchQuery with missing @required value', () => {
     const observer = {next: jest.fn(), error: jest.fn()};
     const subscription = fetchQuery(environment, query, {}).subscribe(observer);
     const queryNode = getRequest(query);
-    environment.mock.nextValue(queryNode, {data: {me: {name: null}}});
+    environment.mock.nextValue(queryNode, {
+      data: {me: {id: 'ID-1', name: null}},
+    });
 
     subscription.unsubscribe();
 

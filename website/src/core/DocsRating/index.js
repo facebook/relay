@@ -51,7 +51,7 @@ function Wrapper({children}) {
 
 const FeedbackButtons = () => {
   const [hasProvidedFeedback, setHasProvidedFeedback] = React.useState(false);
-  const provideFeedback = (value) => {
+  const provideFeedback = value => {
     setHasProvidedFeedback(true);
     provideFeedbackToGoogleAnalytics(value);
   };

@@ -40,5 +40,14 @@
     "highlight.js": "^10.4.1",
     "shelljs": "^0.8.5",
     "ansi-html": "0.0.8"
+  },
+  "prettier": {
+    "arrowParens": "avoid",
+    "bracketSameLine": true,
+    "bracketSpacing": false,
+    "requirePragma": true,
+    "singleQuote": true,
+    "trailingComma": "all",
+    "parser": "flow"
   }
 }

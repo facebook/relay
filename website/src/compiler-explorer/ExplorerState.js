@@ -30,14 +30,14 @@ export function useExplorerState() {
 
   const actionHandlers = useMemo(() => {
     return {
-      setSchemaText: (schemaText) =>
+      setSchemaText: schemaText =>
         dispatch({type: 'UPDATE_SCHEMA', schemaText}),
-      setDocumentText: (documentText) =>
+      setDocumentText: documentText =>
         dispatch({type: 'UPDATE_DOCUMENT', documentText}),
       setFeatureFlag: (flag, value) =>
         dispatch({type: 'SET_FEATURE_FLAG', flag, value}),
-      setLanguage: (language) => dispatch({type: 'SET_LANGUAGE', language}),
-      setOutputType: (outputType) =>
+      setLanguage: language => dispatch({type: 'SET_LANGUAGE', language}),
+      setOutputType: outputType =>
         dispatch({type: 'SET_OUTPUT_TYPE', outputType}),
     };
   }, []);

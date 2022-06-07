@@ -97,7 +97,7 @@ function CompilerExplorer() {
               {value: 'types', label: 'Types'},
             ]}
             selectedValue={state.outputType}
-            setSelectedValue={(selected) => setOutputType(selected)}
+            setSelectedValue={selected => setOutputType(selected)}
           />
         </div>
       </div>
@@ -148,7 +148,7 @@ function Config({featureFlags, setFeatureFlag}) {
             <input
               type="checkbox"
               checked={featureFlags[key]}
-              onChange={(e) => setFeatureFlag(key, e.target.checked)}
+              onChange={e => setFeatureFlag(key, e.target.checked)}
             />
             {label}
           </label>
@@ -163,7 +163,7 @@ function TypegenConfig({setLanguage, language}) {
     <div>
       <label>
         Type Generation Language:
-        <select onChange={(e) => setLanguage(e.target.value)} value={language}>
+        <select onChange={e => setLanguage(e.target.value)} value={language}>
           <option value="flow">Flow</option>
           <option value="typescript">TypeScript</option>
         </select>

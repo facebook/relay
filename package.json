@@ -15,6 +15,7 @@
     "postinstall": "npm run build",
     "prepublishOnly": "npm run build:clean",
     "prettier": "find . -name node_modules -prune -or -name dist -prune -or -name '*.js' -print | xargs prettier --write",
+    "prettier-check": "find . -name node_modules -prune -or -name dist -prune -or -name '*.js' -print | xargs prettier --check",
     "test": "f() { EXIT=0; npm run typecheck || EXIT=$?; npm run test-dependencies || EXIT=$?; npm run jest \"$@\" || EXIT=$?; exit $EXIT; }; f",
     "test-dependencies": "node ./scripts/testDependencies.js",
     "typecheck": "flow check"
@@ -76,12 +77,13 @@
     "npm": ">=2.x"
   },
   "prettier": {
+    "arrowParens": "avoid",
     "bracketSameLine": true,
     "bracketSpacing": false,
-    "parser": "flow",
     "requirePragma": true,
     "singleQuote": true,
-    "trailingComma": "all"
+    "trailingComma": "all",
+    "parser": "flow"
   },
   "jest": {
     "testRegex": "/__tests__/.*-test\\.js$",

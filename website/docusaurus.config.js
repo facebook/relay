@@ -224,8 +224,7 @@ module.exports = {
             external: [
               'current',
               ...versions.filter(
-                (version) =>
-                  version !== 'experimental' && version !== 'classic',
+                version => version !== 'experimental' && version !== 'classic',
               ),
             ],
           }),

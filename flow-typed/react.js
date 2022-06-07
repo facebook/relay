@@ -122,7 +122,7 @@ declare module react {
 
   declare export function useState<S>(
     initialState: (() => S) | S,
-  ): [S, (((S) => S) | S) => void];
+  ): [S, ((S => S) | S) => void];
 
   declare type Dispatch<A> = (A) => void;
 

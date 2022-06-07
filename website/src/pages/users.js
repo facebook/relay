@@ -16,7 +16,7 @@ import * as React from 'react';
 
 const Users = () => {
   const {siteConfig} = useDocusaurusContext();
-  const showcase = siteConfig.customFields.users.map((user) => {
+  const showcase = siteConfig.customFields.users.map(user => {
     return (
       <a href={user.infoLink} key={user.caption}>
         <img src={user.image} title={user.caption} />
@@ -43,7 +43,7 @@ const Users = () => {
   );
 };
 
-export default (props) => (
+export default props => (
   <Layout>
     <Users {...props} />
   </Layout>

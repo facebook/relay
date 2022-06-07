@@ -134,10 +134,13 @@
     }
   },
   "prettier": {
+    "arrowParens": "avoid",
     "bracketSameLine": true,
-    "bracketSpacing": true,
+    "bracketSpacing": false,
+    "requirePragma": true,
     "singleQuote": true,
-    "trailingComma": "all"
+    "trailingComma": "all",
+    "parser": "flow"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

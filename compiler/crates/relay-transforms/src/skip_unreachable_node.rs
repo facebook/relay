@@ -18,44 +18,42 @@ use std::sync::Arc;
 use thiserror::Error;
 
 enum ValidationMode {
-    Strict,
+    Strict(Vec<Diagnostic>),
     Loose,
 }
 
 pub fn skip_unreachable_node_strict(program: &Program) -> DiagnosticsResult<Program> {
-    skip_unreachable_node(program, ValidationMode::Strict)
+    let errors = vec![];
+    let mut validation_mode = ValidationMode::Strict(errors);
+    let next_program = skip_unreachable_node(program, &mut validation_mode);
+
+    if let ValidationMode::Strict(errors) = validation_mode {
+        if !errors.is_empty() {
+            return Err(errors);
+        }
+    }
+    Ok(next_program)
 }
 
 pub fn skip_unreachable_node_loose(program: &Program) -> Program {
-    skip_unreachable_node(program, ValidationMode::Loose).unwrap_or_else(|error| {
-        panic!(
-            "Unexpected error in `skip_unreachable_node_loose`: {:?}",
-            error
-        )
-    })
+    let mut validation_mode = ValidationMode::Loose;
+    skip_unreachable_node(program, &mut validation_mode)
 }
 
-fn skip_unreachable_node(
-    program: &Program,
-    validation_mode: ValidationMode,
-) -> DiagnosticsResult<Program> {
+fn skip_unreachable_node(program: &Program, validation_mode: &mut ValidationMode) -> Program {
     let mut skip_unreachable_node_transform =
         SkipUnreachableNodeTransform::new(program, validation_mode);
     let transformed = skip_unreachable_node_transform.transform_program(program);
-    if skip_unreachable_node_transform.errors.is_empty() {
-        Ok(transformed.replace_or_else(|| program.clone()))
-    } else {
-        Err(skip_unreachable_node_transform.errors)
-    }
+
+    transformed.replace_or_else(|| program.clone())
 }
 
 type VisitedFragments = StringKeyMap<(Arc<FragmentDefinition>, Transformed<FragmentDefinition>)>;
 
 pub struct SkipUnreachableNodeTransform<'s> {
-    errors: Vec<Diagnostic>,
     visited_fragments: VisitedFragments,
     program: &'s Program,
-    validation_mode: ValidationMode,
+    validation_mode: &'s mut ValidationMode,
 }
 
 impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
@@ -86,8 +84,8 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
         for operation in program.operations() {
             match self.transform_operation(operation) {
                 Transformed::Delete => {
-                    if matches!(self.validation_mode, ValidationMode::Strict) {
-                        self.errors.push(Diagnostic::error(
+                    if let ValidationMode::Strict(errors) = &mut self.validation_mode {
+                        errors.push(Diagnostic::error(
                             ValidationMessage::EmptySelectionsInDocument {
                                 document: "query",
                                 name: operation.name.item,
@@ -121,8 +119,8 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
             } else {
                 match self.transform_fragment(fragment) {
                     Transformed::Delete => {
-                        if matches!(self.validation_mode, ValidationMode::Strict) {
-                            self.errors.push(Diagnostic::error(
+                        if let ValidationMode::Strict(errors) = &mut self.validation_mode {
+                            errors.push(Diagnostic::error(
                                 ValidationMessage::EmptySelectionsInDocument {
                                     document: "fragment",
                                     name: fragment.name.item,
@@ -227,9 +225,8 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
 }
 
 impl<'s> SkipUnreachableNodeTransform<'s> {
-    fn new(program: &'s Program, validation_mode: ValidationMode) -> Self {
+    fn new(program: &'s Program, validation_mode: &'s mut ValidationMode) -> Self {
         Self {
-            errors: Vec::new(),
             visited_fragments: Default::default(),
             program,
             validation_mode,

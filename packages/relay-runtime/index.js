@@ -119,8 +119,8 @@ export type {
   FragmentMap,
   // DEPRECATED: use FragmentType instead of FragmentReference
   FragmentType as FragmentReference,
-  FragmentType,
   FragmentSpecResolver,
+  FragmentType,
   HandleFieldPayload,
   HasUpdatableSpread,
   IEnvironment,
@@ -130,6 +130,7 @@ export type {
   MissingFieldHandler,
   MissingRequiredFields,
   ModuleImportPointer,
+  MutableRecordSource,
   MutationParameters,
   NormalizationSelector,
   OperationAvailability,

@@ -341,9 +341,9 @@ describe('fetchQuery with missing @required value', () => {
 test('client-only query with error', () => {
   const fetchFn = jest.fn((params: RequestParameters) => {
     if (params.id === null && params.text == null) {
-      throw new Error('Exected ID or Text');
+      throw new Error('Expected ID or Text');
     }
-    throw new Error('Unexeptected Input');
+    throw new Error('Unexpected Input');
   });
   const environment = new Environment({
     store: new Store(new RecordSource()),
@@ -358,5 +358,5 @@ test('client-only query with error', () => {
   fetchQuery(environment, query, {}).subscribe(observer);
 
   expect(observer.next).not.toBeCalled();
-  expect(observer.error).toBeCalledWith(new Error('Exected ID or Text'));
+  expect(observer.error).toBeCalledWith(new Error('Expected ID or Text'));
 });

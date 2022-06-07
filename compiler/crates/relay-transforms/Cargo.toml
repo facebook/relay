@@ -109,7 +109,7 @@ itertools = "0.10.3"
 lazy_static = "1.0"
 once_cell = "1.8"
 parking_lot = { version = "0.11.2", features = ["send_guard"] }
-regex = "1.5.4"
+regex = "1.5.5"
 relay-config = { path = "../relay-config" }
 schema = { path = "../schema" }
 thiserror = "1.0.30"

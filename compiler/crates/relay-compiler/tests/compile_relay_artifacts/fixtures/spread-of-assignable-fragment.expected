@@ -249,6 +249,7 @@ fragment spreadOfAssignableFragmentAssignable_node on Node @assignable {
     ]
   },
   "params": {
+    "cacheID": "ce914fc61943f66dbd7680da49e327fa",
     "id": null,
     "metadata": {},
     "name": "spreadOfAssignableFragmentQuery",

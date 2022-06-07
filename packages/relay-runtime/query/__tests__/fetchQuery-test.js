@@ -14,9 +14,14 @@
 'use strict';
 
 import type {fetchQueryTest1Query$data} from './__generated__/fetchQueryTest1Query.graphql';
+import type {RequestParameters} from 'relay-runtime';
 
 const fetchQuery = require('../fetchQuery');
 const {
+  Environment,
+  Network,
+  RecordSource,
+  Store,
   createOperationDescriptor,
   getRequest,
   graphql,
@@ -331,4 +336,27 @@ describe('fetchQuery with missing @required value', () => {
 
     expect(observer.error).not.toHaveBeenCalled();
   });
+});
+
+test('client-only query with error', () => {
+  const fetchFn = jest.fn((params: RequestParameters) => {
+    if (params.id === null && params.text == null) {
+      throw new Error('Exected ID or Text');
+    }
+    throw new Error('Unexeptected Input');
+  });
+  const environment = new Environment({
+    store: new Store(new RecordSource()),
+    network: Network.create(fetchFn),
+  });
+  const query = graphql`
+    query fetchQueryTest5Query {
+      client_root_field
+    }
+  `;
+  const observer = {next: jest.fn(), error: jest.fn()};
+  fetchQuery(environment, query, {}).subscribe(observer);
+
+  expect(observer.next).not.toBeCalled();
+  expect(observer.error).toBeCalledWith(new Error('Exected ID or Text'));
 });

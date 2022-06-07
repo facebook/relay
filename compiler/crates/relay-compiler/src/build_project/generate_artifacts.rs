@@ -170,7 +170,9 @@ fn generate_normalization_artifact(
     source_hash: String,
     source_file: SourceLocationKey,
 ) -> Artifact {
-    let text = operation_printer.print(operations.expect_operation_text());
+    let text = operations
+        .operation_text
+        .map(|operation| operation_printer.print(operation));
     Artifact {
         source_definition_names: vec![source_definition_name],
         path: project_config.path_for_artifact(source_file, operations.normalization.name.item),
@@ -238,15 +240,6 @@ struct OperationGroup<'a> {
 }
 
 impl<'a> OperationGroup<'a> {
-    fn expect_operation_text(&self) -> &OperationDefinition {
-        self.operation_text.unwrap_or_else(|| {
-            panic!(
-                "Expected to have a operation_text operation for `{}`",
-                self.normalization.name.item
-            )
-        })
-    }
-
     fn expect_reader(&self) -> Arc<OperationDefinition> {
         Arc::clone(self.reader.unwrap_or_else(|| {
             panic!(

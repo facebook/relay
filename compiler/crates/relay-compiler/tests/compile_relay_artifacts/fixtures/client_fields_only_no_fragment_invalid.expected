@@ -1,6 +1,4 @@
 ==================================== INPUT ====================================
-# expected-to-throw
-
 query clientFieldsOnlyNoFragmentInvalidQuery {
   my_alias: client_field
 }
@@ -10,11 +8,60 @@ query clientFieldsOnlyNoFragmentInvalidQuery {
 extend type Query {
   client_field: String
 }
-==================================== ERROR ====================================
-✖︎ After transforms, the operation `clientFieldsOnlyNoFragmentInvalidQuery` that would be sent to the server is empty. Relay is not setup to handle such queries. This is likely due to only querying for client extension fields or `@skip`/`@include` directives with constant values that remove all selections.
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "clientFieldsOnlyNoFragmentInvalidQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": "my_alias",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "clientFieldsOnlyNoFragmentInvalidQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": "my_alias",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "80d5eb8d7136ee47500dc8169d046343",
+    "id": null,
+    "metadata": {},
+    "name": "clientFieldsOnlyNoFragmentInvalidQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
 
-  client_fields_only_no_fragment_invalid.graphql:3:7
-    2 │ 
-    3 │ query clientFieldsOnlyNoFragmentInvalidQuery {
-      │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    4 │   my_alias: client_field
+QUERY:
+
+Query Text is Empty.

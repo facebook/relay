@@ -118,11 +118,13 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 format!("{}{}", import_statements, operation)
             } else {
                 let name = operation.name.item;
-                let print_operation_node = programs
-                    .operation_text
-                    .operation(name)
-                    .expect("a query text operation should be generated for this operation");
-                let text = print_full_operation(&programs.operation_text, print_operation_node);
+                let print_operation_node = programs.operation_text.operation(name);
+                let text = print_operation_node.map_or_else(
+                    || "Query Text is Empty.".to_string(),
+                    |print_operation_node| {
+                        print_full_operation(&programs.operation_text, print_operation_node)
+                    },
+                );
 
                 let reader_operation = programs
                     .reader

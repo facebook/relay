@@ -175,6 +175,7 @@ fragment providedVariableInFragment_Fragment2 on User
     ]
   },
   "params": {
+    "cacheID": "cc39eff012bd94ed7e81152d202bede3",
     "id": null,
     "metadata": {},
     "name": "providedVariableInFragment_Query",

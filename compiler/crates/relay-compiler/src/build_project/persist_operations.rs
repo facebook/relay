@@ -51,7 +51,7 @@ pub async fn persist_operations(
                 {
                     *id_and_text_hash = Some(QueryID::External(virtual_id_file_name));
                     None
-                } else {
+                } else if let Some(text) = text {
                     let text_hash = md5(text);
                     let artifact_path = root_dir.join(&artifact.path);
                     let extracted_persist_id = if config.repersist_operations {
@@ -70,6 +70,8 @@ pub async fn persist_operations(
                             })
                         })
                     }
+                } else {
+                    None
                 }
             } else {
                 None

@@ -106,6 +106,7 @@ fragment abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_ActorFrag
     ]
   },
   "params": {
+    "cacheID": "7f1d413029d4f6717a12f1141f0f9c61",
     "id": null,
     "metadata": {},
     "name": "abstractTypeRefinementDontSkipTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery",

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e4621ccda40afdd16adb63259fcadc14>>
+ * @generated SignedSource<<6b361a30c876d473dc27306f68ef4544>>
  */
 
 mod compile_relay_artifacts;
@@ -248,6 +248,13 @@ fn client_linked_fields() {
     let input = include_str!("compile_relay_artifacts/fixtures/client-linked-fields.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client-linked-fields.expected");
     test_fixture(transform_fixture, "client-linked-fields.graphql", "compile_relay_artifacts/fixtures/client-linked-fields.expected", input, expected);
+}
+
+#[test]
+fn client_only_query() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-only-query.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-only-query.expected");
+    test_fixture(transform_fixture, "client-only-query.graphql", "compile_relay_artifacts/fixtures/client-only-query.expected", input, expected);
 }
 
 #[test]

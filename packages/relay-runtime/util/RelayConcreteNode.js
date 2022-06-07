@@ -61,7 +61,7 @@ export type RequestParameters =
   | {|
       +cacheID: string,
       +id: null,
-      +text: string,
+      +text: string | null,
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',

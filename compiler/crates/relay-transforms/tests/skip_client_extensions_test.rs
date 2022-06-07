@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0ac94cae608d3e09869f9e6f4f8ddf99>>
+ * @generated SignedSource<<63a5e6c07739f57b58aebaf6414d3d8f>>
  */
 
 mod skip_client_extensions;
@@ -41,10 +41,10 @@ fn client_fields_of_client_type() {
 }
 
 #[test]
-fn client_fields_on_roots_invalid() {
-    let input = include_str!("skip_client_extensions/fixtures/client-fields-on-roots.invalid.graphql");
-    let expected = include_str!("skip_client_extensions/fixtures/client-fields-on-roots.invalid.expected");
-    test_fixture(transform_fixture, "client-fields-on-roots.invalid.graphql", "skip_client_extensions/fixtures/client-fields-on-roots.invalid.expected", input, expected);
+fn client_fields_on_roots() {
+    let input = include_str!("skip_client_extensions/fixtures/client-fields-on-roots.graphql");
+    let expected = include_str!("skip_client_extensions/fixtures/client-fields-on-roots.expected");
+    test_fixture(transform_fixture, "client-fields-on-roots.graphql", "skip_client_extensions/fixtures/client-fields-on-roots.expected", input, expected);
 }
 
 #[test]
@@ -90,10 +90,10 @@ fn client_scalar_fields() {
 }
 
 #[test]
-fn query_with_only_client_fields_invalid() {
-    let input = include_str!("skip_client_extensions/fixtures/query-with-only-client-fields.invalid.graphql");
-    let expected = include_str!("skip_client_extensions/fixtures/query-with-only-client-fields.invalid.expected");
-    test_fixture(transform_fixture, "query-with-only-client-fields.invalid.graphql", "skip_client_extensions/fixtures/query-with-only-client-fields.invalid.expected", input, expected);
+fn query_with_only_client_fields() {
+    let input = include_str!("skip_client_extensions/fixtures/query-with-only-client-fields.graphql");
+    let expected = include_str!("skip_client_extensions/fixtures/query-with-only-client-fields.expected");
+    test_fixture(transform_fixture, "query-with-only-client-fields.graphql", "skip_client_extensions/fixtures/query-with-only-client-fields.expected", input, expected);
 }
 
 #[test]

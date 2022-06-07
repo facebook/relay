@@ -116,6 +116,7 @@ query abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragmentConditiona
     ]
   },
   "params": {
+    "cacheID": "2e9adb24082d7b97e5ba9fdda362d573",
     "id": null,
     "metadata": {},
     "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragmentConditional_AbstractTypeRefinementQuery",

@@ -251,6 +251,7 @@ extend type Story {
     ]
   },
   "params": {
+    "cacheID": "36c624e95960b57bae298acee0fc2325",
     "id": null,
     "metadata": {},
     "name": "flightPropsTransform_StoryCommentsQuery",
@@ -404,6 +405,7 @@ query flightPropsTransform_StoryCommentsQuery(
     ]
   },
   "params": {
+    "cacheID": "1a9ce6cbc21aa0877299be1d6d47b441",
     "id": null,
     "metadata": {},
     "name": "flightPropsTransform_StoryHeaderQuery",
@@ -651,6 +653,7 @@ fragment flightPropsTransform_storyTitle on Story {
     ]
   },
   "params": {
+    "cacheID": "69a734ff296b28728d03558e1d566210",
     "id": null,
     "metadata": {},
     "name": "flightPropsTransform_StoryQuery",
@@ -808,6 +811,7 @@ fragment flightPropsTransform_storyTitle on Story {
     ]
   },
   "params": {
+    "cacheID": "c7147649e8202d8f1b699b187fc3fd2c",
     "id": null,
     "metadata": {},
     "name": "flightPropsTransform_StoryTitleQuery",

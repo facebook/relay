@@ -172,6 +172,7 @@ query multipleConditions_TestQuery($foo: Boolean!, $bar: Boolean!) {
     ]
   },
   "params": {
+    "cacheID": "c509c577c80ed67666d7822a8660ece5",
     "id": null,
     "metadata": {},
     "name": "multipleConditions_TestQuery",

@@ -1,5 +1,4 @@
-# expected-to-throw
-
+==================================== INPUT ====================================
 query FooQuery($id: ID!, $arg: String) {
   client_root_field
 
@@ -27,4 +26,13 @@ extend type Mutation {
 
 extend type Subscription {
   client_root_field: String
+}
+==================================== OUTPUT ===================================
+query FooQuery(
+  $id: ID!
+  $arg: String
+) {
+  node(id: $id) {
+    id
+  }
 }

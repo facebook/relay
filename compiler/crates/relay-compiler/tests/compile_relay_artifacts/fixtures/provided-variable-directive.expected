@@ -109,6 +109,7 @@ fragment providedVariableDirective_DeferredFragment on Image {
     ]
   },
   "params": {
+    "cacheID": "7f42e1a7f51ebaba8612a0379815ea13",
     "id": null,
     "metadata": {},
     "name": "providedVariableDirectiveQuery",

@@ -114,6 +114,7 @@ query stableLiterals_StableLiteralsTestQuery {
     ]
   },
   "params": {
+    "cacheID": "b80eee5410aecb8ce5a6bf9f07095bc8",
     "id": null,
     "metadata": {},
     "name": "stableLiterals_StableLiteralsTestQuery",

@@ -211,6 +211,7 @@ fragment providedVariableMultipleQueries_MultiProvidedVar on User
     ]
   },
   "params": {
+    "cacheID": "03dc1560686305d9b9175170a10372f5",
     "id": null,
     "metadata": {},
     "name": "providedVariableMultipleQueries_MultiFragmentQuery",
@@ -354,6 +355,7 @@ fragment providedVariableMultipleQueries_OneProvidedVar on User {
     ]
   },
   "params": {
+    "cacheID": "ea387f3a4107fc1e0e3ccf1c1a6ba845",
     "id": null,
     "metadata": {},
     "name": "providedVariableMultipleQueries_OneFragmentQuery",

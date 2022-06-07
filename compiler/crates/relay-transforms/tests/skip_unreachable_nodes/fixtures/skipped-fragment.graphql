@@ -1,0 +1,17 @@
+#expected-to-throw
+
+fragment Fragment1 on Query {
+    me @skip(if: true) {
+        name
+    }
+}
+
+fragment Fragment2 on Query {
+    me {
+        name
+    }
+}
+
+query Query {
+    ...Fragment2 @skip(if: true)
+}

@@ -11,8 +11,8 @@
 
 'use strict';
 
-import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
 import type {IEnvironment} from 'relay-runtime';
+import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
 
 const React = require('react');
 const {
@@ -890,7 +890,6 @@ test('with client-only field', () => {
         }
       `,
       {},
-      {fetchPolicy: 'store-only'},
     );
     return data.counter_no_fragment;
   }
@@ -950,7 +949,6 @@ test('with client-only field and args', () => {
         }
       `,
       {prefix},
-      {fetchPolicy: 'store-only'},
     );
     return data.counter_no_fragment_with_arg;
   }

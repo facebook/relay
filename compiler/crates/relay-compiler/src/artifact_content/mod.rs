@@ -25,7 +25,7 @@ pub enum ArtifactContent {
         reader_operation: Arc<OperationDefinition>,
         typegen_operation: Arc<OperationDefinition>,
         source_hash: String,
-        text: String,
+        text: Option<String>,
         id_and_text_hash: Option<QueryID>,
     },
     UpdatableQuery {

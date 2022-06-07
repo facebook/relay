@@ -5,8 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{util::CustomMetadataDirectives, ValidationMessage};
-use common::{Diagnostic, DiagnosticsResult};
+use crate::util::CustomMetadataDirectives;
 use graphql_ir::{
     Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
     OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
@@ -16,27 +15,20 @@ use schema::Schema;
 
 /// Transform to skip IR nodes if they are client-defined extensions
 /// to the schema
-pub fn skip_client_extensions(program: &Program) -> DiagnosticsResult<Program> {
+pub fn skip_client_extensions(program: &Program) -> Program {
     let mut transform = SkipClientExtensionsTransform::new(program);
     let transformed = transform.transform_program(program);
-    if transform.errors.is_empty() {
-        Ok(transformed.replace_or_else(|| program.clone()))
-    } else {
-        Err(transform.errors)
-    }
+
+    transformed.replace_or_else(|| program.clone())
 }
 
 struct SkipClientExtensionsTransform<'s> {
     program: &'s Program,
-    errors: Vec<Diagnostic>,
 }
 
 impl<'s> SkipClientExtensionsTransform<'s> {
     fn new(program: &'s Program) -> Self {
-        Self {
-            program,
-            errors: vec![],
-        }
+        Self { program }
     }
 }
 
@@ -62,14 +54,6 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         let transformed = self.default_transform_operation(operation);
-        if let Transformed::Delete = transformed {
-            self.errors.push(Diagnostic::error(
-                ValidationMessage::EmptyOperationResult {
-                    name: operation.name.item,
-                },
-                operation.name.location,
-            ));
-        }
         transformed
     }
 

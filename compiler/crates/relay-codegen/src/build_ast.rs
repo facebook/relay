@@ -1548,8 +1548,23 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     value: Primitive::RawString(text),
                 },
             ]
+        } else if request_parameters.id.is_some() {
+            vec![
+                id_prop,
+                metadata_prop,
+                name_prop,
+                operation_kind_prop,
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.text,
+                    value: Primitive::Null,
+                },
+            ]
         } else {
             vec![
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.cache_id,
+                    value: Primitive::RawString(md5(operation.name.item.lookup())),
+                },
                 id_prop,
                 metadata_prop,
                 name_prop,

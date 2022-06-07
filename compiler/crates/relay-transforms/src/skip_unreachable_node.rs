@@ -6,7 +6,7 @@
  */
 
 use super::defer_stream::DEFER_STREAM_CONSTANTS;
-use crate::{DeferDirective, NoInlineFragmentSpreadMetadata, StreamDirective, ValidationMessage};
+use crate::{DeferDirective, NoInlineFragmentSpreadMetadata, StreamDirective};
 use common::{Diagnostic, DiagnosticsResult, NamedItem};
 use graphql_ir::{
     transform_list_multi, Condition, ConditionValue, ConstantValue, FragmentDefinition,
@@ -15,9 +15,32 @@ use graphql_ir::{
 };
 use intern::string_key::{StringKey, StringKeyMap};
 use std::sync::Arc;
+use thiserror::Error;
 
-pub fn skip_unreachable_node(program: &Program) -> DiagnosticsResult<Program> {
-    let mut skip_unreachable_node_transform = SkipUnreachableNodeTransform::new(program);
+enum ValidationMode {
+    Strict,
+    Loose,
+}
+
+pub fn skip_unreachable_node_strict(program: &Program) -> DiagnosticsResult<Program> {
+    skip_unreachable_node(program, ValidationMode::Strict)
+}
+
+pub fn skip_unreachable_node_loose(program: &Program) -> Program {
+    skip_unreachable_node(program, ValidationMode::Loose).unwrap_or_else(|error| {
+        panic!(
+            "Unexpected error in `skip_unreachable_node_loose`: {:?}",
+            error
+        )
+    })
+}
+
+fn skip_unreachable_node(
+    program: &Program,
+    validation_mode: ValidationMode,
+) -> DiagnosticsResult<Program> {
+    let mut skip_unreachable_node_transform =
+        SkipUnreachableNodeTransform::new(program, validation_mode);
     let transformed = skip_unreachable_node_transform.transform_program(program);
     if skip_unreachable_node_transform.errors.is_empty() {
         Ok(transformed.replace_or_else(|| program.clone()))
@@ -32,6 +55,7 @@ pub struct SkipUnreachableNodeTransform<'s> {
     errors: Vec<Diagnostic>,
     visited_fragments: VisitedFragments,
     program: &'s Program,
+    validation_mode: ValidationMode,
 }
 
 impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
@@ -62,12 +86,15 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
         for operation in program.operations() {
             match self.transform_operation(operation) {
                 Transformed::Delete => {
-                    self.errors.push(Diagnostic::error(
-                        ValidationMessage::EmptyOperationResult {
-                            name: operation.name.item,
-                        },
-                        operation.name.location,
-                    ));
+                    if matches!(self.validation_mode, ValidationMode::Strict) {
+                        self.errors.push(Diagnostic::error(
+                            ValidationMessage::EmptySelectionsInDocument {
+                                document: "query",
+                                name: operation.name.item,
+                            },
+                            operation.name.location,
+                        ));
+                    }
                     has_changes = true;
                 }
                 Transformed::Keep => next_program.insert_operation(Arc::clone(operation)),
@@ -77,18 +104,41 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
                 }
             }
         }
-
-        for (_, fragment) in self.visited_fragments.drain() {
-            match fragment {
-                (_, Transformed::Delete) => {
-                    has_changes = true;
+        for fragment in program.fragments() {
+            if let Some(visited_fragment) = self.visited_fragments.get(&fragment.name.item) {
+                match visited_fragment {
+                    (_, Transformed::Delete) => {
+                        has_changes = true;
+                    }
+                    (fragment, Transformed::Keep) => {
+                        next_program.insert_fragment(Arc::clone(fragment));
+                    }
+                    (_, Transformed::Replace(replacement)) => {
+                        next_program.insert_fragment(Arc::new(replacement.clone()));
+                        has_changes = true;
+                    }
                 }
-                (fragment, Transformed::Keep) => {
-                    next_program.insert_fragment(fragment);
-                }
-                (_, Transformed::Replace(replacement)) => {
-                    next_program.insert_fragment(Arc::new(replacement));
-                    has_changes = true;
+            } else {
+                match self.transform_fragment(fragment) {
+                    Transformed::Delete => {
+                        if matches!(self.validation_mode, ValidationMode::Strict) {
+                            self.errors.push(Diagnostic::error(
+                                ValidationMessage::EmptySelectionsInDocument {
+                                    document: "fragment",
+                                    name: fragment.name.item,
+                                },
+                                fragment.name.location,
+                            ));
+                        }
+                        has_changes = true;
+                    }
+                    Transformed::Keep => {
+                        next_program.insert_fragment(Arc::clone(fragment));
+                    }
+                    Transformed::Replace(replacement) => {
+                        next_program.insert_fragment(Arc::new(replacement.clone()));
+                        has_changes = true;
+                    }
                 }
             }
         }
@@ -145,11 +195,11 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
     }
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        let tranformed_field = self.default_transform_linked_field(field);
+        let transformed_field = self.default_transform_linked_field(field);
         if let Some(directive) = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name) {
             if let Some(if_arg) = StreamDirective::from(directive).if_arg {
                 if let Value::Constant(ConstantValue::Boolean(false)) = &if_arg.value.item {
-                    let mut next_field = match tranformed_field {
+                    let mut next_field = match transformed_field {
                         Transformed::Delete => return Transformed::Delete,
                         Transformed::Keep => Arc::new(field.clone()),
                         Transformed::Replace(Selection::LinkedField(replacement)) => replacement,
@@ -172,16 +222,17 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
                 }
             }
         }
-        tranformed_field
+        transformed_field
     }
 }
 
 impl<'s> SkipUnreachableNodeTransform<'s> {
-    pub fn new(program: &'s Program) -> Self {
+    fn new(program: &'s Program, validation_mode: ValidationMode) -> Self {
         Self {
             errors: Vec::new(),
             visited_fragments: Default::default(),
             program,
+            validation_mode,
         }
     }
 
@@ -269,4 +320,18 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
             self.transform_condition(condition).into()
         }
     }
+}
+
+#[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
+enum ValidationMessage {
+    #[error(
+        "After applying transforms to the {document} `{name}` selections of \
+        the `{name}` that would be sent to the server are empty. \
+        This is likely due to the use of `@skip`/`@include` directives with \
+        constant values that remove all selections in the {document}. "
+    )]
+    EmptySelectionsInDocument {
+        name: StringKey,
+        document: &'static str,
+    },
 }

@@ -153,7 +153,7 @@ pub fn generate_operation(
     reader_operation: &OperationDefinition,
     typegen_operation: &OperationDefinition,
     source_hash: String,
-    text: &str,
+    text: &Option<String>,
     id_and_text_hash: &Option<QueryID>,
     skip_types: bool,
 ) -> Result<Vec<u8>, FmtError> {
@@ -161,7 +161,7 @@ pub fn generate_operation(
     if id_and_text_hash.is_some() {
         request_parameters.id = id_and_text_hash;
     } else {
-        request_parameters.text = Some(text.into());
+        request_parameters.text = text.clone();
     };
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name,

@@ -135,7 +135,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
             } else {
                 Selection::ScalarField(Arc::new(ScalarField {
                     alias: None,
-                    definition: WithLocation::generated(self.program.schema.typename_field()),
+                    definition: WithLocation::generated(self.program.schema.clientid_field()),
                     arguments: vec![],
                     directives: new_directives,
                 }))

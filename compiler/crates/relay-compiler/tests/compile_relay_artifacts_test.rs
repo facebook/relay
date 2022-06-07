@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6b361a30c876d473dc27306f68ef4544>>
+ * @generated SignedSource<<59b1c85f3ba2eb81497bc11cbebf03d1>>
  */
 
 mod compile_relay_artifacts;
@@ -997,6 +997,13 @@ fn relay_live_resolver() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-live-resolver.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-live-resolver.expected");
     test_fixture(transform_fixture, "relay-live-resolver.graphql", "compile_relay_artifacts/fixtures/relay-live-resolver.expected", input, expected);
+}
+
+#[test]
+fn relay_live_resolver_without_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-live-resolver-without-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-live-resolver-without-fragment.expected");
+    test_fixture(transform_fixture, "relay-live-resolver-without-fragment.graphql", "compile_relay_artifacts/fixtures/relay-live-resolver-without-fragment.expected", input, expected);
 }
 
 #[test]

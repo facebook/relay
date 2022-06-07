@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<35ba92a91e7a4add81676cab645a1334>>
+ * @generated SignedSource<<36d29503ced1783a136c78d746d88e74>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -38,13 +38,18 @@ var node/*: ConcreteRequest*/ = {
     "name": "LiveResolversTest11Query",
     "selections": [
       {
-        "alias": null,
-        "args": null,
-        "fragment": null,
-        "kind": "RelayLiveResolver",
-        "name": "counter_no_fragment",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment.js'),
-        "path": "counter_no_fragment"
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "fragment": null,
+            "kind": "RelayLiveResolver",
+            "name": "counter_no_fragment",
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment.js'),
+            "path": "counter_no_fragment"
+          }
+        ]
       }
     ],
     "type": "Query",
@@ -57,21 +62,26 @@ var node/*: ConcreteRequest*/ = {
     "name": "LiveResolversTest11Query",
     "selections": [
       {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "__typename",
-        "storageKey": null
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__id",
+            "storageKey": null
+          }
+        ]
       }
     ]
   },
   "params": {
-    "cacheID": "68c3cfa6ba8bc578cc39b3e0b83b9798",
+    "cacheID": "ff28203848f7e649064a20f5ebedf27a",
     "id": null,
     "metadata": {},
     "name": "LiveResolversTest11Query",
     "operationKind": "query",
-    "text": "query LiveResolversTest11Query {\n  __typename\n}\n"
+    "text": null
   }
 };
 

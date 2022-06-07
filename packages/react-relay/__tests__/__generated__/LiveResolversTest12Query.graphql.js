@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5f6f08164d6b4504196d583ca36ac6b3>>
+ * @generated SignedSource<<387f06cb945f935e78d2a85a2fe89cd7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -52,19 +52,24 @@ return {
     "name": "LiveResolversTest12Query",
     "selections": [
       {
-        "alias": null,
-        "args": [
+        "kind": "ClientExtension",
+        "selections": [
           {
-            "kind": "Variable",
-            "name": "prefix",
-            "variableName": "prefix"
+            "alias": null,
+            "args": [
+              {
+                "kind": "Variable",
+                "name": "prefix",
+                "variableName": "prefix"
+              }
+            ],
+            "fragment": null,
+            "kind": "RelayLiveResolver",
+            "name": "counter_no_fragment_with_arg",
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragmentWithArg.js'),
+            "path": "counter_no_fragment_with_arg"
           }
-        ],
-        "fragment": null,
-        "kind": "RelayLiveResolver",
-        "name": "counter_no_fragment_with_arg",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragmentWithArg.js'),
-        "path": "counter_no_fragment_with_arg"
+        ]
       }
     ],
     "type": "Query",
@@ -77,21 +82,26 @@ return {
     "name": "LiveResolversTest12Query",
     "selections": [
       {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "__typename",
-        "storageKey": null
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__id",
+            "storageKey": null
+          }
+        ]
       }
     ]
   },
   "params": {
-    "cacheID": "a305c79598f530d54e98411531e56f08",
+    "cacheID": "2f017a79dd7aeb8cc42adff52e694db6",
     "id": null,
     "metadata": {},
     "name": "LiveResolversTest12Query",
     "operationKind": "query",
-    "text": "query LiveResolversTest12Query {\n  __typename\n}\n"
+    "text": null
   }
 };
 })();

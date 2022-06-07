@@ -1,0 +1,69 @@
+==================================== INPUT ====================================
+query relayLiveResolverWithoutFragment_Query {
+  relay_live_resolver_example
+}
+
+# %extensions%
+
+extend type Query {
+  relay_live_resolver_example: String @relay_resolver(import_path: "./path/to/PopStarNameResolver.js", live: true)
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "relayLiveResolverWithoutFragment_Query",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "fragment": null,
+            "kind": "RelayLiveResolver",
+            "name": "relay_live_resolver_example",
+            "resolverModule": require('PopStarNameResolver'),
+            "path": "relay_live_resolver_example"
+          }
+        ]
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "relayLiveResolverWithoutFragment_Query",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__id",
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "a68e9194b3fd2f1e81b94794a9cb2d3c",
+    "id": null,
+    "metadata": {},
+    "name": "relayLiveResolverWithoutFragment_Query",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.

@@ -39,34 +39,39 @@ extend type User {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": null,
-                "args": [
+                "kind": "ClientExtension",
+                "selections": [
                   {
-                    "kind": "Literal",
-                    "name": "scale",
-                    "value": 1.5
-                  }
-                ],
-                "fragment": null,
-                "kind": "RelayResolver",
-                "name": "pop_star_name",
-                "resolverModule": require('PopStarNameResolver'),
-                "path": "node.pop_star_name"
-              },
-              {
-                "alias": "big_pop_star_name",
-                "args": [
+                    "alias": null,
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "scale",
+                        "value": 1.5
+                      }
+                    ],
+                    "fragment": null,
+                    "kind": "RelayResolver",
+                    "name": "pop_star_name",
+                    "resolverModule": require('PopStarNameResolver'),
+                    "path": "node.pop_star_name"
+                  },
                   {
-                    "kind": "Literal",
-                    "name": "scale",
-                    "value": 2.5
+                    "alias": "big_pop_star_name",
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "scale",
+                        "value": 2.5
+                      }
+                    ],
+                    "fragment": null,
+                    "kind": "RelayResolver",
+                    "name": "pop_star_name",
+                    "resolverModule": require('PopStarNameResolver'),
+                    "path": "node.big_pop_star_name"
                   }
-                ],
-                "fragment": null,
-                "kind": "RelayResolver",
-                "name": "pop_star_name",
-                "resolverModule": require('PopStarNameResolver'),
-                "path": "node.big_pop_star_name"
+                ]
               }
             ],
             "type": "User",
@@ -110,18 +115,23 @@ extend type User {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__typename",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__typename",
-                "storageKey": null
+                "kind": "ClientExtension",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__id",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "__id",
+                    "storageKey": null
+                  }
+                ]
               }
             ],
             "type": "User",
@@ -154,9 +164,6 @@ QUERY:
 query relayResolverWithArgsAndAliasNoFragment_Query {
   node(id: "SOME_ID") {
     __typename
-    ... on User {
-      __typename
-    }
     id
   }
 }

@@ -10,7 +10,7 @@ extend type User {
 }
 ==================================== OUTPUT ===================================
 fragment Foo_user on User {
-  __typename @__RelayResolverMetadata
+  __id @__RelayResolverMetadata
   # RelayResolverMetadata {
   #     field_parent_type: "User",
   #     import_path: "PopStarNameResolver",

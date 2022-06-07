@@ -30,9 +30,6 @@ pub fn validate_selection_conflict<B: LocationAgnosticBehavior + Sync>(
 #[derive(Clone, PartialEq, Debug)]
 enum Field<'s> {
     LinkedField(&'s LinkedField),
-
-
-
     ScalarField(&'s ScalarField),
 }
 

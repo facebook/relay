@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{FeatureFlag, SourceLocationKey, TextSource};
+use common::{SourceLocationKey, TextSource};
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_cli::DiagnosticPrinter;
@@ -24,13 +24,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let mut sources = FnvHashMap::default();
     sources.insert(source_location, fixture.content);
 
-    let enable_provided_variables = FeatureFlag::Enabled;
     let builder_options = BuilderOptions {
         allow_undefined_fragment_spreads: false,
         fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-        relay_mode: Some(RelayMode {
-            enable_provided_variables: &enable_provided_variables,
-        }),
+        relay_mode: Some(RelayMode),
         default_anonymous_operation_name: None,
     };
 

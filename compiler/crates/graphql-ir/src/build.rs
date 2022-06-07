@@ -11,10 +11,7 @@ use crate::ir::*;
 use crate::signatures::{
     build_signatures, FragmentSignature, FragmentSignatures, ProvidedVariableMetadata,
 };
-use common::{
-    Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, Location, NamedItem, Span,
-    WithLocation,
-};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, Span, WithLocation};
 use core::cmp::Ordering;
 use errors::{par_try_map, try2, try3, try_map};
 use graphql_syntax::{DirectiveLocation, Identifier, List, OperationKind, Token, TokenKind};
@@ -52,11 +49,9 @@ pub enum FragmentVariablesSemantic {
     PassedValue,
 }
 
-pub struct RelayMode<'a> {
-    pub enable_provided_variables: &'a FeatureFlag,
-}
+pub struct RelayMode;
 
-pub struct BuilderOptions<'a> {
+pub struct BuilderOptions {
     /// Do not error when a fragment spread references a fragment that is not
     /// defined in the same program.
     pub allow_undefined_fragment_spreads: bool,
@@ -68,7 +63,7 @@ pub struct BuilderOptions<'a> {
     /// - Fields with a @match directive are not required to pass the non-nullable
     ///   `supported` argument.
     /// - use provided variable
-    pub relay_mode: Option<RelayMode<'a>>,
+    pub relay_mode: Option<RelayMode>,
 
     /// By default Relay doesn't allow the use of anonymous operations,
     /// but operations without name are valid, and can be executed on a server.
@@ -79,17 +74,14 @@ pub struct BuilderOptions<'a> {
 /// Converts a self-contained corpus of definitions into typed IR, or returns
 /// a list of errors if the corpus is invalid.
 /// NOTE: Uses Relay defaults.
-pub fn build_ir_with_relay_feature_flags(
+pub fn build_ir_in_relay_mode(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
-    feature_flags: &FeatureFlags,
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
     let builder_options = BuilderOptions {
         allow_undefined_fragment_spreads: false,
         fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-        relay_mode: Some(RelayMode {
-            enable_provided_variables: &feature_flags.enable_provided_variables,
-        }),
+        relay_mode: Some(RelayMode),
         default_anonymous_operation_name: None,
     };
 
@@ -118,13 +110,9 @@ pub fn build_ir(
 pub fn build_ir_with_extra_features(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
-    options: &BuilderOptions<'_>,
+    options: &BuilderOptions,
 ) -> DiagnosticsResult<Vec<ExecutableDefinition>> {
-    let enable_provided_variables = match &options.relay_mode {
-        Some(options) => options.enable_provided_variables,
-        None => &FeatureFlag::Disabled,
-    };
-    let signatures = build_signatures(schema, definitions, enable_provided_variables)?;
+    let signatures = build_signatures(schema, definitions)?;
     par_try_map(definitions, |definition| {
         let mut builder = Builder::new(schema, &signatures, definition.location(), options);
         builder.build_definition(definition)
@@ -231,7 +219,7 @@ struct Builder<'schema, 'signatures, 'options> {
     location: Location,
     defined_variables: VariableDefinitions,
     used_variables: UsedVariables,
-    options: &'options BuilderOptions<'options>,
+    options: &'options BuilderOptions,
     suggestions: GraphQLSuggestions<'schema>,
 }
 
@@ -240,7 +228,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         schema: &'schema SDLSchema,
         signatures: &'signatures FragmentSignatures,
         location: Location,
-        options: &'options BuilderOptions<'options>,
+        options: &'options BuilderOptions,
     ) -> Self {
         Self {
             schema,

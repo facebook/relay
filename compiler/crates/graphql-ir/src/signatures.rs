@@ -12,7 +12,7 @@ use crate::constants::ARGUMENT_DEFINITION;
 use crate::errors::{ValidationMessage, ValidationMessageWithData};
 use crate::ir::{ConstantValue, VariableDefinition};
 use crate::{associated_data_impl, build_directive};
-use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Location, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, WithLocation};
 use errors::{par_try_map, try2};
 use intern::string_key::{Intern, StringKey, StringKeyMap};
 use lazy_static::lazy_static;
@@ -56,14 +56,13 @@ pub struct FragmentSignature {
 pub fn build_signatures(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
-    enable_provided_variables: &FeatureFlag,
 ) -> DiagnosticsResult<FragmentSignatures> {
     let suggestions = GraphQLSuggestions::new(schema);
     let mut seen_signatures: StringKeyMap<FragmentSignature> =
         HashMap::with_capacity_and_hasher(definitions.len(), Default::default());
     let signatures = par_try_map(definitions, |definition| match definition {
         graphql_syntax::ExecutableDefinition::Fragment(fragment) => Ok(Some(
-            build_fragment_signature(schema, fragment, &suggestions, enable_provided_variables)?,
+            build_fragment_signature(schema, fragment, &suggestions)?,
         )),
         graphql_syntax::ExecutableDefinition::Operation(_) => Ok(None),
     })?;
@@ -93,7 +92,6 @@ fn build_fragment_signature(
     schema: &SDLSchema,
     fragment: &graphql_syntax::FragmentDefinition,
     suggestions: &GraphQLSuggestions<'_>,
-    enable_provided_variables: &FeatureFlag,
 ) -> DiagnosticsResult<FragmentSignature> {
     let type_name = fragment.type_condition.type_.value;
     let type_condition = match schema.get_type(type_name) {
@@ -157,9 +155,9 @@ fn build_fragment_signature(
             build_variable_definitions(schema, &variable_definitions.items, fragment.location)
         })
         .or_else(|| {
-            argument_definition_directives.get(0).map(|x| {
-                build_fragment_variable_definitions(schema, fragment, x, enable_provided_variables)
-            })
+            argument_definition_directives
+                .get(0)
+                .map(|x| build_fragment_variable_definitions(schema, fragment, x))
         })
         .unwrap_or_else(|| Ok(Default::default()));
 
@@ -177,7 +175,6 @@ fn build_fragment_variable_definitions(
     schema: &SDLSchema,
     fragment: &graphql_syntax::FragmentDefinition,
     directive: &graphql_syntax::Directive,
-    enable_provided_variables: &FeatureFlag,
 ) -> DiagnosticsResult<Vec<VariableDefinition>> {
     if let Some(arguments) = &directive.arguments {
         Ok(arguments
@@ -205,13 +202,6 @@ fn build_fragment_variable_definitions(
                         } else if name == *DIRECTIVES {
                             directives_arg = Some(item);
                         } else if name == *PROVIDER {
-                            if !enable_provided_variables.is_enabled_for(fragment.name.value) {
-                                return Err(vec![Diagnostic::error(
-                                    format!("Invalid usage of provided variable: this feature is gated and currently set to {}",
-                                    enable_provided_variables),
-                                    fragment.location.with_span(item.span),
-                                )]);
-                            }
                             provider_arg = Some(item);
                         } else {
                             extra_items.push(item);

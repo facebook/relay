@@ -55,9 +55,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-            relay_mode: Some(RelayMode {
-                enable_provided_variables: &FeatureFlag::Enabled,
-            }),
+            relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,
         },
     );
@@ -74,7 +72,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
         enable_client_edges: FeatureFlag::Enabled,
-        enable_provided_variables: FeatureFlag::Enabled,
         skip_printing_nulls: FeatureFlag::Disabled,
         enable_fragment_aliases: FeatureFlag::Enabled,
     };

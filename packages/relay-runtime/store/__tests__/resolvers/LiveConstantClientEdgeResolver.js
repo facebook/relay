@@ -26,15 +26,15 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @edgeTo User
  * @live
  */
-function LiveConstantClientEdgeResolver(
-): LiveState<DataID> {
+function LiveConstantClientEdgeResolver(): LiveState<DataID> {
   return {
     read() {
       return '1338';
     },
     subscribe(cb) {
       // noop
-    }
+    },
+  };
 }
 
 module.exports = LiveConstantClientEdgeResolver;

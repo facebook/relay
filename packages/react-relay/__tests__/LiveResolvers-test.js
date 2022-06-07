@@ -809,7 +809,7 @@ test('apply optimistic updates to live resolver field', () => {
   let update;
   TestRenderer.act(() => {
     update = environment.applyUpdate({
-      storeUpdater: store => {
+      storeUpdater: (store) => {
         const alice = store.get('1');
         if (alice == null) {
           throw new Error('Expected to have record "1"');
@@ -1005,4 +1005,15 @@ test('with client-only field and args', () => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
   expect(renderer.toJSON()).toEqual('Counter is 2');
+});
+
+test('Can read a live client edge without a fragment', () => {
+  // ... this panics in the compiler
+  const FooQuery = graphql`
+    query LiveResolversTest13Query {
+      live_constant_client_edge @waterfall {
+        name
+      }
+    }
+  `;
 });

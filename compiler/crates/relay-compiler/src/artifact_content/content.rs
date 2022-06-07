@@ -230,7 +230,11 @@ pub fn generate_operation(
 
     // -- Begin Types Section --
     let mut section = GenericSection::default();
-    let generated_types = ArtifactGeneratedTypes::from_operation(typegen_operation, skip_types);
+    let generated_types = ArtifactGeneratedTypes::from_operation(
+        typegen_operation,
+        skip_types,
+        request_parameters.is_client_request(),
+    );
 
     if project_config.typegen_config.language == TypegenLanguage::Flow {
         writeln!(section, "/*::")?;

@@ -202,6 +202,7 @@ export type {
 } from './util/ReaderNode';
 export type {
   ConcreteRequest,
+  ClientRequest,
   ConcreteUpdatableQuery,
   GeneratedNode,
   RequestParameters,
@@ -219,6 +220,7 @@ export type {
   Operation,
   OperationType,
   Query,
+  ClientQuery,
   RefetchableFragment,
   RenderPolicy,
   UpdatableFragment,

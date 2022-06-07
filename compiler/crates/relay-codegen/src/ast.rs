@@ -139,3 +139,9 @@ pub struct RequestParameters<'a> {
     pub operation_kind: OperationKind,
     pub text: Option<String>,
 }
+
+impl<'a> RequestParameters<'a> {
+    pub fn is_client_request(&self) -> bool {
+        self.id.is_none() && self.text.is_none()
+    }
+}

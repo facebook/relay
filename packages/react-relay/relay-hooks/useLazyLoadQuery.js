@@ -15,6 +15,7 @@
 
 import type {
   CacheConfig,
+  ClientQuery,
   FetchPolicy,
   Query,
   RenderPolicy,
@@ -34,7 +35,7 @@ const {
 // a separate hooks implementation in ./HooksImplementation -- it can
 // be removed after we stop doing that.
 export type UseLazyLoadQueryHookType = <TVariables: Variables, TData>(
-  gqlQuery: Query<TVariables, TData>,
+  gqlQuery: Query<TVariables, TData> | ClientQuery<TVariables, TData>,
   variables: TVariables,
   options?: {|
     fetchKey?: string | number,
@@ -45,7 +46,7 @@ export type UseLazyLoadQueryHookType = <TVariables: Variables, TData>(
 ) => TData;
 
 function useLazyLoadQuery_LEGACY<TVariables: Variables, TData>(
-  gqlQuery: Query<TVariables, TData>,
+  gqlQuery: Query<TVariables, TData> | ClientQuery<TVariables, TData>,
   variables: TVariables,
   options?: {|
     fetchKey?: string | number,
@@ -79,7 +80,7 @@ function useLazyLoadQuery_LEGACY<TVariables: Variables, TData>(
 }
 
 function useLazyLoadQuery<TVariables: Variables, TData>(
-  gqlQuery: Query<TVariables, TData>,
+  gqlQuery: Query<TVariables, TData> | ClientQuery<TVariables, TData>,
   variables: TVariables,
   options?: {|
     fetchKey?: string | number,

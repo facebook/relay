@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bd02c0b3916ae15ccb898aa93cad1150>>
+ * @generated SignedSource<<010ba7881fc16a868604923b3fd73862>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,7 +15,7 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { ClientRequest, ClientQuery } from 'relay-runtime';
 export type fetchQueryTest5Query$variables = {||};
 export type fetchQueryTest5Query$data = {|
   +client_root_field: ?string,
@@ -26,7 +26,7 @@ export type fetchQueryTest5Query = {|
 |};
 */
 
-var node/*: ConcreteRequest*/ = (function(){
+var node/*: ClientRequest*/ = (function(){
 var v0 = [
   {
     "kind": "ClientExtension",
@@ -73,7 +73,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "51b5507fd390b89ad93a513e19352913";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*: any*/)/*: ClientQuery<
   fetchQueryTest5Query$variables,
   fetchQueryTest5Query$data,
 >*/);

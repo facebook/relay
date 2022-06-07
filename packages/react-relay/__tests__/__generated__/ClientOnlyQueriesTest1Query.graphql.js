@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1ba3903dcb2762c70de47a724ab24ab1>>
+ * @generated SignedSource<<3e28710ed4b1bf6247d56222cc0c246f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,7 +15,7 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { ClientRequest, ClientQuery } from 'relay-runtime';
 export type ClientOnlyQueriesTest1Query$variables = {||};
 export type ClientOnlyQueriesTest1Query$data = {|
   +defaultSettings: ?{|
@@ -28,7 +28,7 @@ export type ClientOnlyQueriesTest1Query = {|
 |};
 */
 
-var node/*: ConcreteRequest*/ = (function(){
+var node/*: ClientRequest*/ = (function(){
 var v0 = [
   {
     "alias": null,
@@ -86,7 +86,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "22cf2fd45d860a9f2d7674f60dcf05dd";
 }
 
-module.exports = ((node/*: any*/)/*: Query<
+module.exports = ((node/*: any*/)/*: ClientQuery<
   ClientOnlyQueriesTest1Query$variables,
   ClientOnlyQueriesTest1Query$data,
 >*/);

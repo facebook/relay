@@ -20,7 +20,11 @@ pub struct ArtifactGeneratedTypes {
 }
 
 impl ArtifactGeneratedTypes {
-    pub fn from_operation(operation: &OperationDefinition, skip_types: bool) -> Self {
+    pub fn from_operation(
+        operation: &OperationDefinition,
+        skip_types: bool,
+        is_client_only: bool,
+    ) -> Self {
         if skip_types {
             Self {
                 imported_types: "ConcreteRequest",
@@ -29,7 +33,13 @@ impl ArtifactGeneratedTypes {
             }
         } else {
             let (kind, imported_types) = match operation.kind {
-                OperationKind::Query => ("Query", "ConcreteRequest, Query"),
+                OperationKind::Query => {
+                    if is_client_only {
+                        ("ClientQuery", "ClientRequest, ClientQuery")
+                    } else {
+                        ("Query", "ConcreteRequest, Query")
+                    }
+                }
                 OperationKind::Mutation => ("Mutation", "ConcreteRequest, Mutation"),
                 OperationKind::Subscription => (
                     "GraphQLSubscription",
@@ -51,7 +61,11 @@ impl ArtifactGeneratedTypes {
             };
             Self {
                 imported_types,
-                ast_type: "ConcreteRequest",
+                ast_type: if is_client_only {
+                    "ClientRequest"
+                } else {
+                    "ConcreteRequest"
+                },
                 exported_type: Some(exported_type),
             }
         }

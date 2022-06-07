@@ -215,7 +215,7 @@ const builds = [
 
 const modules = gulp.parallel(
   ...builds.map(
-    build =>
+    (build) =>
       function modulesTask() {
         return gulp
           .src(INCLUDE_GLOBS, {

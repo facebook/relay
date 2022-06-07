@@ -44,3 +44,7 @@ rules:
       - timeStamp
       - groupCollapsed
       - groupEnd
+
+  # Duplicating some errors that are enforced internally
+  prefer-const: error
+  no-trailing-spaces: error

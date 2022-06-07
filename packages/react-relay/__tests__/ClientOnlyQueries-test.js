@@ -11,7 +11,6 @@
 
 'use strict';
 
-import type {ReactTestRenderer} from 'react-test-renderer';
 import type {
   FetchFunction,
   FetchPolicy,
@@ -50,7 +49,7 @@ function createEnvironment(
 }
 
 describe('Client Only Queries', () => {
-  let renderer: ReactTestRenderer;
+  let renderer;
   let environment: IEnvironment;
 
   const query = graphql`

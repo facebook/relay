@@ -154,6 +154,7 @@ describe.each([
     let renderPluralFragment;
     let forceSingularUpdate;
     let commitSpy;
+    let renderSpy;
     let SingularRenderer;
     let PluralRenderer;
 
@@ -180,6 +181,7 @@ describe.each([
       useEffect(() => {
         commitSpy(data);
       });
+      renderSpy(data);
 
       return [data];
     }
@@ -199,6 +201,32 @@ describe.each([
       commitSpy.mockClear();
     }
 
+    /// Asserts that a single rendering *batch* occurred, with possibly multiple render
+    /// calls and a single commit. `expectedCalls` describes the expected result as follows:
+    /// * items 0..length-1 (for length > 1) are calls expected to be rendered, but not committed
+    /// * item length-1 is expected to be rendered and committed
+    function assertRenderBatch(
+      expectedCalls: $ReadOnlyArray<{|data: $FlowFixMe|}>,
+    ) {
+      expect(expectedCalls.length >= 1).toBeTruthy(); // must expect at least one value
+
+      // the issue is that the initial miss-updates-on-subscribe thing is
+      // only on the second runAllImmediates here.
+      // This ensures that useEffect runs
+      internalAct(() => jest.runAllImmediates());
+      expect(renderSpy).toBeCalledTimes(expectedCalls.length);
+      expectedCalls.forEach((expected, idx) => {
+        const [actualData] = renderSpy.mock.calls[idx];
+        expect(actualData).toEqual(expected.data);
+      });
+      renderSpy.mockClear();
+
+      expect(commitSpy).toBeCalledTimes(1);
+      const [actualData] = commitSpy.mock.calls[0];
+      expect(actualData).toEqual(expectedCalls[expectedCalls.length - 1].data);
+      commitSpy.mockClear();
+    }
+
     function createFragmentRef(id: string, owner: OperationDescriptor) {
       return {
         [ID_KEY]: id,
@@ -215,6 +243,7 @@ describe.each([
         return jest.requireActual('scheduler/unstable_mock');
       });
       commitSpy = jest.fn();
+      renderSpy = jest.fn();
 
       // Set up environment and base data
       environment = createMockEnvironment();
@@ -434,6 +463,7 @@ describe.each([
       flushScheduler();
       environment.mockClear();
       commitSpy.mockClear();
+      renderSpy.mockClear();
     });
 
     it('should render singular fragment without error when data is available', () => {
@@ -651,7 +681,7 @@ describe.each([
 
     it('should re-read and resubscribe to fragment when fragment pointers change', () => {
       renderSingularFragment();
-      assertFragmentResults([
+      assertRenderBatch([
         {
           data: {
             id: '1',
@@ -677,7 +707,10 @@ describe.each([
         },
       });
 
-      internalAct(() => {
+      TestRenderer.act(() => {
+        environment.commitUpdate(store => {
+          store.delete('1');
+        });
         setSingularOwner(newQuery);
       });
 
@@ -689,9 +722,15 @@ describe.each([
         // Assert that ref now points to newQuery owner
         ...createFragmentRef('200', newQuery),
       };
-      assertFragmentResults([{data: expectedUser}]);
+      if (isUsingReactCacheImplementation) {
+        // React Cache renders twice (because it has to update state for derived data),
+        // but avoids rendering with stale data on the initial update
+        assertRenderBatch([{data: expectedUser}, {data: expectedUser}]);
+      } else {
+        assertRenderBatch([{data: expectedUser}]);
+      }
 
-      internalAct(() => {
+      TestRenderer.act(() => {
         environment.commitPayload(newQuery, {
           node: {
             __typename: 'User',
@@ -703,7 +742,7 @@ describe.each([
           },
         });
       });
-      assertFragmentResults([
+      assertRenderBatch([
         {
           data: {
             id: '200',

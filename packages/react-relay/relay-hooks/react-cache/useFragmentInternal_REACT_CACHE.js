@@ -360,14 +360,14 @@ function useFragmentInternal_REACT_CACHE(
       return state;
     }
   };
-  const state = stateFromRawState(rawState);
+  let state = stateFromRawState(rawState);
 
   // This copy of the state we only update when something requires us to
   // unsubscribe and re-subscribe, namely a changed environment or
   // fragment selector.
   const [rawSubscribedState, setSubscribedState] = useState(state);
   // FIXME since this is used as an effect dependency, it needs to be memoized.
-  const subscribedState = stateFromRawState(rawSubscribedState);
+  let subscribedState = stateFromRawState(rawSubscribedState);
 
   const [previousFragmentSelector, setPreviousFragmentSelector] =
     useState(fragmentSelector);
@@ -376,11 +376,19 @@ function useFragmentInternal_REACT_CACHE(
     !areEqualSelectors(fragmentSelector, previousFragmentSelector) ||
     environment !== previousEnvironment
   ) {
+    // Enqueue setState to record the new selector and state
     setPreviousFragmentSelector(fragmentSelector);
     setPreviousEnvironment(environment);
-    const newState = getFragmentState(environment, fragmentSelector, isPlural);
+    const newState = stateFromRawState(
+      getFragmentState(environment, fragmentSelector, isPlural),
+    );
     setState(newState);
     setSubscribedState(newState); // This causes us to form a new subscription
+    // But render with the latest state w/o waiting for the setState. Otherwise
+    // the component would render the wrong information temporarily (including
+    // possibly incorrectly triggering some warnings below).
+    state = newState;
+    subscribedState = newState;
   }
 
   // Handle the queries for any missing client edges; this may suspend.

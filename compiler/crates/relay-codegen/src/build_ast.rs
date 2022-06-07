@@ -507,23 +507,28 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }))
     }
 
+    fn build_scalar_backed_resolver_field(
+        &mut self,
+        field: &ScalarField,
+        resolver_metadata: &RelayResolverMetadata,
+    ) -> Primitive {
+        match self.variant {
+            CodegenVariant::Reader => {
+                let resolver_primitive = self.build_relay_resolver(None, resolver_metadata);
+                if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives)
+                {
+                    self.build_required_field(required_metadata, resolver_primitive)
+                } else {
+                    resolver_primitive
+                }
+            }
+            CodegenVariant::Normalization => self.build_scalar_field(field),
+        }
+    }
+
     fn build_scalar_field_and_handles(&mut self, field: &ScalarField) -> Vec<Primitive> {
         if let Some(resolver_metadata) = RelayResolverMetadata::find(&field.directives) {
-            return match self.variant {
-                CodegenVariant::Reader => {
-                    let resolver_primitive = self.build_relay_resolver(None, resolver_metadata);
-                    if let Some(required_metadata) =
-                        RequiredMetadataDirective::find(&field.directives)
-                    {
-                        vec![self.build_required_field(required_metadata, resolver_primitive)]
-                    } else {
-                        vec![resolver_primitive]
-                    }
-                }
-                CodegenVariant::Normalization => {
-                    vec![self.build_scalar_field(field)]
-                }
-            };
+            return vec![self.build_scalar_backed_resolver_field(field, resolver_metadata)];
         }
         match self.variant {
             CodegenVariant::Reader => vec![self.build_scalar_field(field)],
@@ -1037,8 +1042,18 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             Selection::FragmentSpread(fragment_spread) => {
                 self.build_fragment_spread(fragment_spread)
             }
+            Selection::ScalarField(field) => {
+                if let Some(resolver_metadata) = RelayResolverMetadata::find(&field.directives) {
+                    self.build_scalar_backed_resolver_field(field, resolver_metadata)
+                } else {
+                    panic!(
+                        "Expected field backing a Client Edge to be a Relay Resolver. {:?}",
+                        field
+                    )
+                }
+            }
             _ => panic!(
-                "Expected Client Edge backing field to be a fragment spread representing a Relay Resolver. {:?}",
+                "Expected Client Edge backing field to be a Relay Resolver. {:?}",
                 client_edge_metadata.backing_field
             ),
         };

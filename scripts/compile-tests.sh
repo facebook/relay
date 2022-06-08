@@ -7,5 +7,5 @@
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 GITHUB_ROOT=$(dirname "$SCRIPT_DIR")
 
-cd "$GITHUB_ROOT"/compiler
+cd "$GITHUB_ROOT"/compiler || exit
 cargo run --bin relay --release -- "$GITHUB_ROOT"/scripts/config.tests.json

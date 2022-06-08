@@ -1,6 +1,8 @@
 [ignore]
 <PROJECT_ROOT>/dist/.*
 <PROJECT_ROOT>/compiler/.*
+<PROJECT_ROOT>/website/node_modules/.*
+<PROJECT_ROOT>/vscode-extension/node_modules/.*
 
 [options]
 module.system=haste

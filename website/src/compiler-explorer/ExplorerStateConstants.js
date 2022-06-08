@@ -79,8 +79,6 @@ export const DEFAULT_STATE = {
   schemaText: DEFAULT_SCHEMA,
   documentText: DEFAULT_DOCUMENT,
   outputType: 'operation',
-  featureFlags: Object.fromEntries(
-    FEATURE_FLAGS.map((f) => [f.key, f.default]),
-  ),
+  featureFlags: Object.fromEntries(FEATURE_FLAGS.map(f => [f.key, f.default])),
   language: 'typescript',
 };

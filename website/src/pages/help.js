@@ -76,7 +76,7 @@ class Help extends React.Component {
   }
 }
 
-export default (props) => (
+export default props => (
   <Layout>
     <Help {...props} />
   </Layout>

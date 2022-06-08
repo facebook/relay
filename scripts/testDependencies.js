@@ -20,12 +20,12 @@ if (module.parent) {
   const packagesRoot = path.join(topLevelPackagePath, 'packages');
   const packagePaths = fs
     .readdirSync(packagesRoot)
-    .map((filepath) => path.join(packagesRoot, filepath))
-    .filter((filepath) => fs.statSync(filepath).isDirectory());
+    .map(filepath => path.join(packagesRoot, filepath))
+    .filter(filepath => fs.statSync(filepath).isDirectory());
 
   const errors = testDependencies(topLevelPackagePath, packagePaths);
   if (errors.length !== 0) {
-    errors.forEach((error) => console.error(error));
+    errors.forEach(error => console.error(error));
     process.exit(1);
   }
 }

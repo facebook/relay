@@ -12,7 +12,7 @@ import classNames from 'classnames';
 import * as React from 'react';
 /* eslint-enable lint/no-value-import */
 
-const Container = (props) => {
+const Container = props => {
   const containerClasses = classNames('container', props.className, {
     darkBackground: props.background === 'dark',
     highlightBackground: props.background === 'highlight',

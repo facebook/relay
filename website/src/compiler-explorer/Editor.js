@@ -69,7 +69,7 @@ export default function Editor({text, onDidChange, diagnostics, style}) {
       return;
     }
 
-    const markers = (diagnostics ?? []).map((diagnostic) => {
+    const markers = (diagnostics ?? []).map(diagnostic => {
       return {
         severity: 8, // Error
         message: diagnostic.message,

@@ -61,6 +61,8 @@ jobs:
         run: yarn run test-dependencies
       - name: Lint
         run: yarn run lint
+      - name: Prettier
+        run: yarn run prettier-check
 
   typecheck:
     name: Flow Typecheck

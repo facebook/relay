@@ -163,18 +163,20 @@ class LiveResolverCache implements ResolverCache {
       RelayModernRecord.setLinkedRecordID(nextRecord, storageKey, linkedID);
       recordSource.set(RelayModernRecord.getDataID(nextRecord), nextRecord);
 
-      // Put records observed by the resolver into the dependency graph:
-      const resolverID = evaluationResult.resolverID;
-      addDependencyEdge(this._resolverIDToRecordIDs, resolverID, linkedID);
-      addDependencyEdge(this._recordIDToResolverIDs, recordID, resolverID);
-      const seenRecordIds = evaluationResult.snapshot?.seenRecords;
-      if (seenRecordIds != null) {
-        for (const seenRecordID of seenRecordIds) {
-          addDependencyEdge(
-            this._recordIDToResolverIDs,
-            seenRecordID,
-            resolverID,
-          );
+      if (field.fragment != null) {
+        // Put records observed by the resolver into the dependency graph:
+        const resolverID = evaluationResult.resolverID;
+        addDependencyEdge(this._resolverIDToRecordIDs, resolverID, linkedID);
+        addDependencyEdge(this._recordIDToResolverIDs, recordID, resolverID);
+        const seenRecordIds = evaluationResult.snapshot?.seenRecords;
+        if (seenRecordIds != null) {
+          for (const seenRecordID of seenRecordIds) {
+            addDependencyEdge(
+              this._recordIDToResolverIDs,
+              seenRecordID,
+              resolverID,
+            );
+          }
         }
       }
     } else if (

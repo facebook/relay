@@ -38,6 +38,7 @@ const {
   disallowConsoleErrors,
   disallowWarnings,
 } = require('relay-test-utils-internal');
+const counterNoFragmentResolver = require('relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment');
 
 disallowWarnings();
 disallowConsoleErrors();
@@ -256,6 +257,76 @@ test('Can handle a Live Resolver that triggers an update immediately on subscrib
   expect(data).toEqual({
     ping: 'pong',
   });
+});
+
+test("Resolvers without fragments aren't reevaluated when their parent record updates.", async () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+
+  const FooQuery = graphql`
+    query LiveResolversTest13Query {
+      counter_no_fragment
+
+      # An additional field on Query which can be updated, invalidating the root record.
+      me {
+        __typename
+      }
+    }
+  `;
+
+  const store = new LiveResolverStore(source, {gcReleaseBufferSize: 0});
+
+  const mockPayload = Promise.resolve({
+    data: {
+      me: {
+        id: '1',
+        __typename: 'User',
+      },
+    },
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(() => mockPayload),
+    store,
+  });
+
+  function Environment({children}: {|children: React.Node|}) {
+    return (
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Loading...">{children}</React.Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+
+  function TestComponent() {
+    const queryData = useLazyLoadQuery(FooQuery, {});
+    return queryData.counter_no_fragment;
+  }
+
+  const initialCallCount = counterNoFragmentResolver.callCount;
+
+  const renderer = TestRenderer.create(
+    <Environment>
+      <TestComponent />
+    </Environment>,
+  );
+
+  expect(counterNoFragmentResolver.callCount).toBe(initialCallCount + 1);
+  // Initial render evaluates (and caches) the `counter_no_fragment` resolver.
+  expect(renderer.toJSON()).toEqual('Loading...');
+
+  // When the network response returns, it updates the query root, which would
+  // invalidate a resolver with a fragment on Query. However,
+  // `counter_no_fragment` has no fragment, so it should not be revaluated.
+  await mockPayload;
+  TestRenderer.act(() => jest.runAllImmediates());
+
+  expect(counterNoFragmentResolver.callCount).toBe(initialCallCount + 1);
+  expect(renderer.toJSON()).toEqual('0');
 });
 
 test('Can suspend', () => {

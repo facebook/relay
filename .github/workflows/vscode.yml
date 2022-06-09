@@ -2,35 +2,26 @@ name: Publish Relay VS Code Extension
 on:
   workflow_dispatch:
 
-defaults:
-  run:
-    working-directory: ./vscode-extension
-
 jobs:
   vscode-release:
+    name: VSCode Extension Release
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        working-directory: ./vscode-extension
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: 16
-          registry-url: https://registry.npmjs.org/
-
-      - name: Install the dependencies
-        run: npm i
-
-      - name: Typecheck
-        run: npm run typecheck
-
+          node-version: 16.x
+          cache: 'yarn'
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-scripts
+      - name: ESLint
+        run: yarn run lint
       - name: Prettier
-        run: npm run prettier-check
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Install vsce
-        run: npm i -g vsce
-
+        run: yarn run prettier-check
+      - name: Typecheck
+        run: yarn run typecheck
       - name: Publish
-        run: vsce publish -p ${{ secrets.VSCE_PAT }}
+        run: yarn vsce publish --pat ${{ secrets.VSCE_PAT }}

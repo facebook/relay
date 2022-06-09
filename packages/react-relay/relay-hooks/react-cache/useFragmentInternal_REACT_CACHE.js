@@ -265,16 +265,19 @@ function subscribeToSnapshot(
 function getFragmentState(
   environment: IEnvironment,
   fragmentSelector: ?ReaderSelector,
-  isPlural: boolean,
 ): FragmentState {
   if (fragmentSelector == null) {
     return {kind: 'bailout'};
   } else if (fragmentSelector.kind === 'PluralReaderSelector') {
-    return {
-      kind: 'plural',
-      snapshots: fragmentSelector.selectors.map(s => environment.lookup(s)),
-      epoch: environment.getStore().getEpoch(),
-    };
+    if (fragmentSelector.selectors.length === 0) {
+      return {kind: 'bailout'};
+    } else {
+      return {
+        kind: 'plural',
+        snapshots: fragmentSelector.selectors.map(s => environment.lookup(s)),
+        epoch: environment.getStore().getEpoch(),
+      };
+    }
   } else {
     return {
       kind: 'singular',
@@ -345,29 +348,17 @@ function useFragmentInternal_REACT_CACHE(
   );
 
   const environment = useRelayEnvironment();
-  const [rawState, setState] = useState<FragmentState>(() =>
-    getFragmentState(environment, fragmentSelector, isPlural),
+  const [_state, setState] = useState<FragmentState>(() =>
+    getFragmentState(environment, fragmentSelector),
   );
-  // On second look this separate rawState may not be needed at all, it can just be
-  // put into getFragmentState. Exception: can we properly handle the case where the
-  // fragmentRef goes from non-null to null?
-  const stateFromRawState = (state: FragmentState) => {
-    if (fragmentRef == null) {
-      return {kind: 'bailout'};
-    } else if (state.kind === 'plural' && state.snapshots.length === 0) {
-      return {kind: 'bailout'};
-    } else {
-      return state;
-    }
-  };
-  let state = stateFromRawState(rawState);
+  let state = _state;
 
   // This copy of the state we only update when something requires us to
   // unsubscribe and re-subscribe, namely a changed environment or
   // fragment selector.
-  const [rawSubscribedState, setSubscribedState] = useState(state);
+  const [_subscribedState, setSubscribedState] = useState(state);
   // FIXME since this is used as an effect dependency, it needs to be memoized.
-  let subscribedState = stateFromRawState(rawSubscribedState);
+  let subscribedState = _subscribedState;
 
   const [previousFragmentSelector, setPreviousFragmentSelector] =
     useState(fragmentSelector);
@@ -379,9 +370,7 @@ function useFragmentInternal_REACT_CACHE(
     // Enqueue setState to record the new selector and state
     setPreviousFragmentSelector(fragmentSelector);
     setPreviousEnvironment(environment);
-    const newState = stateFromRawState(
-      getFragmentState(environment, fragmentSelector, isPlural),
-    );
+    const newState = getFragmentState(environment, fragmentSelector);
     setState(newState);
     setSubscribedState(newState); // This causes us to form a new subscription
     // But render with the latest state w/o waiting for the setState. Otherwise

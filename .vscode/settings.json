@@ -1,0 +1,23 @@
+{
+    // These conflict with Flow, so we must disable them.
+    "typescript.validate.enable": false,
+    "javascript.validate.enable": false,
+
+    "[javascript]": {
+      "editor.formatOnSave": true,
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "prettier.enable": true,
+
+
+    // Enable these to get Relay GraphQL editor support working on test files.
+    // This is also a good way to test changes that affect the compiler's LSP
+    // features.
+    //
+    // Note that startup will be very slow since it will need to build the
+    // compiler first.
+
+    // "relay.pathToConfig": "./scripts/config.tests.json",
+    // "relay.pathToRelay": "./scripts/dev-compiler.sh",
+    // "relay.autoStartCompiler": true,
+}

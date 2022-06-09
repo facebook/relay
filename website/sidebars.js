@@ -229,6 +229,7 @@ module.exports = {
         'principles-and-architecture/videos',
       ],
     },
+    'editor-support',
     'community/learning-resources',
     'glossary/glossary',
   ],

@@ -2,4 +2,7 @@
 
 extend type Query {
   client_root_field: String
+  updatable_scalar_field: OpaqueScalarType
 }
+
+scalar OpaqueScalarType

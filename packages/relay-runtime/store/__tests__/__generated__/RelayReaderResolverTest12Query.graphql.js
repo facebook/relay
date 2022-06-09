@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ae72de2782d8019cd4c77c9155045a51>>
+ * @generated SignedSource<<006fe8f63715b11eba4f12b570cae418>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userAlwaysThrowsResolver from "../../../../relay-test-utils-internal/resolvers/UserAlwaysThrowsResolver.js";
+type UserAlwaysThrowsResolver$key = any;
+import userAlwaysThrowsResolver from "../resolvers/UserAlwaysThrowsResolver.js";
+// Type assertion validating that `userAlwaysThrowsResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userAlwaysThrowsResolver: (
+  rootKey: UserAlwaysThrowsResolver$key, 
+) => mixed);
 export type RelayReaderResolverTest12Query$variables = {||};
 export type RelayReaderResolverTest12Query$data = {|
   +me: ?{|
@@ -54,7 +60,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "always_throws",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserAlwaysThrowsResolver.js'),
+            "resolverModule": require('./../resolvers/UserAlwaysThrowsResolver.js'),
             "path": "me.always_throws"
           }
         ],

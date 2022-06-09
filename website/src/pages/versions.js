@@ -19,9 +19,9 @@ function Version() {
   const {siteConfig} = useDocusaurusContext();
   const versions = useVersions();
   const latestVersion = useLatestVersion();
-  const currentVersion = versions.find((version) => version.name === 'current');
+  const currentVersion = versions.find(version => version.name === 'current');
   const pastVersions = versions.filter(
-    (version) =>
+    version =>
       version !== latestVersion.name && version !== currentVersion.name,
   );
   const repoUrl = `https://github.com/${siteConfig.organizationName}/${siteConfig.projectName}`;
@@ -85,7 +85,7 @@ function Version() {
             </p>
             <table>
               <tbody>
-                {pastVersions.map((version) => (
+                {pastVersions.map(version => (
                   <tr key={version.name}>
                     <th>{version.label}</th>
                     <td>

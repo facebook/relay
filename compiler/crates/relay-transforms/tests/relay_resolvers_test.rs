@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9e9506c40560a52867eb9b5bfd43ba15>>
+ * @generated SignedSource<<5793a0c6ff40a7967f2ee7556514c8df>>
  */
 
 mod relay_resolvers;
@@ -34,10 +34,10 @@ fn missing_fragment_invalid() {
 }
 
 #[test]
-fn missing_fragment_name_invalid() {
-    let input = include_str!("relay_resolvers/fixtures/missing-fragment-name.invalid.graphql");
-    let expected = include_str!("relay_resolvers/fixtures/missing-fragment-name.invalid.expected");
-    test_fixture(transform_fixture, "missing-fragment-name.invalid.graphql", "relay_resolvers/fixtures/missing-fragment-name.invalid.expected", input, expected);
+fn missing_fragment_name() {
+    let input = include_str!("relay_resolvers/fixtures/missing-fragment-name.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/missing-fragment-name.expected");
+    test_fixture(transform_fixture, "missing-fragment-name.graphql", "relay_resolvers/fixtures/missing-fragment-name.expected", input, expected);
 }
 
 #[test]

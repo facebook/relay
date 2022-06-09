@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<de67643d7f3583d1e576f9c37463e3f2>>
+ * @generated SignedSource<<0c047c361f0b48299f66c6d2703304df>>
  */
 
 mod generate_flow;
@@ -304,6 +304,27 @@ fn relay_live_resolver() {
     let input = include_str!("generate_flow/fixtures/relay-live-resolver.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-live-resolver.expected");
     test_fixture(transform_fixture, "relay-live-resolver.graphql", "generate_flow/fixtures/relay-live-resolver.expected", input, expected);
+}
+
+#[test]
+fn relay_live_resolver_no_fragment() {
+    let input = include_str!("generate_flow/fixtures/relay-live-resolver-no-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-live-resolver-no-fragment.expected");
+    test_fixture(transform_fixture, "relay-live-resolver-no-fragment.graphql", "generate_flow/fixtures/relay-live-resolver-no-fragment.expected", input, expected);
+}
+
+#[test]
+fn relay_live_resolver_with_field_args() {
+    let input = include_str!("generate_flow/fixtures/relay-live-resolver-with-field-args.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-live-resolver-with-field-args.expected");
+    test_fixture(transform_fixture, "relay-live-resolver-with-field-args.graphql", "generate_flow/fixtures/relay-live-resolver-with-field-args.expected", input, expected);
+}
+
+#[test]
+fn relay_live_resolver_with_field_args_no_fragment() {
+    let input = include_str!("generate_flow/fixtures/relay-live-resolver-with-field-args-no-fragment.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-live-resolver-with-field-args-no-fragment.expected");
+    test_fixture(transform_fixture, "relay-live-resolver-with-field-args-no-fragment.graphql", "generate_flow/fixtures/relay-live-resolver-with-field-args-no-fragment.expected", input, expected);
 }
 
 #[test]

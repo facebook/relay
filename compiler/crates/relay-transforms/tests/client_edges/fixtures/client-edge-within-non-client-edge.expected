@@ -28,8 +28,8 @@ fragment Foo_user on User {
     #     query_name: "ClientEdgeQuery_Foo_user_nearest_neighbor__best_friend",
     # }
      {
-      ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
-      # RelayResolverSpreadMetadata {
+      ...BestFriendResolverFragment_name @__RelayResolverMetadata
+      # RelayResolverMetadata {
       #     field_parent_type: "User",
       #     import_path: "BestFriendResolver",
       #     field_name: "best_friend",

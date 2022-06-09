@@ -248,7 +248,9 @@ fn apply_reader_transforms(
     )?;
 
     program = log_event.time("inline_data_fragment", || inline_data_fragment(&program))?;
-    program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
+    program = log_event.time("skip_unreachable_node", || {
+        skip_unreachable_node_strict(&program)
+    })?;
     program = log_event.time("remove_base_fragments", || {
         remove_base_fragments(&program, &base_fragment_names)
     });
@@ -395,7 +397,9 @@ fn apply_normalization_transforms(
         print_stats("hash_supported_argument", &program);
     }
 
-    program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
+    program = log_event.time("skip_unreachable_node", || {
+        skip_unreachable_node_strict(&program)
+    })?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("skip_unreachable_node", &program);
     }
@@ -488,10 +492,16 @@ fn apply_operation_text_transforms(
     });
 
     program = log_event.time("skip_split_operation", || skip_split_operation(&program));
+    program = log_event.time("skip_unreachable_node_strict", || {
+        skip_unreachable_node_strict(&program)
+    })?;
     program = log_event.time("skip_client_extensions", || {
         skip_client_extensions(&program)
-    })?;
-    program = log_event.time("skip_unreachable_node", || skip_unreachable_node(&program))?;
+    });
+    program = log_event.time("skip_unreachable_node_loose", || {
+        skip_unreachable_node_loose(&program)
+    });
+
     program = log_event.time("generate_typename", || generate_typename(&program, false));
     program = log_event.time("skip_null_arguments_transform", || {
         skip_null_arguments_transform(&program)

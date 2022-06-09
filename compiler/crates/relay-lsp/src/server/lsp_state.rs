@@ -202,17 +202,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             LSPRuntimeError::UnexpectedError(format!("Expected GraphQL sources for URL {}", url))
         })?;
         let project_name = self.extract_project_name_from_url(url)?;
-        let project_config = self
-            .config
-            .enabled_projects()
-            .find(|project_config| project_config.name == project_name)
-            .ok_or_else(|| {
-                LSPRuntimeError::UnexpectedError(format!(
-                    "Expected project config for project {}",
-                    project_name
-                ))
-            })?;
-
         let schema = self
             .schemas
             .get(&project_name)
@@ -240,11 +229,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         &BuilderOptions {
                             allow_undefined_fragment_spreads: true,
                             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-                            relay_mode: Some(RelayMode {
-                                enable_provided_variables: &project_config
-                                    .feature_flags
-                                    .enable_provided_variables,
-                            }),
+                            relay_mode: Some(RelayMode),
                             default_anonymous_operation_name: None,
                         },
                     )

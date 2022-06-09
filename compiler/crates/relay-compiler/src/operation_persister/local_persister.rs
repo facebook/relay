@@ -13,6 +13,8 @@ use relay_config::{LocalPersistAlgorithm, LocalPersistConfig};
 use sha1::{Digest, Sha1};
 use sha2::Sha256;
 use std::collections::BTreeMap;
+use std::fs::File;
+use std::io::{BufWriter, Write};
 
 use crate::OperationPersister;
 
@@ -76,9 +78,10 @@ impl OperationPersister for LocalPersister {
             .map(|x| (x.key().clone(), x.value().clone()))
             .collect();
 
-        let content = serde_json::to_string_pretty(&ordered)?;
-        std::fs::write(&self.config.file, content)?;
-
+        let mut writer = BufWriter::new(File::create(&self.config.file)?);
+        serde_json::to_writer_pretty(&mut writer, &ordered)?;
+        writer.write_all(b"\n")?;
+        writer.flush()?;
         Ok(())
     }
 }

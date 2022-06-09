@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<26015199056f49e7265cc6e11892a322>>
+ * @generated SignedSource<<7b581f07809d7a30a5470df9e643b587>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userRequiredNameResolver from "../../../../relay-test-utils-internal/resolvers/UserRequiredNameResolver.js";
+type UserRequiredNameResolver$key = any;
+import userRequiredNameResolver from "../resolvers/UserRequiredNameResolver.js";
+// Type assertion validating that `userRequiredNameResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userRequiredNameResolver: (
+  rootKey: UserRequiredNameResolver$key, 
+) => mixed);
 export type RelayReaderResolverTestRequiredQuery$variables = {||};
 export type RelayReaderResolverTestRequiredQuery$data = {|
   +me: ?{|
@@ -54,7 +60,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "required_name",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserRequiredNameResolver.js'),
+            "resolverModule": require('./../resolvers/UserRequiredNameResolver.js'),
             "path": "me.required_name"
           }
         ],

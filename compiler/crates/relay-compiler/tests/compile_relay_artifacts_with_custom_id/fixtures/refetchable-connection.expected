@@ -239,6 +239,7 @@ fragment refetchableConnection_RefetchableConnection_feedback on Feedback
     ]
   },
   "params": {
+    "cacheID": "5b0bba64f5feedde7f799aa3e6ec8e76",
     "id": null,
     "metadata": {},
     "name": "RefetchableConnectionQuery",

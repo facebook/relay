@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a716f966f512b30be9b0b4e59ad8fef5>>
+ * @generated SignedSource<<4d23e4a4c227810a45458ef63c1cd28e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userConstantDependentResolver from "../../../../relay-test-utils-internal/resolvers/UserConstantDependentResolver.js";
+type UserConstantDependentResolver$key = any;
+import userConstantDependentResolver from "../resolvers/UserConstantDependentResolver.js";
+// Type assertion validating that `userConstantDependentResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userConstantDependentResolver: (
+  rootKey: UserConstantDependentResolver$key, 
+) => mixed);
 export type RelayReaderResolverTest2Query$variables = {||};
 export type RelayReaderResolverTest2Query$data = {|
   +me: ?{|
@@ -54,7 +60,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "constant_dependent",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserConstantDependentResolver.js'),
+            "resolverModule": require('./../resolvers/UserConstantDependentResolver.js'),
             "path": "me.constant_dependent"
           }
         ],

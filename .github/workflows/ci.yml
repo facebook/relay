@@ -61,6 +61,8 @@ jobs:
         run: yarn run test-dependencies
       - name: Lint
         run: yarn run lint
+      - name: Prettier
+        run: yarn run prettier-check
 
   typecheck:
     name: Flow Typecheck
@@ -96,6 +98,20 @@ jobs:
       - name: "Build test project"
         run: cargo run --manifest-path=../crates/relay-bin/Cargo.toml
         working-directory: ./compiler/test-project
+
+  rust-lint:
+    name: Rust Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly-2022-04-01
+          override: true
+          components: rustfmt
+      - name: "rustfmt"
+        run: grep -r --include "*.rs" --files-without-match "@generated" crates | xargs rustfmt --check --config="skip_children=true"
+        working-directory: ./compiler/
 
   build-compiler:
     name: Build Rust Compiler (${{ matrix.target.os }})

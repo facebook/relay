@@ -18,6 +18,7 @@
 
 import type {ReaderFragment, ReaderInlineDataFragment} from './ReaderNode';
 import type {
+  ClientRequest,
   ConcreteRequest,
   ConcreteUpdatableQuery,
 } from './RelayConcreteNode';
@@ -111,6 +112,14 @@ declare export opaque type Query<
   +TData,
   TRawResponse = void,
 >: Operation<TVariables, TData, TRawResponse>;
+
+/**
+ * Return type of graphql tag literals for client-only queries.
+ */
+declare export opaque type ClientQuery<
+  -TVariables: Variables,
+  +TData,
+>: ClientRequest;
 
 /**
  * Return type of graphql tag literals for mutations.

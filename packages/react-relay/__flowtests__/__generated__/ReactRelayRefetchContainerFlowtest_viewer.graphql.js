@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a837ed4735115b79ac70a119174a30d8>>
+ * @generated SignedSource<<6d04d7f7bf097d5869a1fdf0dea1e659>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ export type ReactRelayRefetchContainerFlowtest_viewer$data = {|
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
-          +__typename: string,
+          +__typename: "User",
         |},
       |}>,
     |},

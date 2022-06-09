@@ -17,11 +17,10 @@ use graphql_ir::{
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use relay_config::{CustomScalarType, CustomScalarTypeImport};
 use relay_transforms::{
-    FragmentAliasMetadata, ModuleMetadata, NoInlineFragmentSpreadMetadata,
-    RelayResolverSpreadMetadata, RequiredMetadataDirective, TypeConditionInfo,
-    ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, CHILDREN_CAN_BUBBLE_METADATA_KEY,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-    UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
+    FragmentAliasMetadata, ModuleMetadata, NoInlineFragmentSpreadMetadata, RelayResolverMetadata,
+    RequiredMetadataDirective, TypeConditionInfo, ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN,
+    CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME,
+    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
@@ -33,27 +32,31 @@ use crate::{
         TypeSelectionLinkedField, TypeSelectionMap, TypeSelectionScalarField,
     },
     typegen_state::{
-        ActorChangeStatus, EncounteredEnums, EncounteredFragments, GeneratedInputObject,
-        ImportedRawResponseTypes, ImportedResolvers, InputObjectTypes, MatchFields, RuntimeImports,
+        ActorChangeStatus, EncounteredEnums, EncounteredFragment, EncounteredFragments,
+        GeneratedInputObject, ImportedRawResponseTypes, ImportedResolver, ImportedResolvers,
+        InputObjectTypes, MatchFields, RuntimeImports,
     },
     write::CustomScalarsImports,
     writer::{
-        ExactObject, GetterSetterPairProp, InexactObject, KeyValuePairProp, Prop, SortedASTList,
-        SortedStringKeyList, SpreadProp, StringLiteral, AST,
+        ExactObject, FunctionTypeAssertion, GetterSetterPairProp, InexactObject, KeyValuePairProp,
+        Prop, SortedASTList, SortedStringKeyList, SpreadProp, StringLiteral, AST,
     },
     MaskStatus, TypegenContext, FRAGMENT_PROP_NAME, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE,
     KEY_UPDATABLE_FRAGMENT_SPREADS, MODULE_COMPONENT, RESPONSE, TYPE_BOOLEAN, TYPE_FLOAT, TYPE_ID,
     TYPE_INT, TYPE_STRING, VARIABLES,
 };
 
+#[allow(clippy::too_many_arguments)]
 pub(crate) fn visit_selections(
     typegen_context: &'_ TypegenContext<'_>,
     selections: &[Selection],
+    input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
 ) -> Vec<TypeSelection> {
     let mut type_selections = Vec::new();
     for selection in selections {
@@ -62,6 +65,9 @@ pub(crate) fn visit_selections(
                 typegen_context,
                 &mut type_selections,
                 fragment_spread,
+                input_object_types,
+                encountered_enums,
+                custom_scalars,
                 encountered_fragments,
                 imported_resolvers,
             ),
@@ -69,70 +75,118 @@ pub(crate) fn visit_selections(
                 typegen_context,
                 &mut type_selections,
                 inline_fragment,
+                input_object_types,
                 encountered_enums,
                 encountered_fragments,
                 imported_resolvers,
                 actor_change_status,
                 custom_scalars,
+                enclosing_linked_field_concrete_type,
             ),
-            Selection::LinkedField(linked_field) => gen_visit_linked_field(
-                typegen_context.schema,
-                &mut type_selections,
-                linked_field,
-                |selections| {
-                    visit_selections(
+            Selection::LinkedField(linked_field) => {
+                let linked_field_type = typegen_context
+                    .schema
+                    .field(linked_field.definition.item)
+                    .type_
+                    .inner();
+                let nested_enclosing_linked_field_concrete_type =
+                    if linked_field_type.is_abstract_type() {
+                        None
+                    } else {
+                        Some(linked_field_type)
+                    };
+                gen_visit_linked_field(
+                    typegen_context.schema,
+                    &mut type_selections,
+                    linked_field,
+                    |selections| {
+                        visit_selections(
+                            typegen_context,
+                            selections,
+                            input_object_types,
+                            encountered_enums,
+                            encountered_fragments,
+                            imported_resolvers,
+                            actor_change_status,
+                            custom_scalars,
+                            nested_enclosing_linked_field_concrete_type,
+                        )
+                    },
+                )
+            }
+            Selection::ScalarField(scalar_field) => {
+                if let Some(resolver_metadata) =
+                    RelayResolverMetadata::find(&scalar_field.directives)
+                {
+                    visit_relay_resolver(
                         typegen_context,
-                        selections,
+                        None,
+                        input_object_types,
                         encountered_enums,
-                        encountered_fragments,
-                        imported_resolvers,
-                        actor_change_status,
                         custom_scalars,
+                        encountered_fragments,
+                        &mut type_selections,
+                        resolver_metadata,
+                        RequiredMetadataDirective::find(&scalar_field.directives).is_some(),
+                        imported_resolvers,
+                    );
+                } else {
+                    visit_scalar_field(
+                        typegen_context,
+                        &mut type_selections,
+                        scalar_field,
+                        encountered_enums,
+                        custom_scalars,
+                        enclosing_linked_field_concrete_type,
                     )
-                },
-            ),
-            Selection::ScalarField(scalar_field) => visit_scalar_field(
-                typegen_context,
-                &mut type_selections,
-                scalar_field,
-                encountered_enums,
-                custom_scalars,
-            ),
+                }
+            }
             Selection::Condition(condition) => visit_condition(
                 typegen_context,
                 &mut type_selections,
                 condition,
+                input_object_types,
                 encountered_enums,
                 encountered_fragments,
                 imported_resolvers,
                 actor_change_status,
                 custom_scalars,
+                enclosing_linked_field_concrete_type,
             ),
         }
     }
     type_selections
 }
 
+#[allow(clippy::too_many_arguments)]
 fn visit_fragment_spread(
     typegen_context: &'_ TypegenContext<'_>,
     type_selections: &mut Vec<TypeSelection>,
     fragment_spread: &FragmentSpread,
+    input_object_types: &mut InputObjectTypes,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
 ) {
-    if let Some(resolver_spread_metadata) =
-        RelayResolverSpreadMetadata::find(&fragment_spread.directives)
-    {
-        visit_relay_resolver_fragment(
+    if let Some(resolver_metadata) = RelayResolverMetadata::find(&fragment_spread.directives) {
+        visit_relay_resolver(
             typegen_context,
+            Some(fragment_spread.fragment.item),
+            input_object_types,
+            encountered_enums,
+            custom_scalars,
+            encountered_fragments,
             type_selections,
-            resolver_spread_metadata,
+            resolver_metadata,
             RequiredMetadataDirective::find(&fragment_spread.directives).is_some(),
             imported_resolvers,
         );
     } else {
         let name = fragment_spread.fragment.item;
-        encountered_fragments.0.insert(name);
+        encountered_fragments
+            .0
+            .insert(EncounteredFragment::Spread(name));
 
         let spread_selection = TypeSelection::FragmentSpread(TypeSelectionFragmentSpread {
             fragment_name: name,
@@ -165,33 +219,126 @@ fn visit_fragment_spread(
     }
 }
 
-fn visit_relay_resolver_fragment(
+#[allow(clippy::too_many_arguments)]
+fn generate_resolver_type(
     typegen_context: &'_ TypegenContext<'_>,
+    input_object_types: &mut InputObjectTypes,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
+    encountered_fragments: &mut EncounteredFragments,
+    resolver_name: StringKey,
+    fragment_name: Option<StringKey>,
+    resolver_metadata: &RelayResolverMetadata,
+) -> AST {
+    let mut resolver_arguments = vec![];
+    if let Some(fragment_name) = fragment_name {
+        encountered_fragments
+            .0
+            .insert(EncounteredFragment::Key(fragment_name));
+        resolver_arguments.push(KeyValuePairProp {
+            key: "rootKey".intern(),
+            value: AST::RawType(format!("{}$key", fragment_name).intern()),
+            read_only: false,
+            optional: false,
+        });
+    }
+
+    let parent_resolver_type = typegen_context
+        .schema
+        .get_type(resolver_metadata.field_parent_type)
+        .unwrap_or_else(|| {
+            panic!(
+                "Expect to have a valid resolver type {}",
+                resolver_metadata.field_parent_type
+            )
+        });
+    let field = typegen_context
+        .schema
+        .named_field(parent_resolver_type, resolver_metadata.field_name)
+        .unwrap_or_else(|| {
+            panic!(
+                "Expect to have a field {} on the type {}",
+                resolver_metadata.field_parent_type, resolver_metadata.field_name
+            )
+        });
+    let mut args = vec![];
+    for field_argument in typegen_context.schema.field(field).arguments.iter() {
+        args.push(Prop::KeyValuePair(KeyValuePairProp {
+            key: field_argument.name,
+            optional: false,
+            read_only: false,
+            value: transform_input_type(
+                typegen_context,
+                &field_argument.type_,
+                input_object_types,
+                encountered_enums,
+                custom_scalars,
+            ),
+        }));
+    }
+    if !args.is_empty() {
+        resolver_arguments.push(KeyValuePairProp {
+            key: "args".intern(),
+            value: AST::ExactObject(ExactObject::new(args)),
+            read_only: true,
+            optional: false,
+        });
+    }
+
+    AST::AssertFunctionType(FunctionTypeAssertion {
+        function_name: resolver_name,
+        arguments: resolver_arguments,
+        return_type: Box::new(AST::RawType("mixed".intern())),
+    })
+}
+
+#[allow(clippy::too_many_arguments)]
+fn visit_relay_resolver(
+    typegen_context: &'_ TypegenContext<'_>,
+    fragment_name: Option<StringKey>,
+    input_object_types: &mut InputObjectTypes,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
+    encountered_fragments: &mut EncounteredFragments,
     type_selections: &mut Vec<TypeSelection>,
-    resolver_spread_metadata: &RelayResolverSpreadMetadata,
+    resolver_metadata: &RelayResolverMetadata,
     required: bool,
     imported_resolvers: &mut ImportedResolvers,
 ) {
-    let field_name = resolver_spread_metadata.field_name;
+    let field_name = resolver_metadata.field_name;
 
-    let key = resolver_spread_metadata.field_alias.unwrap_or(field_name);
-    let live = resolver_spread_metadata.live;
+    let key = resolver_metadata.field_alias.unwrap_or(field_name);
+    let live = resolver_metadata.live;
 
     let local_resolver_name = to_camel_case(format!(
         "{}_{}_resolver",
-        resolver_spread_metadata.field_parent_type, field_name
+        resolver_metadata.field_parent_type, field_name
     ))
     .intern();
 
     let import_path = typegen_context.project_config.js_module_import_path(
         typegen_context.definition_source_location,
-        resolver_spread_metadata.import_path,
+        resolver_metadata.import_path,
     );
+
+    let imported_resolver = ImportedResolver {
+        resolver_name: local_resolver_name,
+        resolver_type: generate_resolver_type(
+            typegen_context,
+            input_object_types,
+            encountered_enums,
+            custom_scalars,
+            encountered_fragments,
+            local_resolver_name,
+            fragment_name,
+            resolver_metadata,
+        ),
+    };
 
     imported_resolvers
         .0
         .entry(import_path)
-        .or_insert(local_resolver_name);
+        .or_insert(imported_resolver);
 
     let mut inner_value = Box::new(AST::ReturnTypeOfFunctionWithName(local_resolver_name));
 
@@ -219,15 +366,19 @@ fn visit_inline_fragment(
     typegen_context: &'_ TypegenContext<'_>,
     type_selections: &mut Vec<TypeSelection>,
     inline_fragment: &InlineFragment,
+    input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
         let name = module_metadata.fragment_name;
-        encountered_fragments.0.insert(name);
+        encountered_fragments
+            .0
+            .insert(EncounteredFragment::Spread(name));
         type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
             field_name_or_alias: *FRAGMENT_PROP_NAME,
             special_field: None,
@@ -256,21 +407,25 @@ fn visit_inline_fragment(
             typegen_context,
             type_selections,
             inline_fragment,
+            input_object_types,
             encountered_enums,
             encountered_fragments,
             imported_resolvers,
             actor_change_status,
             custom_scalars,
+            enclosing_linked_field_concrete_type,
         );
     } else {
         let mut inline_selections = visit_selections(
             typegen_context,
             &inline_fragment.selections,
+            input_object_types,
             encountered_enums,
             encountered_fragments,
             imported_resolvers,
             actor_change_status,
             custom_scalars,
+            enclosing_linked_field_concrete_type,
         );
 
         let mut selections = if let Some(fragment_alias_metadata) =
@@ -324,11 +479,13 @@ fn visit_actor_change(
     typegen_context: &'_ TypegenContext<'_>,
     type_selections: &mut Vec<TypeSelection>,
     inline_fragment: &InlineFragment,
+    input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     let linked_field = match &inline_fragment.selections[0] {
         Selection::LinkedField(linked_field) => linked_field,
@@ -349,11 +506,13 @@ fn visit_actor_change(
     let linked_field_selections = visit_selections(
         typegen_context,
         &linked_field.selections,
+        input_object_types,
         encountered_enums,
         encountered_fragments,
         imported_resolvers,
         actor_change_status,
         custom_scalars,
+        enclosing_linked_field_concrete_type,
     );
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
@@ -388,6 +547,7 @@ fn raw_response_visit_inline_fragment(
     imported_raw_response_types: &mut ImportedRawResponseTypes,
     runtime_imports: &mut RuntimeImports,
     custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     let mut selections = raw_response_visit_selections(
         typegen_context,
@@ -398,6 +558,7 @@ fn raw_response_visit_inline_fragment(
         imported_raw_response_types,
         runtime_imports,
         custom_scalars,
+        enclosing_linked_field_concrete_type,
     );
     if inline_fragment
         .directives
@@ -475,6 +636,7 @@ fn visit_scalar_field(
     scalar_field: &ScalarField,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     let field = typegen_context.schema.field(scalar_field.definition.item);
     let schema_name = field.name.item;
@@ -484,12 +646,39 @@ fn visit_scalar_field(
         schema_name
     };
     let field_type = apply_required_directive_nullability(&field.type_, &scalar_field.directives);
+    let special_field = ScalarFieldSpecialSchemaField::from_schema_name(
+        schema_name,
+        &typegen_context.project_config.schema_config,
+    );
+
+    if matches!(special_field, Some(ScalarFieldSpecialSchemaField::TypeName)) {
+        if let Some(concrete_type) = enclosing_linked_field_concrete_type {
+            // If we are creating a typename selection within a linked field with a concrete type, we generate
+            // the type e.g. "User", i.e. the concrete string name of the concrete type.
+            //
+            // This cannot be done within abstract fields and at the top level (even in fragments), because
+            // we have the following type hole. With `node { ...Fragment_user }`, `Fragment_user` can be
+            // unconditionally read out, without checking whether the `node` field actually has a matching
+            // type at runtime.
+            //
+            // Note that passing concrete_type: enclosing_linked_field_concrete_type here has the effect
+            // of making the emitted fields left-hand-optional, causing the compiler to panic (because
+            // within updatable fragments/queries, we expect never to generate an optional type.)
+            return type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
+                field_name_or_alias: key,
+                special_field,
+                value: AST::StringLiteral(StringLiteral(
+                    typegen_context.schema.get_type_name(concrete_type),
+                )),
+                conditional: false,
+                concrete_type: None,
+            }));
+        }
+    }
+
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
-        special_field: ScalarFieldSpecialSchemaField::from_schema_name(
-            schema_name,
-            &typegen_context.project_config.schema_config,
-        ),
+        special_field,
         value: transform_scalar_type(
             typegen_context,
             &field_type,
@@ -507,20 +696,24 @@ fn visit_condition(
     typegen_context: &'_ TypegenContext<'_>,
     type_selections: &mut Vec<TypeSelection>,
     condition: &Condition,
+    input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     let mut selections = visit_selections(
         typegen_context,
         &condition.selections,
+        input_object_types,
         encountered_enums,
         encountered_fragments,
         imported_resolvers,
         actor_change_status,
         custom_scalars,
+        enclosing_linked_field_concrete_type,
     );
     for selection in selections.iter_mut() {
         selection.set_conditional(true);
@@ -1312,6 +1505,7 @@ pub(crate) fn raw_response_visit_selections(
     imported_raw_response_types: &mut ImportedRawResponseTypes,
     runtime_imports: &mut RuntimeImports,
     custom_scalars: &mut CustomScalarsImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
 ) -> Vec<TypeSelection> {
     let mut type_selections = Vec::new();
     for selection in selections {
@@ -1341,30 +1535,46 @@ pub(crate) fn raw_response_visit_selections(
                 imported_raw_response_types,
                 runtime_imports,
                 custom_scalars,
+                enclosing_linked_field_concrete_type,
             ),
-            Selection::LinkedField(linked_field) => gen_visit_linked_field(
-                typegen_context.schema,
-                &mut type_selections,
-                linked_field,
-                |selections| {
-                    raw_response_visit_selections(
-                        typegen_context,
-                        selections,
-                        encountered_enums,
-                        match_fields,
-                        encountered_fragments,
-                        imported_raw_response_types,
-                        runtime_imports,
-                        custom_scalars,
-                    )
-                },
-            ),
+            Selection::LinkedField(linked_field) => {
+                let linked_field_type = typegen_context
+                    .schema
+                    .field(linked_field.definition.item)
+                    .type_
+                    .inner();
+                let nested_enclosing_linked_field_concrete_type =
+                    if linked_field_type.is_abstract_type() {
+                        None
+                    } else {
+                        Some(linked_field_type)
+                    };
+                gen_visit_linked_field(
+                    typegen_context.schema,
+                    &mut type_selections,
+                    linked_field,
+                    |selections| {
+                        raw_response_visit_selections(
+                            typegen_context,
+                            selections,
+                            encountered_enums,
+                            match_fields,
+                            encountered_fragments,
+                            imported_raw_response_types,
+                            runtime_imports,
+                            custom_scalars,
+                            nested_enclosing_linked_field_concrete_type,
+                        )
+                    },
+                )
+            }
             Selection::ScalarField(scalar_field) => visit_scalar_field(
                 typegen_context,
                 &mut type_selections,
                 scalar_field,
                 encountered_enums,
                 custom_scalars,
+                enclosing_linked_field_concrete_type,
             ),
             Selection::Condition(condition) => {
                 type_selections.extend(raw_response_visit_selections(
@@ -1376,6 +1586,7 @@ pub(crate) fn raw_response_visit_selections(
                     imported_raw_response_types,
                     runtime_imports,
                     custom_scalars,
+                    enclosing_linked_field_concrete_type,
                 ));
             }
         }

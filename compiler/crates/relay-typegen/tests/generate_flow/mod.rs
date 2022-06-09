@@ -8,7 +8,7 @@
 use common::{ConsoleLogger, FeatureFlag, FeatureFlags, SourceLocationKey};
 use fixture_tests::Fixture;
 use fnv::{FnvBuildHasher, FnvHashMap};
-use graphql_ir::{build_ir_with_relay_feature_flags, Program};
+use graphql_ir::{build_ir_in_relay_mode, Program};
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use indexmap::IndexMap;
@@ -51,11 +51,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_flight_transform: true,
         enable_relay_resolver_transform: true,
         actor_change_support: FeatureFlag::Enabled,
-        enable_provided_variables: FeatureFlag::Enabled,
         enable_fragment_aliases: FeatureFlag::Enabled,
         ..Default::default()
     };
-    let ir = build_ir_with_relay_feature_flags(&schema, &ast.definitions, &feature_flags)
+    let ir = build_ir_in_relay_mode(&schema, &ast.definitions)
         .map_err(|diagnostics| diagnostics_to_sorted_string(source, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 

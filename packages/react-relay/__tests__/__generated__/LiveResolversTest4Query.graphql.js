@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f312056dee16f0ccad1eb1184a060470>>
+ * @generated SignedSource<<c4e7a2c4d19cfba7e75ea7488be56829>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import queryPingResolver from "../../../relay-test-utils-internal/resolvers/LivePingPongResolver.js";
+type LivePingPongResolver$key = any;
+import queryPingResolver from "../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver.js";
+// Type assertion validating that `queryPingResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(queryPingResolver: (
+  rootKey: LivePingPongResolver$key, 
+) => mixed);
 export type LiveResolversTest4Query$variables = {||};
 export type LiveResolversTest4Query$data = {|
   +ping: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryPingResolver>["read"]>,
@@ -44,7 +50,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayLiveResolver",
         "name": "ping",
-        "resolverModule": require('./../../../relay-test-utils-internal/resolvers/LivePingPongResolver.js'),
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver.js'),
         "path": "ping"
       }
     ],

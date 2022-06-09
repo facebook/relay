@@ -64,6 +64,10 @@ impl Writer for TypeScriptPrinter {
             AST::ReturnTypeOfMethodCall(object, method_name) => {
                 self.write_return_type_of_method_call(object, *method_name)
             }
+            AST::AssertFunctionType(_) => {
+                // TODO: Implement type generation for typescript
+                Ok(())
+            }
         }
     }
 

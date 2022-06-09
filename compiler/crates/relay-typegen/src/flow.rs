@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::{Prop, Writer, AST};
+use crate::writer::{FunctionTypeAssertion, KeyValuePairProp, Prop, Writer, AST};
 use intern::string_key::StringKey;
 use itertools::Itertools;
 use std::fmt::{Result as FmtResult, Write};
@@ -57,6 +57,11 @@ impl Writer for FlowPrinter {
                 self.write_return_type_of_method_call(object, *method_name)
             }
             AST::ActorChangePoint(selections) => self.write_actor_change_point(selections),
+            AST::AssertFunctionType(FunctionTypeAssertion {
+                function_name,
+                arguments,
+                return_type,
+            }) => self.write_assert_function_type(*function_name, arguments, return_type),
         }
     }
 
@@ -304,6 +309,41 @@ impl FlowPrinter {
     fn write_callable(&mut self, return_type: &AST) -> FmtResult {
         write!(&mut self.result, "() => ")?;
         self.write(return_type)
+    }
+
+    fn write_assert_function_type(
+        &mut self,
+        function_name: StringKey,
+        arguments: &[KeyValuePairProp],
+        return_type: &AST,
+    ) -> FmtResult {
+        writeln!(
+            &mut self.result,
+            "// Type assertion validating that `{}` resolver is correctly implemented.",
+            function_name
+        )?;
+        writeln!(
+            &mut self.result,
+            "// A type error here indicates that the type signature of the resolver module is incorrect."
+        )?;
+        if arguments.is_empty() {
+            write!(&mut self.result, "({}: (", function_name)?;
+        } else {
+            writeln!(&mut self.result, "({}: (", function_name)?;
+            self.indentation += 1;
+            for argument in arguments.iter() {
+                self.write_indentation()?;
+                write!(&mut self.result, "{}: ", argument.key)?;
+                self.write(&argument.value)?;
+                writeln!(&mut self.result, ", ")?;
+            }
+            self.indentation -= 1;
+        }
+        write!(&mut self.result, ") => ")?;
+        self.write(return_type)?;
+        writeln!(&mut self.result, ");")?;
+
+        Ok(())
     }
 }
 

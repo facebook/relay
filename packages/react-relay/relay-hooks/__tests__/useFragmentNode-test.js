@@ -12,6 +12,8 @@
 // flowlint ambiguous-object-type:error
 
 'use strict';
+
+import type {RecordSourceProxy} from '../../../relay-runtime/store/RelayStoreTypes';
 import type {
   useFragmentNodeTestUserFragment$data,
   useFragmentNodeTestUserFragment$fragmentType,
@@ -152,6 +154,7 @@ describe.each([
     let renderPluralFragment;
     let forceSingularUpdate;
     let commitSpy;
+    let renderSpy;
     let SingularRenderer;
     let PluralRenderer;
 
@@ -178,6 +181,7 @@ describe.each([
       useEffect(() => {
         commitSpy(data);
       });
+      renderSpy(data);
 
       return [data];
     }
@@ -197,6 +201,32 @@ describe.each([
       commitSpy.mockClear();
     }
 
+    /// Asserts that a single rendering *batch* occurred, with possibly multiple render
+    /// calls and a single commit. `expectedCalls` describes the expected result as follows:
+    /// * items 0..length-1 (for length > 1) are calls expected to be rendered, but not committed
+    /// * item length-1 is expected to be rendered and committed
+    function assertRenderBatch(
+      expectedCalls: $ReadOnlyArray<{|data: $FlowFixMe|}>,
+    ) {
+      expect(expectedCalls.length >= 1).toBeTruthy(); // must expect at least one value
+
+      // the issue is that the initial miss-updates-on-subscribe thing is
+      // only on the second runAllImmediates here.
+      // This ensures that useEffect runs
+      internalAct(() => jest.runAllImmediates());
+      expect(renderSpy).toBeCalledTimes(expectedCalls.length);
+      expectedCalls.forEach((expected, idx) => {
+        const [actualData] = renderSpy.mock.calls[idx];
+        expect(actualData).toEqual(expected.data);
+      });
+      renderSpy.mockClear();
+
+      expect(commitSpy).toBeCalledTimes(1);
+      const [actualData] = commitSpy.mock.calls[0];
+      expect(actualData).toEqual(expectedCalls[expectedCalls.length - 1].data);
+      commitSpy.mockClear();
+    }
+
     function createFragmentRef(id: string, owner: OperationDescriptor) {
       return {
         [ID_KEY]: id,
@@ -213,6 +243,7 @@ describe.each([
         return jest.requireActual('scheduler/unstable_mock');
       });
       commitSpy = jest.fn();
+      renderSpy = jest.fn();
 
       // Set up environment and base data
       environment = createMockEnvironment();
@@ -432,6 +463,7 @@ describe.each([
       flushScheduler();
       environment.mockClear();
       commitSpy.mockClear();
+      renderSpy.mockClear();
     });
 
     it('should render singular fragment without error when data is available', () => {
@@ -649,7 +681,7 @@ describe.each([
 
     it('should re-read and resubscribe to fragment when fragment pointers change', () => {
       renderSingularFragment();
-      assertFragmentResults([
+      assertRenderBatch([
         {
           data: {
             id: '1',
@@ -675,7 +707,10 @@ describe.each([
         },
       });
 
-      internalAct(() => {
+      TestRenderer.act(() => {
+        environment.commitUpdate(store => {
+          store.delete('1');
+        });
         setSingularOwner(newQuery);
       });
 
@@ -687,9 +722,15 @@ describe.each([
         // Assert that ref now points to newQuery owner
         ...createFragmentRef('200', newQuery),
       };
-      assertFragmentResults([{data: expectedUser}]);
+      if (isUsingReactCacheImplementation) {
+        // React Cache renders twice (because it has to update state for derived data),
+        // but avoids rendering with stale data on the initial update
+        assertRenderBatch([{data: expectedUser}, {data: expectedUser}]);
+      } else {
+        assertRenderBatch([{data: expectedUser}]);
+      }
 
-      internalAct(() => {
+      TestRenderer.act(() => {
         environment.commitPayload(newQuery, {
           node: {
             __typename: 'User',
@@ -701,7 +742,7 @@ describe.each([
           },
         });
       });
-      assertFragmentResults([
+      assertRenderBatch([
         {
           data: {
             id: '200',
@@ -1447,6 +1488,81 @@ describe.each([
           },
         ]);
       });
+    });
+
+    it('checks for missed updates, subscribing to the latest snapshot even if fragment data is unchanged', () => {
+      // Render the component, updating the store to simulate concurrent modifications during async render
+      let pendingUpdate: any = null;
+      const SideEffectfulComponent = ({user}: any) => {
+        if (pendingUpdate) {
+          environment.commitUpdate(pendingUpdate);
+          pendingUpdate = null;
+        }
+        return user.id;
+      };
+      // $FlowFixMe[incompatible-type]
+      SingularRenderer = SideEffectfulComponent;
+
+      // Render with profile_picture initially set to the default client record, with null uri
+      environment.commitPayload(singularQuery, {
+        node: {
+          __typename: 'User',
+          id: '1',
+          name: 'Alice',
+          profile_picture: {
+            uri: null,
+          },
+          username: null,
+        },
+      });
+      // But during render, update profile_picture to point to a different image, also with a
+      // null uri. The fragment result does not change, but the set of ids to subscribe to changes
+      pendingUpdate = (store: RecordSourceProxy) => {
+        const userRecord = store.get('1');
+        const picture = store.create('profile_picture_id', 'Image');
+        picture.setValue(null, 'uri');
+        userRecord?.setLinkedRecord(picture, 'profile_picture', {
+          scale: singularVariables.scale,
+        });
+      };
+      internalAct(() => {
+        renderSingularFragment();
+        jest.runAllTimers();
+      });
+      assertFragmentResults([
+        {
+          data: {
+            id: '1',
+            name: 'Alice',
+            profile_picture: {
+              uri: null,
+            },
+            ...createFragmentRef('1', singularQuery),
+          },
+        },
+      ]);
+
+      // Now update the new profile picture to set its uri to confirm that the component is
+      // correctly subscribed to the changed profile picture relationship in the graph.
+      internalAct(() => {
+        environment.commitUpdate((store: RecordSourceProxy) => {
+          const picture = store.get('profile_picture_id');
+          picture?.setValue('uri16', 'uri');
+        });
+        jest.runAllTimers();
+      });
+      assertFragmentResults([
+        {
+          data: {
+            id: '1',
+            name: 'Alice',
+            profile_picture: {
+              uri: 'uri16', // updated from previous null value
+            },
+            ...createFragmentRef('1', singularQuery),
+          },
+        },
+      ]);
     });
 
     it('should subscribe for updates to plural fragments even if there is missing data', () => {

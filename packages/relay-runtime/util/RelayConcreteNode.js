@@ -61,13 +61,31 @@ export type RequestParameters =
   | {|
       +cacheID: string,
       +id: null,
-      +text: string,
+      +text: string | null,
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
       +providedVariables?: ProvidedVariablesType,
       +metadata: {[key: string]: mixed, ...},
     |};
+
+export type ClientRequestParameters = {|
+  +cacheID: string,
+  +id: null,
+  +text: null,
+  // common fields
+  +name: string,
+  +operationKind: 'query',
+  +providedVariables?: ProvidedVariablesType,
+  +metadata: {[key: string]: mixed, ...},
+|};
+
+export type ClientRequest = {|
+  +kind: 'Request',
+  +fragment: ReaderFragment,
+  +operation: NormalizationOperation,
+  +params: ClientRequestParameters,
+|};
 
 export type GeneratedNode =
   | ConcreteRequest

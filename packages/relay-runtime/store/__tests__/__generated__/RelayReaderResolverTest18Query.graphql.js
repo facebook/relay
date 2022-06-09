@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f8b861929e99b5e36d76c7d3d03e988e>>
+ * @generated SignedSource<<7bb18e229958083f5f35549102c22a44>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userUserProfilePictureUriWithScaleAndDefaultValueResolver from "../../../../relay-test-utils-internal/resolvers/UserProfilePictureWithDefaultValueResolver.js";
+type UserProfilePictureWithDefaultValueResolver$key = any;
+import userUserProfilePictureUriWithScaleAndDefaultValueResolver from "../resolvers/UserProfilePictureWithDefaultValueResolver.js";
+// Type assertion validating that `userUserProfilePictureUriWithScaleAndDefaultValueResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userUserProfilePictureUriWithScaleAndDefaultValueResolver: (
+  rootKey: UserProfilePictureWithDefaultValueResolver$key, 
+  args: {|
+    scale: ?number,
+  |}, 
+) => mixed);
 export type RelayReaderResolverTest18Query$variables = {||};
 export type RelayReaderResolverTest18Query$data = {|
   +me: ?{|
@@ -62,7 +71,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "user_profile_picture_uri_with_scale_and_default_value",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserProfilePictureWithDefaultValueResolver.js'),
+            "resolverModule": require('./../resolvers/UserProfilePictureWithDefaultValueResolver.js'),
             "path": "me.profile_picture2"
           }
         ],

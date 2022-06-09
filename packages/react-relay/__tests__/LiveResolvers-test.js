@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {IEnvironment} from 'relay-runtime';
 import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
 
 const React = require('react');
@@ -23,6 +24,10 @@ const TestRenderer = require('react-test-renderer');
 const {RelayFeatureFlags, getRequest} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
+const {
+  GLOBAL_STORE,
+  resetStore,
+} = require('relay-runtime/store/__tests__/resolvers/ExampleExternalStateStore');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
@@ -33,10 +38,6 @@ const {
   disallowConsoleErrors,
   disallowWarnings,
 } = require('relay-test-utils-internal');
-const {
-  GLOBAL_STORE,
-  resetStore,
-} = require('relay-test-utils-internal/ExampleExternalStateStore');
 
 disallowWarnings();
 disallowConsoleErrors();
@@ -876,4 +877,130 @@ test('Missing data is not clobbered by non-null empty missingLiveResolverFields 
   const snapshot = environment.lookup(operation.fragment);
   expect(snapshot.missingLiveResolverFields).toEqual([]);
   expect(snapshot.isMissingData).toBe(true);
+});
+
+test('with client-only field', () => {
+  let renderer;
+
+  function InnerTestComponent() {
+    const data = useLazyLoadQuery(
+      graphql`
+        query LiveResolversTest11Query {
+          counter_no_fragment
+        }
+      `,
+      {},
+    );
+    return data.counter_no_fragment;
+  }
+
+  function TestComponent({environment}: {|environment: IEnvironment|}) {
+    return (
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Loading...">
+          <InnerTestComponent />
+        </React.Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+
+  function createEnvironment(source: MutableRecordSource) {
+    return new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store: new LiveResolverStore(source),
+    });
+  }
+
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+  const environment = createEnvironment(source);
+
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(<TestComponent environment={environment} />);
+  });
+
+  if (renderer == null) {
+    throw new Error('Renderer is expected to be defined.');
+  }
+
+  expect(renderer.toJSON()).toEqual('0');
+  TestRenderer.act(() => {
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+  });
+  expect(renderer.toJSON()).toEqual('1');
+  TestRenderer.act(() => {
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+  });
+  expect(renderer.toJSON()).toEqual('2');
+});
+
+test('with client-only field and args', () => {
+  let renderer;
+
+  function InnerTestComponent({prefix}: {|prefix: string|}) {
+    const data = useLazyLoadQuery(
+      graphql`
+        query LiveResolversTest12Query($prefix: String!) {
+          counter_no_fragment_with_arg(prefix: $prefix)
+        }
+      `,
+      {prefix},
+    );
+    return data.counter_no_fragment_with_arg;
+  }
+
+  function TestComponent({
+    environment,
+    ...rest
+  }: {|
+    environment: IEnvironment,
+    prefix: string,
+  |}) {
+    return (
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Loading...">
+          <InnerTestComponent {...rest} />
+        </React.Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+
+  function createEnvironment(source: MutableRecordSource) {
+    return new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store: new LiveResolverStore(source),
+    });
+  }
+
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+  const environment = createEnvironment(source);
+
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <TestComponent prefix="Counter is" environment={environment} />,
+    );
+  });
+
+  if (renderer == null) {
+    throw new Error('Renderer is expected to be defined.');
+  }
+
+  expect(renderer.toJSON()).toEqual('Counter is 0');
+  TestRenderer.act(() => {
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+  });
+  expect(renderer.toJSON()).toEqual('Counter is 1');
+  TestRenderer.act(() => {
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+  });
+  expect(renderer.toJSON()).toEqual('Counter is 2');
 });

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<21a8d00a37f4814d3d50eda23b0d17d3>>
+ * @generated SignedSource<<300ea9d15691cbfa6649ce2b0ef3fec9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userBestFriendShoutedGreetingResolver from "../../../../relay-test-utils-internal/resolvers/UserBestFriendShoutedGreetingResolver.js";
+type UserBestFriendShoutedGreetingResolver$key = any;
+import userBestFriendShoutedGreetingResolver from "../resolvers/UserBestFriendShoutedGreetingResolver.js";
+// Type assertion validating that `userBestFriendShoutedGreetingResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userBestFriendShoutedGreetingResolver: (
+  rootKey: UserBestFriendShoutedGreetingResolver$key, 
+) => mixed);
 export type RelayReaderResolverTest6Query$variables = {||};
 export type RelayReaderResolverTest6Query$data = {|
   +me: ?{|
@@ -62,7 +68,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "best_friend_shouted_greeting",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserBestFriendShoutedGreetingResolver.js'),
+            "resolverModule": require('./../resolvers/UserBestFriendShoutedGreetingResolver.js'),
             "path": "me.best_friend_shouted_greeting"
           }
         ],

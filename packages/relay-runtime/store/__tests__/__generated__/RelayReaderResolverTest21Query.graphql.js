@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c1323b4b1efc3807ff262e519149ad0f>>
+ * @generated SignedSource<<3a66141fe1fd5ede68262cea8b1063cb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,16 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userUserProfilePictureUriWithScaleResolver from "../../../../relay-test-utils-internal/resolvers/UserProfilePictureResolver.js";
+type UserProfilePictureResolver$key = any;
+import userUserProfilePictureUriWithScaleResolver from "../resolvers/UserProfilePictureResolver.js";
+// Type assertion validating that `userUserProfilePictureUriWithScaleResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userUserProfilePictureUriWithScaleResolver: (
+  rootKey: UserProfilePictureResolver$key, 
+  args: {|
+    scale: ?number,
+  |}, 
+) => mixed);
 export type RelayReaderResolverTest21Query$variables = {|
   scale: number,
 |};
@@ -71,7 +80,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "user_profile_picture_uri_with_scale",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserProfilePictureResolver.js'),
+            "resolverModule": require('./../resolvers/UserProfilePictureResolver.js'),
             "path": "me.profile_picture"
           }
         ],

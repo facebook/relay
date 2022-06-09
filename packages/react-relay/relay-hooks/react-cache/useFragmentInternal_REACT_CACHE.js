@@ -45,7 +45,7 @@ type FragmentQueryOptions = {|
 |};
 
 type FragmentState = $ReadOnly<
-  | {|kind: 'bailout', plural: boolean|}
+  | {|kind: 'bailout'|}
   | {|kind: 'singular', snapshot: Snapshot, epoch: number|}
   | {|kind: 'plural', snapshots: $ReadOnlyArray<Snapshot>, epoch: number|},
 >;
@@ -105,18 +105,21 @@ function handlePotentialSnapshotErrorsForState(
   }
 }
 
+/**
+ * Check for updates to the store that occurred concurrently with rendering the given `state` value,
+ * returning a new (updated) state if there were updates or null if there were no changes.
+ */
 function handleMissedUpdates(
   environment: IEnvironment,
   state: FragmentState,
-  setState: StateUpdater<FragmentState>,
-): void {
+): null | [/* has data changed */ boolean, FragmentState] {
   if (state.kind === 'bailout') {
-    return;
+    return null;
   }
   // FIXME this is invalid if we've just switched environments.
   const currentEpoch = environment.getStore().getEpoch();
   if (currentEpoch === state.epoch) {
-    return;
+    return null;
   }
   // The store has updated since we rendered (without us being subscribed yet),
   // so check for any updates to the data we're rendering:
@@ -126,42 +129,58 @@ function handleMissedUpdates(
       state.snapshot.data,
       currentSnapshot.data,
     );
-    if (updatedData !== state.snapshot.data) {
-      setState({
+    const updatedCurrentSnapshot: Snapshot = {
+      data: updatedData,
+      isMissingData: currentSnapshot.isMissingData,
+      missingClientEdges: currentSnapshot.missingClientEdges,
+      missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
+      seenRecords: currentSnapshot.seenRecords,
+      selector: currentSnapshot.selector,
+      missingRequiredFields: currentSnapshot.missingRequiredFields,
+      relayResolverErrors: currentSnapshot.relayResolverErrors,
+    };
+    return [
+      updatedData !== state.snapshot.data,
+      {
         kind: 'singular',
-        snapshot: currentSnapshot,
+        snapshot: updatedCurrentSnapshot,
         epoch: currentEpoch,
-      });
-    }
+      },
+    ];
   } else {
-    let updates = null;
+    let didMissUpdates = false;
+    const currentSnapshots = [];
     for (let index = 0; index < state.snapshots.length; index++) {
       const snapshot = state.snapshots[index];
       const currentSnapshot = environment.lookup(snapshot.selector);
       const updatedData = recycleNodesInto(snapshot.data, currentSnapshot.data);
+      const updatedCurrentSnapshot: Snapshot = {
+        data: updatedData,
+        isMissingData: currentSnapshot.isMissingData,
+        missingClientEdges: currentSnapshot.missingClientEdges,
+        missingLiveResolverFields: currentSnapshot.missingLiveResolverFields,
+        seenRecords: currentSnapshot.seenRecords,
+        selector: currentSnapshot.selector,
+        missingRequiredFields: currentSnapshot.missingRequiredFields,
+        relayResolverErrors: currentSnapshot.relayResolverErrors,
+      };
       if (updatedData !== snapshot.data) {
-        updates =
-          updates === null ? new Array(state.snapshots.length) : updates;
-        updates[index] = snapshot;
+        didMissUpdates = true;
       }
+      currentSnapshots.push(updatedCurrentSnapshot);
     }
-    if (updates !== null) {
-      const theUpdates = updates; // preserve flow refinement.
-      setState(existing => {
-        invariant(
-          existing.kind === 'plural',
-          'Cannot go from singular to plural or from bailout to plural.',
-        );
-        const updated = [...existing.snapshots];
-        for (let index = 0; index < theUpdates.length; index++) {
-          const updatedSnapshot = theUpdates[index];
-          if (updatedSnapshot) {
-            updated[index] = updatedSnapshot;
-          }
-        }
-        return {kind: 'plural', snapshots: updated, epoch: currentEpoch};
-      });
-    }
+    invariant(
+      currentSnapshots.length === state.snapshots.length,
+      'Expected same number of snapshots',
+    );
+    return [
+      didMissUpdates,
+      {
+        kind: 'plural',
+        snapshots: currentSnapshots,
+        epoch: currentEpoch,
+      },
+    ];
   }
 }
 
@@ -249,7 +268,7 @@ function getFragmentState(
   isPlural: boolean,
 ): FragmentState {
   if (fragmentSelector == null) {
-    return {kind: 'bailout', plural: isPlural};
+    return {kind: 'bailout'};
   } else if (fragmentSelector.kind === 'PluralReaderSelector') {
     return {
       kind: 'plural',
@@ -282,7 +301,7 @@ function useFragmentInternal_REACT_CACHE(
 
   if (isPlural) {
     invariant(
-      Array.isArray(fragmentRef),
+      fragmentRef == null || Array.isArray(fragmentRef),
       'Relay: Expected fragment pointer%s for fragment `%s` to be ' +
         'an array, instead got `%s`. Remove `@relay(plural: true)` ' +
         'from fragment `%s` to allow the prop to be an object.',
@@ -332,23 +351,23 @@ function useFragmentInternal_REACT_CACHE(
   // On second look this separate rawState may not be needed at all, it can just be
   // put into getFragmentState. Exception: can we properly handle the case where the
   // fragmentRef goes from non-null to null?
-  const stateFromRawState = state => {
+  const stateFromRawState = (state: FragmentState) => {
     if (fragmentRef == null) {
-      return {kind: 'bailout', plural: false};
+      return {kind: 'bailout'};
     } else if (state.kind === 'plural' && state.snapshots.length === 0) {
-      return {kind: 'bailout', plural: true};
+      return {kind: 'bailout'};
     } else {
       return state;
     }
   };
-  const state = stateFromRawState(rawState);
+  let state = stateFromRawState(rawState);
 
   // This copy of the state we only update when something requires us to
   // unsubscribe and re-subscribe, namely a changed environment or
   // fragment selector.
   const [rawSubscribedState, setSubscribedState] = useState(state);
   // FIXME since this is used as an effect dependency, it needs to be memoized.
-  const subscribedState = stateFromRawState(rawSubscribedState);
+  let subscribedState = stateFromRawState(rawSubscribedState);
 
   const [previousFragmentSelector, setPreviousFragmentSelector] =
     useState(fragmentSelector);
@@ -357,11 +376,19 @@ function useFragmentInternal_REACT_CACHE(
     !areEqualSelectors(fragmentSelector, previousFragmentSelector) ||
     environment !== previousEnvironment
   ) {
+    // Enqueue setState to record the new selector and state
     setPreviousFragmentSelector(fragmentSelector);
     setPreviousEnvironment(environment);
-    const newState = getFragmentState(environment, fragmentSelector, isPlural);
+    const newState = stateFromRawState(
+      getFragmentState(environment, fragmentSelector, isPlural),
+    );
     setState(newState);
     setSubscribedState(newState); // This causes us to form a new subscription
+    // But render with the latest state w/o waiting for the setState. Otherwise
+    // the component would render the wrong information temporarily (including
+    // possibly incorrectly triggering some warnings below).
+    state = newState;
+    subscribedState = newState;
   }
 
   // Handle the queries for any missing client edges; this may suspend.
@@ -431,11 +458,27 @@ function useFragmentInternal_REACT_CACHE(
   }
 
   useEffect(() => {
-    handleMissedUpdates(environment, subscribedState, setState);
-    return subscribeToSnapshot(environment, subscribedState, updater => {
+    // Check for updates since the state was rendered
+    let currentState = subscribedState;
+    const updates = handleMissedUpdates(environment, subscribedState);
+    if (updates !== null) {
+      const [didMissUpdates, updatedState] = updates;
+      // TODO: didMissUpdates only checks for changes to snapshot data, but it's possible
+      // that other snapshot properties may have changed that should also trigger a re-render,
+      // such as changed missing resolver fields, missing client edges, etc.
+      // A potential alternative is for handleMissedUpdates() to recycle the entire state
+      // value, and return the new (recycled) state only if there was some change. In that
+      // case the code would always setState if something in the snapshot changed, in addition
+      // to using the latest snapshot to subscribe.
+      if (didMissUpdates) {
+        setState(updatedState);
+      }
+      currentState = updatedState;
+    }
+    return subscribeToSnapshot(environment, currentState, updater => {
       setState(latestState => {
         if (
-          latestState.snapshot?.selector !== subscribedState.snapshot?.selector
+          latestState.snapshot?.selector !== currentState.snapshot?.selector
         ) {
           // Ignore updates to the subscription if it's for a previous fragment selector
           // than the latest one to be rendered. This can happen if the store is updated
@@ -451,17 +494,36 @@ function useFragmentInternal_REACT_CACHE(
     });
   }, [environment, subscribedState]);
 
-  const data = useMemo(
-    () =>
-      state.kind === 'bailout'
-        ? state.plural
-          ? []
-          : null
-        : state.kind === 'singular'
-        ? state.snapshot.data
-        : state.snapshots.map(s => s.data),
-    [state],
-  );
+  let data: ?SelectorData | Array<?SelectorData>;
+  if (isPlural) {
+    // Plural fragments require allocating an array of the snasphot data values,
+    // which has to be memoized to avoid triggering downstream re-renders.
+    //
+    // Note that isPlural is a constant property of the fragment and does not change
+    // for a particular useFragment invocation site
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    data = useMemo(() => {
+      if (state.kind === 'bailout') {
+        return [];
+      } else {
+        invariant(
+          state.kind === 'plural',
+          'Expected state to be plural because fragment is plural',
+        );
+        return state.snapshots.map(s => s.data);
+      }
+    }, [state]);
+  } else if (state.kind === 'bailout') {
+    // This case doesn't allocate a new object so it doesn't have to be memoized
+    data = null;
+  } else {
+    // This case doesn't allocate a new object so it doesn't have to be memoized
+    invariant(
+      state.kind === 'singular',
+      'Expected state to be singular because fragment is singular',
+    );
+    data = state.snapshot.data;
+  }
 
   if (__DEV__) {
     if (

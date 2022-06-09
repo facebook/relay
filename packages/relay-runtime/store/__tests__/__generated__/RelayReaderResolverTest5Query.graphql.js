@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<597702f87175914bbdfaa45bc91c59f8>>
+ * @generated SignedSource<<e4ed35cc1a9762da1776f948c66fb9b8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userShoutedGreetingResolver from "../../../../relay-test-utils-internal/resolvers/UserShoutedGreetingResolver.js";
+type UserShoutedGreetingResolver$key = any;
+import userShoutedGreetingResolver from "../resolvers/UserShoutedGreetingResolver.js";
+// Type assertion validating that `userShoutedGreetingResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userShoutedGreetingResolver: (
+  rootKey: UserShoutedGreetingResolver$key, 
+) => mixed);
 export type RelayReaderResolverTest5Query$variables = {||};
 export type RelayReaderResolverTest5Query$data = {|
   +me: ?{|
@@ -54,7 +60,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "shouted_greeting",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserShoutedGreetingResolver.js'),
+            "resolverModule": require('./../resolvers/UserShoutedGreetingResolver.js'),
             "path": "me.shouted_greeting"
           }
         ],

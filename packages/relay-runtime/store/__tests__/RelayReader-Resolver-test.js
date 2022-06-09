@@ -11,6 +11,7 @@
 
 'use strict';
 
+const UserConstantDependentResolver = require('./resolvers/UserConstantDependentResolver');
 const nullthrows = require('nullthrows');
 const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');
@@ -27,7 +28,6 @@ const {
   disallowConsoleErrors,
   disallowWarnings,
 } = require('relay-test-utils-internal');
-const UserConstantDependentResolver = require('relay-test-utils-internal/resolvers/UserConstantDependentResolver');
 
 disallowWarnings();
 disallowConsoleErrors();

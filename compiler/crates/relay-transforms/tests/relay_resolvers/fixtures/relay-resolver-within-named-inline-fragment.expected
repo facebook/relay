@@ -31,8 +31,8 @@ fragment Foo_user on Node {
   #     selection_type: Object(69),
   # }
    {
-    ...PopStarNameResolverFragment_name @__RelayResolverSpreadMetadata
-    # RelayResolverSpreadMetadata {
+    ...PopStarNameResolverFragment_name @__RelayResolverMetadata
+    # RelayResolverMetadata {
     #     field_parent_type: "User",
     #     import_path: "PopStarNameResolver",
     #     field_name: "pop_star_name",

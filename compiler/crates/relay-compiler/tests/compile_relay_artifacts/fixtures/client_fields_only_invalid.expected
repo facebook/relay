@@ -1,6 +1,4 @@
 ==================================== INPUT ====================================
-# expected-to-throw
-
 query clientFieldsOnlyInvalidQuery {
   defaultSettings {
     ...clientFieldsOnlyInvalidFragment
@@ -16,11 +14,98 @@ fragment clientFieldsOnlyInvalidFragment on Settings {
 extend type Settings {
   client_field: String
 }
-==================================== ERROR ====================================
-✖︎ After transforms, the operation `clientFieldsOnlyInvalidQuery` that would be sent to the server is empty. Relay is not setup to handle such queries. This is likely due to only querying for client extension fields or `@skip`/`@include` directives with constant values that remove all selections.
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "clientFieldsOnlyInvalidQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Settings",
+        "kind": "LinkedField",
+        "name": "defaultSettings",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "clientFieldsOnlyInvalidFragment"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "clientFieldsOnlyInvalidQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Settings",
+        "kind": "LinkedField",
+        "name": "defaultSettings",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ClientExtension",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "client_field",
+                "storageKey": null
+              }
+            ]
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "0596673d6a1e987efce7b7b3e80d12fc",
+    "id": null,
+    "metadata": {},
+    "name": "clientFieldsOnlyInvalidQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
 
-  client_fields_only_invalid.graphql:3:7
-    2 │ 
-    3 │ query clientFieldsOnlyInvalidQuery {
-      │       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    4 │   defaultSettings {
+QUERY:
+
+Query Text is Empty.
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "clientFieldsOnlyInvalidFragment",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "client_field",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "Settings",
+  "abstractKey": null
+}

@@ -82,11 +82,22 @@ impl EncounteredEnums {
 #[derive(Default)]
 pub(crate) struct MatchFields(pub(crate) IndexMap<StringKey, AST>);
 
-#[derive(Default)]
-pub(crate) struct EncounteredFragments(pub(crate) FnvHashSet<StringKey>);
+#[derive(PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub(crate) enum EncounteredFragment {
+    Spread(StringKey),
+    Key(StringKey),
+}
 
 #[derive(Default)]
-pub(crate) struct ImportedResolvers(pub(crate) IndexMap<StringKey, StringKey>);
+pub(crate) struct EncounteredFragments(pub(crate) FnvHashSet<EncounteredFragment>);
+
+pub(crate) struct ImportedResolver {
+    pub resolver_name: StringKey,
+    pub resolver_type: AST,
+}
+
+#[derive(Default)]
+pub(crate) struct ImportedResolvers(pub(crate) IndexMap<StringKey, ImportedResolver>);
 
 #[derive(Default)]
 pub(crate) struct ImportedRawResponseTypes(pub(crate) IndexSet<StringKey>);

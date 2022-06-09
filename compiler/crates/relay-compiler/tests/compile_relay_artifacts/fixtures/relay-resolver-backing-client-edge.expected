@@ -120,6 +120,7 @@ extend type User {
     ]
   },
   "params": {
+    "cacheID": "56c04ebac7002237e75be5e7ab3c5226",
     "id": null,
     "metadata": {},
     "name": "ClientEdgeQuery_relayResolverBackingClientEdgeQuery_me__best_friend",
@@ -239,6 +240,7 @@ fragment RefetchableClientEdgeQuery_relayResolverBackingClientEdgeQuery_me__best
     ]
   },
   "params": {
+    "cacheID": "cd11ab38bf61095cf9256339ad230856",
     "id": null,
     "metadata": {},
     "name": "relayResolverBackingClientEdgeQuery",

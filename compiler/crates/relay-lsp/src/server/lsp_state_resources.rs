@@ -25,6 +25,7 @@ use relay_compiler::{
     FileSourceSubscription, FileSourceSubscriptionNextChange, GraphQLAsts,
     SourceControlUpdateStatus,
 };
+use relay_transforms::find_resolver_dependencies;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
 use tokio::{task, task::JoinHandle};
@@ -275,13 +276,11 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 Err(BuildProjectFailure::Error(err)) => {
                     errors.push(err);
                 }
-                Ok(project_name) => {
-                    compiler_state.complete_project_compilation(&project_name);
-                }
                 _ => {}
             }
         }
         if errors.is_empty() {
+            compiler_state.complete_compilation();
             Ok(())
         } else {
             Err(Error::BuildProjectsErrors { errors })
@@ -415,12 +414,28 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             }
         }
 
-        validate_program(
-            &self.lsp_state.config,
-            project_config,
-            &base_program,
-            log_event,
-        )?;
+        let (validation_results, _) = rayon::join(
+            || {
+                // Call validation rules that go beyond type checking.
+                validate_program(
+                    &self.lsp_state.config,
+                    project_config,
+                    &base_program,
+                    log_event,
+                )
+            },
+            || {
+                find_resolver_dependencies(
+                    &mut compiler_state
+                        .pending_implicit_dependencies
+                        .write()
+                        .unwrap(),
+                    &base_program,
+                );
+            },
+        );
+
+        validation_results?;
 
         transform_program(
             project_config,

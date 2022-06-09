@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<af8a6fced8607b5333af8342fd36f4b8>>
+ * @generated SignedSource<<2991dbc1f81c3e23499b875bc8a7001e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import astrologicalSignNameResolver from "../../../../relay-test-utils-internal/resolvers/AstrologicalSignNameResolver.js";
+type AstrologicalSignNameResolver$key = any;
+import astrologicalSignNameResolver from "../resolvers/AstrologicalSignNameResolver.js";
+// Type assertion validating that `astrologicalSignNameResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(astrologicalSignNameResolver: (
+  rootKey: AstrologicalSignNameResolver$key, 
+) => mixed);
 export type ClientEdgeToClientObjectTest2Query$variables = {||};
 export type ClientEdgeToClientObjectTest2Query$data = {|
   +all_astrological_signs: ?$ReadOnlyArray<?{|
@@ -51,7 +57,7 @@ var node/*: ConcreteRequest*/ = {
           },
           "kind": "RelayResolver",
           "name": "all_astrological_signs",
-          "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/QueryAllAstrologicalSignsResolver.js'),
+          "resolverModule": require('./../resolvers/QueryAllAstrologicalSignsResolver.js'),
           "path": "all_astrological_signs"
         },
         "linkedField": {
@@ -72,7 +78,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "name",
-              "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/AstrologicalSignNameResolver.js'),
+              "resolverModule": require('./../resolvers/AstrologicalSignNameResolver.js'),
               "path": "name"
             }
           ],

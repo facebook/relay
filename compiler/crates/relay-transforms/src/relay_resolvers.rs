@@ -41,14 +41,14 @@ lazy_static! {
 struct RelayResolverFieldMetadata {
     field_parent_type: StringKey,
     import_path: StringKey,
-    fragment_name: StringKey,
+    fragment_name: Option<StringKey>,
     field_path: StringKey,
     live: bool,
 }
 associated_data_impl!(RelayResolverFieldMetadata);
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct RelayResolverSpreadMetadata {
+pub struct RelayResolverMetadata {
     pub field_parent_type: StringKey,
     pub import_path: StringKey,
     pub field_name: StringKey,
@@ -57,7 +57,7 @@ pub struct RelayResolverSpreadMetadata {
     pub field_arguments: Vec<Argument>,
     pub live: bool,
 }
-associated_data_impl!(RelayResolverSpreadMetadata);
+associated_data_impl!(RelayResolverMetadata);
 
 /// Convert fields with Relay Resolver metadata attached to them into fragment spreads.
 fn relay_resolvers_spread_transform(program: &Program) -> DiagnosticsResult<Program> {
@@ -88,23 +88,28 @@ impl<'program> RelayResolverSpreadTransform<'program> {
 
     fn transformed_field(&self, field: &impl IrField) -> Option<Selection> {
         RelayResolverFieldMetadata::find(field.directives()).map(|field_metadata| {
-            let fragment_definition = self
-                .program
-                .fragment(field_metadata.fragment_name)
-                .expect("Previous validation passes ensured this exists.");
+            let fragment_definition = field_metadata.fragment_name.map(|fragment_name| {
+                self.program
+                    .fragment(fragment_name)
+                    .expect("Previous validation passes ensured this exists.")
+            });
 
             let (fragment_arguments, field_arguments) = field
                 .arguments()
                 .iter()
                 .map(|arg| arg.clone())
                 .partition(|arg| {
-                    fragment_definition
-                        .variable_definitions
-                        .named(arg.name.item)
-                        .is_some()
+                    if let Some(fragment_definition) = fragment_definition {
+                        fragment_definition
+                            .variable_definitions
+                            .named(arg.name.item)
+                            .is_some()
+                    } else {
+                        false
+                    }
                 });
 
-            let spread_metadata = RelayResolverSpreadMetadata {
+            let resolver_metadata = RelayResolverMetadata {
                 field_parent_type: field_metadata.field_parent_type,
                 import_path: field_metadata.import_path,
                 field_name: self.program.schema.field(field.definition().item).name.item,
@@ -114,19 +119,27 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                 live: field_metadata.live,
             };
 
-            let mut new_directives: Vec<Directive> = vec![spread_metadata.into()];
+            let mut new_directives: Vec<Directive> = vec![resolver_metadata.into()];
 
             for directive in field.directives() {
                 if directive.name.item != RelayResolverFieldMetadata::directive_name() {
                     new_directives.push(directive.clone())
                 }
             }
-
-            Selection::FragmentSpread(Arc::new(FragmentSpread {
-                fragment: WithLocation::generated(field_metadata.fragment_name),
-                directives: new_directives,
-                arguments: fragment_arguments,
-            }))
+            if let Some(fragment_definition) = fragment_definition {
+                Selection::FragmentSpread(Arc::new(FragmentSpread {
+                    fragment: fragment_definition.name,
+                    arguments: fragment_arguments,
+                    directives: new_directives,
+                }))
+            } else {
+                Selection::ScalarField(Arc::new(ScalarField {
+                    alias: None,
+                    definition: WithLocation::generated(self.program.schema.clientid_field()),
+                    arguments: vec![],
+                    directives: new_directives,
+                }))
+            }
         })
     }
 }
@@ -253,14 +266,18 @@ impl<'program> RelayResolverFieldTransform<'program> {
                             directive.name.location,
                         ));
                     }
-                    if self.program.fragment(fragment_name).is_none() {
-                        self.errors.push(Diagnostic::error(
-                            ValidationMessage::InvalidRelayResolverFragmentName { fragment_name },
-                            // We don't have locations for directives in schema files.
-                            // So we send them to the field name, rather than the directive value.
-                            field_type.name.location,
-                        ));
-                        return None;
+                    if let Some(fragment_name) = fragment_name {
+                        if self.program.fragment(fragment_name).is_none() {
+                            self.errors.push(Diagnostic::error(
+                                ValidationMessage::InvalidRelayResolverFragmentName {
+                                    fragment_name,
+                                },
+                                // We don't have locations for directives in schema files.
+                                // So we send them to the field name, rather than the directive value.
+                                field_type.name.location,
+                            ));
+                            return None;
+                        }
                     }
                     let parent_type = field_type.parent_type.unwrap();
 
@@ -377,7 +394,7 @@ impl Transformer for RelayResolverFieldTransform<'_> {
 }
 
 struct ResolverInfo {
-    fragment_name: StringKey,
+    fragment_name: Option<StringKey>,
     import_path: StringKey,
     live: bool,
 }
@@ -398,7 +415,8 @@ fn get_resolver_info(
                 arguments,
                 *RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
                 error_location,
-            )?;
+            )
+            .ok();
             let import_path = get_argument_value(
                 arguments,
                 *RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,

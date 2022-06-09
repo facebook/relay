@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<541447a2aa2a4d7315ef82da2ad4e976>>
+ * @generated SignedSource<<85e299a6abeaad57bcbc308dca453c35>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@ export type RelayReaderResolverTest24Query$variables = {||};
 export type RelayReaderResolverTest24Query$data = {|
   +me: ?{|
     +client_edge: ?{|
-      +__typename: string,
+      +__typename: "User",
     |},
   |},
 |};
@@ -60,7 +60,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "client_edge",
-              "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserClientEdgeResolver.js'),
+              "resolverModule": require('./../resolvers/UserClientEdgeResolver.js'),
               "path": "me.client_edge"
             },
             "linkedField": {

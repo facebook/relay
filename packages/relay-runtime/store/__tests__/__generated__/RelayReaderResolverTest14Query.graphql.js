@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<010df93a4111540105581818c12dc5bd>>
+ * @generated SignedSource<<f2608abf11f4e667e5506d8c9bd36d39>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import queryThrowBeforeReadResolver from "../../../../relay-test-utils-internal/resolvers/ThrowBeforeReadResolver.js";
+type ThrowBeforeReadResolver$key = any;
+import queryThrowBeforeReadResolver from "../resolvers/ThrowBeforeReadResolver.js";
+// Type assertion validating that `queryThrowBeforeReadResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(queryThrowBeforeReadResolver: (
+  rootKey: ThrowBeforeReadResolver$key, 
+) => mixed);
 export type RelayReaderResolverTest14Query$variables = {||};
 export type RelayReaderResolverTest14Query$data = {|
   +throw_before_read: ?$Call<<R>((...empty[]) => R) => R, typeof queryThrowBeforeReadResolver>,
@@ -44,7 +50,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "throw_before_read",
-        "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/ThrowBeforeReadResolver.js'),
+        "resolverModule": require('./../resolvers/ThrowBeforeReadResolver.js'),
         "path": "throw_before_read"
       }
     ],

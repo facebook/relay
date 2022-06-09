@@ -16,7 +16,7 @@ use crate::{
     required_directive::{CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME},
     ClientEdgeGeneratedQueryMetadataDirective, ClientEdgeMetadataDirective, FragmentAliasMetadata,
     ModuleMetadata, ReactFlightLocalComponentsMetadata, RefetchableDerivedFromMetadata,
-    RelayClientComponentMetadata, RelayResolverSpreadMetadata, RequiredMetadataDirective,
+    RelayClientComponentMetadata, RelayResolverMetadata, RequiredMetadataDirective,
     CLIENT_EDGE_GENERATED_FRAGMENT_KEY, DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE,
 };
 
@@ -90,7 +90,7 @@ lazy_static! {
         ClientEdgeGeneratedQueryMetadataDirective::directive_name(),
         *CLIENT_EDGE_GENERATED_FRAGMENT_KEY,
         *CHILDREN_CAN_BUBBLE_METADATA_KEY,
-        RelayResolverSpreadMetadata::directive_name(),
+        RelayResolverMetadata::directive_name(),
         RelayClientComponentMetadata::directive_name(),
         *UNUSED_LOCAL_VARIABLE_DEPRECATED,
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,

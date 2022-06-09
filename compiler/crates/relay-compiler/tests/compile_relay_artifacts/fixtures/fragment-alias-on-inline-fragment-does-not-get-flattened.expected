@@ -86,6 +86,7 @@ query fragmentAliasOnInlineFragmentDoesNotGetFlattenedQuery {
     ]
   },
   "params": {
+    "cacheID": "4270286a6b83b1708964fc6dbe637fad",
     "id": null,
     "metadata": {},
     "name": "fragmentAliasOnInlineFragmentDoesNotGetFlattenedQuery",

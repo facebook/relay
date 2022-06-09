@@ -149,7 +149,7 @@ pub use relay_client_component::{
 pub use relay_directive::RelayDirective;
 pub use relay_node_identifier::RelayLocationAgnosticBehavior;
 pub use relay_resolvers::{
-    find_resolver_dependencies, relay_resolvers, RelayResolverSpreadMetadata, ResolverFieldFinder,
+    find_resolver_dependencies, relay_resolvers, RelayResolverMetadata, ResolverFieldFinder,
     RELAY_RESOLVER_DIRECTIVE_NAME, RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
     RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
 };
@@ -163,7 +163,7 @@ pub use skip_client_extensions::skip_client_extensions;
 pub use skip_null_arguments_transform::skip_null_arguments_transform;
 pub use skip_redundant_nodes::{skip_redundant_nodes, SkipRedundantNodesTransform};
 pub use skip_split_operation::skip_split_operation;
-pub use skip_unreachable_node::skip_unreachable_node;
+pub use skip_unreachable_node::{skip_unreachable_node_loose, skip_unreachable_node_strict};
 pub use sort_selections::sort_selections;
 pub use test_operation_metadata::generate_test_operation_metadata;
 pub use transform_connections::transform_connections;

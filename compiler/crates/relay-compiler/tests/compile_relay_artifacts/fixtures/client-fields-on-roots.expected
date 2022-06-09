@@ -140,6 +140,7 @@ extend type Mutation {
     ]
   },
   "params": {
+    "cacheID": "cdf5b479621acd117378029eb0cea266",
     "id": null,
     "metadata": {},
     "name": "clientFieldsOnRoots_FooMutation",
@@ -270,6 +271,7 @@ mutation clientFieldsOnRoots_FooMutation(
     ]
   },
   "params": {
+    "cacheID": "0944177ad57ab8d9b6abd67a33085d46",
     "id": null,
     "metadata": {},
     "name": "clientFieldsOnRoots_FooQuery",

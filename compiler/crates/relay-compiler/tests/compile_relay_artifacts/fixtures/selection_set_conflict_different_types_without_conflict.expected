@@ -134,6 +134,7 @@ query selectionSetConflictDifferentTypesWithoutConflictQuery {
     ]
   },
   "params": {
+    "cacheID": "63c678ab0ccd54623b81d906aff2c988",
     "id": null,
     "metadata": {},
     "name": "selectionSetConflictDifferentTypesWithoutConflictQuery",

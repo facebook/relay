@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d97ebbb754ac1b261441ebd7a6bbb54f>>
+ * @generated SignedSource<<c565ff295efdd23678828c2e821e8ed9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -68,7 +68,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "client_edge",
-              "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserClientEdgeResolver.js'),
+              "resolverModule": require('./../resolvers/UserClientEdgeResolver.js'),
               "path": "me.the_alias"
             },
             "linkedField": {

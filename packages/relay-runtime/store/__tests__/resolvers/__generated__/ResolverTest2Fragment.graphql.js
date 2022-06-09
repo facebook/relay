@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3e3c02ca325550970336f2737d4fd530>>
+ * @generated SignedSource<<1e32ee69fa437a9b58401f44e52373b3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +16,14 @@
 
 /*::
 import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+type UserGreetingResolver$key = any;
 import type { FragmentType } from "relay-runtime";
-import userGreetingResolver from "../../../../../relay-test-utils-internal/resolvers/UserGreetingResolver.js";
+import userGreetingResolver from "../UserGreetingResolver.js";
+// Type assertion validating that `userGreetingResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userGreetingResolver: (
+  rootKey: UserGreetingResolver$key, 
+) => mixed);
 declare export opaque type ResolverTest2Fragment$fragmentType: FragmentType;
 type ResolverTest1FragmentRefetchableQuery$variables = any;
 export type ResolverTest2Fragment$data = {|
@@ -57,7 +63,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "greeting",
-      "resolverModule": require('./../../../../../relay-test-utils-internal/resolvers/UserGreetingResolver.js'),
+      "resolverModule": require('./../UserGreetingResolver.js'),
       "path": "greeting"
     },
     {

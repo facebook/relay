@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e4621ccda40afdd16adb63259fcadc14>>
+ * @generated SignedSource<<59b1c85f3ba2eb81497bc11cbebf03d1>>
  */
 
 mod compile_relay_artifacts;
@@ -248,6 +248,13 @@ fn client_linked_fields() {
     let input = include_str!("compile_relay_artifacts/fixtures/client-linked-fields.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client-linked-fields.expected");
     test_fixture(transform_fixture, "client-linked-fields.graphql", "compile_relay_artifacts/fixtures/client-linked-fields.expected", input, expected);
+}
+
+#[test]
+fn client_only_query() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-only-query.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-only-query.expected");
+    test_fixture(transform_fixture, "client-only-query.graphql", "compile_relay_artifacts/fixtures/client-only-query.expected", input, expected);
 }
 
 #[test]
@@ -990,6 +997,13 @@ fn relay_live_resolver() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-live-resolver.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-live-resolver.expected");
     test_fixture(transform_fixture, "relay-live-resolver.graphql", "compile_relay_artifacts/fixtures/relay-live-resolver.expected", input, expected);
+}
+
+#[test]
+fn relay_live_resolver_without_fragment() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-live-resolver-without-fragment.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-live-resolver-without-fragment.expected");
+    test_fixture(transform_fixture, "relay-live-resolver-without-fragment.graphql", "compile_relay_artifacts/fixtures/relay-live-resolver-without-fragment.expected", input, expected);
 }
 
 #[test]

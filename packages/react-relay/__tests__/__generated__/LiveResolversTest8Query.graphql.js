@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1980874c25089c9293f96de45d27301e>>
+ * @generated SignedSource<<1de30972b7823b8d4938a79397433b1f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userResolverThatThrowsResolver from "../../../relay-test-utils-internal/resolvers/ResolverThatThrows.js";
+type ResolverThatThrows$key = any;
+import userResolverThatThrowsResolver from "../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js";
+// Type assertion validating that `userResolverThatThrowsResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userResolverThatThrowsResolver: (
+  rootKey: ResolverThatThrows$key, 
+) => mixed);
 export type LiveResolversTest8Query$variables = {|
   id: string,
 |};
@@ -83,7 +89,7 @@ return {
                 },
                 "kind": "RelayLiveResolver",
                 "name": "resolver_that_throws",
-                "resolverModule": require('./../../../relay-test-utils-internal/resolvers/ResolverThatThrows.js'),
+                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js'),
                 "path": "node.resolver_that_throws"
               }
             ],

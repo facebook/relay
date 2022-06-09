@@ -145,6 +145,7 @@ extend type User {
     ]
   },
   "params": {
+    "cacheID": "04e25ab8f217a0996b121a8ec57a9243",
     "id": null,
     "metadata": {},
     "name": "relayResolversWithDifferentFieldArgsAreNotMerged_Query",

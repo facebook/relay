@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+query relayResolver_Query {
+  me {
+    pop_star_name
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: Int @relay_resolver(import_path: "./foo/bar/baz/PopStarNameResolver.js", live: true)
+}
+==================================== OUTPUT ===================================
+import userPopStarNameResolver from "PopStarNameResolver";
+// Type assertion validating that `userPopStarNameResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userPopStarNameResolver: () => mixed);
+export type relayResolver_Query$variables = {||};
+export type relayResolver_Query$data = {|
+  +me: ?{|
+    +pop_star_name: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>["read"]>,
+  |},
+|};
+export type relayResolver_Query = {|
+  response: relayResolver_Query$data,
+  variables: relayResolver_Query$variables,
+|};

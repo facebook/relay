@@ -55,9 +55,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-            relay_mode: Some(RelayMode {
-                enable_provided_variables: &FeatureFlag::Enabled,
-            }),
+            relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,
         },
     );
@@ -74,7 +72,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
         enable_client_edges: FeatureFlag::Enabled,
-        enable_provided_variables: FeatureFlag::Enabled,
         skip_printing_nulls: FeatureFlag::Disabled,
         enable_fragment_aliases: FeatureFlag::Enabled,
     };
@@ -121,11 +118,13 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 format!("{}{}", import_statements, operation)
             } else {
                 let name = operation.name.item;
-                let print_operation_node = programs
-                    .operation_text
-                    .operation(name)
-                    .expect("a query text operation should be generated for this operation");
-                let text = print_full_operation(&programs.operation_text, print_operation_node);
+                let print_operation_node = programs.operation_text.operation(name);
+                let text = print_operation_node.map_or_else(
+                    || "Query Text is Empty.".to_string(),
+                    |print_operation_node| {
+                        print_full_operation(&programs.operation_text, print_operation_node)
+                    },
+                );
 
                 let reader_operation = programs
                     .reader

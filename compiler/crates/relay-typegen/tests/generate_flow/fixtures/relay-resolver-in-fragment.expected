@@ -25,8 +25,14 @@ export type relayResolver_PopStarNameResolverFragment_name$key = {
   ...
 };
 -------------------------------------------------------------------------------
+import type { relayResolver_PopStarNameResolverFragment_name$key } from "relayResolver_PopStarNameResolverFragment_name.graphql";
 import type { FragmentType } from "relay-runtime";
 import userPopStarNameResolver from "PopStarNameResolver";
+// Type assertion validating that `userPopStarNameResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userPopStarNameResolver: (
+  rootKey: relayResolver_PopStarNameResolverFragment_name$key, 
+) => mixed);
 declare export opaque type relayResolver_consumer$fragmentType: FragmentType;
 export type relayResolver_consumer$data = {|
   +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,

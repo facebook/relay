@@ -1,5 +1,3 @@
-# expected-to-throw
-
 query clientFieldsOnlyNoFragmentInvalidQuery {
   my_alias: client_field
 }

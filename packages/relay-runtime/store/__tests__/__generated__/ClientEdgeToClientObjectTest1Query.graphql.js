@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<232e352367bc7c9943bad4a7096ecaae>>
+ * @generated SignedSource<<686321291799ff1fd09807d15fcd9c25>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +16,20 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import astrologicalSignHouseResolver from "../../../../relay-test-utils-internal/resolvers/AstrologicalSignHouseResolver.js";
-import astrologicalSignNameResolver from "../../../../relay-test-utils-internal/resolvers/AstrologicalSignNameResolver.js";
+type AstrologicalSignHouseResolver$key = any;
+type AstrologicalSignNameResolver$key = any;
+import astrologicalSignHouseResolver from "../resolvers/AstrologicalSignHouseResolver.js";
+// Type assertion validating that `astrologicalSignHouseResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(astrologicalSignHouseResolver: (
+  rootKey: AstrologicalSignHouseResolver$key, 
+) => mixed);
+import astrologicalSignNameResolver from "../resolvers/AstrologicalSignNameResolver.js";
+// Type assertion validating that `astrologicalSignNameResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(astrologicalSignNameResolver: (
+  rootKey: AstrologicalSignNameResolver$key, 
+) => mixed);
 export type ClientEdgeToClientObjectTest1Query$variables = {||};
 export type ClientEdgeToClientObjectTest1Query$data = {|
   +me: ?{|
@@ -61,7 +73,7 @@ v1 = {
   },
   "kind": "RelayResolver",
   "name": "name",
-  "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/AstrologicalSignNameResolver.js'),
+  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver.js'),
   "path": "me.name"
 },
 v2 = {
@@ -74,7 +86,7 @@ v2 = {
   },
   "kind": "RelayResolver",
   "name": "house",
-  "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/AstrologicalSignHouseResolver.js'),
+  "resolverModule": require('./../resolvers/AstrologicalSignHouseResolver.js'),
   "path": "me.house"
 },
 v3 = {
@@ -87,7 +99,7 @@ v3 = {
   },
   "kind": "RelayResolver",
   "name": "opposite",
-  "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/AstrologicalSignOppositeResolver.js'),
+  "resolverModule": require('./../resolvers/AstrologicalSignOppositeResolver.js'),
   "path": "me.opposite"
 };
 return {
@@ -120,7 +132,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "astrological_sign",
-              "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserAstrologicalSignResolver.js'),
+              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver.js'),
               "path": "me.astrological_sign"
             },
             "linkedField": {

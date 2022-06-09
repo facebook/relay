@@ -1,9 +1,0 @@
-# expected-to-throw
-query MyQuery {
-  foo
-}
-
-# %extensions%
-extend type Query {
-  foo: String
-}

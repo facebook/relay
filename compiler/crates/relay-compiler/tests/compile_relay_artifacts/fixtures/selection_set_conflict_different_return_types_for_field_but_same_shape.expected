@@ -242,6 +242,7 @@ query selectionSetConflictDifferentReturnTypesForFieldButSameShapeQuery {
     ]
   },
   "params": {
+    "cacheID": "33740d452487f09fae2847103a8f3e48",
     "id": null,
     "metadata": {},
     "name": "selectionSetConflictDifferentReturnTypesForFieldButSameShapeQuery",

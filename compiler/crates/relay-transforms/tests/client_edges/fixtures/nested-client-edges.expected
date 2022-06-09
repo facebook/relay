@@ -27,8 +27,8 @@ fragment Foo_user on User {
   #     query_name: "ClientEdgeQuery_Foo_user_best_friend",
   # }
    {
-    ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
-    # RelayResolverSpreadMetadata {
+    ...BestFriendResolverFragment_name @__RelayResolverMetadata
+    # RelayResolverMetadata {
     #     field_parent_type: "User",
     #     import_path: "BestFriendResolver",
     #     field_name: "best_friend",
@@ -44,8 +44,8 @@ fragment Foo_user on User {
       #     query_name: "ClientEdgeQuery_Foo_user_best_friend__best_friend",
       # }
        {
-        ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
-        # RelayResolverSpreadMetadata {
+        ...BestFriendResolverFragment_name @__RelayResolverMetadata
+        # RelayResolverMetadata {
         #     field_parent_type: "User",
         #     import_path: "BestFriendResolver",
         #     field_name: "best_friend",
@@ -79,8 +79,8 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGe
   #     query_name: "ClientEdgeQuery_Foo_user_best_friend__best_friend",
   # }
    {
-    ...BestFriendResolverFragment_name @__RelayResolverSpreadMetadata
-    # RelayResolverSpreadMetadata {
+    ...BestFriendResolverFragment_name @__RelayResolverMetadata
+    # RelayResolverMetadata {
     #     field_parent_type: "User",
     #     import_path: "BestFriendResolver",
     #     field_name: "best_friend",

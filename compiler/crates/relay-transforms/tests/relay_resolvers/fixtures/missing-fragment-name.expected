@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  pop_star_name
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(import_path: "PopStarNameResolver", live: true)
+}
+==================================== OUTPUT ===================================
+fragment Foo_user on User {
+  __id @__RelayResolverMetadata
+  # RelayResolverMetadata {
+  #     field_parent_type: "User",
+  #     import_path: "PopStarNameResolver",
+  #     field_name: "pop_star_name",
+  #     field_alias: None,
+  #     field_path: "pop_star_name",
+  #     field_arguments: [],
+  #     live: true,
+  # }
+  
+}
+
+# Implicit Dependencies:
+#

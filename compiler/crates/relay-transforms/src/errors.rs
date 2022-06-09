@@ -118,14 +118,6 @@ pub enum ValidationMessage {
     RequiredExplicitNoInlineDirective { fragment_name: StringKey },
 
     #[error(
-        "After transforms, the operation `{name}` that would be sent to the server is empty. \
-        Relay is not setup to handle such queries. This is likely due to only querying for \
-        client extension fields or `@skip`/`@include` directives with constant values that \
-        remove all selections."
-    )]
-    EmptyOperationResult { name: StringKey },
-
-    #[error(
         "The `@relay_test_operation` directive is only allowed within test \
         files because it creates larger generated files we don't want to \
         include in production. File does not match test regex: {test_path_regex}"

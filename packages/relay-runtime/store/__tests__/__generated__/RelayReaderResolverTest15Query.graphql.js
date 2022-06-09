@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2e91c702f67857f796686b52f2d32c13>>
+ * @generated SignedSource<<088055ab58f999bdd940c32cf328da7d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import queryUndefinedFieldResolver from "../../../../relay-test-utils-internal/resolvers/UndefinedFieldResolver.js";
+type UndefinedFieldResolver$key = any;
+import queryUndefinedFieldResolver from "../resolvers/UndefinedFieldResolver.js";
+// Type assertion validating that `queryUndefinedFieldResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(queryUndefinedFieldResolver: (
+  rootKey: UndefinedFieldResolver$key, 
+) => mixed);
 export type RelayReaderResolverTest15Query$variables = {||};
 export type RelayReaderResolverTest15Query$data = {|
   +undefined_field: ?$Call<<R>((...empty[]) => R) => R, typeof queryUndefinedFieldResolver>,
@@ -44,7 +50,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "undefined_field",
-        "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UndefinedFieldResolver.js'),
+        "resolverModule": require('./../resolvers/UndefinedFieldResolver.js'),
         "path": "undefined_field"
       }
     ],

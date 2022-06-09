@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<48236f8e803f61bb22879d691df2dfb3>>
+ * @generated SignedSource<<2e74f55c92c1a1d9d9b111fbe1bfc415>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-import userAlwaysThrowsTransitivelyResolver from "../../../../relay-test-utils-internal/resolvers/UserAlwaysThrowsTransitivelyResolver.js";
+type UserAlwaysThrowsTransitivelyResolver$key = any;
+import userAlwaysThrowsTransitivelyResolver from "../resolvers/UserAlwaysThrowsTransitivelyResolver.js";
+// Type assertion validating that `userAlwaysThrowsTransitivelyResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userAlwaysThrowsTransitivelyResolver: (
+  rootKey: UserAlwaysThrowsTransitivelyResolver$key, 
+) => mixed);
 export type RelayReaderResolverTest13Query$variables = {||};
 export type RelayReaderResolverTest13Query$data = {|
   +me: ?{|
@@ -54,7 +60,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "always_throws_transitively",
-            "resolverModule": require('./../../../../relay-test-utils-internal/resolvers/UserAlwaysThrowsTransitivelyResolver.js'),
+            "resolverModule": require('./../resolvers/UserAlwaysThrowsTransitivelyResolver.js'),
             "path": "me.always_throws_transitively"
           }
         ],

@@ -25,7 +25,7 @@ use relay_transforms::{
     remove_directive, ClientEdgeMetadata, ClientEdgeMetadataDirective, ConnectionConstants,
     ConnectionMetadata, DeferDirective, FragmentAliasMetadata, InlineDirectiveMetadata,
     ModuleMetadata, NoInlineFragmentSpreadMetadata, RefetchableMetadata, RelayDirective,
-    RelayResolverSpreadMetadata, RequiredMetadataDirective, StreamDirective,
+    RelayResolverMetadata, RequiredMetadataDirective, StreamDirective,
     CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
     INLINE_DIRECTIVE_NAME, INTERNAL_METADATA_DIRECTIVE,
     REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
@@ -169,7 +169,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         variant: CodegenVariant,
         ast_builder: &'builder mut AstBuilder,
         project_config: &'config ProjectConfig,
-        definitiion_source_location: WithLocation<StringKey>,
+        definition_source_location: WithLocation<StringKey>,
     ) -> Self {
         Self {
             connection_constants: Default::default(),
@@ -177,7 +177,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             variant,
             ast_builder,
             project_config,
-            definition_source_location: definitiion_source_location,
+            definition_source_location,
         }
     }
 
@@ -508,6 +508,23 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     }
 
     fn build_scalar_field_and_handles(&mut self, field: &ScalarField) -> Vec<Primitive> {
+        if let Some(resolver_metadata) = RelayResolverMetadata::find(&field.directives) {
+            return match self.variant {
+                CodegenVariant::Reader => {
+                    let resolver_primitive = self.build_relay_resolver(None, resolver_metadata);
+                    if let Some(required_metadata) =
+                        RequiredMetadataDirective::find(&field.directives)
+                    {
+                        vec![self.build_required_field(required_metadata, resolver_primitive)]
+                    } else {
+                        vec![resolver_primitive]
+                    }
+                }
+                CodegenVariant::Normalization => {
+                    vec![self.build_scalar_field(field)]
+                }
+            };
+        }
         match self.variant {
             CodegenVariant::Reader => vec![self.build_scalar_field(field)],
             CodegenVariant::Normalization => {
@@ -799,10 +816,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     ))
                 }),
             }))
-        } else if let Some(resolver_spread_metadata) =
-            RelayResolverSpreadMetadata::find(&frag_spread.directives)
+        } else if let Some(resolver_metadata) = RelayResolverMetadata::find(&frag_spread.directives)
         {
-            let resolver_primitive = self.build_relay_resolver(primitive, resolver_spread_metadata);
+            let resolver_primitive = self.build_relay_resolver(Some(primitive), resolver_metadata);
             if let Some(required_metadata) =
                 RequiredMetadataDirective::find(&frag_spread.directives)
             {
@@ -817,16 +833,16 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
     fn build_relay_resolver(
         &mut self,
-        fragment_primitive: Primitive,
-        relay_resolver_spread_metadata: &RelayResolverSpreadMetadata,
+        fragment_primitive: Option<Primitive>,
+        relay_resolver_metadata: &RelayResolverMetadata,
     ) -> Primitive {
-        let module = relay_resolver_spread_metadata.import_path;
-        let field_name = relay_resolver_spread_metadata.field_name;
-        let field_alias = relay_resolver_spread_metadata.field_alias;
-        let path = relay_resolver_spread_metadata.field_path;
-        let field_arguments = &relay_resolver_spread_metadata.field_arguments;
+        let module = relay_resolver_metadata.import_path;
+        let field_name = relay_resolver_metadata.field_name;
+        let field_alias = relay_resolver_metadata.field_alias;
+        let path = relay_resolver_metadata.field_path;
+        let field_arguments = &relay_resolver_metadata.field_arguments;
 
-        let kind = if relay_resolver_spread_metadata.live {
+        let kind = if relay_resolver_metadata.live {
             CODEGEN_CONSTANTS.relay_live_resolver
         } else {
             CODEGEN_CONSTANTS.relay_resolver
@@ -844,7 +860,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 None => Primitive::SkippableNull,
                 Some(key) => Primitive::Key(key),
             },
-            fragment: fragment_primitive,
+            fragment: match fragment_primitive {
+                None => Primitive::SkippableNull,
+                Some(fragment_primitive) => fragment_primitive,
+            },
             kind: Primitive::String(kind),
             name: Primitive::String(field_name),
             resolver_module: Primitive::JSModuleDependency(import_path),
@@ -1019,7 +1038,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 self.build_fragment_spread(fragment_spread)
             }
             _ => panic!(
-                "Expected Client Edge backing field to be an inline fragment representing a Relay Resolver. {:?}",
+                "Expected Client Edge backing field to be a fragment spread representing a Relay Resolver. {:?}",
                 client_edge_metadata.backing_field
             ),
         };
@@ -1535,8 +1554,23 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     value: Primitive::RawString(text),
                 },
             ]
+        } else if request_parameters.id.is_some() {
+            vec![
+                id_prop,
+                metadata_prop,
+                name_prop,
+                operation_kind_prop,
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.text,
+                    value: Primitive::Null,
+                },
+            ]
         } else {
             vec![
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.cache_id,
+                    value: Primitive::RawString(md5(operation.name.item.lookup())),
+                },
                 id_prop,
                 metadata_prop,
                 name_prop,

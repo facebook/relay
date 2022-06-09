@@ -1,0 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates. All Rights Reserved.
+
+extend type Query {
+  client_root_field: String
+}

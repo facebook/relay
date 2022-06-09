@@ -178,7 +178,7 @@ class ClientEdgeQueryResultsCache {
     }
   }
 
-  _retain(id) {
+  _retain(id: string) {
     const retainCount = (this._retainCounts.get(id) ?? 0) + 1;
     this._retainCounts.set(id, retainCount);
     return {

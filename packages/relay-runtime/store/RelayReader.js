@@ -684,7 +684,7 @@ class RelayReader {
       // local within their type. ResolverCache will derive a namespaced ID for us.
       if (field.linkedField.plural) {
         // $FlowFixMe[prop-missing]
-        destinationDataID = destinationDataID.map((id) =>
+        destinationDataID = destinationDataID.map(id =>
           this._resolverCache.ensureClientRecord(id, field.concreteType),
         );
       } else {

@@ -227,11 +227,22 @@ function subscribeToSnapshot(
     return () => {};
   } else if (state.kind === 'singular') {
     const disposable = environment.subscribe(state.snapshot, latestSnapshot => {
-      setState(_ => ({
-        kind: 'singular',
-        snapshot: latestSnapshot,
-        epoch: environment.getStore().getEpoch(),
-      }));
+      setState(prevState => {
+        // In theory a setState from a subscription could be batched together
+        // with a setState to change the fragment selector. Guard against this
+        // by bailing out of the state update if the selector has changed.
+        if (
+          prevState.kind !== 'singular' ||
+          prevState.snapshot.selector !== latestSnapshot.selector
+        ) {
+          return prevState;
+        }
+        return {
+          kind: 'singular',
+          snapshot: latestSnapshot,
+          epoch: environment.getStore().getEpoch(),
+        };
+      });
     });
     return () => {
       disposable.dispose();
@@ -239,12 +250,17 @@ function subscribeToSnapshot(
   } else {
     const disposables = state.snapshots.map((snapshot, index) =>
       environment.subscribe(snapshot, latestSnapshot => {
-        setState(existing => {
-          invariant(
-            existing.kind === 'plural',
-            'Cannot go from singular to plural or from bailout to plural.',
-          );
-          const updated = [...existing.snapshots];
+        setState(prevState => {
+          // In theory a setState from a subscription could be batched together
+          // with a setState to change the fragment selector. Guard against this
+          // by bailing out of the state update if the selector has changed.
+          if (
+            prevState.kind !== 'plural' ||
+            prevState.snapshots[index]?.selector !== latestSnapshot.selector
+          ) {
+            return prevState;
+          }
+          const updated = [...prevState.snapshots];
           updated[index] = latestSnapshot;
           return {
             kind: 'plural',
@@ -464,23 +480,7 @@ function useFragmentInternal_REACT_CACHE(
       }
       currentState = updatedState;
     }
-    return subscribeToSnapshot(environment, currentState, updater => {
-      setState(latestState => {
-        if (
-          latestState.snapshot?.selector !== currentState.snapshot?.selector
-        ) {
-          // Ignore updates to the subscription if it's for a previous fragment selector
-          // than the latest one to be rendered. This can happen if the store is updated
-          // after we re-render with a new fragmentRef prop but before the effect fires
-          // in which we unsubscribe to the old one and subscribe to the new one.
-          // (NB: it's safe to compare the selectors by reference because the selector
-          // is recycled into new snapshots.)
-          return latestState;
-        } else {
-          return updater(latestState);
-        }
-      });
-    });
+    return subscribeToSnapshot(environment, currentState, setState);
   }, [environment, subscribedState]);
 
   let data: ?SelectorData | Array<?SelectorData>;

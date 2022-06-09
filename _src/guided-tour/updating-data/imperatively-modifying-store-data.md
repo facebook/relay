@@ -46,7 +46,7 @@ For example, if two optimistic responses each increase a story's like count by o
 
 ### To trigger other side effects
 
-You should use the `onCompleted` callback to trigger other side effects.
+You should use the `onCompleted` callback to trigger other side effects. `onCompleted` callbacks are guaranteed to be called once, but updaters and optimistic updaters can be called repeatedly.
 
 ## The various types of updater functions
 

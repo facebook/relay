@@ -1112,7 +1112,7 @@ class RelayReader {
     const parentFragmentName = this._fragmentName;
     this._fragmentName = fragmentSpreadOrFragment.name;
 
-    let temporaryTraversalVariables = this._variables;
+    const parentVariables = this._variables;
 
     // If the inline fragment spread has arguments, we need to temporarily
     // switch this._variables to include the fragment spread's arguments
@@ -1124,12 +1124,8 @@ class RelayReader {
       );
 
       // Inherit the operation's arguments and give local fragment arguments higher priority
-      temporaryTraversalVariables = {...this._variables, ...spreadArguments};
+      this._variables = {...this._variables, ...spreadArguments};
     }
-
-    // Swap out the variables
-    const parentVariables = this._variables;
-    this._variables = temporaryTraversalVariables;
 
     this._traverseSelections(
       fragmentSpreadOrFragment.selections,

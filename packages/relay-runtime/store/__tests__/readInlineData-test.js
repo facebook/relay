@@ -64,7 +64,7 @@ test('unwrap inline fragment data', () => {
 });
 
 describe('integration test with variables', () => {
-  test.only('works with fragment variables & query variables', () => {
+  test('works with fragment variables & query variables', () => {
     const Fragment = graphql`
       fragment readInlineDataTestFragmentAndQueryVariables on User
       @inline

@@ -70,13 +70,21 @@ type QueryCacheEntry = {|
 
 const DEFAULT_FETCH_POLICY = 'store-or-network';
 
+const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
+
+interface IMap<K, V> {
+  delete(key: K): boolean;
+  get(key: K): V | void;
+  set(key: K, value: V): IMap<K, V>;
+}
+
 type QueryCacheKey = string;
 
 class QueryCache {
-  _map: Map<IEnvironment, Map<QueryCacheKey, QueryCacheEntry>>;
+  _map: IMap<IEnvironment, Map<QueryCacheKey, QueryCacheEntry>>;
 
   constructor() {
-    this._map = new Map();
+    this._map = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
   }
 
   get(environment: IEnvironment, key: QueryCacheKey): QueryCacheEntry | void {

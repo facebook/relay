@@ -44,11 +44,13 @@ disallowConsoleErrors();
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
+  RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
   resetStore();
 });
 
 afterEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
+  RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
 });
 
 test('Can read an external state resolver directly', () => {
@@ -1003,4 +1005,44 @@ test('with client-only field and args', () => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
   expect(renderer.toJSON()).toEqual('Counter is 2');
+});
+
+test('Can read a live client edge without a fragment', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+    '1338': {
+      __id: '1338',
+      id: '1338',
+      __typename: 'User',
+      name: 'Elizabeth',
+    },
+  });
+
+  const FooQuery = graphql`
+    query LiveResolversTest13Query {
+      live_constant_client_edge @waterfall {
+        name
+      }
+    }
+  `;
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const store = new LiveResolverStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  const data = environment.lookup(operation.fragment).data;
+  expect(data).toEqual({
+    live_constant_client_edge: {
+      name: 'Elizabeth',
+    },
+  });
 });

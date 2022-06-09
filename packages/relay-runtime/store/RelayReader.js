@@ -1128,7 +1128,7 @@ class RelayReader {
     }
 
     // Swap out the variables
-    let oldVariables = this._variables;
+    const parentVariables = this._variables;
     this._variables = temporaryTraversalVariables;
 
     this._traverseSelections(
@@ -1137,8 +1137,8 @@ class RelayReader {
       inlineData,
     );
 
-    // Put the old variables back
-    this._variables = oldVariables;
+    // Put the parent variables back
+    this._variables = parentVariables;
 
     this._fragmentName = parentFragmentName;
     // $FlowFixMe[cannot-write] - writing into read-only field

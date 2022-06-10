@@ -17,7 +17,10 @@ import type {
   NormalizationLocalArgumentDefinition,
   NormalizationOperation,
 } from '../util/NormalizationNode';
-import type {ReaderFragment} from '../util/ReaderNode';
+import type {
+  ReaderFragment,
+  ReaderInlineDataFragmentSpread,
+} from '../util/ReaderNode';
 import type {ProvidedVariablesType} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
@@ -32,7 +35,7 @@ const invariant = require('invariant');
  * Note that this is analagous to determining function arguments given a function call.
  */
 function getFragmentVariables(
-  fragment: ReaderFragment,
+  fragment: ReaderFragment | ReaderInlineDataFragmentSpread,
   rootVariables: Variables,
   argumentVariables: Variables,
 ): Variables {

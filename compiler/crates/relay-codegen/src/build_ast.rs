@@ -1438,7 +1438,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     ) -> Primitive {
         let selections = self.build_selections(context, inline_fragment.selections.iter());
         let args = self.build_arguments(&inline_directive_data.arguments);
-        
+
         Primitive::Key(self.object(object! {
             kind: Primitive::String(CODEGEN_CONSTANTS.inline_data_fragment_spread),
             name: Primitive::String(inline_directive_data.fragment_name),

@@ -247,5 +247,3 @@ const data = useLazyLoadQuery(graphql`
 ## Current Limitations
 
 - Relay Resolvers are still considered experimental. To use them you must ensure that the `ENABLE_RELAY_RESOLVERS` runtime feature flag is enabled, and that the `enable_relay_resolver_transform` feature flag is enabled in your project’s Relay config file.
-- Relay Resolvers don’t yet have access to query variables. If this is functionality that would be useful to you, please get in touch.
-- Currently Relay Resolvers only work with Haste module resolution, where modules are imported using their globally unique name, rather than by path.

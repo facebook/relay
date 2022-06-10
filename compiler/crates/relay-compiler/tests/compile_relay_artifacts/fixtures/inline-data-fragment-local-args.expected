@@ -75,6 +75,15 @@ fragment inlineDataFragmentLocalArgsProfile on User
                 100
               ]
             }
+          ],
+          "argumentDefinitions": [
+            {
+              "defaultValue": [
+                50
+              ],
+              "kind": "LocalArgument",
+              "name": "sizeArg"
+            }
           ]
         }
       ],
@@ -123,6 +132,15 @@ fragment inlineDataFragmentLocalArgsProfile on User
               "name": "sizeArg",
               "variableName": "globalSizeVar"
             }
+          ],
+          "argumentDefinitions": [
+            {
+              "defaultValue": [
+                50
+              ],
+              "kind": "LocalArgument",
+              "name": "sizeArg"
+            }
           ]
         }
       ],
@@ -165,7 +183,16 @@ fragment inlineDataFragmentLocalArgsProfile on User
               "storageKey": null
             }
           ],
-          "args": null
+          "args": null,
+          "argumentDefinitions": [
+            {
+              "defaultValue": [
+                50
+              ],
+              "kind": "LocalArgument",
+              "name": "sizeArg"
+            }
+          ]
         }
       ],
       "storageKey": null

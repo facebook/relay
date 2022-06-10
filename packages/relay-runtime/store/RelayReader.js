@@ -49,6 +49,8 @@ import type {
 import type {Arguments} from './RelayStoreUtils';
 import type {EvaluationResult, ResolverCache} from './ResolverCache';
 
+import RelayConcreteVariables from './RelayConcreteVariables';
+
 const {
   ACTOR_CHANGE,
   ALIASED_FRAGMENT_SPREAD,
@@ -1118,13 +1120,19 @@ class RelayReader {
     // switch this._variables to include the fragment spread's arguments
     // for the duration of its traversal.
     if (fragmentSpreadOrFragment.args) {
-      const spreadArguments = getArgumentValues(
+      const argumentVariables = getArgumentValues(
         fragmentSpreadOrFragment.args,
         this._variables,
       );
 
+      RelayConcreteVariables.getFragmentVariables(
+        fragmentSpreadOrFragment,
+        this._variables,
+        argumentVariables,
+      );
+
       // Inherit the operation's arguments and give local fragment arguments higher priority
-      this._variables = {...this._variables, ...spreadArguments};
+      this._variables = {...this._variables, ...argumentVariables};
     }
 
     this._traverseSelections(

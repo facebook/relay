@@ -34,6 +34,7 @@ export type ReaderInlineDataFragmentSpread = {|
   +name: string,
   +selections: $ReadOnlyArray<ReaderSelection>,
   +args?: ?$ReadOnlyArray<ReaderArgument>,
+  +argumentDefinitions: $ReadOnlyArray<ReaderArgumentDefinition>,
 |};
 
 export type ReaderFragment = {|

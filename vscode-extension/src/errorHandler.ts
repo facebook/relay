@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { window } from 'vscode';
-import { CloseAction, ErrorAction, ErrorHandler } from 'vscode-languageclient';
-import { RelayExtensionContext } from './context';
+import {window} from 'vscode';
+import {CloseAction, ErrorAction, ErrorHandler} from 'vscode-languageclient';
+import {RelayExtensionContext} from './context';
 
 export function createErrorHandler(
   context: RelayExtensionContext,
@@ -35,7 +35,7 @@ export function createErrorHandler(
           'Go to output',
           'Ignore',
         )
-        .then((selected) => {
+        .then(selected => {
           if (selected === 'Go to output') {
             context.primaryOutputChannel.show();
           }
@@ -51,7 +51,7 @@ export function createErrorHandler(
           'Go to output',
           'Ignore',
         )
-        .then((selected) => {
+        .then(selected => {
           if (selected === 'Go to output') {
             context.primaryOutputChannel.show();
           }

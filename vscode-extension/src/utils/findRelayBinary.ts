@@ -8,9 +8,9 @@
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import * as semver from 'semver';
-import { OutputChannel, window, workspace } from 'vscode';
-import { SEMVER_RANGE } from '../constants';
-import { getConfig } from '../config';
+import {OutputChannel, window, workspace} from 'vscode';
+import {SEMVER_RANGE} from '../constants';
+import {getConfig} from '../config';
 
 async function exists(file: string): Promise<boolean> {
   return fs
@@ -86,10 +86,10 @@ async function findRelayCompilerDirectory(
 }
 
 type RelayCompilerPackageInformation =
-  | { kind: 'compilerFound'; path: string }
-  | { kind: 'prereleaseCompilerFound'; path: string }
-  | { kind: 'architectureNotSupported' }
-  | { kind: 'packageNotFound' }
+  | {kind: 'compilerFound'; path: string}
+  | {kind: 'prereleaseCompilerFound'; path: string}
+  | {kind: 'architectureNotSupported'}
+  | {kind: 'packageNotFound'}
   | {
       kind: 'versionDidNotMatch';
       path: string;
@@ -103,13 +103,13 @@ async function findRelayCompilerBinary(
   const relayCompilerDirectory = await findRelayCompilerDirectory(rootPath);
 
   if (!relayCompilerDirectory) {
-    return { kind: 'packageNotFound' };
+    return {kind: 'packageNotFound'};
   }
 
   const relayBinaryRelativeToPackage = getBinaryPathRelativeToPackage();
 
   if (!relayBinaryRelativeToPackage) {
-    return { kind: 'architectureNotSupported' };
+    return {kind: 'architectureNotSupported'};
   }
 
   const packageManifest = JSON.parse(

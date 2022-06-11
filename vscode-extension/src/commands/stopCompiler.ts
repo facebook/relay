@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { window } from 'vscode';
-import { RelayExtensionContext } from '../context';
-import { killCompiler } from '../compiler';
+import {window} from 'vscode';
+import {RelayExtensionContext} from '../context';
+import {killCompiler} from '../compiler';
 
 export function handleStopCompilerCommand(
   context: RelayExtensionContext,

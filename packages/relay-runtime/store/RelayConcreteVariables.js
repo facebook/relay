@@ -99,7 +99,15 @@ function getOperationVariables(
 
   if (providedVariables != null) {
     Object.keys(providedVariables).forEach((varName: string) => {
-      operationVariables[varName] = providedVariables[varName].get();
+      const providedVariable = providedVariables[varName];
+
+      const getter: () => mixed =
+        typeof providedVariable.get === 'function'
+          ? providedVariable.get
+          : // $FlowIgnore[incompatible-use] Flow can't tell that `default` has to exist here
+            providedVariable.default.get;
+
+      operationVariables[varName] = getter();
     });
   }
   return operationVariables;

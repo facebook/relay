@@ -34,7 +34,12 @@ function withProvidedVariables(
     const operationVariables: {[string]: mixed} = {};
     Object.assign(operationVariables, userSuppliedVariables);
     Object.keys(providedVariables).forEach((varName: string) => {
-      const providerFunction = providedVariables[varName].get;
+      const providerModule = providedVariables[varName];
+      const providerFunction =
+        typeof providerModule.get === 'function'
+          ? providerModule.get
+          : // $FlowIgnore[incompatible-use] Flow can't tell that `default` has to exist here
+            providerModule.default.get;
       const providerResult = providerFunction();
 
       // people like to ignore these warnings, so use the cache to

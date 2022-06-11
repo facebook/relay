@@ -137,10 +137,8 @@
     "arrowParens": "avoid",
     "bracketSameLine": true,
     "bracketSpacing": false,
-    "requirePragma": true,
     "singleQuote": true,
-    "trailingComma": "all",
-    "parser": "flow"
+    "trailingComma": "all"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

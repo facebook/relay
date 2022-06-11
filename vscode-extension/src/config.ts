@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { ConfigurationScope, workspace } from 'vscode';
+import {ConfigurationScope, workspace} from 'vscode';
 
 export type Config = {
   rootDirectory: string | null;

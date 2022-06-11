@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { createAndStartCompiler, killCompiler } from '../compiler';
-import { getConfig } from '../config';
-import { RelayExtensionContext } from '../context';
+import {createAndStartCompiler, killCompiler} from '../compiler';
+import {getConfig} from '../config';
+import {RelayExtensionContext} from '../context';
 import {
   createAndStartLanguageClient,
   killLanguageClient,
@@ -28,7 +28,7 @@ export function handleRestartLanguageServerCommand(
     createAndStartCompiler(context);
   }
 
-  killLanguageClient(context).then((languageClientKilledSuccessfully) => {
+  killLanguageClient(context).then(languageClientKilledSuccessfully => {
     if (languageClientKilledSuccessfully) {
       createAndStartLanguageClient(context);
     }

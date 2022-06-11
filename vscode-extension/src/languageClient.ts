@@ -9,12 +9,12 @@ import {
   LanguageClientOptions,
   RevealOutputChannelOn,
 } from 'vscode-languageclient';
-import { ServerOptions, LanguageClient } from 'vscode-languageclient/node';
-import { window } from 'vscode';
-import { RelayExtensionContext } from './context';
-import { createErrorHandler } from './errorHandler';
-import { LSPStatusBarFeature } from './lspStatusBarFeature';
-import { getConfig } from './config';
+import {ServerOptions, LanguageClient} from 'vscode-languageclient/node';
+import {window} from 'vscode';
+import {RelayExtensionContext} from './context';
+import {createErrorHandler} from './errorHandler';
+import {LSPStatusBarFeature} from './lspStatusBarFeature';
+import {getConfig} from './config';
 
 export function createAndStartLanguageClient(context: RelayExtensionContext) {
   const config = getConfig();
@@ -43,10 +43,10 @@ export function createAndStartLanguageClient(context: RelayExtensionContext) {
       isTrusted: true,
     },
     documentSelector: [
-      { scheme: 'file', language: 'javascript' },
-      { scheme: 'file', language: 'typescript' },
-      { scheme: 'file', language: 'typescriptreact' },
-      { scheme: 'file', language: 'javascriptreact' },
+      {scheme: 'file', language: 'javascript'},
+      {scheme: 'file', language: 'typescript'},
+      {scheme: 'file', language: 'typescriptreact'},
+      {scheme: 'file', language: 'javascriptreact'},
     ],
 
     outputChannel: context.lspOutputChannel,
@@ -55,7 +55,7 @@ export function createAndStartLanguageClient(context: RelayExtensionContext) {
     // in VSCode shows up a lot. This tells vscode not to show it in any case.
     revealOutputChannelOn: RevealOutputChannelOn.Never,
 
-    initializationFailedHandler: (error) => {
+    initializationFailedHandler: error => {
       context?.primaryOutputChannel.appendLine(
         `initializationFailedHandler ${error}`,
       );

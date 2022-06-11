@@ -28,7 +28,7 @@
           "name": "punctuation.definition.string.template.end.js"
         }
       },
-      "patterns": [{ "include": "source.graphql" }]
+      "patterns": [{"include": "source.graphql"}]
     },
     {
       "name": "taggedTemplates",
@@ -48,7 +48,7 @@
           "name": "punctuation.definition.string.template.end.js"
         }
       },
-      "patterns": [{ "include": "source.graphql" }]
+      "patterns": [{"include": "source.graphql"}]
     }
   ],
   "scopeName": "inline.graphql"

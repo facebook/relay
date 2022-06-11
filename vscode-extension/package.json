@@ -110,9 +110,13 @@
           "type": "array", 
           "items": {
             "type": "object",
-            "required": ["pathToConfig"],
+            "required": ["pathToConfig", "name"],
             "title": "A single Relay project path info",
             "properties": {
+              "name": {
+                "type": "string",
+                "description": "The name of the project. We'll use this to display messages related to the project's output."
+              },
               "rootDirectory": {
                 "type":"string",
                 "description": "A path relative to the root of your VSCode project for the extension to work from. The default value is the root of your project. This will change where we start looking for the relay-compiler node module. This will also affect where the LSP server is started, therefore affecting how the relay config is found. This is helpful if your project is in a nested directory."

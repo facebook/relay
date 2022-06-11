@@ -14,7 +14,7 @@ type RelayProject = {
 };
 
 export type Config = {
-  projects: RelayProject[];
+  projects: RelayProject[] | null;
   pathToRelay: string | null;
   lspOutputLevel: string;
   compilerOutpuLevel: string;
@@ -25,7 +25,7 @@ export function getConfig(scope?: ConfigurationScope): Config {
   const configuration = workspace.getConfiguration('relay', scope);
 
   return {
-    projects: configuration.get('projects') ?? [],
+    projects: configuration.get('projects') ?? null,
     pathToRelay: configuration.get('pathToRelay') ?? null,
     autoStartCompiler: configuration.get('autoStartCompiler') ?? false,
     compilerOutpuLevel: configuration.get('compilerOutputLevel') ?? 'info',

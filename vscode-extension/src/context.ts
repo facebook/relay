@@ -6,14 +6,17 @@
  */
 
 import {ExtensionContext, OutputChannel, StatusBarItem, Terminal} from 'vscode';
+import {LanguageClient} from 'vscode-languageclient/node';
 
-type BinaryExecutionOptions = {
+export type BinaryExecutionOptions = {
   rootPath: string;
   binaryPath: string;
+  pathToConfig: string | null;
 };
 
-type RelayProject = {
+export type RelayProject = {
   name: string;
+  client: LanguageClient | null;
   binaryExecutionOptions: BinaryExecutionOptions;
   compilerTerminal: Terminal | null;
   lspOutputChannel: OutputChannel;
@@ -35,13 +38,25 @@ export type RelayExtensionContext = {
   statusBar: StatusBarItem;
   extensionContext: ExtensionContext;
   primaryOutputChannel: OutputChannel;
-  projects: Record<string, RelayProject>;
+  projects: RelayProject[];
 };
 
 // Take the `RelayExtensionContext` type and replace `projects` with a singular `project`
-export type RelayProjectExtensionContext = Exclude<
+export type RelayProjectExtensionContext = Omit<
   RelayExtensionContext,
   'projects'
 > & {
   project: RelayProject;
 };
+
+export function createProjectContextFromExtensionContext(
+  extensionContext: RelayExtensionContext,
+  project: RelayProject,
+): RelayProjectExtensionContext {
+  // We're discarding project to build the project extension context
+  // eslint-disable-next-line @typescript-eslint/naming-convention
+  const {projects: _, ...rest} = extensionContext;
+  const projectContext: RelayProjectExtensionContext = {...rest, project};
+
+  return projectContext;
+}

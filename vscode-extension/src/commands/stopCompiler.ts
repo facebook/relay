@@ -6,17 +6,27 @@
  */
 
 import {window} from 'vscode';
-import {RelayExtensionContext} from '../context';
+import {
+  createProjectContextFromExtensionContext,
+  RelayExtensionContext,
+} from '../context';
 import {killCompiler} from '../compiler';
 
 export function handleStopCompilerCommand(
   context: RelayExtensionContext,
 ): void {
-  if (!context.compilerTerminal) {
-    window.showWarningMessage('Relay Compiler not running.');
+  for (const project of context.projects) {
+    const projectContext = createProjectContextFromExtensionContext(
+      context,
+      project,
+    );
 
-    return;
+    if (!project.compilerTerminal) {
+      window.showWarningMessage('Relay Compiler not running.');
+
+      return;
+    }
+
+    killCompiler(projectContext);
   }
-
-  killCompiler(context);
 }

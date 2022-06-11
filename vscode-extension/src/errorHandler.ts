@@ -7,10 +7,10 @@
 
 import {window} from 'vscode';
 import {CloseAction, ErrorAction, ErrorHandler} from 'vscode-languageclient';
-import {RelayExtensionContext} from './context';
+import {RelayProjectExtensionContext} from './context';
 
 export function createErrorHandler(
-  context: RelayExtensionContext,
+  context: RelayProjectExtensionContext,
 ): ErrorHandler {
   return {
     // This happens when the LSP server stops running.

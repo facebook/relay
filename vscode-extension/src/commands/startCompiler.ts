@@ -6,19 +6,29 @@
  */
 
 import {window} from 'vscode';
-import {RelayExtensionContext} from '../context';
+import {
+  createProjectContextFromExtensionContext,
+  RelayExtensionContext,
+} from '../context';
 import {createAndStartCompiler} from '../compiler';
 
 export function handleStartCompilerCommand(
   context: RelayExtensionContext,
 ): void {
-  if (context.compilerTerminal) {
-    window.showWarningMessage(
-      'Relay Compiler already running. Restart it with relay.restart',
+  for (const project of Object.values(context.projects)) {
+    const projectContext = createProjectContextFromExtensionContext(
+      context,
+      project,
     );
 
-    return;
-  }
+    if (project.compilerTerminal) {
+      window.showWarningMessage(
+        'Relay Compiler already running. Restart it with relay.restart',
+      );
 
-  createAndStartCompiler(context);
+      return;
+    }
+
+    createAndStartCompiler(projectContext);
+  }
 }

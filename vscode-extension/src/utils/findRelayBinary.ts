@@ -156,12 +156,13 @@ async function findRelayCompilerBinary(
 
 export async function findRelayBinaryWithWarnings(
   outputChannel: OutputChannel,
+  rootDirectoryRelativeToWorkspaceRoot: string | null,
 ): Promise<string | null> {
   const config = getConfig();
 
   let rootPath = workspace.rootPath || process.cwd();
-  if (config.rootDirectory) {
-    rootPath = path.join(rootPath, config.rootDirectory);
+  if (rootDirectoryRelativeToWorkspaceRoot) {
+    rootPath = path.join(rootPath, rootDirectoryRelativeToWorkspaceRoot);
   }
 
   outputChannel.appendLine(

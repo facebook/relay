@@ -11,7 +11,7 @@ import {
   InitializeParams,
   RequestType,
 } from 'vscode-languageclient';
-import {RelayExtensionContext} from './context';
+import {RelayProjectExtensionContext} from './context';
 
 // the following type definitions are one to one mappings of the types defined
 // by the lsp_types package in this rust crate.
@@ -99,7 +99,7 @@ function getStatusBarIcon(params: ShowStatusParams): string {
 // The source of truth is currently marked here
 // https://github.com/facebook/relay/blob/main/compiler/crates/relay-lsp/src/status_updater.rs#L82
 export function handleShowStatusMethod(
-  context: RelayExtensionContext,
+  context: RelayProjectExtensionContext,
   params: ShowStatusParams,
 ): void {
   const icon = getStatusBarIcon(params);
@@ -125,11 +125,11 @@ export function handleShowStatusMethod(
 // get messages from the LSP server.
 // e.g. Looking for Relay binary...
 export class LSPStatusBarFeature implements StaticFeature {
-  private context: RelayExtensionContext;
+  private context: RelayProjectExtensionContext;
 
   private disposable: Disposable | undefined;
 
-  constructor(context: RelayExtensionContext) {
+  constructor(context: RelayProjectExtensionContext) {
     this.context = context;
   }
 
@@ -139,7 +139,7 @@ export class LSPStatusBarFeature implements StaticFeature {
   fillClientCapabilities(): void {}
 
   initialize(): void {
-    this.disposable = this.context.client?.onRequest(
+    this.disposable = this.context.project.client?.onRequest(
       new RequestType<ShowStatusParams, void, void>('window/showStatus'),
       params => {
         handleShowStatusMethod(this.context, params);

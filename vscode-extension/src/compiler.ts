@@ -6,11 +6,11 @@
  */
 
 import {window} from 'vscode';
-import {RelayExtensionContext} from './context';
+import {RelayProjectExtensionContext} from './context';
 import {getConfig} from './config';
 
-export function createAndStartCompiler(context: RelayExtensionContext) {
-  if (context.compilerTerminal) {
+export function createAndStartCompiler(context: RelayProjectExtensionContext) {
+  if (context.project.compilerTerminal) {
     return;
   }
 
@@ -18,40 +18,42 @@ export function createAndStartCompiler(context: RelayExtensionContext) {
 
   const args: string[] = ['--watch', `--output=${config.compilerOutpuLevel}`];
 
-  if (config.pathToConfig) {
-    args.push(config.pathToConfig);
+  if (context.project.binaryExecutionOptions.pathToConfig) {
+    args.push(context.project.binaryExecutionOptions.pathToConfig);
   }
 
   const terminal = window.createTerminal({
     name: 'Relay Compiler',
-    cwd: context.relayBinaryExecutionOptions.rootPath,
+    cwd: context.project.binaryExecutionOptions.rootPath,
   });
 
   terminal.sendText(
-    `${context.relayBinaryExecutionOptions.binaryPath} ${args.join(' ')}`,
+    `${context.project.binaryExecutionOptions.binaryPath} ${args.join(' ')}`,
   );
 
   terminal.show();
 
   context.extensionContext.subscriptions.push(terminal);
 
-  context.compilerTerminal = terminal;
+  context.project.compilerTerminal = terminal;
 }
 
 type DidNotError = boolean;
 
-export function killCompiler(context: RelayExtensionContext): DidNotError {
-  if (!context.compilerTerminal) {
+export function killCompiler(
+  context: RelayProjectExtensionContext,
+): DidNotError {
+  if (!context.project.compilerTerminal) {
     return true;
   }
 
-  context.compilerTerminal.dispose();
+  context.project.compilerTerminal.dispose();
 
   context.primaryOutputChannel.appendLine(
     'Successfully stopped existing relay compiler',
   );
 
-  context.compilerTerminal = null;
+  context.project.compilerTerminal = null;
 
   return true;
 }

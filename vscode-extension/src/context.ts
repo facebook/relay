@@ -70,6 +70,7 @@ export function createProjectContextFromExtensionContext(
     _outputChannel,
     ...rest
   } = extensionContext;
+
   const projectContext: RelayProjectExtensionContext = {
     ...rest,
     project,

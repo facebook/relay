@@ -7,14 +7,14 @@
 
 import {ConfigurationScope, workspace} from 'vscode';
 
-type RelayProject = {
+export type RelayProjectConfig = {
   name: string;
   pathToConfig: string;
   rootDirectory: string | null;
 };
 
 export type Config = {
-  projects: RelayProject[] | null;
+  projects: RelayProjectConfig[] | null;
   pathToRelay: string | null;
   lspOutputLevel: string;
   compilerOutpuLevel: string;

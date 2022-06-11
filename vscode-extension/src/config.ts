@@ -8,6 +8,7 @@
 import {ConfigurationScope, workspace} from 'vscode';
 
 type RelayProject = {
+  name: string;
   pathToConfig: string;
   rootDirectory: string | null;
 };

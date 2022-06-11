@@ -6,7 +6,18 @@
  */
 
 import {ExtensionContext, OutputChannel, StatusBarItem, Terminal} from 'vscode';
-import {LanguageClient} from 'vscode-languageclient/node';
+
+type BinaryExecutionOptions = {
+  rootPath: string;
+  binaryPath: string;
+};
+
+type RelayProject = {
+  name: string;
+  binaryExecutionOptions: BinaryExecutionOptions;
+  compilerTerminal: Terminal | null;
+  lspOutputChannel: OutputChannel;
+};
 
 // Mutable object to pass around to command handlers so they
 // can reference the current state of the extension
@@ -22,13 +33,15 @@ import {LanguageClient} from 'vscode-languageclient/node';
 // https://code.visualstudio.com/api/extension-capabilities/common-capabilities#data-storage
 export type RelayExtensionContext = {
   statusBar: StatusBarItem;
-  client: LanguageClient | null;
-  lspOutputChannel: OutputChannel;
   extensionContext: ExtensionContext;
   primaryOutputChannel: OutputChannel;
-  compilerTerminal: Terminal | null;
-  relayBinaryExecutionOptions: {
-    rootPath: string;
-    binaryPath: string;
-  };
+  projects: Record<string, RelayProject>;
+};
+
+// Take the `RelayExtensionContext` type and replace `projects` with a singular `project`
+export type RelayProjectExtensionContext = Exclude<
+  RelayExtensionContext,
+  'projects'
+> & {
+  project: RelayProject;
 };

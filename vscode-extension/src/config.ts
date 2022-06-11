@@ -7,10 +7,14 @@
 
 import { ConfigurationScope, workspace } from 'vscode';
 
-export type Config = {
+type RelayProject = {
+  pathToConfig: string;
   rootDirectory: string | null;
+};
+
+export type Config = {
+  projects: RelayProject[];
   pathToRelay: string | null;
-  pathToConfig: string | null;
   lspOutputLevel: string;
   compilerOutpuLevel: string;
   autoStartCompiler: boolean;
@@ -20,11 +24,10 @@ export function getConfig(scope?: ConfigurationScope): Config {
   const configuration = workspace.getConfiguration('relay', scope);
 
   return {
+    projects: configuration.get('projects') ?? [],
     pathToRelay: configuration.get('pathToRelay') ?? null,
-    pathToConfig: configuration.get('pathToConfig') ?? null,
-    lspOutputLevel: configuration.get('lspOutputLevel') ?? 'quiet-with-errros',
-    compilerOutpuLevel: configuration.get('compilerOutputLevel') ?? 'info',
-    rootDirectory: configuration.get('rootDirectory') ?? null,
     autoStartCompiler: configuration.get('autoStartCompiler') ?? false,
+    compilerOutpuLevel: configuration.get('compilerOutputLevel') ?? 'info',
+    lspOutputLevel: configuration.get('lspOutputLevel') ?? 'quiet-with-errros',
   };
 }

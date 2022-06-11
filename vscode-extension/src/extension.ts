@@ -115,7 +115,7 @@ async function buildRelayExtensionContext(
   }
 
   relayLog(
-    '[Relay] - Stopping execution of the Relay VSCode extension since we could not find a valid compiler for any of your defined projects.',
+    'Stopping execution of the Relay VSCode extension since we could not find a valid compiler for any of your defined projects.',
   );
 
   return null;

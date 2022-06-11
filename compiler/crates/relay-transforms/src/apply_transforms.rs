@@ -311,7 +311,7 @@ fn apply_operation_transforms(
     })?;
 
     program = log_event.time("preserve_client_edge_backing_ids", || {
-        preserve_client_edge_backing_ids(&program)
+        remove_client_edge_selections(&program)
     })?;
 
     program = log_event.time("split_module_import", || {
@@ -597,7 +597,7 @@ fn apply_typegen_transforms(
         )
     })?;
     program = log_event.time("preserve_client_edge_selections", || {
-        preserve_client_edge_selections(&program)
+        remove_client_edge_backing_ids(&program)
     })?;
     log_event.time("flatten", || flatten(&mut program, false, false))?;
     program = log_event.time("transform_refetchable_fragment", || {

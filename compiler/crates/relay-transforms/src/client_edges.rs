@@ -441,7 +441,7 @@ fn make_refetchable_directive(query_name: StringKey) -> Directive {
     }
 }
 
-pub fn preserve_client_edge_selections(program: &Program) -> DiagnosticsResult<Program> {
+pub fn remove_client_edge_backing_ids(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = ClientEdgesCleanupTransform::new(CleanupMode::PreserveSelectionsField);
     let next_program = transform
         .transform_program(program)
@@ -450,7 +450,7 @@ pub fn preserve_client_edge_selections(program: &Program) -> DiagnosticsResult<P
     Ok(next_program)
 }
 
-pub fn preserve_client_edge_backing_ids(program: &Program) -> DiagnosticsResult<Program> {
+pub fn remove_client_edge_selections(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = ClientEdgesCleanupTransform::new(CleanupMode::PreserveBackingField);
     let next_program = transform
         .transform_program(program)

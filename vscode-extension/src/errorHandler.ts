@@ -37,12 +37,14 @@ export function createErrorHandler(
         )
         .then(selected => {
           if (selected === 'Go to output') {
+            // eslint-disable-next-line no-underscore-dangle
             context._outputChannel.show();
           }
         });
 
       return CloseAction.DoNotRestart;
     },
+
     // This `error` callback should probably never happen. 🙏
     error() {
       window
@@ -53,6 +55,7 @@ export function createErrorHandler(
         )
         .then(selected => {
           if (selected === 'Go to output') {
+            // eslint-disable-next-line no-underscore-dangle
             context._outputChannel.show();
           }
         });

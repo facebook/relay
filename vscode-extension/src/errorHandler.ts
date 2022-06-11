@@ -37,7 +37,7 @@ export function createErrorHandler(
         )
         .then(selected => {
           if (selected === 'Go to output') {
-            context.primaryOutputChannel.show();
+            context._outputChannel.show();
           }
         });
 
@@ -53,7 +53,7 @@ export function createErrorHandler(
         )
         .then(selected => {
           if (selected === 'Go to output') {
-            context.primaryOutputChannel.show();
+            context._outputChannel.show();
           }
         });
 

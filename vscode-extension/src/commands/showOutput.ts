@@ -8,5 +8,5 @@
 import {RelayExtensionContext} from '../context';
 
 export function handleShowOutputCommand(context: RelayExtensionContext): void {
-  context.primaryOutputChannel.show();
+  context._outputChannel.show();
 }

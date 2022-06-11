@@ -49,9 +49,7 @@ export function killCompiler(
 
   context.project.compilerTerminal.dispose();
 
-  context.primaryOutputChannel.appendLine(
-    'Successfully stopped existing relay compiler',
-  );
+  context.log('Successfully stopped existing relay compiler');
 
   context.project.compilerTerminal = null;
 

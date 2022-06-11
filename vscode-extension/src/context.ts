@@ -37,7 +37,15 @@ export type RelayProject = {
 export type RelayExtensionContext = {
   statusBar: StatusBarItem;
   extensionContext: ExtensionContext;
-  primaryOutputChannel: OutputChannel;
+
+  /**
+   * This should only be used for APIs that need an `OutputChannel`.
+   * please use `log` instead
+   */
+  _outputChannel: OutputChannel;
+
+  log: (message: string) => void;
+
   projects: RelayProject[];
 };
 
@@ -46,6 +54,7 @@ export type RelayProjectExtensionContext = Omit<
   RelayExtensionContext,
   'projects'
 > & {
+  log: (message: string) => void;
   project: RelayProject;
 };
 
@@ -53,10 +62,23 @@ export function createProjectContextFromExtensionContext(
   extensionContext: RelayExtensionContext,
   project: RelayProject,
 ): RelayProjectExtensionContext {
-  // We're discarding project to build the project extension context
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  const {projects: _, ...rest} = extensionContext;
-  const projectContext: RelayProjectExtensionContext = {...rest, project};
+  const {
+    // We're discarding project to build the project extension context
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    projects: _,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    _outputChannel,
+    ...rest
+  } = extensionContext;
+  const projectContext: RelayProjectExtensionContext = {
+    ...rest,
+    project,
+    _outputChannel,
+    log: message => {
+      // Using output channel directly here to avoid using parent formatting
+      _outputChannel.appendLine(`[Relay][${project.name}] — ${message}`);
+    },
+  };
 
   return projectContext;
 }

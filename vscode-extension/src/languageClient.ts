@@ -21,7 +21,7 @@ export function createAndStartLanguageClient(
 ) {
   const config = getConfig();
 
-  context.primaryOutputChannel.appendLine(
+  context.log(
     `Using relay binary: ${context.project.binaryExecutionOptions.binaryPath}`,
   );
 
@@ -58,9 +58,7 @@ export function createAndStartLanguageClient(
     revealOutputChannelOn: RevealOutputChannelOn.Never,
 
     initializationFailedHandler: error => {
-      context?.primaryOutputChannel.appendLine(
-        `initializationFailedHandler ${error}`,
-      );
+      context?.log(`initializationFailedHandler ${error}`);
 
       return true;
     },
@@ -78,9 +76,11 @@ export function createAndStartLanguageClient(
 
   client.registerFeature(new LSPStatusBarFeature(context));
 
-  context.primaryOutputChannel.appendLine(
+  context.log(
     `Starting the Relay Langauge Server with these options: ${JSON.stringify(
       serverOptions,
+      null,
+      2,
     )}`,
   );
 
@@ -101,9 +101,7 @@ export async function killLanguageClient(
   return context.project.client
     .stop()
     .then(() => {
-      context.primaryOutputChannel.appendLine(
-        'Successfully stopped existing relay lsp client',
-      );
+      context.log('Successfully stopped existing relay lsp client');
 
       context.project.client = null;
 

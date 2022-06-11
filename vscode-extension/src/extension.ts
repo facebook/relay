@@ -26,21 +26,29 @@ async function buildRelayExtensionContext(
   const config = getConfig();
 
   const statusBar = createStatusBarItem();
-  const primaryOutputChannel = window.createOutputChannel('Relay');
+  const outputChannel = window.createOutputChannel('Relay');
+
+  const relayLog = (message: string) => {
+    outputChannel.appendLine(`[Relay] — ${message}`);
+  };
 
   extensionContext.subscriptions.push(statusBar);
-  extensionContext.subscriptions.push(primaryOutputChannel);
+  extensionContext.subscriptions.push(outputChannel);
 
   const projects: RelayProject[] = [];
   if (config.projects) {
     for (const project of config.projects) {
+      const projectLog = (message: string) => {
+        outputChannel.appendLine(`[${project.name}] — ${message}`);
+      };
+
       let rootPath = workspace.rootPath || process.cwd();
       if (project.rootDirectory) {
         rootPath = path.join(rootPath, project.rootDirectory);
       }
 
       const binaryPath = await findRelayBinaryWithWarnings(
-        primaryOutputChannel,
+        projectLog,
         rootPath,
       );
 
@@ -62,8 +70,8 @@ async function buildRelayExtensionContext(
           },
         });
       } else {
-        primaryOutputChannel.appendLine(
-          `Ignoring project: ${project.name} since we could not find the relay-compiler binary`,
+        projectLog(
+          'Ignoring project since we could not find the relay-compiler binary',
         );
       }
     }
@@ -71,7 +79,8 @@ async function buildRelayExtensionContext(
     const rootPath = workspace.rootPath || process.cwd();
 
     const binaryPath = await findRelayBinaryWithWarnings(
-      primaryOutputChannel,
+      // We don't need to prepend a project name here since there's only one project
+      relayLog,
       rootPath,
     );
 
@@ -100,12 +109,13 @@ async function buildRelayExtensionContext(
       projects,
       statusBar,
       extensionContext,
-      primaryOutputChannel,
+      log: relayLog,
+      _outputChannel: outputChannel,
     };
   }
 
-  primaryOutputChannel.appendLine(
-    'Stopping execution of the Relay VSCode extension since we could not find a valid compiler for any of your defined projects.',
+  relayLog(
+    '[Relay] - Stopping execution of the Relay VSCode extension since we could not find a valid compiler for any of your defined projects.',
   );
 
   return null;
@@ -117,9 +127,7 @@ export async function activate(extensionContext: ExtensionContext) {
   );
 
   if (relayExtensionContext) {
-    relayExtensionContext.primaryOutputChannel.appendLine(
-      'Starting the Relay GraphQL extension...',
-    );
+    relayExtensionContext.log('Starting the Relay GraphQL extension...');
 
     intializeStatusBarItem(relayExtensionContext);
     registerCommands(relayExtensionContext);
@@ -132,7 +140,7 @@ function startProjects(context: RelayExtensionContext): void {
   const config = getConfig();
 
   if (!config.autoStartCompiler) {
-    context.primaryOutputChannel.appendLine(
+    context.log(
       [
         'Not starting the Relay Compiler.',
         'Please enable relay.autoStartCompiler in your settings if you want the compiler to start when you open your project.',

@@ -191,7 +191,8 @@ Now that we have a schema we can modify `package.json` to run the compiler first
   },
   "relay": {
     "src": "./src/",
-    "schema": "./schema.graphql"
+    "schema": "./schema.graphql",
+    "language": "javascript"
   }
   ...
 }

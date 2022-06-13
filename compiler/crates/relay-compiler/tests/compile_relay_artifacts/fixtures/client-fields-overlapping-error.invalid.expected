@@ -1,4 +1,6 @@
 ==================================== INPUT ====================================
+# expected-to-throw
+
 query clientFieldsOverlappingErrorQuery {
   client_field(arg: "Value1")
   client_field(arg: "Value2")
@@ -9,72 +11,19 @@ query clientFieldsOverlappingErrorQuery {
 extend type Query {
   client_field(arg: String): String
 }
-==================================== OUTPUT ===================================
-{
-  "fragment": {
-    "argumentDefinitions": [],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "clientFieldsOverlappingErrorQuery",
-    "selections": [
-      {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "alias": null,
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "arg",
-                "value": "Value1"
-              }
-            ],
-            "kind": "ScalarField",
-            "name": "client_field",
-            "storageKey": "client_field(arg:\"Value1\")"
-          }
-        ]
-      }
-    ],
-    "type": "Query",
-    "abstractKey": null
-  },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": [],
-    "kind": "Operation",
-    "name": "clientFieldsOverlappingErrorQuery",
-    "selections": [
-      {
-        "kind": "ClientExtension",
-        "selections": [
-          {
-            "alias": null,
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "arg",
-                "value": "Value1"
-              }
-            ],
-            "kind": "ScalarField",
-            "name": "client_field",
-            "storageKey": "client_field(arg:\"Value1\")"
-          }
-        ]
-      }
-    ]
-  },
-  "params": {
-    "cacheID": "94883f2a9cbd52c2f01b84f026506e89",
-    "id": null,
-    "metadata": {},
-    "name": "clientFieldsOverlappingErrorQuery",
-    "operationKind": "query",
-    "text": null
-  }
-}
+==================================== ERROR ====================================
+✖︎ Expected all fields on the same parent with the name or alias `client_field` to have the same argument values after applying fragment arguments. This field has the applied argument values: (arg: "Value1")
 
-QUERY:
+  client-fields-overlapping-error.invalid.graphql:4:3
+    3 │ query clientFieldsOverlappingErrorQuery {
+    4 │   client_field(arg: "Value1")
+      │   ^^^^^^^^^^^^
+    5 │   client_field(arg: "Value2")
 
-Query Text is Empty.
+  ℹ︎ which conflicts with this field with applied argument values (arg: "Value2")
+
+  client-fields-overlapping-error.invalid.graphql:5:3
+    4 │   client_field(arg: "Value1")
+    5 │   client_field(arg: "Value2")
+      │   ^^^^^^^^^^^^
+    6 │ }

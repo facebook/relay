@@ -1,3 +1,5 @@
+# expected-to-throw
+
 query clientFieldsOverlappingErrorQuery {
   client_field(arg: "Value1")
   client_field(arg: "Value2")

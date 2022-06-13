@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bb7596b7998f023dd0b3b055928030cb>>
+ * @generated SignedSource<<e28cd745caea6bfe4b49ab64924d2cce>>
  */
 
 mod compile_relay_artifacts;
@@ -262,6 +262,13 @@ fn client_only_query() {
     let input = include_str!("compile_relay_artifacts/fixtures/client-only-query.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client-only-query.expected");
     test_fixture(transform_fixture, "client-only-query.graphql", "compile_relay_artifacts/fixtures/client-only-query.expected", input, expected);
+}
+
+#[test]
+fn client_only_query_with_scalar_extension() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-only-query-with-scalar-extension.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-only-query-with-scalar-extension.expected");
+    test_fixture(transform_fixture, "client-only-query-with-scalar-extension.graphql", "compile_relay_artifacts/fixtures/client-only-query-with-scalar-extension.expected", input, expected);
 }
 
 #[test]

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<59b1c85f3ba2eb81497bc11cbebf03d1>>
+ * @generated SignedSource<<bb7596b7998f023dd0b3b055928030cb>>
  */
 
 mod compile_relay_artifacts;
@@ -213,6 +213,13 @@ fn client_fields_only_no_fragment_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/client_fields_only_no_fragment_invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client_fields_only_no_fragment_invalid.expected");
     test_fixture(transform_fixture, "client_fields_only_no_fragment_invalid.graphql", "compile_relay_artifacts/fixtures/client_fields_only_no_fragment_invalid.expected", input, expected);
+}
+
+#[test]
+fn client_fields_overlapping_error_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-fields-overlapping-error.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-fields-overlapping-error.invalid.expected");
+    test_fixture(transform_fixture, "client-fields-overlapping-error.invalid.graphql", "compile_relay_artifacts/fixtures/client-fields-overlapping-error.invalid.expected", input, expected);
 }
 
 #[test]

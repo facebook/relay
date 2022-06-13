@@ -59,7 +59,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     fn validate_program(&self, program: &'s Program) -> DiagnosticsResult<()> {
         // NOTE: Fragments may be visited multiple times due to the parallel traversal for
         // operations! Today the extra overhead is acceptable, compared to single thread
-        // `try_map` for opeartions.
+        // `try_map` for operations.
         // TODO: visit the fragments in parallel with topology order before visiting the operations.
         par_try_map(&program.operations, |operation| {
             self.validate_operation(operation)

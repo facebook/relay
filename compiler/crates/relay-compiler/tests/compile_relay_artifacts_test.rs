@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b624096206b1ae7f449954aa43055967>>
+ * @generated SignedSource<<bb104b68ef6fd27fe501fb72fd99293f>>
  */
 
 mod compile_relay_artifacts;
@@ -654,6 +654,13 @@ fn module_with_defer() {
     let input = include_str!("compile_relay_artifacts/fixtures/module-with-defer.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/module-with-defer.expected");
     test_fixture(transform_fixture, "module-with-defer.graphql", "compile_relay_artifacts/fixtures/module-with-defer.expected", input, expected);
+}
+
+#[test]
+fn multiple_client_edges() {
+    let input = include_str!("compile_relay_artifacts/fixtures/multiple-client-edges.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/multiple-client-edges.expected");
+    test_fixture(transform_fixture, "multiple-client-edges.graphql", "compile_relay_artifacts/fixtures/multiple-client-edges.expected", input, expected);
 }
 
 #[test]

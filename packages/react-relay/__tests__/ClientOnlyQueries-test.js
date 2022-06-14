@@ -25,6 +25,7 @@ const {
   Environment,
   Network,
   RecordSource,
+  RelayFeatureFlags,
   Store,
   commitLocalUpdate,
   createOperationDescriptor,
@@ -48,7 +49,17 @@ function createEnvironment(
   });
 }
 
-describe('Client Only Queries', () => {
+beforeEach(() => {
+  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
+  RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
+});
+
+afterEach(() => {
+  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
+  RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
+});
+
+describe('Client-only queries', () => {
   let renderer;
   let environment: IEnvironment;
 
@@ -216,4 +227,118 @@ describe('Client Only Queries', () => {
       'Set with readUpdatableQuery_EXPERIMENTAL',
     );
   });
+});
+
+test('hello-world query', () => {
+  const environment = createEnvironment(RecordSource.create(), () => {
+    const error = new Error('Unexpected Network Error');
+    throw error;
+  });
+
+  function InnerTestComponent(props: {|fetchPolicy?: FetchPolicy|}) {
+    const data = useLazyLoadQuery(
+      graphql`
+        query ClientOnlyQueriesTest2Query {
+          hello(world: "World")
+        }
+      `,
+      {},
+      {
+        fetchPolicy: props.fetchPolicy ?? 'store-only',
+      },
+    );
+    return data.hello ?? 'MISSING';
+  }
+
+  function TestComponent({
+    environment: relayEnvironment,
+    ...rest
+  }: {|
+    environment: IEnvironment,
+    fetchPolicy?: FetchPolicy,
+  |}) {
+    return (
+      <RelayEnvironmentProvider environment={relayEnvironment}>
+        <React.Suspense fallback="Loading...">
+          <InnerTestComponent {...rest} />
+        </React.Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <TestComponent
+        environment={environment}
+        fetchPolicy="store-or-network"
+      />,
+    );
+  });
+
+  expect(renderer?.toJSON()).toBe('Hello, World!');
+});
+
+test('hello user query with client-edge query', () => {
+  const environment = createEnvironment(
+    RecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'node(id:"4")': {__ref: '4'},
+      },
+      '4': {
+        id: '4',
+        __id: '4',
+        name: 'Alice',
+      },
+    }),
+    () => {
+      const error = new Error('Unexpected Network Error');
+      throw error;
+    },
+  );
+
+  function InnerTestComponent(props: {|fetchPolicy?: FetchPolicy|}) {
+    const data = useLazyLoadQuery(
+      graphql`
+        query ClientOnlyQueriesTest3Query {
+          hello_user(id: "4") @waterfall {
+            name
+          }
+        }
+      `,
+      {},
+      {
+        fetchPolicy: props.fetchPolicy ?? 'store-only',
+      },
+    );
+    return `Hello, ${data.hello_user?.name ?? 'MISSING'}!`;
+  }
+
+  function TestComponent({
+    environment: relayEnvironment,
+    ...rest
+  }: {|
+    environment: IEnvironment,
+    fetchPolicy?: FetchPolicy,
+  |}) {
+    return (
+      <RelayEnvironmentProvider environment={relayEnvironment}>
+        <React.Suspense fallback="Loading...">
+          <InnerTestComponent {...rest} />
+        </React.Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+  let renderer;
+  TestRenderer.act(() => {
+    renderer = TestRenderer.create(
+      <TestComponent
+        environment={environment}
+        fetchPolicy="store-or-network"
+      />,
+    );
+  });
+
+  expect(renderer?.toJSON()).toBe('Hello, Alice!');
 });

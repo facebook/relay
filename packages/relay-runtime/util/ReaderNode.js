@@ -246,7 +246,7 @@ export type ReaderRelayResolver = {|
   +alias: ?string,
   +name: string,
   +args: ?$ReadOnlyArray<ReaderArgument>,
-  +fragment: ReaderFragmentSpread,
+  +fragment: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
 |};

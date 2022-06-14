@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e28cd745caea6bfe4b49ab64924d2cce>>
+ * @generated SignedSource<<b624096206b1ae7f449954aa43055967>>
  */
 
 mod compile_relay_artifacts;
@@ -220,6 +220,13 @@ fn client_fields_overlapping_error_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/client-fields-overlapping-error.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client-fields-overlapping-error.invalid.expected");
     test_fixture(transform_fixture, "client-fields-overlapping-error.invalid.graphql", "compile_relay_artifacts/fixtures/client-fields-overlapping-error.invalid.expected", input, expected);
+}
+
+#[test]
+fn client_fields_overlapping_with_nulls() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-fields-overlapping-with-nulls.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-fields-overlapping-with-nulls.expected");
+    test_fixture(transform_fixture, "client-fields-overlapping-with-nulls.graphql", "compile_relay_artifacts/fixtures/client-fields-overlapping-with-nulls.expected", input, expected);
 }
 
 #[test]

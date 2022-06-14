@@ -495,6 +495,9 @@ fn apply_operation_text_transforms(
     program = log_event.time("skip_unreachable_node_strict", || {
         skip_unreachable_node_strict(&program)
     })?;
+    program = log_event.time("skip_null_arguments_transform", || {
+        skip_null_arguments_transform(&program)
+    });
     log_event.time("validate_selection_conflict", || {
         graphql_ir_validations::validate_selection_conflict::<RelayLocationAgnosticBehavior>(
             &program, false,
@@ -508,9 +511,6 @@ fn apply_operation_text_transforms(
     });
 
     program = log_event.time("generate_typename", || generate_typename(&program, false));
-    program = log_event.time("skip_null_arguments_transform", || {
-        skip_null_arguments_transform(&program)
-    });
     log_event.time("flatten", || flatten(&mut program, false, true))?;
     program = log_event.time("validate_operation_variables", || {
         validate_operation_variables(&program)

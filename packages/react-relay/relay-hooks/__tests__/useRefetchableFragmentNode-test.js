@@ -42,6 +42,7 @@ import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {useTrackLoadQueryInRender} = require('../loadQuery');
 const useRefetchableFragmentNode_LEGACY = require('../useRefetchableFragmentNode');
+const useRefetchableFragmentInternal_REACT_CACHE = require('../react-cache/useRefetchableFragmentInternal_REACT_CACHE');
 const invariant = require('invariant');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
@@ -54,6 +55,7 @@ const {
   __internal: {fetchQuery},
   createOperationDescriptor,
   graphql,
+  RelayFeatureFlags,
 } = require('relay-runtime');
 const {
   createMockEnvironment,
@@ -63,9 +65,25 @@ const Scheduler = require('scheduler');
 
 const {useMemo, useState, useEffect} = React;
 
-describe.each([['Legacy', useRefetchableFragmentNode_LEGACY]])(
+describe.each([
+  ['React Cache', useRefetchableFragmentInternal_REACT_CACHE],
+  ['Legacy', useRefetchableFragmentNode_LEGACY],
+])(
   'useRefetchableFragmentNode (%s)',
   (_hookName, useRefetchableFragmentNodeOriginal) => {
+    let isUsingReactCacheImplementation;
+    let originalReactCacheFeatureFlag;
+    beforeEach(() => {
+      isUsingReactCacheImplementation =
+        useRefetchableFragmentNodeOriginal ===
+        useRefetchableFragmentInternal_REACT_CACHE;
+      originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
+      RelayFeatureFlags.USE_REACT_CACHE = isUsingReactCacheImplementation;
+    });
+    afterEach(() => {
+      RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
+    });
+
     let environment;
     let gqlQuery:
       | Query<
@@ -1517,7 +1535,9 @@ describe.each([['Legacy', useRefetchableFragmentNode_LEGACY]])(
         const warningCalls = warning.mock.calls.filter(
           call => call[0] === false,
         );
-        expect(warningCalls.length).toEqual(1);
+        expect(warningCalls.length).toEqual(
+          isUsingReactCacheImplementation ? 2 : 1,
+        );
         expect(
           warningCalls[0][1].includes(
             'Relay: Call to `refetch` returned a different id, expected',

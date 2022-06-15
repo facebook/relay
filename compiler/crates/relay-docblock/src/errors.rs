@@ -71,6 +71,9 @@ pub enum ErrorMessages {
         "Unexpected plural server type in `@edgeTo` field. Currently Relay Resolvers only support plural `@edgeTo` if the type is defined via Client Schema Extensions."
     )]
     ClientEdgeToPluralServerType,
+
+    #[error("Defining arguments with default values for resolver fields is not supported, yet.")]
+    ArgumentDefaultValuesNoSupported,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

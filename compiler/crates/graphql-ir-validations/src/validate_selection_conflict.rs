@@ -33,11 +33,11 @@ enum Field<'s> {
     ScalarField(&'s ScalarField),
 }
 
-type Fields<'s> = HashMap<StringKey, Vec<Field<'s>>>;
+type Fields<'s> = HashMap<StringKey, Vec<Field<'s>>, intern::BuildIdHasher<u32>>;
 
 struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     program: &'s Program,
-    fragment_cache: DashMap<StringKey, Arc<Fields<'s>>>,
+    fragment_cache: DashMap<StringKey, Arc<Fields<'s>>, intern::BuildIdHasher<u32>>,
     fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
     cache_verified_fields: bool,
     verified_fields_pair: DashSet<(PointerAddress, PointerAddress)>,
@@ -51,7 +51,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             fragment_cache: Default::default(),
             fields_cache: Default::default(),
             cache_verified_fields,
-            verified_fields_pair: DashSet::new(),
+            verified_fields_pair: Default::default(),
             _behavior: PhantomData::<B>,
         }
     }

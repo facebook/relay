@@ -17,6 +17,7 @@ import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
 const React = require('react');
 const {
   RelayEnvironmentProvider,
+  useClientQuery,
   useFragment,
   useLazyLoadQuery,
 } = require('react-relay');
@@ -955,7 +956,7 @@ test('with client-only field', () => {
   let renderer;
 
   function InnerTestComponent() {
-    const data = useLazyLoadQuery(
+    const data = useClientQuery(
       graphql`
         query LiveResolversTest11Query {
           counter_no_fragment
@@ -1014,7 +1015,7 @@ test('with client-only field and args', () => {
   let renderer;
 
   function InnerTestComponent({prefix}: {|prefix: string|}) {
-    const data = useLazyLoadQuery(
+    const data = useClientQuery(
       graphql`
         query LiveResolversTest12Query($prefix: String!) {
           counter_no_fragment_with_arg(prefix: $prefix)

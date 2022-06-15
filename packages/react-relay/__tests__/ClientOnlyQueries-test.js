@@ -19,7 +19,7 @@ import type {
 } from 'relay-runtime';
 
 const React = require('react');
-const {RelayEnvironmentProvider, useLazyLoadQuery} = require('react-relay');
+const {RelayEnvironmentProvider, useClientQuery} = require('react-relay');
 const TestRenderer = require('react-test-renderer');
 const {
   Environment,
@@ -73,10 +73,8 @@ describe('Client-only queries', () => {
   const variables = {};
   const operation = createOperationDescriptor(query, variables);
 
-  function InnerTestComponent(props: {|fetchPolicy?: FetchPolicy|}) {
-    const data = useLazyLoadQuery(query, variables, {
-      fetchPolicy: props.fetchPolicy ?? 'store-only',
-    });
+  function InnerTestComponent() {
+    const data = useClientQuery(query, variables);
     return data.defaultSettings?.client_field ?? 'MISSING';
   }
 
@@ -150,22 +148,6 @@ describe('Client-only queries', () => {
     expect(renderer.toJSON()).toEqual('Another Client Field');
   });
 
-  it.each(['store-or-network', 'store-and-network', 'network-only'])(
-    'should throw on network request, fetchPolicy: `%s`',
-    fetchPolicy => {
-      expect(() =>
-        TestRenderer.act(() => {
-          renderer = TestRenderer.create(
-            <TestComponent
-              environment={environment}
-              fetchPolicy={(fetchPolicy: $FlowFixMe)}
-            />,
-          );
-        }),
-      ).toThrow(new Error('Unexpected Network Error'));
-    },
-  );
-
   it('should still render with store-or-network', () => {
     environment = createEnvironment(
       RecordSource.create({
@@ -235,17 +217,14 @@ test('hello-world query', () => {
     throw error;
   });
 
-  function InnerTestComponent(props: {|fetchPolicy?: FetchPolicy|}) {
-    const data = useLazyLoadQuery(
+  function InnerTestComponent() {
+    const data = useClientQuery(
       graphql`
         query ClientOnlyQueriesTest2Query {
           hello(world: "World")
         }
       `,
       {},
-      {
-        fetchPolicy: props.fetchPolicy ?? 'store-only',
-      },
     );
     return data.hello ?? 'MISSING';
   }
@@ -298,8 +277,8 @@ test('hello user query with client-edge query', () => {
     },
   );
 
-  function InnerTestComponent(props: {|fetchPolicy?: FetchPolicy|}) {
-    const data = useLazyLoadQuery(
+  function InnerTestComponent() {
+    const data = useClientQuery(
       graphql`
         query ClientOnlyQueriesTest3Query {
           hello_user(id: "4") @waterfall {
@@ -308,9 +287,6 @@ test('hello user query with client-edge query', () => {
         }
       `,
       {},
-      {
-        fetchPolicy: props.fetchPolicy ?? 'store-only',
-      },
     );
     return `Hello, ${data.hello_user?.name ?? 'MISSING'}!`;
   }

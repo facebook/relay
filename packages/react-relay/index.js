@@ -22,6 +22,7 @@ const EntryPointContainer = require('./relay-hooks/EntryPointContainer.react');
 const loadEntryPoint = require('./relay-hooks/loadEntryPoint');
 const {loadQuery} = require('./relay-hooks/loadQuery');
 const RelayEnvironmentProvider = require('./relay-hooks/RelayEnvironmentProvider');
+const useClientQuery = require('./relay-hooks/useClientQuery');
 const useEntryPointLoader = require('./relay-hooks/useEntryPointLoader');
 const useFragment = require('./relay-hooks/useFragment');
 const useLazyLoadQuery = require('./relay-hooks/useLazyLoadQuery');
@@ -113,6 +114,7 @@ module.exports = {
   loadQuery: loadQuery,
   loadEntryPoint: loadEntryPoint,
 
+  useClientQuery: useClientQuery,
   useFragment: useFragment,
   useLazyLoadQuery: useLazyLoadQuery,
   useEntryPointLoader: useEntryPointLoader,

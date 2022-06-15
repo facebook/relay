@@ -165,6 +165,7 @@ module.exports = {
             'api-reference/hooks/use-query-loader',
             'api-reference/hooks/load-query',
             'api-reference/hooks/use-lazy-load-query',
+            'api-reference/hooks/use-client-query',
             'api-reference/hooks/use-fragment',
             'api-reference/hooks/use-refetchable-fragment',
             'api-reference/hooks/use-pagination-fragment',

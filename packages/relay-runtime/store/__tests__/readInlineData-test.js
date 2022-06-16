@@ -64,6 +64,62 @@ test('unwrap inline fragment data', () => {
 });
 
 describe('integration test with variables', () => {
+  test('works with nested fragments', () => {
+    const Parent = graphql`
+      query readInlineDataTestNestedQueryVariablesParentQuery($scale: Float) {
+        me {
+          ...readInlineDataTestNestedQueryVariablesChild
+        }
+      }
+    `;
+
+    const Child = graphql`
+      fragment readInlineDataTestNestedQueryVariablesChild on User {
+        ...readInlineDataTestNestedQueryVariablesGrandchild
+      }
+    `;
+
+    const Grandchild = graphql`
+      fragment readInlineDataTestNestedQueryVariablesGrandchild on User
+      @inline {
+        profile_picture(scale: $scale) {
+          uri
+        }
+      }
+    `;
+
+    const variables = {
+      scale: 2,
+    };
+
+    const environment = createMockEnvironment();
+    environment.commitPayload(createOperationDescriptor(Parent, variables), {
+      me: {
+        id: '7',
+        __typename: 'User',
+        profile_picture: {
+          uri: 'some_url',
+        },
+      },
+    });
+
+    const request = getRequest(Parent);
+    const operation = createOperationDescriptor(request, variables);
+    const {
+      data: {me: parent},
+    } = environment.lookup(operation.fragment, operation);
+
+    const {data: childData} = environment.lookup(getSelector(Child, parent));
+
+    const grandchild = readInlineData(Grandchild, childData);
+
+    expect(grandchild).toEqual({
+      profile_picture: {
+        uri: 'some_url',
+      },
+    });
+  });
+
   test('works with fragment variables & query variables', () => {
     const Fragment = graphql`
       fragment readInlineDataTestFragmentAndQueryVariables on User

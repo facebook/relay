@@ -36,10 +36,23 @@ lazy_static! {
     pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: StringKey = "waterfall".intern();
 }
 
+/// Directive added to inline fragments created by the transform. The inline
+/// fragment groups together the client edge's backing field as well as a linked
+/// field containing the selections being read off of the link.
+///
+/// Each instance of the directive within a travseral is assigned a unique id.
+/// This is added to prevent future transforms from merging multiple of these inline
+/// fragments.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ClientEdgeMetadataDirective {
-    ServerObject { query_name: StringKey },
-    ClientObject { type_name: StringKey },
+    ServerObject {
+        query_name: StringKey,
+        unique_id: u32,
+    },
+    ClientObject {
+        type_name: StringKey,
+        unique_id: u32,
+    },
 }
 associated_data_impl!(ClientEdgeMetadataDirective);
 
@@ -72,6 +85,12 @@ pub struct ClientEdgeMetadata<'a> {
 impl<'a> ClientEdgeMetadata<'a> {
     pub fn find(fragment: &'a InlineFragment) -> Option<Self> {
         ClientEdgeMetadataDirective::find(&fragment.directives).map(|metadata_directive| {
+
+// Double check that some flatten/inline transform is not tryig to combine/merge our inline directives together.
+            assert!(
+                fragment.selections.len() == 2,
+                "Expected Client Edge inline fragment to have exactly two selections. This is a bug in the Relay compiler."
+            );
             ClientEdgeMetadata {
                 metadata_directive: metadata_directive.clone(),
                 backing_field: fragment
@@ -114,6 +133,7 @@ struct ClientEdgesTransform<'program, 'sc> {
     new_operations: Vec<OperationDefinition>,
     errors: Vec<Diagnostic>,
     schema_config: &'sc SchemaConfig,
+    next_key: u32,
 }
 
 impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
@@ -127,6 +147,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             new_fragments: Default::default(),
             new_operations: Default::default(),
             errors: Default::default(),
+            next_key: 0,
         }
     }
 
@@ -312,6 +333,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 }
                 Type::Object(object_id) => ClientEdgeMetadataDirective::ClientObject {
                     type_name: schema.object(object_id).name.item,
+                    unique_id: self.get_key(),
                 },
                 _ => {
                     panic!(
@@ -338,6 +360,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             );
             ClientEdgeMetadataDirective::ServerObject {
                 query_name: client_edge_query_name,
+                unique_id: self.get_key(),
             }
         };
 
@@ -357,6 +380,12 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
         };
 
         Transformed::Replace(Selection::InlineFragment(Arc::new(inline_fragment)))
+    }
+
+    fn get_key(&mut self) -> u32 {
+        let key = self.next_key;
+        self.next_key += 1;
+        key
     }
 }
 

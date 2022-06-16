@@ -36,6 +36,7 @@ fragment Foo_node on Node {
       ... @__ClientEdgeMetadataDirective
       # ServerObject {
       #     query_name: "ClientEdgeQuery_Foo_node_Story__author__best_friend",
+      #     unique_id: 0,
       # }
        {
         ...BestFriendResolverFragment_name @__RelayResolverMetadata
@@ -60,6 +61,7 @@ fragment Foo_node on Node {
       ... @__ClientEdgeMetadataDirective
       # ServerObject {
       #     query_name: "ClientEdgeQuery_Foo_node_PhotoStory__author__best_friend",
+      #     unique_id: 1,
       # }
        {
         ...BestFriendResolverFragment_name @__RelayResolverMetadata

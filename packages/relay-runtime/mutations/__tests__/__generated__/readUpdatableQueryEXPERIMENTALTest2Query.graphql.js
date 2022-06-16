@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9a735230a8009f2a65fc857165a8c9e3>>
+ * @generated SignedSource<<f17c10cca2de0d8553d79691eaf2505f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,10 +16,9 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import type { OpaqueScalarType } from "../OpaqueScalarType";
 export type readUpdatableQueryEXPERIMENTALTest2Query$variables = {||};
 export type readUpdatableQueryEXPERIMENTALTest2Query$data = {|
-  +updatable_scalar_field: ?OpaqueScalarType,
+  +updatable_scalar_field: ?any,
 |};
 export type readUpdatableQueryEXPERIMENTALTest2Query = {|
   response: readUpdatableQueryEXPERIMENTALTest2Query$data,

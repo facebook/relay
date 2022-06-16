@@ -5,13 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { Disposable } from 'vscode';
+import {Disposable} from 'vscode';
 import {
   StaticFeature,
   InitializeParams,
   RequestType,
 } from 'vscode-languageclient';
-import { RelayExtensionContext } from './context';
+import {RelayExtensionContext} from './context';
 
 // the following type definitions are one to one mappings of the types defined
 // by the lsp_types package in this rust crate.
@@ -141,7 +141,7 @@ export class LSPStatusBarFeature implements StaticFeature {
   initialize(): void {
     this.disposable = this.context.client?.onRequest(
       new RequestType<ShowStatusParams, void, void>('window/showStatus'),
-      (params) => {
+      params => {
         handleShowStatusMethod(this.context, params);
       },
     );

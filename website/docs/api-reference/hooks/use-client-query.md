@@ -31,7 +31,7 @@ const React = require('React');
 const {graphql, useClientQuery} = require('react-relay');
 
 function ClientQueryComponent() {
-  const data = useFragment(
+  const data = useClientQuery(
     graphql`
       query ClientQueryComponentQuery {
         client_field

@@ -12,7 +12,6 @@
 
 'use strict';
 
-import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
   FragmentType,
   HasUpdatableSpread,

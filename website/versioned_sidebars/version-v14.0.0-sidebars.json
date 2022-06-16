@@ -413,6 +413,10 @@
         {
           "type": "doc",
           "id": "version-v14.0.0/debugging/declarative-mutation-directives"
+        },
+        {
+          "type": "doc",
+          "id": "version-v14.0.0/debugging/why-null"
         }
       ]
     },
@@ -447,6 +451,10 @@
           "id": "version-v14.0.0/principles-and-architecture/videos"
         }
       ]
+    },
+    {
+      "type": "doc",
+      "id": "version-v14.0.0/editor-support"
     },
     {
       "type": "doc",

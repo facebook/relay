@@ -8,7 +8,7 @@ The official extension to support Relay in VSCode.
 
 ## Installation
 
-Search for "Relay for VSCode" in the VS Code extensions panel or install through [the marketplace](https://marketplace.visualstudio.com/items?itemName=meta.relay).
+Search for "Relay GraphQL" in the VS Code extensions panel or install through [the marketplace](https://marketplace.visualstudio.com/items?itemName=meta.relay).
 
 ## Setup
 

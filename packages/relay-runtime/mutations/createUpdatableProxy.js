@@ -119,7 +119,8 @@ function updateProxyFromSelections<TData>(
                   selection.args ?? [],
                   variables,
                 );
-                updatableProxyRootRecord.setValue(
+                // $FlowFixMe[prop-missing] Typesafe updaters should prevent people from using untyped values
+                updatableProxyRootRecord.setValue__UNSAFE(
                   newValue,
                   selection.name,
                   newVariables,

@@ -247,7 +247,7 @@ export type ReaderRelayResolver = {|
   +alias: ?string,
   +name: string,
   +args: ?$ReadOnlyArray<ReaderArgument>,
-  +fragment: ReaderFragmentSpread,
+  +fragment: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
 |};
@@ -266,14 +266,20 @@ export type ReaderClientEdgeToClientObject = {|
   +kind: 'ClientEdgeToClientObject',
   +concreteType: string,
   +linkedField: ReaderLinkedField,
-  +backingField: ReaderRelayResolver | ReaderClientExtension,
+  +backingField:
+    | ReaderRelayResolver
+    | ReaderRelayLiveResolver
+    | ReaderClientExtension,
 |};
 
 export type ReaderClientEdgeToServerObject = {|
   +kind: 'ClientEdgeToServerObject',
   +linkedField: ReaderLinkedField,
   +operation: ConcreteRequest,
-  +backingField: ReaderRelayResolver | ReaderClientExtension,
+  +backingField:
+    | ReaderRelayResolver
+    | ReaderRelayLiveResolver
+    | ReaderClientExtension,
 |};
 
 export type ReaderSelection =

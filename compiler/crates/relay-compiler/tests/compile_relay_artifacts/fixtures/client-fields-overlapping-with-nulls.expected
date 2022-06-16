@@ -1,0 +1,80 @@
+==================================== INPUT ====================================
+query clientFieldsOverlappingWithNullsQuery {
+  client_field(arg1: "Value1")
+  client_field(arg1: "Value1", arg2: null)
+}
+
+# %extensions%
+
+extend type Query {
+  client_field(arg1: String, arg2: String): String
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "clientFieldsOverlappingWithNullsQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg1",
+                "value": "Value1"
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": "client_field(arg1:\"Value1\")"
+          }
+        ]
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "clientFieldsOverlappingWithNullsQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg1",
+                "value": "Value1"
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": "client_field(arg1:\"Value1\")"
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "64d318124e5ed0f045910826ccfdd7ed",
+    "id": null,
+    "metadata": {},
+    "name": "clientFieldsOverlappingWithNullsQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.

@@ -17,6 +17,7 @@ import type {MutableRecordSource} from 'relay-runtime/store/RelayStoreTypes';
 const React = require('react');
 const {
   RelayEnvironmentProvider,
+  useClientQuery,
   useFragment,
   useLazyLoadQuery,
 } = require('react-relay');
@@ -28,6 +29,7 @@ const {
   GLOBAL_STORE,
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleExternalStateStore');
+const counterNoFragmentResolver = require('relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
@@ -44,11 +46,13 @@ disallowConsoleErrors();
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
+  RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
   resetStore();
 });
 
 afterEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
+  RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
 });
 
 test('Can read an external state resolver directly', () => {
@@ -256,6 +260,75 @@ test('Can handle a Live Resolver that triggers an update immediately on subscrib
   expect(data).toEqual({
     ping: 'pong',
   });
+});
+
+test("Resolvers without fragments aren't reevaluated when their parent record updates.", async () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+
+  const FooQuery = graphql`
+    query LiveResolversTest14Query {
+      counter_no_fragment
+
+      # An additional field on Query which can be updated, invalidating the root record.
+      me {
+        __typename
+      }
+    }
+  `;
+
+  const store = new LiveResolverStore(source, {gcReleaseBufferSize: 0});
+
+  const mockPayload = Promise.resolve({
+    data: {
+      me: {
+        id: '1',
+        __typename: 'User',
+      },
+    },
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(() => mockPayload),
+    store,
+  });
+
+  function Environment({children}: {|children: React.Node|}) {
+    return (
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Loading...">{children}</React.Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+
+  function TestComponent() {
+    const queryData = useLazyLoadQuery(FooQuery, {});
+    return queryData.counter_no_fragment;
+  }
+
+  const initialCallCount = counterNoFragmentResolver.callCount;
+
+  const renderer = TestRenderer.create(
+    <Environment>
+      <TestComponent />
+    </Environment>,
+  );
+
+  expect(counterNoFragmentResolver.callCount).toBe(initialCallCount + 1);
+  // Initial render evaluates (and caches) the `counter_no_fragment` resolver.
+  expect(renderer.toJSON()).toEqual('Loading...');
+
+  // When the network response returns, it updates the query root, which would
+  // invalidate a resolver with a fragment on Query. However,
+  // `counter_no_fragment` has no fragment, so it should not be revaluated.
+  TestRenderer.act(() => jest.runAllImmediates());
+
+  expect(counterNoFragmentResolver.callCount).toBe(initialCallCount + 1);
+  expect(renderer.toJSON()).toEqual('0');
 });
 
 test('Can suspend', () => {
@@ -883,7 +956,7 @@ test('with client-only field', () => {
   let renderer;
 
   function InnerTestComponent() {
-    const data = useLazyLoadQuery(
+    const data = useClientQuery(
       graphql`
         query LiveResolversTest11Query {
           counter_no_fragment
@@ -942,7 +1015,7 @@ test('with client-only field and args', () => {
   let renderer;
 
   function InnerTestComponent({prefix}: {|prefix: string|}) {
-    const data = useLazyLoadQuery(
+    const data = useClientQuery(
       graphql`
         query LiveResolversTest12Query($prefix: String!) {
           counter_no_fragment_with_arg(prefix: $prefix)
@@ -1003,4 +1076,44 @@ test('with client-only field and args', () => {
     GLOBAL_STORE.dispatch({type: 'INCREMENT'});
   });
   expect(renderer.toJSON()).toEqual('Counter is 2');
+});
+
+test('Can read a live client edge without a fragment', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+    '1338': {
+      __id: '1338',
+      id: '1338',
+      __typename: 'User',
+      name: 'Elizabeth',
+    },
+  });
+
+  const FooQuery = graphql`
+    query LiveResolversTest13Query {
+      live_constant_client_edge @waterfall {
+        name
+      }
+    }
+  `;
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const store = new LiveResolverStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  const data = environment.lookup(operation.fragment).data;
+  expect(data).toEqual({
+    live_constant_client_edge: {
+      name: 'Elizabeth',
+    },
+  });
 });

@@ -1,0 +1,27 @@
+query clientOnlyQueryWithScalarExtensionQuery {
+  client_field(arg: "myValue")
+  client_field2(arg: ["myValue"])
+  client_field3(arg: {
+    param: "myValue"
+  })
+  client_field4: client_field(arg: false)
+  client_field5: client_field(arg: 1)
+  client_field6: client_field(arg: 1.5)
+  client_field7: client_field(arg: [1.5])
+  client_field8: client_field(arg: {prop1: 1.5, prop2: false, prop3: {prop4: "String"}})
+  client_field9: client_field(arg: null)
+}
+
+# %extensions%
+
+extend type Query {
+  client_field(arg: ClientScalar): String
+  client_field2(arg: [ClientScalar]): String
+  client_field3(arg: WithClientScalar): String
+}
+
+input WithClientScalar {
+  param: ClientScalar
+}
+
+scalar ClientScalar

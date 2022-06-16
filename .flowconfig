@@ -1,6 +1,7 @@
 [ignore]
 <PROJECT_ROOT>/dist/.*
 <PROJECT_ROOT>/compiler/.*
+<PROJECT_ROOT>/.*/node_modules/.*
 
 [options]
 module.system=haste
@@ -38,4 +39,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.179.0
+^0.180.0

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<59b1c85f3ba2eb81497bc11cbebf03d1>>
+ * @generated SignedSource<<bb104b68ef6fd27fe501fb72fd99293f>>
  */
 
 mod compile_relay_artifacts;
@@ -216,6 +216,20 @@ fn client_fields_only_no_fragment_invalid() {
 }
 
 #[test]
+fn client_fields_overlapping_error_invalid() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-fields-overlapping-error.invalid.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-fields-overlapping-error.invalid.expected");
+    test_fixture(transform_fixture, "client-fields-overlapping-error.invalid.graphql", "compile_relay_artifacts/fixtures/client-fields-overlapping-error.invalid.expected", input, expected);
+}
+
+#[test]
+fn client_fields_overlapping_with_nulls() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-fields-overlapping-with-nulls.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-fields-overlapping-with-nulls.expected");
+    test_fixture(transform_fixture, "client-fields-overlapping-with-nulls.graphql", "compile_relay_artifacts/fixtures/client-fields-overlapping-with-nulls.expected", input, expected);
+}
+
+#[test]
 fn client_fragment_spreads() {
     let input = include_str!("compile_relay_artifacts/fixtures/client-fragment-spreads.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client-fragment-spreads.expected");
@@ -255,6 +269,13 @@ fn client_only_query() {
     let input = include_str!("compile_relay_artifacts/fixtures/client-only-query.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/client-only-query.expected");
     test_fixture(transform_fixture, "client-only-query.graphql", "compile_relay_artifacts/fixtures/client-only-query.expected", input, expected);
+}
+
+#[test]
+fn client_only_query_with_scalar_extension() {
+    let input = include_str!("compile_relay_artifacts/fixtures/client-only-query-with-scalar-extension.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/client-only-query-with-scalar-extension.expected");
+    test_fixture(transform_fixture, "client-only-query-with-scalar-extension.graphql", "compile_relay_artifacts/fixtures/client-only-query-with-scalar-extension.expected", input, expected);
 }
 
 #[test]
@@ -633,6 +654,13 @@ fn module_with_defer() {
     let input = include_str!("compile_relay_artifacts/fixtures/module-with-defer.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/module-with-defer.expected");
     test_fixture(transform_fixture, "module-with-defer.graphql", "compile_relay_artifacts/fixtures/module-with-defer.expected", input, expected);
+}
+
+#[test]
+fn multiple_client_edges() {
+    let input = include_str!("compile_relay_artifacts/fixtures/multiple-client-edges.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/multiple-client-edges.expected");
+    test_fixture(transform_fixture, "multiple-client-edges.graphql", "compile_relay_artifacts/fixtures/multiple-client-edges.expected", input, expected);
 }
 
 #[test]

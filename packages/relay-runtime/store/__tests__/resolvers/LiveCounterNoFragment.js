@@ -27,6 +27,7 @@ const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
  * Resolver interface.
  */
 function counter(): LiveState<number> {
+  counter.callCount += 1;
   return {
     read() {
       return Selectors.getNumber(GLOBAL_STORE.getState());
@@ -38,5 +39,7 @@ function counter(): LiveState<number> {
     },
   };
 }
+
+counter.callCount = 0;
 
 module.exports = counter;

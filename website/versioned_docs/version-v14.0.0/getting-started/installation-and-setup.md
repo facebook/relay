@@ -48,12 +48,13 @@ module.exports = {
   // ...
   // Configuration options accepted by the `relay-compiler` command-line tool and `babel-plugin-relay`.
   src: "./src",
+  language: "javascript", // "javascript" | "typescript" | "flow"
   schema: "./data/schema.graphql",
   exclude: ["**/node_modules/**", "**/__mocks__/**", "**/__generated__/**"],
 }
 ```
 
-This configuration also can be specificied in `"relay"` section of the `package.json` file.
+This configuration also can be specified in `"relay"` section of the `package.json` file.
 For more details, and configuration options see: [Relay Compiler Configuration](https://github.com/facebook/relay/tree/main/packages/relay-compiler)
 
 

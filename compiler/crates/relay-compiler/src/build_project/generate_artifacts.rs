@@ -157,7 +157,14 @@ pub fn generate_artifacts(
             };
 
             let source_hash = source_hashes.get(&source_name).cloned().unwrap();
-            generate_reader_artifact(project_config, programs, reader_fragment, source_hash)
+            let source_definition_names = vec![source_name];
+            generate_reader_artifact(
+                project_config,
+                programs,
+                reader_fragment,
+                source_hash,
+                source_definition_names,
+            )
         }))
         .collect();
 }
@@ -212,6 +219,7 @@ fn generate_reader_artifact(
     programs: &Programs,
     reader_fragment: &Arc<FragmentDefinition>,
     source_hash: String,
+    source_definition_names: Vec<StringKey>,
 ) -> Artifact {
     let name = reader_fragment.name.item;
     let typegen_fragment = programs
@@ -219,7 +227,7 @@ fn generate_reader_artifact(
         .fragment(name)
         .expect("a type fragment should be generated for this fragment");
     Artifact {
-        source_definition_names: vec![name],
+        source_definition_names,
         path: project_config
             .path_for_artifact(reader_fragment.name.location.source_location(), name),
         content: ArtifactContent::Fragment {

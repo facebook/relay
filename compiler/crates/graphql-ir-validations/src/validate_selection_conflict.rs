@@ -33,11 +33,11 @@ enum Field<'s> {
     ScalarField(&'s ScalarField),
 }
 
-type Fields<'s> = HashMap<StringKey, Vec<Field<'s>>>;
+type Fields<'s> = HashMap<StringKey, Vec<Field<'s>>, intern::BuildIdHasher<u32>>;
 
 struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     program: &'s Program,
-    fragment_cache: DashMap<StringKey, Arc<Fields<'s>>>,
+    fragment_cache: DashMap<StringKey, Arc<Fields<'s>>, intern::BuildIdHasher<u32>>,
     fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
     cache_verified_fields: bool,
     verified_fields_pair: DashSet<(PointerAddress, PointerAddress)>,
@@ -51,7 +51,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             fragment_cache: Default::default(),
             fields_cache: Default::default(),
             cache_verified_fields,
-            verified_fields_pair: DashSet::new(),
+            verified_fields_pair: Default::default(),
             _behavior: PhantomData::<B>,
         }
     }
@@ -59,7 +59,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     fn validate_program(&self, program: &'s Program) -> DiagnosticsResult<()> {
         // NOTE: Fragments may be visited multiple times due to the parallel traversal for
         // operations! Today the extra overhead is acceptable, compared to single thread
-        // `try_map` for opeartions.
+        // `try_map` for operations.
         // TODO: visit the fragments in parallel with topology order before visiting the operations.
         par_try_map(&program.operations, |operation| {
             self.validate_operation(operation)

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3879ffde2cf8d7dd9c8425b6540c4801>>
+ * @generated SignedSource<<db06848e028354377f9f4c76e9f2fb7f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -105,7 +105,23 @@ return {
                 "selections": (v1/*: any*/),
                 "storageKey": null
               },
-              (v2/*: any*/)
+              (v2/*: any*/),
+              {
+                "alias": "defaultVariable",
+                "args": [
+                  {
+                    "kind": "Variable",
+                    "name": "scale",
+                    "variableName": "defaultScale"
+                  }
+                ],
+                "concreteType": "Image",
+                "kind": "LinkedField",
+                "name": "profile_picture",
+                "plural": false,
+                "selections": (v1/*: any*/),
+                "storageKey": null
+              }
             ],
             "args": [
               {
@@ -115,6 +131,11 @@ return {
               }
             ],
             "argumentDefinitions": [
+              {
+                "defaultValue": 3,
+                "kind": "LocalArgument",
+                "name": "defaultScale"
+              },
               {
                 "kind": "RootArgument",
                 "name": "scale1"
@@ -165,6 +186,22 @@ return {
           },
           (v2/*: any*/),
           {
+            "alias": "defaultVariable",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "scale",
+                "value": 3
+              }
+            ],
+            "concreteType": "Image",
+            "kind": "LinkedField",
+            "name": "profile_picture",
+            "plural": false,
+            "selections": (v1/*: any*/),
+            "storageKey": "profile_picture(scale:3)"
+          },
+          {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
@@ -177,12 +214,12 @@ return {
     ]
   },
   "params": {
-    "cacheID": "de166188984c8269dbc8f89f35fb4a5b",
+    "cacheID": "0f5b31604a39ecc4a5994e55a6925767",
     "id": null,
     "metadata": {},
     "name": "readInlineDataTestFragmentAndQueryVariablesQuery",
     "operationKind": "query",
-    "text": "query readInlineDataTestFragmentAndQueryVariablesQuery(\n  $scale1: Float\n  $scale2: Float\n) {\n  me {\n    ...readInlineDataTestFragmentAndQueryVariables_4vY5ns\n    id\n  }\n}\n\nfragment readInlineDataTestFragmentAndQueryVariables_4vY5ns on User {\n  fragmentVariable: profile_picture(scale: $scale2) {\n    uri\n  }\n  queryVariable: profile_picture(scale: $scale1) {\n    uri\n  }\n}\n"
+    "text": "query readInlineDataTestFragmentAndQueryVariablesQuery(\n  $scale1: Float\n  $scale2: Float\n) {\n  me {\n    ...readInlineDataTestFragmentAndQueryVariables_4vY5ns\n    id\n  }\n}\n\nfragment readInlineDataTestFragmentAndQueryVariables_4vY5ns on User {\n  fragmentVariable: profile_picture(scale: $scale2) {\n    uri\n  }\n  queryVariable: profile_picture(scale: $scale1) {\n    uri\n  }\n  defaultVariable: profile_picture(scale: 3) {\n    uri\n  }\n}\n"
   }
 };
 })();

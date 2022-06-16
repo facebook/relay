@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<536c0916a666f7fe3040c62010a1f6bb>>
+ * @generated SignedSource<<d143da87a09fe3b38b2bb4b248fe07ed>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,6 +19,9 @@ import type { InlineFragment, ReaderInlineDataFragment } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
 declare export opaque type readInlineDataTestFragmentAndQueryVariables$fragmentType: FragmentType;
 export type readInlineDataTestFragmentAndQueryVariables$data = {|
+  +defaultVariable: ?{|
+    +uri: ?string,
+  |},
   +fragmentVariable: ?{|
     +uri: ?string,
   |},
@@ -40,7 +43,7 @@ var node/*: ReaderInlineDataFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "c0059d3a16fc366dbfec40f26e103914";
+  (node/*: any*/).hash = "a43776ab4d289e45902cda8bb9553018";
 }
 
 module.exports = ((node/*: any*/)/*: InlineFragment<

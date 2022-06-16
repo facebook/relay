@@ -120,15 +120,21 @@ describe('integration test with variables', () => {
     });
   });
 
-  test('works with fragment variables & query variables', () => {
+  test('works with fragment variables & query variables & default variables', () => {
     const Fragment = graphql`
       fragment readInlineDataTestFragmentAndQueryVariables on User
       @inline
-      @argumentDefinitions(theScale: {type: "Float"}) {
+      @argumentDefinitions(
+        theScale: {type: "Float"}
+        defaultScale: {type: "Float", defaultValue: 3}
+      ) {
         fragmentVariable: profile_picture(scale: $theScale) {
           uri
         }
         queryVariable: profile_picture(scale: $scale1) {
+          uri
+        }
+        defaultVariable: profile_picture(scale: $defaultScale) {
           uri
         }
       }
@@ -162,6 +168,9 @@ describe('integration test with variables', () => {
         queryVariable: {
           uri: 'query_url',
         },
+        defaultVariable: {
+          uri: 'default_url',
+        },
       },
     });
 
@@ -175,6 +184,9 @@ describe('integration test with variables', () => {
       },
       queryVariable: {
         uri: 'query_url',
+      },
+      defaultVariable: {
+        uri: 'default_url',
       },
     });
   });

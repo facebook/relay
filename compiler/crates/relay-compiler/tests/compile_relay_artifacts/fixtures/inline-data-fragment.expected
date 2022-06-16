@@ -265,7 +265,8 @@ fragment inlineDataFragment_Profile on User {
               "storageKey": "profilePicture(size:100)"
             }
           ],
-          "args": null
+          "args": null,
+          "argumentDefinitions": []
         },
         {
           "alias": null,
@@ -358,7 +359,8 @@ fragment inlineDataFragment_Profile on User {
               "abstractKey": null
             }
           ],
-          "args": null
+          "args": null,
+          "argumentDefinitions": []
         }
       ],
       "storageKey": "username(name:\"test\")"

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5e42f9d1dc114aa7c9e640c0ecfed13d>>
+ * @generated SignedSource<<3879ffde2cf8d7dd9c8425b6540c4801>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -112,6 +112,17 @@ return {
                 "kind": "Variable",
                 "name": "theScale",
                 "variableName": "scale2"
+              }
+            ],
+            "argumentDefinitions": [
+              {
+                "kind": "RootArgument",
+                "name": "scale1"
+              },
+              {
+                "defaultValue": null,
+                "kind": "LocalArgument",
+                "name": "theScale"
               }
             ]
           }

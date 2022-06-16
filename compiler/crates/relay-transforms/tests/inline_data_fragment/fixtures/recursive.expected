@@ -30,6 +30,8 @@ fragment InlineDataFragment on Image @inline {
   # InlineDirectiveMetadata {
   #     fragment_name: "AnotherInlineDataFragment",
   #     arguments: [],
+  #     variable_definitions: [],
+  #     used_global_variables: [],
   # }
    {
     ... on Image {
@@ -45,6 +47,8 @@ fragment UserProfile on User {
     # InlineDirectiveMetadata {
     #     fragment_name: "InlineDataFragment",
     #     arguments: [],
+    #     variable_definitions: [],
+    #     used_global_variables: [],
     # }
      {
       ... on Image {
@@ -53,6 +57,8 @@ fragment UserProfile on User {
         # InlineDirectiveMetadata {
         #     fragment_name: "AnotherInlineDataFragment",
         #     arguments: [],
+        #     variable_definitions: [],
+        #     used_global_variables: [],
         # }
          {
           ... on Image {
@@ -66,6 +72,8 @@ fragment UserProfile on User {
     # InlineDirectiveMetadata {
     #     fragment_name: "AnotherInlineDataFragment",
     #     arguments: [],
+    #     variable_definitions: [],
+    #     used_global_variables: [],
     # }
      {
       ... on Image {
@@ -79,6 +87,8 @@ fragment UserProfile on User {
     # InlineDirectiveMetadata {
     #     fragment_name: "InlineDataFragment",
     #     arguments: [],
+    #     variable_definitions: [],
+    #     used_global_variables: [],
     # }
      {
       ... on Image {
@@ -87,6 +97,8 @@ fragment UserProfile on User {
         # InlineDirectiveMetadata {
         #     fragment_name: "AnotherInlineDataFragment",
         #     arguments: [],
+        #     variable_definitions: [],
+        #     used_global_variables: [],
         # }
          {
           ... on Image {

@@ -1453,7 +1453,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     ) -> Primitive {
         let selections = self.build_selections(context, inline_fragment.selections.iter());
         let args = self.build_arguments(&inline_directive_data.arguments);
-        
+        let argument_definitions = self.build_fragment_variable_definitions(
+            &inline_directive_data.variable_definitions,
+            &inline_directive_data.used_global_variables,
+        );
+
         Primitive::Key(self.object(object! {
             kind: Primitive::String(CODEGEN_CONSTANTS.inline_data_fragment_spread),
             name: Primitive::String(inline_directive_data.fragment_name),
@@ -1462,6 +1466,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 None => Primitive::SkippableNull,
                 Some(key) => Primitive::Key(key),
             },
+            argument_definitions: argument_definitions,
         }))
     }
 

@@ -1125,14 +1125,17 @@ class RelayReader {
         this._variables,
       );
 
-      RelayConcreteVariables.getFragmentVariables(
+      this._variables = RelayConcreteVariables.getFragmentVariables(
         fragmentSpreadOrFragment,
-        this._variables,
+        this._owner.variables,
         argumentVariables,
       );
-
-      // Inherit the operation's arguments and give local fragment arguments higher priority
-      this._variables = {...this._variables, ...argumentVariables};
+    } else {
+      this._variables = RelayConcreteVariables.getFragmentVariables(
+        fragmentSpreadOrFragment,
+        this._owner.variables,
+        {},
+      );
     }
 
     this._traverseSelections(

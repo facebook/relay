@@ -1119,24 +1119,15 @@ class RelayReader {
     // If the inline fragment spread has arguments, we need to temporarily
     // switch this._variables to include the fragment spread's arguments
     // for the duration of its traversal.
-    if (fragmentSpreadOrFragment.args) {
-      const argumentVariables = getArgumentValues(
-        fragmentSpreadOrFragment.args,
-        this._variables,
-      );
+    const argumentVariables = fragmentSpreadOrFragment.args
+      ? getArgumentValues(fragmentSpreadOrFragment.args, this._variables)
+      : {};
 
-      this._variables = RelayConcreteVariables.getFragmentVariables(
-        fragmentSpreadOrFragment,
-        this._owner.variables,
-        argumentVariables,
-      );
-    } else {
-      this._variables = RelayConcreteVariables.getFragmentVariables(
-        fragmentSpreadOrFragment,
-        this._owner.variables,
-        {},
-      );
-    }
+    this._variables = RelayConcreteVariables.getFragmentVariables(
+      fragmentSpreadOrFragment,
+      this._owner.variables,
+      argumentVariables,
+    );
 
     this._traverseSelections(
       fragmentSpreadOrFragment.selections,

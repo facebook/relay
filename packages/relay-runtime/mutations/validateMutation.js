@@ -38,14 +38,14 @@ const {
 } = require('../util/RelayConcreteNode');
 const warning = require('warning');
 
-type ValidationContext = {|
+type ValidationContext = {
   visitedPaths: Set<string>,
   path: string,
   variables: Variables,
   missingDiff: Object,
   extraDiff: Object,
   moduleImportPaths: Set<string>,
-|};
+};
 // $FlowFixMe[method-unbinding] added when improving typing for this parameters
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 

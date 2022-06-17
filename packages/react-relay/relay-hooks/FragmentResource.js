@@ -46,13 +46,13 @@ const {
 export type FragmentResource = FragmentResourceImpl;
 
 type FragmentResourceCache = Cache<
-  | {|
+  | {
       kind: 'pending',
       pendingOperations: $ReadOnlyArray<RequestDescriptor>,
       promise: Promise<mixed>,
       result: FragmentResult,
-    |}
-  | {|kind: 'done', result: FragmentResult|},
+    }
+  | {kind: 'done', result: FragmentResult},
 >;
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
@@ -63,13 +63,13 @@ interface IMap<K, V> {
 
 type SingularOrPluralSnapshot = Snapshot | $ReadOnlyArray<Snapshot>;
 
-opaque type FragmentResult: {data: mixed, ...} = {|
+opaque type FragmentResult: {data: mixed, ...} = {
   cacheKey: string,
   data: mixed,
   isMissingData: boolean,
   snapshot: SingularOrPluralSnapshot | null,
   storeEpoch: number,
-|};
+};
 
 // TODO: Fix to not rely on LRU. If the number of active fragments exceeds this
 // capacity, readSpec() will fail to find cached entries and break object
@@ -716,10 +716,10 @@ class FragmentResourceImpl {
     fragmentNode: ReaderFragment,
     fragmentOwner: RequestDescriptor,
     fragmentResult: FragmentResult,
-  ): {|
+  ): {
     promise: Promise<void>,
     pendingOperations: $ReadOnlyArray<RequestDescriptor>,
-  |} | null {
+  } | null {
     const pendingOperationsResult = getPendingOperationsForFragment(
       this._environment,
       fragmentNode,

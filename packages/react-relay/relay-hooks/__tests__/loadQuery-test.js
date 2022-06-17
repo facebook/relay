@@ -88,7 +88,7 @@ describe('loadQuery', () => {
     loadQueryTestQuery$variables,
     loadQueryTestQuery$data,
   >;
-  let mockAvailability: {|fetchTime?: number, status: string|};
+  let mockAvailability: {fetchTime?: number, status: string};
   let disposeOnloadCallback;
   let executeOnloadCallback;
 
@@ -880,11 +880,11 @@ describe('loadQuery', () => {
     let LoadDuringRender;
 
     beforeEach(() => {
-      Container = (props: {|children: React.Node|}) => {
+      Container = (props: {children: React.Node}) => {
         useTrackLoadQueryInRender();
         return props.children;
       };
-      LoadDuringRender = (props: {|name?: ?string|}) => {
+      LoadDuringRender = (props: {name?: ?string}) => {
         loadQuery(environment, preloadableConcreteRequest, variables, {
           fetchPolicy: 'store-or-network',
           __nameForWarning: props.name,

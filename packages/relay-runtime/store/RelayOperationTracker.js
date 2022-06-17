@@ -21,11 +21,11 @@ class RelayOperationTracker {
   _pendingOperationsToOwners: Map<string, Set<string>>;
   _ownersToPendingPromise: Map<
     string,
-    {|
+    {
       promise: Promise<void>,
       resolve: () => void,
       pendingOperations: $ReadOnlyArray<RequestDescriptor>,
-    |},
+    },
   >;
 
   constructor() {
@@ -149,10 +149,10 @@ class RelayOperationTracker {
     this._ownersToPendingPromise.delete(ownerIdentifier);
   }
 
-  getPendingOperationsAffectingOwner(owner: RequestDescriptor): {|
+  getPendingOperationsAffectingOwner(owner: RequestDescriptor): {
     promise: Promise<void>,
     pendingOperations: $ReadOnlyArray<RequestDescriptor>,
-  |} | null {
+  } | null {
     const ownerIdentifier = owner.identifier;
     const pendingOperationsForOwner =
       this._ownersToPendingOperations.get(ownerIdentifier);

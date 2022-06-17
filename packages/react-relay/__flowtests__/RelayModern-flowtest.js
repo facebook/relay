@@ -252,9 +252,9 @@ declare var aComplexUserRef: {
   optionalUsers={null}
 />;
 
-class AnyTest extends React.Component<{|
+class AnyTest extends React.Component<{
   anything: any,
-|}> {}
+}> {}
 const AnyTestContainer = createFragmentContainer(AnyTest, {});
 
 <AnyTestContainer anything={42} />;

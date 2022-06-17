@@ -21,13 +21,13 @@ import type {UseRefetchableFragmentType} from './useRefetchableFragment';
 
 const warning = require('warning');
 
-type HooksImplementation = {|
+type HooksImplementation = {
   useFragment: useFragment,
   useLazyLoadQuery: UseLazyLoadQueryHookType,
   usePreloadedQuery: UsePreloadedQueryHookType,
   usePaginationFragment: UsePaginationFragmentType,
   useRefetchableFragment: UseRefetchableFragmentType,
-|};
+};
 
 let implementation: HooksImplementation | null = null;
 

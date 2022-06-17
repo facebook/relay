@@ -44,9 +44,9 @@ const {createMockEnvironment} = require('relay-test-utils');
 function expectToHaveFetched(
   environment: RelayMockEnvironment,
   query: OperationDescriptor,
-  {count}: {|count?: number|} = ({...null}: {|
+  {count}: {count?: number} = ({...null}: {
     count?: number,
-  |}),
+  }),
 ) {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.executeWithSource).toBeCalledTimes(count ?? 1);
@@ -151,9 +151,9 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       force: true,
     });
 
-    FragmentComponent = function (props: {|
+    FragmentComponent = function (props: {
       user: usePreloadedQueryReactDoubleEffectsTestFragment$key,
-    |}) {
+    }) {
       const data = useFragment(gqlFragment, props.user);
       return data?.firstName === undefined ? 'Missing fragment data' : null;
     };

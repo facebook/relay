@@ -51,7 +51,7 @@ const pendingQueriesByEnvironment = WEAKMAP_SUPPORTED
   : new Map();
 
 type PendingQueryEntry =
-  | $ReadOnly<{|
+  | $ReadOnly<{
       cacheKey: string,
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
@@ -61,8 +61,8 @@ type PendingQueryEntry =
       status: PreloadQueryStatus,
       subject: ReplaySubject<GraphQLResponse>,
       subscription: Subscription,
-    |}>
-  | $ReadOnly<{|
+    }>
+  | $ReadOnly<{
       cacheKey: string,
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
@@ -70,7 +70,7 @@ type PendingQueryEntry =
       id: ?string,
       name: string,
       status: PreloadQueryStatus,
-    |}>;
+    }>;
 
 function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   environment: IEnvironment,

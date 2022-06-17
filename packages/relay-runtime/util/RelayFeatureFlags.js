@@ -14,7 +14,7 @@
 
 import type {Disposable} from '../util/RelayRuntimeTypes';
 
-export type FeatureFlags = {|
+export type FeatureFlags = {
   ENABLE_CLIENT_EDGES: boolean,
   ENABLE_VARIABLE_CONNECTION_KEY: boolean,
   ENABLE_PARTIAL_RENDERING_DEFAULT: boolean,
@@ -31,7 +31,7 @@ export type FeatureFlags = {|
   STRING_INTERN_LEVEL: number,
   USE_REACT_CACHE: boolean,
   USE_REACT_CACHE_LEGACY_TIMEOUTS: boolean,
-|};
+};
 
 const RelayFeatureFlags: FeatureFlags = {
   ENABLE_CLIENT_EDGES: false,

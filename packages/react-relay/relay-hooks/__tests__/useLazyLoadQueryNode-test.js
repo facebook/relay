@@ -88,12 +88,12 @@ function expectToHaveFetched(
   ).toEqual(true);
 }
 
-type Props = {|
+type Props = {
   variables: {...},
   fetchPolicy?: FetchPolicy,
   key?: number,
   extraData?: number,
-|};
+};
 
 describe('useLazyLoadQueryNode', () => {
   let environment;
@@ -832,7 +832,7 @@ describe('useLazyLoadQueryNode', () => {
         variables,
       );
 
-      function FragmentComponent(props: {|query: mixed|}) {
+      function FragmentComponent(props: {query: mixed}) {
         const fragment = getFragment(gqlFragment);
         const result: $FlowFixMe = useFragmentNode(
           fragment,
@@ -843,7 +843,7 @@ describe('useLazyLoadQueryNode', () => {
         return null;
       }
 
-      const Renderer = (props: {|variables: {|id: string|}|}) => {
+      const Renderer = (props: {variables: {id: string}}) => {
         const _query = createOperationDescriptor(
           gqlOnlyFragmentsQuery,
           props.variables,

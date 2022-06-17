@@ -87,7 +87,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         fragmentRef,
       );
       loadNext = (...args: Array<any>) => {
-        let disposable: Disposable | {|dispose: () => void|} = {
+        let disposable: Disposable | {dispose: () => void} = {
           dispose: () => {},
         };
         startTransition(() => {
@@ -117,12 +117,12 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     }
 
     function assertYield(
-      expected: {|
+      expected: {
         data: any,
         hasNext: boolean,
         hasPrevious: boolean,
         isPendingNext: boolean,
-      |},
+      },
       actual: any,
     ) {
       expect(actual.data).toEqual(expected.data);
@@ -132,12 +132,12 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     }
 
     function expectFragmentResults(
-      expectedYields: $ReadOnlyArray<{|
+      expectedYields: $ReadOnlyArray<{
         data: $FlowFixMe,
         isPendingNext: boolean,
         hasNext: boolean,
         hasPrevious: boolean,
-      |}>,
+      }>,
     ) {
       assertYieldsWereCleared();
       Scheduler.unstable_flushNumberOfYields(expectedYields.length);
@@ -163,12 +163,12 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     function expectFragmentIsPendingOnPagination(
       renderer: any,
       direction: Direction,
-      expected: {|
+      expected: {
         data: mixed,
         hasNext: boolean,
         hasPrevious: boolean,
         paginationVariables: Variables,
-      |},
+      },
     ) {
       // Assert fragment sets isPending to true
       expectFragmentResults([
@@ -389,7 +389,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       });
 
       // Set up renderers
-      Renderer = (props: {|user: any|}) => null;
+      Renderer = (props: {user: any}) => null;
 
       const Container = (props: {
         userRef?: {...},
@@ -420,7 +420,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         return <Renderer user={userData} />;
       };
 
-      const ContextProvider = ({children}: {|children: React.Node|}) => {
+      const ContextProvider = ({children}: {children: React.Node}) => {
         // TODO(T39494051) - We set empty variables in relay context to make
         // Flow happy, but useBlockingPaginationFragment does not use them, instead it uses
         // the variables from the fragment owner.
@@ -1040,14 +1040,14 @@ describe('useBlockingPaginationFragment with useTransition', () => {
 
       function expectFragmentSuspendedOnRefetch(
         renderer: any,
-        expected: {|
+        expected: {
           data: mixed,
           hasNext: boolean,
           hasPrevious: boolean,
           refetchVariables: Variables,
           refetchQuery?: OperationDescriptor,
           gqlRefetchQuery?: $FlowFixMe,
-        |},
+        },
         flushFallback: boolean = true,
       ) {
         assertYieldsWereCleared();

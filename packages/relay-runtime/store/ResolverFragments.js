@@ -24,12 +24,12 @@ const invariant = require('invariant');
 // `readFragment`, but that's a global function -- it needs information
 // about what resolver is being executed, which is supplied by putting the
 // info on this stack before we call the resolver function.
-type ResolverContext = {|
+type ResolverContext = {
   getDataForResolverFragment: (
     SingularReaderSelector,
     FragmentType,
   ) => ResolverFragmentResult,
-|};
+};
 const contextStack: Array<ResolverContext> = [];
 
 function withResolverContext<T>(context: ResolverContext, cb: () => T): T {

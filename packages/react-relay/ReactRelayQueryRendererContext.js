@@ -13,7 +13,7 @@
 'use strict';
 const React = require('react');
 
-export type ReactRelayQueryRendererContext = {|rootIsQueryRenderer: boolean|};
+export type ReactRelayQueryRendererContext = {rootIsQueryRenderer: boolean};
 
 module.exports = (React.createContext({
   rootIsQueryRenderer: false,

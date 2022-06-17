@@ -15,7 +15,7 @@
 import type {FragmentType} from 'relay-runtime';
 
 declare export opaque type RelayModernFlowtest_user$ref: FragmentType;
-export type RelayModernFlowtest_user = {|
+export type RelayModernFlowtest_user = {
   +name: ?string,
   +$fragmentType: RelayModernFlowtest_user$ref,
-|};
+};

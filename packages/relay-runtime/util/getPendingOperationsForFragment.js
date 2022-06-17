@@ -22,10 +22,10 @@ function getPendingOperationsForFragment(
   environment: IEnvironment,
   fragmentNode: ReaderFragment,
   fragmentOwner: RequestDescriptor,
-): {|
+): {
   promise: Promise<void>,
   pendingOperations: $ReadOnlyArray<RequestDescriptor>,
-|} | null {
+} | null {
   let pendingOperations: $ReadOnlyArray<RequestDescriptor> = [];
   let promise = getPromiseForActiveRequest(environment, fragmentOwner);
 

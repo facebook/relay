@@ -36,7 +36,7 @@ type ExpectedReturnType<
   TQuery: OperationType,
   TQueryVariables,
   TFragmentData,
-> = {|
+> = {
   data: TFragmentData,
   loadNext: LoadMoreFn<TQuery>,
   loadPrevious: LoadMoreFn<TQuery>,
@@ -45,7 +45,7 @@ type ExpectedReturnType<
   isLoadingNext: boolean,
   isLoadingPrevious: boolean,
   refetch: FetchFn<TQueryVariables>,
-|};
+};
 
 /* eslint-disable react-hooks/rules-of-hooks */
 
@@ -105,8 +105,8 @@ refetch(variables, {
 });
 
 // LoadMore options
-declare var extraVariables: {|nickname: string|};
-declare var invalidVariables: {|foo: string|};
+declare var extraVariables: {nickname: string};
+declare var invalidVariables: {foo: string};
 
 const {loadNext} = usePaginationFragment<QueryOperation, _>(
   fragmentInput,

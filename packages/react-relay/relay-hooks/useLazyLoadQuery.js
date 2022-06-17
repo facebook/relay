@@ -36,23 +36,23 @@ const {
 export type UseLazyLoadQueryHookType = <TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
-  options?: {|
+  options?: {
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
     networkCacheConfig?: CacheConfig,
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
+  },
 ) => TData;
 
 function useLazyLoadQuery_LEGACY<TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
-  options?: {|
+  options?: {
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
     networkCacheConfig?: CacheConfig,
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
+  },
 ): TData {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
@@ -81,12 +81,12 @@ function useLazyLoadQuery_LEGACY<TVariables: Variables, TData>(
 function useLazyLoadQuery<TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
-  options?: {|
+  options?: {
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
     networkCacheConfig?: CacheConfig,
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
+  },
 ): TData {
   const impl = HooksImplementation.get();
   if (impl) {

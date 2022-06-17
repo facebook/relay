@@ -23,9 +23,9 @@ const useLazyLoadQuery = require('./useLazyLoadQuery');
 function useClientQuery<TVariables: Variables, TData>(
   gqlQuery: ClientQuery<TVariables, TData>,
   variables: TVariables,
-  options?: {|
+  options?: {
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
+  },
 ): TData {
   // $FlowFixMe[incompatible-type] client queries can be used with useLazyLoadQuery, but only with `store-only` policy.
   const query: Query<TVariables, TData> = gqlQuery;

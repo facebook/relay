@@ -29,13 +29,13 @@ const {
 const RelayDeclarativeMutationConfig = require('./RelayDeclarativeMutationConfig');
 const invariant = require('invariant');
 
-export type OptimisticMutationConfig<TMutation: MutationParameters> = {|
+export type OptimisticMutationConfig<TMutation: MutationParameters> = {
   configs?: ?Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
   variables: Variables,
   optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
   optimisticResponse?: Object,
-|};
+};
 
 /**
  * Higher-level helper function to execute a mutation against a specific

@@ -63,7 +63,7 @@ const RelayPublishQueue = require('./RelayPublishQueue');
 const RelayRecordSource = require('./RelayRecordSource');
 const invariant = require('invariant');
 
-export type EnvironmentConfig = {|
+export type EnvironmentConfig = {
   +configName?: string,
   +handlerProvider?: ?HandlerProvider,
   +treatMissingFieldsAsNull?: boolean,
@@ -82,7 +82,7 @@ export type EnvironmentConfig = {|
   +isServer?: boolean,
   +requiredFieldLogger?: ?RequiredFieldLogger,
   +shouldProcessClientComponents?: ?boolean,
-|};
+};
 
 class RelayModernEnvironment implements IEnvironment {
   __log: LogFunction;
@@ -337,9 +337,9 @@ class RelayModernEnvironment implements IEnvironment {
    */
   execute({
     operation,
-  }: {|
+  }: {
     operation: OperationDescriptor,
-  |}): RelayObservable<GraphQLResponse> {
+  }): RelayObservable<GraphQLResponse> {
     return this._execute({
       createSource: () =>
         this.getNetwork().execute(
@@ -366,10 +366,10 @@ class RelayModernEnvironment implements IEnvironment {
   executeSubscription<TMutation: MutationParameters>({
     operation,
     updater,
-  }: {|
+  }: {
     operation: OperationDescriptor,
     updater?: ?SelectorStoreUpdater<TMutation['response']>,
-  |}): RelayObservable<GraphQLResponse> {
+  }): RelayObservable<GraphQLResponse> {
     return this._execute({
       createSource: () =>
         this.getNetwork().execute(
@@ -440,10 +440,10 @@ class RelayModernEnvironment implements IEnvironment {
   executeWithSource({
     operation,
     source,
-  }: {|
+  }: {
     operation: OperationDescriptor,
     source: RelayObservable<GraphQLResponse>,
-  |}): RelayObservable<GraphQLResponse> {
+  }): RelayObservable<GraphQLResponse> {
     return this._execute({
       createSource: () => source,
       isClientPayload: false,
@@ -463,13 +463,13 @@ class RelayModernEnvironment implements IEnvironment {
     operation,
     optimisticConfig,
     updater,
-  }: {|
+  }: {
     createSource: () => RelayObservable<GraphQLResponse>,
     isClientPayload: boolean,
     operation: OperationDescriptor,
     optimisticConfig: ?OptimisticResponseConfig<TMutation>,
     updater: ?SelectorStoreUpdater<TMutation['response']>,
-  |}): RelayObservable<GraphQLResponse> {
+  }): RelayObservable<GraphQLResponse> {
     const publishQueue = this._publishQueue;
     const store = this._store;
     return RelayObservable.create(sink => {

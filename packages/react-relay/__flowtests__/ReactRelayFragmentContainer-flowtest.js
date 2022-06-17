@@ -127,7 +127,7 @@ module.exports = {
     return <Bar {...props} />;
   },
   checkStaticsAndMethodsProxying(): React.Node {
-    class ProxyChecker extends React.PureComponent<{||}> {
+    class ProxyChecker extends React.PureComponent<{}> {
       _barRef: ?BarComponent;
       getString(): string {
         const ok = this._barRef ? this._barRef.getNum() : 'default'; // legit

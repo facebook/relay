@@ -24,23 +24,23 @@ import type {ReaderFragment, ReaderInlineDataFragment} from './ReaderNode';
  * from that operation to read the response data (masking data from child
  * fragments).
  */
-export type ConcreteRequest = {|
+export type ConcreteRequest = {
   +kind: 'Request',
   +fragment: ReaderFragment,
   +operation: NormalizationOperation,
   +params: RequestParameters,
-|};
+};
 
-export type ConcreteUpdatableQuery = {|
+export type ConcreteUpdatableQuery = {
   +kind: 'UpdatableQuery',
   +fragment: ReaderFragment,
-|};
+};
 
 export type NormalizationRootNode =
   | ConcreteRequest
   | NormalizationSplitOperation;
 
-export type ProvidedVariablesType = {+[key: string]: {|get(): mixed|}};
+export type ProvidedVariablesType = {+[key: string]: {get(): mixed}};
 
 /**
  * Contains the parameters required for executing a GraphQL request.
@@ -49,7 +49,7 @@ export type ProvidedVariablesType = {+[key: string]: {|get(): mixed|}};
  * for local caching.
  */
 export type RequestParameters =
-  | {|
+  | {
       +id: string,
       +text: null,
       // common fields
@@ -57,8 +57,8 @@ export type RequestParameters =
       +operationKind: 'mutation' | 'query' | 'subscription',
       +providedVariables?: ProvidedVariablesType,
       +metadata: {[key: string]: mixed, ...},
-    |}
-  | {|
+    }
+  | {
       +cacheID: string,
       +id: null,
       +text: string | null,
@@ -67,9 +67,9 @@ export type RequestParameters =
       +operationKind: 'mutation' | 'query' | 'subscription',
       +providedVariables?: ProvidedVariablesType,
       +metadata: {[key: string]: mixed, ...},
-    |};
+    };
 
-export type ClientRequestParameters = {|
+export type ClientRequestParameters = {
   +cacheID: string,
   +id: null,
   +text: null,
@@ -78,14 +78,14 @@ export type ClientRequestParameters = {|
   +operationKind: 'query',
   +providedVariables?: ProvidedVariablesType,
   +metadata: {[key: string]: mixed, ...},
-|};
+};
 
-export type ClientRequest = {|
+export type ClientRequest = {
   +kind: 'Request',
   +fragment: ReaderFragment,
   +operation: NormalizationOperation,
   +params: ClientRequestParameters,
-|};
+};
 
 export type GeneratedNode =
   | ConcreteRequest

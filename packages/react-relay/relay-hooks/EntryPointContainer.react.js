@@ -38,10 +38,10 @@ function EntryPointContainer<
 >({
   entryPointReference,
   props,
-}: $ReadOnly<{|
+}: $ReadOnly<{
   entryPointReference: PreloadedEntryPoint<TEntryPointComponent>,
   props: TRuntimeProps,
-|}>): React.MixedElement {
+}>): React.MixedElement {
   warning(
     entryPointReference.isDisposed === false,
     '<EntryPointContainer>: Expected entryPointReference to not be disposed ' +

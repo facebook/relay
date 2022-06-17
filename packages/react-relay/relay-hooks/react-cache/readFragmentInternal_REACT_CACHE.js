@@ -37,15 +37,15 @@ const {
 } = require('relay-runtime');
 const warning = require('warning');
 
-type FragmentQueryOptions = {|
+type FragmentQueryOptions = {
   fetchPolicy?: FetchPolicy,
   networkCacheConfig?: ?CacheConfig,
-|};
+};
 
 type FragmentState = $ReadOnly<
-  | {|kind: 'bailout'|}
-  | {|kind: 'singular', snapshot: Snapshot, epoch: number|}
-  | {|kind: 'plural', snapshots: $ReadOnlyArray<Snapshot>, epoch: number|},
+  | {kind: 'bailout'}
+  | {kind: 'singular', snapshot: Snapshot, epoch: number}
+  | {kind: 'plural', snapshots: $ReadOnlyArray<Snapshot>, epoch: number},
 >;
 
 function isMissingData(state: FragmentState): boolean {
@@ -165,10 +165,10 @@ function readFragmentInternal_REACT_CACHE(
   hookDisplayName: string,
   queryOptions?: FragmentQueryOptions,
   fragmentKey?: string,
-): {|
+): {
   +data: ?SelectorData | Array<?SelectorData>,
   +clientEdgeQueries: ?Array<QueryResult>,
-|} {
+} {
   const fragmentSelector = getSelector(fragmentNode, fragmentRef);
   const isPlural = fragmentNode?.metadata?.plural === true;
 

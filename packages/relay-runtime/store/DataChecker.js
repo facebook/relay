@@ -51,10 +51,10 @@ const RelayStoreUtils = require('./RelayStoreUtils');
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
 
-export type Availability = {|
+export type Availability = {
   +status: 'available' | 'missing',
   +mostRecentlyInvalidatedAt: ?number,
-|};
+};
 
 const {
   ACTOR_CHANGE,

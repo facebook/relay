@@ -36,10 +36,10 @@ describe('RelayModernEnvironment with RelayOperationTracker', () => {
   let QueryOperation1;
   let QueryOperation2;
   let MutationOperation;
-  let operationLoader: {|
+  let operationLoader: {
     get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-  |};
+  };
 
   beforeEach(() => {
     const Query1 = graphql`

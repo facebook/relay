@@ -124,9 +124,9 @@ describe.each([
     let queryWithLiteralArgs;
     let refetchQueryWithArgs;
     let variables:
-      | {|id: string, scale: number|}
-      | {|id: string|}
-      | {|nodeID: string, scale: number|};
+      | {id: string, scale: number}
+      | {id: string}
+      | {nodeID: string, scale: number};
     let variablesNestedFragment;
     let forceUpdate;
     let setEnvironment;
@@ -167,14 +167,14 @@ describe.each([
       return result;
     }
 
-    function assertCall(expected: {|data: any|}, idx: number) {
+    function assertCall(expected: {data: any}, idx: number) {
       const actualData = commitSpy.mock.calls[idx][0];
 
       expect(actualData).toEqual(expected.data);
     }
 
     function expectFragmentResults(
-      expectedCalls: $ReadOnlyArray<{|data: $FlowFixMe|}>,
+      expectedCalls: $ReadOnlyArray<{data: $FlowFixMe}>,
     ) {
       // This ensures that useEffect runs
       TestRenderer.act(() => jest.runAllImmediates());
@@ -335,7 +335,7 @@ describe.each([
       });
 
       // Set up renderers
-      Renderer = (props: {|user: mixed|}) => null;
+      Renderer = (props: {user: mixed}) => null;
 
       const Container = (props: {
         userRef?: {...},
@@ -380,7 +380,7 @@ describe.each([
         return <Renderer user={userData} />;
       };
 
-      const ContextProvider = ({children}: {|children: React.Node|}) => {
+      const ContextProvider = ({children}: {children: React.Node}) => {
         useTrackLoadQueryInRender();
         const [env, _setEnv] = useState(environment);
         const relayContext = useMemo(() => ({environment: env}), [env]);
@@ -587,11 +587,11 @@ describe.each([
 
       function expectFragmentIsRefetching(
         renderer: any,
-        expected: {|
+        expected: {
           refetchVariables: Variables,
           refetchQuery?: OperationDescriptor,
           gqlRefetchQuery?: $FlowFixMe,
-        |},
+        },
         env: RelayMockEnvironment = environment,
       ) {
         expect(commitSpy).toBeCalledTimes(0);
@@ -1682,7 +1682,7 @@ describe.each([
           };
 
           const doAndAssertRefetch = (
-            fragmentResults: Array<{|data: any|}>,
+            fragmentResults: Array<{data: any}>,
           ) => {
             commitSpy.mockClear();
             // $FlowFixMe[method-unbinding] added when improving typing for this parameters

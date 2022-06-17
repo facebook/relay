@@ -90,7 +90,7 @@ export type GetDataID = (
   typeName: string,
 ) => mixed;
 
-export type NormalizationOptions = {|
+export type NormalizationOptions = {
   +getDataID: GetDataID,
   +treatMissingFieldsAsNull: boolean,
   +path?: $ReadOnlyArray<string>,
@@ -98,7 +98,7 @@ export type NormalizationOptions = {|
   +reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
   +shouldProcessClientComponents?: ?boolean,
   +actorIdentifier?: ?ActorIdentifier,
-|};
+};
 
 /**
  * Normalizes the results of a query and standard GraphQL response, writing the

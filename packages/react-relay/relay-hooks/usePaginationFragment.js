@@ -34,7 +34,7 @@ const {
   getPaginationMetadata,
 } = require('relay-runtime');
 
-export type ReturnType<TQuery: OperationType, TKey> = {|
+export type ReturnType<TQuery: OperationType, TKey> = {
   // NOTE: This $Call ensures that the type of the returned data is either:
   //   - nullable if the provided ref type is nullable
   //   - non-nullable if the provided ref type is non-nullable
@@ -51,7 +51,7 @@ export type ReturnType<TQuery: OperationType, TKey> = {|
   isLoadingNext: boolean,
   isLoadingPrevious: boolean,
   refetch: RefetchFnDynamic<TQuery, TKey>,
-|};
+};
 
 // This separate type export is only needed as long as we are injecting
 // a separate hooks implementation in ./HooksImplementation -- it can

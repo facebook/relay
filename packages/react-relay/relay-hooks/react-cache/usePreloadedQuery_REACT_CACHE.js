@@ -35,9 +35,9 @@ const warning = require('warning');
 function usePreloadedQuery_REACT_CACHE<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
   preloadedQuery: PreloadedQuery<TQuery>,
-  options?: {|
+  options?: {
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
+  },
 ): TQuery['response'] {
   const environment = useRelayEnvironment();
 

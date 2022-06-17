@@ -63,9 +63,9 @@ describe('useSubscription', () => {
     jest.resetAllMocks();
   });
 
-  type Props = {|
+  type Props = {
     env: RelayMockEnvironment,
-  |};
+  };
   function MyComponent({env}: Props) {
     function InnerComponent() {
       useSubscription(config);

@@ -297,7 +297,7 @@ test("Resolvers without fragments aren't reevaluated when their parent record up
     store,
   });
 
-  function Environment({children}: {|children: React.Node|}) {
+  function Environment({children}: {children: React.Node}) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Loading...">{children}</React.Suspense>
@@ -365,7 +365,7 @@ test('Can suspend', () => {
     },
   );
 
-  function Environment({children}: {|children: React.Node|}) {
+  function Environment({children}: {children: React.Node}) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Loading...">{children}</React.Suspense>
@@ -427,7 +427,7 @@ test('Can suspend with resolver that uses live resolver', () => {
     store,
   });
 
-  function Environment({children}: {|children: React.Node|}) {
+  function Environment({children}: {children: React.Node}) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Loading...">{children}</React.Suspense>
@@ -479,7 +479,7 @@ test('Can suspend with resolver that uses live resolver', () => {
 describe('Live Resolver with Suspense and Missing Data', () => {
   let renderer;
 
-  function InnerTestComponent({scale}: {|scale: number|}) {
+  function InnerTestComponent({scale}: {scale: number}) {
     const data = useLazyLoadQuery(
       graphql`
         query LiveResolversTest7Query($id: ID!, $scale: Float!) {
@@ -504,10 +504,10 @@ describe('Live Resolver with Suspense and Missing Data', () => {
   function TestComponent({
     environment,
     ...rest
-  }: {|
+  }: {
     environment: RelayModernEnvironment,
     scale: number,
-  |}) {
+  }) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Loading...">
@@ -703,7 +703,7 @@ describe('Live Resolver with Suspense and Missing Data', () => {
 });
 
 test('Live Resolver with Missing Data and @required', () => {
-  function InnerTestComponent({id}: {|id: string|}) {
+  function InnerTestComponent({id}: {id: string}) {
     const data = useLazyLoadQuery(
       graphql`
         query LiveResolversTest8Query($id: ID!) {
@@ -726,10 +726,10 @@ test('Live Resolver with Missing Data and @required', () => {
   function TestComponent({
     environment,
     ...rest
-  }: {|
+  }: {
     environment: RelayModernEnvironment,
     id: string,
-  |}) {
+  }) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Loading...">
@@ -798,7 +798,7 @@ test('Live Resolver with Missing Data and @required', () => {
 test('apply optimistic updates to live resolver field', () => {
   let renderer;
 
-  function InnerTestComponent({scale}: {|scale: number|}) {
+  function InnerTestComponent({scale}: {scale: number}) {
     const data = useLazyLoadQuery(
       graphql`
         query LiveResolversTest9Query($id: ID!, $scale: Float!) {
@@ -820,10 +820,10 @@ test('apply optimistic updates to live resolver field', () => {
   function TestComponent({
     environment,
     ...rest
-  }: {|
+  }: {
     environment: RelayModernEnvironment,
     scale: number,
-  |}) {
+  }) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Loading...">
@@ -967,7 +967,7 @@ test('with client-only field', () => {
     return data.counter_no_fragment;
   }
 
-  function TestComponent({environment}: {|environment: IEnvironment|}) {
+  function TestComponent({environment}: {environment: IEnvironment}) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Loading...">
@@ -1014,7 +1014,7 @@ test('with client-only field', () => {
 test('with client-only field and args', () => {
   let renderer;
 
-  function InnerTestComponent({prefix}: {|prefix: string|}) {
+  function InnerTestComponent({prefix}: {prefix: string}) {
     const data = useClientQuery(
       graphql`
         query LiveResolversTest12Query($prefix: String!) {
@@ -1029,10 +1029,10 @@ test('with client-only field and args', () => {
   function TestComponent({
     environment,
     ...rest
-  }: {|
+  }: {
     environment: IEnvironment,
     prefix: string,
-  |}) {
+  }) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <React.Suspense fallback="Loading...">

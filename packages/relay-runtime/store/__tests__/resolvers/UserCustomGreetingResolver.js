@@ -28,7 +28,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  */
 function userGreeting(
   rootKey: UserCustomGreetingResolver$key,
-  args: {|salutation: string|},
+  args: {salutation: string},
 ): string {
   const user = readFragment(
     graphql`

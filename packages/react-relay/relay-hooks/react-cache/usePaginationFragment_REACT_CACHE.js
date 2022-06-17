@@ -33,7 +33,7 @@ const {
   getPaginationMetadata,
 } = require('relay-runtime');
 
-export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
+export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {
   data: TFragmentData,
   loadNext: LoadMoreFn<TQuery>,
   loadPrevious: LoadMoreFn<TQuery>,
@@ -42,7 +42,7 @@ export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
   isLoadingNext: boolean,
   isLoadingPrevious: boolean,
   refetch: RefetchFnDynamic<TQuery, TKey>,
-|};
+};
 
 function usePaginationFragment<
   TQuery: OperationType,

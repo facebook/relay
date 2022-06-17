@@ -34,14 +34,14 @@ const {
   getPaginationMetadata,
 } = require('relay-runtime');
 
-export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {|
+export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {
   data: TFragmentData,
   loadNext: LoadMoreFn<TQuery>,
   loadPrevious: LoadMoreFn<TQuery>,
   hasNext: boolean,
   hasPrevious: boolean,
   refetch: RefetchFnDynamic<TQuery, TKey>,
-|};
+};
 
 function useBlockingPaginationFragment<
   TQuery: OperationType,
@@ -148,7 +148,7 @@ function useBlockingPaginationFragment<
   };
 }
 
-function useLoadMore<TQuery: OperationType>(args: {|
+function useLoadMore<TQuery: OperationType>(args: {
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
   ...$Exact<
@@ -161,7 +161,7 @@ function useLoadMore<TQuery: OperationType>(args: {|
       },
     >,
   >,
-|}): [LoadMoreFn<TQuery>, boolean, () => void] {
+}): [LoadMoreFn<TQuery>, boolean, () => void] {
   const {disableStoreUpdates, enableStoreUpdates, ...loadMoreArgs} = args;
   const [requestPromise, setRequestPromise] = useState(null);
   const requestPromiseRef = useRef(null);

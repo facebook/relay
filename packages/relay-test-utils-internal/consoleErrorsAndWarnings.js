@@ -18,12 +18,12 @@ export type WillFireOptions = {
   optional?: boolean,
 };
 
-type API = $ReadOnly<{|
+type API = $ReadOnly<{
   disallowMessages: () => void,
   expectMessageWillFire: (string, void | WillFireOptions) => void,
   expectMessage: <T>(string, () => T) => T,
   expectMessageMany: <T>(Array<string>, () => T) => T,
-|}>;
+}>;
 
 const originalConsoleError = console.error;
 

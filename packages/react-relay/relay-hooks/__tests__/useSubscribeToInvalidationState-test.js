@@ -72,10 +72,10 @@ beforeEach(() => {
   function Renderer({
     initialDataIDs,
     initialCallback,
-  }: {|
+  }: {
     initialCallback: JestMockFn<Array<mixed>, void>,
     initialDataIDs: Array<string>,
-  |}) {
+  }) {
     const [dataIDs, _setDataIDs] = useState(initialDataIDs);
     const [cbState, _setCallback] = useState({callback: initialCallback});
     const cb = cbState.callback;
@@ -92,11 +92,11 @@ beforeEach(() => {
     return null;
   }
 
-  function Container(props: {|
+  function Container(props: {
     callback: JestMockFn<Array<mixed>, void>,
     dataIDs: Array<string>,
     environment: RelayMockEnvironment,
-  |}) {
+  }) {
     const [env, setEnv] = useState(props.environment);
     setEnvironment = setEnv;
     return (

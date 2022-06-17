@@ -103,7 +103,7 @@ fragment MyFrag on Actor {
 }
 ```
 
-It's possible that your `Actor` will not be at `User` and therefore not include a `name`. To represent that in types, we generate a Flow type that looks like this: `{name?: string}`.
+It's possible that your `Actor` will not be a `User` and therefore not include a `name`. To represent that in types, we generate a Flow type that looks like this: `{name?: string}`.
 
 If you encounter this issue, you can add a `__typename` like this:
 
@@ -116,7 +116,7 @@ fragment MyFrag on Actor {
 }
 ```
 
-In this situation Relay will generate a union type like: `{__typename: 'User', name: string} | {__typename: '%ignore this%}`. Now you can check the `__typename` field to narrow your object's type down to one that has a non-nullalble `name`.
+In this situation Relay will generate a union type like: `{__typename: 'User', name: string} | {__typename: '%ignore this%}`. Now you can check the `__typename` field to narrow your object's type down to one that has a non-nullable `name`.
 
 <FbInternalOnly>
 Example diff showing the adoption of this strategy: D24370183

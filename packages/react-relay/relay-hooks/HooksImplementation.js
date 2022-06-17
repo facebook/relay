@@ -11,8 +11,6 @@
 
 'use strict';
 
-// flowlint ambiguous-object-type:error
-
 import typeof useFragment from './useFragment';
 import type {UseLazyLoadQueryHookType} from './useLazyLoadQuery';
 import type {UsePaginationFragmentType} from './usePaginationFragment';

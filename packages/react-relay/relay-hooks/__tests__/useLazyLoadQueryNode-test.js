@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {LogEvent} from '../../../relay-runtime/store/RelayStoreTypes';
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';

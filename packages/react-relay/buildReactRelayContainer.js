@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {ReaderFragment} from '../relay-runtime/util/ReaderNode';
 import type {GeneratedNodeMap} from './ReactRelayTypes';

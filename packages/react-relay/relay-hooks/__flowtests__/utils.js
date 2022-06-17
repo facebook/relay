@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {Disposable, Fragment, FragmentType} from 'relay-runtime';

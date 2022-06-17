@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const prepareEntryPoint_DEPRECATED = require('../prepareEntryPoint_DEPRECATED');

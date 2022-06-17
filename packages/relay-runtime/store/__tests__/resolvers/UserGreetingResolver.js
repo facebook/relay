@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {UserGreetingResolver$key} from './__generated__/UserGreetingResolver.graphql';

@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 import type {LoadMoreFn} from '../useLoadMoreFunction';
 import type {
   FetchFn,

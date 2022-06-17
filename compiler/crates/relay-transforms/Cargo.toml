@@ -96,7 +96,7 @@ path = "tests/validate_static_args_test.rs"
 
 [dependencies]
 common = { path = "../common" }
-dashmap = { version = "4.0.2", features = ["rayon", "serde"] }
+dashmap = { version = "5.1.0", features = ["rayon", "serde"] }
 errors = { path = "../errors" }
 fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }

@@ -15,7 +15,9 @@
 
 import typeof useFragment from './useFragment';
 import type {UseLazyLoadQueryHookType} from './useLazyLoadQuery';
+import type {UsePaginationFragmentType} from './usePaginationFragment';
 import type {UsePreloadedQueryHookType} from './usePreloadedQuery';
+import type {UseRefetchableFragmentType} from './useRefetchableFragment';
 
 const warning = require('warning');
 
@@ -23,6 +25,8 @@ type HooksImplementation = {|
   useFragment: useFragment,
   useLazyLoadQuery: UseLazyLoadQueryHookType,
   usePreloadedQuery: UsePreloadedQueryHookType,
+  usePaginationFragment: UsePaginationFragmentType,
+  useRefetchableFragment: UseRefetchableFragmentType,
 |};
 
 let implementation: HooksImplementation | null = null;

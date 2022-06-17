@@ -1679,9 +1679,7 @@ describe.each([
             ...createFragmentRef('1', refetchQuery),
           };
 
-          const doAndAssertRefetch = (
-            fragmentResults: Array<{data: any}>,
-          ) => {
+          const doAndAssertRefetch = (fragmentResults: Array<{data: any}>) => {
             commitSpy.mockClear();
             // $FlowFixMe[method-unbinding] added when improving typing for this parameters
             environment.executeWithSource.mockClear();

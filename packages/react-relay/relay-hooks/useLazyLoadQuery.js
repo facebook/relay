@@ -21,7 +21,6 @@ import type {
   Variables,
 } from 'relay-runtime';
 
-const HooksImplementation = require('./HooksImplementation');
 const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
@@ -44,7 +43,7 @@ export type UseLazyLoadQueryHookType = <TVariables: Variables, TData>(
   |},
 ) => TData;
 
-function useLazyLoadQuery_LEGACY<TVariables: Variables, TData>(
+function useLazyLoadQuery<TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
   options?: {|
@@ -76,25 +75,6 @@ function useLazyLoadQuery_LEGACY<TVariables: Variables, TData>(
     renderPolicy: options?.UNSTABLE_renderPolicy,
   });
   return data;
-}
-
-function useLazyLoadQuery<TVariables: Variables, TData>(
-  gqlQuery: Query<TVariables, TData>,
-  variables: TVariables,
-  options?: {|
-    fetchKey?: string | number,
-    fetchPolicy?: FetchPolicy,
-    networkCacheConfig?: CacheConfig,
-    UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
-): TData {
-  const impl = HooksImplementation.get();
-  if (impl) {
-    return impl.useLazyLoadQuery(gqlQuery, variables, options);
-  } else {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useLazyLoadQuery_LEGACY(gqlQuery, variables, options);
-  }
 }
 
 module.exports = (useLazyLoadQuery: UseLazyLoadQueryHookType);

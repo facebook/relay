@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<078892a091190acf3b97d624631d27be>>
+ * @generated SignedSource<<59a6d4329ec5da08385c532b02e8c4fe>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,14 @@
 
 /*::
 import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+type UserAnotherClientEdgeResolver$key = any;
 import type { FragmentType } from "relay-runtime";
+import userAnotherClientEdgeResolver from "../resolvers/UserAnotherClientEdgeResolver.js";
+// Type assertion validating that `userAnotherClientEdgeResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userAnotherClientEdgeResolver: (
+  rootKey: UserAnotherClientEdgeResolver$key, 
+) => mixed);
 declare export opaque type RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$variables = any;
 export type RefetchableClientEdgeQuery_RelayReaderClientEdgesTest4Query_me__client_edge$data = {|

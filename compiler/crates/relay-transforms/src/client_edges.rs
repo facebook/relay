@@ -77,7 +77,7 @@ pub struct ClientEdgeMetadata<'a> {
 //
 // In order to ensure both of these elements are present in our IR, and also get
 // traversed by subsequent transform steps, we model Client Edges in our IR as
-// an inline fragment containing these two children in an implict order.
+// an inline fragment containing these two children in an implicit order.
 //
 // This utility method is intended to reduce the number of places that need to
 // know about this implicit contract by reading an inline fragment and returning
@@ -308,7 +308,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
         let metadata_directive = if is_edge_to_client_object {
             // We assume edges to client objects will be resolved on the client
-            // and thus not incur a waterfall. This will change in the furture
+            // and thus not incur a waterfall. This will change in the future
             // for @live Resolvers that can trigger suspense.
             if let Some(directive) = waterfall_directive {
                 self.errors.push(Diagnostic::error_with_data(
@@ -470,17 +470,8 @@ fn make_refetchable_directive(query_name: StringKey) -> Directive {
     }
 }
 
-pub fn remove_client_edge_backing_ids(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = ClientEdgesCleanupTransform::new(CleanupMode::PreserveSelectionsField);
-    let next_program = transform
-        .transform_program(program)
-        .replace_or_else(|| program.clone());
-
-    Ok(next_program)
-}
-
 pub fn remove_client_edge_selections(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = ClientEdgesCleanupTransform::new(CleanupMode::PreserveBackingField);
+    let mut transform = ClientEdgesCleanupTransform::default();
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -488,20 +479,8 @@ pub fn remove_client_edge_selections(program: &Program) -> DiagnosticsResult<Pro
     Ok(next_program)
 }
 
-enum CleanupMode {
-    PreserveBackingField,
-    PreserveSelectionsField,
-}
-
-struct ClientEdgesCleanupTransform {
-    cleanup_mode: CleanupMode,
-}
-
-impl ClientEdgesCleanupTransform {
-    fn new(cleanup_mode: CleanupMode) -> Self {
-        Self { cleanup_mode }
-    }
-}
+#[derive(Default)]
+struct ClientEdgesCleanupTransform;
 
 impl Transformer for ClientEdgesCleanupTransform {
     const NAME: &'static str = "ClientEdgesCleanupTransform";
@@ -511,10 +490,7 @@ impl Transformer for ClientEdgesCleanupTransform {
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         match ClientEdgeMetadata::find(fragment) {
             Some(metadata) => {
-                let new_selection = match self.cleanup_mode {
-                    CleanupMode::PreserveBackingField => metadata.backing_field,
-                    CleanupMode::PreserveSelectionsField => metadata.selections,
-                };
+                let new_selection = metadata.backing_field;
 
                 Transformed::Replace(
                     self.transform_selection(new_selection)

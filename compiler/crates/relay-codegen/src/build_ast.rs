@@ -777,13 +777,13 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 frag_spread.fragment.item.lookup().to_string(),
             );
 
-            let normalizataion_import_path = self.project_config.js_module_import_path(
+            let normalization_import_path = self.project_config.js_module_import_path(
                 self.definition_source_location,
                 path_for_artifact.to_str().unwrap().intern(),
             );
 
             return self
-                .build_normalization_fragment_spread(frag_spread, normalizataion_import_path);
+                .build_normalization_fragment_spread(frag_spread, normalization_import_path);
         }
         if self.variant == CodegenVariant::Normalization
             && frag_spread

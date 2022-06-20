@@ -17,10 +17,11 @@ use graphql_ir::{
 use indexmap::{map::Entry, IndexMap, IndexSet};
 use relay_config::{CustomScalarType, CustomScalarTypeImport};
 use relay_transforms::{
-    FragmentAliasMetadata, ModuleMetadata, NoInlineFragmentSpreadMetadata, RelayResolverMetadata,
-    RequiredMetadataDirective, TypeConditionInfo, ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN,
-    CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME,
-    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
+    ClientEdgeMetadata, FragmentAliasMetadata, ModuleMetadata, NoInlineFragmentSpreadMetadata,
+    RelayResolverMetadata, RequiredMetadataDirective, TypeConditionInfo,
+    ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, CHILDREN_CAN_BUBBLE_METADATA_KEY,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+    UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
@@ -292,29 +293,24 @@ fn generate_resolver_type(
     })
 }
 
+fn generate_local_resolver_name(field_parent_type: StringKey, field_name: StringKey) -> StringKey {
+    to_camel_case(format!("{}_{}_resolver", field_parent_type, field_name)).intern()
+}
+
 #[allow(clippy::too_many_arguments)]
-fn visit_relay_resolver(
+fn import_relay_resolver_function_type(
     typegen_context: &'_ TypegenContext<'_>,
     fragment_name: Option<StringKey>,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
     encountered_fragments: &mut EncounteredFragments,
-    type_selections: &mut Vec<TypeSelection>,
     resolver_metadata: &RelayResolverMetadata,
-    required: bool,
     imported_resolvers: &mut ImportedResolvers,
 ) {
     let field_name = resolver_metadata.field_name;
-
-    let key = resolver_metadata.field_alias.unwrap_or(field_name);
-    let live = resolver_metadata.live;
-
-    let local_resolver_name = to_camel_case(format!(
-        "{}_{}_resolver",
-        resolver_metadata.field_parent_type, field_name
-    ))
-    .intern();
+    let local_resolver_name =
+        generate_local_resolver_name(resolver_metadata.field_parent_type, field_name);
 
     let import_path = typegen_context.project_config.js_module_import_path(
         typegen_context.definition_source_location,
@@ -339,6 +335,37 @@ fn visit_relay_resolver(
         .0
         .entry(import_path)
         .or_insert(imported_resolver);
+}
+
+#[allow(clippy::too_many_arguments)]
+fn visit_relay_resolver(
+    typegen_context: &'_ TypegenContext<'_>,
+    fragment_name: Option<StringKey>,
+    input_object_types: &mut InputObjectTypes,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
+    encountered_fragments: &mut EncounteredFragments,
+    type_selections: &mut Vec<TypeSelection>,
+    resolver_metadata: &RelayResolverMetadata,
+    required: bool,
+    imported_resolvers: &mut ImportedResolvers,
+) {
+    import_relay_resolver_function_type(
+        typegen_context,
+        fragment_name,
+        input_object_types,
+        encountered_enums,
+        custom_scalars,
+        encountered_fragments,
+        resolver_metadata,
+        imported_resolvers,
+    );
+
+    let field_name = resolver_metadata.field_name;
+    let key = resolver_metadata.field_alias.unwrap_or(field_name);
+    let live = resolver_metadata.live;
+    let local_resolver_name =
+        generate_local_resolver_name(resolver_metadata.field_parent_type, field_name);
 
     let mut inner_value = Box::new(AST::ReturnTypeOfFunctionWithName(local_resolver_name));
 
@@ -359,6 +386,59 @@ fn visit_relay_resolver(
         conditional: false,
         concrete_type: None,
     }));
+}
+
+#[allow(clippy::too_many_arguments)]
+fn visit_client_edge(
+    typegen_context: &'_ TypegenContext<'_>,
+    input_object_types: &mut InputObjectTypes,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
+    encountered_fragments: &mut EncounteredFragments,
+    type_selections: &mut Vec<TypeSelection>,
+    client_edge_metadata: &ClientEdgeMetadata<'_>,
+    actor_change_status: &mut ActorChangeStatus,
+    imported_resolvers: &mut ImportedResolvers,
+    enclosing_linked_field_concrete_type: Option<Type>,
+) {
+    let (resolver_metadata, fragment_name) = match client_edge_metadata.backing_field {
+        Selection::FragmentSpread(fragment_spread) => (
+            RelayResolverMetadata::find(&fragment_spread.directives),
+            Some(fragment_spread.fragment.item),
+        ),
+        Selection::ScalarField(scalar_field) => {
+            (RelayResolverMetadata::find(&scalar_field.directives), None)
+        }
+        _ => panic!(
+            "Expect correct relay resolver selection (fragment spread or scalar field). Got {:?}",
+            client_edge_metadata.backing_field
+        ),
+    };
+    if let Some(resolver_metadata) = resolver_metadata {
+        import_relay_resolver_function_type(
+            typegen_context,
+            fragment_name,
+            input_object_types,
+            encountered_enums,
+            custom_scalars,
+            encountered_fragments,
+            resolver_metadata,
+            imported_resolvers,
+        );
+    }
+
+    let mut client_edge_selections = visit_selections(
+        typegen_context,
+        &[client_edge_metadata.selections.clone()],
+        input_object_types,
+        encountered_enums,
+        encountered_fragments,
+        imported_resolvers,
+        actor_change_status,
+        custom_scalars,
+        enclosing_linked_field_concrete_type,
+    );
+    type_selections.append(&mut client_edge_selections);
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -413,6 +493,19 @@ fn visit_inline_fragment(
             imported_resolvers,
             actor_change_status,
             custom_scalars,
+            enclosing_linked_field_concrete_type,
+        );
+    } else if let Some(client_edge_metadata) = ClientEdgeMetadata::find(inline_fragment) {
+        visit_client_edge(
+            typegen_context,
+            input_object_types,
+            encountered_enums,
+            custom_scalars,
+            encountered_fragments,
+            type_selections,
+            &client_edge_metadata,
+            actor_change_status,
+            imported_resolvers,
             enclosing_linked_field_concrete_type,
         );
     } else {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<22e88ae935bf1f8281ac4b90105cfccc>>
+ * @generated SignedSource<<d90ecf4f73501d47cf0978344dc6d985>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,6 +16,14 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
+import queryHelloUserResolver from "../../../relay-runtime/store/__tests__/resolvers/HelloUserResolver.js";
+// Type assertion validating that `queryHelloUserResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(queryHelloUserResolver: (
+  args: {|
+    id: string,
+  |}, 
+) => mixed);
 export type ClientOnlyQueriesTest3Query$variables = {||};
 export type ClientOnlyQueriesTest3Query$data = {|
   +hello_user: ?{|

@@ -92,10 +92,9 @@ pub use assignable_fragment_spread::{
     UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
 };
 pub use client_edges::{
-    client_edges, remove_client_edge_backing_ids, remove_client_edge_selections,
-    ClientEdgeGeneratedQueryMetadataDirective, ClientEdgeMetadata, ClientEdgeMetadataDirective,
-    CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_SOURCE_NAME,
-    CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME,
+    client_edges, remove_client_edge_selections, ClientEdgeGeneratedQueryMetadataDirective,
+    ClientEdgeMetadata, ClientEdgeMetadataDirective, CLIENT_EDGE_GENERATED_FRAGMENT_KEY,
+    CLIENT_EDGE_SOURCE_NAME, CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME,
 };
 pub use client_extensions::{client_extensions, CLIENT_EXTENSION_DIRECTIVE_NAME};
 pub use connections::{

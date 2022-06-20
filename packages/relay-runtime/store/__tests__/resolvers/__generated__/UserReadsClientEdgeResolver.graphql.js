@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bf35a38fc9e4df650c3c249f9897b4c9>>
+ * @generated SignedSource<<95794afa3da2a819466fa31d7fe02260>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,14 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
+type UserClientEdgeResolver$key = any;
 import type { FragmentType } from "relay-runtime";
+import userClientEdgeResolver from "../UserClientEdgeResolver.js";
+// Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userClientEdgeResolver: (
+  rootKey: UserClientEdgeResolver$key, 
+) => mixed);
 declare export opaque type UserReadsClientEdgeResolver$fragmentType: FragmentType;
 export type UserReadsClientEdgeResolver$data = {|
   +client_edge: ?{|

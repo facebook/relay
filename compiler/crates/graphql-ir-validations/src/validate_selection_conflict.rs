@@ -15,16 +15,17 @@ use graphql_ir::{
 };
 use intern::string_key::StringKey;
 use schema::{SDLSchema, Schema, Type, TypeReference};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::marker::PhantomData;
 use std::sync::Arc;
 use thiserror::Error;
 
+/// Note:set `further_optimization` will enable: (1) cache the paired-fields; and (2) avoid duplicate fragment validations in multi-core machines.
 pub fn validate_selection_conflict<B: LocationAgnosticBehavior + Sync>(
     program: &Program,
-    cache_verified_fields: bool,
+    further_optimization: bool,
 ) -> DiagnosticsResult<()> {
-    ValidateSelectionConflict::<B>::new(program, cache_verified_fields).validate_program(program)
+    ValidateSelectionConflict::<B>::new(program, further_optimization).validate_program(program)
 }
 
 #[derive(Clone, PartialEq, Debug)]
@@ -39,32 +40,79 @@ struct ValidateSelectionConflict<'s, TBehavior: LocationAgnosticBehavior> {
     program: &'s Program,
     fragment_cache: DashMap<StringKey, Arc<Fields<'s>>, intern::BuildIdHasher<u32>>,
     fields_cache: DashMap<PointerAddress, Arc<Fields<'s>>>,
-    cache_verified_fields: bool,
+    further_optimization: bool,
     verified_fields_pair: DashSet<(PointerAddress, PointerAddress)>,
     _behavior: PhantomData<TBehavior>,
 }
 
 impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
-    fn new(program: &'s Program, cache_verified_fields: bool) -> Self {
+    fn new(program: &'s Program, further_optimization: bool) -> Self {
         Self {
             program,
             fragment_cache: Default::default(),
             fields_cache: Default::default(),
-            cache_verified_fields,
+            further_optimization,
             verified_fields_pair: Default::default(),
             _behavior: PhantomData::<B>,
         }
     }
 
     fn validate_program(&self, program: &'s Program) -> DiagnosticsResult<()> {
-        // NOTE: Fragments may be visited multiple times due to the parallel traversal for
-        // operations! Today the extra overhead is acceptable, compared to single thread
-        // `try_map` for operations.
-        // TODO: visit the fragments in parallel with topology order before visiting the operations.
+        if self.further_optimization {
+            self.prewarm_fragments(program);
+        }
+
         par_try_map(&program.operations, |operation| {
             self.validate_operation(operation)
         })?;
         Ok(())
+    }
+
+    fn prewarm_fragments(&self, program: &'s Program) {
+        // Validate the fragments in topology order.
+        let mut unclaimed_fragment_queue: VecDeque<StringKey> = VecDeque::new();
+
+        // Construct the dependency graph, which is represented by two maps:
+        // DAG1: fragment K -> Used by: {Fragment v_1, v_2, v_3, ...}
+        // DAG2: fragment K -> Spreading: {Fragment v_1, v_2, v_3, ...}
+        let mut dag_used_by: HashMap<StringKey, HashSet<StringKey>> = HashMap::new();
+        let mut dag_spreading: HashMap<StringKey, HashSet<StringKey>> = HashMap::new();
+        for fragment in program.fragments() {
+            let fragment_ = fragment.name.item;
+            let spreads = fragment
+                .selections
+                .iter()
+                .flat_map(|s| s.spreaded_fragments())
+                .collect::<Vec<_>>();
+
+            for spread in &spreads {
+                let spread_ = spread.fragment.item;
+                // got "fragment_" spreads "...spread_"
+                dag_used_by.entry(spread_).or_default().insert(fragment_);
+                dag_spreading.entry(fragment_).or_default().insert(spread_);
+            }
+            if spreads.is_empty() {
+                unclaimed_fragment_queue.push_back(fragment_);
+            }
+        }
+
+        let dummy_hashset = HashSet::new();
+        while let Some(visiting) = unclaimed_fragment_queue.pop_front() {
+            let _ = self.validate_and_collect_fragment(
+                program
+                    .fragment(visiting)
+                    .expect("fragment must have been registered"),
+            );
+
+            for used_by in dag_used_by.get(&visiting).unwrap_or(&dummy_hashset) {
+                // fragment "used_by" now can assume "...now" cached.
+                let entries = dag_spreading.entry(*used_by).or_default();
+                entries.remove(&visiting);
+                if entries.is_empty() {
+                    unclaimed_fragment_queue.push_back(*used_by);
+                }
+            }
+        }
     }
 
     fn validate_operation(&self, operation: &'s OperationDefinition) -> DiagnosticsResult<()> {
@@ -171,7 +219,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 };
             }
 
-            if self.cache_verified_fields {
+            if self.further_optimization {
                 let addr1 = PointerAddress::new(&field);
                 let addr2 = PointerAddress::new(existing_field);
                 let pair_hash = (addr1, addr2);
@@ -300,7 +348,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             }
 
             // save the verified pair into cache
-            if self.cache_verified_fields && errors.is_empty() {
+            if self.further_optimization && errors.is_empty() {
                 let addr1 = PointerAddress::new(&field);
                 let addr2 = PointerAddress::new(existing_field);
                 let pair_hash = (addr1, addr2);

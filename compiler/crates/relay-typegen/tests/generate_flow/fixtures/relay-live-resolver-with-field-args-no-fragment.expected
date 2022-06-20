@@ -15,6 +15,7 @@ extend type User {
   pop_star_name(greeting: String!, count: Float): Int @relay_resolver(import_path: "./foo/bar/baz/PopStarNameResolver.js", live: true)
 }
 ==================================== OUTPUT ===================================
+import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import userPopStarNameResolver from "PopStarNameResolver";
 // Type assertion validating that `userPopStarNameResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -23,7 +24,7 @@ import userPopStarNameResolver from "PopStarNameResolver";
     count: ?number,
     greeting: string,
   |}, 
-) => mixed);
+) => LiveState<any>);
 export type relayResolver_Query$variables = {||};
 export type relayResolver_Query$data = {|
   +me: ?{|

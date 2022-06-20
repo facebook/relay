@@ -15,7 +15,7 @@ use graphql_ir::{
     ScalarField, Selection,
 };
 use indexmap::{map::Entry, IndexMap, IndexSet};
-use relay_config::{CustomScalarType, CustomScalarTypeImport};
+use relay_config::{CustomScalarType, CustomScalarTypeImport, TypegenLanguage};
 use relay_transforms::{
     ClientEdgeMetadata, FragmentAliasMetadata, ModuleMetadata, NoInlineFragmentSpreadMetadata,
     RelayResolverMetadata, RequiredMetadataDirective, TypeConditionInfo,
@@ -57,6 +57,7 @@ pub(crate) fn visit_selections(
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    runtime_imports: &mut RuntimeImports,
     enclosing_linked_field_concrete_type: Option<Type>,
 ) -> Vec<TypeSelection> {
     let mut type_selections = Vec::new();
@@ -71,6 +72,7 @@ pub(crate) fn visit_selections(
                 custom_scalars,
                 encountered_fragments,
                 imported_resolvers,
+                runtime_imports,
             ),
             Selection::InlineFragment(inline_fragment) => visit_inline_fragment(
                 typegen_context,
@@ -82,6 +84,7 @@ pub(crate) fn visit_selections(
                 imported_resolvers,
                 actor_change_status,
                 custom_scalars,
+                runtime_imports,
                 enclosing_linked_field_concrete_type,
             ),
             Selection::LinkedField(linked_field) => {
@@ -110,6 +113,7 @@ pub(crate) fn visit_selections(
                             imported_resolvers,
                             actor_change_status,
                             custom_scalars,
+                            runtime_imports,
                             nested_enclosing_linked_field_concrete_type,
                         )
                     },
@@ -126,6 +130,7 @@ pub(crate) fn visit_selections(
                         encountered_enums,
                         custom_scalars,
                         encountered_fragments,
+                        runtime_imports,
                         &mut type_selections,
                         resolver_metadata,
                         RequiredMetadataDirective::find(&scalar_field.directives).is_some(),
@@ -152,6 +157,7 @@ pub(crate) fn visit_selections(
                 imported_resolvers,
                 actor_change_status,
                 custom_scalars,
+                runtime_imports,
                 enclosing_linked_field_concrete_type,
             ),
         }
@@ -169,6 +175,7 @@ fn visit_fragment_spread(
     custom_scalars: &mut CustomScalarsImports,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
+    runtime_imports: &mut RuntimeImports,
 ) {
     if let Some(resolver_metadata) = RelayResolverMetadata::find(&fragment_spread.directives) {
         visit_relay_resolver(
@@ -178,6 +185,7 @@ fn visit_fragment_spread(
             encountered_enums,
             custom_scalars,
             encountered_fragments,
+            runtime_imports,
             type_selections,
             resolver_metadata,
             RequiredMetadataDirective::find(&fragment_spread.directives).is_some(),
@@ -227,6 +235,7 @@ fn generate_resolver_type(
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
     encountered_fragments: &mut EncounteredFragments,
+    runtime_imports: &mut RuntimeImports,
     resolver_name: StringKey,
     fragment_name: Option<StringKey>,
     resolver_metadata: &RelayResolverMetadata,
@@ -286,10 +295,23 @@ fn generate_resolver_type(
         });
     }
 
+    let return_type = if matches!(
+        typegen_context.project_config.typegen_config.language,
+        TypegenLanguage::TypeScript
+    ) {
+        // TODO: Add proper support for Resolver typegeneration in typescript
+        AST::Any
+    } else if resolver_metadata.live {
+        runtime_imports.import_relay_resolver_live_state_type = true;
+        AST::RawType("LiveState<any>".intern())
+    } else {
+        AST::RawType("mixed".intern())
+    };
+
     AST::AssertFunctionType(FunctionTypeAssertion {
         function_name: resolver_name,
         arguments: resolver_arguments,
-        return_type: Box::new(AST::RawType("mixed".intern())),
+        return_type: Box::new(return_type),
     })
 }
 
@@ -305,6 +327,7 @@ fn import_relay_resolver_function_type(
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
     encountered_fragments: &mut EncounteredFragments,
+    runtime_imports: &mut RuntimeImports,
     resolver_metadata: &RelayResolverMetadata,
     imported_resolvers: &mut ImportedResolvers,
 ) {
@@ -325,6 +348,7 @@ fn import_relay_resolver_function_type(
             encountered_enums,
             custom_scalars,
             encountered_fragments,
+            runtime_imports,
             local_resolver_name,
             fragment_name,
             resolver_metadata,
@@ -345,6 +369,7 @@ fn visit_relay_resolver(
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
     encountered_fragments: &mut EncounteredFragments,
+    runtime_imports: &mut RuntimeImports,
     type_selections: &mut Vec<TypeSelection>,
     resolver_metadata: &RelayResolverMetadata,
     required: bool,
@@ -357,6 +382,7 @@ fn visit_relay_resolver(
         encountered_enums,
         custom_scalars,
         encountered_fragments,
+        runtime_imports,
         resolver_metadata,
         imported_resolvers,
     );
@@ -399,6 +425,7 @@ fn visit_client_edge(
     client_edge_metadata: &ClientEdgeMetadata<'_>,
     actor_change_status: &mut ActorChangeStatus,
     imported_resolvers: &mut ImportedResolvers,
+    runtime_imports: &mut RuntimeImports,
     enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     let (resolver_metadata, fragment_name) = match client_edge_metadata.backing_field {
@@ -422,6 +449,7 @@ fn visit_client_edge(
             encountered_enums,
             custom_scalars,
             encountered_fragments,
+            runtime_imports,
             resolver_metadata,
             imported_resolvers,
         );
@@ -436,6 +464,7 @@ fn visit_client_edge(
         imported_resolvers,
         actor_change_status,
         custom_scalars,
+        runtime_imports,
         enclosing_linked_field_concrete_type,
     );
     type_selections.append(&mut client_edge_selections);
@@ -452,6 +481,7 @@ fn visit_inline_fragment(
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    runtime_imports: &mut RuntimeImports,
     enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
@@ -493,6 +523,7 @@ fn visit_inline_fragment(
             imported_resolvers,
             actor_change_status,
             custom_scalars,
+            runtime_imports,
             enclosing_linked_field_concrete_type,
         );
     } else if let Some(client_edge_metadata) = ClientEdgeMetadata::find(inline_fragment) {
@@ -506,6 +537,7 @@ fn visit_inline_fragment(
             &client_edge_metadata,
             actor_change_status,
             imported_resolvers,
+            runtime_imports,
             enclosing_linked_field_concrete_type,
         );
     } else {
@@ -518,6 +550,7 @@ fn visit_inline_fragment(
             imported_resolvers,
             actor_change_status,
             custom_scalars,
+            runtime_imports,
             enclosing_linked_field_concrete_type,
         );
 
@@ -578,6 +611,7 @@ fn visit_actor_change(
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    runtime_imports: &mut RuntimeImports,
     enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     let linked_field = match &inline_fragment.selections[0] {
@@ -605,6 +639,7 @@ fn visit_actor_change(
         imported_resolvers,
         actor_change_status,
         custom_scalars,
+        runtime_imports,
         enclosing_linked_field_concrete_type,
     );
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
@@ -795,6 +830,7 @@ fn visit_condition(
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    runtime_imports: &mut RuntimeImports,
     enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     let mut selections = visit_selections(
@@ -806,6 +842,7 @@ fn visit_condition(
         imported_resolvers,
         actor_change_status,
         custom_scalars,
+        runtime_imports,
         enclosing_linked_field_concrete_type,
     );
     for selection in selections.iter_mut() {

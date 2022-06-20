@@ -7,7 +7,8 @@
 
 use crate::{
     writer::{ExactObject, Writer, AST},
-    LOCAL_3D_PAYLOAD, RELAY_RUNTIME,
+    LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH, LIVE_RESOLVERS_LIVE_STATE, LOCAL_3D_PAYLOAD,
+    RELAY_RUNTIME,
 };
 use fnv::FnvHashSet;
 use indexmap::{IndexMap, IndexSet};
@@ -21,30 +22,29 @@ use std::fmt::Result as FmtResult;
 pub(crate) struct RuntimeImports {
     pub(crate) local_3d_payload_type_should_be_imported: bool,
     pub(crate) generic_fragment_type_should_be_imported: bool,
+    pub(crate) import_relay_resolver_live_state_type: bool,
 }
 
 impl RuntimeImports {
     pub(crate) fn write_runtime_imports(&self, writer: &mut Box<dyn Writer>) -> FmtResult {
-        match self {
-            RuntimeImports {
-                local_3d_payload_type_should_be_imported: true,
-                generic_fragment_type_should_be_imported: true,
-            } => writer.write_import_type(
-                &[writer.get_runtime_fragment_import(), LOCAL_3D_PAYLOAD],
-                RELAY_RUNTIME,
-            ),
-            RuntimeImports {
-                local_3d_payload_type_should_be_imported: true,
-                generic_fragment_type_should_be_imported: false,
-            } => writer.write_import_type(&[LOCAL_3D_PAYLOAD], RELAY_RUNTIME),
-            RuntimeImports {
-                local_3d_payload_type_should_be_imported: false,
-                generic_fragment_type_should_be_imported: true,
-            } => writer.write_import_type(&[writer.get_runtime_fragment_import()], RELAY_RUNTIME),
-            RuntimeImports {
-                local_3d_payload_type_should_be_imported: false,
-                generic_fragment_type_should_be_imported: false,
-            } => Ok(()),
+        if self.import_relay_resolver_live_state_type {
+            writer.write_import_type(
+                &[LIVE_RESOLVERS_LIVE_STATE],
+                LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH,
+            )?;
+        }
+
+        let mut runtime_import_types = vec![];
+        if self.generic_fragment_type_should_be_imported {
+            runtime_import_types.push(writer.get_runtime_fragment_import())
+        }
+        if self.local_3d_payload_type_should_be_imported {
+            runtime_import_types.push(LOCAL_3D_PAYLOAD)
+        }
+        if !runtime_import_types.is_empty() {
+            writer.write_import_type(&runtime_import_types, RELAY_RUNTIME)
+        } else {
+            Ok(())
         }
     }
 }

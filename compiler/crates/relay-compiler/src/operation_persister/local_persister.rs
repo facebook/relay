@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::config::ArtifactForPersister;
 use async_trait::async_trait;
 use dashmap::DashMap;
 use md5::Md5;
@@ -61,11 +62,14 @@ impl LocalPersister {
 
 #[async_trait]
 impl OperationPersister for LocalPersister {
-    async fn persist_artifact(&self, artifact_text: String) -> Result<String, PersistError> {
-        let operation_hash = self.hash_operation(artifact_text.clone());
+    async fn persist_artifact(
+        &self,
+        artifact: ArtifactForPersister,
+    ) -> Result<String, PersistError> {
+        let operation_hash = self.hash_operation(artifact.text.clone());
 
         if !self.query_map.contains_key(&operation_hash) {
-            self.query_map.insert(operation_hash.clone(), artifact_text);
+            self.query_map.insert(operation_hash.clone(), artifact.text);
         }
 
         Ok(operation_hash)

@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {Observer, Sink, Subscription} from '../network/RelayObservable';

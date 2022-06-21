@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {

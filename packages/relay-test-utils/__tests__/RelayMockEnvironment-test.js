@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const preloadQuery = require('../../react-relay/relay-hooks/preloadQuery_DEPRECATED');

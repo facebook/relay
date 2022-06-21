@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -35,10 +33,10 @@ export type LoaderFn<TQuery: OperationType> = (
   options?: UseQueryLoaderLoadQueryOptions,
 ) => void;
 
-export type UseQueryLoaderLoadQueryOptions = $ReadOnly<{|
+export type UseQueryLoaderLoadQueryOptions = $ReadOnly<{
   ...LoadQueryOptions,
   +__environment?: ?IEnvironment,
-|}>;
+}>;
 
 type UseQueryLoaderHookReturnType<TQuery: OperationType> = [
   ?PreloadedQuery<TQuery>,
@@ -49,9 +47,9 @@ type UseQueryLoaderHookReturnType<TQuery: OperationType> = [
 // NullQueryReference needs to implement referential equality,
 // so that multiple NullQueryReferences can be in the same set
 // (corresponding to multiple calls to disposeQuery).
-type NullQueryReference = {|
+type NullQueryReference = {
   kind: 'NullQueryReference',
-|};
+};
 const initialNullQueryReferenceState = {kind: 'NullQueryReference'};
 
 function requestIsLiveQuery<TQuery: OperationType>(

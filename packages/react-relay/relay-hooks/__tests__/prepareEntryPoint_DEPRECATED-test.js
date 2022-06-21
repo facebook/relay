@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const prepareEntryPoint_DEPRECATED = require('../prepareEntryPoint_DEPRECATED');
@@ -55,7 +53,7 @@ test('it should preload entry point with queries', () => {
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
   const entryPoint = {
-    getPreloadProps(params: {|id: string|}) {
+    getPreloadProps(params: {id: string}) {
       return {
         queries: {
           myTestQuery: {
@@ -120,7 +118,7 @@ test('it should preload entry point with nested entry points', () => {
     root: (new FakeJSResource(null): $FlowFixMe),
   };
   const entryPoint = {
-    getPreloadProps(params: {|id: string|}) {
+    getPreloadProps(params: {id: string}) {
       return {
         entryPoints: {
           myNestedEntryPoint: {
@@ -178,7 +176,7 @@ test('it should preload entry point with both queries and nested entry points', 
     root: (new FakeJSResource(null): $FlowFixMe),
   };
   const entryPoint = {
-    getPreloadProps(params: {|id: string|}) {
+    getPreloadProps(params: {id: string}) {
       return {
         queries: {
           myTestQuery: {
@@ -229,7 +227,7 @@ test('with `getEnvironment` function', () => {
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
   const entryPoint = {
-    getPreloadProps(params: {|id: string|}) {
+    getPreloadProps(params: {id: string}) {
       return {
         queries: {
           myTestQuery: {

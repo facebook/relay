@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const loadQueryModule = require('../loadQuery');
@@ -123,9 +121,9 @@ describe('when loading and disposing same query multiple times', () => {
     };
     const Inner = function ({
       initialPreloadedQuery,
-    }: {|
+    }: {
       initialPreloadedQuery: $FlowFixMe,
-    |}) {
+    }) {
       [loadedQuery, queryLoaderCallback] = useQueryLoader(
         preloadableConcreteRequest,
         initialPreloadedQuery,
@@ -138,7 +136,7 @@ describe('when loading and disposing same query multiple times', () => {
         </React.Suspense>
       );
     };
-    const Container = function ({initialPreloadedQuery = undefined}: {||}) {
+    const Container = function ({initialPreloadedQuery = undefined}: {}) {
       return (
         <RelayEnvironmentProvider environment={environment}>
           <Inner initialPreloadedQuery={initialPreloadedQuery} />

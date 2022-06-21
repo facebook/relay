@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -43,13 +41,13 @@ const warning = require('warning');
 
 export type LoadMoreFn<TQuery: OperationType> = (
   count: number,
-  options?: {|
+  options?: {
     onComplete?: (Error | null) => void,
     UNSTABLE_extraVariables?: $Shape<VariablesOf<TQuery>>,
-  |},
+  },
 ) => Disposable;
 
-export type UseLoadMoreFunctionArgs = {|
+export type UseLoadMoreFunctionArgs = {
   direction: Direction,
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
@@ -62,7 +60,7 @@ export type UseLoadMoreFunctionArgs = {|
   componentDisplayName: string,
   observer: Observer<GraphQLResponse>,
   onReset: () => void,
-|};
+};
 
 function useLoadMoreFunction<TQuery: OperationType>(
   args: UseLoadMoreFunctionArgs,
@@ -265,10 +263,10 @@ function getConnectionState(
   fragmentNode: ReaderFragment,
   fragmentData: mixed,
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
-): {|
+): {
   cursor: ?string,
   hasMore: boolean,
-|} {
+} {
   const {
     EDGES,
     PAGE_INFO,

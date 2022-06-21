@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {
   HandleFieldPayload,
@@ -53,7 +51,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
   let selector;
   let source;
   let store;
-  let variables: {|after: ?string, enableStream: boolean|};
+  let variables: {after: ?string, enableStream: boolean};
 
   beforeEach(() => {
     query = graphql`

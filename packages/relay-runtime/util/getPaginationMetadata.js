@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {ReaderFragment, ReaderPaginationMetadata} from './ReaderNode';
@@ -22,13 +20,13 @@ const invariant = require('invariant');
 function getPaginationMetadata(
   fragmentNode: ReaderFragment,
   componentDisplayName: string,
-): {|
+): {
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
   identifierField: ?string,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
   stream: boolean,
-|} {
+} {
   const {refetchableRequest: paginationRequest, refetchMetadata} =
     getRefetchMetadata(fragmentNode, componentDisplayName);
 

@@ -8,16 +8,14 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 type EventName = 'fetchRelayQuery';
 type ProfileHandler = (name: EventName, state?: any) => (error?: Error) => void;
 
-const profileHandlersByName: {|
+const profileHandlersByName: {
   [name: EventName]: Array<ProfileHandler>,
-|} = {};
+} = {};
 
 const defaultProfiler = {
   stop() {},

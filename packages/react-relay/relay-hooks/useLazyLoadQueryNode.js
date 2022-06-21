@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -41,14 +39,14 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
   fetchPolicy,
   fetchKey,
   renderPolicy,
-}: {|
+}: {
   query: OperationDescriptor,
   componentDisplayName: string,
   fetchObservable: Observable<GraphQLResponse>,
   fetchPolicy?: ?FetchPolicy,
   fetchKey?: ?string | ?number,
   renderPolicy?: ?RenderPolicy,
-|}): TQuery['response'] {
+}): TQuery['response'] {
   const environment = useRelayEnvironment();
   const profilerContext = useContext(ProfilerContext);
   const QueryResource = getQueryResourceForEnvironment(environment);

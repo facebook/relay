@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
@@ -42,20 +40,20 @@ type PendingCommit<TMutation: MutationParameters> =
   | PendingRelayPayload<TMutation>
   | PendingRecordSource
   | PendingUpdater;
-type PendingRelayPayload<TMutation: MutationParameters> = {|
+type PendingRelayPayload<TMutation: MutationParameters> = {
   +kind: 'payload',
   +operation: OperationDescriptor,
   +payload: RelayResponsePayload,
   +updater: ?SelectorStoreUpdater<TMutation['response']>,
-|};
-type PendingRecordSource = {|
+};
+type PendingRecordSource = {
   +kind: 'source',
   +source: RecordSource,
-|};
-type PendingUpdater = {|
+};
+type PendingUpdater = {
   +kind: 'updater',
   +updater: StoreUpdater,
-|};
+};
 
 const _global: typeof global | $FlowFixMe =
   typeof global !== 'undefined'

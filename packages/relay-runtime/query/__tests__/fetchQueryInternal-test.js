@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {Observer} from '../../network/RelayObservable';

@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -47,9 +45,9 @@ type UseEntryPointLoaderHookReturnType<
 // NullEntryPointReference needs to implement referential equality,
 // so that multiple NullEntryPointReferences can be in the same set
 // (corresponding to multiple calls to disposeEntryPoint).
-type NullEntryPointReference = {|
+type NullEntryPointReference = {
   kind: 'NullEntryPointReference',
-|};
+};
 const initialNullEntryPointReferenceState = {kind: 'NullEntryPointReference'};
 
 function useLoadEntryPoint<
@@ -68,14 +66,14 @@ function useLoadEntryPoint<
 >(
   environmentProvider: IEnvironmentProvider<EnvironmentProviderOptions>,
   entryPoint: TEntryPoint,
-  options?: ?{|
+  options?: ?{
     // TODO(T83890478): Remove once Offscreen API lands in xplat
     // and we can use it in tests
-    TEST_ONLY__initialEntryPointData?: ?{|
+    TEST_ONLY__initialEntryPointData?: ?{
       entryPointReference: ?PreloadedEntryPoint<TEntryPointComponent>,
       entryPointParams: ?TEntryPointParams,
-    |},
-  |},
+    },
+  },
 ): UseEntryPointLoaderHookReturnType<
   TEntryPointParams,
   TPreloadedQueries,

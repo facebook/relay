@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -41,17 +39,17 @@ const warning = require('warning');
 
 type ResolverID = string;
 
-export type EvaluationResult<T> = {|
+export type EvaluationResult<T> = {
   resolverResult: ?T,
   resolverID: ResolverID,
   snapshot: ?Snapshot,
   error: ?RelayResolverError,
-|};
+};
 
-export type ResolverFragmentResult = {|
+export type ResolverFragmentResult = {
   data: mixed,
   isMissingData: boolean,
-|};
+};
 
 export type GetDataForResolverFragmentFn =
   SingularReaderSelector => ResolverFragmentResult;

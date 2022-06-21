@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {UserAstrologicalSignResolver$key} from './__generated__/UserAstrologicalSignResolver.graphql';

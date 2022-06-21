@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
@@ -51,10 +49,10 @@ describe('execute() a query with plural @match', () => {
   let next;
   let operation;
   let operationCallback;
-  let operationLoader: {|
+  let operationLoader: {
     get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-  |};
+  };
   let query;
   let resolveFragment;
   let source;

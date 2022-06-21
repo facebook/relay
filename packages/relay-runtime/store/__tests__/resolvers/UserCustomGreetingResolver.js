@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {UserCustomGreetingResolver$key} from './__generated__/UserCustomGreetingResolver.graphql';
@@ -28,7 +26,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  */
 function userGreeting(
   rootKey: UserCustomGreetingResolver$key,
-  args: {|salutation: string|},
+  args: {salutation: string},
 ): string {
   const user = readFragment(
     graphql`

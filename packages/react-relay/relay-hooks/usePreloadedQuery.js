@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {PreloadedQuery} from './EntryPointTypes.flow';
@@ -38,17 +36,17 @@ const warning = require('warning');
 export type UsePreloadedQueryHookType = <TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
   preloadedQuery: PreloadedQuery<TQuery>,
-  options?: {|
+  options?: {
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
+  },
 ) => TQuery['response'];
 
 function usePreloadedQuery_LEGACY<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
   preloadedQuery: PreloadedQuery<TQuery>,
-  options?: {|
+  options?: {
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
+  },
 ): TQuery['response'] {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
@@ -157,9 +155,9 @@ function usePreloadedQuery_LEGACY<TQuery: OperationType>(
 function usePreloadedQuery<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
   preloadedQuery: PreloadedQuery<TQuery>,
-  options?: {|
+  options?: {
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
+  },
 ): TQuery['response'] {
   const impl = HooksImplementation.get();
   if (impl) {

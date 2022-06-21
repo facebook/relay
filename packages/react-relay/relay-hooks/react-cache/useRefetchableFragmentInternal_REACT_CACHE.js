@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {LoaderFn} from '../useQueryLoader';
@@ -71,22 +69,22 @@ export type ReturnType<
   TQuery: OperationType,
   TKey: ?{+$data?: mixed, ...},
   TOptions = Options,
-> = {|
+> = {
   fragmentData: mixed,
   fragmentRef: mixed,
   refetch: RefetchFnDynamic<TQuery, TKey, TOptions>,
-|};
+};
 
-export type Options = {|
+export type Options = {
   fetchPolicy?: FetchPolicy,
   onComplete?: (Error | null) => void,
   UNSTABLE_renderPolicy?: RenderPolicy,
-|};
+};
 
-type InternalOptions = {|
+type InternalOptions = {
   ...Options,
   __environment?: IEnvironment,
-|};
+};
 
 type RefetchFnBase<TVars, TOptions> = (
   vars: TVars,
@@ -103,21 +101,21 @@ type RefetchFnInexact<
 > = RefetchFnBase<$Shape<VariablesOf<TQuery>>, TOptions>;
 
 type Action =
-  | {|
+  | {
       type: 'reset',
       environment: IEnvironment,
       fragmentIdentifier: string,
-    |}
-  | {|
+    }
+  | {
       type: 'refetch',
       refetchQuery: OperationDescriptor,
       fetchPolicy?: FetchPolicy,
       renderPolicy?: RenderPolicy,
       onComplete?: (Error | null) => void,
       refetchEnvironment: ?IEnvironment,
-    |};
+    };
 
-type RefetchState = {|
+type RefetchState = {
   fetchPolicy: FetchPolicy | void,
   mirroredEnvironment: IEnvironment,
   mirroredFragmentIdentifier: string,
@@ -125,7 +123,7 @@ type RefetchState = {|
   refetchEnvironment?: ?IEnvironment,
   refetchQuery: OperationDescriptor | null,
   renderPolicy: RenderPolicy | void,
-|};
+};
 
 type DebugIDandTypename = {
   id: string,
@@ -357,19 +355,19 @@ function useRefetchableFragmentNode<
 function useRefetchFunction<TQuery: OperationType>(
   componentDisplayName: string,
   dispatch: (
-    | {|
+    | {
         environment: IEnvironment,
         fragmentIdentifier: string,
         type: 'reset',
-      |}
-    | {|
+      }
+    | {
         fetchPolicy?: FetchPolicy,
         onComplete?: (Error | null) => void,
         refetchEnvironment: ?IEnvironment,
         refetchQuery: OperationDescriptor,
         renderPolicy?: RenderPolicy,
         type: 'refetch',
-      |},
+      },
   ) => void,
   disposeQuery: () => void,
   fragmentData: mixed,

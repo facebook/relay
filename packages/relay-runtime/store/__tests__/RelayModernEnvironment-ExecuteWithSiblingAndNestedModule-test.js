@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
@@ -45,13 +43,13 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
     'execute() a query with nested @match',
     environmentType => {
       describe(environmentType, () => {
-        let callbacks: {|
+        let callbacks: {
           +complete: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
           +error: JestMockFn<$ReadOnlyArray<Error>, mixed>,
           +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
           +start?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
           +unsubscribe?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-        |};
+        };
         let complete;
         let dataSource;
         let environment;
@@ -62,13 +60,13 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
         let next;
         let operation;
         let operationCallback;
-        let operationLoader: {|
+        let operationLoader: {
           get: (reference: mixed) => ?NormalizationRootNode,
           load: JestMockFn<
             $ReadOnlyArray<mixed>,
             Promise<?NormalizationRootNode>,
           >,
-        |};
+        };
         let plaintextRendererFragment;
         let plaintextRendererNormalizationFragment;
         let query;

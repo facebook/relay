@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {OperationDescriptor} from '../../../relay-runtime/store/RelayStoreTypes';
@@ -34,14 +32,14 @@ const {createMockEnvironment} = require('relay-test-utils');
 function expectToHaveFetched(
   environment: RelayMockEnvironment,
   query: OperationDescriptor,
-  cacheConfig: {|
+  cacheConfig: {
     force?: ?boolean,
     liveConfigId?: ?string,
     metadata?: {[key: string]: mixed},
     onSubscribe?: () => void,
     poll?: ?number,
     transactionId?: ?string,
-  |},
+  },
 ) {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.executeWithSource).toBeCalledTimes(1);
@@ -249,9 +247,9 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     render = function (
       entryPoint: any,
       initialEntryPointRef: any,
-      {suspendWholeTree}: {|suspendWholeTree?: boolean|} = ({
+      {suspendWholeTree}: {suspendWholeTree?: boolean} = ({
         ...null,
-      }: {|suspendWholeTree?: boolean|}),
+      }: {suspendWholeTree?: boolean}),
     ): $FlowFixMe {
       let instance;
       ReactTestRenderer.act(() => {

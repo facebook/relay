@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {GeneratedNodeMap, RelayProp, $RelayProps} from './ReactRelayTypes';
 import type {

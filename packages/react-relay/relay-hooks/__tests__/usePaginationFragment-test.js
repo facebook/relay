@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {
   usePaginationFragmentTestStoryFragmentRefetchQuery$data,
@@ -146,13 +144,13 @@ describe.each([
   }
 
   function assertCall(
-    expected: {|
+    expected: {
       data: any,
       hasNext: boolean,
       hasPrevious: boolean,
       isLoadingNext: boolean,
       isLoadingPrevious: boolean,
-    |},
+    },
     idx: number,
   ) {
     const actualData = renderSpy.mock.calls[idx][0];
@@ -170,13 +168,13 @@ describe.each([
   }
 
   function expectFragmentResults(
-    expectedCalls: $ReadOnlyArray<{|
+    expectedCalls: $ReadOnlyArray<{
       data: $FlowFixMe,
       isLoadingNext: boolean,
       isLoadingPrevious: boolean,
       hasNext: boolean,
       hasPrevious: boolean,
-    |}>,
+    }>,
   ) {
     // This ensures that useEffect runs
     TestRenderer.act(() => jest.runAllImmediates());
@@ -533,7 +531,7 @@ describe.each([
     });
 
     // Set up renderers
-    Renderer = (props: {|user: any|}) => null;
+    Renderer = (props: {user: any}) => null;
 
     const Container = (props: {
       userRef?: {...},
@@ -573,7 +571,7 @@ describe.each([
       return <Renderer user={userData} />;
     };
 
-    const ContextProvider = ({children}: {|children: React.Node|}) => {
+    const ContextProvider = ({children}: {children: React.Node}) => {
       const [env, _setEnv] = useState(environment);
       const relayContext = useMemo(() => ({environment: env}), [env]);
 
@@ -870,13 +868,13 @@ describe.each([
     function expectFragmentIsLoadingMore(
       renderer: any,
       direction: Direction,
-      expected: {|
+      expected: {
         data: mixed,
         hasNext: boolean,
         hasPrevious: boolean,
         paginationVariables: Variables,
         gqlPaginationQuery?: $FlowFixMe,
-      |},
+      },
     ) {
       // Assert fragment sets isLoading to true
       expect(renderSpy).toBeCalledTimes(1);
@@ -3323,7 +3321,7 @@ describe.each([
     describe('refetch', () => {
       // The bulk of refetch behavior is covered in useRefetchableFragmentNode-test,
       // so this suite covers the pagination-related test cases.
-      function expectRefetchRequestIsInFlight(expected: {|
+      function expectRefetchRequestIsInFlight(expected: {
         data: mixed,
         gqlRefetchQuery?: any,
         hasNext: boolean,
@@ -3332,7 +3330,7 @@ describe.each([
         refetchQuery?: OperationDescriptor,
         refetchVariables: Variables,
         requestCount: number,
-      |}) {
+      }) {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(fetch).toBeCalledTimes(expected.requestCount);
         const fetchCall = fetch.mock.calls.find(call => {
@@ -3349,14 +3347,14 @@ describe.each([
 
       function expectFragmentIsRefetching(
         renderer: any,
-        expected: {|
+        expected: {
           data: mixed,
           hasNext: boolean,
           hasPrevious: boolean,
           refetchVariables: Variables,
           refetchQuery?: OperationDescriptor,
           gqlRefetchQuery?: $FlowFixMe,
-        |},
+        },
       ) {
         expect(renderSpy).toBeCalledTimes(0);
         renderSpy.mockClear();

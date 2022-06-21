@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {RelayMockEnvironment} from 'relay-test-utils/RelayModernMockEnvironment';
@@ -63,9 +61,9 @@ describe('useSubscription', () => {
     jest.resetAllMocks();
   });
 
-  type Props = {|
+  type Props = {
     env: RelayMockEnvironment,
-  |};
+  };
   function MyComponent({env}: Props) {
     function InnerComponent() {
       useSubscription(config);

@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -31,12 +29,12 @@ const {useEffect} = require('react');
 function useLazyLoadQuery_REACT_CACHE<TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
-  options?: {|
+  options?: {
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
     networkCacheConfig?: CacheConfig,
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
+  },
 ): TData {
   useTrackLoadQueryInRender();
   const environment = useRelayEnvironment();

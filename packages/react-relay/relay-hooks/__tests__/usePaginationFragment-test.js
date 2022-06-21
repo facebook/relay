@@ -215,6 +215,7 @@ describe.each([
       return Observable.create(sink => {
         dataSource = sink;
         unsubscribe = jest.fn();
+        // $FlowFixMe[incompatible-call]
         return unsubscribe;
       });
     });

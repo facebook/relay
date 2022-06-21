@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{print_fragment, print_operation};
+use crate::{print_fragment, print_operation, PrinterOptions};
 use fnv::FnvHashMap;
 use graphql_ir::{
     FragmentDefinition, FragmentSpread, OperationDefinition, Program, ScalarField, Visitor,
@@ -13,8 +13,12 @@ use graphql_ir::{
 use intern::string_key::StringKey;
 use std::sync::Arc;
 
-pub fn print_full_operation(program: &Program, operation: &OperationDefinition) -> String {
-    let mut printer = OperationPrinter::new(program);
+pub fn print_full_operation(
+    program: &Program,
+    operation: &OperationDefinition,
+    options: PrinterOptions,
+) -> String {
+    let mut printer = OperationPrinter::new(program, options);
     printer.print(operation)
 }
 
@@ -22,19 +26,21 @@ pub struct OperationPrinter<'s> {
     fragment_result: FnvHashMap<StringKey, String>,
     reachable_fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
     program: &'s Program,
+    options: PrinterOptions,
 }
 
 impl<'s> OperationPrinter<'s> {
-    pub fn new(program: &'s Program) -> Self {
+    pub fn new(program: &'s Program, options: PrinterOptions) -> Self {
         Self {
             fragment_result: Default::default(),
             reachable_fragments: Default::default(),
             program,
+            options,
         }
     }
 
     pub fn print(&mut self, operation: &OperationDefinition) -> String {
-        let mut result = print_operation(&self.program.schema, operation, Default::default());
+        let mut result = print_operation(&self.program.schema, operation, self.options);
         self.visit_operation(operation);
         let mut fragments: Vec<(StringKey, Arc<FragmentDefinition>)> =
             self.reachable_fragments.drain().collect();
@@ -51,7 +57,7 @@ impl<'s> OperationPrinter<'s> {
         let schema = &self.program.schema;
         self.fragment_result
             .entry(fragment.name.item)
-            .or_insert_with(|| print_fragment(schema, fragment, Default::default()))
+            .or_insert_with(|| print_fragment(schema, fragment, self.options))
     }
 }
 

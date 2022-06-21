@@ -693,6 +693,7 @@ dependencies = [
  "graphql-syntax",
  "intern",
  "relay-test-schema",
+ "relay-transforms",
  "schema",
 ]
 
@@ -1144,9 +1145,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.8.0"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "692fcb63b64b1758029e0a96ee63e049ce8c5948587f2f7208df04625e5f6b56"
+checksum = "7709cef83f0c1f58f666e746a08b21e0085f7440fa6a29cc194d68aac97a4225"
 
 [[package]]
 name = "opaque-debug"

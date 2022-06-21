@@ -13,14 +13,12 @@
 
 import typeof useFragment from './useFragment';
 import type {UsePaginationFragmentType} from './usePaginationFragment';
-import type {UsePreloadedQueryHookType} from './usePreloadedQuery';
 import type {UseRefetchableFragmentType} from './useRefetchableFragment';
 
 const warning = require('warning');
 
 type HooksImplementation = {
   useFragment: useFragment,
-  usePreloadedQuery: UsePreloadedQueryHookType,
   usePaginationFragment: UsePaginationFragmentType,
   useRefetchableFragment: UseRefetchableFragmentType,
 };

@@ -14,6 +14,7 @@ use fnv::FnvHashMap;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use graphql_text_printer::OperationPrinter;
+use graphql_text_printer::PrinterOptions;
 use intern::string_key::StringKey;
 use relay_transforms::ClientEdgeGeneratedQueryMetadataDirective;
 use relay_transforms::Programs;
@@ -45,7 +46,14 @@ pub fn generate_artifacts(
     programs: &Programs,
     source_hashes: Arc<SourceHashes>,
 ) -> Vec<Artifact> {
-    let mut operation_printer = OperationPrinter::new(&programs.operation_text);
+    let printer_options = PrinterOptions {
+        compact: project_config
+            .feature_flags
+            .compact_query_text
+            .is_fully_enabled(),
+        ..Default::default()
+    };
+    let mut operation_printer = OperationPrinter::new(&programs.operation_text, printer_options);
     return group_operations(programs)
         .into_iter()
         .map(|(_, operations)| -> Artifact {

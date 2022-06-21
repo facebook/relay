@@ -13,8 +13,11 @@ use std::sync::Arc;
 
 use common::DirectiveName;
 use common::WithLocation;
+use graphql_syntax::OperationKind;
 use intern::string_key::StringKey;
+use schema::FieldID;
 use schema::SDLSchema;
+use schema::Type;
 
 use crate::*;
 
@@ -277,7 +280,7 @@ impl<T: LocationAgnosticPartialEq> LocationAgnosticPartialEq for WithLocation<T>
     }
 }
 
-impl<T: LocationAgnosticPartialEq> LocationAgnosticPartialEq for Option<&T> {
+impl<T: LocationAgnosticPartialEq> LocationAgnosticPartialEq for Option<T> {
     fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
         match (self, other) {
             (Some(l), Some(r)) => l.location_agnostic_eq::<B>(r),
@@ -304,6 +307,9 @@ pub trait DirectlyComparableIR {}
 impl DirectlyComparableIR for Value {}
 impl DirectlyComparableIR for ConstantArgument {}
 impl DirectlyComparableIR for ConstantValue {}
+impl DirectlyComparableIR for Selection {}
+impl DirectlyComparableIR for ExecutableDefinition {}
+impl DirectlyComparableIR for VariableDefinition {}
 
 impl<T: LocationAgnosticPartialEq + DirectlyComparableIR> LocationAgnosticPartialEq for Vec<T> {
     fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
@@ -412,6 +418,16 @@ impl LocationAgnosticPartialEq for Argument {
             .0
             .location_agnostic_eq::<B>(&other.name.item.0)
             && self.value.location_agnostic_eq::<B>(&other.value)
+    }
+}
+
+impl LocationAgnosticPartialEq for Option<&Argument> {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Some(l), Some(r)) => l.location_agnostic_eq::<B>(r),
+            (None, None) => true,
+            _ => false,
+        }
     }
 }
 
@@ -532,5 +548,159 @@ impl LocationAgnosticPartialEq for ConditionValue {
             (ConditionValue::Constant(_), _) => false,
             (ConditionValue::Variable(_), _) => false,
         }
+    }
+}
+
+impl LocationAgnosticPartialEq for ExecutableDefinition {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        match (self, other) {
+            (ExecutableDefinition::Operation(left), ExecutableDefinition::Operation(right)) => {
+                left.location_agnostic_eq::<B>(right)
+            }
+            (ExecutableDefinition::Fragment(left), ExecutableDefinition::Fragment(right)) => {
+                left.location_agnostic_eq::<B>(right)
+            }
+            _ => false,
+        }
+    }
+}
+
+impl LocationAgnosticPartialEq for VariableDefinition {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        self.name.location_agnostic_eq::<B>(&other.name)
+            && self.type_ == other.type_
+            && self
+                .default_value
+                .location_agnostic_eq::<B>(&other.default_value)
+            && self.directives.location_agnostic_eq::<B>(&other.directives)
+    }
+}
+
+impl LocationAgnosticPartialEq for OperationDefinition {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        self.kind.location_agnostic_eq::<B>(&other.kind)
+            && self.name.location_agnostic_eq::<B>(&other.name)
+            && self.type_.location_agnostic_eq::<B>(&other.type_)
+            && self.kind.location_agnostic_eq::<B>(&other.kind)
+            && self
+                .variable_definitions
+                .location_agnostic_eq::<B>(&other.variable_definitions)
+            && self.directives.location_agnostic_eq::<B>(&other.directives)
+            && self.selections.location_agnostic_eq::<B>(&other.selections)
+    }
+}
+
+impl LocationAgnosticPartialEq for OperationKind {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        self == other
+    }
+}
+impl LocationAgnosticPartialEq for Type {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        self == other
+    }
+}
+
+impl LocationAgnosticPartialEq for Selection {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Selection::FragmentSpread(l), Selection::FragmentSpread(r)) => {
+                l.location_agnostic_eq::<B>(r)
+            }
+            (Selection::InlineFragment(l), Selection::InlineFragment(r)) => {
+                l.location_agnostic_eq::<B>(r)
+            }
+            (Selection::LinkedField(l), Selection::LinkedField(r)) => {
+                l.location_agnostic_eq::<B>(r)
+            }
+            (Selection::ScalarField(l), Selection::ScalarField(r)) => {
+                l.location_agnostic_eq::<B>(r)
+            }
+            (Selection::Condition(l), Selection::Condition(r)) => l.location_agnostic_eq::<B>(r),
+            _ => false,
+        }
+    }
+}
+
+impl LocationAgnosticPartialEq for FragmentSpread {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        self.fragment.location_agnostic_eq::<B>(&other.fragment)
+            && self.arguments.location_agnostic_eq::<B>(&other.arguments)
+            && self.directives.location_agnostic_eq::<B>(&other.directives)
+    }
+}
+
+impl LocationAgnosticPartialEq for InlineFragment {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        self.type_condition
+            .location_agnostic_eq::<B>(&other.type_condition)
+            && self.directives.location_agnostic_eq::<B>(&other.directives)
+            && self.selections.location_agnostic_eq::<B>(&other.selections)
+    }
+}
+
+impl LocationAgnosticPartialEq for LinkedField {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        self.alias.location_agnostic_eq::<B>(&other.alias)
+            && self.definition.location_agnostic_eq::<B>(&other.definition)
+            && self.arguments.location_agnostic_eq::<B>(&other.arguments)
+            && self.directives.location_agnostic_eq::<B>(&other.directives)
+            && self.selections.location_agnostic_eq::<B>(&other.selections)
+    }
+}
+
+impl LocationAgnosticPartialEq for ScalarField {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        self.alias.location_agnostic_eq::<B>(&other.alias)
+            && self.definition.location_agnostic_eq::<B>(&other.definition)
+            && self.arguments.location_agnostic_eq::<B>(&other.arguments)
+            && self.directives.location_agnostic_eq::<B>(&other.directives)
+    }
+}
+
+impl LocationAgnosticPartialEq for Condition {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        self.selections.location_agnostic_eq::<B>(&other.selections)
+            && self.value.location_agnostic_eq::<B>(&other.value)
+            && self.passing_value == other.passing_value
+    }
+}
+
+impl LocationAgnosticPartialEq for FragmentDefinition {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        self.name.location_agnostic_eq::<B>(&other.name)
+            && self
+                .variable_definitions
+                .location_agnostic_eq::<B>(&other.variable_definitions)
+            && self
+                .used_global_variables
+                .location_agnostic_eq::<B>(&other.used_global_variables)
+            && self
+                .type_condition
+                .location_agnostic_eq::<B>(&other.type_condition)
+            && self.directives.location_agnostic_eq::<B>(&other.directives)
+            && self.selections.location_agnostic_eq::<B>(&other.selections)
+    }
+}
+
+impl LocationAgnosticPartialEq for FragmentDefinitionName {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+impl LocationAgnosticPartialEq for OperationDefinitionName {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+impl LocationAgnosticPartialEq for VariableName {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl LocationAgnosticPartialEq for FieldID {
+    fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
+        self == other
     }
 }

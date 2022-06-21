@@ -1,0 +1,11 @@
+==================================== INPUT ====================================
+query EmptyArgs {
+  route(waypoints: []) {
+    __typename
+  }
+  items(filter: {}) {
+    __typename
+  }
+}
+==================================== OUTPUT ===================================
+query EmptyArgs{route(waypoints:[]){__typename},items(filter:{}){__typename}}

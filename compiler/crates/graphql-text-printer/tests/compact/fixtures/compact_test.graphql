@@ -1,0 +1,14 @@
+query Test { 
+    #comments go away
+    aliasOfFoo : username(name : "val1"  ) @customDirective(level: 2) { #   and this comment as well
+        emailAddresses
+        firstName(if: false, unless: false)
+    }
+    ...FX
+}
+
+fragment FX on Query {
+    aliased : username(name : "argVal") {
+        thin:  emailAddresses
+    }
+}

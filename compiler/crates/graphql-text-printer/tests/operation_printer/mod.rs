@@ -28,7 +28,11 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 .into_iter()
                 .filter_map(|definition| {
                     if let ExecutableDefinition::Operation(operation) = definition {
-                        Some(print_full_operation(&program, &operation))
+                        Some(print_full_operation(
+                            &program,
+                            &operation,
+                            Default::default(),
+                        ))
                     } else {
                         None
                     }

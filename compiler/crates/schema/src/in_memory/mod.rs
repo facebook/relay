@@ -27,12 +27,14 @@ pub struct InMemorySchema {
     clientid_field: FieldID,
     strongid_field: FieldID,
     typename_field: FieldID,
+    query_field: FieldID,
     fetch_token_field: FieldID,
     is_fulfilled_field: FieldID,
 
     clientid_field_name: StringKey,
     strongid_field_name: StringKey,
     typename_field_name: StringKey,
+    query_field_name: StringKey,
     fetch_token_field_name: StringKey,
     is_fulfilled_field_name: StringKey,
 
@@ -75,6 +77,10 @@ impl Schema for InMemorySchema {
 
     fn typename_field(&self) -> FieldID {
         self.typename_field
+    }
+
+    fn query_field(&self) -> FieldID {
+        self.query_field
     }
 
     fn fetch_token_field(&self) -> FieldID {
@@ -172,6 +178,9 @@ impl Schema for InMemorySchema {
             if name == self.strongid_field_name {
                 return Some(self.strongid_field);
             }
+            if name == self.query_field_name {
+                return Some(self.query_field);
+            }
         }
 
         let fields = match parent_type {
@@ -218,11 +227,13 @@ impl Schema for InMemorySchema {
             clientid_field: _clientid_field,
             strongid_field: _strongid_field,
             typename_field: _typename_field,
+            query_field: _query_field,
             fetch_token_field: _fetch_token_field,
             is_fulfilled_field: _is_fulfilled_field,
             clientid_field_name: _clientid_field_name,
             strongid_field_name: _strongid_field_name,
             typename_field_name: _typename_field_name,
+            query_field_name: _query_field_name,
             fetch_token_field_name: _fetch_token_field_name,
             is_fulfilled_field_name: _is_fulfilled_field_name,
             string_type: _string_type,
@@ -633,11 +644,13 @@ impl InMemorySchema {
             clientid_field: FieldID(0),
             strongid_field: FieldID(0),
             typename_field: FieldID(0),
+            query_field: FieldID(0),
             fetch_token_field: FieldID(0),
             is_fulfilled_field: FieldID(0),
             clientid_field_name: "__id".intern(),
             strongid_field_name: "strong_id__".intern(),
             typename_field_name: "__typename".intern(),
+            query_field_name: "__query".intern(),
             fetch_token_field_name: "__token".intern(),
             is_fulfilled_field_name: "is_fulfilled__".intern(),
             string_type: None,
@@ -760,11 +773,13 @@ impl InMemorySchema {
             clientid_field: FieldID(0), // dummy value, overwritten later
             strongid_field: FieldID(0), // dummy value, overwritten later
             typename_field: FieldID(0), // dummy value, overwritten later
+            query_field: FieldID(0),    // dummy value, overwritten later
             fetch_token_field: FieldID(0), // dummy value, overwritten later
             is_fulfilled_field: FieldID(0), // dummy value, overwritten later
             clientid_field_name: "__id".intern(),
             strongid_field_name: "strong_id__".intern(),
             typename_field_name: "__typename".intern(),
+            query_field_name: "__query".intern(),
             fetch_token_field_name: "__token".intern(),
             is_fulfilled_field_name: "is_fulfilled__".intern(),
             string_type: Some(string_type),
@@ -825,6 +840,7 @@ impl InMemorySchema {
     fn load_defaults(&mut self) {
         self.load_default_root_types();
         self.load_default_typename_field();
+        self.load_default_query_field();
         self.load_default_fetch_token_field();
         self.load_default_clientid_field();
         self.load_default_strongid_field();
@@ -869,6 +885,22 @@ impl InMemorySchema {
             directives: Vec::new(),
             parent_type: None,
             description: None,
+        });
+    }
+
+    fn load_default_query_field(&mut self) {
+        let query_field_id = self.fields.len();
+        self.query_field = FieldID(query_field_id.try_into().unwrap());
+        let query_type = self.query_type.expect("Expect to have a query type");
+
+        self.fields.push(Field {
+            name: WithLocation::generated(self.query_field_name),
+            is_extension: false,
+            arguments: ArgumentDefinitions::new(Default::default()),
+            type_: TypeReference::NonNull(Box::new(TypeReference::Named(Type::Object(query_type)))),
+            parent_type: None,
+            description: None,
+            directives: Default::default(),
         });
     }
 

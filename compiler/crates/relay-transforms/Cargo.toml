@@ -23,6 +23,10 @@ name = "graphql_generate_id_field_test"
 path = "tests/generate_id_field_test.rs"
 
 [[test]]
+name = "query_field_test"
+path = "tests/query_field_test.rs"
+
+[[test]]
 name = "graphql_generate_typename_test"
 path = "tests/generate_typename_test.rs"
 

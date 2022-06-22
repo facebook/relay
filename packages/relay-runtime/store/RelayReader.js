@@ -788,9 +788,13 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?mixed {
+    console.log(field);
     const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
-    const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
+    const linkedID =
+      field.name === '__query'
+        ? ROOT_ID
+        : RelayModernRecord.getLinkedRecordID(record, storageKey);
     if (linkedID == null) {
       data[applicationName] = linkedID;
       if (linkedID === undefined) {

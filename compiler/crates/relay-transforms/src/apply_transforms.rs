@@ -13,6 +13,7 @@ use crate::assignable_fragment_spread::{
     annotate_updatable_fragment_spreads, replace_updatable_fragment_spreads,
 };
 use crate::match_::hash_supported_argument;
+use crate::query_field::query_field;
 use common::{sync::try_join, DiagnosticsResult, PerfLogEvent, PerfLogger};
 use graphql_ir::Program;
 use intern::string_key::StringKeySet;
@@ -330,6 +331,9 @@ fn apply_operation_transforms(
     program = log_event.time("generate_live_query_metadata", || {
         generate_live_query_metadata(&program)
     })?;
+
+    // TODO: Maybe this should go before the id transform so we can prune selections that are empty?
+    program = log_event.time("query_field", || query_field(&program))?;
 
     program = apply_after_custom_transforms(
         &program,

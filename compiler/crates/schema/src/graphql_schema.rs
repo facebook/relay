@@ -22,6 +22,8 @@ pub trait Schema {
 
     fn typename_field(&self) -> FieldID;
 
+    fn query_field(&self) -> FieldID;
+
     fn fetch_token_field(&self) -> FieldID;
 
     fn is_fulfilled_field(&self) -> FieldID;

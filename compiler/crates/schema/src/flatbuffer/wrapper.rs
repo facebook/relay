@@ -36,6 +36,7 @@ const TYPENAME_FIELD_ID: FieldID = FieldID(10_000_001);
 const FETCH_TOKEN_FIELD_ID: FieldID = FieldID(10_000_002);
 const STRONGID_FIELD_ID: FieldID = FieldID(10_000_003);
 const IS_FULFILLED_FIELD_ID: FieldID = FieldID(10_000_004);
+const QUERY_FIELD_ID: FieldID = FieldID(10_000_005);
 
 pub struct SchemaWrapper {
     clientid_field_name: StringKey,
@@ -97,6 +98,19 @@ impl SchemaWrapper {
             name: WithLocation::generated(result.typename_field_name),
             is_extension: false,
             arguments: ArgumentDefinitions::new(Default::default()),
+            type_: TypeReference::NonNull(Box::new(TypeReference::Named(
+                result.get_type("String".intern()).unwrap(),
+            ))),
+            directives: Vec::new(),
+            parent_type: None,
+            description: None,
+        });
+
+        result.fields.get(QUERY_FIELD_ID, || Field {
+            name: WithLocation::generated(result.typename_field_name),
+            is_extension: false,
+            arguments: ArgumentDefinitions::new(Default::default()),
+            // TODO: Use the correct type here!
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(
                 result.get_type("String".intern()).unwrap(),
             ))),
@@ -208,6 +222,10 @@ impl Schema for SchemaWrapper {
     }
 
     fn typename_field(&self) -> FieldID {
+        TYPENAME_FIELD_ID
+    }
+
+    fn query_field(&self) -> FieldID {
         TYPENAME_FIELD_ID
     }
 
@@ -335,6 +353,14 @@ impl Schema for SchemaWrapper {
             if name == self.is_fulfilled_field_name {
                 return Some(IS_FULFILLED_FIELD_ID);
             }
+            if true {
+                panic!("Heelo")
+            }
+            /*
+            if name == self.query_field_name {
+                return Some(QUERY_FIELD_ID);
+            }
+            */
         }
 
         let fields = match parent_type {

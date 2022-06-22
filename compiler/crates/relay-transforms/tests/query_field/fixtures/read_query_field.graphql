@@ -1,0 +1,14 @@
+query MyQuery {
+    me {
+        ...UserFragment
+    }
+}
+
+fragment UserFragment on User {
+    __query {
+        defaultSettings {
+            notificationSounds
+        }
+    }
+    firstName
+}

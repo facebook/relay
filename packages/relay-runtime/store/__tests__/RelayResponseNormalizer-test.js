@@ -4640,4 +4640,65 @@ describe('RelayResponseNormalizer', () => {
       });
     });
   });
+
+  it('normalizes __query fields', () => {
+    graphql`
+      fragment RelayResponseNormalizerTestQueryFieldFragment on User {
+        __query {
+          defaultSettings {
+            notificationSounds
+          }
+        }
+        firstName
+      }
+    `;
+    const FooQuery = graphql`
+      query RelayResponseNormalizerTestQueryFieldQuery {
+        me {
+          ...RelayResponseNormalizerTestQueryFieldFragment
+        }
+      }
+    `;
+    const payload = {
+      me: {
+        // The transform will still insert the id field here
+        id: '1',
+        firstName: 'Antonio',
+      },
+      defaultSettings: {
+        notificationSounds: true,
+      },
+    };
+    const recordSource = new RelayRecordSource();
+    recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+    normalize(
+      recordSource,
+      createNormalizationSelector(FooQuery.operation, ROOT_ID, {}),
+      payload,
+      defaultOptions,
+    );
+    expect(recordSource.toJSON()).toEqual({
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        firstName: 'Antonio',
+        id: '1',
+      },
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        defaultSettings: {
+          __ref: 'client:root:defaultSettings',
+        },
+        me: {
+          __ref: '1',
+        },
+      },
+      'client:root:defaultSettings': {
+        __id: 'client:root:defaultSettings',
+        __typename: 'Settings',
+        notificationSounds: true,
+      },
+    });
+  });
 });

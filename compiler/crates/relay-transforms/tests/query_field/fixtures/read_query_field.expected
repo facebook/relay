@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+query MyQuery {
+    me {
+        ...UserFragment
+    }
+}
+
+fragment UserFragment on User {
+    __query {
+        defaultSettings {
+            notificationSounds
+        }
+    }
+    firstName
+}
+==================================== OUTPUT ===================================
+query MyQuery {
+  me {
+    ...UserFragment
+  }
+  defaultSettings {
+    notificationSounds
+  }
+}
+
+fragment UserFragment on User {
+  firstName
+}

@@ -61,6 +61,13 @@ impl Schema for SDLSchema {
         }
     }
 
+    fn query_field(&self) -> FieldID {
+        match self {
+            SDLSchema::FlatBuffer(schema) => schema.query_field(),
+            SDLSchema::InMemory(schema) => schema.query_field(),
+        }
+    }
+
     fn fetch_token_field(&self) -> FieldID {
         match self {
             SDLSchema::FlatBuffer(schema) => schema.fetch_token_field(),

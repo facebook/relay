@@ -27,9 +27,9 @@ type NestedEntrypointComponentProps = EntryPointProps<{}>;
 const NestedEntrypointComponent = (_props: NestedEntrypointComponentProps) =>
   null;
 
-type NestedEntrypointPreloadParams = $ReadOnly<{|
+type NestedEntrypointPreloadParams = $ReadOnly<{
   subEntrypointPreloadParam: string,
-|}>;
+}>;
 
 type NestedEntryPointType = EntryPoint<
   NestedEntrypointPreloadParams,

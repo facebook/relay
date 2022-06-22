@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {OperationDescriptor} from '../../../relay-runtime/store/RelayStoreTypes';
@@ -51,14 +49,14 @@ describe('useRefetchableFragment', () => {
     return [data, refetch];
   }
 
-  function assertCall(expected: {|data: any|}, idx: number) {
+  function assertCall(expected: {data: any}, idx: number) {
     const actualData = renderSpy.mock.calls[idx][0];
 
     expect(actualData).toEqual(expected.data);
   }
 
   function assertFragmentResults(
-    expectedCalls: $ReadOnlyArray<{|data: $FlowFixMe|}>,
+    expectedCalls: $ReadOnlyArray<{data: $FlowFixMe}>,
   ) {
     // This ensures that useEffect runs
     TestRenderer.act(() => jest.runAllImmediates());
@@ -67,7 +65,7 @@ describe('useRefetchableFragment', () => {
     renderSpy.mockClear();
   }
 
-  function expectFragmentResults(expectedCalls: Array<{|data: any|}>) {
+  function expectFragmentResults(expectedCalls: Array<{data: any}>) {
     assertFragmentResults(expectedCalls);
   }
 
@@ -131,7 +129,7 @@ describe('useRefetchableFragment', () => {
     });
 
     // Set up renderers
-    Renderer = (props: {|user: mixed|}) => null;
+    Renderer = (props: {user: mixed}) => null;
 
     const Container = (props: {
       userRef?: {...},
@@ -156,7 +154,7 @@ describe('useRefetchableFragment', () => {
       return <Renderer user={userData} />;
     };
 
-    const ContextProvider = ({children}: {|children: React.Node|}) => {
+    const ContextProvider = ({children}: {children: React.Node}) => {
       const relayContext = useMemo(() => ({environment}), []);
 
       return (

@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
@@ -60,9 +58,9 @@ beforeEach(() => {
   dispose = undefined;
   environment = createMockEnvironment();
   render = function (
-    initialPreloadedQuery: ?{|
+    initialPreloadedQuery: ?{
       dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-    |},
+    },
   ) {
     renderCount = 0;
     ReactTestRenderer.act(() => {
@@ -73,9 +71,9 @@ beforeEach(() => {
   };
 
   update = function (
-    initialPreloadedQuery: ?{|
+    initialPreloadedQuery: ?{
       dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-    |},
+    },
   ) {
     ReactTestRenderer.act(() => {
       instance.update(
@@ -86,11 +84,11 @@ beforeEach(() => {
 
   const Inner = function ({
     initialPreloadedQuery,
-  }: {|
-    initialPreloadedQuery: ?{|
+  }: {
+    initialPreloadedQuery: ?{
       dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-    |},
-  |}) {
+    },
+  }) {
     renderCount = (renderCount || 0) + 1;
     [loadedQuery, queryLoaderCallback, disposeQuery] = useQueryLoader(
       generatedQuery,
@@ -102,11 +100,11 @@ beforeEach(() => {
 
   Container = function ({
     initialPreloadedQuery,
-  }: {|
-    initialPreloadedQuery?: ?{|
+  }: {
+    initialPreloadedQuery?: ?{
       dispose: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-    |},
-  |}) {
+    },
+  }) {
     return (
       <RelayEnvironmentProvider environment={environment}>
         <Inner initialPreloadedQuery={initialPreloadedQuery} />
@@ -355,7 +353,7 @@ it('does not release or cancel the query before the new component tree unsuspend
       );
     }
 
-    function Router({route}: {|route: 'FIRST' | 'SECOND'|}) {
+    function Router({route}: {route: 'FIRST' | 'SECOND'}) {
       if (route === 'FIRST') {
         return <ComponentWithQuery />;
       } else {
@@ -429,7 +427,7 @@ it('releases and cancels query references associated with previous suspensions w
       );
     }
 
-    function InnerConcurrent({promise}: {|promise: ?Promise<any>|}) {
+    function InnerConcurrent({promise}: {promise: ?Promise<any>}) {
       [, queryLoaderCallback] = useQueryLoader(generatedQuery);
       if (
         promise == null ||
@@ -527,7 +525,7 @@ it('releases and cancels query references associated with subsequent suspensions
     }
 
     let innerUnsuspendedCorrectly = false;
-    function InnerConcurrent({promise}: {|promise: ?Promise<any>|}) {
+    function InnerConcurrent({promise}: {promise: ?Promise<any>}) {
       [, queryLoaderCallback] = useQueryLoader(generatedQuery);
       if (
         promise == null ||

@@ -6,15 +6,15 @@
  */
 
 import path = require('path');
-import { ExtensionContext, window, workspace } from 'vscode';
-import { registerCommands } from './commands/register';
-import { createAndStartCompiler } from './compiler';
-import { getConfig } from './config';
+import {ExtensionContext, window, workspace} from 'vscode';
+import {registerCommands} from './commands/register';
+import {createAndStartCompiler} from './compiler';
+import {getConfig} from './config';
 
-import { RelayExtensionContext } from './context';
-import { createAndStartLanguageClient } from './languageClient';
-import { createStatusBarItem, intializeStatusBarItem } from './statusBarItem';
-import { findRelayBinaryWithWarnings } from './utils/findRelayBinary';
+import {RelayExtensionContext} from './context';
+import {createAndStartLanguageClient} from './languageClient';
+import {createStatusBarItem, intializeStatusBarItem} from './statusBarItem';
+import {findRelayBinaryWithWarnings} from './utils/findRelayBinary';
 
 let relayExtensionContext: RelayExtensionContext | null = null;
 

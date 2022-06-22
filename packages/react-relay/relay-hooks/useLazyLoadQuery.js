@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -21,7 +19,6 @@ import type {
   Variables,
 } from 'relay-runtime';
 
-const HooksImplementation = require('./HooksImplementation');
 const {useTrackLoadQueryInRender} = require('./loadQuery');
 const useLazyLoadQueryNode = require('./useLazyLoadQueryNode');
 const useMemoOperationDescriptor = require('./useMemoOperationDescriptor');
@@ -36,23 +33,23 @@ const {
 export type UseLazyLoadQueryHookType = <TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
-  options?: {|
+  options?: {
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
     networkCacheConfig?: CacheConfig,
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
+  },
 ) => TData;
 
-function useLazyLoadQuery_LEGACY<TVariables: Variables, TData>(
+function useLazyLoadQuery<TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
-  options?: {|
+  options?: {
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
     networkCacheConfig?: CacheConfig,
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
+  },
 ): TData {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
@@ -76,25 +73,6 @@ function useLazyLoadQuery_LEGACY<TVariables: Variables, TData>(
     renderPolicy: options?.UNSTABLE_renderPolicy,
   });
   return data;
-}
-
-function useLazyLoadQuery<TVariables: Variables, TData>(
-  gqlQuery: Query<TVariables, TData>,
-  variables: TVariables,
-  options?: {|
-    fetchKey?: string | number,
-    fetchPolicy?: FetchPolicy,
-    networkCacheConfig?: CacheConfig,
-    UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
-): TData {
-  const impl = HooksImplementation.get();
-  if (impl) {
-    return impl.useLazyLoadQuery(gqlQuery, variables, options);
-  } else {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    return useLazyLoadQuery_LEGACY(gqlQuery, variables, options);
-  }
 }
 
 module.exports = (useLazyLoadQuery: UseLazyLoadQueryHookType);

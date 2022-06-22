@@ -9,8 +9,6 @@
  * @flow strict-local
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {

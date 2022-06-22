@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
@@ -77,7 +75,7 @@ const {ROOT_TYPE, TYPENAME_KEY, getStorageKey} = require('./RelayStoreUtils');
 const invariant = require('invariant');
 const warning = require('warning');
 
-export type ExecuteConfig<TMutation: MutationParameters> = {|
+export type ExecuteConfig<TMutation: MutationParameters> = {
   +actorIdentifier: ActorIdentifier,
   +getDataID: GetDataID,
   +getPublishQueue: (actorIdentifier: ActorIdentifier) => PublishQueue,
@@ -97,32 +95,32 @@ export type ExecuteConfig<TMutation: MutationParameters> = {|
   +treatMissingFieldsAsNull: boolean,
   +updater?: ?SelectorStoreUpdater<TMutation['response']>,
   +log: LogFunction,
-|};
+};
 
 export type ActiveState = 'active' | 'inactive';
 
-export type TaskScheduler = {|
+export type TaskScheduler = {
   +cancel: (id: string) => void,
   +schedule: (fn: () => void) => string,
-|};
+};
 
 type Label = string;
 type PathKey = string;
 type IncrementalResults =
-  | {|
+  | {
       +kind: 'placeholder',
       +placeholder: IncrementalDataPlaceholder,
-    |}
-  | {|
+    }
+  | {
       +kind: 'response',
       +responses: Array<IncrementalGraphQLResponse>,
-    |};
+    };
 
-type IncrementalGraphQLResponse = {|
+type IncrementalGraphQLResponse = {
   label: string,
   path: $ReadOnlyArray<mixed>,
   response: GraphQLResponseWithData,
-|};
+};
 
 function execute<TMutation: MutationParameters>(
   config: ExecuteConfig<TMutation>,
@@ -159,7 +157,7 @@ class Executor<TMutation: MutationParameters> {
   _sink: Sink<GraphQLResponse>;
   _source: Map<
     string,
-    {|+record: Record, +fieldPayloads: Array<HandleFieldPayload>|},
+    {+record: Record, +fieldPayloads: Array<HandleFieldPayload>},
   >;
   _state: 'started' | 'loading_incremental' | 'loading_final' | 'completed';
   +_getStore: (actorIdentifier: ActorIdentifier) => Store;
@@ -1411,14 +1409,14 @@ class Executor<TMutation: MutationParameters> {
     variables: Variables,
     path: $ReadOnlyArray<mixed>,
     normalizationPath: $ReadOnlyArray<string>,
-  ): {|
+  ): {
     fieldPayloads: Array<HandleFieldPayload>,
     itemID: DataID,
     itemIndex: number,
     prevIDs: Array<?DataID>,
     relayPayload: RelayResponsePayload,
     storageKey: string,
-  |} {
+  } {
     const {data} = response;
     invariant(
       typeof data === 'object',

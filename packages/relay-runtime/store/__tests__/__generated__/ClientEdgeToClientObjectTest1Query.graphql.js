@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<686321291799ff1fd09807d15fcd9c25>>
+ * @generated SignedSource<<1d040f2361036a3ebcc35538c8373a1a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,6 +18,8 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 type AstrologicalSignHouseResolver$key = any;
 type AstrologicalSignNameResolver$key = any;
+type AstrologicalSignOppositeResolver$key = any;
+type UserAstrologicalSignResolver$key = any;
 import astrologicalSignHouseResolver from "../resolvers/AstrologicalSignHouseResolver.js";
 // Type assertion validating that `astrologicalSignHouseResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -29,6 +31,18 @@ import astrologicalSignNameResolver from "../resolvers/AstrologicalSignNameResol
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolver: (
   rootKey: AstrologicalSignNameResolver$key, 
+) => mixed);
+import astrologicalSignOppositeResolver from "../resolvers/AstrologicalSignOppositeResolver.js";
+// Type assertion validating that `astrologicalSignOppositeResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(astrologicalSignOppositeResolver: (
+  rootKey: AstrologicalSignOppositeResolver$key, 
+) => mixed);
+import userAstrologicalSignResolver from "../resolvers/UserAstrologicalSignResolver.js";
+// Type assertion validating that `userAstrologicalSignResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userAstrologicalSignResolver: (
+  rootKey: UserAstrologicalSignResolver$key, 
 ) => mixed);
 export type ClientEdgeToClientObjectTest1Query$variables = {||};
 export type ClientEdgeToClientObjectTest1Query$data = {|

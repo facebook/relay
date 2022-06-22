@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {Subscription} from 'relay-runtime';
@@ -29,12 +27,12 @@ const {useCallback, useEffect, useRef} = require('react');
  * The additional functions returned by this Hook can be used to mutate
  * the ref.
  */
-function useFetchTrackingRef(): {|
+function useFetchTrackingRef(): {
   isFetchingRef: {current: ?boolean, ...},
   startFetch: Subscription => void,
   disposeFetch: () => void,
   completeFetch: () => void,
-|} {
+} {
   const subscriptionRef = useRef<?Subscription>(null);
   const isFetchingRef = useRef<?boolean>(false);
 

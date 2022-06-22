@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {DataID, Disposable} from '../../util/RelayRuntimeTypes';
@@ -51,24 +49,24 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 const {LiveResolverCache} = require('./LiveResolverCache');
 const invariant = require('invariant');
 
-export type LiveState<T> = {|
+export type LiveState<T> = {
   read(): T,
   subscribe(cb: () => void): () => void,
-|};
+};
 
 // HACK
 // The type of Store is defined using an opaque type that only RelayModernStore
 // can create. For now, we just lie via any/FlowFixMe and pretend we really have
 // the opaque version, but in reality it's our local version.
-opaque type InvalidationState = {|
+opaque type InvalidationState = {
   dataIDs: $ReadOnlyArray<DataID>,
   invalidations: Map<DataID, ?number>,
-|};
+};
 
-type InvalidationSubscription = {|
+type InvalidationSubscription = {
   callback: () => void,
   invalidationState: InvalidationState,
-|};
+};
 
 const DEFAULT_RELEASE_BUFFER_SIZE = 10;
 
@@ -96,12 +94,12 @@ class LiveResolverStore implements Store {
   _releaseBuffer: Array<string>;
   _roots: Map<
     string,
-    {|
+    {
       operation: OperationDescriptor,
       refCount: number,
       epoch: ?number,
       fetchTime: ?number,
-    |},
+    },
   >;
   _shouldScheduleGC: boolean;
   _storeSubscriptions: StoreSubscriptions;
@@ -110,7 +108,7 @@ class LiveResolverStore implements Store {
 
   constructor(
     source: MutableRecordSource,
-    options?: {|
+    options?: {
       gcScheduler?: ?Scheduler,
       log?: ?LogFunction,
       operationLoader?: ?OperationLoader,
@@ -118,7 +116,7 @@ class LiveResolverStore implements Store {
       gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
       shouldProcessClientComponents?: ?boolean,
-    |},
+    },
   ) {
     // Prevent mutation of a record from outside the store.
     if (__DEV__) {

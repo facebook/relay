@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {UserReadsClientEdgeResolver$key} from './__generated__/UserReadsClientEdgeResolver.graphql';

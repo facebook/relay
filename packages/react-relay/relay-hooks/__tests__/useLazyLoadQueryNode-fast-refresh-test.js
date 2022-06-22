@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {
@@ -45,14 +43,14 @@ function expectToBeRendered(
 function expectToHaveFetched(
   environment: RelayMockEnvironment,
   query: OperationDescriptor,
-  cacheConfig: {|
+  cacheConfig: {
     force?: ?boolean,
     liveConfigId?: ?string,
     metadata?: {[key: string]: mixed},
     onSubscribe?: () => void,
     poll?: ?number,
     transactionId?: ?string,
-  |},
+  },
 ) {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute).toBeCalledTimes(1);
@@ -116,7 +114,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     // $FlowFixMe[cannot-resolve-module] This module is not available on www.
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
-    const V1 = function (props: {|variables: {|id: string|}|}) {
+    const V1 = function (props: {variables: {id: string}}) {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
       const result = useLazyLoadQueryNode<_>({
         query: _query,

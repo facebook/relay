@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {FetchPolicy, GraphQLResponse, RenderPolicy} from 'relay-runtime';
@@ -116,7 +114,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
     force: true,
   });
 
-  type TestInputs = {|
+  type TestInputs = {
     fetchPolicy: FetchPolicy,
     renderPolicy: RenderPolicy,
     availability:
@@ -124,12 +122,12 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
       | 'stale'
       | 'missing'
       | 'available-root-fragment-only',
-  |};
-  type TestOutputs = {|
+  };
+  type TestOutputs = {
     shouldAwaitFetchResult: boolean,
     shouldFetch: boolean,
     shouldBeMissingData?: boolean,
-  |};
+  };
   type Test = [TestInputs, TestOutputs];
 
   describe.each([
@@ -195,10 +193,10 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
       function Wrappers({
         env,
         children,
-      }: {|
+      }: {
         children: React.Node,
         env: Environment,
-      |}) {
+      }) {
         return (
           <RelayEnvironmentProvider environment={env}>
             <ErrorBoundary
@@ -662,7 +660,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
 
               const thrownPromises = new Set();
               let numberOfRendersObserved = 0;
-              function TestComponent({output}: {|output: boolean|}) {
+              function TestComponent({output}: {output: boolean}) {
                 numberOfRendersObserved++;
                 try {
                   const data = useLazyLoadQuery(query, variables, {
@@ -858,11 +856,11 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
 
         // Render the same component within each of the enviroments but
         // sharing a React Cache component:
-        function UsesQuery(_props: {||}) {
+        function UsesQuery(_props: {}) {
           const data = useLazyLoadQuery(query, variables);
           return data.node?.username ?? 'Data is missing';
         }
-        function TestComponent(_props: {||}) {
+        function TestComponent(_props: {}) {
           return (
             <RelayEnvironmentProvider environment={env1}>
               <UsesQuery />
@@ -897,7 +895,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
 
       it('Honors fetchKey', () => {
         let setFetchKey;
-        function TestComponent(_props: {||}) {
+        function TestComponent(_props: {}) {
           let fetchKey;
           [fetchKey, setFetchKey] = useState(0);
           return useLazyLoadQuery(query, variables, {
@@ -942,13 +940,13 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
       });
 
       it('Retains the query when two components use the same query and one of them unmounts while the other is suspended', () => {
-        function UsesQuery(_props: {||}) {
+        function UsesQuery(_props: {}) {
           useLazyLoadQuery(query, variables);
           return null;
         }
         let unsuspend;
         let promise: void | null | Promise<mixed>;
-        function UsesQueryButAlsoSeparatelySuspends(_props: {||}) {
+        function UsesQueryButAlsoSeparatelySuspends(_props: {}) {
           const data = useLazyLoadQuery(query, variables);
           if (promise === undefined) {
             promise = new Promise(r => {
@@ -965,7 +963,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
         }
 
         let unmountChild;
-        function TestComponent(_props: {||}) {
+        function TestComponent(_props: {}) {
           const [hasChild, setHasChild] = useState(true);
           unmountChild = () => setHasChild(false);
           return (
@@ -1016,13 +1014,13 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
       it('Handles this other weird situation that it initially did not handle', () => {
         // This is a regression test for a situation that hit a bug initially where the retain
         // count was being updated on an out-of-date cache entry instead of the correct one.
-        function UsesQuery(_props: {||}) {
+        function UsesQuery(_props: {}) {
           useLazyLoadQuery(query, variables);
           return null;
         }
         let unsuspend;
         let promise: void | null | Promise<mixed>;
-        function UsesQueryButAlsoSeparatelySuspends(_props: {||}) {
+        function UsesQueryButAlsoSeparatelySuspends(_props: {}) {
           const data = useLazyLoadQuery(query, variables);
           if (promise === undefined) {
             promise = new Promise(r => {
@@ -1037,7 +1035,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
         }
 
         let unmountChild;
-        function TestComponent(_props: {||}) {
+        function TestComponent(_props: {}) {
           const [hasChild, setHasChild] = useState(true);
           unmountChild = () => setHasChild(false);
           return (
@@ -1082,14 +1080,14 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
         // 2 component mounts
         // 3 a new component accesses this entry on render
         // 4 before the new component (3) mounts, the earlier component (1) unmounts and removes the entry.
-        function Component1(_props: {||}) {
+        function Component1(_props: {}) {
           useLazyLoadQuery(query, variables);
           return null;
         }
 
         let unsuspendComponent2;
         let promise: void | null | Promise<mixed>;
-        function Component2(_props: {||}) {
+        function Component2(_props: {}) {
           const data = useLazyLoadQuery(query, variables);
           if (promise === undefined) {
             promise = new Promise(r => {
@@ -1113,7 +1111,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
 
         let hideComponent1;
         let showComponent2;
-        function TestComponent(_props: {||}) {
+        function TestComponent(_props: {}) {
           const [component1Visible, setComponent1Visible] = useState(true);
           const [component2Visible, setComponent2Visible] = useState(false);
           hideComponent1 = () => setComponent1Visible(false);

@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { window } from 'vscode';
-import { RelayExtensionContext } from '../context';
-import { createAndStartCompiler } from '../compiler';
+import {window} from 'vscode';
+import {RelayExtensionContext} from '../context';
+import {createAndStartCompiler} from '../compiler';
 
 export function handleStartCompilerCommand(
   context: RelayExtensionContext,

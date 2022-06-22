@@ -58,7 +58,7 @@ function MyGreeting({userKey}) {
     fragment MyGreeting on User {
       greeting
     }`, userKey);
-  return<h1>{user.greeting}<h1>;
+  return <h1>{user.greeting}</h1>;
 }
 ```
 

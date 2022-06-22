@@ -81,10 +81,10 @@ describe('Client-only queries', () => {
   function TestComponent({
     environment: relayEnvironment,
     ...rest
-  }: {|
+  }: {
     environment: IEnvironment,
     fetchPolicy?: FetchPolicy,
-  |}) {
+  }) {
     return (
       <RelayEnvironmentProvider environment={relayEnvironment}>
         <React.Suspense fallback="Loading...">
@@ -232,10 +232,10 @@ test('hello-world query', () => {
   function TestComponent({
     environment: relayEnvironment,
     ...rest
-  }: {|
+  }: {
     environment: IEnvironment,
     fetchPolicy?: FetchPolicy,
-  |}) {
+  }) {
     return (
       <RelayEnvironmentProvider environment={relayEnvironment}>
         <React.Suspense fallback="Loading...">
@@ -294,10 +294,10 @@ test('hello user query with client-edge query', () => {
   function TestComponent({
     environment: relayEnvironment,
     ...rest
-  }: {|
+  }: {
     environment: IEnvironment,
     fetchPolicy?: FetchPolicy,
-  |}) {
+  }) {
     return (
       <RelayEnvironmentProvider environment={relayEnvironment}>
         <React.Suspense fallback="Loading...">

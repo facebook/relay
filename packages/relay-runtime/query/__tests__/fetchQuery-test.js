@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {fetchQueryTest1Query$data} from './__generated__/fetchQueryTest1Query.graphql';

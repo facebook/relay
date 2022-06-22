@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$key} from './__generated__/useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment.graphql';
@@ -386,9 +384,9 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
       let renderLogs = [];
       const FragmentComponent = function ({
         user,
-      }: {|
+      }: {
         user: ?useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$key,
-      |}) {
+      }) {
         const data = useFragment(gqlFragment, user);
         return data?.firstName === undefined ? 'Missing fragment data' : null;
       };
@@ -570,9 +568,9 @@ describe.skip('useLazyLoadQueryNode-react-double-effects', () => {
 
     it('with incremental delivery, forces a re-render when effects are double invoked and refetches when policy is store-or-network', () => {
       let renderLogs = [];
-      const FragmentComponent = function (props: {|
+      const FragmentComponent = function (props: {
         user: ?useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$key,
-      |}) {
+      }) {
         const data = useFragment(gqlFragment, props.user);
         return data?.firstName === undefined ? 'Missing fragment data' : null;
       };

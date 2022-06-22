@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -27,13 +25,13 @@ const React = require('react');
 const {useContext, useEffect, useMemo} = require('react');
 const {stableCopy} = require('relay-runtime');
 
-type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{|
+type PreloadedEntryPoint<TEntryPointComponent> = $ReadOnly<{
   entryPoints: React.ElementConfig<TEntryPointComponent>['entryPoints'],
   extraProps: React.ElementConfig<TEntryPointComponent>['extraProps'],
   getComponent: () => TEntryPointComponent,
   queries: React.ElementConfig<TEntryPointComponent>['queries'],
   rootModuleID: string,
-|}>;
+}>;
 
 type EntryPointContainerProps<
   TEntryPointParams,
@@ -42,7 +40,7 @@ type EntryPointContainerProps<
   TRuntimeProps,
   TExtraProps,
 > = $ReadOnly<
-  $ReadOnly<{|
+  $ReadOnly<{
     entryPoint: EntryPoint<
       TEntryPointParams,
       EntryPointComponent<
@@ -55,7 +53,7 @@ type EntryPointContainerProps<
     entryPointParams: TEntryPointParams,
     environmentProvider?: IEnvironmentProvider<EnvironmentProviderOptions>,
     props: TRuntimeProps,
-  |}>,
+  }>,
 >;
 
 function stableStringify(value: mixed): string {

@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const {DEFAULT_HANDLE_KEY} = require('./RelayDefaultHandleKey');

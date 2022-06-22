@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c565ff295efdd23678828c2e821e8ed9>>
+ * @generated SignedSource<<783cfd5bca4c5317a1929891b8cd53d5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,6 +16,13 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+type UserClientEdgeResolver$key = any;
+import userClientEdgeResolver from "../resolvers/UserClientEdgeResolver.js";
+// Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userClientEdgeResolver: (
+  rootKey: UserClientEdgeResolver$key, 
+) => mixed);
 export type RelayReaderClientEdgesTest6Query$variables = {||};
 export type RelayReaderClientEdgesTest6Query$data = {|
   +me: ?{|

@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const isPromise = require('../util/isPromise');
@@ -18,10 +16,10 @@ const isPromise = require('../util/isPromise');
  * A Subscription object is returned from .subscribe(), which can be
  * unsubscribed or checked to see if the resulting subscription has closed.
  */
-export type Subscription = {|
+export type Subscription = {
   +unsubscribe: () => void,
   +closed: boolean,
-|};
+};
 
 type SubscriptionFn = {
   (): mixed,
@@ -34,25 +32,25 @@ type SubscriptionFn = {
  * An Observer is an object of optional callback functions provided to
  * .subscribe(). Each callback function is invoked when that event occurs.
  */
-export type Observer<-T> = {|
+export type Observer<-T> = {
   +start?: ?(Subscription) => mixed,
   +next?: ?(T) => mixed,
   +error?: ?(Error) => mixed,
   +complete?: ?() => mixed,
   +unsubscribe?: ?(Subscription) => mixed,
-|};
+};
 
 /**
  * A Sink is an object of methods provided by Observable during construction.
  * The methods are to be called to trigger each event. It also contains a closed
  * field to see if the resulting subscription has closed.
  */
-export type Sink<-T> = {|
+export type Sink<-T> = {
   +next: T => void,
   +error: (Error, isUncaughtThrownError?: boolean) => void,
   +complete: () => void,
   +closed: boolean,
-|};
+};
 
 /**
  * A Source is the required argument when constructing a new Observable. Similar
@@ -490,7 +488,7 @@ function subscribe<T>(
   // Subscription objects below, however not all flow environments we expect
   // Relay to be used within will support property getters, and many minifier
   // tools still do not support ES5 syntax. Instead, we can use defineProperty.
-  const withClosed: <O>(obj: O) => {|...O, +closed: boolean|} = (obj =>
+  const withClosed: <O>(obj: O) => {...O, +closed: boolean} = (obj =>
     Object.defineProperty(obj, 'closed', ({get: () => closed}: any)): any);
 
   function doCleanup() {

@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {ReaderFragment} from 'relay-runtime';
@@ -21,11 +19,11 @@ const {useEffect, useRef, useState} = require('react');
 const {getFragmentIdentifier} = require('relay-runtime');
 const warning = require('warning');
 
-type ReturnType<TFragmentData: mixed> = {|
+type ReturnType<TFragmentData: mixed> = {
   data: TFragmentData,
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
-|};
+};
 
 function useFragmentNode<TFragmentData: mixed>(
   fragmentNode: ReaderFragment,

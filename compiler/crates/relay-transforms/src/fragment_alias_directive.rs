@@ -131,10 +131,11 @@ impl<'program> FragmentAliasTransform<'program> {
                 FragmentAliasMetadata {
                     alias,
                     type_condition,
-                    selection_type: type_condition.unwrap_or(
-                        self.parent_type
-                            .expect("Selection should be within a parent type."),
-                    ),
+                    selection_type:
+                        type_condition.unwrap_or(
+                            self.parent_type
+                                .expect("Selection should be within a parent type."),
+                        ),
                 }
                 .into(),
             )

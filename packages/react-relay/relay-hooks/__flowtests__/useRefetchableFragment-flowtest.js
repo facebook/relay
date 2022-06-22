@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 import type {
   FetchFn,
   NonNullableData,

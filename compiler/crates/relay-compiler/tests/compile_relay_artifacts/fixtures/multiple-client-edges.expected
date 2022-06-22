@@ -91,6 +91,41 @@ extend type User {
               ],
               "storageKey": null
             }
+          },
+          {
+            "kind": "ClientEdgeToClientObject",
+            "concreteType": "ClientUser",
+            "backingField": {
+              "alias": null,
+              "args": null,
+              "fragment": {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "multipleClientEdges_worst_enemy_resolver"
+              },
+              "kind": "RelayResolver",
+              "name": "worst_enemy",
+              "resolverModule": require('WorstEnemyResolver'),
+              "path": "me.worst_enemy"
+            },
+            "linkedField": {
+              "alias": null,
+              "args": null,
+              "concreteType": "ClientUser",
+              "kind": "LinkedField",
+              "name": "worst_enemy",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
           }
         ],
         "storageKey": null

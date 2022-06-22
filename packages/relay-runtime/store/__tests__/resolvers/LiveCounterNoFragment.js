@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';

@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {EnvironmentProviderOptions} from '../EntryPointTypes.flow';
 import type {IEnvironment} from 'relay-runtime/store/RelayStoreTypes';
@@ -67,12 +65,12 @@ beforeEach(() => {
   Container = function ({
     entryPoint,
     environmentProvider,
-  }: {|
+  }: {
     entryPoint: any,
-    environmentProvider: {|
+    environmentProvider: {
       getEnvironment: (options: ?EnvironmentProviderOptions) => IEnvironment,
-    |},
-  |}) {
+    },
+  }) {
     renderCount = (renderCount || 0) + 1;
     [loadedEntryPoint, entryPointLoaderCallback, disposeEntryPoint] =
       useEntryPointLoader(environmentProvider, entryPoint);
@@ -205,7 +203,7 @@ it('does not dispose the entry point before the new component tree unsuspends in
       );
     }
 
-    function Router({route}: {|route: 'FIRST' | 'SECOND'|}) {
+    function Router({route}: {route: 'FIRST' | 'SECOND'}) {
       if (route === 'FIRST') {
         return <ComponentWithHook />;
       } else {
@@ -277,7 +275,7 @@ it('disposes entry point references associated with previous suspensions when mu
       );
     }
 
-    function Inner({promise}: {|promise: ?Promise<any>|}) {
+    function Inner({promise}: {promise: ?Promise<any>}) {
       [, entryPointLoaderCallback] = useEntryPointLoader(
         defaultEnvironmentProvider,
         defaultEntryPoint,
@@ -376,7 +374,7 @@ it('disposes entry point references associated with subsequent suspensions when 
     }
 
     let innerUnsuspendedCorrectly = false;
-    function Inner({promise}: {|promise: ?Promise<any>|}) {
+    function Inner({promise}: {promise: ?Promise<any>}) {
       [, entryPointLoaderCallback] = useEntryPointLoader(
         defaultEnvironmentProvider,
         defaultEntryPoint,

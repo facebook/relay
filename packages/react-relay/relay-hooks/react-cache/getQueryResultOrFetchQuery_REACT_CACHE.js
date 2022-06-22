@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -34,10 +32,10 @@ const warning = require('warning');
 
 type QueryCacheCommitable = () => () => void;
 
-type QueryResult = {|
+type QueryResult = {
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
-|};
+};
 
 // Note that the status of a cache entry will be 'resolved' when partial
 // rendering is allowed, even if a fetch is ongoing. The pending status
@@ -49,24 +47,24 @@ type QueryResult = {|
 // before any components have mounted. It is unused when Legacy Timeouts
 // mode is off.
 type QueryCacheEntryStatus =
-  | {|
+  | {
       status: 'resolved',
       result: QueryResult,
-    |}
-  | {|
+    }
+  | {
       status: 'pending',
       promise: Promise<void>,
-    |}
-  | {|
+    }
+  | {
       status: 'rejected',
       error: Error,
-    |};
+    };
 
-type QueryCacheEntry = {|
+type QueryCacheEntry = {
   ...QueryCacheEntryStatus,
   onCommit: QueryCacheCommitable,
   suspenseResource: SuspenseResource | null,
-|};
+};
 
 const DEFAULT_FETCH_POLICY = 'store-or-network';
 
@@ -168,12 +166,12 @@ function makeInitialCacheEntry() {
 function getQueryResultOrFetchQuery_REACT_CACHE(
   environment: IEnvironment,
   queryOperationDescriptor: OperationDescriptor,
-  options?: {|
+  options?: {
     fetchPolicy?: FetchPolicy,
     renderPolicy?: RenderPolicy,
     fetchKey?: ?string | ?number,
     fetchObservable?: Observable<GraphQLResponse>,
-  |},
+  },
 ): [QueryResult, QueryCacheCommitable] {
   const fetchPolicy = options?.fetchPolicy ?? DEFAULT_FETCH_POLICY;
   const renderPolicy =

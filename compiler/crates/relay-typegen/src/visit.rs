@@ -15,12 +15,13 @@ use graphql_ir::{
     ScalarField, Selection,
 };
 use indexmap::{map::Entry, IndexMap, IndexSet};
-use relay_config::{CustomScalarType, CustomScalarTypeImport};
+use relay_config::{CustomScalarType, CustomScalarTypeImport, TypegenLanguage};
 use relay_transforms::{
-    FragmentAliasMetadata, ModuleMetadata, NoInlineFragmentSpreadMetadata, RelayResolverMetadata,
-    RequiredMetadataDirective, TypeConditionInfo, ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN,
-    CHILDREN_CAN_BUBBLE_METADATA_KEY, CLIENT_EXTENSION_DIRECTIVE_NAME,
-    RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN, UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
+    ClientEdgeMetadata, FragmentAliasMetadata, ModuleMetadata, NoInlineFragmentSpreadMetadata,
+    RelayResolverMetadata, RequiredMetadataDirective, TypeConditionInfo,
+    ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, CHILDREN_CAN_BUBBLE_METADATA_KEY,
+    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
+    UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
 };
 use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
 use std::hash::Hash;
@@ -56,6 +57,7 @@ pub(crate) fn visit_selections(
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    runtime_imports: &mut RuntimeImports,
     enclosing_linked_field_concrete_type: Option<Type>,
 ) -> Vec<TypeSelection> {
     let mut type_selections = Vec::new();
@@ -70,6 +72,7 @@ pub(crate) fn visit_selections(
                 custom_scalars,
                 encountered_fragments,
                 imported_resolvers,
+                runtime_imports,
             ),
             Selection::InlineFragment(inline_fragment) => visit_inline_fragment(
                 typegen_context,
@@ -81,6 +84,7 @@ pub(crate) fn visit_selections(
                 imported_resolvers,
                 actor_change_status,
                 custom_scalars,
+                runtime_imports,
                 enclosing_linked_field_concrete_type,
             ),
             Selection::LinkedField(linked_field) => {
@@ -109,6 +113,7 @@ pub(crate) fn visit_selections(
                             imported_resolvers,
                             actor_change_status,
                             custom_scalars,
+                            runtime_imports,
                             nested_enclosing_linked_field_concrete_type,
                         )
                     },
@@ -125,6 +130,7 @@ pub(crate) fn visit_selections(
                         encountered_enums,
                         custom_scalars,
                         encountered_fragments,
+                        runtime_imports,
                         &mut type_selections,
                         resolver_metadata,
                         RequiredMetadataDirective::find(&scalar_field.directives).is_some(),
@@ -151,6 +157,7 @@ pub(crate) fn visit_selections(
                 imported_resolvers,
                 actor_change_status,
                 custom_scalars,
+                runtime_imports,
                 enclosing_linked_field_concrete_type,
             ),
         }
@@ -168,6 +175,7 @@ fn visit_fragment_spread(
     custom_scalars: &mut CustomScalarsImports,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
+    runtime_imports: &mut RuntimeImports,
 ) {
     if let Some(resolver_metadata) = RelayResolverMetadata::find(&fragment_spread.directives) {
         visit_relay_resolver(
@@ -177,6 +185,7 @@ fn visit_fragment_spread(
             encountered_enums,
             custom_scalars,
             encountered_fragments,
+            runtime_imports,
             type_selections,
             resolver_metadata,
             RequiredMetadataDirective::find(&fragment_spread.directives).is_some(),
@@ -226,6 +235,7 @@ fn generate_resolver_type(
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
     encountered_fragments: &mut EncounteredFragments,
+    runtime_imports: &mut RuntimeImports,
     resolver_name: StringKey,
     fragment_name: Option<StringKey>,
     resolver_metadata: &RelayResolverMetadata,
@@ -285,36 +295,45 @@ fn generate_resolver_type(
         });
     }
 
+    let return_type = if matches!(
+        typegen_context.project_config.typegen_config.language,
+        TypegenLanguage::TypeScript
+    ) {
+        // TODO: Add proper support for Resolver typegeneration in typescript
+        AST::Any
+    } else if resolver_metadata.live {
+        runtime_imports.import_relay_resolver_live_state_type = true;
+        AST::RawType("LiveState<any>".intern())
+    } else {
+        AST::RawType("mixed".intern())
+    };
+
     AST::AssertFunctionType(FunctionTypeAssertion {
         function_name: resolver_name,
         arguments: resolver_arguments,
-        return_type: Box::new(AST::RawType("mixed".intern())),
+        return_type: Box::new(return_type),
     })
 }
 
+fn generate_local_resolver_name(field_parent_type: StringKey, field_name: StringKey) -> StringKey {
+    to_camel_case(format!("{}_{}_resolver", field_parent_type, field_name)).intern()
+}
+
 #[allow(clippy::too_many_arguments)]
-fn visit_relay_resolver(
+fn import_relay_resolver_function_type(
     typegen_context: &'_ TypegenContext<'_>,
     fragment_name: Option<StringKey>,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
     encountered_fragments: &mut EncounteredFragments,
-    type_selections: &mut Vec<TypeSelection>,
+    runtime_imports: &mut RuntimeImports,
     resolver_metadata: &RelayResolverMetadata,
-    required: bool,
     imported_resolvers: &mut ImportedResolvers,
 ) {
     let field_name = resolver_metadata.field_name;
-
-    let key = resolver_metadata.field_alias.unwrap_or(field_name);
-    let live = resolver_metadata.live;
-
-    let local_resolver_name = to_camel_case(format!(
-        "{}_{}_resolver",
-        resolver_metadata.field_parent_type, field_name
-    ))
-    .intern();
+    let local_resolver_name =
+        generate_local_resolver_name(resolver_metadata.field_parent_type, field_name);
 
     let import_path = typegen_context.project_config.js_module_import_path(
         typegen_context.definition_source_location,
@@ -329,6 +348,7 @@ fn visit_relay_resolver(
             encountered_enums,
             custom_scalars,
             encountered_fragments,
+            runtime_imports,
             local_resolver_name,
             fragment_name,
             resolver_metadata,
@@ -339,6 +359,39 @@ fn visit_relay_resolver(
         .0
         .entry(import_path)
         .or_insert(imported_resolver);
+}
+
+#[allow(clippy::too_many_arguments)]
+fn visit_relay_resolver(
+    typegen_context: &'_ TypegenContext<'_>,
+    fragment_name: Option<StringKey>,
+    input_object_types: &mut InputObjectTypes,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
+    encountered_fragments: &mut EncounteredFragments,
+    runtime_imports: &mut RuntimeImports,
+    type_selections: &mut Vec<TypeSelection>,
+    resolver_metadata: &RelayResolverMetadata,
+    required: bool,
+    imported_resolvers: &mut ImportedResolvers,
+) {
+    import_relay_resolver_function_type(
+        typegen_context,
+        fragment_name,
+        input_object_types,
+        encountered_enums,
+        custom_scalars,
+        encountered_fragments,
+        runtime_imports,
+        resolver_metadata,
+        imported_resolvers,
+    );
+
+    let field_name = resolver_metadata.field_name;
+    let key = resolver_metadata.field_alias.unwrap_or(field_name);
+    let live = resolver_metadata.live;
+    let local_resolver_name =
+        generate_local_resolver_name(resolver_metadata.field_parent_type, field_name);
 
     let mut inner_value = Box::new(AST::ReturnTypeOfFunctionWithName(local_resolver_name));
 
@@ -362,6 +415,62 @@ fn visit_relay_resolver(
 }
 
 #[allow(clippy::too_many_arguments)]
+fn visit_client_edge(
+    typegen_context: &'_ TypegenContext<'_>,
+    input_object_types: &mut InputObjectTypes,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
+    encountered_fragments: &mut EncounteredFragments,
+    type_selections: &mut Vec<TypeSelection>,
+    client_edge_metadata: &ClientEdgeMetadata<'_>,
+    actor_change_status: &mut ActorChangeStatus,
+    imported_resolvers: &mut ImportedResolvers,
+    runtime_imports: &mut RuntimeImports,
+    enclosing_linked_field_concrete_type: Option<Type>,
+) {
+    let (resolver_metadata, fragment_name) = match client_edge_metadata.backing_field {
+        Selection::FragmentSpread(fragment_spread) => (
+            RelayResolverMetadata::find(&fragment_spread.directives),
+            Some(fragment_spread.fragment.item),
+        ),
+        Selection::ScalarField(scalar_field) => {
+            (RelayResolverMetadata::find(&scalar_field.directives), None)
+        }
+        _ => panic!(
+            "Expect correct relay resolver selection (fragment spread or scalar field). Got {:?}",
+            client_edge_metadata.backing_field
+        ),
+    };
+    if let Some(resolver_metadata) = resolver_metadata {
+        import_relay_resolver_function_type(
+            typegen_context,
+            fragment_name,
+            input_object_types,
+            encountered_enums,
+            custom_scalars,
+            encountered_fragments,
+            runtime_imports,
+            resolver_metadata,
+            imported_resolvers,
+        );
+    }
+
+    let mut client_edge_selections = visit_selections(
+        typegen_context,
+        &[client_edge_metadata.selections.clone()],
+        input_object_types,
+        encountered_enums,
+        encountered_fragments,
+        imported_resolvers,
+        actor_change_status,
+        custom_scalars,
+        runtime_imports,
+        enclosing_linked_field_concrete_type,
+    );
+    type_selections.append(&mut client_edge_selections);
+}
+
+#[allow(clippy::too_many_arguments)]
 fn visit_inline_fragment(
     typegen_context: &'_ TypegenContext<'_>,
     type_selections: &mut Vec<TypeSelection>,
@@ -372,6 +481,7 @@ fn visit_inline_fragment(
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    runtime_imports: &mut RuntimeImports,
     enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
@@ -413,6 +523,21 @@ fn visit_inline_fragment(
             imported_resolvers,
             actor_change_status,
             custom_scalars,
+            runtime_imports,
+            enclosing_linked_field_concrete_type,
+        );
+    } else if let Some(client_edge_metadata) = ClientEdgeMetadata::find(inline_fragment) {
+        visit_client_edge(
+            typegen_context,
+            input_object_types,
+            encountered_enums,
+            custom_scalars,
+            encountered_fragments,
+            type_selections,
+            &client_edge_metadata,
+            actor_change_status,
+            imported_resolvers,
+            runtime_imports,
             enclosing_linked_field_concrete_type,
         );
     } else {
@@ -425,6 +550,7 @@ fn visit_inline_fragment(
             imported_resolvers,
             actor_change_status,
             custom_scalars,
+            runtime_imports,
             enclosing_linked_field_concrete_type,
         );
 
@@ -485,6 +611,7 @@ fn visit_actor_change(
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    runtime_imports: &mut RuntimeImports,
     enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     let linked_field = match &inline_fragment.selections[0] {
@@ -512,6 +639,7 @@ fn visit_actor_change(
         imported_resolvers,
         actor_change_status,
         custom_scalars,
+        runtime_imports,
         enclosing_linked_field_concrete_type,
     );
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
@@ -702,6 +830,7 @@ fn visit_condition(
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
     custom_scalars: &mut CustomScalarsImports,
+    runtime_imports: &mut RuntimeImports,
     enclosing_linked_field_concrete_type: Option<Type>,
 ) {
     let mut selections = visit_selections(
@@ -713,6 +842,7 @@ fn visit_condition(
         imported_resolvers,
         actor_change_status,
         custom_scalars,
+        runtime_imports,
         enclosing_linked_field_concrete_type,
     );
     for selection in selections.iter_mut() {

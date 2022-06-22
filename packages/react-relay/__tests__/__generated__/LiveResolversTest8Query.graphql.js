@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1de30972b7823b8d4938a79397433b1f>>
+ * @generated SignedSource<<b1589cd570327f42fbac1e91b088aa0d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,13 +16,14 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 type ResolverThatThrows$key = any;
 import userResolverThatThrowsResolver from "../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js";
 // Type assertion validating that `userResolverThatThrowsResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userResolverThatThrowsResolver: (
   rootKey: ResolverThatThrows$key, 
-) => mixed);
+) => LiveState<any>);
 export type LiveResolversTest8Query$variables = {|
   id: string,
 |};

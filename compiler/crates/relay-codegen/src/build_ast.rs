@@ -777,13 +777,13 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 frag_spread.fragment.item.lookup().to_string(),
             );
 
-            let normalizataion_import_path = self.project_config.js_module_import_path(
+            let normalization_import_path = self.project_config.js_module_import_path(
                 self.definition_source_location,
                 path_for_artifact.to_str().unwrap().intern(),
             );
 
             return self
-                .build_normalization_fragment_spread(frag_spread, normalizataion_import_path);
+                .build_normalization_fragment_spread(frag_spread, normalization_import_path);
         }
         if self.variant == CodegenVariant::Normalization
             && frag_spread
@@ -1064,7 +1064,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         };
 
         match client_edge_metadata.metadata_directive {
-            ClientEdgeMetadataDirective::ServerObject { query_name } => {
+            ClientEdgeMetadataDirective::ServerObject { query_name, .. } => {
                 Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_server_object),
                     operation: Primitive::GraphQLModuleDependency(query_name),
@@ -1072,7 +1072,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     client_edge_selections_key: selections_item,
                 }))
             }
-            ClientEdgeMetadataDirective::ClientObject { type_name } => {
+            ClientEdgeMetadataDirective::ClientObject { type_name, .. } => {
                 Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
                     concrete_type: Primitive::String(type_name),

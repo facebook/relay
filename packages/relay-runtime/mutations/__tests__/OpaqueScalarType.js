@@ -12,10 +12,10 @@
 'use strict';
 
 // This is just an example complex object, that can be stored as a custom scalar in Relay store
-export opaque type OpaqueScalarType = {|
+export opaque type OpaqueScalarType = {
   name: string,
   callback: () => void,
-|};
+};
 
 function createOpaqueScalarTypeValue(
   name: string,

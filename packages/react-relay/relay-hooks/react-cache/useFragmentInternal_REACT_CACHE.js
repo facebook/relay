@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {QueryResult} from '../QueryResource';
@@ -41,15 +39,15 @@ const {
 } = require('relay-runtime');
 const warning = require('warning');
 
-type FragmentQueryOptions = {|
+type FragmentQueryOptions = {
   fetchPolicy?: FetchPolicy,
   networkCacheConfig?: ?CacheConfig,
-|};
+};
 
 type FragmentState = $ReadOnly<
-  | {|kind: 'bailout'|}
-  | {|kind: 'singular', snapshot: Snapshot, epoch: number|}
-  | {|kind: 'plural', snapshots: $ReadOnlyArray<Snapshot>, epoch: number|},
+  | {kind: 'bailout'}
+  | {kind: 'singular', snapshot: Snapshot, epoch: number}
+  | {kind: 'plural', snapshots: $ReadOnlyArray<Snapshot>, epoch: number},
 >;
 
 type StateUpdaterFunction<T> = ((T) => T) => void;

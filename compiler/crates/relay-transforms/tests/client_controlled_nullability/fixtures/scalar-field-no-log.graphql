@@ -1,0 +1,4 @@
+fragment EnabledActorsRendererFragment on Node {
+  id
+  name @required(action: NONE)
+}

@@ -1,0 +1,6 @@
+# expected-to-throw
+fragment EnabledFoo on User {
+  nearest_neighbor @required(action: NONE) {
+    name @required(action: THROW)
+  }
+}

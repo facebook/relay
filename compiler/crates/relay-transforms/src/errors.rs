@@ -168,6 +168,9 @@ pub enum ValidationMessage {
         "Unexpected directive on Client Edge field. The `@{directive_name}` directive is not currently supported on fields backed by Client Edges."
     )]
     ClientEdgeUnsupportedDirective { directive_name: StringKey },
+
+    #[error("This use of @required is not compatible with Client Controlled Nullability")]
+    ClientControlledNullabilityIncompatible,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

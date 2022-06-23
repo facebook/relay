@@ -1,0 +1,12 @@
+fragment EnabledFoo on User {
+  nearest_neighbor  {
+    nearest_neighbor @required(action: NONE) {
+      name
+    }
+  }
+  assert_nearest_neighbor: nearest_neighbor {
+    assert_nearest_neighbor: nearest_neighbor {
+      name @required(action: THROW)
+    }
+  }
+}

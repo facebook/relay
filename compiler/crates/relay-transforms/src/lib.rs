@@ -16,6 +16,7 @@ mod apply_custom_transforms;
 mod apply_fragment_arguments;
 mod apply_transforms;
 mod assignable_fragment_spread;
+mod client_controlled_nullability;
 mod client_edges;
 mod client_extensions;
 mod connections;
@@ -91,6 +92,7 @@ pub use assignable_fragment_spread::{
     ASSIGNABLE_DIRECTIVE, ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, UPDATABLE_DIRECTIVE,
     UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
 };
+pub use client_controlled_nullability::client_controlled_nullability;
 pub use client_edges::{
     client_edges, remove_client_edge_selections, ClientEdgeGeneratedQueryMetadataDirective,
     ClientEdgeMetadata, ClientEdgeMetadataDirective, CLIENT_EDGE_GENERATED_FRAGMENT_KEY,

@@ -507,6 +507,14 @@ pub enum Transformed<T> {
 }
 
 impl<T> Transformed<T> {
+    pub fn should_keep(&self) -> bool {
+        match self {
+            Transformed::Keep => true,
+            Transformed::Delete => false,
+            Transformed::Replace(_) => false,
+        }
+    }
+
     pub fn map<F, U>(self, f: F) -> Transformed<U>
     where
         F: FnOnce(T) -> U,

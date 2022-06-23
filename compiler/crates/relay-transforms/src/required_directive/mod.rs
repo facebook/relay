@@ -27,9 +27,9 @@ lazy_static! {
     pub static ref REQUIRED_DIRECTIVE_NAME: StringKey = "required".intern();
     pub static ref ACTION_ARGUMENT: StringKey = "action".intern();
     pub static ref CHILDREN_CAN_BUBBLE_METADATA_KEY: StringKey = "__childrenCanBubbleNull".intern();
-    static ref THROW_ACTION: StringKey = "THROW".intern();
-    static ref LOG_ACTION: StringKey = "LOG".intern();
-    static ref NONE_ACTION: StringKey = "NONE".intern();
+    pub static ref THROW_ACTION: StringKey = "THROW".intern();
+    pub static ref LOG_ACTION: StringKey = "LOG".intern();
+    pub static ref NONE_ACTION: StringKey = "NONE".intern();
     static ref INLINE_DIRECTIVE_NAME: StringKey = "inline".intern();
 }
 

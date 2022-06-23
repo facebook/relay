@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment EnabledFoo on User {
+  nearest_neighbor @required(action: NONE) {
+    nearest_neighbor {
+      name @required(action: THROW)
+    }
+  }
+}
+==================================== ERROR ====================================
+✖︎ This use of @required is not compatible with Client Controlled Nullability
+
+  throw-deeply-within-none.invalid.graphql:3:38
+    2 │ fragment EnabledFoo on User {
+    3 │   nearest_neighbor @required(action: NONE) {
+      │                                      ^^^^
+    4 │     nearest_neighbor {
+
+  ℹ︎ previous state
+
+  throw-deeply-within-none.invalid.graphql:5:30
+    4 │     nearest_neighbor {
+    5 │       name @required(action: THROW)
+      │                              ^^^^^
+    6 │     }

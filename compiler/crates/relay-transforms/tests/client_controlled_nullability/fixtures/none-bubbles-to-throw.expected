@@ -1,0 +1,16 @@
+==================================== INPUT ====================================
+fragment EnabledFoo on User {
+  nearest_neighbor @required(action: THROW) {
+    nearest_neighbor {
+      name @required(action: NONE)
+    }
+  }
+}
+==================================== OUTPUT ===================================
+fragment EnabledFoo on User {
+  nearest_neighbor @assert {
+    nearest_neighbor @catch {
+      name @assert
+    }
+  }
+}

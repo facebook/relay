@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+fragment EnabledActorsRendererFragment on User {
+  id
+  profile_picture @required(action: NONE) {
+    uri
+  }
+}
+==================================== OUTPUT ===================================
+fragment EnabledActorsRendererFragment on User @catch {
+  id
+  profile_picture @assert {
+    uri
+  }
+}

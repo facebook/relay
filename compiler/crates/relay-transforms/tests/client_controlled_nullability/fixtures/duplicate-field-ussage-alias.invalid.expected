@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment EnabledFoo on User {
+  name @required(action: THROW)
+  my_name: name @required(action: LOG)
+}
+==================================== ERROR ====================================
+✖︎ This use of @required is not compatible with Client Controlled Nullability
+
+  duplicate-field-ussage-alias.invalid.graphql:4:35
+    3 │   name @required(action: THROW)
+    4 │   my_name: name @required(action: LOG)
+      │                                   ^^^
+    5 │ }
+
+  ℹ︎ previous state
+
+  duplicate-field-ussage-alias.invalid.graphql:3:26
+    2 │ fragment EnabledFoo on User {
+    3 │   name @required(action: THROW)
+      │                          ^^^^^
+    4 │   my_name: name @required(action: LOG)

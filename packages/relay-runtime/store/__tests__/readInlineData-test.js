@@ -11,6 +11,7 @@
 'use strict';
 
 const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {getSelector} = require('../../store/RelayModernSelector');
 const readInlineData = require('../readInlineData');
 const {
   createOperationDescriptor,
@@ -63,8 +64,180 @@ test('unwrap inline fragment data', () => {
 });
 
 describe('integration test with variables', () => {
+  test('works with nested fragments', () => {
+    const Parent = graphql`
+      query readInlineDataTestNestedQueryVariablesParentQuery($scale: Float) {
+        me {
+          ...readInlineDataTestNestedQueryVariablesChild
+        }
+      }
+    `;
+
+    const Child = graphql`
+      fragment readInlineDataTestNestedQueryVariablesChild on User {
+        ...readInlineDataTestNestedQueryVariablesGrandchild
+      }
+    `;
+
+    const Grandchild = graphql`
+      fragment readInlineDataTestNestedQueryVariablesGrandchild on User
+      @inline {
+        profile_picture(scale: $scale) {
+          uri
+        }
+      }
+    `;
+
+    const variables = {
+      scale: 2,
+    };
+
+    const environment = createMockEnvironment();
+    environment.commitPayload(createOperationDescriptor(Parent, variables), {
+      me: {
+        id: '7',
+        __typename: 'User',
+        profile_picture: {
+          uri: 'some_url',
+        },
+      },
+    });
+
+    const request = getRequest(Parent);
+    const operation = createOperationDescriptor(request, variables);
+    const {
+      data: {me: parent},
+    } = environment.lookup(operation.fragment, operation);
+
+    const {data: childData} = environment.lookup(getSelector(Child, parent));
+
+    const grandchild = readInlineData(Grandchild, childData);
+
+    expect(grandchild).toEqual({
+      profile_picture: {
+        uri: 'some_url',
+      },
+    });
+  });
+
+  test('works with fragment variables & query variables & default variables', () => {
+    const Fragment = graphql`
+      fragment readInlineDataTestFragmentAndQueryVariables on User
+      @inline
+      @argumentDefinitions(
+        theScale: {type: "Float"}
+        defaultScale: {type: "Float", defaultValue: 3}
+      ) {
+        fragmentVariable: profile_picture(scale: $theScale) {
+          uri
+        }
+        queryVariable: profile_picture(scale: $scale1) {
+          uri
+        }
+        defaultVariable: profile_picture(scale: $defaultScale) {
+          uri
+        }
+      }
+    `;
+
+    const Query = graphql`
+      query readInlineDataTestFragmentAndQueryVariablesQuery(
+        $scale1: Float
+        $scale2: Float
+      ) {
+        me {
+          ...readInlineDataTestFragmentAndQueryVariables
+            @arguments(theScale: $scale2)
+        }
+      }
+    `;
+
+    const variables = {
+      scale1: 1,
+      scale2: 2,
+    };
+
+    const environment = createMockEnvironment();
+    environment.commitPayload(createOperationDescriptor(Query, variables), {
+      me: {
+        id: '7',
+        __typename: 'User',
+        fragmentVariable: {
+          uri: 'fragment_url',
+        },
+        queryVariable: {
+          uri: 'query_url',
+        },
+        defaultVariable: {
+          uri: 'default_url',
+        },
+      },
+    });
+
+    const request = getRequest(Query);
+    const operation = createOperationDescriptor(request, variables);
+    const snapshot = environment.lookup(operation.fragment, operation);
+
+    expect(readInlineData(Fragment, snapshot.data.me)).toEqual({
+      fragmentVariable: {
+        uri: 'fragment_url',
+      },
+      queryVariable: {
+        uri: 'query_url',
+      },
+      defaultVariable: {
+        uri: 'default_url',
+      },
+    });
+  });
+
+  test('works with fragment variables', () => {
+    const Fragment = graphql`
+      fragment readInlineDataTestFragmentVariables on User
+      @inline
+      @argumentDefinitions(theScale: {type: "Float"}) {
+        profile_picture(scale: $theScale) {
+          uri
+        }
+      }
+    `;
+
+    const Query = graphql`
+      query readInlineDataTestFragmentVariablesQuery($scale: Float) {
+        me {
+          ...readInlineDataTestFragmentVariables @arguments(theScale: $scale)
+        }
+      }
+    `;
+
+    const variables = {
+      scale: 2,
+    };
+
+    const environment = createMockEnvironment();
+    environment.commitPayload(createOperationDescriptor(Query, variables), {
+      me: {
+        id: '7',
+        __typename: 'User',
+        profile_picture: {
+          uri: 'some_url',
+        },
+      },
+    });
+
+    const request = getRequest(Query);
+    const operation = createOperationDescriptor(request, variables);
+    const snapshot = environment.lookup(operation.fragment, operation);
+
+    expect(readInlineData(Fragment, snapshot.data.me)).toEqual({
+      profile_picture: {
+        uri: 'some_url',
+      },
+    });
+  });
+
   test('works with query variables', () => {
-    const QueryVariablesFragment = graphql`
+    const Fragment = graphql`
       fragment readInlineDataTestQueryVariables on User @inline {
         profile_picture(scale: $scale) {
           uri
@@ -72,7 +245,7 @@ describe('integration test with variables', () => {
       }
     `;
 
-    const QueryVariablesQuery = graphql`
+    const Query = graphql`
       query readInlineDataTestQueryVariablesQuery($scale: Float) {
         me {
           ...readInlineDataTestQueryVariables
@@ -85,8 +258,7 @@ describe('integration test with variables', () => {
     };
 
     const environment = createMockEnvironment();
-    const operation = createOperationDescriptor(QueryVariablesQuery, variables);
-    environment.commitPayload(operation, {
+    environment.commitPayload(createOperationDescriptor(Query, variables), {
       me: {
         id: '7',
         __typename: 'User',
@@ -96,9 +268,11 @@ describe('integration test with variables', () => {
       },
     });
 
+    const request = getRequest(Query);
+    const operation = createOperationDescriptor(request, variables);
     const snapshot = environment.lookup(operation.fragment, operation);
 
-    expect(readInlineData(QueryVariablesFragment, snapshot.data.me)).toEqual({
+    expect(readInlineData(Fragment, snapshot.data.me)).toEqual({
       profile_picture: {
         uri: 'some_url',
       },

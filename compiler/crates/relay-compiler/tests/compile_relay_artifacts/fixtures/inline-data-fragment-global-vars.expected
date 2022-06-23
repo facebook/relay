@@ -53,6 +53,13 @@ fragment inlineDataFragmentGlobalVarsProfile on User @inline {
               ],
               "storageKey": null
             }
+          ],
+          "args": null,
+          "argumentDefinitions": [
+            {
+              "kind": "RootArgument",
+              "name": "pictureSize"
+            }
           ]
         }
       ],

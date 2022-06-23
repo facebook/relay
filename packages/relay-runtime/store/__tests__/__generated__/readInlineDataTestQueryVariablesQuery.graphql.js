@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f5559f711b5ec6819bcbcd697dbc60c3>>
+ * @generated SignedSource<<d7966f247292044730f361903fff2fcc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -83,6 +83,13 @@ return {
             "name": "readInlineDataTestQueryVariables",
             "selections": [
               (v1/*: any*/)
+            ],
+            "args": null,
+            "argumentDefinitions": [
+              {
+                "kind": "RootArgument",
+                "name": "scale"
+              }
             ]
           }
         ],

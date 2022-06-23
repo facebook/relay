@@ -70,6 +70,7 @@ const {
 } = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const ClientID = require('./ClientID');
+const RelayConcreteVariables = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const {getReactFlightClientResponse} = require('./RelayStoreReactFlightUtils');
 const {
@@ -789,6 +790,7 @@ class RelayReader {
     data: SelectorData,
   ): ?mixed {
     const applicationName = field.alias ?? field.name;
+    getStorageKey(field, this._variables);
     const storageKey = getStorageKey(field, this._variables);
     const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
     if (linkedID == null) {
@@ -1109,11 +1111,35 @@ class RelayReader {
     const inlineData = {};
     const parentFragmentName = this._fragmentName;
     this._fragmentName = fragmentSpreadOrFragment.name;
+
+    const parentVariables = this._variables;
+
+    // We only want to update `this._variables` if we have compiler artifacts that support it.
+    // Until we've rolled out the compiler portion of this change, we need to check at runtime.
+    if (fragmentSpreadOrFragment.argumentDefinitions != null) {
+      // If the inline fragment spread has arguments, we need to temporarily
+      // switch this._variables to include the fragment spread's arguments
+      // for the duration of its traversal.
+      const argumentVariables = fragmentSpreadOrFragment.args
+        ? getArgumentValues(fragmentSpreadOrFragment.args, this._variables)
+        : {};
+
+      this._variables = RelayConcreteVariables.getFragmentVariables(
+        fragmentSpreadOrFragment,
+        this._owner.variables,
+        argumentVariables,
+      );
+    }
+
     this._traverseSelections(
       fragmentSpreadOrFragment.selections,
       record,
       inlineData,
     );
+
+    // Put the parent variables back
+    this._variables = parentVariables;
+
     this._fragmentName = parentFragmentName;
     // $FlowFixMe[cannot-write] - writing into read-only field
     fragmentPointers[fragmentSpreadOrFragment.name] = inlineData;

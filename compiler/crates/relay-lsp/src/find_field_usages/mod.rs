@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod find_field_locations;
+
 use crate::{
     location::transform_relay_location_to_lsp_location, server::GlobalState, LSPRuntimeError,
     LSPRuntimeResult,
@@ -21,6 +23,8 @@ use schema::{FieldID, SDLSchema, Schema, Type};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
+
+pub(crate) use find_field_locations::find_field_locations;
 
 // This implementation of FindFieldUsages find matching fields in:
 //   - exact type matches
@@ -121,7 +125,7 @@ struct FieldUsageFinderScope {
     label: Option<StringKey>,
 }
 
-struct FieldUsageFinder {
+pub(crate) struct FieldUsageFinder {
     usages: HashMap<StringKey, Vec<IRLocation>>,
     schema: Arc<SDLSchema>,
     type_: Type,
@@ -130,7 +134,11 @@ struct FieldUsageFinder {
 }
 
 impl FieldUsageFinder {
-    fn new(schema: Arc<SDLSchema>, type_: Type, field_name: StringKey) -> FieldUsageFinder {
+    pub(crate) fn new(
+        schema: Arc<SDLSchema>,
+        type_: Type,
+        field_name: StringKey,
+    ) -> FieldUsageFinder {
         FieldUsageFinder {
             usages: Default::default(),
             schema,
@@ -139,6 +147,7 @@ impl FieldUsageFinder {
             current_scope: Default::default(),
         }
     }
+
     fn match_field(&mut self, field: &WithLocation<FieldID>) -> bool {
         // check field name match
         if self.schema.field(field.item).name.item == self.field_name {
@@ -156,6 +165,7 @@ impl FieldUsageFinder {
         }
         false
     }
+
     fn add_field(&mut self, field: &WithLocation<FieldID>) {
         let current_label = self
             .current_scope
@@ -165,6 +175,15 @@ impl FieldUsageFinder {
             .entry(current_label)
             .or_default()
             .push(field.location);
+    }
+
+    pub(crate) fn get_locations(&self) -> Vec<IRLocation> {
+        self.usages
+            .values()
+            .into_iter()
+            .flatten()
+            .copied()
+            .collect_vec()
     }
 }
 

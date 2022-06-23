@@ -14,7 +14,7 @@ use crate::{
     node_resolution_info::create_node_resolution_info,
     utils::extract_executable_definitions_from_text_document,
     utils::{extract_feature_from_text, extract_project_name_from_url},
-    ContentConsumerType, Feature, FeatureResolutionInfo,
+    ContentConsumerType, DocblockNode, Feature, FeatureResolutionInfo,
 };
 use crate::{LSPExtraDataProvider, LSPRuntimeError};
 use common::{convert_diagnostic, PerfLogger, SourceLocationKey, Span};
@@ -376,9 +376,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             Feature::GraphQLDocument(executable_document) => FeatureResolutionInfo::GraphqlNode(
                 create_node_resolution_info(executable_document, position_span)?,
             ),
-            Feature::DocblockIr(docblock_ir) => FeatureResolutionInfo::DocblockNode(
-                create_docblock_resolution_info(docblock_ir, position_span)?,
-            ),
+            Feature::DocblockIr(docblock_ir) => FeatureResolutionInfo::DocblockNode(DocblockNode {
+                resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)?,
+                ir: docblock_ir,
+            }),
         };
         Ok(info)
     }

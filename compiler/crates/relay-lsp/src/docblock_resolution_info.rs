@@ -21,7 +21,7 @@ pub enum DocblockResolutionInfo {
 }
 
 pub fn create_docblock_resolution_info(
-    docblock_ir: DocblockIr,
+    docblock_ir: &DocblockIr,
     position_span: Span,
 ) -> LSPRuntimeResult<DocblockResolutionInfo> {
     match docblock_ir {
@@ -50,7 +50,7 @@ pub fn create_docblock_resolution_info(
                 ));
             }
 
-            if let Some(edge_to) = resolver_ir.edge_to {
+            if let Some(edge_to) = &resolver_ir.edge_to {
                 if edge_to.location.contains(position_span) {
                     return Ok(DocblockResolutionInfo::EdgeTo(
                         edge_to.item.inner().name.value,

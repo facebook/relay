@@ -1117,3 +1117,47 @@ test('Can read a live client edge without a fragment', () => {
     },
   });
 });
+
+test('live resolver with the edge that always suspend', () => {
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store: new LiveResolverStore(
+      RelayRecordSource.create({
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+        },
+      }),
+    ),
+  });
+
+  function Environment({children}: {children: React.Node}) {
+    return (
+      <RelayEnvironmentProvider environment={environment}>
+        <React.Suspense fallback="Loading...">{children}</React.Suspense>
+      </RelayEnvironmentProvider>
+    );
+  }
+
+  function TestComponent() {
+    const data = useClientQuery(
+      graphql`
+        query LiveResolversTest15Query {
+          live_user_resolver_always_suspend @waterfall {
+            name
+          }
+        }
+      `,
+      {},
+    );
+    return data.live_user_resolver_always_suspend?.name;
+  }
+
+  const renderer = TestRenderer.create(
+    <Environment>
+      <TestComponent />
+    </Environment>,
+  );
+
+  expect(renderer.toJSON()).toBe('Loading...');
+});

@@ -4,7 +4,7 @@ fragment EnabledActorsRendererFragment on Node {
   name @required(action: THROW)
 }
 ==================================== OUTPUT ===================================
-fragment EnabledActorsRendererFragment on Node {
+fragment EnabledActorsRendererFragment on Node @assert {
   id
   name @assert
 }

@@ -16,8 +16,8 @@ use crate::{
 use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
 use graphql_ir::{
     reexport::{Intern, StringKey},
-    Directive, FragmentDefinition, LinkedField, Program, ScalarField, Selection, Transformed,
-    Transformer,
+    Directive, FragmentDefinition, LinkedField, OperationDefinition, Program, ScalarField,
+    Selection, Transformed, Transformer,
 };
 
 use lazy_static::lazy_static;
@@ -52,6 +52,20 @@ enum Annotation {
     Assert,
 }
 
+impl Annotation {
+    fn as_directive(&self) -> Directive {
+        let directive_name = match self {
+            Annotation::Catch => *CATCH_DIRECTIVE_NAME,
+            Annotation::Assert => *ASSERT_DIRECTIVE_NAME,
+        };
+        Directive {
+            name: WithLocation::new(Location::generated(), directive_name),
+            arguments: Default::default(),
+            data: None,
+        }
+    }
+}
+
 fn state_to_annotation(
     maybe_state: Option<WithLocation<State>>,
     catching: bool,
@@ -76,6 +90,10 @@ impl<'program> ClientControlledNullabilityTransform<'program> {
             errors: Default::default(),
             state: None,
         }
+    }
+
+    fn reset_state(&mut self) {
+        self.state = None;
     }
 
     fn handle_required(&mut self, directives: &[Directive]) -> Option<WithLocation<State>> {
@@ -131,16 +149,7 @@ impl<'program> ClientControlledNullabilityTransform<'program> {
         let mut changed = new_directives.len() == directives.len();
 
         if let Some(annotation) = annotation {
-            let directive_name = match annotation {
-                Annotation::Catch => *CATCH_DIRECTIVE_NAME,
-                Annotation::Assert => *ASSERT_DIRECTIVE_NAME,
-            };
-            let new_directive = Directive {
-                name: WithLocation::new(Location::generated(), directive_name),
-                arguments: Default::default(),
-                data: None,
-            };
-            new_directives.push(new_directive);
+            new_directives.push(annotation.as_directive());
             changed = true
         };
 
@@ -157,39 +166,55 @@ impl<'s> Transformer for ClientControlledNullabilityTransform<'s> {
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
 
+    fn transform_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Transformed<OperationDefinition> {
+        let transformed_selections = self.transform_selections(&operation.selections);
+
+        let directive = self.state.map(|state| match state.item {
+            State::Bubbling => Annotation::Catch.as_directive(),
+            State::Throwing => Annotation::Assert.as_directive(),
+        });
+
+        self.reset_state();
+
+        if transformed_selections.should_keep() && directive.is_none() {
+            return Transformed::Keep;
+        }
+
+        let mut directives = operation.directives.clone();
+        directives.extend(directive);
+
+        Transformed::Replace(OperationDefinition {
+            directives,
+            selections: transformed_selections.replace_or_else(|| operation.selections.clone()),
+            ..operation.clone()
+        })
+    }
+
     fn transform_fragment(
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         let transformed_selections = self.transform_selections(&fragment.selections);
-        let children_state = self.state;
-        let fragment_state = self.handle_required(&fragment.directives);
 
-        let catching = if let Some(own_state) = fragment_state {
-            self.handle_state_transition(own_state);
-            false
-        } else if let Some(WithLocation {
-            item: State::Bubbling,
-            ..
-        }) = children_state
-        {
-            // If we were bubbling, but this field has no required directives, then we're implicitly catching here.
-            self.state = None;
-            true
-        } else {
-            false
-        };
+        let directive = self.state.map(|state| match state.item {
+            State::Bubbling => Annotation::Catch.as_directive(),
+            State::Throwing => Annotation::Assert.as_directive(),
+        });
 
-        let new_directives = self.replace_required(
-            &fragment.directives,
-            state_to_annotation(fragment_state, catching),
-        );
+        self.reset_state();
 
-        if new_directives.should_keep() && transformed_selections.should_keep() {
+        if transformed_selections.should_keep() && directive.is_none() {
             return Transformed::Keep;
         }
+
+        let mut directives = fragment.directives.clone();
+        directives.extend(directive);
+
         Transformed::Replace(FragmentDefinition {
-            directives: new_directives.unwrap_or_else(|| fragment.directives.clone()),
+            directives,
             selections: transformed_selections.replace_or_else(|| fragment.selections.clone()),
             ..fragment.clone()
         })

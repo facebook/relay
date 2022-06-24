@@ -9,7 +9,7 @@ query EnabledFooQuery {
   }
 }
 ==================================== OUTPUT ===================================
-query EnabledFooQuery {
+query EnabledFooQuery @catch {
   viewer @assert {
     actor @assert {
       address @assert {

@@ -12,7 +12,7 @@ fragment EnabledFoo on User {
   }
 }
 ==================================== OUTPUT ===================================
-fragment EnabledFoo on User {
+fragment EnabledFoo on User @assert {
   nearest_neighbor @catch {
     nearest_neighbor @assert {
       name

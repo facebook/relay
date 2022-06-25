@@ -310,7 +310,7 @@ fn apply_operation_transforms(
         )
     })?;
 
-    program = log_event.time("preserve_client_edge_backing_ids", || {
+    program = log_event.time("remove_client_edge_selections", || {
         remove_client_edge_selections(&program)
     })?;
 
@@ -495,14 +495,6 @@ fn apply_operation_text_transforms(
     program = log_event.time("skip_unreachable_node_strict", || {
         skip_unreachable_node_strict(&program)
     })?;
-    program = log_event.time("skip_client_extensions", || {
-        skip_client_extensions(&program)
-    });
-    program = log_event.time("skip_unreachable_node_loose", || {
-        skip_unreachable_node_loose(&program)
-    });
-
-    program = log_event.time("generate_typename", || generate_typename(&program, false));
     program = log_event.time("skip_null_arguments_transform", || {
         skip_null_arguments_transform(&program)
     });
@@ -511,6 +503,14 @@ fn apply_operation_text_transforms(
             &program, false,
         )
     })?;
+    program = log_event.time("skip_client_extensions", || {
+        skip_client_extensions(&program)
+    });
+    program = log_event.time("skip_unreachable_node_loose", || {
+        skip_unreachable_node_loose(&program)
+    });
+
+    program = log_event.time("generate_typename", || generate_typename(&program, false));
     log_event.time("flatten", || flatten(&mut program, false, true))?;
     program = log_event.time("validate_operation_variables", || {
         validate_operation_variables(&program)
@@ -595,9 +595,6 @@ fn apply_typegen_transforms(
             &program,
             project_config.feature_flags.enable_relay_resolver_transform,
         )
-    })?;
-    program = log_event.time("preserve_client_edge_selections", || {
-        remove_client_edge_backing_ids(&program)
     })?;
     log_event.time("flatten", || flatten(&mut program, false, false))?;
     program = log_event.time("transform_refetchable_fragment", || {

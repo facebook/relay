@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {Cache} from './LRUCache';
@@ -41,7 +39,7 @@ const DEFAULT_FETCH_POLICY = 'store-or-network';
 export type QueryResource = QueryResourceImpl;
 
 type QueryResourceCache = Cache<QueryResourceCacheEntry>;
-type QueryResourceCacheEntry = {|
+type QueryResourceCacheEntry = {
   +id: number,
   +cacheIdentifier: string,
   +operationAvailability: ?OperationAvailability,
@@ -56,17 +54,17 @@ type QueryResourceCacheEntry = {|
   temporaryRetain(environment: IEnvironment): Disposable,
   permanentRetain(environment: IEnvironment): Disposable,
   releaseTemporaryRetain(): void,
-|};
+};
 export opaque type QueryResult: {
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
   ...
-} = {|
+} = {
   cacheIdentifier: string,
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
   operation: OperationDescriptor,
-|};
+};
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 interface IMap<K, V> {

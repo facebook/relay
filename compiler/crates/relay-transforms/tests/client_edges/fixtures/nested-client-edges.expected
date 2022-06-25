@@ -25,6 +25,7 @@ fragment Foo_user on User {
   ... @__ClientEdgeMetadataDirective
   # ServerObject {
   #     query_name: "ClientEdgeQuery_Foo_user_best_friend",
+  #     unique_id: 1,
   # }
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
@@ -42,6 +43,7 @@ fragment Foo_user on User {
       ... @__ClientEdgeMetadataDirective
       # ServerObject {
       #     query_name: "ClientEdgeQuery_Foo_user_best_friend__best_friend",
+      #     unique_id: 0,
       # }
        {
         ...BestFriendResolverFragment_name @__RelayResolverMetadata
@@ -77,6 +79,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGe
   ... @__ClientEdgeMetadataDirective
   # ServerObject {
   #     query_name: "ClientEdgeQuery_Foo_user_best_friend__best_friend",
+  #     unique_id: 0,
   # }
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata

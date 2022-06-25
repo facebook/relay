@@ -24,7 +24,7 @@ class Store {
   getState(): State {
     return this._state;
   }
-  dispatch(action: {|type: 'INCREMENT'|}) {
+  dispatch(action: {type: 'INCREMENT'}) {
     switch (action.type) {
       case 'INCREMENT':
         this._state = this._state + 1;

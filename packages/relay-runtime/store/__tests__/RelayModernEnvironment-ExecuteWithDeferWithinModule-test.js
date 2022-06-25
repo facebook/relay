@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -93,10 +91,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
     let fragment;
     let next;
     let operation;
-    let operationLoader: {|
+    let operationLoader: {
       get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
       load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-    |};
+    };
     let query;
     let resolveFragment;
     let source;

@@ -11,6 +11,7 @@ import {
 } from 'vscode-languageclient';
 import {ServerOptions, LanguageClient} from 'vscode-languageclient/node';
 import {window} from 'vscode';
+import * as path from 'path';
 import {RelayProjectExtensionContext} from './context';
 import {createErrorHandler} from './errorHandler';
 import {LSPStatusBarFeature} from './lspStatusBarFeature';
@@ -35,7 +36,10 @@ export function createAndStartLanguageClient(
     options: {
       cwd: context.project.binaryExecutionOptions.rootPath,
     },
-    command: context.project.binaryExecutionOptions.binaryPath,
+    command: path.resolve(
+      context.project.binaryExecutionOptions.rootPath,
+      context.project.binaryExecutionOptions.binaryPath,
+    ),
     args,
   };
 

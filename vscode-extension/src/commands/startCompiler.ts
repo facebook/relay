@@ -15,7 +15,7 @@ import {createAndStartCompiler} from '../compiler';
 export function handleStartCompilerCommand(
   context: RelayExtensionContext,
 ): void {
-  for (const project of Object.values(context.projects)) {
+  Object.values(context.projects).forEach(project => {
     const projectContext = createProjectContextFromExtensionContext(
       context,
       project,
@@ -30,5 +30,5 @@ export function handleStartCompilerCommand(
     }
 
     createAndStartCompiler(projectContext);
-  }
+  });
 }

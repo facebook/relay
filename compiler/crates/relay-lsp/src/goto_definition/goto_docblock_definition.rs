@@ -17,7 +17,7 @@ use crate::{
 use super::DefinitionDescription;
 
 pub fn get_docblock_definition_description(
-    docblock_ir: DocblockIr,
+    docblock_ir: &DocblockIr,
     position_span: Span,
 ) -> LSPRuntimeResult<DefinitionDescription> {
     let resolution = create_docblock_resolution_info(docblock_ir, position_span)?;

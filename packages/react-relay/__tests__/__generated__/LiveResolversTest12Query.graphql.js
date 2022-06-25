@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1fd3655b60f27b57da6f6bf3a027226a>>
+ * @generated SignedSource<<32632ff69073457129bf9e7b05e46280>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,6 +16,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
+import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import queryCounterNoFragmentWithArgResolver from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragmentWithArg.js";
 // Type assertion validating that `queryCounterNoFragmentWithArgResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -23,7 +24,7 @@ import queryCounterNoFragmentWithArgResolver from "../../../relay-runtime/store/
   args: {|
     prefix: string,
   |}, 
-) => mixed);
+) => LiveState<any>);
 export type LiveResolversTest12Query$variables = {|
   prefix: string,
 |};

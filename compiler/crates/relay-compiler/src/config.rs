@@ -121,6 +121,8 @@ pub struct Config {
     /// and after each major transformation step (common, operations, etc)
     /// in the `apply_transforms(...)`.
     pub custom_transforms: Option<CustomTransformsConfig>,
+
+    pub export_persisted_query_ids_to_file: Option<PathBuf>,
 }
 
 pub enum FileSourceKind {
@@ -370,6 +372,7 @@ Example file:
             is_dev_variable_name: config_file.is_dev_variable_name,
             file_source_config: FileSourceKind::Watchman,
             custom_transforms: None,
+            export_persisted_query_ids_to_file: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -974,9 +977,15 @@ pub type PersistId = String;
 
 pub type PersistResult<T> = std::result::Result<T, PersistError>;
 
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ArtifactForPersister {
+    pub text: String,
+    pub relative_path: PathBuf,
+}
+
 #[async_trait]
 pub trait OperationPersister {
-    async fn persist_artifact(&self, artifact_text: String) -> PersistResult<PersistId>;
+    async fn persist_artifact(&self, artifact: ArtifactForPersister) -> PersistResult<PersistId>;
 
     fn finalize(&self) -> PersistResult<()> {
         Ok(())

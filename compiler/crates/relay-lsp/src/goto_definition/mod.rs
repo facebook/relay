@@ -62,7 +62,7 @@ pub fn on_goto_definition(
             get_graphql_definition_description(document, position_span, &schema)?
         }
         crate::Feature::DocblockIr(docblock_ir) => {
-            get_docblock_definition_description(docblock_ir, position_span)?
+            get_docblock_definition_description(&docblock_ir, position_span)?
         }
     };
 

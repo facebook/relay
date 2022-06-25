@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {
@@ -87,13 +85,13 @@ beforeEach(() => {
   function Renderer({
     initialMutation,
     commitInRender,
-  }: {|
+  }: {
     commitInRender: boolean,
     initialMutation: Mutation<
       useMutationTest1Mutation$variables,
       useMutationTest1Mutation$data,
     >,
-  |}) {
+  }) {
     const [mutation, setMutationFn] = useState(initialMutation);
     setMutation = setMutationFn;
     const [commitFn, isMutationInFlight] = useMutation(mutation);
@@ -112,14 +110,14 @@ beforeEach(() => {
     return null;
   }
 
-  function Container(props: {|
+  function Container(props: {
     commitInRender: boolean,
     environment: RelayMockEnvironment,
     mutation: Mutation<
       useMutationTest1Mutation$variables,
       useMutationTest1Mutation$data,
     >,
-  |}) {
+  }) {
     const [env, setEnv] = useState(props.environment);
     setEnvironment = setEnv;
     return (

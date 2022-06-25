@@ -53,7 +53,7 @@ pub(crate) fn write_operation_type_exports_section(
     let mut encountered_fragments = Default::default();
     let mut imported_resolvers = Default::default();
     let mut actor_change_status = ActorChangeStatus::NoActorChange;
-    let mut runtime_imports = Default::default();
+    let mut runtime_imports = RuntimeImports::default();
     let mut custom_scalars = CustomScalarsImports::default();
     let mut input_object_types = Default::default();
 
@@ -66,6 +66,7 @@ pub(crate) fn write_operation_type_exports_section(
         &mut imported_resolvers,
         &mut actor_change_status,
         &mut custom_scalars,
+        &mut runtime_imports,
         None,
     );
 
@@ -221,7 +222,7 @@ pub(crate) fn write_split_operation_type_exports_section(
     let mut match_fields = Default::default();
     let mut encountered_fragments = Default::default();
     let mut imported_raw_response_types = Default::default();
-    let mut runtime_imports = Default::default();
+    let mut runtime_imports = RuntimeImports::default();
     let mut custom_scalars = CustomScalarsImports::default();
 
     let raw_response_selections = raw_response_visit_selections(
@@ -277,6 +278,10 @@ pub(crate) fn write_fragment_type_exports_section(
     let mut actor_change_status = ActorChangeStatus::NoActorChange;
     let mut custom_scalars = CustomScalarsImports::default();
     let mut input_object_types = Default::default();
+    let mut runtime_imports = RuntimeImports {
+        generic_fragment_type_should_be_imported: true,
+        ..Default::default()
+    };
     let mut type_selections = visit_selections(
         typgen_context,
         &fragment_definition.selections,
@@ -286,6 +291,7 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut imported_resolvers,
         &mut actor_change_status,
         &mut custom_scalars,
+        &mut runtime_imports,
         None,
     );
     if !fragment_definition.type_condition.is_abstract_type() {
@@ -354,10 +360,6 @@ pub(crate) fn write_fragment_type_exports_section(
         &mut custom_scalars,
     );
 
-    let runtime_imports = RuntimeImports {
-        generic_fragment_type_should_be_imported: true,
-        ..Default::default()
-    };
     write_import_actor_change_point(actor_change_status, writer)?;
     let input_object_types = input_object_types
         .into_iter()

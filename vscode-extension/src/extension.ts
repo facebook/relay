@@ -45,7 +45,7 @@ function startProjects(context: RelayExtensionContext): void {
     );
   }
 
-  for (const project of Object.values(context.projects)) {
+  Object.values(context.projects).forEach(project => {
     const projectContext = createProjectContextFromExtensionContext(
       context,
       project,
@@ -56,5 +56,5 @@ function startProjects(context: RelayExtensionContext): void {
     if (config.autoStartCompiler) {
       createAndStartCompiler(projectContext);
     }
-  }
+  });
 }

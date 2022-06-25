@@ -1748,10 +1748,44 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     self.location.with_span(value.span()),
                 )]),
             },
-            _ => Err(vec![Diagnostic::error(
-                ValidationMessage::UnsupportedCustomScalarType(type_definition.name.item),
-                self.location.with_span(value.span()),
-            )]),
+            _ => match value {
+                graphql_syntax::ConstantValue::Null(_) => Ok(ConstantValue::Null()),
+                graphql_syntax::ConstantValue::Int(node) => Ok(ConstantValue::Int(node.value)),
+                graphql_syntax::ConstantValue::Float(node) => Ok(ConstantValue::Float(node.value)),
+                graphql_syntax::ConstantValue::Boolean(node) => {
+                    Ok(ConstantValue::Boolean(node.value))
+                }
+                graphql_syntax::ConstantValue::String(node) => {
+                    Ok(ConstantValue::String(node.value))
+                }
+                graphql_syntax::ConstantValue::List(node) => {
+                    let mut list_items = Vec::with_capacity(node.items.capacity());
+                    for item in node.items.iter() {
+                        list_items.push(self.build_constant_scalar(item, type_definition)?)
+                    }
+                    Ok(ConstantValue::List(list_items))
+                }
+                graphql_syntax::ConstantValue::Object(node) => {
+                    let mut object_props = Vec::with_capacity(node.items.capacity());
+                    for item in node.items.iter() {
+                        object_props.push(ConstantArgument {
+                            name: WithLocation {
+                                location: self.location.with_span(item.span),
+                                item: item.name.value,
+                            },
+                            value: WithLocation {
+                                location: self.location.with_span(item.value.span()),
+                                item: self.build_constant_scalar(&item.value, type_definition)?,
+                            },
+                        })
+                    }
+                    Ok(ConstantValue::Object(object_props))
+                }
+                graphql_syntax::ConstantValue::Enum(_) => Err(vec![Diagnostic::error(
+                    ValidationMessage::UnsupportedCustomScalarType(type_definition.name.item),
+                    self.location.with_span(value.span()),
+                )]),
+            },
         }
     }
     fn lookup_field(

@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
@@ -26,7 +24,7 @@ const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
  * A Relay Resolver that returns an object implementing the External State
  * Resolver interface.
  */
-function counter(args: {|prefix: string|}): LiveState<string> {
+function counter(args: {prefix: string}): LiveState<string> {
   return {
     read() {
       return `${args.prefix} ${Selectors.getNumber(GLOBAL_STORE.getState())}`;

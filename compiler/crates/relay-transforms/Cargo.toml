@@ -107,7 +107,7 @@ indexmap = { version = "1.8.0", features = ["rayon", "serde-1"] }
 intern = { path = "../intern" }
 itertools = "0.10.3"
 lazy_static = "1.0"
-once_cell = "1.8"
+once_cell = "1.12"
 parking_lot = { version = "0.11.2", features = ["send_guard"] }
 regex = "1.5.4"
 relay-config = { path = "../relay-config" }

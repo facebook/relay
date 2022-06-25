@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {
   useFragmentTestUserFragment$data,
@@ -186,18 +184,18 @@ describe.each([
     });
 
     // Set up renderers
-    SingularRenderer = (props: {|
+    SingularRenderer = (props: {
       user: ?(
         | useFragmentTestUserFragment$data
         | useFragmentTestUsersFragment$data
       ),
-    |}) => null;
-    PluralRenderer = (props: {|
+    }) => null;
+    PluralRenderer = (props: {
       users: ?(
         | useFragmentTestUserFragment$data
         | useFragmentTestUsersFragment$data
       ),
-    |}) => null;
+    }) => null;
     const SingularContainer = (props: {
       userRef?: {$data?: {...}, ...},
       owner: $FlowFixMe,
@@ -240,7 +238,7 @@ describe.each([
     };
 
     const relayContext = {environment};
-    ContextProvider = ({children}: {|children: React.Node|}) => {
+    ContextProvider = ({children}: {children: React.Node}) => {
       return (
         <ReactRelayContext.Provider value={relayContext}>
           {children}

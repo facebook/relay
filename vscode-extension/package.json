@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "displayName": "Relay GraphQL",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Relay-powered IDE experience",
   "repository": {
     "type": "git",

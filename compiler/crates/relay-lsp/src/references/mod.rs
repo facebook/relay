@@ -8,6 +8,8 @@
 //! Utilities for providing the goto definition feature
 
 use crate::{
+    docblock_resolution_info::DocblockResolutionInfo,
+    find_field_usages::find_field_locations,
     location::transform_relay_location_to_lsp_location,
     lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
     node_resolution_info::NodeKind,
@@ -21,12 +23,13 @@ use lsp_types::{
     request::{References, Request},
     Location as LSPLocation,
 };
-use std::path::PathBuf;
+use relay_docblock::{DocblockIr, On};
+use std::path::Path;
 
 fn get_references_response(
     feature_resolution_info: FeatureResolutionInfo,
     program: &Program,
-    root_dir: &PathBuf,
+    root_dir: &Path,
 ) -> LSPRuntimeResult<Vec<LSPLocation>> {
     match feature_resolution_info {
         FeatureResolutionInfo::GraphqlNode(node_resolution_info) => {
@@ -45,9 +48,26 @@ fn get_references_response(
                 _ => Err(LSPRuntimeError::ExpectedError),
             }
         }
-        FeatureResolutionInfo::DocblockNode(_) => {
-            // Go to reference not implemented for docblocks yet.
-            Err(LSPRuntimeError::ExpectedError)
+        FeatureResolutionInfo::DocblockNode(docblock_node) => {
+            if let DocblockResolutionInfo::FieldName(field_name) = docblock_node.resolution_info {
+                let type_name = match docblock_node.ir {
+                    DocblockIr::RelayResolver(relay_resolver) => match relay_resolver.on {
+                        On::Type(type_) => type_.value.item,
+                        On::Interface(interface) => interface.value.item,
+                    },
+                };
+
+                let references = find_field_locations(program, field_name, type_name)
+                    .ok_or(LSPRuntimeError::ExpectedError)?
+                    .into_iter()
+                    .map(|location| transform_relay_location_to_lsp_location(root_dir, location))
+                    .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
+
+                Ok(references)
+            } else {
+                // Go to reference not implemented for other parts of the docblocks yet.
+                Err(LSPRuntimeError::ExpectedError)
+            }
         }
     }
 }

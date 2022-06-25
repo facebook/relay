@@ -777,13 +777,13 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 frag_spread.fragment.item.lookup().to_string(),
             );
 
-            let normalizataion_import_path = self.project_config.js_module_import_path(
+            let normalization_import_path = self.project_config.js_module_import_path(
                 self.definition_source_location,
                 path_for_artifact.to_str().unwrap().intern(),
             );
 
             return self
-                .build_normalization_fragment_spread(frag_spread, normalizataion_import_path);
+                .build_normalization_fragment_spread(frag_spread, normalization_import_path);
         }
         if self.variant == CodegenVariant::Normalization
             && frag_spread
@@ -1064,7 +1064,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         };
 
         match client_edge_metadata.metadata_directive {
-            ClientEdgeMetadataDirective::ServerObject { query_name } => {
+            ClientEdgeMetadataDirective::ServerObject { query_name, .. } => {
                 Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_server_object),
                     operation: Primitive::GraphQLModuleDependency(query_name),
@@ -1072,7 +1072,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     client_edge_selections_key: selections_item,
                 }))
             }
-            ClientEdgeMetadataDirective::ClientObject { type_name } => {
+            ClientEdgeMetadataDirective::ClientObject { type_name, .. } => {
                 Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
                     concrete_type: Primitive::String(type_name),
@@ -1452,10 +1452,21 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         inline_directive_data: &InlineDirectiveMetadata,
     ) -> Primitive {
         let selections = self.build_selections(context, inline_fragment.selections.iter());
+        let args = self.build_arguments(&inline_directive_data.arguments);
+        let argument_definitions = self.build_fragment_variable_definitions(
+            &inline_directive_data.variable_definitions,
+            &inline_directive_data.used_global_variables,
+        );
+
         Primitive::Key(self.object(object! {
             kind: Primitive::String(CODEGEN_CONSTANTS.inline_data_fragment_spread),
             name: Primitive::String(inline_directive_data.fragment_name),
             selections: selections,
+            args: match args {
+                None => Primitive::SkippableNull,
+                Some(key) => Primitive::Key(key),
+            },
+            argument_definitions: argument_definitions,
         }))
     }
 

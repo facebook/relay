@@ -80,7 +80,7 @@ pub struct FragmentDefinition {
 }
 
 /// A variable definition of an operation or fragment
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct VariableDefinition {
     pub name: WithLocation<StringKey>,
     pub type_: TypeReference,
@@ -326,7 +326,7 @@ impl Condition {
 // Associated Types
 
 /// @ Name Arguments?
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Directive {
     pub name: WithLocation<StringKey>,
     pub arguments: Vec<Argument>,

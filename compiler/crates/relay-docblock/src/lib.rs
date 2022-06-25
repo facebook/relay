@@ -9,7 +9,7 @@ mod errors;
 mod ir;
 
 use crate::errors::ErrorMessages;
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
+use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, SourceLocationKey, WithLocation};
 use docblock_syntax::{DocblockAST, DocblockField, DocblockSection};
 use errors::ErrorMessagesWithData;
 use graphql_syntax::{
@@ -116,14 +116,6 @@ impl RelayResolverParser {
         }
         let live = self.fields.get(&LIVE_FIELD).copied();
         let root_fragment = self.get_field_with_value(*ROOT_FRAGMENT_FIELD)?;
-        if live.is_none() && root_fragment.is_none() {
-            self.errors.push(Diagnostic::error(
-                ErrorMessages::MissingField {
-                    field_name: *ROOT_FRAGMENT_FIELD,
-                },
-                ast.location,
-            ));
-        }
         let fragment_definition = root_fragment
             .map(|root_fragment| {
                 self.assert_fragment_definition(root_fragment.value, definitions_in_file)
@@ -140,6 +132,8 @@ impl RelayResolverParser {
         let on = self.assert_on(ast.location, &fragment_type_condition);
         let field_string = self.assert_field_value_exists(*FIELD_NAME_FIELD, ast.location)?;
         let field = self.parse_field_definition(field_string)?;
+        self.validate_field_arguments(&field, field_string.location.source_location());
+
         let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
         let fragment_arguments = fragment_definition
             .as_ref()
@@ -476,5 +470,22 @@ impl RelayResolverParser {
             field_string_offset,
         )
         .map_err(|mut errors| self.errors.append(&mut errors))
+    }
+
+    fn validate_field_arguments(
+        &mut self,
+        field: &FieldDefinitionStub,
+        source_location: SourceLocationKey,
+    ) {
+        if let Some(field_arguments) = &field.arguments {
+            for argument in field_arguments.items.iter() {
+                if let Some(default_value) = &argument.default_value {
+                    self.errors.push(Diagnostic::error(
+                        ErrorMessages::ArgumentDefaultValuesNoSupported,
+                        Location::new(source_location, default_value.span()),
+                    ));
+                }
+            }
+        }
     }
 }

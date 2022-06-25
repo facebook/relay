@@ -1,0 +1,41 @@
+fragment multipleClientEdges_best_friend_resolver on User {
+  actor_key
+}
+
+fragment multipleClientEdges_worst_enemy_resolver on User {
+  actor_key
+}
+
+query multipleClientEdgesQuery {
+  me {
+    best_friend {
+      name
+    }
+    worst_enemy {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+type ClientUser {
+  name: String
+}
+
+extend type User {
+  best_friend: ClientUser
+    @relay_resolver(
+      fragment_name: "multipleClientEdges_best_friend_resolver"
+      import_path: "./foo/bar/baz/BestFriendResolver.js"
+    )
+}
+
+extend type User {
+  worst_enemy: ClientUser
+    @relay_resolver(
+      fragment_name: "multipleClientEdges_worst_enemy_resolver"
+      import_path: "./foo/bar/baz/WorstEnemyResolver.js"
+    )
+}
+

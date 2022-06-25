@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c5498c15b218393f9cc7dc53d2b9bdc6>>
+ * @generated SignedSource<<68399928102651a68e4d18ae5917ab64>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,6 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 type UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key = any;
 import userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolver from "../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js";
 // Type assertion validating that `userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolver` resolver is correctly implemented.
@@ -25,7 +26,7 @@ import userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolver from "../../
   args: {|
     scale: ?number,
   |}, 
-) => mixed);
+) => LiveState<any>);
 export type LiveResolversTest9Query$variables = {|
   id: string,
   scale: number,

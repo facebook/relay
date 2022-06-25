@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -59,22 +57,22 @@ type ValueResolver = (
   plural: ?boolean,
   defaultValue?: mixed,
 ) => mixed;
-type Traversable = {|
+type Traversable = {
   +selections: $ReadOnlyArray<NormalizationSelection>,
   +typeName: ?string,
   +isAbstractType: ?boolean,
   +name: ?string,
   +alias: ?string,
   +args: ?{[string]: mixed, ...},
-|};
+};
 type MockData = {[string]: mixed, ...};
-type MockResolverContext = {|
+type MockResolverContext = {
   +parentType: ?string,
   +name: ?string,
   +alias: ?string,
   +path: ?$ReadOnlyArray<string>,
   +args: ?{[string]: mixed, ...},
-|};
+};
 type MockResolver = (
   context: MockResolverContext,
   generateId: () => number,
@@ -82,12 +80,12 @@ type MockResolver = (
 export type MockResolvers = {[typeName: string]: MockResolver, ...};
 
 type SelectionMetadata = {
-  [selectionPath: string]: {|
+  [selectionPath: string]: {
     +type: string,
     +plural: boolean,
     +nullable: boolean,
     +enumValues: $ReadOnlyArray<string> | null,
-  |},
+  },
   ...
 };
 
@@ -181,11 +179,11 @@ class RelayMockPayloadGenerator {
   _mockResolvers: MockResolvers;
   _selectionMetadata: SelectionMetadata;
 
-  constructor(options: {|
+  constructor(options: {
     +variables: Variables,
     +mockResolvers: MockResolvers | null,
     +selectionMetadata: SelectionMetadata | null,
-  |}) {
+  }) {
     this._variables = options.variables;
     // $FlowFixMe[cannot-spread-inexact]
     // $FlowFixMe[incompatible-type]
@@ -831,12 +829,12 @@ class RelayMockPayloadGenerator {
     field: NormalizationScalarField,
     typeName: ?string,
     selectionPath: $ReadOnlyArray<string>,
-  ): {|
+  ): {
     +type: string,
     +plural: boolean,
     +enumValues: $ReadOnlyArray<string> | null,
     +nullable: boolean,
-  |} {
+  } {
     return (
       this._selectionMetadata[selectionPath.join('.')] ?? {
         type: field.name === 'id' ? 'ID' : 'String',

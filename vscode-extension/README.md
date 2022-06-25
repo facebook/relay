@@ -22,7 +22,14 @@ Search for "Relay GraphQL" in the VS Code extensions panel or install through [t
 
 - `relay.autoStartCompiler` (default: `false`) Whether or not we should automatically start the Relay Compiler in watch mode when you open a project.
 
-- `relay.outputLevel` (default: `quiet-with-errors`) Specify the output level of the Relay language server. The available options are
+- `relay.compilerOutputLevel` (default: `verbose`) Specify the output level of the Relay compiler. The available options are
+
+  - quiet
+  - quiet-with-errors
+  - verbose
+  - debug
+
+- `relay.lspOutputLevel` (default: `quiet-with-errors`) Specify the output level of the Relay language server. The available options are
 
   - quiet
   - quiet-with-errors

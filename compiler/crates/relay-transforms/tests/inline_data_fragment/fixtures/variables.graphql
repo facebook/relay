@@ -1,9 +1,10 @@
-# expected-to-throw
 fragment User on User {
   ...UserProfile @arguments(profilePictureSize: [1, 1])
 }
 
-fragment UserProfile on User @inline @argumentDefinitions(profilePictureSize: { type: "[Int]" }) {
+fragment UserProfile on User
+@inline
+@argumentDefinitions(profilePictureSize: {type: "[Int]"}) {
   profilePicture(size: $profilePictureSize) {
     uri
   }

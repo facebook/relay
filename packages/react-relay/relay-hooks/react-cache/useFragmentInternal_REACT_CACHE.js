@@ -9,10 +9,9 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
+import type {QueryResult} from '../QueryResource';
 import type {
   CacheConfig,
   FetchPolicy,
@@ -24,11 +23,12 @@ import type {
 } from 'relay-runtime';
 import type {MissingClientEdgeRequestInfo} from 'relay-runtime/store/RelayStoreTypes';
 
+const {getQueryResourceForEnvironment} = require('../QueryResource');
 const useRelayEnvironment = require('../useRelayEnvironment');
-const getQueryResultOrFetchQuery = require('./getQueryResultOrFetchQuery_REACT_CACHE');
 const invariant = require('invariant');
 const {useDebugValue, useEffect, useMemo, useRef, useState} = require('react');
 const {
+  __internal: {fetchQuery: fetchQueryInternal},
   areEqualSelectors,
   createOperationDescriptor,
   getPendingOperationsForFragment,
@@ -39,18 +39,17 @@ const {
 } = require('relay-runtime');
 const warning = require('warning');
 
-type FragmentQueryOptions = {|
+type FragmentQueryOptions = {
   fetchPolicy?: FetchPolicy,
   networkCacheConfig?: ?CacheConfig,
-|};
+};
 
 type FragmentState = $ReadOnly<
-  | {|kind: 'bailout'|}
-  | {|kind: 'singular', snapshot: Snapshot, epoch: number|}
-  | {|kind: 'plural', snapshots: $ReadOnlyArray<Snapshot>, epoch: number|},
+  | {kind: 'bailout'}
+  | {kind: 'singular', snapshot: Snapshot, epoch: number}
+  | {kind: 'plural', snapshots: $ReadOnlyArray<Snapshot>, epoch: number},
 >;
 
-type StateUpdater<T> = (T | (T => T)) => void;
 type StateUpdaterFunction<T> = ((T) => T) => void;
 
 function isMissingData(state: FragmentState): boolean {
@@ -190,7 +189,7 @@ function handleMissingClientEdge(
   parentFragmentRef: mixed,
   missingClientEdgeRequestInfo: MissingClientEdgeRequestInfo,
   queryOptions?: FragmentQueryOptions,
-): () => () => void {
+): QueryResult {
   const originalVariables = getVariablesFromFragment(
     parentFragmentNode,
     parentFragmentRef,
@@ -206,16 +205,14 @@ function handleMissingClientEdge(
   );
   // This may suspend. We don't need to do anything with the results; all we're
   // doing here is started the query if needed and retaining and releasing it
-  // according to the component mount/suspense cycle; getQueryResultOrFetchQuery
+  // according to the component mount/suspense cycle; QueryResource
   // already handles this by itself.
-  const [_, effect] = getQueryResultOrFetchQuery(
-    environment,
+  const QueryResource = getQueryResourceForEnvironment(environment);
+  return QueryResource.prepare(
     queryOperationDescriptor,
-    {
-      fetchPolicy: queryOptions?.fetchPolicy,
-    },
+    fetchQueryInternal(environment, queryOperationDescriptor),
+    queryOptions?.fetchPolicy,
   );
-  return effect;
 }
 
 function subscribeToSnapshot(
@@ -403,14 +400,14 @@ function useFragmentInternal_REACT_CACHE(
     // a static (constant) property of the fragment. In practice, this effect will
     // always or never run for a given invocation of this hook.
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const effects = useMemo(() => {
+    const clientEdgeQueries = useMemo(() => {
       const missingClientEdges = getMissingClientEdges(state);
       // eslint-disable-next-line no-shadow
-      let effects;
+      let clientEdgeQueries;
       if (missingClientEdges?.length) {
-        effects = [];
+        clientEdgeQueries = [];
         for (const edge of missingClientEdges) {
-          effects.push(
+          clientEdgeQueries.push(
             handleMissingClientEdge(
               environment,
               fragmentNode,
@@ -421,24 +418,25 @@ function useFragmentInternal_REACT_CACHE(
           );
         }
       }
-      return effects;
+      return clientEdgeQueries;
     }, [state, environment, fragmentNode, fragmentRef, queryOptions]);
 
     // See above note
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useEffect(() => {
-      if (effects?.length) {
-        const cleanups = [];
-        for (const effect of effects) {
-          cleanups.push(effect());
+      const QueryResource = getQueryResourceForEnvironment(environment);
+      if (clientEdgeQueries?.length) {
+        const disposables = [];
+        for (const query of clientEdgeQueries) {
+          disposables.push(QueryResource.retain(query));
         }
         return () => {
-          for (const cleanup of cleanups) {
-            cleanup();
+          for (const disposable of disposables) {
+            disposable.dispose();
           }
         };
       }
-    }, [effects]);
+    }, [environment, clientEdgeQueries]);
   }
 
   if (isMissingData(state)) {

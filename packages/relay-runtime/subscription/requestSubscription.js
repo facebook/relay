@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {DeclarativeMutationConfig} from '../mutations/RelayDeclarativeMutationConfig';
@@ -32,17 +30,17 @@ const {
 const {createReaderSelector} = require('../store/RelayModernSelector');
 const warning = require('warning');
 
-export type SubscriptionParameters = {|
+export type SubscriptionParameters = {
   +response: {...},
   +variables: {...},
   +rawResponse?: {...},
-|};
+};
 
 /**
  * Updated Flow type that makes use of typed graphql tagged literals with
  * type information.
  */
-export type GraphQLSubscriptionConfig<TVariables, TData, TRawResponse> = {|
+export type GraphQLSubscriptionConfig<TVariables, TData, TRawResponse> = {
   configs?: Array<DeclarativeMutationConfig>,
   cacheConfig?: CacheConfig,
   subscription: GraphQLSubscription<TVariables, TData, TRawResponse>,
@@ -51,7 +49,7 @@ export type GraphQLSubscriptionConfig<TVariables, TData, TRawResponse> = {|
   onError?: ?(error: Error) => void,
   onNext?: ?(response: ?TData) => void,
   updater?: ?SelectorStoreUpdater<TData>,
-|};
+};
 
 function requestSubscription<TVariables: Variables, TData, TRawResponse>(
   environment: IEnvironment,

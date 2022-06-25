@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {Sink} from '../../../relay-runtime/network/RelayObservable';
 import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
@@ -88,7 +86,7 @@ let environment;
 let fetch;
 
 class ErrorBoundary extends React.Component<$FlowFixMe, $FlowFixMe> {
-  state: {|error: mixed|} = {error: null};
+  state: {error: mixed} = {error: null};
 
   componentDidCatch(error: Error) {
     this.setState({error});

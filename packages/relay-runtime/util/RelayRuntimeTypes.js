@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 /**
@@ -38,12 +36,12 @@ export type Variables = {+[string]: $FlowFixMe};
 /**
  * Generated operation flow types are subtypes of this.
  */
-export type OperationType = {|
+export type OperationType = {
   // TODO(T33395812) Make this an open object type
   +variables: Variables,
   +response: mixed,
   +rawResponse?: {...},
-|};
+};
 
 export type VariablesOf<T: OperationType> = T['variables'];
 
@@ -61,14 +59,14 @@ export type VariablesOf<T: OperationType> = T['variables'];
  * - `transactionId`: a user-supplied value, intended for use as a unique id for
  *   a given instance of executing an operation.
  */
-export type CacheConfig = {|
+export type CacheConfig = {
   force?: ?boolean,
   poll?: ?number,
   liveConfigId?: ?string,
   onSubscribe?: () => void,
   metadata?: {[key: string]: mixed, ...},
   transactionId?: ?string,
-|};
+};
 
 export type FetchQueryFetchPolicy = 'store-or-network' | 'network-only';
 export type FetchPolicy =

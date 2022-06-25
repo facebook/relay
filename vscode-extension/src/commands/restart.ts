@@ -21,7 +21,7 @@ export function handleRestartLanguageServerCommand(
 ): void {
   const config = getConfig();
 
-  for (const project of Object.values(context.projects)) {
+  Object.values(context.projects).forEach(project => {
     const projectContext = createProjectContextFromExtensionContext(
       context,
       project,
@@ -44,5 +44,5 @@ export function handleRestartLanguageServerCommand(
         }
       },
     );
-  }
+  });
 }

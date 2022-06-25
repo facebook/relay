@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {
   MutationParameters,
@@ -43,40 +41,40 @@ type RangeBehaviorsFunction = (connectionArgs: {
 type RangeBehaviorsObject = {[key: string]: RangeOperation, ...};
 export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
 
-type RangeAddConfig = {|
+type RangeAddConfig = {
   type: 'RANGE_ADD',
   parentName?: string,
   parentID?: string,
-  connectionInfo?: Array<{|
+  connectionInfo?: Array<{
     key: string,
     filters?: Variables,
     rangeBehavior: string,
-  |}>,
+  }>,
   connectionName?: string,
   edgeName: string,
   rangeBehaviors?: RangeBehaviors,
-|};
+};
 
-type RangeDeleteConfig = {|
+type RangeDeleteConfig = {
   type: 'RANGE_DELETE',
   parentName?: string,
   parentID?: string,
-  connectionKeys?: Array<{|
+  connectionKeys?: Array<{
     key: string,
     filters?: Variables,
-  |}>,
+  }>,
   connectionName?: string,
   deletedIDFieldName: string | Array<string>,
   pathToConnection: Array<string>,
-|};
+};
 
-type NodeDeleteConfig = {|
+type NodeDeleteConfig = {
   type: 'NODE_DELETE',
   parentName?: string,
   parentID?: string,
   connectionName?: string,
   deletedIDFieldName: string,
-|};
+};
 
 export type DeclarativeMutationConfig =
   | RangeAddConfig
@@ -309,10 +307,10 @@ function rangeDelete(
 
 function deleteNode(
   parentID: string,
-  connectionKeys: ?Array<{|
+  connectionKeys: ?Array<{
     key: string,
     filters?: Variables,
-  |}>,
+  }>,
   pathToConnection: Array<string>,
   store: RecordSourceSelectorProxy,
   deleteIDs: Array<string>,

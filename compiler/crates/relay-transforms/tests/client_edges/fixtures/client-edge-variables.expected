@@ -23,6 +23,7 @@ fragment Foo_user on User {
   ... @__ClientEdgeMetadataDirective
   # ServerObject {
   #     query_name: "ClientEdgeQuery_Foo_user_best_friend",
+  #     unique_id: 0,
   # }
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata

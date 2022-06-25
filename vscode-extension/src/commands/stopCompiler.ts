@@ -15,7 +15,7 @@ import {killCompiler} from '../compiler';
 export function handleStopCompilerCommand(
   context: RelayExtensionContext,
 ): void {
-  for (const project of context.projects) {
+  Object.values(context.projects).forEach(project => {
     const projectContext = createProjectContextFromExtensionContext(
       context,
       project,
@@ -28,5 +28,5 @@ export function handleStopCompilerCommand(
     }
 
     killCompiler(projectContext);
-  }
+  });
 }

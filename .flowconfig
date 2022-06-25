@@ -4,6 +4,8 @@
 <PROJECT_ROOT>/.*/node_modules/.*
 
 [options]
+exact_by_default=true
+
 module.system=haste
 module.system.haste.use_name_reducers=true
 # get basename
@@ -39,4 +41,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.180.0
+^0.181.0

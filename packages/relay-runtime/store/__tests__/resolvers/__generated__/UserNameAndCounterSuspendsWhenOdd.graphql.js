@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7a3a3532cd4085e7186d94e997f4a6da>>
+ * @generated SignedSource<<a0fa273fa8cbc49214652916a158166c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,13 +17,14 @@
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 type CounterSuspendsWhenOdd$key = any;
+import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { FragmentType } from "relay-runtime";
 import queryCounterSuspendsWhenOddResolver from "../CounterSuspendsWhenOdd.js";
 // Type assertion validating that `queryCounterSuspendsWhenOddResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterSuspendsWhenOddResolver: (
   rootKey: CounterSuspendsWhenOdd$key, 
-) => mixed);
+) => LiveState<any>);
 declare export opaque type UserNameAndCounterSuspendsWhenOdd$fragmentType: FragmentType;
 export type UserNameAndCounterSuspendsWhenOdd$data = {|
   +counter_suspends_when_odd: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof queryCounterSuspendsWhenOddResolver>["read"]>,

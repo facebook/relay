@@ -162,7 +162,7 @@ export async function findRelayBinaryWithWarnings(
 
   let rootPath = workspace.rootPath || process.cwd();
   if (rootDirectoryRelativeToWorkspaceRoot) {
-    rootPath = path.join(rootPath, rootDirectoryRelativeToWorkspaceRoot);
+    rootPath = path.resolve(rootPath, rootDirectoryRelativeToWorkspaceRoot);
   }
 
   log(`Searching for the relay-compiler starting at: ${rootPath}`);

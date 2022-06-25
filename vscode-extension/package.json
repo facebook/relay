@@ -112,7 +112,7 @@
           "items": {
             "type": "object",
             "required": [
-              "pathToConfig",
+              "rootDirectory",
               "name"
             ],
             "title": "A single Relay project path info",

@@ -23,25 +23,27 @@ export async function buildRelayExtensionContext(
   const projects: RelayProject[] = [];
 
   if (config.projects) {
-    for (const projectConfig of config.projects) {
-      const projectLog = (message: string) => {
-        outputChannel.appendLine(`[${projectConfig.name}] — ${message}`);
-      };
+    await Promise.all(
+      config.projects.map(async projectConfig => {
+        const projectLog = (message: string) => {
+          outputChannel.appendLine(`[${projectConfig.name}] — ${message}`);
+        };
 
-      const project = await buildRelayProject({
-        ...projectConfig,
-        extensionContext,
-        projectLog,
-      });
+        const project = await buildRelayProject({
+          ...projectConfig,
+          extensionContext,
+          projectLog,
+        });
 
-      if (project) {
-        projects.push(project);
-      } else {
-        projectLog(
-          'Ignoring project since we could not find the relay-compiler binary',
-        );
-      }
-    }
+        if (project) {
+          projects.push(project);
+        } else {
+          projectLog(
+            'Ignoring project since we could not find the relay-compiler binary',
+          );
+        }
+      }),
+    );
   } else {
     const project = await buildRelayProject({
       name: 'default',

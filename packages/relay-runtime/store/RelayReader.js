@@ -70,6 +70,9 @@ const {
 } = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const ClientID = require('./ClientID');
+const {
+  isSuspenseSentinel,
+} = require('./experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const RelayConcreteVariables = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const {getReactFlightClientResponse} = require('./RelayStoreReactFlightUtils');
@@ -661,7 +664,7 @@ class RelayReader {
     this._traverseSelections([backingField], record, backingFieldData);
     let destinationDataID = backingFieldData[applicationName];
 
-    if (destinationDataID == null) {
+    if (destinationDataID == null || isSuspenseSentinel(destinationDataID)) {
       data[applicationName] = destinationDataID;
       return;
     }
@@ -790,7 +793,6 @@ class RelayReader {
     data: SelectorData,
   ): ?mixed {
     const applicationName = field.alias ?? field.name;
-    getStorageKey(field, this._variables);
     const storageKey = getStorageKey(field, this._variables);
     const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
     if (linkedID == null) {

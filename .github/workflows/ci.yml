@@ -106,7 +106,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly-2022-04-01
+          toolchain: nightly-2022-06-26
           override: true
           components: rustfmt
       - name: "rustfmt"

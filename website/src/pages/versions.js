@@ -47,7 +47,7 @@ function Version() {
                     <Link to={latestVersion.path}>Documentation</Link>
                   </td>
                   <td>
-                    <a href={`${repoUrl}/releases/tag/v${latestVersion.name}`}>
+                    <a href={`${repoUrl}/releases/tag/${latestVersion.name}`}>
                       Release Notes
                     </a>
                   </td>

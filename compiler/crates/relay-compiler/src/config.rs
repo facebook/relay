@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
+use crate::artifact_content::content_section::{
+    ContentSection, ContentSections, DocblockSection, GenericSection,
+};
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 use crate::build_project::{
     artifact_writer::{ArtifactFileWriter, ArtifactWriter},
@@ -14,6 +16,8 @@ use crate::compiler_state::{ProjectName, ProjectSet};
 use crate::errors::{ConfigValidationError, Error, Result};
 use crate::saved_state::SavedStateLoader;
 use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
+use crate::Artifact;
+use crate::ArtifactContent;
 use async_trait::async_trait;
 use common::{FeatureFlags, Rollout};
 use fnv::{FnvBuildHasher, FnvHashSet};
@@ -25,6 +29,10 @@ use log::warn;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
+use relay_codegen::TopLevelStatement;
+use relay_codegen::{
+    build_request_params, print_request_params_fixed, top_level_statements::TopLevelStatements,
+};
 use relay_config::{
     CustomScalarType, FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig,
     TypegenLanguage,
@@ -32,13 +40,16 @@ use relay_config::{
 pub use relay_config::{
     LocalPersistConfig, PersistConfig, ProjectConfig, RemotePersistConfig, SchemaLocation,
 };
-use relay_transforms::CustomTransformsConfig;
+use relay_transforms::{is_operation_preloadable, CustomTransformsConfig, Programs};
+use schema::SDLSchema;
 use serde::de::Error as DeError;
 use serde::{Deserialize, Deserializer, Serialize};
 use serde_json::Value;
 use sha1::{Digest, Sha1};
+use signedsource::SIGNING_TOKEN;
 use std::env::current_dir;
 use std::ffi::OsStr;
+use std::fmt::Write;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::{fmt, vec};
@@ -359,7 +370,117 @@ Example file:
             header: config_file.header,
             codegen_command: config_file.codegen_command,
             load_saved_state_file: None,
-            generate_extra_artifacts: None,
+            generate_extra_artifacts: Some(Box::new(
+                |project_config: &ProjectConfig,
+                 schema: &SDLSchema,
+                 _programs: &Programs,
+                 artifacts: &[Artifact]| {
+                    let mut output = vec![];
+                    for artifact in artifacts {
+                        if let ArtifactContent::Operation {
+                            normalization_operation,
+                            id_and_text_hash,
+                            text,
+                            ..
+                        } = &artifact.content
+                        {
+                            if is_operation_preloadable(normalization_operation) {
+                                let mut request_parameters =
+                                    build_request_params(&normalization_operation);
+                                request_parameters.id = &id_and_text_hash;
+                                if id_and_text_hash.is_some() {
+                                    request_parameters.id = id_and_text_hash;
+                                } else {
+                                    request_parameters.text = text.clone();
+                                };
+
+                                let index_map: IndexMap<String, TopLevelStatement, FnvBuildHasher> =
+                                    IndexMap::with_hasher(Default::default());
+                                let mut top_level_statements = TopLevelStatements(index_map);
+
+                                let out = print_request_params_fixed(
+                                    schema,
+                                    &normalization_operation,
+                                    &id_and_text_hash,
+                                    &text,
+                                    project_config,
+                                    &mut top_level_statements,
+                                );
+
+                                println!("Generating artifact\n");
+                                println!("path: {}", artifact.path.to_string_lossy());
+
+                                println!("file: {}", artifact.source_file.path());
+                                for name in &artifact.source_definition_names {
+                                    println!("source: {}", name);
+                                }
+
+                                let mut sections = ContentSections::default();
+                                let mut section = DocblockSection::default();
+                                writeln!(section, "{}", SIGNING_TOKEN).unwrap();
+                                writeln!(section, "@flow").unwrap();
+                                writeln!(section, "@lightSyntaxTransform").unwrap();
+                                writeln!(section, "@nogrep").unwrap();
+
+                                sections.push(ContentSection::Docblock(section));
+
+                                let mut section = GenericSection::default();
+                                writeln!(section, "/*::").unwrap();
+                                writeln!(
+                                    section,
+                                    "import type {{ {} }} from '{}';",
+                                    "PreloadableConcreteRequest", "react-relay"
+                                )
+                                .unwrap();
+                                writeln!(
+                                    section,
+                                    "import type {{ {} }} from './{}.graphql';",
+                                    &normalization_operation.name.item,
+                                    &normalization_operation.name.item
+                                )
+                                .unwrap();
+                                writeln!(section, "*/").unwrap();
+                                writeln!(section, "/* eslint-disable */").unwrap();
+                                writeln!(section, "'use strict';").unwrap();
+                                writeln!(
+                                    section,
+                                    "var node/*: PreloadableConcreteRequest<{}> */ = {{",
+                                    &normalization_operation.name.item
+                                )
+                                .unwrap();
+                                writeln!(section, "  \"kind\": \"PreloadableConcreteRequest\",")
+                                    .unwrap();
+                                writeln!(section, "  \"params\": {}", out).unwrap();
+                                writeln!(section, "}};").unwrap();
+                                writeln!(section, "module.exports = node;").unwrap();
+                                sections.push(ContentSection::Generic(section));
+
+                                let bytes = sections.into_signed_bytes().unwrap();
+
+                                let mut params_path = artifact.path.clone();
+                                params_path.set_file_name(format!(
+                                    "{}$Parameters",
+                                    &normalization_operation.name.item
+                                ));
+                                params_path.set_extension("graphql.js");
+
+                                let art = Artifact {
+                                    source_definition_names: artifact
+                                        .source_definition_names
+                                        .clone(),
+                                    path: params_path,
+                                    content: ArtifactContent::Generic { content: bytes },
+                                    source_file: artifact.source_file,
+                                };
+                                output.push(art);
+                            }
+                        }
+                    }
+
+                    output
+                    // -> Vec<Artifact> + Send + Sync>;
+                },
+            )),
             generate_virtual_id_file_name: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
@@ -522,7 +643,11 @@ impl fmt::Debug for Config {
         } = self;
 
         fn option_fn_to_string<T>(option: &Option<T>) -> &'static str {
-            if option.is_some() { "Some(Fn)" } else { "None" }
+            if option.is_some() {
+                "Some(Fn)"
+            } else {
+                "None"
+            }
         }
 
         f.debug_struct("Config")

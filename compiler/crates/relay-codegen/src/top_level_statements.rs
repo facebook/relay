@@ -10,7 +10,7 @@ use indexmap::IndexMap;
 use std::fmt::Result as FmtResult;
 
 #[derive(Default, Clone)]
-pub struct TopLevelStatements(IndexMap<String, TopLevelStatement, FnvBuildHasher>);
+pub struct TopLevelStatements(pub IndexMap<String, TopLevelStatement, FnvBuildHasher>);
 #[derive(Clone)]
 pub enum TopLevelStatement {
     ImportStatement { name: String, path: String },

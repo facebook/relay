@@ -14,7 +14,7 @@ mod build_ast;
 mod constants;
 mod indentation;
 mod printer;
-mod top_level_statements;
+pub mod top_level_statements;
 mod utils;
 
 pub use ast::{AstBuilder, Primitive, QueryID, RequestParameters};
@@ -23,7 +23,7 @@ pub use build_ast::{
 };
 pub use constants::CODEGEN_CONSTANTS;
 pub use printer::{
-    print_fragment, print_operation, print_request, print_request_params, JSONPrinter, Printer,
+    print_fragment, print_operation, print_request, print_request_params, print_request_params_fixed, JSONPrinter, Printer,
 };
 pub use relay_config::JsModuleFormat;
 pub use top_level_statements::TopLevelStatement;

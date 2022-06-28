@@ -6,7 +6,7 @@
  */
 
 mod content;
-mod content_section;
+pub mod content_section;
 
 use crate::config::{Config, ProjectConfig};
 use common::SourceLocationKey;

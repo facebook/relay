@@ -60,6 +60,37 @@ pub fn print_request(
     )
 }
 
+
+pub fn print_request_params_fixed(
+    schema: &SDLSchema,
+    operation: &OperationDefinition,
+    query_id: &Option<QueryID>,
+    text: &Option<String>,
+    project_config: &ProjectConfig,
+    top_level_statements: &mut TopLevelStatements,
+) -> String {
+    let mut request_parameters = build_request_params(operation);
+    if query_id.is_some() {
+        request_parameters.id = query_id;
+    } else {
+        request_parameters.text = text.clone();
+    };
+
+
+    let mut builder = AstBuilder::default();
+    let request_parameters_ast_key = build_request_params_ast_key(
+        schema,
+        request_parameters,
+        &mut builder,
+        operation,
+        top_level_statements,
+        operation.name,
+        project_config,
+    );
+    let printer = JSONPrinter::new(&builder, project_config, top_level_statements);
+    printer.print(request_parameters_ast_key, false)
+}
+
 pub fn print_request_params(
     schema: &SDLSchema,
     operation: &OperationDefinition,

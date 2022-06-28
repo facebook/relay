@@ -221,7 +221,6 @@ describe.each([
       owner: $FlowFixMe,
       ...
     }) => {
-      // We need a render a component to run a Hook
       const owner = props.owner;
       const usersRef = props.hasOwnProperty('usersRef')
         ? props.usersRef
@@ -341,5 +340,17 @@ describe.each([
     expect(renderSpy).toBeCalledTimes(2);
     const actualData2 = renderSpy.mock.calls[1][0];
     expect(actualData).toBe(actualData2);
+  });
+
+  it('Returns [] when the fragment ref is [] (for plural fragments)', () => {
+    const container = renderPluralFragment({usersRef: []});
+    assertFragmentResults([]);
+    container.unmount();
+  });
+
+  it('Returns null when the fragment ref is null (for plural fragments)', () => {
+    const container = renderPluralFragment({usersRef: null});
+    assertFragmentResults(null);
+    container.unmount();
   });
 });

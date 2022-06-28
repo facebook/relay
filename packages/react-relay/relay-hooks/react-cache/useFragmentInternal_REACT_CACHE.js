@@ -26,7 +26,7 @@ import type {MissingClientEdgeRequestInfo} from 'relay-runtime/store/RelayStoreT
 const {getQueryResourceForEnvironment} = require('../QueryResource');
 const useRelayEnvironment = require('../useRelayEnvironment');
 const invariant = require('invariant');
-const {useDebugValue, useEffect, useMemo, useRef, useState} = require('react');
+const {useDebugValue, useEffect, useMemo, useState} = require('react');
 const {
   __internal: {fetchQuery: fetchQueryInternal},
   areEqualSelectors,
@@ -282,15 +282,13 @@ function getFragmentState(
   if (fragmentSelector == null) {
     return {kind: 'bailout'};
   } else if (fragmentSelector.kind === 'PluralReaderSelector') {
-    if (fragmentSelector.selectors.length === 0) {
-      return {kind: 'bailout'};
-    } else {
-      return {
-        kind: 'plural',
-        snapshots: fragmentSelector.selectors.map(s => environment.lookup(s)),
-        epoch: environment.getStore().getEpoch(),
-      };
-    }
+    // Note that if fragmentRef is an empty array, fragmentSelector will be null so we'll hit the above case.
+    // Null is returned by getSelector if fragmentRef has no non-null items.
+    return {
+      kind: 'plural',
+      snapshots: fragmentSelector.selectors.map(s => environment.lookup(s)),
+      epoch: environment.getStore().getEpoch(),
+    };
   } else {
     return {
       kind: 'singular',
@@ -488,10 +486,13 @@ function useFragmentInternal_REACT_CACHE(
     //
     // Note that isPlural is a constant property of the fragment and does not change
     // for a particular useFragment invocation site
+    const fragmentRefIsNullish = fragmentRef == null; // for less sensitive memoization
     // eslint-disable-next-line react-hooks/rules-of-hooks
     data = useMemo(() => {
       if (state.kind === 'bailout') {
-        return [];
+        // Bailout state can happen if the fragmentRef is a plural array that is empty or has no
+        // non-null entries. In that case, the compatible behavior is to return [] instead of null.
+        return fragmentRefIsNullish ? null : [];
       } else {
         invariant(
           state.kind === 'plural',
@@ -499,7 +500,7 @@ function useFragmentInternal_REACT_CACHE(
         );
         return state.snapshots.map(s => s.data);
       }
-    }, [state]);
+    }, [state, fragmentRefIsNullish]);
   } else if (state.kind === 'bailout') {
     // This case doesn't allocate a new object so it doesn't have to be memoized
     data = null;

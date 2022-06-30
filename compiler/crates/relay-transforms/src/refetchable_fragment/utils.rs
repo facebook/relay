@@ -31,7 +31,6 @@ pub struct Constants {
     pub node_field_name: StringKey,
     pub node_type_name: StringKey,
     pub viewer_field_name: StringKey,
-    pub viewer_type_name: StringKey,
 }
 
 lazy_static! {
@@ -41,7 +40,6 @@ lazy_static! {
         node_field_name: "node".intern(),
         node_type_name: "Node".intern(),
         viewer_field_name: "viewer".intern(),
-        viewer_type_name: "Viewer".intern(),
     };
 }
 

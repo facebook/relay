@@ -6,7 +6,7 @@ fragment UserName on UserNameRenderable
 }
 ==================================== ERROR ====================================
 ✖︎ Invalid use of @refetchable on fragment 'UserName', only supported are fragments on:
- - the Viewer type
+ - the 'viewer:' field's type
  - the Query type
  - the Node interface or types implementing the Node interface
  - @fetchable type

@@ -5,10 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, WithLocation};
-use graphql_ir::{ConstantValue, Directive, Value};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::SourceLocationKey;
+use common::WithLocation;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::Value;
 use graphql_text_printer::print_value;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::SDLSchema;
 

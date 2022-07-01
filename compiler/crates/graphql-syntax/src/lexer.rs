@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use logos::{Lexer, Logos};
+use logos::Lexer;
+use logos::Logos;
 use std::fmt;
 
 #[derive(Default, Eq, PartialEq)]

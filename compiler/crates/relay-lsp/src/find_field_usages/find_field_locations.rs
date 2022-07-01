@@ -6,7 +6,8 @@
  */
 
 use common::Location as IRLocation;
-use graphql_ir::{Program, Visitor};
+use graphql_ir::Program;
+use graphql_ir::Visitor;
 use intern::string_key::StringKey;
 use schema::Schema;
 

@@ -6,8 +6,10 @@
  */
 
 use super::*;
-use common::{SourceLocationKey, Span};
-use graphql_syntax::{parse_executable_with_features, ParserFeatures};
+use common::SourceLocationKey;
+use common::Span;
+use graphql_syntax::parse_executable_with_features;
+use graphql_syntax::ParserFeatures;
 
 pub(super) fn test_resolution(source: &str, sub_str: &str, cb: impl Fn(&ResolutionPath<'_>)) {
     let document = parse_executable_with_features(

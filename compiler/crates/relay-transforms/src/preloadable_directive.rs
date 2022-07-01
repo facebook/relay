@@ -5,8 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{DiagnosticsResult, NamedItem};
-use graphql_ir::{Directive, OperationDefinition};
+use common::DiagnosticsResult;
+use common::NamedItem;
+use graphql_ir::Directive;
+use graphql_ir::OperationDefinition;
 use intern::intern;
 
 /// Check, if the operation is @preloadable.

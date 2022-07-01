@@ -5,17 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, FeatureFlag, SourceLocationKey, TextSource};
+use common::Diagnostic;
+use common::FeatureFlag;
+use common::SourceLocationKey;
+use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use graphql_ir::{build, Program};
+use graphql_ir::build;
+use graphql_ir::Program;
 use graphql_syntax::parse_executable;
-use graphql_text_printer::{print_fragment, print_operation, PrinterOptions};
+use graphql_text_printer::print_fragment;
+use graphql_text_printer::print_operation;
+use graphql_text_printer::PrinterOptions;
 use relay_test_schema::get_test_schema_with_located_extensions;
-use relay_transforms::{
-    find_resolver_dependencies, fragment_alias_directive, relay_resolvers,
-    validate_resolver_fragments, DependencyMap,
-};
+use relay_transforms::find_resolver_dependencies;
+use relay_transforms::fragment_alias_directive;
+use relay_transforms::relay_resolvers;
+use relay_transforms::validate_resolver_fragments;
+use relay_transforms::DependencyMap;
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {

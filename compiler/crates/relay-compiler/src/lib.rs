@@ -24,25 +24,44 @@ mod red_to_green;
 pub mod saved_state;
 pub mod status_reporter;
 
-pub use build_project::{
-    add_to_mercurial,
-    artifact_writer::{
-        ArtifactDifferenceWriter, ArtifactFileWriter, ArtifactValidationWriter, ArtifactWriter,
-        NoopArtifactWriter,
-    },
-    build_programs, build_raw_program, build_schema, generate_artifacts,
-    generate_extra_artifacts::GenerateExtraArtifactsFn,
-    transform_program, validate, validate_program, AdditionalValidations, Artifact,
-    ArtifactContent, ArtifactGeneratedTypes, BuildProjectFailure, SourceHashes,
-};
-pub use config::{
-    ConfigFileProject, FileSourceKind, LocalPersistConfig, OperationPersister, PersistConfig,
-    ProjectConfig, RemotePersistConfig, SchemaLocation,
-};
-pub use file_source::{
-    source_for_location, FileCategorizer, FileGroup, FileSource, FileSourceResult,
-    FileSourceSubscription, FileSourceSubscriptionNextChange, FsSourceReader,
-    SourceControlUpdateStatus, SourceReader,
-};
+pub use build_project::add_to_mercurial;
+pub use build_project::artifact_writer::ArtifactDifferenceWriter;
+pub use build_project::artifact_writer::ArtifactFileWriter;
+pub use build_project::artifact_writer::ArtifactValidationWriter;
+pub use build_project::artifact_writer::ArtifactWriter;
+pub use build_project::artifact_writer::NoopArtifactWriter;
+pub use build_project::build_programs;
+pub use build_project::build_raw_program;
+pub use build_project::build_schema;
+pub use build_project::generate_artifacts;
+pub use build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
+pub use build_project::transform_program;
+pub use build_project::validate;
+pub use build_project::validate_program;
+pub use build_project::AdditionalValidations;
+pub use build_project::Artifact;
+pub use build_project::ArtifactContent;
+pub use build_project::ArtifactGeneratedTypes;
+pub use build_project::BuildProjectFailure;
+pub use build_project::SourceHashes;
+pub use config::ConfigFileProject;
+pub use config::FileSourceKind;
+pub use config::LocalPersistConfig;
+pub use config::OperationPersister;
+pub use config::PersistConfig;
+pub use config::ProjectConfig;
+pub use config::RemotePersistConfig;
+pub use config::SchemaLocation;
+pub use file_source::source_for_location;
+pub use file_source::FileCategorizer;
+pub use file_source::FileGroup;
+pub use file_source::FileSource;
+pub use file_source::FileSourceResult;
+pub use file_source::FileSourceSubscription;
+pub use file_source::FileSourceSubscriptionNextChange;
+pub use file_source::FsSourceReader;
+pub use file_source::SourceControlUpdateStatus;
+pub use file_source::SourceReader;
 pub use graphql_asts::GraphQLAsts;
-pub use operation_persister::{LocalPersister, RemotePersister};
+pub use operation_persister::LocalPersister;
+pub use operation_persister::RemotePersister;

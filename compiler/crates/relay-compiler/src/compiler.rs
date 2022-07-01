@@ -5,27 +5,30 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{build_project, commit_project, BuildProjectFailure};
+use crate::build_project::build_project;
+use crate::build_project::commit_project;
+use crate::build_project::BuildProjectFailure;
+use crate::compiler_state::ArtifactMapKind;
+use crate::compiler_state::CompilerState;
 use crate::config::Config;
-use crate::errors::{Error, Result};
+use crate::errors::Error;
+use crate::errors::Result;
 use crate::file_source::FileSource;
+use crate::file_source::FileSourceSubscriptionNextChange;
 use crate::graphql_asts::GraphQLAsts;
 use crate::red_to_green::RedToGreen;
-use crate::{
-    compiler_state::{ArtifactMapKind, CompilerState},
-    file_source::FileSourceSubscriptionNextChange,
-    FileSourceResult,
-};
-use common::{PerfLogEvent, PerfLogger};
+use crate::FileSourceResult;
+use common::PerfLogEvent;
+use common::PerfLogger;
 use futures::future::join_all;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
-use log::{debug, info};
+use log::debug;
+use log::info;
 use rayon::prelude::*;
 use std::sync::Arc;
-use tokio::{
-    sync::Notify,
-    task::{self, JoinHandle},
-};
+use tokio::sync::Notify;
+use tokio::task::JoinHandle;
+use tokio::task::{self};
 
 pub struct Compiler<TPerfLogger>
 where

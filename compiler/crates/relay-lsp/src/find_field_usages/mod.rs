@@ -7,20 +7,29 @@
 
 mod find_field_locations;
 
-use crate::{
-    location::transform_relay_location_to_lsp_location, server::GlobalState, LSPRuntimeError,
-    LSPRuntimeResult,
-};
-use common::{Location as IRLocation, WithLocation};
-use graphql_ir::{
-    FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program, ScalarField,
-    Visitor,
-};
-use intern::string_key::{Intern, StringKey};
+use crate::location::transform_relay_location_to_lsp_location;
+use crate::server::GlobalState;
+use crate::LSPRuntimeError;
+use crate::LSPRuntimeResult;
+use common::Location as IRLocation;
+use common::WithLocation;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Visitor;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use itertools::Itertools;
 use lsp_types::request::Request;
-use schema::{FieldID, SDLSchema, Schema, Type};
-use serde::{Deserialize, Serialize};
+use schema::FieldID;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use serde::Deserialize;
+use serde::Serialize;
 use std::collections::HashMap;
 use std::sync::Arc;
 

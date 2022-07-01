@@ -5,12 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{DiagnosticDisplay, WithDiagnosticData};
+use common::DiagnosticDisplay;
+use common::WithDiagnosticData;
 use intern::string_key::StringKey;
 use schema::suggestion_list::did_you_mean;
 use thiserror::Error;
 
-use crate::{ON_INTERFACE_FIELD, ON_TYPE_FIELD};
+use crate::ON_INTERFACE_FIELD;
+use crate::ON_TYPE_FIELD;
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ErrorMessages {

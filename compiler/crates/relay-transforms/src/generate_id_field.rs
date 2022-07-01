@@ -5,19 +5,29 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, WithLocation};
-use graphql_ir::{
-    FragmentSpread, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
-    TransformedValue, Transformer,
-};
+use common::Location;
+use common::WithLocation;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
 
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use relay_config::SchemaConfig;
-use schema::{FieldID, InterfaceID, ObjectID, Schema, Type};
-use std::{
-    collections::{hash_map::Entry, HashMap},
-    sync::Arc,
-};
+use schema::FieldID;
+use schema::InterfaceID;
+use schema::ObjectID;
+use schema::Schema;
+use schema::Type;
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
+use std::sync::Arc;
 
 /// A transform that adds an `id` field on any type that has an id field but
 /// where there is no unaliased `id` selection.

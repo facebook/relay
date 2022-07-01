@@ -6,13 +6,21 @@
  */
 
 use crate::client_edges::ClientEdgeMetadataDirective;
-use common::{Location, PointerAddress, WithLocation};
+use common::Location;
+use common::PointerAddress;
+use common::WithLocation;
 use fnv::FnvHashMap;
-use graphql_ir::{
-    Directive, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
-    TransformedValue, Transformer,
-};
-use intern::string_key::{Intern, StringKey};
+use graphql_ir::Directive;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
 use std::sync::Arc;

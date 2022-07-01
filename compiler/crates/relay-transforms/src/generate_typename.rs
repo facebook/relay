@@ -5,19 +5,30 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::{
-    generate_abstract_type_refinement_key, is_relay_custom_inline_fragment_directive,
-};
-use common::{Location, PointerAddress, WithLocation};
+use crate::util::generate_abstract_type_refinement_key;
+use crate::util::is_relay_custom_inline_fragment_directive;
+use common::Location;
+use common::PointerAddress;
+use common::WithLocation;
 use fnv::FnvHashMap;
-use graphql_ir::{
-    Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
-    OperationDefinition, Program, ScalarField, Selection, Transformed, TransformedValue,
-    Transformer,
-};
-use intern::string_key::{Intern, StringKey};
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use schema::{SDLSchema, Schema, Type};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 use std::sync::Arc;
 
 lazy_static! {

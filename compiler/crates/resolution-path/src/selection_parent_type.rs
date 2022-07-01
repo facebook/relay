@@ -6,12 +6,15 @@
  */
 
 use graphql_syntax::OperationKind;
-use schema::{SDLSchema, Schema, Type};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 
-use super::{
-    FragmentDefinitionPath, InlineFragmentPath, LinkedFieldPath, OperationDefinitionPath,
-    SelectionParent,
-};
+use super::FragmentDefinitionPath;
+use super::InlineFragmentPath;
+use super::LinkedFieldPath;
+use super::OperationDefinitionPath;
+use super::SelectionParent;
 
 impl<'a> SelectionParent<'a> {
     pub fn find_parent_type(&self, schema: &SDLSchema) -> Option<Type> {
@@ -106,12 +109,19 @@ impl<'a> SelectionParent<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{IdentParent, IdentPath, ResolutionPath, ResolvePosition, ScalarFieldPath};
+    use crate::IdentParent;
+    use crate::IdentPath;
+    use crate::ResolutionPath;
+    use crate::ResolvePosition;
+    use crate::ScalarFieldPath;
 
     use super::*;
-    use common::{SourceLocationKey, Span};
-    use graphql_syntax::{parse_executable_with_features, ParserFeatures};
-    use intern::string_key::{Intern, StringKey};
+    use common::SourceLocationKey;
+    use common::Span;
+    use graphql_syntax::parse_executable_with_features;
+    use graphql_syntax::ParserFeatures;
+    use intern::string_key::Intern;
+    use intern::string_key::StringKey;
     use relay_test_schema::get_test_schema;
 
     fn get_field_parent_type_name(source: &str, sub_str: &str) -> StringKey {

@@ -7,9 +7,11 @@
 
 use common::Span;
 use graphql_ir::reexport::StringKey;
-use relay_docblock::{DocblockIr, On};
+use relay_docblock::DocblockIr;
+use relay_docblock::On;
 
-use crate::{LSPRuntimeError, LSPRuntimeResult};
+use crate::LSPRuntimeError;
+use crate::LSPRuntimeResult;
 
 pub enum DocblockResolutionInfo {
     OnType(StringKey),

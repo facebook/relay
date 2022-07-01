@@ -13,28 +13,41 @@ mod utils;
 mod validation_message;
 mod viewer_query_generator;
 
-use crate::{
-    connections::{extract_connection_metadata_from_directive, ConnectionConstants},
-    relay_directive::{PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME},
-    root_variables::{InferVariablesVisitor, VariableMap},
-};
+use crate::connections::extract_connection_metadata_from_directive;
+use crate::connections::ConnectionConstants;
+use crate::relay_directive::PLURAL_ARG_NAME;
+use crate::relay_directive::RELAY_DIRECTIVE_NAME;
+use crate::root_variables::InferVariablesVisitor;
+use crate::root_variables::VariableMap;
 
 use self::validation_message::ValidationMessage;
 use ::errors::validate_map;
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use common::WithLocation;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
-use graphql_ir::{
-    Directive, FragmentDefinition, OperationDefinition, Program, Selection, VariableDefinition,
-};
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::VariableDefinition;
 use graphql_syntax::OperationKind;
-use intern::string_key::{StringKey, StringKeyMap, StringKeySet};
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
+use intern::string_key::StringKeySet;
 use node_query_generator::NODE_QUERY_GENERATOR;
 use query_query_generator::QUERY_QUERY_GENERATOR;
 use relay_config::SchemaConfig;
-use schema::{SDLSchema, Schema};
-use std::{fmt::Write, sync::Arc};
+use schema::SDLSchema;
+use schema::Schema;
+use std::fmt::Write;
+use std::sync::Arc;
+pub use utils::RefetchableDerivedFromMetadata;
+pub use utils::RefetchableMetadata;
+pub use utils::CONSTANTS;
 use utils::*;
-pub use utils::{RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS};
 use viewer_query_generator::VIEWER_QUERY_GENERATOR;
 
 use self::refetchable_directive::RefetchableDirective;

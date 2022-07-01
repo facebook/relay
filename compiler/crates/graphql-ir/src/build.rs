@@ -6,21 +6,47 @@
  */
 
 use crate::constants::ARGUMENT_DEFINITION;
-use crate::errors::{ValidationMessage, ValidationMessageWithData};
+use crate::errors::ValidationMessage;
+use crate::errors::ValidationMessageWithData;
 use crate::ir::*;
-use crate::signatures::{
-    build_signatures, FragmentSignature, FragmentSignatures, ProvidedVariableMetadata,
-};
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, Span, WithLocation};
+use crate::signatures::build_signatures;
+use crate::signatures::FragmentSignature;
+use crate::signatures::FragmentSignatures;
+use crate::signatures::ProvidedVariableMetadata;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::NamedItem;
+use common::Span;
+use common::WithLocation;
 use core::cmp::Ordering;
-use errors::{par_try_map, try2, try3, try_map};
-use graphql_syntax::{DirectiveLocation, Identifier, List, OperationKind, Token, TokenKind};
-use intern::string_key::{Intern, StringKey, StringKeyIndexMap, StringKeyMap, StringKeySet};
+use errors::par_try_map;
+use errors::try2;
+use errors::try3;
+use errors::try_map;
+use graphql_syntax::DirectiveLocation;
+use graphql_syntax::Identifier;
+use graphql_syntax::List;
+use graphql_syntax::OperationKind;
+use graphql_syntax::Token;
+use graphql_syntax::TokenKind;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyIndexMap;
+use intern::string_key::StringKeyMap;
+use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
-use schema::suggestion_list::{self, GraphQLSuggestions};
-use schema::{
-    ArgumentDefinitions, Enum, FieldID, InputObject, SDLSchema, Scalar, Schema, Type, TypeReference,
-};
+use schema::suggestion_list::GraphQLSuggestions;
+use schema::suggestion_list::{self};
+use schema::ArgumentDefinitions;
+use schema::Enum;
+use schema::FieldID;
+use schema::InputObject;
+use schema::SDLSchema;
+use schema::Scalar;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
 
 lazy_static! {
     static ref TYPENAME_FIELD_NAME: StringKey = "__typename".intern();

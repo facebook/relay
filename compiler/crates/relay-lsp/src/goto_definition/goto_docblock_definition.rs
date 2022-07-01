@@ -8,11 +8,10 @@
 use common::Span;
 use relay_docblock::DocblockIr;
 
+use crate::docblock_resolution_info::create_docblock_resolution_info;
+use crate::docblock_resolution_info::DocblockResolutionInfo;
+use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::LSPRuntimeResult;
-use crate::{
-    docblock_resolution_info::{create_docblock_resolution_info, DocblockResolutionInfo},
-    lsp_runtime_error::LSPRuntimeError,
-};
 
 use super::DefinitionDescription;
 

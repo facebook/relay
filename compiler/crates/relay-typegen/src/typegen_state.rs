@@ -5,15 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    writer::{ExactObject, Writer, AST},
-    LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH, LIVE_RESOLVERS_LIVE_STATE, LOCAL_3D_PAYLOAD,
-    RELAY_RUNTIME,
-};
+use crate::writer::ExactObject;
+use crate::writer::Writer;
+use crate::writer::AST;
+use crate::LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH;
+use crate::LIVE_RESOLVERS_LIVE_STATE;
+use crate::LOCAL_3D_PAYLOAD;
+use crate::RELAY_RUNTIME;
 use fnv::FnvHashSet;
-use indexmap::{IndexMap, IndexSet};
+use indexmap::IndexMap;
+use indexmap::IndexSet;
 use intern::string_key::StringKey;
-use schema::{EnumID, SDLSchema, Schema};
+use schema::EnumID;
+use schema::SDLSchema;
+use schema::Schema;
 use std::fmt::Result as FmtResult;
 
 /// A struct that is mutated as we iterate through an operation/fragment and

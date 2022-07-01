@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_state::{ProjectName, ProjectSet};
+use crate::compiler_state::ProjectName;
+use crate::compiler_state::ProjectSet;
 
 #[derive(Debug, PartialEq, Eq, Hash)]
 pub enum FileGroup {

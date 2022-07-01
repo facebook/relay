@@ -9,12 +9,14 @@
 
 use clap::Parser;
 use colored::Colorize;
-use signedsource::{sign_file, SIGNING_TOKEN};
+use signedsource::sign_file;
+use signedsource::SIGNING_TOKEN;
 use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use std::path::PathBuf;
 
 #[derive(Debug, Parser)]
 #[clap(name = "fixture-tests", about = "Generates fixture tests.")]

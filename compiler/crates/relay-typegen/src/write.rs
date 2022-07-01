@@ -5,41 +5,68 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use ::intern::{
-    intern,
-    string_key::{Intern, StringKey},
-};
+use ::intern::intern;
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
 use common::NamedItem;
-use graphql_ir::{FragmentDefinition, OperationDefinition, ProvidedVariableMetadata, Selection};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::ProvidedVariableMetadata;
+use graphql_ir::Selection;
 use indexmap::IndexMap;
 use itertools::Itertools;
-use relay_config::{JsModuleFormat, TypegenLanguage};
-use relay_transforms::{
-    RefetchableDerivedFromMetadata, RefetchableMetadata, RelayDirective, ASSIGNABLE_DIRECTIVE,
-    CHILDREN_CAN_BUBBLE_METADATA_KEY,
-};
+use relay_config::JsModuleFormat;
+use relay_config::TypegenLanguage;
+use relay_transforms::RefetchableDerivedFromMetadata;
+use relay_transforms::RefetchableMetadata;
+use relay_transforms::RelayDirective;
+use relay_transforms::ASSIGNABLE_DIRECTIVE;
+use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use schema::Schema;
-use std::{collections::HashSet, fmt::Result as FmtResult, path::PathBuf};
+use std::collections::HashSet;
+use std::fmt::Result as FmtResult;
+use std::path::PathBuf;
 
-use crate::{
-    typegen_state::{
-        ActorChangeStatus, EncounteredEnums, EncounteredFragment, EncounteredFragments,
-        ImportedRawResponseTypes, ImportedResolvers, InputObjectTypes, MatchFields, RuntimeImports,
-    },
-    visit::{
-        get_data_type, get_input_variables_type, get_operation_type_export,
-        raw_response_selections_to_babel, raw_response_visit_selections, transform_input_type,
-        visit_selections,
-    },
-    writer::{
-        ExactObject, InexactObject, KeyValuePairProp, Prop, SortedASTList, SortedStringKeyList,
-        StringLiteral, Writer, AST,
-    },
-    MaskStatus, TypegenContext, ACTOR_CHANGE_POINT, FUTURE_ENUM_VALUE, KEY_CLIENTID, KEY_DATA,
-    KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_RAW_RESPONSE, KEY_TYPENAME,
-    KEY_UPDATABLE_FRAGMENT_SPREADS, PROVIDED_VARIABLE_TYPE, RAW_RESPONSE_TYPE_DIRECTIVE_NAME,
-    REACT_RELAY_MULTI_ACTOR, VALIDATOR_EXPORT_NAME,
-};
+use crate::typegen_state::ActorChangeStatus;
+use crate::typegen_state::EncounteredEnums;
+use crate::typegen_state::EncounteredFragment;
+use crate::typegen_state::EncounteredFragments;
+use crate::typegen_state::ImportedRawResponseTypes;
+use crate::typegen_state::ImportedResolvers;
+use crate::typegen_state::InputObjectTypes;
+use crate::typegen_state::MatchFields;
+use crate::typegen_state::RuntimeImports;
+use crate::visit::get_data_type;
+use crate::visit::get_input_variables_type;
+use crate::visit::get_operation_type_export;
+use crate::visit::raw_response_selections_to_babel;
+use crate::visit::raw_response_visit_selections;
+use crate::visit::transform_input_type;
+use crate::visit::visit_selections;
+use crate::writer::ExactObject;
+use crate::writer::InexactObject;
+use crate::writer::KeyValuePairProp;
+use crate::writer::Prop;
+use crate::writer::SortedASTList;
+use crate::writer::SortedStringKeyList;
+use crate::writer::StringLiteral;
+use crate::writer::Writer;
+use crate::writer::AST;
+use crate::MaskStatus;
+use crate::TypegenContext;
+use crate::ACTOR_CHANGE_POINT;
+use crate::FUTURE_ENUM_VALUE;
+use crate::KEY_CLIENTID;
+use crate::KEY_DATA;
+use crate::KEY_FRAGMENT_SPREADS;
+use crate::KEY_FRAGMENT_TYPE;
+use crate::KEY_RAW_RESPONSE;
+use crate::KEY_TYPENAME;
+use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
+use crate::PROVIDED_VARIABLE_TYPE;
+use crate::RAW_RESPONSE_TYPE_DIRECTIVE_NAME;
+use crate::REACT_RELAY_MULTI_ACTOR;
+use crate::VALIDATOR_EXPORT_NAME;
 
 pub(crate) type CustomScalarsImports = HashSet<(StringKey, PathBuf)>;
 

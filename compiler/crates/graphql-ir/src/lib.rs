@@ -24,26 +24,36 @@ mod visitor;
 
 pub use crate::errors::ValidationMessage;
 pub use associated_data::AssociatedData;
-pub use build::{
-    build_directive, build_ir as build, build_ir_in_relay_mode, build_ir_with_extra_features,
-    BuilderOptions, FragmentVariablesSemantic, RelayMode, DIRECTIVE_ARGUMENTS,
-};
+pub use build::build_directive;
+pub use build::build_ir as build;
+pub use build::build_ir_in_relay_mode;
+pub use build::build_ir_with_extra_features;
+pub use build::BuilderOptions;
+pub use build::FragmentVariablesSemantic;
+pub use build::RelayMode;
+pub use build::DIRECTIVE_ARGUMENTS;
 pub use constants::ARGUMENT_DEFINITION;
 pub use ir::*;
 pub use program::Program;
-pub use signatures::{ProvidedVariableMetadata, UNUSED_LOCAL_VARIABLE_DEPRECATED};
-pub use transform::{
-    transform_list, transform_list_multi, Transformed, TransformedMulti, TransformedValue,
-    Transformer,
-};
+pub use signatures::ProvidedVariableMetadata;
+pub use signatures::UNUSED_LOCAL_VARIABLE_DEPRECATED;
+pub use transform::transform_list;
+pub use transform::transform_list_multi;
+pub use transform::Transformed;
+pub use transform::TransformedMulti;
+pub use transform::TransformedValue;
+pub use transform::Transformer;
 pub use validator::Validator;
 pub use visitor::Visitor;
 
 /// Re-exported values to be used by the `associated_data_impl!` macro.
 pub mod reexport {
     pub use crate::associated_data::AsAny;
-    pub use common::{NamedItem, WithLocation};
+    pub use common::NamedItem;
+    pub use common::WithLocation;
     pub use fnv::FnvHasher;
-    pub use intern::string_key::{self, Intern, StringKey};
+    pub use intern::string_key::Intern;
+    pub use intern::string_key::StringKey;
+    pub use intern::string_key::{self};
     pub use once_cell::sync::Lazy;
 }

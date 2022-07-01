@@ -5,25 +5,40 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
-use crate::build_ast::{
-    build_fragment, build_operation, build_provided_variables, build_request, build_request_params,
-    build_request_params_ast_key,
-};
+use crate::ast::Ast;
+use crate::ast::AstBuilder;
+use crate::ast::AstKey;
+use crate::ast::ObjectEntry;
+use crate::ast::Primitive;
+use crate::ast::QueryID;
+use crate::ast::RequestParameters;
+use crate::build_ast::build_fragment;
+use crate::build_ast::build_operation;
+use crate::build_ast::build_provided_variables;
+use crate::build_ast::build_request;
+use crate::build_ast::build_request_params;
+use crate::build_ast::build_request_params_ast_key;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
-use crate::top_level_statements::{TopLevelStatement, TopLevelStatements};
+use crate::object;
+use crate::top_level_statements::TopLevelStatement;
+use crate::top_level_statements::TopLevelStatements;
 use crate::utils::escape;
-use crate::{object, CodegenBuilder, CodegenVariant, JsModuleFormat};
+use crate::CodegenBuilder;
+use crate::CodegenVariant;
+use crate::JsModuleFormat;
 
-use graphql_ir::{FragmentDefinition, OperationDefinition};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
 use relay_config::ProjectConfig;
 use schema::SDLSchema;
 
-use fnv::{FnvBuildHasher, FnvHashSet};
+use fnv::FnvBuildHasher;
+use fnv::FnvHashSet;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
-use std::fmt::{Result as FmtResult, Write};
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
 
 pub fn print_operation(
     schema: &SDLSchema,

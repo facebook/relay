@@ -18,19 +18,23 @@ mod visit;
 mod write;
 mod writer;
 
-use ::intern::string_key::{Intern, StringKey};
-use common::{NamedItem, WithLocation};
-use graphql_ir::{FragmentDefinition, OperationDefinition};
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
 use lazy_static::lazy_static;
 use relay_config::ProjectConfig;
-pub use relay_config::{TypegenConfig, TypegenLanguage};
+pub use relay_config::TypegenConfig;
+pub use relay_config::TypegenLanguage;
 use relay_transforms::UPDATABLE_DIRECTIVE;
 use schema::SDLSchema;
 pub use write::has_raw_response_type_directive;
-use write::{
-    write_fragment_type_exports_section, write_operation_type_exports_section,
-    write_split_operation_type_exports_section, write_validator_function,
-};
+use write::write_fragment_type_exports_section;
+use write::write_operation_type_exports_section;
+use write::write_split_operation_type_exports_section;
+use write::write_validator_function;
 use writer::new_writer_from_config;
 
 static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";

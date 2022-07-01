@@ -5,7 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_ir::{Directive, Program, Transformed, Transformer};
+use graphql_ir::Directive;
+use graphql_ir::Program;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
 use schema::Schema;
 
 pub fn skip_client_directives(program: &Program) -> Program {

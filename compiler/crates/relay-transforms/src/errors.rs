@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{DiagnosticDisplay, WithDiagnosticData};
+use common::DiagnosticDisplay;
+use common::WithDiagnosticData;
 use intern::string_key::StringKey;
 use thiserror::Error;
 

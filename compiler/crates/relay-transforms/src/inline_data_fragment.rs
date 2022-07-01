@@ -5,13 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-use graphql_ir::{
-    associated_data_impl, Argument, FragmentSpread, InlineFragment, Program, Selection,
-    Transformed, Transformer, VariableDefinition,
-};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Argument;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::VariableDefinition;
 
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use once_cell::sync::Lazy;
 use std::sync::Arc;
 use thiserror::Error;

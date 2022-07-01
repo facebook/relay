@@ -8,15 +8,24 @@
 mod ast;
 mod errors;
 
-use std::{iter::Peekable, str::Chars};
+use std::iter::Peekable;
+use std::str::Chars;
 
-pub use ast::{DocblockAST, DocblockField, DocblockSection};
-use common::{
-    Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, TextSource, WithLocation,
-};
+pub use ast::DocblockAST;
+pub use ast::DocblockField;
+pub use ast::DocblockSection;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::SourceLocationKey;
+use common::Span;
+use common::TextSource;
+use common::WithLocation;
 use errors::SyntaxError;
-use intern::string_key::{Intern, StringKey};
-use serde::{Deserialize, Serialize};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DocblockSource(TextSource);

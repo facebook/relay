@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Deserialize, Serialize)]
 pub struct FieldDefinitionSourceInfo {

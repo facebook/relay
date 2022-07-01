@@ -5,16 +5,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{match_::MATCH_CONSTANTS, util::get_normalization_operation_name, ModuleMetadata};
-use common::{DiagnosticsResult, Location, WithLocation};
-use graphql_ir::{
-    Argument, ConstantValue, Field, FragmentDefinition, FragmentSpread, InlineFragment,
-    LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    Value,
-};
+use crate::match_::MATCH_CONSTANTS;
+use crate::util::get_normalization_operation_name;
+use crate::ModuleMetadata;
+use common::DiagnosticsResult;
+use common::Location;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
-use schema::{FieldID, Schema, Type, TypeReference};
+use schema::FieldID;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
 use std::sync::Arc;
 
 pub fn transform_subscriptions(program: &Program) -> DiagnosticsResult<Program> {

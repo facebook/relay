@@ -5,12 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{FeatureFlag, SourceLocationKey};
+use common::FeatureFlag;
+use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::{build, Program};
+use graphql_ir::build;
+use graphql_ir::Program;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
-use relay_codegen::{print_fragment, print_operation, JsModuleFormat};
+use relay_codegen::print_fragment;
+use relay_codegen::print_operation;
+use relay_codegen::JsModuleFormat;
 use relay_config::ProjectConfig;
 use relay_test_schema::get_test_schema;
 use relay_transforms::fragment_alias_directive;

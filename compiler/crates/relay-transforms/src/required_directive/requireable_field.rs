@@ -7,9 +7,17 @@
 
 use crate::RequiredAction;
 
-use super::{validation_message::ValidationMessage, ACTION_ARGUMENT, REQUIRED_DIRECTIVE_NAME};
-use common::{Diagnostic, Location, NamedItem, WithLocation};
-use graphql_ir::{Directive, Field, LinkedField, ScalarField};
+use super::validation_message::ValidationMessage;
+use super::ACTION_ARGUMENT;
+use super::REQUIRED_DIRECTIVE_NAME;
+use common::Diagnostic;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::LinkedField;
+use graphql_ir::ScalarField;
 use intern::string_key::StringKey;
 use schema::SDLSchema;
 

@@ -7,7 +7,10 @@
 
 use crate::SourcePrinter;
 use colored::*;
-use common::{Diagnostic, Location, SourceLocationKey, TextSource};
+use common::Diagnostic;
+use common::Location;
+use common::SourceLocationKey;
+use common::TextSource;
 use std::fmt::Write;
 
 pub struct DiagnosticPrinter<T: Sources> {

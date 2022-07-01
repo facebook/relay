@@ -5,16 +5,31 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Named, NamedItem, WithLocation};
-use graphql_ir::{
-    Argument, Condition, ConditionValue, ConstantValue, Directive, ExecutableDefinition,
-    FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, OperationDefinition,
-    ScalarField, Selection, Value, VariableDefinition,
-};
+use common::Named;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::Condition;
+use graphql_ir::ConditionValue;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinition;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Value;
+use graphql_ir::VariableDefinition;
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey};
-use schema::{SDLSchema, Schema};
-use std::fmt::{Result as FmtResult, Write};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use schema::SDLSchema;
+use schema::Schema;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
 
 pub fn print_ir(schema: &SDLSchema, definitions: &[ExecutableDefinition]) -> Vec<String> {
     definitions

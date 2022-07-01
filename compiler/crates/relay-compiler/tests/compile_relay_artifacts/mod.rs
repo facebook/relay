@@ -5,23 +5,36 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, FeatureFlag, FeatureFlags, NamedItem, SourceLocationKey};
+use common::ConsoleLogger;
+use common::FeatureFlag;
+use common::FeatureFlags;
+use common::NamedItem;
+use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::{
-    build_ir_with_extra_features, BuilderOptions, FragmentDefinition, FragmentVariablesSemantic,
-    OperationDefinition, Program, RelayMode,
-};
+use graphql_ir::build_ir_with_extra_features;
+use graphql_ir::BuilderOptions;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentVariablesSemantic;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::RelayMode;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
 
 use intern::string_key::Intern;
-use relay_codegen::{
-    build_request_params, print_fragment, print_operation, print_request, JsModuleFormat,
-};
-use relay_compiler::{validate, ConfigFileProject, ProjectConfig};
-use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{apply_transforms, DIRECTIVE_SPLIT_OPERATION};
+use relay_codegen::build_request_params;
+use relay_codegen::print_fragment;
+use relay_codegen::print_operation;
+use relay_codegen::print_request;
+use relay_codegen::JsModuleFormat;
+use relay_compiler::validate;
+use relay_compiler::ConfigFileProject;
+use relay_compiler::ProjectConfig;
+use relay_test_schema::get_test_schema;
+use relay_test_schema::get_test_schema_with_extensions;
+use relay_transforms::apply_transforms;
+use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {

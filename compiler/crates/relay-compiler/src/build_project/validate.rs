@@ -5,18 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{DiagnosticsResult, FeatureFlags};
+use common::DiagnosticsResult;
+use common::FeatureFlags;
 use errors::try_all;
 use graphql_ir::Program;
 use relay_config::ProjectConfig;
-use relay_transforms::{
-    disallow_circular_no_inline_fragments, disallow_reserved_aliases, disallow_typename_on_root,
-    validate_assignable_directive, validate_connections, validate_global_variable_names,
-    validate_module_names, validate_no_double_underscore_alias,
-    validate_no_inline_fragments_with_raw_response_type, validate_relay_directives,
-    validate_resolver_fragments, validate_static_args, validate_unused_fragment_variables,
-    validate_unused_variables, validate_updatable_directive, validate_updatable_fragment_spread,
-};
+use relay_transforms::disallow_circular_no_inline_fragments;
+use relay_transforms::disallow_reserved_aliases;
+use relay_transforms::disallow_typename_on_root;
+use relay_transforms::validate_assignable_directive;
+use relay_transforms::validate_connections;
+use relay_transforms::validate_global_variable_names;
+use relay_transforms::validate_module_names;
+use relay_transforms::validate_no_double_underscore_alias;
+use relay_transforms::validate_no_inline_fragments_with_raw_response_type;
+use relay_transforms::validate_relay_directives;
+use relay_transforms::validate_resolver_fragments;
+use relay_transforms::validate_static_args;
+use relay_transforms::validate_unused_fragment_variables;
+use relay_transforms::validate_unused_variables;
+use relay_transforms::validate_updatable_directive;
+use relay_transforms::validate_updatable_fragment_spread;
 
 pub type AdditionalValidations =
     Box<dyn Fn(&Program, &FeatureFlags) -> DiagnosticsResult<()> + Sync + Send>;

@@ -5,12 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use std::path::PathBuf;
 
-use common::{Location, SourceLocationKey, TextSource};
+use common::Location;
+use common::SourceLocationKey;
+use common::TextSource;
 use lsp_types::Url;
 
-use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
 
 /// Given a root dir and a common::Location, return a Result containing an
 /// LSPLocation (i.e. lsp_types::Location).

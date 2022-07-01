@@ -5,22 +5,36 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    handle_fields::{HANDLER_ARG_NAME, KEY_ARG_NAME},
-    util::{is_relay_custom_inline_fragment_directive, CustomMetadataDirectives},
-    ModuleMetadata, RelayLocationAgnosticBehavior, ValidationMessage,
-};
-use graphql_ir::{
-    Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
-    Program, Selection, TransformedValue,
-};
+use crate::handle_fields::HANDLER_ARG_NAME;
+use crate::handle_fields::KEY_ARG_NAME;
+use crate::util::is_relay_custom_inline_fragment_directive;
+use crate::util::CustomMetadataDirectives;
+use crate::ModuleMetadata;
+use crate::RelayLocationAgnosticBehavior;
+use crate::ValidationMessage;
+use graphql_ir::Condition;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::TransformedValue;
 use intern::string_key::StringKeyMap;
-use schema::{Schema, Type};
+use schema::Schema;
+use schema::Type;
 
-use common::{sync::*, Diagnostic, DiagnosticsResult, NamedItem, PointerAddress};
+use common::sync::*;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use common::PointerAddress;
 use fnv::FnvHashMap;
-use graphql_ir::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
-use parking_lot::{Mutex, RwLock};
+use graphql_ir::node_identifier::LocationAgnosticPartialEq;
+use graphql_ir::node_identifier::NodeIdentifier;
+use parking_lot::Mutex;
+use parking_lot::RwLock;
 use schema::SDLSchema;
 use std::sync::Arc;
 

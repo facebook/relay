@@ -5,17 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    util::is_relay_custom_inline_fragment_directive, RelayLocationAgnosticBehavior,
-    DEFER_STREAM_CONSTANTS,
-};
+use crate::util::is_relay_custom_inline_fragment_directive;
+use crate::RelayLocationAgnosticBehavior;
+use crate::DEFER_STREAM_CONSTANTS;
 
-use common::{sync::*, NamedItem, PointerAddress};
+use common::sync::*;
+use common::NamedItem;
+use common::PointerAddress;
 use dashmap::DashMap;
-use graphql_ir::{
-    node_identifier::NodeIdentifier, Condition, FragmentDefinition, InlineFragment, LinkedField,
-    OperationDefinition, Program, Selection, Transformed, TransformedValue,
-};
+use graphql_ir::node_identifier::NodeIdentifier;
+use graphql_ir::Condition;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
 use schema::SDLSchema;
 use std::sync::Arc;
 

@@ -8,15 +8,27 @@
 use std::cmp::Reverse;
 
 use crate::util::format_provided_variable_name;
-use common::{Diagnostic, DiagnosticsResult, Location, Named, NamedItem, WithLocation};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::Named;
+use common::NamedItem;
+use common::WithLocation;
 use fnv::FnvHashMap;
-use graphql_ir::{
-    FragmentDefinition, Program, ProvidedVariableMetadata, Transformed, TransformedValue,
-    Transformer, Variable, VariableDefinition,
-};
-use intern::string_key::{Intern, StringKey};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::Program;
+use graphql_ir::ProvidedVariableMetadata;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use graphql_ir::Variable;
+use graphql_ir::VariableDefinition;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use itertools::Itertools;
-use schema::{SDLSchema, Schema, TypeReference};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::TypeReference;
 use thiserror::Error;
 
 /// This transform applies provided variables in each fragment.

@@ -5,9 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, WithLocation};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::WithLocation;
 use errors::validate;
-use graphql_ir::{LinkedField, Program, ScalarField, ValidationMessage, Validator};
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
 use intern::string_key::StringKey;
 
 pub fn validate_no_double_underscore_alias(program: &Program) -> DiagnosticsResult<()> {

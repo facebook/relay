@@ -5,19 +5,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build::{
-    build_constant_value, build_type_annotation, build_variable_definitions, ValidationLevel,
-};
+use crate::associated_data_impl;
+use crate::build::build_constant_value;
+use crate::build::build_type_annotation;
+use crate::build::build_variable_definitions;
+use crate::build::ValidationLevel;
+use crate::build_directive;
 use crate::constants::ARGUMENT_DEFINITION;
-use crate::errors::{ValidationMessage, ValidationMessageWithData};
-use crate::ir::{ConstantValue, VariableDefinition};
-use crate::{associated_data_impl, build_directive};
-use common::{Diagnostic, DiagnosticsResult, Location, WithLocation};
-use errors::{par_try_map, try2};
-use intern::string_key::{Intern, StringKey, StringKeyMap};
+use crate::errors::ValidationMessage;
+use crate::errors::ValidationMessageWithData;
+use crate::ir::ConstantValue;
+use crate::ir::VariableDefinition;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::WithLocation;
+use errors::par_try_map;
+use errors::try2;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
 use lazy_static::lazy_static;
 use schema::suggestion_list::GraphQLSuggestions;
-use schema::{SDLSchema, Schema, Type, TypeReference};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
 use std::collections::HashMap;
 
 lazy_static! {

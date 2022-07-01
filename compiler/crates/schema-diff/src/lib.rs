@@ -15,12 +15,20 @@ pub mod definitions;
 use crate::definitions::*;
 
 use common::SourceLocationKey;
-use fnv::{FnvHashMap, FnvHashSet};
-use graphql_syntax::{
-    parse_schema_document, EnumTypeDefinition, FieldDefinition, Identifier,
-    InputObjectTypeDefinition, InputValueDefinition, InterfaceTypeDefinition, List,
-    ObjectTypeDefinition, ScalarTypeDefinition, TypeSystemDefinition, UnionTypeDefinition,
-};
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
+use graphql_syntax::parse_schema_document;
+use graphql_syntax::EnumTypeDefinition;
+use graphql_syntax::FieldDefinition;
+use graphql_syntax::Identifier;
+use graphql_syntax::InputObjectTypeDefinition;
+use graphql_syntax::InputValueDefinition;
+use graphql_syntax::InterfaceTypeDefinition;
+use graphql_syntax::List;
+use graphql_syntax::ObjectTypeDefinition;
+use graphql_syntax::ScalarTypeDefinition;
+use graphql_syntax::TypeSystemDefinition;
+use graphql_syntax::UnionTypeDefinition;
 use intern::string_key::StringKey;
 
 fn add_definition(changes: &mut Vec<DefinitionChange>, def: &TypeSystemDefinition) -> bool {

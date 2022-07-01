@@ -5,43 +5,59 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::build_project::artifact_writer::ArtifactFileWriter;
+use crate::build_project::artifact_writer::ArtifactWriter;
 use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
-use crate::build_project::{
-    artifact_writer::{ArtifactFileWriter, ArtifactWriter},
-    AdditionalValidations,
-};
-use crate::compiler_state::{ProjectName, ProjectSet};
-use crate::errors::{ConfigValidationError, Error, Result};
+use crate::build_project::AdditionalValidations;
+use crate::compiler_state::ProjectName;
+use crate::compiler_state::ProjectSet;
+use crate::errors::ConfigValidationError;
+use crate::errors::Error;
+use crate::errors::Result;
 use crate::saved_state::SavedStateLoader;
-use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
+use crate::status_reporter::ConsoleStatusReporter;
+use crate::status_reporter::StatusReporter;
 use async_trait::async_trait;
-use common::{FeatureFlags, Rollout};
-use fnv::{FnvBuildHasher, FnvHashSet};
-use graphql_ir::{OperationDefinition, Program};
+use common::FeatureFlags;
+use common::Rollout;
+use fnv::FnvBuildHasher;
+use fnv::FnvHashSet;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
 use indexmap::IndexMap;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use js_config_loader::LoaderSource;
 use log::warn;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
-use relay_config::{
-    CustomScalarType, FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig,
-    TypegenLanguage,
-};
-pub use relay_config::{
-    LocalPersistConfig, PersistConfig, ProjectConfig, RemotePersistConfig, SchemaLocation,
-};
+use relay_config::CustomScalarType;
+use relay_config::FlowTypegenConfig;
+use relay_config::JsModuleFormat;
+pub use relay_config::LocalPersistConfig;
+pub use relay_config::PersistConfig;
+pub use relay_config::ProjectConfig;
+pub use relay_config::RemotePersistConfig;
+use relay_config::SchemaConfig;
+pub use relay_config::SchemaLocation;
+use relay_config::TypegenConfig;
+use relay_config::TypegenLanguage;
 use relay_transforms::CustomTransformsConfig;
 use serde::de::Error as DeError;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
 use serde_json::Value;
-use sha1::{Digest, Sha1};
+use sha1::Digest;
+use sha1::Sha1;
 use std::env::current_dir;
 use std::ffi::OsStr;
-use std::path::{Path, PathBuf};
+use std::fmt;
+use std::path::Path;
+use std::path::PathBuf;
 use std::sync::Arc;
-use std::{fmt, vec};
+use std::vec;
 use watchman_client::pdu::ScmAwareClockData;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;

@@ -9,16 +9,31 @@ mod errors;
 mod ir;
 
 use crate::errors::ErrorMessages;
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, SourceLocationKey, WithLocation};
-use docblock_syntax::{DocblockAST, DocblockField, DocblockSection};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::NamedItem;
+use common::SourceLocationKey;
+use common::WithLocation;
+use docblock_syntax::DocblockAST;
+use docblock_syntax::DocblockField;
+use docblock_syntax::DocblockSection;
 use errors::ErrorMessagesWithData;
-use graphql_syntax::{
-    parse_field_definition_stub, parse_type, ConstantValue, ExecutableDefinition,
-    FieldDefinitionStub, FragmentDefinition, TypeAnnotation,
-};
-use intern::string_key::{Intern, StringKey};
-pub use ir::{Argument, DocblockIr, On, RelayResolverIr};
-use ir::{IrField, PopulatedIrField};
+use graphql_syntax::parse_field_definition_stub;
+use graphql_syntax::parse_type;
+use graphql_syntax::ConstantValue;
+use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::FieldDefinitionStub;
+use graphql_syntax::FragmentDefinition;
+use graphql_syntax::TypeAnnotation;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+pub use ir::Argument;
+pub use ir::DocblockIr;
+use ir::IrField;
+pub use ir::On;
+use ir::PopulatedIrField;
+pub use ir::RelayResolverIr;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 

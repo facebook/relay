@@ -7,12 +7,22 @@
 
 use crate::ValidationMessage;
 use ::intern::string_key::StringKey;
-use common::{Diagnostic, DiagnosticsResult, Named, NamedItem};
-use fnv::{FnvHashMap, FnvHashSet};
-use graphql_ir::{Argument as IRArgument, Directive, Program, Validator, Value};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Named;
+use common::NamedItem;
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
+use graphql_ir::Argument as IRArgument;
+use graphql_ir::Directive;
+use graphql_ir::Program;
+use graphql_ir::Validator;
+use graphql_ir::Value;
 use intern::intern;
 use lazy_static::lazy_static;
-use schema::{Argument as SchemaArgument, ArgumentDefinitions, Schema};
+use schema::Argument as SchemaArgument;
+use schema::ArgumentDefinitions;
+use schema::Schema;
 
 lazy_static! {
     static ref STATIC_ARG: StringKey = intern!("static");

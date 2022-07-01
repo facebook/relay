@@ -7,35 +7,51 @@
 
 use crate::artifact_map::ArtifactMap;
 use crate::config::Config;
-use crate::errors::{Error, Result};
-use crate::file_source::{
-    categorize_files, extract_javascript_features_from_file, read_file_to_string, Clock, File,
-    FileGroup, FileSourceResult, LocatedDocblockSource, LocatedGraphQLSource,
-    LocatedJavascriptSourceFeatures, SourceControlUpdateStatus,
-};
+use crate::errors::Error;
+use crate::errors::Result;
+use crate::file_source::categorize_files;
+use crate::file_source::extract_javascript_features_from_file;
+use crate::file_source::read_file_to_string;
+use crate::file_source::Clock;
+use crate::file_source::File;
+use crate::file_source::FileGroup;
+use crate::file_source::FileSourceResult;
+use crate::file_source::LocatedDocblockSource;
+use crate::file_source::LocatedGraphQLSource;
+use crate::file_source::LocatedJavascriptSourceFeatures;
+use crate::file_source::SourceControlUpdateStatus;
 use bincode::Options;
-use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
+use common::PerfLogEvent;
+use common::PerfLogger;
+use common::SourceLocationKey;
 use dashmap::DashSet;
-use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
+use fnv::FnvBuildHasher;
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
 use intern::string_key::StringKey;
 use rayon::prelude::*;
 use relay_config::SchemaConfig;
 use relay_transforms::DependencyMap;
 use schema::SDLSchema;
-use schema_diff::{definitions::SchemaChange, detect_changes};
-use serde::{Deserialize, Serialize};
+use schema_diff::definitions::SchemaChange;
+use schema_diff::detect_changes;
+use serde::Deserialize;
+use serde::Serialize;
 use std::collections::hash_map::Entry;
-use std::{
-    env, fmt,
-    fs::File as FsFile,
-    hash::Hash,
-    io::{BufReader, BufWriter},
-    mem,
-    path::PathBuf,
-    sync::{Arc, RwLock},
-};
-use std::{slice, vec};
-use zstd::stream::{read::Decoder as ZstdDecoder, write::Encoder as ZstdEncoder};
+use std::env;
+use std::fmt;
+use std::fs::File as FsFile;
+use std::hash::Hash;
+use std::io::BufReader;
+use std::io::BufWriter;
+use std::mem;
+use std::path::PathBuf;
+use std::slice;
+use std::sync::Arc;
+use std::sync::RwLock;
+use std::vec;
+use zstd::stream::read::Decoder as ZstdDecoder;
+use zstd::stream::write::Encoder as ZstdEncoder;
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
@@ -738,10 +754,10 @@ fn extract_sources(
 /// support those enums.
 mod clock_json_string {
     use crate::file_source::Clock;
-    use serde::{
-        de::{Error, Visitor},
-        Deserializer, Serializer,
-    };
+    use serde::de::Error;
+    use serde::de::Visitor;
+    use serde::Deserializer;
+    use serde::Serializer;
 
     pub fn serialize<S>(clock: &Option<Clock>, serializer: S) -> Result<S::Ok, S::Error>
     where

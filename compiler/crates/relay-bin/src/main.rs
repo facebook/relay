@@ -5,27 +5,35 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use clap::{ArgEnum, Parser};
+use clap::ArgEnum;
+use clap::Parser;
 use common::ConsoleLogger;
 use intern::string_key::Intern;
-use log::{error, info};
-use relay_compiler::{
-    build_project::artifact_writer::ArtifactValidationWriter, compiler::Compiler, config::Config,
-    errors::Error as CompilerError, FileSourceKind, LocalPersister, OperationPersister,
-    PersistConfig, RemotePersister,
-};
-use relay_lsp::{start_language_server, DummyExtraDataProvider};
+use log::error;
+use log::info;
+use relay_compiler::build_project::artifact_writer::ArtifactValidationWriter;
+use relay_compiler::compiler::Compiler;
+use relay_compiler::config::Config;
+use relay_compiler::errors::Error as CompilerError;
+use relay_compiler::FileSourceKind;
+use relay_compiler::LocalPersister;
+use relay_compiler::OperationPersister;
+use relay_compiler::PersistConfig;
+use relay_compiler::RemotePersister;
+use relay_lsp::start_language_server;
+use relay_lsp::DummyExtraDataProvider;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentationLoader;
-use simplelog::{
-    ColorChoice, ConfigBuilder as SimpleLogConfigBuilder, LevelFilter, TermLogger, TerminalMode,
-};
-use std::{
-    env::{self, current_dir},
-    path::PathBuf,
-    process::Command,
-    sync::Arc,
-};
+use simplelog::ColorChoice;
+use simplelog::ConfigBuilder as SimpleLogConfigBuilder;
+use simplelog::LevelFilter;
+use simplelog::TermLogger;
+use simplelog::TerminalMode;
+use std::env::current_dir;
+use std::env::{self};
+use std::path::PathBuf;
+use std::process::Command;
+use std::sync::Arc;
 
 mod errors;
 

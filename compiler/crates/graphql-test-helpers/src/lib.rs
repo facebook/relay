@@ -5,14 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, SourceLocationKey, TextSource};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::SourceLocationKey;
+use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use graphql_ir::{
-    build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program, RelayMode,
-};
+use graphql_ir::build_ir_with_extra_features;
+use graphql_ir::BuilderOptions;
+use graphql_ir::FragmentVariablesSemantic;
+use graphql_ir::Program;
+use graphql_ir::RelayMode;
 use graphql_syntax::parse_executable;
-use graphql_text_printer::{print_fragment, print_operation, PrinterOptions};
+use graphql_text_printer::print_fragment;
+use graphql_text_printer::print_operation;
+use graphql_text_printer::PrinterOptions;
 use relay_test_schema::get_test_schema;
 use std::sync::Arc;
 

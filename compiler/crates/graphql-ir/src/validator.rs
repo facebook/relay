@@ -6,7 +6,8 @@
  */
 
 use common::DiagnosticsResult;
-use errors::{validate, validate_map};
+use errors::validate;
+use errors::validate_map;
 
 use crate::ir::*;
 use crate::program::Program;

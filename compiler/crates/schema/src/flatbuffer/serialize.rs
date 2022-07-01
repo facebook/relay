@@ -8,14 +8,30 @@
 #![deny(warnings)]
 #![deny(clippy::all)]
 
-use crate::{
-    in_memory::InMemorySchema, Argument, ArgumentDefinitions, ArgumentValue, Directive,
-    DirectiveValue, EnumID, EnumValue, FieldID, InputObjectID, InterfaceID, ObjectID, ScalarID,
-    Schema, Type, TypeReference, UnionID,
-};
-use flatbuffers::{FlatBufferBuilder, WIPOffset};
+use crate::in_memory::InMemorySchema;
+use crate::Argument;
+use crate::ArgumentDefinitions;
+use crate::ArgumentValue;
+use crate::Directive;
+use crate::DirectiveValue;
+use crate::EnumID;
+use crate::EnumValue;
+use crate::FieldID;
+use crate::InputObjectID;
+use crate::InterfaceID;
+use crate::ObjectID;
+use crate::ScalarID;
+use crate::Schema;
+use crate::Type;
+use crate::TypeReference;
+use crate::UnionID;
+use flatbuffers::FlatBufferBuilder;
+use flatbuffers::WIPOffset;
 use fnv::FnvHashMap;
-use graphql_syntax::{ConstantArgument, ConstantValue, DirectiveLocation, List};
+use graphql_syntax::ConstantArgument;
+use graphql_syntax::ConstantValue;
+use graphql_syntax::DirectiveLocation;
+use graphql_syntax::List;
 use intern::string_key::StringKey;
 use std::collections::BTreeMap;
 

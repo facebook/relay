@@ -13,5 +13,7 @@
 mod ast;
 mod ir;
 
-pub use ast::{get_definition_references, get_reachable_ast, ReachableAst};
+pub use ast::get_definition_references;
+pub use ast::get_reachable_ast;
+pub use ast::ReachableAst;
 pub use ir::get_reachable_ir;

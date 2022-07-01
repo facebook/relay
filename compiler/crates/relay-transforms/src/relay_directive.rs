@@ -7,7 +7,8 @@
 
 use common::NamedItem;
 use graphql_ir::*;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 lazy_static! {

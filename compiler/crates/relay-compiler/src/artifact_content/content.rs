@@ -6,25 +6,37 @@
  */
 
 use super::super::ArtifactGeneratedTypes;
-use super::content_section::{
-    CommentAnnotationsSection, ContentSection, ContentSections, DocblockSection, GenericSection,
-};
-use crate::config::{Config, ProjectConfig};
+use super::content_section::CommentAnnotationsSection;
+use super::content_section::ContentSection;
+use super::content_section::ContentSections;
+use super::content_section::DocblockSection;
+use super::content_section::GenericSection;
+use crate::config::Config;
+use crate::config::ProjectConfig;
 use common::NamedItem;
-use graphql_ir::{FragmentDefinition, OperationDefinition};
-use relay_codegen::{build_request_params, Printer, QueryID, TopLevelStatement, CODEGEN_CONSTANTS};
-use relay_transforms::{
-    is_operation_preloadable, ReactFlightLocalComponentsMetadata, RelayClientComponentMetadata,
-    RelayDataDrivenDependencyMetadata, ASSIGNABLE_DIRECTIVE,
-};
-use relay_typegen::{
-    generate_fragment_type_exports_section, generate_named_validator_export,
-    generate_operation_type_exports_section, generate_split_operation_type_exports_section,
-    TypegenConfig, TypegenLanguage,
-};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use relay_codegen::build_request_params;
+use relay_codegen::Printer;
+use relay_codegen::QueryID;
+use relay_codegen::TopLevelStatement;
+use relay_codegen::CODEGEN_CONSTANTS;
+use relay_transforms::is_operation_preloadable;
+use relay_transforms::ReactFlightLocalComponentsMetadata;
+use relay_transforms::RelayClientComponentMetadata;
+use relay_transforms::RelayDataDrivenDependencyMetadata;
+use relay_transforms::ASSIGNABLE_DIRECTIVE;
+use relay_typegen::generate_fragment_type_exports_section;
+use relay_typegen::generate_named_validator_export;
+use relay_typegen::generate_operation_type_exports_section;
+use relay_typegen::generate_split_operation_type_exports_section;
+use relay_typegen::TypegenConfig;
+use relay_typegen::TypegenLanguage;
 use schema::SDLSchema;
 use signedsource::SIGNING_TOKEN;
-use std::fmt::{Error as FmtError, Result as FmtResult, Write};
+use std::fmt::Error as FmtError;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
 use std::sync::Arc;
 
 #[allow(clippy::too_many_arguments)]

@@ -8,9 +8,11 @@
 use std::io::BufReader;
 use std::path::PathBuf;
 
-use crate::errors::{Error, Result};
+use crate::compiler_state::CompilerState;
+use crate::config::Config;
+use crate::errors::Error;
+use crate::errors::Result;
 use crate::FileSourceResult;
-use crate::{compiler_state::CompilerState, config::Config};
 use common::PerfLogger;
 use std::fs::File as FsFile;
 

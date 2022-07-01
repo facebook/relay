@@ -10,7 +10,8 @@
 #![deny(clippy::all)]
 
 use lazy_static::lazy_static;
-use md5::{Digest, Md5};
+use md5::Digest;
+use md5::Md5;
 use regex::Regex;
 
 lazy_static! {

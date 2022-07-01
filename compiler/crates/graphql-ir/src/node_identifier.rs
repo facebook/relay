@@ -9,12 +9,11 @@ use crate::*;
 use common::WithLocation;
 use intern::string_key::StringKey;
 use schema::SDLSchema;
-use std::{
-    fmt,
-    hash::{Hash, Hasher},
-    marker::PhantomData,
-    sync::Arc,
-};
+use std::fmt;
+use std::hash::Hash;
+use std::hash::Hasher;
+use std::marker::PhantomData;
+use std::sync::Arc;
 
 #[derive(Clone, Debug)]
 enum NodeIdentifierInner<TBehavior: LocationAgnosticBehavior> {

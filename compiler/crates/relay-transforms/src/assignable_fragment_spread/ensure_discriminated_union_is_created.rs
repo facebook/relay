@@ -7,9 +7,15 @@
 
 use std::collections::HashSet;
 
-use common::{Diagnostic, DiagnosticsResult, Location};
-use graphql_ir::{InlineFragment, LinkedField, Selection};
-use schema::{SDLSchema, Schema, Type};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::Selection;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 
 use super::errors::ValidationMessage;
 

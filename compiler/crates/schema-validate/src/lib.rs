@@ -9,18 +9,29 @@ mod errors;
 
 use common::Named;
 use errors::*;
-use fnv::{FnvHashMap, FnvHashSet};
-use intern::string_key::{Intern, StringKey};
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use rayon::prelude::*;
 use regex::Regex;
-use schema::{
-    EnumID, Field, FieldID, InputObjectID, Interface, SDLSchema, Schema, Type, TypeReference,
-    TypeWithFields, UnionID,
-};
-use schema_print::{print_directive, print_type};
+use schema::EnumID;
+use schema::Field;
+use schema::FieldID;
+use schema::InputObjectID;
+use schema::Interface;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
+use schema::TypeWithFields;
+use schema::UnionID;
+use schema_print::print_directive;
+use schema_print::print_type;
+use std::fmt::Write;
+use std::sync::Mutex;
 use std::time::Instant;
-use std::{fmt::Write, sync::Mutex};
 
 lazy_static! {
     static ref INTROSPECTION_TYPES: FnvHashSet<StringKey> = vec![

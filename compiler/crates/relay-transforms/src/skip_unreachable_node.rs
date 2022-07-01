@@ -6,14 +6,29 @@
  */
 
 use super::defer_stream::DEFER_STREAM_CONSTANTS;
-use crate::{DeferDirective, NoInlineFragmentSpreadMetadata, StreamDirective};
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{
-    transform_list_multi, Condition, ConditionValue, ConstantValue, FragmentDefinition,
-    FragmentSpread, InlineFragment, LinkedField, Program, Selection, Transformed, TransformedMulti,
-    TransformedValue, Transformer, Value,
-};
-use intern::string_key::{StringKey, StringKeyMap};
+use crate::DeferDirective;
+use crate::NoInlineFragmentSpreadMetadata;
+use crate::StreamDirective;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use graphql_ir::transform_list_multi;
+use graphql_ir::Condition;
+use graphql_ir::ConditionValue;
+use graphql_ir::ConstantValue;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedMulti;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
 use std::sync::Arc;
 use thiserror::Error;
 

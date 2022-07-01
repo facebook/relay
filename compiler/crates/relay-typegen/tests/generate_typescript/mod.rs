@@ -5,18 +5,28 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, FeatureFlag, FeatureFlags, SourceLocationKey};
+use common::ConsoleLogger;
+use common::FeatureFlag;
+use common::FeatureFlags;
+use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use fnv::{FnvBuildHasher, FnvHashMap};
-use graphql_ir::{build, Program};
+use fnv::FnvBuildHasher;
+use fnv::FnvHashMap;
+use graphql_ir::build;
+use graphql_ir::Program;
 use graphql_syntax::parse_executable;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use relay_codegen::JsModuleFormat;
-use relay_config::{CustomScalarType, CustomScalarTypeImport, ProjectConfig};
-use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
+use relay_config::CustomScalarType;
+use relay_config::CustomScalarTypeImport;
+use relay_config::ProjectConfig;
+use relay_test_schema::get_test_schema;
+use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::apply_transforms;
-use relay_typegen::{self, TypegenConfig, TypegenLanguage};
+use relay_typegen::TypegenConfig;
+use relay_typegen::TypegenLanguage;
+use relay_typegen::{self};
 use std::sync::Arc;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;

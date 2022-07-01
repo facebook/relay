@@ -5,13 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use ::intern::string_key::{Intern, StringKey};
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
 use indexmap::IndexMap;
 use relay_config::SchemaConfig;
 use relay_transforms::TypeConditionInfo;
-use schema::{Type, TypeReference};
+use schema::Type;
+use schema::TypeReference;
 
-use crate::{writer::AST, JS_FIELD_NAME, KEY_CLIENTID, KEY_TYPENAME, SPREAD_KEY};
+use crate::writer::AST;
+use crate::JS_FIELD_NAME;
+use crate::KEY_CLIENTID;
+use crate::KEY_TYPENAME;
+use crate::SPREAD_KEY;
 
 #[derive(Debug, Clone)]
 pub(crate) enum TypeSelection {

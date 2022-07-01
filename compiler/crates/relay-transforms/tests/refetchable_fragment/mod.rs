@@ -6,9 +6,9 @@
  */
 
 use fixture_tests::Fixture;
-use relay_transforms::{
-    transform_connections, transform_refetchable_fragment, ConnectionInterface,
-};
+use relay_transforms::transform_connections;
+use relay_transforms::transform_refetchable_fragment;
+use relay_transforms::ConnectionInterface;
 
 use graphql_test_helpers::apply_transform_for_test;
 

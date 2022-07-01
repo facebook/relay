@@ -10,12 +10,15 @@ use async_trait::async_trait;
 use dashmap::DashMap;
 use md5::Md5;
 use persist_query::PersistError;
-use relay_config::{LocalPersistAlgorithm, LocalPersistConfig};
-use sha1::{Digest, Sha1};
+use relay_config::LocalPersistAlgorithm;
+use relay_config::LocalPersistConfig;
+use sha1::Digest;
+use sha1::Sha1;
 use sha2::Sha256;
 use std::collections::BTreeMap;
 use std::fs::File;
-use std::io::{BufWriter, Write};
+use std::io::BufWriter;
+use std::io::Write;
 
 use crate::OperationPersister;
 

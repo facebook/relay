@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::types::{InternKey, RawInternKey};
+use crate::types::InternKey;
+use crate::types::RawInternKey;
 use fnv::FnvHashMap;
 use parking_lot::RwLock;
 use std::hash::Hash;

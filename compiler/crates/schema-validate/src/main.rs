@@ -7,7 +7,8 @@
 
 use clap::Parser;
 use common::DiagnosticsResult;
-use schema::{build_schema, SDLSchema};
+use schema::build_schema;
+use schema::SDLSchema;
 use schema_validate_lib::validate;
 use std::fs;
 use std::path::Path;

@@ -5,13 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{lsp_runtime_error::LSPRuntimeResult, server::GlobalState};
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::server::GlobalState;
 use common::Named;
 use intern::string_key::Intern;
 use lsp_types::request::Request;
 use schema::Schema;
 use schema_documentation::SchemaDocumentation;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 pub(crate) enum SearchSchemaItems {}
 

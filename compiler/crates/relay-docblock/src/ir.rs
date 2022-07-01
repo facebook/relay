@@ -7,18 +7,41 @@
 
 use std::collections::HashSet;
 
-use crate::errors::{ErrorMessages, ErrorMessagesWithData};
-use common::{Diagnostic, DiagnosticsResult, Location, Named, Span, WithLocation};
-use graphql_syntax::{
-    BooleanNode, ConstantArgument, ConstantDirective, ConstantValue, FieldDefinition,
-    FieldDefinitionStub, Identifier, InputValueDefinition, InterfaceTypeExtension, List,
-    NamedTypeAnnotation, ObjectTypeExtension, SchemaDocument, StringNode, Token, TokenKind,
-    TypeAnnotation, TypeSystemDefinition,
-};
-use intern::string_key::{Intern, StringKey};
+use crate::errors::ErrorMessages;
+use crate::errors::ErrorMessagesWithData;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::Named;
+use common::Span;
+use common::WithLocation;
+use graphql_syntax::BooleanNode;
+use graphql_syntax::ConstantArgument;
+use graphql_syntax::ConstantDirective;
+use graphql_syntax::ConstantValue;
+use graphql_syntax::FieldDefinition;
+use graphql_syntax::FieldDefinitionStub;
+use graphql_syntax::Identifier;
+use graphql_syntax::InputValueDefinition;
+use graphql_syntax::InterfaceTypeExtension;
+use graphql_syntax::List;
+use graphql_syntax::NamedTypeAnnotation;
+use graphql_syntax::ObjectTypeExtension;
+use graphql_syntax::SchemaDocument;
+use graphql_syntax::StringNode;
+use graphql_syntax::Token;
+use graphql_syntax::TokenKind;
+use graphql_syntax::TypeAnnotation;
+use graphql_syntax::TypeSystemDefinition;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 
 use lazy_static::lazy_static;
-use schema::{suggestion_list::GraphQLSuggestions, InterfaceID, ObjectID, SDLSchema, Schema};
+use schema::suggestion_list::GraphQLSuggestions;
+use schema::InterfaceID;
+use schema::ObjectID;
+use schema::SDLSchema;
+use schema::Schema;
 
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();

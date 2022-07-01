@@ -5,16 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    relay_directive::{MASK_ARG_NAME, PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME},
-    should_generate_hack_preloader,
-};
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
+use crate::relay_directive::MASK_ARG_NAME;
+use crate::relay_directive::PLURAL_ARG_NAME;
+use crate::relay_directive::RELAY_DIRECTIVE_NAME;
+use crate::should_generate_hack_preloader;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
 use errors::validate;
-use graphql_ir::{
-    ConstantValue, Directive, FragmentDefinition, FragmentSpread, OperationDefinition, Program,
-    ValidationMessage, Validator, Value, VariableDefinition,
-};
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
+use graphql_ir::Value;
+use graphql_ir::VariableDefinition;
 use intern::string_key::StringKeyMap;
 use schema::Schema;
 

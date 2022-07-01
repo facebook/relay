@@ -16,10 +16,16 @@ mod typegen_config;
 
 pub use connection_interface::ConnectionInterface;
 pub use js_module_format::JsModuleFormat;
-pub use project_config::{
-    LocalPersistAlgorithm, LocalPersistConfig, PersistConfig, ProjectConfig, ProjectName,
-    RemotePersistConfig, SchemaConfig, SchemaLocation,
-};
-pub use typegen_config::{
-    CustomScalarType, CustomScalarTypeImport, FlowTypegenConfig, TypegenConfig, TypegenLanguage,
-};
+pub use project_config::LocalPersistAlgorithm;
+pub use project_config::LocalPersistConfig;
+pub use project_config::PersistConfig;
+pub use project_config::ProjectConfig;
+pub use project_config::ProjectName;
+pub use project_config::RemotePersistConfig;
+pub use project_config::SchemaConfig;
+pub use project_config::SchemaLocation;
+pub use typegen_config::CustomScalarType;
+pub use typegen_config::CustomScalarTypeImport;
+pub use typegen_config::FlowTypegenConfig;
+pub use typegen_config::TypegenConfig;
+pub use typegen_config::TypegenLanguage;

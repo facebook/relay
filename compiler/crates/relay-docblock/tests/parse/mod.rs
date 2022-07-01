@@ -5,12 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, SourceLocationKey};
+use common::Diagnostic;
+use common::SourceLocationKey;
 use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use graphql_syntax::{parse_executable, ExecutableDefinition};
+use graphql_syntax::parse_executable;
+use graphql_syntax::ExecutableDefinition;
 use intern::string_key::Intern;
 use relay_docblock::parse_docblock_ast;
 

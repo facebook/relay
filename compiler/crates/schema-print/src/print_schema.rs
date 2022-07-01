@@ -9,11 +9,12 @@ use fnv::FnvHashMap;
 use intern::string_key::StringKey;
 use itertools::Itertools;
 use schema::*;
-use std::fmt::{Result as FmtResult, Write};
-use std::{
-    collections::{hash_map::DefaultHasher, BTreeMap},
-    hash::{Hash, Hasher},
-};
+use std::collections::hash_map::DefaultHasher;
+use std::collections::BTreeMap;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+use std::hash::Hash;
+use std::hash::Hasher;
 
 const DEAULT_SHARD_COUNT: usize = 1;
 

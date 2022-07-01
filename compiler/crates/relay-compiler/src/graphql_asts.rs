@@ -5,15 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_state::{GraphQLSources, ProjectName};
-use crate::errors::{Error, Result};
+use crate::compiler_state::GraphQLSources;
+use crate::compiler_state::ProjectName;
+use crate::errors::Error;
+use crate::errors::Result;
 use crate::file_source::LocatedGraphQLSource;
-use common::{Diagnostic, SourceLocationKey};
+use common::Diagnostic;
+use common::SourceLocationKey;
 use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
-use intern::string_key::{StringKey, StringKeySet};
+use intern::string_key::StringKey;
+use intern::string_key::StringKeySet;
 use std::collections::hash_map::Entry;
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use std::path::PathBuf;
 
 #[derive(Debug)]
 pub struct GraphQLAsts {

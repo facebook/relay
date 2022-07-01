@@ -5,19 +5,30 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-use graphql_ir::{
-    Condition, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
-    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Condition;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use schema::Schema;
 use std::sync::Arc;
 
-use super::{
-    ensure_discriminated_union_is_created, errors::ValidationMessage, ASSIGNABLE_DIRECTIVE,
-    UPDATABLE_DIRECTIVE,
-};
+use super::ensure_discriminated_union_is_created;
+use super::errors::ValidationMessage;
+use super::ASSIGNABLE_DIRECTIVE;
+use super::UPDATABLE_DIRECTIVE;
 
 pub fn transform_assignable_fragment_spreads_in_regular_queries(
     program: &Program,

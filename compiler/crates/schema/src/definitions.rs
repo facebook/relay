@@ -5,9 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Named, NamedItem, WithLocation};
-use graphql_syntax::{ConstantValue, DirectiveLocation};
-use intern::string_key::{Intern, StringKey};
+use common::Named;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_syntax::ConstantValue;
+use graphql_syntax::DirectiveLocation;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fmt;

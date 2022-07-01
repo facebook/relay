@@ -6,12 +6,23 @@
  */
 
 use super::ValidationMessage;
-use common::{Diagnostic, DiagnosticsResult, FeatureFlag, Location, NamedItem, WithLocation};
-use graphql_ir::{
-    Directive, Field, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
-    Transformer,
-};
-use intern::string_key::{Intern, StringKey};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::FeatureFlag;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
 use std::sync::Arc;

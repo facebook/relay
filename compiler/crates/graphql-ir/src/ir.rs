@@ -5,11 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, Named, WithLocation};
-use graphql_syntax::{FloatValue, OperationKind};
+use common::Location;
+use common::Named;
+use common::WithLocation;
+use graphql_syntax::FloatValue;
+use graphql_syntax::OperationKind;
 use intern::string_key::StringKey;
-use schema::{FieldID, Type, TypeReference};
-use schema::{SDLSchema, Schema};
+use schema::FieldID;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
 use std::fmt;
 use std::hash::Hash;
 use std::sync::Arc;

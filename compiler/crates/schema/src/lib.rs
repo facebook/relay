@@ -20,18 +20,39 @@ mod schema;
 pub mod suggestion_list;
 
 pub use crate::schema::SDLSchema;
-use common::{DiagnosticsResult, SourceLocationKey};
-pub use definitions::{
-    Argument, ArgumentDefinitions, ArgumentValue, Directive, DirectiveValue, Enum, EnumID,
-    EnumValue, Field, FieldID, InputObject, InputObjectID, Interface, InterfaceID, Object,
-    ObjectID, Scalar, ScalarID, Type, TypeReference, TypeWithFields, Union, UnionID,
-};
-pub use errors::{Result, SchemaError};
+use common::DiagnosticsResult;
+use common::SourceLocationKey;
+pub use definitions::Argument;
+pub use definitions::ArgumentDefinitions;
+pub use definitions::ArgumentValue;
+pub use definitions::Directive;
+pub use definitions::DirectiveValue;
+pub use definitions::Enum;
+pub use definitions::EnumID;
+pub use definitions::EnumValue;
+pub use definitions::Field;
+pub use definitions::FieldID;
+pub use definitions::InputObject;
+pub use definitions::InputObjectID;
+pub use definitions::Interface;
+pub use definitions::InterfaceID;
+pub use definitions::Object;
+pub use definitions::ObjectID;
+pub use definitions::Scalar;
+pub use definitions::ScalarID;
+pub use definitions::Type;
+pub use definitions::TypeReference;
+pub use definitions::TypeWithFields;
+pub use definitions::Union;
+pub use definitions::UnionID;
+pub use errors::Result;
+pub use errors::SchemaError;
 use flatbuffer::FlatBufferSchema;
 pub use flatbuffer::SchemaWrapper;
 pub use graphql_schema::Schema;
+pub use graphql_syntax::DirectiveLocation;
 use graphql_syntax::SchemaDocument;
-pub use graphql_syntax::{DirectiveLocation, TypeSystemDefinition};
+pub use graphql_syntax::TypeSystemDefinition;
 pub use in_memory::InMemorySchema;
 
 const BUILTINS: &str = include_str!("./builtins.graphql");

@@ -6,16 +6,31 @@
  */
 
 use self::ignoring_type_and_location::arguments_equals;
-use common::{Diagnostic, DiagnosticsResult, Location, PointerAddress};
-use dashmap::{DashMap, DashSet};
-use errors::{par_try_map, validate_map};
-use graphql_ir::{
-    node_identifier::LocationAgnosticBehavior, Argument, Field as IRField, FragmentDefinition,
-    LinkedField, OperationDefinition, Program, ScalarField, Selection,
-};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::PointerAddress;
+use dashmap::DashMap;
+use dashmap::DashSet;
+use errors::par_try_map;
+use errors::validate_map;
+use graphql_ir::node_identifier::LocationAgnosticBehavior;
+use graphql_ir::Argument;
+use graphql_ir::Field as IRField;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
 use intern::string_key::StringKey;
-use schema::{SDLSchema, Schema, Type, TypeReference};
-use std::collections::{HashMap, HashSet, VecDeque};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::collections::VecDeque;
 use std::marker::PhantomData;
 use std::sync::Arc;
 use thiserror::Error;
@@ -484,8 +499,10 @@ impl<'s> Field<'s> {
 }
 
 mod ignoring_type_and_location {
-    use graphql_ir::node_identifier::{LocationAgnosticBehavior, LocationAgnosticPartialEq};
-    use graphql_ir::{Argument, Value};
+    use graphql_ir::node_identifier::LocationAgnosticBehavior;
+    use graphql_ir::node_identifier::LocationAgnosticPartialEq;
+    use graphql_ir::Argument;
+    use graphql_ir::Value;
 
     /// Verify that two sets of arguments are equivalent - same argument names
     /// and values. Notably, this ignores the types of arguments and values,

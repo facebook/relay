@@ -5,12 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    refetchable_fragment::{RefetchableFragment, REFETCHABLE_NAME},
-    ValidationMessage,
-};
+use crate::refetchable_fragment::RefetchableFragment;
+use crate::refetchable_fragment::REFETCHABLE_NAME;
+use crate::ValidationMessage;
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey, StringKeyMap};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
 use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
 use schema::Type;
@@ -18,12 +19,26 @@ use std::sync::Arc;
 
 use super::ValidationMessageWithData;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
-use common::{Diagnostic, DiagnosticsResult, Location, Named, NamedItem, WithLocation};
-use graphql_ir::{
-    associated_data_impl, Argument, ConstantValue, Directive, Field, FragmentDefinition,
-    InlineFragment, LinkedField, OperationDefinition, Program, Selection, Transformed, Transformer,
-    Value,
-};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::Named;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
 use schema::Schema;
 
 lazy_static! {

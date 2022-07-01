@@ -8,8 +8,10 @@
 use super::file_filter::FileFilter;
 use super::File;
 use super::FileGroup;
-use crate::compiler_state::{ProjectName, ProjectSet};
-use crate::config::{Config, SchemaLocation};
+use crate::compiler_state::ProjectName;
+use crate::compiler_state::ProjectSet;
+use crate::config::Config;
+use crate::config::SchemaLocation;
 use crate::FileSourceResult;
 use common::sync::ParallelIterator;
 use core::panic;
@@ -18,10 +20,12 @@ use log::warn;
 use rayon::iter::IntoParallelRefIterator;
 use relay_typegen::TypegenLanguage;
 use std::borrow::Cow;
+use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::ffi::OsStr;
-use std::path::{Component, PathBuf};
-use std::{collections::hash_map::Entry, path::Path};
+use std::path::Component;
+use std::path::Path;
+use std::path::PathBuf;
 
 /// The watchman query returns a list of files, but for the compiler we
 /// need to categorize these files into multiple groups of files like

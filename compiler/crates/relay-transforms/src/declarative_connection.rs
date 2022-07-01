@@ -5,18 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    connections::ConnectionInterface,
-    handle_fields::{build_handle_field_directive, HandleFieldDirectiveValues},
-};
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{
-    Field, FragmentDefinition, LinkedField, Program, ScalarField, Selection, Transformed,
-    Transformer,
-};
-use intern::string_key::{Intern, StringKey};
+use crate::connections::ConnectionInterface;
+use crate::handle_fields::build_handle_field_directive;
+use crate::handle_fields::HandleFieldDirectiveValues;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use schema::{SDLSchema, Schema, Type, TypeWithFields};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeWithFields;
 use std::sync::Arc;
 use thiserror::Error;
 

@@ -7,17 +7,23 @@
 
 pub use super::artifact_content::ArtifactContent;
 use super::build_ir::SourceHashes;
-use crate::config::{Config, ProjectConfig};
-use common::{NamedItem, SourceLocationKey};
+use crate::config::Config;
+use crate::config::ProjectConfig;
+use common::NamedItem;
+use common::SourceLocationKey;
 use fnv::FnvHashMap;
-use graphql_ir::{FragmentDefinition, OperationDefinition};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
 use graphql_text_printer::OperationPrinter;
 use intern::string_key::StringKey;
-use relay_transforms::{
-    ClientEdgeGeneratedQueryMetadataDirective, Programs, RefetchableDerivedFromMetadata,
-    SplitOperationMetadata, CLIENT_EDGE_GENERATED_FRAGMENT_KEY, CLIENT_EDGE_SOURCE_NAME,
-    DIRECTIVE_SPLIT_OPERATION, UPDATABLE_DIRECTIVE,
-};
+use relay_transforms::ClientEdgeGeneratedQueryMetadataDirective;
+use relay_transforms::Programs;
+use relay_transforms::RefetchableDerivedFromMetadata;
+use relay_transforms::SplitOperationMetadata;
+use relay_transforms::CLIENT_EDGE_GENERATED_FRAGMENT_KEY;
+use relay_transforms::CLIENT_EDGE_SOURCE_NAME;
+use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
+use relay_transforms::UPDATABLE_DIRECTIVE;
 use std::path::PathBuf;
 use std::sync::Arc;
 

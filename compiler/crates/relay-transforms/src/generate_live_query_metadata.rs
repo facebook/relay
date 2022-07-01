@@ -6,12 +6,20 @@
  */
 
 use crate::create_metadata_directive;
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use graphql_ir::{
-    ConstantArgument, ConstantValue, OperationDefinition, Program, Transformed, Transformer, Value,
-};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::ConstantArgument;
+use graphql_ir::ConstantValue;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use thiserror::Error;
 

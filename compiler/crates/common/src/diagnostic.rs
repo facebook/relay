@@ -5,9 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use lsp_types::{Diagnostic as LspTypeDiagnostic, DiagnosticSeverity, DiagnosticTag};
+use lsp_types::Diagnostic as LspTypeDiagnostic;
+use lsp_types::DiagnosticSeverity;
+use lsp_types::DiagnosticTag;
 
-use crate::{Location, SourceLocationKey, TextSource};
+use crate::Location;
+use crate::SourceLocationKey;
+use crate::TextSource;
 use serde_json::Value;
 use std::error::Error;
 use std::fmt;

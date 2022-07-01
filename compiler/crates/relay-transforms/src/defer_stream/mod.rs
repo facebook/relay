@@ -8,18 +8,36 @@
 mod directives;
 
 use super::get_applied_fragment_name;
-use crate::util::{remove_directive, replace_directive};
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-pub use directives::{DeferDirective, StreamDirective};
-use graphql_ir::{
-    Argument, ConstantValue, Directive, Field, FragmentDefinition, FragmentSpread, InlineFragment,
-    LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    Value,
-};
-use intern::string_key::{Intern, StringKey};
+use crate::util::remove_directive;
+use crate::util::replace_directive;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+pub use directives::DeferDirective;
+pub use directives::StreamDirective;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
-use std::{collections::HashMap, sync::Arc};
+use std::collections::HashMap;
+use std::sync::Arc;
 use thiserror::Error;
 
 pub struct DeferStreamConstants {

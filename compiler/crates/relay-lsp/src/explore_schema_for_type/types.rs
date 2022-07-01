@@ -6,12 +6,20 @@
  */
 
 use intern::string_key::StringKey;
-use schema::{
-    DirectiveValue, EnumID, FieldID, InputObjectID, InterfaceID, ObjectID, SDLSchema, ScalarID,
-    Schema, Type, UnionID,
-};
+use schema::DirectiveValue;
+use schema::EnumID;
+use schema::FieldID;
+use schema::InputObjectID;
+use schema::InterfaceID;
+use schema::ObjectID;
+use schema::SDLSchema;
+use schema::ScalarID;
+use schema::Schema;
+use schema::Type;
+use schema::UnionID;
 use schema_documentation::SchemaDocumentation;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 const DEFAULT_COUNT: usize = 100;
 

@@ -6,11 +6,17 @@
  */
 
 use common::PointerAddress;
-use graphql_ir::{
-    transform_list, Field, FragmentDefinition, OperationDefinition, Program, Selection,
-    Transformed, TransformedValue, Transformer,
-};
-use std::{cmp::Ordering, collections::HashMap};
+use graphql_ir::transform_list;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use std::cmp::Ordering;
+use std::collections::HashMap;
 
 type Seen = HashMap<PointerAddress, Transformed<Selection>>;
 
@@ -136,7 +142,8 @@ impl SortSelectionsTransform<'_> {
                 .passing_value
                 .cmp(&b.passing_value)
                 .then_with(|| {
-                    use graphql_ir::ConditionValue::{Constant, Variable};
+                    use graphql_ir::ConditionValue::Constant;
+                    use graphql_ir::ConditionValue::Variable;
                     match (&a.value, &b.value) {
                         (Constant(a), Constant(b)) => a.cmp(b),
                         (Variable(a), Variable(b)) => a.name.item.cmp(&b.name.item),

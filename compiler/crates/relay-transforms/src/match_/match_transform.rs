@@ -6,29 +6,50 @@
  */
 
 use super::validation_message::ValidationMessage;
-use crate::{
-    defer_stream::DEFER_STREAM_CONSTANTS,
-    inline_data_fragment::INLINE_DIRECTIVE_NAME,
-    match_::MATCH_CONSTANTS,
-    no_inline::{attach_no_inline_directives_to_fragments, validate_required_no_inline_directive},
-    util::get_normalization_operation_name,
-};
-use common::{
-    Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, Location, NamedItem, WithLocation,
-};
-use fnv::{FnvBuildHasher, FnvHashMap};
-use graphql_ir::{
-    associated_data_impl, Argument, ConstantValue, Directive, Field, FragmentDefinition,
-    FragmentSpread, InlineFragment, LinkedField, OperationDefinition, Program, ScalarField,
-    Selection, Transformed, TransformedValue, Transformer, Value,
-};
+use crate::defer_stream::DEFER_STREAM_CONSTANTS;
+use crate::inline_data_fragment::INLINE_DIRECTIVE_NAME;
+use crate::match_::MATCH_CONSTANTS;
+use crate::no_inline::attach_no_inline_directives_to_fragments;
+use crate::no_inline::validate_required_no_inline_directive;
+use crate::util::get_normalization_operation_name;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::FeatureFlag;
+use common::FeatureFlags;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use fnv::FnvBuildHasher;
+use fnv::FnvHashMap;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
 use indexmap::IndexSet;
-use intern::string_key::{Intern, StringKey, StringKeyMap};
-use schema::{FieldID, ScalarID, Schema, Type, TypeReference};
-use std::{
-    hash::{Hash, Hasher},
-    sync::Arc,
-};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
+use schema::FieldID;
+use schema::ScalarID;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
+use std::hash::Hash;
+use std::hash::Hasher;
+use std::sync::Arc;
 
 /// Transform and validate @match and @module
 pub fn transform_match(

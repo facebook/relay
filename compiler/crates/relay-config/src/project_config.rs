@@ -5,25 +5,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{FeatureFlags, Rollout, SourceLocationKey, WithLocation};
+use common::FeatureFlags;
+use common::Rollout;
+use common::SourceLocationKey;
+use common::WithLocation;
 use fmt::Debug;
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use regex::Regex;
-use serde::{de::Error, Deserialize, Deserializer, Serialize};
+use serde::de::Error;
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
 use serde_json::Value;
-use std::{
-    fmt,
-    path::{Path, PathBuf},
-    str::FromStr,
-    sync::Arc,
-    usize,
-};
+use std::fmt;
+use std::path::Path;
+use std::path::PathBuf;
+use std::str::FromStr;
+use std::sync::Arc;
+use std::usize;
 
-use crate::{
-    connection_interface::ConnectionInterface, JsModuleFormat, TypegenConfig, TypegenLanguage,
-};
+use crate::connection_interface::ConnectionInterface;
+use crate::JsModuleFormat;
+use crate::TypegenConfig;
+use crate::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 

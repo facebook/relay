@@ -5,11 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{DiagnosticDisplay, WithDiagnosticData};
+use common::DiagnosticDisplay;
+use common::WithDiagnosticData;
 use graphql_syntax::OperationKind;
 use intern::string_key::StringKey;
 use schema::suggestion_list::did_you_mean;
-use schema::{Type, TypeReference};
+use schema::Type;
+use schema::TypeReference;
 use thiserror::Error;
 
 /// Fixed set of validation errors with custom display messages

@@ -6,7 +6,8 @@
  */
 
 use super::primitive::*;
-use common::{Named, Span};
+use common::Named;
+use common::Span;
 use core::fmt;
 use intern::string_key::StringKey;
 

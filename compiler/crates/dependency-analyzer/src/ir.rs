@@ -6,8 +6,11 @@
  */
 
 use graphql_ir::*;
-use intern::string_key::{StringKey, StringKeyMap, StringKeySet};
-use relay_transforms::{DependencyMap, ResolverFieldFinder};
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
+use intern::string_key::StringKeySet;
+use relay_transforms::DependencyMap;
+use relay_transforms::ResolverFieldFinder;
 use schema::SDLSchema;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;

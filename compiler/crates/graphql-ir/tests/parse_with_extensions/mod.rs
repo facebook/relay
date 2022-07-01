@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{SourceLocationKey, TextSource};
+use common::SourceLocationKey;
+use common::TextSource;
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_cli::DiagnosticPrinter;

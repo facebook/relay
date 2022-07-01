@@ -5,11 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::definitions::{ArgumentChange, DefinitionChange, SchemaChange, Type, TypeChange};
-use intern::string_key::{Intern, StringKey};
+use crate::definitions::ArgumentChange;
+use crate::definitions::DefinitionChange;
+use crate::definitions::SchemaChange;
+use crate::definitions::Type;
+use crate::definitions::TypeChange;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
-use schema::{SDLSchema, Schema};
+use schema::SDLSchema;
+use schema::Schema;
 
 /// Return if the changes are safe to skip full rebuild.
 impl SchemaChange {

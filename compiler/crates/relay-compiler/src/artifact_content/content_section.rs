@@ -6,7 +6,9 @@
  */
 
 use signedsource::sign_file;
-use std::fmt::{Error as FmtError, Result as FmtResult, Write};
+use std::fmt::Error as FmtError;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
 
 pub enum ContentSection {
     CommentAnnotations(CommentAnnotationsSection),

@@ -7,14 +7,28 @@
 
 use std::collections::HashSet;
 
-use super::{ValidationMessage, ASSIGNABLE_DIRECTIVE, UPDATABLE_DIRECTIVE};
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem};
-use errors::{validate, validate_map};
-use graphql_ir::{
-    Condition, Directive, Field, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
-    OperationDefinition, Program, Selection, Validator,
-};
-use intern::string_key::{Intern, StringKey};
+use super::ValidationMessage;
+use super::ASSIGNABLE_DIRECTIVE;
+use super::UPDATABLE_DIRECTIVE;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::NamedItem;
+use errors::validate;
+use errors::validate_map;
+use graphql_ir::Condition;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Validator;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
 

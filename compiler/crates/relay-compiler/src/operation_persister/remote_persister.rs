@@ -7,7 +7,8 @@
 
 use crate::config::ArtifactForPersister;
 use async_trait::async_trait;
-use persist_query::{persist, PersistError};
+use persist_query::persist;
+use persist_query::PersistError;
 use relay_config::RemotePersistConfig;
 use std::iter::empty;
 use tokio::sync::Semaphore;

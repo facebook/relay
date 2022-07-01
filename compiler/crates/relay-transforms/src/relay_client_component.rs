@@ -6,21 +6,39 @@
  */
 
 use super::ValidationMessage;
-use crate::util::{get_fragment_filename, get_normalization_operation_name};
-use crate::{
-    match_::SplitOperationMetadata,
-    no_inline::{attach_no_inline_directives_to_fragments, validate_required_no_inline_directive},
-};
-use common::{Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, NamedItem, WithLocation};
-use graphql_ir::{
-    associated_data_impl, Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
-    OperationDefinition, Program, Selection, Transformed, Transformer, Value,
-};
+use crate::match_::SplitOperationMetadata;
+use crate::no_inline::attach_no_inline_directives_to_fragments;
+use crate::no_inline::validate_required_no_inline_directive;
+use crate::util::get_fragment_filename;
+use crate::util::get_normalization_operation_name;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::FeatureFlag;
+use common::FeatureFlags;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey, StringKeyMap, StringKeySet};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
+use intern::string_key::StringKeySet;
 use itertools::Itertools;
 use lazy_static::lazy_static;
-use schema::{InterfaceID, Schema, Type};
+use schema::InterfaceID;
+use schema::Schema;
+use schema::Type;
 use std::sync::Arc;
 
 lazy_static! {

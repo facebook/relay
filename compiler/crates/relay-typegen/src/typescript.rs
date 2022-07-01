@@ -5,12 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::{Prop, SortedASTList, SortedStringKeyList, StringLiteral, Writer, AST};
-use crate::{KEY_DATA, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE};
-use intern::string_key::{Intern, StringKey};
+use crate::writer::Prop;
+use crate::writer::SortedASTList;
+use crate::writer::SortedStringKeyList;
+use crate::writer::StringLiteral;
+use crate::writer::Writer;
+use crate::writer::AST;
+use crate::KEY_DATA;
+use crate::KEY_FRAGMENT_SPREADS;
+use crate::KEY_FRAGMENT_TYPE;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use itertools::Itertools;
 use relay_config::TypegenConfig;
-use std::fmt::{Result as FmtResult, Write};
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
 
 pub struct TypeScriptPrinter {
     result: String,
@@ -293,7 +302,10 @@ impl TypeScriptPrinter {
 
 #[cfg(test)]
 mod tests {
-    use crate::writer::{ExactObject, InexactObject, KeyValuePairProp, SortedASTList};
+    use crate::writer::ExactObject;
+    use crate::writer::InexactObject;
+    use crate::writer::KeyValuePairProp;
+    use crate::writer::SortedASTList;
 
     use super::*;
     use intern::string_key::Intern;

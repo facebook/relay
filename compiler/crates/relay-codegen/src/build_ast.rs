@@ -5,34 +5,70 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
+use crate::ast::Ast;
+use crate::ast::AstBuilder;
+use crate::ast::AstKey;
+use crate::ast::ObjectEntry;
+use crate::ast::Primitive;
+use crate::ast::QueryID;
+use crate::ast::RequestParameters;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::object;
 use crate::top_level_statements::TopLevelStatements;
-use common::{NamedItem, WithLocation};
-use graphql_ir::{
-    Argument, Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition,
-    FragmentSpread, InlineFragment, LinkedField, OperationDefinition, ProvidedVariableMetadata,
-    ScalarField, Selection, Value, VariableDefinition,
-};
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::Condition;
+use graphql_ir::ConditionValue;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::ProvidedVariableMetadata;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Value;
+use graphql_ir::VariableDefinition;
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey};
-use md5::{Digest, Md5};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use md5::Digest;
+use md5::Md5;
 use relay_config::ProjectConfig;
-use relay_transforms::{
-    extract_connection_metadata_from_directive, extract_handle_field_directives,
-    extract_values_from_handle_field_directive, generate_abstract_type_refinement_key,
-    remove_directive, ClientEdgeMetadata, ClientEdgeMetadataDirective, ConnectionConstants,
-    ConnectionMetadata, DeferDirective, FragmentAliasMetadata, InlineDirectiveMetadata,
-    ModuleMetadata, NoInlineFragmentSpreadMetadata, RefetchableMetadata, RelayDirective,
-    RelayResolverMetadata, RequiredMetadataDirective, StreamDirective,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, DEFER_STREAM_CONSTANTS, DIRECTIVE_SPLIT_OPERATION,
-    INLINE_DIRECTIVE_NAME, INTERNAL_METADATA_DIRECTIVE,
-    REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-    RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME, RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
-    TYPE_DISCRIMINATOR_DIRECTIVE_NAME,
-};
-use schema::{SDLSchema, Schema};
+use relay_transforms::extract_connection_metadata_from_directive;
+use relay_transforms::extract_handle_field_directives;
+use relay_transforms::extract_values_from_handle_field_directive;
+use relay_transforms::generate_abstract_type_refinement_key;
+use relay_transforms::remove_directive;
+use relay_transforms::ClientEdgeMetadata;
+use relay_transforms::ClientEdgeMetadataDirective;
+use relay_transforms::ConnectionConstants;
+use relay_transforms::ConnectionMetadata;
+use relay_transforms::DeferDirective;
+use relay_transforms::FragmentAliasMetadata;
+use relay_transforms::InlineDirectiveMetadata;
+use relay_transforms::ModuleMetadata;
+use relay_transforms::NoInlineFragmentSpreadMetadata;
+use relay_transforms::RefetchableMetadata;
+use relay_transforms::RelayDirective;
+use relay_transforms::RelayResolverMetadata;
+use relay_transforms::RequiredMetadataDirective;
+use relay_transforms::StreamDirective;
+use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
+use relay_transforms::DEFER_STREAM_CONSTANTS;
+use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
+use relay_transforms::INLINE_DIRECTIVE_NAME;
+use relay_transforms::INTERNAL_METADATA_DIRECTIVE;
+use relay_transforms::REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY;
+use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
+use relay_transforms::RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME;
+use relay_transforms::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME;
+use relay_transforms::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
+use schema::SDLSchema;
+use schema::Schema;
 
 pub fn build_request_params_ast_key(
     schema: &SDLSchema,

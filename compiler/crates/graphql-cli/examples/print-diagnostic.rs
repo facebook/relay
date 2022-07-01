@@ -5,7 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, Location, SourceLocationKey, Span, TextSource};
+use common::Diagnostic;
+use common::Location;
+use common::SourceLocationKey;
+use common::Span;
+use common::TextSource;
 use graphql_cli::DiagnosticPrinter;
 
 const EXAMPLE: &str = "fragment Example on User {

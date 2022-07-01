@@ -5,9 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_ir::{FragmentDefinition, OperationDefinition};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
 
-use graphql_ir::{Program, Transformed, Transformer};
+use graphql_ir::Program;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
 use intern::string_key::StringKeySet;
 
 /// This transform removes the given list of base fragments from the Program.

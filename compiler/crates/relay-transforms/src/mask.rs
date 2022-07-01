@@ -7,14 +7,21 @@
 
 use crate::relay_directive::RelayDirective;
 use common::Location;
-use graphql_ir::{
-    FragmentDefinition, FragmentSpread, InlineFragment, OperationDefinition, Program, ScalarField,
-    Selection, Transformed, Transformer, VariableDefinition,
-};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::VariableDefinition;
 use indexmap::map::Entry;
 use intern::string_key::StringKeyIndexMap;
 use schema::Schema;
-use std::{ops::RangeFull, sync::Arc};
+use std::ops::RangeFull;
+use std::sync::Arc;
 
 /// Transform to inline fragment spreads with @relay(mask:false)
 pub fn mask(program: &Program) -> Program {

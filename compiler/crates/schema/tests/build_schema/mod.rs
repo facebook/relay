@@ -5,13 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, SourceLocationKey, TextSource};
+use common::Diagnostic;
+use common::SourceLocationKey;
+use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use schema::{
-    build_schema_from_flat_buffer, build_schema_with_extensions, serialize_as_flatbuffer,
-    SDLSchema, Schema, Type,
-};
+use schema::build_schema_from_flat_buffer;
+use schema::build_schema_with_extensions;
+use schema::serialize_as_flatbuffer;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 use std::collections::BTreeMap;
 
 const SCHEMA_SEPARATOR: &str = "%extensions%";

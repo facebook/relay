@@ -5,47 +5,91 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use ::intern::{
-    intern,
-    string_key::{Intern, StringKey},
-};
+use ::intern::intern;
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
 use common::NamedItem;
-use graphql_ir::{
-    Condition, Directive, FragmentSpread, InlineFragment, LinkedField, OperationDefinition,
-    ScalarField, Selection,
-};
-use indexmap::{map::Entry, IndexMap, IndexSet};
-use relay_config::{CustomScalarType, CustomScalarTypeImport, TypegenLanguage};
-use relay_transforms::{
-    ClientEdgeMetadata, FragmentAliasMetadata, ModuleMetadata, NoInlineFragmentSpreadMetadata,
-    RelayResolverMetadata, RequiredMetadataDirective, TypeConditionInfo,
-    ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN, CHILDREN_CAN_BUBBLE_METADATA_KEY,
-    CLIENT_EXTENSION_DIRECTIVE_NAME, RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-    UPDATABLE_DIRECTIVE_FOR_TYPEGEN,
-};
-use schema::{EnumID, SDLSchema, ScalarID, Schema, Type, TypeReference};
+use graphql_ir::Condition;
+use graphql_ir::Directive;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use indexmap::map::Entry;
+use indexmap::IndexMap;
+use indexmap::IndexSet;
+use relay_config::CustomScalarType;
+use relay_config::CustomScalarTypeImport;
+use relay_config::TypegenLanguage;
+use relay_transforms::ClientEdgeMetadata;
+use relay_transforms::FragmentAliasMetadata;
+use relay_transforms::ModuleMetadata;
+use relay_transforms::NoInlineFragmentSpreadMetadata;
+use relay_transforms::RelayResolverMetadata;
+use relay_transforms::RequiredMetadataDirective;
+use relay_transforms::TypeConditionInfo;
+use relay_transforms::ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN;
+use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
+use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
+use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
+use relay_transforms::UPDATABLE_DIRECTIVE_FOR_TYPEGEN;
+use schema::EnumID;
+use schema::SDLSchema;
+use schema::ScalarID;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
 use std::hash::Hash;
 
-use crate::{
-    type_selection::{
-        ModuleDirective, RawResponseFragmentSpread, ScalarFieldSpecialSchemaField, TypeSelection,
-        TypeSelectionFragmentSpread, TypeSelectionInlineFragment, TypeSelectionKey,
-        TypeSelectionLinkedField, TypeSelectionMap, TypeSelectionScalarField,
-    },
-    typegen_state::{
-        ActorChangeStatus, EncounteredEnums, EncounteredFragment, EncounteredFragments,
-        GeneratedInputObject, ImportedRawResponseTypes, ImportedResolver, ImportedResolvers,
-        InputObjectTypes, MatchFields, RuntimeImports,
-    },
-    write::CustomScalarsImports,
-    writer::{
-        ExactObject, FunctionTypeAssertion, GetterSetterPairProp, InexactObject, KeyValuePairProp,
-        Prop, SortedASTList, SortedStringKeyList, SpreadProp, StringLiteral, AST,
-    },
-    MaskStatus, TypegenContext, FRAGMENT_PROP_NAME, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE,
-    KEY_UPDATABLE_FRAGMENT_SPREADS, MODULE_COMPONENT, RESPONSE, TYPE_BOOLEAN, TYPE_FLOAT, TYPE_ID,
-    TYPE_INT, TYPE_STRING, VARIABLES,
-};
+use crate::type_selection::ModuleDirective;
+use crate::type_selection::RawResponseFragmentSpread;
+use crate::type_selection::ScalarFieldSpecialSchemaField;
+use crate::type_selection::TypeSelection;
+use crate::type_selection::TypeSelectionFragmentSpread;
+use crate::type_selection::TypeSelectionInlineFragment;
+use crate::type_selection::TypeSelectionKey;
+use crate::type_selection::TypeSelectionLinkedField;
+use crate::type_selection::TypeSelectionMap;
+use crate::type_selection::TypeSelectionScalarField;
+use crate::typegen_state::ActorChangeStatus;
+use crate::typegen_state::EncounteredEnums;
+use crate::typegen_state::EncounteredFragment;
+use crate::typegen_state::EncounteredFragments;
+use crate::typegen_state::GeneratedInputObject;
+use crate::typegen_state::ImportedRawResponseTypes;
+use crate::typegen_state::ImportedResolver;
+use crate::typegen_state::ImportedResolvers;
+use crate::typegen_state::InputObjectTypes;
+use crate::typegen_state::MatchFields;
+use crate::typegen_state::RuntimeImports;
+use crate::write::CustomScalarsImports;
+use crate::writer::ExactObject;
+use crate::writer::FunctionTypeAssertion;
+use crate::writer::GetterSetterPairProp;
+use crate::writer::InexactObject;
+use crate::writer::KeyValuePairProp;
+use crate::writer::Prop;
+use crate::writer::SortedASTList;
+use crate::writer::SortedStringKeyList;
+use crate::writer::SpreadProp;
+use crate::writer::StringLiteral;
+use crate::writer::AST;
+use crate::MaskStatus;
+use crate::TypegenContext;
+use crate::FRAGMENT_PROP_NAME;
+use crate::KEY_FRAGMENT_SPREADS;
+use crate::KEY_FRAGMENT_TYPE;
+use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
+use crate::MODULE_COMPONENT;
+use crate::RESPONSE;
+use crate::TYPE_BOOLEAN;
+use crate::TYPE_FLOAT;
+use crate::TYPE_ID;
+use crate::TYPE_INT;
+use crate::TYPE_STRING;
+use crate::VARIABLES;
 
 #[allow(clippy::too_many_arguments)]
 pub(crate) fn visit_selections(

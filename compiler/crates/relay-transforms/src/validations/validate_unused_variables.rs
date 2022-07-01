@@ -6,9 +6,16 @@
  */
 
 use crate::root_variables::InferVariablesVisitor;
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{FragmentDefinition, OperationDefinition, Program, ValidationMessage, Validator};
-use intern::string_key::{Intern, StringKey};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 
 pub fn validate_unused_variables(program: &Program) -> DiagnosticsResult<()> {
     ValidateUnusedVariables::new(program).validate_program(program)

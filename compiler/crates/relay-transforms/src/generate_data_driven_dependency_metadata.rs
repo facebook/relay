@@ -5,14 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{util::get_fragment_filename, ModuleMetadata};
-use graphql_ir::{
-    associated_data_impl, Directive, FragmentDefinition, OperationDefinition, Program, Selection,
-    Transformed, Transformer,
-};
-use intern::string_key::{StringKey, StringKeyMap};
+use crate::util::get_fragment_filename;
+use crate::ModuleMetadata;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
 use itertools::Itertools;
-use schema::{Schema, TypeReference};
+use schema::Schema;
+use schema::TypeReference;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RelayDataDrivenDependencyMetadata {

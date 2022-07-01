@@ -8,13 +8,17 @@
 mod content;
 mod content_section;
 
-use crate::config::{Config, ProjectConfig};
+use crate::config::Config;
+use crate::config::ProjectConfig;
 use common::SourceLocationKey;
-use content::{
-    generate_fragment, generate_operation, generate_split_operation, generate_updatable_query,
-};
-use graphql_ir::{FragmentDefinition, OperationDefinition};
-use relay_codegen::{Printer, QueryID};
+use content::generate_fragment;
+use content::generate_operation;
+use content::generate_split_operation;
+use content::generate_updatable_query;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use relay_codegen::Printer;
+use relay_codegen::QueryID;
 use schema::SDLSchema;
 use std::sync::Arc;
 

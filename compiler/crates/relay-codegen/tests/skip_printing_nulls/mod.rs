@@ -5,12 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::FeatureFlag;
+use common::FeatureFlags;
 use common::SourceLocationKey;
-use common::{FeatureFlag, FeatureFlags};
 use fixture_tests::Fixture;
-use graphql_ir::{build, ExecutableDefinition};
+use graphql_ir::build;
+use graphql_ir::ExecutableDefinition;
 use graphql_syntax::parse_executable;
-use relay_codegen::{print_fragment, print_operation};
+use relay_codegen::print_fragment;
+use relay_codegen::print_operation;
 use relay_config::ProjectConfig;
 use relay_test_schema::TEST_SCHEMA;
 use std::sync::Arc;

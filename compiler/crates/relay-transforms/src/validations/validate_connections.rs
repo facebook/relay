@@ -5,21 +5,33 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    connections::{extract_connection_directive, ConnectionConstants, ConnectionInterface},
-    handle_fields::{
-        extract_handle_field_directive_args_for_connection, CONNECTION_HANDLER_ARG_NAME,
-        DYNAMIC_KEY_ARG_NAME, FILTERS_ARG_NAME, KEY_ARG_NAME,
-    },
-};
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use errors::{validate, validate_map};
-use graphql_ir::{
-    Argument, ConstantValue, Directive, LinkedField, Program, Selection, ValidationMessage,
-    Validator, Value,
-};
+use crate::connections::extract_connection_directive;
+use crate::connections::ConnectionConstants;
+use crate::connections::ConnectionInterface;
+use crate::handle_fields::extract_handle_field_directive_args_for_connection;
+use crate::handle_fields::CONNECTION_HANDLER_ARG_NAME;
+use crate::handle_fields::DYNAMIC_KEY_ARG_NAME;
+use crate::handle_fields::FILTERS_ARG_NAME;
+use crate::handle_fields::KEY_ARG_NAME;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use errors::validate;
+use errors::validate_map;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
+use graphql_ir::Value;
 use intern::string_key::StringKey;
-use schema::{Field, Schema, Type, TypeReference};
+use schema::Field;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
 
 pub fn validate_connections(
     program: &Program,

@@ -5,18 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
-    NoInlineFragmentSpreadMetadata, RelayLocationAgnosticBehavior,
-};
+use crate::relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME;
+use crate::NoInlineFragmentSpreadMetadata;
+use crate::RelayLocationAgnosticBehavior;
 use common::Location;
 use fnv::FnvHashMap;
-use graphql_ir::{
-    node_identifier::{LocationAgnosticHash, LocationAgnosticPartialEq},
-    FragmentDefinition, FragmentSpread, InlineFragment, Program, ScalarField, Selection,
-    Transformed, Transformer,
-};
-use std::{hash::Hash, sync::Arc};
+use graphql_ir::node_identifier::LocationAgnosticHash;
+use graphql_ir::node_identifier::LocationAgnosticPartialEq;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use std::hash::Hash;
+use std::sync::Arc;
 
 pub fn inline_fragments(program: &Program) -> Program {
     let mut transform = InlineFragmentsTransform::new(program);

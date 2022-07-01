@@ -5,25 +5,47 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    ClientEdgeMetadata, DependencyMap, FragmentAliasMetadata, RequiredMetadataDirective,
-    CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME, REQUIRED_DIRECTIVE_NAME,
-};
+use crate::ClientEdgeMetadata;
+use crate::DependencyMap;
+use crate::FragmentAliasMetadata;
+use crate::RequiredMetadataDirective;
+use crate::CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME;
+use crate::REQUIRED_DIRECTIVE_NAME;
 
 use super::ValidationMessage;
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-use graphql_ir::{
-    associated_data_impl, Argument, Directive, Field as IrField, FragmentDefinition,
-    FragmentSpread, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    Visitor,
-};
-use graphql_ir::{InlineFragment, LinkedField};
-use graphql_syntax::{BooleanNode, ConstantValue};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Argument;
+use graphql_ir::Directive;
+use graphql_ir::Field as IrField;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Visitor;
+use graphql_syntax::BooleanNode;
+use graphql_syntax::ConstantValue;
+use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::string_key::{Intern, StringKeySet};
+use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
-use schema::{ArgumentValue, Field, FieldID, SDLSchema, Schema};
-use std::{mem, sync::Arc};
+use schema::ArgumentValue;
+use schema::Field;
+use schema::FieldID;
+use schema::SDLSchema;
+use schema::Schema;
+use std::mem;
+use std::sync::Arc;
 
 pub fn relay_resolvers(program: &Program, enabled: bool) -> DiagnosticsResult<Program> {
     let transformed_fields_program = relay_resolvers_fields_transform(program, enabled)?;

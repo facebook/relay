@@ -25,7 +25,9 @@ pub use syntax_error::SyntaxError;
 pub use utils::*;
 
 use crate::parser::Parser;
-use common::{DiagnosticsResult, SourceLocationKey, WithDiagnostics};
+use common::DiagnosticsResult;
+use common::SourceLocationKey;
+use common::WithDiagnostics;
 
 /// Parses a GraphQL document that might contain type system and executable
 /// definitions.

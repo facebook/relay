@@ -5,19 +5,36 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{fmt, hash::Hash};
+use std::fmt;
+use std::hash::Hash;
 
 use common::WithLocation;
 use dashmap::DashMap;
 use fnv::FnvBuildHasher;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use ouroboros::self_referencing;
 
-use crate::{
-    Argument, ArgumentDefinitions, Directive, Enum, EnumID, Field, FieldID, InputObject,
-    InputObjectID, Interface, InterfaceID, Object, ObjectID, Scalar, ScalarID, Schema, Type,
-    TypeReference, Union, UnionID,
-};
+use crate::Argument;
+use crate::ArgumentDefinitions;
+use crate::Directive;
+use crate::Enum;
+use crate::EnumID;
+use crate::Field;
+use crate::FieldID;
+use crate::InputObject;
+use crate::InputObjectID;
+use crate::Interface;
+use crate::InterfaceID;
+use crate::Object;
+use crate::ObjectID;
+use crate::Scalar;
+use crate::ScalarID;
+use crate::Schema;
+use crate::Type;
+use crate::TypeReference;
+use crate::Union;
+use crate::UnionID;
 
 use super::FlatBufferSchema;
 

@@ -8,14 +8,28 @@
 mod serialize;
 mod wrapper;
 
-use crate::definitions::{Argument, Directive, *};
-use common::{Span, WithLocation};
-use flatbuffers::{ForwardsUOffset, Vector};
-use graphql_syntax::{
-    BooleanNode, ConstantArgument, ConstantValue, DirectiveLocation, EnumNode, FloatNode,
-    FloatValue, Identifier, IntNode, List, StringNode, Token, TokenKind,
-};
-use intern::string_key::{Intern, StringKey};
+use crate::definitions::Argument;
+use crate::definitions::Directive;
+use crate::definitions::*;
+use common::Span;
+use common::WithLocation;
+use flatbuffers::ForwardsUOffset;
+use flatbuffers::Vector;
+use graphql_syntax::BooleanNode;
+use graphql_syntax::ConstantArgument;
+use graphql_syntax::ConstantValue;
+use graphql_syntax::DirectiveLocation;
+use graphql_syntax::EnumNode;
+use graphql_syntax::FloatNode;
+use graphql_syntax::FloatValue;
+use graphql_syntax::Identifier;
+use graphql_syntax::IntNode;
+use graphql_syntax::List;
+use graphql_syntax::StringNode;
+use graphql_syntax::Token;
+use graphql_syntax::TokenKind;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 pub use serialize::serialize_as_flatbuffer;
 use std::cmp::Ordering;
 pub use wrapper::SchemaWrapper;

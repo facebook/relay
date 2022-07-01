@@ -7,17 +7,31 @@
 
 use std::sync::Arc;
 
-use common::{
-    Diagnostic, DiagnosticsResult, FeatureFlag, Location, Named, NamedItem, WithLocation,
-};
-use graphql_ir::{
-    associated_data_impl, transform_list, Directive, FragmentDefinition, FragmentSpread,
-    InlineFragment, LinkedField, OperationDefinition, Program, Selection, Transformed,
-    TransformedValue, Transformer,
-};
-use intern::string_key::{Intern, StringKey};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::FeatureFlag;
+use common::Location;
+use common::Named;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::transform_list;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use schema::{Schema, Type};
+use schema::Schema;
+use schema::Type;
 
 use crate::ValidationMessage;
 

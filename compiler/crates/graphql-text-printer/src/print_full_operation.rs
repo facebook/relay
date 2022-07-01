@@ -5,11 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{print_fragment, print_operation};
+use crate::print_fragment;
+use crate::print_operation;
 use fnv::FnvHashMap;
-use graphql_ir::{
-    FragmentDefinition, FragmentSpread, OperationDefinition, Program, ScalarField, Visitor,
-};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Visitor;
 use intern::string_key::StringKey;
 use std::sync::Arc;
 

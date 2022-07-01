@@ -5,23 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{
-    Diagnostic, FeatureFlags, NoopPerfLogger,
-    SourceLocationKey::{self, Generated},
-    TextSource,
-};
+use common::Diagnostic;
+use common::FeatureFlags;
+use common::NoopPerfLogger;
+use common::SourceLocationKey::Generated;
+use common::SourceLocationKey::{self};
+use common::TextSource;
 
 use graphql_ir::Program;
 
-use graphql_text_printer::{self, PrinterOptions};
+use graphql_text_printer::PrinterOptions;
+use graphql_text_printer::{self};
 use intern::string_key::Intern;
-use relay_codegen::{print_fragment, print_operation};
+use relay_codegen::print_fragment;
+use relay_codegen::print_operation;
 use relay_config::ProjectConfig;
 use relay_schema::build_schema_with_extensions;
-use relay_transforms::{apply_transforms, Programs};
-use relay_typegen::{
-    generate_fragment_type_exports_section, generate_operation_type_exports_section, TypegenConfig,
-};
+use relay_transforms::apply_transforms;
+use relay_transforms::Programs;
+use relay_typegen::generate_fragment_type_exports_section;
+use relay_typegen::generate_operation_type_exports_section;
+use relay_typegen::TypegenConfig;
 use schema::SDLSchema;
 use serde::Serialize;
 

@@ -10,7 +10,12 @@ use std::collections::VecDeque;
 use crate::lexer::TokenKind;
 use crate::node::*;
 use crate::syntax_error::SyntaxError;
-use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, WithDiagnostics};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::SourceLocationKey;
+use common::Span;
+use common::WithDiagnostics;
 use intern::string_key::Intern;
 use logos::Logos;
 

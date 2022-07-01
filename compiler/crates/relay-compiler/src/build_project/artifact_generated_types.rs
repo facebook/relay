@@ -6,9 +6,12 @@
  */
 
 use common::NamedItem;
-use graphql_ir::{FragmentDefinition, OperationDefinition};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
 use graphql_syntax::OperationKind;
-use relay_transforms::{RefetchableMetadata, INLINE_DIRECTIVE_NAME, UPDATABLE_DIRECTIVE};
+use relay_transforms::RefetchableMetadata;
+use relay_transforms::INLINE_DIRECTIVE_NAME;
+use relay_transforms::UPDATABLE_DIRECTIVE;
 use relay_typegen::has_raw_response_type_directive;
 
 /// Specifies the imported and exported generated types of an

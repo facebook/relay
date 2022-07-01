@@ -5,12 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    compiler_state::{CompilerState, ProjectName},
-    config::ProjectConfig,
-    docblocks::extract_schema_from_docblock_sources,
-    GraphQLAsts,
-};
+use crate::compiler_state::CompilerState;
+use crate::compiler_state::ProjectName;
+use crate::config::ProjectConfig;
+use crate::docblocks::extract_schema_from_docblock_sources;
+use crate::GraphQLAsts;
 use common::DiagnosticsResult;
 use fnv::FnvHashMap;
 use graphql_syntax::TypeSystemDefinition;

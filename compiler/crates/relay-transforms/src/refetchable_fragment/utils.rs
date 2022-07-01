@@ -6,12 +6,21 @@
  */
 
 use crate::root_variables::VariableMap;
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use graphql_ir::{
-    associated_data_impl, Argument, Directive, FragmentDefinition, FragmentSpread, Selection,
-    Value, Variable, VariableDefinition,
-};
-use intern::string_key::{Intern, StringKey};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Argument;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::Selection;
+use graphql_ir::Value;
+use graphql_ir::Variable;
+use graphql_ir::VariableDefinition;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use std::sync::Arc;
 

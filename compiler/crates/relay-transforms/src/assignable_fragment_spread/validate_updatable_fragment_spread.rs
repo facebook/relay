@@ -7,12 +7,20 @@
 
 use crate::UPDATABLE_DIRECTIVE;
 
-use super::{ensure_discriminated_union_is_created, ValidationMessage};
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{
-    Condition, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program, Validator,
-};
-use schema::{Schema, TypeReference};
+use super::ensure_discriminated_union_is_created;
+use super::ValidationMessage;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use graphql_ir::Condition;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::Validator;
+use schema::Schema;
+use schema::TypeReference;
 
 pub fn validate_updatable_fragment_spread(program: &Program) -> DiagnosticsResult<()> {
     UpdatableFragmentSpread {

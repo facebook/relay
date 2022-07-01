@@ -5,9 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{sync::Arc, thread, time::Instant};
+use std::sync::Arc;
+use std::thread;
+use std::time::Instant;
 
-use crossbeam::channel::{unbounded, Receiver, Sender};
+use crossbeam::channel::unbounded;
+use crossbeam::channel::Receiver;
+use crossbeam::channel::Sender;
 use log::debug;
 
 pub struct TaskQueue<S, T> {

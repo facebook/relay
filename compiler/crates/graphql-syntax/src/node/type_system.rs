@@ -6,7 +6,8 @@
  */
 
 use super::constant_directive::ConstantDirective;
-use super::constant_value::{ConstantValue, StringNode};
+use super::constant_value::ConstantValue;
+use super::constant_value::StringNode;
 use super::primitive::*;
 use super::type_annotation::TypeAnnotation;
 use common::Span;

@@ -6,7 +6,9 @@
  */
 
 use crate::lexer::TokenKind;
-use common::{SourceLocationKey, Span, WithLocation};
+use common::SourceLocationKey;
+use common::Span;
+use common::WithLocation;
 use intern::string_key::StringKey;
 use std::cmp::Ordering;
 use std::fmt;

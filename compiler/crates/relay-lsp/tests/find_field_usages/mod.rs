@@ -7,7 +7,9 @@
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::{build, reexport::Intern, Program};
+use graphql_ir::build;
+use graphql_ir::reexport::Intern;
+use graphql_ir::Program;
 use graphql_syntax::parse_executable;
 use relay_test_schema::get_test_schema;
 

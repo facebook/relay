@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-pub use rayon::prelude::{IntoParallelIterator, ParallelIterator};
+pub use rayon::prelude::IntoParallelIterator;
+pub use rayon::prelude::ParallelIterator;
 pub use std::sync::atomic::Ordering;
 pub use std::sync::atomic::Ordering::SeqCst;
 

@@ -7,9 +7,11 @@
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::{build, Program};
+use graphql_ir::build;
+use graphql_ir::Program;
 use graphql_syntax::parse_executable;
-use graphql_text_printer::{print_fragment, PrinterOptions};
+use graphql_text_printer::print_fragment;
+use graphql_text_printer::PrinterOptions;
 use relay_test_schema::get_test_schema;
 use relay_transforms::mask;
 use std::sync::Arc;

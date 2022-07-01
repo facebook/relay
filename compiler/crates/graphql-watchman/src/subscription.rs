@@ -10,7 +10,8 @@ use log::debug;
 use serde_bser::value::Value;
 use std::process::Command;
 use watchman_client::prelude::*;
-use watchman_client::{Subscription as WatchmanSubscription, SubscriptionData};
+use watchman_client::Subscription as WatchmanSubscription;
+use watchman_client::SubscriptionData;
 
 #[derive(Debug)]
 pub enum WatchmanFileSourceSubscriptionNextChange {

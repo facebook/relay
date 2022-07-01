@@ -13,8 +13,10 @@ use fixture_tests::Fixture;
 use graphql_ir::*;
 use graphql_syntax::parse_executable;
 use intern::string_key::Intern;
-use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{DependencyMap, DependencySet};
+use relay_test_schema::get_test_schema;
+use relay_test_schema::get_test_schema_with_extensions;
+use relay_transforms::DependencyMap;
+use relay_transforms::DependencySet;
 use schema::SDLSchema;
 
 fn format_definition(def: ExecutableDefinition) -> String {

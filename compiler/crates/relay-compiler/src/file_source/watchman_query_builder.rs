@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::config::{Config, SchemaLocation};
+use crate::config::Config;
+use crate::config::SchemaLocation;
 use relay_typegen::TypegenLanguage;
 use std::path::PathBuf;
 use watchman_client::prelude::*;

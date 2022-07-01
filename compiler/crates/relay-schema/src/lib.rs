@@ -11,9 +11,12 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-use common::{DiagnosticsResult, SourceLocationKey};
+use common::DiagnosticsResult;
+use common::SourceLocationKey;
 use intern::intern;
-use schema::{ArgumentDefinitions, SDLSchema, TypeReference};
+use schema::ArgumentDefinitions;
+use schema::SDLSchema;
+use schema::TypeReference;
 use std::iter::once;
 
 const RELAY_EXTENSIONS: &str = include_str!("./relay-extensions.graphql");

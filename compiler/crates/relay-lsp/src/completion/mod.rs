@@ -6,32 +6,55 @@
  */
 
 //! Utilities for providing the completion language feature
-use crate::{
-    lsp_runtime_error::LSPRuntimeResult,
-    node_resolution_info::{TypePath, TypePathItem},
-    server::GlobalState,
-    LSPRuntimeError, SchemaDocumentation,
-};
-use common::{Named, NamedItem, Span};
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::node_resolution_info::TypePath;
+use crate::node_resolution_info::TypePathItem;
+use crate::server::GlobalState;
+use crate::LSPRuntimeError;
+use crate::SchemaDocumentation;
+use common::Named;
+use common::NamedItem;
+use common::Span;
 
 use fnv::FnvHashSet;
-use graphql_ir::{Program, VariableDefinition, DIRECTIVE_ARGUMENTS};
-use graphql_syntax::{
-    Argument, ConstantValue, Directive, DirectiveLocation, ExecutableDefinition,
-    ExecutableDocument, FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition,
-    OperationKind, ScalarField, Selection, TokenKind, Value,
-};
+use graphql_ir::Program;
+use graphql_ir::VariableDefinition;
+use graphql_ir::DIRECTIVE_ARGUMENTS;
+use graphql_syntax::Argument;
+use graphql_syntax::ConstantValue;
+use graphql_syntax::Directive;
+use graphql_syntax::DirectiveLocation;
+use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::ExecutableDocument;
+use graphql_syntax::FragmentSpread;
+use graphql_syntax::InlineFragment;
+use graphql_syntax::LinkedField;
+use graphql_syntax::List;
+use graphql_syntax::OperationDefinition;
+use graphql_syntax::OperationKind;
+use graphql_syntax::ScalarField;
+use graphql_syntax::Selection;
+use graphql_syntax::TokenKind;
+use graphql_syntax::Value;
 use intern::string_key::StringKey;
 use log::debug;
-use lsp_types::{
-    request::{Completion, Request, ResolveCompletionItem},
-    CompletionItem, CompletionItemKind, CompletionResponse, Documentation, InsertTextFormat,
-    MarkupContent, MarkupKind,
-};
-use schema::{
-    Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
-    TypeReference, TypeWithFields,
-};
+use lsp_types::request::Completion;
+use lsp_types::request::Request;
+use lsp_types::request::ResolveCompletionItem;
+use lsp_types::CompletionItem;
+use lsp_types::CompletionItemKind;
+use lsp_types::CompletionResponse;
+use lsp_types::Documentation;
+use lsp_types::InsertTextFormat;
+use lsp_types::MarkupContent;
+use lsp_types::MarkupKind;
+use schema::Argument as SchemaArgument;
+use schema::Directive as SchemaDirective;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
+use schema::TypeWithFields;
 use std::iter::once;
 
 #[derive(Debug, Clone)]

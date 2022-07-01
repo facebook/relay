@@ -6,10 +6,14 @@
  */
 
 use crate::root_variables::InferVariablesVisitor;
-use common::{Diagnostic, DiagnosticsResult};
-use graphql_ir::{
-    FragmentDefinition, OperationDefinition, Program, Transformed, Transformer, ValidationMessage,
-};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::ValidationMessage;
 use schema::Schema;
 
 /// Transform that validates/updates operation variable definitions:

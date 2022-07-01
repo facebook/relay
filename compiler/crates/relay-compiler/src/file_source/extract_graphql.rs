@@ -5,17 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::{read_file_to_string, File, FileSourceResult};
+use super::read_file_to_string;
+use super::File;
+use super::FileSourceResult;
 use crate::errors::Result;
 use common::SourceLocationKey;
 use docblock_syntax::DocblockSource;
 use extract_graphql::JavaScriptSourceFeature;
 use graphql_syntax::GraphQLSource;
-use serde::{Deserialize, Serialize};
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use serde::Deserialize;
+use serde::Serialize;
+use std::fs;
+use std::path::Path;
+use std::path::PathBuf;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct LocatedGraphQLSource {

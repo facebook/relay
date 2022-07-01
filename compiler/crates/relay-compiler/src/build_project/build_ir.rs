@@ -12,7 +12,8 @@ use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
 use graphql_text_printer::print_executable_definition_ast;
 use intern::string_key::StringKey;
-use md5::{Digest, Md5};
+use md5::Digest;
+use md5::Md5;
 use relay_transforms::DependencyMap;
 use schema::SDLSchema;
 

@@ -7,7 +7,11 @@
 
 use crate::DIRECTIVE_SPLIT_OPERATION;
 use common::NamedItem;
-use graphql_ir::{FragmentDefinition, OperationDefinition, Program, Transformed, Transformer};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
 
 /// A transform that removes field `splitOperations`. Intended for use when e.g.
 /// printing queries to send to a GraphQL server.

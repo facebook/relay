@@ -5,21 +5,39 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::{
-    build_fragment_metadata_as_directive, build_fragment_spread,
-    build_operation_variable_definitions, build_used_global_variables,
-    validation_message::ValidationMessage, QueryGenerator, RefetchRoot, RefetchableMetadata,
-    CONSTANTS,
-};
+use super::build_fragment_metadata_as_directive;
+use super::build_fragment_spread;
+use super::build_operation_variable_definitions;
+use super::build_used_global_variables;
+use super::validation_message::ValidationMessage;
+use super::QueryGenerator;
+use super::RefetchRoot;
+use super::RefetchableMetadata;
+use super::CONSTANTS;
 use crate::root_variables::VariableMap;
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-use graphql_ir::{
-    Argument, Field, FragmentDefinition, InlineFragment, LinkedField, ScalarField, Selection,
-    Value, Variable, VariableDefinition,
-};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Value;
+use graphql_ir::Variable;
+use graphql_ir::VariableDefinition;
 use intern::string_key::StringKey;
 use relay_config::SchemaConfig;
-use schema::{Argument as ArgumentDef, FieldID, InterfaceID, SDLSchema, Schema, Type};
+use schema::Argument as ArgumentDef;
+use schema::FieldID;
+use schema::InterfaceID;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 use std::sync::Arc;
 
 fn build_refetch_operation(

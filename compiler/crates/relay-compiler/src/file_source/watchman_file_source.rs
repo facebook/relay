@@ -5,13 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::watchman_query_builder::{get_all_roots, get_watchman_expr};
+use super::watchman_query_builder::get_all_roots;
+use super::watchman_query_builder::get_watchman_expr;
 use super::FileSourceResult;
-use crate::errors::{Error, Result};
-use crate::{compiler_state::CompilerState, config::Config, saved_state::SavedStateLoader};
-use common::{PerfLogEvent, PerfLogger};
-use graphql_watchman::{WatchmanFile, WatchmanFileSourceResult, WatchmanFileSourceSubscription};
-use log::{debug, info, warn};
+use crate::compiler_state::CompilerState;
+use crate::config::Config;
+use crate::errors::Error;
+use crate::errors::Result;
+use crate::saved_state::SavedStateLoader;
+use common::PerfLogEvent;
+use common::PerfLogger;
+use graphql_watchman::WatchmanFile;
+use graphql_watchman::WatchmanFileSourceResult;
+use graphql_watchman::WatchmanFileSourceSubscription;
+use log::debug;
+use log::info;
+use log::warn;
 pub use watchman_client::prelude::Clock;
 use watchman_client::prelude::*;
 

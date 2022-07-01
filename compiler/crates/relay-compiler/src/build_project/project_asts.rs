@@ -6,13 +6,16 @@
  */
 
 use common::Diagnostic;
-use dependency_analyzer::{get_reachable_ast, ReachableAst};
+use dependency_analyzer::get_reachable_ast;
+use dependency_analyzer::ReachableAst;
 use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
 use intern::string_key::StringKeySet;
 use relay_config::ProjectConfig;
 
-use crate::{compiler_state::ProjectName, errors::BuildProjectError, GraphQLAsts};
+use crate::compiler_state::ProjectName;
+use crate::errors::BuildProjectError;
+use crate::GraphQLAsts;
 
 pub struct ProjectAsts {
     pub changed_names: StringKeySet,

@@ -123,6 +123,18 @@ pub mod string_key;
 #[doc(hidden)]
 pub use crate::atomic_arena::Zero;
 #[doc(inline)]
-pub use crate::idhasher::{BuildIdHasher, IdHasher};
+pub use crate::idhasher::BuildIdHasher;
 #[doc(inline)]
-pub use crate::intern::{AsInterned, DeGuard, InternId, InternSerdes, SerGuard, WithIntern};
+pub use crate::idhasher::IdHasher;
+#[doc(inline)]
+pub use crate::intern::AsInterned;
+#[doc(inline)]
+pub use crate::intern::DeGuard;
+#[doc(inline)]
+pub use crate::intern::InternId;
+#[doc(inline)]
+pub use crate::intern::InternSerdes;
+#[doc(inline)]
+pub use crate::intern::SerGuard;
+#[doc(inline)]
+pub use crate::intern::WithIntern;

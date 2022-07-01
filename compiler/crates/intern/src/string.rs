@@ -5,23 +5,25 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    idhasher::BuildIdHasher,
-    intern::{InternId, InternSerdes},
-    intern_struct,
-    small_bytes::SmallBytes,
-};
+use crate::idhasher::BuildIdHasher;
+use crate::intern::InternId;
+use crate::intern::InternSerdes;
+use crate::intern_struct;
+use crate::small_bytes::SmallBytes;
 #[doc(hidden)]
 pub use once_cell::sync::Lazy; // For macros
-use serde_derive::{Deserialize, Serialize};
-use std::{
-    borrow::{Borrow, Cow},
-    cmp::Ordering,
-    collections::{HashMap, HashSet},
-    fmt::{self, Formatter},
-    hash::Hash,
-    str::{FromStr, Utf8Error},
-};
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
+use std::borrow::Borrow;
+use std::borrow::Cow;
+use std::cmp::Ordering;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::fmt::Formatter;
+use std::fmt::{self};
+use std::hash::Hash;
+use std::str::FromStr;
+use std::str::Utf8Error;
 
 intern_struct! {
     /// An opaque token corresponding to an interned &[u8].
@@ -356,7 +358,8 @@ mod tests {
 
     #[test]
     fn serde() {
-        use crate::intern::{DeGuard, SerGuard};
+        use crate::intern::DeGuard;
+        use crate::intern::SerGuard;
         let original = intern("hello world");
         let mut encoded = Vec::new();
         let g = SerGuard::default();
@@ -371,8 +374,10 @@ mod tests {
 
     #[test]
     fn multithreaded() {
-        use rand::{thread_rng, Rng};
-        use std::sync::atomic::{AtomicU32, Ordering};
+        use rand::thread_rng;
+        use rand::Rng;
+        use std::sync::atomic::AtomicU32;
+        use std::sync::atomic::Ordering;
         use std::sync::Arc;
         use std::thread;
         use std::u32;

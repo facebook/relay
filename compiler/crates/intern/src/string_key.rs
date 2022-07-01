@@ -5,17 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    idhasher::BuildIdHasher,
-    string::{self, IntoUtf8Bytes, StringId},
-};
+use crate::idhasher::BuildIdHasher;
+use crate::string::IntoUtf8Bytes;
+use crate::string::StringId;
+use crate::string::{self};
 use indexmap::IndexMap;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::{
-    collections::{HashMap, HashSet},
-    fmt::{self, Formatter},
-    str::FromStr,
-};
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
+use serde::Serializer;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::fmt::Formatter;
+use std::fmt::{self};
+use std::str::FromStr;
 
 // StringKey is a small impedence matcher around StringId.
 // NOTE in particular that it does NOT do de-duplicating serde.
@@ -94,7 +97,8 @@ impl FromStr for StringKey {
 #[macro_export]
 macro_rules! intern {
     ($value:literal) => {{
-        use $crate::{string::Lazy, string_key::Intern};
+        use $crate::string::Lazy;
+        use $crate::string_key::Intern;
         static INSTANCE: Lazy<$crate::string_key::StringKey> = Lazy::new(|| $value.intern());
         *INSTANCE
     }};

@@ -82,6 +82,8 @@ pub trait Transformer {
         }
 
         Transformed::Replace(FragmentDefinition {
+            variable_definitions: variable_definitions
+                .replace_or_else(|| fragment.variable_definitions.clone()),
             directives: directives.replace_or_else(|| fragment.directives.clone()),
             selections: selections.replace_or_else(|| fragment.selections.clone()),
             ..fragment.clone()

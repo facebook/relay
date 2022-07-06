@@ -343,12 +343,14 @@ class RelayObservable<+T> implements Subscribable<T> {
     return RelayObservable.create(sink => {
       const subscriptions = [];
 
-      function start(subscription: Subscription) {
+      type ObservableContext = {_sub?: Subscription};
+
+      function start(this: ObservableContext, subscription: Subscription) {
         this._sub = subscription;
         subscriptions.push(subscription);
       }
 
-      function complete() {
+      function complete(this: ObservableContext) {
         subscriptions.splice(subscriptions.indexOf(this._sub), 1);
         if (subscriptions.length === 0) {
           sink.complete();

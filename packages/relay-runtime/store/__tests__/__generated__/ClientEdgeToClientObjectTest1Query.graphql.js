@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1d040f2361036a3ebcc35538c8373a1a>>
+ * @generated SignedSource<<10bfb6d50c2d86bf900e290fc780ac8d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -87,7 +87,7 @@ v1 = {
   },
   "kind": "RelayResolver",
   "name": "name",
-  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver.js'),
+  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver'),
   "path": "me.name"
 },
 v2 = {
@@ -100,7 +100,7 @@ v2 = {
   },
   "kind": "RelayResolver",
   "name": "house",
-  "resolverModule": require('./../resolvers/AstrologicalSignHouseResolver.js'),
+  "resolverModule": require('./../resolvers/AstrologicalSignHouseResolver'),
   "path": "me.house"
 },
 v3 = {
@@ -113,7 +113,7 @@ v3 = {
   },
   "kind": "RelayResolver",
   "name": "opposite",
-  "resolverModule": require('./../resolvers/AstrologicalSignOppositeResolver.js'),
+  "resolverModule": require('./../resolvers/AstrologicalSignOppositeResolver'),
   "path": "me.opposite"
 };
 return {
@@ -146,7 +146,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "astrological_sign",
-              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver.js'),
+              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver'),
               "path": "me.astrological_sign"
             },
             "linkedField": {

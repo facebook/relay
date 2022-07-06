@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d908216520e283a0b9dfbc90b32c2b6d>>
+ * @generated SignedSource<<fa3ea6df938336ffeb6f13d87f7e9fa6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -82,7 +82,7 @@ return {
             "fragment": (v1/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../resolvers/UserCustomGreetingResolver.js'),
+            "resolverModule": require('./../resolvers/UserCustomGreetingResolver'),
             "path": "me.dynamic_greeting"
           },
           {
@@ -97,7 +97,7 @@ return {
             "fragment": (v1/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../resolvers/UserCustomGreetingResolver.js'),
+            "resolverModule": require('./../resolvers/UserCustomGreetingResolver'),
             "path": "me.greetz"
           },
           {
@@ -112,7 +112,7 @@ return {
             "fragment": (v1/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../resolvers/UserCustomGreetingResolver.js'),
+            "resolverModule": require('./../resolvers/UserCustomGreetingResolver'),
             "path": "me.willkommen"
           }
         ],

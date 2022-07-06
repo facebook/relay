@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d90ecf4f73501d47cf0978344dc6d985>>
+ * @generated SignedSource<<4cc6d4016699c9a60dba57b36250f2a3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -62,7 +62,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "hello_user",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/HelloUserResolver.js'),
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/HelloUserResolver'),
           "path": "hello_user"
         },
         "linkedField": {

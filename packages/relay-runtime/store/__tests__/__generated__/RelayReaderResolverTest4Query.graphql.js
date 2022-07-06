@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a9977cfc5470365f5a6c1bf885abc13d>>
+ * @generated SignedSource<<26cf4b248310e636dd17c2fd41669c1d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -68,7 +68,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "best_friend_greeting",
-            "resolverModule": require('./../resolvers/UserBestFriendGreetingResolver.js'),
+            "resolverModule": require('./../resolvers/UserBestFriendGreetingResolver'),
             "path": "me.best_friend_greeting"
           }
         ],

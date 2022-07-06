@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2e74f55c92c1a1d9d9b111fbe1bfc415>>
+ * @generated SignedSource<<61d26e58360cdb052918e56fefdecb9a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -60,7 +60,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "always_throws_transitively",
-            "resolverModule": require('./../resolvers/UserAlwaysThrowsTransitivelyResolver.js'),
+            "resolverModule": require('./../resolvers/UserAlwaysThrowsTransitivelyResolver'),
             "path": "me.always_throws_transitively"
           }
         ],

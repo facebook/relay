@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9945cab265e13e8e76f473cc219a714d>>
+ * @generated SignedSource<<bec8365f33f1172d9b766dc4899b6845>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -62,7 +62,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "name_passthrough",
-              "resolverModule": require('./../resolvers/UserNamePassthroughResolver.js'),
+              "resolverModule": require('./../resolvers/UserNamePassthroughResolver'),
               "path": "me.name_passthrough"
             },
             "action": "NONE",

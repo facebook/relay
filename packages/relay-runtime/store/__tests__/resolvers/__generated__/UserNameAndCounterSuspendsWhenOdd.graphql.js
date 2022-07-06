@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a0fa273fa8cbc49214652916a158166c>>
+ * @generated SignedSource<<5704f54ca20a96a9b35ceba2b9ba3a8e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -74,7 +74,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayLiveResolver",
       "name": "counter_suspends_when_odd",
-      "resolverModule": require('./../CounterSuspendsWhenOdd.js'),
+      "resolverModule": require('./../CounterSuspendsWhenOdd'),
       "path": "counter_suspends_when_odd"
     }
   ],

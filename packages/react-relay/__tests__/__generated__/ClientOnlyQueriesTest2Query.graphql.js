@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d94850375abe6a082ef568b4d8c8cdfb>>
+ * @generated SignedSource<<00a66fc2dc29a9620e857f980fe3ff29>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -56,7 +56,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayResolver",
             "name": "hello",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolver.js'),
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldResolver'),
             "path": "hello"
           }
         ]

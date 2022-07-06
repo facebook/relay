@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6898f0339ff098bb3cac0e588de03303>>
+ * @generated SignedSource<<02415624a723cb701f653d3ae5576935>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -52,7 +52,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "constant",
-      "resolverModule": require('./../UserConstantResolver.js'),
+      "resolverModule": require('./../UserConstantResolver'),
       "path": "constant"
     }
   ],

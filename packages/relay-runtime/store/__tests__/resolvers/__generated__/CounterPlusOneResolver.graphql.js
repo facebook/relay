@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a2ed2a24960c76392c6734ae42747258>>
+ * @generated SignedSource<<7ad400309c41e3aee611ea37816e75a0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -55,7 +55,7 @@ var node/*: ReaderFragment*/ = {
         },
         "kind": "RelayLiveResolver",
         "name": "counter",
-        "resolverModule": require('./../LiveCounterResolver.js'),
+        "resolverModule": require('./../LiveCounterResolver'),
         "path": "counter"
       },
       "action": "THROW",

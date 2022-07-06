@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<95794afa3da2a819466fa31d7fe02260>>
+ * @generated SignedSource<<b751d6445e8e05beb51299d387ca042b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -59,7 +59,7 @@ var node/*: ReaderFragment*/ = {
         },
         "kind": "RelayResolver",
         "name": "client_edge",
-        "resolverModule": require('./../UserClientEdgeResolver.js'),
+        "resolverModule": require('./../UserClientEdgeResolver'),
         "path": "client_edge"
       },
       "linkedField": {

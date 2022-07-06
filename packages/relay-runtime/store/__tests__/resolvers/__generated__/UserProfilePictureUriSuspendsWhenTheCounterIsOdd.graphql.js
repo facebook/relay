@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<71546d1df22976de93117f5b08ced0e5>>
+ * @generated SignedSource<<99e10e4f589ff001e7dfadcecd2bc668>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -69,7 +69,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "greeting",
-      "resolverModule": require('./../UserGreetingResolver.js'),
+      "resolverModule": require('./../UserGreetingResolver'),
       "path": "greeting"
     },
     {
@@ -88,7 +88,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "user_profile_picture_uri_with_scale",
-      "resolverModule": require('./../UserProfilePictureResolver.js'),
+      "resolverModule": require('./../UserProfilePictureResolver'),
       "path": "uri"
     }
   ],

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<97b5f88dd076c5aa231437e61ec0ee90>>
+ * @generated SignedSource<<1991bcca2be185d5f67c05f9c6bac973>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -76,7 +76,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "astrological_sign",
-              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver.js'),
+              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver'),
               "path": "me.astrological_sign"
             },
             "linkedField": {
@@ -104,7 +104,7 @@ var node/*: ConcreteRequest*/ = {
                   },
                   "kind": "RelayResolver",
                   "name": "name",
-                  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver.js'),
+                  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver'),
                   "path": "me.name"
                 },
                 {

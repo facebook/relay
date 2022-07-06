@@ -470,7 +470,15 @@ impl<'b> JSONPrinter<'b> {
             },
             Primitive::JSModuleDependency(key) => match self.js_module_format {
                 JsModuleFormat::CommonJS => {
-                    self.write_js_dependency(f, key.to_string(), format!("./{}", key))
+                    let mut path = format!("./{}", key);
+
+                    let extension = &path[path.len() - 3..path.len()];
+
+                    if extension == ".js" || extension == ".ts" {
+                        path = path[0..path.len() - 3].to_string();
+                    }
+
+                    self.write_js_dependency(f, key.to_string(), path)
                 }
                 JsModuleFormat::Haste => {
                     self.write_js_dependency(f, key.to_string(), key.to_string())

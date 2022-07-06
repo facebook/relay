@@ -1116,22 +1116,18 @@ class RelayReader {
 
     const parentVariables = this._variables;
 
-    // We only want to update `this._variables` if we have compiler artifacts that support it.
-    // Until we've rolled out the compiler portion of this change, we need to check at runtime.
-    if (fragmentSpreadOrFragment.argumentDefinitions != null) {
-      // If the inline fragment spread has arguments, we need to temporarily
-      // switch this._variables to include the fragment spread's arguments
-      // for the duration of its traversal.
-      const argumentVariables = fragmentSpreadOrFragment.args
-        ? getArgumentValues(fragmentSpreadOrFragment.args, this._variables)
-        : {};
+    // If the inline fragment spread has arguments, we need to temporarily
+    // switch this._variables to include the fragment spread's arguments
+    // for the duration of its traversal.
+    const argumentVariables = fragmentSpreadOrFragment.args
+      ? getArgumentValues(fragmentSpreadOrFragment.args, this._variables)
+      : {};
 
-      this._variables = RelayConcreteVariables.getFragmentVariables(
-        fragmentSpreadOrFragment,
-        this._owner.variables,
-        argumentVariables,
-      );
-    }
+    this._variables = RelayConcreteVariables.getFragmentVariables(
+      fragmentSpreadOrFragment,
+      this._owner.variables,
+      argumentVariables,
+    );
 
     this._traverseSelections(
       fragmentSpreadOrFragment.selections,

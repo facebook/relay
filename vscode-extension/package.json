@@ -52,7 +52,10 @@
           "source.tsx"
         ],
         "scopeName": "inline.graphql",
-        "path": "./grammars/graphql.js.json"
+        "path": "./grammars/graphql.js.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.graphql": "graphql"
+        }
       }
     ],
     "commands": [

@@ -217,7 +217,7 @@ impl DiagnosticReporter {
             message,
             range: Range::new(Position::new(0, 0), Position::new(0, 0)),
             related_information: None,
-            severity: Some(DiagnosticSeverity::Error),
+            severity: Some(DiagnosticSeverity::ERROR),
             source: None,
             tags: None,
             ..Default::default()

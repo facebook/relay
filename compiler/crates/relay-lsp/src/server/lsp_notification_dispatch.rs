@@ -79,7 +79,7 @@ mod test {
             lsp_server::Notification {
                 method: "window/logMessage".to_string(),
                 params: serde_json::to_value(LogMessageParams {
-                    typ: MessageType::Error,
+                    typ: MessageType::ERROR,
                     message: "Use Relay!".to_string(),
                 })
                 .unwrap(),

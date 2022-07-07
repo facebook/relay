@@ -62,7 +62,7 @@ impl Diagnostic {
             message: Box::new(message),
             location,
             tags: Vec::new(),
-            severity: DiagnosticSeverity::Error,
+            severity: DiagnosticSeverity::ERROR,
             related_information: Vec::new(),
             data: Vec::new(),
         }))
@@ -79,7 +79,7 @@ impl Diagnostic {
             message: Box::new(message),
             location,
             tags: Vec::new(),
-            severity: DiagnosticSeverity::Error,
+            severity: DiagnosticSeverity::ERROR,
             related_information: Vec::new(),
             data,
         }))
@@ -97,7 +97,7 @@ impl Diagnostic {
             location,
             tags,
             related_information: Vec::new(),
-            severity: DiagnosticSeverity::Hint, // TODO: Make this an argument?
+            severity: DiagnosticSeverity::HINT, // TODO: Make this an argument?
             data: Vec::new(),
         }))
     }

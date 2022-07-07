@@ -99,7 +99,7 @@ use self::task_queue::TaskProcessor;
 pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams> {
     let server_capabilities = ServerCapabilities {
         // Enable text document syncing so we can know when files are opened/changed/saved/closed
-        text_document_sync: Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::Full)),
+        text_document_sync: Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::FULL)),
 
         completion_provider: Some(CompletionOptions {
             resolve_provider: Some(true),

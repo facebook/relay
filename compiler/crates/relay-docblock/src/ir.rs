@@ -42,6 +42,7 @@ use schema::InterfaceID;
 use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
+use schema::Type;
 
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();
@@ -153,13 +154,21 @@ impl RelayResolverIr {
                 value,
             }) => {
                 if let Some(_type) = schema.get_type(value.item) {
-                    if _type.is_object() {
-                        return Ok(self.object_definitions(value));
-                    } else if _type.is_interface() {
-                        return Err(vec![Diagnostic::error_with_data(
-                            ErrorMessagesWithData::OnTypeForInterface,
-                            key_location,
-                        )]);
+                    match _type {
+                        Type::Object(object_id) => {
+                            self.validate_singular_implementation(
+                                schema,
+                                &schema.object(object_id).interfaces,
+                            )?;
+                            return Ok(self.object_definitions(value));
+                        }
+                        Type::Interface(_) => {
+                            return Err(vec![Diagnostic::error_with_data(
+                                ErrorMessagesWithData::OnTypeForInterface,
+                                key_location,
+                            )]);
+                        }
+                        _ => {}
                     }
                 }
                 let suggester = GraphQLSuggestions::new(schema);
@@ -177,6 +186,10 @@ impl RelayResolverIr {
             }) => {
                 if let Some(_type) = schema.get_type(value.item) {
                     if let Some(interface_type) = _type.get_interface_id() {
+                        self.validate_singular_implementation(
+                            schema,
+                            &schema.interface(interface_type).interfaces,
+                        )?;
                         return Ok(self.interface_definitions(value, interface_type, schema));
                     } else if _type.is_object() {
                         return Err(vec![Diagnostic::error_with_data(
@@ -277,6 +290,36 @@ impl RelayResolverIr {
             }
         }
         definitions
+    }
+
+    // When defining a resolver on an object or interface, we must be sure that this
+    // field is not defined on any parent interface because this could lead to a case where
+    // someone tries to read the field in an fragment on that interface. In order to support
+    // that, our runtime would need to dynamically figure out which resolver it
+    // should read from, or if it should even read from a resolver at all.
+    //
+    // Until we decide to support that behavior we'll make it a compiler error.
+    fn validate_singular_implementation(
+        &self,
+        schema: &SDLSchema,
+        interfaces: &[InterfaceID],
+    ) -> DiagnosticsResult<()> {
+        for interface_id in interfaces {
+            let interface = schema.interface(*interface_id);
+            for field_id in &interface.fields {
+                let field = schema.field(*field_id);
+                if field.name() == self.field.name.value {
+                    return Err(vec![Diagnostic::error(
+                        ErrorMessages::ResolverImplementingInterfaceField {
+                            field_name: self.field.name.value,
+                            interface_name: interface.name(),
+                        },
+                        self.location.with_span(self.field.name.span),
+                    )]);
+                }
+            }
+        }
+        Ok(())
     }
 
     fn object_definitions(&self, on_type: WithLocation<StringKey>) -> Vec<TypeSystemDefinition> {

@@ -1,7 +1,7 @@
 # Copyright (c) Meta Platforms, Inc. and affiliates. All Rights Reserved.
 
 # A Client-only type used to model a user's star sign.
-type AstrologicalSign implements Node {
+type AstrologicalSign {
   id: ID!
   # A field which can be imperatively written
   # used for testing the interaction of client edges and imperatively set

@@ -76,6 +76,14 @@ pub enum ErrorMessages {
 
     #[error("Defining arguments with default values for resolver fields is not supported, yet.")]
     ArgumentDefaultValuesNoSupported,
+
+    #[error(
+        "Unexpected Relay Resolver for a field which is defined in parent interface. The field `{field_name}` is defined by `{interface_name}`. Relay does not yet support interfaces where different subtypes implement the same field using different Relay Resolvers. As a workaround consider defining Relay Resolver field directly on the interface and checking the `__typename` field to have special handling for different concreete types."
+    )]
+    ResolverImplementingInterfaceField {
+        field_name: StringKey,
+        interface_name: StringKey,
+    },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

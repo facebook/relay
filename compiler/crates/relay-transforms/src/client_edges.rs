@@ -7,7 +7,9 @@
 
 use crate::refetchable_fragment::RefetchableFragment;
 use crate::refetchable_fragment::REFETCHABLE_NAME;
+use crate::RequiredMetadataDirective;
 use crate::ValidationMessage;
+use crate::REQUIRED_DIRECTIVE_NAME;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
@@ -298,10 +300,20 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             return self.default_transform_linked_field(field);
         }
 
+        let allowed_dirctive_names = [
+            *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME,
+            *REQUIRED_DIRECTIVE_NAME,
+            RequiredMetadataDirective::directive_name(),
+        ];
+
         let other_directives = field
             .directives
             .iter()
-            .filter(|directive| directive.name() != *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
+            .filter(|directive| {
+                !allowed_dirctive_names
+                    .iter()
+                    .any(|item| directive.name() == *item)
+            })
             .collect::<Vec<_>>();
 
         for directive in other_directives {

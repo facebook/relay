@@ -1,0 +1,78 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  best_friend @waterfall @required(action: NONE) {
+    name
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User
+    @relay_resolver(
+      fragment_name: "BestFriendResolverFragment_name"
+      import_path: "BestFriendResolver"
+    )
+}
+==================================== OUTPUT ===================================
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+fragment Foo_user on User {
+  ... @__ClientEdgeMetadataDirective
+  # ServerObject {
+  #     query_name: "ClientEdgeQuery_Foo_user_best_friend",
+  #     unique_id: 0,
+  # }
+   {
+    ...BestFriendResolverFragment_name @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_parent_type: "User",
+    #     import_path: "BestFriendResolver",
+    #     field_name: "best_friend",
+    #     field_alias: None,
+    #     field_path: "best_friend",
+    #     field_arguments: [],
+    #     live: false,
+    # }
+     @waterfall @required(action: NONE)
+    best_friend @waterfall @required(action: NONE) {
+      name
+    }
+  }
+}
+
+fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGeneratedFragment(clientEdgeSourceDocument: "Foo_user") @__RefetchableMetadata
+# RefetchableMetadata {
+#     operation_name: "ClientEdgeQuery_Foo_user_best_friend",
+#     path: [
+#         "node",
+#     ],
+#     identifier_field: Some(
+#         "id",
+#     ),
+# }
+ {
+  name
+  id
+}
+
+query ClientEdgeQuery_Foo_user_best_friend(
+  $id: ID!
+) @__ClientEdgeGeneratedQueryMetadataDirective
+# ClientEdgeGeneratedQueryMetadataDirective {
+#     source_name: WithLocation {
+#         location: client-edge-with-required.graphql:9:17,
+#         item: "Foo_user",
+#     },
+# }
+ {
+  node(id: $id) {
+    ...RefetchableClientEdgeQuery_Foo_user_best_friend
+  }
+}

@@ -1,6 +1,4 @@
 ==================================== INPUT ====================================
-# expected-to-throw
-
 fragment relayResolverWithRequiredClientEdge_best_friend_resolver on User {
   actor_key
 }
@@ -22,11 +20,307 @@ extend type User {
       import_path: "./foo/bar/baz/BestFriendResolver.js"
     )
 }
-==================================== ERROR ====================================
-✖︎ Unexpected directive on Client Edge field. The `@required` directive is not currently supported on fields backed by Client Edges.
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "ClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me__best_friend",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "RefetchableClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me__best_friend"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Operation",
+    "name": "ClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me__best_friend",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "1abebb591e62d121570c709a0e09a29c",
+    "id": null,
+    "metadata": {},
+    "name": "ClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me__best_friend",
+    "operationKind": "query",
+    "text": null
+  }
+}
 
-  relay-resolver-with-required-client-edge.graphql:9:28
-    8 │   me {
-    9 │     best_friend @waterfall @required(action: THROW) {
-      │                            ^^^^^^^^^
-   10 │       name
+QUERY:
+
+query ClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me__best_friend(
+  $id: ID!
+) {
+  node(id: $id) {
+    __typename
+    ...RefetchableClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me__best_friend
+    id
+  }
+}
+
+fragment RefetchableClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me__best_friend on User {
+  name
+  id
+}
+
+
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": {
+      "hasClientEdges": true
+    },
+    "name": "relayResolverWithRequiredClientEdgeQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ClientEdgeToServerObject",
+            "operation": require('ClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me__best_friend.graphql'),
+            "backingField": {
+              "kind": "RequiredField",
+              "field": {
+                "alias": null,
+                "args": null,
+                "fragment": {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "relayResolverWithRequiredClientEdge_best_friend_resolver"
+                },
+                "kind": "RelayResolver",
+                "name": "best_friend",
+                "resolverModule": require('BestFriendResolver'),
+                "path": "me.best_friend"
+              },
+              "action": "THROW",
+              "path": "me.best_friend"
+            },
+            "linkedField": {
+              "kind": "RequiredField",
+              "field": {
+                "alias": null,
+                "args": null,
+                "concreteType": "User",
+                "kind": "LinkedField",
+                "name": "best_friend",
+                "plural": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  }
+                ],
+                "storageKey": null
+              },
+              "action": "THROW",
+              "path": "me.best_friend"
+            }
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "relayResolverWithRequiredClientEdgeQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "actor_key",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "c38847c6495c061f05952cde25b648e7",
+    "id": null,
+    "metadata": {},
+    "name": "relayResolverWithRequiredClientEdgeQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query relayResolverWithRequiredClientEdgeQuery {
+  me {
+    ...relayResolverWithRequiredClientEdge_best_friend_resolver
+    id
+  }
+}
+
+fragment relayResolverWithRequiredClientEdge_best_friend_resolver on User {
+  actor_key
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": {
+    "refetch": {
+      "connection": null,
+      "fragmentPathInResult": [
+        "node"
+      ],
+      "operation": require('ClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me__best_friend.graphql'),
+      "identifierField": "id"
+    }
+  },
+  "name": "RefetchableClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me__best_friend",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "id",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "relayResolverWithRequiredClientEdge_best_friend_resolver",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "actor_key",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

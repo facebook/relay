@@ -1,5 +1,3 @@
-# expected-to-throw
-
 fragment relayResolverWithRequiredClientEdge_best_friend_resolver on User {
   actor_key
 }

@@ -472,7 +472,7 @@ fn visit_client_edge(
     runtime_imports: &mut RuntimeImports,
     enclosing_linked_field_concrete_type: Option<Type>,
 ) {
-    let (resolver_metadata, fragment_name) = match client_edge_metadata.backing_field {
+    let (resolver_metadata, fragment_name) = match &client_edge_metadata.backing_field {
         Selection::FragmentSpread(fragment_spread) => (
             RelayResolverMetadata::find(&fragment_spread.directives),
             Some(fragment_spread.fragment.item),

@@ -192,7 +192,7 @@ impl<'program> Transformer for RelayResolverSpreadTransform<'program> {
         match ClientEdgeMetadata::find(fragment) {
             Some(client_edge_metadata) => {
                 let backing_id_field = self
-                    .transform_selection(client_edge_metadata.backing_field)
+                    .transform_selection(&client_edge_metadata.backing_field)
                     .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
 
                 let selections_field = match client_edge_metadata.selections {
@@ -380,7 +380,7 @@ impl Transformer for RelayResolverFieldTransform<'_> {
         let transformed = match ClientEdgeMetadata::find(fragment) {
             Some(client_edge_metadata) => {
                 let backing_id_field = self
-                    .transform_selection(client_edge_metadata.backing_field)
+                    .transform_selection(&client_edge_metadata.backing_field)
                     .unwrap_or_else(|| client_edge_metadata.backing_field.clone());
 
                 let selections_field = match client_edge_metadata.selections {

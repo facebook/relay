@@ -1072,9 +1072,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         &mut self,
         context: &mut ContextualMetadata,
         client_edge_metadata: ClientEdgeMetadata<'_>,
+        required_metadata: Option<RequiredMetadataDirective>,
     ) -> Primitive {
         context.has_client_edges = true;
-        let backing_field = match client_edge_metadata.backing_field {
+        let backing_field = match &client_edge_metadata.backing_field {
             Selection::FragmentSpread(fragment_spread) => {
                 self.build_fragment_spread(fragment_spread)
             }
@@ -1095,11 +1096,32 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         };
 
         let selections_item = match client_edge_metadata.selections {
-            Selection::LinkedField(linked_field) => self.build_linked_field(context, linked_field),
+            Selection::LinkedField(linked_field) => {
+                if required_metadata.is_none() {
+                    self.build_linked_field(context, linked_field)
+                } else {
+                    let next_directives = linked_field
+                        .directives
+                        .iter()
+                        .filter(|directive| {
+                            directive.name.item != RequiredMetadataDirective::directive_name()
+                        })
+                        .cloned()
+                        .collect();
+
+                    self.build_linked_field(
+                        context,
+                        &LinkedField {
+                            directives: next_directives,
+                            ..linked_field.as_ref().clone()
+                        },
+                    )
+                }
+            }
             _ => panic!("Expected Client Edge selections to be a LinkedField"),
         };
 
-        match client_edge_metadata.metadata_directive {
+        let field = match client_edge_metadata.metadata_directive {
             ClientEdgeMetadataDirective::ServerObject { query_name, .. } => {
                 Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_server_object),
@@ -1116,6 +1138,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     client_edge_selections_key: selections_item,
                 }))
             }
+        };
+
+        if let Some(required_metadata) = required_metadata {
+            self.build_required_field(&required_metadata, field)
+        } else {
+            field
         }
     }
 
@@ -1127,7 +1155,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         match inline_frag.type_condition {
             None => {
                 if let Some(client_edge_metadata) = ClientEdgeMetadata::find(inline_frag) {
-                    self.build_client_edge(context, client_edge_metadata)
+                    let required_metadata =
+                        RequiredMetadataDirective::find(&inline_frag.directives).cloned();
+                    self.build_client_edge(context, client_edge_metadata, required_metadata)
                 } else if
                 // TODO(T63388023): Use typed custom directives
                 inline_frag.directives.len() == 1

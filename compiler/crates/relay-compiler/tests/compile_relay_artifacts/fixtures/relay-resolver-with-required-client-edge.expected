@@ -165,11 +165,11 @@ fragment RefetchableClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me_
         "plural": false,
         "selections": [
           {
-            "kind": "ClientEdgeToServerObject",
-            "operation": require('ClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me__best_friend.graphql'),
-            "backingField": {
-              "kind": "RequiredField",
-              "field": {
+            "kind": "RequiredField",
+            "field": {
+              "kind": "ClientEdgeToServerObject",
+              "operation": require('ClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me__best_friend.graphql'),
+              "backingField": {
                 "alias": null,
                 "args": null,
                 "fragment": {
@@ -182,12 +182,7 @@ fragment RefetchableClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me_
                 "resolverModule": require('BestFriendResolver'),
                 "path": "me.best_friend"
               },
-              "action": "THROW",
-              "path": "me.best_friend"
-            },
-            "linkedField": {
-              "kind": "RequiredField",
-              "field": {
+              "linkedField": {
                 "alias": null,
                 "args": null,
                 "concreteType": "User",
@@ -204,10 +199,10 @@ fragment RefetchableClientEdgeQuery_relayResolverWithRequiredClientEdgeQuery_me_
                   }
                 ],
                 "storageKey": null
-              },
-              "action": "THROW",
-              "path": "me.best_friend"
-            }
+              }
+            },
+            "action": "THROW",
+            "path": "me.best_friend"
           }
         ],
         "storageKey": null

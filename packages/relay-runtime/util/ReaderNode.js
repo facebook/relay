@@ -232,7 +232,10 @@ export type RequiredFieldAction = 'NONE' | 'LOG' | 'THROW';
 
 export type ReaderRequiredField = {
   +kind: 'RequiredField',
-  +field: ReaderField,
+  +field:
+    | ReaderField
+    | ReaderClientEdgeToClientObject
+    | ReaderClientEdgeToServerObject,
   +action: RequiredFieldAction,
   +path: string,
 };

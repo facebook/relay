@@ -478,8 +478,9 @@ impl<'b> JSONPrinter<'b> {
                         if extension == "ts" || extension == "js" {
                             let path_without_extension = path.with_extension("");
 
-                            let path_without_extension =
-                                path_without_extension.to_str().expect("yikes");
+                            let path_without_extension = path_without_extension
+                                .to_str()
+                                .expect("could not convert `path_without_extension` to a str");
 
                             return self.write_js_dependency(
                                 f,

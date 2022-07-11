@@ -12,6 +12,7 @@
 'use strict';
 
 import type {
+  CacheConfig,
   ConcreteRequest,
   Direction,
   Disposable,
@@ -43,6 +44,7 @@ export type LoadMoreFn<TQuery: OperationType> = (
   count: number,
   options?: {
     onComplete?: (Error | null) => void,
+    cacheConfig?: CacheConfig,
     UNSTABLE_extraVariables?: $Shape<VariablesOf<TQuery>>,
   },
 ) => Disposable;
@@ -215,7 +217,7 @@ function useLoadMoreFunction<TQuery: OperationType>(
       const paginationQuery = createOperationDescriptor(
         paginationRequest,
         paginationVariables,
-        {force: true},
+        {...options?.cacheConfig, force: true},
       );
       fetchQuery(environment, paginationQuery).subscribe({
         ...observer,

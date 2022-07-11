@@ -102,6 +102,11 @@ refetch(variables, {
   NON_EXIST: 'NON_EXIST',
 });
 
+// Accepts CacheConfig
+refetch(variables, {
+  cacheConfig: {metadata: {METADATA_VARIABLES: null}},
+});
+
 // LoadMore options
 declare var extraVariables: {nickname: string};
 declare var invalidVariables: {foo: string};
@@ -113,6 +118,11 @@ const {loadNext} = usePaginationFragment<QueryOperation, _>(
 // Accepts extraVariables
 loadNext(10, {
   UNSTABLE_extraVariables: extraVariables,
+});
+
+// Accepts CacheConfig
+loadNext(10, {
+  cacheConfig: {metadata: {METADATA_VARIABLES: null}},
 });
 
 // $FlowExpectedError: doesn't accept variables not available in the Flow type

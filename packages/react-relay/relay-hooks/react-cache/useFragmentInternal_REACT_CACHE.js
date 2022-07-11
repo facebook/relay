@@ -21,7 +21,10 @@ import type {
   SelectorData,
   Snapshot,
 } from 'relay-runtime';
-import type {MissingClientEdgeRequestInfo} from 'relay-runtime/store/RelayStoreTypes';
+import type {
+  MissingClientEdgeRequestInfo,
+  MissingLiveResolverField,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const {getQueryResourceForEnvironment} = require('../QueryResource');
 const useRelayEnvironment = require('../useRelayEnvironment');
@@ -83,6 +86,27 @@ function getMissingClientEdges(
       }
     }
     return edges;
+  }
+}
+
+function getSuspendingLiveResolver(
+  state: FragmentState,
+): $ReadOnlyArray<MissingLiveResolverField> | null {
+  if (state.kind === 'bailout') {
+    return null;
+  } else if (state.kind === 'singular') {
+    return state.snapshot.missingLiveResolverFields ?? null;
+  } else {
+    let missingFields = null;
+    for (const snapshot of state.snapshots) {
+      if (snapshot.missingLiveResolverFields) {
+        missingFields = missingFields ?? [];
+        for (const edge of snapshot.missingLiveResolverFields) {
+          missingFields.push(edge);
+        }
+      }
+    }
+    return missingFields;
   }
 }
 
@@ -453,6 +477,16 @@ function useFragmentInternal_REACT_CACHE(
   }
 
   if (isMissingData(state)) {
+    // Suspend if a Live Resolver within this fragment is in a suspended state:
+    const suspendingLiveResolvers = getSuspendingLiveResolver(state);
+    if (suspendingLiveResolvers != null && suspendingLiveResolvers.length > 0) {
+      throw Promise.all(
+        suspendingLiveResolvers.map(({liveStateID}) => {
+          // $FlowFixMe[prop-missing] This is expected to be a LiveResolverStore
+          return environment.getStore().getLiveResolverPromise(liveStateID);
+        }),
+      );
+    }
     // Suspend if an active operation bears on this fragment, either the
     // fragment's owner or some other mutation etc. that could affect it.
     // We only suspend when the component is first trying to mount or changing

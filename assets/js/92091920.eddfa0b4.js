@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunk=self.webpackChunk||[]).push([[11929],{13581:e=>{e.exports=JSON.parse('{"label":"relay-compiler","permalink":"/blog/tags/relay-compiler","allTagsPath":"/blog/tags","count":1}')}}]);

@@ -8,7 +8,7 @@
  */
 
 /* eslint-disable lint/no-value-import */
-import useThemeContext from '@theme/hooks/useThemeContext';
+import {useThemeConfig} from '@docusaurus/theme-common';
 import * as React from 'react';
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
 /* eslint-enable lint/no-value-import */
@@ -244,7 +244,7 @@ const darkTheme = {
 };
 
 const Code = ({children}) => {
-  const {isDarkTheme} = useThemeContext();
+  const {isDarkTheme} = useThemeConfig();
   return (
     <SyntaxHighlighter
       language="jsx"

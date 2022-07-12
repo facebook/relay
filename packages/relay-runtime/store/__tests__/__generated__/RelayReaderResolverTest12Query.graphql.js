@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<006fe8f63715b11eba4f12b570cae418>>
+ * @generated SignedSource<<9dc6c5f1045a855ac104635a5fe22482>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -60,7 +60,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "always_throws",
-            "resolverModule": require('./../resolvers/UserAlwaysThrowsResolver.js'),
+            "resolverModule": require('./../resolvers/UserAlwaysThrowsResolver'),
             "path": "me.always_throws"
           }
         ],

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f2d2da3ed7e1e0bbefcdfdd872feb498>>
+ * @generated SignedSource<<9604665ea9acc877af307fdf4ba76763>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -52,7 +52,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "self",
-      "resolverModule": require('./../AstrologicalSignSelfResolver.js'),
+      "resolverModule": require('./../AstrologicalSignSelfResolver'),
       "path": "self"
     }
   ],

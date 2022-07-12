@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<956c8aabb489de6b24520205ccfca3b9>>
+ * @generated SignedSource<<de22a6701a9bfe56ad5d11fc3cc082c2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -60,7 +60,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "greeting",
-            "resolverModule": require('./../resolvers/UserGreetingResolver.js'),
+            "resolverModule": require('./../resolvers/UserGreetingResolver'),
             "path": "me.greeting"
           }
         ],

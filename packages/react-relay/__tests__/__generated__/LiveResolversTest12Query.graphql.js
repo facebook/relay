@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<32632ff69073457129bf9e7b05e46280>>
+ * @generated SignedSource<<6c3325b73c0ab66bd32ec2c01cf78a97>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -67,7 +67,7 @@ return {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "counter_no_fragment_with_arg",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragmentWithArg.js'),
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragmentWithArg'),
             "path": "counter_no_fragment_with_arg"
           }
         ]

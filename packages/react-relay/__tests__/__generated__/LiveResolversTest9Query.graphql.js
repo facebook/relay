@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<68399928102651a68e4d18ae5917ab64>>
+ * @generated SignedSource<<daf5c7df5e3cb536a7ffb81ac7ede2c3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -97,7 +97,7 @@ return {
                 },
                 "kind": "RelayLiveResolver",
                 "name": "user_profile_picture_uri_suspends_when_the_counter_is_odd",
-                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js'),
+                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd'),
                 "path": "node.profile_picture_uri"
               }
             ],

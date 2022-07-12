@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<262c53b6c0db5158b5b35483e2a0b1bf>>
+ * @generated SignedSource<<a2b4fdc7a6dbaebecb90e150e1bebeef>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -51,7 +51,7 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "live_user_resolver_always_suspend",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveUserAlwaysSuspendResolver.js'),
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveUserAlwaysSuspendResolver'),
           "path": "live_user_resolver_always_suspend"
         },
         "linkedField": {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ff21ddd768f4c6a8e1fc3edbeea9420c>>
+ * @generated SignedSource<<0a28645c1f6f234a9a808db554eef1d0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -80,7 +80,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "user_profile_picture_uri_with_scale",
-            "resolverModule": require('./../resolvers/UserProfilePictureResolver.js'),
+            "resolverModule": require('./../resolvers/UserProfilePictureResolver'),
             "path": "me.profile_picture"
           }
         ],

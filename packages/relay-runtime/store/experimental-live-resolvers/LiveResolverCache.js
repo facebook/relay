@@ -27,6 +27,7 @@ import type {
   GetDataForResolverFragmentFn,
   ResolverCache,
 } from '../ResolverCache';
+import type LiveResolverStore from './LiveResolverStore';
 import type {LiveState} from './LiveResolverStore';
 
 const recycleNodesInto = require('../../util/recycleNodesInto');
@@ -41,7 +42,6 @@ const {
   RELAY_RESOLVER_VALUE_KEY,
   getStorageKey,
 } = require('../RelayStoreUtils');
-const LiveResolverStore = require('./LiveResolverStore');
 const {isSuspenseSentinel} = require('./LiveResolverSuspenseSentinel');
 const invariant = require('invariant');
 const warning = require('warning');
@@ -129,7 +129,9 @@ class LiveResolverCache implements ResolverCache {
           if (__DEV__) {
             invariant(
               isLiveStateValue(evaluationResult.resolverResult),
-              'Expected a @live Relay Resolver to return a value that implements LiveState.',
+              'Expected the @live Relay Resolver backing the field "%s" to return a value ' +
+                'that implements LiveState. Did you mean to remove the @live annotation on this resolver?',
+              field.path,
             );
           }
           const liveState: LiveState<mixed> =
@@ -138,6 +140,13 @@ class LiveResolverCache implements ResolverCache {
           this._setLiveStateValue(linkedRecord, linkedID, liveState);
         }
       } else {
+        if (__DEV__) {
+          invariant(
+            !isLiveStateValue(evaluationResult.resolverResult),
+            'Unexpected LiveState value retuned from the non-@live Relay Resolver backing the field "%s". Did you intend to add @live to this resolver?.',
+            field.path,
+          );
+        }
         RelayModernRecord.setValue(
           linkedRecord,
           RELAY_RESOLVER_VALUE_KEY,

@@ -1193,3 +1193,63 @@ describe.each([
     expect(renderer.toJSON()).toBe('Loading...');
   });
 });
+
+test('Errors when reading a @live resolver that does not return a LiveState object', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+  const FooQuery = graphql`
+    query LiveResolversTest16Query {
+      live_resolver_with_bad_return_value
+    }
+  `;
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const store = new LiveResolverStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  expect(() => {
+    environment.lookup(operation.fragment);
+  }).toThrow(
+    'Expected the @live Relay Resolver backing the field "live_resolver_with_bad_return_value" to return a value that implements LiveState. Did you mean to remove the @live annotation on this resolver?',
+  );
+});
+
+test('Errors when reading a non-@live resolver that returns a LiveState object', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+  const FooQuery = graphql`
+    query LiveResolversTest17Query {
+      non_live_resolver_with_live_return_value
+    }
+  `;
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const store = new LiveResolverStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  expect(() => {
+    environment.lookup(operation.fragment);
+  }).toThrow(
+    'Unexpected LiveState value retuned from the non-@live Relay Resolver backing the field "non_live_resolver_with_live_return_value". Did you intend to add @live to this resolver?.',
+  );
+});

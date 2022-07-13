@@ -175,16 +175,16 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "3.1.18"
+version = "3.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d2dbdf4bdacb33466e854ce889eee8dfd5729abf7ccd7664d0a2d60cd384440b"
+checksum = "69c5a7f9997be616e47f0577ee38c91decb33392c5be4866494f34cdf329a9aa"
 dependencies = [
  "atty",
  "bitflags",
  "clap_derive",
  "clap_lex",
  "indexmap",
- "lazy_static",
+ "once_cell",
  "regex",
  "strsim",
  "termcolor",
@@ -195,9 +195,9 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "3.1.18"
+version = "3.2.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "25320346e922cffe59c0bbc5410c8d8784509efb321488971081313cb1e1a33c"
+checksum = "759bf187376e1afa7b85b959e6a664a3e7a95203415dba952ad19139e798f902"
 dependencies = [
  "heck 0.4.0",
  "proc-macro-error",
@@ -354,19 +354,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "dashmap"
-version = "5.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0834a35a3fce649144119e18da2a4d8ed12ef3862f47183fd46f625d072d96c"
-dependencies = [
- "cfg-if",
- "num_cpus",
- "parking_lot 0.12.1",
- "rayon",
- "serde",
-]
-
-[[package]]
 name = "dependency-analyzer"
 version = "0.0.0"
 dependencies = [
@@ -453,7 +440,7 @@ dependencies = [
  "colored",
  "diff",
  "lazy_static",
- "parking_lot 0.11.2",
+ "parking_lot",
  "signedsource",
 ]
 
@@ -655,7 +642,7 @@ name = "graphql-ir-validations"
 version = "0.0.0"
 dependencies = [
  "common",
- "dashmap 4.0.2",
+ "dashmap",
  "errors",
  "fixture-tests",
  "graphql-cli",
@@ -889,7 +876,7 @@ dependencies = [
  "hashbrown",
  "indexmap",
  "once_cell",
- "parking_lot 0.11.2",
+ "parking_lot",
  "rand",
  "serde",
  "serde_bytes",
@@ -905,7 +892,7 @@ dependencies = [
  "fnv",
  "lazy_static",
  "once_cell",
- "parking_lot 0.11.2",
+ "parking_lot",
  "serde",
 ]
 
@@ -1027,9 +1014,9 @@ dependencies = [
 
 [[package]]
 name = "lsp-types"
-version = "0.89.2"
+version = "0.93.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "852e0dedfd52cc32325598b2631e0eba31b7b708959676a9f837042f276b09a2"
+checksum = "70c74e2173b2b31f8655d33724b4b45ac13f439386f66290f539c22b144c2212"
 dependencies = [
  "bitflags",
  "serde",
@@ -1157,9 +1144,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.8.0"
+version = "1.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "692fcb63b64b1758029e0a96ee63e049ce8c5948587f2f7208df04625e5f6b56"
+checksum = "18a6dbe30758c9f83eb00cbea4ac95966305f5a7772f3f42ebfc7fc7eddbd8e1"
 
 [[package]]
 name = "opaque-debug"
@@ -1247,17 +1234,7 @@ checksum = "7d17b78036a60663b797adeaee46f5c9dfebb86948d1255007a1d6be0271ff99"
 dependencies = [
  "instant",
  "lock_api",
- "parking_lot_core 0.8.5",
-]
-
-[[package]]
-name = "parking_lot"
-version = "0.12.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3742b2c103b9f06bc9fff0a37ff4912935851bee6d36f3c02bcc755bcfec228f"
-dependencies = [
- "lock_api",
- "parking_lot_core 0.9.3",
+ "parking_lot_core",
 ]
 
 [[package]]
@@ -1272,19 +1249,6 @@ dependencies = [
  "redox_syscall",
  "smallvec",
  "winapi",
-]
-
-[[package]]
-name = "parking_lot_core"
-version = "0.9.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "09a279cbf25cb0757810394fbc1e359949b59e348145c643a939a525692e6929"
-dependencies = [
- "cfg-if",
- "libc",
- "redox_syscall",
- "smallvec",
- "windows-sys",
 ]
 
 [[package]]
@@ -1482,7 +1446,7 @@ checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
 name = "relay"
-version = "0.0.0"
+version = "14.0.0"
 dependencies = [
  "clap",
  "common",
@@ -1520,13 +1484,13 @@ dependencies = [
 
 [[package]]
 name = "relay-compiler"
-version = "14.0.0"
+version = "0.0.0"
 dependencies = [
  "async-trait",
  "bincode",
  "common",
  "common-path",
- "dashmap 5.1.0",
+ "dashmap",
  "dependency-analyzer",
  "docblock-syntax",
  "errors",
@@ -1613,7 +1577,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "crossbeam",
- "dashmap 5.1.0",
+ "dashmap",
  "docblock-syntax",
  "extract-graphql",
  "fixture-tests",
@@ -1668,7 +1632,7 @@ name = "relay-transforms"
 version = "0.0.0"
 dependencies = [
  "common",
- "dashmap 5.1.0",
+ "dashmap",
  "errors",
  "fixture-tests",
  "fnv",
@@ -1683,7 +1647,7 @@ dependencies = [
  "itertools",
  "lazy_static",
  "once_cell",
- "parking_lot 0.11.2",
+ "parking_lot",
  "regex",
  "relay-config",
  "relay-test-schema",
@@ -1763,7 +1727,7 @@ name = "schema"
 version = "0.0.0"
 dependencies = [
  "common",
- "dashmap 5.1.0",
+ "dashmap",
  "fixture-tests",
  "flatbuffers",
  "fnv",
@@ -2163,7 +2127,7 @@ dependencies = [
  "mio",
  "num_cpus",
  "once_cell",
- "parking_lot 0.11.2",
+ "parking_lot",
  "pin-project-lite",
  "signal-hook-registry",
  "tokio-macros",
@@ -2361,9 +2325,9 @@ checksum = "fd6fbd9a79829dd1ad0cc20627bf1ed606756a7f77edff7b66b7064f9cb327c6"
 
 [[package]]
 name = "watchman_client"
-version = "0.7.1"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1afbab1186833c9b34f64132b80ed4b373ed4eab6f9efa1f55430835200f0a28"
+checksum = "839fea2d85719bb69089290d7970bba2131f544448db8f990ea75813c30775ca"
 dependencies = [
  "anyhow",
  "bytes 1.0.1",
@@ -2407,49 +2371,6 @@ name = "winapi-x86_64-pc-windows-gnu"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
-
-[[package]]
-name = "windows-sys"
-version = "0.36.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ea04155a16a59f9eab786fe12a4a450e75cdb175f9e0d80da1e17db09f55b8d2"
-dependencies = [
- "windows_aarch64_msvc",
- "windows_i686_gnu",
- "windows_i686_msvc",
- "windows_x86_64_gnu",
- "windows_x86_64_msvc",
-]
-
-[[package]]
-name = "windows_aarch64_msvc"
-version = "0.36.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bb8c3fd39ade2d67e9874ac4f3db21f0d710bee00fe7cab16949ec184eeaa47"
-
-[[package]]
-name = "windows_i686_gnu"
-version = "0.36.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "180e6ccf01daf4c426b846dfc66db1fc518f074baa793aa7d9b9aaeffad6a3b6"
-
-[[package]]
-name = "windows_i686_msvc"
-version = "0.36.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2e7917148b2812d1eeafaeb22a97e4813dfa60a3f8f78ebe204bcc88f12f024"
-
-[[package]]
-name = "windows_x86_64_gnu"
-version = "0.36.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4dcd171b8776c41b97521e5da127a2d86ad280114807d0b2ab1e462bc764d9e1"
-
-[[package]]
-name = "windows_x86_64_msvc"
-version = "0.36.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c811ca4a8c853ef420abd8592ba53ddbbac90410fab6903b3e79972a631f7680"
 
 [[package]]
 name = "zstd"

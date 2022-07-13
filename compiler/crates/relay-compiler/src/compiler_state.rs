@@ -747,8 +747,9 @@ fn extract_sources(
 /// support those enums.
 mod clock_json_string {
     use crate::file_source::Clock;
-    use serde::de::Error;
+    use serde::de::Error as DeserializationError;
     use serde::de::Visitor;
+    use serde::ser::Error as SerializationError;
     use serde::Deserializer;
     use serde::Serializer;
 
@@ -756,7 +757,9 @@ mod clock_json_string {
     where
         S: Serializer,
     {
-        let json_string = serde_json::to_string(clock).unwrap();
+        let json_string = serde_json::to_string(clock).map_err(|err| {
+            SerializationError::custom(format!("Unable to serialize clock value. Error {}", err))
+        })?;
         serializer.serialize_str(&json_string)
     }
 
@@ -775,8 +778,13 @@ mod clock_json_string {
             formatter.write_str("a JSON encoded watchman::Clock value")
         }
 
-        fn visit_str<E: Error>(self, v: &str) -> Result<Option<Clock>, E> {
-            Ok(serde_json::from_str(v).unwrap())
+        fn visit_str<E: DeserializationError>(self, v: &str) -> Result<Option<Clock>, E> {
+            serde_json::from_str(v).map_err(|err| {
+                DeserializationError::custom(format!(
+                    "Unable deserialize clock value. Error {}",
+                    err
+                ))
+            })
         }
     }
 }

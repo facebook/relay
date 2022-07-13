@@ -6,7 +6,6 @@
  */
 
 use crate::ClientEdgeMetadata;
-use crate::DependencyMap;
 use crate::FragmentAliasMetadata;
 use crate::RequiredMetadataDirective;
 use crate::CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME;
@@ -22,29 +21,22 @@ use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
 use graphql_ir::Field as IrField;
-use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
-use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
-use graphql_ir::Visitor;
 use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantValue;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
 use schema::ArgumentValue;
 use schema::Field;
-use schema::FieldID;
-use schema::SDLSchema;
 use schema::Schema;
-use std::mem;
 use std::sync::Arc;
 
 pub fn relay_resolvers(program: &Program, enabled: bool) -> DiagnosticsResult<Program> {
@@ -497,42 +489,6 @@ fn get_bool_argument_is_true(arguments: &[ArgumentValue], argument_name: StringK
     }
 }
 
-pub fn find_resolver_dependencies(dependencies: &mut DependencyMap, program: &Program) {
-    let mut finder = ResolverFieldFinder::new(dependencies, &program.schema);
-    finder.visit_program(program);
-}
-
-pub struct ResolverFieldFinder<'a> {
-    dependencies: &'a mut DependencyMap,
-    schema: &'a SDLSchema,
-    seen_resolver_fragments: StringKeySet,
-}
-
-impl<'a> ResolverFieldFinder<'a> {
-    pub fn new(dependencies: &'a mut DependencyMap, schema: &'a SDLSchema) -> Self {
-        Self {
-            dependencies,
-            schema,
-            seen_resolver_fragments: Default::default(),
-        }
-    }
-
-    fn record_definition_dependencies(&mut self, name: StringKey) {
-        if self.seen_resolver_fragments.is_empty() {
-            self.dependencies.remove(&name);
-        } else {
-            self.dependencies
-                .insert(name, mem::take(&mut self.seen_resolver_fragments));
-        }
-    }
-
-    fn check_for_resolver_dependencies(&mut self, field_id: FieldID) {
-        if let Some(fragment_name) = get_resolver_fragment_name(self.schema.field(field_id)) {
-            self.seen_resolver_fragments.insert(fragment_name);
-        }
-    }
-}
-
 pub fn get_resolver_fragment_name(field: &Field) -> Option<StringKey> {
     if !field.is_extension {
         return None;
@@ -547,39 +503,4 @@ pub fn get_resolver_fragment_name(field: &Field) -> Option<StringKey> {
                 .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
         })
         .and_then(|arg| arg.value.get_string_literal())
-}
-
-impl<'a> Visitor for ResolverFieldFinder<'a> {
-    const NAME: &'static str = "ResolverFieldFinder";
-
-    const VISIT_ARGUMENTS: bool = false;
-
-    const VISIT_DIRECTIVES: bool = false;
-
-    fn visit_fragment(&mut self, fragment: &FragmentDefinition) {
-        assert!(
-            self.seen_resolver_fragments.is_empty(),
-            "should have been cleared by record_definition_dependencies"
-        );
-        self.default_visit_fragment(fragment);
-        self.record_definition_dependencies(fragment.name.item);
-    }
-
-    fn visit_operation(&mut self, operation: &OperationDefinition) {
-        assert!(
-            self.seen_resolver_fragments.is_empty(),
-            "should have been cleared by record_definition_dependencies"
-        );
-        self.default_visit_operation(operation);
-        self.record_definition_dependencies(operation.name.item);
-    }
-
-    fn visit_scalar_field(&mut self, field: &ScalarField) {
-        self.check_for_resolver_dependencies(field.definition.item)
-    }
-
-    fn visit_linked_field(&mut self, field: &LinkedField) {
-        self.check_for_resolver_dependencies(field.definition.item);
-        self.default_visit_linked_field(field)
-    }
 }

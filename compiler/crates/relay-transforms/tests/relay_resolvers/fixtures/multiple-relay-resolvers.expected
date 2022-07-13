@@ -63,7 +63,3 @@ fragment PopStarNameResolverFragment_name on User {
     lastName
   }
 }
-
-# Implicit Dependencies:
-#
-# Foo_user --> {HobbitNameResolverFragment_name, PopStarNameResolverFragment_name}

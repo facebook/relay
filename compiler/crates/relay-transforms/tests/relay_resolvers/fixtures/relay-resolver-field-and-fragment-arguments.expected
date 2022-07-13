@@ -48,7 +48,3 @@ fragment PopStarNameResolverFragment_name on User @argumentDefinitions(
 ) {
   __typename
 }
-
-# Implicit Dependencies:
-#
-# Foo_user --> {PopStarNameResolverFragment_name}

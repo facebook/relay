@@ -167,6 +167,7 @@ pub use relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME;
 pub use relay_directive::RelayDirective;
 pub use relay_node_identifier::RelayLocationAgnosticBehavior;
 pub use relay_resolvers::find_resolver_dependencies;
+pub use relay_resolvers::get_resolver_fragment_name;
 pub use relay_resolvers::relay_resolvers;
 pub use relay_resolvers::RelayResolverMetadata;
 pub use relay_resolvers::ResolverFieldFinder;

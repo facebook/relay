@@ -36,7 +36,6 @@ use relay_compiler::FileSourceSubscription;
 use relay_compiler::FileSourceSubscriptionNextChange;
 use relay_compiler::GraphQLAsts;
 use relay_compiler::SourceControlUpdateStatus;
-use relay_transforms::find_resolver_dependencies;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
 use tokio::task;
@@ -402,7 +401,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         let (base_program, _) = build_raw_program(
             project_config,
-            &compiler_state.implicit_dependencies.read().unwrap(),
             project_asts,
             schema,
             log_event,
@@ -427,28 +425,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             }
         }
 
-        let (validation_results, _) = rayon::join(
-            || {
-                // Call validation rules that go beyond type checking.
-                validate_program(
-                    &self.lsp_state.config,
-                    project_config,
-                    &base_program,
-                    log_event,
-                )
-            },
-            || {
-                find_resolver_dependencies(
-                    &mut compiler_state
-                        .pending_implicit_dependencies
-                        .write()
-                        .unwrap(),
-                    &base_program,
-                );
-            },
-        );
-
-        validation_results?;
+        // Call validation rules that go beyond type checking.
+        validate_program(
+            &self.lsp_state.config,
+            project_config,
+            &base_program,
+            log_event,
+        )?;
 
         transform_program(
             project_config,

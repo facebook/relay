@@ -59,9 +59,7 @@ use rayon::iter::IntoParallelRefIterator;
 use rayon::slice::ParallelSlice;
 use relay_codegen::Printer;
 use relay_transforms::apply_transforms;
-use relay_transforms::find_resolver_dependencies;
 use relay_transforms::CustomTransformsConfig;
-use relay_transforms::DependencyMap;
 use relay_transforms::Programs;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
@@ -90,7 +88,6 @@ impl From<BuildProjectError> for BuildProjectFailure {
 /// their locations to provide information to go_to_definition, hover, etc.
 pub fn build_raw_program(
     project_config: &ProjectConfig,
-    implicit_dependencies: &DependencyMap,
     project_asts: ProjectAsts,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
@@ -98,17 +95,12 @@ pub fn build_raw_program(
 ) -> Result<(Program, SourceHashes), BuildProjectError> {
     // Build a type aware IR.
     let BuildIRResult { ir, source_hashes } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(
-            project_config,
-            implicit_dependencies,
-            project_asts,
-            &schema,
-            is_incremental_build,
+        build_ir::build_ir(project_config, project_asts, &schema, is_incremental_build).map_err(
+            |errors| BuildProjectError::ValidationErrors {
+                errors,
+                project_name: project_config.name,
+            },
         )
-        .map_err(|errors| BuildProjectError::ValidationErrors {
-            errors,
-            project_name: project_config.name,
-        })
     })?;
 
     // Turn the IR into a base Program.
@@ -191,7 +183,6 @@ pub fn build_programs(
 
     let (program, source_hashes) = build_raw_program(
         project_config,
-        &compiler_state.implicit_dependencies.read().unwrap(),
         project_asts,
         schema,
         log_event,
@@ -203,23 +194,8 @@ pub fn build_programs(
         return Err(BuildProjectFailure::Cancelled);
     }
 
-    let (validation_results, _) = rayon::join(
-        || {
-            // Call validation rules that go beyond type checking.
-            validate_program(config, project_config, &program, log_event)
-        },
-        || {
-            find_resolver_dependencies(
-                &mut compiler_state
-                    .pending_implicit_dependencies
-                    .write()
-                    .unwrap(),
-                &program,
-            );
-        },
-    );
-
-    validation_results?;
+    // Call validation rules that go beyond type checking.
+    validate_program(config, project_config, &program, log_event)?;
 
     let programs = transform_program(
         project_config,

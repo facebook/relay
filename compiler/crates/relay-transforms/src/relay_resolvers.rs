@@ -527,23 +527,26 @@ impl<'a> ResolverFieldFinder<'a> {
     }
 
     fn check_for_resolver_dependencies(&mut self, field_id: FieldID) {
-        let field_type = self.schema.field(field_id);
-
-        // Find the backing resolver fragment, if any. Ignore any malformed resolver field definitions.
-        let maybe_fragment_name = field_type
-            .directives
-            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
-            .and_then(|resolver_directive| {
-                resolver_directive
-                    .arguments
-                    .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
-            })
-            .and_then(|arg| arg.value.get_string_literal());
-
-        if let Some(fragment_name) = maybe_fragment_name {
+        if let Some(fragment_name) = get_resolver_fragment_name(self.schema.field(field_id)) {
             self.seen_resolver_fragments.insert(fragment_name);
         }
     }
+}
+
+pub fn get_resolver_fragment_name(field: &Field) -> Option<StringKey> {
+    if !field.is_extension {
+        return None;
+    }
+
+    field
+        .directives
+        .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+        .and_then(|resolver_directive| {
+            resolver_directive
+                .arguments
+                .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
+        })
+        .and_then(|arg| arg.value.get_string_literal())
 }
 
 impl<'a> Visitor for ResolverFieldFinder<'a> {

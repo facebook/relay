@@ -62,7 +62,7 @@ function MyGreeting({userKey}) {
 }
 ```
 
-## Doblock Fields
+## Docblock Fields
 
 The Relay compiler looks for the following fields in any docblocks that includes `@RelayResolver`:
 

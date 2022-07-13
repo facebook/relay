@@ -237,7 +237,7 @@ pub fn build_project(
     let ProjectAstData {
         project_asts,
         base_fragment_names,
-    } = get_project_asts(graphql_asts_map, project_config)?;
+    } = get_project_asts(&schema, graphql_asts_map, project_config)?;
 
     if compiler_state.should_cancel_current_build() {
         debug!("Build is cancelled: updates in source code/or new file changes are pending.");

@@ -320,7 +320,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         let ProjectAstData {
             project_asts,
             base_fragment_names,
-        } = get_project_asts(graphql_asts_map, project_config)?;
+        } = get_project_asts(&schema, graphql_asts_map, project_config)?;
 
         // This will kick-off the validation for all synced sources
         self.lsp_state.schedule_task(Task::ValidateSyncedSources);

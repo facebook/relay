@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1c2724cec85b330379b0c9dc91d508a5>>
+ * @generated SignedSource<<4fcc14df86774e83d125e4f236b471da>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -46,7 +46,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayResolver",
             "name": "non_live_resolver_with_live_return_value",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryNonLiveResolverWithLiveReturnValue.js'),
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryNonLiveResolverWithLiveReturnValue'),
             "path": "non_live_resolver_with_live_return_value"
           }
         ]

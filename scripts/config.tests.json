@@ -20,6 +20,9 @@
       "schemaExtensions": [
         "packages/relay-test-utils-internal/schema-extensions"
       ],
+      "customScalarTypes": {
+        "OpaqueScalarType": {"name": "OpaqueScalarType", "path": "../OpaqueScalarType"}
+      },
       "jsModuleFormat": "commonjs",
       "featureFlags": {
         "enable_relay_resolver_transform": true,

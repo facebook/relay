@@ -55,9 +55,6 @@ type FragmentState = $ReadOnly<
 
 type StateUpdaterFunction<T> = ((T) => T) => void;
 
-class NotMounted {}
-const NOT_MOUNTED = new NotMounted();
-
 function isMissingData(state: FragmentState): boolean {
   if (state.kind === 'bailout') {
     return false;
@@ -421,11 +418,10 @@ function useFragmentInternal_REACT_CACHE(
   // The purpose of this is to detect whether we have ever committed, because we
   // don't suspend on store updates, only when the component either is first trying
   // to mount or when the our selector changes. The selector change in particular is
-  // how we suspend for pagination and refetech. Also, fragment selector can be null,
-  // so we use NOT_MOUNTED as a special value to distinguish from all fragment selectors.
-  const committedFragmentSelectorRef = useRef<NotMounted | ?ReaderSelector>(
-    NOT_MOUNTED,
-  );
+  // how we suspend for pagination and refetech. Also, fragment selector can be null
+  // or undefined, so we use false as a special value to distinguish from all fragment
+  // selectors; false means that the component hasn't mounted yet.
+  const committedFragmentSelectorRef = useRef<false | ?ReaderSelector>(false);
   useEffect(() => {
     committedFragmentSelectorRef.current = fragmentSelector;
   }, [fragmentSelector]);
@@ -491,7 +487,10 @@ function useFragmentInternal_REACT_CACHE(
     // fragment's owner or some other mutation etc. that could affect it.
     // We only suspend when the component is first trying to mount or changing
     // selectors, not if data becomes missing later:
-    if (committedFragmentSelectorRef.current !== fragmentSelector) {
+    if (
+      !committedFragmentSelectorRef.current ||
+      !areEqualSelectors(committedFragmentSelectorRef.current, fragmentSelector)
+    ) {
       invariant(fragmentSelector != null, 'refinement, see invariants above');
       const fragmentOwner =
         fragmentSelector.kind === 'PluralReaderSelector'

@@ -446,6 +446,7 @@ module.exports = {
       logo: {
         src: 'img/relay.svg',
       },
+      copyright: `Copyright © ${new Date().getFullYear()} Meta Platforms, Inc. Built with Docusaurus.`,
     },
     prism: {
       theme: require('prism-react-renderer/themes/github'),

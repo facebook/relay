@@ -247,9 +247,9 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     render = function (
       entryPoint: any,
       initialEntryPointRef: any,
-      {suspendWholeTree}: {suspendWholeTree?: boolean} = ({
-        ...null,
-      }: {suspendWholeTree?: boolean}),
+      {suspendWholeTree}: {suspendWholeTree?: boolean} = ({}: {
+        suspendWholeTree?: boolean,
+      }),
     ): $FlowFixMe {
       let instance;
       ReactTestRenderer.act(() => {

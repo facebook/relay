@@ -172,9 +172,9 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
     render = function (
       initialQueryRef: any,
-      {suspendWholeTree}: {suspendWholeTree?: boolean} = ({
-        ...null,
-      }: {suspendWholeTree?: boolean}),
+      {suspendWholeTree}: {suspendWholeTree?: boolean} = ({}: {
+        suspendWholeTree?: boolean,
+      }),
     ): $FlowFixMe {
       let instance;
       ReactTestRenderer.act(() => {

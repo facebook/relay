@@ -33,6 +33,7 @@ export function createAndStartLanguageClient(context: RelayExtensionContext) {
   const serverOptions: ServerOptions = {
     options: {
       cwd: context.relayBinaryExecutionOptions.rootPath,
+      shell: true,
     },
     command: path.resolve(
       context.relayBinaryExecutionOptions.rootPath,

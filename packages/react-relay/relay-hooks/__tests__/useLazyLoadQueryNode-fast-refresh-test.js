@@ -135,7 +135,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     );
 
     expect(instance.toJSON()).toEqual('Fallback');
-    expectToHaveFetched(environment, query, {...null});
+    expectToHaveFetched(environment, query, {});
     expect(renderFn).not.toBeCalled();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
@@ -174,7 +174,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
       ReactRefreshRuntime.performReactRefresh();
     });
     // It should start a new fetch in fast refresh
-    expectToHaveFetched(environment, query, {...null});
+    expectToHaveFetched(environment, query, {});
     expect(renderFn).toBeCalledTimes(1);
     expect(instance.toJSON()).toEqual('Fallback');
     // It should render with the result of the new fetch

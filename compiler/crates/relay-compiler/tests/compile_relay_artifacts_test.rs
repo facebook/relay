@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bb104b68ef6fd27fe501fb72fd99293f>>
+ * @generated SignedSource<<c2e22fcf5aeb506d0e8826487b03f891>>
  */
 
 mod compile_relay_artifacts;
@@ -1081,6 +1081,13 @@ fn relay_resolver_with_args_and_alias_no_fragment() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-args-and-alias-no-fragment.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-args-and-alias-no-fragment.expected");
     test_fixture(transform_fixture, "relay-resolver-with-args-and-alias-no-fragment.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-args-and-alias-no-fragment.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_required_client_edge() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-required-client-edge.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-required-client-edge.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-required-client-edge.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-required-client-edge.expected", input, expected);
 }
 
 #[test]

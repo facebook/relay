@@ -59,7 +59,7 @@ pub(crate) fn set_ready_status(sender: &Sender<Message>) {
     update_status(
         "Relay: ready",
         Some("The Relay extension is ready"),
-        MessageType::Info,
+        MessageType::INFO,
         sender,
     );
 }
@@ -71,7 +71,7 @@ pub(crate) fn set_error_status(sender: &Sender<Message>, error: impl std::fmt::D
             "The Relay extension has errors: {}. Try reloading the IDE. If the error persists, report the issue via appropriate channels.",
             error
         )),
-        MessageType::Error,
+        MessageType::ERROR,
         sender,
     );
 }
@@ -81,7 +81,7 @@ pub(crate) fn update_in_progress_status(
     message: Option<impl Into<String>>,
     sender: &Sender<Message>,
 ) {
-    update_status(short_message, message, MessageType::Warning, sender);
+    update_status(short_message, message, MessageType::WARNING, sender);
 }
 
 // This is the entrypoint for all status bar update commands.
@@ -120,7 +120,7 @@ pub(crate) fn show_info_message(
     let notif = ServerNotification::new(
         ShowMessage::METHOD.into(),
         ShowMessageParams {
-            typ: MessageType::Info,
+            typ: MessageType::INFO,
             message: message.into(),
         },
     );

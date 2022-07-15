@@ -17,8 +17,7 @@ import Layout from '@theme/Layout';
 import clsx from 'clsx';
 import * as React from 'react';
 
-const {useState, useEffect, useLayoutEffect, useMemo, useReducer, useCallback} =
-  React;
+const {useState, useEffect, useLayoutEffect, useMemo} = React;
 
 export default function App() {
   return (

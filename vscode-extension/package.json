@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "displayName": "Relay GraphQL",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Relay-powered IDE experience",
   "repository": {
     "type": "git",
@@ -52,7 +52,10 @@
           "source.tsx"
         ],
         "scopeName": "inline.graphql",
-        "path": "./grammars/graphql.js.json"
+        "path": "./grammars/graphql.js.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.graphql": "graphql"
+        }
       }
     ],
     "commands": [

@@ -305,6 +305,7 @@ type Comment implements Node {
   subscribeStatus: String
   subscribers(first: Int): SubscribersConnection
   topLevelComments(first: Int): TopLevelCommentsConnection
+  commentsFrom(name: String!): [CommentsEdge]
   tracking: String
   url(relative: Boolean, site: String): String
   websites: [String]

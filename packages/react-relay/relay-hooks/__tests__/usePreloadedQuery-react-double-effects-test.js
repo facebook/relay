@@ -42,7 +42,7 @@ const {createMockEnvironment} = require('relay-test-utils');
 function expectToHaveFetched(
   environment: RelayMockEnvironment,
   query: OperationDescriptor,
-  {count}: {count?: number} = ({...null}: {
+  {count}: {count?: number} = ({}: {
     count?: number,
   }),
 ) {

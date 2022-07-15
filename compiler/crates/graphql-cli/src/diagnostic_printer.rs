@@ -42,17 +42,20 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
         diagnostic: &Diagnostic,
     ) -> std::fmt::Result {
         match diagnostic.severity() {
-            common::DiagnosticSeverity::Error => {
+            common::DiagnosticSeverity::ERROR => {
                 writeln!(writer, "{}\n", format!("✖︎ {}", diagnostic.message()).red())?;
             }
-            common::DiagnosticSeverity::Warning => {
+            common::DiagnosticSeverity::WARNING => {
                 writeln!(
                     writer,
                     "{}\n",
                     format!("︎⚠ {}", diagnostic.message()).yellow()
                 )?;
             }
-            common::DiagnosticSeverity::Information | common::DiagnosticSeverity::Hint => {
+            common::DiagnosticSeverity::INFORMATION | common::DiagnosticSeverity::HINT => {
+                writeln!(writer, "{}\n", format!("ℹ {}", diagnostic.message()).blue())?;
+            }
+            _ => {
                 writeln!(writer, "{}\n", format!("ℹ {}", diagnostic.message()).blue())?;
             }
         }

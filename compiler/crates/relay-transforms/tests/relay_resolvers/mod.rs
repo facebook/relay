@@ -18,11 +18,9 @@ use graphql_text_printer::print_fragment;
 use graphql_text_printer::print_operation;
 use graphql_text_printer::PrinterOptions;
 use relay_test_schema::get_test_schema_with_located_extensions;
-use relay_transforms::find_resolver_dependencies;
 use relay_transforms::fragment_alias_directive;
 use relay_transforms::relay_resolvers;
 use relay_transforms::validate_resolver_fragments;
-use relay_transforms::DependencyMap;
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -35,9 +33,6 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         let schema = get_test_schema_with_located_extensions(extensions, extension_location);
         let ir = build(&schema, &ast.definitions).unwrap();
         let program = Program::from_definitions(Arc::clone(&schema), ir);
-
-        let mut implicit_dependencies = Default::default();
-        find_resolver_dependencies(&mut implicit_dependencies, &program);
 
         validate_resolver_fragments(&program)
             .map_err(|diagnostics| diagnostics_to_sorted_string(base, extensions, &diagnostics))?;
@@ -63,34 +58,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             .collect::<Vec<_>>();
         printed.sort();
 
-        printed.push(print_dependency_map(implicit_dependencies));
-
         Ok(printed.join("\n\n"))
     } else {
         panic!("Expected exactly one %extensions% section marker.")
     }
-}
-
-fn print_dependency_map(dependency_map: DependencyMap) -> String {
-    let mut lines = dependency_map
-        .into_iter()
-        .map(|(operation_name, dependencies)| {
-            let mut dependency_list = dependencies
-                .into_iter()
-                .map(|key| key.to_string())
-                .collect::<Vec<_>>();
-            dependency_list.sort();
-            format!(
-                "# {} --> {{{}}}",
-                operation_name,
-                dependency_list.join(", ")
-            )
-        })
-        .collect::<Vec<_>>();
-
-    lines.sort();
-
-    format!("# Implicit Dependencies:\n#\n{}", lines.join("\n"))
 }
 
 pub fn diagnostics_to_sorted_string(

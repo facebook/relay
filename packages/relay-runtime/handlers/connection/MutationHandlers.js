@@ -104,11 +104,11 @@ function edgeUpdater(
     );
     let singleServerEdge, serverEdges;
     try {
-      singleServerEdge = record.getLinkedRecord(payload.fieldKey, payload.args);
+      singleServerEdge = record.getLinkedRecord(payload.fieldKey);
     } catch {}
     if (!singleServerEdge) {
       try {
-        serverEdges = record.getLinkedRecords(payload.fieldKey, payload.args);
+        serverEdges = record.getLinkedRecords(payload.fieldKey);
       } catch {}
     }
     if (singleServerEdge == null && serverEdges == null) {
@@ -181,11 +181,11 @@ function nodeUpdater(
     let singleServerNode;
     let serverNodes;
     try {
-      singleServerNode = record.getLinkedRecord(payload.fieldKey, payload.args);
+      singleServerNode = record.getLinkedRecord(payload.fieldKey);
     } catch {}
     if (!singleServerNode) {
       try {
-        serverNodes = record.getLinkedRecords(payload.fieldKey, payload.args);
+        serverNodes = record.getLinkedRecords(payload.fieldKey);
       } catch {}
     }
     if (singleServerNode == null && serverNodes == null) {

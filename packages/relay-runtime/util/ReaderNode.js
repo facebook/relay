@@ -31,10 +31,8 @@ export type ReaderInlineDataFragmentSpread = {
   +kind: 'InlineDataFragmentSpread',
   +name: string,
   +selections: $ReadOnlyArray<ReaderSelection>,
-  // TODO: T123948544 Mark both of these as non-optional once the compiler
-  // changes have rolled out.
-  +args?: ?$ReadOnlyArray<ReaderArgument>,
-  +argumentDefinitions?: $ReadOnlyArray<ReaderArgumentDefinition>,
+  +args: ?$ReadOnlyArray<ReaderArgument>,
+  +argumentDefinitions: $ReadOnlyArray<ReaderArgumentDefinition>,
 };
 
 export type ReaderFragment = {
@@ -234,7 +232,10 @@ export type RequiredFieldAction = 'NONE' | 'LOG' | 'THROW';
 
 export type ReaderRequiredField = {
   +kind: 'RequiredField',
-  +field: ReaderField,
+  +field:
+    | ReaderField
+    | ReaderClientEdgeToClientObject
+    | ReaderClientEdgeToServerObject,
   +action: RequiredFieldAction,
   +path: string,
 };

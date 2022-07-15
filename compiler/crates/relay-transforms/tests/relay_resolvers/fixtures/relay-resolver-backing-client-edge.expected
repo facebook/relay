@@ -36,7 +36,3 @@ fragment Foo_user on User {
   # }
   
 }
-
-# Implicit Dependencies:
-#
-# Foo_user --> {BestFriendResolverFragment}

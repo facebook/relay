@@ -84,7 +84,7 @@ impl<'a> DeprecatedFields<'a> {
                     deprecation_reason,
                 },
                 field_id.location,
-                vec![DiagnosticTag::Deprecated],
+                vec![DiagnosticTag::DEPRECATED],
             ));
         }
     }

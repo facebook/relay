@@ -5,6 +5,7 @@
 
 [options]
 exact_by_default=true
+exact_empty_objects=true
 
 module.system=haste
 module.system.haste.use_name_reducers=true
@@ -41,4 +42,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.181.2
+^0.182.0

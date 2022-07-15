@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e4ed35cc1a9762da1776f948c66fb9b8>>
+ * @generated SignedSource<<eee3ce2703b8d1b6d72b5777b41d1d51>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -60,7 +60,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "shouted_greeting",
-            "resolverModule": require('./../resolvers/UserShoutedGreetingResolver.js'),
+            "resolverModule": require('./../resolvers/UserShoutedGreetingResolver'),
             "path": "me.shouted_greeting"
           }
         ],

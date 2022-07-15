@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f2608abf11f4e667e5506d8c9bd36d39>>
+ * @generated SignedSource<<f4281ee8edc1e88f49b9a3f96893bd55>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -50,7 +50,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "throw_before_read",
-        "resolverModule": require('./../resolvers/ThrowBeforeReadResolver.js'),
+        "resolverModule": require('./../resolvers/ThrowBeforeReadResolver'),
         "path": "throw_before_read"
       }
     ],

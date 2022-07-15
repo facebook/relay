@@ -22,6 +22,3 @@ fragment Foo_user on User {
   # }
   
 }
-
-# Implicit Dependencies:
-#

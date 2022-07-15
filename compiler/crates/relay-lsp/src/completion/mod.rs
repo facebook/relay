@@ -677,7 +677,7 @@ fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
                     sort_text: None,
                     filter_text: None,
                     insert_text: Some(format!("{}: $1", label)),
-                    insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                    insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
                     text_edit: None,
                     additional_text_edits: None,
                     command: Some(lsp_types::Command::new(
@@ -740,7 +740,7 @@ fn resolve_completion_items_for_inline_fragment_type(
                 sort_text: None,
                 filter_text: None,
                 insert_text: Some(format!("{} {{\n\t$1\n}}", label)),
-                insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
                 text_edit: None,
                 additional_text_edits: None,
                 command: Some(lsp_types::Command::new(
@@ -845,7 +845,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
             };
             let (insert_text_format, command) = if insert_text.is_some() {
                 (
-                    Some(lsp_types::InsertTextFormat::Snippet),
+                    Some(lsp_types::InsertTextFormat::SNIPPET),
                     Some(lsp_types::Command::new(
                         "Suggest".into(),
                         "editor.action.triggerSuggest".into(),
@@ -871,14 +871,14 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
             );
 
             let kind = match field.type_.inner() {
-                Type::Enum(_) => Some(CompletionItemKind::Enum),
-                Type::Interface(_) => Some(CompletionItemKind::Interface),
+                Type::Enum(_) => Some(CompletionItemKind::ENUM),
+                Type::Interface(_) => Some(CompletionItemKind::INTERFACE),
                 // There is no Kind for union, so we'll use interface
-                Type::Union(_) => Some(CompletionItemKind::Interface),
-                Type::Object(_) => Some(CompletionItemKind::Struct),
-                Type::InputObject(_) => Some(CompletionItemKind::Struct),
-                type_ if schema.is_string(type_) => Some(CompletionItemKind::Text),
-                _ => Some(CompletionItemKind::Value),
+                Type::Union(_) => Some(CompletionItemKind::INTERFACE),
+                Type::Object(_) => Some(CompletionItemKind::STRUCT),
+                Type::InputObject(_) => Some(CompletionItemKind::STRUCT),
+                type_ if schema.is_string(type_) => Some(CompletionItemKind::TEXT),
+                _ => Some(CompletionItemKind::VALUE),
             };
 
             CompletionItem {
@@ -935,7 +935,7 @@ fn resolve_completion_items_for_fragment_spread(
                         sort_text: None,
                         filter_text: None,
                         insert_text: Some(insert_text),
-                        insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                        insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
                         text_edit: None,
                         additional_text_edits: None,
                         command: Some(lsp_types::Command::new(
@@ -968,14 +968,14 @@ fn completion_item_from_directive(
 
     // We can return a snippet with the expected arguments of the directive
     let (insert_text, insert_text_format) = if arguments.is_empty() {
-        (label.clone(), InsertTextFormat::PlainText)
+        (label.clone(), InsertTextFormat::PLAIN_TEXT)
     } else {
         let args = create_arguments_snippets(arguments.iter(), schema);
         if args.is_empty() {
-            (label.clone(), InsertTextFormat::PlainText)
+            (label.clone(), InsertTextFormat::PLAIN_TEXT)
         } else {
             let insert_text = format!("{}({})", label, args.join(", "));
-            (insert_text, InsertTextFormat::Snippet)
+            (insert_text, InsertTextFormat::SNIPPET)
         }
     };
 

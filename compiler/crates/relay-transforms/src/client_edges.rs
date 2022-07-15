@@ -7,7 +7,9 @@
 
 use crate::refetchable_fragment::RefetchableFragment;
 use crate::refetchable_fragment::REFETCHABLE_NAME;
+use crate::RequiredMetadataDirective;
 use crate::ValidationMessage;
+use crate::REQUIRED_DIRECTIVE_NAME;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
@@ -79,7 +81,7 @@ pub struct ClientEdgeGeneratedQueryMetadataDirective {
 associated_data_impl!(ClientEdgeGeneratedQueryMetadataDirective);
 
 pub struct ClientEdgeMetadata<'a> {
-    pub backing_field: &'a Selection,
+    pub backing_field: Selection,
     pub selections: &'a Selection,
     pub metadata_directive: ClientEdgeMetadataDirective,
 }
@@ -106,12 +108,19 @@ impl<'a> ClientEdgeMetadata<'a> {
                 fragment.selections.len() == 2,
                 "Expected Client Edge inline fragment to have exactly two selections. This is a bug in the Relay compiler."
             );
+            let mut backing_field = fragment
+                .selections
+                .get(0)
+                .expect("Client Edge inline fragments have exactly two selections").clone();
+
+            let backing_field_directives = backing_field.directives().iter().filter(|directive|
+                directive.name.item != RequiredMetadataDirective::directive_name()
+            ).cloned().collect();
+            backing_field.set_directives(backing_field_directives);
+
             ClientEdgeMetadata {
                 metadata_directive: metadata_directive.clone(),
-                backing_field: fragment
-                    .selections
-                    .get(0)
-                    .expect("Client Edge inline fragments have exactly two selections"),
+                backing_field,
                 selections: fragment
                     .selections
                     .get(1)
@@ -298,10 +307,20 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             return self.default_transform_linked_field(field);
         }
 
+        let allowed_dirctive_names = [
+            *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME,
+            *REQUIRED_DIRECTIVE_NAME,
+            RequiredMetadataDirective::directive_name(),
+        ];
+
         let other_directives = field
             .directives
             .iter()
-            .filter(|directive| directive.name() != *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
+            .filter(|directive| {
+                !allowed_dirctive_names
+                    .iter()
+                    .any(|item| directive.name() == *item)
+            })
             .collect::<Vec<_>>();
 
         for directive in other_directives {
@@ -378,6 +397,14 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 unique_id: self.get_key(),
             }
         };
+        let mut inline_fragment_directives: Vec<Directive> = vec![metadata_directive.into()];
+        if let Some(required_directive_metadata) = field
+            .directives
+            .named(RequiredMetadataDirective::directive_name())
+            .cloned()
+        {
+            inline_fragment_directives.push(required_directive_metadata);
+        }
 
         let transformed_field = Arc::new(LinkedField {
             selections: new_selections,
@@ -386,7 +413,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
         let inline_fragment = InlineFragment {
             type_condition: None,
-            directives: vec![metadata_directive.into()],
+            directives: inline_fragment_directives,
             selections: vec![
                 Selection::LinkedField(transformed_field.clone()),
                 Selection::LinkedField(transformed_field),
@@ -508,7 +535,7 @@ impl Transformer for ClientEdgesCleanupTransform {
                 let new_selection = metadata.backing_field;
 
                 Transformed::Replace(
-                    self.transform_selection(new_selection)
+                    self.transform_selection(&new_selection)
                         .unwrap_or_else(|| new_selection.clone()),
                 )
             }

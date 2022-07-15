@@ -25,7 +25,7 @@ intern = { path = "../intern" }
 itertools = "0.10.3"
 log = { version = "0.4.14", features = ["kv_unstable", "kv_unstable_std"] }
 lsp-server = "0.5.2"
-lsp-types = "0.89.0"
+lsp-types = "0.93.0"
 percent-encoding = "2.1"
 rand = { version = "0.8", features = ["small_rng"] }
 rayon = "1.2"

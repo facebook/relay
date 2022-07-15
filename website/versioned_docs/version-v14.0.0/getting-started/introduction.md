@@ -25,6 +25,7 @@ To get started, check out the following resources:
 - An overview of the **[prerequisites](./getting-started/prerequisites/)** for using Relay, and an **[installation and setup guide](./getting-started/installation-and-setup/)**.
 - The **[guided tour](./guided-tour/)**, for a comprehensive overview of Relay's different APIs and concepts, and usage examples for different use cases.
 - The **[API reference](./api-reference/relay-environment-provider/)**, for a reference of our APIs including a detailed overview of their inputs and outputs.
+- The **[compiler settings](https://github.com/facebook/relay/tree/main/packages/relay-compiler#configuration)**, includes all of the options for configuring  relay.
 
 </OssOnly>
 

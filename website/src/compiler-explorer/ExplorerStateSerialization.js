@@ -8,7 +8,6 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import * as LZString from 'lz-string';
 import {FEATURE_FLAGS, DEFAULT_STATE} from './ExplorerStateConstants';
 

@@ -7,7 +7,6 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import {
   useExplorerState,
   useSerializedFeatureFlags,

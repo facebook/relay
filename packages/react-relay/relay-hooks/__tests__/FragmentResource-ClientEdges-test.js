@@ -85,14 +85,14 @@ describe('FragmentResource Client Edges behavior', () => {
     };
 
     release = jest.fn();
-    // eslint-disable-next-line flowtype/no-flow-fix-me-comments
+    // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
     // $FlowFixMe[method-unbinding]
     environment.retain.mockImplementation((...args) => {
       return {
         dispose: release,
       };
     });
-    // eslint-disable-next-line flowtype/no-flow-fix-me-comments
+    // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
     // $FlowFixMe[method-unbinding]
     retain = environment.retain; // so that we don't have to suppress method-unbinding throughout.
   });
@@ -133,7 +133,7 @@ describe('FragmentResource Client Edges behavior', () => {
 
     // When we read the fragment again, we should be able to access
     // the data across the client edge:
-    // eslint-disable-next-line flowtype/no-flow-fix-me-comments
+    // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
     let result: $FlowFixMe; // it's an opaque type
     expect(() => {
       result = FragmentResource.read(
@@ -160,7 +160,7 @@ describe('FragmentResource Client Edges behavior', () => {
       fragmentRef,
       'componentDisplayName',
     );
-    // eslint-disable-next-line flowtype/no-flow-fix-me-comments
+    // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
     expect((result.data: $FlowFixMe).client_edge.name).toBe('Bob');
     expect(environment.mock.getAllOperations().length).toBe(0);
   });
@@ -242,14 +242,14 @@ describe('FragmentResource Client Edges behavior', () => {
     const originalSetTimeout = global.setTimeout;
     const originalClearTimeout = global.clearTimeout;
     try {
-      // eslint-disable-next-line flowtype/no-flow-fix-me-comments
+      // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
       // $FlowFixMe[cannot-write]
       global.setTimeout = fn => {
         const id = nextTimeoutID++;
         timeouts.set(id, fn);
         return id;
       };
-      // eslint-disable-next-line flowtype/no-flow-fix-me-comments
+      // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
       // $FlowFixMe[cannot-write]
       global.clearTimeout = id => {
         timeouts.delete(id);
@@ -317,10 +317,10 @@ describe('FragmentResource Client Edges behavior', () => {
       subscription.dispose();
       expect(release).toBeCalledTimes(1);
     } finally {
-      // eslint-disable-next-line flowtype/no-flow-fix-me-comments
+      // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
       // $FlowFixMe[cannot-write]
       global.setTimeout = originalSetTimeout;
-      // eslint-disable-next-line flowtype/no-flow-fix-me-comments
+      // eslint-disable-next-line ft-flow/no-flow-fix-me-comments
       // $FlowFixMe[cannot-write]
       global.clearTimeout = originalClearTimeout;
     }

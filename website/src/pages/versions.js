@@ -7,7 +7,6 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import Link from '@docusaurus/Link';
 import {
   useLatestVersion,
@@ -16,7 +15,6 @@ import {
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import React from 'react';
-/* eslint-enable lint/no-value-import */
 
 function Version() {
   const {siteConfig} = useDocusaurusContext();

@@ -7,7 +7,6 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import {DEFAULT_STATE, FEATURE_FLAGS} from './ExplorerStateConstants';
 import {deserializeState, serializeState} from './ExplorerStateSerialization';
 import * as LZString from 'lz-string';

@@ -7,7 +7,6 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import 'monaco-editor/esm/vs/editor/browser/controller/coreCommands.js';
 import 'monaco-editor/esm/vs/editor/contrib/find/findController.js';
 import 'monaco-editor/esm/vs/editor/contrib/hover/hover.js';
@@ -16,7 +15,6 @@ import 'monaco-editor/esm/vs/basic-languages/graphql/graphql.contribution.js';
 import {useThemeConfig} from '@docusaurus/theme-common';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 import * as React from 'react';
-/* eslint-enable lint/no-value-import */
 
 const {useMemo, useState, useLayoutEffect, useEffect} = React;
 

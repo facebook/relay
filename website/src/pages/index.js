@@ -7,7 +7,6 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import Code from '../core/Code.js';
 import Container from '../core/Container';
 import GridBlock from '../core/GridBlock';
@@ -17,7 +16,6 @@ import useBaseUrl, {useBaseUrlUtils} from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import * as React from 'react';
-/* eslint-enable lint/no-value-import */
 
 function LoadQueryLink() {
   return (

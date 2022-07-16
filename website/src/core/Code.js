@@ -7,15 +7,12 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import {useThemeConfig} from '@docusaurus/theme-common';
 import * as React from 'react';
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
-/* eslint-enable lint/no-value-import */
 
 // Light theme
 
-/* eslint-disable lint/fb-fds-usage-colors */
 const tag = '#6a0352';
 const attribute = '#081686';
 const value = '#590000';
@@ -23,7 +20,6 @@ const punctuation = '#403f53';
 const plainText = '#403f53';
 const meta = '#444';
 const other = '#793735';
-/* eslint-enable lint/fb-fds-usage-colors */
 
 const lightTheme = {
   'code[class*="language-"]': {
@@ -130,7 +126,6 @@ const lightTheme = {
 
 // Dark theme
 
-/* eslint-disable lint/fb-fds-usage-colors */
 const darkTag = '#da39b2';
 const darkAttribute = '#8889e6';
 const darkValue = '#e98785';
@@ -138,7 +133,6 @@ const darkPunctuation = '#908fa3';
 const darkPlainText = '#eee';
 const darkMeta = '#ccc';
 const darkOther = '#c96765';
-/* eslint-enable lint/fb-fds-usage-colors */
 
 const darkTheme = {
   'code[class*="language-"]': {

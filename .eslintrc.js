@@ -10,7 +10,10 @@
 'use strict';
 
 module.exports = {
+  root: true,
+  // TODO - migrate this onto @react-native-community/eslint-config
   extends: ['fbjs'],
+  plugins: ['jest', 'relay', 'react-hooks'],
   parser: 'hermes-eslint',
   rules: {
     // Consistency with internal config
@@ -28,7 +31,7 @@ module.exports = {
     'comma-dangle': 'off',
     'max-len': 'off',
     'space-before-function-paren': 'off',
-    'flowtype/object-type-delimiter': 'off',
+    'ft-flow/object-type-delimiter': 'off',
     'babel/flow-object-type': 'off',
 
     // Tests do not need to follow relay naming rules
@@ -66,7 +69,5 @@ module.exports = {
     // These rules are not required with hermes-eslint
     'ft-flow/define-flow-type': 0,
     'ft-flow/use-flow-type': 0,
-    'flowtype/define-flow-type': 0,
-    'flowtype/use-flow-type': 0,
   },
 };

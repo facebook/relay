@@ -362,9 +362,7 @@ function createContainerWithFragments<
       );
 
       // TODO: T26288752 find a better way
-      /* eslint-disable lint/react-state-props-mutation */
       this.state.localVariables = fetchVariables;
-      /* eslint-enable lint/react-state-props-mutation */
 
       // Cancel any previously running refetch.
       this._refetchSubscription && this._refetchSubscription.unsubscribe();

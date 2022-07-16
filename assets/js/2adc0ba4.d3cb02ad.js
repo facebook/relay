@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkrelay_website=self.webpackChunkrelay_website||[]).push([[70731],{71365:e=>{e.exports=JSON.parse('{"permalink":"/blog/tags/rust","page":1,"postsPerPage":10,"totalPages":1,"totalCount":1,"blogDescription":"Blog","blogTitle":"Blog"}')}}]);

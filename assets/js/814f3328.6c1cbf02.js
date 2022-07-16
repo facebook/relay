@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkrelay_website=self.webpackChunkrelay_website||[]).push([[52535],{45641:e=>{e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Introducing the new Relay compiler","permalink":"/blog/2021/12/08/introducing-the-new-relay-compiler"},{"title":"Introducing Relay Hooks","permalink":"/blog/2021/03/09/introducing-relay-hooks"}]}')}}]);

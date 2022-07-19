@@ -46,18 +46,18 @@ impl LocalPersister {
         match self.config.algorithm {
             LocalPersistAlgorithm::MD5 => {
                 let mut md5 = Md5::new();
-                md5.input(operation_text);
-                hex::encode(md5.result())
+                md5.update(operation_text);
+                hex::encode(md5.finalize())
             }
             LocalPersistAlgorithm::SHA1 => {
                 let mut hash = Sha1::new();
-                hash.input(&operation_text);
-                hex::encode(hash.result())
+                hash.update(&operation_text);
+                hex::encode(hash.finalize())
             }
             LocalPersistAlgorithm::SHA256 => {
                 let mut hash = Sha256::new();
-                hash.input(&operation_text);
-                hex::encode(hash.result())
+                hash.update(&operation_text);
+                hex::encode(hash.finalize())
             }
         }
     }

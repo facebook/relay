@@ -1797,8 +1797,8 @@ fn build_alias(alias: Option<StringKey>, name: StringKey) -> ObjectEntry {
 /// Computes the md5 hash of a string.
 pub fn md5(data: &str) -> String {
     let mut md5 = Md5::new();
-    md5.input(data);
-    hex::encode(md5.result())
+    md5.update(data);
+    hex::encode(md5.finalize())
 }
 
 /// Transitive properties of the output collected during traversal

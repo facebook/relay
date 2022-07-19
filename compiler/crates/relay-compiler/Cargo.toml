@@ -38,7 +38,7 @@ intern = { path = "../intern" }
 js-config-loader = { path = "../js-config-loader" }
 lazy_static = "1.0"
 log = { version = "0.4.14", features = ["kv_unstable", "kv_unstable_std"] }
-md-5 = "0.8"
+md-5 = "0.10"
 persist-query = { path = "../persist-query" }
 rayon = "1.2"
 regex = "1.5.4"
@@ -53,8 +53,8 @@ schema-diff = { path = "../schema-diff" }
 serde = { version = "1.0.136", features = ["derive", "rc"] }
 serde_bser = "0.3"
 serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }
-sha-1 = "0.8"
-sha2 = "0.8"
+sha-1 = "0.10"
+sha2 = "0.10"
 signedsource = { path = "../signedsource" }
 thiserror = "1.0.30"
 tokio = { version = "1.15", features = ["full", "test-util", "tracing"] }

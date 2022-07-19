@@ -379,7 +379,7 @@ Example file:
             generate_virtual_id_file_name: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
-            saved_state_version: hex::encode(hash.result()),
+            saved_state_version: hex::encode(hash.finalize()),
             create_operation_persister: None,
             compile_everything: false,
             repersist_operations: false,

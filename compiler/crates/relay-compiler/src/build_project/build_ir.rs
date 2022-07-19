@@ -69,6 +69,6 @@ pub fn build_ir(
 
 fn md5(data: &str) -> String {
     let mut md5 = Md5::new();
-    md5.input(data);
-    hex::encode(md5.result())
+    md5.update(data);
+    hex::encode(md5.finalize())
 }

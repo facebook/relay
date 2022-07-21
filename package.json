@@ -21,7 +21,9 @@
     "typecheck": "flow check"
   },
   "workspaces": [
-    "vscode-extension"
+    "packages/*",
+    "vscode-extension",
+    "website"
   ],
   "dependencies": {
     "@babel/core": "^7.18.6",

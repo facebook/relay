@@ -62,7 +62,7 @@ function MyGreeting({userKey}) {
 }
 ```
 
-## Doblock Fields
+## Docblock Fields
 
 The Relay compiler looks for the following fields in any docblocks that includes `@RelayResolver`:
 
@@ -120,7 +120,7 @@ Let’s look at the example 1:
 ```js
 /**
 * @RelayResolver
-* @filedName **my_resolver_field**
+* @fieldName **my_resolver_field**
 * @onType **MyType**
 * @rootFragment myResolverFragment
 */
@@ -166,7 +166,7 @@ You can define these fragments using GraphQL’s [Schema Definition Language](ht
 ```js
 /**
 * @RelayResolver
-* @filedName **my_resolver_field(my_arg: String, my_other_arg: Int)**
+* @fieldName **my_resolver_field(my_arg: String, my_other_arg: Int)**
 * @onType **MyType**
 * @rootFragment myResolverFragment
 */
@@ -207,7 +207,7 @@ We can also combine both of these approaches and define field arguments both on 
 ```js
 /**
 * @RelayResolver
-* @filedName **my_resolver_field(my_js_arg: String)**
+* @fieldName **my_resolver_field(my_js_arg: String)**
 * @onType **MyType**
 * @rootFragment myResolverFragment
 */

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c5d48e772fef2bc68a2c65ac4d0bfec8>>
+ * @generated SignedSource<<22901e10b6825b66ecd2bcd57af360e2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -50,7 +50,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "counter_plus_one",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver.js'),
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver'),
         "path": "counter_plus_one"
       }
     ],

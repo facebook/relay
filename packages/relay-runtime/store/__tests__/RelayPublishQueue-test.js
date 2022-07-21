@@ -44,7 +44,7 @@ describe('RelayPublishQueue', () => {
       applyWithGuard: jest.fn((callback, context, params) => {
         try {
           callback.apply(context, params);
-        } catch (guarded) {} // eslint-disable-line lint/no-unused-catch-bindings
+        } catch (guarded) {}
       }),
     };
   });

@@ -498,6 +498,12 @@ class RelayReader {
           throw new Error('Relay Resolver fields are not yet supported.');
         }
         return this._readResolverField(selection.field, record, data);
+      case CLIENT_EDGE_TO_CLIENT_OBJECT:
+      case CLIENT_EDGE_TO_SERVER_OBJECT:
+        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+          throw new Error('Relay Resolver fields are not yet supported.');
+        }
+        return this._readClientEdge(selection.field, record, data);
       default:
         (selection.field.kind: empty);
         invariant(

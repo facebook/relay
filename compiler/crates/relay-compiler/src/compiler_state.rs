@@ -31,7 +31,6 @@ use fnv::FnvHashSet;
 use intern::string_key::StringKey;
 use rayon::prelude::*;
 use relay_config::SchemaConfig;
-use relay_transforms::DependencyMap;
 use schema::SDLSchema;
 use schema_diff::definitions::SchemaChange;
 use schema_diff::detect_changes;
@@ -44,7 +43,6 @@ use std::fs::File as FsFile;
 use std::hash::Hash;
 use std::io::BufReader;
 use std::io::BufWriter;
-use std::mem;
 use std::path::PathBuf;
 use std::slice;
 use std::sync::Arc;
@@ -277,15 +275,11 @@ pub struct CompilerState {
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub docblocks: FnvHashMap<ProjectName, DocblockSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
-    // TODO: How can I can I make this just an ImplicitDependencyMap? Currently I can't move the hashmap out of the Arc wrapper around the dirty version.
-    pub implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(with = "clock_json_string")]
     pub clock: Option<Clock>,
     pub saved_state_version: String,
     #[serde(skip)]
     pub dirty_artifact_paths: FnvHashMap<ProjectName, DashSet<PathBuf, FnvBuildHasher>>,
-    #[serde(skip)]
-    pub pending_implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(skip)]
     pub pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
     #[serde(skip)]
@@ -561,7 +555,6 @@ impl CompilerState {
         for sources in self.docblocks.values_mut() {
             sources.commit_pending_sources();
         }
-        self.implicit_dependencies = mem::take(&mut self.pending_implicit_dependencies);
         self.dirty_artifact_paths.clear();
     }
 
@@ -754,8 +747,9 @@ fn extract_sources(
 /// support those enums.
 mod clock_json_string {
     use crate::file_source::Clock;
-    use serde::de::Error;
+    use serde::de::Error as DeserializationError;
     use serde::de::Visitor;
+    use serde::ser::Error as SerializationError;
     use serde::Deserializer;
     use serde::Serializer;
 
@@ -763,7 +757,9 @@ mod clock_json_string {
     where
         S: Serializer,
     {
-        let json_string = serde_json::to_string(clock).unwrap();
+        let json_string = serde_json::to_string(clock).map_err(|err| {
+            SerializationError::custom(format!("Unable to serialize clock value. Error {}", err))
+        })?;
         serializer.serialize_str(&json_string)
     }
 
@@ -782,8 +778,13 @@ mod clock_json_string {
             formatter.write_str("a JSON encoded watchman::Clock value")
         }
 
-        fn visit_str<E: Error>(self, v: &str) -> Result<Option<Clock>, E> {
-            Ok(serde_json::from_str(v).unwrap())
+        fn visit_str<E: DeserializationError>(self, v: &str) -> Result<Option<Clock>, E> {
+            serde_json::from_str(v).map_err(|err| {
+                DeserializationError::custom(format!(
+                    "Unable deserialize clock value. Error {}",
+                    err
+                ))
+            })
         }
     }
 }

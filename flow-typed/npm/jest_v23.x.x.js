@@ -207,7 +207,6 @@ type EnzymeMatchersType = {
   toBeEmpty(): void,
   toBeEmptyRender(): void,
   toBePresent(): void,
-  // eslint-disable-next-line lint/flow-react-element
   toContainReact(element: React$Element<any>): void,
   toExist(): void,
   toHaveClassName(className: string): void,
@@ -223,7 +222,6 @@ type EnzymeMatchersType = {
   toHaveText(text: string): void,
   toIncludeText(text: string): void,
   toHaveValue(value: any): void,
-  // eslint-disable-next-line lint/flow-react-element
   toMatchElement(element: React$Element<any>): void,
   toMatchSelector(selector: string): void,
   ...

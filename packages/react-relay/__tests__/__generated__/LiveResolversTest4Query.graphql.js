@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5980f9c856fbecccd256920e5c0a2155>>
+ * @generated SignedSource<<94daecb72b36049ace65b0aa5e4852bd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -51,7 +51,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayLiveResolver",
         "name": "ping",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver.js'),
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver'),
         "path": "ping"
       }
     ],

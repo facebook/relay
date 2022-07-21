@@ -39,6 +39,7 @@ use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use std::fmt::Result as FmtResult;
 use std::fmt::Write;
+use std::path::Path;
 
 pub fn print_operation(
     schema: &SDLSchema,
@@ -470,6 +471,25 @@ impl<'b> JSONPrinter<'b> {
             },
             Primitive::JSModuleDependency(key) => match self.js_module_format {
                 JsModuleFormat::CommonJS => {
+                    let path = Path::new(key.lookup());
+                    let extension = path.extension();
+
+                    if let Some(extension) = extension {
+                        if extension == "ts" || extension == "js" {
+                            let path_without_extension = path.with_extension("");
+
+                            let path_without_extension = path_without_extension
+                                .to_str()
+                                .expect("could not convert `path_without_extension` to a str");
+
+                            return self.write_js_dependency(
+                                f,
+                                key.to_string(),
+                                format!("./{}", path_without_extension),
+                            );
+                        }
+                    }
+
                     self.write_js_dependency(f, key.to_string(), format!("./{}", key))
                 }
                 JsModuleFormat::Haste => {

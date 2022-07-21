@@ -27,7 +27,7 @@ class Store {
   dispatch(action: {type: 'INCREMENT'}) {
     switch (action.type) {
       case 'INCREMENT':
-        this._state = this._state + 1;
+        this._state += 1;
         break;
       default:
         (action.type: empty);

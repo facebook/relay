@@ -7,13 +7,14 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import Link from '@docusaurus/Link';
+import {
+  useLatestVersion,
+  useVersions,
+} from '@docusaurus/plugin-content-docs/client';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import {useLatestVersion, useVersions} from '@theme/hooks/useDocs';
 import Layout from '@theme/Layout';
 import React from 'react';
-/* eslint-enable lint/no-value-import */
 
 function Version() {
   const {siteConfig} = useDocusaurusContext();

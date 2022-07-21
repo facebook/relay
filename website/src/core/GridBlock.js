@@ -7,13 +7,10 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import classNames from 'classnames';
 import * as React from 'react';
-/* eslint-enable lint/no-value-import */
 
 class GridBlock extends React.Component {
-  // eslint-disable-next-line lint/extra-arrow-initializer
   renderBlock(origBlock) {
     const blockDefaults = {
       imageAlign: 'left',

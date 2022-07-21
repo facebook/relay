@@ -803,7 +803,7 @@ describe('readUpdatableQuery', () => {
           if (readOnlyData.node != null) {
             if (readOnlyData.node.__typename === 'User') {
               expect(() => {
-                /* eslint-disable-next-line flowtype/no-flow-fix-me-comments */
+                /* eslint-disable-next-line ft-flow/no-flow-fix-me-comments */
                 // $FlowFixMe
                 updatableData.node2.parents = null;
               }).toThrowError();

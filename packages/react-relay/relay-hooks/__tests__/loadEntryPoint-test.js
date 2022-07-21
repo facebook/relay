@@ -512,7 +512,7 @@ test('it should dispose nested entry points', () => {
     },
     entryPoint,
     // $FlowFixMe[prop-missing]
-    {...null},
+    {},
   );
   const nestedEntryPointDisposeSpy = jest.spyOn(
     preloadedEntryPoint.entryPoints.myNestedEntryPoint,

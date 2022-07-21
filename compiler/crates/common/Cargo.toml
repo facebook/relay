@@ -12,7 +12,7 @@ indexmap = { version = "1.8.0", features = ["rayon", "serde-1"] }
 intern = { path = "../intern" }
 log = { version = "0.4.14", features = ["kv_unstable", "kv_unstable_std"] }
 lsp-types = "0.93.0"
-md-5 = "0.8"
+md-5 = "0.10"
 rayon = "1.2"
 serde = { version = "1.0.136", features = ["derive", "rc"] }
 serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }

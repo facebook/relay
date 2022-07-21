@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e58abb9cceb22d2499d4c29495cae273>>
+ * @generated SignedSource<<27fc62a2b09fa7bd1abb85f059fba5a1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -96,7 +96,7 @@ var node/*: ReaderFragment*/ = {
                   },
                   "kind": "RelayResolver",
                   "name": "greeting",
-                  "resolverModule": require('./../UserGreetingResolver.js'),
+                  "resolverModule": require('./../UserGreetingResolver'),
                   "path": "friends.edges.node.greeting"
                 }
               ],

@@ -44,7 +44,3 @@ fragment PopStarNameResolverFragment_name on User {
     lastName
   }
 }
-
-# Implicit Dependencies:
-#
-# Foo_user --> {PopStarNameResolverFragment_name}

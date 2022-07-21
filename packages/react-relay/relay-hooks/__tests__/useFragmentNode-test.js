@@ -1488,6 +1488,57 @@ describe.each([
       });
     });
 
+    it('should not suspend when data goes missing due to store changes after it has committed (starting with no data missing)', () => {
+      const renderer = renderSingularFragment();
+      internalAct(() => {
+        // Let there be an operation in flight:
+        fetchQuery(environment, singularQuery).subscribe({});
+        // And let there be missing data:
+        environment.commitUpdate(store => {
+          store.get('1')?.setValue(undefined, 'name');
+        });
+      });
+      // Nonetheless, once the component has mounted, it only suspends if the fragment ref changes,
+      // not because of data being deleted from the store:
+      expect(renderer.toJSON()).toEqual(null); // null means it rendered successfully and didn't suspend
+    });
+
+    it('should not suspend when data goes missing due to store changes after it has committed (starting with data missing already)', () => {
+      const missingDataVariables = {...pluralVariables, ids: ['4']};
+      const missingDataQuery = createOperationDescriptor(
+        gqlPluralQuery,
+        missingDataVariables,
+      );
+      environment.commitPayload(
+        createOperationDescriptor(
+          gqlPluralMissingDataQuery,
+          missingDataVariables,
+        ),
+        {
+          nodes: [
+            {
+              __typename: 'User',
+              id: '4',
+            },
+          ],
+        },
+      );
+
+      const renderer = renderPluralFragment({owner: missingDataQuery});
+
+      internalAct(() => {
+        // Let there be an operation in flight:
+        fetchQuery(environment, missingDataQuery).subscribe({});
+        // And let there be missing data:
+        environment.commitUpdate(store => {
+          store.get('4')?.setValue(undefined, 'name');
+        });
+      });
+      // Nonetheless, once the component has mounted, it only suspends if the fragment ref changes,
+      // not because of data being deleted from the store:
+      expect(renderer.toJSON()).toEqual(null); // null means it rendered successfully and didn't suspend
+    });
+
     it('checks for missed updates, subscribing to the latest snapshot even if fragment data is unchanged', () => {
       // Render the component, updating the store to simulate concurrent modifications during async render
       let pendingUpdate: any = null;

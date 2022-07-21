@@ -20,8 +20,8 @@ lazy_static! {
 
 fn hash(data: &str) -> String {
     let mut md5 = Md5::new();
-    md5.input(data);
-    hex::encode(md5.result())
+    md5.update(data);
+    hex::encode(md5.finalize())
 }
 fn sign(data: &str) -> String {
     data.replace(NEWTOKEN, &format!("SignedSource<<{}>>", hash(data)))

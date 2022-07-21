@@ -1,5 +1,5 @@
 {
-  "name": "relay",
+  "name": "relay-github-root",
   "description": "A framework for building data-driven React applications.",
   "version": "14.0.0",
   "license": "MIT",
@@ -20,6 +20,9 @@
     "test-dependencies": "node ./scripts/testDependencies.js",
     "typecheck": "flow check"
   },
+  "workspaces": [
+    "vscode-extension"
+  ],
   "dependencies": {
     "@babel/core": "^7.18.6",
     "@babel/generator": "^7.18.6",
@@ -43,13 +46,16 @@
     "cosmiconfig": "^5.0.5",
     "cross-env": "^7.0.2",
     "del": "6.0.0",
-    "eslint": "5.4.0",
-    "eslint-config-fbjs": "2.1.0",
-    "eslint-plugin-babel": "5.1.0",
-    "eslint-plugin-flowtype": "2.50.0",
-    "eslint-plugin-jsx-a11y": "6.1.1",
-    "eslint-plugin-react": "7.21.5",
-    "eslint-plugin-relay": "1.7.1",
+    "eslint": "^8.19.0",
+    "eslint-config-fbjs": "4.0.0",
+    "eslint-plugin-babel": "5.3.1",
+    "eslint-plugin-ft-flow": "2.0.1",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "26.5.3",
+    "eslint-plugin-jsx-a11y": "6.6.0",
+    "eslint-plugin-react": "7.30.1",
+    "eslint-plugin-relay": "1.8.3",
+    "eslint-plugin-react-hooks": "4.6.0",
     "fbjs": "^3.0.2",
     "flow-bin": "^0.182.0",
     "glob": "^7.1.1",

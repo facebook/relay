@@ -7,12 +7,10 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import Container from '../core/Container';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import * as React from 'react';
-/* eslint-enable lint/no-value-import */
 
 const Users = () => {
   const {siteConfig} = useDocusaurusContext();

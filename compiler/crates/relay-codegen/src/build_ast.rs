@@ -45,6 +45,7 @@ use relay_transforms::generate_abstract_type_refinement_key;
 use relay_transforms::remove_directive;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::ClientEdgeMetadataDirective;
+use relay_transforms::ClientExtensionAbstractTypeMetadataDirective;
 use relay_transforms::ConnectionConstants;
 use relay_transforms::ConnectionMetadata;
 use relay_transforms::DeferDirective;
@@ -254,14 +255,52 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 let argument_definitions =
                     self.build_operation_variable_definitions(&operation.variable_definitions);
                 let selections = self.build_selections(&mut context, operation.selections.iter());
-                self.object(object! {
+                let mut fields = object! {
                     argument_definitions: Primitive::Key(argument_definitions),
                     kind: Primitive::String(CODEGEN_CONSTANTS.operation_value),
                     name: Primitive::String(operation.name.item),
                     selections: selections,
-                })
+                };
+                if let Some(client_abstract_types) =
+                    self.maybe_build_client_abstract_types(operation)
+                {
+                    fields.push(client_abstract_types);
+                }
+                self.object(fields)
             }
         }
+    }
+
+    fn maybe_build_client_abstract_types(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Option<ObjectEntry> {
+        // If the query contains frament spreads on abstract types which are
+        // defined in the client schema, we attach extra metadata so that we
+        // know which concrete types match these type conditions at runtime.
+        ClientExtensionAbstractTypeMetadataDirective::find(&operation.directives).map(|directive| {
+            let entries = directive
+                .abstract_types
+                .iter()
+                .map(|abstract_type| {
+                    let concrete_types = self.array(
+                        abstract_type
+                            .concrete
+                            .iter()
+                            .map(|concrete| Primitive::String(*concrete))
+                            .collect(),
+                    );
+                    ObjectEntry {
+                        key: abstract_type.name,
+                        value: Primitive::Key(concrete_types),
+                    }
+                })
+                .collect();
+            ObjectEntry {
+                key: CODEGEN_CONSTANTS.client_abstract_types,
+                value: Primitive::Key(self.object(entries)),
+            }
+        })
     }
 
     pub(crate) fn build_fragment(

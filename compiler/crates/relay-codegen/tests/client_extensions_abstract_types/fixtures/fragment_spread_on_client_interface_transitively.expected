@@ -1,0 +1,91 @@
+==================================== INPUT ====================================
+query Foo {
+  ...QueryFragment
+}
+
+fragment QueryFragment on Query {
+  client_type {
+    ...MyFragment
+  }
+}
+
+fragment MyFragment on ClientNamed {
+  name
+}
+
+# %extensions%
+
+extend type Query {
+  client_type: ClientType
+}
+
+type ClientType implements ClientNamed {
+  name: String
+}
+
+interface ClientNamed {
+  name: String
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "MyFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "ClientNamed",
+  "abstractKey": "__isClientNamed"
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "QueryFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "ClientType",
+      "kind": "LinkedField",
+      "name": "client_type",
+      "plural": false,
+      "selections": [
+        {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "MyFragment"
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Query",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "Foo",
+  "selections": [
+    {
+      "args": null,
+      "kind": "FragmentSpread",
+      "name": "QueryFragment"
+    }
+  ],
+  "clientAbstractTypes": {
+    "__isClientNamed": [
+      "ClientType"
+    ]
+  }
+}

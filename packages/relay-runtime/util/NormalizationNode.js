@@ -21,6 +21,9 @@ export type NormalizationOperation = {
   +name: string,
   +argumentDefinitions: $ReadOnlyArray<NormalizationLocalArgumentDefinition>,
   +selections: $ReadOnlyArray<NormalizationSelection>,
+  +clientAbstractTypes?: {
+    +[string]: $ReadOnlyArray<string>,
+  },
 };
 
 export type NormalizationHandle =

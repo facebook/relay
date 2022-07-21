@@ -11,6 +11,7 @@ use crate::apply_custom_transforms::apply_before_custom_transforms;
 use crate::apply_custom_transforms::CustomTransformsConfig;
 use crate::assignable_fragment_spread::annotate_updatable_fragment_spreads;
 use crate::assignable_fragment_spread::replace_updatable_fragment_spreads;
+use crate::client_extensions_abstract_types::client_extensions_abstract_types;
 use crate::match_::hash_supported_argument;
 use common::sync::try_join;
 use common::DiagnosticsResult;
@@ -405,6 +406,10 @@ fn apply_normalization_transforms(
     if let Some(print_stats) = maybe_print_stats {
         print_stats("skip_unreachable_node", &program);
     }
+
+    program = log_event.time("client_extnsions_abstract_types", || {
+        client_extensions_abstract_types(&program)
+    });
 
     program = log_event.time("inline_fragments", || inline_fragments(&program));
     if let Some(print_stats) = maybe_print_stats {

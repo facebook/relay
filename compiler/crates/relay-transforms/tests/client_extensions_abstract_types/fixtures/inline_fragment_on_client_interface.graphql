@@ -1,0 +1,21 @@
+query Foo {
+  client_type {
+    ... on ClientNamed {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+extend type Query {
+  client_type: ClientType
+}
+
+type ClientType implements ClientNamed {
+  name: String
+}
+
+interface ClientNamed {
+  name: String
+}

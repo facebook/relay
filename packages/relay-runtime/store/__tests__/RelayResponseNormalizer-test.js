@@ -4639,5 +4639,64 @@ describe('RelayResponseNormalizer', () => {
         },
       });
     });
+    it('records which concrete types implement which client schema extension interfaces', () => {
+      graphql`
+        fragment RelayResponseNormalizerTestClientInterfaceFragment on ClientInterface {
+          description
+        }
+      `;
+      // This query contains abstract client types referenced in both named and
+      // inline fragments as well as including both interfaces and unions.
+      const query = graphql`
+        query RelayResponseNormalizerTestClientInterfaceQuery {
+          client_interface {
+            ...RelayResponseNormalizerTestClientInterfaceFragment
+          }
+          client_union {
+            ... on ClientUnion {
+              __typename
+            }
+          }
+        }
+      `;
+
+      const payload = {};
+      const recordSource = new RelayRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+
+      const result = normalize(
+        recordSource,
+        createNormalizationSelector(query.operation, ROOT_ID, {}),
+        payload,
+        {...defaultOptions},
+      );
+
+      expect(result.source.toJSON()).toEqual({
+        'client:__type:ClientTypeImplementingClientInterface': {
+          __id: 'client:__type:ClientTypeImplementingClientInterface',
+          __isClientInterface: true,
+          __typename: '__TypeSchema',
+        },
+        'client:__type:OtherClientTypeImplementingClientInterface': {
+          __id: 'client:__type:OtherClientTypeImplementingClientInterface',
+          __isClientInterface: true,
+          __typename: '__TypeSchema',
+        },
+        'client:__type:ClientTypeInUnion': {
+          __id: 'client:__type:ClientTypeInUnion',
+          __isClientUnion: true,
+          __typename: '__TypeSchema',
+        },
+        'client:__type:OtherClientTypeInUnion': {
+          __id: 'client:__type:OtherClientTypeInUnion',
+          __isClientUnion: true,
+          __typename: '__TypeSchema',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
+        },
+      });
+    });
   });
 });

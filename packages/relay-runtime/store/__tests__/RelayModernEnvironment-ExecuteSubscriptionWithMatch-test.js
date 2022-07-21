@@ -268,6 +268,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(next.mock.calls.length).toBe(1);
         expect(complete).not.toBeCalled();
         expect(error).not.toBeCalled();
+        // $FlowFixMe[prop-missing]
         const nextID = payload.extensions?.__relay_subscription_root_id;
         const nextOperation = createReaderSelector(
           operation.fragment.node,
@@ -377,6 +378,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
         );
 
+        // $FlowFixMe[prop-missing]
         const nextID = payload.extensions?.__relay_subscription_root_id;
         const nextOperation = createReaderSelector(
           operation.fragment.node,

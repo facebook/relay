@@ -184,6 +184,7 @@ describe.each([
   }
 
   function resolveQuery(payload: mixed) {
+    // $FlowFixMe[incompatible-call]
     dataSource.next(payload);
     dataSource.complete();
   }

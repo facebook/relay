@@ -92,7 +92,7 @@ class ErrorBoundary extends React.Component<$FlowFixMe, $FlowFixMe> {
     this.setState({error});
   }
 
-  render() {
+  render(): any {
     const {children, fallback} = this.props;
     const {error} = this.state;
     if (error != null) {

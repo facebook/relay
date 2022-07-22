@@ -519,7 +519,7 @@ class RelayMockPayloadGenerator {
     value: mixed | Array<mixed>,
     path: $ReadOnlyArray<string>,
     applicationName: string,
-  ) {
+  ): ?(string | Array<string>) {
     if (value === undefined) {
       return value;
     }

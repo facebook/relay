@@ -176,7 +176,7 @@ class ClientEdgeQueryResultsCache {
     }
   }
 
-  _retain(id: string) {
+  _retain(id: string): {dispose: () => void} {
     const retainCount = (this._retainCounts.get(id) ?? 0) + 1;
     this._retainCounts.set(id, retainCount);
     return {
@@ -479,7 +479,7 @@ class FragmentResourceImpl {
     fragmentRef: mixed,
     request: ConcreteRequest,
     clientEdgeDestinationID: DataID,
-  ) {
+  ): {queryResult: QueryResult, requestDescriptor: RequestDescriptor} {
     const originalVariables = getVariablesFromFragment(
       fragmentNode,
       fragmentRef,

@@ -437,7 +437,7 @@ class RelayResponseNormalizer {
     moduleImport: NormalizationModuleImport,
     record: Record,
     data: PayloadData,
-  ) {
+  ): void {
     invariant(
       typeof data === 'object' && data,
       'RelayResponseNormalizer: Expected data for @module to be an object.',
@@ -477,7 +477,7 @@ class RelayResponseNormalizer {
     selection: NormalizationLinkedField | NormalizationScalarField,
     record: Record,
     data: PayloadData,
-  ) {
+  ): void {
     invariant(
       typeof data === 'object' && data,
       'writeField(): Expected data for field `%s` to be an object.',
@@ -569,7 +569,7 @@ class RelayResponseNormalizer {
     selection: NormalizationActorChange,
     record: Record,
     data: PayloadData,
-  ) {
+  ): void {
     const field = selection.linkedField;
     invariant(
       typeof data === 'object' && data,
@@ -662,7 +662,7 @@ class RelayResponseNormalizer {
     selection: NormalizationFlightField,
     record: Record,
     data: PayloadData,
-  ) {
+  ): void {
     const responseKey = selection.alias || selection.name;
     const storageKey = getStorageKey(selection, this._variables);
     const fieldValue = data[responseKey];

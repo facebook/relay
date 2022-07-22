@@ -319,7 +319,7 @@ class ReactRelayQueryFetcher {
   }: {
     notifyFirstResult: boolean,
     ...
-  }) {
+  }): void {
     invariant(
       this._fetchOptions,
       'ReactRelayQueryFetcher: `_onQueryDataAvailable` should have been called after having called `fetch`',

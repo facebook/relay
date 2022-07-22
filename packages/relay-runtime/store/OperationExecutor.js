@@ -703,7 +703,7 @@ class Executor<TMutation: MutationParameters> {
   _normalizeFollowupPayload(
     followupPayload: FollowupPayload,
     normalizationNode: NormalizationSelectableNode,
-  ) {
+  ): RelayResponsePayload {
     let variables;
     if (
       normalizationNode.kind === 'SplitOperation' &&

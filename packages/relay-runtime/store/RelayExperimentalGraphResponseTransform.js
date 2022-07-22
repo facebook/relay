@@ -169,7 +169,7 @@ export class GraphModeNormalizer {
     this.duplicateFieldsAvoided = 0;
   }
 
-  _getStreamID() {
+  _getStreamID(): number {
     return this._nextStreamID++;
   }
 
@@ -195,7 +195,7 @@ export class GraphModeNormalizer {
 
   // TODO: The GraphMode proposal outlines different approachs to derive keys. We
   // can expriment with different approaches here.
-  _getStorageKey(selection: NormalizationField) {
+  _getStorageKey(selection: NormalizationField): string {
     return getStorageKey(selection, this._variables);
   }
 

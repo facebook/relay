@@ -66,11 +66,11 @@ describe('useBlockingPaginationFragment', () => {
   let Renderer;
 
   class ErrorBoundary extends React.Component<any, any> {
-    state = {error: null};
+    state: any | {error: null} = {error: null};
     componentDidCatch(error: Error) {
       this.setState({error});
     }
-    render() {
+    render(): any | React.Node {
       const {children, fallback} = this.props;
       const {error} = this.state;
       if (error) {

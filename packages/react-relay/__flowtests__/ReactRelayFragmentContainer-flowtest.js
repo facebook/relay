@@ -43,7 +43,7 @@ class BarComponent extends React.Component<{
   requiredProp: string,
   ...
 }> {
-  static defaultProps = {
+  static defaultProps: {defaultProp: string} = {
     defaultProp: 'default',
   };
   getNum(): number {

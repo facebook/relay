@@ -10,6 +10,7 @@ use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
 use indexmap::IndexSet;
 use intern::string_key::StringKey;
+use relay_config::DynamicModuleProvider;
 
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub struct ObjectEntry {
@@ -76,6 +77,10 @@ pub enum Primitive {
     // Don't include the value in the output when
     // skip_printing_nulls is enabled
     SkippableNull,
+    DynamicImport {
+        provider: DynamicModuleProvider,
+        module: StringKey,
+    },
 }
 
 impl Primitive {

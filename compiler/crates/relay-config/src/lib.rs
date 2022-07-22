@@ -11,11 +11,14 @@
 
 mod connection_interface;
 mod js_module_format;
+mod module_import_config;
 mod project_config;
 mod typegen_config;
 
 pub use connection_interface::ConnectionInterface;
 pub use js_module_format::JsModuleFormat;
+pub use module_import_config::DynamicModuleProvider;
+pub use module_import_config::ModuleImportConfig;
 pub use project_config::LocalPersistAlgorithm;
 pub use project_config::LocalPersistConfig;
 pub use project_config::PersistConfig;

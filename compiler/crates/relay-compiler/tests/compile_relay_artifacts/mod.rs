@@ -129,6 +129,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 ProjectConfig {
                     schema_config: config_file_project.schema_config,
                     typegen_config: config_file_project.typegen_config,
+                    module_import_config: config_file_project.module_import_config,
                     feature_flags: config_file_project
                         .feature_flags
                         .map_or(default_project_config.feature_flags, |flags| {

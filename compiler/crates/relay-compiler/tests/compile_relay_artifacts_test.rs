@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c2e22fcf5aeb506d0e8826487b03f891>>
+ * @generated SignedSource<<10a942f29f13fd2b7eb061135645823c>>
  */
 
 mod compile_relay_artifacts;
@@ -899,6 +899,20 @@ fn query_with_module_directive_and_arguments() {
     let input = include_str!("compile_relay_artifacts/fixtures/query-with-module-directive-and-arguments.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/query-with-module-directive-and-arguments.expected");
     test_fixture(transform_fixture, "query-with-module-directive-and-arguments.graphql", "compile_relay_artifacts/fixtures/query-with-module-directive-and-arguments.expected", input, expected);
+}
+
+#[test]
+fn query_with_module_directive_custom_import() {
+    let input = include_str!("compile_relay_artifacts/fixtures/query-with-module-directive-custom-import.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/query-with-module-directive-custom-import.expected");
+    test_fixture(transform_fixture, "query-with-module-directive-custom-import.graphql", "compile_relay_artifacts/fixtures/query-with-module-directive-custom-import.expected", input, expected);
+}
+
+#[test]
+fn query_with_module_directive_jsresource_import() {
+    let input = include_str!("compile_relay_artifacts/fixtures/query-with-module-directive-jsresource-import.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/query-with-module-directive-jsresource-import.expected");
+    test_fixture(transform_fixture, "query-with-module-directive-jsresource-import.graphql", "compile_relay_artifacts/fixtures/query-with-module-directive-jsresource-import.expected", input, expected);
 }
 
 #[test]

@@ -30,6 +30,7 @@ use crate::JsModuleFormat;
 
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
+use relay_config::DynamicModuleProvider;
 use relay_config::ProjectConfig;
 use schema::SDLSchema;
 
@@ -37,6 +38,8 @@ use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
+use std::borrow::Borrow;
+use std::borrow::Cow;
 use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 use std::path::Path;
@@ -457,59 +460,83 @@ impl<'b> JSONPrinter<'b> {
             Primitive::StorageKey(field_name, key) => {
                 write_static_storage_key(f, self.builder, *field_name, *key)
             }
-            Primitive::GraphQLModuleDependency(key) => match self.js_module_format {
-                JsModuleFormat::CommonJS => self.write_js_dependency(
-                    f,
-                    format!("{}_graphql", key),
-                    format!("./{}.graphql", key),
-                ),
-                JsModuleFormat::Haste => self.write_js_dependency(
-                    f,
-                    format!("{}_graphql", key),
-                    format!("{}.graphql", key),
-                ),
-            },
-            Primitive::JSModuleDependency(key) => match self.js_module_format {
-                JsModuleFormat::CommonJS => {
-                    let path = Path::new(key.lookup());
-                    let extension = path.extension();
-
-                    if let Some(extension) = extension {
-                        if extension == "ts" || extension == "js" {
-                            let path_without_extension = path.with_extension("");
-
-                            let path_without_extension = path_without_extension
-                                .to_str()
-                                .expect("could not convert `path_without_extension` to a str");
-
-                            return self.write_js_dependency(
-                                f,
-                                key.to_string(),
-                                format!("./{}", path_without_extension),
-                            );
-                        }
-                    }
-
-                    self.write_js_dependency(f, key.to_string(), format!("./{}", key))
+            Primitive::GraphQLModuleDependency(key) => self.write_js_dependency(
+                f,
+                format!("{}_graphql", key),
+                Cow::Owned(format!(
+                    "{}.graphql",
+                    get_module_path(self.js_module_format, *key)
+                )),
+            ),
+            Primitive::JSModuleDependency(key) => self.write_js_dependency(
+                f,
+                key.to_string(),
+                get_module_path(self.js_module_format, *key),
+            ),
+            Primitive::DynamicImport { provider, module } => match provider {
+                DynamicModuleProvider::JSResource => {
+                    self.top_level_statements.insert(
+                        "JSResource".to_string(),
+                        TopLevelStatement::ImportStatement {
+                            name: "JSResource".to_string(),
+                            path: "JSResource".to_string(),
+                        },
+                    );
+                    write!(f, "() => JSResource('m#{}')", module)
                 }
-                JsModuleFormat::Haste => {
-                    self.write_js_dependency(f, key.to_string(), key.to_string())
+                DynamicModuleProvider::Custom { statement } => {
+                    f.push_str(&statement.lookup().replace(
+                        "<$module>",
+                        &get_module_path(self.js_module_format, *module),
+                    ));
+                    Ok(())
                 }
             },
         }
     }
 
-    fn write_js_dependency(&mut self, f: &mut String, name: String, path: String) -> FmtResult {
+    fn write_js_dependency(
+        &mut self,
+        f: &mut String,
+        name: String,
+        path: Cow<'_, str>,
+    ) -> FmtResult {
         if self.eager_es_modules {
             let write_result = write!(f, "{}", name);
             self.top_level_statements.insert(
                 name.clone(),
-                TopLevelStatement::ImportStatement { name, path },
+                TopLevelStatement::ImportStatement {
+                    name,
+                    path: path.into_owned(),
+                },
             );
             write_result
         } else {
             write!(f, "require('{}')", path)
         }
+    }
+}
+
+fn get_module_path(js_module_format: JsModuleFormat, key: StringKey) -> Cow<'static, str> {
+    match js_module_format {
+        JsModuleFormat::CommonJS => {
+            let path = Path::new(key.lookup());
+            let extension = path.extension();
+
+            if let Some(extension) = extension {
+                if extension == "ts" || extension == "js" {
+                    let path_without_extension = path.with_extension("");
+
+                    let path_without_extension = path_without_extension
+                        .to_str()
+                        .expect("could not convert `path_without_extension` to a str");
+
+                    return Cow::Owned(format!("./{}", path_without_extension));
+                }
+            }
+            Cow::Owned(format!("./{}", key.borrow()))
+        }
+        JsModuleFormat::Haste => Cow::Borrowed(key.lookup()),
     }
 }
 
@@ -654,5 +681,6 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         Primitive::RawString(_) => panic!("Unexpected RawString"),
         Primitive::GraphQLModuleDependency(_) => panic!("Unexpected GraphQLModuleDependency"),
         Primitive::JSModuleDependency(_) => panic!("Unexpected JSModuleDependency"),
+        Primitive::DynamicImport { .. } => panic!("Unexpected DynamicImport"),
     }
 }

@@ -28,6 +28,7 @@ use std::sync::Arc;
 use std::usize;
 
 use crate::connection_interface::ConnectionInterface;
+use crate::module_import_config::ModuleImportConfig;
 use crate::JsModuleFormat;
 use crate::TypegenConfig;
 use crate::TypegenLanguage;
@@ -182,6 +183,7 @@ pub struct ProjectConfig {
     pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,
     pub rollout: Rollout,
     pub js_module_format: JsModuleFormat,
+    pub module_import_config: ModuleImportConfig,
 }
 
 impl Default for ProjectConfig {
@@ -207,6 +209,7 @@ impl Default for ProjectConfig {
             skip_types_for_artifact: None,
             rollout: Default::default(),
             js_module_format: Default::default(),
+            module_import_config: Default::default(),
         }
     }
 }
@@ -234,6 +237,7 @@ impl Debug for ProjectConfig {
             skip_types_for_artifact,
             rollout,
             js_module_format,
+            module_import_config,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -270,6 +274,7 @@ impl Debug for ProjectConfig {
             )
             .field("rollout", rollout)
             .field("js_module_format", js_module_format)
+            .field("module_import_config", module_import_config)
             .finish()
     }
 }

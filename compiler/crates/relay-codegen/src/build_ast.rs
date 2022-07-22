@@ -42,6 +42,7 @@ use relay_transforms::extract_connection_metadata_from_directive;
 use relay_transforms::extract_handle_field_directives;
 use relay_transforms::extract_values_from_handle_field_directive;
 use relay_transforms::generate_abstract_type_refinement_key;
+use relay_transforms::get_fragment_filename;
 use relay_transforms::remove_directive;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::ClientEdgeMetadataDirective;
@@ -1534,7 +1535,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         } else {
             None
         };
-        let selection = Primitive::Key(self.object(object! {
+        let mut module_import = object! {
             args: match args {
                 None => Primitive::SkippableNull,
                 Some(key) => Primitive::Key(key),
@@ -1543,7 +1544,30 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             fragment_name: Primitive::String(fragment_name),
             fragment_prop_name: Primitive::String(fragment_name_str[underscore_idx + 1..].intern()),
             kind: Primitive::String(CODEGEN_CONSTANTS.module_import),
-        }));
+        };
+        if CodegenVariant::Normalization == self.variant {
+            if let Some(dynamic_module_provider) = self
+                .project_config
+                .module_import_config
+                .dynamic_module_provider
+            {
+                module_import.push(ObjectEntry {
+                    key: CODEGEN_CONSTANTS.component_module_provider,
+                    value: Primitive::DynamicImport {
+                        provider: dynamic_module_provider,
+                        module: module_metadata.module_name,
+                    },
+                });
+                module_import.push(ObjectEntry {
+                    key: CODEGEN_CONSTANTS.operation_module_provider,
+                    value: Primitive::DynamicImport {
+                        provider: dynamic_module_provider,
+                        module: get_fragment_filename(module_metadata.fragment_name),
+                    },
+                });
+            }
+        }
+        let selection = Primitive::Key(self.object(module_import));
         vec![selection]
     }
 

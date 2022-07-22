@@ -7,6 +7,7 @@
 
 import {commands} from 'vscode';
 import {RelayExtensionContext} from '../context';
+import {createNewFragmentComponent} from './createNewFragmentComponent';
 import {handleRestartLanguageServerCommand} from './restart';
 import {handleShowOutputCommand} from './showOutput';
 import {handleStartCompilerCommand} from './startCompiler';
@@ -29,6 +30,10 @@ export function registerCommands(context: RelayExtensionContext) {
     commands.registerCommand(
       'relay.showOutput',
       handleShowOutputCommand.bind(null, context),
+    ),
+    commands.registerCommand(
+      'relay.createNewFragmentComponent',
+      createNewFragmentComponent.bind(null, context),
     ),
   );
 }

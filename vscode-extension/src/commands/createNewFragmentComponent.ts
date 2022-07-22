@@ -27,7 +27,9 @@ export async function createNewFragmentComponent(
   }
 
   if (!target) {
-    vscode.window.showErrorMessage('No folder selected for creating a new fragment component');
+    vscode.window.showErrorMessage(
+      'No folder selected for creating a new fragment component',
+    );
     return;
   }
 
@@ -84,7 +86,9 @@ export const ${newFileName} = () => {
 `;
 
   wsedit.createFile(newFilePath);
-  wsedit.set(newFilePath, [vscode.TextEdit.insert(new vscode.Position(0, 0), content)]);
+  wsedit.set(newFilePath, [
+    vscode.TextEdit.insert(new vscode.Position(0, 0), content),
+  ]);
 
   vscode.workspace.applyEdit(wsedit);
 

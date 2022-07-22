@@ -77,11 +77,11 @@
       }
     ],
     "menus": {
-			"explorer/context": [
-				{
-					"command": "relay.createNewFragmentComponent",
-					"group": "Relay@1"
-				}
+      "explorer/context": [
+        {
+          "command": "relay.createNewFragmentComponent",
+          "group": "Relay@1"
+        }
       ]
     },
     "configuration": {
@@ -158,6 +158,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "prettier-check": "prettier -c .",
+    "prettier:write": "prettier -c -w .",
     "lint": "eslint --max-warnings 0 .",
     "vscode:prepublish": "tsc",
     "build-local": "vsce package"

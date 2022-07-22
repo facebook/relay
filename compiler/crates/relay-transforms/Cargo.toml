@@ -110,7 +110,7 @@ graphql-text-printer = { path = "../graphql-text-printer" }
 indexmap = { version = "1.8.0", features = ["rayon", "serde-1"] }
 intern = { path = "../intern" }
 itertools = "0.10.3"
-lazy_static = "1.0"
+lazy_static = "1.4"
 once_cell = "1.12"
 parking_lot = { version = "0.11.2", features = ["send_guard"] }
 regex = "1.5.4"

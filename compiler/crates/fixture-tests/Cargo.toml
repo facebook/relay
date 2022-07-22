@@ -18,6 +18,6 @@ path = "tests/uppercase_test.rs"
 clap = { version = "3.2.10", features = ["derive", "regex", "unicode", "wrap_help"] }
 colored = "1.9"
 diff = "0.1"
-lazy_static = "1.0"
+lazy_static = "1.4"
 parking_lot = { version = "0.11.2", features = ["send_guard"] }
 signedsource = { path = "../signedsource" }

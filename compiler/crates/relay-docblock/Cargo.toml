@@ -19,7 +19,7 @@ common = { path = "../common" }
 docblock-syntax = { path = "../docblock-syntax" }
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
-lazy_static = "1.0"
+lazy_static = "1.4"
 schema = { path = "../schema" }
 thiserror = "1.0.30"
 

@@ -19,7 +19,7 @@ clap = { version = "3.2.10", features = ["derive", "regex", "unicode", "wrap_hel
 common = { path = "../common" }
 fnv = "1.0"
 intern = { path = "../intern" }
-lazy_static = "1.0"
+lazy_static = "1.4"
 rayon = "1.2"
 regex = "1.5.4"
 schema = { path = "../schema" }

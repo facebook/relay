@@ -70,8 +70,20 @@
       {
         "command": "relay.stopCompiler",
         "title": "Relay: Stop Compiler"
+      },
+      {
+        "command": "relay.createNewFragmentComponent",
+        "title": "Relay: Create New Fragment Component"
       }
     ],
+    "menus": {
+			"explorer/context": [
+				{
+					"command": "relay.createNewFragmentComponent",
+					"group": "Relay@1"
+				}
+      ]
+    },
     "configuration": {
       "type": "object",
       "title": "Relay",
@@ -141,7 +153,8 @@
     "bracketSameLine": true,
     "bracketSpacing": false,
     "singleQuote": true,
-    "trailingComma": "all"
+    "trailingComma": "all",
+    "printWidth": 100
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

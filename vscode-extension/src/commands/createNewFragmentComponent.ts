@@ -37,7 +37,13 @@ export async function createNewFragmentComponent(
     prompt: 'Name of your fragment component',
     value: 'SomethingView',
     valueSelection: [0, 9],
+    ignoreFocusOut: true,
   });
+
+  // NOOP (you may have left the input box empty)
+  if (!newFileName) {
+    return;
+  }
 
   const isFolder = target.path.endsWith('/');
 

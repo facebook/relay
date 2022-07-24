@@ -15,7 +15,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
 ---
 
-The Relay compiler has a rich understanding of the GraphQL embedded in your code. We want to use that understanding to imporve the developer experience of writing apps with Relay. So, starting in [v14.0.0](https://github.com/facebook/relay/releases/tag/v14.0.0), the new Rust Relay compiler can provide language features directly in your code editor. This means:
+The Relay compiler has a rich understanding of the GraphQL embedded in your code. We want to use that understanding to improve the developer experience of writing apps with Relay. So, starting in [v14.0.0](https://github.com/facebook/relay/releases/tag/v14.0.0), the new Rust Relay compiler can provide language features directly in your code editor. This means:
 
 #### Relay compiler errors surface as red squiggles directly in your editor
 

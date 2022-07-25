@@ -11,6 +11,7 @@
 'use strict';
 
 import type {ConcreteRequest} from './RelayConcreteNode';
+import type {JSResourceReference} from 'JSResourceReference';
 
 /**
  * Represents a single operation used to processing and normalize runtime
@@ -114,6 +115,14 @@ export type NormalizationModuleImport = {
   +documentName: string,
   +fragmentPropName: string,
   +fragmentName: string,
+  +componentModuleProvider?: () =>
+    | mixed
+    | Promise<mixed>
+    | JSResourceReference<mixed>,
+  +operationModuleProvider?: () =>
+    | NormalizationRootNode
+    | Promise<NormalizationRootNode>
+    | JSResourceReference<NormalizationRootNode>,
 };
 
 export type NormalizationListValueArgument = {

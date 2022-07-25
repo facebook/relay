@@ -173,6 +173,7 @@ export type {
   NormalizationLinkedHandle,
   NormalizationLocalArgumentDefinition,
   NormalizationModuleImport,
+  NormalizationRootNode,
   NormalizationScalarField,
   NormalizationSelection,
   NormalizationSplitOperation,

@@ -444,14 +444,16 @@ class RelayResponseNormalizer {
     );
     const typeName: string = RelayModernRecord.getType(record);
     const componentKey = getModuleComponentKey(moduleImport.documentName);
-    const componentReference = data[componentKey];
+    const componentReference =
+      moduleImport.componentModuleProvider || data[componentKey];
     RelayModernRecord.setValue(
       record,
       componentKey,
       componentReference ?? null,
     );
     const operationKey = getModuleOperationKey(moduleImport.documentName);
-    const operationReference = data[operationKey];
+    const operationReference =
+      moduleImport.operationModuleProvider || data[operationKey];
     RelayModernRecord.setValue(
       record,
       operationKey,

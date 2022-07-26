@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment UserWithIntID_fragment on UserWithIntID {
+    id
+    name
+}
+
+# %extensions%
+
+type UserWithIntID {
+    id: Int!
+    name: String!
+}
+==================================== ERROR ====================================
+✖︎ Invalid type `Int!` of field `id` on parent type `UserWithIntID`. Fields named `id` can only have `ID` or `String`-like types (e.g. custom scalars or enums).
+
+  <generated>:2:8
+    1 │ # expected-to-throw
+    2 │ fragment UserWithIntID_fragment on UserWithIntID {
+      │        ^^
+    3 │     id

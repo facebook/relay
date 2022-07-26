@@ -158,6 +158,24 @@ pub enum ValidationMessage {
     #[error("Unexpected arguments on '__token' field")]
     InvalidArgumentsOnFetchTokenField(),
 
+    #[error(
+        "Invalid type `{id_type_string}` of field `{id_field_name}` on parent type `{parent_type_name}`. Fields named `{id_field_name}` can only have `ID` or `String`-like types (e.g. custom scalars or enums)."
+    )]
+    InvalidIdFieldType {
+        parent_type_name: StringKey,
+        id_field_name: StringKey,
+        id_type_string: String,
+    },
+
+    #[error(
+        "Disallowed type `{id_type_string}` of field `{id_field_name}` on parent type `{parent_type_name}` cannot be used by Relay to identify entities. For a detailed explanation, check out https://relay.dev/docs/debugging/disallowed-id-types-error"
+    )]
+    DisallowNonNodeIdFieldType {
+        parent_type_name: StringKey,
+        id_field_name: StringKey,
+        id_type_string: String,
+    },
+
     #[error("Relay does not allow aliasing fields to `{0}`.")]
     DisallowReservedAliasError(StringKey),
 

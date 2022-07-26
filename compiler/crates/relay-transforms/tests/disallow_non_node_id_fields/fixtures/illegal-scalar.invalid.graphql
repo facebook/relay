@@ -1,0 +1,12 @@
+# expected-to-throw
+fragment UserWithIntID_fragment on UserWithIntID {
+    id
+    name
+}
+
+# %extensions%
+
+type UserWithIntID {
+    id: Int!
+    name: String!
+}

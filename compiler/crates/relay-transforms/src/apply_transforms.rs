@@ -12,6 +12,7 @@ use crate::apply_custom_transforms::CustomTransformsConfig;
 use crate::assignable_fragment_spread::annotate_updatable_fragment_spreads;
 use crate::assignable_fragment_spread::replace_updatable_fragment_spreads;
 use crate::client_extensions_abstract_types::client_extensions_abstract_types;
+use crate::disallow_non_node_id_fields;
 use crate::match_::hash_supported_argument;
 use common::sync::try_join;
 use common::DiagnosticsResult;
@@ -333,6 +334,12 @@ fn apply_operation_transforms(
     program = log_event.time("generate_live_query_metadata", || {
         generate_live_query_metadata(&program)
     })?;
+
+    if project_config.schema_config.non_node_id_fields.is_some() {
+        log_event.time("disallow_non_node_id_fields", || {
+            disallow_non_node_id_fields(&program, &project_config.schema_config)
+        })?;
+    }
 
     program = apply_after_custom_transforms(
         &program,

@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+fragment SimpleUser_fragment on SimpleUser {
+    id
+    name
+}
+
+# %extensions%
+
+type SimpleUser implements Node {
+    id: ID!
+    name: String
+}
+==================================== OUTPUT ===================================
+OK

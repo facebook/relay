@@ -27,7 +27,6 @@ use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::apply_transforms;
 use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
-use relay_typegen::{self};
 use std::sync::Arc;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;

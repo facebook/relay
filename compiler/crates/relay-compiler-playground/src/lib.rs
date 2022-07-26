@@ -8,14 +8,14 @@
 use common::Diagnostic;
 use common::FeatureFlags;
 use common::NoopPerfLogger;
+use common::SourceLocationKey;
 use common::SourceLocationKey::Generated;
-use common::SourceLocationKey::{self};
 use common::TextSource;
 
 use graphql_ir::Program;
 
+use graphql_text_printer;
 use graphql_text_printer::PrinterOptions;
-use graphql_text_printer::{self};
 use intern::string_key::Intern;
 use relay_codegen::print_fragment;
 use relay_codegen::print_operation;

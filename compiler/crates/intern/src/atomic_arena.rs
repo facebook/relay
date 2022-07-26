@@ -7,15 +7,15 @@
 
 use parking_lot::Mutex;
 use std::cell::UnsafeCell;
+use std::fmt;
 use std::fmt::Debug;
 use std::fmt::Display;
-use std::fmt::{self};
 use std::marker::PhantomData;
 use std::mem::ManuallyDrop;
 use std::mem::MaybeUninit;
 use std::num::NonZeroU32;
+use std::ptr;
 use std::ptr::NonNull;
-use std::ptr::{self};
 use std::sync::atomic::AtomicPtr;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering;

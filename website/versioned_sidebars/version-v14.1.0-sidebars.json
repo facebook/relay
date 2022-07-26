@@ -1,0 +1,133 @@
+{
+  "docs": [
+    {
+      "Getting Started": [
+        "getting-started/introduction",
+        "getting-started/prerequisites",
+        "getting-started/installation-and-setup",
+        "getting-started/step-by-step-guide"
+      ],
+      "A Guided Tour": [
+        "guided-tour/introduction",
+        "guided-tour/workflow",
+        {
+          "Rendering Data Basics": [
+            "guided-tour/rendering/queries",
+            "guided-tour/rendering/fragments",
+            "guided-tour/rendering/variables",
+            "guided-tour/rendering/loading-states",
+            "guided-tour/rendering/error-states",
+            "guided-tour/rendering/environment"
+          ],
+          "Reusing Cached Data for Rendering": [
+            "guided-tour/reusing-cached-data/introduction",
+            "guided-tour/reusing-cached-data/fetch-policies",
+            "guided-tour/reusing-cached-data/availability-of-data",
+            "guided-tour/reusing-cached-data/presence-of-data",
+            "guided-tour/reusing-cached-data/staleness-of-data",
+            "guided-tour/reusing-cached-data/rendering-partially-cached-data",
+            "guided-tour/reusing-cached-data/filling-in-missing-data"
+          ],
+          "Refreshing and Refetching": [
+            "guided-tour/refetching/introduction",
+            "guided-tour/refetching/refreshing-queries",
+            "guided-tour/refetching/refetching-queries-with-different-data",
+            "guided-tour/refetching/refreshing-fragments",
+            "guided-tour/refetching/refetching-fragments-with-different-data"
+          ],
+          "Rendering List Data and Pagination": [
+            "guided-tour/list-data/connections",
+            "guided-tour/list-data/rendering-connections",
+            "guided-tour/list-data/pagination",
+            "guided-tour/list-data/streaming-pagination",
+            "guided-tour/list-data/refetching-connections",
+            "guided-tour/list-data/updating-connections",
+            "guided-tour/list-data/advanced-pagination"
+          ]
+        },
+        {
+          "Updating Data": [
+            "guided-tour/updating-data/introduction",
+            "guided-tour/updating-data/graphql-mutations",
+            "guided-tour/updating-data/graphql-subscriptions",
+            "guided-tour/updating-data/imperatively-modifying-store-data-unsafe",
+            "guided-tour/updating-data/local-data-updates",
+            "guided-tour/updating-data/client-only-data"
+          ]
+        },
+        {
+          "Managing Data Outside React": [
+            "guided-tour/managing-data-outside-react/retaining-queries"
+          ]
+        }
+      ],
+      "API Reference": [
+        {
+          "Relay Hooks": [
+            "api-reference/hooks/relay-environment-provider",
+            "api-reference/hooks/use-relay-environment",
+            "api-reference/hooks/use-preloaded-query",
+            "api-reference/hooks/use-query-loader",
+            "api-reference/hooks/load-query",
+            "api-reference/hooks/use-lazy-load-query",
+            "api-reference/hooks/use-client-query",
+            "api-reference/hooks/use-fragment",
+            "api-reference/hooks/use-refetchable-fragment",
+            "api-reference/hooks/use-pagination-fragment",
+            "api-reference/hooks/use-mutation",
+            "api-reference/hooks/use-subscription"
+          ],
+          "Entrypoint APIs": [
+            "api-reference/entrypoint-apis/use-entrypoint-loader",
+            "api-reference/entrypoint-apis/load-entrypoint",
+            "api-reference/entrypoint-apis/entrypoint-container"
+          ],
+          "Relay Runtime": [
+            "api-reference/relay-runtime/fetch-query",
+            "api-reference/relay-runtime/store",
+            "api-reference/relay-runtime/commit-mutation",
+            "api-reference/relay-runtime/request-subscription"
+          ]
+        },
+        "api-reference/graphql/graphql-directives",
+        "api-reference/legacy-apis/legacy-apis"
+      ],
+      "Guides": [
+        "guides/graphql-server-specification",
+        "guides/compiler",
+        "guides/type-emission",
+        "guides/persisted-queries",
+        "guides/network-layer",
+        "guides/client-schema-extensions",
+        "guides/testing-relay-components",
+        "guides/testing-relay-with-preloaded-queries",
+        "guides/required-directive",
+        "guides/relay-resolvers"
+      ],
+      "Migration and Compatibility": [
+        "migration-and-compatibility/upgrading-to-relay-hooks",
+        "migration-and-compatibility/suspense-compatibility",
+        "migration-and-compatibility/relay-hooks-and-legacy-container-apis"
+      ]
+    },
+    {
+      "Debugging": [
+        "debugging/relay-devtools",
+        "debugging/inconsistent-typename-error",
+        "debugging/declarative-mutation-directives",
+        "debugging/why-null"
+      ],
+      "Principles and Architecture": [
+        "principles-and-architecture/thinking-in-graphql",
+        "principles-and-architecture/thinking-in-relay",
+        "principles-and-architecture/architecture-overview",
+        "principles-and-architecture/compiler-architecture",
+        "principles-and-architecture/runtime-architecture",
+        "principles-and-architecture/videos"
+      ]
+    },
+    "editor-support",
+    "community/learning-resources",
+    "glossary/glossary"
+  ]
+}

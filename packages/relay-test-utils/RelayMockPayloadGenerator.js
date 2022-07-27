@@ -178,11 +178,13 @@ class RelayMockPayloadGenerator {
   _resolveValue: ValueResolver;
   _mockResolvers: MockResolvers;
   _selectionMetadata: SelectionMetadata;
+  _clientDataMocked: boolean;
 
   constructor(options: {
     +variables: Variables,
     +mockResolvers: MockResolvers | null,
     +selectionMetadata: SelectionMetadata | null,
+    +clientDataMocked: boolean,
   }) {
     this._variables = options.variables;
     // $FlowFixMe[cannot-spread-inexact]
@@ -194,6 +196,7 @@ class RelayMockPayloadGenerator {
     this._selectionMetadata = options.selectionMetadata ?? {};
     // $FlowFixMe[incompatible-call]
     this._resolveValue = createValueResolver(this._mockResolvers);
+    this._clientDataMocked = options.clientDataMocked;
   }
 
   generate(
@@ -295,8 +298,12 @@ class RelayMockPayloadGenerator {
           }
           break;
 
+        case CLIENT_EXTENSION:
         case DEFER:
         case STREAM: {
+          if (selection.kind === CLIENT_EXTENSION && !this._clientDataMocked) {
+            break;
+          }
           mockData = this._traverseSelections(
             selection.selections,
             typeName,
@@ -479,10 +486,6 @@ class RelayMockPayloadGenerator {
               ),
             };
           }
-          break;
-        case CLIENT_EXTENSION:
-          // We do not expect to receive data for the client extensions
-          // from the server. MockPayloadGenerator should not generate it too.
           break;
         case TYPE_DISCRIMINATOR:
           const {abstractKey} = selection;
@@ -854,11 +857,13 @@ function generateData(
   variables: Variables,
   mockResolvers: MockResolvers | null,
   selectionMetadata: SelectionMetadata | null,
+  clientDataMocked: boolean,
 ): MockData {
   const mockGenerator = new RelayMockPayloadGenerator({
     variables,
     mockResolvers,
     selectionMetadata,
+    clientDataMocked,
   });
   let operationType;
   if (node.name.endsWith('Mutation')) {
@@ -919,10 +924,26 @@ function generateDataForOperation(
     operation.request.variables,
     mockResolvers ?? null,
     getSelectionMetadataFromOperation(operation),
+    false, // clientDataMocked
+  );
+  return {data};
+}
+
+function generateForOperationWithClientData(
+  operation: OperationDescriptor,
+  mockResolvers: ?MockResolvers,
+): GraphQLSingularResponse {
+  const data = generateData(
+    operation.request.node.operation,
+    operation.request.variables,
+    mockResolvers ?? null,
+    getSelectionMetadataFromOperation(operation),
+    true, // clientDataMocked
   );
   return {data};
 }
 
 module.exports = {
   generate: generateDataForOperation,
+  generateWithClientData: generateForOperationWithClientData,
 };

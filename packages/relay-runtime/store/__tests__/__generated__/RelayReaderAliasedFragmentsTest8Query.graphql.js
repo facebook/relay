@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2080579c87fa0ccef2db93f21caf7ee0>>
+ * @generated SignedSource<<abbd6b4e2b7088f29daf3c89b50ce8a9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -120,7 +120,12 @@ return {
         ],
         "storageKey": null
       }
-    ]
+    ],
+    "clientAbstractTypes": {
+      "__isMaybeNodeInterface": [
+        "ClientTypeImplementingServerInterface"
+      ]
+    }
   },
   "params": {
     "cacheID": "a9f4d7d90dd8a5daa7e186ee95a29096",

@@ -1,0 +1,67 @@
+==================================== INPUT ====================================
+query Foo {
+  client_type {
+    ...MyFragment
+  }
+}
+
+fragment MyFragment on MaybeNodeInterface {
+  name
+}
+
+# %extensions%
+
+extend type Query {
+  client_type: ClientType
+}
+
+type ClientType implements MaybeNodeInterface {
+  name: String
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "MyFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "MaybeNodeInterface",
+  "abstractKey": "__isMaybeNodeInterface"
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "Foo",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "ClientType",
+      "kind": "LinkedField",
+      "name": "client_type",
+      "plural": false,
+      "selections": [
+        {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "MyFragment"
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "clientAbstractTypes": {
+    "__isMaybeNodeInterface": [
+      "ClientType"
+    ]
+  }
+}

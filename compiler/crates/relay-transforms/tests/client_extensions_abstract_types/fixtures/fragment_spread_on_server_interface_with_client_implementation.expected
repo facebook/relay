@@ -1,0 +1,41 @@
+==================================== INPUT ====================================
+query Foo {
+  client_type {
+    ...MyFragment
+  }
+}
+
+fragment MyFragment on MaybeNodeInterface {
+  name
+}
+
+# %extensions%
+
+extend type Query {
+  client_type: ClientType
+}
+
+type ClientType implements MaybeNodeInterface {
+  name: String
+}
+==================================== OUTPUT ===================================
+fragment MyFragment on MaybeNodeInterface {
+  name
+}
+
+query Foo @__ClientExtensionAbstractTypeMetadataDirective
+# ClientExtensionAbstractTypeMetadataDirective {
+#     abstract_types: [
+#         AbstractTypeImplements {
+#             name: "__isMaybeNodeInterface",
+#             concrete: [
+#                 "ClientType",
+#             ],
+#         },
+#     ],
+# }
+ {
+  client_type {
+    ...MyFragment
+  }
+}

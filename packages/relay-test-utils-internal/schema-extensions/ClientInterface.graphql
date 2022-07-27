@@ -10,6 +10,10 @@ type OtherClientTypeImplementingClientInterface implements ClientInterface {
   description: String
 }
 
+type ClientTypeImplementingServerInterface implements MaybeNodeInterface {
+  name: String
+}
+
 extend type Query {
   client_interface: ClientInterface
 }

@@ -49,7 +49,7 @@ associated_data_impl!(ClientExtensionAbstractTypeMetadataDirective);
 
 /// Maps an abstract type (union or interface) to a list of
 /// concrete types which implement that interface.
-type TypeMap = HashMap<StringKey, StringKeySet>;
+type TypeMap = HashMap<Type, StringKeySet>;
 
 struct ClientExtensionsAbstactTypesTransform<'program> {
     program: &'program Program,
@@ -71,26 +71,15 @@ impl<'program> ClientExtensionsAbstactTypesTransform<'program> {
         match type_condition {
             Type::Interface(interface_id) => {
                 let interface = self.program.schema.interface(interface_id);
-                if interface.is_extension {
-                    self.add_abstract_type(type_condition, &interface.implementing_objects);
-                } else {
-                    // TODO: We should also record type information about
-                    // concrete types defined in the client schema extension
-                    // which implement a server interface
-                }
+                self.add_abstract_type(type_condition, &interface.implementing_objects);
             }
             Type::Union(union_id) => {
                 let union = self.program.schema.union(union_id);
-                if union.is_extension {
-                    self.add_abstract_type(type_condition, &union.members)
-                } else {
-                    // TODO: We should also record type information about
-                    // concrete types defined in the client schema extension
-                    // which implement a server interface
-                }
+                self.add_abstract_type(type_condition, &union.members)
             }
             Type::Object(_) => {
-                // For concerete type conditions, we don't need to record any additional data.
+                // Detecting if a concrete type condition matched does not require any additional metadata.
+                // You just look at __typename
             }
             _ => panic!("Expected type condition to be on an Interface, Object or Union"),
         };
@@ -98,19 +87,16 @@ impl<'program> ClientExtensionsAbstactTypesTransform<'program> {
 
     /// Record that a list of concrete types match an abstract type
     fn add_abstract_type(&mut self, abstract_type: Type, object_ids: &[ObjectID]) {
-        let abstract_type_name =
-            generate_abstract_type_refinement_key(&self.program.schema, abstract_type);
-        let names_iter = object_ids
-            .iter()
-            .map(|object_id| self.program.schema.object(*object_id).name.item);
-        match self.abstract_type_map.entry(abstract_type_name) {
-            Entry::Occupied(mut occupied) => {
-                occupied.get_mut().extend(names_iter);
-            }
-            Entry::Vacant(vacant) => {
-                vacant.insert(names_iter.collect::<StringKeySet>());
-            }
-        }
+        self.abstract_type_map
+            .entry(abstract_type)
+            .or_insert_with(|| {
+                object_ids
+                    .iter()
+                    .map(|object_id| self.program.schema.object(*object_id))
+                    .filter(|obj| obj.is_extension)
+                    .map(|obj| obj.name.item)
+                    .collect::<StringKeySet>()
+            });
     }
 
     /// Add all type relationships that are referenced within a fragment definition.
@@ -173,7 +159,9 @@ impl Transformer for ClientExtensionsAbstactTypesTransform<'_> {
             // AssociatedData which must implmenent Hash.
             let mut abstract_types = abstract_type_map
                 .into_iter()
-                .map(|(name, concrete)| {
+                .filter(|(_, concrete)| !concrete.is_empty())
+                .map(|(type_, concrete)| {
+                    let name = generate_abstract_type_refinement_key(&self.program.schema, type_);
                     let mut concrete_vec = concrete.into_iter().collect::<Vec<_>>();
                     // Sort to ensure stable output
                     concrete_vec.sort();
@@ -184,15 +172,20 @@ impl Transformer for ClientExtensionsAbstactTypesTransform<'_> {
                 })
                 .collect::<Vec<_>>();
 
-            // Sort to ensure stable output
-            abstract_types.sort_by_key(|a| a.name);
+            if abstract_types.is_empty() {
+                Transformed::Keep
+            } else {
+                // Sort to ensure stable output
+                abstract_types.sort_by_key(|a| a.name);
 
-            directives.push(ClientExtensionAbstractTypeMetadataDirective { abstract_types }.into());
+                directives
+                    .push(ClientExtensionAbstractTypeMetadataDirective { abstract_types }.into());
 
-            Transformed::Replace(OperationDefinition {
-                directives,
-                ..operation.clone()
-            })
+                Transformed::Replace(OperationDefinition {
+                    directives,
+                    ..operation.clone()
+                })
+            }
         }
     }
 

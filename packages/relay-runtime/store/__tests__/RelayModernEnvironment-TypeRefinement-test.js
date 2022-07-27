@@ -135,15 +135,6 @@ describe('missing data detection', () => {
       }
     `;
 
-    // version of the query with only abstract refinements
-    AbstractClientQuery = graphql`
-      query RelayModernEnvironmentTypeRefinementTestClientAbstractQuery {
-        client_interface {
-          ...RelayModernEnvironmentTypeRefinementTestClientInterface
-        }
-      }
-    `;
-
     // identical fragments except for User (concrete) / Actor (interface)
     ConcreteUserFragment = graphql`
       fragment RelayModernEnvironmentTypeRefinementTestConcreteUserFragment on User {
@@ -158,12 +149,6 @@ describe('missing data detection', () => {
         id
         name
         missing: lastName
-      }
-    `;
-
-    AbstractClientInterfaceFragment = graphql`
-      fragment RelayModernEnvironmentTypeRefinementTestClientInterface on ClientInterface {
-        description
       }
     `;
 
@@ -1859,8 +1844,17 @@ describe('missing data detection', () => {
   });
 
   describe('Abstract types defined in client schema extension', () => {
-    it('knows when concrete types match abstract types by metadata attached to normalizaiton AST', () => {
-      operation = createOperationDescriptor(AbstractClientQuery, {});
+    it('type condition on client-defined interface', () => {
+      operation = createOperationDescriptor(
+        graphql`
+          query RelayModernEnvironmentTypeRefinementTestClientAbstractQuery {
+            client_interface {
+              ...RelayModernEnvironmentTypeRefinementTestClientInterface
+            }
+          }
+        `,
+        {},
+      );
       environment.commitUpdate(store => {
         const rootRecord = nullthrows(store.get(ROOT_ID));
         const clientObj = store.create(
@@ -1875,13 +1869,58 @@ describe('missing data detection', () => {
       const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
       const fragmentSelector = nullthrows(
         getSingularSelector(
-          AbstractClientInterfaceFragment,
+          graphql`
+            fragment RelayModernEnvironmentTypeRefinementTestClientInterface on ClientInterface {
+              description
+            }
+          `,
           parentSnapshot.data.client_interface,
         ),
       );
       const fragmentSnapshot = environment.lookup(fragmentSelector);
       expect(fragmentSnapshot.data).toEqual({
         description: 'My Description',
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false);
+    });
+    it('client type which implements a server interface', () => {
+      operation = createOperationDescriptor(
+        graphql`
+          query RelayModernEnvironmentTypeRefinementTestClientImplementsServerInterfaceQuery {
+            maybeNodeInterface {
+              ...RelayModernEnvironmentTypeRefinementTestClientImplementsServerInterface
+            }
+          }
+        `,
+        {},
+      );
+
+      environment.commitPayload(operation, {maybeNodeInterface: null});
+
+      environment.commitUpdate(store => {
+        const rootRecord = nullthrows(store.get(ROOT_ID));
+        const clientObj = store.create(
+          '4',
+          'ClientTypeImplementingServerInterface',
+        );
+        clientObj.setValue('4', 'id');
+        clientObj.setValue('My Name', 'name');
+        rootRecord.setLinkedRecord(clientObj, 'maybeNodeInterface');
+      });
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSelector = nullthrows(
+        getSingularSelector(
+          graphql`
+            fragment RelayModernEnvironmentTypeRefinementTestClientImplementsServerInterface on ClientTypeImplementingServerInterface {
+              name
+            }
+          `,
+          parentSnapshot.data.maybeNodeInterface,
+        ),
+      );
+      const fragmentSnapshot = environment.lookup(fragmentSelector);
+      expect(fragmentSnapshot.data).toEqual({
+        name: 'My Name',
       });
       expect(fragmentSnapshot.isMissingData).toBe(false);
     });

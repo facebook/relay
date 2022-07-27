@@ -160,11 +160,24 @@ builds.forEach(build => {
         .pipe(gulp.dest(path.join(DIST, build.package, 'lib')));
     },
     function copyPackageJSON() {
-      return gulp
+      const stream = gulp
         .src(['package.json'], {
           cwd: path.join(PACKAGES, build.package),
         })
         .pipe(gulp.dest(path.join(DIST, build.package)));
+      stream.on('end', () => {
+        const pkgJson = JSON.parse(
+          fs
+            .readFileSync(path.join(DIST, build.package, 'package.json'))
+            .toString(),
+        );
+        pkgJson.name = 'atl-' + pkgJson.name;
+        fs.writeFileSync(
+          path.join(DIST, build.package, 'package.json'),
+          JSON.stringify(pkgJson, null, 2),
+        );
+      });
+      return stream;
     },
   );
 });
@@ -218,11 +231,24 @@ const relayCompiler = gulp.parallel(
       .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
   },
   function copyPackageFiles() {
-    return gulp
+    const stream = gulp
       .src(['README.md', 'package.json', 'cli.js', 'index.js'], {
         cwd: path.join(PACKAGES, 'relay-compiler'),
       })
       .pipe(gulp.dest(path.join(DIST, 'relay-compiler')));
+    stream.on('end', () => {
+      const pkg = JSON.parse(
+        fs
+          .readFileSync(path.join(DIST, 'relay-compiler', 'package.json'))
+          .toString(),
+      );
+      pkg.name = 'atl-' + pkg.name;
+      fs.writeFileSync(
+        path.join(DIST, 'relay-compiler', 'package.json'),
+        JSON.stringify(pkg, null, 2),
+      );
+    });
+    return stream;
   },
   function copyCompilerConfigSchema() {
     return gulp

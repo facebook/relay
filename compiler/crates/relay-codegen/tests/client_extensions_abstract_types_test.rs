@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<76d50054f46ff8fb4ee9b7c1cac165a5>>
+ * @generated SignedSource<<e5c24b5453bde4b099eb2517e15d853f>>
  */
 
 mod client_extensions_abstract_types;
@@ -31,13 +31,6 @@ fn fragment_spread_on_client_union() {
     let input = include_str!("client_extensions_abstract_types/fixtures/fragment_spread_on_client_union.graphql");
     let expected = include_str!("client_extensions_abstract_types/fixtures/fragment_spread_on_client_union.expected");
     test_fixture(transform_fixture, "fragment_spread_on_client_union.graphql", "client_extensions_abstract_types/fixtures/fragment_spread_on_client_union.expected", input, expected);
-}
-
-#[test]
-fn fragment_spread_on_server_interface_with_client_implementation() {
-    let input = include_str!("client_extensions_abstract_types/fixtures/fragment_spread_on_server_interface_with_client_implementation.graphql");
-    let expected = include_str!("client_extensions_abstract_types/fixtures/fragment_spread_on_server_interface_with_client_implementation.expected");
-    test_fixture(transform_fixture, "fragment_spread_on_server_interface_with_client_implementation.graphql", "client_extensions_abstract_types/fixtures/fragment_spread_on_server_interface_with_client_implementation.expected", input, expected);
 }
 
 #[test]

@@ -9,6 +9,7 @@
 
 use crate::docblock_resolution_info::DocblockResolutionInfo;
 use crate::find_field_usages::find_field_locations;
+use crate::find_field_usages::get_usages;
 use crate::location::transform_relay_location_to_lsp_location;
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
@@ -25,6 +26,7 @@ use lsp_types::request::Request;
 use lsp_types::Location as LSPLocation;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
+use schema::Schema;
 use std::path::Path;
 
 fn get_references_response(
@@ -45,6 +47,25 @@ fn get_references_response(
                             .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
 
                     Ok(references)
+                }
+                NodeKind::FieldName => {
+                    let (type_, field) = node_resolution_info
+                        .type_path
+                        .resolve_current_field(&program.schema)
+                        .ok_or_else(|| {
+                            LSPRuntimeError::UnexpectedError(" field not found!".to_string())
+                        })?;
+                    let type_name = program.schema.get_type_name(type_);
+                    let field_name = field.name.item;
+
+                    let lsp_locations =
+                        get_usages(program, &program.schema, type_name, field_name)?
+                            .into_iter()
+                            .map(|(_, ir_location)| {
+                                transform_relay_location_to_lsp_location(root_dir, ir_location)
+                            })
+                            .collect::<Result<Vec<_>, LSPRuntimeError>>()?;
+                    Ok(lsp_locations)
                 }
                 _ => Err(LSPRuntimeError::ExpectedError),
             }

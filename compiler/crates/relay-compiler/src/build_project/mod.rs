@@ -63,7 +63,6 @@ use relay_transforms::CustomTransformsConfig;
 use relay_transforms::Programs;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
-use std::iter::FromIterator;
 use std::path::PathBuf;
 use std::sync::Arc;
 pub use validate::validate;

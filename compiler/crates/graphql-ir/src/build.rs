@@ -339,7 +339,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     })
                 } else {
                     Err(vec![Diagnostic::error(
-                        ValidationMessage::ExpectedOperationName(),
+                        ValidationMessage::ExpectedOperationName,
                         operation.location,
                     )])
                 }
@@ -786,7 +786,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 .iter()
                 .map(|x| self.location.with_span(x.span));
             let mut error = Diagnostic::error(
-                ValidationMessage::ExpectedOneArgumentsDirective(),
+                ValidationMessage::ExpectedOneArgumentsDirective,
                 locations.next().unwrap(),
             );
             for location in locations {
@@ -1055,7 +1055,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let alias = self.build_alias(&field.alias);
         if let Some(arguments) = &field.arguments {
             return Err(vec![Diagnostic::error(
-                ValidationMessage::InvalidArgumentsOnTypenameField(),
+                ValidationMessage::InvalidArgumentsOnTypenameField,
                 self.location.with_span(arguments.span),
             )]);
         }
@@ -1080,7 +1080,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let alias = self.build_alias(&field.alias);
         if let Some(arguments) = &field.arguments {
             return Err(vec![Diagnostic::error(
-                ValidationMessage::InvalidArgumentsOnTypenameField(),
+                ValidationMessage::InvalidArgumentsOnTypenameField,
                 self.location.with_span(arguments.span),
             )]);
         }
@@ -1105,7 +1105,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let alias = self.build_alias(&field.alias);
         if let Some(arguments) = &field.arguments {
             return Err(Diagnostic::error(
-                ValidationMessage::InvalidArgumentsOnFetchTokenField(),
+                ValidationMessage::InvalidArgumentsOnFetchTokenField,
                 self.location.with_span(arguments.span),
             )
             .into());
@@ -1269,7 +1269,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         if directive.name.value == *ARGUMENT_DEFINITION {
             if location != DirectiveLocation::FragmentDefinition {
                 return Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(),
+                    ValidationMessage::ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition,
                     self.location.with_span(directive.name.span),
                 )]);
             }

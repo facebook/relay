@@ -41,13 +41,13 @@ pub enum ValidationMessage {
     UnnecessaryUncheckedArgumentsDirective,
 
     #[error("Expected operation to have a name (e.g. 'query <Name>')")]
-    ExpectedOperationName(),
+    ExpectedOperationName,
 
     #[error("The schema does not support '{0}' operations")]
     UnsupportedOperation(OperationKind),
 
     #[error("Nested lists ('[[T]]' etc) are not supported")]
-    UnsupportedNestListType(),
+    UnsupportedNestListType,
 
     #[error("Expected a value of type '{0}'")]
     ExpectedValueMatchingType(StringKey),
@@ -67,28 +67,28 @@ pub enum ValidationMessage {
     UnsupportedCustomScalarType(StringKey),
 
     #[error("Expected at-most one '@arguments' directive per fragment spread")]
-    ExpectedOneArgumentsDirective(),
+    ExpectedOneArgumentsDirective,
 
     #[error("Expected at-most one '@argumentDefinitions' directive per fragment spread")]
-    ExpectedOneArgumentDefinitionsDirective(),
+    ExpectedOneArgumentDefinitionsDirective,
 
     #[error(
         "Cannot combine fragment variable definitions syntax with the '@argumentDefinitions' directive"
     )]
-    VariableDefinitionsAndArgumentDirective(),
+    VariableDefinitionsAndArgumentDirective,
 
     #[error(
         "Expected `@argumentDefinitions` value to have a `type` field with a literal string value (e.g. `type: \"Int!\"`)"
     )]
-    ExpectedArgumentDefinitionLiteralType(),
+    ExpectedArgumentDefinitionLiteralType,
 
     #[error(
         "Expected `@argumentDefinitions` value to be an object with `type` and (optionally) `defaultValue` properties"
     )]
-    ExpectedArgumentDefinitionToBeObject(),
+    ExpectedArgumentDefinitionToBeObject,
 
     #[error("Expected '@argumentDefinitions' directive to be used on fragment definitions only.")]
-    ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(),
+    ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition,
 
     #[error(
         "Expected the `directives` argument to `@argumentDefinition` to be a list of literal strings in the form `directives: [\"@example\"]`."
@@ -153,10 +153,10 @@ pub enum ValidationMessage {
     InvalidArgumentDefinitionsKey(StringKey),
 
     #[error("Unexpected arguments on `__typename` field")]
-    InvalidArgumentsOnTypenameField(),
+    InvalidArgumentsOnTypenameField,
 
     #[error("Unexpected arguments on '__token' field")]
-    InvalidArgumentsOnFetchTokenField(),
+    InvalidArgumentsOnFetchTokenField,
 
     #[error(
         "Invalid type `{id_type_string}` of field `{id_field_name}` on parent type `{parent_type_name}`. Fields named `{id_field_name}` can only have `ID` or `String`-like types (e.g. custom scalars or enums)."
@@ -180,7 +180,7 @@ pub enum ValidationMessage {
     DisallowReservedAliasError(StringKey),
 
     #[error("Relay does not allow `__typename` field on Query, Mutation or Subscription.")]
-    DisallowTypenameOnRoot(),
+    DisallowTypenameOnRoot,
 
     #[error(
         "Unexpected directive: '{0}'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection."
@@ -318,15 +318,15 @@ pub enum ValidationMessage {
     InvalidRelayDirectiveArg(StringKey),
 
     #[error("Cannot use @relay(mask: false) on fragment spreads for fragments with directives.")]
-    InvalidUnmaskOnFragmentWithDirectives(),
+    InvalidUnmaskOnFragmentWithDirectives,
 
     #[error(
         "Cannot use @relay(mask: false) on fragment spreads for fragments with @argumentDefinitions."
     )]
-    InvalidUnmaskOnFragmentWithArguments(),
+    InvalidUnmaskOnFragmentWithArguments,
 
     #[error("Cannot combine global and local variables when applying @relay(mask: false")]
-    InvalidUnmaskOnLocalAndGloablVariablesWithSameName(),
+    InvalidUnmaskOnLocalAndGloablVariablesWithSameName,
 
     #[error(
         "Cannot combine variables with incompatible types {prev_arg_type} and {next_arg_type} when applying @relay(mask: false"

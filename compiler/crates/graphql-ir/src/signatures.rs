@@ -136,7 +136,7 @@ fn build_fragment_signature(
         .collect::<Vec<_>>();
     if fragment.variable_definitions.is_some() && !argument_definition_directives.is_empty() {
         return Err(Diagnostic::error(
-            ValidationMessage::VariableDefinitionsAndArgumentDirective(),
+            ValidationMessage::VariableDefinitionsAndArgumentDirective,
             fragment
                 .location
                 .with_span(argument_definition_directives[0].span),
@@ -154,7 +154,7 @@ fn build_fragment_signature(
         .into());
     } else if argument_definition_directives.len() > 1 {
         return Err(Diagnostic::error(
-            ValidationMessage::ExpectedOneArgumentDefinitionsDirective(),
+            ValidationMessage::ExpectedOneArgumentDefinitionsDirective,
             fragment
                 .location
                 .with_span(argument_definition_directives[1].span),
@@ -363,7 +363,7 @@ fn build_fragment_variable_definitions(
                     })
                 } else {
                     Err(Diagnostic::error(
-                        ValidationMessage::ExpectedArgumentDefinitionToBeObject(),
+                        ValidationMessage::ExpectedArgumentDefinitionToBeObject,
                         fragment.location.with_span(variable_arg.value.span()),
                     )
                     .into())
@@ -403,7 +403,7 @@ fn get_argument_type(
         Ok(type_)
     } else {
         Err(Diagnostic::error(
-            ValidationMessage::ExpectedArgumentDefinitionLiteralType(),
+            ValidationMessage::ExpectedArgumentDefinitionLiteralType,
             location.with_span(type_arg.map_or(object.span, |x| x.span)),
         )
         .into())

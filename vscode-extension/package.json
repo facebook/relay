@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "displayName": "Relay GraphQL",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Relay-powered IDE experience",
   "repository": {
     "type": "git",
@@ -151,7 +151,7 @@
     "build-local": "vsce package"
   },
   "engines": {
-    "vscode": "^1.65.0"
+    "vscode": "^1.60.0"
   },
   "dependencies": {
     "semver": "^7.3.7",

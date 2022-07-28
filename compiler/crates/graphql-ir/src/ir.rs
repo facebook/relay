@@ -157,14 +157,13 @@ impl Selection {
     /// A quick method to get the location of the selection. This may
     /// be helpful for error reporting. Please note, this implementation
     /// prefers the location of the alias for scalar and linked field selections.
-    /// It also returns `None` for conditional nodes and inline fragments.
-    pub fn location(&self) -> Option<Location> {
+    pub fn location(&self) -> Location {
         match self {
-            Selection::Condition(_) => None,
-            Selection::FragmentSpread(node) => Some(node.fragment.location),
-            Selection::InlineFragment(_) => None,
-            Selection::LinkedField(node) => Some(node.alias_or_name_location()),
-            Selection::ScalarField(node) => Some(node.alias_or_name_location()),
+            Selection::Condition(node) => node.location,
+            Selection::FragmentSpread(node) => node.fragment.location,
+            Selection::InlineFragment(node) => node.spread_location,
+            Selection::LinkedField(node) => node.alias_or_name_location(),
+            Selection::ScalarField(node) => node.alias_or_name_location(),
         }
     }
 
@@ -317,6 +316,7 @@ pub struct Condition {
     pub selections: Vec<Selection>,
     pub value: ConditionValue,
     pub passing_value: bool,
+    pub location: Location,
 }
 
 impl Condition {

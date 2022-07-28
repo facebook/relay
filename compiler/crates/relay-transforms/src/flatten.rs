@@ -285,6 +285,7 @@ impl FlattenTransform {
                         value: node.value.clone(),
                         passing_value: node.passing_value,
                         selections: next_selections,
+                        location: node.location,
                     }))
                 }),
             Selection::FragmentSpread(_) | Selection::ScalarField(_) => TransformedValue::Keep,

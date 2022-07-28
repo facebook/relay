@@ -14,7 +14,15 @@ fragment Updatable_user on User @updatable {
   __typename
 }
 ==================================== ERROR ====================================
-✖︎ Because an updatable fragment was spread in an inline fragment in this linked field, this linked field can only contain inline fragments, and any inline fragments cannot have @skip or @if.
+✖︎ Because an updatable fragment was spread in an inline fragment in this linked field, this linked field can only contain inline fragments, and any inline fragments cannot have @skip or @include.
+
+  updatable_fragment_spread_in_inline_fragment_other_selections_wrong_type.invalid_2.graphql:8:8
+    7 │     }
+    8 │     id @skip(if: true)
+      │        ^^^^^
+    9 │   }
+
+  ℹ︎ enclosing linked field
 
   updatable_fragment_spread_in_inline_fragment_other_selections_wrong_type.invalid_2.graphql:3:3
     2 │ fragment Foo on Query {

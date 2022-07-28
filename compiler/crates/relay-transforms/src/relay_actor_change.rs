@@ -99,9 +99,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                 selection => {
                     self.errors.push(Diagnostic::error(
                         ValidationMessage::ActorChangeInvalidSelection,
-                        selection
-                            .location()
-                            .unwrap_or_else(|| field.alias_or_name_location()),
+                        selection.location(),
                     ));
                     return Transformed::Keep;
                 }

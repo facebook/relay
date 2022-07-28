@@ -1924,6 +1924,7 @@ fn wrap_selection_with_condition(selection: &Selection, condition: &Directive) -
         },
         passing_value: condition.name.item.lookup() == "include",
         selections: vec![selection.clone()],
+        location: condition.name.location,
     }))
 }
 

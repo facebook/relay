@@ -6,10 +6,10 @@ query TestQuery @updatable {
   }
 }
 ==================================== ERROR ====================================
-✖︎ Within updatable operations, the directives @include and @skip are not allowed. The directive was found in TestQuery.
+✖︎ The directives @include and @skip are not allowed within operations.
 
-  include.invalid.graphql:2:7
-    1 │ # expected-to-throw
+  include.invalid.graphql:3:15
     2 │ query TestQuery @updatable {
-      │       ^^^^^^^^^
     3 │   node(id: 4) @include(if: true) {
+      │               ^^^^^^^^
+    4 │     id

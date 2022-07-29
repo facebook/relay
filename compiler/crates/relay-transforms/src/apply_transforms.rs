@@ -157,7 +157,11 @@ fn apply_common_transforms(
         transform_defer_stream(&program)
     })?;
     program = log_event.time("transform_match", || {
-        transform_match(&program, &project_config.feature_flags)
+        transform_match(
+            &program,
+            &project_config.feature_flags,
+            project_config.module_import_config,
+        )
     })?;
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)
@@ -582,7 +586,11 @@ fn apply_typegen_transforms(
 
     program = log_event.time("mask", || mask(&program));
     program = log_event.time("transform_match", || {
-        transform_match(&program, &project_config.feature_flags)
+        transform_match(
+            &program,
+            &project_config.feature_flags,
+            project_config.module_import_config,
+        )
     })?;
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)

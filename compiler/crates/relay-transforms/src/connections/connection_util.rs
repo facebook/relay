@@ -5,16 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    connections::{ConnectionConstants, ConnectionInterface},
-    util::extract_variable_name,
-};
-use common::{NamedItem, WithLocation};
-use graphql_ir::{
-    associated_data_impl, Directive, InlineFragment, LinkedField, ScalarField, Selection,
-};
+use crate::connections::ConnectionConstants;
+use crate::connections::ConnectionInterface;
+use crate::util::extract_variable_name;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Directive;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
 use intern::string_key::StringKey;
-use schema::{SDLSchema, Schema, Type};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 
 /// Helper to assert and extract the expected selections for a connection
 /// field. This function will panic if the expected selections aren't present,
@@ -162,6 +168,7 @@ pub fn build_edge_selections(
                 ],
             })),
         ],
+        spread_location: Location::generated(),
     }))
 }
 
@@ -205,6 +212,7 @@ pub fn build_page_info_selections(
                     directives: Vec::new(),
                 })),
             ],
+            spread_location: Location::generated(),
         }))
     } else if connection_metadata.direction == connection_constants.direction_backward {
         Selection::InlineFragment(From::from(InlineFragment {
@@ -224,6 +232,7 @@ pub fn build_page_info_selections(
                     directives: Vec::new(),
                 })),
             ],
+            spread_location: Location::generated(),
         }))
     } else if connection_metadata.direction == connection_constants.direction_bidirectional {
         Selection::InlineFragment(From::from(InlineFragment {
@@ -255,6 +264,7 @@ pub fn build_page_info_selections(
                     directives: Vec::new(),
                 })),
             ],
+            spread_location: Location::generated(),
         }))
     } else {
         unreachable!()

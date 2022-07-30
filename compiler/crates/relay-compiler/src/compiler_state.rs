@@ -7,34 +7,49 @@
 
 use crate::artifact_map::ArtifactMap;
 use crate::config::Config;
-use crate::errors::{Error, Result};
-use crate::file_source::{
-    categorize_files, extract_javascript_features_from_file, read_file_to_string, Clock, File,
-    FileGroup, FileSourceResult, LocatedDocblockSource, LocatedGraphQLSource,
-    LocatedJavascriptSourceFeatures, SourceControlUpdateStatus,
-};
+use crate::errors::Error;
+use crate::errors::Result;
+use crate::file_source::categorize_files;
+use crate::file_source::extract_javascript_features_from_file;
+use crate::file_source::read_file_to_string;
+use crate::file_source::Clock;
+use crate::file_source::File;
+use crate::file_source::FileGroup;
+use crate::file_source::FileSourceResult;
+use crate::file_source::LocatedDocblockSource;
+use crate::file_source::LocatedGraphQLSource;
+use crate::file_source::LocatedJavascriptSourceFeatures;
+use crate::file_source::SourceControlUpdateStatus;
 use bincode::Options;
-use common::{PerfLogEvent, PerfLogger, SourceLocationKey};
+use common::PerfLogEvent;
+use common::PerfLogger;
+use common::SourceLocationKey;
 use dashmap::DashSet;
-use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
+use fnv::FnvBuildHasher;
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
 use intern::string_key::StringKey;
 use rayon::prelude::*;
 use relay_config::SchemaConfig;
-use relay_transforms::DependencyMap;
 use schema::SDLSchema;
-use schema_diff::{definitions::SchemaChange, detect_changes};
-use serde::{Deserialize, Serialize};
-use std::{
-    env, fmt,
-    fs::File as FsFile,
-    hash::Hash,
-    io::{BufReader, BufWriter},
-    mem,
-    path::PathBuf,
-    sync::{Arc, RwLock},
-};
-use std::{slice, vec};
-use zstd::stream::{read::Decoder as ZstdDecoder, write::Encoder as ZstdEncoder};
+use schema_diff::definitions::SchemaChange;
+use schema_diff::detect_changes;
+use serde::Deserialize;
+use serde::Serialize;
+use std::collections::hash_map::Entry;
+use std::env;
+use std::fmt;
+use std::fs::File as FsFile;
+use std::hash::Hash;
+use std::io::BufReader;
+use std::io::BufWriter;
+use std::path::PathBuf;
+use std::slice;
+use std::sync::Arc;
+use std::sync::RwLock;
+use std::vec;
+use zstd::stream::read::Decoder as ZstdDecoder;
+use zstd::stream::write::Encoder as ZstdEncoder;
 
 /// Name of a compiler project.
 pub type ProjectName = StringKey;
@@ -141,10 +156,26 @@ pub struct IncrementalSources<V: Source> {
     pub processed: IncrementalSourceSet<V>,
 }
 
-impl<V: Source> IncrementalSources<V> {
+impl<V: Source + Clone> IncrementalSources<V> {
     /// Merges additional pending sources into this states pending sources.
-    fn merge_pending_sources(&mut self, additional_pending_sources: IncrementalSourceSet<V>) {
-        self.pending.extend(additional_pending_sources.into_iter());
+    /// Skip if a pending source is empty and the processed source doesn't exist.
+    /// A pending source can be empty when a file doesn't contain any source (GraphQL,
+    /// Docblock, .etc). We need to keep the empty source only when there is a
+    /// corresponding source in `processed`, and compiler needs to do the work to remove it.
+    fn merge_pending_sources(&mut self, additional_pending_sources: &IncrementalSourceSet<V>) {
+        for (key, value) in additional_pending_sources.iter() {
+            match self.pending.entry(key.to_path_buf()) {
+                Entry::Occupied(mut entry) => {
+                    entry.insert(value.clone());
+                }
+                Entry::Vacant(vacant) => {
+                    if !value.is_empty() || self.processed.get(key).map_or(false, |v| !v.is_empty())
+                    {
+                        vacant.insert(value.clone());
+                    }
+                }
+            }
+        }
     }
 
     /// Remove deleted sources from both pending sources and processed sources.
@@ -237,22 +268,18 @@ pub enum ArtifactMapKind {
     Mapping(ArtifactMap),
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Default)]
 pub struct CompilerState {
     pub graphql_sources: FnvHashMap<ProjectName, GraphQLSources>,
     pub schemas: FnvHashMap<ProjectName, SchemaSources>,
     pub extensions: FnvHashMap<ProjectName, SchemaSources>,
     pub docblocks: FnvHashMap<ProjectName, DocblockSources>,
     pub artifacts: FnvHashMap<ProjectName, Arc<ArtifactMapKind>>,
-    // TODO: How can I can I make this just an ImplicitDependencyMap? Currently I can't move the hashmap out of the Arc wrapper around the dirty version.
-    pub implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(with = "clock_json_string")]
     pub clock: Option<Clock>,
     pub saved_state_version: String,
     #[serde(skip)]
     pub dirty_artifact_paths: FnvHashMap<ProjectName, DashSet<PathBuf, FnvBuildHasher>>,
-    #[serde(skip)]
-    pub pending_implicit_dependencies: Arc<RwLock<DependencyMap>>,
     #[serde(skip)]
     pub pending_file_source_changes: Arc<RwLock<Vec<FileSourceResult>>>,
     #[serde(skip)]
@@ -273,19 +300,9 @@ impl CompilerState {
         });
 
         let mut result = Self {
-            graphql_sources: Default::default(),
-            artifacts: Default::default(),
-            implicit_dependencies: Default::default(),
-            extensions: Default::default(),
-            docblocks: Default::default(),
-            schemas: Default::default(),
             clock: file_source_changes.clock(),
             saved_state_version: config.saved_state_version.clone(),
-            dirty_artifact_paths: Default::default(),
-            pending_implicit_dependencies: Default::default(),
-            pending_file_source_changes: Default::default(),
-            schema_cache: Default::default(),
-            source_control_update_status: Default::default(),
+            ..Default::default()
         };
 
         for (category, files) in categorized {
@@ -300,8 +317,8 @@ impl CompilerState {
                     )?;
 
                     for project_name in project_set {
-                        result.set_pending_source_set(project_name, graphql_sources.clone());
-                        result.set_pending_docblock_set(project_name, docblock_sources.clone());
+                        result.set_pending_source_set(project_name, &graphql_sources);
+                        result.set_pending_docblock_set(project_name, &docblock_sources);
                     }
                 }
                 FileGroup::Schema { project_set } => {
@@ -393,8 +410,14 @@ impl CompilerState {
         if schema_change == SchemaChange::None {
             true
         } else {
+            let current_sources_with_location = sources
+                .get_sources_with_location()
+                .into_iter()
+                .map(|(schema, location_key)| (schema.as_str(), location_key))
+                .collect::<Vec<_>>();
+
             match relay_schema::build_schema_with_extensions(
-                &current,
+                &current_sources_with_location,
                 &Vec::<(&str, SourceLocationKey)>::new(),
             ) {
                 Ok(schema) => schema_change.is_safe(&schema, schema_config),
@@ -478,11 +501,11 @@ impl CompilerState {
                             self.graphql_sources
                                 .entry(project_name)
                                 .or_default()
-                                .merge_pending_sources(graphql_sources.clone());
+                                .merge_pending_sources(&graphql_sources);
                             self.docblocks
                                 .entry(project_name)
                                 .or_default()
-                                .merge_pending_sources(docblock_sources.clone());
+                                .merge_pending_sources(&docblock_sources);
                         }
                     }
                     FileGroup::Schema { project_set } => {
@@ -532,23 +555,7 @@ impl CompilerState {
         for sources in self.docblocks.values_mut() {
             sources.commit_pending_sources();
         }
-        self.implicit_dependencies = mem::take(&mut self.pending_implicit_dependencies);
         self.dirty_artifact_paths.clear();
-    }
-
-    pub fn complete_project_compilation(&mut self, project_name: &ProjectName) {
-        if let Some(sources) = self.graphql_sources.get_mut(project_name) {
-            sources.commit_pending_sources();
-        }
-        if let Some(sources) = self.schemas.get_mut(project_name) {
-            sources.commit_pending_sources();
-        }
-        if let Some(sources) = self.extensions.get_mut(project_name) {
-            sources.commit_pending_sources();
-        }
-        if let Some(sources) = self.docblocks.get_mut(project_name) {
-            sources.commit_pending_sources();
-        }
     }
 
     /// Calculate dirty definitions from dirty artifacts
@@ -644,30 +651,18 @@ impl CompilerState {
         !self.pending_file_source_changes.read().unwrap().is_empty()
     }
 
-    fn set_pending_source_set(&mut self, project_name: ProjectName, source_set: GraphQLSourceSet) {
-        let pending_entry = &mut self
-            .graphql_sources
-            .entry(project_name)
-            .or_default()
-            .pending;
-        if pending_entry.is_empty() {
-            *pending_entry = source_set;
-        } else {
-            pending_entry.extend(source_set);
-        }
+    fn set_pending_source_set(&mut self, project_name: ProjectName, source_set: &GraphQLSourceSet) {
+        let entry = &mut self.graphql_sources.entry(project_name).or_default();
+        entry.merge_pending_sources(source_set);
     }
 
     fn set_pending_docblock_set(
         &mut self,
         project_name: ProjectName,
-        source_set: DocblockSourceSet,
+        source_set: &DocblockSourceSet,
     ) {
-        let pending_entry = &mut self.docblocks.entry(project_name).or_default().pending;
-        if pending_entry.is_empty() {
-            *pending_entry = source_set;
-        } else {
-            pending_entry.extend(source_set);
-        }
+        let entry = &mut self.docblocks.entry(project_name).or_default();
+        entry.merge_pending_sources(source_set);
     }
 
     fn process_schema_change(
@@ -689,7 +684,7 @@ impl CompilerState {
         for project_name in project_set {
             let entry = source_map.entry(project_name).or_default();
             entry.remove_sources(&removed_sources);
-            entry.merge_pending_sources(added_sources.clone());
+            entry.merge_pending_sources(&added_sources);
         }
         Ok(())
     }
@@ -752,16 +747,19 @@ fn extract_sources(
 /// support those enums.
 mod clock_json_string {
     use crate::file_source::Clock;
-    use serde::{
-        de::{Error, Visitor},
-        Deserializer, Serializer,
-    };
+    use serde::de::Error as DeserializationError;
+    use serde::de::Visitor;
+    use serde::ser::Error as SerializationError;
+    use serde::Deserializer;
+    use serde::Serializer;
 
     pub fn serialize<S>(clock: &Option<Clock>, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
-        let json_string = serde_json::to_string(clock).unwrap();
+        let json_string = serde_json::to_string(clock).map_err(|err| {
+            SerializationError::custom(format!("Unable to serialize clock value. Error {}", err))
+        })?;
         serializer.serialize_str(&json_string)
     }
 
@@ -780,8 +778,83 @@ mod clock_json_string {
             formatter.write_str("a JSON encoded watchman::Clock value")
         }
 
-        fn visit_str<E: Error>(self, v: &str) -> Result<Option<Clock>, E> {
-            Ok(serde_json::from_str(v).unwrap())
+        fn visit_str<E: DeserializationError>(self, v: &str) -> Result<Option<Clock>, E> {
+            serde_json::from_str(v).map_err(|err| {
+                DeserializationError::custom(format!(
+                    "Unable deserialize clock value. Error {}",
+                    err
+                ))
+            })
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    impl Source for Vec<u32> {
+        fn is_empty(&self) -> bool {
+            self.is_empty()
+        }
+    }
+
+    #[test]
+    fn empty_pending_incremental_source_overwrites_existing_pending_source() {
+        let mut incremental_source: IncrementalSources<Vec<u32>> = IncrementalSources::default();
+
+        let a = PathBuf::new();
+
+        let mut initial = FnvHashMap::default();
+        initial.insert(a.clone(), vec![1, 2, 3]);
+
+        // Starting with a pending source of a => [1, 2, 3]
+        incremental_source.merge_pending_sources(&initial);
+
+        assert_eq!(incremental_source.pending.get(&a), Some(&vec![1, 2, 3]));
+
+        let mut update: FnvHashMap<PathBuf, Vec<u32>> = FnvHashMap::default();
+        update.insert(a.clone(), Vec::new());
+
+        // Merge in a pending source of a => []
+        incremental_source.merge_pending_sources(&update);
+
+        // Pending for a should now be empty
+        assert_eq!(incremental_source.pending.get(&a), Some(&vec![]));
+    }
+
+    #[test]
+    fn empty_pending_incremental_is_ignored_if_no_processed_source_exists() {
+        let mut incremental_source: IncrementalSources<Vec<u32>> = IncrementalSources::default();
+
+        let a = PathBuf::new();
+
+        let mut update: FnvHashMap<PathBuf, Vec<u32>> = FnvHashMap::default();
+        update.insert(a.clone(), Vec::new());
+
+        // Merge in a pending source of a => []
+        incremental_source.merge_pending_sources(&update);
+
+        // Pending for a should not be populated
+        assert_eq!(incremental_source.pending.get(&a), None);
+    }
+
+    #[test]
+    fn empty_pending_incremental_is_ignored_if_no_processed_source_is_empty() {
+        let mut incremental_source: IncrementalSources<Vec<u32>> = IncrementalSources::default();
+
+        let a = PathBuf::new();
+
+        incremental_source.processed.insert(a.clone(), Vec::new());
+
+        let mut update: FnvHashMap<PathBuf, Vec<u32>> = FnvHashMap::default();
+        update.insert(a.clone(), Vec::new());
+
+        // Merge in a pending source of a => []
+        incremental_source.merge_pending_sources(&update);
+
+        // Pending for a should not be populated
+        assert_eq!(incremental_source.pending.get(&a), None);
     }
 }

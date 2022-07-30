@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+query clientFieldsOverlappingErrorQuery {
+  client_field(arg: "Value1")
+  client_field(arg: "Value2")
+}
+
+# %extensions%
+
+extend type Query {
+  client_field(arg: String): String
+}
+==================================== ERROR ====================================
+✖︎ Expected all fields on the same parent with the name or alias `client_field` to have the same argument values after applying fragment arguments. This field has the applied argument values: (arg: "Value1")
+
+  client-fields-overlapping-error.invalid.graphql:4:3
+    3 │ query clientFieldsOverlappingErrorQuery {
+    4 │   client_field(arg: "Value1")
+      │   ^^^^^^^^^^^^
+    5 │   client_field(arg: "Value2")
+
+  ℹ︎ which conflicts with this field with applied argument values (arg: "Value2")
+
+  client-fields-overlapping-error.invalid.graphql:5:3
+    4 │   client_field(arg: "Value1")
+    5 │   client_field(arg: "Value2")
+      │   ^^^^^^^^^^^^
+    6 │ }

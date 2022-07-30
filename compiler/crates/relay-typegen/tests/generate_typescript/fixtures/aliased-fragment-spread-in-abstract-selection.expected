@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+fragment RelayReaderNamedFragmentsTest_maybe_node_interface on User {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  node(id: "1") {
+    ...RelayReaderNamedFragmentsTest_maybe_node_interface @alias(as: "named_fragment")
+  }
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type RelayReaderNamedFragmentsTest2Query$variables = {};
+export type RelayReaderNamedFragmentsTest2Query$data = {
+  readonly node: {
+    readonly named_fragment: {
+      readonly " $fragmentSpreads": FragmentRefs<"RelayReaderNamedFragmentsTest_maybe_node_interface">;
+    } | null;
+  } | null;
+};
+export type RelayReaderNamedFragmentsTest2Query = {
+  response: RelayReaderNamedFragmentsTest2Query$data;
+  variables: RelayReaderNamedFragmentsTest2Query$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type RelayReaderNamedFragmentsTest_maybe_node_interface$data = {
+  readonly name: string | null;
+  readonly " $fragmentType": "RelayReaderNamedFragmentsTest_maybe_node_interface";
+};
+export type RelayReaderNamedFragmentsTest_maybe_node_interface$key = {
+  readonly " $data"?: RelayReaderNamedFragmentsTest_maybe_node_interface$data;
+  readonly " $fragmentSpreads": FragmentRefs<"RelayReaderNamedFragmentsTest_maybe_node_interface">;
+};

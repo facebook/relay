@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver
+ * @onType User
+ * @fieldName hello(world: String = "World")
+ */
+==================================== ERROR ====================================
+✖︎ Defining arguments with default values for resolver fields is not supported, yet.
+
+  /path/to/test/fixture/relay-resolver-with-args-default-value.invalid.js:13:37
+   12 │  * @onType User
+   13 │  * @fieldName hello(world: String = "World")
+      │                                     ^^^^^^^
+   14 │

@@ -9,8 +9,10 @@ use fnv::FnvHashSet;
 use glob::Pattern;
 use intern::string_key::StringKey;
 
-use crate::config::{Config, SchemaLocation};
-use std::path::{Path, PathBuf};
+use crate::config::Config;
+use crate::config::SchemaLocation;
+use std::path::Path;
+use std::path::PathBuf;
 
 /// The FileFilter is intended to be used for input sources other than
 /// Watchman. The FileFilter is created from `Config` and tries to replicate

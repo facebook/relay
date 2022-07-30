@@ -20,13 +20,20 @@
       "schemaExtensions": [
         "packages/relay-test-utils-internal/schema-extensions"
       ],
+      "customScalarTypes": {
+        "OpaqueScalarType": {"name": "OpaqueScalarType", "path": "../OpaqueScalarType"}
+      },
       "jsModuleFormat": "commonjs",
       "featureFlags": {
+        "enable_relay_resolver_transform": true,
         "enable_flight_transform": true,
         "no_inline": {
           "kind": "enabled"
         },
         "actor_change_support": {
+          "kind": "enabled"
+        },
+        "enable_fragment_aliases": {
           "kind": "enabled"
         }
       },

@@ -6,13 +6,19 @@
  */
 
 use common::Diagnostic;
-use dependency_analyzer::{get_reachable_ast, ReachableAst};
+use dependency_analyzer::get_reachable_ast;
+use dependency_analyzer::ReachableAst;
 use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
 use intern::string_key::StringKeySet;
 use relay_config::ProjectConfig;
+use relay_transforms::get_resolver_fragment_name;
+use schema::SDLSchema;
+use schema::Schema;
 
-use crate::{compiler_state::ProjectName, errors::BuildProjectError, GraphQLAsts};
+use crate::compiler_state::ProjectName;
+use crate::errors::BuildProjectError;
+use crate::GraphQLAsts;
 
 pub struct ProjectAsts {
     pub changed_names: StringKeySet,
@@ -26,18 +32,19 @@ pub struct ProjectAstData {
 }
 
 pub fn get_project_asts(
+    schema: &SDLSchema,
     graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
     project_config: &ProjectConfig,
 ) -> Result<ProjectAstData, BuildProjectError> {
     let project_asts = graphql_asts
         .get(&project_config.name)
-        .map(|asts| asts.asts.clone())
+        .map(|asts| asts.get_all_executable_definitions())
         .unwrap_or_default();
     let (base_project_asts, base_definition_names) = match project_config.base {
         Some(base_project_name) => {
             let base_project_asts = graphql_asts
                 .get(&base_project_name)
-                .map(|asts| asts.asts.clone())
+                .map(|asts| asts.get_all_executable_definitions())
                 .unwrap_or_default();
             let base_definition_names = base_project_asts
                 .iter()
@@ -54,10 +61,22 @@ pub fn get_project_asts(
             project_name: project_config.name,
         }
     })?;
+
+    let mut base_resolver_fragment_asts =
+        find_base_resolver_fragment_asts(schema, &base_definition_names, &base_project_asts);
+
     let ReachableAst {
-        definitions,
-        base_fragment_names,
+        mut definitions,
+        mut base_fragment_names,
     } = get_reachable_ast(project_asts, base_project_asts);
+
+    base_fragment_names.extend(
+        base_resolver_fragment_asts
+            .iter()
+            .filter_map(|ast| ast.name()),
+    );
+    definitions.append(&mut base_resolver_fragment_asts);
+
     Ok(ProjectAstData {
         project_asts: ProjectAsts {
             definitions,
@@ -113,4 +132,32 @@ fn find_duplicates(
     } else {
         Err(errors)
     }
+}
+
+/// For all resolver fields defined on the schema
+/// this method will return a list of documents from the base projects
+fn find_base_resolver_fragment_asts(
+    schema: &SDLSchema,
+    base_definition_asts: &StringKeySet,
+    base_project_asts: &[ExecutableDefinition],
+) -> Vec<ExecutableDefinition> {
+    let mut base_resolver_fragments = StringKeySet::default();
+    for field in schema.fields() {
+        if let Some(fragment_name) = get_resolver_fragment_name(field) {
+            if base_definition_asts.contains(&fragment_name) {
+                base_resolver_fragments.insert(fragment_name);
+            }
+        }
+    }
+
+    base_project_asts
+        .iter()
+        .filter(|definition| match definition {
+            ExecutableDefinition::Fragment(fragment) => {
+                base_resolver_fragments.contains(&fragment.name.value)
+            }
+            ExecutableDefinition::Operation(_) => false,
+        })
+        .cloned()
+        .collect::<Vec<_>>()
 }

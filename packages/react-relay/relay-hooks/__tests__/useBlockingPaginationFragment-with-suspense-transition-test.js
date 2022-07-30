@@ -9,11 +9,9 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
 import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
+import type {Disposable} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useBlockingPaginationFragmentOriginal = require('../useBlockingPaginationFragment');
 const invariant = require('invariant');
@@ -60,11 +58,11 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     let Renderer;
 
     class ErrorBoundary extends React.Component<any, any> {
-      state = {error: null};
-      componentDidCatch(error) {
+      state: any | {error: null} = {error: null};
+      componentDidCatch(error: Error) {
         this.setState({error});
       }
-      render() {
+      render(): any | React.Node {
         const {children, fallback} = this.props;
         const {error} = this.state;
         if (error) {
@@ -75,8 +73,8 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     }
 
     function useBlockingPaginationFragmentWithSuspenseTransition(
-      fragmentNode,
-      fragmentRef,
+      fragmentNode: any,
+      fragmentRef: any,
     ) {
       const [isPendingNext, startTransition] = useTransition();
       // $FlowFixMe[incompatible-call]
@@ -86,8 +84,10 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         // $FlowFixMe[incompatible-call]
         fragmentRef,
       );
-      loadNext = (...args) => {
-        let disposable = {dispose: () => {}};
+      loadNext = (...args: Array<any>) => {
+        let disposable: Disposable | {dispose: () => void} = {
+          dispose: () => {},
+        };
         startTransition(() => {
           disposable = result.loadNext(...args);
         });
@@ -114,7 +114,15 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       }
     }
 
-    function assertYield(expected, actual) {
+    function assertYield(
+      expected: {
+        data: any,
+        hasNext: boolean,
+        hasPrevious: boolean,
+        isPendingNext: boolean,
+      },
+      actual: any,
+    ) {
       expect(actual.data).toEqual(expected.data);
       expect(actual.isPendingNext).toEqual(expected.isPendingNext);
       expect(actual.hasNext).toEqual(expected.hasNext);
@@ -122,12 +130,12 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     }
 
     function expectFragmentResults(
-      expectedYields: $ReadOnlyArray<{|
+      expectedYields: $ReadOnlyArray<{
         data: $FlowFixMe,
         isPendingNext: boolean,
         hasNext: boolean,
         hasPrevious: boolean,
-      |}>,
+      }>,
     ) {
       assertYieldsWereCleared();
       Scheduler.unstable_flushNumberOfYields(expectedYields.length);
@@ -138,7 +146,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       );
     }
 
-    function expectRequestIsInFlight(expected) {
+    function expectRequestIsInFlight(expected: any) {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toBeCalledTimes(expected.requestCount);
       expect(
@@ -151,14 +159,14 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     }
 
     function expectFragmentIsPendingOnPagination(
-      renderer,
+      renderer: any,
       direction: Direction,
-      expected: {|
+      expected: {
         data: mixed,
         hasNext: boolean,
         hasPrevious: boolean,
         paginationVariables: Variables,
-      |},
+      },
     ) {
       // Assert fragment sets isPending to true
       expectFragmentResults([
@@ -174,7 +182,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       expectRequestIsInFlight({...expected, inFlight: true, requestCount: 1});
     }
 
-    function createFragmentRef(id, owner) {
+    function createFragmentRef(id: string, owner: OperationDescriptor) {
       return {
         [ID_KEY]: id,
         [FRAGMENTS_KEY]: {
@@ -379,12 +387,12 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       });
 
       // Set up renderers
-      Renderer = props => null;
+      Renderer = (props: {user: any}) => null;
 
       const Container = (props: {
         userRef?: {...},
         owner: $FlowFixMe,
-        fragment: $FlowFixMe,
+        fragment?: $FlowFixMe,
         ...
       }) => {
         // We need a render a component to run a Hook
@@ -410,7 +418,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
         return <Renderer user={userData} />;
       };
 
-      const ContextProvider = ({children}) => {
+      const ContextProvider = ({children}: {children: React.Node}) => {
         // TODO(T39494051) - We set empty variables in relay context to make
         // Flow happy, but useBlockingPaginationFragment does not use them, instead it uses
         // the variables from the fragment owner.
@@ -1014,7 +1022,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     describe('refetch', () => {
       // The bulk of refetch behavior is covered in useRefetchableFragmentNode-test,
       // so this suite covers the pagination-related test cases.
-      function expectRefetchRequestIsInFlight(expected) {
+      function expectRefetchRequestIsInFlight(expected: any) {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toBeCalledTimes(
           expected.requestCount,
@@ -1029,15 +1037,15 @@ describe('useBlockingPaginationFragment with useTransition', () => {
       }
 
       function expectFragmentSuspendedOnRefetch(
-        renderer,
-        expected: {|
+        renderer: any,
+        expected: {
           data: mixed,
           hasNext: boolean,
           hasPrevious: boolean,
           refetchVariables: Variables,
           refetchQuery?: OperationDescriptor,
           gqlRefetchQuery?: $FlowFixMe,
-        |},
+        },
         flushFallback: boolean = true,
       ) {
         assertYieldsWereCleared();

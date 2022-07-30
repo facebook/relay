@@ -1,0 +1,32 @@
+==================================== INPUT ====================================
+fragment SomeFragment on User @relay(plural: true) {
+  name @required(action: LOG)
+}
+
+fragment SomeOtherFragment on User @relay(plural: true) {
+  name
+}
+==================================== OUTPUT ===================================
+import type { FragmentType } from "relay-runtime";
+declare export opaque type SomeFragment$fragmentType: FragmentType;
+export type SomeFragment$data = $ReadOnlyArray<?{|
+  +name: string,
+  +$fragmentType: SomeFragment$fragmentType,
+|}>;
+export type SomeFragment$key = $ReadOnlyArray<{
+  +$data?: SomeFragment$data,
+  +$fragmentSpreads: SomeFragment$fragmentType,
+  ...
+}>;
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type SomeOtherFragment$fragmentType: FragmentType;
+export type SomeOtherFragment$data = $ReadOnlyArray<{|
+  +name: ?string,
+  +$fragmentType: SomeOtherFragment$fragmentType,
+|}>;
+export type SomeOtherFragment$key = $ReadOnlyArray<{
+  +$data?: SomeOtherFragment$data,
+  +$fragmentSpreads: SomeOtherFragment$fragmentType,
+  ...
+}>;

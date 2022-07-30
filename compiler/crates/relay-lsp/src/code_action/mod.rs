@@ -8,25 +8,35 @@
 mod create_name_suggestion;
 
 use common::Span;
-use create_name_suggestion::{
-    create_default_name, create_default_name_with_index, create_impactful_name,
-    create_name_wrapper, DefinitionNameSuffix,
-};
+use create_name_suggestion::create_default_name;
+use create_name_suggestion::create_default_name_with_index;
+use create_name_suggestion::create_impactful_name;
+use create_name_suggestion::create_name_wrapper;
+use create_name_suggestion::DefinitionNameSuffix;
 use graphql_syntax::ExecutableDefinition;
-use lsp_types::{
-    request::CodeActionRequest, request::Request, CodeAction, CodeActionOrCommand, Diagnostic,
-    Position, Range, TextDocumentPositionParams, TextEdit, Url, WorkspaceEdit,
-};
-use resolution_path::{
-    IdentParent, IdentPath, OperationDefinitionPath, ResolutionPath, ResolvePosition,
-};
+use lsp_types::request::CodeActionRequest;
+use lsp_types::request::Request;
+use lsp_types::CodeAction;
+use lsp_types::CodeActionOrCommand;
+use lsp_types::Diagnostic;
+use lsp_types::Position;
+use lsp_types::Range;
+use lsp_types::TextDocumentPositionParams;
+use lsp_types::TextEdit;
+use lsp_types::Url;
+use lsp_types::WorkspaceEdit;
+use resolution_path::IdentParent;
+use resolution_path::IdentPath;
+use resolution_path::OperationDefinitionPath;
+use resolution_path::ResolutionPath;
+use resolution_path::ResolvePosition;
 use serde_json::Value;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+use std::collections::HashSet;
 
-use crate::{
-    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    server::GlobalState,
-};
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::server::GlobalState;
 
 pub(crate) fn on_code_action(
     state: &impl GlobalState,
@@ -242,7 +252,11 @@ fn create_code_action(
 
 #[cfg(test)]
 mod tests {
-    use lsp_types::{CodeActionOrCommand, Diagnostic, Position, Range, Url};
+    use lsp_types::CodeActionOrCommand;
+    use lsp_types::Diagnostic;
+    use lsp_types::Position;
+    use lsp_types::Range;
+    use lsp_types::Url;
     use serde_json::json;
 
     use crate::code_action::get_code_actions_from_diagnostics;

@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -32,7 +30,7 @@ const {commitMutation: defaultCommitMutation} = require('relay-runtime');
 
 const {useState, useEffect, useRef, useCallback} = React;
 
-export type UseMutationConfig<TMutation: MutationParameters> = {|
+export type UseMutationConfig<TMutation: MutationParameters> = {
   configs?: Array<DeclarativeMutationConfig>,
   onError?: ?(error: Error) => void,
   onCompleted?: ?(
@@ -50,7 +48,7 @@ export type UseMutationConfig<TMutation: MutationParameters> = {|
   updater?: ?SelectorStoreUpdater<TMutation['response']>,
   uploadables?: UploadableMap,
   variables: TMutation['variables'],
-|};
+};
 
 function useMutation<TMutation: MutationParameters>(
   mutation: GraphQLTaggedNode,

@@ -7,16 +7,14 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import Container from '../core/Container';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import Layout from '@theme/Layout';
 import * as React from 'react';
-/* eslint-enable lint/no-value-import */
 
 const Users = () => {
   const {siteConfig} = useDocusaurusContext();
-  const showcase = siteConfig.customFields.users.map((user) => {
+  const showcase = siteConfig.customFields.users.map(user => {
     return (
       <a href={user.infoLink} key={user.caption}>
         <img src={user.image} title={user.caption} />
@@ -43,7 +41,7 @@ const Users = () => {
   );
 };
 
-export default (props) => (
+export default props => (
   <Layout>
     <Users {...props} />
   </Layout>

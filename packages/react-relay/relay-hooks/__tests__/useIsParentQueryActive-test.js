@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
@@ -385,9 +383,9 @@ it('should only update if the latest owner completes the query', () => {
   fetchQuery(environment, operation).subscribe({});
   const oldDataSource = dataSource;
   expect(fetch).toBeCalledTimes(1);
-  let setRef = ref => {};
+  let setRef = (ref: $FlowFixMe) => {};
   const mockFn = jest.fn(() => {});
-  const Renderer = props => {
+  const Renderer = (props: {pending: boolean}) => {
     mockFn(props.pending);
     return props.pending;
   };

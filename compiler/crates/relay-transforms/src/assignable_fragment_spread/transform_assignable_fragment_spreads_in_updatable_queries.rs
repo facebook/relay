@@ -5,14 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{NamedItem, WithLocation};
-use graphql_ir::{
-    associated_data_impl, Directive, FragmentDefinition, FragmentSpread, OperationDefinition,
-    Program, Selection, Transformed, Transformer,
-};
-use intern::string_key::{Intern, StringKey};
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use schema::{SDLSchema, Schema, Type};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 use std::sync::Arc;
 
 lazy_static! {

@@ -7,12 +7,16 @@
 
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::{build, Program};
+use graphql_ir::build;
+use graphql_ir::Program;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
-use graphql_text_printer::{print_fragment, print_operation, PrinterOptions};
+use graphql_text_printer::print_fragment;
+use graphql_text_printer::print_operation;
+use graphql_text_printer::PrinterOptions;
 use relay_test_schema::get_test_schema_with_extensions;
-use relay_transforms::{client_edges, relay_resolvers};
+use relay_transforms::client_edges;
+use relay_transforms::relay_resolvers;
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {

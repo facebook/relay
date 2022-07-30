@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c3efc34c87369de06fb7d8bc6a1fcf83>>
+ * @generated SignedSource<<3a4b6bf961f6858b1e96ad3011fb5e7a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -24,7 +24,7 @@ export type RelayOperationTrackerTest2Mutation$variables = {|
 |};
 export type RelayOperationTrackerTest2Mutation$data = {|
   +commentDelete: ?{|
-    +__typename: string,
+    +__typename: "CommentDeleteResponsePayload",
   |},
 |};
 export type RelayOperationTrackerTest2Mutation = {|

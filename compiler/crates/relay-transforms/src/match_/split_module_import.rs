@@ -5,15 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::{SplitOperationMetadata, MATCH_CONSTANTS};
-use crate::{util::get_normalization_operation_name, ModuleMetadata};
+use super::SplitOperationMetadata;
+use super::MATCH_CONSTANTS;
+use crate::util::get_normalization_operation_name;
+use crate::ModuleMetadata;
 use common::WithLocation;
-use graphql_ir::{
-    InlineFragment, OperationDefinition, Program, Selection, Transformed, TransformedValue,
-    Transformer,
-};
+use graphql_ir::InlineFragment;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKeyMap, StringKeySet};
+use intern::string_key::Intern;
+use intern::string_key::StringKeyMap;
+use intern::string_key::StringKeySet;
 use schema::Schema;
 use std::sync::Arc;
 
@@ -107,20 +114,19 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                 .entry(normalization_name)
                 .or_insert_with(|| {
                     // Exclude `__module_operation/__module_component: js` field selections from `SplitOperation`
-                    let mut next_selections = Vec::with_capacity(fragment.selections.len() - 2);
-                    for selection in &fragment.selections {
-                        match selection {
+                    let next_selections = fragment
+                        .selections
+                        .iter()
+                        .filter(|selection| match selection {
                             Selection::ScalarField(field) => {
-                                if field.alias.is_none()
+                                field.alias.is_none()
                                     || schema.field(field.definition.item).name.item
                                         != MATCH_CONSTANTS.js_field_name
-                                {
-                                    next_selections.push(selection.clone())
-                                }
                             }
-                            _ => next_selections.push(selection.clone()),
-                        }
-                    }
+                            _ => true,
+                        })
+                        .cloned()
+                        .collect();
                     (
                         SplitOperationMetadata {
                             derived_from: module_metadata.fragment_name,

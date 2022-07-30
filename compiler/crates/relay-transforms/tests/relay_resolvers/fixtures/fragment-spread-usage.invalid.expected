@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+#expected-to-throw
+
+fragment Foo_user on User {
+  pop_star_name
+  # it should be fine to use this fragment spread here
+  ...AddressFragment
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  # but it is not supported in the resolver field fragment, yet
+  ...AddressFragment
+}
+
+fragment AddressFragment on User {
+  address {
+    street
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}
+==================================== ERROR ====================================
+✖︎ Using fragment spread `...AddressFragment` is not supported in the Relay resolvers fragments. The runtime API for reading the data of these fragments is not implemented, yet.
+
+  fragment-spread-usage.invalid.graphql:12:6
+   11 │   # but it is not supported in the resolver field fragment, yet
+   12 │   ...AddressFragment
+      │      ^^^^^^^^^^^^^^^
+   13 │ }

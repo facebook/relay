@@ -6,13 +6,15 @@
  */
 
 use common::DiagnosticsResult;
+use common::FeatureFlag;
 use fixture_tests::Fixture;
 use graphql_ir::Program;
 use graphql_test_helpers::apply_transform_for_test;
+use relay_transforms::fragment_alias_directive;
 use relay_transforms::required_directive;
 
 fn transform(program: &Program) -> DiagnosticsResult<Program> {
-    required_directive(program)
+    required_directive(&fragment_alias_directive(program, &FeatureFlag::Enabled)?)
 }
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {

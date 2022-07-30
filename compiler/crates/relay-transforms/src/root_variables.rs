@@ -6,13 +6,22 @@
  */
 
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use common::{Diagnostic, NamedItem, WithLocation};
-use graphql_ir::{
-    FragmentDefinition, FragmentSpread, OperationDefinition, Program, ValidationMessage, Value,
-    Variable, Visitor,
-};
-use intern::string_key::{StringKey, StringKeyMap, StringKeySet};
-use schema::{Schema, TypeReference};
+use common::Diagnostic;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Value;
+use graphql_ir::Variable;
+use graphql_ir::Visitor;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
+use intern::string_key::StringKeySet;
+use schema::Schema;
+use schema::TypeReference;
 
 pub type VariableMap = StringKeyMap<Variable>;
 type Visited = StringKeyMap<VariableMap>;

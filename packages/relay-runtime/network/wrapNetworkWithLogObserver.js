@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type ActorSpecificEnvironment from '../multi-actor-environment/ActorSpecificEnvironment';
 import type RelayModernEnvironment from '../store/RelayModernEnvironment';

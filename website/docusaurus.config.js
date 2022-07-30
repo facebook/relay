@@ -230,8 +230,7 @@ module.exports = {
             external: [
               'current',
               ...versions.filter(
-                (version) =>
-                  version !== 'experimental' && version !== 'classic',
+                version => version !== 'experimental' && version !== 'classic',
               ),
             ],
           }),
@@ -244,11 +243,17 @@ module.exports = {
         blog: {},
         theme: {
           customCss: [
-            '../src/css/docusaurus-1.css',
-            '../src/css/prism.css',
-            '../src/css/customTheme.css',
-            '../src/css/custom.css',
+            './src/css/docusaurus-1.css',
+            './src/css/prism.css',
+            './src/css/customTheme.css',
+            './src/css/custom.css',
           ],
+        },
+        gtag: {
+          trackingID: 'UA-44373548-50',
+        },
+        googleAnalytics: {
+          trackingID: 'UA-44373548-50',
         },
       },
     ],
@@ -447,6 +452,7 @@ module.exports = {
       logo: {
         src: 'img/relay.svg',
       },
+      copyright: `Copyright © ${new Date().getFullYear()} Meta Platforms, Inc. Built with Docusaurus.`,
     },
     prism: {
       theme: require('prism-react-renderer/themes/github'),
@@ -454,15 +460,10 @@ module.exports = {
       defaultLanguage: 'javascript',
     },
     algolia: {
+      appId: 'BH4D9OD16A',
       apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
       indexName: 'relay',
       contextualSearch: true,
-    },
-    gtag: {
-      trackingID: 'UA-44373548-50',
-    },
-    googleAnalytics: {
-      trackingID: 'UA-44373548-50',
     },
   },
 };

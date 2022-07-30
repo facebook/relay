@@ -69,6 +69,7 @@ interface MaybeNodeInterface {
 }
 
 scalar JSON
+scalar NonNodeID
 
 union MaybeNode = Story | FakeNode | NonNode
 
@@ -81,7 +82,7 @@ type FakeNode {
 }
 
 type NonNode {
-  id: String
+  id: NonNodeID
   name: String
 }
 
@@ -305,6 +306,7 @@ type Comment implements Node {
   subscribeStatus: String
   subscribers(first: Int): SubscribersConnection
   topLevelComments(first: Int): TopLevelCommentsConnection
+  commentsFrom(name: String!): [CommentsEdge]
   tracking: String
   url(relative: Boolean, site: String): String
   websites: [String]
@@ -1185,37 +1187,15 @@ type Settings {
 
 type IDFieldTests {
   id_non_null: IDFieldIsIDNonNull
+  id_null: IDFieldIsIDNull
   id: IDFieldIsID
-  list_of_id: IDFieldIsListOfID
-  string_non_null: IDFieldIsStringNonNull
-  string: IDFieldIsString
-  int_non_null: IDFieldIsIntNonNull
-  int: IDFieldIsInt
-  object: IDFieldIsObject
 }
+scalar IDFieldIsID
 type IDFieldIsIDNonNull {
   id: ID!
 }
-type IDFieldIsID {
+type IDFieldIsIDNull {
   id: ID
-}
-type IDFieldIsListOfID {
-  id: [ID]
-}
-type IDFieldIsStringNonNull {
-  id: String!
-}
-type IDFieldIsString {
-  id: String
-}
-type IDFieldIsIntNonNull {
-  id: Int!
-}
-type IDFieldIsInt {
-  id: Int
-}
-type IDFieldIsObject {
-  id: Node
 }
 
 scalar ReactFlightComponent

@@ -9,9 +9,10 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+
+import type {OperationDescriptor} from '../../../relay-runtime/store/RelayStoreTypes';
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 
 const EntryPointContainer = require('../EntryPointContainer.react');
 const loadEntryPoint = require('../loadEntryPoint');
@@ -28,7 +29,18 @@ const {
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
-function expectToHaveFetched(environment, query, cacheConfig) {
+function expectToHaveFetched(
+  environment: RelayMockEnvironment,
+  query: OperationDescriptor,
+  cacheConfig: {
+    force?: ?boolean,
+    liveConfigId?: ?string,
+    metadata?: {[key: string]: mixed},
+    onSubscribe?: () => void,
+    poll?: ?number,
+    transactionId?: ?string,
+  },
+) {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.executeWithSource).toBeCalledTimes(1);
   expect(
@@ -66,8 +78,8 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
   let QueryComponent;
   let LoaderComponent;
   let MockJSResourceReference;
-  let queryRenderLogs;
-  let loaderRenderLogs;
+  let queryRenderLogs: Array<string>;
+  let loaderRenderLogs: Array<string>;
 
   beforeEach(() => {
     jest.mock('ReactFeatureFlags', () => {
@@ -130,7 +142,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     query = createOperationDescriptor(gqlQuery, variables);
 
     queryRenderLogs = [];
-    QueryComponent = function (props) {
+    QueryComponent = function (props: any) {
       const result = usePreloadedQuery(
         gqlQuery,
         (props.queries.TestQuery: $FlowFixMe),
@@ -149,7 +161,7 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     };
 
     loaderRenderLogs = [];
-    LoaderComponent = function (props) {
+    LoaderComponent = function (props: any) {
       const [entryPointRef] = useEntryPointLoader(
         environmentProvider,
         props.entryPoint,
@@ -233,9 +245,11 @@ describe.skip('useEntryPointLoader-react-double-effects', () => {
     };
 
     render = function (
-      entryPoint,
-      initialEntryPointRef,
-      {suspendWholeTree} = {},
+      entryPoint: any,
+      initialEntryPointRef: any,
+      {suspendWholeTree}: {suspendWholeTree?: boolean} = ({}: {
+        suspendWholeTree?: boolean,
+      }),
     ): $FlowFixMe {
       let instance;
       ReactTestRenderer.act(() => {

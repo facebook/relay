@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -24,23 +22,23 @@ import type {ReaderFragment, ReaderInlineDataFragment} from './ReaderNode';
  * from that operation to read the response data (masking data from child
  * fragments).
  */
-export type ConcreteRequest = {|
+export type ConcreteRequest = {
   +kind: 'Request',
   +fragment: ReaderFragment,
   +operation: NormalizationOperation,
   +params: RequestParameters,
-|};
+};
 
-export type ConcreteUpdatableQuery = {|
+export type ConcreteUpdatableQuery = {
   +kind: 'UpdatableQuery',
   +fragment: ReaderFragment,
-|};
+};
 
 export type NormalizationRootNode =
   | ConcreteRequest
   | NormalizationSplitOperation;
 
-export type ProvidedVariablesType = {+[key: string]: {|get(): mixed|}};
+export type ProvidedVariablesType = {+[key: string]: {get(): mixed}};
 
 /**
  * Contains the parameters required for executing a GraphQL request.
@@ -49,7 +47,7 @@ export type ProvidedVariablesType = {+[key: string]: {|get(): mixed|}};
  * for local caching.
  */
 export type RequestParameters =
-  | {|
+  | {
       +id: string,
       +text: null,
       // common fields
@@ -57,17 +55,35 @@ export type RequestParameters =
       +operationKind: 'mutation' | 'query' | 'subscription',
       +providedVariables?: ProvidedVariablesType,
       +metadata: {[key: string]: mixed, ...},
-    |}
-  | {|
+    }
+  | {
       +cacheID: string,
       +id: null,
-      +text: string,
+      +text: string | null,
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
       +providedVariables?: ProvidedVariablesType,
       +metadata: {[key: string]: mixed, ...},
-    |};
+    };
+
+export type ClientRequestParameters = {
+  +cacheID: string,
+  +id: null,
+  +text: null,
+  // common fields
+  +name: string,
+  +operationKind: 'query',
+  +providedVariables?: ProvidedVariablesType,
+  +metadata: {[key: string]: mixed, ...},
+};
+
+export type ClientRequest = {
+  +kind: 'Request',
+  +fragment: ReaderFragment,
+  +operation: NormalizationOperation,
+  +params: ClientRequestParameters,
+};
 
 export type GeneratedNode =
   | ConcreteRequest
@@ -97,6 +113,8 @@ const RelayConcreteNode = {
   LIST_VALUE: 'ListValue',
   LOCAL_ARGUMENT: 'LocalArgument',
   MODULE_IMPORT: 'ModuleImport',
+  ALIASED_FRAGMENT_SPREAD: 'AliasedFragmentSpread',
+  ALIASED_INLINE_FRAGMENT_SPREAD: 'AliasedInlineFragmentSpread',
   RELAY_RESOLVER: 'RelayResolver',
   RELAY_LIVE_RESOLVER: 'RelayLiveResolver',
   REQUIRED_FIELD: 'RequiredField',

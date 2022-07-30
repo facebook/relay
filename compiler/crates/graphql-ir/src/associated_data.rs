@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{any::Any, fmt, hash::Hash};
+use std::any::Any;
+use std::fmt;
+use std::hash::Hash;
 
 pub trait AssociatedData: Send + Sync + fmt::Debug + AsAny {
     fn clone_box(&self) -> Box<dyn AssociatedData>;
@@ -63,8 +65,10 @@ macro_rules! associated_data_impl {
             }
 
             fn hash_box(&self) -> u64 {
-                use std::hash::{Hash, Hasher};
-                use $crate::reexport::{AsAny, FnvHasher};
+                use std::hash::Hash;
+                use std::hash::Hasher;
+                use $crate::reexport::AsAny;
+                use $crate::reexport::FnvHasher;
                 let mut state = FnvHasher::default();
                 self.hash(&mut state);
                 self.as_any().type_id().hash(&mut state);
@@ -130,10 +134,9 @@ impl<T: Any> AsAny for T {
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        collections::hash_map::RandomState,
-        hash::{BuildHasher, Hasher},
-    };
+    use std::collections::hash_map::RandomState;
+    use std::hash::BuildHasher;
+    use std::hash::Hasher;
 
     use once_cell::sync::Lazy;
 

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<069b4b37bcb8bd3aed00a79876951555>>
+ * @generated SignedSource<<4195c24df962688a655ebf20c36db2d8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@ export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTyp
 export type RelayExperimentalGraphResponseTransformTestInlineFragmentAbstractTypeQuery$data = {|
   +node: ?{|
     +author?: ?{|
-      +__typename: string,
+      +__typename: "User",
     |},
     +name?: ?string,
   |},

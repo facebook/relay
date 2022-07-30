@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+#expected-to-throw
+
+fragment Fragment1 on Query {
+    me @skip(if: true) {
+        name
+    }
+}
+
+fragment Fragment2 on Query {
+    me {
+        name
+    }
+}
+
+query Query {
+    ...Fragment2 @skip(if: true)
+}
+==================================== ERROR ====================================
+✖︎ After applying transforms to the fragment `Fragment1` selections of the `Fragment1` that would be sent to the server are empty. This is likely due to the use of `@skip`/`@include` directives with constant values that remove all selections in the fragment. 
+
+  skipped-fragment.graphql:3:10
+    2 │ 
+    3 │ fragment Fragment1 on Query {
+      │          ^^^^^^^^^
+    4 │     me @skip(if: true) {
+
+
+✖︎ After applying transforms to the query `Query` selections of the `Query` that would be sent to the server are empty. This is likely due to the use of `@skip`/`@include` directives with constant values that remove all selections in the query. 
+
+  skipped-fragment.graphql:15:7
+   14 │ 
+   15 │ query Query {
+      │       ^^^^^
+   16 │     ...Fragment2 @skip(if: true)

@@ -1,0 +1,11 @@
+fragment Foo on Node {
+  ... on User {
+    __typename
+  }
+  ... on Comment {
+    alias: __typename
+  }
+  ... on Feedback {
+    foo: __typename
+  }
+}

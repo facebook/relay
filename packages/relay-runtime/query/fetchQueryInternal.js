@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {GraphQLResponse} from '../network/RelayNetworkTypes';
@@ -26,13 +24,13 @@ const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayReplaySubject = require('../util/RelayReplaySubject');
 const invariant = require('invariant');
 
-type RequestCacheEntry = {|
+type RequestCacheEntry = {
   +identifier: RequestIdentifier,
   +subject: RelayReplaySubject<GraphQLResponse>,
   +subjectForInFlightStatus: RelayReplaySubject<GraphQLResponse>,
   +subscription: Subscription,
   promise: ?Promise<void>,
-|};
+};
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 

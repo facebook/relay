@@ -51,7 +51,7 @@ export type CommentCreateMutation$data = {|
       +friends: ?{|
         +edges: ?$ReadOnlyArray<?{|
           +node: ?{|
-            +__typename: string,
+            +__typename: "User",
             +id: string,
             +$fragmentSpreads: FriendFragment$fragmentType,
           |},

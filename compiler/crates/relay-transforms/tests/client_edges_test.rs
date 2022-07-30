@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0189f034a7e22371db99a51761b30132>>
+ * @generated SignedSource<<8c1db64dd61b27b06de1e7acf3861ba9>>
  */
 
 mod client_edges;
@@ -59,6 +59,13 @@ fn client_edge_variables() {
     let input = include_str!("client_edges/fixtures/client-edge-variables.graphql");
     let expected = include_str!("client_edges/fixtures/client-edge-variables.expected");
     test_fixture(transform_fixture, "client-edge-variables.graphql", "client_edges/fixtures/client-edge-variables.expected", input, expected);
+}
+
+#[test]
+fn client_edge_with_required() {
+    let input = include_str!("client_edges/fixtures/client-edge-with-required.graphql");
+    let expected = include_str!("client_edges/fixtures/client-edge-with-required.expected");
+    test_fixture(transform_fixture, "client-edge-with-required.graphql", "client_edges/fixtures/client-edge-with-required.expected", input, expected);
 }
 
 #[test]

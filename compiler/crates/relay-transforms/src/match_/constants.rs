@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 pub struct MatchConstants {

@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 export type RecordState = $Keys<typeof RelayRecordState>;

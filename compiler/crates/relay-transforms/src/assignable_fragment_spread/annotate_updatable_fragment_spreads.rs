@@ -7,9 +7,16 @@
 
 use std::sync::Arc;
 
-use common::{NamedItem, WithLocation};
-use graphql_ir::{Directive, FragmentSpread, Program, Selection, Transformed, Transformer};
-use intern::string_key::{Intern, StringKey};
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Directive;
+use graphql_ir::FragmentSpread;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 use crate::UPDATABLE_DIRECTIVE;

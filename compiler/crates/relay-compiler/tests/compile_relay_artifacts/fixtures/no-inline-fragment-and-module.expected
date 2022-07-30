@@ -72,6 +72,7 @@ fragment noInlineFragmentAndModule_parent on User @no_inline {
     ]
   },
   "params": {
+    "cacheID": "335a1e4741d00acc41dc8fc7a522f121",
     "id": null,
     "metadata": {},
     "name": "noInlineFragmentAndModuleQuery",

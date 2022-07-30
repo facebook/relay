@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ed4f0587f716a12c400a0159b1a5b99c>>
+ * @generated SignedSource<<d33bba31770d0dda6327e188acc496a6>>
  */
 
 mod print;
@@ -73,6 +73,13 @@ fn empty_args() {
     let input = include_str!("print/fixtures/empty_args.graphql");
     let expected = include_str!("print/fixtures/empty_args.expected");
     test_fixture(transform_fixture, "empty_args.graphql", "print/fixtures/empty_args.expected", input, expected);
+}
+
+#[test]
+fn fragment_variables() {
+    let input = include_str!("print/fixtures/fragment_variables.graphql");
+    let expected = include_str!("print/fixtures/fragment_variables.expected");
+    test_fixture(transform_fixture, "fragment_variables.graphql", "print/fixtures/fragment_variables.expected", input, expected);
 }
 
 #[test]

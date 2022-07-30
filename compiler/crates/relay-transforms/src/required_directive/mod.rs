@@ -8,18 +8,36 @@
 mod requireable_field;
 mod validation_message;
 
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-use graphql_ir::{
-    associated_data_impl, Directive, Field, FragmentDefinition, InlineFragment, LinkedField,
-    OperationDefinition, Program, ScalarField, Selection, Transformed, TransformedValue,
-    Transformer,
-};
-use intern::string_key::{Intern, StringKey, StringKeyMap};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
 use lazy_static::lazy_static;
-use requireable_field::{RequireableField, RequiredMetadata};
-use std::{borrow::Cow, mem, sync::Arc};
+use requireable_field::RequireableField;
+use requireable_field::RequiredMetadata;
+use std::borrow::Cow;
+use std::mem;
+use std::sync::Arc;
 
 use crate::DirectiveFinder;
+use crate::FragmentAliasMetadata;
 
 use self::validation_message::ValidationMessage;
 
@@ -432,12 +450,22 @@ impl<'s> Transformer for RequiredDirective<'s> {
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         let previous = self.within_abstract_inline_fragment;
 
-        if let Some(type_) = fragment.type_condition {
+        let maybe_alias =
+            FragmentAliasMetadata::find(&fragment.directives).map(|metadata| metadata.alias.item);
+
+        if let Some(alias) = maybe_alias {
+            self.path.push(alias.lookup())
+        } else if let Some(type_) = fragment.type_condition {
             if type_.is_abstract_type() {
                 self.within_abstract_inline_fragment = true;
             }
         }
+
         let next_fragment = self.default_transform_inline_fragment(fragment);
+
+        if maybe_alias.is_some() {
+            self.path.pop();
+        }
 
         self.within_abstract_inline_fragment = previous;
         next_fragment

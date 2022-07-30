@@ -5,42 +5,58 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    diagnostic_reporter::{get_diagnostics_data, DiagnosticReporter},
-    docblock_resolution_info::create_docblock_resolution_info,
-    graphql_tools::get_query_text,
-    js_language_server::JSLanguageServer,
-    lsp_runtime_error::LSPRuntimeResult,
-    node_resolution_info::create_node_resolution_info,
-    utils::extract_executable_definitions_from_text_document,
-    utils::{extract_feature_from_text, extract_project_name_from_url},
-    ContentConsumerType, Feature, FeatureResolutionInfo,
-};
-use crate::{LSPExtraDataProvider, LSPRuntimeError};
-use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span, TextSource};
-use crossbeam::channel::{SendError, Sender};
-use dashmap::{mapref::entry::Entry, DashMap};
+use crate::diagnostic_reporter::DiagnosticReporter;
+use crate::docblock_resolution_info::create_docblock_resolution_info;
+use crate::graphql_tools::get_query_text;
+use crate::js_language_server::JSLanguageServer;
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::node_resolution_info::create_node_resolution_info;
+use crate::utils::extract_executable_definitions_from_text_document;
+use crate::utils::extract_feature_from_text;
+use crate::utils::extract_project_name_from_url;
+use crate::ContentConsumerType;
+use crate::DocblockNode;
+use crate::Feature;
+use crate::FeatureResolutionInfo;
+use crate::LSPExtraDataProvider;
+use crate::LSPRuntimeError;
+use common::convert_diagnostic;
+use common::PerfLogger;
+use common::SourceLocationKey;
+use common::Span;
+use crossbeam::channel::SendError;
+use crossbeam::channel::Sender;
+use dashmap::mapref::entry::Entry;
+use dashmap::DashMap;
 use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
 use fnv::FnvBuildHasher;
-use graphql_ir::{
-    build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program, RelayMode,
-};
-use graphql_syntax::{
-    parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument,
-};
-use intern::string_key::{Intern, StringKey};
+use graphql_ir::build_ir_with_extra_features;
+use graphql_ir::BuilderOptions;
+use graphql_ir::FragmentVariablesSemantic;
+use graphql_ir::Program;
+use graphql_ir::RelayMode;
+use graphql_syntax::parse_executable_with_error_recovery;
+use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::ExecutableDocument;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use log::debug;
 use lsp_server::Message;
-use lsp_types::{Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url};
-use relay_compiler::{config::Config, FileCategorizer};
+use lsp_types::Diagnostic;
+use lsp_types::Range;
+use lsp_types::TextDocumentPositionParams;
+use lsp_types::Url;
+use relay_compiler::config::Config;
+use relay_compiler::FileCategorizer;
 use relay_docblock::parse_docblock_ast;
 use relay_transforms::deprecated_fields_for_executable_definition;
 use schema::SDLSchema;
-use schema_documentation::{
-    CombinedSchemaDocumentation, SchemaDocumentation, SchemaDocumentationLoader,
-};
-use std::{path::PathBuf, sync::Arc};
+use schema_documentation::CombinedSchemaDocumentation;
+use schema_documentation::SchemaDocumentation;
+use schema_documentation::SchemaDocumentationLoader;
+use std::path::PathBuf;
+use std::sync::Arc;
 use tokio::sync::Notify;
 
 use super::task_queue::TaskScheduler;
@@ -202,31 +218,23 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             LSPRuntimeError::UnexpectedError(format!("Expected GraphQL sources for URL {}", url))
         })?;
         let project_name = self.extract_project_name_from_url(url)?;
-        let project_config = self
-            .config
-            .enabled_projects()
-            .find(|project_config| project_config.name == project_name)
-            .ok_or_else(|| {
-                LSPRuntimeError::UnexpectedError(format!(
-                    "Expected project config for project {}",
-                    project_name
-                ))
-            })?;
-
         let schema = self
             .schemas
             .get(&project_name)
             .ok_or(LSPRuntimeError::ExpectedError)?;
 
+        let mut executable_definitions = vec![];
+        let mut docblock_sources = vec![];
+
         for (index, feature) in javascript_features.iter().enumerate() {
             let source_location_key = SourceLocationKey::embedded(&url.to_string(), index);
+
             match feature {
                 JavaScriptSourceFeature::GraphQL(graphql_source) => {
                     let result = parse_executable_with_error_recovery(
                         &graphql_source.text_source().text,
                         source_location_key,
                     );
-
                     diagnostics.extend(result.errors.iter().map(|diagnostic| {
                         convert_diagnostic(graphql_source.text_source(), diagnostic)
                     }));
@@ -237,11 +245,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         &BuilderOptions {
                             allow_undefined_fragment_spreads: true,
                             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-                            relay_mode: Some(RelayMode {
-                                enable_provided_variables: &project_config
-                                    .feature_flags
-                                    .enable_provided_variables,
-                            }),
+                            relay_mode: Some(RelayMode),
                             default_anonymous_operation_name: None,
                         },
                     )
@@ -264,21 +268,28 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                     diagnostics.extend(compiler_diagnostics.iter().map(|diagnostic| {
                         convert_diagnostic(graphql_source.text_source(), diagnostic)
                     }));
+
+                    executable_definitions.extend(result.item.definitions);
                 }
                 JavaScriptSourceFeature::Docblock(docblock_source) => {
-                    let text_source = docblock_source.text_source();
-                    let text = &text_source.text;
-                    let result = parse_docblock(text, source_location_key)
-                        .and_then(|ast| parse_docblock_ast(&ast));
-
-                    if let Err(errors) = result {
-                        diagnostics.extend(
-                            errors
-                                .iter()
-                                .map(|diagnostic| convert_diagnostic(text_source, diagnostic)),
-                        );
-                    }
+                    docblock_sources.push(docblock_source);
                 }
+            }
+        }
+
+        for (index, docblock_source) in docblock_sources.iter().enumerate() {
+            let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
+            let text_source = docblock_source.text_source();
+            let text = &text_source.text;
+            let result = parse_docblock(text, source_location_key)
+                .and_then(|ast| parse_docblock_ast(&ast, Some(&executable_definitions)));
+
+            if let Err(errors) = result {
+                diagnostics.extend(
+                    errors
+                        .iter()
+                        .map(|diagnostic| convert_diagnostic(text_source, diagnostic)),
+                );
             }
         }
         self.diagnostic_reporter
@@ -323,22 +334,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         self.synced_javascript_features.remove(url);
         self.diagnostic_reporter
             .clear_quick_diagnostics_for_url(url);
-    }
-}
-
-pub fn convert_diagnostic(text_source: &TextSource, diagnostic: &CompilerDiagnostic) -> Diagnostic {
-    let tags: Vec<DiagnosticTag> = diagnostic.tags();
-
-    Diagnostic {
-        code: None,
-        data: get_diagnostics_data(diagnostic),
-        message: diagnostic.message().to_string(),
-        range: text_source.to_span_range(diagnostic.location().span()),
-        related_information: None,
-        severity: Some(diagnostic.severity()),
-        tags: if tags.is_empty() { None } else { Some(tags) },
-        source: None,
-        ..Default::default()
     }
 }
 
@@ -397,9 +392,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             Feature::GraphQLDocument(executable_document) => FeatureResolutionInfo::GraphqlNode(
                 create_node_resolution_info(executable_document, position_span)?,
             ),
-            Feature::DocblockIr(docblock_ir) => FeatureResolutionInfo::DocblockNode(
-                create_docblock_resolution_info(docblock_ir, position_span)?,
-            ),
+            Feature::DocblockIr(docblock_ir) => FeatureResolutionInfo::DocblockNode(DocblockNode {
+                resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)?,
+                ir: docblock_ir,
+            }),
         };
         Ok(info)
     }

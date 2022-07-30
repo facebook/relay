@@ -5,20 +5,29 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{util::get_fragment_filename, ModuleMetadata};
-use common::WithLocation;
-use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, OperationDefinition, Program,
-    Selection, Transformed, Transformer, Value,
-};
-use intern::string_key::{Intern, StringKey, StringKeyMap};
-use lazy_static::lazy_static;
-use schema::{Schema, TypeReference};
+use crate::util::get_fragment_filename;
+use crate::ModuleMetadata;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
+use itertools::Itertools;
+use schema::Schema;
+use schema::TypeReference;
 
-lazy_static! {
-    pub static ref DATA_DRIVEN_DEPENDENCY_METADATA_KEY: StringKey =
-        "__dataDrivenDependencyMetadata".intern();
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct RelayDataDrivenDependencyMetadata {
+    pub direct_dependencies: Option<Vec<(StringKey, String)>>,
+    // always None for fragments
+    pub indirect_dependencies: Option<Vec<(StringKey, String)>>,
 }
+associated_data_impl!(RelayDataDrivenDependencyMetadata);
 
 pub fn generate_data_driven_dependency_metadata(program: &Program) -> Program {
     let mut transformer = GenerateDataDrivenDependencyMetadata::new(program);
@@ -29,18 +38,40 @@ pub fn generate_data_driven_dependency_metadata(program: &Program) -> Program {
 
 struct GenerateDataDrivenDependencyMetadata<'s> {
     pub program: &'s Program,
+    cache: StringKeyMap<Option<ModuleEntries>>,
 }
 
 impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
     fn new(program: &'s Program) -> Self {
-        GenerateDataDrivenDependencyMetadata { program }
+        GenerateDataDrivenDependencyMetadata {
+            program,
+            cache: Default::default(),
+        }
     }
 
-    fn generate_data_driven_dependency_for_selections(
+    fn get_direct_module_entries_for_fragment(
+        &mut self,
+        fragment: &FragmentDefinition,
+    ) -> Option<&ModuleEntries> {
+        let cache_key = fragment.name.item;
+        #[allow(clippy::map_entry)]
+        if !self.cache.contains_key(&cache_key) {
+            let entries = self.extract_module_entries_from_selections(
+                TypeReference::Named(fragment.type_condition),
+                &fragment.selections,
+                ModuleEntriesKind::Direct,
+            );
+            self.cache.insert(cache_key, entries);
+        }
+        self.cache.get(&cache_key).and_then(|v| v.as_ref())
+    }
+
+    fn extract_module_entries_from_selections(
         &mut self,
         type_: TypeReference,
         selections: &[Selection],
-    ) -> Option<Directive> {
+        kind: ModuleEntriesKind,
+    ) -> Option<ModuleEntries> {
         let mut processing_queue: Vec<ProcessingItem<'_>> = vec![ProcessingItem {
             plural: false,
             parent_type: type_,
@@ -52,7 +83,25 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
         while let Some(processing_item) = processing_queue.pop() {
             for selection in processing_item.selections {
                 match selection {
-                    Selection::ScalarField(_) | Selection::FragmentSpread(_) => {}
+                    Selection::ScalarField(_) => {}
+                    Selection::FragmentSpread(spread) => {
+                        if kind == ModuleEntriesKind::Direct {
+                            continue;
+                        }
+                        let fragment = self.program.fragment(spread.fragment.item)?;
+                        if let Some(fragment_module_entries) =
+                            self.get_direct_module_entries_for_fragment(fragment)
+                        {
+                            for (id, entry) in fragment_module_entries {
+                                module_entries
+                                    .entry(*id)
+                                    .and_modify(|module_entry| {
+                                        module_entry.branches.extend(entry.branches.iter())
+                                    })
+                                    .or_insert_with(|| entry.clone());
+                            }
+                        }
+                    }
                     Selection::LinkedField(linked_filed) => {
                         let field_type = &self
                             .program
@@ -70,6 +119,14 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                             Some(type_) => TypeReference::Named(type_),
                             None => processing_item.parent_type.clone(),
                         };
+                        processing_queue.push(ProcessingItem {
+                            plural: processing_item.plural,
+                            parent_type,
+                            selections: &inline_fragment.selections,
+                        });
+                        if kind == ModuleEntriesKind::Indirect {
+                            continue;
+                        }
                         if let Some(module_metadata) =
                             ModuleMetadata::find(&inline_fragment.directives)
                         {
@@ -116,11 +173,6 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
                                     plural: processing_item.plural,
                                 });
                         }
-                        processing_queue.push(ProcessingItem {
-                            plural: processing_item.plural,
-                            parent_type,
-                            selections: &inline_fragment.selections,
-                        });
                     }
                     Selection::Condition(condition) => {
                         processing_queue.push(ProcessingItem {
@@ -134,7 +186,7 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
         }
 
         if !module_entries.is_empty() {
-            Some(create_metadata_directive(module_entries))
+            Some(module_entries)
         } else {
             None
         }
@@ -149,10 +201,16 @@ struct Branch {
 
 type ModuleEntries = StringKeyMap<ModuleEntry>;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct ModuleEntry {
     branches: StringKeyMap<Branch>,
     plural: bool,
+}
+#[derive(Debug, PartialEq, Eq)]
+
+enum ModuleEntriesKind {
+    Direct,
+    Indirect,
 }
 
 #[derive(Debug)]
@@ -171,27 +229,35 @@ impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        if let Some(query_type) = self.program.schema.query_type() {
-            let generated_directive = self.generate_data_driven_dependency_for_selections(
-                TypeReference::Named(query_type),
-                &operation.selections,
-            );
-            if let Some(generated_directive) = generated_directive {
-                let mut next_directives: Vec<Directive> =
-                    Vec::with_capacity(operation.directives.len() + 1);
-                for directive in operation.directives.iter() {
-                    next_directives.push(directive.clone());
+        let indirect_module_entries = self.extract_module_entries_from_selections(
+            TypeReference::Named(operation.type_),
+            &operation.selections,
+            ModuleEntriesKind::Indirect,
+        );
+        let direct_module_entries = self.extract_module_entries_from_selections(
+            TypeReference::Named(operation.type_),
+            &operation.selections,
+            ModuleEntriesKind::Direct,
+        );
+        if direct_module_entries.is_some() || indirect_module_entries.is_some() {
+            let mut next_directives: Vec<Directive> =
+                Vec::with_capacity(operation.directives.len() + 1);
+            next_directives.extend(operation.directives.iter().cloned());
+            next_directives.push(
+                RelayDataDrivenDependencyMetadata {
+                    direct_dependencies: direct_module_entries
+                        .as_ref()
+                        .map(get_metadata_from_module_entries),
+                    indirect_dependencies: indirect_module_entries
+                        .as_ref()
+                        .map(get_metadata_from_module_entries),
                 }
-
-                next_directives.push(generated_directive);
-
-                Transformed::Replace(OperationDefinition {
-                    directives: next_directives,
-                    ..operation.clone()
-                })
-            } else {
-                Transformed::Keep
-            }
+                .into(),
+            );
+            Transformed::Replace(OperationDefinition {
+                directives: next_directives,
+                ..operation.clone()
+            })
         } else {
             Transformed::Keep
         }
@@ -201,18 +267,17 @@ impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        let generated_directive = self.generate_data_driven_dependency_for_selections(
-            TypeReference::Named(fragment.type_condition),
-            &fragment.selections,
-        );
-        if let Some(generated_directive) = generated_directive {
+        if let Some(module_entries) = self.get_direct_module_entries_for_fragment(fragment) {
             let mut next_directives: Vec<Directive> =
                 Vec::with_capacity(fragment.directives.len() + 1);
-            for directive in fragment.directives.iter() {
-                next_directives.push(directive.clone());
-            }
-            next_directives.push(generated_directive);
-
+            next_directives.extend(fragment.directives.iter().cloned());
+            next_directives.push(
+                RelayDataDrivenDependencyMetadata {
+                    direct_dependencies: Some(get_metadata_from_module_entries(module_entries)),
+                    indirect_dependencies: None,
+                }
+                .into(),
+            );
             Transformed::Replace(FragmentDefinition {
                 directives: next_directives,
                 ..fragment.clone()
@@ -223,50 +288,27 @@ impl<'s> Transformer for GenerateDataDrivenDependencyMetadata<'s> {
     }
 }
 
-fn create_metadata_directive(module_entries: StringKeyMap<ModuleEntry>) -> Directive {
-    let mut arguments: Vec<Argument> = Vec::with_capacity(module_entries.len());
-    for (key, module_entry) in module_entries {
-        arguments.push(Argument {
-            name: WithLocation::generated(key),
-            value: WithLocation::generated(Value::Constant(ConstantValue::String(From::from(
-                module_entry,
-            )))),
-        })
-    }
-    arguments.sort_unstable_by(|a, b| a.name.item.cmp(&b.name.item));
-
-    Directive {
-        name: WithLocation::generated(*DATA_DRIVEN_DEPENDENCY_METADATA_KEY),
-        arguments,
-        data: None,
-    }
-}
-
-impl From<ModuleEntry> for StringKey {
-    fn from(module_entry: ModuleEntry) -> Self {
-        let mut serialized_branches: Vec<(String, String)> =
-            Vec::with_capacity(module_entry.branches.len());
-        for (id, branch) in module_entry.branches.iter() {
-            serialized_branches.push((
-                id.to_string(),
+fn get_metadata_from_module_entries(module_entries: &ModuleEntries) -> Vec<(StringKey, String)> {
+    module_entries
+        .iter()
+        .map(|(key, entry)| {
+            (
+                *key,
                 format!(
-                    "\"{}\":{{\"component\":\"{}\",\"fragment\":\"{}\"}}",
-                    id, branch.component, branch.fragment
+                    "{{\"branches\":{{{}}},\"plural\":{}}}",
+                    entry
+                        .branches
+                        .iter()
+                        .sorted_unstable_by(|a, b| a.0.cmp(b.0))
+                        .map(|(id, branch)| format!(
+                            "\"{}\":{{\"component\":\"{}\",\"fragment\":\"{}\"}}",
+                            id, branch.component, branch.fragment
+                        ))
+                        .join(","),
+                    entry.plural,
                 ),
-            ));
-        }
-
-        serialized_branches.sort_unstable_by(|a, b| a.0.cmp(&b.0));
-
-        format!(
-            "{{\"branches\":{{{}}},\"plural\":{}}}",
-            serialized_branches
-                .into_iter()
-                .map(|(_, value)| value)
-                .collect::<Vec<String>>()
-                .join(","),
-            module_entry.plural
-        )
-        .intern()
-    }
+            )
+        })
+        .sorted_unstable_by(|a, b| a.0.cmp(&b.0))
+        .collect()
 }

@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const mockWarning = jest.fn();
@@ -26,7 +24,7 @@ const warningMessage =
 const notWarned = [true, warningMessage, 'fragment input'];
 const warned = [false, warningMessage, 'fragment input'];
 
-function Example(props: {|+foo: {|+name: string|}, +bar: string|}) {
+function Example(props: {+foo: {+name: string}, +bar: string}) {
   // $FlowFixMe[prop-missing]
   useStaticFragmentNodeWarning(props.foo, 'fragment input');
   return null;

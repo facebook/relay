@@ -5,28 +5,38 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{collections::HashSet, sync::Arc};
+use std::collections::HashSet;
+use std::sync::Arc;
 
-use common::{FeatureFlag, PerfLogger, SourceLocationKey};
-use graphql_ir::{
-    build_ir_with_extra_features, BuilderOptions, ExecutableDefinition, FragmentDefinition,
-    FragmentVariablesSemantic, OperationDefinition, Program, Selection,
-};
+use common::PerfLogger;
+use common::SourceLocationKey;
+use graphql_ir::build_ir_with_extra_features;
+use graphql_ir::BuilderOptions;
+use graphql_ir::ExecutableDefinition;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentVariablesSemantic;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
 use graphql_syntax::parse_executable_with_error_recovery;
 use graphql_text_printer::print_full_operation;
-use intern::string_key::{Intern, StringKey};
-use lsp_types::{request::Request, Url};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use lsp_types::request::Request;
+use lsp_types::Url;
 use relay_compiler::config::ProjectConfig;
-use relay_transforms::{apply_transforms, CustomTransformsConfig, Programs};
+use relay_transforms::apply_transforms;
+use relay_transforms::CustomTransformsConfig;
+use relay_transforms::Programs;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
 
-use crate::{
-    lsp_runtime_error::LSPRuntimeResult,
-    server::{GlobalState, LSPState},
-    LSPRuntimeError,
-};
-use serde::{Deserialize, Serialize};
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::server::GlobalState;
+use crate::server::LSPState;
+use crate::LSPRuntimeError;
+use serde::Deserialize;
+use serde::Serialize;
 
 pub(crate) enum GraphQLExecuteQuery {}
 
@@ -139,13 +149,13 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
     .map_err(|errors| format!("{:?}", errors))
 }
 
-fn print_full_operation_text(programs: Programs, operation_name: StringKey) -> String {
-    let print_operation_node = programs
-        .operation_text
-        .operation(operation_name)
-        .expect("a query text operation should be generated for this operation");
+fn print_full_operation_text(programs: Programs, operation_name: StringKey) -> Option<String> {
+    let print_operation_node = programs.operation_text.operation(operation_name)?;
 
-    print_full_operation(&programs.operation_text, print_operation_node)
+    Some(print_full_operation(
+        &programs.operation_text,
+        print_operation_node,
+    ))
 }
 
 /// From the list of AST nodes we're trying to extract the operation and possible
@@ -154,7 +164,6 @@ fn print_full_operation_text(programs: Programs, operation_name: StringKey) -> S
 fn build_operation_ir_with_fragments(
     definitions: &[graphql_syntax::ExecutableDefinition],
     schema: Arc<SDLSchema>,
-    enable_provided_variables: &FeatureFlag,
 ) -> Result<(Arc<OperationDefinition>, Vec<Arc<FragmentDefinition>>), String> {
     let ir = build_ir_with_extra_features(
         &schema,
@@ -162,9 +171,7 @@ fn build_operation_ir_with_fragments(
         &BuilderOptions {
             allow_undefined_fragment_spreads: true,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-            relay_mode: Some(graphql_ir::RelayMode {
-                enable_provided_variables,
-            }),
+            relay_mode: Some(graphql_ir::RelayMode),
             default_anonymous_operation_name: Some("anonymous".intern()),
         },
     )
@@ -227,12 +234,9 @@ pub(crate) fn get_query_text<
         ));
     }
 
-    let (operation, fragments) = build_operation_ir_with_fragments(
-        &result.item.definitions,
-        schema,
-        &project_config.feature_flags.enable_provided_variables,
-    )
-    .map_err(LSPRuntimeError::UnexpectedError)?;
+    let (operation, fragments) =
+        build_operation_ir_with_fragments(&result.item.definitions, schema)
+            .map_err(LSPRuntimeError::UnexpectedError)?;
 
     let operation_name = operation.name.item;
     let program = state.get_program(project_name)?;
@@ -247,7 +251,7 @@ pub(crate) fn get_query_text<
             )
             .map_err(LSPRuntimeError::UnexpectedError)?;
 
-            print_full_operation_text(programs, operation_name)
+            print_full_operation_text(programs, operation_name).unwrap_or(original_text)
         } else {
             original_text
         };

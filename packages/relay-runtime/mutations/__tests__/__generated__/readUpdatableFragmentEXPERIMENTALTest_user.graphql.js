@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<37b77c8a68ff901d9058f8b8e375e1a4>>
+ * @generated SignedSource<<5ae2a90ee3820f2276c4f801593087bc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ export type readUpdatableFragmentEXPERIMENTALTest_user$data = {|
 |};
 export type readUpdatableFragmentEXPERIMENTALTest_user$key = {
   +$data?: readUpdatableFragmentEXPERIMENTALTest_user$data,
-  +$fragmentSpreads: readUpdatableFragmentEXPERIMENTALTest_user$fragmentType,
+  +$updatableFragmentSpreads: readUpdatableFragmentEXPERIMENTALTest_user$fragmentType,
   ...
 };
 */

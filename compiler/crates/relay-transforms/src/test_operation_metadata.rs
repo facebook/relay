@@ -5,17 +5,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{create_metadata_directive, ValidationMessage, DIRECTIVE_SPLIT_OPERATION};
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use graphql_ir::{
-    ConstantArgument, ConstantValue, Field as IrField, FragmentDefinition, OperationDefinition,
-    Program, Selection, Transformed, Transformer,
-};
+use crate::create_metadata_directive;
+use crate::ValidationMessage;
+use crate::DIRECTIVE_SPLIT_OPERATION;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::ConstantArgument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Field as IrField;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
 use indexmap::IndexMap;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use regex::Regex;
-use schema::{EnumValue, Field, SDLSchema, Schema, Type};
+use schema::EnumValue;
+use schema::Field;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 
 lazy_static! {
     static ref TEST_OPERATION_DIRECTIVE: StringKey = "relay_test_operation".intern();

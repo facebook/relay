@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {DataID} from '../util/RelayRuntimeTypes';
@@ -21,6 +19,7 @@ import type {
 } from './RelayStoreTypes';
 
 const RelayRecordSource = require('./RelayRecordSource');
+const invariant = require('invariant');
 
 const UNPUBLISH_RECORD_SENTINEL = Object.freeze({
   __UNPUBLISH_RECORD_SENTINEL: true,
@@ -98,7 +97,7 @@ class RelayOptimisticRecordSource implements MutableRecordSource {
     return Object.keys(this.toJSON()).length;
   }
 
-  toJSON() {
+  toJSON(): {[DataID]: ?Record} {
     const merged = {...this._base.toJSON()};
     this._sink.getRecordIDs().forEach(dataID => {
       const record = this.get(dataID);
@@ -110,10 +109,23 @@ class RelayOptimisticRecordSource implements MutableRecordSource {
     });
     return merged;
   }
+
+  getOptimisticRecordIDs(): Set<DataID> {
+    return new Set(this._sink.getRecordIDs());
+  }
 }
 
 function create(base: RecordSource): MutableRecordSource {
   return new RelayOptimisticRecordSource(base);
 }
 
-module.exports = {create};
+function getOptimisticRecordIDs(source: MutableRecordSource): Set<DataID> {
+  invariant(
+    source instanceof RelayOptimisticRecordSource,
+    'getOptimisticRecordIDs: Instance of RelayOptimisticRecordSource is expected',
+  );
+
+  return source.getOptimisticRecordIDs();
+}
+
+module.exports = {create, getOptimisticRecordIDs};

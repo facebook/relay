@@ -7,10 +7,16 @@
 
 use super::extract_values_from_handle_field_directive;
 use crate::extract_handle_field_directives;
-use common::{Location, WithLocation};
-use graphql_ir::{
-    Argument, Directive, LinkedField, Program, ScalarField, Selection, Transformed, Transformer,
-};
+use common::Location;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::Directive;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use std::sync::Arc;
 

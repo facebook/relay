@@ -9,11 +9,18 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
@@ -34,13 +41,13 @@ const {
 disallowWarnings();
 
 describe('execute() a query with @match', () => {
-  let callbacks: {|
+  let callbacks: {
     +complete: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
     +error: JestMockFn<$ReadOnlyArray<Error>, mixed>,
     +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
     +start?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
     +unsubscribe?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-  |};
+  };
   let complete;
   let dataSource;
   let environment;
@@ -52,10 +59,10 @@ describe('execute() a query with @match', () => {
   let next;
   let operation;
   let operationCallback;
-  let operationLoader: {|
+  let operationLoader: {
     get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-  |};
+  };
   let query;
   let resolveFragment;
   let source;
@@ -101,7 +108,7 @@ describe('execute() a query with @match', () => {
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
     MarkupHandler = {
-      update(storeProxy, payload) {
+      update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
         const record = storeProxy.get(payload.dataID);
         if (record != null) {
           const markup = record.getValue(payload.fieldKey);
@@ -117,7 +124,11 @@ describe('execute() a query with @match', () => {
     error = jest.fn();
     next = jest.fn();
     callbacks = {complete, error, next};
-    fetch = (_query, _variables, _cacheConfig) => {
+    fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -645,10 +656,10 @@ describe('execute() a query with @match', () => {
       taskID = 0;
       tasks = new Map();
       scheduler = {
-        cancel: id => {
+        cancel: (id: string) => {
           tasks.delete(id);
         },
-        schedule: task => {
+        schedule: (task: () => void) => {
           const id = String(taskID++);
           tasks.set(id, task);
           return id;

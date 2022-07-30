@@ -7,15 +7,20 @@
 
 use std::sync::Arc;
 
-use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
 
 use common::Span;
 use graphql_syntax::ExecutableDocument;
 use intern::string_key::StringKey;
-use resolution_path::{
-    IdentParent, IdentPath, LinkedFieldPath, ResolutionPath, ResolvePosition, ScalarFieldPath,
-    SelectionParent, TypeConditionPath,
-};
+use resolution_path::IdentParent;
+use resolution_path::IdentPath;
+use resolution_path::LinkedFieldPath;
+use resolution_path::ResolutionPath;
+use resolution_path::ResolvePosition;
+use resolution_path::ScalarFieldPath;
+use resolution_path::SelectionParent;
+use resolution_path::TypeConditionPath;
 use schema::SDLSchema;
 
 use super::DefinitionDescription;

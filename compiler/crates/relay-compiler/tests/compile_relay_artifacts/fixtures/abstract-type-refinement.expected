@@ -144,6 +144,7 @@ fragment abstractTypeRefinement_ActorFragment on Actor {
     ]
   },
   "params": {
+    "cacheID": "feacbf4c38e59aa276558a9018654a7e",
     "id": null,
     "metadata": {},
     "name": "abstractTypeRefinement_AbstractTypeRefinementQuery",

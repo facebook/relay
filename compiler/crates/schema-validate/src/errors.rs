@@ -6,7 +6,8 @@
  */
 
 use intern::string_key::StringKey;
-use schema::{Type, TypeReference};
+use schema::Type;
+use schema::TypeReference;
 use thiserror::Error;
 
 #[derive(Debug, Error)]

@@ -9,12 +9,20 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
+import type {
+  usePreloadedQueryReactDoubleEffectsTestDeferQuery$data,
+  usePreloadedQueryReactDoubleEffectsTestDeferQuery$variables,
+} from './__generated__/usePreloadedQueryReactDoubleEffectsTestDeferQuery.graphql';
 import type {usePreloadedQueryReactDoubleEffectsTestFragment$key} from './__generated__/usePreloadedQueryReactDoubleEffectsTestFragment.graphql';
 import typeof usePreloadedQueryReactDoubleEffectsTestFragment from './__generated__/usePreloadedQueryReactDoubleEffectsTestFragment.graphql';
+import type {
+  usePreloadedQueryReactDoubleEffectsTestQuery$data,
+  usePreloadedQueryReactDoubleEffectsTestQuery$variables,
+} from './__generated__/usePreloadedQueryReactDoubleEffectsTestQuery.graphql';
+import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {loadQuery} = require('../loadQuery');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
@@ -27,12 +35,17 @@ const ReactTestRenderer = require('react-test-renderer');
 const {
   Observable,
   createOperationDescriptor,
-
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
-function expectToHaveFetched(environment, query, {count} = {}) {
+function expectToHaveFetched(
+  environment: RelayMockEnvironment,
+  query: OperationDescriptor,
+  {count}: {count?: number} = ({}: {
+    count?: number,
+  }),
+) {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.executeWithSource).toBeCalledTimes(count ?? 1);
   expect(
@@ -63,7 +76,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
   let variables;
   let release;
   let cancelNetworkRequest;
-  let renderLogs;
+  let renderLogs: Array<string>;
   let QueryComponent;
   let FragmentComponent;
   let render;
@@ -136,15 +149,15 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       force: true,
     });
 
-    FragmentComponent = function (props: {|
+    FragmentComponent = function (props: {
       user: usePreloadedQueryReactDoubleEffectsTestFragment$key,
-    |}) {
+    }) {
       const data = useFragment(gqlFragment, props.user);
       return data?.firstName === undefined ? 'Missing fragment data' : null;
     };
 
     renderLogs = [];
-    QueryComponent = function (props) {
+    QueryComponent = function (props: any) {
       const result = usePreloadedQuery<_>(props.queryInput, props.queryRef);
 
       const name = result?.node?.name ?? 'Empty';
@@ -166,7 +179,18 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       );
     };
 
-    render = (queryInput, queryRef): $FlowFixMe => {
+    render = (
+      queryInput:
+        | Query<
+            usePreloadedQueryReactDoubleEffectsTestDeferQuery$variables,
+            usePreloadedQueryReactDoubleEffectsTestDeferQuery$data,
+          >
+        | Query<
+            usePreloadedQueryReactDoubleEffectsTestQuery$variables,
+            usePreloadedQueryReactDoubleEffectsTestQuery$data,
+          >,
+      queryRef: any,
+    ): $FlowFixMe => {
       let instance;
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(

@@ -1,0 +1,8 @@
+fragment TestLinkedFieldFragment on Query {
+    me { # User type
+        name
+    }
+}
+
+%arguments%
+User name

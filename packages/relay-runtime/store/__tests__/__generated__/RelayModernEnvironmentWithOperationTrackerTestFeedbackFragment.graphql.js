@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<97280a7cbb97b558690bb33d0ba37d98>>
+ * @generated SignedSource<<e15974d4d6863782e2c276e7bf7126d1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -25,7 +25,7 @@ import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType: FragmentType;
 export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data = {|
   +author: ?{|
-    +__typename: string,
+    +__typename: "User",
     +nameRenderer: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,

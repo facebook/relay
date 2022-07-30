@@ -1,0 +1,13 @@
+fragment TestMultipleMatchesFragment1 on User {
+  name
+  ... on Actor {
+    name
+  }
+}
+
+fragment TestMultipleMatchesFragment2 on User {
+  name
+}
+
+%arguments%
+User name

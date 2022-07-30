@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const loadQueryModule = require('../loadQuery');
@@ -105,8 +103,8 @@ beforeEach(() => {
         .spyOn(executeObservable, 'subscribe')
         .mockImplementation(subscriptionCallbacks => {
           originalSubscribe(subscriptionCallbacks);
-          executeUnsubscribe = jest.fn();
-          return {unsubscribe: executeUnsubscribe};
+          const executeUnsubscribeFn = jest.fn();
+          return {unsubscribe: executeUnsubscribeFn};
         });
       return executeObservable;
     });
@@ -117,11 +115,15 @@ describe('when loading and disposing same query multiple times', () => {
     let loadedQuery;
     let queryLoaderCallback;
 
-    const QueryRenderer = function ({queryRef}) {
+    const QueryRenderer = function ({queryRef}: $FlowFixMe) {
       const data = usePreloadedQuery(query, queryRef);
       return data.node.id;
     };
-    const Inner = function ({initialPreloadedQuery}) {
+    const Inner = function ({
+      initialPreloadedQuery,
+    }: {
+      initialPreloadedQuery: $FlowFixMe,
+    }) {
       [loadedQuery, queryLoaderCallback] = useQueryLoader(
         preloadableConcreteRequest,
         initialPreloadedQuery,
@@ -134,7 +136,7 @@ describe('when loading and disposing same query multiple times', () => {
         </React.Suspense>
       );
     };
-    const Container = function ({initialPreloadedQuery = undefined}) {
+    const Container = function ({initialPreloadedQuery = undefined}: {}) {
       return (
         <RelayEnvironmentProvider environment={environment}>
           <Inner initialPreloadedQuery={initialPreloadedQuery} />

@@ -6,7 +6,8 @@
  */
 
 use crossbeam::channel::SendError;
-use lsp_server::{Message, ProtocolError};
+use lsp_server::Message;
+use lsp_server::ProtocolError;
 use relay_compiler::errors::Error as CompilerError;
 use serde_json::Error as SerdeError;
 use std::io::Error as IOError;

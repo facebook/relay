@@ -123,6 +123,7 @@ fragment providedVariableRefetchableFragment_providedVariableFragment on User
     ]
   },
   "params": {
+    "cacheID": "aec8cba63c34d250a3508ba37a4021b2",
     "id": null,
     "metadata": {},
     "name": "providedVariableRefetchableFragmentQuery",
@@ -273,6 +274,7 @@ fragment providedVariableRefetchableFragment_providedVariableFragment on User {
     ]
   },
   "params": {
+    "cacheID": "b8a7a02a0ee5dcbac23246959bda7f5a",
     "id": null,
     "metadata": {},
     "name": "refetchableQuery",

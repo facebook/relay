@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on Viewer {
+  ...Updatable_viewer
+}
+
+fragment Updatable_viewer on Viewer @updatable {
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ Updatable fragments cannot be spread at the top level.
+
+  updatable_fragment_spread_top_level.invalid.graphql:3:6
+    2 │ fragment Foo on Viewer {
+    3 │   ...Updatable_viewer
+      │      ^^^^^^^^^^^^^^^^
+    4 │ }

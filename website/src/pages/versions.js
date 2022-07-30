@@ -7,21 +7,22 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import Link from '@docusaurus/Link';
+import {
+  useLatestVersion,
+  useVersions,
+} from '@docusaurus/plugin-content-docs/client';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import {useLatestVersion, useVersions} from '@theme/hooks/useDocs';
 import Layout from '@theme/Layout';
 import React from 'react';
-/* eslint-enable lint/no-value-import */
 
 function Version() {
   const {siteConfig} = useDocusaurusContext();
   const versions = useVersions();
   const latestVersion = useLatestVersion();
-  const currentVersion = versions.find((version) => version.name === 'current');
+  const currentVersion = versions.find(version => version.name === 'current');
   const pastVersions = versions.filter(
-    (version) =>
+    version =>
       version !== latestVersion.name && version !== currentVersion.name,
   );
   const repoUrl = `https://github.com/${siteConfig.organizationName}/${siteConfig.projectName}`;
@@ -47,7 +48,7 @@ function Version() {
                     <Link to={latestVersion.path}>Documentation</Link>
                   </td>
                   <td>
-                    <a href={`${repoUrl}/releases/tag/v${latestVersion.name}`}>
+                    <a href={`${repoUrl}/releases/tag/${latestVersion.name}`}>
                       Release Notes
                     </a>
                   </td>
@@ -85,7 +86,7 @@ function Version() {
             </p>
             <table>
               <tbody>
-                {pastVersions.map((version) => (
+                {pastVersions.map(version => (
                   <tr key={version.name}>
                     <th>{version.label}</th>
                     <td>

@@ -10,3 +10,9 @@
 /**
  * @RelayResolver
  */
+
+graphql`
+  fragment myRootFragment on User {
+    name
+  }
+`

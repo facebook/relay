@@ -40,7 +40,9 @@ extend type User {
 {
   "argumentDefinitions": [],
   "kind": "Fragment",
-  "metadata": null,
+  "metadata": {
+    "hasClientEdges": true
+  },
   "name": "Foo_user",
   "selections": [
     {
@@ -48,6 +50,7 @@ extend type User {
       "concreteType": "ClientOnlyType",
       "backingField": {
         "alias": null,
+        "args": null,
         "fragment": {
           "args": null,
           "kind": "FragmentSpread",

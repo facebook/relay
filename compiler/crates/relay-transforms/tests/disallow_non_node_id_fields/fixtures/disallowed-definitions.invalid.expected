@@ -1,0 +1,40 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment PickyUser_fragment on PickyUser {
+    id
+    name
+    favoriteColor
+}
+
+# %extensions%
+
+type PickyUser implements InvalidInterface {
+    id: String!
+    name: String!
+    favoriteColor: String!
+    pickyFriends: [PickyUser!]!
+}
+
+interface InvalidInterface {
+    id: String!
+    favoriteColor: String!
+}
+==================================== ERROR ====================================
+✖︎ Disallowed type `String!` of field `id` on parent type `InvalidInterface` cannot be used by Relay to identify entities. For a detailed explanation, check out https://relay.dev/docs/debugging/disallowed-id-types-error
+
+  <generated>:11:16
+   10 │ type PickyUser implements InvalidInterface {
+   11 │     id: String! 
+      │                ^
+   12 │     name: String!
+      │ ^
+   13 │     favoriteColor: String!
+
+
+✖︎ Disallowed type `String!` of field `id` on parent type `PickyUser` cannot be used by Relay to identify entities. For a detailed explanation, check out https://relay.dev/docs/debugging/disallowed-id-types-error
+
+  <generated>:2:32
+    1 │ # expected-to-throw
+    2 │ fragment PickyUser_fragment on PickyUser {
+      │                                ^^
+    3 │     id

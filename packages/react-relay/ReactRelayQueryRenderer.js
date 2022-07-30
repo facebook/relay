@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {ReactRelayQueryRendererContext as ReactRelayQueryRendererContextType} from './ReactRelayQueryRendererContext';
@@ -29,13 +27,12 @@ const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext
 const areEqual = require('areEqual');
 const React = require('react');
 const {
-  RelayFeatureFlags,
   createOperationDescriptor,
   deepFreeze,
   getRequest,
 } = require('relay-runtime');
 
-type RetryCallbacks = {|
+type RetryCallbacks = {
   handleDataChange:
     | null
     | (({
@@ -44,34 +41,39 @@ type RetryCallbacks = {|
         ...
       }) => void),
   handleRetryAfterError: null | ((error: Error) => void),
-|};
+};
 
-export type RenderProps<T> = {|
+export type RenderProps<T> = {
   error: ?Error,
   props: ?T,
   retry: ?(cacheConfigOverride?: CacheConfig) => void,
-|};
+};
 /**
  * React may double-fire the constructor, and we call 'fetch' in the
  * constructor. If a request is already in flight from a previous call to the
  * constructor, just reuse the query fetcher and wait for the response.
  */
-const requestCache = {};
+const requestCache: {
+  [string]: void | {
+    queryFetcher: ReactRelayQueryFetcher,
+    snapshot: ?Snapshot,
+  },
+} = {};
 
 const queryRendererContext: ReactRelayQueryRendererContextType = {
   rootIsQueryRenderer: true,
 };
 
-export type Props = {|
+export type Props = {
   cacheConfig?: ?CacheConfig,
   fetchPolicy?: 'store-and-network' | 'network-only',
   environment: IEnvironment,
   query: ?GraphQLTaggedNode,
   render: (renderProps: RenderProps<Object>) => React.Node,
   variables: Variables,
-|};
+};
 
-type State = {|
+type State = {
   error: Error | null,
   prevPropsEnvironment: IEnvironment,
   prevPropsVariables: Variables,
@@ -82,7 +84,7 @@ type State = {|
   retryCallbacks: RetryCallbacks,
   requestCacheKey: ?string,
   snapshot: Snapshot | null,
-|};
+};
 
 /**
  * @public

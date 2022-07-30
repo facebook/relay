@@ -11,7 +11,7 @@ use std::fmt::Result as FmtResult;
 
 #[derive(Default, Clone)]
 pub struct TopLevelStatements(IndexMap<String, TopLevelStatement, FnvBuildHasher>);
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TopLevelStatement {
     ImportStatement { name: String, path: String },
     VariableDefinition(String),
@@ -45,7 +45,9 @@ impl TopLevelStatements {
 
 impl std::fmt::Display for TopLevelStatements {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> FmtResult {
-        for (_, statement) in self.0.iter() {
+        let mut statements = self.0.values().collect::<Vec<_>>();
+        statements.sort();
+        for statement in statements {
             write!(f, "{}", statement)?;
         }
 

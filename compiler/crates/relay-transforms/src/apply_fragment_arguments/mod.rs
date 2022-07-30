@@ -8,21 +8,49 @@
 mod scope;
 
 use super::get_applied_fragment_name;
-use crate::{
-    match_::{SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION},
-    no_inline::{is_raw_response_type_enabled, NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG},
-    util::get_normalization_operation_name,
-};
-use common::{Diagnostic, DiagnosticsResult, FeatureFlag, NamedItem, WithLocation};
-use graphql_ir::{
-    Condition, ConditionValue, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
-    InlineFragment, OperationDefinition, Program, ProvidedVariableMetadata, Selection, Transformed,
-    TransformedMulti, TransformedValue, Transformer, Value, Variable, VariableDefinition,
-};
+use crate::match_::SplitOperationMetadata;
+use crate::match_::DIRECTIVE_SPLIT_OPERATION;
+use crate::no_inline::is_raw_response_type_enabled;
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use crate::no_inline::PARENT_DOCUMENTS_ARG;
+use crate::util::get_normalization_operation_name;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::FeatureFlag;
+use common::Location;
+use common::NamedItem;
+use common::SourceLocationKey;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::transform_list;
+use graphql_ir::transform_list_multi;
+use graphql_ir::Condition;
+use graphql_ir::ConditionValue;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ProvidedVariableMetadata;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedMulti;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
+use graphql_ir::Variable;
+use graphql_ir::VariableDefinition;
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey, StringKeyIndexMap, StringKeyMap, StringKeySet};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyIndexMap;
+use intern::string_key::StringKeyMap;
+use intern::string_key::StringKeySet;
 use itertools::Itertools;
-use scope::{format_local_variable, Scope};
+use scope::format_local_variable;
+use scope::Scope;
 use std::sync::Arc;
 use thiserror::Error;
 
@@ -108,6 +136,13 @@ enum PendingFragment {
         provided_variables: ProvidedVariablesMap,
     },
 }
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct NoInlineFragmentSpreadMetadata {
+    pub location: SourceLocationKey,
+}
+
+associated_data_impl!(NoInlineFragmentSpreadMetadata);
 
 struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
     base_fragment_names: &'base_fragments StringKeySet,
@@ -233,7 +268,14 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     .collect();
                 let mut directives = Vec::with_capacity(spread.directives.len() + 1);
                 directives.extend(spread.directives.iter().cloned());
-                directives.push(directive.clone());
+
+                directives.push(
+                    NoInlineFragmentSpreadMetadata {
+                        location: fragment.name.location.source_location(),
+                    }
+                    .into(),
+                );
+
                 let normalization_name =
                     get_normalization_operation_name(fragment.name.item).intern();
                 let next_spread = Selection::FragmentSpread(Arc::new(FragmentSpread {
@@ -250,6 +292,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                         directives: Default::default(),
                         selections: vec![next_spread],
                         type_condition: Some(fragment.type_condition),
+                        spread_location: Location::generated(),
                     })))
                 } else {
                     Transformed::Replace(next_spread)
@@ -275,7 +318,9 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         &mut self,
         selections: &[Selection],
     ) -> TransformedValue<Vec<Selection>> {
-        self.transform_list_multi(selections, Self::transform_selection_multi)
+        transform_list_multi(selections, |selection| {
+            self.transform_selection_multi(selection)
+        })
     }
 
     fn transform_value(&mut self, value: &Value) -> TransformedValue<Value> {
@@ -301,9 +346,9 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 }
             }
             Value::Constant(_) => TransformedValue::Keep,
-            Value::List(items) => self
-                .transform_list(items, Self::transform_value)
-                .map(Value::List),
+            Value::List(items) => {
+                transform_list(items, |value| self.transform_value(value)).map(Value::List)
+            }
             Value::Object(arguments) => self.transform_arguments(arguments).map(Value::Object),
         }
     }

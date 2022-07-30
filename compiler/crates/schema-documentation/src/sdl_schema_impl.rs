@@ -7,8 +7,12 @@
 
 use crate::SchemaDocumentation;
 
-use intern::string_key::{Intern, StringKey};
-use schema::{Field, SDLSchema, Schema, Type};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use schema::Field;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 
 impl SchemaDocumentation for SDLSchema {
     fn get_type_description(&self, type_name: &str) -> Option<&str> {

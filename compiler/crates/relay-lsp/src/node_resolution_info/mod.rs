@@ -5,17 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
 use common::Span;
-use graphql_syntax::{
-    Argument, Directive, ExecutableDefinition, ExecutableDocument, FragmentDefinition,
-    FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition, ScalarField, Selection,
-    TypeCondition,
-};
+use graphql_syntax::Argument;
+use graphql_syntax::Directive;
+use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::ExecutableDocument;
+use graphql_syntax::FragmentDefinition;
+use graphql_syntax::FragmentSpread;
+use graphql_syntax::InlineFragment;
+use graphql_syntax::LinkedField;
+use graphql_syntax::List;
+use graphql_syntax::OperationDefinition;
+use graphql_syntax::ScalarField;
+use graphql_syntax::Selection;
+use graphql_syntax::TypeCondition;
 use intern::string_key::StringKey;
 
 mod type_path;
-pub use type_path::{TypePath, TypePathItem};
+pub use type_path::TypePath;
+pub use type_path::TypePathItem;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum NodeKind {
@@ -293,8 +303,10 @@ fn build_node_resolution_info_from_selections(
 #[cfg(test)]
 mod test {
     use super::create_node_resolution_info;
-    use super::{NodeKind, NodeResolutionInfo};
-    use common::{SourceLocationKey, Span};
+    use super::NodeKind;
+    use super::NodeResolutionInfo;
+    use common::SourceLocationKey;
+    use common::Span;
     use graphql_syntax::parse_executable;
     use intern::string_key::Intern;
 

@@ -5,15 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
 use errors::validate;
-use graphql_ir::{
-    Argument, Directive, Field, FragmentDefinition, LinkedField, OperationDefinition, Program,
-    ScalarField, ValidationMessage, Validator,
-};
-use intern::string_key::{Intern, StringKey};
+use graphql_ir::Argument;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use schema::{ArgumentDefinitions, Schema};
+use schema::ArgumentDefinitions;
+use schema::Schema;
 
 lazy_static! {
     static ref FAT_INTERFACE: StringKey = "fixme_fat_interface".intern();
@@ -108,14 +120,14 @@ impl Validator for ValidateRequiredArguments<'_> {
 impl ValidateRequiredArguments<'_> {
     fn validate_required_arguments(
         &self,
-        argument_defintinitions: &ArgumentDefinitions,
+        argument_definitions: &ArgumentDefinitions,
         arguments: &[Argument],
         node_name: StringKey,
         node_location: Location,
         root_name_with_location: WithLocation<StringKey>,
     ) -> DiagnosticsResult<()> {
-        if !argument_defintinitions.is_empty() {
-            for def in argument_defintinitions.iter() {
+        if !argument_definitions.is_empty() {
+            for def in argument_definitions.iter() {
                 if def.type_.is_non_null()
                     && def.default_value.is_none()
                     && !arguments

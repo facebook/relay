@@ -11,3 +11,9 @@ extend type User {
   client_code: Int
   client_best_friend: User
 }
+
+# For Relay Resolver tests
+extend type User {
+  client_extension_linked_field: User
+  some_field(some_arg_name: Int!): Int
+}

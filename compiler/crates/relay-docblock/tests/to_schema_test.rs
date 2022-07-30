@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<395589ed7293b0ebd4fbc20085c91123>>
+ * @generated SignedSource<<f0e55fe5610ac88bae0f6ff16f40b573>>
  */
 
 mod to_schema;
@@ -17,6 +17,20 @@ fn client_edge_relay_resolver() {
     let input = include_str!("to_schema/fixtures/client-edge-relay-resolver.js");
     let expected = include_str!("to_schema/fixtures/client-edge-relay-resolver.expected");
     test_fixture(transform_fixture, "client-edge-relay-resolver.js", "to_schema/fixtures/client-edge-relay-resolver.expected", input, expected);
+}
+
+#[test]
+fn client_edge_to_non_null_plural_server_object_relay_resolver_invalid() {
+    let input = include_str!("to_schema/fixtures/client-edge-to-non-null-plural-server-object-relay-resolver.invalid.js");
+    let expected = include_str!("to_schema/fixtures/client-edge-to-non-null-plural-server-object-relay-resolver.invalid.expected");
+    test_fixture(transform_fixture, "client-edge-to-non-null-plural-server-object-relay-resolver.invalid.js", "to_schema/fixtures/client-edge-to-non-null-plural-server-object-relay-resolver.invalid.expected", input, expected);
+}
+
+#[test]
+fn client_edge_to_plural_server_object_relay_resolver_invalid() {
+    let input = include_str!("to_schema/fixtures/client-edge-to-plural-server-object-relay-resolver.invalid.js");
+    let expected = include_str!("to_schema/fixtures/client-edge-to-plural-server-object-relay-resolver.invalid.expected");
+    test_fixture(transform_fixture, "client-edge-to-plural-server-object-relay-resolver.invalid.js", "to_schema/fixtures/client-edge-to-plural-server-object-relay-resolver.invalid.expected", input, expected);
 }
 
 #[test]
@@ -41,10 +55,31 @@ fn relay_resolver_deprecated_no_description() {
 }
 
 #[test]
+fn relay_resolver_implementing_a_field_defined_by_grandparent_interface() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-grandparent-interface.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-grandparent-interface.expected");
+    test_fixture(transform_fixture, "relay-resolver-implementing-a-field-defined-by-grandparent-interface.js", "to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-grandparent-interface.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_implementing_a_field_defined_by_parent_interface() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-parent-interface.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-parent-interface.expected");
+    test_fixture(transform_fixture, "relay-resolver-implementing-a-field-defined-by-parent-interface.js", "to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-parent-interface.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_on_interface() {
     let input = include_str!("to_schema/fixtures/relay-resolver-on-interface.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-on-interface.expected");
     test_fixture(transform_fixture, "relay-resolver-on-interface.js", "to_schema/fixtures/relay-resolver-on-interface.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_on_interface_implementing_a_field_defined_by_parent_interface() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-on-interface-implementing-a-field-defined-by-parent-interface.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-on-interface-implementing-a-field-defined-by-parent-interface.expected");
+    test_fixture(transform_fixture, "relay-resolver-on-interface-implementing-a-field-defined-by-parent-interface.js", "to_schema/fixtures/relay-resolver-on-interface-implementing-a-field-defined-by-parent-interface.expected", input, expected);
 }
 
 #[test]
@@ -73,4 +108,25 @@ fn relay_resolver_on_type_with_interface_invalid() {
     let input = include_str!("to_schema/fixtures/relay-resolver-on-type-with-interface.invalid.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-on-type-with-interface.invalid.expected");
     test_fixture(transform_fixture, "relay-resolver-on-type-with-interface.invalid.js", "to_schema/fixtures/relay-resolver-on-type-with-interface.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_args() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-with-args.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-with-args.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-args.js", "to_schema/fixtures/relay-resolver-with-args.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_field_and_fragment_args() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-with-field-and-fragment-args.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-with-field-and-fragment-args.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-field-and-fragment-args.js", "to_schema/fixtures/relay-resolver-with-field-and-fragment-args.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_field_args() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-with-field-args.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-with-field-args.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-field-args.js", "to_schema/fixtures/relay-resolver-with-field-args.expected", input, expected);
 }

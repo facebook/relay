@@ -9,26 +9,30 @@
 
 mod goto_docblock_definition;
 mod goto_graphql_definition;
-use crate::{
-    location::transform_relay_location_to_lsp_location,
-    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    server::GlobalState,
-    FieldDefinitionSourceInfo, FieldSchemaInfo, LSPExtraDataProvider,
-};
+use crate::location::transform_relay_location_to_lsp_location;
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::server::GlobalState;
+use crate::FieldDefinitionSourceInfo;
+use crate::FieldSchemaInfo;
+use crate::LSPExtraDataProvider;
 
-use intern::string_key::{Intern, StringKey};
-use lsp_types::{
-    request::{GotoDefinition, Request},
-    GotoDefinitionResponse, Url,
-};
-use schema::{SDLSchema, Schema, Type};
-use serde::{Deserialize, Serialize};
-use std::{str, sync::Arc};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use lsp_types::request::GotoDefinition;
+use lsp_types::request::Request;
+use lsp_types::GotoDefinitionResponse;
+use lsp_types::Url;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use serde::Deserialize;
+use serde::Serialize;
+use std::str;
+use std::sync::Arc;
 
-use self::{
-    goto_docblock_definition::get_docblock_definition_description,
-    goto_graphql_definition::get_graphql_definition_description,
-};
+use self::goto_docblock_definition::get_docblock_definition_description;
+use self::goto_graphql_definition::get_graphql_definition_description;
 
 /// A concrete description of a GraphQL definition that a user would like to goto.
 pub enum DefinitionDescription {
@@ -62,7 +66,7 @@ pub fn on_goto_definition(
             get_graphql_definition_description(document, position_span, &schema)?
         }
         crate::Feature::DocblockIr(docblock_ir) => {
-            get_docblock_definition_description(docblock_ir, position_span)?
+            get_docblock_definition_description(&docblock_ir, position_span)?
         }
     };
 
@@ -84,9 +88,13 @@ pub fn on_goto_definition(
         DefinitionDescription::Fragment { fragment_name } => {
             locate_fragment_definition(program, fragment_name, &root_dir)?
         }
-        DefinitionDescription::Type { type_name } => {
-            locate_type_definition(extra_data_provider, project_name, type_name)?
-        }
+        DefinitionDescription::Type { type_name } => locate_type_definition(
+            extra_data_provider,
+            project_name,
+            type_name,
+            &schema,
+            &root_dir,
+        )?,
     };
 
     // For some lsp-clients, such as clients relying on org.eclipse.lsp4j,
@@ -120,22 +128,49 @@ fn locate_type_definition(
     extra_data_provider: &dyn LSPExtraDataProvider,
     project_name: StringKey,
     type_name: StringKey,
+    schema: &Arc<SDLSchema>,
+    root_dir: &std::path::Path,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
     let provider_response = extra_data_provider.resolve_field_definition(
         project_name.to_string(),
         type_name.to_string(),
         None,
     );
-    let FieldDefinitionSourceInfo {
-        file_path,
-        line_number,
-        is_local,
-    } = get_field_definition_source_info_result(provider_response)?;
-    Ok(if is_local {
-        GotoDefinitionResponse::Scalar(get_location(&file_path, line_number)?)
-    } else {
-        return Err(LSPRuntimeError::ExpectedError);
-    })
+
+    let field_definition_source_info = get_field_definition_source_info_result(provider_response);
+
+    match field_definition_source_info {
+        Ok(source_info) => Ok(if source_info.is_local {
+            GotoDefinitionResponse::Scalar(get_location(
+                &source_info.file_path,
+                source_info.line_number,
+            )?)
+        } else {
+            return Err(LSPRuntimeError::ExpectedError);
+        }),
+        // If we couldn't resolve through the extra data provider, we'll fallback to
+        // try to find a location in the server sdl.
+        Err(_) => {
+            let type_ = schema.get_type(type_name);
+
+            type_
+                .map(|type_| match type_ {
+                    Type::InputObject(input_object_id) => {
+                        schema.input_object(input_object_id).name.location
+                    }
+                    Type::Enum(enum_id) => schema.enum_(enum_id).name.location,
+                    Type::Interface(interface_id) => schema.interface(interface_id).name.location,
+                    Type::Scalar(scalar_id) => schema.scalar(scalar_id).name.location,
+                    Type::Union(union_id) => schema.union(union_id).name.location,
+                    Type::Object(object_id) => schema.object(object_id).name.location,
+                })
+                .map(|schema_location| {
+                    transform_relay_location_to_lsp_location(root_dir, schema_location)
+                        .map(GotoDefinitionResponse::Scalar)
+                })
+                .ok_or(LSPRuntimeError::ExpectedError)?
+        }
+    }
 }
 
 fn locate_field_definition(

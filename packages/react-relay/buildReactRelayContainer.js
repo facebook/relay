@@ -8,10 +8,8 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
+import type {ReaderFragment} from '../relay-runtime/util/ReaderNode';
 import type {GeneratedNodeMap} from './ReactRelayTypes';
 import type {FragmentMap} from 'relay-runtime';
 
@@ -45,7 +43,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
   const containerName = getContainerName(ComponentClass);
   assertFragmentMap(getComponentName(ComponentClass), fragmentSpec);
 
-  const fragments = {};
+  const fragments: {[string]: ReaderFragment} = {};
   for (const key in fragmentSpec) {
     fragments[key] = getFragment(fragmentSpec[key]);
   }

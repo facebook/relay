@@ -1,0 +1,9 @@
+fragment Foo on Query {
+  story {
+    ...Updatable_story
+  }
+}
+
+fragment Updatable_story on Story @updatable {
+  __id
+}

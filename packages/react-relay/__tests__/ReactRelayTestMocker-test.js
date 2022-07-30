@@ -9,9 +9,9 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {RelayMockEnvironment} from '../../relay-test-utils/RelayModernMockEnvironment';
+
 const RelayTestRenderer = require('../__mocks__/RelayTestRenderer');
 const {
   createContainer: createFragmentContainer,
@@ -20,7 +20,7 @@ const QueryRenderer = require('../ReactRelayQueryRenderer');
 const ReactRelayTestMocker = require('../ReactRelayTestMocker');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const RelayTestUtils = require('relay-test-utils-internal');
 
 const ReactRelayTestMockerTestQuery = graphql`
@@ -80,7 +80,7 @@ describe('ReactRelayTestMocker', () => {
       },
     };
 
-    const updaterSetup = env => {
+    const updaterSetup = (env: RelayMockEnvironment) => {
       writer = new ReactRelayTestMocker(env);
       query = ReactRelayTestMockerTestQuery;
 
@@ -94,7 +94,7 @@ describe('ReactRelayTestMocker', () => {
 
     it('updates properly via default values', () => {
       const testQueryDefault = {
-        query: getRequest(ReactRelayTestMockerTestQuery),
+        query: ReactRelayTestMockerTestQuery,
         payload: {data: payload},
       };
 
@@ -103,7 +103,7 @@ describe('ReactRelayTestMocker', () => {
       const nestedQuery = ReactRelayTestMockerTestNestedQuery;
 
       const nestedQueryDefault = {
-        query: getRequest(ReactRelayTestMockerTestNestedQuery),
+        query: ReactRelayTestMockerTestNestedQuery,
         payload: {
           data: {
             viewer: {
@@ -122,12 +122,12 @@ describe('ReactRelayTestMocker', () => {
       writer.setDefault(nestedQueryDefault);
 
       // simple component
-      const NestedComponent = ({viewer}) => (
+      const NestedComponent = ({viewer}: {viewer: $FlowFixMe}) => (
         <div>{'Birth month is ' + viewer.actor.birthdate.month}</div>
       );
 
       // component containing a query renderer
-      const Component = ({me}) => (
+      const Component = ({me}: {me: $FlowFixMe}) => (
         <div>
           {'My name is ' + me.name}
           <QueryRenderer
@@ -180,7 +180,9 @@ describe('ReactRelayTestMocker', () => {
     });
 
     it('updates the store properly via network', () => {
-      const Component = ({me}) => <div>{'My name is ' + me.name}</div>;
+      const Component = ({me}: {me: $FlowFixMe}) => (
+        <div>{'My name is ' + me.name}</div>
+      );
 
       const toRender = (
         <QueryRenderer
@@ -203,7 +205,7 @@ describe('ReactRelayTestMocker', () => {
       expect(tree.toJSON()).toMatchSnapshot();
 
       writer.networkWrite({
-        query: getRequest(ReactRelayTestMockerTestQuery),
+        query: ReactRelayTestMockerTestQuery,
         payload: {data: payload},
       });
       jest.runAllTimers();
@@ -217,7 +219,7 @@ describe('ReactRelayTestMocker', () => {
       tree = ReactTestRenderer.create(toRender);
 
       writer.networkWrite({
-        query: getRequest(ReactRelayTestMockerTestQuery),
+        query: ReactRelayTestMockerTestQuery,
         payload: {
           data: null,
           errors: [
@@ -233,7 +235,10 @@ describe('ReactRelayTestMocker', () => {
     });
 
     it('properly updates a component wrapped in a fragment container', () => {
-      let Component = ({me}) => <div>{'My name is ' + me.name}</div>;
+      let Component = ({me}: $FlowFixMe) => (
+        <div>{'My name is ' + me.name}</div>
+      );
+      // $FlowFixMe[incompatible-type]
       Component = createFragmentContainer(
         Component,
         ReactRelayTestMockerTest_meFragmentDefinition,
@@ -242,7 +247,7 @@ describe('ReactRelayTestMocker', () => {
       const q = ReactRelayTestMockerTestFragContainerTestQuery;
 
       writer.dataWrite({
-        query: getRequest(ReactRelayTestMockerTestFragContainerTestQuery),
+        query: ReactRelayTestMockerTestFragContainerTestQuery,
         payload: {data: payload},
         variables,
       });
@@ -267,7 +272,7 @@ describe('ReactRelayTestMocker', () => {
       };
 
       writer.dataWrite({
-        query: getRequest(ReactRelayTestMockerTestFragContainerTestQuery),
+        query: ReactRelayTestMockerTestFragContainerTestQuery,
         payload: {data: newPayload},
         variables,
       });

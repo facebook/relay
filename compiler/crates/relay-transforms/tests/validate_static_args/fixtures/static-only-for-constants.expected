@@ -1,0 +1,48 @@
+==================================== INPUT ====================================
+query QueryWithFoo {
+  node {
+    ... on User {
+        foo @constantOnly(
+          barString: "bar string",
+          barInt: 1234,
+          barFloat: 1.234,
+          barBool: true,
+          barColor: RED,
+          barNullable: null,
+          barList: [RED, GREEN, BLUE],
+          barInput: {
+            barInputInt: 4321,
+            barInputString: "bar input string",
+          },
+        )
+    }
+  }
+}
+# %extensions%
+enum Color {
+  RED
+  GREEN
+  BLUE
+}
+
+input BarInput {
+  barInputInt: Int!
+  barInputString: String!
+}
+
+directive @constantOnly(
+  barString: String! @static,
+  barInt: Int! @static,
+  barFloat: Float! @static,
+  barBool: Boolean! @static,
+  barColor: Color! @static,
+  barNullable: Int @static,
+  barList: [Color!]! @static,
+  barInput: BarInput! @static,
+) on FIELD
+
+extend type User {
+  foo: Int
+}
+==================================== OUTPUT ===================================
+OK

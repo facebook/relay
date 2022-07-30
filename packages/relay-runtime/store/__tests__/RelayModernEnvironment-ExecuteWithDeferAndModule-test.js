@@ -9,9 +9,8 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {IActorEnvironment} from '../../multi-actor-environment/MultiActorEnvironmentTypes';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {ReaderFragment} from '../../util/ReaderNode';
 import type {ConcreteRequest} from '../../util/RelayConcreteNode';
@@ -46,16 +45,16 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
     let callbacks;
     let complete;
     let dataSource;
-    let environment;
+    let environment: IActorEnvironment | RelayModernEnvironment;
     let error;
     let fetch;
     let fragment;
     let next;
     let operation;
-    let operationLoader: {|
+    let operationLoader: {
       get: (reference: mixed) => ?NormalizationRootNode,
       load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-    |};
+    };
     let operationCallback;
     let query;
     let resolveFragment;

@@ -13,6 +13,7 @@ pub mod completion;
 pub mod diagnostic_reporter;
 mod docblock_resolution_info;
 mod explore_schema_for_type;
+pub mod find_field_usages;
 pub mod goto_definition;
 mod graphql_tools;
 pub mod hover;
@@ -38,19 +39,24 @@ use graphql_syntax::ExecutableDocument;
 pub use hover::ContentConsumerType;
 pub use js_language_server::JSLanguageServer;
 use log::debug;
-pub use lsp_extra_data_provider::{
-    DummyExtraDataProvider, FieldDefinitionSourceInfo, FieldSchemaInfo, LSPExtraDataProvider,
-};
+pub use lsp_extra_data_provider::DummyExtraDataProvider;
+pub use lsp_extra_data_provider::FieldDefinitionSourceInfo;
+pub use lsp_extra_data_provider::FieldSchemaInfo;
+pub use lsp_extra_data_provider::LSPExtraDataProvider;
 use lsp_process_error::LSPProcessResult;
-pub use lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
+pub use lsp_runtime_error::LSPRuntimeError;
+pub use lsp_runtime_error::LSPRuntimeResult;
 use lsp_server::Connection;
 use node_resolution_info::NodeResolutionInfo;
 use relay_compiler::config::Config;
 use relay_docblock::DocblockIr;
-use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
+use schema_documentation::SchemaDocumentation;
+use schema_documentation::SchemaDocumentationLoader;
+pub use server::GlobalState;
 pub use server::LSPNotificationDispatch;
 pub use server::LSPRequestDispatch;
-pub use server::{GlobalState, LSPState, Schemas};
+pub use server::LSPState;
+pub use server::Schemas;
 use std::sync::Arc;
 pub use utils::position_to_offset;
 
@@ -62,7 +68,12 @@ pub enum Feature {
 #[allow(clippy::large_enum_variant)]
 pub enum FeatureResolutionInfo {
     GraphqlNode(NodeResolutionInfo),
-    DocblockNode(DocblockResolutionInfo),
+    DocblockNode(DocblockNode),
+}
+
+pub struct DocblockNode {
+    resolution_info: DocblockResolutionInfo,
+    ir: DocblockIr,
 }
 
 pub async fn start_language_server<
@@ -104,7 +115,8 @@ mod tests {
     use super::lsp_process_error::LSPProcessResult;
     use super::server;
     use lsp_server::Connection;
-    use lsp_types::{ClientCapabilities, InitializeParams};
+    use lsp_types::ClientCapabilities;
+    use lsp_types::InitializeParams;
     #[test]
     fn initialize() -> LSPProcessResult<()> {
         // Test with an in-memory connection pair

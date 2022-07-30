@@ -34,7 +34,7 @@ fragment Foo on User {
                     directives: [],
                 },
             ],
-            type_condition: Object(68),
+            type_condition: Object(69),
             directives: [],
             selections: [
                 Condition {
@@ -43,7 +43,7 @@ fragment Foo on User {
                             alias: None,
                             definition: WithLocation {
                                 location: directive-include.graphql:34:36,
-                                item: FieldID(456),
+                                item: FieldID(460),
                             },
                             arguments: [],
                             directives: [],
@@ -63,12 +63,13 @@ fragment Foo on User {
                         },
                     ),
                     passing_value: true,
+                    location: directive-include.graphql:37:45,
                 },
                 Condition {
                     selections: [
                         InlineFragment {
                             type_condition: Some(
-                                Object(68),
+                                Object(69),
                             ),
                             directives: [],
                             selections: [
@@ -76,12 +77,13 @@ fragment Foo on User {
                                     alias: None,
                                     definition: WithLocation {
                                         location: directive-include.graphql:97:106,
-                                        item: FieldID(453),
+                                        item: FieldID(457),
                                     },
                                     arguments: [],
                                     directives: [],
                                 },
                             ],
+                            spread_location: directive-include.graphql:59:62,
                         },
                     ],
                     value: Variable(
@@ -98,6 +100,7 @@ fragment Foo on User {
                         },
                     ),
                     passing_value: true,
+                    location: directive-include.graphql:71:79,
                 },
                 Condition {
                     selections: [
@@ -124,6 +127,7 @@ fragment Foo on User {
                         },
                     ),
                     passing_value: true,
+                    location: directive-include.graphql:120:128,
                 },
             ],
         },
@@ -136,14 +140,14 @@ fragment Foo on User {
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(68),
+            type_condition: Object(69),
             directives: [],
             selections: [
                 ScalarField {
                     alias: None,
                     definition: WithLocation {
                         location: directive-include.graphql:168:170,
-                        item: FieldID(456),
+                        item: FieldID(460),
                     },
                     arguments: [],
                     directives: [],

@@ -10,7 +10,7 @@ fragment updatableFragmentSpreadWithDefer_user on User @updatable {
   firstName
 }
 ==================================== ERROR ====================================
-✖︎ Directives are not allowed on spreads of updatable fragments
+✖︎ Directives are not allowed on spreads of updatable fragments.
 
   updatable-fragment-spread-with-defer.invalid.graphql:4:8
     3 │   me {

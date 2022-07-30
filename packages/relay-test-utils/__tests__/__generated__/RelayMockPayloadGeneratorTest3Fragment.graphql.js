@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0d0b2382b0cd6be5889856b4d7079e74>>
+ * @generated SignedSource<<73673d7a5e8544a5571dc18fbe815353>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ export type RelayMockPayloadGeneratorTest3Fragment$data = {|
   +author: ?{|
     +authorID: string,
     +name?: ?string,
-    +objectType: string,
+    +objectType: "User",
     +username: ?string,
   |},
   +backgroundImage: ?{|

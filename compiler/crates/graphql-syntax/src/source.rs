@@ -6,7 +6,8 @@
  */
 
 use common::TextSource;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 /// Represents GraphQL text extracted from a source file
 /// The GraphQL text is potentially in some subrange of

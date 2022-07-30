@@ -196,6 +196,7 @@ fragment noInlineAbstractFragment_child on User
     ]
   },
   "params": {
+    "cacheID": "2d4d5adea4f6185b69786243476f7905",
     "id": null,
     "metadata": {},
     "name": "noInlineAbstractFragmentQuery",

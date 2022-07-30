@@ -5,13 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    errors::{BuildProjectError, Error},
-    source_for_location, FsSourceReader, SourceReader,
-};
+use crate::errors::BuildProjectError;
+use crate::errors::Error;
+use crate::source_for_location;
+use crate::FsSourceReader;
+use crate::SourceReader;
 use common::Diagnostic;
 use graphql_cli::DiagnosticPrinter;
-use log::{error, info};
+use log::error;
+use log::info;
 use std::path::PathBuf;
 
 pub trait StatusReporter {

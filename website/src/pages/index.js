@@ -7,19 +7,15 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import Code from '../core/Code.js';
 import Container from '../core/Container';
 import GridBlock from '../core/GridBlock';
 import Link from '@docusaurus/Link';
+import {useThemeConfig} from '@docusaurus/theme-common';
 import useBaseUrl, {useBaseUrlUtils} from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import useThemeContext from '@theme/hooks/useThemeContext';
 import Layout from '@theme/Layout';
 import * as React from 'react';
-import {useEffect, useRef, useState} from 'react';
-
-/* eslint-enable lint/no-value-import */
 
 function LoadQueryLink() {
   return (
@@ -99,10 +95,10 @@ const HomeSplash = () => {
 const Index = () => {
   const {siteConfig} = useDocusaurusContext();
   const {withBaseUrl} = useBaseUrlUtils();
-  const {isDarkTheme} = useThemeContext();
+  const {isDarkTheme} = useThemeConfig();
 
   const showcase = siteConfig.customFields.users
-    .filter((user) => {
+    .filter(user => {
       return user.pinned;
     })
     .map((user, i) => {
@@ -233,7 +229,7 @@ const artistsQuery = graphql\`
 const artistsQueryReference = loadQuery(
   environment,
   artistsQuery,
-  {artistId: "1"}
+  {artistID: "1"}
 );
 
 export default function ArtistPage() {
@@ -633,7 +629,7 @@ export default function ArtistCard(props) {
   );
 };
 
-export default (props) => (
+export default props => (
   <Layout>
     <Index {...props} />
   </Layout>

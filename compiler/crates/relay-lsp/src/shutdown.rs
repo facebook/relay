@@ -5,18 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use lsp_types::{
-    notification::{Exit, Notification},
-    request::{Request, Shutdown},
-};
+use lsp_types::notification::Exit;
+use lsp_types::notification::Notification;
+use lsp_types::request::Request;
+use lsp_types::request::Shutdown;
 
-use crate::{lsp_runtime_error::LSPRuntimeResult, server::GlobalState};
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::server::GlobalState;
 
 pub(crate) fn on_shutdown(
     _state: &impl GlobalState,
     _params: <Shutdown as Request>::Params,
 ) -> LSPRuntimeResult<<Shutdown as Request>::Result> {
-    std::process::exit(0);
+    LSPRuntimeResult::Ok(())
 }
 
 pub(crate) fn on_exit(

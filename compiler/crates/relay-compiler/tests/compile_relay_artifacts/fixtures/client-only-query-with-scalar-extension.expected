@@ -1,0 +1,317 @@
+==================================== INPUT ====================================
+query clientOnlyQueryWithScalarExtensionQuery {
+  client_field(arg: "myValue")
+  client_field2(arg: ["myValue"])
+  client_field3(arg: {
+    param: "myValue"
+  })
+  client_field4: client_field(arg: false)
+  client_field5: client_field(arg: 1)
+  client_field6: client_field(arg: 1.5)
+  client_field7: client_field(arg: [1.5])
+  client_field8: client_field(arg: {prop1: 1.5, prop2: false, prop3: {prop4: "String"}})
+  client_field9: client_field(arg: null)
+}
+
+# %extensions%
+
+extend type Query {
+  client_field(arg: ClientScalar): String
+  client_field2(arg: [ClientScalar]): String
+  client_field3(arg: WithClientScalar): String
+}
+
+input WithClientScalar {
+  param: ClientScalar
+}
+
+scalar ClientScalar
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "clientOnlyQueryWithScalarExtensionQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": "myValue"
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": "client_field(arg:\"myValue\")"
+          },
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": [
+                  "myValue"
+                ]
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field2",
+            "storageKey": "client_field2(arg:[\"myValue\"])"
+          },
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": {
+                  "param": "myValue"
+                }
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field3",
+            "storageKey": "client_field3(arg:{\"param\":\"myValue\"})"
+          },
+          {
+            "alias": "client_field4",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": false
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": "client_field(arg:false)"
+          },
+          {
+            "alias": "client_field5",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": 1
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": "client_field(arg:1)"
+          },
+          {
+            "alias": "client_field6",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": 1.5
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": "client_field(arg:1.5)"
+          },
+          {
+            "alias": "client_field7",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": [
+                  1.5
+                ]
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": "client_field(arg:[1.5])"
+          },
+          {
+            "alias": "client_field8",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": {
+                  "prop1": 1.5,
+                  "prop2": false,
+                  "prop3": {
+                    "prop4": "String"
+                  }
+                }
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": "client_field(arg:{\"prop1\":1.5,\"prop2\":false,\"prop3\":{\"prop4\":\"String\"}})"
+          },
+          {
+            "alias": "client_field9",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "clientOnlyQueryWithScalarExtensionQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": "myValue"
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": "client_field(arg:\"myValue\")"
+          },
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": [
+                  "myValue"
+                ]
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field2",
+            "storageKey": "client_field2(arg:[\"myValue\"])"
+          },
+          {
+            "alias": null,
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": {
+                  "param": "myValue"
+                }
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field3",
+            "storageKey": "client_field3(arg:{\"param\":\"myValue\"})"
+          },
+          {
+            "alias": "client_field4",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": false
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": "client_field(arg:false)"
+          },
+          {
+            "alias": "client_field5",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": 1
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": "client_field(arg:1)"
+          },
+          {
+            "alias": "client_field6",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": 1.5
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": "client_field(arg:1.5)"
+          },
+          {
+            "alias": "client_field7",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": [
+                  1.5
+                ]
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": "client_field(arg:[1.5])"
+          },
+          {
+            "alias": "client_field8",
+            "args": [
+              {
+                "kind": "Literal",
+                "name": "arg",
+                "value": {
+                  "prop1": 1.5,
+                  "prop2": false,
+                  "prop3": {
+                    "prop4": "String"
+                  }
+                }
+              }
+            ],
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": "client_field(arg:{\"prop1\":1.5,\"prop2\":false,\"prop3\":{\"prop4\":\"String\"}})"
+          },
+          {
+            "alias": "client_field9",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "b40a8fbd983434e6dfaea1655ee5dbd3",
+    "id": null,
+    "metadata": {},
+    "name": "clientOnlyQueryWithScalarExtensionQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.

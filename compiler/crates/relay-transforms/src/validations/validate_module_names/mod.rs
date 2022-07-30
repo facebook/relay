@@ -7,8 +7,12 @@
 
 mod extract_module_name;
 
-use common::{Diagnostic, DiagnosticsResult};
-use graphql_ir::{FragmentDefinition, OperationDefinition, Program, Validator};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Validator;
 use graphql_syntax::OperationKind;
 use thiserror::Error;
 

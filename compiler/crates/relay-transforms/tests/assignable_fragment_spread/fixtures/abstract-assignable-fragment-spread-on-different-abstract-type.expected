@@ -11,11 +11,13 @@ fragment Assignable_actor on Actor @assignable {
 ==================================== OUTPUT ===================================
 query TestQuery {
   node(id: "4") {
-    ... on Actor {
+    ... {
       ...Assignable_actor
-      __isAssignable_actor: __typename
+      ... on Actor {
+        __isAssignable_actor: __typename
+      }
+      __id
     }
-    __id
   }
 }
 

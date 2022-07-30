@@ -5,14 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, FeatureFlag, SourceLocationKey, TextSource};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::SourceLocationKey;
+use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use graphql_ir::{
-    build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program, RelayMode,
-};
+use graphql_ir::build_ir_with_extra_features;
+use graphql_ir::BuilderOptions;
+use graphql_ir::FragmentVariablesSemantic;
+use graphql_ir::Program;
+use graphql_ir::RelayMode;
 use graphql_syntax::parse_executable;
-use graphql_text_printer::{print_fragment, print_operation, PrinterOptions};
+use graphql_text_printer::print_fragment;
+use graphql_text_printer::print_operation;
+use graphql_text_printer::PrinterOptions;
 use relay_test_schema::get_test_schema;
 use std::sync::Arc;
 
@@ -22,16 +29,15 @@ where
 {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
     let schema = get_test_schema();
-    let ast = parse_executable(fixture.content, source_location).unwrap();
+    let ast = parse_executable(fixture.content, source_location)
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
     let ir_result = build_ir_with_extra_features(
         &schema,
         &ast.definitions,
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-            relay_mode: Some(RelayMode {
-                enable_provided_variables: &FeatureFlag::Enabled,
-            }),
+            relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,
         },
     );

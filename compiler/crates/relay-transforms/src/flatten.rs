@@ -5,22 +5,36 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    handle_fields::{HANDLER_ARG_NAME, KEY_ARG_NAME},
-    util::{is_relay_custom_inline_fragment_directive, CustomMetadataDirectives, PointerAddress},
-    ModuleMetadata, ValidationMessage,
-};
-use graphql_ir::{
-    Condition, Directive, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition,
-    Program, Selection, TransformedValue,
-};
+use crate::handle_fields::HANDLER_ARG_NAME;
+use crate::handle_fields::KEY_ARG_NAME;
+use crate::util::is_relay_custom_inline_fragment_directive;
+use crate::util::CustomMetadataDirectives;
+use crate::ModuleMetadata;
+use crate::RelayLocationAgnosticBehavior;
+use crate::ValidationMessage;
+use graphql_ir::Condition;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::TransformedValue;
 use intern::string_key::StringKeyMap;
-use schema::{Schema, Type};
+use schema::Schema;
+use schema::Type;
 
-use crate::node_identifier::{LocationAgnosticPartialEq, NodeIdentifier};
-use common::{sync::*, Diagnostic, DiagnosticsResult, NamedItem};
+use common::sync::*;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use common::PointerAddress;
 use fnv::FnvHashMap;
-use parking_lot::{Mutex, RwLock};
+use graphql_ir::node_identifier::LocationAgnosticPartialEq;
+use graphql_ir::node_identifier::NodeIdentifier;
+use parking_lot::Mutex;
+use parking_lot::RwLock;
 use schema::SDLSchema;
 use std::sync::Arc;
 
@@ -238,6 +252,7 @@ impl FlattenTransform {
                     type_condition: fragment.type_condition,
                     directives: fragment.directives.clone(),
                     selections: next_selections,
+                    spread_location: fragment.spread_location,
                 })
             });
         if should_cache {
@@ -270,6 +285,7 @@ impl FlattenTransform {
                         value: node.value.clone(),
                         passing_value: node.passing_value,
                         selections: next_selections,
+                        location: node.location,
                     }))
                 }),
             Selection::FragmentSpread(_) | Selection::ScalarField(_) => TransformedValue::Keep,
@@ -298,7 +314,12 @@ impl FlattenTransform {
             }
 
             let flattened_selection = flattened_selections.iter_mut().find(|sel| {
-                sel.ptr_eq(selection) || NodeIdentifier::are_equal(&self.schema, sel, selection)
+                sel.ptr_eq(selection)
+                    || NodeIdentifier::<RelayLocationAgnosticBehavior>::are_equal(
+                        &self.schema,
+                        sel,
+                        selection,
+                    )
             });
 
             match flattened_selection {
@@ -443,7 +464,12 @@ impl FlattenTransform {
             }
 
             let flattened_selection = flattened_selections.iter_mut().find(|sel| {
-                sel.ptr_eq(selection) || NodeIdentifier::are_equal(&self.schema, sel, selection)
+                sel.ptr_eq(selection)
+                    || NodeIdentifier::<RelayLocationAgnosticBehavior>::are_equal(
+                        &self.schema,
+                        sel,
+                        selection,
+                    )
             });
             match flattened_selection {
                 None => {
@@ -569,10 +595,11 @@ fn merge_handle_directives(
                 let current_handler_arg = directive.arguments.named(*HANDLER_ARG_NAME);
                 let current_name_arg = directive.arguments.named(*KEY_ARG_NAME);
                 let is_duplicate_handle = handles.iter().any(|handle| {
-                    current_handler_arg
-                        .location_agnostic_eq(&handle.arguments.named(*HANDLER_ARG_NAME))
-                        && current_name_arg
-                            .location_agnostic_eq(&handle.arguments.named(*KEY_ARG_NAME))
+                    current_handler_arg.location_agnostic_eq::<RelayLocationAgnosticBehavior>(
+                        &handle.arguments.named(*HANDLER_ARG_NAME),
+                    ) && current_name_arg.location_agnostic_eq::<RelayLocationAgnosticBehavior>(
+                        &handle.arguments.named(*KEY_ARG_NAME),
+                    )
                 });
                 if !is_duplicate_handle {
                     handles.push(directive.clone());

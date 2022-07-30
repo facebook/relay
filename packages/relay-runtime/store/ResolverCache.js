@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -41,12 +39,20 @@ const warning = require('warning');
 
 type ResolverID = string;
 
-export type EvaluationResult<T> = {|
-  resolverResult: T,
+export type EvaluationResult<T> = {
+  resolverResult: ?T,
   resolverID: ResolverID,
   snapshot: ?Snapshot,
   error: ?RelayResolverError,
-|};
+};
+
+export type ResolverFragmentResult = {
+  data: mixed,
+  isMissingData: boolean,
+};
+
+export type GetDataForResolverFragmentFn =
+  SingularReaderSelector => ResolverFragmentResult;
 
 export interface ResolverCache {
   readFromCacheOrEvaluate<T>(
@@ -54,17 +60,18 @@ export interface ResolverCache {
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
-    getDataForResolverFragment: (SingularReaderSelector) => mixed,
+    getDataForResolverFragment: GetDataForResolverFragmentFn,
   ): [
-    T /* Answer */,
+    ?T /* Answer */,
     ?DataID /* Seen record */,
     ?RelayResolverError,
     ?Snapshot,
+    ?DataID /* ID of record containing a suspended Live field */,
   ];
   invalidateDataIDs(
     updatedDataIDs: Set<DataID>, // Mutated in place
   ): void;
-  createClientRecord(id: string, typename: string): string;
+  ensureClientRecord(id: string, typename: string): DataID;
 }
 
 // $FlowFixMe[unclear-type] - will always be empty
@@ -76,12 +83,13 @@ class NoopResolverCache implements ResolverCache {
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
-    getDataForResolverFragment: SingularReaderSelector => mixed,
+    getDataForResolverFragment: GetDataForResolverFragmentFn,
   ): [
-    T /* Answer */,
+    ?T /* Answer */,
     ?DataID /* Seen record */,
     ?RelayResolverError,
     ?Snapshot,
+    ?DataID /* ID of record containing a suspended Live field */,
   ] {
     invariant(
       field.kind !== RELAY_LIVE_RESOLVER,
@@ -89,10 +97,10 @@ class NoopResolverCache implements ResolverCache {
     );
     const {resolverResult, snapshot, error} = evaluate();
 
-    return [resolverResult, undefined, error, snapshot];
+    return [resolverResult, undefined, error, snapshot, undefined];
   }
   invalidateDataIDs(updatedDataIDs: Set<DataID>): void {}
-  createClientRecord(id: string, typeName: string): string {
+  ensureClientRecord(id: string, typeName: string): DataID {
     invariant(
       false,
       'Client Edges to Client Objects are not supported in this version of Relay Store',
@@ -130,12 +138,13 @@ class RecordResolverCache implements ResolverCache {
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
-    getDataForResolverFragment: SingularReaderSelector => mixed,
+    getDataForResolverFragment: GetDataForResolverFragmentFn,
   ): [
-    T /* Answer */,
+    ?T /* Answer */,
     ?DataID /* Seen record */,
     ?RelayResolverError,
     ?Snapshot,
+    ?DataID /* ID of record containing a suspended Live field */,
   ] {
     const recordSource = this._getRecordSource();
     const recordID = RelayModernRecord.getDataID(record);
@@ -197,7 +206,7 @@ class RecordResolverCache implements ResolverCache {
     // $FlowFixMe[incompatible-type] - casting mixed
     const error: ?RelayResolverError = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
 
-    return [answer, linkedID, error, snapshot];
+    return [answer, linkedID, error, snapshot, undefined];
   }
 
   invalidateDataIDs(
@@ -254,7 +263,7 @@ class RecordResolverCache implements ResolverCache {
 
   _isInvalid(
     record: Record,
-    getDataForResolverFragment: SingularReaderSelector => mixed,
+    getDataForResolverFragment: GetDataForResolverFragmentFn,
   ): boolean {
     if (!RelayModernRecord.getValue(record, RELAY_RESOLVER_INVALIDATION_KEY)) {
       return false;
@@ -274,7 +283,8 @@ class RecordResolverCache implements ResolverCache {
       );
       return true;
     }
-    const latestValues = getDataForResolverFragment(readerSelector);
+
+    const {data: latestValues} = getDataForResolverFragment(readerSelector);
     const recycled = recycleNodesInto(originalInputs, latestValues);
     if (recycled !== originalInputs) {
       return true;
@@ -282,7 +292,7 @@ class RecordResolverCache implements ResolverCache {
     return false;
   }
 
-  createClientRecord(id: string, typename: string): string {
+  ensureClientRecord(id: string, typename: string): DataID {
     invariant(
       false,
       'Client Edges to Client Objects are not supported in this version of Relay Store',

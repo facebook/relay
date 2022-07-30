@@ -5,25 +5,35 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use clap::{ArgEnum, Parser};
+use clap::ArgEnum;
+use clap::Parser;
 use common::ConsoleLogger;
-use log::{error, info};
-use relay_compiler::{
-    build_project::artifact_writer::ArtifactValidationWriter, compiler::Compiler, config::Config,
-    FileSourceKind, LocalPersister, OperationPersister, PersistConfig, RemotePersister,
-};
-use relay_lsp::{start_language_server, DummyExtraDataProvider};
+use intern::string_key::Intern;
+use log::error;
+use log::info;
+use relay_compiler::build_project::artifact_writer::ArtifactValidationWriter;
+use relay_compiler::compiler::Compiler;
+use relay_compiler::config::Config;
+use relay_compiler::errors::Error as CompilerError;
+use relay_compiler::FileSourceKind;
+use relay_compiler::LocalPersister;
+use relay_compiler::OperationPersister;
+use relay_compiler::PersistConfig;
+use relay_compiler::RemotePersister;
+use relay_lsp::start_language_server;
+use relay_lsp::DummyExtraDataProvider;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentationLoader;
-use simplelog::{
-    ColorChoice, ConfigBuilder as SimpleLogConfigBuilder, LevelFilter, TermLogger, TerminalMode,
-};
-use std::{
-    env::{self, current_dir},
-    path::PathBuf,
-    process::Command,
-    sync::Arc,
-};
+use simplelog::ColorChoice;
+use simplelog::ConfigBuilder as SimpleLogConfigBuilder;
+use simplelog::LevelFilter;
+use simplelog::TermLogger;
+use simplelog::TerminalMode;
+use std::env;
+use std::env::current_dir;
+use std::path::PathBuf;
+use std::process::Command;
+use std::sync::Arc;
 
 mod errors;
 
@@ -54,6 +64,11 @@ struct CompileCommand {
     /// Compile and watch for changes
     #[clap(long, short)]
     watch: bool,
+
+    /// Compile only this project. You can pass this argument multiple times.
+    /// to compile multiple projects. If excluded, all projects will be compiled.
+    #[clap(name = "project", long, short)]
+    projects: Vec<String>,
 
     /// Compile using this config file. If not provided, searches for a config in
     /// package.json under the `relay` key or `relay.config.json` files among other up
@@ -158,7 +173,7 @@ async fn main() {
     match result {
         Ok(_) => info!("Done."),
         Err(err) => {
-            error!("{:?}", err);
+            error!("{}", err);
             std::process::exit(1);
         }
     }
@@ -166,13 +181,9 @@ async fn main() {
 
 fn get_config(config_path: Option<PathBuf>) -> Result<Config, Error> {
     match config_path {
-        Some(config_path) => Config::load(config_path).map_err(|err| Error::ConfigError {
-            details: format!("{:?}", err),
-        }),
+        Some(config_path) => Config::load(config_path).map_err(Error::ConfigError),
         None => Config::search(&current_dir().expect("Unable to get current working directory."))
-            .map_err(|err| Error::ConfigError {
-                details: format!("{:?}", err),
-            }),
+            .map_err(Error::ConfigError),
     }
 }
 
@@ -194,19 +205,54 @@ fn configure_logger(output: OutputKind, terminal_mode: TerminalMode) {
     TermLogger::init(log_level, log_config, terminal_mode, ColorChoice::Auto).unwrap();
 }
 
+/// Update Config if the `project` flag is set
+fn set_project_flag(config: &mut Config, projects: Vec<String>) -> Result<(), Error> {
+    if projects.is_empty() {
+        return Ok(());
+    }
+
+    for project_config in config.projects.values_mut() {
+        project_config.enabled = false;
+    }
+    for selected_project in projects {
+        let selected_project = selected_project.intern();
+
+        if let Some(project_config) = config.projects.get_mut(&selected_project) {
+            project_config.enabled = true;
+        } else {
+            return Err(Error::ProjectFilterError {
+                details: format!(
+                    "Project `{}` not found, available projects: {}.",
+                    selected_project,
+                    config
+                        .projects
+                        .keys()
+                        .map(|name| name.lookup())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ),
+            });
+        }
+    }
+
+    return Ok(());
+}
+
 async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
     configure_logger(command.output, TerminalMode::Mixed);
 
     if command.cli_config.is_defined() {
-        return Err(Error::ConfigError {
+        return Err(Error::ConfigError(CompilerError::ConfigError {
             details: format!(
                 "\nPassing Relay compiler configuration is not supported. Please add `relay.config.json` file,\nor \"relay\" section to your `package.json` file.\n\nCompiler configuration JSON:{}",
                 command.cli_config.get_config_string(),
             ),
-        });
+        }));
     }
 
     let mut config = get_config(command.config)?;
+
+    set_project_flag(&mut config, command.projects)?;
 
     if command.validate {
         config.artifact_writer = Box::new(ArtifactValidationWriter::default());
@@ -251,7 +297,7 @@ async fn handle_compiler_command(command: CompileCommand) -> Result<(), Error> {
             .compile()
             .await
             .map_err(|err| Error::CompilerError {
-                details: format!("{:?}", err),
+                details: format!("{}", err),
             })?;
     }
 

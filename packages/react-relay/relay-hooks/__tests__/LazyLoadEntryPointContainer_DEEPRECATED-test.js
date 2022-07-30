@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const LazyLoadEntryPointContainer_DEPRECATED = require('../LazyLoadEntryPointContainer_DEPRECATED.react');
@@ -69,7 +67,9 @@ const response = {
 let dataSource;
 let environment;
 let fetch;
-let entryPoint;
+let entryPoint: React.ElementProps<
+  typeof LazyLoadEntryPointContainer_DEPRECATED,
+>['entryPoint'];
 let params;
 
 class FakeJSResource<T> {

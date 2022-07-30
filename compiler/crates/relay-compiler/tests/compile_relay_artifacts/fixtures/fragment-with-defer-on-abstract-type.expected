@@ -139,6 +139,7 @@ fragment fragmentWithDeferOnAbstractType_NodeFragment on Node {
     ]
   },
   "params": {
+    "cacheID": "385d9d42a098c801994da137876b1281",
     "id": null,
     "metadata": {},
     "name": "fragmentWithDeferOnAbstractType_QueryWithFragmentWithDeferQuery",

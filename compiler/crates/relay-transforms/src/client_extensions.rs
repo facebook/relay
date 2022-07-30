@@ -5,14 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{client_edges::ClientEdgeMetadataDirective, util::PointerAddress};
+use crate::client_edges::ClientEdgeMetadataDirective;
+use common::Location;
+use common::PointerAddress;
 use common::WithLocation;
 use fnv::FnvHashMap;
-use graphql_ir::{
-    Directive, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
-    TransformedValue, Transformer,
-};
-use intern::string_key::{Intern, StringKey};
+use graphql_ir::Directive;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
 use std::sync::Arc;
@@ -111,6 +119,7 @@ impl Transformer for ClientExtensionsTransform<'_> {
                     type_condition: None,
                     directives: vec![self.build_client_extension_directive()],
                     selections: client_selections,
+                    spread_location: Location::generated(),
                 })));
             }
             TransformedValue::Replace(server_selections)

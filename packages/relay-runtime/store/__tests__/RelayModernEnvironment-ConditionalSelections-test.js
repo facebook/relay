@@ -9,9 +9,9 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+
+import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -112,7 +112,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       // Commit the given payload, immediately running GC to prune any data
       // that wouldn't be retained by the query
       // eslint-disable-next-line no-shadow
-      function commitPayload(operation, payload) {
+      function commitPayload(
+        operation: OperationDescriptor,
+        payload: $FlowFixMe,
+      ) {
         environment.retain(operation);
         environment.commitPayload(operation, payload);
         (environment.getStore(): $FlowFixMe).scheduleGC();

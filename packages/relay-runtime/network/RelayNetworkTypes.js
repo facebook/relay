@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {RequestParameters} from '../util/RelayConcreteNode';
@@ -45,23 +43,23 @@ export type PayloadExtensions = {[key: string]: mixed, ...};
  * The shape of a GraphQL response as dictated by the
  * [spec](https://spec.graphql.org/June2018/#sec-Response-Format).
  */
-export type GraphQLResponseWithData = {|
+export type GraphQLResponseWithData = {
   +data: PayloadData,
   +errors?: Array<PayloadError>,
   +extensions?: PayloadExtensions,
   +label?: string,
   +path?: Array<string | number>,
-|};
+};
 
-export type GraphQLResponseWithoutData = {|
+export type GraphQLResponseWithoutData = {
   +data?: ?PayloadData,
   +errors: Array<PayloadError>,
   +extensions?: PayloadExtensions,
   +label?: string,
   +path?: Array<string | number>,
-|};
+};
 
-export type GraphQLResponseWithExtensionsOnly = {|
+export type GraphQLResponseWithExtensionsOnly = {
   // Per https://spec.graphql.org/June2018/#sec-Errors
   // > If the data entry in the response is not present, the errors entry
   // > in the response must not be empty. It must contain at least one error
@@ -72,7 +70,7 @@ export type GraphQLResponseWithExtensionsOnly = {|
   // does not necessarily indicate that there was an error.
   +data: null,
   +extensions: PayloadExtensions,
-|};
+};
 
 export type GraphQLSingularResponse =
   | GraphQLResponseWithData
@@ -126,19 +124,19 @@ export type UploadableMap = {[key: string]: Uploadable};
  * React Flight tree created on the server.
  */
 export type ReactFlightServerTree = mixed;
-export type ReactFlightPayloadQuery = {|
+export type ReactFlightPayloadQuery = {
   +id: mixed,
   +module: mixed,
   +response: GraphQLSingularResponse,
   +variables: Variables,
-|};
-export type ReactFlightPayloadFragment = {|
+};
+export type ReactFlightPayloadFragment = {
   +__id: string,
   +__typename: string,
   +module: mixed,
   +response: GraphQLSingularResponse,
   +variables: Variables,
-|};
+};
 export type ReactFlightServerError = {
   +message: string,
   +stack: string,
@@ -156,10 +154,10 @@ export type ReactFlightServerError = {
  *           Server Component.
  * - fragments: an array of fragments that the server preloaded for the client.
  */
-export type ReactFlightPayloadData = {|
+export type ReactFlightPayloadData = {
   +status: string,
   +tree: ?Array<ReactFlightServerTree>,
   +queries: Array<ReactFlightPayloadQuery>,
   +errors: Array<ReactFlightServerError>,
   +fragments: Array<ReactFlightPayloadFragment>,
-|};
+};

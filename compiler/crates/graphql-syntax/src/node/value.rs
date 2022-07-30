@@ -7,7 +7,10 @@
 
 use super::constant_value::*;
 use super::primitive::*;
-use common::{Named, SourceLocationKey, Span, WithLocation};
+use common::Named;
+use common::SourceLocationKey;
+use common::Span;
+use common::WithLocation;
 use core::fmt;
 use intern::string_key::StringKey;
 

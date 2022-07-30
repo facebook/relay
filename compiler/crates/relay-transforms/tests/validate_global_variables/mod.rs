@@ -5,12 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{FeatureFlag, SourceLocationKey, TextSource};
+use common::SourceLocationKey;
+use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use graphql_ir::{
-    build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program, RelayMode,
-};
+use graphql_ir::build_ir_with_extra_features;
+use graphql_ir::BuilderOptions;
+use graphql_ir::FragmentVariablesSemantic;
+use graphql_ir::Program;
+use graphql_ir::RelayMode;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_test_schema::TEST_SCHEMA;
@@ -27,9 +30,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-            relay_mode: Some(RelayMode {
-                enable_provided_variables: &FeatureFlag::Enabled,
-            }),
+            relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,
         },
     );

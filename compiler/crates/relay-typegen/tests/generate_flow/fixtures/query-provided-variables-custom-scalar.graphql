@@ -1,0 +1,14 @@
+query testQuery {
+  node(id: 4) {
+    ...FragmentWithJSONProvidedVar,
+  }
+}
+
+fragment FragmentWithJSONProvidedVar on User
+  @argumentDefinitions(
+    additionalParameters: {type: "JSON", provider: "includeNameProvider"}
+) {
+  profilePicture2(additionalParameters: $additionalParameters) {
+    __typename
+  }
+}

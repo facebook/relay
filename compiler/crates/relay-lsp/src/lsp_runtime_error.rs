@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use lsp_server::{ErrorCode, ResponseError};
+use lsp_server::ErrorCode;
+use lsp_server::ResponseError;
 
 pub type LSPRuntimeResult<T> = std::result::Result<T, LSPRuntimeError>;
 

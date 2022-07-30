@@ -7,17 +7,24 @@
 
 use std::path::PathBuf;
 
-use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::Feature;
-use common::{SourceLocationKey, Span, TextSource};
+use common::SourceLocationKey;
+use common::Span;
+use common::TextSource;
 use dashmap::DashMap;
 use docblock_syntax::parse_docblock;
 use extract_graphql::JavaScriptSourceFeature;
-use graphql_syntax::{parse_executable_with_error_recovery, ExecutableDefinition};
+use graphql_syntax::parse_executable_with_error_recovery;
+use graphql_syntax::ExecutableDefinition;
 use intern::string_key::StringKey;
 use log::debug;
-use lsp_types::{Position, TextDocumentPositionParams, Url};
-use relay_compiler::{FileCategorizer, FileGroup};
+use lsp_types::Position;
+use lsp_types::TextDocumentPositionParams;
+use lsp_types::Url;
+use relay_compiler::FileCategorizer;
+use relay_compiler::FileGroup;
 use relay_docblock::parse_docblock_ast;
 
 pub fn extract_executable_definitions_from_text_document(
@@ -110,6 +117,7 @@ pub fn extract_feature_from_text(
         .ok_or(LSPRuntimeError::ExpectedError)?;
 
     let source_location_key = SourceLocationKey::embedded(uri.as_ref(), index);
+
     match javascript_feature {
         JavaScriptSourceFeature::GraphQL(graphql_source) => {
             let document = parse_executable_with_error_recovery(
@@ -139,10 +147,13 @@ pub fn extract_feature_from_text(
             Ok((Feature::GraphQLDocument(document), position_span))
         }
         JavaScriptSourceFeature::Docblock(docblock_source) => {
+            let executable_definitions_in_file =
+                extract_executable_definitions_from_text_document(uri, source_feature_cache)?;
+
             let text_source = &docblock_source.text_source();
             let text = &text_source.text;
-            let dockblock_ir = parse_docblock(text, source_location_key)
-                .and_then(|ast| parse_docblock_ast(&ast))
+            let docblock_ir = parse_docblock(text, source_location_key)
+                .and_then(|ast| parse_docblock_ast(&ast, Some(&executable_definitions_in_file)))
                 .map_err(|_| {
                     LSPRuntimeError::UnexpectedError("Failed to parse docblock".to_string())
                 })?
@@ -159,7 +170,7 @@ pub fn extract_feature_from_text(
                         )
                     })?;
 
-            Ok((Feature::DocblockIr(dockblock_ir), position_span))
+            Ok((Feature::DocblockIr(docblock_ir), position_span))
         }
     }
 }

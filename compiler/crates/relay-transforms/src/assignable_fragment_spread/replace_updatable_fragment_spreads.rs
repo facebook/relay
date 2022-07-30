@@ -7,8 +7,14 @@
 
 use std::sync::Arc;
 
-use common::{NamedItem, WithLocation};
-use graphql_ir::{FragmentSpread, Program, ScalarField, Selection, Transformed, Transformer};
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::FragmentSpread;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
 use schema::Schema;
 
 use crate::UPDATABLE_DIRECTIVE;

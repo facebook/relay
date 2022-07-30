@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b1aeb258c0952cc783ae90e5a25743f8>>
+ * @generated SignedSource<<3e04fe00d5fcf3fe380b9787d50a3c01>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,7 @@ export type RelayResponseNormalizerTest15Query$data = {|
       +id: string,
     |},
     +author?: ?{|
-      +__typename: string,
+      +__typename: "User",
       +id: string,
     |},
     +id: string,

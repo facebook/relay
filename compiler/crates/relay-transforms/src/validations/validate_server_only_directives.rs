@@ -5,13 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, Location, WithLocation};
-use errors::{validate, validate_map};
-use graphql_ir::{
-    Directive, FragmentDefinition, FragmentSpread, LinkedField, Program, ScalarField,
-    ValidationMessage, Validator,
-};
-use intern::string_key::{Intern, StringKey, StringKeyMap, StringKeySet};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::WithLocation;
+use errors::validate;
+use errors::validate_map;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
+use intern::string_key::StringKeySet;
 use schema::Schema;
 
 pub fn validate_server_only_directives(program: &Program) -> DiagnosticsResult<()> {

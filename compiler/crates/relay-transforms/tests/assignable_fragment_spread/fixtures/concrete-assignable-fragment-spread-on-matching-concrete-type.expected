@@ -11,8 +11,11 @@ fragment Assignable_user on User @assignable {
 ==================================== OUTPUT ===================================
 query TestQuery {
   me {
-    ...Assignable_user
-    __id
+    ... {
+      ...Assignable_user
+      __typename
+      __id
+    }
   }
 }
 

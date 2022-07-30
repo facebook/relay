@@ -12,8 +12,8 @@ use fnv::FnvHashMap;
 use graphql_syntax::ExecutableDefinition;
 use graphql_text_printer::print_executable_definition_ast;
 use intern::string_key::StringKey;
-use md5::{Digest, Md5};
-use relay_transforms::DependencyMap;
+use md5::Digest;
+use md5::Md5;
 use schema::SDLSchema;
 
 use super::ProjectAsts;
@@ -43,25 +43,19 @@ impl SourceHashes {
 }
 
 pub fn build_ir(
-    project_config: &ProjectConfig,
-    implicit_dependencies: &DependencyMap,
+    _project_config: &ProjectConfig,
     project_asts: ProjectAsts,
     schema: &SDLSchema,
     is_incremental_build: bool,
 ) -> Result<BuildIRResult, Vec<Diagnostic>> {
     let asts = project_asts.definitions;
     let source_hashes = SourceHashes::from_definitions(&asts);
-    let ir = graphql_ir::build_ir_with_relay_feature_flags(
-        schema,
-        &asts,
-        &project_config.feature_flags,
-    )?;
+    let ir = graphql_ir::build_ir_in_relay_mode(schema, &asts)?;
     if is_incremental_build {
         let affected_ir = get_reachable_ir(
             ir,
             project_asts.base_definition_names,
             project_asts.changed_names,
-            implicit_dependencies,
             schema,
         );
         Ok(BuildIRResult {
@@ -75,6 +69,6 @@ pub fn build_ir(
 
 fn md5(data: &str) -> String {
     let mut md5 = Md5::new();
-    md5.input(data);
-    hex::encode(md5.result())
+    md5.update(data);
+    hex::encode(md5.finalize())
 }

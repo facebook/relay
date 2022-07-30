@@ -166,6 +166,7 @@ fragment fragmentWithDeferInStream_ActorFragment on Actor {
     ]
   },
   "params": {
+    "cacheID": "58bae4fbfe1db6bcf096fc1090fd85f2",
     "id": null,
     "metadata": {},
     "name": "fragmentWithDeferInStream_QueryWithFragmentWithStreamQuery",

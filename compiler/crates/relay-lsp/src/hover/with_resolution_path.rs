@@ -6,31 +6,65 @@
  */
 
 use common::NamedItem;
-use graphql_ir::{Program, Value};
-use graphql_syntax::{FragmentDefinition, Identifier, OperationDefinition, VariableDefinition};
+use graphql_ir::Program;
+use graphql_ir::Value;
+use graphql_syntax::FragmentDefinition;
+use graphql_syntax::Identifier;
+use graphql_syntax::OperationDefinition;
+use graphql_syntax::VariableDefinition;
 use graphql_text_printer::print_value;
 use intern::string_key::StringKey;
-use lsp_types::{Hover, HoverContents, MarkedString};
+use lsp_types::Hover;
+use lsp_types::HoverContents;
+use lsp_types::MarkedString;
 use relay_transforms::RELAY_RESOLVER_DIRECTIVE_NAME;
-use resolution_path::{
-    ArgumentPath, ArgumentRoot, ConstantArgPath, ConstantBooleanPath, ConstantEnumPath,
-    ConstantFloatPath, ConstantIntPath, ConstantListPath, ConstantNullPath, ConstantObjPath,
-    ConstantObjectPath, ConstantStringPath, ConstantValueParent, ConstantValuePath,
-    ConstantValueRoot, DefaultValuePath, DirectivePath, FragmentDefinitionPath, FragmentSpreadPath,
-    IdentParent, IdentPath, InlineFragmentPath, LinkedFieldPath, ListTypeAnnotationPath,
-    NamedTypeAnnotationPath, NonNullTypeAnnotationPath, OperationDefinitionPath, OperationPath,
-    ResolutionPath, ScalarFieldPath, SelectionPath, TypeAnnotationPath, TypeConditionParent,
-    TypeConditionPath, ValueListPath, ValuePath, VariableDefinitionPath, VariableIdentifierParent,
-    VariableIdentifierPath,
-};
-use schema::{SDLSchema, Schema};
+use resolution_path::ArgumentPath;
+use resolution_path::ArgumentRoot;
+use resolution_path::ConstantArgPath;
+use resolution_path::ConstantBooleanPath;
+use resolution_path::ConstantEnumPath;
+use resolution_path::ConstantFloatPath;
+use resolution_path::ConstantIntPath;
+use resolution_path::ConstantListPath;
+use resolution_path::ConstantNullPath;
+use resolution_path::ConstantObjPath;
+use resolution_path::ConstantObjectPath;
+use resolution_path::ConstantStringPath;
+use resolution_path::ConstantValueParent;
+use resolution_path::ConstantValuePath;
+use resolution_path::ConstantValueRoot;
+use resolution_path::DefaultValuePath;
+use resolution_path::DirectivePath;
+use resolution_path::FragmentDefinitionPath;
+use resolution_path::FragmentSpreadPath;
+use resolution_path::IdentParent;
+use resolution_path::IdentPath;
+use resolution_path::InlineFragmentPath;
+use resolution_path::LinkedFieldPath;
+use resolution_path::ListTypeAnnotationPath;
+use resolution_path::NamedTypeAnnotationPath;
+use resolution_path::NonNullTypeAnnotationPath;
+use resolution_path::OperationDefinitionPath;
+use resolution_path::OperationPath;
+use resolution_path::ResolutionPath;
+use resolution_path::ScalarFieldPath;
+use resolution_path::SelectionPath;
+use resolution_path::TypeAnnotationPath;
+use resolution_path::TypeConditionParent;
+use resolution_path::TypeConditionPath;
+use resolution_path::ValueListPath;
+use resolution_path::ValuePath;
+use resolution_path::VariableDefinitionPath;
+use resolution_path::VariableIdentifierParent;
+use resolution_path::VariableIdentifierPath;
+use schema::SDLSchema;
+use schema::Schema;
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
 
-use crate::{
-    hover::{get_open_schema_explorer_command_link, GraphQLSchemaExplorerParams},
-    LSPExtraDataProvider,
-};
+use crate::hover::get_open_schema_explorer_command_link;
+use crate::hover::GraphQLSchemaExplorerParams;
+use crate::LSPExtraDataProvider;
 
 /// Enum, that allows us to adjust content of the hover
 /// tooltip based on the consumer type (Relay, GraphQL)
@@ -54,7 +88,7 @@ impl ContentConsumerType {
     }
 }
 
-pub(crate) fn get_hover<'a>(
+pub fn get_hover<'a>(
     path: &'a ResolutionPath<'a>,
     schema: &SDLSchema,
     schema_name: StringKey,

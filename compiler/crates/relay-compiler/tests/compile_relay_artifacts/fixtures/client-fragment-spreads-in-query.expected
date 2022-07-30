@@ -141,6 +141,7 @@ type ClientType {
     ]
   },
   "params": {
+    "cacheID": "bd2cc350c06e3c2acf412f1bee7f1f6d",
     "id": null,
     "metadata": {},
     "name": "clientFragmentSpreadsInQuery_FooQuery",

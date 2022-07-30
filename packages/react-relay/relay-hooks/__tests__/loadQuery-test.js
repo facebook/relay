@@ -9,11 +9,13 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
-import type {ConcreteRequest, GraphQLTaggedNode} from 'relay-runtime';
+import type {
+  loadQueryTestQuery$data,
+  loadQueryTestQuery$variables,
+} from './__generated__/loadQueryTestQuery.graphql';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {loadQuery, useTrackLoadQueryInRender} = require('../loadQuery');
 // Need React require for OSS build
@@ -24,7 +26,6 @@ const {
   Network,
   Observable,
   PreloadableQueryRegistry,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {
@@ -38,7 +39,7 @@ disallowWarnings();
 disallowConsoleErrors();
 
 describe('loadQuery', () => {
-  const q: GraphQLTaggedNode = graphql`
+  const query = graphql`
     query loadQueryTestQuery($id: ID!) {
       node(id: $id) {
         id
@@ -46,7 +47,6 @@ describe('loadQuery', () => {
     }
   `;
 
-  const query: ConcreteRequest = getRequest(q);
   // Only queries with an ID are preloadable
   const ID = '12345';
   (query.params: $FlowFixMe).id = ID;
@@ -75,15 +75,18 @@ describe('loadQuery', () => {
   let fetch;
   let environment;
 
-  let executeUnsubscribe;
+  let executeUnsubscribe: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
   let executeObservable;
 
   let networkUnsubscribe;
 
-  let disposeEnvironmentRetain;
+  let disposeEnvironmentRetain: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
 
-  let resolvedModule;
-  let mockAvailability;
+  let resolvedModule: ?Query<
+    loadQueryTestQuery$variables,
+    loadQueryTestQuery$data,
+  >;
+  let mockAvailability: {fetchTime?: number, status: string};
   let disposeOnloadCallback;
   let executeOnloadCallback;
 
@@ -875,11 +878,11 @@ describe('loadQuery', () => {
     let LoadDuringRender;
 
     beforeEach(() => {
-      Container = props => {
+      Container = (props: {children: React.Node}) => {
         useTrackLoadQueryInRender();
         return props.children;
       };
-      LoadDuringRender = (props: {|name?: ?string|}) => {
+      LoadDuringRender = (props: {name?: ?string}) => {
         loadQuery(environment, preloadableConcreteRequest, variables, {
           fetchPolicy: 'store-or-network',
           __nameForWarning: props.name,

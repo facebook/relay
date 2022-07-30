@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
@@ -49,10 +47,10 @@ const observationFragment = graphql`
 describe('execute() a query with @module if the module fragment is available synchronously', () => {
   let environment;
   let dataSource;
-  let operationLoader: {|
+  let operationLoader: {
     get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-  |};
+  };
   let store;
   let source;
   let variables;
@@ -167,10 +165,10 @@ describe('execute() a query with @module if the module fragment is available syn
 describe('execute() a query with @module in @defer if the deferred fragment and module fragment are available synchronously', () => {
   let environment;
   let dataSource;
-  let operationLoader: {|
+  let operationLoader: {
     get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-  |};
+  };
   let store;
   let source;
   let variables;
@@ -304,10 +302,10 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
 describe('execute() a query with nested @module fragments, where the inner @module normalization fragment is available synchronously', () => {
   let environment;
   let dataSource;
-  let operationLoader: {|
+  let operationLoader: {
     get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-  |};
+  };
   let store;
   let source;
   let variables;

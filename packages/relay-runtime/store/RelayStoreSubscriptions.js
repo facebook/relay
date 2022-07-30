@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {Disposable} from '../util/RelayRuntimeTypes';
@@ -30,12 +28,12 @@ const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const hasOverlappingIDs = require('./hasOverlappingIDs');
 const RelayReader = require('./RelayReader');
 
-type Subscription = {|
+type Subscription = {
   callback: (snapshot: Snapshot) => void,
   snapshot: Snapshot,
   stale: boolean,
   backup: ?Snapshot,
-|};
+};
 
 class RelayStoreSubscriptions implements StoreSubscriptions {
   _subscriptions: Set<Subscription>;
@@ -102,6 +100,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
           data: subscription.snapshot.data,
           isMissingData: backup.isMissingData,
           missingClientEdges: backup.missingClientEdges,
+          missingLiveResolverFields: backup.missingLiveResolverFields,
           seenRecords: backup.seenRecords,
           selector: backup.selector,
           missingRequiredFields: backup.missingRequiredFields,
@@ -165,6 +164,7 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
       data: nextData,
       isMissingData: nextSnapshot.isMissingData,
       missingClientEdges: nextSnapshot.missingClientEdges,
+      missingLiveResolverFields: nextSnapshot.missingLiveResolverFields,
       seenRecords: nextSnapshot.seenRecords,
       selector: nextSnapshot.selector,
       missingRequiredFields: nextSnapshot.missingRequiredFields,

@@ -7,7 +7,8 @@
 
 use super::constant_value::ConstantArgument;
 use super::primitive::*;
-use common::{Named, Span};
+use common::Named;
+use common::Span;
 use intern::string_key::StringKey;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]

@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7a9d609d6fa5d6ebff740cc82399f09b>>
+ * @generated SignedSource<<e64f14cab266515231b648941ccd43a0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -72,7 +72,9 @@ var node/*: ReaderFragment*/ = {
           ],
           "storageKey": "profilePicture(size:32)"
         }
-      ]
+      ],
+      "args": null,
+      "argumentDefinitions": []
     }
   ],
   "type": "User",

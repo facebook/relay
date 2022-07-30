@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {PayloadError, UploadableMap} from '../network/RelayNetworkTypes';
@@ -19,11 +17,7 @@ import type {
   MutationParameters,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
-import type {
-  CacheConfig,
-  Disposable,
-  Variables,
-} from '../util/RelayRuntimeTypes';
+import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from './RelayDeclarativeMutationConfig';
 
 const {getRequest} = require('../query/GraphQLTag');
@@ -37,7 +31,7 @@ const validateMutation = require('./validateMutation');
 const invariant = require('invariant');
 const warning = require('warning');
 
-export type MutationConfig<TMutation: MutationParameters> = {|
+export type MutationConfig<TMutation: MutationParameters> = {
   cacheConfig?: CacheConfig,
   configs?: Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
@@ -57,13 +51,7 @@ export type MutationConfig<TMutation: MutationParameters> = {|
   updater?: ?SelectorStoreUpdater<TMutation['response']>,
   uploadables?: UploadableMap,
   variables: TMutation['variables'],
-|};
-
-export type DEPRECATED_MutationConfig<TMutationResponse> = MutationConfig<{|
-  response: TMutationResponse,
-  rawResponse: any,
-  variables: Variables,
-|}>;
+};
 
 /**
  * Higher-level helper function to execute a mutation against a specific

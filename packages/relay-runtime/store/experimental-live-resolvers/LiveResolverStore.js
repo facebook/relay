@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {DataID, Disposable} from '../../util/RelayRuntimeTypes';
@@ -31,14 +29,12 @@ import type {
   Store,
   StoreSubscriptions,
 } from '../RelayStoreTypes';
-import type {ResolverCache} from '../ResolverCache';
 
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
   assertInternalActorIndentifier,
 } = require('../../multi-actor-environment/ActorIdentifier');
 const deepFreeze = require('../../util/deepFreeze');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const resolveImmediate = require('../../util/resolveImmediate');
 const DataChecker = require('../DataChecker');
 const defaultGetDataID = require('../defaultGetDataID');
@@ -53,24 +49,24 @@ const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
 const {LiveResolverCache} = require('./LiveResolverCache');
 const invariant = require('invariant');
 
-export type LiveState<T> = {|
+export type LiveState<T> = {
   read(): T,
   subscribe(cb: () => void): () => void,
-|};
+};
 
 // HACK
 // The type of Store is defined using an opaque type that only RelayModernStore
 // can create. For now, we just lie via any/FlowFixMe and pretend we really have
-// the opaque version, but in reality it's our local verison.
-opaque type InvalidationState = {|
+// the opaque version, but in reality it's our local version.
+opaque type InvalidationState = {
   dataIDs: $ReadOnlyArray<DataID>,
   invalidations: Map<DataID, ?number>,
-|};
+};
 
-type InvalidationSubscription = {|
+type InvalidationSubscription = {
   callback: () => void,
   invalidationState: InvalidationState,
-|};
+};
 
 const DEFAULT_RELEASE_BUFFER_SIZE = 10;
 
@@ -94,16 +90,16 @@ class LiveResolverStore implements Store {
   _operationLoader: ?OperationLoader;
   _optimisticSource: ?MutableRecordSource;
   _recordSource: MutableRecordSource;
-  _resolverCache: ResolverCache;
+  _resolverCache: LiveResolverCache;
   _releaseBuffer: Array<string>;
   _roots: Map<
     string,
-    {|
+    {
       operation: OperationDescriptor,
       refCount: number,
       epoch: ?number,
       fetchTime: ?number,
-    |},
+    },
   >;
   _shouldScheduleGC: boolean;
   _storeSubscriptions: StoreSubscriptions;
@@ -112,7 +108,7 @@ class LiveResolverStore implements Store {
 
   constructor(
     source: MutableRecordSource,
-    options?: {|
+    options?: {
       gcScheduler?: ?Scheduler,
       log?: ?LogFunction,
       operationLoader?: ?OperationLoader,
@@ -120,7 +116,7 @@ class LiveResolverStore implements Store {
       gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
       shouldProcessClientComponents?: ?boolean,
-    |},
+    },
   ) {
     // Prevent mutation of a record from outside the store.
     if (__DEV__) {
@@ -171,6 +167,10 @@ class LiveResolverStore implements Store {
 
   _getMutableRecordSource(): MutableRecordSource {
     return this._optimisticSource ?? this._recordSource;
+  }
+
+  getLiveResolverPromise(recordID: DataID): Promise<void> {
+    return this._resolverCache.getLiveResolverPromise(recordID);
   }
 
   check(
@@ -329,13 +329,12 @@ class LiveResolverStore implements Store {
       this._globalInvalidationEpoch = this._currentWriteEpoch;
     }
 
-    if (RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
-      // When a record is updated, we need to also handle records that depend on it,
-      // specifically Relay Resolver result records containing results based on the
-      // updated records. This both adds to updatedRecordIDs and invalidates any
-      // cached data as needed.
-      this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
-    }
+    // When a record is updated, we need to also handle records that depend on it,
+    // specifically Relay Resolver result records containing results based on the
+    // updated records. This both adds to updatedRecordIDs and invalidates any
+    // cached data as needed.
+    this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
+
     const source = this.getSource();
     const updatedOwners = [];
     this._storeSubscriptions.updateSubscriptions(
@@ -563,8 +562,9 @@ class LiveResolverStore implements Store {
   }
 
   restore(): void {
+    const optimisticSource = this._optimisticSource;
     invariant(
-      this._optimisticSource != null,
+      optimisticSource,
       'LiveResolverStore: Unexpected call to restore(), expected a snapshot ' +
         'to exist (make sure to call snapshot()).',
     );
@@ -574,11 +574,15 @@ class LiveResolverStore implements Store {
         name: 'store.restore',
       });
     }
+    const optimisticIDs =
+      RelayOptimisticRecordSource.getOptimisticRecordIDs(optimisticSource);
+
     this._optimisticSource = null;
     if (this._shouldScheduleGC) {
       this.scheduleGC();
     }
     this._storeSubscriptions.restoreSubscriptions();
+    this._resolverCache.invalidateResolverRecords(optimisticIDs);
   }
 
   scheduleGC() {

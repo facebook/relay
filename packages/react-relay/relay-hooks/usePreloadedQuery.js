@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {PreloadedQuery} from './EntryPointTypes.flow';
@@ -31,12 +29,23 @@ const {
 } = require('relay-runtime');
 const warning = require('warning');
 
+// This separate type export is only needed as long as we are injecting
+// a separate hooks implementation in ./HooksImplementation -- it can
+// be removed after we stop doing that.
+export type UsePreloadedQueryHookType = <TQuery: OperationType>(
+  gqlQuery: GraphQLTaggedNode,
+  preloadedQuery: PreloadedQuery<TQuery>,
+  options?: {
+    UNSTABLE_renderPolicy?: RenderPolicy,
+  },
+) => TQuery['response'];
+
 function usePreloadedQuery<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
   preloadedQuery: PreloadedQuery<TQuery>,
-  options?: {|
+  options?: {
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
+  },
 ): TQuery['response'] {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
@@ -142,4 +151,4 @@ function usePreloadedQuery<TQuery: OperationType>(
   return data;
 }
 
-module.exports = usePreloadedQuery;
+module.exports = (usePreloadedQuery: UsePreloadedQueryHookType);

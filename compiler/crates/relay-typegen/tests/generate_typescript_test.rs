@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e8fa0cef5bb53a49e78a37bcb971a897>>
+ * @generated SignedSource<<a58c4e9a6c17915f3f6a98c532b7058c>>
  */
 
 mod generate_typescript;
@@ -13,10 +13,66 @@ use generate_typescript::transform_fixture;
 use fixture_tests::test_fixture;
 
 #[test]
+fn aliased_fragment_raw_response_type() {
+    let input = include_str!("generate_typescript/fixtures/aliased-fragment-raw-response-type.graphql");
+    let expected = include_str!("generate_typescript/fixtures/aliased-fragment-raw-response-type.expected");
+    test_fixture(transform_fixture, "aliased-fragment-raw-response-type.graphql", "generate_typescript/fixtures/aliased-fragment-raw-response-type.expected", input, expected);
+}
+
+#[test]
+fn aliased_fragment_spread() {
+    let input = include_str!("generate_typescript/fixtures/aliased-fragment-spread.graphql");
+    let expected = include_str!("generate_typescript/fixtures/aliased-fragment-spread.expected");
+    test_fixture(transform_fixture, "aliased-fragment-spread.graphql", "generate_typescript/fixtures/aliased-fragment-spread.expected", input, expected);
+}
+
+#[test]
+fn aliased_fragment_spread_in_abstract_selection() {
+    let input = include_str!("generate_typescript/fixtures/aliased-fragment-spread-in-abstract-selection.graphql");
+    let expected = include_str!("generate_typescript/fixtures/aliased-fragment-spread-in-abstract-selection.expected");
+    test_fixture(transform_fixture, "aliased-fragment-spread-in-abstract-selection.graphql", "generate_typescript/fixtures/aliased-fragment-spread-in-abstract-selection.expected", input, expected);
+}
+
+#[test]
+fn aliased_inline_fragment_spread() {
+    let input = include_str!("generate_typescript/fixtures/aliased-inline-fragment-spread.graphql");
+    let expected = include_str!("generate_typescript/fixtures/aliased-inline-fragment-spread.expected");
+    test_fixture(transform_fixture, "aliased-inline-fragment-spread.graphql", "generate_typescript/fixtures/aliased-inline-fragment-spread.expected", input, expected);
+}
+
+#[test]
+fn aliased_inline_fragment_spread_without_type_condition_fragment_root() {
+    let input = include_str!("generate_typescript/fixtures/aliased-inline-fragment-spread-without-type-condition-fragment-root.graphql");
+    let expected = include_str!("generate_typescript/fixtures/aliased-inline-fragment-spread-without-type-condition-fragment-root.expected");
+    test_fixture(transform_fixture, "aliased-inline-fragment-spread-without-type-condition-fragment-root.graphql", "generate_typescript/fixtures/aliased-inline-fragment-spread-without-type-condition-fragment-root.expected", input, expected);
+}
+
+#[test]
+fn aliased_inline_fragment_spread_without_type_condition_linked_field() {
+    let input = include_str!("generate_typescript/fixtures/aliased-inline-fragment-spread-without-type-condition-linked-field.graphql");
+    let expected = include_str!("generate_typescript/fixtures/aliased-inline-fragment-spread-without-type-condition-linked-field.expected");
+    test_fixture(transform_fixture, "aliased-inline-fragment-spread-without-type-condition-linked-field.graphql", "generate_typescript/fixtures/aliased-inline-fragment-spread-without-type-condition-linked-field.expected", input, expected);
+}
+
+#[test]
+fn aliased_inline_fragment_spread_without_type_condition_query_root() {
+    let input = include_str!("generate_typescript/fixtures/aliased-inline-fragment-spread-without-type-condition-query-root.graphql");
+    let expected = include_str!("generate_typescript/fixtures/aliased-inline-fragment-spread-without-type-condition-query-root.expected");
+    test_fixture(transform_fixture, "aliased-inline-fragment-spread-without-type-condition-query-root.graphql", "generate_typescript/fixtures/aliased-inline-fragment-spread-without-type-condition-query-root.expected", input, expected);
+}
+
+#[test]
 fn conditional() {
     let input = include_str!("generate_typescript/fixtures/conditional.graphql");
     let expected = include_str!("generate_typescript/fixtures/conditional.expected");
     test_fixture(transform_fixture, "conditional.graphql", "generate_typescript/fixtures/conditional.expected", input, expected);
+}
+
+#[test]
+fn custom_scalar_type_import() {
+    let input = include_str!("generate_typescript/fixtures/custom-scalar-type-import.graphql");
+    let expected = include_str!("generate_typescript/fixtures/custom-scalar-type-import.expected");
+    test_fixture(transform_fixture, "custom-scalar-type-import.graphql", "generate_typescript/fixtures/custom-scalar-type-import.expected", input, expected);
 }
 
 #[test]
@@ -265,6 +321,20 @@ fn required_throws_nested() {
 }
 
 #[test]
+fn required_within_aliased_inline_fragment() {
+    let input = include_str!("generate_typescript/fixtures/required-within-aliased-inline-fragment.graphql");
+    let expected = include_str!("generate_typescript/fixtures/required-within-aliased-inline-fragment.expected");
+    test_fixture(transform_fixture, "required-within-aliased-inline-fragment.graphql", "generate_typescript/fixtures/required-within-aliased-inline-fragment.expected", input, expected);
+}
+
+#[test]
+fn required_within_aliased_inline_fragment_on_abstract() {
+    let input = include_str!("generate_typescript/fixtures/required-within-aliased-inline-fragment-on-abstract.graphql");
+    let expected = include_str!("generate_typescript/fixtures/required-within-aliased-inline-fragment-on-abstract.expected");
+    test_fixture(transform_fixture, "required-within-aliased-inline-fragment-on-abstract.graphql", "generate_typescript/fixtures/required-within-aliased-inline-fragment-on-abstract.expected", input, expected);
+}
+
+#[test]
 fn roots() {
     let input = include_str!("generate_typescript/fixtures/roots.graphql");
     let expected = include_str!("generate_typescript/fixtures/roots.expected");
@@ -286,6 +356,13 @@ fn simple() {
 }
 
 #[test]
+fn typename_in_union_with_other_fields() {
+    let input = include_str!("generate_typescript/fixtures/typename-in-union-with-other-fields.graphql");
+    let expected = include_str!("generate_typescript/fixtures/typename-in-union-with-other-fields.expected");
+    test_fixture(transform_fixture, "typename-in-union-with-other-fields.graphql", "generate_typescript/fixtures/typename-in-union-with-other-fields.expected", input, expected);
+}
+
+#[test]
 fn typename_inside_with_overlapping_fields() {
     let input = include_str!("generate_typescript/fixtures/typename-inside-with-overlapping-fields.graphql");
     let expected = include_str!("generate_typescript/fixtures/typename-inside-with-overlapping-fields.expected");
@@ -297,6 +374,13 @@ fn typename_on_union() {
     let input = include_str!("generate_typescript/fixtures/typename-on-union.graphql");
     let expected = include_str!("generate_typescript/fixtures/typename-on-union.expected");
     test_fixture(transform_fixture, "typename-on-union.graphql", "generate_typescript/fixtures/typename-on-union.expected", input, expected);
+}
+
+#[test]
+fn typename_on_union_with_non_matching_aliases() {
+    let input = include_str!("generate_typescript/fixtures/typename-on-union-with-non-matching-aliases.graphql");
+    let expected = include_str!("generate_typescript/fixtures/typename-on-union-with-non-matching-aliases.expected");
+    test_fixture(transform_fixture, "typename-on-union-with-non-matching-aliases.graphql", "generate_typescript/fixtures/typename-on-union-with-non-matching-aliases.expected", input, expected);
 }
 
 #[test]

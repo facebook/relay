@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+#expected-to-throw
+
+fragment PopStarNameResolverFragment_name on User @argumentDefinitions(scale: {type: "Float!"}) {
+  name
+  profile_picture {
+    uri
+  }
+  address @include(if: $should_include_address) {
+    street
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name(scale: Float!): String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}
+==================================== ERROR ====================================
+✖︎ The usage of global variable `$should_include_address` is not supported in the Relay resolvers fragments. Please, add this variable to the `@argumentDefinitions` of the `PopStarNameResolverFragment_name` fragment.
+
+  relay-resolver-with-global-vars-directive.invalid.graphql:8:24
+    7 │   }
+    8 │   address @include(if: $should_include_address) {
+      │                        ^^^^^^^^^^^^^^^^^^^^^^^
+    9 │     street

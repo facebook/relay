@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const {
@@ -27,11 +25,13 @@ const {
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const {
+  disallowConsoleErrors,
   disallowWarnings,
   expectWarningWillFire,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
+disallowConsoleErrors();
 
 describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
   'deleteFromStore',
@@ -635,12 +635,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       let store;
       let AppendCommentMutation;
       let AppendCommentsMutation;
+      let AppendCommentsWithArgsMutation;
       let PrependCommentMutation;
       let PrependCommentsMutation;
       let DeleteCommentMutation;
       let DeleteCommentsMutation;
       let appendOperation;
       let appendMultipleOperation;
+      let appendMultipleWithArgsOperation;
       let prependOperation;
       let prependMultipleOperation;
       let deleteOperation;
@@ -698,6 +700,26 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 cursor
                 node {
                   id
+                }
+              }
+            }
+          }
+        `;
+
+        AppendCommentsWithArgsMutation = graphql`
+          mutation RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestAppendCommentsWithArgsMutation(
+            $connections: [ID!]!
+            $input: CommentCreateInput
+            $name: String!
+          ) {
+            commentCreate(input: $input) {
+              comment {
+                commentsFrom(name: $name)
+                  @appendEdge(connections: $connections) {
+                  cursor
+                  node {
+                    id
+                  }
                 }
               }
             }
@@ -769,6 +791,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           AppendCommentsMutation,
           {
             connections: [clientID],
+            input: {},
+          },
+        );
+        appendMultipleWithArgsOperation = createOperationDescriptor(
+          AppendCommentsWithArgsMutation,
+          {
+            connections: [clientID],
+            name: 'Zuck',
             input: {},
           },
         );
@@ -1097,6 +1127,172 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           expect(complete).toBeCalled();
           expect(error).not.toBeCalled();
+          expect(callback.mock.calls.length).toBe(1);
+          // $FlowExpectedError[incompatible-use]
+          expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+            {
+              __typename: 'CommentsEdge',
+              cursor: 'cursor-1',
+              node: {
+                __typename: 'Comment',
+                id: 'node-1',
+              },
+            },
+            {
+              __typename: 'CommentsEdge',
+              cursor: 'cursor-2',
+              node: {
+                __typename: 'Comment',
+                id: 'node-2',
+              },
+            },
+            {
+              __typename: 'CommentsEdge',
+              cursor: 'node-append-1',
+              node: {
+                __typename: 'Comment',
+                id: 'node-append-1',
+              },
+            },
+            {
+              __typename: 'CommentsEdge',
+              cursor: 'node-append-2',
+              node: {
+                __typename: 'Comment',
+                id: 'node-append-2',
+              },
+            },
+          ]);
+
+          environment
+            .executeMutation({
+              operation: prependMultipleOperation,
+            })
+            .subscribe(callbacks);
+
+          callback.mockClear();
+          subject.next({
+            data: {
+              commentsCreate: {
+                feedbackCommentEdges: [
+                  {
+                    __typename: 'CommentsEdge',
+                    cursor: 'node-prepend-1',
+                    node: {
+                      __typename: 'Comment',
+                      id: 'node-prepend-1',
+                    },
+                  },
+                  {
+                    __typename: 'CommentsEdge',
+                    cursor: 'node-prepend-2',
+                    node: {
+                      __typename: 'Comment',
+                      id: 'node-prepend-2',
+                    },
+                  },
+                ],
+              },
+            },
+          });
+          subject.complete();
+          expect(callback.mock.calls.length).toBe(1);
+          // $FlowExpectedError[incompatible-use]
+          expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([
+            {
+              __typename: 'CommentsEdge',
+              cursor: 'node-prepend-2',
+              node: {
+                __typename: 'Comment',
+                id: 'node-prepend-2',
+              },
+            },
+            {
+              __typename: 'CommentsEdge',
+              cursor: 'node-prepend-1',
+              node: {
+                __typename: 'Comment',
+                id: 'node-prepend-1',
+              },
+            },
+            {
+              __typename: 'CommentsEdge',
+              cursor: 'cursor-1',
+              node: {
+                __typename: 'Comment',
+                id: 'node-1',
+              },
+            },
+            {
+              __typename: 'CommentsEdge',
+              cursor: 'cursor-2',
+              node: {
+                __typename: 'Comment',
+                id: 'node-2',
+              },
+            },
+            {
+              __typename: 'CommentsEdge',
+              cursor: 'node-append-1',
+              node: {
+                __typename: 'Comment',
+                id: 'node-append-1',
+              },
+            },
+            {
+              __typename: 'CommentsEdge',
+              cursor: 'node-append-2',
+              node: {
+                __typename: 'Comment',
+                id: 'node-append-2',
+              },
+            },
+          ]);
+        });
+
+        it('commits the mutation and inserts multiple comment edges on a field with args into the connection', () => {
+          const snapshot = environment.lookup(operation.fragment);
+          const callback = jest.fn();
+          environment.subscribe(snapshot, callback);
+
+          environment
+            .executeMutation({
+              operation: appendMultipleWithArgsOperation,
+            })
+            .subscribe(callbacks);
+
+          callback.mockClear();
+          subject.next({
+            data: {
+              commentCreate: {
+                comment: {
+                  id: 'unused-comment',
+                  commentsFrom: [
+                    {
+                      __typename: 'CommentsEdge',
+                      cursor: 'node-append-1',
+                      node: {
+                        __typename: 'Comment',
+                        id: 'node-append-1',
+                      },
+                    },
+                    {
+                      __typename: 'CommentsEdge',
+                      cursor: 'node-append-2',
+                      node: {
+                        __typename: 'Comment',
+                        id: 'node-append-2',
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          });
+          subject.complete();
+
+          expect(error).not.toBeCalled();
+          expect(complete).toBeCalled();
           expect(callback.mock.calls.length).toBe(1);
           // $FlowExpectedError[incompatible-use]
           expect(callback.mock.calls[0][0].data.node.comments.edges).toEqual([

@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
@@ -113,7 +111,7 @@ function copyFields(source: Record, sink: Record): void {
  */
 function create(dataID: DataID, typeName: string): Record {
   // See perf note above for why we aren't using computed property access.
-  const record = {};
+  const record: Record = {};
   record[ID_KEY] = dataID;
   record[TYPENAME_KEY] = typeName;
   return record;
@@ -166,10 +164,13 @@ function getValue(record: Record, storageKey: string): mixed {
  * field has a different type.
  */
 function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
-  const link = record[storageKey];
-  if (link == null) {
-    return link;
+  const maybeLink = record[storageKey];
+  if (maybeLink == null) {
+    return maybeLink;
   }
+  // We reassign here so that the JSON.stringify call in invariant does not invalidate the
+  // non-maybe refinement from above.
+  const link = maybeLink;
   invariant(
     typeof link === 'object' && link && typeof link[REF_KEY] === 'string',
     'RelayModernRecord.getLinkedRecordID(): Expected `%s.%s` to be a linked ID, ' +
@@ -182,6 +183,7 @@ function getLinkedRecordID(record: Record, storageKey: string): ?DataID {
           'getLinkedRecords() instead of getLinkedRecord()?'
       : '',
   );
+  // $FlowFixMe[incompatible-return]
   return link[REF_KEY];
 }
 
@@ -311,7 +313,7 @@ function merge(record1: Record, record2: Record): Record {
       nextType,
     );
   }
-  return Object.assign({}, record1, record2);
+  return {...record1, ...record2};
 }
 
 /**
@@ -372,7 +374,7 @@ function setLinkedRecordID(
   linkedID: DataID,
 ): void {
   // See perf note above for why we aren't using computed property access.
-  const link = {};
+  const link: {[string]: DataID} = {};
   link[REF_KEY] = linkedID;
   record[storageKey] = link;
 }
@@ -388,7 +390,7 @@ function setLinkedRecordIDs(
   linkedIDs: Array<?DataID>,
 ): void {
   // See perf note above for why we aren't using computed property access.
-  const links = {};
+  const links: {[string]: Array<?DataID>} = {};
   links[REFS_KEY] = linkedIDs;
   record[storageKey] = links;
 }
@@ -405,7 +407,7 @@ function setActorLinkedRecordID(
   linkedID: DataID,
 ): void {
   // See perf note above for why we aren't using computed property access.
-  const link = {};
+  const link: {[string]: ActorIdentifier | DataID} = {};
   link[REF_KEY] = linkedID;
   link[ACTOR_IDENTIFIER_KEY] = actorIdentifier;
   record[storageKey] = link;

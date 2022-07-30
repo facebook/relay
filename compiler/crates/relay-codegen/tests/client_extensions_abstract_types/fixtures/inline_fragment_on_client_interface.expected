@@ -1,0 +1,60 @@
+==================================== INPUT ====================================
+query Foo {
+  client_type {
+    ... on ClientNamed {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+extend type Query {
+  client_type: ClientType
+}
+
+type ClientType implements ClientNamed {
+  name: String
+}
+
+interface ClientNamed {
+  name: String
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "Foo",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "ClientType",
+      "kind": "LinkedField",
+      "name": "client_type",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "name",
+              "storageKey": null
+            }
+          ],
+          "type": "ClientNamed",
+          "abstractKey": "__isClientNamed"
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "clientAbstractTypes": {
+    "__isClientNamed": [
+      "ClientType"
+    ]
+  }
+}

@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 /// Formatting style for generated files.
 #[derive(Copy, Clone, Debug, Deserialize, Serialize)]

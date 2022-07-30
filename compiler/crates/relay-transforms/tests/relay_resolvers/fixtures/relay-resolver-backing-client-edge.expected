@@ -24,18 +24,15 @@ fragment BestFriendResolverFragment on User {
 }
 
 fragment Foo_user on User {
-  ...BestFriendResolverFragment @__RelayResolverSpreadMetadata
-  # RelayResolverSpreadMetadata {
+  ...BestFriendResolverFragment @__RelayResolverMetadata
+  # RelayResolverMetadata {
   #     field_parent_type: "User",
   #     import_path: "BestFriendResolver",
   #     field_name: "best_friend",
   #     field_alias: None,
   #     field_path: "best_friend",
+  #     field_arguments: [],
   #     live: false,
   # }
   
 }
-
-# Implicit Dependencies:
-#
-# Foo_user --> {BestFriendResolverFragment}

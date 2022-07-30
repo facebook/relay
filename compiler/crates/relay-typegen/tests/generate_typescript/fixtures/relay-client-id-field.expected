@@ -33,7 +33,7 @@ export type RelayClientIDFieldQuery$variables = {
 export type RelayClientIDFieldQuery$data = {
   readonly __id: string;
   readonly me: {
-    readonly __typename: string;
+    readonly __typename: "User";
     readonly __id: string;
     readonly id: string;
   } | null;
@@ -44,7 +44,7 @@ export type RelayClientIDFieldQuery$data = {
       readonly __typename: string;
       readonly __id: string;
       readonly text?: {
-        readonly __typename: string;
+        readonly __typename: "Text";
         readonly __id: string;
         readonly text: string | null;
       } | null;

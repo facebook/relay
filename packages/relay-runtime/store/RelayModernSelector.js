@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {NormalizationSelectableNode} from '../util/NormalizationNode';
@@ -207,7 +205,7 @@ function getSelectorsFromObject(
   fragments: {[key: string]: ReaderFragment, ...},
   object: {[key: string]: mixed, ...},
 ): {[key: string]: ?ReaderSelector, ...} {
-  const selectors = {};
+  const selectors: {[string]: ?ReaderSelector} = {};
   for (const key in fragments) {
     if (fragments.hasOwnProperty(key)) {
       const fragment = fragments[key];
@@ -231,7 +229,7 @@ function getDataIDsFromObject(
   fragments: {[key: string]: ReaderFragment, ...},
   object: {[key: string]: mixed, ...},
 ): {[key: string]: ?(DataID | Array<DataID>), ...} {
-  const ids = {};
+  const ids: {[string]: ?(DataID | Array<DataID>)} = {};
   for (const key in fragments) {
     if (fragments.hasOwnProperty(key)) {
       const fragment = fragments[key];
@@ -245,7 +243,7 @@ function getDataIDsFromObject(
 function getDataIDsFromFragment(
   fragment: ReaderFragment,
   item: mixed | Array<mixed>,
-): ?DataID | ?$ReadOnlyArray<DataID> {
+): ?DataID | ?Array<DataID> {
   if (item == null) {
     return item;
   } else if (fragment.metadata && fragment.metadata.plural === true) {
@@ -277,7 +275,7 @@ function getDataIDsFromFragment(
 function getDataIDs(
   fragment: ReaderFragment,
   items: $ReadOnlyArray<mixed>,
-): ?$ReadOnlyArray<DataID> {
+): ?Array<DataID> {
   let ids = null;
   items.forEach(item => {
     const id = item != null ? getDataID(fragment, item) : null;
@@ -425,21 +423,25 @@ function areEqualSelectors(
   a: ?(SingularReaderSelector | PluralReaderSelector),
   b: ?(SingularReaderSelector | PluralReaderSelector),
 ): boolean {
-  if (
-    a?.kind === 'SingularReaderSelector' &&
-    b?.kind === 'SingularReaderSelector'
+  if (a === b) {
+    return true;
+  } else if (a == null) {
+    return b == null;
+  } else if (b == null) {
+    return a == null;
+  } else if (
+    a.kind === 'SingularReaderSelector' &&
+    b.kind === 'SingularReaderSelector'
   ) {
     return areEqualSingularSelectors(a, b);
   } else if (
-    a?.kind === 'PluralReaderSelector' &&
-    b?.kind === 'PluralReaderSelector'
+    a.kind === 'PluralReaderSelector' &&
+    b.kind === 'PluralReaderSelector'
   ) {
     return (
       a.selectors.length === b.selectors.length &&
       a.selectors.every((s, i) => areEqualSingularSelectors(s, b.selectors[i]))
     );
-  } else if (a == null && b == null) {
-    return true;
   } else {
     return false;
   }

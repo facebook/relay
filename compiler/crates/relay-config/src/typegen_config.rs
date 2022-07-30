@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::Rollout;
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
+use std::path::PathBuf;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
@@ -47,6 +48,20 @@ impl TypegenLanguage {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+#[serde(untagged)]
+pub enum CustomScalarType {
+    Name(StringKey),
+    Path(CustomScalarTypeImport),
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+
+pub struct CustomScalarTypeImport {
+    pub name: StringKey,
+    pub path: PathBuf,
+}
+
 #[derive(Debug, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct TypegenConfig {
@@ -75,8 +90,9 @@ pub struct TypegenConfig {
 
     /// A map from GraphQL scalar types to a custom JS type, example:
     /// { "Url": "String" }
+    /// { "Url": {"name:: "MyURL", "path": "../src/MyUrlTypes"} }
     #[serde(default)]
-    pub custom_scalar_types: FnvIndexMap<StringKey, StringKey>,
+    pub custom_scalar_types: FnvIndexMap<StringKey, CustomScalarType>,
 
     /// Require all GraphQL scalar types mapping to be defined, will throw
     /// if a GraphQL scalar type doesn't have a JS type
@@ -90,12 +106,6 @@ pub struct TypegenConfig {
     /// This option enables emitting es modules artifacts.
     #[serde(default)]
     pub eager_es_modules: bool,
-
-    /// This option controls which emitted files have sorted fields, fragment names,
-    /// and union members. It also controls whether unions with more than one element
-    /// are written with surrounding parentheses.
-    #[serde(default)]
-    pub sort_typegen_items: SortTypegenItemsConfig,
 }
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone, Copy)]
@@ -107,16 +117,4 @@ pub struct FlowTypegenConfig {
     /// from breaking.
     #[serde(default)]
     pub no_future_proof_enums: bool,
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, Default)]
-pub struct SortTypegenItemsConfig {
-    #[serde(default)]
-    pub rollout: Rollout,
-}
-
-impl SortTypegenItemsConfig {
-    pub fn should_sort(&self, rollout_key: StringKey) -> bool {
-        self.rollout.check(rollout_key.lookup())
-    }
 }

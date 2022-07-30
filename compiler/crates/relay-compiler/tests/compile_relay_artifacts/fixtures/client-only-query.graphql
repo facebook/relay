@@ -1,0 +1,10 @@
+query clientOnlyQuery {
+  __id
+  ...clientOnlyQueryFragment @skip(if: true)
+}
+
+fragment clientOnlyQueryFragment on Query {
+  me {
+    name
+  }
+}

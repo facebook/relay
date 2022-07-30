@@ -5,17 +5,34 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{FeatureFlags, Rollout, SourceLocationKey};
+use common::FeatureFlags;
+use common::Rollout;
+use common::SourceLocationKey;
+use common::WithLocation;
 use fmt::Debug;
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use regex::Regex;
-use serde::{de::Error, Deserialize, Deserializer, Serialize};
+use serde::de::Error;
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
 use serde_json::Value;
-use std::{fmt, path::PathBuf, sync::Arc, usize};
+use std::fmt;
+use std::path::Path;
+use std::path::PathBuf;
+use std::str::FromStr;
+use std::sync::Arc;
+use std::usize;
 
-use crate::{connection_interface::ConnectionInterface, JsModuleFormat, TypegenConfig};
+use crate::connection_interface::ConnectionInterface;
+use crate::module_import_config::ModuleImportConfig;
+use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
+use crate::JsModuleFormat;
+use crate::TypegenConfig;
+use crate::TypegenLanguage;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -53,9 +70,26 @@ where
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum LocalPersistAlgorithm {
+    MD5,
+    SHA1,
+    SHA256,
+}
+
+impl Default for LocalPersistAlgorithm {
+    // For backwards compatibility
+    fn default() -> Self {
+        Self::MD5
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct LocalPersistConfig {
     pub file: PathBuf,
+
+    #[serde(default)]
+    pub algorithm: LocalPersistAlgorithm,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -113,6 +147,9 @@ pub struct SchemaConfig {
     /// The name of the `id` field that exists on the `Node` interface.
     #[serde(default = "default_node_interface_id_field")]
     pub node_interface_id_field: StringKey,
+
+    #[serde(default)]
+    pub non_node_id_fields: Option<NonNodeIdFieldsConfig>,
 }
 
 fn default_node_interface_id_field() -> StringKey {
@@ -124,6 +161,7 @@ impl Default for SchemaConfig {
         Self {
             connection_interface: ConnectionInterface::default(),
             node_interface_id_field: default_node_interface_id_field(),
+            non_node_id_fields: None,
         }
     }
 }
@@ -150,6 +188,7 @@ pub struct ProjectConfig {
     pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,
     pub rollout: Rollout,
     pub js_module_format: JsModuleFormat,
+    pub module_import_config: ModuleImportConfig,
 }
 
 impl Default for ProjectConfig {
@@ -175,6 +214,7 @@ impl Default for ProjectConfig {
             skip_types_for_artifact: None,
             rollout: Default::default(),
             js_module_format: Default::default(),
+            module_import_config: Default::default(),
         }
     }
 }
@@ -202,6 +242,7 @@ impl Debug for ProjectConfig {
             skip_types_for_artifact,
             rollout,
             js_module_format,
+            module_import_config,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -238,6 +279,111 @@ impl Debug for ProjectConfig {
             )
             .field("rollout", rollout)
             .field("js_module_format", js_module_format)
+            .field("module_import_config", module_import_config)
             .finish()
+    }
+}
+
+impl ProjectConfig {
+    /// This function will create a correct path for an artifact based on the project configuration
+    pub fn create_path_for_artifact(
+        &self,
+        source_file: SourceLocationKey,
+        artifact_file_name: String,
+    ) -> PathBuf {
+        if let Some(output) = &self.output {
+            // If an output directory is specified, output into that directory.
+            if self.shard_output {
+                if let Some(ref regex) = self.shard_strip_regex {
+                    let full_source_path = regex.replace_all(source_file.path(), "");
+                    let mut output = output.join(full_source_path.to_string());
+                    output.pop();
+                    output
+                } else {
+                    output.join(source_file.get_dir())
+                }
+                .join(artifact_file_name)
+            } else {
+                output.join(artifact_file_name)
+            }
+        } else {
+            // Otherwise, output into a file relative to the source.
+            source_file
+                .get_dir()
+                .join("__generated__")
+                .join(artifact_file_name)
+        }
+    }
+
+    pub fn path_for_artifact(
+        &self,
+        source_file: SourceLocationKey,
+        definition_name: StringKey,
+    ) -> PathBuf {
+        let filename = if let Some(filename_for_artifact) = &self.filename_for_artifact {
+            filename_for_artifact(source_file, definition_name)
+        } else {
+            match &self.typegen_config.language {
+                TypegenLanguage::Flow | TypegenLanguage::JavaScript => {
+                    format!("{}.graphql.js", definition_name)
+                }
+                TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
+            }
+        };
+        self.create_path_for_artifact(source_file, filename)
+    }
+
+    /// Generates a relative import path in Common JS projects, and a module name in Haste projects.
+    pub fn js_module_import_path(
+        &self,
+        definition_source_location: WithLocation<StringKey>,
+        target_module: StringKey,
+    ) -> StringKey {
+        match self.js_module_format {
+            JsModuleFormat::CommonJS => {
+                let definition_artifact_location = self.path_for_artifact(
+                    definition_source_location.location.source_location(),
+                    definition_source_location.item,
+                );
+
+                let module_location =
+                    PathBuf::from_str(target_module.lookup()).unwrap_or_else(|_| {
+                        panic!(
+                            "expected to be able to build a path from target_module : {}",
+                            target_module.lookup()
+                        );
+                    });
+
+                let module_path = module_location.parent().unwrap_or_else(||{
+                    panic!(
+                        "expected module_location: {:?} to have a parent path, maybe it's not a file?",
+                        module_location
+                    );
+                });
+
+                let definition_artifact_location_path = definition_artifact_location.parent().unwrap_or_else(||{panic!("expected definition_artifact_location: {:?} to have a parent path, maybe it's not a file?", definition_artifact_location);
+            });
+
+                let resolver_module_location =
+                    pathdiff::diff_paths(module_path, definition_artifact_location_path).unwrap();
+
+                let module_file_name = module_location.file_name().unwrap_or_else(|| {
+                    panic!(
+                        "expected module_location: {:?} to have a file name",
+                        module_location
+                    )
+                });
+
+                resolver_module_location
+                    .join(module_file_name)
+                    .to_string_lossy()
+                    .intern()
+            }
+            JsModuleFormat::Haste => Path::new(&target_module.to_string())
+                .file_stem()
+                .unwrap()
+                .to_string_lossy()
+                .intern(),
+        }
     }
 }

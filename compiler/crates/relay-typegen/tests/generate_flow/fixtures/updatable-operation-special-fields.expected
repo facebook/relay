@@ -13,11 +13,11 @@ query UpdatableQuery @updatable {
 export type UpdatableQuery$variables = {||};
 export type UpdatableQuery$data = {|
   get me(): ?{|
-    +__typename: string,
+    +__typename: "User",
     +__id: string,
     +aliased_double_under_id: string,
     +aliased_id: string,
-    +aliased_typename: string,
+    +aliased_typename: "User",
     +id: string,
   |},
   set me(value: null | void): void,

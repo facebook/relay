@@ -1,0 +1,47 @@
+==================================== INPUT ====================================
+query MyQuery @raw_response_type {
+  me {
+    ...MyUserFragment @alias(as: "my_user")
+    ... on User @alias(as: "my_inline_fragment") {
+      name
+    }
+  }
+}
+
+fragment MyUserFragment on User {
+  name
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type MyQuery$variables = {};
+export type MyQuery$data = {
+  readonly me: {
+    readonly my_inline_fragment: {
+      readonly name: string | null;
+    } | null;
+    readonly my_user: {
+      readonly " $fragmentSpreads": FragmentRefs<"MyUserFragment">;
+    } | null;
+  } | null;
+};
+export type MyQuery$rawResponse = {
+  readonly me: {
+    readonly id: string;
+    readonly name: string | null;
+  } | null;
+};
+export type MyQuery = {
+  rawResponse: MyQuery$rawResponse;
+  response: MyQuery$data;
+  variables: MyQuery$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type MyUserFragment$data = {
+  readonly name: string | null;
+  readonly " $fragmentType": "MyUserFragment";
+};
+export type MyUserFragment$key = {
+  readonly " $data"?: MyUserFragment$data;
+  readonly " $fragmentSpreads": FragmentRefs<"MyUserFragment">;
+};

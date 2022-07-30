@@ -5,23 +5,39 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, FeatureFlag, FeatureFlags, NamedItem, SourceLocationKey};
+use common::ConsoleLogger;
+use common::FeatureFlag;
+use common::FeatureFlags;
+use common::NamedItem;
+use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::{
-    build_ir_with_extra_features, BuilderOptions, FragmentDefinition, FragmentVariablesSemantic,
-    OperationDefinition, Program, RelayMode,
-};
+use graphql_ir::build_ir_with_extra_features;
+use graphql_ir::BuilderOptions;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentVariablesSemantic;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::RelayMode;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
 
 use intern::string_key::Intern;
-use relay_codegen::{
-    build_request_params, print_fragment, print_operation, print_request, JsModuleFormat,
-};
-use relay_compiler::{validate, ConfigFileProject, ProjectConfig};
-use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{apply_transforms, DIRECTIVE_SPLIT_OPERATION};
+use relay_codegen::build_request_params;
+use relay_codegen::print_fragment;
+use relay_codegen::print_operation;
+use relay_codegen::print_request;
+use relay_codegen::JsModuleFormat;
+use relay_compiler::validate;
+use relay_compiler::ConfigFileProject;
+use relay_compiler::ProjectConfig;
+use relay_config::NonNodeIdFieldsConfig;
+use relay_config::SchemaConfig;
+use relay_test_schema::get_test_schema;
+use relay_test_schema::get_test_schema_with_extensions;
+use relay_transforms::apply_transforms;
+use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
+use std::collections::HashMap;
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -95,16 +111,29 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         actor_change_support: FeatureFlag::Enabled,
         text_artifacts: FeatureFlag::Disabled,
         enable_client_edges: FeatureFlag::Enabled,
-        enable_provided_variables: FeatureFlag::Enabled,
         skip_printing_nulls: FeatureFlag::Disabled,
+        enable_fragment_aliases: FeatureFlag::Enabled,
     };
 
     let default_project_config = ProjectConfig {
         name: "test".intern(),
         feature_flags: Arc::new(feature_flags),
         js_module_format: JsModuleFormat::Haste,
+        schema_config: SchemaConfig {
+            non_node_id_fields: Some(NonNodeIdFieldsConfig {
+                allowed_id_types: {
+                    let mut mappings = HashMap::new();
+
+                    mappings.insert("NonNode".intern(), "String".intern());
+
+                    mappings
+                },
+            }),
+            ..Default::default()
+        },
         ..Default::default()
     };
+
     // Adding %project_config section on top of the fixture will allow
     // us to validate output changes with different configurations
     let parts: Vec<_> = fixture.content.split("%project_config%").collect();
@@ -116,6 +145,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 ProjectConfig {
                     schema_config: config_file_project.schema_config,
                     typegen_config: config_file_project.typegen_config,
+                    module_import_config: config_file_project.module_import_config,
                     feature_flags: config_file_project
                         .feature_flags
                         .map_or(default_project_config.feature_flags, |flags| {
@@ -148,9 +178,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         &BuilderOptions {
             allow_undefined_fragment_spreads: false,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-            relay_mode: Some(RelayMode {
-                enable_provided_variables: &FeatureFlag::Enabled,
-            }),
+            relay_mode: Some(RelayMode),
             default_anonymous_operation_name: None,
         },
     );
@@ -189,11 +217,13 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 format!("{}{}", import_statements, operation)
             } else {
                 let name = operation.name.item;
-                let print_operation_node = programs
-                    .operation_text
-                    .operation(name)
-                    .expect("a query text operation should be generated for this operation");
-                let text = print_full_operation(&programs.operation_text, print_operation_node);
+                let print_operation_node = programs.operation_text.operation(name);
+                let text = print_operation_node.map_or_else(
+                    || "Query Text is Empty.".to_string(),
+                    |print_operation_node| {
+                        print_full_operation(&programs.operation_text, print_operation_node)
+                    },
+                );
 
                 let reader_operation = programs
                     .reader

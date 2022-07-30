@@ -12,63 +12,85 @@ mod lsp_state;
 mod lsp_state_resources;
 mod task_queue;
 
-use crate::{
-    code_action::on_code_action,
-    completion::{on_completion, on_resolve_completion_item},
-    explore_schema_for_type::{on_explore_schema_for_type, ExploreSchemaForType},
-    goto_definition::{
-        on_get_source_location_of_type_definition, on_goto_definition,
-        GetSourceLocationOfTypeDefinition,
-    },
-    graphql_tools::on_graphql_execute_query,
-    graphql_tools::GraphQLExecuteQuery,
-    hover::on_hover,
-    js_language_server::JSLanguageServer,
-    lsp_process_error::LSPProcessResult,
-    lsp_runtime_error::LSPRuntimeError,
-    references::on_references,
-    resolved_types_at_location::{on_get_resolved_types_at_location, ResolvedTypesAtLocation},
-    search_schema_items::{on_search_schema_items, SearchSchemaItems},
-    server::{
-        lsp_state::handle_lsp_state_tasks, lsp_state_resources::LSPStateResources,
-        task_queue::TaskQueue,
-    },
-    shutdown::{on_exit, on_shutdown},
-    status_reporter::LSPStatusReporter,
-    status_updater::set_initializing_status,
-    text_documents::{
-        on_cancel, on_did_change_text_document, on_did_close_text_document,
-        on_did_open_text_document, on_did_save_text_document,
-    },
-};
-use common::{PerfLogEvent, PerfLogger};
-use crossbeam::{channel::Receiver, select};
+use crate::code_action::on_code_action;
+use crate::completion::on_completion;
+use crate::completion::on_resolve_completion_item;
+use crate::explore_schema_for_type::on_explore_schema_for_type;
+use crate::explore_schema_for_type::ExploreSchemaForType;
+use crate::find_field_usages::on_find_field_usages;
+use crate::find_field_usages::FindFieldUsages;
+use crate::goto_definition::on_get_source_location_of_type_definition;
+use crate::goto_definition::on_goto_definition;
+use crate::goto_definition::GetSourceLocationOfTypeDefinition;
+use crate::graphql_tools::on_graphql_execute_query;
+use crate::graphql_tools::GraphQLExecuteQuery;
+use crate::hover::on_hover;
+use crate::js_language_server::JSLanguageServer;
+use crate::lsp_process_error::LSPProcessResult;
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::references::on_references;
+use crate::resolved_types_at_location::on_get_resolved_types_at_location;
+use crate::resolved_types_at_location::ResolvedTypesAtLocation;
+use crate::search_schema_items::on_search_schema_items;
+use crate::search_schema_items::SearchSchemaItems;
+use crate::server::lsp_state::handle_lsp_state_tasks;
+use crate::server::lsp_state_resources::LSPStateResources;
+use crate::server::task_queue::TaskQueue;
+use crate::shutdown::on_exit;
+use crate::shutdown::on_shutdown;
+use crate::status_reporter::LSPStatusReporter;
+use crate::text_documents::on_cancel;
+use crate::text_documents::on_did_change_text_document;
+use crate::text_documents::on_did_close_text_document;
+use crate::text_documents::on_did_open_text_document;
+use crate::text_documents::on_did_save_text_document;
+use common::PerfLogEvent;
+use common::PerfLogger;
+use crossbeam::channel::Receiver;
+use crossbeam::select;
 use log::debug;
 pub use lsp_notification_dispatch::LSPNotificationDispatch;
 pub use lsp_request_dispatch::LSPRequestDispatch;
-use lsp_server::{
-    Connection, ErrorCode, Message, Notification, Response as ServerResponse, ResponseError,
-};
-use lsp_types::{
-    notification::{
-        Cancel, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument,
-        DidSaveTextDocument, Exit,
-    },
-    request::{
-        CodeActionRequest, Completion, GotoDefinition, HoverRequest, References,
-        ResolveCompletionItem, Shutdown,
-    },
-    CodeActionProviderCapability, CompletionOptions, InitializeParams, ServerCapabilities,
-    TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
-};
-use relay_compiler::{config::Config, NoopArtifactWriter};
-use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
+use lsp_server::Connection;
+use lsp_server::ErrorCode;
+use lsp_server::Message;
+use lsp_server::Notification;
+use lsp_server::Response as ServerResponse;
+use lsp_server::ResponseError;
+use lsp_types::notification::Cancel;
+use lsp_types::notification::DidChangeTextDocument;
+use lsp_types::notification::DidCloseTextDocument;
+use lsp_types::notification::DidOpenTextDocument;
+use lsp_types::notification::DidSaveTextDocument;
+use lsp_types::notification::Exit;
+use lsp_types::request::CodeActionRequest;
+use lsp_types::request::Completion;
+use lsp_types::request::GotoDefinition;
+use lsp_types::request::HoverRequest;
+use lsp_types::request::References;
+use lsp_types::request::ResolveCompletionItem;
+use lsp_types::request::Shutdown;
+use lsp_types::CodeActionProviderCapability;
+use lsp_types::CompletionOptions;
+use lsp_types::InitializeParams;
+use lsp_types::ServerCapabilities;
+use lsp_types::TextDocumentSyncCapability;
+use lsp_types::TextDocumentSyncKind;
+use lsp_types::WorkDoneProgressOptions;
+use relay_compiler::config::Config;
+use relay_compiler::NoopArtifactWriter;
+use schema_documentation::SchemaDocumentation;
+use schema_documentation::SchemaDocumentationLoader;
 use std::sync::Arc;
 
 pub use crate::LSPExtraDataProvider;
-pub use lsp_state::{convert_diagnostic, GlobalState, LSPState, Schemas, SourcePrograms};
+pub use lsp_state::GlobalState;
+pub use lsp_state::LSPState;
+pub use lsp_state::Schemas;
+pub use lsp_state::SourcePrograms;
 
-use heartbeat::{on_heartbeat, HeartbeatRequest};
+use heartbeat::on_heartbeat;
+use heartbeat::HeartbeatRequest;
 
 use self::task_queue::TaskProcessor;
 
@@ -77,7 +99,7 @@ use self::task_queue::TaskProcessor;
 pub fn initialize(connection: &Connection) -> LSPProcessResult<InitializeParams> {
     let server_capabilities = ServerCapabilities {
         // Enable text document syncing so we can know when files are opened/changed/saved/closed
-        text_document_sync: Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::Full)),
+        text_document_sync: Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::FULL)),
 
         completion_provider: Some(CompletionOptions {
             resolve_provider: Some(true),
@@ -129,7 +151,6 @@ where
         "Running language server with config root {:?}",
         config.root_dir
     );
-    set_initializing_status(&connection.sender);
 
     let task_processor = LSPTaskProcessor;
     let task_queue = TaskQueue::new(Arc::new(task_processor));
@@ -222,6 +243,7 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
             .on_request_sync::<Shutdown>(on_shutdown)?
             .on_request_sync::<GraphQLExecuteQuery>(on_graphql_execute_query)?
             .on_request_sync::<HeartbeatRequest>(on_heartbeat)?
+            .on_request_sync::<FindFieldUsages>(on_find_field_usages)?
             .request();
 
         // If we have gotten here, we have not handled the request

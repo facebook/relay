@@ -9,11 +9,14 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {
   MultiActorEnvironment,
@@ -40,13 +43,13 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
     'execute() a query with nested @match',
     environmentType => {
       describe(environmentType, () => {
-        let callbacks: {|
+        let callbacks: {
           +complete: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
           +error: JestMockFn<$ReadOnlyArray<Error>, mixed>,
           +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
           +start?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
           +unsubscribe?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-        |};
+        };
         let complete;
         let dataSource;
         let environment;
@@ -57,13 +60,13 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
         let next;
         let operation;
         let operationCallback;
-        let operationLoader: {|
+        let operationLoader: {
           get: (reference: mixed) => ?NormalizationRootNode,
           load: JestMockFn<
             $ReadOnlyArray<mixed>,
             Promise<?NormalizationRootNode>,
           >,
-        |};
+        };
         let plaintextRendererFragment;
         let plaintextRendererNormalizationFragment;
         let query;
@@ -135,7 +138,11 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           error = jest.fn();
           next = jest.fn();
           callbacks = {complete, error, next};
-          fetch = (_query, _variables, _cacheConfig) => {
+          fetch = (
+            _query: RequestParameters,
+            _variables: Variables,
+            _cacheConfig: CacheConfig,
+          ) => {
             return RelayObservable.create(sink => {
               dataSource = sink;
             });

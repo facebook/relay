@@ -75,7 +75,7 @@ class GraphModeHandler {
     this._populateRecord(record, chunk);
   }
 
-  _populateRecord(parentRecord: Record, chunk: DataChunk) {
+  _populateRecord(parentRecord: Record, chunk: DataChunk): void {
     for (const [key, value] of Object.entries(chunk)) {
       switch (key) {
         case '$streamID':

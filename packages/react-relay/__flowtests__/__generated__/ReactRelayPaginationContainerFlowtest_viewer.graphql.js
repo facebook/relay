@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<86f990ee88078c49934d0f28c6c31da4>>
+ * @generated SignedSource<<b3cddee250d0ff22e89a7f0331e85df6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ export type ReactRelayPaginationContainerFlowtest_viewer$data = {|
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
-          +__typename: string,
+          +__typename: "User",
         |},
       |}>,
     |},

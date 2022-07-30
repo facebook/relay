@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {DataID, Disposable} from '../util/RelayRuntimeTypes';
@@ -53,15 +51,15 @@ const {ROOT_ID, ROOT_TYPE} = require('./RelayStoreUtils');
 const {RecordResolverCache} = require('./ResolverCache');
 const invariant = require('invariant');
 
-export opaque type InvalidationState = {|
+export opaque type InvalidationState = {
   dataIDs: $ReadOnlyArray<DataID>,
   invalidations: Map<DataID, ?number>,
-|};
+};
 
-type InvalidationSubscription = {|
+type InvalidationSubscription = {
   callback: () => void,
   invalidationState: InvalidationState,
-|};
+};
 
 const DEFAULT_RELEASE_BUFFER_SIZE = 10;
 
@@ -96,12 +94,12 @@ class RelayModernStore implements Store {
   _releaseBuffer: Array<string>;
   _roots: Map<
     string,
-    {|
+    {
       operation: OperationDescriptor,
       refCount: number,
       epoch: ?number,
       fetchTime: ?number,
-    |},
+    },
   >;
   _shouldScheduleGC: boolean;
   _storeSubscriptions: StoreSubscriptions;
@@ -110,7 +108,7 @@ class RelayModernStore implements Store {
 
   constructor(
     source: MutableRecordSource,
-    options?: {|
+    options?: {
       gcScheduler?: ?Scheduler,
       log?: ?LogFunction,
       operationLoader?: ?OperationLoader,
@@ -118,7 +116,7 @@ class RelayModernStore implements Store {
       gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
       shouldProcessClientComponents?: ?boolean,
-    |},
+    },
   ) {
     // Prevent mutation of a record from outside the store.
     if (__DEV__) {

@@ -5,11 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{
-    FragmentDefinition, OperationDefinition, Program, ValidationMessage, Validator, Variable,
-    UNUSED_LOCAL_VARIABLE_DEPRECATED,
-};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
+use graphql_ir::Variable;
+use graphql_ir::UNUSED_LOCAL_VARIABLE_DEPRECATED;
 use intern::string_key::StringKeySet;
 
 /// Validates that there are no unused fragment variables on fragments.

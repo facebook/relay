@@ -105,6 +105,7 @@ fragment abstractTypeRefinementDontFlattenTypeDiscriminatorNestedInlineFragment_
     ]
   },
   "params": {
+    "cacheID": "e3c542e4d182a128425d6c1e29b19ca4",
     "id": null,
     "metadata": {},
     "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorNestedInlineFragment_AbstractTypeRefinementQuery",

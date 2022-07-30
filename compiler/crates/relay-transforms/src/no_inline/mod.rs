@@ -5,10 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{ValidationMessage, MATCH_CONSTANTS, RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME};
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use graphql_ir::{Argument, ConstantValue, Directive, FragmentSpread, Program, Validator, Value};
-use intern::string_key::{Intern, StringKey, StringKeyMap};
+use crate::ValidationMessage;
+use crate::MATCH_CONSTANTS;
+use crate::RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::FragmentSpread;
+use graphql_ir::Program;
+use graphql_ir::Validator;
+use graphql_ir::Value;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
 use lazy_static::lazy_static;
 use std::sync::Arc;
 

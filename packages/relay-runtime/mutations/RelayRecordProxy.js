@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {RecordProxy} from '../store/RelayStoreTypes';
@@ -73,6 +71,13 @@ class RelayRecordProxy implements RecordProxy {
         'got `%s`.',
       JSON.stringify(value),
     );
+    return this.setValue__UNSAFE(value, name, args);
+  }
+
+  // This is used in the typesafe updaters.
+  // We already validated that the value has the correct type
+  // so it should be safe to store complex structures as scalar values (custom scalars)
+  setValue__UNSAFE(value: mixed, name: string, args?: ?Arguments): RecordProxy {
     const storageKey = getStableStorageKey(name, args);
     this._mutator.setValue(this._dataID, storageKey, value);
     return this;

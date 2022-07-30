@@ -44,6 +44,13 @@ fragment spreadOfAssignableFragmentAssignable_node on Node @assignable {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "__id",
             "storageKey": null
           }
@@ -106,12 +113,7 @@ fragment spreadOfAssignableFragmentAssignable_node on Node @assignable {
             "name": "spreadOfAssignableFragmentAssignable_user"
           },
           {
-            "args": null,
-            "kind": "FragmentSpread",
-            "name": "spreadOfAssignableFragmentAssignable_node"
-          },
-          {
-            "alias": "__isspreadOfAssignableFragmentAssignable_node",
+            "alias": null,
             "args": null,
             "kind": "ScalarField",
             "name": "__typename",
@@ -122,6 +124,18 @@ fragment spreadOfAssignableFragmentAssignable_node on Node @assignable {
             "args": null,
             "kind": "ScalarField",
             "name": "__id",
+            "storageKey": null
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "spreadOfAssignableFragmentAssignable_node"
+          },
+          {
+            "alias": "__isspreadOfAssignableFragmentAssignable_node",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
             "storageKey": null
           }
         ],
@@ -235,6 +249,7 @@ fragment spreadOfAssignableFragmentAssignable_node on Node @assignable {
     ]
   },
   "params": {
+    "cacheID": "ce914fc61943f66dbd7680da49e327fa",
     "id": null,
     "metadata": {},
     "name": "spreadOfAssignableFragmentQuery",

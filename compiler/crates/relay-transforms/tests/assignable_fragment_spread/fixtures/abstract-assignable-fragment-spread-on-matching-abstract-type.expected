@@ -11,11 +11,13 @@ fragment Assignable_node on Node @assignable {
 ==================================== OUTPUT ===================================
 query TestQuery {
   node(id: "4") {
-    ... on Node {
+    ... {
       ...Assignable_node
-      __isAssignable_node: __typename
+      ... on Node {
+        __isAssignable_node: __typename
+      }
+      __id
     }
-    __id
   }
 }
 

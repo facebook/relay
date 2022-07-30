@@ -5,12 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    refetchable_fragment::{RefetchableFragment, REFETCHABLE_NAME},
-    ValidationMessage,
-};
+use crate::refetchable_fragment::RefetchableFragment;
+use crate::refetchable_fragment::REFETCHABLE_NAME;
+use crate::RequiredMetadataDirective;
+use crate::ValidationMessage;
+use crate::REQUIRED_DIRECTIVE_NAME;
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey, StringKeyMap};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
 use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
 use schema::Type;
@@ -18,17 +21,30 @@ use std::sync::Arc;
 
 use super::ValidationMessageWithData;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use graphql_ir::{
-    associated_data_impl, Argument, ConstantValue, Directive, Field, FragmentDefinition,
-    InlineFragment, LinkedField, OperationDefinition, Program, Selection, Transformed, Transformer,
-    Value,
-};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::Named;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
 use schema::Schema;
 
 lazy_static! {
     // This gets attached to the generated query
-    pub static ref CLIENT_EDGE_QUERY_METADATA_KEY: StringKey = "__clientEdgeQuery".intern();
     pub static ref QUERY_NAME_ARG: StringKey = "queryName".intern();
     pub static ref TYPE_NAME_ARG: StringKey = "typeName".intern();
     pub static ref CLIENT_EDGE_SOURCE_NAME: StringKey = "clientEdgeSourceDocument".intern();
@@ -37,15 +53,35 @@ lazy_static! {
     pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: StringKey = "waterfall".intern();
 }
 
+/// Directive added to inline fragments created by the transform. The inline
+/// fragment groups together the client edge's backing field as well as a linked
+/// field containing the selections being read off of the link.
+///
+/// Each instance of the directive within a travseral is assigned a unique id.
+/// This is added to prevent future transforms from merging multiple of these inline
+/// fragments.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ClientEdgeMetadataDirective {
-    ServerObject { query_name: StringKey },
-    ClientObject { type_name: StringKey },
+    ServerObject {
+        query_name: StringKey,
+        unique_id: u32,
+    },
+    ClientObject {
+        type_name: StringKey,
+        unique_id: u32,
+    },
 }
 associated_data_impl!(ClientEdgeMetadataDirective);
 
+/// Metadata directive attached to generated queries
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ClientEdgeGeneratedQueryMetadataDirective {
+    pub source_name: WithLocation<StringKey>,
+}
+associated_data_impl!(ClientEdgeGeneratedQueryMetadataDirective);
+
 pub struct ClientEdgeMetadata<'a> {
-    pub backing_field: &'a Selection,
+    pub backing_field: Selection,
     pub selections: &'a Selection,
     pub metadata_directive: ClientEdgeMetadataDirective,
 }
@@ -58,7 +94,7 @@ pub struct ClientEdgeMetadata<'a> {
 //
 // In order to ensure both of these elements are present in our IR, and also get
 // traversed by subsequent transform steps, we model Client Edges in our IR as
-// an inline fragment containing these two children in an implict order.
+// an inline fragment containing these two children in an implicit order.
 //
 // This utility method is intended to reduce the number of places that need to
 // know about this implicit contract by reading an inline fragment and returning
@@ -66,12 +102,25 @@ pub struct ClientEdgeMetadata<'a> {
 impl<'a> ClientEdgeMetadata<'a> {
     pub fn find(fragment: &'a InlineFragment) -> Option<Self> {
         ClientEdgeMetadataDirective::find(&fragment.directives).map(|metadata_directive| {
+
+// Double check that some flatten/inline transform is not tryig to combine/merge our inline directives together.
+            assert!(
+                fragment.selections.len() == 2,
+                "Expected Client Edge inline fragment to have exactly two selections. This is a bug in the Relay compiler."
+            );
+            let mut backing_field = fragment
+                .selections
+                .get(0)
+                .expect("Client Edge inline fragments have exactly two selections").clone();
+
+            let backing_field_directives = backing_field.directives().iter().filter(|directive|
+                directive.name.item != RequiredMetadataDirective::directive_name()
+            ).cloned().collect();
+            backing_field.set_directives(backing_field_directives);
+
             ClientEdgeMetadata {
                 metadata_directive: metadata_directive.clone(),
-                backing_field: fragment
-                    .selections
-                    .get(0)
-                    .expect("Client Edge inline fragments have exactly two selections"),
+                backing_field,
                 selections: fragment
                     .selections
                     .get(1)
@@ -101,13 +150,14 @@ pub fn client_edges(program: &Program, schema_config: &SchemaConfig) -> Diagnost
 
 struct ClientEdgesTransform<'program, 'sc> {
     path: Vec<&'program str>,
-    document_name: Option<StringKey>,
+    document_name: Option<WithLocation<StringKey>>,
     query_names: StringKeyMap<usize>,
     program: &'program Program,
     new_fragments: Vec<Arc<FragmentDefinition>>,
     new_operations: Vec<OperationDefinition>,
     errors: Vec<Diagnostic>,
     schema_config: &'sc SchemaConfig,
+    next_key: u32,
 }
 
 impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
@@ -121,13 +171,18 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             new_fragments: Default::default(),
             new_operations: Default::default(),
             errors: Default::default(),
+            next_key: 0,
         }
     }
 
     fn generate_query_name(&mut self) -> StringKey {
         let document_name = self.document_name.expect("We are within a document");
-        let name_root =
-            format!("ClientEdgeQuery_{}_{}", document_name, self.path.join("__")).intern();
+        let name_root = format!(
+            "ClientEdgeQuery_{}_{}",
+            document_name.item,
+            self.path.join("__")
+        )
+        .intern();
 
         // Due to duplicate inline fragments, or inline fragmetns without type
         // conditions, it's possible that multiple fields will have the same
@@ -151,8 +206,18 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
         field_type: Type,
         selections: Vec<Selection>,
     ) {
-        let synthetic_fragment_name =
-            WithLocation::generated(format!("Refetchable{}", generated_query_name).intern());
+        let synthetic_fragment_name = WithLocation::new(
+            // The artifact for the refetchable fragment and query derived from
+            // this fragment will be placed on disk based on this source
+            // location. Currently non-Haste environments assume that this
+            // fragment and the query derived from it will use the same location
+            // source, and thus will be placed in the same `__generated__`
+            // directory. Based on this assumption they import the file using `./`.
+            self.document_name
+                .expect("Expect to be within a document")
+                .location,
+            format!("Refetchable{}", generated_query_name).intern(),
+        );
 
         let synthetic_refetchable_fragment = FragmentDefinition {
             name: synthetic_fragment_name,
@@ -164,7 +229,9 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 arguments: vec![Argument {
                     name: WithLocation::generated(*CLIENT_EDGE_SOURCE_NAME),
                     value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                        self.document_name.expect("Expect to be within a document"),
+                        self.document_name
+                            .expect("Expect to be within a document")
+                            .item,
                     ))),
                 }],
                 data: None,
@@ -190,16 +257,15 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 let query_type = self.program.schema.query_type().unwrap();
 
                 let mut directives = refetchable_directive.directives;
-                directives.push(Directive {
-                    name: WithLocation::generated(*CLIENT_EDGE_QUERY_METADATA_KEY),
-                    arguments: vec![Argument {
-                        name: WithLocation::generated(*CLIENT_EDGE_SOURCE_NAME),
-                        value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                            self.document_name.expect("Expect to be within a document"),
-                        ))),
-                    }],
-                    data: None,
-                });
+                directives.push(
+                    // Used to influence where we place this generated file, and
+                    // the document from which we derive the source hash for the
+                    // Client Edge generated query's artifact.
+                    ClientEdgeGeneratedQueryMetadataDirective {
+                        source_name: self.document_name.expect("Expect to be within a document."),
+                    }
+                    .into(),
+                );
                 self.new_operations.push(OperationDefinition {
                     kind: OperationKind::Query,
                     name: WithLocation::generated(refetchable_directive.query_name.item),
@@ -241,6 +307,31 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             return self.default_transform_linked_field(field);
         }
 
+        let allowed_dirctive_names = [
+            *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME,
+            *REQUIRED_DIRECTIVE_NAME,
+            RequiredMetadataDirective::directive_name(),
+        ];
+
+        let other_directives = field
+            .directives
+            .iter()
+            .filter(|directive| {
+                !allowed_dirctive_names
+                    .iter()
+                    .any(|item| directive.name() == *item)
+            })
+            .collect::<Vec<_>>();
+
+        for directive in other_directives {
+            self.errors.push(Diagnostic::error(
+                ValidationMessage::ClientEdgeUnsupportedDirective {
+                    directive_name: directive.name(),
+                },
+                directive.name.location,
+            ));
+        }
+
         let edge_to_type = field_type.type_.inner();
 
         let is_edge_to_client_object = schema.is_extension_type(edge_to_type);
@@ -251,7 +342,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
         let metadata_directive = if is_edge_to_client_object {
             // We assume edges to client objects will be resolved on the client
-            // and thus not incur a waterfall. This will change in the furture
+            // and thus not incur a waterfall. This will change in the future
             // for @live Resolvers that can trigger suspense.
             if let Some(directive) = waterfall_directive {
                 self.errors.push(Diagnostic::error_with_data(
@@ -276,6 +367,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 }
                 Type::Object(object_id) => ClientEdgeMetadataDirective::ClientObject {
                     type_name: schema.object(object_id).name.item,
+                    unique_id: self.get_key(),
                 },
                 _ => {
                     panic!(
@@ -302,8 +394,17 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             );
             ClientEdgeMetadataDirective::ServerObject {
                 query_name: client_edge_query_name,
+                unique_id: self.get_key(),
             }
         };
+        let mut inline_fragment_directives: Vec<Directive> = vec![metadata_directive.into()];
+        if let Some(required_directive_metadata) = field
+            .directives
+            .named(RequiredMetadataDirective::directive_name())
+            .cloned()
+        {
+            inline_fragment_directives.push(required_directive_metadata);
+        }
 
         let transformed_field = Arc::new(LinkedField {
             selections: new_selections,
@@ -312,14 +413,21 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
         let inline_fragment = InlineFragment {
             type_condition: None,
-            directives: vec![metadata_directive.into()],
+            directives: inline_fragment_directives,
             selections: vec![
                 Selection::LinkedField(transformed_field.clone()),
                 Selection::LinkedField(transformed_field),
             ],
+            spread_location: Location::generated(),
         };
 
         Transformed::Replace(Selection::InlineFragment(Arc::new(inline_fragment)))
+    }
+
+    fn get_key(&mut self) -> u32 {
+        let key = self.next_key;
+        self.next_key += 1;
+        key
     }
 }
 
@@ -332,7 +440,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.document_name = Some(fragment.name.item);
+        self.document_name = Some(fragment.name);
         let new_fragment = self.default_transform_fragment(fragment);
         self.document_name = None;
         new_fragment
@@ -342,7 +450,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = Some(operation.name.item);
+        self.document_name = Some(operation.name);
         let new_operation = self.default_transform_operation(operation);
         self.document_name = None;
         new_operation
@@ -404,8 +512,8 @@ fn make_refetchable_directive(query_name: StringKey) -> Directive {
     }
 }
 
-pub fn preserve_client_edge_selections(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = ClientEdgesCleanupTransform::new(CleanupMode::PreserveSelectionsField);
+pub fn remove_client_edge_selections(program: &Program) -> DiagnosticsResult<Program> {
+    let mut transform = ClientEdgesCleanupTransform::default();
     let next_program = transform
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -413,29 +521,8 @@ pub fn preserve_client_edge_selections(program: &Program) -> DiagnosticsResult<P
     Ok(next_program)
 }
 
-pub fn preserve_client_edge_backing_ids(program: &Program) -> DiagnosticsResult<Program> {
-    let mut transform = ClientEdgesCleanupTransform::new(CleanupMode::PreserveBackingField);
-    let next_program = transform
-        .transform_program(program)
-        .replace_or_else(|| program.clone());
-
-    Ok(next_program)
-}
-
-enum CleanupMode {
-    PreserveBackingField,
-    PreserveSelectionsField,
-}
-
-struct ClientEdgesCleanupTransform {
-    cleanup_mode: CleanupMode,
-}
-
-impl ClientEdgesCleanupTransform {
-    fn new(cleanup_mode: CleanupMode) -> Self {
-        Self { cleanup_mode }
-    }
-}
+#[derive(Default)]
+struct ClientEdgesCleanupTransform;
 
 impl Transformer for ClientEdgesCleanupTransform {
     const NAME: &'static str = "ClientEdgesCleanupTransform";
@@ -445,13 +532,10 @@ impl Transformer for ClientEdgesCleanupTransform {
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         match ClientEdgeMetadata::find(fragment) {
             Some(metadata) => {
-                let new_selection = match self.cleanup_mode {
-                    CleanupMode::PreserveBackingField => metadata.backing_field,
-                    CleanupMode::PreserveSelectionsField => metadata.selections,
-                };
+                let new_selection = metadata.backing_field;
 
                 Transformed::Replace(
-                    self.transform_selection(new_selection)
+                    self.transform_selection(&new_selection)
                         .unwrap_or_else(|| new_selection.clone()),
                 )
             }

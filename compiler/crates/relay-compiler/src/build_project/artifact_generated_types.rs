@@ -6,9 +6,12 @@
  */
 
 use common::NamedItem;
-use graphql_ir::{FragmentDefinition, OperationDefinition};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
 use graphql_syntax::OperationKind;
-use relay_transforms::{RefetchableMetadata, INLINE_DIRECTIVE_NAME, UPDATABLE_DIRECTIVE};
+use relay_transforms::RefetchableMetadata;
+use relay_transforms::INLINE_DIRECTIVE_NAME;
+use relay_transforms::UPDATABLE_DIRECTIVE;
 use relay_typegen::has_raw_response_type_directive;
 
 /// Specifies the imported and exported generated types of an
@@ -20,7 +23,11 @@ pub struct ArtifactGeneratedTypes {
 }
 
 impl ArtifactGeneratedTypes {
-    pub fn from_operation(operation: &OperationDefinition, skip_types: bool) -> Self {
+    pub fn from_operation(
+        operation: &OperationDefinition,
+        skip_types: bool,
+        is_client_only: bool,
+    ) -> Self {
         if skip_types {
             Self {
                 imported_types: "ConcreteRequest",
@@ -29,7 +36,13 @@ impl ArtifactGeneratedTypes {
             }
         } else {
             let (kind, imported_types) = match operation.kind {
-                OperationKind::Query => ("Query", "ConcreteRequest, Query"),
+                OperationKind::Query => {
+                    if is_client_only {
+                        ("ClientQuery", "ClientRequest, ClientQuery")
+                    } else {
+                        ("Query", "ConcreteRequest, Query")
+                    }
+                }
                 OperationKind::Mutation => ("Mutation", "ConcreteRequest, Mutation"),
                 OperationKind::Subscription => (
                     "GraphQLSubscription",
@@ -51,7 +64,31 @@ impl ArtifactGeneratedTypes {
             };
             Self {
                 imported_types,
-                ast_type: "ConcreteRequest",
+                ast_type: if is_client_only {
+                    "ClientRequest"
+                } else {
+                    "ConcreteRequest"
+                },
+                exported_type: Some(exported_type),
+            }
+        }
+    }
+
+    pub fn from_updatable_query(typegen_operation: &OperationDefinition, skip_types: bool) -> Self {
+        if skip_types {
+            Self {
+                imported_types: "ConcreteUpdatableQuery",
+                ast_type: "ConcreteUpdatableQuery",
+                exported_type: None,
+            }
+        } else {
+            let exported_type = format!(
+                "UpdatableQuery<\n  {name}$variables,\n  {name}$data,\n>",
+                name = typegen_operation.name.item,
+            );
+            Self {
+                imported_types: "UpdatableQuery, ConcreteUpdatableQuery",
+                ast_type: "ConcreteUpdatableQuery",
                 exported_type: Some(exported_type),
             }
         }

@@ -9,9 +9,9 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
+import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
 const {loadQuery} = require('../loadQuery');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
@@ -27,7 +27,18 @@ const {
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
-function expectToHaveFetched(environment, query, cacheConfig) {
+function expectToHaveFetched(
+  environment: RelayMockEnvironment,
+  query: OperationDescriptor,
+  cacheConfig: {
+    force?: ?boolean,
+    liveConfigId?: ?string,
+    metadata?: {[key: string]: mixed},
+    onSubscribe?: () => void,
+    poll?: ?number,
+    transactionId?: ?string,
+  },
+) {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.executeWithSource).toBeCalledTimes(1);
   expect(
@@ -61,8 +72,8 @@ describe.skip('useQueryLoader-react-double-effects', () => {
   let render;
   let QueryComponent;
   let LoaderComponent;
-  let queryRenderLogs;
-  let loaderRenderLogs;
+  let queryRenderLogs: Array<string>;
+  let loaderRenderLogs: Array<string>;
 
   beforeEach(() => {
     jest.mock('scheduler', () => require('scheduler/unstable_mock'));
@@ -117,7 +128,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     query = createOperationDescriptor(gqlQuery, variables);
 
     queryRenderLogs = [];
-    QueryComponent = function (props) {
+    QueryComponent = function (props: any) {
       const result = usePreloadedQuery(gqlQuery, (props.queryRef: $FlowFixMe));
 
       const name = result?.node?.name ?? 'Empty';
@@ -133,7 +144,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
     };
 
     loaderRenderLogs = [];
-    LoaderComponent = function (props) {
+    LoaderComponent = function (props: any) {
       const [queryRef] = useQueryLoader(gqlQuery, props.initialQueryRef);
 
       const queryRefId = queryRef == null ? 'null' : queryRef.id ?? 'Unknown';
@@ -159,7 +170,12 @@ describe.skip('useQueryLoader-react-double-effects', () => {
       );
     };
 
-    render = function (initialQueryRef, {suspendWholeTree} = {}): $FlowFixMe {
+    render = function (
+      initialQueryRef: any,
+      {suspendWholeTree}: {suspendWholeTree?: boolean} = ({}: {
+        suspendWholeTree?: boolean,
+      }),
+    ): $FlowFixMe {
       let instance;
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(

@@ -8,15 +8,24 @@
 mod ast;
 mod errors;
 
-use std::{iter::Peekable, str::Chars};
+use std::iter::Peekable;
+use std::str::Chars;
 
-pub use ast::{DocblockAST, DocblockField, DocblockSection};
-use common::{
-    Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, TextSource, WithLocation,
-};
+pub use ast::DocblockAST;
+pub use ast::DocblockField;
+pub use ast::DocblockSection;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::SourceLocationKey;
+use common::Span;
+use common::TextSource;
+use common::WithLocation;
 use errors::SyntaxError;
-use intern::string_key::{Intern, StringKey};
-use serde::{Deserialize, Serialize};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DocblockSource(TextSource);
@@ -42,10 +51,10 @@ impl DocblockSource {
 type ParseResult<T> = Result<T, ()>;
 /// Parses a docblock's contents.
 ///
-/// Expectes to be passed a string containing the _contents_ of a docblock (with
+/// Expects to be passed a string containing the _contents_ of a docblock (with
 /// the leading `/*` and trailing `*/` already trimmed).
 ///
-/// The sctructure of docblocks is not well defined. To avoid needing to be
+/// The structure of docblocks is not well defined. To avoid needing to be
 /// opinionated, we use a relatively restricted definition for now:
 ///
 /// * Docblocks consist of n "sections" where each section is either a key/value field, or free text.
@@ -71,11 +80,11 @@ pub fn parse_docblock(
  * - Docblocks allow free text which might contain strings which should be
  *   considered tokens in other contexts.
  *
- * This is why lanuages designed to be expressible in a formal grammer deliniate
+ * This is why languages designed to be expressible in a formal grammar delineate
  * strings with quotation marks.
  *
  * To account for this, we parse in a single pass, essentially treating each
- * character as a token. This allows us to easily interperate characters
+ * character as a token. This allows us to easily intemperate characters
  * differently in different contexts.
  */
 struct DocblockParser<'a> {
@@ -120,7 +129,7 @@ impl<'a> DocblockParser<'a> {
                 location: Location::new(
                     self.source_location,
                     /*
-                     * TODO(T113385544): Investigate if this is actaully a bug in Span::to_range.
+                     * TODO(T113385544): Investigate if this is actually a bug in Span::to_range.
                      *
                      * I honestly don't fully understand this. We use
                      * self.offset as the end position for all other spans and

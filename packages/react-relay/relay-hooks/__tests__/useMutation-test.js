@@ -9,11 +9,14 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
+import type {
+  useMutationTest1Mutation$data,
+  useMutationTest1Mutation$variables,
+} from './__generated__/useMutationTest1Mutation.graphql';
 import type {PayloadData, PayloadError} from 'relay-runtime';
+import type {Mutation} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useMutation = require('../useMutation');
@@ -79,11 +82,20 @@ beforeEach(() => {
     }
   `;
 
-  function Renderer({initialMutation, commitInRender}) {
+  function Renderer({
+    initialMutation,
+    commitInRender,
+  }: {
+    commitInRender: boolean,
+    initialMutation: Mutation<
+      useMutationTest1Mutation$variables,
+      useMutationTest1Mutation$data,
+    >,
+  }) {
     const [mutation, setMutationFn] = useState(initialMutation);
     setMutation = setMutationFn;
     const [commitFn, isMutationInFlight] = useMutation(mutation);
-    commit = config =>
+    commit = (config: any) =>
       ReactTestRenderer.act(() => {
         disposable = commitFn(config);
       });
@@ -98,7 +110,14 @@ beforeEach(() => {
     return null;
   }
 
-  function Container(props) {
+  function Container(props: {
+    commitInRender: boolean,
+    environment: RelayMockEnvironment,
+    mutation: Mutation<
+      useMutationTest1Mutation$variables,
+      useMutationTest1Mutation$data,
+    >,
+  }) {
     const [env, setEnv] = useState(props.environment);
     setEnvironment = setEnv;
     return (
@@ -111,7 +130,14 @@ beforeEach(() => {
     );
   }
 
-  render = function (env, mutation, commitInRender = false) {
+  render = function (
+    env: RelayMockEnvironment,
+    mutation: Mutation<
+      useMutationTest1Mutation$variables,
+      useMutationTest1Mutation$data,
+    >,
+    commitInRender: boolean = false,
+  ) {
     ReactTestRenderer.act(() => {
       instance = ReactTestRenderer.create(
         <Container

@@ -29,6 +29,9 @@ fragment InlineDataFragment on Image @inline {
   ... @__InlineDirectiveMetadata
   # InlineDirectiveMetadata {
   #     fragment_name: "AnotherInlineDataFragment",
+  #     arguments: [],
+  #     variable_definitions: [],
+  #     used_global_variables: [],
   # }
    {
     ... on Image {
@@ -43,6 +46,9 @@ fragment UserProfile on User {
     ... @__InlineDirectiveMetadata
     # InlineDirectiveMetadata {
     #     fragment_name: "InlineDataFragment",
+    #     arguments: [],
+    #     variable_definitions: [],
+    #     used_global_variables: [],
     # }
      {
       ... on Image {
@@ -50,6 +56,9 @@ fragment UserProfile on User {
         ... @__InlineDirectiveMetadata
         # InlineDirectiveMetadata {
         #     fragment_name: "AnotherInlineDataFragment",
+        #     arguments: [],
+        #     variable_definitions: [],
+        #     used_global_variables: [],
         # }
          {
           ... on Image {
@@ -62,6 +71,9 @@ fragment UserProfile on User {
     ... @include(if: $cond) @__InlineDirectiveMetadata
     # InlineDirectiveMetadata {
     #     fragment_name: "AnotherInlineDataFragment",
+    #     arguments: [],
+    #     variable_definitions: [],
+    #     used_global_variables: [],
     # }
      {
       ... on Image {
@@ -74,6 +86,9 @@ fragment UserProfile on User {
     ... @__InlineDirectiveMetadata
     # InlineDirectiveMetadata {
     #     fragment_name: "InlineDataFragment",
+    #     arguments: [],
+    #     variable_definitions: [],
+    #     used_global_variables: [],
     # }
      {
       ... on Image {
@@ -81,6 +96,9 @@ fragment UserProfile on User {
         ... @__InlineDirectiveMetadata
         # InlineDirectiveMetadata {
         #     fragment_name: "AnotherInlineDataFragment",
+        #     arguments: [],
+        #     variable_definitions: [],
+        #     used_global_variables: [],
         # }
          {
           ... on Image {

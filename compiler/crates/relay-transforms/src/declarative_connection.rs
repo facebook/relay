@@ -5,18 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    connections::ConnectionInterface,
-    handle_fields::{build_handle_field_directive, HandleFieldDirectiveValues},
-};
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{
-    Field, FragmentDefinition, LinkedField, Program, ScalarField, Selection, Transformed,
-    Transformer,
-};
-use intern::string_key::{Intern, StringKey};
+use crate::connections::ConnectionInterface;
+use crate::handle_fields::build_handle_field_directive;
+use crate::handle_fields::HandleFieldDirectiveValues;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use schema::{Schema, Type};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeWithFields;
 use std::sync::Arc;
 use thiserror::Error;
 
@@ -45,25 +54,40 @@ lazy_static! {
     static ref PREPEND_EDGE: StringKey = "prependEdge".intern();
     static ref PREPEND_NODE: StringKey = "prependNode".intern();
     static ref EDGE_TYPENAME_ARG: StringKey = "edgeTypeName".intern();
+    static ref EMPTY_STRING: StringKey = "".intern();
 }
 
-struct DeclarativeConnectionMutationTransform<'s, 'c> {
-    program: &'s Program,
+struct DeclarativeConnectionMutationTransform<'a> {
+    schema: &'a SDLSchema,
     errors: Vec<Diagnostic>,
-    connection_interface: &'c ConnectionInterface,
+    connection_interface: &'a ConnectionInterface,
 }
 
-impl<'s, 'c> DeclarativeConnectionMutationTransform<'s, 'c> {
-    fn new(program: &'s Program, connection_interface: &'c ConnectionInterface) -> Self {
+impl<'a> DeclarativeConnectionMutationTransform<'a> {
+    fn new(program: &'a Program, connection_interface: &'a ConnectionInterface) -> Self {
         Self {
-            program,
+            schema: &program.schema,
             connection_interface,
             errors: vec![],
         }
     }
+
+    fn has_cursor_and_node_field(&self, type_: &impl TypeWithFields) -> bool {
+        let mut has_cursor_field = false;
+        let mut has_node_field = false;
+        for field_id in type_.fields() {
+            let current_field_name = self.schema.field(*field_id).name.item;
+            if current_field_name == self.connection_interface.cursor {
+                has_cursor_field = true;
+            } else if current_field_name == self.connection_interface.node {
+                has_node_field = true;
+            }
+        }
+        has_cursor_field && has_node_field
+    }
 }
 
-impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
+impl Transformer for DeclarativeConnectionMutationTransform<'_> {
     const NAME: &'static str = "DeclarativeConnectionMutationTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -83,7 +107,7 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::ConnectionMutationDirectiveOnScalarField {
                     directive_name: linked_field_directive.name.item,
-                    field_name: field.alias_or_name(&self.program.schema),
+                    field_name: field.alias_or_name(self.schema),
                 },
                 field.definition.location,
             ));
@@ -91,20 +115,17 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
         let delete_directive = field.directives.iter().find(|directive| {
             directive.name.item == *DELETE_RECORD || directive.name.item == *DELETE_EDGE
         });
-        let field_definition = self.program.schema.field(field.definition.item);
+        let field_definition = self.schema.field(field.definition.item);
         match delete_directive {
             None => Transformed::Keep,
             Some(delete_directive) => {
-                let is_id = self.program.schema.is_id(field_definition.type_.inner());
+                let is_id = self.schema.is_id(field_definition.type_.inner());
                 if !is_id {
                     self.errors.push(Diagnostic::error(
                         ValidationMessage::DeleteRecordDirectiveOnUnsupportedType {
                             directive_name: delete_directive.name.item,
-                            field_name: field.alias_or_name(&self.program.schema),
-                            current_type: self
-                                .program
-                                .schema
-                                .get_type_string(&field_definition.type_),
+                            field_name: field.alias_or_name(self.schema),
+                            current_type: self.schema.get_type_string(&field_definition.type_),
                         },
                         delete_directive.name.location,
                     ));
@@ -114,7 +135,7 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                     let handle_directive =
                         build_handle_field_directive(HandleFieldDirectiveValues {
                             handle: delete_directive.name.item,
-                            key: "".intern(),
+                            key: *EMPTY_STRING,
                             dynamic_key: None,
                             filters: None,
                             handle_args: connections_arg
@@ -143,7 +164,7 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::DeleteRecordDirectiveOnLinkedField {
                     directive_name: delete_directive.name.item,
-                    field_name: field.alias_or_name(&self.program.schema),
+                    field_name: field.alias_or_name(self.schema),
                 },
                 field.definition.location,
             ));
@@ -160,7 +181,7 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                     ValidationMessage::ConflictingEdgeAndNodeDirectives {
                         edge_directive_name: edge_directive.name.item,
                         node_directive_name: node_directive.name.item,
-                        field_name: field.alias_or_name(&self.program.schema),
+                        field_name: field.alias_or_name(self.schema),
                     },
                     edge_directive.name.location,
                 ));
@@ -180,26 +201,23 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                         transformed_field
                     }
                     Some(connections_arg) => {
-                        let field_definition = self.program.schema.field(field.definition.item);
-                        let mut has_cursor_field = false;
-                        let mut has_node_field = false;
-                        if let Type::Object(id) = field_definition.type_.inner() {
-                            let object = self.program.schema.object(id);
-                            for field_id in &object.fields {
-                                let current_field_name =
-                                    self.program.schema.field(*field_id).name.item;
-                                if current_field_name == self.connection_interface.cursor {
-                                    has_cursor_field = true;
-                                } else if current_field_name == self.connection_interface.node {
-                                    has_node_field = true;
-                                }
+                        let field_definition = self.schema.field(field.definition.item);
+                        let has_cursor_and_node_field = match field_definition.type_.inner() {
+                            Type::Object(id) => {
+                                let object = self.schema.object(id);
+                                self.has_cursor_and_node_field(object)
                             }
-                        }
-                        if has_cursor_field && has_node_field {
+                            Type::Interface(id) => {
+                                let interface = self.schema.interface(id);
+                                self.has_cursor_and_node_field(interface)
+                            }
+                            _ => false,
+                        };
+                        if has_cursor_and_node_field {
                             let handle_directive =
                                 build_handle_field_directive(HandleFieldDirectiveValues {
                                     handle: edge_directive.name.item,
-                                    key: "".intern(),
+                                    key: *EMPTY_STRING,
                                     dynamic_key: None,
                                     filters: None,
                                     handle_args: Some(vec![connections_arg.clone()]),
@@ -227,7 +245,7 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                             self.errors.push(Diagnostic::error(
                                 ValidationMessage::EdgeDirectiveOnUnsupportedType {
                                     directive_name: edge_directive.name.item,
-                                    field_name: field.alias_or_name(&self.program.schema),
+                                    field_name: field.alias_or_name(self.schema),
                                 },
                                 edge_directive.name.location,
                             ));
@@ -251,13 +269,13 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                     Some(connections_arg) => {
                         let edge_typename_arg = node_directive.arguments.named(*EDGE_TYPENAME_ARG);
                         if let Some(edge_typename_arg) = edge_typename_arg {
-                            let field_definition = self.program.schema.field(field.definition.item);
+                            let field_definition = self.schema.field(field.definition.item);
                             match field_definition.type_.inner() {
                                 Type::Object(_) | Type::Interface(_) | Type::Union(_) => {
                                     let handle_directive =
                                         build_handle_field_directive(HandleFieldDirectiveValues {
                                             handle: node_directive.name.item,
-                                            key: "".intern(),
+                                            key: *EMPTY_STRING,
                                             dynamic_key: None,
                                             filters: None,
                                             handle_args: Some(vec![
@@ -291,9 +309,8 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                                     self.errors.push(Diagnostic::error(
                                         ValidationMessage::NodeDirectiveOnUnsupportedType {
                                             directive_name: node_directive.name.item,
-                                            field_name: field.alias_or_name(&self.program.schema),
+                                            field_name: field.alias_or_name(self.schema),
                                             current_type: self
-                                                .program
                                                 .schema
                                                 .get_type_string(&field_definition.type_),
                                         },
@@ -306,7 +323,7 @@ impl<'s, 'c> Transformer for DeclarativeConnectionMutationTransform<'s, 'c> {
                             self.errors.push(Diagnostic::error(
                                 ValidationMessage::NodeDirectiveMissesRequiredEdgeTypeName {
                                     directive_name: node_directive.name.item,
-                                    field_name: field.alias_or_name(&self.program.schema),
+                                    field_name: field.alias_or_name(self.schema),
                                 },
                                 node_directive.name.location,
                             ));

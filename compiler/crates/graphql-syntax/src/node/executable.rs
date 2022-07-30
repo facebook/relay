@@ -10,7 +10,8 @@ use super::directive::Directive;
 use super::primitive::*;
 use super::type_annotation::*;
 use super::value::*;
-use common::{Location, Span};
+use common::Location;
+use common::Span;
 use intern::string_key::StringKey;
 use std::fmt;
 

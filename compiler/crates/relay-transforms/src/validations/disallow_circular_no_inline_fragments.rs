@@ -6,9 +6,16 @@
  */
 
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{FragmentDefinition, FragmentSpread, OperationDefinition, Program, Validator};
-use intern::string_key::{StringKey, StringKeyMap};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Validator;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
 use thiserror::Error;
 
 pub fn disallow_circular_no_inline_fragments(program: &Program) -> DiagnosticsResult<()> {

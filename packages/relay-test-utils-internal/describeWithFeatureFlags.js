@@ -13,8 +13,6 @@
  * Beware that calling jest.resetModules() within the suite may break this.
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {FeatureFlags} from '../relay-runtime/util/RelayFeatureFlags';

@@ -1,0 +1,10 @@
+==================================== INPUT ====================================
+fragment TestLinkedFieldFragment on Query {
+    me { # User type
+        name
+    }
+}
+
+%arguments%
+MaybeNodeInterface name
+==================================== OUTPUT ===================================

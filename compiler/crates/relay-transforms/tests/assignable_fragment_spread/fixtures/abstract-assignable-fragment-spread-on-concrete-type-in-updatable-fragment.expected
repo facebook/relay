@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+fragment Foo on Query @updatable {
+  me {
+    ...Assignable_node
+  }
+}
+
+fragment Assignable_node on Node @assignable {
+  __typename
+}
+==================================== OUTPUT ===================================
+fragment Assignable_node on Node @assignable {
+  __typename
+}
+
+fragment Foo on Query @updatable {
+  me {
+    ...Assignable_node
+  }
+}

@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -17,7 +15,10 @@ import type {
   NormalizationLocalArgumentDefinition,
   NormalizationOperation,
 } from '../util/NormalizationNode';
-import type {ReaderFragment} from '../util/ReaderNode';
+import type {
+  ReaderFragment,
+  ReaderInlineDataFragmentSpread,
+} from '../util/ReaderNode';
 import type {ProvidedVariablesType} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
@@ -32,10 +33,16 @@ const invariant = require('invariant');
  * Note that this is analagous to determining function arguments given a function call.
  */
 function getFragmentVariables(
-  fragment: ReaderFragment,
+  fragment: ReaderFragment | ReaderInlineDataFragmentSpread,
   rootVariables: Variables,
   argumentVariables: Variables,
 ): Variables {
+  // TODO: Support for legacy ReaderInlineDataFragmentSpread nodes.
+  // Remove this once all we've updated the ReaderInlineDataFragmentSpread
+  // type to indicate that all compiled artifacts have been updated.
+  if (fragment.argumentDefinitions == null) {
+    return argumentVariables;
+  }
   let variables;
   fragment.argumentDefinitions.forEach(definition => {
     if (argumentVariables.hasOwnProperty(definition.name)) {
@@ -88,7 +95,7 @@ function getOperationVariables(
   providedVariables: ?ProvidedVariablesType,
   variables: Variables,
 ): Variables {
-  const operationVariables = {};
+  const operationVariables: {[string]: mixed} = {};
   operation.argumentDefinitions.forEach(def => {
     let value = def.defaultValue;
     if (variables[def.name] != null) {

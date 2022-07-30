@@ -5,7 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_ir::{Directive, FragmentSpread, InlineFragment, LinkedField, Selection};
+use graphql_ir::Directive;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::Selection;
 
 /// A trait for implementating finding if a directive exists in an IR.
 /// Returns `true` if the directive is found.

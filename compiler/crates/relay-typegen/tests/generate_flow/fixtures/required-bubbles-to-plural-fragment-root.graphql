@@ -1,0 +1,7 @@
+fragment SomeFragment on User @relay(plural: true) {
+  name @required(action: LOG)
+}
+
+fragment SomeOtherFragment on User @relay(plural: true) {
+  name
+}

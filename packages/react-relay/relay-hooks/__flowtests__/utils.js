@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {Disposable, Fragment, FragmentType} from 'relay-runtime';
@@ -28,18 +26,18 @@ export type Example_user$key = {
   ...
 };
 
-export type NonNullableData = {|
+export type NonNullableData = {
   +id: string,
   +count: number,
-|};
+};
 export type NullableData = ?NonNullableData;
 export type NonNullablePluralData = $ReadOnlyArray<NonNullableData>;
 export type NullablePluralData = ?$ReadOnlyArray<NonNullableData>;
 
-export type AnotherNonNullableData = {|
+export type AnotherNonNullableData = {
   +name: ?string,
   +friends: ?number,
-|};
+};
 
 declare export var keyNonNullable: Example_user$key;
 
@@ -66,16 +64,16 @@ declare export var fragmentData: {
   ...
 };
 
-export type QueryOperation = {|
+export type QueryOperation = {
   +variables: QueryVariables,
   +response: {...},
-|};
+};
 
-export type QueryVariables = {|
+export type QueryVariables = {
   id: string,
   nickname: ?string,
   name: string,
-|};
+};
 
 export type QueryVariablesSubset = {
   id: string,

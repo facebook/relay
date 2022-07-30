@@ -1,0 +1,10 @@
+# expected-to-throw
+fragment Foo on Query {
+  node {
+    ...Updatable_query
+  }
+}
+
+fragment Updatable_query on Query @updatable {
+  __id
+}

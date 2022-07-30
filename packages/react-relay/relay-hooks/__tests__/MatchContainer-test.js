@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {MatchPointer} from '../MatchContainer';
@@ -26,11 +24,17 @@ function createMatchPointer({
   variables,
   propName,
   module,
+}: {
+  fragment: {name: string},
+  id: string,
+  module: string,
+  propName: string,
+  variables: any,
 }): MatchPointer {
   const pointer = {
     $fragmentSpreads: {},
     [ID_KEY]: id,
-    [FRAGMENTS_KEY]: {},
+    [FRAGMENTS_KEY]: ({}: {[string]: {...}}),
     [FRAGMENT_OWNER_KEY]: null,
     __fragmentPropName: propName,
     __module_component: module,

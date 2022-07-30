@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on Query {
+  node {
+    ...Updatable_actor
+  }
+}
+
+fragment Updatable_actor on Actor @updatable {
+  __id
+}
+==================================== ERROR ====================================
+✖︎ This updatable fragment has type `Actor`, and is found within a linked field with type `Node`. However, if a record has the type `Node`, it does not necessarily have the type `Actor`.
+
+  updatable_fragment_spread_abstract_in_different_non_extending_abstract.invalid.graphql:4:8
+    3 │   node {
+    4 │     ...Updatable_actor
+      │        ^^^^^^^^^^^^^^^
+    5 │   }

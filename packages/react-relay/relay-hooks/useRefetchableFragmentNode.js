@@ -9,12 +9,11 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {LoaderFn} from './useQueryLoader';
 import type {
+  ConcreteRequest,
   Disposable,
   FetchPolicy,
   IEnvironment,
@@ -70,24 +69,24 @@ export type ReturnType<
   TQuery: OperationType,
   TKey: ?{+$data?: mixed, ...},
   TOptions = Options,
-> = {|
+> = {
   fragmentData: mixed,
   fragmentRef: mixed,
   refetch: RefetchFnDynamic<TQuery, TKey, TOptions>,
   disableStoreUpdates: () => void,
   enableStoreUpdates: () => void,
-|};
+};
 
-export type Options = {|
+export type Options = {
   fetchPolicy?: FetchPolicy,
   onComplete?: (Error | null) => void,
   UNSTABLE_renderPolicy?: RenderPolicy,
-|};
+};
 
-type InternalOptions = {|
+type InternalOptions = {
   ...Options,
   __environment?: IEnvironment,
-|};
+};
 
 type RefetchFnBase<TVars, TOptions> = (
   vars: TVars,
@@ -104,21 +103,21 @@ type RefetchFnInexact<
 > = RefetchFnBase<$Shape<VariablesOf<TQuery>>, TOptions>;
 
 type Action =
-  | {|
+  | {
       type: 'reset',
       environment: IEnvironment,
       fragmentIdentifier: string,
-    |}
-  | {|
+    }
+  | {
       type: 'refetch',
       refetchQuery: OperationDescriptor,
       fetchPolicy?: FetchPolicy,
       renderPolicy?: RenderPolicy,
       onComplete?: (Error | null) => void,
       refetchEnvironment: ?IEnvironment,
-    |};
+    };
 
-type RefetchState = {|
+type RefetchState = {
   fetchPolicy: FetchPolicy | void,
   mirroredEnvironment: IEnvironment,
   mirroredFragmentIdentifier: string,
@@ -126,7 +125,7 @@ type RefetchState = {|
   refetchEnvironment?: ?IEnvironment,
   refetchQuery: OperationDescriptor | null,
   renderPolicy: RenderPolicy | void,
-|};
+};
 
 type DebugIDandTypename = {
   id: string,
@@ -241,7 +240,7 @@ function useRefetchableFragmentNode<
       );
     }
 
-    const handleQueryCompleted = maybeError => {
+    const handleQueryCompleted = (maybeError: void | Error) => {
       onComplete && onComplete(maybeError ?? null);
     };
 
@@ -358,17 +357,31 @@ function useRefetchableFragmentNode<
 }
 
 function useRefetchFunction<TQuery: OperationType>(
-  componentDisplayName,
-  dispatch,
-  disposeQuery,
-  fragmentData,
-  fragmentIdentifier,
-  fragmentNode,
-  fragmentRefPathInResponse,
-  identifierField,
+  componentDisplayName: string,
+  dispatch: (
+    | {
+        environment: IEnvironment,
+        fragmentIdentifier: string,
+        type: 'reset',
+      }
+    | {
+        fetchPolicy?: FetchPolicy,
+        onComplete?: (Error | null) => void,
+        refetchEnvironment: ?IEnvironment,
+        refetchQuery: OperationDescriptor,
+        renderPolicy?: RenderPolicy,
+        type: 'refetch',
+      },
+  ) => void,
+  disposeQuery: () => void,
+  fragmentData: mixed,
+  fragmentIdentifier: string,
+  fragmentNode: ReaderFragment,
+  fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
+  identifierField: ?string,
   loadQuery: LoaderFn<TQuery>,
-  parentFragmentRef,
-  refetchableRequest,
+  parentFragmentRef: mixed,
+  refetchableRequest: ConcreteRequest,
 ): RefetchFn<TQuery, InternalOptions> {
   const isMountedRef = useIsMountedRef();
   const identifierValue =

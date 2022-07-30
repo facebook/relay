@@ -8,8 +8,6 @@
  * @flow strict-local
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 /* global jest */
@@ -40,12 +38,12 @@ const {
   getRequest,
 } = require('relay-runtime');
 
-type PendingRequest = {|
+type PendingRequest = {
   +request: RequestParameters,
   +variables: Variables,
   +cacheConfig: CacheConfig,
   +sink: Sink<GraphQLSingularResponse>,
-|};
+};
 
 const MAX_SIZE = 10;
 const MAX_TTL = 5 * 60 * 1000; // 5 min
@@ -91,7 +89,7 @@ type OperationMockResolver = (
   operation: OperationDescriptor,
 ) => ?GraphQLSingularResponse | ?Error;
 
-type MockFunctions = {|
+type MockFunctions = {
   +clearCache: () => void,
   +cachePayload: (
     request: ConcreteRequest | OperationDescriptor,
@@ -134,7 +132,7 @@ type MockFunctions = {|
     error: Error | ((operation: OperationDescriptor) => Error),
   ) => void,
   +queueOperationResolver: (resolver: OperationMockResolver) => void,
-|};
+};
 
 interface MockEnvironment {
   +mock: MockFunctions;
@@ -449,7 +447,7 @@ function createMockEnvironment(
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       | IEnvironment['executeMutation'],
   ) => {
-    return (...argumentsList) => {
+    return (...argumentsList: $FlowFixMe) => {
       const [{operation}] = argumentsList;
       pendingOperations = pendingOperations.concat([operation]);
       return fn.apply(env, argumentsList);

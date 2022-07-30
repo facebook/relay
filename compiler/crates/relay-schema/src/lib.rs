@@ -11,15 +11,18 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
-use common::{DiagnosticsResult, SourceLocationKey};
+use common::DiagnosticsResult;
+use common::SourceLocationKey;
 use intern::intern;
-use schema::{ArgumentDefinitions, SDLSchema, TypeReference};
+use schema::ArgumentDefinitions;
+use schema::SDLSchema;
+use schema::TypeReference;
 use std::iter::once;
 
 const RELAY_EXTENSIONS: &str = include_str!("./relay-extensions.graphql");
 
 pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
-    server_sdls: &[T],
+    server_sdls: &[(T, SourceLocationKey)],
     extension_sdls: &[(U, SourceLocationKey)],
 ) -> DiagnosticsResult<SDLSchema> {
     let extensions: Vec<(&str, SourceLocationKey)> =

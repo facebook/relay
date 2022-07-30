@@ -9,18 +9,13 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {RecordSourceProxy, UpdatableData} from '../store/RelayStoreTypes';
 import type {UpdatableQuery, Variables} from '../util/RelayRuntimeTypes';
 
 const {getUpdatableQuery} = require('../query/GraphQLTag');
-const {getArgumentValues} = require('../store/RelayStoreUtils');
 const {createUpdatableProxy} = require('./createUpdatableProxy');
-
-const nonUpdatableKeys = ['id', '__id', '__typename', 'js'];
 
 function readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
   query: UpdatableQuery<TVariables, TData>,

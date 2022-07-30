@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {Direction, OperationDescriptor, Variables} from 'relay-runtime';
@@ -68,11 +66,11 @@ describe('useBlockingPaginationFragment', () => {
   let Renderer;
 
   class ErrorBoundary extends React.Component<any, any> {
-    state = {error: null};
-    componentDidCatch(error) {
+    state: any | {error: null} = {error: null};
+    componentDidCatch(error: Error) {
       this.setState({error});
     }
-    render() {
+    render(): any | React.Node {
       const {children, fallback} = this.props;
       const {error} = this.state;
       if (error) {
@@ -82,7 +80,10 @@ describe('useBlockingPaginationFragment', () => {
     }
   }
 
-  function useBlockingPaginationFragment(fragmentNode, fragmentRef) {
+  function useBlockingPaginationFragment(
+    fragmentNode: any,
+    fragmentRef: mixed,
+  ) {
     // $FlowFixMe[incompatible-call]
     const {data, ...result} = useBlockingPaginationFragmentOriginal(
       fragmentNode,
@@ -96,7 +97,10 @@ describe('useBlockingPaginationFragment', () => {
     return {data, ...result};
   }
 
-  function assertCall(expected, idx) {
+  function assertCall(
+    expected: {data: any, hasNext: boolean, hasPrevious: boolean},
+    idx: number,
+  ) {
     const actualData = renderSpy.mock.calls[idx][0];
     const actualResult = renderSpy.mock.calls[idx][1];
     const actualHasNext = actualResult.hasNext;
@@ -108,11 +112,11 @@ describe('useBlockingPaginationFragment', () => {
   }
 
   function expectFragmentResults(
-    expectedCalls: $ReadOnlyArray<{|
+    expectedCalls: $ReadOnlyArray<{
       data: $FlowFixMe,
       hasNext: boolean,
       hasPrevious: boolean,
-    |}>,
+    }>,
   ) {
     // This ensures that useEffect runs
     TestRenderer.act(() => jest.runAllImmediates());
@@ -122,8 +126,8 @@ describe('useBlockingPaginationFragment', () => {
   }
 
   function createFragmentRef(
-    id,
-    owner,
+    id: string,
+    owner: OperationDescriptor,
     fragmentName: string = 'useBlockingPaginationFragmentTestNestedUserFragment',
   ) {
     return {
@@ -381,12 +385,12 @@ describe('useBlockingPaginationFragment', () => {
     });
 
     // Set up renderers
-    Renderer = props => null;
+    Renderer = (props: {user: any}) => null;
 
     const Container = (props: {
       userRef?: {...},
       owner: $FlowFixMe,
-      fragment: $FlowFixMe,
+      fragment?: $FlowFixMe,
       ...
     }) => {
       // We need a render a component to run a Hook
@@ -408,7 +412,7 @@ describe('useBlockingPaginationFragment', () => {
       return <Renderer user={userData} />;
     };
 
-    const ContextProvider = ({children}) => {
+    const ContextProvider = ({children}: {children: React.Node}) => {
       const [env, _setEnv] = useState(environment);
       const relayContext = useMemo(() => ({environment: env}), [env]);
 
@@ -722,7 +726,7 @@ describe('useBlockingPaginationFragment', () => {
       });
     });
 
-    function expectRequestIsInFlight(expected) {
+    function expectRequestIsInFlight(expected: any) {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(environment.execute).toBeCalledTimes(expected.requestCount);
       expect(
@@ -735,15 +739,15 @@ describe('useBlockingPaginationFragment', () => {
     }
 
     function expectFragmentIsLoadingMore(
-      renderer,
+      renderer: any,
       direction: Direction,
-      expected: {|
+      expected: {
         data: mixed,
         hasNext: boolean,
         hasPrevious: boolean,
         paginationVariables: Variables,
         gqlPaginationQuery?: $FlowFixMe,
-      |},
+      },
     ) {
       expect(renderSpy).toBeCalledTimes(0);
       renderSpy.mockClear();
@@ -3725,7 +3729,7 @@ describe('useBlockingPaginationFragment', () => {
     describe('refetch', () => {
       // The bulk of refetch behavior is covered in useRefetchableFragmentNode-test,
       // so this suite covers the pagination-related test cases.
-      function expectRefetchRequestIsInFlight(expected) {
+      function expectRefetchRequestIsInFlight(expected: any) {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.executeWithSource).toBeCalledTimes(
           expected.requestCount,
@@ -3740,15 +3744,15 @@ describe('useBlockingPaginationFragment', () => {
       }
 
       function expectFragmentIsRefetching(
-        renderer,
-        expected: {|
+        renderer: any,
+        expected: {
           data: mixed,
           hasNext: boolean,
           hasPrevious: boolean,
           refetchVariables: Variables,
           refetchQuery?: OperationDescriptor,
           gqlRefetchQuery?: $FlowFixMe,
-        |},
+        },
       ) {
         expect(renderSpy).toBeCalledTimes(0);
         renderSpy.mockClear();

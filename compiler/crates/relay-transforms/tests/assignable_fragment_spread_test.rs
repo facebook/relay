@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<12a03ad68e8a6ddf5e1bde9ed356b917>>
+ * @generated SignedSource<<7e199fca5115686b17339b3e81aeaf9d>>
  */
 
 mod assignable_fragment_spread;
@@ -17,6 +17,13 @@ fn abstract_assignable_fragment_spread_on_concrete_type() {
     let input = include_str!("assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-concrete-type.graphql");
     let expected = include_str!("assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-concrete-type.expected");
     test_fixture(transform_fixture, "abstract-assignable-fragment-spread-on-concrete-type.graphql", "assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-concrete-type.expected", input, expected);
+}
+
+#[test]
+fn abstract_assignable_fragment_spread_on_concrete_type_in_updatable_fragment() {
+    let input = include_str!("assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-concrete-type-in-updatable-fragment.graphql");
+    let expected = include_str!("assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-concrete-type-in-updatable-fragment.expected");
+    test_fixture(transform_fixture, "abstract-assignable-fragment-spread-on-concrete-type-in-updatable-fragment.graphql", "assignable_fragment_spread/fixtures/abstract-assignable-fragment-spread-on-concrete-type-in-updatable-fragment.expected", input, expected);
 }
 
 #[test]
@@ -34,6 +41,13 @@ fn abstract_assignable_fragment_spread_on_matching_abstract_type() {
 }
 
 #[test]
+fn assignable_fragment_spread_top_level_invalid() {
+    let input = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-top-level.invalid.graphql");
+    let expected = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-top-level.invalid.expected");
+    test_fixture(transform_fixture, "assignable-fragment-spread-top-level.invalid.graphql", "assignable_fragment_spread/fixtures/assignable-fragment-spread-top-level.invalid.expected", input, expected);
+}
+
+#[test]
 fn assignable_fragment_spread_with_directives_invalid() {
     let input = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-with-directives.invalid.graphql");
     let expected = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-with-directives.invalid.expected");
@@ -41,17 +55,17 @@ fn assignable_fragment_spread_with_directives_invalid() {
 }
 
 #[test]
+fn assignable_fragment_spread_within_inline_fragment() {
+    let input = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment.graphql");
+    let expected = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment.expected");
+    test_fixture(transform_fixture, "assignable-fragment-spread-within-inline-fragment.graphql", "assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment.expected", input, expected);
+}
+
+#[test]
 fn assignable_fragment_spread_within_inline_fragment_and_linked_field() {
     let input = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment-and-linked-field.graphql");
     let expected = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment-and-linked-field.expected");
     test_fixture(transform_fixture, "assignable-fragment-spread-within-inline-fragment-and-linked-field.graphql", "assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment-and-linked-field.expected", input, expected);
-}
-
-#[test]
-fn assignable_fragment_spread_within_inline_fragment_invalid() {
-    let input = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment.invalid.graphql");
-    let expected = include_str!("assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment.invalid.expected");
-    test_fixture(transform_fixture, "assignable-fragment-spread-within-inline-fragment.invalid.graphql", "assignable_fragment_spread/fixtures/assignable-fragment-spread-within-inline-fragment.invalid.expected", input, expected);
 }
 
 #[test]

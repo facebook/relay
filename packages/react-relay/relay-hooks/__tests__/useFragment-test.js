@@ -9,11 +9,20 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {
+  useFragmentTestUserFragment$data,
+  useFragmentTestUserFragment$fragmentType,
+} from './__generated__/useFragmentTestUserFragment.graphql';
+import type {
+  useFragmentTestUsersFragment$data,
+  useFragmentTestUsersFragment$fragmentType,
+} from './__generated__/useFragmentTestUsersFragment.graphql';
+import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
+import type {Fragment} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const useFragmentOriginal = require('../useFragment');
+const useFragmentOriginal_REACT_CACHE = require('../react-cache/useFragment_REACT_CACHE');
+const useFragmentOriginal_LEGACY = require('../useFragment');
 const React = require('react');
 const ReactRelayContext = require('react-relay/ReactRelayContext');
 const TestRenderer = require('react-test-renderer');
@@ -21,6 +30,7 @@ const {
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
+  RelayFeatureFlags,
   createOperationDescriptor,
   graphql,
 } = require('relay-runtime');
@@ -33,7 +43,20 @@ const {
 disallowWarnings();
 disallowConsoleErrors();
 
-describe('useFragment', () => {
+describe.each([
+  ['React Cache', useFragmentOriginal_REACT_CACHE],
+  ['Legacy', useFragmentOriginal_LEGACY],
+])('useFragment (%s)', (_hookName, useFragmentOriginal) => {
+  let originalReactCacheFeatureFlag;
+  beforeEach(() => {
+    originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
+    RelayFeatureFlags.USE_REACT_CACHE =
+      useFragmentOriginal === useFragmentOriginal_REACT_CACHE;
+  });
+  afterEach(() => {
+    RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
+  });
+
   let environment;
   let gqlSingularQuery;
   let gqlSingularFragment;
@@ -50,14 +73,25 @@ describe('useFragment', () => {
   let PluralRenderer;
   let ContextProvider;
 
-  function useFragment(fragmentNode, fragmentRef) {
+  function useFragment(
+    fragmentNode:
+      | Fragment<
+          useFragmentTestUserFragment$fragmentType,
+          useFragmentTestUserFragment$data,
+        >
+      | Fragment<
+          useFragmentTestUsersFragment$fragmentType,
+          useFragmentTestUsersFragment$data,
+        >,
+    fragmentRef: any,
+  ) {
     // $FlowFixMe[incompatible-call] non-generated fragmentRef is disallowd
     const data = useFragmentOriginal(fragmentNode, fragmentRef);
     renderSpy(data);
     return data;
   }
 
-  function assertFragmentResults(expected) {
+  function assertFragmentResults(expected: any) {
     // This ensures that useEffect runs
     jest.runAllImmediates();
     expect(renderSpy).toBeCalledTimes(1);
@@ -66,7 +100,7 @@ describe('useFragment', () => {
     renderSpy.mockClear();
   }
 
-  function createFragmentRef(id, owner) {
+  function createFragmentRef(id: string, owner: OperationDescriptor) {
     return {
       [ID_KEY]: id,
       [FRAGMENTS_KEY]: {
@@ -150,8 +184,18 @@ describe('useFragment', () => {
     });
 
     // Set up renderers
-    SingularRenderer = props => null;
-    PluralRenderer = props => null;
+    SingularRenderer = (props: {
+      user: ?(
+        | useFragmentTestUserFragment$data
+        | useFragmentTestUsersFragment$data
+      ),
+    }) => null;
+    PluralRenderer = (props: {
+      users: ?(
+        | useFragmentTestUserFragment$data
+        | useFragmentTestUsersFragment$data
+      ),
+    }) => null;
     const SingularContainer = (props: {
       userRef?: {$data?: {...}, ...},
       owner: $FlowFixMe,
@@ -177,7 +221,6 @@ describe('useFragment', () => {
       owner: $FlowFixMe,
       ...
     }) => {
-      // We need a render a component to run a Hook
       const owner = props.owner;
       const usersRef = props.hasOwnProperty('usersRef')
         ? props.usersRef
@@ -194,7 +237,7 @@ describe('useFragment', () => {
     };
 
     const relayContext = {environment};
-    ContextProvider = ({children}) => {
+    ContextProvider = ({children}: {children: React.Node}) => {
       return (
         <ReactRelayContext.Provider value={relayContext}>
           {children}
@@ -202,32 +245,50 @@ describe('useFragment', () => {
       );
     };
 
-    renderSingularFragment = (props?: {
-      owner?: $FlowFixMe,
-      userRef?: $FlowFixMe,
-      ...
-    }) => {
-      return TestRenderer.create(
+    renderSingularFragment = (
+      props?: {
+        owner?: $FlowFixMe,
+        userRef?: $FlowFixMe,
+        ...
+      },
+      existing: $FlowFixMe,
+    ) => {
+      const elements = (
         <React.Suspense fallback="Singular Fallback">
           <ContextProvider>
             <SingularContainer owner={singularQuery} {...props} />
           </ContextProvider>
-        </React.Suspense>,
+        </React.Suspense>
       );
+      if (existing) {
+        existing.update(elements);
+        return existing;
+      } else {
+        return TestRenderer.create(elements);
+      }
     };
 
-    renderPluralFragment = (props?: {
-      owner?: $FlowFixMe,
-      userRef?: $FlowFixMe,
-      ...
-    }) => {
-      return TestRenderer.create(
+    renderPluralFragment = (
+      props?: {
+        owner?: $FlowFixMe,
+        userRef?: $FlowFixMe,
+        ...
+      },
+      existing: $FlowFixMe,
+    ) => {
+      const elements = (
         <React.Suspense fallback="Plural Fallback">
           <ContextProvider>
             <PluralContainer owner={pluralQuery} {...props} />
           </ContextProvider>
-        </React.Suspense>,
+        </React.Suspense>
       );
+      if (existing) {
+        existing.update(elements);
+        return existing;
+      } else {
+        return TestRenderer.create(elements);
+      }
     };
   });
 
@@ -246,10 +307,10 @@ describe('useFragment', () => {
   });
 
   it('should return the same data object if rendered multiple times: singular fragment', () => {
-    renderSingularFragment();
+    const container = renderSingularFragment();
     expect(renderSpy).toBeCalledTimes(1);
     const actualData = renderSpy.mock.calls[0][0];
-    renderSingularFragment();
+    renderSingularFragment({}, container);
     expect(renderSpy).toBeCalledTimes(2);
     const actualData2 = renderSpy.mock.calls[1][0];
     expect(actualData).toBe(actualData2);
@@ -272,12 +333,24 @@ describe('useFragment', () => {
   });
 
   it('should return the same data object if rendered multiple times: plural fragment', () => {
-    renderPluralFragment();
+    const container = renderPluralFragment();
     expect(renderSpy).toBeCalledTimes(1);
     const actualData = renderSpy.mock.calls[0][0];
-    renderPluralFragment();
+    renderPluralFragment({}, container);
     expect(renderSpy).toBeCalledTimes(2);
     const actualData2 = renderSpy.mock.calls[1][0];
     expect(actualData).toBe(actualData2);
+  });
+
+  it('Returns [] when the fragment ref is [] (for plural fragments)', () => {
+    const container = renderPluralFragment({usersRef: []});
+    assertFragmentResults([]);
+    container.unmount();
+  });
+
+  it('Returns null when the fragment ref is null (for plural fragments)', () => {
+    const container = renderPluralFragment({usersRef: null});
+    assertFragmentResults(null);
+    container.unmount();
   });
 });

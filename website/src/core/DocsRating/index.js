@@ -7,12 +7,10 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import './docsRating.css';
 import Link from '@docusaurus/Link';
 import {fbContent} from 'internaldocs-fb-helpers';
 import * as React from 'react';
-/* eslint-enable lint/no-value-import */
 
 function provideFeedbackToGoogleAnalytics(value) {
   if (window.ga) {
@@ -51,7 +49,7 @@ function Wrapper({children}) {
 
 const FeedbackButtons = () => {
   const [hasProvidedFeedback, setHasProvidedFeedback] = React.useState(false);
-  const provideFeedback = (value) => {
+  const provideFeedback = value => {
     setHasProvidedFeedback(true);
     provideFeedbackToGoogleAnalytics(value);
   };

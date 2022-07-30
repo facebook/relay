@@ -11,12 +11,11 @@
 
 'use strict';
 
-import type {readUpdatableQueryEXPERIMENTALTest2UpdatableQuery} from './__generated__/readUpdatableQueryEXPERIMENTALTest2UpdatableQuery.graphql';
 import type {readUpdatableQueryEXPERIMENTALTestRegularQuery} from './__generated__/readUpdatableQueryEXPERIMENTALTestRegularQuery.graphql';
-import type {readUpdatableQueryEXPERIMENTALTestUpdatableQuery} from './__generated__/readUpdatableQueryEXPERIMENTALTestUpdatableQuery.graphql';
+import type {OpaqueScalarType} from './OpaqueScalarType';
 
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../../store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -31,6 +30,14 @@ const {
 const {
   validate: validateUser,
 } = require('./__generated__/readUpdatableQueryEXPERIMENTALTest_user.graphql');
+const {createOpaqueScalarTypeValue} = require('./OpaqueScalarType');
+const {
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 const updatableQuery = graphql`
   query readUpdatableQueryEXPERIMENTALTestUpdatableQuery @updatable {
@@ -98,7 +105,6 @@ const regularQuery = graphql`
       }
     }
     node(id: "4") {
-      __typename
       ...readUpdatableQueryEXPERIMENTALTest_user
       ... on User {
         name
@@ -137,7 +143,7 @@ describe('readUpdatableQuery', () => {
   let rootRequest;
 
   beforeEach(() => {
-    rootRequest = getRequest(regularQuery);
+    rootRequest = regularQuery;
     operation = createOperationDescriptor(rootRequest, {});
     const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
@@ -797,7 +803,7 @@ describe('readUpdatableQuery', () => {
           if (readOnlyData.node != null) {
             if (readOnlyData.node.__typename === 'User') {
               expect(() => {
-                /* eslint-disable-next-line flowtype/no-flow-fix-me-comments */
+                /* eslint-disable-next-line ft-flow/no-flow-fix-me-comments */
                 // $FlowFixMe
                 updatableData.node2.parents = null;
               }).toThrowError();
@@ -1026,5 +1032,66 @@ describe('readUpdatableQuery', () => {
     const readOnlyData = ((RelayReader.read(source, selector) // $FlowFixMe[unclear-type] Just to cast it to a better type!
       .data: any): readUpdatableQueryEXPERIMENTALTestRegularQuery['response']);
     expect(readOnlyData.me?.author?.client_best_friend?.name).toBe('Mr. Right');
+  });
+
+  describe('with custom scalars', () => {
+    it('should update custom scalar field', () => {
+      // Read initial data
+      const readableQuery = graphql`
+        query readUpdatableQueryEXPERIMENTALTest2Query {
+          updatable_scalar_field
+        }
+      `;
+      const updateableQuery = graphql`
+        query readUpdatableQueryEXPERIMENTALTest1Query @updatable {
+          updatable_scalar_field
+        }
+      `;
+
+      const operationDescriptor = createOperationDescriptor(readableQuery, {});
+      const value = environment.lookup(operationDescriptor.fragment);
+      expect(value.data).toEqual({
+        updatable_scalar_field: undefined,
+      });
+
+      function updateCustomScalar(newValue: OpaqueScalarType) {
+        commitLocalUpdate(environment, store => {
+          const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+            updateableQuery,
+            {},
+          ).updatableData;
+          updatableData.updatable_scalar_field = newValue;
+        });
+      }
+
+      // Update custom scalar field
+      updateCustomScalar(
+        createOpaqueScalarTypeValue('Alice', () => {
+          throw new Error('Hello, Alice');
+        }),
+      );
+
+      // Validate the updated value
+      const updatedData = environment.lookup(operationDescriptor.fragment).data;
+      expect(updatedData).toEqual({
+        updatable_scalar_field: {
+          name: 'Alice',
+          callback: expect.any(Function),
+        },
+      });
+      expect(() => {
+        // $FlowFixMe[incompatible-use] we just checked that callback is a function
+        updatedData.updatable_scalar_field.callback();
+      }).toThrow('Hello, Alice');
+
+      // Update custom value one more time
+      updateCustomScalar(createOpaqueScalarTypeValue('Bob', jest.fn()));
+      expect(environment.lookup(operationDescriptor.fragment).data).toEqual({
+        updatable_scalar_field: {
+          name: 'Bob',
+          callback: expect.any(Function),
+        },
+      });
+    });
   });
 });

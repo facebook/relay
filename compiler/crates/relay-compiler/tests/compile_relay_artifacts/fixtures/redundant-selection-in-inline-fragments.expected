@@ -125,6 +125,7 @@ fragment redundantSelectionInInlineFragments_interface_concrete on MaybeNodeInte
     ]
   },
   "params": {
+    "cacheID": "a2cab90fa9338b32581f32dc69b74f70",
     "id": null,
     "metadata": {},
     "name": "redundantSelectionInInlineFragmentsQuery",

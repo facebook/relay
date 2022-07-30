@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6d9922010e1474b1214c383c394daa24>>
+ * @generated SignedSource<<6d04d7f7bf097d5869a1fdf0dea1e659>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ export type ReactRelayRefetchContainerFlowtest_viewer$data = {|
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
-          +__typename: string,
+          +__typename: "User",
         |},
       |}>,
     |},

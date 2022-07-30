@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -116,10 +114,10 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
   environment: IEnvironment,
   query: Query<TVariables, TData, TRawResponse>,
   variables: TVariables,
-  options?: $ReadOnly<{|
+  options?: $ReadOnly<{
     fetchPolicy?: FetchQueryFetchPolicy,
     networkCacheConfig?: CacheConfig,
-  |}>,
+  }>,
 ): RelayObservable<TData> {
   const queryNode = getRequest(query);
   invariant(

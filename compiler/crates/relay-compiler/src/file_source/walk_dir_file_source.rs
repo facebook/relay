@@ -6,12 +6,15 @@
  */
 
 use std::collections::HashSet;
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use std::path::PathBuf;
 
+use crate::compiler_state::CompilerState;
+use crate::config::Config;
 use crate::errors::Result;
 use crate::FileSourceResult;
-use crate::{compiler_state::CompilerState, config::Config};
-use common::{PerfLogEvent, PerfLogger};
+use common::PerfLogEvent;
+use common::PerfLogger;
 use log::debug;
 use relay_typegen::TypegenLanguage;
 use walkdir::WalkDir;

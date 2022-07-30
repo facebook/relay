@@ -1,0 +1,12 @@
+# expected-to-throw
+fragment Foo on Query {
+  node(id: "4") {
+    ... on User {
+      ...Updatable_user
+    }
+  }
+}
+
+fragment Updatable_user on User @updatable {
+  __typename
+}

@@ -6,8 +6,11 @@
  */
 
 use crate::util::INTERNAL_RELAY_VARIABLES_PREFIX;
-use common::{Diagnostic, DiagnosticsResult};
-use graphql_ir::{OperationDefinition, Program, Validator};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Validator;
 use intern::string_key::StringKey;
 use thiserror::Error;
 

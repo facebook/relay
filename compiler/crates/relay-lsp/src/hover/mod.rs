@@ -7,16 +7,17 @@
 
 //! Utilities for providing the hover feature
 
-use crate::{lsp_runtime_error::LSPRuntimeResult, server::GlobalState};
-use lsp_types::{
-    request::{HoverRequest, Request},
-    LanguageString, MarkedString,
-};
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::server::GlobalState;
+use lsp_types::request::HoverRequest;
+use lsp_types::request::Request;
+use lsp_types::LanguageString;
+use lsp_types::MarkedString;
 use resolution_path::ResolvePosition;
 use serde::Serialize;
 
 mod with_resolution_path;
-use with_resolution_path::get_hover;
+pub use with_resolution_path::get_hover;
 
 pub use self::with_resolution_path::ContentConsumerType;
 
@@ -111,7 +112,9 @@ fn get_open_schema_explorer_command_link(
 
 fn get_open_schema_explorer_command(params: &GraphQLSchemaExplorerParams<'_>) -> String {
     // see https://docs.rs/percent-encoding/2.1.0/percent_encoding/
-    use percent_encoding::{utf8_percent_encode, AsciiSet, CONTROLS};
+    use percent_encoding::utf8_percent_encode;
+    use percent_encoding::AsciiSet;
+    use percent_encoding::CONTROLS;
 
     const FRAGMENT: AsciiSet = CONTROLS.add(b' ').add(b'"').add(b'<').add(b'>').add(b'`');
 

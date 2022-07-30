@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+query MyQuery {
+  me {
+    ...MyFragment
+  }
+}
+
+fragment MyFra|gment on User {
+  __typename
+}
+==================================== OUTPUT ===================================
+fragment MyFragment on [User](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22User%22],%22schemaName%22:%22Some%20Schema%20Name%22})
+--
+Fragments let you select fields,
+    and then include them in queries where you need to.
+
+    ---
+    @see: https://graphql.org/learn/queries/#fragments

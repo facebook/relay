@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const {
@@ -18,6 +16,12 @@ const {
   expectConsoleErrorsMany,
   expectConsoleErrorWillFire,
 } = require('./consoleError');
+const {
+  disallowConsoleWarnings,
+  expectConsoleWarning,
+  expectConsoleWarningsMany,
+  expectConsoleWarningWillFire,
+} = require('./consoleWarning');
 const describeWithFeatureFlags = require('./describeWithFeatureFlags');
 const {
   FIXTURE_TAG,
@@ -26,6 +30,7 @@ const {
 const Matchers = require('./Matchers');
 const printAST = require('./printAST');
 const simpleClone = require('./simpleClone');
+const trackRetentionForEnvironment = require('./trackRetentionForEnvironment');
 const {
   disallowWarnings,
   expectToWarn,
@@ -57,10 +62,14 @@ module.exports = {
   createMockEnvironment,
   describeWithFeatureFlags,
   disallowConsoleErrors,
+  disallowConsoleWarnings,
   disallowWarnings,
   expectConsoleError,
   expectConsoleErrorsMany,
   expectConsoleErrorWillFire,
+  expectConsoleWarningWillFire,
+  expectConsoleWarning,
+  expectConsoleWarningsMany,
   expectToWarn,
   expectToWarnMany,
   expectWarningWillFire,
@@ -69,5 +78,6 @@ module.exports = {
   matchers: Matchers,
   printAST,
   simpleClone,
+  trackRetentionForEnvironment,
   unwrapContainer,
 };

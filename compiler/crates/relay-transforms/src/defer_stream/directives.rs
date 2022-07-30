@@ -6,7 +6,8 @@
  */
 
 use super::DEFER_STREAM_CONSTANTS;
-use graphql_ir::{Argument, Directive};
+use graphql_ir::Argument;
+use graphql_ir::Directive;
 
 /// Utility to access the arguments of the @defer directive.
 pub struct DeferDirective<'a> {

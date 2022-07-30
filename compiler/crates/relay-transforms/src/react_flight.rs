@@ -5,15 +5,34 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-use graphql_ir::{
-    associated_data_impl, Argument, ConstantValue, Directive, FragmentDefinition, FragmentSpread,
-    OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer, Value,
-};
-use intern::string_key::{Intern, StringKey, StringKeyMap, StringKeySet};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
+use intern::string_key::StringKeySet;
 use itertools::Itertools;
 use lazy_static::lazy_static;
-use schema::{Field, FieldID, Schema, Type};
+use schema::Field;
+use schema::FieldID;
+use schema::Schema;
+use schema::Type;
 use std::sync::Arc;
 use thiserror::Error;
 

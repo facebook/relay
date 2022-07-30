@@ -5,18 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    node_identifier::NodeIdentifier,
-    util::{is_relay_custom_inline_fragment_directive, PointerAddress},
-    DEFER_STREAM_CONSTANTS,
-};
+use crate::util::is_relay_custom_inline_fragment_directive;
+use crate::RelayLocationAgnosticBehavior;
+use crate::DEFER_STREAM_CONSTANTS;
 
-use common::{sync::*, NamedItem};
+use common::sync::*;
+use common::NamedItem;
+use common::PointerAddress;
 use dashmap::DashMap;
-use graphql_ir::{
-    Condition, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program,
-    Selection, Transformed, TransformedValue,
-};
+use graphql_ir::node_identifier::NodeIdentifier;
+use graphql_ir::Condition;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
 use schema::SDLSchema;
 use std::sync::Arc;
 
@@ -119,7 +125,7 @@ pub fn skip_redundant_nodes(program: &Program) -> Program {
 }
 
 #[derive(Default, Clone, Debug)]
-struct SelectionMap(VecMap<NodeIdentifier, Option<SelectionMap>>);
+struct SelectionMap(VecMap<NodeIdentifier<RelayLocationAgnosticBehavior>, Option<SelectionMap>>);
 
 type Cache = DashMap<PointerAddress, (Transformed<Selection>, SelectionMap)>;
 
@@ -152,7 +158,8 @@ impl<'s> SkipRedundantNodesTransform {
         // If it's the same node, and selection_map is empty
         // result of transform_selection has to be the same.
         let is_empty = selection_map.0.is_empty();
-        let identifier = NodeIdentifier::from_selection(&self.schema, selection);
+        let identifier =
+            NodeIdentifier::from_selection(&self.schema, selection, RelayLocationAgnosticBehavior);
         match selection {
             Selection::ScalarField(_) | Selection::FragmentSpread(_) => {
                 if selection_map.0.contains_key(&identifier) {

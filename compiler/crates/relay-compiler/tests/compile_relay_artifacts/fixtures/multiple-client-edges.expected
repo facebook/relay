@@ -1,0 +1,233 @@
+==================================== INPUT ====================================
+fragment multipleClientEdges_best_friend_resolver on User {
+  actor_key
+}
+
+fragment multipleClientEdges_worst_enemy_resolver on User {
+  actor_key
+}
+
+query multipleClientEdgesQuery {
+  me {
+    best_friend {
+      name
+    }
+    worst_enemy {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+type ClientUser {
+  name: String
+}
+
+extend type User {
+  best_friend: ClientUser
+    @relay_resolver(
+      fragment_name: "multipleClientEdges_best_friend_resolver"
+      import_path: "./foo/bar/baz/BestFriendResolver.js"
+    )
+}
+
+extend type User {
+  worst_enemy: ClientUser
+    @relay_resolver(
+      fragment_name: "multipleClientEdges_worst_enemy_resolver"
+      import_path: "./foo/bar/baz/WorstEnemyResolver.js"
+    )
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": {
+      "hasClientEdges": true
+    },
+    "name": "multipleClientEdgesQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "kind": "ClientEdgeToClientObject",
+            "concreteType": "ClientUser",
+            "backingField": {
+              "alias": null,
+              "args": null,
+              "fragment": {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "multipleClientEdges_best_friend_resolver"
+              },
+              "kind": "RelayResolver",
+              "name": "best_friend",
+              "resolverModule": require('BestFriendResolver'),
+              "path": "me.best_friend"
+            },
+            "linkedField": {
+              "alias": null,
+              "args": null,
+              "concreteType": "ClientUser",
+              "kind": "LinkedField",
+              "name": "best_friend",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          },
+          {
+            "kind": "ClientEdgeToClientObject",
+            "concreteType": "ClientUser",
+            "backingField": {
+              "alias": null,
+              "args": null,
+              "fragment": {
+                "args": null,
+                "kind": "FragmentSpread",
+                "name": "multipleClientEdges_worst_enemy_resolver"
+              },
+              "kind": "RelayResolver",
+              "name": "worst_enemy",
+              "resolverModule": require('WorstEnemyResolver'),
+              "path": "me.worst_enemy"
+            },
+            "linkedField": {
+              "alias": null,
+              "args": null,
+              "concreteType": "ClientUser",
+              "kind": "LinkedField",
+              "name": "worst_enemy",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "multipleClientEdgesQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "actor_key",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "f025e3b1fa71b0e5fb8b91b7240b401d",
+    "id": null,
+    "metadata": {},
+    "name": "multipleClientEdgesQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query multipleClientEdgesQuery {
+  me {
+    ...multipleClientEdges_best_friend_resolver
+    ...multipleClientEdges_worst_enemy_resolver
+    id
+  }
+}
+
+fragment multipleClientEdges_best_friend_resolver on User {
+  actor_key
+}
+
+fragment multipleClientEdges_worst_enemy_resolver on User {
+  actor_key
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "multipleClientEdges_best_friend_resolver",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "actor_key",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "multipleClientEdges_worst_enemy_resolver",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "actor_key",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

@@ -7,10 +7,16 @@
 
 /**
  * @RelayResolver
- * 
+ *
  * @onType User
  * @fieldName favorite_page
  * @edgeTo Page
  * @rootFragment myRootFragment
  * @deprecated
  */
+
+graphql`
+  fragment myRootFragment on User {
+    id
+  }
+`

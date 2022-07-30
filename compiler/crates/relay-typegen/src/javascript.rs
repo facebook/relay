@@ -5,9 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::{Writer, AST};
+use crate::writer::Writer;
+use crate::writer::AST;
 
-use std::fmt::{Result as FmtResult, Write};
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
 
 #[derive(Default)]
 pub struct JavaScriptPrinter {

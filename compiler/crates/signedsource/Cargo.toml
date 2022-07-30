@@ -8,6 +8,6 @@ license = "MIT"
 
 [dependencies]
 hex = "0.4.3"
-lazy_static = "1.0"
-md-5 = "0.8"
+lazy_static = "1.4"
+md-5 = "0.10"
 regex = "1.5.4"

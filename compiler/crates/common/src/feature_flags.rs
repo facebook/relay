@@ -8,8 +8,11 @@
 use crate::Rollout;
 use indexmap::IndexSet;
 use intern::string_key::StringKey;
-use serde::{Deserialize, Serialize};
-use std::fmt::{Display, Formatter, Result as FmtResult};
+use serde::Deserialize;
+use serde::Serialize;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Result as FmtResult;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]
@@ -48,10 +51,11 @@ pub struct FeatureFlags {
     pub enable_client_edges: FeatureFlag,
 
     #[serde(default)]
-    pub enable_provided_variables: FeatureFlag,
-
-    #[serde(default)]
     pub skip_printing_nulls: FeatureFlag,
+
+    /// Enable support for the experimental `@alias` directive on fragment spreads.
+    #[serde(default)]
+    pub enable_fragment_aliases: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

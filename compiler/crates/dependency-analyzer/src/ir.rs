@@ -6,9 +6,12 @@
  */
 
 use graphql_ir::*;
-use intern::string_key::{StringKey, StringKeyMap, StringKeySet};
-use relay_transforms::{DependencyMap, ResolverFieldFinder};
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
+use intern::string_key::StringKeySet;
+use relay_transforms::get_resolver_fragment_name;
 use schema::SDLSchema;
+use schema::Schema;
 use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::fmt;
@@ -40,7 +43,6 @@ pub fn get_reachable_ir(
     definitions: Vec<ExecutableDefinition>,
     base_definition_names: StringKeySet,
     changed_names: StringKeySet,
-    implicit_dependencies: &DependencyMap,
     schema: &SDLSchema,
 ) -> Vec<ExecutableDefinition> {
     if changed_names.is_empty() {
@@ -53,19 +55,7 @@ pub fn get_reachable_ir(
     // if you change a file which contains a fragment which is present in the
     // base project, but is not reachable from any of the project's own
     // queries/mutations.
-    let mut dependency_graph = build_dependency_graph(definitions);
-
-    // Note: Keys found in `resolver_dependencies` should theoretically replace
-    // those found in `implicit_dependencies`, however that would require either
-    // getting a mutable copy of `implicit_dependencies` or copying it. For
-    // simplicity we just add both sets. This means we may mark a few extra
-    // definitions as reachable (false positives), but it's an edge case and
-    // the cost is minimal.
-    let resolver_dependencies =
-        find_resolver_dependencies(&changed_names, &dependency_graph, schema);
-
-    add_dependencies_to_graph(&mut dependency_graph, implicit_dependencies);
-    add_dependencies_to_graph(&mut dependency_graph, &resolver_dependencies);
+    let dependency_graph = build_dependency_graph(schema, definitions);
 
     let mut visited = Default::default();
     let mut filtered_definitions = Default::default();
@@ -88,47 +78,11 @@ pub fn get_reachable_ir(
         .collect()
 }
 
-fn find_resolver_dependencies(
-    reachable_names: &StringKeySet,
-    dependency_graph: &StringKeyMap<Node>,
-    schema: &SDLSchema,
-) -> DependencyMap {
-    let mut dependencies = Default::default();
-    let mut finder = ResolverFieldFinder::new(&mut dependencies, schema);
-    for name in reachable_names {
-        if let Some(node) = dependency_graph.get(name) {
-            let def = match node.ir.as_ref() {
-                Some(definition) => definition,
-                None => panic!("Could not find defintion for {}.", name),
-            };
-
-            match def {
-                ExecutableDefinition::Fragment(fragment) => finder.visit_fragment(fragment),
-                ExecutableDefinition::Operation(operation) => finder.visit_operation(operation),
-            }
-        }
-    }
-    dependencies
-}
-
-fn add_dependencies_to_graph(
-    dependency_graph: &mut StringKeyMap<Node>,
-    dependencies: &DependencyMap,
-) {
-    for (parent, children) in dependencies.iter() {
-        if let Some(node) = dependency_graph.get_mut(parent) {
-            node.children.extend(children.iter());
-        };
-        for child in children.iter() {
-            if let Some(node) = dependency_graph.get_mut(child) {
-                node.parents.push(*parent);
-            };
-        }
-    }
-}
-
 // Build a dependency graph of that nodes are "doubly linked"
-fn build_dependency_graph(definitions: Vec<ExecutableDefinition>) -> StringKeyMap<Node> {
+fn build_dependency_graph(
+    schema: &SDLSchema,
+    definitions: Vec<ExecutableDefinition>,
+) -> StringKeyMap<Node> {
     let mut dependency_graph: StringKeyMap<Node> =
         HashMap::with_capacity_and_hasher(definitions.len(), Default::default());
 
@@ -144,7 +98,13 @@ fn build_dependency_graph(definitions: Vec<ExecutableDefinition>) -> StringKeyMa
             ExecutableDefinition::Operation(operation) => &operation.selections,
             ExecutableDefinition::Fragment(fragment) => &fragment.selections,
         };
-        visit_selections(&mut dependency_graph, selections, name, &mut children);
+        visit_selections(
+            schema,
+            &mut dependency_graph,
+            selections,
+            name,
+            &mut children,
+        );
 
         // Insert or update the representation of the IR in the dependency tree
         match dependency_graph.entry(name) {
@@ -174,9 +134,34 @@ fn build_dependency_graph(definitions: Vec<ExecutableDefinition>) -> StringKeyMa
     dependency_graph
 }
 
+fn update_dependecy_graph(
+    current_node: StringKey,
+    parent_name: StringKey,
+    dependency_graph: &mut StringKeyMap<Node>,
+    children: &mut Vec<StringKey>,
+) {
+    match dependency_graph.get_mut(&current_node) {
+        None => {
+            dependency_graph.insert(
+                current_node,
+                Node {
+                    ir: None,
+                    parents: vec![parent_name],
+                    children: vec![],
+                },
+            );
+        }
+        Some(node) => {
+            node.parents.push(parent_name);
+        }
+    }
+    children.push(current_node);
+}
+
 // Visit the selections of current IR, set the `children` for the node representing the IR,
 // and the `parents` for nodes representing the children IR
 fn visit_selections(
+    schema: &SDLSchema,
     dependency_graph: &mut StringKeyMap<Node>,
     selections: &[Selection],
     parent_name: StringKey,
@@ -185,33 +170,47 @@ fn visit_selections(
     for selection in selections {
         match selection {
             Selection::FragmentSpread(node) => {
-                let key = node.fragment.item;
-                match dependency_graph.get_mut(&key) {
-                    None => {
-                        dependency_graph.insert(
-                            key,
-                            Node {
-                                ir: None,
-                                parents: vec![parent_name],
-                                children: vec![],
-                            },
-                        );
-                    }
-                    Some(node) => {
-                        node.parents.push(parent_name);
-                    }
-                }
-                children.push(key);
-            }
-            Selection::LinkedField(node) => {
-                visit_selections(dependency_graph, &node.selections, parent_name, children);
+                let current_node = node.fragment.item;
+                update_dependecy_graph(current_node, parent_name, dependency_graph, children);
             }
             Selection::InlineFragment(node) => {
-                visit_selections(dependency_graph, &node.selections, parent_name, children);
+                visit_selections(
+                    schema,
+                    dependency_graph,
+                    &node.selections,
+                    parent_name,
+                    children,
+                );
             }
-            Selection::ScalarField(_) => {}
+            Selection::LinkedField(linked_field) => {
+                if let Some(fragment_name) =
+                    get_resolver_fragment_name(schema.field(linked_field.definition.item))
+                {
+                    update_dependecy_graph(fragment_name, parent_name, dependency_graph, children);
+                }
+                visit_selections(
+                    schema,
+                    dependency_graph,
+                    &linked_field.selections,
+                    parent_name,
+                    children,
+                );
+            }
+            Selection::ScalarField(scalar_field) => {
+                if let Some(fragment_name) =
+                    get_resolver_fragment_name(schema.field(scalar_field.definition.item))
+                {
+                    update_dependecy_graph(fragment_name, parent_name, dependency_graph, children);
+                }
+            }
             Selection::Condition(node) => {
-                visit_selections(dependency_graph, &node.selections, parent_name, children);
+                visit_selections(
+                    schema,
+                    dependency_graph,
+                    &node.selections,
+                    parent_name,
+                    children,
+                );
             }
         }
     }

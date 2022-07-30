@@ -69,6 +69,7 @@ query explicitNullArgument_TestQuery {
     ]
   },
   "params": {
+    "cacheID": "c28e4a08a1f05a6dd6ce003482e587d6",
     "id": null,
     "metadata": {},
     "name": "explicitNullArgument_TestQuery",

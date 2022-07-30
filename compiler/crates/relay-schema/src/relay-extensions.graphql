@@ -58,7 +58,7 @@ The `hackPreloader` argument is FB only and generates a Hack preloader file.
 
 [Read More](https://relay.dev/docs/glossary/#preloadable)
 """
-directive @preloadable(hackPreloader: Boolean = false) on QUERY
+directive @preloadable(hackPreloader: Boolean = false @static) on QUERY
 
 """
 (Relay Only)
@@ -94,7 +94,7 @@ has a certain type. See [3D](https://relay.dev/docs/glossary/#3d).
 
 [Read More](https://relay.dev/docs/glossary/#match)
 """
-directive @match(key: String) on FIELD
+directive @match(key: String @static) on FIELD
 
 """
 (Relay Only)
@@ -151,7 +151,7 @@ null".
 
 [Read More](https://www.internalfb.com/intern/staticdocs/relay/docs/guides/required-directive/) (FB only)
 """
-directive @required(action: RequiredFieldAction!) on FIELD
+directive @required(action: RequiredFieldAction! @static) on FIELD
 
 # DeclarativeConnection
 """
@@ -249,3 +249,21 @@ Marks a given fragment as assignable.
 [Read More](https://fb.quip.com/4FZaADvkQPPl)
 """
 directive @assignable on FRAGMENT_DEFINITION
+
+"""
+(Relay Only)
+
+Exposes a fragment's data as a new field which can be null checked to ensure it
+matches the parent selection.
+"""
+directive @alias(as: String) on FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"""
+(Relay Only)
+
+Indicates that a given directive argument is expected to be provided statically.
+If a non-static value is provided, it will result in a validation error.
+
+Used for arguments which are expected to be read by the Relay compiler.
+"""
+directive @static on ARGUMENT_DEFINITION

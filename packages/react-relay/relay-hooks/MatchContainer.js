@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const React = require('react');
@@ -87,7 +85,7 @@ const {useMemo} = React;
 
 // Note: this type is intentionally non-exact, it is expected that the
 // object may contain sibling fields.
-type TypenameOnlyPointer = {|+__typename: string|};
+type TypenameOnlyPointer = {+__typename: string};
 export type MatchPointer = {
   +__fragmentPropName?: ?string,
   +__module_component?: mixed,
@@ -95,12 +93,12 @@ export type MatchPointer = {
   ...
 };
 
-export type MatchContainerProps<TProps: {...}, TFallback: React.Node> = {|
+export type MatchContainerProps<TProps: {...}, TFallback: React.Node> = {
   +fallback?: ?TFallback,
   +loader: (module: mixed) => React.AbstractComponent<TProps>,
   +match: ?MatchPointer | ?TypenameOnlyPointer,
   +props?: TProps,
-|};
+};
 
 function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
   fallback,
@@ -149,7 +147,13 @@ function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
     // TODO: Perform this transformation in RelayReader so that unchanged
     // output of subscriptions already has a stable identity.
     if (__fragmentPropName != null && __id != null && __fragments != null) {
-      const fragProps = {};
+      const fragProps: {
+        [string]: {
+          __fragmentOwner: $FlowFixMe,
+          __fragments: $FlowFixMe,
+          __id: string,
+        },
+      } = {};
       fragProps[__fragmentPropName] = {__id, __fragments, __fragmentOwner};
       return fragProps;
     }
@@ -158,6 +162,7 @@ function MatchContainer<TProps: {...}, TFallback: React.Node | null>({
 
   if (LoadedContainer != null && fragmentProps != null) {
     // $FlowFixMe[incompatible-type]
+    // $FlowFixMe[cannot-spread-indexer]
     return <LoadedContainer {...props} {...fragmentProps} />;
   } else {
     return fallback ?? null;

@@ -1,0 +1,31 @@
+==================================== INPUT ====================================
+fragment RelayReaderNamedFragmentsTest_maybe_node_interface on MaybeNodeInterface {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  node(id: "1") {
+    ...RelayReaderNamedFragmentsTest_maybe_node_interface @alias(as: "aliased_fragment")
+  }
+}
+==================================== OUTPUT ===================================
+query RelayReaderNamedFragmentsTest2Query {
+  node(id: "1") {
+    ...RelayReaderNamedFragmentsTest_maybe_node_interface @__FragmentAliasMetadata
+    # FragmentAliasMetadata {
+    #     alias: WithLocation {
+    #         location: alias_on_abstract_type.graphql:221:223,
+    #         item: "aliased_fragment",
+    #     },
+    #     type_condition: Some(
+    #         Interface(0),
+    #     ),
+    #     selection_type: Interface(0),
+    # }
+    
+  }
+}
+
+fragment RelayReaderNamedFragmentsTest_maybe_node_interface on MaybeNodeInterface {
+  name
+}

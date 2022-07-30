@@ -96,7 +96,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
     warning.mockClear();
 
     let renderLogs = [];
-    const FragmentComponent = ({user}) => {
+    const FragmentComponent = ({user}: any) => {
       useEffect(() => {
         renderLogs.push(`commit: ${user.name}`);
         return () => {

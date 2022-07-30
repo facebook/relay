@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+fragment TestInlineFragment on Query {
+    me { # User type
+        ... on Actor {
+          name
+        }
+    }
+}
+
+%arguments%
+User name
+==================================== OUTPUT ===================================
+("TestInlineFragment", inline_fragment_also_matches_outer_type.graphql:93:97)

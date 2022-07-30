@@ -5,21 +5,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build::{
-    build_constant_value, build_type_annotation, build_variable_definitions, ValidationLevel,
-};
+use crate::associated_data_impl;
+use crate::build::build_constant_value;
+use crate::build::build_type_annotation;
+use crate::build::build_variable_definitions;
+use crate::build::ValidationLevel;
+use crate::build_directive;
 use crate::constants::ARGUMENT_DEFINITION;
-use crate::errors::{ValidationMessage, ValidationMessageWithData};
-use crate::ir::{ConstantValue, VariableDefinition};
-use crate::{associated_data_impl, build_directive};
-use common::{
-    Diagnostic, DiagnosticsResult, FeatureFlag, Location, SourceLocationKey, WithLocation,
-};
-use errors::{par_try_map, try2};
-use intern::string_key::{Intern, StringKey, StringKeyMap};
+use crate::errors::ValidationMessage;
+use crate::errors::ValidationMessageWithData;
+use crate::ir::ConstantValue;
+use crate::ir::VariableDefinition;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::WithLocation;
+use errors::par_try_map;
+use errors::try2;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
 use lazy_static::lazy_static;
 use schema::suggestion_list::GraphQLSuggestions;
-use schema::{SDLSchema, Schema, Type, TypeReference};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
 use std::collections::HashMap;
 
 lazy_static! {
@@ -58,14 +69,13 @@ pub struct FragmentSignature {
 pub fn build_signatures(
     schema: &SDLSchema,
     definitions: &[graphql_syntax::ExecutableDefinition],
-    enable_provided_variables: &FeatureFlag,
 ) -> DiagnosticsResult<FragmentSignatures> {
     let suggestions = GraphQLSuggestions::new(schema);
     let mut seen_signatures: StringKeyMap<FragmentSignature> =
         HashMap::with_capacity_and_hasher(definitions.len(), Default::default());
     let signatures = par_try_map(definitions, |definition| match definition {
         graphql_syntax::ExecutableDefinition::Fragment(fragment) => Ok(Some(
-            build_fragment_signature(schema, fragment, &suggestions, enable_provided_variables)?,
+            build_fragment_signature(schema, fragment, &suggestions)?,
         )),
         graphql_syntax::ExecutableDefinition::Operation(_) => Ok(None),
     })?;
@@ -95,7 +105,6 @@ fn build_fragment_signature(
     schema: &SDLSchema,
     fragment: &graphql_syntax::FragmentDefinition,
     suggestions: &GraphQLSuggestions<'_>,
-    enable_provided_variables: &FeatureFlag,
 ) -> DiagnosticsResult<FragmentSignature> {
     let type_name = fragment.type_condition.type_.value;
     let type_condition = match schema.get_type(type_name) {
@@ -127,7 +136,7 @@ fn build_fragment_signature(
         .collect::<Vec<_>>();
     if fragment.variable_definitions.is_some() && !argument_definition_directives.is_empty() {
         return Err(Diagnostic::error(
-            ValidationMessage::VariableDefinitionsAndArgumentDirective(),
+            ValidationMessage::VariableDefinitionsAndArgumentDirective,
             fragment
                 .location
                 .with_span(argument_definition_directives[0].span),
@@ -145,7 +154,7 @@ fn build_fragment_signature(
         .into());
     } else if argument_definition_directives.len() > 1 {
         return Err(Diagnostic::error(
-            ValidationMessage::ExpectedOneArgumentDefinitionsDirective(),
+            ValidationMessage::ExpectedOneArgumentDefinitionsDirective,
             fragment
                 .location
                 .with_span(argument_definition_directives[1].span),
@@ -159,9 +168,9 @@ fn build_fragment_signature(
             build_variable_definitions(schema, &variable_definitions.items, fragment.location)
         })
         .or_else(|| {
-            argument_definition_directives.get(0).map(|x| {
-                build_fragment_variable_definitions(schema, fragment, x, enable_provided_variables)
-            })
+            argument_definition_directives
+                .get(0)
+                .map(|x| build_fragment_variable_definitions(schema, fragment, x))
         })
         .unwrap_or_else(|| Ok(Default::default()));
 
@@ -179,7 +188,6 @@ fn build_fragment_variable_definitions(
     schema: &SDLSchema,
     fragment: &graphql_syntax::FragmentDefinition,
     directive: &graphql_syntax::Directive,
-    enable_provided_variables: &FeatureFlag,
 ) -> DiagnosticsResult<Vec<VariableDefinition>> {
     if let Some(arguments) = &directive.arguments {
         Ok(arguments
@@ -207,13 +215,6 @@ fn build_fragment_variable_definitions(
                         } else if name == *DIRECTIVES {
                             directives_arg = Some(item);
                         } else if name == *PROVIDER {
-                            if !enable_provided_variables.is_enabled_for(fragment.name.value) {
-                                return Err(vec![Diagnostic::error(
-                                    format!("Invalid usage of provided variable: this feature is gated and currently set to {}",
-                                    enable_provided_variables),
-                                    fragment.location.with_span(item.span),
-                                )]);
-                            }
                             provider_arg = Some(item);
                         } else {
                             extra_items.push(item);
@@ -315,17 +316,10 @@ fn build_fragment_variable_definitions(
                                 if let graphql_syntax::ConstantValue::String(directive_string) = item {
                                     let ast_directive = graphql_syntax::parse_directive(
                                         directive_string.value.lookup(),
-                                        // We currently don't have the ability to pass offset locations
-                                        // to the parser call, so we first use a generated location and
-                                        // later override it with an approximation.
-                                        SourceLocationKey::generated(),
-                                    )
-                                    .map_err(|mut diagnostics| {
-                                        for diagnostic in &mut diagnostics {
-                                            diagnostic.override_location(fragment.location.with_span(directive_string.token.span));
-                                        }
-                                        diagnostics
-                                    })?;
+                                        fragment.location.source_location(),
+                                        // Add 1 to account for the leading quote
+                                        directive_string.token.span.start + 1
+                                    )?;
                                     let directive = build_directive(
                                         schema,
                                         &ast_directive,
@@ -369,7 +363,7 @@ fn build_fragment_variable_definitions(
                     })
                 } else {
                     Err(Diagnostic::error(
-                        ValidationMessage::ExpectedArgumentDefinitionToBeObject(),
+                        ValidationMessage::ExpectedArgumentDefinitionToBeObject,
                         fragment.location.with_span(variable_arg.value.span()),
                     )
                     .into())
@@ -387,40 +381,29 @@ fn get_argument_type(
     type_arg: Option<&graphql_syntax::ConstantArgument>,
     object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
 ) -> DiagnosticsResult<TypeReference> {
-    let type_name_and_span = match type_arg {
+    let type_name_and_offset = match type_arg {
         Some(graphql_syntax::ConstantArgument {
             value: graphql_syntax::ConstantValue::String(type_name_node),
-            span,
             ..
-        }) => Some((type_name_node.value, span)),
+        }) => Some((
+            type_name_node.value,
+            // Add 1 to account for the leading quote
+            type_name_node.token.span.start + 1,
+        )),
         Some(graphql_syntax::ConstantArgument {
             value: graphql_syntax::ConstantValue::Enum(type_name_node),
-            span,
             ..
-        }) => Some((type_name_node.value, span)),
+        }) => Some((type_name_node.value, type_name_node.token.span.start)),
         _ => None,
     };
-    if let Some((type_name, &span)) = type_name_and_span {
-        let type_ast = graphql_syntax::parse_type(type_name.lookup(), location.source_location())
-            .map_err(|diagnostics| {
-            diagnostics
-                .into_iter()
-                .map(|diagnostic| {
-                    let message = diagnostic.message().to_string();
-                    Diagnostic::error(
-                        message,
-                        // TODO: ideally, `parse_type()` would take in the offset
-                        // location and report the error at the right location.
-                        location.with_span(span),
-                    )
-                })
-                .collect::<Vec<_>>()
-        })?;
+    if let Some((type_name, offset)) = type_name_and_offset {
+        let type_ast =
+            graphql_syntax::parse_type(type_name.lookup(), location.source_location(), offset)?;
         let type_ = build_type_annotation(schema, &type_ast, location)?;
         Ok(type_)
     } else {
         Err(Diagnostic::error(
-            ValidationMessage::ExpectedArgumentDefinitionLiteralType(),
+            ValidationMessage::ExpectedArgumentDefinitionLiteralType,
             location.with_span(type_arg.map_or(object.span, |x| x.span)),
         )
         .into())

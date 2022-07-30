@@ -17,6 +17,7 @@ import type {
   PreloadedQueryInner,
 } from './EntryPointTypes.flow';
 import type {
+  ConcreteRequest,
   GraphQLResponse,
   GraphQLTaggedNode,
   IEnvironment,
@@ -236,7 +237,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     }));
   };
 
-  const checkAvailabilityAndExecute = concreteRequest => {
+  const checkAvailabilityAndExecute = (concreteRequest: ConcreteRequest) => {
     const operation = createOperationDescriptor(
       concreteRequest,
       variables,

@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {IEnvironment, RecordSource} from '../store/RelayStoreTypes';
@@ -56,13 +54,13 @@ if (__DEV__) {
     const keyStyle = {style: 'rgb(136, 19, 145)'};
     const nullStyle = {style: 'color: #777'};
 
-    const reference = (object, config: void) => {
+    const reference = (object: $FlowFixMe, config: void) => {
       return object == null
         ? ['span', nullStyle, 'undefined']
         : ['object', {object, config}];
     };
 
-    const renderRecordHeader = record => {
+    const renderRecordHeader = (record: $FlowFixMe) => {
       return [
         'span',
         {style: 'font-style: italic'},
@@ -71,7 +69,7 @@ if (__DEV__) {
       ];
     };
 
-    const isRecord = o => o != null && typeof o.__id === 'string';
+    const isRecord = (o: $FlowFixMe) => o != null && typeof o.__id === 'string';
 
     class RecordEntry {
       +key: string;
@@ -82,7 +80,7 @@ if (__DEV__) {
       }
     }
 
-    const renderRecordEntries = record => {
+    const renderRecordEntries = (record: $FlowFixMe) => {
       const children = Object.keys(record).map(key => {
         return [
           'li',
@@ -94,7 +92,7 @@ if (__DEV__) {
     };
 
     const recordFormatter = {
-      header(obj) {
+      header(obj: $FlowFixMe) {
         if (!isRecord(obj)) {
           return null;
         }
@@ -103,13 +101,13 @@ if (__DEV__) {
       hasBody(obj: $FlowFixMe) {
         return true;
       },
-      body(obj) {
+      body(obj: $FlowFixMe) {
         return renderRecordEntries(obj);
       },
     };
 
     const recordEntryFormatter = {
-      header(obj) {
+      header(obj: $FlowFixMe) {
         if (obj instanceof RecordEntry) {
           const value = isRecord(obj.value)
             ? renderRecordHeader(obj.value)
@@ -118,10 +116,10 @@ if (__DEV__) {
         }
         return null;
       },
-      hasBody(obj) {
+      hasBody(obj: $FlowFixMe) {
         return isRecord(obj.value);
       },
-      body(obj) {
+      body(obj: $FlowFixMe) {
         return renderRecordEntries(obj.value);
       },
     };

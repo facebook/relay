@@ -6,8 +6,12 @@
  */
 
 use common::WithLocation;
-use graphql_ir::{Argument, ConstantValue, Directive, Value};
-use intern::string_key::{Intern, StringKey};
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::Value;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 lazy_static! {

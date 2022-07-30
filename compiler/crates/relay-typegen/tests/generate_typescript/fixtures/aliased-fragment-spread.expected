@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+fragment RelayReaderNamedFragmentsTest_user on User {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  me {
+    ...RelayReaderNamedFragmentsTest_user @alias(as: "named_fragment")
+  }
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type RelayReaderNamedFragmentsTest2Query$variables = {};
+export type RelayReaderNamedFragmentsTest2Query$data = {
+  readonly me: {
+    readonly named_fragment: {
+      readonly " $fragmentSpreads": FragmentRefs<"RelayReaderNamedFragmentsTest_user">;
+    } | null;
+  } | null;
+};
+export type RelayReaderNamedFragmentsTest2Query = {
+  response: RelayReaderNamedFragmentsTest2Query$data;
+  variables: RelayReaderNamedFragmentsTest2Query$variables;
+};
+-------------------------------------------------------------------------------
+import { FragmentRefs } from "relay-runtime";
+export type RelayReaderNamedFragmentsTest_user$data = {
+  readonly name: string | null;
+  readonly " $fragmentType": "RelayReaderNamedFragmentsTest_user";
+};
+export type RelayReaderNamedFragmentsTest_user$key = {
+  readonly " $data"?: RelayReaderNamedFragmentsTest_user$data;
+  readonly " $fragmentSpreads": FragmentRefs<"RelayReaderNamedFragmentsTest_user">;
+};

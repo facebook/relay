@@ -5,23 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{
-    Diagnostic, FeatureFlags, NoopPerfLogger,
-    SourceLocationKey::{self, Generated},
-    TextSource,
-};
+use common::Diagnostic;
+use common::FeatureFlags;
+use common::NoopPerfLogger;
+use common::SourceLocationKey;
+use common::SourceLocationKey::Generated;
+use common::TextSource;
 
 use graphql_ir::Program;
 
-use graphql_text_printer::{self, PrinterOptions};
+use graphql_text_printer;
+use graphql_text_printer::PrinterOptions;
 use intern::string_key::Intern;
-use relay_codegen::{print_fragment, print_operation};
+use relay_codegen::print_fragment;
+use relay_codegen::print_operation;
 use relay_config::ProjectConfig;
 use relay_schema::build_schema_with_extensions;
-use relay_transforms::{apply_transforms, Programs};
-use relay_typegen::{
-    generate_fragment_type_exports_section, generate_operation_type_exports_section, TypegenConfig,
-};
+use relay_transforms::apply_transforms;
+use relay_transforms::Programs;
+use relay_typegen::generate_fragment_type_exports_section;
+use relay_typegen::generate_operation_type_exports_section;
+use relay_typegen::TypegenConfig;
 use schema::SDLSchema;
 use serde::Serialize;
 
@@ -91,8 +95,11 @@ pub fn parse_to_ir_impl(schema_text: &str, document_text: &str) -> PlaygroundRes
         .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Document(document_text)))?;
 
     let schema = Arc::new(
-        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
-            .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
+        build_schema_with_extensions(
+            &[(schema_text, SourceLocationKey::generated())],
+            &Vec::<(&str, SourceLocationKey)>::new(),
+        )
+        .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
 
     let ir = graphql_ir::build(&schema, &document.definitions)
@@ -124,8 +131,11 @@ pub fn parse_to_reader_ast_impl(
     document_text: &str,
 ) -> PlaygroundResult {
     let schema = Arc::new(
-        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
-            .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
+        build_schema_with_extensions(
+            &[(schema_text, SourceLocationKey::Generated)],
+            &Vec::<(&str, SourceLocationKey)>::new(),
+        )
+        .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
     let project_config = get_project_config(feature_flags_json, None)?;
     let programs = get_programs(&schema, &project_config, document_text)?;
@@ -168,8 +178,11 @@ pub fn parse_to_normalization_ast_impl(
     document_text: &str,
 ) -> PlaygroundResult {
     let schema = Arc::new(
-        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
-            .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
+        build_schema_with_extensions(
+            &[(schema_text, SourceLocationKey::Generated)],
+            &Vec::<(&str, SourceLocationKey)>::new(),
+        )
+        .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
     let project_config = get_project_config(feature_flags_json, None)?;
     let programs = get_programs(&schema, &project_config, document_text)?;
@@ -211,8 +224,11 @@ pub fn parse_to_types_impl(
     document_text: &str,
 ) -> PlaygroundResult {
     let schema = Arc::new(
-        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
-            .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
+        build_schema_with_extensions(
+            &[(schema_text, SourceLocationKey::Generated)],
+            &Vec::<(&str, SourceLocationKey)>::new(),
+        )
+        .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
     let project_config = get_project_config(feature_flags_json, Some(typegen_config_json))?;
     let programs = get_programs(&schema, &project_config, document_text)?;
@@ -255,8 +271,11 @@ fn transform_impl(
     document_text: &str,
 ) -> PlaygroundResult {
     let schema = Arc::new(
-        build_schema_with_extensions(&[schema_text], &Vec::<(&str, SourceLocationKey)>::new())
-            .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
+        build_schema_with_extensions(
+            &[(schema_text, SourceLocationKey::Generated)],
+            &Vec::<(&str, SourceLocationKey)>::new(),
+        )
+        .map_err(|diagnostics| map_diagnostics(diagnostics, &InputType::Schema(schema_text)))?,
     );
     let project_config = get_project_config(feature_flags_json, None)?;
     let programs = get_programs(&schema, &project_config, document_text)?;

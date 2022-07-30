@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cb37ed2eb6f0335add2e5a4c1070e502>>
+ * @generated SignedSource<<fabb9e569dd82897c0c179445145c334>>
  */
 
 mod ir;
@@ -52,13 +52,6 @@ fn definitions_only_no_change() {
     let input = include_str!("ir/fixtures/definitions-only-no-change.graphql");
     let expected = include_str!("ir/fixtures/definitions-only-no-change.expected");
     test_fixture(transform_fixture, "definitions-only-no-change.graphql", "ir/fixtures/definitions-only-no-change.expected", input, expected);
-}
-
-#[test]
-fn implicit_dependencies_child_parent() {
-    let input = include_str!("ir/fixtures/implicit-dependencies-child-parent.graphql");
-    let expected = include_str!("ir/fixtures/implicit-dependencies-child-parent.expected");
-    test_fixture(transform_fixture, "implicit-dependencies-child-parent.graphql", "ir/fixtures/implicit-dependencies-child-parent.expected", input, expected);
 }
 
 #[test]

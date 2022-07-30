@@ -1,0 +1,67 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query QueryWithColor($color1: Color!, $color2: Color!) {
+  node {
+    ... on User {
+        fooVar @fooColorVar(color: $color1)
+        fooList @fooColorList(colors: [$color1, $color2])
+        fooObject @fooColorObject(colorObject: {
+          fooColorOne: $color1,
+          fooColorTwo: $color2,
+        })
+    }
+  }
+}
+# %extensions%
+enum Color {
+  RED
+  GREEN
+  BLUE
+}
+
+input FooColorObject {
+  fooColorOne: Color!
+  fooColorTwo: Color!
+}
+
+directive @fooColorVar(color: Color! @static) on FIELD
+directive @fooColorList(colors: [Color!]! @static) on FIELD
+directive @fooColorObject(colorObject: FooColorObject! @static) on FIELD
+
+extend type User {
+  fooVar: Int
+  fooList: Int
+  fooObject: Int
+}
+==================================== ERROR ====================================
+✖︎ Unexpected dynamic argument. fooColorList's 'colors' argument must be a constant value because it is read by the Relay compiler.
+
+  nonstatic-values-on-static-arg.invalid.graphql:6:39
+    5 │         fooVar @fooColorVar(color: $color1)
+    6 │         fooList @fooColorList(colors: [$color1, $color2])
+      │                                       ^^^^^^^^^^^^^^^^^^
+    7 │         fooObject @fooColorObject(colorObject: {
+
+
+✖︎ Unexpected dynamic argument. fooColorObject's 'colorObject' argument must be a constant value because it is read by the Relay compiler.
+
+  nonstatic-values-on-static-arg.invalid.graphql:7:48
+    6 │         fooList @fooColorList(colors: [$color1, $color2])
+    7 │         fooObject @fooColorObject(colorObject: {
+      │                                                ^
+    8 │           fooColorOne: $color1,
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    9 │           fooColorTwo: $color2,
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   10 │         })
+      │ ^^^^^^^^^
+   11 │     }
+
+
+✖︎ Unexpected dynamic argument. fooColorVar's 'color' argument must be a constant value because it is read by the Relay compiler.
+
+  nonstatic-values-on-static-arg.invalid.graphql:5:36
+    4 │     ... on User {
+    5 │         fooVar @fooColorVar(color: $color1)
+      │                                    ^^^^^^^
+    6 │         fooList @fooColorList(colors: [$color1, $color2])

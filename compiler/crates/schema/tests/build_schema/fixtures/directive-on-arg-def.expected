@@ -1,0 +1,509 @@
+==================================== INPUT ====================================
+enum RequiredFieldAction {
+  NONE
+  LOG
+  THROW
+}
+
+directive @required(action: RequiredFieldAction! @static) on FIELD
+
+directive @static on ARGUMENT_DEFINITION
+
+type Query {
+  foo: String
+}
+==================================== OUTPUT ===================================
+Text Schema:Schema {
+  query_type: Some(
+    ObjectID(0),
+)
+  mutation_type: None
+  subscription_type: None
+  directives: [
+    Directive {
+        name: "include",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+                directives: [],
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "required",
+        arguments: [
+            Argument {
+                name: "action",
+                type_: NonNull(
+                    Named(
+                        Enum(0),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+                directives: [
+                    DirectiveValue {
+                        name: "static",
+                        arguments: [],
+                    },
+                ],
+            },
+        ],
+        locations: [
+            Field,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "skip",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(3),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+                directives: [],
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "static",
+        arguments: [],
+        locations: [
+            ArgumentDefinition,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+]
+  type_map: {
+    "Boolean": Scalar(3),
+    "Float": Scalar(1),
+    "ID": Scalar(4),
+    "Int": Scalar(0),
+    "Query": Object(0),
+    "RequiredFieldAction": Enum(0),
+    "String": Scalar(2),
+}
+  enums: [
+    Enum {
+        name: WithLocation {
+            location: <generated>:5:24,
+            item: "RequiredFieldAction",
+        },
+        is_extension: false,
+        values: [
+            EnumValue {
+                value: "NONE",
+                directives: [],
+            },
+            EnumValue {
+                value: "LOG",
+                directives: [],
+            },
+            EnumValue {
+                value: "THROW",
+                directives: [],
+            },
+        ],
+        directives: [],
+        description: None,
+    },
+]
+  fields: [
+    Field {
+        name: WithLocation {
+            location: <generated>:176:179,
+            item: "foo",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(2),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__typename",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__token",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "__id",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: NonNull(
+            Named(
+                Scalar(4),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "strong_id__",
+        },
+        is_extension: true,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "is_fulfilled__",
+        },
+        is_extension: true,
+        arguments: [
+            Argument {
+                name: "name",
+                type_: NonNull(
+                    Named(
+                        Scalar(2),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+                directives: [],
+            },
+        ],
+        type_: NonNull(
+            Named(
+                Scalar(2),
+            ),
+        ),
+        directives: [],
+        parent_type: None,
+        description: None,
+    },
+]
+  input_objects: []
+  interfaces: []
+  objects: [
+    Object {
+        name: WithLocation {
+            location: <generated>:166:171,
+            item: "Query",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(0),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+]
+  scalars: [
+    Scalar {
+        name: WithLocation {
+            location: <generated>:187:190,
+            item: "Int",
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:198:203,
+            item: "Float",
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:211:217,
+            item: "String",
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:225:232,
+            item: "Boolean",
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:240:242,
+            item: "ID",
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+]
+  unions: []
+  }
+
+FlatBuffer Schema:FB Schema {
+directives: [
+    Directive {
+        name: "include",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(0),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+                directives: [],
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "required",
+        arguments: [
+            Argument {
+                name: "action",
+                type_: NonNull(
+                    Named(
+                        Enum(0),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+                directives: [],
+            },
+        ],
+        locations: [
+            Field,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "skip",
+        arguments: [
+            Argument {
+                name: "if",
+                type_: NonNull(
+                    Named(
+                        Scalar(0),
+                    ),
+                ),
+                default_value: None,
+                description: None,
+                directives: [],
+            },
+        ],
+        locations: [
+            Field,
+            FragmentSpread,
+            InlineFragment,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+    Directive {
+        name: "static",
+        arguments: [],
+        locations: [
+            ArgumentDefinition,
+        ],
+        repeatable: false,
+        is_extension: false,
+        description: None,
+    },
+]
+enums: [
+    Enum {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "RequiredFieldAction",
+        },
+        is_extension: false,
+        values: [
+            EnumValue {
+                value: "NONE",
+                directives: [],
+            },
+            EnumValue {
+                value: "LOG",
+                directives: [],
+            },
+            EnumValue {
+                value: "THROW",
+                directives: [],
+            },
+        ],
+        directives: [],
+        description: None,
+    },
+]
+fields: [
+    Field {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "foo",
+        },
+        is_extension: false,
+        arguments: [],
+        type_: Named(
+            Scalar(4),
+        ),
+        directives: [],
+        parent_type: Some(
+            Object(0),
+        ),
+        description: None,
+    },
+]
+input_objects: []
+interfaces: []
+objects: [
+    Object {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Query",
+        },
+        is_extension: false,
+        fields: [
+            FieldID(0),
+        ],
+        interfaces: [],
+        directives: [],
+        description: None,
+    },
+]
+scalars: [
+    Scalar {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Boolean",
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Float",
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "ID",
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Int",
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+    Scalar {
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "String",
+        },
+        is_extension: false,
+        directives: [],
+        description: None,
+    },
+]
+unions: []
+}

@@ -9,9 +9,25 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {
+  RelayModernStoreSubscriptionsTest1Fragment$data,
+  RelayModernStoreSubscriptionsTest1Fragment$fragmentType,
+} from './__generated__/RelayModernStoreSubscriptionsTest1Fragment.graphql';
+import type {
+  RelayModernStoreSubscriptionsTest1Query$data,
+  RelayModernStoreSubscriptionsTest1Query$variables,
+} from './__generated__/RelayModernStoreSubscriptionsTest1Query.graphql';
+import type {
+  RelayModernStoreSubscriptionsTest2Fragment$data,
+  RelayModernStoreSubscriptionsTest2Fragment$fragmentType,
+} from './__generated__/RelayModernStoreSubscriptionsTest2Fragment.graphql';
+import type {
+  RelayModernStoreSubscriptionsTest2Query$data,
+  RelayModernStoreSubscriptionsTest2Query$variables,
+} from './__generated__/RelayModernStoreSubscriptionsTest2Query.graphql';
+import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
+import type {Fragment, Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
@@ -41,7 +57,7 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
   }
 }
 
-function cloneEventWithSets(event) {
+function cloneEventWithSets(event: LogEvent) {
   const nextEvent = {};
   for (const key in event) {
     if (event.hasOwnProperty(key)) {
@@ -57,16 +73,33 @@ function cloneEventWithSets(event) {
 }
 
 [
-  [data => new RelayRecordSource(data), 'Map'],
+  [(data: $FlowFixMe) => new RelayRecordSource(data), 'Map'],
   [
-    data => RelayOptimisticRecordSource.create(new RelayRecordSource(data)),
+    (data: $FlowFixMe) =>
+      RelayOptimisticRecordSource.create(new RelayRecordSource(data)),
     'Optimistic',
   ],
 ].forEach(([getRecordSourceImplementation, ImplementationName]) => {
   describe(`Relay Store with ${ImplementationName} Record Source`, () => {
     describe('notify/publish/subscribe', () => {
-      let UserQuery;
-      let UserFragment;
+      let UserQuery:
+        | Query<
+            RelayModernStoreSubscriptionsTest1Query$variables,
+            RelayModernStoreSubscriptionsTest1Query$data,
+          >
+        | Query<
+            RelayModernStoreSubscriptionsTest2Query$variables,
+            RelayModernStoreSubscriptionsTest2Query$data,
+          >;
+      let UserFragment:
+        | Fragment<
+            RelayModernStoreSubscriptionsTest1Fragment$fragmentType,
+            RelayModernStoreSubscriptionsTest1Fragment$data,
+          >
+        | Fragment<
+            RelayModernStoreSubscriptionsTest2Fragment$fragmentType,
+            RelayModernStoreSubscriptionsTest2Fragment$data,
+          >;
       let data;
       let source;
       let store;
@@ -288,7 +321,7 @@ function cloneEventWithSets(event) {
       });
 
       it('notifies subscribers and sets updated value for isMissingData', () => {
-        data = {
+        const dataObj = {
           '4': {
             __id: '4',
             id: '4',
@@ -301,7 +334,7 @@ function cloneEventWithSets(event) {
             uri: 'https://photo1.jpg',
           },
         };
-        source = getRecordSourceImplementation(data);
+        source = getRecordSourceImplementation(dataObj);
         store = new RelayModernStore(source);
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
@@ -329,6 +362,7 @@ function cloneEventWithSets(event) {
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
           missingRequiredFields: null,
+          missingLiveResolverFields: [],
           isMissingData: false,
           data: {
             name: 'Zuck',
@@ -372,6 +406,7 @@ function cloneEventWithSets(event) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          missingLiveResolverFields: [],
           isMissingData: true,
           seenRecords: new Set(Object.keys(nextSource.toJSON())),
         });
@@ -411,6 +446,7 @@ function cloneEventWithSets(event) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          missingLiveResolverFields: [],
           isMissingData: true,
           seenRecords: new Set(['842472']),
         });

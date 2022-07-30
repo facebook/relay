@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on Query {
+  node {
+    ...Updatable_comment
+  }
+}
+
+fragment Updatable_comment on Comment @updatable {
+  __id
+}
+==================================== ERROR ====================================
+✖︎ This updatable fragment has type `Comment`, and is found within a linked field with type `Node`. However, if a record has the type `Node`, it does not necessarily have the type `Comment`.
+
+  updatable_fragment_spread_concrete_in_matching_abstract.invalid.graphql:4:8
+    3 │   node {
+    4 │     ...Updatable_comment
+      │        ^^^^^^^^^^^^^^^^^
+    5 │   }

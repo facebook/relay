@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const {
@@ -45,7 +43,7 @@ class BarComponent extends React.Component<{
   requiredProp: string,
   ...
 }> {
-  static defaultProps = {
+  static defaultProps: {defaultProp: string} = {
     defaultProp: 'default',
   };
   getNum(): number {
@@ -127,7 +125,7 @@ module.exports = {
     return <Bar {...props} />;
   },
   checkStaticsAndMethodsProxying(): React.Node {
-    class ProxyChecker extends React.PureComponent<{||}> {
+    class ProxyChecker extends React.PureComponent<{}> {
       _barRef: ?BarComponent;
       getString(): string {
         const ok = this._barRef ? this._barRef.getNum() : 'default'; // legit

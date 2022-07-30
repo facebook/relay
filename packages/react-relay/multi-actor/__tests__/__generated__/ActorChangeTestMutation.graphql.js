@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<23be4b4298a5954b7519dd97cce3e9c0>>
+ * @generated SignedSource<<1fa71075e63b4ef703397e7cd34c59c4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -31,7 +31,7 @@ export type ActorChangeTestMutation$variables = {|
 |};
 export type ActorChangeTestMutation$data = {|
   +commentCreate: ?{|
-    +__typename: string,
+    +__typename: "CommentCreateResponsePayload",
   |},
 |};
 export type ActorChangeTestMutation = {|

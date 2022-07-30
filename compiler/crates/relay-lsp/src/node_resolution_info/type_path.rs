@@ -7,7 +7,10 @@
 
 use graphql_syntax::OperationKind;
 use intern::string_key::StringKey;
-use schema::{Field, SDLSchema, Schema, Type};
+use schema::Field;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 
 #[derive(Debug, Clone)]
 /// An item in the list of type metadata that we can use to resolve the leaf

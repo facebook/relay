@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+query RelayReaderNamedFragmentsTest2Query {
+  node(id: "1") {
+    ... on MaybeNodeInterface @alias(as: "named_fragment") {
+      name @required(action: NONE)
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type RelayReaderNamedFragmentsTest2Query$variables = {};
+export type RelayReaderNamedFragmentsTest2Query$data = {
+  readonly node: {
+    readonly named_fragment: {
+      readonly name: string;
+    } | null;
+  } | null;
+};
+export type RelayReaderNamedFragmentsTest2Query = {
+  response: RelayReaderNamedFragmentsTest2Query$data;
+  variables: RelayReaderNamedFragmentsTest2Query$variables;
+};

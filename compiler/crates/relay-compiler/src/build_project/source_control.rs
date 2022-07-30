@@ -6,11 +6,10 @@
  */
 
 use log::info;
-use std::{
-    path::PathBuf,
-    process::{Command, Stdio},
-    sync::Mutex,
-};
+use std::path::PathBuf;
+use std::process::Command;
+use std::process::Stdio;
+use std::sync::Mutex;
 
 pub fn add_to_mercurial(
     root_dir: &PathBuf,

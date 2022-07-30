@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 import type {LoadMoreFn} from '../useLoadMoreFunction';
 import type {
   FetchFn,
@@ -36,14 +34,14 @@ type ExpectedReturnType<
   TQuery: OperationType,
   TQueryVariables,
   TFragmentData,
-> = {|
+> = {
   data: TFragmentData,
   loadNext: LoadMoreFn<TQuery>,
   loadPrevious: LoadMoreFn<TQuery>,
   hasNext: boolean,
   hasPrevious: boolean,
   refetch: FetchFn<TQueryVariables>,
-|};
+};
 
 /* eslint-disable react-hooks/rules-of-hooks */
 
@@ -103,8 +101,8 @@ refetch(variables, {
 });
 
 // LoadMore options
-declare var extraVariables: {|nickname: string|};
-declare var invalidVariables: {|foo: string|};
+declare var extraVariables: {nickname: string};
+declare var invalidVariables: {foo: string};
 
 const {loadNext} = useBlockingPaginationFragment<QueryOperation, _>(
   fragmentInput,

@@ -17,6 +17,8 @@ import type {
   IActorEnvironment,
   IMultiActorEnvironment,
 } from 'relay-runtime/multi-actor-environment';
+import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
+import type {ObservableFromValue} from 'relay-runtime/network/RelayObservable';
 
 const useRelayActorEnvironment = require('../../multi-actor/useRelayActorEnvironment');
 const RelayEnvironmentProvider = require('../../relay-hooks/RelayEnvironmentProvider');
@@ -158,7 +160,10 @@ disallowWarnings();
 describe('ActorChange', () => {
   let environment;
   let multiActorEnvironment;
-  let fetchFnForActor;
+  let fetchFnForActor: JestMockFn<
+    Array<mixed>,
+    ObservableFromValue<GraphQLResponse>,
+  >;
 
   beforeEach(() => {
     multiActorEnvironment = new MultiActorEnvironment({

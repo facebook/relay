@@ -1,0 +1,8 @@
+==================================== INPUT ====================================
+fragment TestLinkedFieldFragment on User {
+  name
+}
+
+%arguments%
+MaybeNodeInterface name
+==================================== OUTPUT ===================================

@@ -5,11 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{Artifact, ArtifactContent};
-use dashmap::{mapref::entry::Entry, DashMap};
+use crate::build_project::Artifact;
+use crate::build_project::ArtifactContent;
+use dashmap::mapref::entry::Entry;
+use dashmap::DashMap;
 use intern::string_key::StringKey;
 use relay_codegen::QueryID;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 use std::path::PathBuf;
 
 /// Name of a fragment or operation.

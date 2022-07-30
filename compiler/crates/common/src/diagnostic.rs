@@ -5,9 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use lsp_types::{DiagnosticSeverity, DiagnosticTag};
+use lsp_types::Diagnostic as LspTypeDiagnostic;
+use lsp_types::DiagnosticSeverity;
+use lsp_types::DiagnosticTag;
 
-use crate::{Location, SourceLocationKey};
+use crate::Location;
+use crate::SourceLocationKey;
+use crate::TextSource;
+use serde_json::Value;
 use std::error::Error;
 use std::fmt;
 use std::fmt::Write;
@@ -57,7 +62,7 @@ impl Diagnostic {
             message: Box::new(message),
             location,
             tags: Vec::new(),
-            severity: DiagnosticSeverity::Error,
+            severity: DiagnosticSeverity::ERROR,
             related_information: Vec::new(),
             data: Vec::new(),
         }))
@@ -74,7 +79,7 @@ impl Diagnostic {
             message: Box::new(message),
             location,
             tags: Vec::new(),
-            severity: DiagnosticSeverity::Error,
+            severity: DiagnosticSeverity::ERROR,
             related_information: Vec::new(),
             data,
         }))
@@ -92,7 +97,7 @@ impl Diagnostic {
             location,
             tags,
             related_information: Vec::new(),
-            severity: DiagnosticSeverity::Hint, // TODO: Make this an argument?
+            severity: DiagnosticSeverity::HINT, // TODO: Make this an argument?
             data: Vec::new(),
         }))
     }
@@ -233,5 +238,35 @@ impl<T> DiagnosticDisplay for T where T: fmt::Debug + fmt::Display + Send + Sync
 impl From<Diagnostic> for Vec<Diagnostic> {
     fn from(diagnostic: Diagnostic) -> Self {
         vec![diagnostic]
+    }
+}
+
+pub fn convert_diagnostic(text_source: &TextSource, diagnostic: &Diagnostic) -> LspTypeDiagnostic {
+    let tags: Vec<DiagnosticTag> = diagnostic.tags();
+
+    LspTypeDiagnostic {
+        code: None,
+        data: get_diagnostics_data(diagnostic),
+        message: diagnostic.message().to_string(),
+        range: text_source.to_span_range(diagnostic.location().span()),
+        related_information: None,
+        severity: Some(diagnostic.severity()),
+        tags: if tags.is_empty() { None } else { Some(tags) },
+        source: None,
+        ..Default::default()
+    }
+}
+
+pub fn get_diagnostics_data(diagnostic: &Diagnostic) -> Option<Value> {
+    let diagnostic_data = diagnostic.get_data();
+    if !diagnostic_data.is_empty() {
+        Some(Value::Array(
+            diagnostic_data
+                .iter()
+                .map(|item| Value::String(item.to_string()))
+                .collect(),
+        ))
+    } else {
+        None
     }
 }

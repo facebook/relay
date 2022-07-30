@@ -1,0 +1,17 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on Actor {
+  ...Assignable_actor
+}
+
+fragment Assignable_actor on Actor @assignable {
+  __typename
+}
+==================================== ERROR ====================================
+✖︎ Top-level spreads of assignable fragments are not supported.
+
+  assignable-fragment-spread-top-level.invalid.graphql:3:6
+    2 │ fragment Foo on Actor {
+    3 │   ...Assignable_actor
+      │      ^^^^^^^^^^^^^^^^
+    4 │ }

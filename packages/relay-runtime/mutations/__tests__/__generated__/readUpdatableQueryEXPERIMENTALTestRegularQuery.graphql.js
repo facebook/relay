@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1f01d964f9d0a27d7e4f682a7d5bb06d>>
+ * @generated SignedSource<<25b5a3e48c8fb3b2cb7c0ada30c4203c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,7 +22,7 @@ export type readUpdatableQueryEXPERIMENTALTestRegularQuery$variables = {||};
 export type readUpdatableQueryEXPERIMENTALTestRegularQuery$data = {|
   +me: ?{|
     +__id: string,
-    +__isreadUpdatableQueryEXPERIMENTALTest_node?: string,
+    +__isreadUpdatableQueryEXPERIMENTALTest_node?: "User",
     +author: ?{|
       +client_best_friend: ?{|
         +name: ?string,
@@ -61,31 +61,31 @@ var v0 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "id",
+  "name": "__id",
   "storageKey": null
 },
 v1 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "name",
+  "name": "id",
   "storageKey": null
 },
-v2 = [
-  (v1/*: any*/)
-],
-v3 = {
+v2 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "client_nickname",
+  "name": "name",
   "storageKey": null
 },
+v3 = [
+  (v2/*: any*/)
+],
 v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "__id",
+  "name": "client_nickname",
   "storageKey": null
 },
 v5 = [
@@ -104,7 +104,7 @@ v6 = {
 },
 v7 = {
   "kind": "InlineFragment",
-  "selections": (v2/*: any*/),
+  "selections": (v3/*: any*/),
   "type": "User",
   "abstractKey": null
 },
@@ -118,7 +118,7 @@ v8 = [
 v9 = {
   "kind": "InlineFragment",
   "selections": [
-    (v1/*: any*/),
+    (v2/*: any*/),
     {
       "alias": null,
       "args": null,
@@ -127,8 +127,8 @@ v9 = {
       "name": "parents",
       "plural": true,
       "selections": [
-        (v0/*: any*/),
         (v1/*: any*/),
+        (v2/*: any*/),
         {
           "alias": null,
           "args": null,
@@ -137,7 +137,7 @@ v9 = {
           "name": "parents",
           "plural": true,
           "selections": [
-            (v0/*: any*/)
+            (v1/*: any*/)
           ],
           "storageKey": null
         }
@@ -164,13 +164,13 @@ return {
         "plural": false,
         "selections": [
           {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "readUpdatableQueryEXPERIMENTALTest_node"
+          },
+          {
             "kind": "InlineFragment",
             "selections": [
-              {
-                "args": null,
-                "kind": "FragmentSpread",
-                "name": "readUpdatableQueryEXPERIMENTALTest_node"
-              },
               {
                 "alias": "__isreadUpdatableQueryEXPERIMENTALTest_node",
                 "args": null,
@@ -184,6 +184,7 @@ return {
           },
           (v0/*: any*/),
           (v1/*: any*/),
+          (v2/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -202,16 +203,15 @@ return {
                     "kind": "LinkedField",
                     "name": "client_best_friend",
                     "plural": false,
-                    "selections": (v2/*: any*/),
+                    "selections": (v3/*: any*/),
                     "storageKey": null
                   },
-                  (v3/*: any*/)
+                  (v4/*: any*/)
                 ]
               }
             ],
             "storageKey": null
-          },
-          (v4/*: any*/)
+          }
         ],
         "storageKey": null
       },
@@ -223,14 +223,14 @@ return {
         "name": "node",
         "plural": false,
         "selections": [
-          (v6/*: any*/),
           {
             "args": null,
             "kind": "FragmentSpread",
             "name": "readUpdatableQueryEXPERIMENTALTest_user"
           },
-          (v7/*: any*/),
-          (v4/*: any*/)
+          (v6/*: any*/),
+          (v0/*: any*/),
+          (v7/*: any*/)
         ],
         "storageKey": "node(id:\"4\")"
       },
@@ -272,8 +272,8 @@ return {
             "type": "Node",
             "abstractKey": "__isNode"
           },
-          (v0/*: any*/),
           (v1/*: any*/),
+          (v2/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -282,7 +282,7 @@ return {
             "name": "author",
             "plural": false,
             "selections": [
-              (v0/*: any*/),
+              (v1/*: any*/),
               {
                 "kind": "ClientExtension",
                 "selections": [
@@ -294,12 +294,12 @@ return {
                     "name": "client_best_friend",
                     "plural": false,
                     "selections": [
-                      (v1/*: any*/),
-                      (v0/*: any*/)
+                      (v2/*: any*/),
+                      (v1/*: any*/)
                     ],
                     "storageKey": null
                   },
-                  (v3/*: any*/)
+                  (v4/*: any*/)
                 ]
               }
             ],
@@ -317,7 +317,7 @@ return {
         "plural": false,
         "selections": [
           (v6/*: any*/),
-          (v0/*: any*/),
+          (v1/*: any*/),
           (v7/*: any*/)
         ],
         "storageKey": "node(id:\"4\")"
@@ -332,7 +332,7 @@ return {
         "selections": [
           (v6/*: any*/),
           (v9/*: any*/),
-          (v0/*: any*/)
+          (v1/*: any*/)
         ],
         "storageKey": "node(id:\"5\")"
       }
@@ -350,7 +350,7 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "bde36a09c95c842e557b8e5ba7b1903b";
+  (node/*: any*/).hash = "12785f1f4beff952cc20920d7c4bd1e2";
 }
 
 module.exports = ((node/*: any*/)/*: Query<

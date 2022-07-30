@@ -1,0 +1,64 @@
+==================================== INPUT ====================================
+fragment RelayReaderNamedFragmentsTest_maybe_node_interface on MaybeNodeInterface {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  node(id: "1") {
+    ...RelayReaderNamedFragmentsTest_maybe_node_interface @alias(as: "aliased_fragment")
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "RelayReaderNamedFragmentsTest_maybe_node_interface",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "MaybeNodeInterface",
+  "abstractKey": "__isMaybeNodeInterface"
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "RelayReaderNamedFragmentsTest2Query",
+  "selections": [
+    {
+      "alias": null,
+      "args": [
+        {
+          "kind": "Literal",
+          "name": "id",
+          "value": "1"
+        }
+      ],
+      "concreteType": null,
+      "kind": "LinkedField",
+      "name": "node",
+      "plural": false,
+      "selections": [
+        {
+          "fragment": {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "RelayReaderNamedFragmentsTest_maybe_node_interface"
+          },
+          "kind": "AliasedFragmentSpread",
+          "name": "aliased_fragment",
+          "type": "MaybeNodeInterface",
+          "abstractKey": "__isMaybeNodeInterface"
+        }
+      ],
+      "storageKey": "node(id:\"1\")"
+    }
+  ]
+}

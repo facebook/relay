@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+query MyQuery {
+  me {
+    ...MyFrag|ment
+  }
+}
+
+fragment MyFragment on User {
+  __typename
+}
+==================================== OUTPUT ===================================
+fragment MyFragment on [User](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22User%22],%22schemaName%22:%22Some%20Schema%20Name%22})
+--
+@see: https://relay.dev/docs/en/thinking-in-relay#data-masking

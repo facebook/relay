@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 import type {
   useFragmentFlowtest_user$data,
   useFragmentFlowtest_user$key,

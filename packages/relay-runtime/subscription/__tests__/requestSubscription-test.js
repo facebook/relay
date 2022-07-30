@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const RelayNetwork = require('../../network/RelayNetwork');
@@ -192,7 +190,7 @@ describe('requestSubscription-test', () => {
   });
 
   describe('requestSubscription() cacheConfig', () => {
-    let cacheMetadata;
+    let cacheMetadata: ?{[key: string]: mixed};
     let environment;
     let CommentCreateSubscription;
     const feedbackId = 'foo';

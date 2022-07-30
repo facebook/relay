@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+fragment RelayReaderNamedFragmentsTest_maybe_node_interface on User {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  node(id: "1") {
+    ...RelayReaderNamedFragmentsTest_maybe_node_interface @alias(as: "aliased_fragment")
+  }
+}
+==================================== OUTPUT ===================================
+import type { RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType } from "RelayReaderNamedFragmentsTest_maybe_node_interface.graphql";
+export type RelayReaderNamedFragmentsTest2Query$variables = {||};
+export type RelayReaderNamedFragmentsTest2Query$data = {|
+  +node: ?{|
+    +aliased_fragment: ?{|
+      +$fragmentSpreads: RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType,
+    |},
+  |},
+|};
+export type RelayReaderNamedFragmentsTest2Query = {|
+  response: RelayReaderNamedFragmentsTest2Query$data,
+  variables: RelayReaderNamedFragmentsTest2Query$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType: FragmentType;
+export type RelayReaderNamedFragmentsTest_maybe_node_interface$data = {|
+  +name: ?string,
+  +$fragmentType: RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType,
+|};
+export type RelayReaderNamedFragmentsTest_maybe_node_interface$key = {
+  +$data?: RelayReaderNamedFragmentsTest_maybe_node_interface$data,
+  +$fragmentSpreads: RelayReaderNamedFragmentsTest_maybe_node_interface$fragmentType,
+  ...
+};

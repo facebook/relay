@@ -9,11 +9,23 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
+import type {LogEvent} from '../../../relay-runtime/store/RelayStoreTypes';
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
+import type {
+  useLazyLoadQueryNodeTest1Query$data,
+  useLazyLoadQueryNodeTest1Query$variables,
+} from './__generated__/useLazyLoadQueryNodeTest1Query.graphql';
+import type {
+  useLazyLoadQueryNodeTestUserQuery$data,
+  useLazyLoadQueryNodeTestUserQuery$variables,
+} from './__generated__/useLazyLoadQueryNodeTestUserQuery.graphql';
 import type {FetchPolicy} from 'relay-runtime';
+import type {
+  OperationDescriptor,
+  SelectorData,
+} from 'relay-runtime/store/RelayStoreTypes';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragmentNode = require('../useFragmentNode');
@@ -38,7 +50,10 @@ const {
 
 const defaultFetchPolicy = 'network-only';
 
-function expectToBeRendered(renderFn, readyState) {
+function expectToBeRendered(
+  renderFn: JestMockFn<Array<any>, any>,
+  readyState: ?SelectorData,
+) {
   // Ensure useEffect is called before other timers
   ReactTestRenderer.act(() => {
     jest.runAllImmediates();
@@ -51,7 +66,10 @@ function expectToBeRendered(renderFn, readyState) {
 disallowWarnings();
 disallowConsoleErrors();
 
-function expectToHaveFetched(environment, query) {
+function expectToHaveFetched(
+  environment: RelayMockEnvironment,
+  query: OperationDescriptor,
+) {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute).toBeCalledTimes(1);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -68,16 +86,24 @@ function expectToHaveFetched(environment, query) {
   ).toEqual(true);
 }
 
-type Props = {|
+type Props = {
   variables: {...},
   fetchPolicy?: FetchPolicy,
   key?: number,
   extraData?: number,
-|};
+};
 
 describe('useLazyLoadQueryNode', () => {
   let environment;
-  let gqlQuery;
+  let gqlQuery:
+    | Query<
+        useLazyLoadQueryNodeTest1Query$variables,
+        useLazyLoadQueryNodeTest1Query$data,
+      >
+    | Query<
+        useLazyLoadQueryNodeTestUserQuery$variables,
+        useLazyLoadQueryNodeTestUserQuery$data,
+      >;
   let renderFn;
   let render;
   let release;
@@ -85,19 +111,19 @@ describe('useLazyLoadQueryNode', () => {
   let variables;
   let Container;
   let setProps;
-  let logs;
+  let logs: Array<LogEvent>;
   let errorBoundaryDidCatchFn;
 
   beforeEach(() => {
     errorBoundaryDidCatchFn = jest.fn();
 
     class ErrorBoundary extends React.Component<any, any> {
-      state = {error: null};
-      componentDidCatch(error) {
+      state: any | {error: null} = {error: null};
+      componentDidCatch(error: Error) {
         errorBoundaryDidCatchFn(error);
         this.setState({error});
       }
-      render() {
+      render(): any | React.Node {
         const {children, fallback} = this.props;
         const {error} = this.state;
         if (error) {
@@ -124,7 +150,7 @@ describe('useLazyLoadQueryNode', () => {
       return <Renderer {...nextProps} />;
     };
 
-    render = (env, children) => {
+    render = (env: RelayMockEnvironment, children: React.Node) => {
       return ReactTestRenderer.create(
         <RelayEnvironmentProvider environment={env}>
           <ErrorBoundary
@@ -804,7 +830,7 @@ describe('useLazyLoadQueryNode', () => {
         variables,
       );
 
-      function FragmentComponent(props) {
+      function FragmentComponent(props: {query: mixed}) {
         const fragment = getFragment(gqlFragment);
         const result: $FlowFixMe = useFragmentNode(
           fragment,
@@ -815,7 +841,7 @@ describe('useLazyLoadQueryNode', () => {
         return null;
       }
 
-      const Renderer = props => {
+      const Renderer = (props: {variables: {id: string}}) => {
         const _query = createOperationDescriptor(
           gqlOnlyFragmentsQuery,
           props.variables,

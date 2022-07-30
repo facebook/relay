@@ -5,9 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::definitions::{Directive, *};
+use crate::definitions::Directive;
+use crate::definitions::*;
 use intern::string_key::StringKey;
-use std::fmt::{Result as FmtResult, Write};
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
 
 pub trait Schema {
     fn query_type(&self) -> Option<Type>;

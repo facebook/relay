@@ -9,11 +9,18 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {
   MultiActorEnvironment,
@@ -58,10 +65,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
     let commentQuery;
     let queryOperation;
     let operationCallback;
-    let operationLoader: {|
+    let operationLoader: {
       get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
       load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-    |};
+    };
     let resolveFragment;
     let source;
     let store;
@@ -152,7 +159,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
 
         const MarkupHandler = {
-          update(storeProxy, payload) {
+          update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
             const record = storeProxy.get(payload.dataID);
             if (record != null) {
               const markup = record.getValue(payload.fieldKey);
@@ -168,7 +175,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         error = jest.fn();
         next = jest.fn();
         callbacks = {complete, error, next};
-        fetch = (_query, _variables, _cacheConfig) => {
+        fetch = (
+          _query: RequestParameters,
+          _variables: Variables,
+          _cacheConfig: CacheConfig,
+        ) => {
           return RelayObservable.create(sink => {
             dataSource = sink;
           });

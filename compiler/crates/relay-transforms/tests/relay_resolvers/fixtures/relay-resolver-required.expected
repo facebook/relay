@@ -20,13 +20,14 @@ extend type User {
 }
 ==================================== OUTPUT ===================================
 fragment Foo_user on User {
-  ...PopStarNameResolverFragment_name @__RelayResolverSpreadMetadata
-  # RelayResolverSpreadMetadata {
+  ...PopStarNameResolverFragment_name @__RelayResolverMetadata
+  # RelayResolverMetadata {
   #     field_parent_type: "User",
   #     import_path: "PopStarNameResolver",
   #     field_name: "pop_star_name",
   #     field_alias: None,
   #     field_path: "pop_star_name",
+  #     field_arguments: [],
   #     live: false,
   # }
    @required(action: THROW)
@@ -41,7 +42,3 @@ fragment PopStarNameResolverFragment_name on User {
     lastName
   }
 }
-
-# Implicit Dependencies:
-#
-# Foo_user --> {PopStarNameResolverFragment_name}

@@ -8,12 +8,11 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {FragmentType, SingularReaderSelector} from './RelayStoreTypes';
+import type {ResolverFragmentResult} from './ResolverCache';
 
 const {getFragment} = require('../query/GraphQLTag');
 const {getSelector} = require('./RelayModernSelector');
@@ -23,9 +22,12 @@ const invariant = require('invariant');
 // `readFragment`, but that's a global function -- it needs information
 // about what resolver is being executed, which is supplied by putting the
 // info on this stack before we call the resolver function.
-type ResolverContext = {|
-  getDataForResolverFragment: (SingularReaderSelector, FragmentType) => mixed,
-|};
+type ResolverContext = {
+  getDataForResolverFragment: (
+    SingularReaderSelector,
+    FragmentType,
+  ) => ResolverFragmentResult,
+};
 const contextStack: Array<ResolverContext> = [];
 
 function withResolverContext<T>(context: ResolverContext, cb: () => T): T {
@@ -115,7 +117,22 @@ function readFragment(
     fragmentSelector.kind === 'SingularReaderSelector',
     `Expected a singular reader selector for the fragment of the resolver ${fragmentNode.name}, but it was plural.`,
   );
-  return context.getDataForResolverFragment(fragmentSelector, fragmentKey);
+  const {data, isMissingData} = context.getDataForResolverFragment(
+    fragmentSelector,
+    fragmentKey,
+  );
+
+  if (isMissingData) {
+    throw RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL;
+  }
+
+  return data;
 }
 
-module.exports = {readFragment, withResolverContext};
+const RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL: mixed = {};
+
+module.exports = {
+  readFragment,
+  withResolverContext,
+  RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL,
+};

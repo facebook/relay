@@ -8,8 +8,7 @@
 mod subscription;
 mod watchman_file;
 
-pub use subscription::{
-    WatchmanFileSourceResult, WatchmanFileSourceSubscription,
-    WatchmanFileSourceSubscriptionNextChange,
-};
+pub use subscription::WatchmanFileSourceResult;
+pub use subscription::WatchmanFileSourceSubscription;
+pub use subscription::WatchmanFileSourceSubscriptionNextChange;
 pub use watchman_file::WatchmanFile;

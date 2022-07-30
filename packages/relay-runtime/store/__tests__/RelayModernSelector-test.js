@@ -9,11 +9,10 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {OperationDescriptor} from '../RelayStoreTypes';
+import type {Variables} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {graphql} = require('../../query/GraphQLTag');
 const {
@@ -40,7 +39,7 @@ describe('RelayModernSelector', () => {
   let UsersFragment;
   let environment;
   let zuck;
-  let variables;
+  let variables: Variables;
   let operationVariables;
   let operationDescriptor: OperationDescriptor;
   let owner;
@@ -656,6 +655,15 @@ describe('RelayModernSelector', () => {
   });
 
   describe('areEqualSelectors()', () => {
+    it('considers null and undefined equivalent selectors', () => {
+      expect(areEqualSelectors(null, null)).toBe(true);
+      expect(areEqualSelectors(undefined, undefined)).toBe(true);
+      // Not sure if null and undefined should be treated as same, but
+      // documenting existing behavior.
+      expect(areEqualSelectors(null, undefined)).toBe(true);
+      expect(areEqualSelectors(undefined, null)).toBe(true);
+    });
+
     it('returns true for equivalent selectors', () => {
       const selector = createReaderSelector(
         UserFragment,
@@ -730,6 +738,10 @@ describe('RelayModernSelector', () => {
       expect(areEqualSelectors(selector, differentID)).toBe(false);
       expect(areEqualSelectors(selector, differentNode)).toBe(false);
       expect(areEqualSelectors(selector, differentVars)).toBe(false);
+      expect(areEqualSelectors(selector, null)).toBe(false);
+      expect(areEqualSelectors(selector, undefined)).toBe(false);
+      expect(areEqualSelectors(null, selector)).toBe(false);
+      expect(areEqualSelectors(undefined, selector)).toBe(false);
     });
 
     it('returns false for different selectors with owners', () => {

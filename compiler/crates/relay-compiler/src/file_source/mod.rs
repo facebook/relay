@@ -17,26 +17,33 @@ mod watchman_file_source;
 mod watchman_query_builder;
 
 use crate::compiler_state::CompilerState;
-use crate::config::{Config, FileSourceKind};
-use crate::errors::{Error, Result};
-use common::{PerfLogEvent, PerfLogger};
-use graphql_watchman::{
-    WatchmanFileSourceResult, WatchmanFileSourceSubscription,
-    WatchmanFileSourceSubscriptionNextChange,
-};
+use crate::config::Config;
+use crate::config::FileSourceKind;
+use crate::errors::Error;
+use crate::errors::Result;
+use common::PerfLogEvent;
+use common::PerfLogger;
+use graphql_watchman::WatchmanFileSourceResult;
+use graphql_watchman::WatchmanFileSourceSubscription;
+use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
 use log::warn;
 use serde::Deserialize;
 use serde_bser::value::Value;
 use std::path::PathBuf;
 
 use self::external_file_source::ExternalFileSourceResult;
-pub use self::extract_graphql::{
-    extract_javascript_features_from_file, source_for_location, FsSourceReader,
-    LocatedDocblockSource, LocatedGraphQLSource, LocatedJavascriptSourceFeatures, SourceReader,
-};
-use self::walk_dir_file_source::{WalkDirFileSource, WalkDirFileSourceResult};
+pub use self::extract_graphql::extract_javascript_features_from_file;
+pub use self::extract_graphql::source_for_location;
+pub use self::extract_graphql::FsSourceReader;
+pub use self::extract_graphql::LocatedDocblockSource;
+pub use self::extract_graphql::LocatedGraphQLSource;
+pub use self::extract_graphql::LocatedJavascriptSourceFeatures;
+pub use self::extract_graphql::SourceReader;
+use self::walk_dir_file_source::WalkDirFileSource;
+use self::walk_dir_file_source::WalkDirFileSourceResult;
 use external_file_source::ExternalFileSource;
-pub use file_categorizer::{categorize_files, FileCategorizer};
+pub use file_categorizer::categorize_files;
+pub use file_categorizer::FileCategorizer;
 pub use file_group::FileGroup;
 pub use read_file_to_string::read_file_to_string;
 pub use source_control_update_status::SourceControlUpdateStatus;

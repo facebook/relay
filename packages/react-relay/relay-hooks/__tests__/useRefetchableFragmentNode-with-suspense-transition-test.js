@@ -9,11 +9,10 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {OperationDescriptor, Variables} from 'relay-runtime';
+import type {Disposable} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useRefetchableFragmentNodeOriginal = require('../useRefetchableFragmentNode');
 const React = require('react');
@@ -52,8 +51,8 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     let Renderer;
 
     function useRefetchableFragmentNodeWithSuspenseTransition(
-      fragmentNode,
-      fragmentRef,
+      fragmentNode: any,
+      fragmentRef: any,
     ) {
       const [isPending, startTransition] = useTransition();
       const {fragmentData: data, ...result} =
@@ -62,8 +61,10 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           fragmentRef,
           'TestComponent',
         );
-      refetch = (...args) => {
-        let disposable = {dispose: () => {}};
+      refetch = (...args: any) => {
+        let disposable: Disposable | {dispose: () => void} = {
+          dispose: () => {},
+        };
         startTransition(() => {
           disposable = result.refetch(...args);
         });
@@ -87,16 +88,19 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       }
     }
 
-    function assertYield(expected, actual) {
+    function assertYield(
+      expected: {data: any, isPending: boolean},
+      actual: any,
+    ) {
       expect(actual.isPending).toEqual(expected.isPending);
       expect(actual.data).toEqual(expected.data);
     }
 
     function expectFragmentResults(
-      expectedYields: $ReadOnlyArray<{|
+      expectedYields: $ReadOnlyArray<{
         data: $FlowFixMe,
         isPending: boolean,
-      |}>,
+      }>,
     ) {
       assertYieldsWereCleared();
       Scheduler.unstable_flushAllWithoutAsserting();
@@ -115,8 +119,8 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     }
 
     function expectRequestIsInFlight(
-      expected,
-      requestEnvironment = environment,
+      expected: any,
+      requestEnvironment: RelayMockEnvironment = environment,
     ) {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(requestEnvironment.executeWithSource).toBeCalledTimes(
@@ -132,12 +136,12 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     }
 
     function expectFragmentIsPendingOnRefetch(
-      renderer,
-      expected: {|
+      renderer: any,
+      expected: {
         data: mixed,
         refetchQuery?: OperationDescriptor,
         refetchVariables: Variables,
-      |},
+      },
     ) {
       // Assert fragment sets isPending to true
       expectFragmentResults([
@@ -160,7 +164,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       );
     }
 
-    function createFragmentRef(id, owner) {
+    function createFragmentRef(id: string, owner: OperationDescriptor) {
       return {
         [ID_KEY]: id,
         [FRAGMENTS_KEY]: {
@@ -241,12 +245,12 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       });
 
       // Set up renderers
-      Renderer = props => null;
+      Renderer = (props: {user: mixed}) => null;
 
       const Container = (props: {
         userRef?: {...},
         owner: $FlowFixMe,
-        fragment: $FlowFixMe,
+        fragment?: $FlowFixMe,
         ...
       }) => {
         // We need a render a component to run a Hook
@@ -276,7 +280,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         return <Renderer user={userData} />;
       };
 
-      const ContextProvider = ({children}) => {
+      const ContextProvider = ({children}: {children: React.Node}) => {
         // TODO(T39494051) - We set empty variables in relay context to make
         // Flow happy, but useRefetchableFragmentNode does not use them, instead it uses
         // the variables from the fragment owner.

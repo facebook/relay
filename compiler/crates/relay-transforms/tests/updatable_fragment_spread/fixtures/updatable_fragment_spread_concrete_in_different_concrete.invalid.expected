@@ -1,0 +1,19 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment Foo on Query {
+  story {
+    ...Updatable_comment
+  }
+}
+
+fragment Updatable_comment on Comment @updatable {
+  __id
+}
+==================================== ERROR ====================================
+✖︎ Invalid fragment spread 'Updatable_comment', the type of this fragment ('Comment') can never occur for parent type 'Story'
+
+  updatable_fragment_spread_concrete_in_different_concrete.invalid.graphql:4:5
+    3 │   story {
+    4 │     ...Updatable_comment
+      │     ^^^^^^^^^^^^^^^^^^^^
+    5 │   }

@@ -7,7 +7,8 @@
 
 use lsp_types::notification::Notification;
 
-use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
 
 pub struct LSPNotificationDispatch<'state, TState> {
     notification: lsp_server::Notification,
@@ -58,13 +59,16 @@ where
 
 #[cfg(test)]
 mod test {
-    use lsp_types::{
-        notification::{LogMessage, Notification, TelemetryEvent},
-        LogMessageParams, MessageType,
-    };
-    use std::sync::atomic::{AtomicI32, Ordering};
+    use lsp_types::notification::LogMessage;
+    use lsp_types::notification::Notification;
+    use lsp_types::notification::TelemetryEvent;
+    use lsp_types::LogMessageParams;
+    use lsp_types::MessageType;
+    use std::sync::atomic::AtomicI32;
+    use std::sync::atomic::Ordering;
 
-    use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
+    use crate::lsp_runtime_error::LSPRuntimeError;
+    use crate::lsp_runtime_error::LSPRuntimeResult;
 
     use super::LSPNotificationDispatch;
 
@@ -75,7 +79,7 @@ mod test {
             lsp_server::Notification {
                 method: "window/logMessage".to_string(),
                 params: serde_json::to_value(LogMessageParams {
-                    typ: MessageType::Error,
+                    typ: MessageType::ERROR,
                     message: "Use Relay!".to_string(),
                 })
                 .unwrap(),

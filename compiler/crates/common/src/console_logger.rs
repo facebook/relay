@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::perf_logger::{PerfLogEvent, PerfLogger};
+use super::perf_logger::PerfLogEvent;
+use super::perf_logger::PerfLogger;
 use colored::*;
 use log::debug;
 use std::time::Instant;

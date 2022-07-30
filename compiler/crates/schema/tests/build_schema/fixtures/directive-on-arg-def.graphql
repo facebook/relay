@@ -1,0 +1,13 @@
+enum RequiredFieldAction {
+  NONE
+  LOG
+  THROW
+}
+
+directive @required(action: RequiredFieldAction! @static) on FIELD
+
+directive @static on ARGUMENT_DEFINITION
+
+type Query {
+  foo: String
+}

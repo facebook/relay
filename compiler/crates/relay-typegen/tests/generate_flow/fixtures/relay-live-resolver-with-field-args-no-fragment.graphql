@@ -1,0 +1,15 @@
+fragment relayResolver_PopStarNameResolverFragment_name on User {
+  name
+}
+
+query relayResolver_Query {
+  me {
+    pop_star_name(greeting: "hello")
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name(greeting: String!, count: Float): Int @relay_resolver(import_path: "./foo/bar/baz/PopStarNameResolver.js", live: true)
+}

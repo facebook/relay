@@ -5,9 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, NamedItem};
-use graphql_ir::{Argument, ConstantValue, FragmentDefinition, Value};
-use intern::string_key::{Intern, StringKey, StringKeyMap};
+use common::Location;
+use common::NamedItem;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::Value;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
 
 #[derive(Default, Debug)]
 pub struct Scope {
@@ -89,10 +95,16 @@ pub fn format_local_variable(fragment_name: StringKey, arg_name: StringKey) -> S
 mod tests {
     use super::*;
 
-    use common::{Location, SourceLocationKey, Span, WithLocation};
-    use graphql_ir::{Argument, ConstantValue, VariableDefinition};
+    use common::Location;
+    use common::SourceLocationKey;
+    use common::Span;
+    use common::WithLocation;
+    use graphql_ir::Argument;
+    use graphql_ir::ConstantValue;
+    use graphql_ir::VariableDefinition;
     use intern::string_key::Intern;
-    use schema::{Schema, TypeReference};
+    use schema::Schema;
+    use schema::TypeReference;
 
     use relay_test_schema::TEST_SCHEMA;
 

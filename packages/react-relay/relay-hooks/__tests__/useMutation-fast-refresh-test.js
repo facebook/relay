@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
@@ -83,7 +81,7 @@ describe('useLazyLoadQueryNode', () => {
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     let commit;
-    const V1 = function (props) {
+    const V1 = function (props: {}) {
       const [commitFn, isMutationInFlight] = useMutation(CommentCreateMutation);
       commit = commitFn;
       return isInFlightFn(isMutationInFlight);
@@ -117,7 +115,7 @@ describe('useLazyLoadQueryNode', () => {
     isInFlightFn.mockClear();
 
     // Trigger a fast fresh
-    function V2(props) {
+    function V2(props: any) {
       const [commitFn, isMutationInFlight] = useMutation(CommentCreateMutation);
       commit = commitFn;
       return isInFlightFn(isMutationInFlight);

@@ -8,12 +8,10 @@
 //! This module is responsible to build a single project. It does not handle
 //! watch mode or other state.
 
-mod artifact_content;
 mod artifact_generated_types;
-mod artifact_locator;
 pub mod artifact_writer;
 mod build_ir;
-mod build_schema;
+pub mod build_schema;
 mod generate_artifacts;
 pub mod generate_extra_artifacts;
 mod log_program_stats;
@@ -23,34 +21,52 @@ mod source_control;
 mod validate;
 
 use self::log_program_stats::print_stats;
-pub use self::project_asts::{get_project_asts, ProjectAstData, ProjectAsts};
-use crate::compiler_state::{ArtifactMapKind, CompilerState, ProjectName};
-use crate::config::{Config, ProjectConfig};
+pub use self::project_asts::get_project_asts;
+pub use self::project_asts::ProjectAstData;
+pub use self::project_asts::ProjectAsts;
+use super::artifact_content;
+use crate::artifact_map::ArtifactMap;
+use crate::compiler_state::ArtifactMapKind;
+use crate::compiler_state::CompilerState;
+use crate::compiler_state::ProjectName;
+use crate::config::Config;
+use crate::config::ProjectConfig;
 use crate::errors::BuildProjectError;
 use crate::file_source::SourceControlUpdateStatus;
-use crate::{artifact_map::ArtifactMap, graphql_asts::GraphQLAsts};
+use crate::graphql_asts::GraphQLAsts;
 pub use artifact_generated_types::ArtifactGeneratedTypes;
-pub use artifact_locator::{create_path_for_artifact, path_for_artifact};
 use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
-use common::{sync::*, PerfLogEvent, PerfLogger};
-use dashmap::{mapref::entry::Entry, DashSet};
-use fnv::{FnvBuildHasher, FnvHashMap, FnvHashSet};
-pub use generate_artifacts::{generate_artifacts, Artifact, ArtifactContent};
+use common::sync::*;
+use common::PerfLogEvent;
+use common::PerfLogger;
+use dashmap::mapref::entry::Entry;
+use dashmap::DashSet;
+use fnv::FnvBuildHasher;
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
+pub use generate_artifacts::generate_artifacts;
+pub use generate_artifacts::Artifact;
+pub use generate_artifacts::ArtifactContent;
 use graphql_ir::Program;
-use intern::string_key::{StringKey, StringKeySet};
-use log::{debug, info, warn};
-use rayon::{iter::IntoParallelRefIterator, slice::ParallelSlice};
+use intern::string_key::StringKey;
+use intern::string_key::StringKeySet;
+use log::debug;
+use log::info;
+use log::warn;
+use rayon::iter::IntoParallelRefIterator;
+use rayon::slice::ParallelSlice;
 use relay_codegen::Printer;
-use relay_transforms::{
-    apply_transforms, find_resolver_dependencies, CustomTransformsConfig, DependencyMap, Programs,
-};
+use relay_transforms::apply_transforms;
+use relay_transforms::CustomTransformsConfig;
+use relay_transforms::Programs;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
-use std::iter::FromIterator;
-use std::{path::PathBuf, sync::Arc};
-pub use validate::{validate, AdditionalValidations};
+use std::path::PathBuf;
+use std::sync::Arc;
+pub use validate::validate;
+pub use validate::AdditionalValidations;
 
 type BuildProjectOutput = (ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>);
 type BuildProgramsOutput = (Programs, Arc<SourceHashes>);
@@ -71,7 +87,6 @@ impl From<BuildProjectError> for BuildProjectFailure {
 /// their locations to provide information to go_to_definition, hover, etc.
 pub fn build_raw_program(
     project_config: &ProjectConfig,
-    implicit_dependencies: &DependencyMap,
     project_asts: ProjectAsts,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
@@ -79,17 +94,12 @@ pub fn build_raw_program(
 ) -> Result<(Program, SourceHashes), BuildProjectError> {
     // Build a type aware IR.
     let BuildIRResult { ir, source_hashes } = log_event.time("build_ir_time", || {
-        build_ir::build_ir(
-            project_config,
-            implicit_dependencies,
-            project_asts,
-            &schema,
-            is_incremental_build,
+        build_ir::build_ir(project_config, project_asts, &schema, is_incremental_build).map_err(
+            |errors| BuildProjectError::ValidationErrors {
+                errors,
+                project_name: project_config.name,
+            },
         )
-        .map_err(|errors| BuildProjectError::ValidationErrors {
-            errors,
-            project_name: project_config.name,
-        })
     })?;
 
     // Turn the IR into a base Program.
@@ -172,7 +182,6 @@ pub fn build_programs(
 
     let (program, source_hashes) = build_raw_program(
         project_config,
-        &compiler_state.implicit_dependencies.read().unwrap(),
         project_asts,
         schema,
         log_event,
@@ -184,23 +193,8 @@ pub fn build_programs(
         return Err(BuildProjectFailure::Cancelled);
     }
 
-    let (validation_results, _) = rayon::join(
-        || {
-            // Call validation rules that go beyond type checking.
-            validate_program(config, project_config, &program, log_event)
-        },
-        || {
-            find_resolver_dependencies(
-                &mut compiler_state
-                    .pending_implicit_dependencies
-                    .write()
-                    .unwrap(),
-                &program,
-            );
-        },
-    );
-
-    validation_results?;
+    // Call validation rules that go beyond type checking.
+    validate_program(config, project_config, &program, log_event)?;
 
     let programs = transform_program(
         project_config,
@@ -218,7 +212,7 @@ pub fn build_project(
     config: &Config,
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
-    graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
+    graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
     perf_logger: Arc<impl PerfLogger + 'static>,
 ) -> Result<BuildProjectOutput, BuildProjectFailure> {
     let log_event = perf_logger.create_event("build_project");
@@ -227,15 +221,10 @@ pub fn build_project(
     log_event.string("project", project_name.to_string());
     info!("[{}] compiling...", project_name);
 
-    let ProjectAstData {
-        project_asts,
-        base_fragment_names,
-    } = get_project_asts(graphql_asts, project_config)?;
-
     // Construct a schema instance including project specific extensions.
     let schema = log_event
         .time("build_schema_time", || {
-            build_schema(compiler_state, project_config)
+            build_schema(compiler_state, project_config, graphql_asts_map)
         })
         .map_err(|errors| {
             BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
@@ -243,6 +232,11 @@ pub fn build_project(
                 project_name: project_config.name,
             })
         })?;
+
+    let ProjectAstData {
+        project_asts,
+        base_fragment_names,
+    } = get_project_asts(&schema, graphql_asts_map, project_config)?;
 
     if compiler_state.should_cancel_current_build() {
         debug!("Build is cancelled: updates in source code/or new file changes are pending.");
@@ -313,8 +307,7 @@ pub async fn commit_project(
     if let Some(operation_persister) = config
         .create_operation_persister
         .as_ref()
-        .map(|create_fn| create_fn(project_config))
-        .flatten()
+        .and_then(|create_fn| create_fn(project_config))
     {
         let persist_operations_timer = log_event.start("persist_operations_time");
         persist_operations::persist_operations(

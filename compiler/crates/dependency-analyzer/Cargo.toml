@@ -15,7 +15,6 @@ name = "dependency_analyzer_ir"
 path = "tests/ir_test.rs"
 
 [dependencies]
-fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }

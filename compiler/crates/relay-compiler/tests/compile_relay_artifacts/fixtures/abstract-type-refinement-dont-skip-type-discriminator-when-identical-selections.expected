@@ -127,6 +127,7 @@ fragment abstractTypeRefinementDontSkipTypeDiscriminatorWhenIdenticalSelections_
     ]
   },
   "params": {
+    "cacheID": "5fc3aca129e962f11991489716725fce",
     "id": null,
     "metadata": {},
     "name": "abstractTypeRefinementDontSkipTypeDiscriminatorWhenIdenticalSelections_AbstractTypeRefinementQuery",

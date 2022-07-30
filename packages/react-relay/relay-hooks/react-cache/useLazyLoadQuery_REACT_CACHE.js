@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -26,16 +24,17 @@ const useMemoOperationDescriptor = require('../useMemoOperationDescriptor');
 const useRelayEnvironment = require('../useRelayEnvironment');
 const getQueryResultOrFetchQuery = require('./getQueryResultOrFetchQuery_REACT_CACHE');
 const useFragmentInternal = require('./useFragmentInternal_REACT_CACHE');
+const {useEffect} = require('react');
 
 function useLazyLoadQuery_REACT_CACHE<TVariables: Variables, TData>(
   gqlQuery: Query<TVariables, TData>,
   variables: TVariables,
-  options?: {|
+  options?: {
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
     networkCacheConfig?: CacheConfig,
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
+  },
 ): TData {
   useTrackLoadQueryInRender();
   const environment = useRelayEnvironment();
@@ -47,12 +46,17 @@ function useLazyLoadQuery_REACT_CACHE<TVariables: Variables, TData>(
   );
 
   // Get the query going if needed -- this may suspend.
-  const queryResult = getQueryResultOrFetchQuery(
+  const [queryResult, effect] = getQueryResultOrFetchQuery(
     environment,
     queryOperationDescriptor,
-    options?.fetchPolicy,
-    options?.UNSTABLE_renderPolicy,
+    {
+      fetchPolicy: options?.fetchPolicy,
+      renderPolicy: options?.UNSTABLE_renderPolicy,
+      fetchKey: options?.fetchKey,
+    },
   );
+
+  useEffect(effect);
 
   // Read the query's root fragment -- this may suspend.
   const {fragmentNode, fragmentRef} = queryResult;
@@ -60,7 +64,7 @@ function useLazyLoadQuery_REACT_CACHE<TVariables: Variables, TData>(
   return useFragmentInternal(fragmentNode, fragmentRef, 'useLazyLoadQuery()', {
     fetchPolicy: options?.fetchPolicy,
     networkCacheConfig: options?.networkCacheConfig,
-  }).data;
+  });
 }
 
 module.exports = useLazyLoadQuery_REACT_CACHE;

@@ -1,0 +1,21 @@
+fragment relayResolverWithRequiredClientEdge_best_friend_resolver on User {
+  actor_key
+}
+
+query relayResolverWithRequiredClientEdgeQuery {
+  me {
+    best_friend @waterfall @required(action: THROW) {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User
+    @relay_resolver(
+      fragment_name: "relayResolverWithRequiredClientEdge_best_friend_resolver"
+      import_path: "./foo/bar/baz/BestFriendResolver.js"
+    )
+}

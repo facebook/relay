@@ -7,20 +7,27 @@
 
 //! Utilities for reporting errors to an LSP client
 use crate::lsp_process_error::LSPProcessResult;
-use crate::server::convert_diagnostic;
-use common::{Diagnostic as CompilerDiagnostic, Location};
+use common::convert_diagnostic;
+use common::Diagnostic as CompilerDiagnostic;
+use common::Location;
 use crossbeam::channel::Sender;
-use dashmap::{mapref::entry::Entry, DashMap};
-use lsp_server::{Message, Notification as ServerNotification};
-use lsp_types::{
-    notification::{Notification, PublishDiagnostics},
-    Diagnostic, DiagnosticSeverity, Position, PublishDiagnosticsParams, Range, Url,
-};
-use relay_compiler::{
-    errors::{BuildProjectError, Error},
-    source_for_location, FsSourceReader, SourceReader,
-};
-use serde_json::Value;
+use dashmap::mapref::entry::Entry;
+use dashmap::DashMap;
+use lsp_server::Message;
+use lsp_server::Notification as ServerNotification;
+use lsp_types::notification::Notification;
+use lsp_types::notification::PublishDiagnostics;
+use lsp_types::Diagnostic;
+use lsp_types::DiagnosticSeverity;
+use lsp_types::Position;
+use lsp_types::PublishDiagnosticsParams;
+use lsp_types::Range;
+use lsp_types::Url;
+use relay_compiler::errors::BuildProjectError;
+use relay_compiler::errors::Error;
+use relay_compiler::source_for_location;
+use relay_compiler::FsSourceReader;
+use relay_compiler::SourceReader;
 use std::path::PathBuf;
 
 /// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
@@ -210,7 +217,7 @@ impl DiagnosticReporter {
             message,
             range: Range::new(Position::new(0, 0), Position::new(0, 0)),
             related_information: None,
-            severity: Some(DiagnosticSeverity::Error),
+            severity: Some(DiagnosticSeverity::ERROR),
             source: None,
             tags: None,
             ..Default::default()
@@ -247,20 +254,6 @@ fn is_sub_range(inner: Range, outer: Range) -> bool {
         && (outer.end.character >= inner.end.character && outer.end.line >= inner.end.line)
 }
 
-pub fn get_diagnostics_data(diagnostic: &CompilerDiagnostic) -> Option<Value> {
-    let diagnostic_data = diagnostic.get_data();
-    if !diagnostic_data.is_empty() {
-        Some(Value::Array(
-            diagnostic_data
-                .iter()
-                .map(|item| Value::String(item.to_string()))
-                .collect(),
-        ))
-    } else {
-        None
-    }
-}
-
 /// Publish diagnostics to the client
 pub fn publish_diagnostic(
     diagnostic_params: PublishDiagnosticsParams,
@@ -277,10 +270,15 @@ pub fn publish_diagnostic(
 
 #[cfg(test)]
 mod tests {
-    use super::{is_sub_range, DiagnosticReporter};
-    use common::{Diagnostic, Location, SourceLocationKey, Span};
+    use super::is_sub_range;
+    use super::DiagnosticReporter;
+    use common::Diagnostic;
+    use common::Location;
+    use common::SourceLocationKey;
+    use common::Span;
     use intern::string_key::Intern;
-    use lsp_types::{Position, Range};
+    use lsp_types::Position;
+    use lsp_types::Range;
     use relay_compiler::SourceReader;
     use std::env;
     use std::path::PathBuf;

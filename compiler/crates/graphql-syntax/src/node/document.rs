@@ -5,9 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, Span};
+use common::Location;
+use common::Span;
 
-use crate::{ExecutableDefinition, TypeSystemDefinition};
+use crate::ExecutableDefinition;
+use crate::TypeSystemDefinition;
 use std::fmt;
 
 /// A GraphQL document containing any type of definition. This can represent

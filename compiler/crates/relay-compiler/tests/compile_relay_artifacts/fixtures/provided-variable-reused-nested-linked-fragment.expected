@@ -119,6 +119,7 @@ fragment providedVariableReusedNestedLinkedFragment_FragmentWithProvider on User
     ]
   },
   "params": {
+    "cacheID": "dd9be7f35551e8c9f58ba97ed089c1f0",
     "id": null,
     "metadata": {},
     "name": "providedVariableReusedNestedLinkedFragment_1Query",
@@ -246,6 +247,7 @@ fragment providedVariableReusedNestedLinkedFragment_FragmentWithProvider on User
     ]
   },
   "params": {
+    "cacheID": "acee8af5cc722ed585aeff6e2a0bfee0",
     "id": null,
     "metadata": {},
     "name": "providedVariableReusedNestedLinkedFragment_2Query",

@@ -1,0 +1,17 @@
+#expected-to-throw
+
+fragment PopStarNameResolverFragment_name on User @argumentDefinitions(scale: {type: "Float!"}) {
+  name
+  profile_picture {
+    uri
+  }
+  address @include(if: $should_include_address) {
+    street
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name(scale: Float!): String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+}

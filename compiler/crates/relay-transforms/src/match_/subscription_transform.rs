@@ -5,16 +5,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{match_::MATCH_CONSTANTS, util::get_normalization_operation_name, ModuleMetadata};
-use common::{DiagnosticsResult, WithLocation};
-use graphql_ir::{
-    Argument, ConstantValue, Field, FragmentDefinition, FragmentSpread, InlineFragment,
-    LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    Value,
-};
+use crate::match_::MATCH_CONSTANTS;
+use crate::util::get_normalization_operation_name;
+use crate::ModuleMetadata;
+use common::DiagnosticsResult;
+use common::Location;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
-use schema::{FieldID, Schema, Type, TypeReference};
+use schema::FieldID;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
 use std::sync::Arc;
 
 pub fn transform_subscriptions(program: &Program) -> DiagnosticsResult<Program> {
@@ -114,7 +130,7 @@ impl<'program> SubscriptionTransform<'program> {
         match type_ {
             TypeReference::Named(Type::Scalar(scalar_id)) => {
                 let scalar = self.program.schema.scalar(*scalar_id);
-                scalar.name == MATCH_CONSTANTS.js_field_type && !scalar.is_extension
+                scalar.name.item == MATCH_CONSTANTS.js_field_type && !scalar.is_extension
             }
             _ => false,
         }
@@ -161,7 +177,7 @@ impl<'program> SubscriptionTransform<'program> {
                 .type_
                 .inner(),
         );
-        let location = linked_field.alias_or_name_location();
+        let name_location = linked_field.alias_or_name_location();
 
         let selections = vec![Selection::InlineFragment(Arc::new(InlineFragment {
             type_condition,
@@ -180,13 +196,15 @@ impl<'program> SubscriptionTransform<'program> {
                         module_name: normalization_operation_name,
                         source_document_name: operation.name.item,
                         fragment_name: fragment_spread.fragment.item,
-                        location,
+                        location: name_location,
                         no_inline: false,
                     }
                     .into(),
                 ],
                 selections,
+                spread_location: Location::generated(),
             }))],
+            spread_location: Location::generated(),
         }))];
 
         Selection::LinkedField(Arc::new(LinkedField {

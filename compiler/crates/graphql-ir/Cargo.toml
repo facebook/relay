@@ -24,8 +24,8 @@ errors = { path = "../errors" }
 fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
-lazy_static = "1.0"
-once_cell = "1.8"
+lazy_static = "1.4"
+once_cell = "1.12"
 schema = { path = "../schema" }
 thiserror = "1.0.30"
 

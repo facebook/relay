@@ -1,0 +1,5 @@
+fragment Foo on User {
+  ... @alias(as: "aliased_fragment") {
+    name
+  }
+}

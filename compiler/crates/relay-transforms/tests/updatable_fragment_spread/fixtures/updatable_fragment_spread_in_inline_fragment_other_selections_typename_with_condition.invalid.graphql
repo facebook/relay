@@ -1,0 +1,16 @@
+# expected-to-throw
+fragment Foo on Query {
+  node(id: "4") {
+    ... on User {
+      __typename
+      ...Updatable_user
+    }
+    ... on Comment {
+      __typename @skip(if: true)
+    }
+  }
+}
+
+fragment Updatable_user on User @updatable {
+  __id
+}

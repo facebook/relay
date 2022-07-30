@@ -5,13 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use graphql_ir::{
-    associated_data_impl, FragmentSpread, InlineFragment, Program, Selection, Transformed,
-    Transformer,
-};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Argument;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::VariableDefinition;
 
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use once_cell::sync::Lazy;
 use std::sync::Arc;
 use thiserror::Error;
@@ -50,6 +60,9 @@ impl<'s> InlineDataFragmentsTransform<'s> {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct InlineDirectiveMetadata {
     pub fragment_name: StringKey,
+    pub arguments: Vec<Argument>,
+    pub variable_definitions: Vec<VariableDefinition>,
+    pub used_global_variables: Vec<VariableDefinition>,
 }
 associated_data_impl!(InlineDirectiveMetadata);
 
@@ -68,22 +81,6 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
         if fragment.directives.named(*INLINE_DIRECTIVE_NAME).is_none() {
             next_fragment_spread
         } else {
-            if !fragment.variable_definitions.is_empty()
-                || !fragment.used_global_variables.is_empty()
-            {
-                let mut error = Diagnostic::error(
-                    ValidationMessage::InlineDataFragmentArgumentsNotSupported,
-                    fragment.name.location,
-                );
-                for var in fragment
-                    .variable_definitions
-                    .iter()
-                    .chain(fragment.used_global_variables.iter())
-                {
-                    error = error.annotate("Variable used:", var.name.location);
-                }
-                self.errors.push(error);
-            }
             match &next_fragment_spread {
                 Transformed::Keep => {
                     if !spread.directives.is_empty() {
@@ -149,6 +146,9 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
                 directives: vec![
                     InlineDirectiveMetadata {
                         fragment_name: name,
+                        arguments: spread.arguments.clone(),
+                        variable_definitions: fragment.variable_definitions.clone(),
+                        used_global_variables: fragment.used_global_variables.clone(),
                     }
                     .into(),
                 ],
@@ -156,7 +156,9 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
                     type_condition: Some(fragment.type_condition),
                     directives: vec![],
                     selections,
+                    spread_location: Location::generated(),
                 }))],
+                spread_location: Location::generated(),
             };
 
             Transformed::Replace(Selection::InlineFragment(Arc::new(inline_fragment)))
@@ -168,9 +170,6 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
 enum ValidationMessage {
     #[error("Found a circular reference from fragment '{fragment_name}'.")]
     CircularFragmentReference { fragment_name: StringKey },
-
-    #[error("Variables are not yet supported inside @inline fragments.")]
-    InlineDataFragmentArgumentsNotSupported,
 
     #[error("Directives on fragment spreads for @inline fragments are not yet supported")]
     InlineDataFragmentDirectivesNotSupported,

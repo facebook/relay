@@ -5,14 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult},
-    server::GlobalState,
-};
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::server::GlobalState;
 use intern::string_key::Intern;
 use lsp_types::request::Request;
 use schema::Schema;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 mod types;
 

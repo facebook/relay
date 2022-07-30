@@ -43,6 +43,7 @@ extend type User {
             "selections": [
               {
                 "alias": null,
+                "args": null,
                 "fragment": {
                   "args": null,
                   "kind": "FragmentSpread",
@@ -118,6 +119,7 @@ extend type User {
     ]
   },
   "params": {
+    "cacheID": "c1ff5fa92dd2f8f4663ba7961282dfae",
     "id": null,
     "metadata": {},
     "name": "relayLiveResolver_Query",

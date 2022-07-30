@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4a921be6b2efc18fbd6ef5e4b6623e04>>
+ * @generated SignedSource<<378ad574a05b62abf204013f996c8c8f>>
  */
 
 mod generate_data_driven_dependency_metadata;
@@ -31,6 +31,27 @@ fn module_without_match() {
     let input = include_str!("generate_data_driven_dependency_metadata/fixtures/module-without-match.graphql");
     let expected = include_str!("generate_data_driven_dependency_metadata/fixtures/module-without-match.expected");
     test_fixture(transform_fixture, "module-without-match.graphql", "generate_data_driven_dependency_metadata/fixtures/module-without-match.expected", input, expected);
+}
+
+#[test]
+fn query_with_direct_and_transitive_module_dep() {
+    let input = include_str!("generate_data_driven_dependency_metadata/fixtures/query-with-direct-and-transitive-module-dep.graphql");
+    let expected = include_str!("generate_data_driven_dependency_metadata/fixtures/query-with-direct-and-transitive-module-dep.expected");
+    test_fixture(transform_fixture, "query-with-direct-and-transitive-module-dep.graphql", "generate_data_driven_dependency_metadata/fixtures/query-with-direct-and-transitive-module-dep.expected", input, expected);
+}
+
+#[test]
+fn query_with_direct_module_dep() {
+    let input = include_str!("generate_data_driven_dependency_metadata/fixtures/query-with-direct-module-dep.graphql");
+    let expected = include_str!("generate_data_driven_dependency_metadata/fixtures/query-with-direct-module-dep.expected");
+    test_fixture(transform_fixture, "query-with-direct-module-dep.graphql", "generate_data_driven_dependency_metadata/fixtures/query-with-direct-module-dep.expected", input, expected);
+}
+
+#[test]
+fn query_with_transitive_module_dep() {
+    let input = include_str!("generate_data_driven_dependency_metadata/fixtures/query-with-transitive-module-dep.graphql");
+    let expected = include_str!("generate_data_driven_dependency_metadata/fixtures/query-with-transitive-module-dep.expected");
+    test_fixture(transform_fixture, "query-with-transitive-module-dep.graphql", "generate_data_driven_dependency_metadata/fixtures/query-with-transitive-module-dep.expected", input, expected);
 }
 
 #[test]

@@ -6,7 +6,9 @@
  */
 
 use graphql_syntax::*;
-use intern::string_key::{StringKey, StringKeyMap, StringKeySet};
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
+use intern::string_key::StringKeySet;
 
 pub struct ReachableAst {
     /// The definitions that need to be compiled, includes the project

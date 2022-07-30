@@ -9,8 +9,6 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {ProvidedVariablesType} from './RelayConcreteNode';
@@ -20,14 +18,18 @@ const areEqual = require('areEqual');
 const warning = require('warning');
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
-const debugCache = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
+let debugCache:
+  | Map<mixed, mixed>
+  | Map<() => mixed, mixed>
+  | WeakMap<interface {} | $ReadOnlyArray<mixed>, mixed>
+  | WeakMap<() => mixed, mixed> = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
 
 function withProvidedVariables(
   userSuppliedVariables: Variables,
   providedVariables: ?ProvidedVariablesType,
 ): Variables {
   if (providedVariables != null) {
-    const operationVariables = {};
+    const operationVariables: {[string]: mixed} = {};
     Object.assign(operationVariables, userSuppliedVariables);
     Object.keys(providedVariables).forEach((varName: string) => {
       const providerFunction = providedVariables[varName].get;
@@ -59,6 +61,12 @@ function withProvidedVariables(
   } else {
     return userSuppliedVariables;
   }
+}
+
+if (__DEV__) {
+  withProvidedVariables.tests_only_resetDebugCache = () => {
+    debugCache = WEAKMAP_SUPPORTED ? new WeakMap() : new Map();
+  };
 }
 
 module.exports = withProvidedVariables;

@@ -5,12 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::no_inline::{
-    is_raw_response_type_enabled, NO_INLINE_DIRECTIVE_NAME, RAW_RESPONSE_TYPE_NAME,
-};
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, SourceLocationKey, Span};
+use crate::no_inline::is_raw_response_type_enabled;
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use crate::no_inline::RAW_RESPONSE_TYPE_NAME;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::NamedItem;
+use common::SourceLocationKey;
+use common::Span;
 use errors::validate_map;
-use graphql_ir::{FragmentDefinition, FragmentSpread, Program, ValidationMessage, Validator};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::Program;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
 use intern::string_key::StringKeySet;
 
 /// To generate full raw response types, we need to also generate raw response types for

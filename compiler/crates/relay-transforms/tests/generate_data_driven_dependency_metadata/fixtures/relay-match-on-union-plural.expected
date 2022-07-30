@@ -29,7 +29,19 @@ fragment MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
   }
 }
 
-fragment NameRendererFragment on User @__dataDrivenDependencyMetadata(NameRendererFragment.nameRenderers: "{"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"MarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"PlainUserNameRenderer_name$normalization.graphql"}},"plural":true}") {
+fragment NameRendererFragment on User @__RelayDataDrivenDependencyMetadata
+# RelayDataDrivenDependencyMetadata {
+#     direct_dependencies: Some(
+#         [
+#             (
+#                 "NameRendererFragment.nameRenderers",
+#                 "{\"branches\":{\"MarkdownUserNameRenderer\":{\"component\":\"MarkdownUserNameRenderer.react\",\"fragment\":\"MarkdownUserNameRenderer_name$normalization.graphql\"},\"PlainUserNameRenderer\":{\"component\":\"PlainUserNameRenderer.react\",\"fragment\":\"PlainUserNameRenderer_name$normalization.graphql\"}},\"plural\":true}",
+#             ),
+#         ],
+#     ),
+#     indirect_dependencies: None,
+# }
+ {
   id
   nameRenderers(supported: ["PlainUserNameRenderer", "MarkdownUserNameRenderer"]) {
     ... on PlainUserNameRenderer {

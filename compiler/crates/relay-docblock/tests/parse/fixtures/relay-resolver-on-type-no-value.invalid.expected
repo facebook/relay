@@ -10,17 +10,23 @@
 
 /**
  * @RelayResolver
- * 
+ *
  * @onType
  * @fieldName favorite_page
  * @edgeTo Page
  * @rootFragment myRootFragment
  */
+
+graphql`
+  fragment myRootFragment on User {
+    name
+  }
+`
 ==================================== ERROR ====================================
 ✖︎ Expected docblock field "@onType" to have specified a value.
 
-  /path/to/test/fixture/relay-resolver-on-type-no-value.invalid.js:4:5
-    3 │  * 
-    4 │  * @onType
+  /path/to/test/fixture/relay-resolver-on-type-no-value.invalid.js:13:5
+   12 │  *
+   13 │  * @onType
       │     ^^^^^^
-    5 │  * @fieldName favorite_page
+   14 │  * @fieldName favorite_page

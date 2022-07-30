@@ -191,6 +191,7 @@ fragment moduleWithDefer_MarkdownUserNameRenderer_name on MarkdownUserNameRender
     ]
   },
   "params": {
+    "cacheID": "6926c16892bf4e6a40452c5a647ee5ae",
     "id": null,
     "metadata": {},
     "name": "moduleWithDefer_MultipleNameRendererQuery",

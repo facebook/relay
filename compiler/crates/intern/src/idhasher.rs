@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::hash::{BuildHasherDefault, Hasher};
+use std::hash::BuildHasherDefault;
+use std::hash::Hasher;
 use std::marker::PhantomData;
 
 pub type BuildIdHasher<T> = BuildHasherDefault<IdHasher<T>>;

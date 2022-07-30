@@ -5,12 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::types::{Intern, RawInternKey};
+use crate::types::Intern;
+use crate::types::RawInternKey;
 use core::cmp::Ordering;
 use fnv::FnvHashMap;
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
+use serde::Serializer;
 use std::fmt;
 use std::num::NonZeroU32;
 use std::str::FromStr;

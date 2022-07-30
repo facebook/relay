@@ -8,8 +8,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 /**
@@ -25,7 +23,7 @@ function stableCopy<T: mixed>(value: T): T {
     return value.map(stableCopy);
   }
   const keys = Object.keys(value).sort();
-  const stable = {};
+  const stable: {[string]: mixed} = {};
   for (let i = 0; i < keys.length; i++) {
     stable[keys[i]] = stableCopy(value[keys[i]]);
   }

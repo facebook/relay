@@ -15,3 +15,9 @@
  * @rootFragment myRootFragment
  * @notValid myRootFragment
  */
+
+graphql`
+  fragment myRootFragment on User {
+    name
+  }
+`

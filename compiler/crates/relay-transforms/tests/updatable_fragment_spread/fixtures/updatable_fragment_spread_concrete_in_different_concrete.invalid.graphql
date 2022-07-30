@@ -1,0 +1,10 @@
+# expected-to-throw
+fragment Foo on Query {
+  story {
+    ...Updatable_comment
+  }
+}
+
+fragment Updatable_comment on Comment @updatable {
+  __id
+}

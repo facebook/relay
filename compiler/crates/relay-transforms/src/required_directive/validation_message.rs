@@ -11,7 +11,7 @@ use thiserror::Error;
 #[derive(Error, Debug)]
 pub(super) enum ValidationMessage {
     #[error(
-        "Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing because the inline fragment did not match"
+        "Unexpected @required within inline fragment on an abstract type. At runtime we cannot know if this field is null, or if it's missing because the inline fragment did not match. Consider using `@alias` to give your inline fragment a name."
     )]
     RequiredWithinAbstractInlineFragment,
 
@@ -20,12 +20,6 @@ pub(super) enum ValidationMessage {
 
     #[error("Missing `action` argument. @required expects an `action` argument")]
     RequiredActionArgumentRequired,
-
-    #[error("Expected `action` argument to be a literal")]
-    RequiredActionArgumentConstant,
-
-    #[error("Expected `action` argument to be one of `NONE`, `LOG` or `THROW`")]
-    RequiredActionArgumentEnum,
 
     #[error(
         "All references to a @required field must have matching `action` arguments. The `action` used for '{field_name}'"

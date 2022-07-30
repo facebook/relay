@@ -4,13 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2ea6403534fde8fe5781de95bd4059c7>>
+ * @generated SignedSource<<39f0a34f3acf5f9d49cd579af5dbc8f8>>
  */
 
 mod disallow_typename_on_root;
 
 use disallow_typename_on_root::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn typename_on_fragment_invalid() {
+    let input = include_str!("disallow_typename_on_root/fixtures/typename-on-fragment.invalid.graphql");
+    let expected = include_str!("disallow_typename_on_root/fixtures/typename-on-fragment.invalid.expected");
+    test_fixture(transform_fixture, "typename-on-fragment.invalid.graphql", "disallow_typename_on_root/fixtures/typename-on-fragment.invalid.expected", input, expected);
+}
 
 #[test]
 fn typename_on_mutation_invalid() {

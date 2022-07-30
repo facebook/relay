@@ -1,0 +1,10 @@
+mutation appendEdgeOnInterfaceMutation(
+  $connections: [ID!]!
+  $input: CommentCreateInput
+) {
+  commentCreate(input: $input) {
+    feedbackCommentEdgeUsingInterface @appendEdge(connections: $connections) {
+      __typename
+    }
+  }
+}

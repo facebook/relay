@@ -13,7 +13,8 @@ fragment TestFragment on User
 ==================================== ERROR ====================================
 ✖︎ Unknown type 'UnknownType'.
 
-  fragment-with-arguments-invalid-type.invalid.graphql:1:1
-    1 │ # expected-to-throw
-      │ ^^^^^^^^^^^
+  fragment-with-arguments-invalid-type.invalid.graphql:3:39
     2 │ fragment TestFragment on User
+    3 │   @argumentDefinitions(myArg: {type: "UnknownType"}) {
+      │                                       ^^^^^^^^^^^
+    4 │   profilePicture(size: $PictureSize) {

@@ -1,0 +1,9 @@
+fragment Foo_user on User {
+  pop_star_name
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(import_path: "PopStarNameResolver", live: true)
+}

@@ -1,0 +1,6 @@
+# expected-to-throw
+fragment Foo on Node {
+    ... @alias {
+        name
+    }
+}

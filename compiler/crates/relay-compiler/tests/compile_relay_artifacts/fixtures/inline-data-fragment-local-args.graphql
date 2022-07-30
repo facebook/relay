@@ -1,4 +1,3 @@
-# expected-to-throw
 fragment inlineDataFragmentLocalArgsFragment on Query {
   usingLiteralPassedValue: me {
     ...inlineDataFragmentLocalArgsProfile @arguments(sizeArg: [100])

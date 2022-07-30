@@ -4,13 +4,34 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<085b96473751f6ff499d57fcc5854332>>
+ * @generated SignedSource<<a5b313a4fdd3a9a5025c4fc2112cce40>>
  */
 
 mod parse;
 
 use parse::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn edge_to_non_null_invalid() {
+    let input = include_str!("parse/fixtures/edge-to-non-null.invalid.js");
+    let expected = include_str!("parse/fixtures/edge-to-non-null.invalid.expected");
+    test_fixture(transform_fixture, "edge-to-non-null.invalid.js", "parse/fixtures/edge-to-non-null.invalid.expected", input, expected);
+}
+
+#[test]
+fn edge_to_non_null_plural_item_invalid() {
+    let input = include_str!("parse/fixtures/edge-to-non-null-plural-item.invalid.js");
+    let expected = include_str!("parse/fixtures/edge-to-non-null-plural-item.invalid.expected");
+    test_fixture(transform_fixture, "edge-to-non-null-plural-item.invalid.js", "parse/fixtures/edge-to-non-null-plural-item.invalid.expected", input, expected);
+}
+
+#[test]
+fn edge_to_not_identifier_invalid() {
+    let input = include_str!("parse/fixtures/edge-to-not-identifier.invalid.js");
+    let expected = include_str!("parse/fixtures/edge-to-not-identifier.invalid.expected");
+    test_fixture(transform_fixture, "edge-to-not-identifier.invalid.js", "parse/fixtures/edge-to-not-identifier.invalid.expected", input, expected);
+}
 
 #[test]
 fn relay_resolver() {
@@ -55,6 +76,13 @@ fn relay_resolver_missing_multiple_fields_invalid() {
 }
 
 #[test]
+fn relay_resolver_on_interface_mismatch_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-on-interface-mismatch.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-on-interface-mismatch.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-on-interface-mismatch.invalid.js", "parse/fixtures/relay-resolver-on-interface-mismatch.invalid.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_on_interface_no_value_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-on-interface-no-value.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-on-interface-no-value.invalid.expected");
@@ -69,8 +97,71 @@ fn relay_resolver_on_type_and_on_interface_invalid() {
 }
 
 #[test]
+fn relay_resolver_on_type_mismatch_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-on-type-mismatch.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-on-type-mismatch.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-on-type-mismatch.invalid.js", "parse/fixtures/relay-resolver-on-type-mismatch.invalid.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_on_type_no_value_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-on-type-no-value.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-on-type-no-value.invalid.expected");
     test_fixture(transform_fixture, "relay-resolver-on-type-no-value.invalid.js", "parse/fixtures/relay-resolver-on-type-no-value.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_args() {
+    let input = include_str!("parse/fixtures/relay-resolver-with-args.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-with-args.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-args.js", "parse/fixtures/relay-resolver-with-args.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_args_default_value_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-with-args-default-value.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-with-args-default-value.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-args-default-value.invalid.js", "parse/fixtures/relay-resolver-with-args-default-value.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_args_syntax_error_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-with-args-syntax-error.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-with-args-syntax-error.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-args-syntax-error.invalid.js", "parse/fixtures/relay-resolver-with-args-syntax-error.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_conflicting_args_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-with-conflicting-args.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-with-conflicting-args.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-conflicting-args.invalid.js", "parse/fixtures/relay-resolver-with-conflicting-args.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_field_and_fragment_args() {
+    let input = include_str!("parse/fixtures/relay-resolver-with-field-and-fragment-args.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-with-field-and-fragment-args.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-field-and-fragment-args.js", "parse/fixtures/relay-resolver-with-field-and-fragment-args.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_field_args() {
+    let input = include_str!("parse/fixtures/relay-resolver-with-field-args.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-with-field-args.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-field-args.js", "parse/fixtures/relay-resolver-with-field-args.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_fragment() {
+    let input = include_str!("parse/fixtures/relay-resolver-with-fragment.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-with-fragment.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-fragment.js", "parse/fixtures/relay-resolver-with-fragment.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_fragment_invalid() {
+    let input = include_str!("parse/fixtures/relay-resolver-with-fragment.invalid.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-with-fragment.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-fragment.invalid.js", "parse/fixtures/relay-resolver-with-fragment.invalid.expected", input, expected);
 }

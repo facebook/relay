@@ -5,19 +5,36 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{fmt, hash::Hash};
+use std::fmt;
+use std::hash::Hash;
 
 use common::WithLocation;
 use dashmap::DashMap;
 use fnv::FnvBuildHasher;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use ouroboros::self_referencing;
 
-use crate::{
-    Argument, ArgumentDefinitions, Directive, Enum, EnumID, Field, FieldID, InputObject,
-    InputObjectID, Interface, InterfaceID, Object, ObjectID, Scalar, ScalarID, Schema, Type,
-    TypeReference, Union, UnionID,
-};
+use crate::Argument;
+use crate::ArgumentDefinitions;
+use crate::Directive;
+use crate::Enum;
+use crate::EnumID;
+use crate::Field;
+use crate::FieldID;
+use crate::InputObject;
+use crate::InputObjectID;
+use crate::Interface;
+use crate::InterfaceID;
+use crate::Object;
+use crate::ObjectID;
+use crate::Scalar;
+use crate::ScalarID;
+use crate::Schema;
+use crate::Type;
+use crate::TypeReference;
+use crate::Union;
+use crate::UnionID;
 
 use super::FlatBufferSchema;
 
@@ -145,6 +162,7 @@ impl SchemaWrapper {
                 ))),
                 default_value: None,
                 description: None,
+                directives: Default::default(),
             }]),
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(
                 result.get_type("Boolean".intern()).unwrap(),
@@ -276,12 +294,12 @@ impl Schema for SchemaWrapper {
 
     fn get_type_name(&self, type_: Type) -> StringKey {
         match type_ {
-            Type::Enum(id) => self.enum_(id).name,
-            Type::InputObject(id) => self.input_object(id).name,
-            Type::Interface(id) => self.interface(id).name,
+            Type::Enum(id) => self.enum_(id).name.item,
+            Type::InputObject(id) => self.input_object(id).name.item,
+            Type::Interface(id) => self.interface(id).name.item,
             Type::Object(id) => self.object(id).name.item,
-            Type::Scalar(id) => self.scalar(id).name,
-            Type::Union(id) => self.union(id).name,
+            Type::Scalar(id) => self.scalar(id).name.item,
+            Type::Union(id) => self.union(id).name.item,
         }
     }
 
@@ -298,14 +316,14 @@ impl Schema for SchemaWrapper {
 
     fn is_string(&self, type_: Type) -> bool {
         match type_ {
-            Type::Scalar(id) => self.scalar(id).name.lookup() == "String",
+            Type::Scalar(id) => self.scalar(id).name.item.lookup() == "String",
             _ => false,
         }
     }
 
     fn is_id(&self, type_: Type) -> bool {
         match type_ {
-            Type::Scalar(id) => self.scalar(id).name.lookup() == "ID",
+            Type::Scalar(id) => self.scalar(id).name.item.lookup() == "ID",
             _ => false,
         }
     }
@@ -372,30 +390,79 @@ impl Schema for SchemaWrapper {
     }
 
     fn input_objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a InputObject> + 'a> {
+        if self.input_objects.map.is_empty() {
+            for i in 0..self.flatbuffer_schema().input_objects.len() {
+                let id = InputObjectID(i.try_into().unwrap());
+                self.input_object(id);
+            }
+        }
+
         Box::new(self.input_objects.map.iter().map(|ref_| *ref_.value()))
     }
 
     fn enums<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Enum> + 'a> {
+        if self.enums.map.is_empty() {
+            for i in 0..self.flatbuffer_schema().enums.len() {
+                let id = EnumID(i.try_into().unwrap());
+                self.enum_(id);
+            }
+        }
+
         Box::new(self.enums.map.iter().map(|ref_| *ref_.value()))
     }
 
     fn scalars<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Scalar> + 'a> {
+        if self.scalars.map.is_empty() {
+            for i in 0..self.flatbuffer_schema().scalars.len() {
+                let id = ScalarID(i.try_into().unwrap());
+                self.scalar(id);
+            }
+        }
+
         Box::new(self.scalars.map.iter().map(|ref_| *ref_.value()))
     }
 
     fn fields<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Field> + 'a> {
+        if self.fields.map.is_empty() {
+            for i in 0..self.flatbuffer_schema().fields.len() {
+                let id = FieldID(i.try_into().unwrap());
+                self.field(id);
+            }
+        }
+
         Box::new(self.fields.map.iter().map(|ref_| *ref_.value()))
     }
 
     fn objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Object> + 'a> {
+        if self.objects.map.is_empty() {
+            for i in 0..self.flatbuffer_schema().objects.len() {
+                let id = ObjectID(i.try_into().unwrap());
+                self.object(id);
+            }
+        }
+
         Box::new(self.objects.map.iter().map(|ref_| *ref_.value()))
     }
 
     fn unions<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Union> + 'a> {
+        if self.unions.map.is_empty() {
+            for i in 0..self.flatbuffer_schema().unions.len() {
+                let id = UnionID(i.try_into().unwrap());
+                self.union(id);
+            }
+        }
+
         Box::new(self.unions.map.iter().map(|ref_| *ref_.value()))
     }
 
     fn interfaces<'a>(&'a self) -> Box<dyn Iterator<Item = &'a Interface> + 'a> {
+        if self.interfaces.map.is_empty() {
+            for i in 0..self.flatbuffer_schema().interfaces.len() {
+                let id = InterfaceID(i.try_into().unwrap());
+                self.interface(id);
+            }
+        }
+
         Box::new(self.interfaces.map.iter().map(|ref_| *ref_.value()))
     }
 }

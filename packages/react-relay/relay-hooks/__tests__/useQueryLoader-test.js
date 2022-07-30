@@ -9,23 +9,16 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
-import type {GraphQLTaggedNode} from 'relay-runtime';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useQueryLoader = require('../useQueryLoader');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {getRequest, graphql} = require('relay-runtime');
-const {
-  createMockEnvironment,
-  describeWithFeatureFlags,
-} = require('relay-test-utils-internal');
+const {createMockEnvironment} = require('relay-test-utils-internal');
 
-const query: GraphQLTaggedNode = graphql`
+const query = graphql`
   query useQueryLoaderTestQuery($id: ID!) {
     node(id: $id) {
       id
@@ -35,11 +28,11 @@ const query: GraphQLTaggedNode = graphql`
 const generatedQuery = getRequest(query);
 const defaultOptions = {};
 
-let renderCount;
+let renderCount: ?number;
 let loadedQuery;
 let instance;
 let queryLoaderCallback;
-let releaseQuery;
+let releaseQuery: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
 let lastLoadQueryReturnValue;
 let disposeQuery;
 
@@ -65,7 +58,11 @@ describe('useQueryLoader', () => {
     renderCount = undefined;
     releaseQuery = undefined;
     environment = createMockEnvironment();
-    render = function (initialPreloadedQuery) {
+    render = function (
+      initialPreloadedQuery: void | {
+        releaseQuery: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+      },
+    ) {
       renderCount = 0;
       ReactTestRenderer.act(() => {
         instance = ReactTestRenderer.create(
@@ -74,7 +71,11 @@ describe('useQueryLoader', () => {
       });
     };
 
-    update = function (initialPreloadedQuery) {
+    update = function (
+      initialPreloadedQuery: void | {
+        releaseQuery: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+      },
+    ) {
       ReactTestRenderer.act(() => {
         instance.update(
           <Container initialPreloadedQuery={initialPreloadedQuery} />,
@@ -82,7 +83,13 @@ describe('useQueryLoader', () => {
       });
     };
 
-    const Inner = function ({initialPreloadedQuery}) {
+    const Inner = function ({
+      initialPreloadedQuery,
+    }: {
+      initialPreloadedQuery: void | {
+        releaseQuery: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+      },
+    }) {
       renderCount = (renderCount || 0) + 1;
       [loadedQuery, queryLoaderCallback, disposeQuery] = useQueryLoader(
         generatedQuery,
@@ -92,7 +99,13 @@ describe('useQueryLoader', () => {
       return null;
     };
 
-    Container = function ({initialPreloadedQuery = undefined}) {
+    Container = function ({
+      initialPreloadedQuery,
+    }: {
+      initialPreloadedQuery?: void | {
+        releaseQuery: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
+      },
+    }) {
       return (
         <RelayEnvironmentProvider environment={environment}>
           <Inner initialPreloadedQuery={initialPreloadedQuery} />
@@ -389,7 +402,7 @@ describe('useQueryLoader', () => {
         );
       }
 
-      function Router({route}) {
+      function Router({route}: {route: 'FIRST' | 'SECOND'}) {
         if (route === 'FIRST') {
           return <ComponentWithQuery />;
         } else {
@@ -463,7 +476,7 @@ describe('useQueryLoader', () => {
         );
       }
 
-      function InnerConcurrent({promise}) {
+      function InnerConcurrent({promise}: {promise: ?Promise<any>}) {
         [, queryLoaderCallback] = useQueryLoader(generatedQuery);
         if (
           promise == null ||
@@ -561,7 +574,7 @@ describe('useQueryLoader', () => {
       }
 
       let innerUnsuspendedCorrectly = false;
-      function InnerConcurrent({promise}) {
+      function InnerConcurrent({promise}: {promise: ?Promise<any>}) {
         [, queryLoaderCallback] = useQueryLoader(generatedQuery);
         if (
           promise == null ||

@@ -51,7 +51,7 @@ export type CommentCreateMutation$data = {
       readonly friends: {
         readonly edges: ReadonlyArray<{
           readonly node: {
-            readonly __typename: string;
+            readonly __typename: "User";
             readonly id: string;
             readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
           } | null;

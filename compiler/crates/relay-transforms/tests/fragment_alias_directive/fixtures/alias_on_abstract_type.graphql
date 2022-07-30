@@ -1,0 +1,9 @@
+fragment RelayReaderNamedFragmentsTest_maybe_node_interface on MaybeNodeInterface {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  node(id: "1") {
+    ...RelayReaderNamedFragmentsTest_maybe_node_interface @alias(as: "aliased_fragment")
+  }
+}

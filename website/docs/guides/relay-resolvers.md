@@ -58,21 +58,21 @@ function MyGreeting({userKey}) {
     fragment MyGreeting on User {
       greeting
     }`, userKey);
-  return<h1>{user.greeting}<h1>;
+  return <h1>{user.greeting}</h1>;
 }
 ```
 
-## Doblock Fields
+## Docblock Fields
 
 The Relay compiler looks for the following fields in any docblocks that includes `@RelayResolver`:
 
-- `@RelayResolvers` (required)
+- `@RelayResolver` (required)
 - `@onType` or `@onInterface` (required) The GraphQL type/interface on which the new field should be exposed
 - `@fieldName` (required) The name of the new field
 - `@rootFragment` (required) The name of the fragment read by `readFragment`
 - `@deprecated` (optional) Indicates that the field is [deprecated](https://spec.graphql.org/June2018/#sec--deprecated). May be optionally followed text giving the reason that the field is deprecated.
 
-The  docblock may also contain free text. This free text will be used as the field’s human-readable description, which will be surfaced in Relay’s editor support on hover and in autocomplete results.
+The docblock may also contain free text. This free text will be used as the field’s human-readable description, which will be surfaced in Relay’s editor support on hover and in autocomplete results.
 
 ## Relay Resolver Signature
 
@@ -100,12 +100,150 @@ When the field is first read by a component, Relay will evaluate the Relay Resol
 
 ## Error Handling
 
-In order to make product code as robust as possible, Relay Resolvers follow the GraphQL spec’s documented [best practice](https://graphql.org/learn/best-practices/#nullability) of returning null when a field resolver errors. Instead of throwing, errors thrown by Relay Resolves will be logged to your environment's configured `requiredFieldLogger` with an event of kind `"relay_resolver.error"`. If you make use of Relay Resolves you should be sure to configure your environment with a `requiredFieldLogger` which reports those events to whatever system you use for tracking runtime errors.
+In order to make product code as robust as possible, Relay Resolvers follow the GraphQL spec’s documented [best practice](https://graphql.org/learn/best-practices/#nullability) of returning null when a field resolver errors. Instead of throwing, errors thrown by Relay Resolvers will be logged to your environment's configured `requiredFieldLogger` with an event of kind `"relay_resolver.error"`. If you make use of Relay Resolves you should be sure to configure your environment with a `requiredFieldLogger` which reports those events to whatever system you use for tracking runtime errors.
 
 If your component requires a non-null value in order to render, and can’t provide a reasonable fallback experience, you can annotate the field access with `@required`.
+
+## Passing arguments to resolver fields
+
+For resolvers (and live resolvers) we support two ways of defining field arguments:
+
+1. GraphQL: Arguments that are defined via @argumentDefinitions on the resolver's fragment.
+2. JS Runtime: Arguments that can be passed directly to the resolver function.
+3. You can also combine these, and define arguments on the fragment and on the resolver's field itself, Relay will validate the naming (these arguments have to have different names), and pass GraphQL arguments to fragment, and JS arguments to the resolver's function.
+
+
+Let’s look at the example 1:
+
+## Defining Resolver field with Fragment Arguments
+
+```js
+/**
+* @RelayResolver
+* @fieldName **my_resolver_field**
+* @onType **MyType**
+* @rootFragment myResolverFragment
+*/
+function myResolver(key) {
+   const data = readFragment(graphql`
+       fragment myResolverFragment on MyType
+            @argumentDefinitions(**my_arg**: {type: "Float!"}) {
+            field_with_arg(arg: $my_arg) {
+               __typename
+            }
+       }
+   `, key);
+
+   return data.field_with_arg.__typename;
+}
+```
+
+### Using Resolver field with arguments for Fragment
+
+This resolver will extend the **MyType** with the new field **my_resolver_field(my_arg: Float!)** and the fragment arguments for **myResolverFragment** can be passed directly to this field.
+
+```js
+const data = useLazyLoadQuery(graphql`
+    query myQuery($id: ID, $my_arg: Float!) {
+        node(id: $id) {
+           ... on MyType {
+                my_resolver_field(my_arg: $my_arg)
+           }
+        }
+   }
+`, { id: "some id", my_arg: 2.5 });
+```
+
+For these fragment arguments relay will pass then all queries/fragments where the resolver field is used to the resolver’s fragment.
+
+
+### Defining Resolver field with Runtime (JS) Arguments
+
+Relay resolvers also support runtime arguments that are not visible/passed to fragments, but are passed to the resolver function itself.
+
+You can define these fragments using GraphQL’s [Schema Definition Language](https://graphql.org/learn/schema/) in the **@fieldName**
+
+```js
+/**
+* @RelayResolver
+* @fieldName **my_resolver_field(my_arg: String, my_other_arg: Int)**
+* @onType **MyType**
+* @rootFragment myResolverFragment
+*/
+function myResolver(key, args) {
+   if (args.my_other_arg === 0) {
+       return "The other arg is 0";
+   }
+
+   const data = readFragment(graphql`
+       fragment myResolverFragment on MyType
+           some_field
+       }
+   `, key);
+   return data.some_field.concat(args.my_arg);
+}
+```
+
+### Using Resolver field with runtime arguments
+
+This resolver will extend **MyType** with the new field **my_resolver_field(my_arg: String, my_other_arg: Int).**
+
+```js
+const data = useLazyLoadQuery(graphql`
+    query myQuery($id: ID, $my_arg: String!) {
+        node(id: $id) {
+           ... on MyType {
+                my_resolver_field(my_arg: $my_arg, my_other_arg: 1)
+           }
+        }
+   }
+`, { id: "some id", my_arg: "hello world!"});
+```
+
+### Defining Resolver field with Combined Arguments
+
+We can also combine both of these approaches and define field arguments both on the resolver’s fragment and on the field itself:
+
+```js
+/**
+* @RelayResolver
+* @fieldName **my_resolver_field(my_js_arg: String)**
+* @onType **MyType**
+* @rootFragment myResolverFragment
+*/
+function myResolver(key, args) {
+   const data = readFragment(graphql`
+       fragment myResolverFragment on MyType
+            @argumentDefinitions(**my_gql_arg**: {type: "Float!"}) {
+            field_with_arg(arg: $my_arg) {
+               __typename
+            }
+       }
+   `, key);
+
+   return `Hello ${args.my_js_arg}, ${data.field_with_arg.__typename}`;
+}
+```
+
+### Using Resolver field with combined arguments
+
+Relay will extend the **MyType** with the new resolver field that has two arguments: **my_resolver_field(my_js_arg: String, my_gql_arg: Float!)
+
+**
+Example query:
+
+```js
+const data = useLazyLoadQuery(graphql`
+    query myQuery($id: ID, $my_arg: String!) {
+        node(id: $id) {
+           ... on MyType {
+                my_resolver_field(my_js_arg: "World", my_qql_arg: 2.5)
+           }
+        }
+   }
+`, { id: "some id" });
+```
 
 ## Current Limitations
 
 - Relay Resolvers are still considered experimental. To use them you must ensure that the `ENABLE_RELAY_RESOLVERS` runtime feature flag is enabled, and that the `enable_relay_resolver_transform` feature flag is enabled in your project’s Relay config file.
-- Relay Resolvers don’t yet have access to query variables. If this is functionality that would be useful to you, please get in touch.
-- Currently Relay Resolvers only work with Haste module resolution, where modules are imported using their globally unique name, rather than by path.

@@ -13,11 +13,21 @@ mod print_ast_to_text;
 mod print_full_operation;
 mod print_to_text;
 
-pub use print_ast_to_text::{
-    print_executable_definition_ast, print_fragment_ast, print_operation_ast,
-};
-pub use print_full_operation::{print_full_operation, OperationPrinter};
-pub use print_to_text::{
-    print_arguments, print_definition, print_directives, print_fragment, print_ir, print_operation,
-    print_selections, print_value, write_arguments, write_directives, write_value, PrinterOptions,
-};
+pub use print_ast_to_text::print_executable_definition_ast;
+pub use print_ast_to_text::print_fragment_ast;
+pub use print_ast_to_text::print_operation_ast;
+pub use print_full_operation::print_full_operation;
+pub use print_full_operation::OperationPrinter;
+pub use print_to_text::print_arguments;
+pub use print_to_text::print_definition;
+pub use print_to_text::print_directives;
+pub use print_to_text::print_fragment;
+pub use print_to_text::print_ir;
+pub use print_to_text::print_operation;
+pub use print_to_text::print_selection;
+pub use print_to_text::print_selections;
+pub use print_to_text::print_value;
+pub use print_to_text::write_arguments;
+pub use print_to_text::write_directives;
+pub use print_to_text::write_value;
+pub use print_to_text::PrinterOptions;

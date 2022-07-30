@@ -7,12 +7,10 @@
  * @format
  */
 
-/* eslint-disable lint/no-value-import */
 import Container from '../core/Container';
 import GridBlock from '../core/GridBlock';
 import Layout from '@theme/Layout';
 import * as React from 'react';
-/* eslint-enable lint/no-value-import */
 
 class Help extends React.Component {
   render() {
@@ -76,7 +74,7 @@ class Help extends React.Component {
   }
 }
 
-export default (props) => (
+export default props => (
   <Layout>
     <Help {...props} />
   </Layout>

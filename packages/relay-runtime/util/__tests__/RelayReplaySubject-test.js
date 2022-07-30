@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {Subscription} from 'relay-runtime';
@@ -23,13 +21,13 @@ beforeEach(() => {
   subject = new RelayReplaySubject();
 });
 
-type Observer = {|
+type Observer = {
   +complete: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
   +error: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
   +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
   +start: JestMockFn<$ReadOnlyArray<Subscription>, mixed>,
   +unsubscribe: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-|};
+};
 
 function createObserver(): Observer {
   return {

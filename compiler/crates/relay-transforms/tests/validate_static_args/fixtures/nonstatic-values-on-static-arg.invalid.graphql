@@ -1,0 +1,34 @@
+# expected-to-throw
+query QueryWithColor($color1: Color!, $color2: Color!) {
+  node {
+    ... on User {
+        fooVar @fooColorVar(color: $color1)
+        fooList @fooColorList(colors: [$color1, $color2])
+        fooObject @fooColorObject(colorObject: {
+          fooColorOne: $color1,
+          fooColorTwo: $color2,
+        })
+    }
+  }
+}
+# %extensions%
+enum Color {
+  RED
+  GREEN
+  BLUE
+}
+
+input FooColorObject {
+  fooColorOne: Color!
+  fooColorTwo: Color!
+}
+
+directive @fooColorVar(color: Color! @static) on FIELD
+directive @fooColorList(colors: [Color!]! @static) on FIELD
+directive @fooColorObject(colorObject: FooColorObject! @static) on FIELD
+
+extend type User {
+  fooVar: Int
+  fooList: Int
+  fooObject: Int
+}

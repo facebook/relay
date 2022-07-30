@@ -1,10 +1,10 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a8683cd43eb5be1d892867261a8d0e64>>
+ * @generated SignedSource<<49935802025bd1b1adfb2514b356f970>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ type readUpdatableQueryEXPERIMENTALTest_user$fragmentType = any;
 export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$variables = {||};
 export type readUpdatableQueryEXPERIMENTALTestUpdatableQuery$data = {|
   get me(): ?{|
-    +__typename: string,
+    +__typename: "User",
     +__id: string,
     +id: string,
     name: ?string,

@@ -8,18 +8,18 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
   ReaderActorChange,
+  ReaderAliasedFragmentSpread,
   ReaderClientEdgeToClientObject,
   ReaderClientEdgeToServerObject,
   ReaderFlightField,
   ReaderFragment,
   ReaderFragmentSpread,
   ReaderInlineDataFragmentSpread,
+  ReaderInlineFragment,
   ReaderLinkedField,
   ReaderModuleImport,
   ReaderNode,
@@ -34,6 +34,7 @@ import type {
   ClientEdgeTraversalInfo,
   DataIDSet,
   MissingClientEdgeRequestInfo,
+  MissingLiveResolverField,
   MissingRequiredFields,
   Record,
   RecordSource,
@@ -43,10 +44,13 @@ import type {
   SingularReaderSelector,
   Snapshot,
 } from './RelayStoreTypes';
+import type {Arguments} from './RelayStoreUtils';
 import type {EvaluationResult, ResolverCache} from './ResolverCache';
 
 const {
   ACTOR_CHANGE,
+  ALIASED_FRAGMENT_SPREAD,
+  ALIASED_INLINE_FRAGMENT_SPREAD,
   CLIENT_EDGE_TO_CLIENT_OBJECT,
   CLIENT_EDGE_TO_SERVER_OBJECT,
   CLIENT_EXTENSION,
@@ -66,6 +70,10 @@ const {
 } = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const ClientID = require('./ClientID');
+const {
+  isSuspenseSentinel,
+} = require('./experimental-live-resolvers/LiveResolverSuspenseSentinel');
+const RelayConcreteVariables = require('./RelayConcreteVariables');
 const RelayModernRecord = require('./RelayModernRecord');
 const {getReactFlightClientResponse} = require('./RelayStoreReactFlightUtils');
 const {
@@ -82,7 +90,10 @@ const {
   getStorageKey,
 } = require('./RelayStoreUtils');
 const {NoopResolverCache} = require('./ResolverCache');
-const {withResolverContext} = require('./ResolverFragments');
+const {
+  RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL,
+  withResolverContext,
+} = require('./ResolverFragments');
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
 
@@ -106,6 +117,7 @@ class RelayReader {
   _clientEdgeTraversalPath: Array<ClientEdgeTraversalInfo | null>;
   _isMissingData: boolean;
   _missingClientEdges: Array<MissingClientEdgeRequestInfo>;
+  _missingLiveResolverFields: Array<MissingLiveResolverField>;
   _isWithinUnmatchedTypeRefinement: boolean;
   _missingRequiredFields: ?MissingRequiredFields;
   _owner: RequestDescriptor;
@@ -128,6 +140,7 @@ class RelayReader {
         ? [...selector.clientEdgeTraversalPath]
         : [];
     this._missingClientEdges = [];
+    this._missingLiveResolverFields = [];
     this._isMissingData = false;
     this._isWithinUnmatchedTypeRefinement = false;
     this._missingRequiredFields = null;
@@ -183,13 +196,10 @@ class RelayReader {
     // implement the interface. If we aren't sure whether the record implements
     // the interface, that itself constitutes "expected" data being missing.
     if (isDataExpectedToBePresent && abstractKey != null && record != null) {
-      const recordType = RelayModernRecord.getType(record);
-      const typeID = generateTypeID(recordType);
-      const typeRecord = this._recordSource.get(typeID);
-      const implementsInterface =
-        typeRecord != null
-          ? RelayModernRecord.getValue(typeRecord, abstractKey)
-          : null;
+      const implementsInterface = this._implementsInterface(
+        record,
+        abstractKey,
+      );
       if (implementsInterface === false) {
         // Type known to not implement the interface
         isDataExpectedToBePresent = false;
@@ -208,6 +218,7 @@ class RelayReader {
         RelayFeatureFlags.ENABLE_CLIENT_EDGES && this._missingClientEdges.length
           ? this._missingClientEdges
           : null,
+      missingLiveResolverFields: this._missingLiveResolverFields,
       seenRecords: this._seenRecords,
       selector: this._selector,
       missingRequiredFields: this._missingRequiredFields,
@@ -312,7 +323,7 @@ class RelayReader {
     for (let i = 0; i < selections.length; i++) {
       const selection = selections[i];
       switch (selection.kind) {
-        case REQUIRED_FIELD:
+        case REQUIRED_FIELD: {
           const fieldValue = this._readRequiredField(selection, record, data);
           if (fieldValue == null) {
             const {action} = selection;
@@ -325,6 +336,7 @@ class RelayReader {
             return false;
           }
           break;
+        }
         case SCALAR_FIELD:
           this._readScalar(selection, record, data);
           break;
@@ -351,51 +363,8 @@ class RelayReader {
           }
           break;
         case INLINE_FRAGMENT: {
-          const {abstractKey} = selection;
-          if (abstractKey == null) {
-            // concrete type refinement: only read data if the type exactly matches
-            const typeName = RelayModernRecord.getType(record);
-            if (typeName != null && typeName === selection.type) {
-              const hasExpectedData = this._traverseSelections(
-                selection.selections,
-                record,
-                data,
-              );
-              if (!hasExpectedData) {
-                return false;
-              }
-            }
-          } else {
-            // Similar to the logic in read(): data is only expected to be present
-            // if the record is known to conform to the interface. If we don't know
-            // whether the type conforms or not, that constitutes missing data.
-
-            // store flags to reset after reading
-            const parentIsMissingData = this._isMissingData;
-            const parentIsWithinUnmatchedTypeRefinement =
-              this._isWithinUnmatchedTypeRefinement;
-
-            const typeName = RelayModernRecord.getType(record);
-            const typeID = generateTypeID(typeName);
-            const typeRecord = this._recordSource.get(typeID);
-            const implementsInterface =
-              typeRecord != null
-                ? RelayModernRecord.getValue(typeRecord, abstractKey)
-                : null;
-            this._isWithinUnmatchedTypeRefinement =
-              parentIsWithinUnmatchedTypeRefinement ||
-              implementsInterface === false;
-            this._traverseSelections(selection.selections, record, data);
-            this._isWithinUnmatchedTypeRefinement =
-              parentIsWithinUnmatchedTypeRefinement;
-
-            if (implementsInterface === false) {
-              // Type known to not implement the interface, no data expected
-              this._isMissingData = parentIsMissingData;
-            } else if (implementsInterface == null) {
-              // Don't know if the type implements the interface or not
-              this._markDataAsMissing();
-            }
+          if (this._readInlineFragment(selection, record, data) === false) {
+            return false;
           }
           break;
         }
@@ -410,6 +379,24 @@ class RelayReader {
         case FRAGMENT_SPREAD:
           this._createFragmentPointer(selection, record, data);
           break;
+        case ALIASED_FRAGMENT_SPREAD:
+          data[selection.name] = this._createAliasedFragmentSpread(
+            selection,
+            record,
+          );
+          break;
+        case ALIASED_INLINE_FRAGMENT_SPREAD: {
+          let fieldValue = this._readInlineFragment(
+            selection.fragment,
+            record,
+            {},
+          );
+          if (fieldValue === false) {
+            fieldValue = null;
+          }
+          data[selection.name] = fieldValue;
+          break;
+        }
         case MODULE_IMPORT:
           this._readModuleImport(selection, record, data);
           break;
@@ -511,6 +498,12 @@ class RelayReader {
           throw new Error('Relay Resolver fields are not yet supported.');
         }
         return this._readResolverField(selection.field, record, data);
+      case CLIENT_EDGE_TO_CLIENT_OBJECT:
+      case CLIENT_EDGE_TO_SERVER_OBJECT:
+        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+          throw new Error('Relay Resolver fields are not yet supported.');
+        }
+        return this._readClientEdge(selection.field, record, data);
       default:
         (selection.field.kind: empty);
         invariant(
@@ -526,8 +519,8 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): mixed {
-    const {resolverModule, fragment} = field;
-    const storageKey = getStorageKey(field, this._variables);
+    const {fragment} = field;
+    const storageKey = getStorageKey(fragment ?? field, this._variables);
     const resolverID = ClientID.generateClientID(
       RelayModernRecord.getDataID(record),
       storageKey,
@@ -538,12 +531,17 @@ class RelayReader {
     // inputs have changed since a previous evaluation:
     let snapshot: ?Snapshot;
 
-    const getDataForResolverFragment = singularReaderSelector => {
+    const getDataForResolverFragment = (
+      singularReaderSelector: SingularReaderSelector,
+    ) => {
       if (snapshot != null) {
         // It was already read when checking for input staleness; no need to read it again.
         // Note that the variables like fragmentSeenRecordIDs in the outer closure will have
         // already been set and will still be used in this case.
-        return snapshot.data;
+        return {
+          data: snapshot.data,
+          isMissingData: snapshot.isMissingData,
+        };
       }
 
       snapshot = read(
@@ -551,43 +549,56 @@ class RelayReader {
         singularReaderSelector,
         this._resolverCache,
       );
-      return snapshot.data;
+
+      return {
+        data: snapshot.data,
+        isMissingData: snapshot.isMissingData,
+      };
     };
     const resolverContext = {getDataForResolverFragment};
 
     const evaluate = (): EvaluationResult<mixed> => {
-      const key = {
-        __id: RelayModernRecord.getDataID(record),
-        __fragmentOwner: this._owner,
-        __fragments: {
-          [fragment.name]: {}, // Arguments to this fragment; not yet supported.
-        },
-      };
-      return withResolverContext(resolverContext, () => {
-        let resolverResult = null;
-        let resolverError = null;
-        try {
-          // $FlowFixMe[prop-missing] - resolver module's type signature is a lie
-          resolverResult = resolverModule(key);
-        } catch (e) {
-          // `field.path` is typed as nullable while we rollout compiler changes.
-          const path = field.path ?? '[UNKNOWN]';
-          resolverError = {
-            field: {path, owner: this._fragmentName},
-            error: e,
+      if (fragment != null) {
+        const key = {
+          __id: RelayModernRecord.getDataID(record),
+          __fragmentOwner: this._owner,
+          __fragments: {
+            [fragment.name]: fragment.args
+              ? getArgumentValues(fragment.args, this._variables)
+              : {},
+          },
+        };
+        return withResolverContext(resolverContext, () => {
+          const [resolverResult, resolverError] = getResolverValue(
+            field,
+            this._variables,
+            key,
+            this._fragmentName,
+          );
+          return {
+            resolverResult,
+            snapshot: snapshot,
+            resolverID,
+            error: resolverError,
           };
-        }
-
+        });
+      } else {
+        const [resolverResult, resolverError] = getResolverValue(
+          field,
+          this._variables,
+          null,
+          this._fragmentName,
+        );
         return {
           resolverResult,
-          snapshot: snapshot,
+          snapshot: undefined,
           resolverID,
           error: resolverError,
         };
-      });
+      }
     };
 
-    const [result, seenRecord, resolverError, cachedSnapshot] =
+    const [result, seenRecord, resolverError, cachedSnapshot, suspenseID] =
       this._resolverCache.readFromCacheOrEvaluate(
         record,
         field,
@@ -605,6 +616,15 @@ class RelayReader {
           this._missingClientEdges.push(missing);
         }
       }
+      if (cachedSnapshot.missingLiveResolverFields != null) {
+        this._isMissingData =
+          this._isMissingData ||
+          cachedSnapshot.missingLiveResolverFields.length > 0;
+
+        for (const missingResolverField of cachedSnapshot.missingLiveResolverFields) {
+          this._missingLiveResolverFields.push(missingResolverField);
+        }
+      }
       for (const error of cachedSnapshot.relayResolverErrors) {
         this._resolverErrors.push(error);
       }
@@ -615,6 +635,14 @@ class RelayReader {
     }
     if (seenRecord != null) {
       this._seenRecords.add(seenRecord);
+    }
+
+    if (suspenseID != null) {
+      this._isMissingData = true;
+      this._missingLiveResolverFields.push({
+        path: `${this._fragmentName}.${field.path}`,
+        liveStateID: suspenseID,
+      });
     }
 
     const applicationName = field.alias ?? field.name;
@@ -642,25 +670,43 @@ class RelayReader {
     this._traverseSelections([backingField], record, backingFieldData);
     let destinationDataID = backingFieldData[applicationName];
 
-    if (destinationDataID == null) {
+    if (destinationDataID == null || isSuspenseSentinel(destinationDataID)) {
       data[applicationName] = destinationDataID;
       return;
     }
 
-    invariant(
-      typeof destinationDataID === 'string',
-      'Plural client edges not are yet implemented',
-    ); // FIXME support plural
+    if (field.linkedField.plural) {
+      invariant(
+        Array.isArray(destinationDataID),
+        'Expected plural Client Edge Relay Resolver to return an array of IDs.',
+      );
+    } else {
+      invariant(
+        typeof destinationDataID === 'string',
+        'Expected a Client Edge Relay Resolver to return an ID of type `string`.',
+      );
+    }
 
     if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
       // Client objects might use ids that are not gobally unique and instead are just
       // local within their type. ResolverCache will derive a namespaced ID for us.
-      destinationDataID = this._resolverCache.createClientRecord(
-        destinationDataID,
-        field.concreteType,
-      );
+      if (field.linkedField.plural) {
+        // $FlowFixMe[prop-missing]
+        destinationDataID = destinationDataID.map(id =>
+          this._resolverCache.ensureClientRecord(id, field.concreteType),
+        );
+      } else {
+        destinationDataID = this._resolverCache.ensureClientRecord(
+          destinationDataID,
+          field.concreteType,
+        );
+      }
       this._clientEdgeTraversalPath.push(null);
     } else {
+      invariant(
+        !field.linkedField.plural,
+        'Unexpected Client Edge to plural server type. This should be prevented by the compiler.',
+      );
       // Not wrapping the push/pop in a try/finally because if we throw, the
       // Reader object is not usable after that anyway.
       this._clientEdgeTraversalPath.push({
@@ -669,22 +715,31 @@ class RelayReader {
       });
     }
 
-    const prevData = data[applicationName];
-    invariant(
-      prevData == null || typeof prevData === 'object',
-      'RelayReader(): Expected data for field `%s` on record `%s` ' +
-        'to be an object, got `%s`.',
-      applicationName,
-      RelayModernRecord.getDataID(record),
-      prevData,
-    );
-    const value = this._traverse(
-      field.linkedField,
-      destinationDataID,
-      // $FlowFixMe[incompatible-variance]
-      prevData,
-    );
-    data[applicationName] = value;
+    if (field.linkedField.plural) {
+      data[applicationName] = this._readLinkedIds(
+        field.linkedField,
+        // $FlowFixMe[incompatible-call]
+        destinationDataID,
+        record,
+        data,
+      );
+    } else {
+      const prevData = data[applicationName];
+      invariant(
+        prevData == null || typeof prevData === 'object',
+        'RelayReader(): Expected data for field `%s` on record `%s` ' +
+          'to be an object, got `%s`.',
+        applicationName,
+        RelayModernRecord.getDataID(record),
+        prevData,
+      );
+      data[applicationName] = this._traverse(
+        field.linkedField,
+        destinationDataID,
+        // $FlowFixMe[incompatible-variance]
+        prevData,
+      );
+    }
 
     this._clientEdgeTraversalPath.pop();
   }
@@ -810,9 +865,18 @@ class RelayReader {
     record: Record,
     data: SelectorData,
   ): ?mixed {
-    const applicationName = field.alias ?? field.name;
     const storageKey = getStorageKey(field, this._variables);
     const linkedIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
+    return this._readLinkedIds(field, linkedIDs, record, data);
+  }
+
+  _readLinkedIds(
+    field: ReaderLinkedField,
+    linkedIDs: ?Array<?DataID>,
+    record: Record,
+    data: SelectorData,
+  ): ?mixed {
+    const applicationName = field.alias ?? field.name;
 
     if (linkedIDs == null) {
       data[applicationName] = linkedIDs;
@@ -896,6 +960,106 @@ class RelayReader {
     data[MODULE_COMPONENT_KEY] = component;
   }
 
+  _createAliasedFragmentSpread(
+    namedFragmentSpread: ReaderAliasedFragmentSpread,
+    record: Record,
+  ): ?Record {
+    const {abstractKey} = namedFragmentSpread;
+    if (abstractKey == null) {
+      // concrete type refinement: only read data if the type exactly matches
+      const typeName = RelayModernRecord.getType(record);
+      if (typeName == null || typeName !== namedFragmentSpread.type) {
+        // This selection does not match the fragment spread. Do nothing.
+        return null;
+      }
+    } else {
+      const implementsInterface = this._implementsInterface(
+        record,
+        abstractKey,
+      );
+
+      if (implementsInterface === false) {
+        // Type known to not implement the interface, no data expected
+        return null;
+      } else if (implementsInterface == null) {
+        // Don't know if the type implements the interface or not
+        this._markDataAsMissing();
+        // Judgement call here. In some cases this will cause us to hide data that is actually valid.
+        return undefined;
+      }
+    }
+    const fieldData = {};
+    this._createFragmentPointer(
+      namedFragmentSpread.fragment,
+      record,
+      fieldData,
+    );
+    return fieldData;
+  }
+
+  // Has three possible return values:
+  // * null: The type condition did not match
+  // * undefined: We are missing data
+  // * false: The selection contained missing @required fields
+  // * data: The successfully populated SelectorData object
+  _readInlineFragment(
+    inlineFragment: ReaderInlineFragment,
+    record: Record,
+    data: SelectorData,
+  ): ?(SelectorData | false) {
+    const {abstractKey} = inlineFragment;
+    if (abstractKey == null) {
+      // concrete type refinement: only read data if the type exactly matches
+      const typeName = RelayModernRecord.getType(record);
+      if (typeName == null || typeName !== inlineFragment.type) {
+        // This selection does not match the fragment spread. Do nothing.
+        return null;
+      } else {
+        const hasExpectedData = this._traverseSelections(
+          inlineFragment.selections,
+          record,
+          data,
+        );
+        if (!hasExpectedData) {
+          // Bubble up null due to a missing @required field
+          return false;
+        }
+      }
+    } else {
+      const implementsInterface = this._implementsInterface(
+        record,
+        abstractKey,
+      );
+
+      // store flags to reset after reading
+      const parentIsMissingData = this._isMissingData;
+      const parentIsWithinUnmatchedTypeRefinement =
+        this._isWithinUnmatchedTypeRefinement;
+
+      this._isWithinUnmatchedTypeRefinement =
+        parentIsWithinUnmatchedTypeRefinement || implementsInterface === false;
+
+      // @required is not allowed within inline fragments on abstract types, so
+      // we can ignore the `hasMissingData` result of `_traverseSelections`.
+      this._traverseSelections(inlineFragment.selections, record, data);
+
+      // Reset
+      this._isWithinUnmatchedTypeRefinement =
+        parentIsWithinUnmatchedTypeRefinement;
+
+      if (implementsInterface === false) {
+        // Type known to not implement the interface, no data expected
+        this._isMissingData = parentIsMissingData;
+        return undefined;
+      } else if (implementsInterface == null) {
+        // Don't know if the type implements the interface or not
+        this._markDataAsMissing();
+        return null;
+      }
+    }
+    return data;
+  }
+
   _createFragmentPointer(
     fragmentSpread: ReaderFragmentSpread,
     record: Record,
@@ -903,7 +1067,9 @@ class RelayReader {
   ): void {
     let fragmentPointers = data[FRAGMENTS_KEY];
     if (fragmentPointers == null) {
-      fragmentPointers = data[FRAGMENTS_KEY] = {};
+      fragmentPointers = data[FRAGMENTS_KEY] = ({}: {
+        [string]: Arguments | {...},
+      });
     }
     invariant(
       typeof fragmentPointers === 'object' && fragmentPointers != null,
@@ -940,7 +1106,7 @@ class RelayReader {
   ): void {
     let fragmentPointers = data[FRAGMENTS_KEY];
     if (fragmentPointers == null) {
-      fragmentPointers = data[FRAGMENTS_KEY] = {};
+      fragmentPointers = data[FRAGMENTS_KEY] = ({}: {[string]: {...}});
     }
     invariant(
       typeof fragmentPointers === 'object' && fragmentPointers != null,
@@ -953,11 +1119,31 @@ class RelayReader {
     const inlineData = {};
     const parentFragmentName = this._fragmentName;
     this._fragmentName = fragmentSpreadOrFragment.name;
+
+    const parentVariables = this._variables;
+
+    // If the inline fragment spread has arguments, we need to temporarily
+    // switch this._variables to include the fragment spread's arguments
+    // for the duration of its traversal.
+    const argumentVariables = fragmentSpreadOrFragment.args
+      ? getArgumentValues(fragmentSpreadOrFragment.args, this._variables)
+      : {};
+
+    this._variables = RelayConcreteVariables.getFragmentVariables(
+      fragmentSpreadOrFragment,
+      this._owner.variables,
+      argumentVariables,
+    );
+
     this._traverseSelections(
       fragmentSpreadOrFragment.selections,
       record,
       inlineData,
     );
+
+    // Put the parent variables back
+    this._variables = parentVariables;
+
     this._fragmentName = parentFragmentName;
     // $FlowFixMe[cannot-write] - writing into read-only field
     fragmentPointers[fragmentSpreadOrFragment.name] = inlineData;
@@ -982,6 +1168,58 @@ class RelayReader {
       fields: [...this._missingRequiredFields.fields, ...additional.fields],
     };
   }
+
+  _implementsInterface(record: Record, abstractKey: string): ?boolean {
+    const typeName = RelayModernRecord.getType(record);
+    const typeRecord = this._recordSource.get(generateTypeID(typeName));
+    const implementsInterface =
+      typeRecord != null
+        ? RelayModernRecord.getValue(typeRecord, abstractKey)
+        : null;
+    // $FlowFixMe Casting record value
+    return implementsInterface;
+  }
+}
+
+function getResolverValue(
+  field: ReaderRelayResolver | ReaderRelayLiveResolver,
+  variables: Variables,
+  fragmentKey: mixed,
+  ownerName: string,
+) {
+  // Support for languages that work (best) with ES6 modules, such as TypeScript.
+  const resolverFunction =
+    typeof field.resolverModule === 'function'
+      ? field.resolverModule
+      : field.resolverModule.default;
+
+  let resolverResult = null;
+  let resolverError = null;
+  try {
+    const resolverFunctionArgs = [];
+    if (field.fragment != null) {
+      resolverFunctionArgs.push(fragmentKey);
+    }
+    const args = field.args
+      ? getArgumentValues(field.args, variables)
+      : undefined;
+
+    resolverFunctionArgs.push(args);
+
+    resolverResult = resolverFunction.apply(null, resolverFunctionArgs);
+  } catch (e) {
+    if (e === RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL) {
+      resolverResult = undefined;
+    } else {
+      // `field.path` is typed as nullable while we rollout compiler changes.
+      const path = field.path ?? '[UNKNOWN]';
+      resolverError = {
+        field: {path, owner: ownerName},
+        error: e,
+      };
+    }
+  }
+  return [resolverResult, resolverError];
 }
 
 module.exports = {read};

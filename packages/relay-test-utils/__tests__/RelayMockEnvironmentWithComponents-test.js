@@ -9,9 +9,12 @@
  * @flow strict-local
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const {MockPayloadGenerator, createMockEnvironment} = require('../');
 const React = require('react');
@@ -260,7 +263,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           }
         }
       `;
-      function FriendsListComponent(props) {
+      function FriendsListComponent(props: $FlowFixMe) {
         const [isLoading, setIsLoading] = useState(props.relay.isLoading());
         return (
           <>
@@ -490,7 +493,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           websites
         }
       `;
-      function UserHometownComponent(props) {
+      function UserHometownComponent(props: $FlowFixMe) {
         const [isLoading, setIsLoading] = useState(false);
         return (
           <>
@@ -646,7 +649,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         }
       `;
 
-      function FeedbackComponent(props) {
+      function FeedbackComponent(props: $FlowFixMe) {
         const [busy, setBusy] = useState(false);
         const [errorMessage, setErrorMessage] = useState(null);
         return (
@@ -799,7 +802,7 @@ describe('ReactRelayTestMocker with Containers', () => {
 
     beforeEach(() => {
       const HelloHandler = {
-        update(storeProxy, payload) {
+        update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
           const record = storeProxy.get(payload.dataID);
           if (record != null) {
             const name = record.getValue(payload.fieldKey);
@@ -905,7 +908,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         }
       `;
 
-      function FeedbackComponent(props) {
+      function FeedbackComponent(props: $FlowFixMe) {
         useEffect(() => {
           const subscription = requestSubscription(props.environment, {
             subscription: FeedbackLikeSubscription,

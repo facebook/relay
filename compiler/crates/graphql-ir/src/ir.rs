@@ -5,11 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, Named, WithLocation};
-use graphql_syntax::{FloatValue, OperationKind};
+use common::Location;
+use common::Named;
+use common::WithLocation;
+use graphql_syntax::FloatValue;
+use graphql_syntax::OperationKind;
 use intern::string_key::StringKey;
-use schema::{FieldID, Type, TypeReference};
-use schema::{SDLSchema, Schema};
+use schema::FieldID;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
 use std::fmt;
 use std::hash::Hash;
 use std::sync::Arc;
@@ -80,7 +86,7 @@ pub struct FragmentDefinition {
 }
 
 /// A variable definition of an operation or fragment
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct VariableDefinition {
     pub name: WithLocation<StringKey>,
     pub type_: TypeReference,
@@ -151,14 +157,13 @@ impl Selection {
     /// A quick method to get the location of the selection. This may
     /// be helpful for error reporting. Please note, this implementation
     /// prefers the location of the alias for scalar and linked field selections.
-    /// It also returns `None` for conditional nodes and inline fragments.
-    pub fn location(&self) -> Option<Location> {
+    pub fn location(&self) -> Location {
         match self {
-            Selection::Condition(_) => None,
-            Selection::FragmentSpread(node) => Some(node.fragment.location),
-            Selection::InlineFragment(_) => None,
-            Selection::LinkedField(node) => Some(node.alias_or_name_location()),
-            Selection::ScalarField(node) => Some(node.alias_or_name_location()),
+            Selection::Condition(node) => node.location,
+            Selection::FragmentSpread(node) => node.fragment.location,
+            Selection::InlineFragment(node) => node.spread_location,
+            Selection::LinkedField(node) => node.alias_or_name_location(),
+            Selection::ScalarField(node) => node.alias_or_name_location(),
         }
     }
 
@@ -226,6 +231,8 @@ pub struct InlineFragment {
     pub type_condition: Option<Type>,
     pub directives: Vec<Directive>,
     pub selections: Vec<Selection>,
+    /// Points to "..."
+    pub spread_location: Location,
 }
 pub trait Field {
     fn alias(&self) -> Option<WithLocation<StringKey>>;
@@ -309,6 +316,7 @@ pub struct Condition {
     pub selections: Vec<Selection>,
     pub value: ConditionValue,
     pub passing_value: bool,
+    pub location: Location,
 }
 
 impl Condition {
@@ -324,7 +332,7 @@ impl Condition {
 // Associated Types
 
 /// @ Name Arguments?
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Directive {
     pub name: WithLocation<StringKey>,
     pub arguments: Vec<Argument>,
@@ -359,6 +367,15 @@ pub enum Value {
     Object(Vec<Argument>),
 }
 impl Value {
+    /// If the value is a constant, return the value, otherwise None.
+    pub fn get_constant(&self) -> Option<&ConstantValue> {
+        if let Value::Constant(val) = self {
+            Some(val)
+        } else {
+            None
+        }
+    }
+
     /// If the value is a constant string literal, return the value, otherwise None.
     pub fn get_string_literal(&self) -> Option<StringKey> {
         if let Value::Constant(ConstantValue::String(val)) = self {
@@ -366,6 +383,14 @@ impl Value {
         } else {
             None
         }
+    }
+
+    /// Return the constant of this value.
+    /// Panics if the value is not a constant.
+    pub fn expect_constant(&self) -> &ConstantValue {
+        self.get_constant().unwrap_or_else(|| {
+            panic!("expected a constant, got {:?}", self);
+        })
     }
 
     /// Return the constant string literal of this value.
@@ -392,6 +417,17 @@ pub struct ConstantArgument {
 impl Named for ConstantArgument {
     fn name(&self) -> StringKey {
         self.name.item
+    }
+}
+
+macro_rules! generate_unwrap_fn {
+    ($fn_name:ident,$self:ident,$t:ty,$cv:pat => $result:expr) => {
+        pub fn $fn_name(&$self) -> $t {
+            match $self {
+                $cv => $result,
+                other => panic!("expected constant {} but got {:#?}", stringify!($cv), other),
+            }
+        }
     }
 }
 
@@ -422,6 +458,14 @@ impl ConstantValue {
             _ => None,
         }
     }
+
+    generate_unwrap_fn!(unwrap_int, self, i64, ConstantValue::Int(i) => *i);
+    generate_unwrap_fn!(unwrap_float, self, FloatValue, ConstantValue::Float(f) => *f);
+    generate_unwrap_fn!(unwrap_boolean, self, bool, ConstantValue::Boolean(b) => *b);
+    generate_unwrap_fn!(unwrap_string, self, StringKey, ConstantValue::String(s) => *s);
+    generate_unwrap_fn!(unwrap_enum, self, StringKey, ConstantValue::Enum(e) => *e);
+    generate_unwrap_fn!(unwrap_list, self, &Vec<ConstantValue>, ConstantValue::List(l) => l);
+    generate_unwrap_fn!(unwrap_object, self, &Vec<ConstantArgument>, ConstantValue::Object(o) => o);
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

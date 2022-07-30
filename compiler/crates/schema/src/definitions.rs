@@ -5,9 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Named, NamedItem, WithLocation};
-use graphql_syntax::{ConstantValue, DirectiveLocation};
-use intern::string_key::{Intern, StringKey};
+use common::Named;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_syntax::ConstantValue;
+use graphql_syntax::DirectiveLocation;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use std::collections::HashMap;
 use std::fmt;
@@ -34,6 +38,12 @@ macro_rules! type_id {
         impl fmt::Debug for $name {
             fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
                 write!(f, "{}({})", stringify!($name), self.0)
+            }
+        }
+
+        impl fmt::Display for $name {
+            fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+                write!(f, "{}", self.0)
             }
         }
     };
@@ -244,7 +254,7 @@ pub struct Directive {
 
 #[derive(Clone, Debug)]
 pub struct Scalar {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
@@ -262,7 +272,7 @@ pub struct Object {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct InputObject {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub fields: ArgumentDefinitions,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
@@ -270,7 +280,7 @@ pub struct InputObject {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Enum {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub values: Vec<EnumValue>,
     pub directives: Vec<DirectiveValue>,
@@ -279,7 +289,7 @@ pub struct Enum {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Union {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub members: Vec<ObjectID>,
     pub directives: Vec<DirectiveValue>,
@@ -288,7 +298,7 @@ pub struct Union {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Interface {
-    pub name: StringKey,
+    pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub implementing_objects: Vec<ObjectID>,
     pub fields: Vec<FieldID>,
@@ -335,15 +345,16 @@ pub struct Argument {
     pub type_: TypeReference,
     pub default_value: Option<ConstantValue>,
     pub description: Option<StringKey>,
+    pub directives: Vec<DirectiveValue>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct ArgumentValue {
     pub name: StringKey,
     pub value: ConstantValue,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct DirectiveValue {
     pub name: StringKey,
     pub arguments: Vec<ArgumentValue>,
@@ -442,11 +453,11 @@ macro_rules! impl_named_for_with_location {
 
 impl_named_for_with_location!(Object);
 impl_named_for_with_location!(Field);
-impl_named!(Interface);
-impl_named!(Union);
-impl_named!(Scalar);
-impl_named!(Enum);
-impl_named!(InputObject);
+impl_named_for_with_location!(InputObject);
+impl_named_for_with_location!(Interface);
+impl_named_for_with_location!(Union);
+impl_named_for_with_location!(Scalar);
+impl_named_for_with_location!(Enum);
 
 impl_named!(Argument);
 impl_named!(ArgumentValue);

@@ -1,0 +1,14 @@
+# expected-to-throw
+fragment UserWithDisallowedCustomIDType_fragment on UserWithDisallowedCustomIDType {
+    id
+    name
+}
+
+# %extensions%
+
+scalar DisallowedCustomIDType
+
+type UserWithDisallowedCustomIDType {
+    id: DisallowedCustomIDType!
+    name: String!
+}

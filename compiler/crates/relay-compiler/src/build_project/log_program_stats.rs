@@ -5,13 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::PointerAddress;
 use fnv::FnvHashMap;
-use graphql_ir::{
-    Condition, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program,
-    ScalarField, Selection,
-};
+use graphql_ir::Condition;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
 use lazy_static::lazy_static;
-use relay_transforms::PointerAddress;
 
 lazy_static! {
     static ref LOG_AST_STATS: bool = std::env::var("RELAY_LOG_AST_STATS").is_ok();

@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+fragment Foo on Node {
+  id
+  ... on User {
+    __typename
+  }
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type Foo$data = {
+  readonly __typename: "User";
+  readonly id: string;
+  readonly " $fragmentType": "Foo";
+};
+export type Foo$key = {
+  readonly " $data"?: Foo$data;
+  readonly " $fragmentSpreads": FragmentRefs<"Foo">;
+};

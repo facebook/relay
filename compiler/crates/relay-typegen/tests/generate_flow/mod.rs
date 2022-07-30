@@ -5,19 +5,28 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, FeatureFlag, FeatureFlags, SourceLocationKey};
+use common::ConsoleLogger;
+use common::FeatureFlag;
+use common::FeatureFlags;
+use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use fnv::{FnvBuildHasher, FnvHashMap};
-use graphql_ir::{build_ir_with_relay_feature_flags, Program};
+use fnv::FnvBuildHasher;
+use fnv::FnvHashMap;
+use graphql_ir::build_ir_in_relay_mode;
+use graphql_ir::Program;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use relay_codegen::JsModuleFormat;
+use relay_config::CustomScalarType;
+use relay_config::CustomScalarTypeImport;
 use relay_config::ProjectConfig;
-use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
+use relay_test_schema::get_test_schema;
+use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::apply_transforms;
-use relay_typegen::{self, TypegenConfig, TypegenLanguage};
+use relay_typegen::TypegenConfig;
+use relay_typegen::TypegenLanguage;
 use std::sync::Arc;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
@@ -51,15 +60,25 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_flight_transform: true,
         enable_relay_resolver_transform: true,
         actor_change_support: FeatureFlag::Enabled,
-        enable_provided_variables: FeatureFlag::Enabled,
+        enable_fragment_aliases: FeatureFlag::Enabled,
         ..Default::default()
     };
-    let ir = build_ir_with_relay_feature_flags(&schema, &ast.definitions, &feature_flags)
+    let ir = build_ir_in_relay_mode(&schema, &ast.definitions)
         .map_err(|diagnostics| diagnostics_to_sorted_string(source, &diagnostics))?;
     let program = Program::from_definitions(Arc::clone(&schema), ir);
 
     let mut custom_scalar_types = FnvIndexMap::default();
-    custom_scalar_types.insert("Boolean".intern(), "CustomBoolean".intern());
+    custom_scalar_types.insert(
+        "Boolean".intern(),
+        CustomScalarType::Name("CustomBoolean".intern()),
+    );
+    custom_scalar_types.insert(
+        "JSON".intern(),
+        CustomScalarType::Path(CustomScalarTypeImport {
+            name: "JSON".intern(),
+            path: "TypeDefsFile".into(),
+        }),
+    );
     let project_config = ProjectConfig {
         name: "test".intern(),
         js_module_format: JsModuleFormat::Haste,

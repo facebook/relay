@@ -5,10 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult};
-use graphql_ir::{
-    FragmentDefinition, OperationDefinition, Program, Selection, ValidationMessage, Validator,
-};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
 use schema::Schema;
 
 pub fn disallow_typename_on_root(program: &Program) -> DiagnosticsResult<()> {
@@ -24,15 +28,9 @@ impl<'program> DisallowTypenameOnRoot<'program> {
     fn new(program: &'program Program) -> Self {
         Self { program }
     }
-}
 
-impl Validator for DisallowTypenameOnRoot<'_> {
-    const NAME: &'static str = "disallow_typename_on_root";
-    const VALIDATE_ARGUMENTS: bool = false;
-    const VALIDATE_DIRECTIVES: bool = false;
-
-    fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
-        let typename_selection = operation.selections.iter().find_map(|sel| {
+    fn validate_query_selections(&mut self, selections: &[Selection]) -> DiagnosticsResult<()> {
+        let typename_selection = selections.iter().find_map(|sel| {
             if let Selection::ScalarField(field) = sel {
                 if field.definition.item == self.program.schema.typename_field() {
                     Some(field)
@@ -45,15 +43,28 @@ impl Validator for DisallowTypenameOnRoot<'_> {
         });
         if let Some(typename_selection) = typename_selection {
             Err(vec![Diagnostic::error(
-                ValidationMessage::DisallowTypenameOnRoot(),
+                ValidationMessage::DisallowTypenameOnRoot,
                 typename_selection.definition.location,
             )])
         } else {
             Ok(())
         }
     }
+}
 
-    fn validate_fragment(&mut self, _: &FragmentDefinition) -> DiagnosticsResult<()> {
+impl Validator for DisallowTypenameOnRoot<'_> {
+    const NAME: &'static str = "disallow_typename_on_root";
+    const VALIDATE_ARGUMENTS: bool = false;
+    const VALIDATE_DIRECTIVES: bool = false;
+
+    fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
+        self.validate_query_selections(&operation.selections)
+    }
+
+    fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
+        if self.program.schema.query_type() == Some(fragment.type_condition) {
+            self.validate_query_selections(&fragment.selections)?
+        }
         Ok(())
     }
 }

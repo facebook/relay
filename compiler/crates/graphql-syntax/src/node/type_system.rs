@@ -6,7 +6,8 @@
  */
 
 use super::constant_directive::ConstantDirective;
-use super::constant_value::{ConstantValue, StringNode};
+use super::constant_value::ConstantValue;
+use super::constant_value::StringNode;
 use super::primitive::*;
 use super::type_annotation::TypeAnnotation;
 use common::Span;
@@ -368,6 +369,14 @@ impl fmt::Display for InputValueDefinition {
 
         Ok(())
     }
+}
+
+/// A field definition which includes just the field name and arguments.
+/// Used by Relay Resolvers.
+#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
+pub struct FieldDefinitionStub {
+    pub name: Identifier,
+    pub arguments: Option<List<InputValueDefinition>>,
 }
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]

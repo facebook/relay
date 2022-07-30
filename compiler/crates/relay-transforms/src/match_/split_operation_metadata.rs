@@ -5,9 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{NamedItem, WithLocation};
-use graphql_ir::{Argument, ConstantValue, Directive, Value};
-use intern::string_key::{Intern, StringKey, StringKeySet};
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::Value;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
 
 lazy_static! {

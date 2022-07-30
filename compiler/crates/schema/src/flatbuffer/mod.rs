@@ -8,14 +8,28 @@
 mod serialize;
 mod wrapper;
 
-use crate::definitions::{Argument, Directive, *};
-use common::{Span, WithLocation};
-use flatbuffers::{ForwardsUOffset, Vector};
-use graphql_syntax::{
-    BooleanNode, ConstantArgument, ConstantValue, DirectiveLocation, EnumNode, FloatNode,
-    FloatValue, Identifier, IntNode, List, StringNode, Token, TokenKind,
-};
-use intern::string_key::{Intern, StringKey};
+use crate::definitions::Argument;
+use crate::definitions::Directive;
+use crate::definitions::*;
+use common::Span;
+use common::WithLocation;
+use flatbuffers::ForwardsUOffset;
+use flatbuffers::Vector;
+use graphql_syntax::BooleanNode;
+use graphql_syntax::ConstantArgument;
+use graphql_syntax::ConstantValue;
+use graphql_syntax::DirectiveLocation;
+use graphql_syntax::EnumNode;
+use graphql_syntax::FloatNode;
+use graphql_syntax::FloatValue;
+use graphql_syntax::Identifier;
+use graphql_syntax::IntNode;
+use graphql_syntax::List;
+use graphql_syntax::StringNode;
+use graphql_syntax::Token;
+use graphql_syntax::TokenKind;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 pub use serialize::serialize_as_flatbuffer;
 use std::cmp::Ordering;
 pub use wrapper::SchemaWrapper;
@@ -193,8 +207,9 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_scalar(&self, id: ScalarID) -> Option<Scalar> {
         let scalar = self.scalars.get(id.0.try_into().unwrap());
+        let name = scalar.name()?.to_string().intern();
         let parsed_scalar = Scalar {
-            name: scalar.name()?.to_string().intern(),
+            name: WithLocation::generated(name),
             is_extension: scalar.is_extension(),
             directives: self.parse_directive_values(scalar.directives()?)?,
             description: None,
@@ -204,8 +219,9 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_input_object(&self, id: InputObjectID) -> Option<InputObject> {
         let input_object = self.input_objects.get(id.0.try_into().unwrap());
+        let name = input_object.name()?.to_string().intern();
         let parsed_input_object = InputObject {
-            name: input_object.name()?.to_string().intern(),
+            name: WithLocation::generated(name),
             fields: self.parse_arguments(input_object.fields()?)?,
             directives: self.parse_directive_values(input_object.directives()?)?,
             description: None,
@@ -215,8 +231,9 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_enum(&self, id: EnumID) -> Option<Enum> {
         let enum_ = self.enums.get(id.0.try_into().unwrap());
+        let name = enum_.name()?.to_string().intern();
         let parsed_enum = Enum {
-            name: enum_.name()?.to_string().intern(),
+            name: WithLocation::generated(name),
             is_extension: enum_.is_extension(),
             values: self.parse_enum_values(enum_.values()?)?,
             directives: self.parse_directive_values(enum_.directives()?)?,
@@ -244,7 +261,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         let name = interface.name()?.intern();
 
         let parsed_interface = Interface {
-            name,
+            name: WithLocation::generated(name),
             is_extension: interface.is_extension(),
             implementing_objects: wrap_ids(interface.implementing_objects(), ObjectID),
             fields: wrap_ids(interface.fields(), FieldID),
@@ -257,8 +274,9 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_union(&self, id: UnionID) -> Option<Union> {
         let union = self.unions.get(id.0.try_into().unwrap());
+        let name = union.name()?.intern();
         let parsed_union = Union {
-            name: union.name()?.intern(),
+            name: WithLocation::generated(name),
             is_extension: union.is_extension(),
             members: wrap_ids(union.members(), ObjectID),
             directives: self.parse_directive_values(union.directives()?)?,
@@ -319,6 +337,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             },
             type_: self.parse_type_reference(argument.type_()?)?,
             description: None,
+            directives: Default::default(),
         })
     }
 

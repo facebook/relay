@@ -9,11 +9,13 @@
  * @emails oncall+relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -60,13 +62,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       let commentQuery;
       let queryOperation;
       let operationCallback;
-      let operationLoader: {|
+      let operationLoader: {
         get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
         load: JestMockFn<
           $ReadOnlyArray<mixed>,
           Promise<?NormalizationRootNode>,
         >,
-      |};
+      };
       let resolveFragment;
       let source;
       let store;
@@ -155,7 +157,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
 
         const MarkupHandler = {
-          update(storeProxy, payload) {
+          update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
             const record = storeProxy.get(payload.dataID);
             if (record != null) {
               const markup = record.getValue(payload.fieldKey);
@@ -266,6 +268,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(next.mock.calls.length).toBe(1);
         expect(complete).not.toBeCalled();
         expect(error).not.toBeCalled();
+        // $FlowFixMe[prop-missing]
         const nextID = payload.extensions?.__relay_subscription_root_id;
         const nextOperation = createReaderSelector(
           operation.fragment.node,
@@ -375,6 +378,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
         );
 
+        // $FlowFixMe[prop-missing]
         const nextID = payload.extensions?.__relay_subscription_root_id;
         const nextOperation = createReaderSelector(
           operation.fragment.node,
@@ -703,10 +707,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           taskID = 0;
           tasks = new Map();
           scheduler = {
-            cancel: id => {
+            cancel: (id: string) => {
               tasks.delete(id);
             },
-            schedule: task => {
+            schedule: (task: () => void) => {
               const id = String(taskID++);
               tasks.set(id, task);
               return id;

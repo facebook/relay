@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+fragment ActorsRendererFragment on Node {
+  id
+  actors {
+    ...PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+  }
+}
+
+fragment PlainUserNameRenderer_name on Actor {
+  __typename
+}
+==================================== OUTPUT ===================================
+fragment ActorsRendererFragment on Node {
+  id
+  actors {
+    ... on Actor {
+      ... on Actor @__ModuleMetadata
+      # ModuleMetadata {
+      #     location: module-on-field-without-js.graphql:92:99,
+      #     key: "ActorsRendererFragment",
+      #     module_id: "ActorsRendererFragment.actors",
+      #     module_name: "PlainUserNameRenderer.react",
+      #     source_document_name: "ActorsRendererFragment",
+      #     fragment_name: "PlainUserNameRenderer_name",
+      #     no_inline: false,
+      # }
+       {
+        ...PlainUserNameRenderer_name
+      }
+    }
+  }
+}
+
+fragment PlainUserNameRenderer_name on Actor {
+  __typename
+}

@@ -114,7 +114,7 @@ module.exports = function (babel) {
   };
 
   function transformJestCall(path, state) {
-    let params = {isJest: false};
+    const params = {isJest: false};
     path.traverse(jestIdentifier, params);
     if (params.isJest) {
       transformJestHelper(path, state);

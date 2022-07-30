@@ -1,5 +1,4 @@
 ==================================== INPUT ====================================
-# expected-to-throw
 fragment inlineDataFragmentLocalArgsFragment on Query {
   usingLiteralPassedValue: me {
     ...inlineDataFragmentLocalArgsProfile @arguments(sizeArg: [100])
@@ -19,53 +18,191 @@ fragment inlineDataFragmentLocalArgsProfile on User
     uri
   }
 }
-==================================== ERROR ====================================
-✖︎ Variables are not yet supported inside @inline fragments.
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "globalSizeVar"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "inlineDataFragmentLocalArgsFragment",
+  "selections": [
+    {
+      "alias": "usingLiteralPassedValue",
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineDataFragmentSpread",
+          "name": "inlineDataFragmentLocalArgsProfile",
+          "selections": [
+            {
+              "alias": null,
+              "args": [
+                {
+                  "kind": "Variable",
+                  "name": "size",
+                  "variableName": "sizeArg"
+                }
+              ],
+              "concreteType": "Image",
+              "kind": "LinkedField",
+              "name": "profilePicture",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "uri",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "args": [
+            {
+              "kind": "Literal",
+              "name": "sizeArg",
+              "value": [
+                100
+              ]
+            }
+          ],
+          "argumentDefinitions": [
+            {
+              "defaultValue": [
+                50
+              ],
+              "kind": "LocalArgument",
+              "name": "sizeArg"
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "usingGlobalPassedValue",
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineDataFragmentSpread",
+          "name": "inlineDataFragmentLocalArgsProfile",
+          "selections": [
+            {
+              "alias": null,
+              "args": [
+                {
+                  "kind": "Variable",
+                  "name": "size",
+                  "variableName": "sizeArg"
+                }
+              ],
+              "concreteType": "Image",
+              "kind": "LinkedField",
+              "name": "profilePicture",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "uri",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "args": [
+            {
+              "kind": "Variable",
+              "name": "sizeArg",
+              "variableName": "globalSizeVar"
+            }
+          ],
+          "argumentDefinitions": [
+            {
+              "defaultValue": [
+                50
+              ],
+              "kind": "LocalArgument",
+              "name": "sizeArg"
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": "usingDefaultValue",
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "kind": "InlineDataFragmentSpread",
+          "name": "inlineDataFragmentLocalArgsProfile",
+          "selections": [
+            {
+              "alias": null,
+              "args": [
+                {
+                  "kind": "Variable",
+                  "name": "size",
+                  "variableName": "sizeArg"
+                }
+              ],
+              "concreteType": "Image",
+              "kind": "LinkedField",
+              "name": "profilePicture",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "uri",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "args": null,
+          "argumentDefinitions": [
+            {
+              "defaultValue": [
+                50
+              ],
+              "kind": "LocalArgument",
+              "name": "sizeArg"
+            }
+          ]
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Query",
+  "abstractKey": null
+}
 
-  inline-data-fragment-local-args.graphql:14:10
-   13 │ 
-   14 │ fragment inlineDataFragmentLocalArgsProfile on User
-      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   15 │   @inline
-
-  ℹ︎ Variable used:
-
-  inline-data-fragment-local-args.graphql:16:24
-   15 │   @inline
-   16 │   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
-      │                        ^^^^^^^
-   17 │   profilePicture(size: $sizeArg) {
-
-
-✖︎ Variables are not yet supported inside @inline fragments.
-
-  inline-data-fragment-local-args.graphql:14:10
-   13 │ 
-   14 │ fragment inlineDataFragmentLocalArgsProfile on User
-      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   15 │   @inline
-
-  ℹ︎ Variable used:
-
-  inline-data-fragment-local-args.graphql:16:24
-   15 │   @inline
-   16 │   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
-      │                        ^^^^^^^
-   17 │   profilePicture(size: $sizeArg) {
-
-
-✖︎ Variables are not yet supported inside @inline fragments.
-
-  inline-data-fragment-local-args.graphql:14:10
-   13 │ 
-   14 │ fragment inlineDataFragmentLocalArgsProfile on User
-      │          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   15 │   @inline
-
-  ℹ︎ Variable used:
-
-  inline-data-fragment-local-args.graphql:16:24
-   15 │   @inline
-   16 │   @argumentDefinitions(sizeArg: {type: "[Int]", defaultValue: [50]}) {
-      │                        ^^^^^^^
-   17 │   profilePicture(size: $sizeArg) {
+{
+  "kind": "InlineDataFragment",
+  "name": "inlineDataFragmentLocalArgsProfile"
+}

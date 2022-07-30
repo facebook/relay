@@ -5,17 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    no_inline::NO_INLINE_DIRECTIVE_NAME,
-    node_identifier::{LocationAgnosticHash, LocationAgnosticPartialEq},
-    relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME,
-};
+use crate::relay_client_component::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME;
+use crate::NoInlineFragmentSpreadMetadata;
+use crate::RelayLocationAgnosticBehavior;
+use common::Location;
 use fnv::FnvHashMap;
-use graphql_ir::{
-    FragmentDefinition, FragmentSpread, InlineFragment, Program, ScalarField, Selection,
-    Transformed, Transformer,
-};
-use std::{hash::Hash, sync::Arc};
+use graphql_ir::node_identifier::LocationAgnosticHash;
+use graphql_ir::node_identifier::LocationAgnosticPartialEq;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use std::hash::Hash;
+use std::sync::Arc;
 
 pub fn inline_fragments(program: &Program) -> Program {
     let mut transform = InlineFragmentsTransform::new(program);
@@ -31,14 +37,19 @@ type Seen = FnvHashMap<FragmentSpreadKey, Arc<InlineFragment>>;
 impl PartialEq for FragmentSpreadKey {
     fn eq(&self, other: &Self) -> bool {
         self.0.fragment.item == other.0.fragment.item
-            && self.0.directives.location_agnostic_eq(&other.0.directives)
+            && self
+                .0
+                .directives
+                .location_agnostic_eq::<RelayLocationAgnosticBehavior>(&other.0.directives)
     }
 }
 
 impl Hash for FragmentSpreadKey {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
         self.0.fragment.item.hash(state);
-        self.0.directives.location_agnostic_hash(state);
+        self.0
+            .directives
+            .location_agnostic_hash::<_, RelayLocationAgnosticBehavior>(state);
     }
 }
 
@@ -71,6 +82,7 @@ impl<'s> InlineFragmentsTransform<'s> {
                 type_condition: None,
                 directives: Default::default(),
                 selections: Default::default(),
+                spread_location: Location::generated(),
             }),
         );
         let fragment = self
@@ -87,6 +99,7 @@ impl<'s> InlineFragmentsTransform<'s> {
             type_condition: Some(fragment.type_condition),
             directives: spread.directives.clone(),
             selections: selections.replace_or_else(|| fragment.selections.clone()),
+            spread_location: Location::generated(),
         });
         self.seen.insert(key, Arc::clone(&result));
         result
@@ -109,7 +122,7 @@ impl<'s> Transformer for InlineFragmentsTransform<'s> {
         match selection {
             Selection::FragmentSpread(selection) => {
                 let should_skip_inline = selection.directives.iter().any(|directive| {
-                    directive.name.item == *NO_INLINE_DIRECTIVE_NAME
+                    directive.name.item == NoInlineFragmentSpreadMetadata::directive_name()
                         || directive.name.item == *RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME
                 });
                 if should_skip_inline {

@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const preloadQuery = require('../../react-relay/relay-hooks/preloadQuery_DEPRECATED');
@@ -47,6 +45,7 @@ describe('when using queuePendingOperation, queueOperationResolver and preloadQu
   });
 
   const callPreloadQuery = () => {
+    // $FlowFixMe[incompatible-type]
     prefetched = preloadQuery(mockEnvironment, query, variables);
   };
   const callQueueOperationResolver = () =>

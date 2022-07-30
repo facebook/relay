@@ -12,27 +12,22 @@
 'use strict';
 
 import type {MockResolvers} from '../RelayMockPayloadGenerator';
-import type {GraphQLTaggedNode} from 'relay-runtime';
+import type {Query, Variables} from 'relay-runtime';
 
 const RelayMockPayloadGenerator = require('../RelayMockPayloadGenerator');
-const {
-  createOperationDescriptor,
-  getRequest,
-  graphql,
-} = require('relay-runtime');
+const {createOperationDescriptor, graphql} = require('relay-runtime');
 const {FIXTURE_TAG} = require('relay-test-utils-internal');
 
-function testGeneratedData(
-  query: GraphQLTaggedNode,
+function testGeneratedData<TVariables: Variables, TData, TRawResponse>(
+  query: Query<TVariables, TData, TRawResponse>,
   mockResolvers: ?MockResolvers,
 ): void {
-  const request = getRequest(query);
-  const operation = createOperationDescriptor(request, {});
+  const operation = createOperationDescriptor(query, {});
   const payload = RelayMockPayloadGenerator.generate(operation, mockResolvers);
 
   expect({
     [FIXTURE_TAG]: true,
-    input: request.params?.text,
+    input: query.params?.text,
     output: JSON.stringify(payload, null, 2),
   }).toMatchSnapshot();
 }

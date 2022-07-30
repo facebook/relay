@@ -5,8 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use md5::{Digest, Md5};
-use serde::{Deserialize, Serialize};
+use md5::Digest;
+use md5::Md5;
+use serde::Deserialize;
+use serde::Serialize;
 
 /// A utility to enable gradual rollout of large codegen changes.
 /// Can be constructed as the Default which passes or a percentage between 0 and

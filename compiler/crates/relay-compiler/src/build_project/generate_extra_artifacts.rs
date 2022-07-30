@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::{Artifact, Programs, ProjectConfig};
+use super::Artifact;
+use super::Programs;
+use super::ProjectConfig;
 use schema::SDLSchema;
 
 pub type GenerateExtraArtifactsFn =

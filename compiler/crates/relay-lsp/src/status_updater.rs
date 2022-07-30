@@ -9,14 +9,19 @@
 // We use two crates, lsp_types and lsp_server, for interacting with LSP. This module re-exports
 // types from both so that we have a central source-of-truth for all LSP-related utilities.
 
-use crossbeam::channel::{SendError, Sender};
-use lsp_server::{Message, Notification as ServerNotification, Request as ServerRequest};
-use lsp_types::{
-    notification::{Notification, ShowMessage},
-    request::Request,
-    MessageActionItem, MessageType, ShowMessageParams,
-};
-use serde::{Deserialize, Serialize};
+use crossbeam::channel::SendError;
+use crossbeam::channel::Sender;
+use lsp_server::Message;
+use lsp_server::Notification as ServerNotification;
+use lsp_server::Request as ServerRequest;
+use lsp_types::notification::Notification;
+use lsp_types::notification::ShowMessage;
+use lsp_types::request::Request;
+use lsp_types::MessageActionItem;
+use lsp_types::MessageType;
+use lsp_types::ShowMessageParams;
+use serde::Deserialize;
+use serde::Serialize;
 
 #[derive(Debug)]
 enum ShowStatus {}
@@ -54,7 +59,7 @@ pub(crate) fn set_ready_status(sender: &Sender<Message>) {
     update_status(
         "Relay: ready",
         Some("The Relay extension is ready"),
-        MessageType::Info,
+        MessageType::INFO,
         sender,
     );
 }
@@ -66,17 +71,7 @@ pub(crate) fn set_error_status(sender: &Sender<Message>, error: impl std::fmt::D
             "The Relay extension has errors: {}. Try reloading the IDE. If the error persists, report the issue via appropriate channels.",
             error
         )),
-        MessageType::Error,
-        sender,
-    );
-}
-
-pub(crate) fn set_initializing_status(sender: &Sender<Message>) {
-    update_in_progress_status(
-        "Relay: initializing...",
-        Some(
-            "The Relay compiler will start when you open a Javascript file containing a graphql literal",
-        ),
+        MessageType::ERROR,
         sender,
     );
 }
@@ -86,9 +81,13 @@ pub(crate) fn update_in_progress_status(
     message: Option<impl Into<String>>,
     sender: &Sender<Message>,
 ) {
-    update_status(short_message, message, MessageType::Warning, sender);
+    update_status(short_message, message, MessageType::WARNING, sender);
 }
 
+// This is the entrypoint for all status bar update commands.
+// If you change this, please be sure to update the appropriate
+// logic in the following file.
+// https://github.com/facebook/relay/blob/main/vscode-extension/src/statusBar.ts
 pub fn update_status(
     short_message: impl Into<String>,
     message: Option<impl Into<String>>,
@@ -121,7 +120,7 @@ pub(crate) fn show_info_message(
     let notif = ServerNotification::new(
         ShowMessage::METHOD.into(),
         ShowMessageParams {
-            typ: MessageType::Info,
+            typ: MessageType::INFO,
             message: message.into(),
         },
     );

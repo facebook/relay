@@ -9,13 +9,11 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 const {useEffect, useRef} = require('react');
 
-function useIsMountedRef(): {|current: boolean|} {
+function useIsMountedRef(): {current: boolean} {
   const isMountedRef = useRef(true);
 
   useEffect(() => {

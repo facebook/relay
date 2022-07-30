@@ -9,8 +9,6 @@
  * @format
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
 
 import type {
@@ -59,22 +57,22 @@ type ValueResolver = (
   plural: ?boolean,
   defaultValue?: mixed,
 ) => mixed;
-type Traversable = {|
+type Traversable = {
   +selections: $ReadOnlyArray<NormalizationSelection>,
   +typeName: ?string,
   +isAbstractType: ?boolean,
   +name: ?string,
   +alias: ?string,
   +args: ?{[string]: mixed, ...},
-|};
+};
 type MockData = {[string]: mixed, ...};
-type MockResolverContext = {|
+type MockResolverContext = {
   +parentType: ?string,
   +name: ?string,
   +alias: ?string,
   +path: ?$ReadOnlyArray<string>,
   +args: ?{[string]: mixed, ...},
-|};
+};
 type MockResolver = (
   context: MockResolverContext,
   generateId: () => number,
@@ -82,12 +80,12 @@ type MockResolver = (
 export type MockResolvers = {[typeName: string]: MockResolver, ...};
 
 type SelectionMetadata = {
-  [selectionPath: string]: {|
+  [selectionPath: string]: {
     +type: string,
     +plural: boolean,
     +nullable: boolean,
     +enumValues: $ReadOnlyArray<string> | null,
-  |},
+  },
   ...
 };
 
@@ -99,7 +97,7 @@ function createIdGenerator() {
 }
 
 const DEFAULT_MOCK_RESOLVERS = {
-  ID(context, generateId: () => number) {
+  ID(context: MockResolverContext, generateId: () => number) {
     return `<${
       context.parentType != null && context.parentType !== DEFAULT_MOCK_TYPENAME
         ? context.parentType + '-'
@@ -181,11 +179,11 @@ class RelayMockPayloadGenerator {
   _mockResolvers: MockResolvers;
   _selectionMetadata: SelectionMetadata;
 
-  constructor(options: {|
+  constructor(options: {
     +variables: Variables,
     +mockResolvers: MockResolvers | null,
     +selectionMetadata: SelectionMetadata | null,
-  |}) {
+  }) {
     this._variables = options.variables;
     // $FlowFixMe[cannot-spread-inexact]
     // $FlowFixMe[incompatible-type]
@@ -253,7 +251,7 @@ class RelayMockPayloadGenerator {
     prevData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
-    let mockData = prevData ?? {};
+    let mockData: ?($FlowFixMe | MockData) = prevData ?? {};
 
     selections.forEach(selection => {
       switch (selection.kind) {
@@ -521,7 +519,7 @@ class RelayMockPayloadGenerator {
     value: mixed | Array<mixed>,
     path: $ReadOnlyArray<string>,
     applicationName: string,
-  ) {
+  ): ?(string | Array<string>) {
     if (value === undefined) {
       return value;
     }
@@ -579,13 +577,13 @@ class RelayMockPayloadGenerator {
     mockData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
-    const data = mockData ?? {};
+    const data = mockData ?? ({}: {[string]: mixed});
     const applicationName = field.alias ?? field.name;
     if (data.hasOwnProperty(applicationName) && field.name !== TYPENAME_KEY) {
       return data;
     }
 
-    let value;
+    let value: mixed;
 
     // For __typename fields we are going to return typeName
     if (field.name === TYPENAME_KEY) {
@@ -658,7 +656,7 @@ class RelayMockPayloadGenerator {
     defaultValues: ?MockData,
   ): MockData | null {
     const applicationName = field.alias ?? field.name;
-    const data = prevData ?? {};
+    const data: MockData = prevData ?? {};
     const args = this._getFieldArgs(field);
 
     // Let's check if we have a custom mock resolver for the object type
@@ -701,7 +699,7 @@ class RelayMockPayloadGenerator {
     const isAbstractType =
       field.concreteType == null && typeName === typeFromSelection.type;
 
-    const generateDataForField = possibleDefaultValue => {
+    const generateDataForField = (possibleDefaultValue: mixed) => {
       const fieldDefaultValue =
         this._getDefaultValuesForObject(
           field.concreteType ?? typeFromSelection.type,
@@ -792,7 +790,7 @@ class RelayMockPayloadGenerator {
    * Get object with variables for field
    */
   _getFieldArgs(field: NormalizationField): {[string]: mixed, ...} {
-    const args = {};
+    const args: {[string]: mixed} = {};
     if (field.args != null) {
       field.args.forEach(arg => {
         args[arg.name] = this._getArgValue(arg);
@@ -808,7 +806,7 @@ class RelayMockPayloadGenerator {
       case 'Variable':
         return this._getVariableValue(arg.variableName);
       case 'ObjectValue': {
-        const value = {};
+        const value: {[string]: mixed} = {};
         arg.fields.forEach(field => {
           value[field.name] = this._getArgValue(field);
         });
@@ -831,12 +829,12 @@ class RelayMockPayloadGenerator {
     field: NormalizationScalarField,
     typeName: ?string,
     selectionPath: $ReadOnlyArray<string>,
-  ): {|
+  ): {
     +type: string,
     +plural: boolean,
     +enumValues: $ReadOnlyArray<string> | null,
     +nullable: boolean,
-  |} {
+  } {
     return (
       this._selectionMetadata[selectionPath.join('.')] ?? {
         type: field.name === 'id' ? 'ID' : 'String',

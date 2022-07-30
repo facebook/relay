@@ -443,13 +443,13 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       operation,
       optimisticConfig,
       updater,
-    }: {|
+    }: {
       createSource: () => RelayObservable<GraphQLResponse>,
       isClientPayload: boolean,
       operation: OperationDescriptor,
       optimisticConfig: ?OptimisticResponseConfig<TMutation>,
       updater: ?SelectorStoreUpdater<TMutation['response']>,
-    |},
+    },
   ): RelayObservable<GraphQLResponse> {
     return RelayObservable.create(sink => {
       const executor = OperationExecutor.execute({

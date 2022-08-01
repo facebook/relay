@@ -14,7 +14,6 @@ use common::TextSource;
 
 use graphql_ir::Program;
 
-use graphql_text_printer;
 use graphql_text_printer::PrinterOptions;
 use intern::string_key::Intern;
 use relay_codegen::print_fragment;

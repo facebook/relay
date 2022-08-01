@@ -1,0 +1,32 @@
+# This client-defined inteface should cause us to attach metadata to the query
+fragment relayResolverOnAbstractClientType_some_resolver on SomeInterface {
+  name
+}
+
+query relayResolverOnAbstractClientTypeQuery {
+  some_interface {
+    some_resolver
+  }
+}
+
+# %extensions%
+
+interface SomeInterface {
+  name: String
+}
+
+type ClientUser implements SomeInterface {
+  name: String
+}
+
+extend type Query {
+  some_interface: SomeInterface
+}
+
+extend interface SomeInterface {
+  some_resolver: Int
+    @relay_resolver(
+      fragment_name: "relayResolverOnAbstractClientType_some_resolver"
+      import_path: "./foo/bar/baz/BestFriendResolver.js"
+    )
+}

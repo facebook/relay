@@ -51,10 +51,16 @@ associated_data_impl!(ClientExtensionAbstractTypeMetadataDirective);
 /// concrete types which implement that interface.
 type TypeMap = HashMap<StringKey, StringKeySet>;
 
+#[derive(Clone)]
+enum PendingFragment {
+    Pending,
+    Resolved(TypeMap),
+}
+
 struct ClientExtensionsAbstactTypesTransform<'program> {
     program: &'program Program,
     abstract_type_map: TypeMap,
-    fragment_type_maps: HashMap<StringKey, TypeMap>,
+    fragment_type_maps: HashMap<StringKey, PendingFragment>,
 }
 
 impl<'program> ClientExtensionsAbstactTypesTransform<'program> {
@@ -116,11 +122,15 @@ impl<'program> ClientExtensionsAbstactTypesTransform<'program> {
     /// Add all type relationships that are referenced within a fragment definition.
     /// Caches on a per-definition basis so each fragment is explored at most once.
     fn traverse_into_fragment_spread(&mut self, fragment_definition: &Arc<FragmentDefinition>) {
-        let fragment_type_map = match self.fragment_type_maps.get(&fragment_definition.name.item) {
+        let pending_fragment = match self.fragment_type_maps.get(&fragment_definition.name.item) {
             Some(type_map) => type_map.clone(),
             None => {
                 // Set aside the previously discovered types
                 let parent_type_map = mem::take(&mut self.abstract_type_map);
+
+                // Mark this fragment as pending so that we can detect cycles and avoid deadlock.
+                self.fragment_type_maps
+                    .insert(fragment_definition.name.item, PendingFragment::Pending);
 
                 // Collect type information from the fragment definition
                 self.default_transform_fragment(fragment_definition);
@@ -128,26 +138,37 @@ impl<'program> ClientExtensionsAbstactTypesTransform<'program> {
                 // Reset back to the previously seen type information
                 let fragment_type_map = mem::replace(&mut self.abstract_type_map, parent_type_map);
 
+                let pending_fragment = PendingFragment::Resolved(fragment_type_map);
+
                 // Cache fragment results
                 self.fragment_type_maps
-                    .insert(fragment_definition.name.item, fragment_type_map.clone());
+                    .insert(fragment_definition.name.item, pending_fragment.clone());
 
                 // Return the fragment's type map
-                fragment_type_map
+                pending_fragment
             }
         };
 
-        // Augment this queries type map with the type information from the fragment.
-        for (key, value) in fragment_type_map.into_iter() {
-            match self.abstract_type_map.entry(key) {
-                Entry::Occupied(mut occupied) => {
-                    occupied.get_mut().extend(value);
-                }
-                Entry::Vacant(vacant) => {
-                    vacant.insert(value);
+        match pending_fragment {
+            PendingFragment::Pending => {
+                panic!(
+                    "Unexpected fragment cycle. We expect these to be caught earlier in the transform pipeline in apply_fragment_arguments."
+                )
+            }
+            PendingFragment::Resolved(type_map) => {
+                // Augment this query's type map with the type information from the fragment.
+                for (key, value) in type_map.into_iter() {
+                    match self.abstract_type_map.entry(key) {
+                        Entry::Occupied(mut occupied) => {
+                            occupied.get_mut().extend(value);
+                        }
+                        Entry::Vacant(vacant) => {
+                            vacant.insert(value);
+                        }
+                    }
                 }
             }
-        }
+        };
     }
 }
 

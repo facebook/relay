@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<10a942f29f13fd2b7eb061135645823c>>
+ * @generated SignedSource<<57d80e48c691680e6f4b8dc80c627990>>
  */
 
 mod compile_relay_artifacts;
@@ -580,6 +580,13 @@ fn inline_data_fragment_local_args() {
 }
 
 #[test]
+fn inline_fragment_on_abstract_client_type_nested_in_resolver_client_edge() {
+    let input = include_str!("compile_relay_artifacts/fixtures/inline-fragment-on-abstract-client-type-nested-in-resolver-client-edge.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/inline-fragment-on-abstract-client-type-nested-in-resolver-client-edge.expected");
+    test_fixture(transform_fixture, "inline-fragment-on-abstract-client-type-nested-in-resolver-client-edge.graphql", "compile_relay_artifacts/fixtures/inline-fragment-on-abstract-client-type-nested-in-resolver-client-edge.expected", input, expected);
+}
+
+#[test]
 fn kitchen_sink() {
     let input = include_str!("compile_relay_artifacts/fixtures/kitchen-sink.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/kitchen-sink.expected");
@@ -1067,6 +1074,13 @@ fn relay_resolver_backing_client_edge() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.expected");
     test_fixture(transform_fixture, "relay-resolver-backing-client-edge.graphql", "compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_on_abstract_client_type() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-on-abstract-client-type.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-on-abstract-client-type.expected");
+    test_fixture(transform_fixture, "relay-resolver-on-abstract-client-type.graphql", "compile_relay_artifacts/fixtures/relay-resolver-on-abstract-client-type.expected", input, expected);
 }
 
 #[test]

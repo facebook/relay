@@ -1,0 +1,153 @@
+==================================== INPUT ====================================
+# This client-defined inteface should cause us to attach metadata to the query
+fragment relayResolverOnAbstractClientType_some_resolver on SomeInterface {
+  name
+}
+
+query relayResolverOnAbstractClientTypeQuery {
+  some_interface {
+    some_resolver
+  }
+}
+
+# %extensions%
+
+interface SomeInterface {
+  name: String
+}
+
+type ClientUser implements SomeInterface {
+  name: String
+}
+
+extend type Query {
+  some_interface: SomeInterface
+}
+
+extend interface SomeInterface {
+  some_resolver: Int
+    @relay_resolver(
+      fragment_name: "relayResolverOnAbstractClientType_some_resolver"
+      import_path: "./foo/bar/baz/BestFriendResolver.js"
+    )
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "relayResolverOnAbstractClientTypeQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "some_interface",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "fragment": {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "relayResolverOnAbstractClientType_some_resolver"
+                },
+                "kind": "RelayResolver",
+                "name": "some_resolver",
+                "resolverModule": require('BestFriendResolver'),
+                "path": "some_interface.some_resolver"
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "relayResolverOnAbstractClientTypeQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": null,
+            "kind": "LinkedField",
+            "name": "some_interface",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "__typename",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "name",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "clientAbstractTypes": {
+      "__isSomeInterface": [
+        "ClientUser"
+      ]
+    }
+  },
+  "params": {
+    "cacheID": "49fcd5d334fd3a820e1080fcaf506335",
+    "id": null,
+    "metadata": {},
+    "name": "relayResolverOnAbstractClientTypeQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "relayResolverOnAbstractClientType_some_resolver",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "SomeInterface",
+  "abstractKey": "__isSomeInterface"
+}

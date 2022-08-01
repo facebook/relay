@@ -318,10 +318,6 @@ fn apply_operation_transforms(
         )
     })?;
 
-    program = log_event.time("remove_client_edge_selections", || {
-        remove_client_edge_selections(&program)
-    })?;
-
     program = log_event.time("split_module_import", || {
         split_module_import(&program, &base_fragment_names)
     });
@@ -400,6 +396,22 @@ fn apply_normalization_transforms(
         print_stats("apply_fragment_arguments", &program);
     }
 
+    program = log_event.time("client_extensions_abstract_types", || {
+        client_extensions_abstract_types(&program)
+    });
+
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("client_extensions_abstract_types", &program);
+    }
+
+    program = log_event.time("remove_client_edge_selections", || {
+        remove_client_edge_selections(&program)
+    })?;
+
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("remove_client_edge_selections", &program);
+    }
+
     program = log_event.time("replace_updatable_fragment_spreads", || {
         replace_updatable_fragment_spreads(&program)
     });
@@ -417,10 +429,6 @@ fn apply_normalization_transforms(
     if let Some(print_stats) = maybe_print_stats {
         print_stats("skip_unreachable_node", &program);
     }
-
-    program = log_event.time("client_extnsions_abstract_types", || {
-        client_extensions_abstract_types(&program)
-    });
 
     program = log_event.time("inline_fragments", || inline_fragments(&program));
     if let Some(print_stats) = maybe_print_stats {
@@ -501,6 +509,11 @@ fn apply_operation_text_transforms(
             &base_fragment_names,
         )
     })?;
+
+    program = log_event.time("remove_client_edge_selections", || {
+        remove_client_edge_selections(&program)
+    })?;
+
     log_event.time("validate_global_variables", || {
         validate_global_variables(&program)
     })?;

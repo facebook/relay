@@ -11,19 +11,29 @@ use graphql_ir::build;
 use graphql_ir::Program;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
-use relay_test_schema::TEST_SCHEMA;
+use relay_test_schema::get_test_schema;
+use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::validate_updatable_directive;
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
 
-    let ast = parse_executable(fixture.content, source_location).unwrap();
-    let ir_result = build(&TEST_SCHEMA, &ast.definitions);
+    let mut parts = fixture.content.split("%extensions%");
+    let base = parts.next().expect("Pre-extension content required");
+    let maybe_extensions = parts.next();
+    let schema = if let Some(extensions) = maybe_extensions {
+        get_test_schema_with_extensions(extensions)
+    } else {
+        get_test_schema()
+    };
+
+    let ast = parse_executable(base, source_location).unwrap();
+    let ir_result = build(&schema, &ast.definitions);
     let ir = ir_result
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
-    let program = Program::from_definitions(Arc::clone(&TEST_SCHEMA), ir);
+    let program = Program::from_definitions(Arc::clone(&schema), ir);
     validate_updatable_directive(&program)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 

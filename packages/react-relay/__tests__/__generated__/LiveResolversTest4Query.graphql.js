@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<94daecb72b36049ace65b0aa5e4852bd>>
+ * @generated SignedSource<<717042cc7be7dbb03e21e54bfe8509a7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-type LivePingPongResolver$key = any;
+import type { LivePingPongResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/LivePingPongResolver.graphql";
 import queryPingResolver from "../../../relay-runtime/store/__tests__/resolvers/LivePingPongResolver.js";
 // Type assertion validating that `queryPingResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.

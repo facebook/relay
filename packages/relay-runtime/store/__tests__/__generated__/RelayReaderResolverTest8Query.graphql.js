@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bec8365f33f1172d9b766dc4899b6845>>
+ * @generated SignedSource<<12a515c571ef1347c44970cc73bec3ca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type UserNamePassthroughResolver$key = any;
+import type { UserNamePassthroughResolver$key } from "./../resolvers/__generated__/UserNamePassthroughResolver.graphql";
 import userNamePassthroughResolver from "../resolvers/UserNamePassthroughResolver.js";
 // Type assertion validating that `userNamePassthroughResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.

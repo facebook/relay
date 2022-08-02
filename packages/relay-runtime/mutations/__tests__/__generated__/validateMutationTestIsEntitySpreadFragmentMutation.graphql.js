@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<da8a7578be534f1c359e9a6e2e078a79>>
+ * @generated SignedSource<<fe0cb1489410cda5163682186ae0c36c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-type validateMutationTestEntityFragement$fragmentType = any;
+import type { validateMutationTestEntityFragement$fragmentType } from "./validateMutationTestEntityFragement.graphql";
 export type ActorNameChangeInput = {|
   newName?: ?string,
 |};

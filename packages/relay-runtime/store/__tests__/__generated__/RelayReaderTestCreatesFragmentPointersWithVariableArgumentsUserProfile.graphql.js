@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<150a32abd71f87d954825dfb4406f659>>
+ * @generated SignedSource<<d41c40697ba352ca4498a20268941ed4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType = any;
+import type { RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType } from "./RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$fragmentType: FragmentType;
 export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile$data = {|

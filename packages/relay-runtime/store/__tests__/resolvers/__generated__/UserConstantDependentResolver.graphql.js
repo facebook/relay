@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<02415624a723cb701f653d3ae5576935>>
+ * @generated SignedSource<<d3ec09d41bfdec4869edcce3f6761a65>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type UserConstantResolver$key = any;
+import type { UserConstantResolver$key } from "./UserConstantResolver.graphql";
 import type { FragmentType } from "relay-runtime";
 import userConstantResolver from "../UserConstantResolver.js";
 // Type assertion validating that `userConstantResolver` resolver is correctly implemented.

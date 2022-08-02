@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8092a288cab9394d9f5cb5a5a08066b6>>
+ * @generated SignedSource<<c4c080bc2f120a5c50e27600e58cf7a9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +16,8 @@
 
 /*::
 import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
-type QueryResourceClientEdgesTestUser1Fragment$fragmentType = any;
-type QueryResourceClientEdgesTestUser2Fragment$fragmentType = any;
+import type { QueryResourceClientEdgesTestUser1Fragment$fragmentType } from "./QueryResourceClientEdgesTestUser1Fragment.graphql";
+import type { QueryResourceClientEdgesTestUser2Fragment$fragmentType } from "./QueryResourceClientEdgesTestUser2Fragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RefetchableClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$fragmentType: FragmentType;
 type ClientEdgeQuery_QueryResourceClientEdgesTest2Query_me__client_edge$variables = any;

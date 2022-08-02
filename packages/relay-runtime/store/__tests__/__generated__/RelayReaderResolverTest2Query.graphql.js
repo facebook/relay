@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<47a00617a275dd39f937cbcd4939b09c>>
+ * @generated SignedSource<<55e7a4ea41bb4d08dacd87f45cd8a55b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type UserConstantDependentResolver$key = any;
+import type { UserConstantDependentResolver$key } from "./../resolvers/__generated__/UserConstantDependentResolver.graphql";
 import userConstantDependentResolver from "../resolvers/UserConstantDependentResolver.js";
 // Type assertion validating that `userConstantDependentResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.

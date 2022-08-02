@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<da81628e022f0b10dd07d84a748531f7>>
+ * @generated SignedSource<<1cac32b1adc81f5d116b5625d4f78f69>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
-type requestSubscriptionTestExtraFragment$fragmentType = any;
+import type { requestSubscriptionTestExtraFragment$fragmentType } from "./requestSubscriptionTestExtraFragment.graphql";
 export type requestSubscriptionTestConfigCreateSubscription$variables = {||};
 export type requestSubscriptionTestConfigCreateSubscription$data = {|
   +configCreateSubscribe: ?{|

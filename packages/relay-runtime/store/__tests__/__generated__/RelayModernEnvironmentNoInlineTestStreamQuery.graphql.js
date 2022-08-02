@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d62c4154a424621f95d31a1aed63e7c1>>
+ * @generated SignedSource<<727f816c19e8e8a2b7608b71fd5a4dbf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType = any;
+import type { RelayModernEnvironmentNoInlineTestStream_feedback$fragmentType } from "./RelayModernEnvironmentNoInlineTestStream_feedback.graphql";
 export type RelayModernEnvironmentNoInlineTestStreamQuery$variables = {|
   cond: boolean,
 |};

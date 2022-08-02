@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c19798e6ebedd6ac71a81834fdf3c054>>
+ * @generated SignedSource<<0f07e322f4cbc5a36f1b09adee39f43a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type UserNameAndCounterSuspendsWhenOdd$key = any;
+import type { UserNameAndCounterSuspendsWhenOdd$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserNameAndCounterSuspendsWhenOdd.graphql";
 import type { FragmentType } from "relay-runtime";
 import queryUserNameAndCounterSuspendsWhenOddResolver from "../../../relay-runtime/store/__tests__/resolvers/UserNameAndCounterSuspendsWhenOdd.js";
 // Type assertion validating that `queryUserNameAndCounterSuspendsWhenOddResolver` resolver is correctly implemented.

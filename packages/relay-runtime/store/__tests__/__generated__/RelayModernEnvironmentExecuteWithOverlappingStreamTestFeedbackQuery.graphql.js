@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d834af3f51c86c3825996b1ac71c7358>>
+ * @generated SignedSource<<e4dbeaf28000beb99eb0e8eb41b34c10>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType = any;
+import type { RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment.graphql";
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables = {|
   enableStream: boolean,
   id: string,

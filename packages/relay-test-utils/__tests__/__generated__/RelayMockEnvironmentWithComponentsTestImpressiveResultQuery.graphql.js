@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b599ab4cfc71043528ee6152044849d9>>
+ * @generated SignedSource<<3fb66e1e1e63ae71700588798f183a6a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType = any;
+import type { RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType } from "./RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment.graphql";
 export type RelayMockEnvironmentWithComponentsTestImpressiveResultQuery$variables = {|
   id: string,
 |};

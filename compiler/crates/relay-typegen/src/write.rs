@@ -474,7 +474,32 @@ fn write_fragment_imports(
                         &format!("./{}.graphql", current_referenced_fragment),
                     )?;
                 } else {
-                    writer.write_any_type_definition(&fragment_type_name)?;
+                    let fragment_location = typegen_context
+                        .fragment_locations
+                        .location(&current_referenced_fragment)
+                        .unwrap_or_else(|| {
+                            panic!(
+                                "Expected location for fragment {}.",
+                                current_referenced_fragment
+                            )
+                        });
+
+                    let path_for_artifact =
+                        typegen_context.project_config.create_path_for_artifact(
+                            fragment_location.source_location(),
+                            current_referenced_fragment.to_string(),
+                        );
+
+                    let fragment_import_path =
+                        typegen_context.project_config.js_module_import_path(
+                            typegen_context.definition_source_location,
+                            path_for_artifact.to_str().unwrap().intern(),
+                        );
+
+                    writer.write_import_fragment_type(
+                        &[&fragment_type_name],
+                        &format!("./{}.graphql", fragment_import_path),
+                    )?;
                 }
             }
             JsModuleFormat::Haste => {

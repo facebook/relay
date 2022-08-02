@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8006bfcd780c099ef368d51ce1700ad4>>
+ * @generated SignedSource<<49c1d6f2a6fb627bb3cb9257729f34f2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayModernStoreTest1Fragment$fragmentType = any;
+import type { RelayModernStoreTest1Fragment$fragmentType } from "./RelayModernStoreTest1Fragment.graphql";
 export type RelayModernStoreTest1Query$variables = {|
   id: string,
   size?: ?$ReadOnlyArray<?number>,

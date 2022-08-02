@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<60878b928de89e66afdabff096fb9de6>>
+ * @generated SignedSource<<515e98b9645d4c391713ffd49072fb29>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType = any;
+import type { useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType } from "./useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment.graphql";
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserQuery$variables = {|
   after?: ?string,
   before?: ?string,

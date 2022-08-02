@@ -61,6 +61,7 @@ use relay_codegen::Printer;
 use relay_transforms::apply_transforms;
 use relay_transforms::CustomTransformsConfig;
 use relay_transforms::Programs;
+use relay_typegen::FragmentLocations;
 use schema::SDLSchema;
 pub use source_control::add_to_mercurial;
 use std::path::PathBuf;
@@ -299,6 +300,7 @@ pub async fn commit_project(
     log_event.string("project", project_config.name.to_string());
     let commit_time = log_event.start("commit_project_time");
 
+    let fragment_locations = FragmentLocations::new(programs.typegen.fragments());
     if source_control_update_status.is_started() {
         debug!("commit_project cancelled before persisting due to source control updates");
         return Err(BuildProjectFailure::Cancelled);
@@ -370,6 +372,7 @@ pub async fn commit_project(
                 schema,
                 should_stop_updating_artifacts,
                 &artifacts,
+                &fragment_locations,
             )?;
             for artifact in &artifacts {
                 if !existing_artifacts.remove(&artifact.path) {
@@ -404,6 +407,7 @@ pub async fn commit_project(
                 schema,
                 should_stop_updating_artifacts,
                 &artifacts,
+                &fragment_locations,
             )?;
             artifacts.into_par_iter().for_each(|artifact| {
                 current_paths_map.insert(artifact);
@@ -501,6 +505,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     schema: &SDLSchema,
     should_stop_updating_artifacts: F,
     artifacts: &[Artifact],
+    fragment_locations: &FragmentLocations,
 ) -> Result<(), BuildProjectFailure> {
     artifacts.par_chunks(8192).try_for_each_init(
         || Printer::with_dedupe(project_config),
@@ -516,6 +521,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
                     &mut printer,
                     schema,
                     artifact.source_file,
+                    fragment_locations,
                 );
                 if config.artifact_writer.should_write(&path, &content)? {
                     config.artifact_writer.write(path, content)?;

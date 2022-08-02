@@ -12,7 +12,10 @@ use crate::LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH;
 use crate::LIVE_RESOLVERS_LIVE_STATE;
 use crate::LOCAL_3D_PAYLOAD;
 use crate::RELAY_RUNTIME;
+use common::Location;
+use fnv::FnvHashMap;
 use fnv::FnvHashSet;
+use graphql_ir::FragmentDefinition;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 use intern::string_key::StringKey;
@@ -20,6 +23,7 @@ use schema::EnumID;
 use schema::SDLSchema;
 use schema::Schema;
 use std::fmt::Result as FmtResult;
+use std::sync::Arc;
 
 /// A struct that is mutated as we iterate through an operation/fragment and
 /// contains information about whether and how to write import types.
@@ -91,6 +95,28 @@ pub(crate) struct MatchFields(pub(crate) IndexMap<StringKey, AST>);
 pub(crate) enum EncounteredFragment {
     Spread(StringKey),
     Key(StringKey),
+}
+
+/// This is a map FragmentName => Fragment Location
+/// We use the location of the fragment to generate a correct
+/// path to its generated artifact, in case we need to
+/// reference it in another generated artifact.
+/// This is used in non-haste setups that do not have a single
+/// directory for generated artifacts.
+pub struct FragmentLocations(pub FnvHashMap<StringKey, Location>);
+
+impl FragmentLocations {
+    pub fn new<'a>(fragments: impl Iterator<Item = &'a Arc<FragmentDefinition>>) -> Self {
+        Self(
+            fragments
+                .map(|fragment| (fragment.name.item, fragment.name.location))
+                .collect::<_>(),
+        )
+    }
+
+    pub fn location(&self, fragment_name: &StringKey) -> Option<&Location> {
+        self.0.get(fragment_name)
+    }
 }
 
 #[derive(Default)]

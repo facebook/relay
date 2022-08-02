@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ba9a1f7edb9fc0c2e5b1faba52223d20>>
+ * @generated SignedSource<<5ead0c81815d79f9b9056995b2cc96ac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +16,8 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$fragmentType = any;
-type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType = any;
+import type { RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment$fragmentType } from "./RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserFragment.graphql";
+import type { RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment$fragmentType } from "./RelayModernFragmentSpecResolverWithFragmentOwnershipTestUsersFragment.graphql";
 export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestUserQuery$variables = {|
   fetchSize: boolean,
   id: string,

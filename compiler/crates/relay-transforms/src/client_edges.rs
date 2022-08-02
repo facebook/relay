@@ -57,7 +57,7 @@ lazy_static! {
 /// fragment groups together the client edge's backing field as well as a linked
 /// field containing the selections being read off of the link.
 ///
-/// Each instance of the directive within a travseral is assigned a unique id.
+/// Each instance of the directive within a traversal is assigned a unique id.
 /// This is added to prevent future transforms from merging multiple of these inline
 /// fragments.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -103,7 +103,7 @@ impl<'a> ClientEdgeMetadata<'a> {
     pub fn find(fragment: &'a InlineFragment) -> Option<Self> {
         ClientEdgeMetadataDirective::find(&fragment.directives).map(|metadata_directive| {
 
-// Double check that some flatten/inline transform is not tryig to combine/merge our inline directives together.
+            // Double check that some flatten/inline transform is not trying to combine/merge our inline directives together.
             assert!(
                 fragment.selections.len() == 2,
                 "Expected Client Edge inline fragment to have exactly two selections. This is a bug in the Relay compiler."
@@ -184,7 +184,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
         )
         .intern();
 
-        // Due to duplicate inline fragments, or inline fragmetns without type
+        // Due to duplicate inline fragments, or inline fragments without type
         // conditions, it's possible that multiple fields will have the same
         // path. In this case, we will append incrementing numbers to the end of
         // the query name to ensure uniqueness.
@@ -206,6 +206,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
         field_type: Type,
         selections: Vec<Selection>,
     ) {
+        let document_name = self.document_name.expect("Expect to be within a document");
         let synthetic_fragment_name = WithLocation::new(
             // The artifact for the refetchable fragment and query derived from
             // this fragment will be placed on disk based on this source
@@ -213,9 +214,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             // fragment and the query derived from it will use the same location
             // source, and thus will be placed in the same `__generated__`
             // directory. Based on this assumption they import the file using `./`.
-            self.document_name
-                .expect("Expect to be within a document")
-                .location,
+            document_name.location,
             format!("Refetchable{}", generated_query_name).intern(),
         );
 
@@ -229,9 +228,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 arguments: vec![Argument {
                     name: WithLocation::generated(*CLIENT_EDGE_SOURCE_NAME),
                     value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                        self.document_name
-                            .expect("Expect to be within a document")
-                            .item,
+                        document_name.item,
                     ))),
                 }],
                 data: None,
@@ -262,13 +259,16 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                     // the document from which we derive the source hash for the
                     // Client Edge generated query's artifact.
                     ClientEdgeGeneratedQueryMetadataDirective {
-                        source_name: self.document_name.expect("Expect to be within a document."),
+                        source_name: document_name,
                     }
                     .into(),
                 );
                 self.new_operations.push(OperationDefinition {
                     kind: OperationKind::Query,
-                    name: WithLocation::generated(refetchable_directive.query_name.item),
+                    name: WithLocation::new(
+                        document_name.location,
+                        refetchable_directive.query_name.item,
+                    ),
                     type_: query_type,
                     variable_definitions: refetchable_root.variable_definitions,
                     directives,
@@ -307,7 +307,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             return self.default_transform_linked_field(field);
         }
 
-        let allowed_dirctive_names = [
+        let allowed_directive_names = [
             *CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME,
             *REQUIRED_DIRECTIVE_NAME,
             RequiredMetadataDirective::directive_name(),
@@ -317,7 +317,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             .directives
             .iter()
             .filter(|directive| {
-                !allowed_dirctive_names
+                !allowed_directive_names
                     .iter()
                     .any(|item| directive.name() == *item)
             })

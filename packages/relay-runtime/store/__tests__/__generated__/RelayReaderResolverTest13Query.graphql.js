@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<61d26e58360cdb052918e56fefdecb9a>>
+ * @generated SignedSource<<6c6e82d69b02b563040f36017dec7b44>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type UserAlwaysThrowsTransitivelyResolver$key = any;
+import type { UserAlwaysThrowsTransitivelyResolver$key } from "./../resolvers/__generated__/UserAlwaysThrowsTransitivelyResolver.graphql";
 import userAlwaysThrowsTransitivelyResolver from "../resolvers/UserAlwaysThrowsTransitivelyResolver.js";
 // Type assertion validating that `userAlwaysThrowsTransitivelyResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.

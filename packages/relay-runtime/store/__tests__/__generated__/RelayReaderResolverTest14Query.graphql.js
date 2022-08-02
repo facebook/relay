@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f4281ee8edc1e88f49b9a3f96893bd55>>
+ * @generated SignedSource<<211f157fe55d1789c4dcfd88e274b0b0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type ThrowBeforeReadResolver$key = any;
+import type { ThrowBeforeReadResolver$key } from "./../resolvers/__generated__/ThrowBeforeReadResolver.graphql";
 import queryThrowBeforeReadResolver from "../resolvers/ThrowBeforeReadResolver.js";
 // Type assertion validating that `queryThrowBeforeReadResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.

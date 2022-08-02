@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0e2aeb97e7e43b4783c0c0be2fe5d572>>
+ * @generated SignedSource<<eb9cd7ab0f1502bf6bca9116c64a2f69>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type ActorChangeWithMutationTestFragment$fragmentType = any;
+import type { ActorChangeWithMutationTestFragment$fragmentType } from "./ActorChangeWithMutationTestFragment.graphql";
 export type ActorChangeWithMutationTestQuery$variables = {||};
 export type ActorChangeWithMutationTestQuery$data = {|
   +viewer: ?{|

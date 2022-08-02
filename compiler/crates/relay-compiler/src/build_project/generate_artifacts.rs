@@ -111,12 +111,6 @@ pub fn generate_artifacts(
                         source_hash,
                         source_file,
                     )
-                } else if normalization.directives.named(*UPDATABLE_DIRECTIVE).is_some() {
-                    // This weird structuring here is to preserve the order`
-                    // of operations/fallbacks in the face of an "Optional" normalizaiton
-                    // Right now, normalization will still be there, so we need this branch
-                    // in a coming commit we will no longer generate the normalization AST for
-                    // updatable queries and the "dangling if" below will become an "else if"
                 } else {
                     let source_hash = source_hashes
                         .get(&normalization.name.item)
@@ -131,9 +125,7 @@ pub fn generate_artifacts(
                         normalization.name.location.source_location(),
                     )
                 }
-            }
-
-            if let Some(reader) = operations.reader {
+            } else if let Some(reader) = operations.reader {
                 // We don't have a normalization AST, but we do have a reader.
                 // Therefore this must be an updatable query in order to continue.
                 if reader

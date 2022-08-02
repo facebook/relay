@@ -14,6 +14,7 @@ use crate::assignable_fragment_spread::replace_updatable_fragment_spreads;
 use crate::client_extensions_abstract_types::client_extensions_abstract_types;
 use crate::disallow_non_node_id_fields;
 use crate::match_::hash_supported_argument;
+use crate::skip_updatable_queries::skip_updatable_queries;
 use common::sync::try_join;
 use common::DiagnosticsResult;
 use common::PerfLogEvent;
@@ -307,6 +308,10 @@ fn apply_operation_transforms(
         &log_event,
         None,
     )?;
+
+    program = log_event.time("skip_updatable_queries", || {
+        skip_updatable_queries(&program)
+    });
 
     program = log_event.time("client_edges", || {
         client_edges(&program, &project_config.schema_config)

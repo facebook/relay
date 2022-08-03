@@ -12,7 +12,9 @@ use crate::apply_custom_transforms::CustomTransformsConfig;
 use crate::assignable_fragment_spread::annotate_updatable_fragment_spreads;
 use crate::assignable_fragment_spread::replace_updatable_fragment_spreads;
 use crate::client_extensions_abstract_types::client_extensions_abstract_types;
+use crate::disallow_non_node_id_fields;
 use crate::match_::hash_supported_argument;
+use crate::skip_updatable_queries::skip_updatable_queries;
 use common::sync::try_join;
 use common::DiagnosticsResult;
 use common::PerfLogEvent;
@@ -156,7 +158,11 @@ fn apply_common_transforms(
         transform_defer_stream(&program)
     })?;
     program = log_event.time("transform_match", || {
-        transform_match(&program, &project_config.feature_flags)
+        transform_match(
+            &program,
+            &project_config.feature_flags,
+            project_config.module_import_config,
+        )
     })?;
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)
@@ -303,6 +309,10 @@ fn apply_operation_transforms(
         None,
     )?;
 
+    program = log_event.time("skip_updatable_queries", || {
+        skip_updatable_queries(&program)
+    });
+
     program = log_event.time("client_edges", || {
         client_edges(&program, &project_config.schema_config)
     })?;
@@ -311,10 +321,6 @@ fn apply_operation_transforms(
             &program,
             project_config.feature_flags.enable_relay_resolver_transform,
         )
-    })?;
-
-    program = log_event.time("remove_client_edge_selections", || {
-        remove_client_edge_selections(&program)
     })?;
 
     program = log_event.time("split_module_import", || {
@@ -333,6 +339,12 @@ fn apply_operation_transforms(
     program = log_event.time("generate_live_query_metadata", || {
         generate_live_query_metadata(&program)
     })?;
+
+    if project_config.schema_config.non_node_id_fields.is_some() {
+        log_event.time("disallow_non_node_id_fields", || {
+            disallow_non_node_id_fields(&program, &project_config.schema_config)
+        })?;
+    }
 
     program = apply_after_custom_transforms(
         &program,
@@ -389,6 +401,22 @@ fn apply_normalization_transforms(
         print_stats("apply_fragment_arguments", &program);
     }
 
+    program = log_event.time("client_extensions_abstract_types", || {
+        client_extensions_abstract_types(&program)
+    });
+
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("client_extensions_abstract_types", &program);
+    }
+
+    program = log_event.time("remove_client_edge_selections", || {
+        remove_client_edge_selections(&program)
+    })?;
+
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("remove_client_edge_selections", &program);
+    }
+
     program = log_event.time("replace_updatable_fragment_spreads", || {
         replace_updatable_fragment_spreads(&program)
     });
@@ -406,10 +434,6 @@ fn apply_normalization_transforms(
     if let Some(print_stats) = maybe_print_stats {
         print_stats("skip_unreachable_node", &program);
     }
-
-    program = log_event.time("client_extnsions_abstract_types", || {
-        client_extensions_abstract_types(&program)
-    });
 
     program = log_event.time("inline_fragments", || inline_fragments(&program));
     if let Some(print_stats) = maybe_print_stats {
@@ -490,6 +514,11 @@ fn apply_operation_text_transforms(
             &base_fragment_names,
         )
     })?;
+
+    program = log_event.time("remove_client_edge_selections", || {
+        remove_client_edge_selections(&program)
+    })?;
+
     log_event.time("validate_global_variables", || {
         validate_global_variables(&program)
     })?;
@@ -575,7 +604,11 @@ fn apply_typegen_transforms(
 
     program = log_event.time("mask", || mask(&program));
     program = log_event.time("transform_match", || {
-        transform_match(&program, &project_config.feature_flags)
+        transform_match(
+            &program,
+            &project_config.feature_flags,
+            project_config.module_import_config,
+        )
     })?;
     program = log_event.time("transform_subscriptions", || {
         transform_subscriptions(&program)

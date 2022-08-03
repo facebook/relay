@@ -58,14 +58,8 @@ pub enum ValidationMessage {
         outer_type_plural: &'static str,
     },
 
-    // Note: conditions do not have a location, hence this awkward phrasing
-    #[error(
-        "Within updatable {outer_type_plural}, the directives @include and @skip are not allowed. The directive was found in {operation_or_fragment_name}."
-    )]
-    UpdatableNoConditions {
-        outer_type_plural: &'static str,
-        operation_or_fragment_name: StringKey,
-    },
+    #[error("The directives @include and @skip are not allowed within {outer_type_plural}.")]
+    UpdatableNoConditions { outer_type_plural: &'static str },
 
     #[error(
         "Within updatable {outer_type_plural}, if a linked field contains an inline fragment spread, it must contain only inline fragment spreads."
@@ -149,7 +143,7 @@ pub enum ValidationMessage {
     },
 
     #[error(
-        "Because {reason_message}, this linked field can only contain inline fragments, and any inline fragments cannot have @skip or @if."
+        "Because {reason_message}, this linked field can only contain inline fragments, and any inline fragments cannot have @skip or @include."
     )]
     EnsureDiscriminatedUnionNonInlineFragment { reason_message: &'static str },
 

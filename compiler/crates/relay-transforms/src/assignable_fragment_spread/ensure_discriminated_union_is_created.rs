@@ -65,10 +65,13 @@ pub(super) fn ensure_discriminated_union_is_created(
                     errors.extend(e.into_iter());
                 }
             }
-            _ => errors.push(Diagnostic::error(
-                ValidationMessage::EnsureDiscriminatedUnionNonInlineFragment { reason_message },
-                linked_field.definition.location,
-            )),
+            _ => errors.push(
+                Diagnostic::error(
+                    ValidationMessage::EnsureDiscriminatedUnionNonInlineFragment { reason_message },
+                    selection.location(),
+                )
+                .annotate("enclosing linked field", linked_field.definition.location),
+            ),
         }
     }
 

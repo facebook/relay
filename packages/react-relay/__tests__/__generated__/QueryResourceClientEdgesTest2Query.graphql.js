@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<06eb0cadf810cdf0d226b13c9cfb6fbf>>
+ * @generated SignedSource<<d3208917135bbf976ff7cae2babf92ca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,9 +16,9 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type QueryResourceClientEdgesTestUser1Fragment$fragmentType = any;
-type QueryResourceClientEdgesTestUser2Fragment$fragmentType = any;
-type UserClientEdgeResolver$key = any;
+import type { QueryResourceClientEdgesTestUser1Fragment$fragmentType } from "./QueryResourceClientEdgesTestUser1Fragment.graphql";
+import type { QueryResourceClientEdgesTestUser2Fragment$fragmentType } from "./QueryResourceClientEdgesTestUser2Fragment.graphql";
+import type { UserClientEdgeResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserClientEdgeResolver.graphql";
 import userClientEdgeResolver from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.

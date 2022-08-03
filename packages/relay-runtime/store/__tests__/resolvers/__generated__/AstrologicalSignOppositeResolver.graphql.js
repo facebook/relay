@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9604665ea9acc877af307fdf4ba76763>>
+ * @generated SignedSource<<fdcf7f6737c500b487fb65f5869d2e03>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type AstrologicalSignSelfResolver$key = any;
+import type { AstrologicalSignSelfResolver$key } from "./AstrologicalSignSelfResolver.graphql";
 import type { FragmentType } from "relay-runtime";
 import astrologicalSignSelfResolver from "../AstrologicalSignSelfResolver.js";
 // Type assertion validating that `astrologicalSignSelfResolver` resolver is correctly implemented.

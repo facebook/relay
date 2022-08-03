@@ -31,10 +31,13 @@ use relay_codegen::JsModuleFormat;
 use relay_compiler::validate;
 use relay_compiler::ConfigFileProject;
 use relay_compiler::ProjectConfig;
+use relay_config::NonNodeIdFieldsConfig;
+use relay_config::SchemaConfig;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::apply_transforms;
 use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
+use std::collections::HashMap;
 use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
@@ -116,8 +119,21 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         name: "test".intern(),
         feature_flags: Arc::new(feature_flags),
         js_module_format: JsModuleFormat::Haste,
+        schema_config: SchemaConfig {
+            non_node_id_fields: Some(NonNodeIdFieldsConfig {
+                allowed_id_types: {
+                    let mut mappings = HashMap::new();
+
+                    mappings.insert("NonNode".intern(), "String".intern());
+
+                    mappings
+                },
+            }),
+            ..Default::default()
+        },
         ..Default::default()
     };
+
     // Adding %project_config section on top of the fixture will allow
     // us to validate output changes with different configurations
     let parts: Vec<_> = fixture.content.split("%project_config%").collect();

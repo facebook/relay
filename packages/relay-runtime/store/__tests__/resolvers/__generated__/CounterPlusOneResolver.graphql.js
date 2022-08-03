@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7ad400309c41e3aee611ea37816e75a0>>
+ * @generated SignedSource<<0d03025851537987f1269b604ea585b5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type LiveCounterResolver$key = any;
+import type { LiveCounterResolver$key } from "./LiveCounterResolver.graphql";
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { FragmentType } from "relay-runtime";
 import queryCounterResolver from "../LiveCounterResolver.js";

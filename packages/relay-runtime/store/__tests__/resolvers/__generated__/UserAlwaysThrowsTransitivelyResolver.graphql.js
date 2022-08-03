@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<46eb5b74f788ece3b774b4de513505cb>>
+ * @generated SignedSource<<778416a1e5169d952d06b7eb4038e11e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type UserAlwaysThrowsResolver$key = any;
+import type { UserAlwaysThrowsResolver$key } from "./UserAlwaysThrowsResolver.graphql";
 import type { FragmentType } from "relay-runtime";
 import userAlwaysThrowsResolver from "../UserAlwaysThrowsResolver.js";
 // Type assertion validating that `userAlwaysThrowsResolver` resolver is correctly implemented.

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c5d3a54848d76c5f7512f3829c391976>>
+ * @generated SignedSource<<02a4ec8890908787f687a83b917a18cd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType = any;
+import type { RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType } from "./RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment.graphql";
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables = {||};
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data = {|
   +me: ?{|

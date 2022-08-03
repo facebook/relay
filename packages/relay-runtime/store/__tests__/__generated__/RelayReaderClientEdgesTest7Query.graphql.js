@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<43ec772e59fa3ace88e7103704ae25d6>>
+ * @generated SignedSource<<8724c5b5f9541916f650cfd3e658d3f8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type UserNullClientEdgeResolver$key = any;
+import type { UserNullClientEdgeResolver$key } from "./../resolvers/__generated__/UserNullClientEdgeResolver.graphql";
 import userNullClientEdgeResolver from "../resolvers/UserNullClientEdgeResolver.js";
 // Type assertion validating that `userNullClientEdgeResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.

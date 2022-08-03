@@ -29,6 +29,7 @@ use std::usize;
 
 use crate::connection_interface::ConnectionInterface;
 use crate::module_import_config::ModuleImportConfig;
+use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
 use crate::JsModuleFormat;
 use crate::TypegenConfig;
 use crate::TypegenLanguage;
@@ -146,6 +147,9 @@ pub struct SchemaConfig {
     /// The name of the `id` field that exists on the `Node` interface.
     #[serde(default = "default_node_interface_id_field")]
     pub node_interface_id_field: StringKey,
+
+    #[serde(default)]
+    pub non_node_id_fields: Option<NonNodeIdFieldsConfig>,
 }
 
 fn default_node_interface_id_field() -> StringKey {
@@ -157,6 +161,7 @@ impl Default for SchemaConfig {
         Self {
             connection_interface: ConnectionInterface::default(),
             node_interface_id_field: default_node_interface_id_field(),
+            non_node_id_fields: None,
         }
     }
 }

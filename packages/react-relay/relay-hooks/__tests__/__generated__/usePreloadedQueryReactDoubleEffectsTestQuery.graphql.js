@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<125628cb1ae2b999bde9048130a2b99b>>
+ * @generated SignedSource<<23ac77279105b1ee6ed3c2ca2de9573d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType = any;
+import type { usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType } from "./usePreloadedQueryReactDoubleEffectsTestFragment.graphql";
 export type usePreloadedQueryReactDoubleEffectsTestQuery$variables = {|
   id?: ?string,
 |};

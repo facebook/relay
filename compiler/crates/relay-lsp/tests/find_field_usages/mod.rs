@@ -31,7 +31,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
             let result = find_field_usages::get_usages(
                 &program,
-                get_test_schema(),
+                &get_test_schema(),
                 type_name.intern(),
                 field_name.intern(),
             )

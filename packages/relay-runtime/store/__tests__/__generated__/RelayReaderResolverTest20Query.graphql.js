@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0a28645c1f6f234a9a808db554eef1d0>>
+ * @generated SignedSource<<5c026d75c1c5846e13da17268b425484>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type UserProfilePictureResolver$key = any;
+import type { UserProfilePictureResolver$key } from "./../resolvers/__generated__/UserProfilePictureResolver.graphql";
 import userUserProfilePictureUriWithScaleResolver from "../resolvers/UserProfilePictureResolver.js";
 // Type assertion validating that `userUserProfilePictureUriWithScaleResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.

@@ -10,7 +10,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 /// Configuration for @module.
-#[derive(Debug, Deserialize, Serialize, Default)]
+#[derive(Debug, Deserialize, Serialize, Default, Copy, Clone)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ModuleImportConfig {
     /// Defines the custom import statement to be generated on the

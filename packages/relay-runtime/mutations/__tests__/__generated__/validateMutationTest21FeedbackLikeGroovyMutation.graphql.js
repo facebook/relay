@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7e5369e97eaecab72b1d75161e3c9095>>
+ * @generated SignedSource<<475a4125eda7df7891b7ba9fe2f59f8f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-type validateMutationTestGroovyFragment_groovygroovy$fragmentType = any;
+import type { validateMutationTestGroovyFragment_groovygroovy$fragmentType } from "./validateMutationTestGroovyFragment_groovygroovy.graphql";
 export type FeedbackLikeInput = {|
   feedbackId?: ?string,
 |};

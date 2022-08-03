@@ -24,9 +24,9 @@ use relay_config::ProjectConfig;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::apply_transforms;
+use relay_typegen::FragmentLocations;
 use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
-use relay_typegen::{self};
 use std::sync::Arc;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
@@ -82,6 +82,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     )
     .unwrap();
 
+    let fragment_locations = FragmentLocations::new(programs.typegen.fragments());
     let mut operations: Vec<_> = programs.typegen.operations().collect();
     operations.sort_by_key(|op| op.name.item);
     let operation_strings = operations.into_iter().map(|typegen_operation| {
@@ -94,13 +95,19 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             normalization_operation,
             &schema,
             &project_config,
+            &fragment_locations,
         )
     });
 
     let mut fragments: Vec<_> = programs.typegen.fragments().collect();
     fragments.sort_by_key(|frag| frag.name.item);
     let fragment_strings = fragments.into_iter().map(|frag| {
-        relay_typegen::generate_fragment_type_exports_section(frag, &schema, &project_config)
+        relay_typegen::generate_fragment_type_exports_section(
+            frag,
+            &schema,
+            &project_config,
+            &fragment_locations,
+        )
     });
 
     let mut result: Vec<String> = operation_strings.collect();

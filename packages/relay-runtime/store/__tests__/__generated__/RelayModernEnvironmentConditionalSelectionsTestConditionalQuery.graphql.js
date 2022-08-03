@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f5619a89bba6e0b1e40500407567519e>>
+ * @generated SignedSource<<7736ddfae32eada7374b6b32bcecd47c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType = any;
+import type { RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment$fragmentType } from "./RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment.graphql";
 export type RelayModernEnvironmentConditionalSelectionsTestConditionalQuery$variables = {|
   condition: boolean,
 |};

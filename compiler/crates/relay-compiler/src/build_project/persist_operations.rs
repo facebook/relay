@@ -54,7 +54,9 @@ pub async fn persist_operations(
                     .as_ref()
                     .map(|gen_name| gen_name(project_config, reader_operation, &programs.reader))
                 {
-                    *id_and_text_hash = Some(QueryID::External(virtual_id_file_name));
+                    if text.is_some() {
+                        *id_and_text_hash = Some(QueryID::External(virtual_id_file_name));
+                    }
                     None
                 } else if let Some(text) = text {
                     let text_hash = md5(text);

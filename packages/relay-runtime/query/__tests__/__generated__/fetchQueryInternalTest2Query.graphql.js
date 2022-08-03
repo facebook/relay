@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8a95cc97a41cf0d805d29dda2b1b9ca6>>
+ * @generated SignedSource<<e4c7e0bd4a6bf6b3dbe607eb1336e63d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +18,8 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type fetchQueryInternalTestMarkdownFragment_name$fragmentType = any;
-type fetchQueryInternalTestPlainFragment_name$fragmentType = any;
+import type { fetchQueryInternalTestMarkdownFragment_name$fragmentType } from "./fetchQueryInternalTestMarkdownFragment_name.graphql";
+import type { fetchQueryInternalTestPlainFragment_name$fragmentType } from "./fetchQueryInternalTestPlainFragment_name.graphql";
 export type fetchQueryInternalTest2Query$variables = {|
   id: string,
 |};

@@ -860,6 +860,7 @@ impl SingleProjectConfigFile {
             },
             js_module_format: self.js_module_format,
             feature_flags: self.feature_flags,
+            module_import_config: self.module_import_config,
             ..Default::default()
         };
 

@@ -57,6 +57,7 @@ mod skip_null_arguments_transform;
 mod skip_redundant_nodes;
 mod skip_split_operation;
 mod skip_unreachable_node;
+mod skip_updatable_queries;
 mod sort_selections;
 mod test_operation_metadata;
 mod transform_connections;

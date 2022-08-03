@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<85f218b6ab6b0c46e35c6c26b2077158>>
+ * @generated SignedSource<<22a614e287cdbed6e0567ad0b36208dd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType = any;
+import type { MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType } from "./MultiActorEnvironmentExecuteMutationTestCommentFragment.graphql";
 export type MultiActorEnvironmentExecuteMutationTestCommentQuery$variables = {|
   id: string,
 |};

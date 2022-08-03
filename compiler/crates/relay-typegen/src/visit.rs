@@ -343,7 +343,7 @@ fn generate_resolver_type(
         typegen_context.project_config.typegen_config.language,
         TypegenLanguage::TypeScript
     ) {
-        // TODO: Add proper support for Resolver typegeneration in typescript
+        // TODO: Add proper support for Resolver type generation in typescript
         AST::Any
     } else if resolver_metadata.live {
         runtime_imports.import_relay_resolver_live_state_type = true;

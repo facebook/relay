@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<99e10e4f589ff001e7dfadcecd2bc668>>
+ * @generated SignedSource<<a3d19d0795b1f01277ebdcbdeb94f075>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +16,8 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type UserGreetingResolver$key = any;
-type UserProfilePictureResolver$key = any;
+import type { UserGreetingResolver$key } from "./UserGreetingResolver.graphql";
+import type { UserProfilePictureResolver$key } from "./UserProfilePictureResolver.graphql";
 import type { FragmentType } from "relay-runtime";
 import userGreetingResolver from "../UserGreetingResolver.js";
 // Type assertion validating that `userGreetingResolver` resolver is correctly implemented.

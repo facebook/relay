@@ -52,8 +52,8 @@ pub mod reexport {
     pub use common::NamedItem;
     pub use common::WithLocation;
     pub use fnv::FnvHasher;
+    pub use intern::string_key;
     pub use intern::string_key::Intern;
     pub use intern::string_key::StringKey;
-    pub use intern::string_key::{self};
     pub use once_cell::sync::Lazy;
 }

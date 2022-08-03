@@ -27,8 +27,8 @@ use log::info;
 use rayon::prelude::*;
 use std::sync::Arc;
 use tokio::sync::Notify;
+use tokio::task;
 use tokio::task::JoinHandle;
-use tokio::task::{self};
 
 pub struct Compiler<TPerfLogger>
 where

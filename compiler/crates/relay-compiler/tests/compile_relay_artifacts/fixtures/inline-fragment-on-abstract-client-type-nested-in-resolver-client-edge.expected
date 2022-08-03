@@ -1,0 +1,179 @@
+==================================== INPUT ====================================
+fragment inlineFragmentOnAbstractClientTypeNestedInResolverClientEdge_some_resolver on Query {
+  me {
+    __typename
+  }
+}
+
+query inlineFragmentOnAbstractClientTypeNestedInResolverClientEdgeQuery {
+  some_resolver {
+    # This client-defined inteface should cause us to attach metadata to the query
+    ... on SomeInterface {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+interface SomeInterface {
+  name: String
+}
+
+type ClientUser implements SomeInterface {
+  name: String
+}
+
+extend type Query {
+  some_resolver: ClientUser
+    @relay_resolver(
+      fragment_name: "inlineFragmentOnAbstractClientTypeNestedInResolverClientEdge_some_resolver"
+      import_path: "./foo/bar/baz/BestFriendResolver.js"
+    )
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": {
+      "hasClientEdges": true
+    },
+    "name": "inlineFragmentOnAbstractClientTypeNestedInResolverClientEdgeQuery",
+    "selections": [
+      {
+        "kind": "ClientEdgeToClientObject",
+        "concreteType": "ClientUser",
+        "backingField": {
+          "alias": null,
+          "args": null,
+          "fragment": {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "inlineFragmentOnAbstractClientTypeNestedInResolverClientEdge_some_resolver"
+          },
+          "kind": "RelayResolver",
+          "name": "some_resolver",
+          "resolverModule": require('BestFriendResolver'),
+          "path": "some_resolver"
+        },
+        "linkedField": {
+          "alias": null,
+          "args": null,
+          "concreteType": "ClientUser",
+          "kind": "LinkedField",
+          "name": "some_resolver",
+          "plural": false,
+          "selections": [
+            {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "type": "SomeInterface",
+              "abstractKey": "__isSomeInterface"
+            }
+          ],
+          "storageKey": null
+        }
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "inlineFragmentOnAbstractClientTypeNestedInResolverClientEdgeQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "clientAbstractTypes": {
+      "__isSomeInterface": [
+        "ClientUser"
+      ]
+    }
+  },
+  "params": {
+    "cacheID": "b9ca6c4f10926d6635698f10760d4789",
+    "id": null,
+    "metadata": {},
+    "name": "inlineFragmentOnAbstractClientTypeNestedInResolverClientEdgeQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query inlineFragmentOnAbstractClientTypeNestedInResolverClientEdgeQuery {
+  ...inlineFragmentOnAbstractClientTypeNestedInResolverClientEdge_some_resolver
+}
+
+fragment inlineFragmentOnAbstractClientTypeNestedInResolverClientEdge_some_resolver on Query {
+  me {
+    __typename
+    id
+  }
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "inlineFragmentOnAbstractClientTypeNestedInResolverClientEdge_some_resolver",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "__typename",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "Query",
+  "abstractKey": null
+}

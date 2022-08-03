@@ -6,9 +6,9 @@
  */
 
 use crate::idhasher::BuildIdHasher;
+use crate::string;
 use crate::string::IntoUtf8Bytes;
 use crate::string::StringId;
-use crate::string::{self};
 use indexmap::IndexMap;
 use serde::Deserialize;
 use serde::Deserializer;
@@ -16,8 +16,8 @@ use serde::Serialize;
 use serde::Serializer;
 use std::collections::HashMap;
 use std::collections::HashSet;
+use std::fmt;
 use std::fmt::Formatter;
-use std::fmt::{self};
 use std::str::FromStr;
 
 // StringKey is a small impedence matcher around StringId.

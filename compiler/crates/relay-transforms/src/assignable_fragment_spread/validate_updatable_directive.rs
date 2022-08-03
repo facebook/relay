@@ -354,13 +354,12 @@ impl<'a> Validator for UpdatableDirective<'a> {
         )
     }
 
-    fn validate_condition(&mut self, _condition: &Condition) -> DiagnosticsResult<()> {
+    fn validate_condition(&mut self, condition: &Condition) -> DiagnosticsResult<()> {
         Err(vec![Diagnostic::error(
             ValidationMessage::UpdatableNoConditions {
                 outer_type_plural: self.executable_definition_info.unwrap().type_plural,
-                operation_or_fragment_name: self.executable_definition_info.unwrap().name,
             },
-            self.executable_definition_info.unwrap().location,
+            condition.location,
         )])
     }
 }

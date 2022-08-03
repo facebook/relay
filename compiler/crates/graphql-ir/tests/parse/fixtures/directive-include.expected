@@ -63,6 +63,7 @@ fragment Foo on User {
                         },
                     ),
                     passing_value: true,
+                    location: directive-include.graphql:37:45,
                 },
                 Condition {
                     selections: [
@@ -99,6 +100,7 @@ fragment Foo on User {
                         },
                     ),
                     passing_value: true,
+                    location: directive-include.graphql:71:79,
                 },
                 Condition {
                     selections: [
@@ -125,6 +127,7 @@ fragment Foo on User {
                         },
                     ),
                     passing_value: true,
+                    location: directive-include.graphql:120:128,
                 },
             ],
         },

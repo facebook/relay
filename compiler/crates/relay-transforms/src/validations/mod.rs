@@ -7,6 +7,7 @@
 
 mod deprecated_fields;
 mod disallow_circular_no_inline_fragments;
+mod disallow_non_node_id_fields;
 mod disallow_reserved_aliases;
 mod disallow_typename_on_root;
 mod validate_connections;
@@ -26,6 +27,7 @@ mod validate_unused_variables;
 pub use deprecated_fields::deprecated_fields;
 pub use deprecated_fields::deprecated_fields_for_executable_definition;
 pub use disallow_circular_no_inline_fragments::disallow_circular_no_inline_fragments;
+pub use disallow_non_node_id_fields::disallow_non_node_id_fields;
 pub use disallow_reserved_aliases::disallow_reserved_aliases;
 pub use disallow_typename_on_root::disallow_typename_on_root;
 pub use validate_connections::validate_connections;

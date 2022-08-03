@@ -68,7 +68,7 @@ impl<'program> RelayDirectiveValidation<'program> {
         {
             errs.push(
                 Diagnostic::error(
-                    ValidationMessage::InvalidUnmaskOnFragmentWithDirectives(),
+                    ValidationMessage::InvalidUnmaskOnFragmentWithDirectives,
                     spread.fragment.location,
                 )
                 .annotate("related location", fragment.name.location),
@@ -93,7 +93,7 @@ impl<'program> RelayDirectiveValidation<'program> {
                 match prev_arg {
                     ArgumentDefinition::Local(prev_arg) => errs.push(
                         Diagnostic::error(
-                            ValidationMessage::InvalidUnmaskOnLocalAndGloablVariablesWithSameName(),
+                            ValidationMessage::InvalidUnmaskOnLocalAndGloablVariablesWithSameName,
                             prev_arg.name.location,
                         )
                         .annotate("related location", arg.name.location),

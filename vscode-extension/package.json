@@ -1,7 +1,7 @@
 {
   "name": "relay",
   "displayName": "Relay GraphQL",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Relay-powered IDE experience",
   "repository": {
     "type": "git",
@@ -22,42 +22,10 @@
     "onLanguage:typescript",
     "onLanguage:typescriptreact"
   ],
+  "extensionDependencies": [
+    "GraphQL.vscode-graphql-syntax"
+  ],
   "contributes": {
-    "languages": [
-      {
-        "id": "graphql",
-        "extensions": [
-          ".gql",
-          ".graphql",
-          ".graphqls"
-        ],
-        "aliases": [
-          "GraphQL",
-          "graphql"
-        ],
-        "configuration": "./language/language-configuration.json"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "graphql",
-        "path": "./grammars/graphql.json",
-        "scopeName": "source.graphql"
-      },
-      {
-        "injectTo": [
-          "source.js",
-          "source.ts",
-          "source.js.jsx",
-          "source.tsx"
-        ],
-        "scopeName": "inline.graphql",
-        "path": "./grammars/graphql.js.json",
-        "embeddedLanguages": {
-          "meta.embedded.block.graphql": "graphql"
-        }
-      }
-    ],
     "commands": [
       {
         "command": "relay.restart",
@@ -151,7 +119,7 @@
     "build-local": "vsce package"
   },
   "engines": {
-    "vscode": "^1.65.0"
+    "vscode": "^1.60.0"
   },
   "dependencies": {
     "semver": "^7.3.7",

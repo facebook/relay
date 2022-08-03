@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d9793a276d69ae4fa661d075b850d9cf>>
+ * @generated SignedSource<<9f23d9add332cd32abc9f9ca5ced6e25>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,9 +16,9 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType = any;
-type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType = any;
-type RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$fragmentType = any;
+import type { RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1$fragmentType } from "./RelayModernEnvironmentExecuteWithProvidedVariableTest_profile1.graphql";
+import type { RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2$fragmentType } from "./RelayModernEnvironmentExecuteWithProvidedVariableTest_profile2.graphql";
+import type { RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3$fragmentType } from "./RelayModernEnvironmentExecuteWithProvidedVariableTest_profile3.graphql";
 export type RelayModernEnvironmentExecuteWithProvidedVariableTest_UserArgManyFragmentsQuery$variables = {|
   id: string,
 |};

@@ -42,6 +42,7 @@ use indexmap::IndexSet;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
+use relay_config::ModuleImportConfig;
 use schema::FieldID;
 use schema::ScalarID;
 use schema::Schema;
@@ -55,8 +56,9 @@ use std::sync::Arc;
 pub fn transform_match(
     program: &Program,
     feature_flags: &FeatureFlags,
+    module_import_config: ModuleImportConfig,
 ) -> DiagnosticsResult<Program> {
-    let mut transformer = MatchTransform::new(program, feature_flags);
+    let mut transformer = MatchTransform::new(program, feature_flags, module_import_config);
     let next_program = transformer.transform_program(program);
     if transformer.errors.is_empty() {
         Ok(next_program.replace_or_else(|| program.clone()))
@@ -103,10 +105,15 @@ pub struct MatchTransform<'program, 'flag> {
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
     no_inline_fragments: StringKeyMap<Vec<StringKey>>,
+    module_import_config: ModuleImportConfig,
 }
 
 impl<'program, 'flag> MatchTransform<'program, 'flag> {
-    fn new(program: &'program Program, feature_flags: &'flag FeatureFlags) -> Self {
+    fn new(
+        program: &'program Program,
+        feature_flags: &'flag FeatureFlags,
+        module_import_config: ModuleImportConfig,
+    ) -> Self {
         Self {
             program,
             // Placeholders to make the types non-optional,
@@ -119,6 +126,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             enable_3d_branch_arg_generation: feature_flags.enable_3d_branch_arg_generation,
             no_inline_flag: &feature_flags.no_inline,
             no_inline_fragments: Default::default(),
+            module_import_config,
         }
     }
 
@@ -308,7 +316,10 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 ));
             }
 
-            self.validate_js_module_type(spread.fragment.location)?;
+            let needs_js_fields = self.module_import_config.dynamic_module_provider.is_none();
+            if needs_js_fields {
+                self.validate_js_module_type(spread.fragment.location)?;
+            }
 
             let fragment = self.program.fragment(spread.fragment.item).unwrap();
 
@@ -326,8 +337,6 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
             let module_directive_name_argument =
                 get_module_directive_name_argument(module_directive, spread.fragment.location)?;
-            let (js_field_id, has_js_field_id_arg, has_js_field_branch_arg) =
-                self.get_js_field_args(fragment, spread)?;
 
             let parent_name = self.path.last();
             // self.match_directive_key_argument is the value passed to @match(key: "...") that we
@@ -426,19 +435,6 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             }
 
             // Done validating. Build out the resulting fragment spread.
-            let mut component_field_arguments = vec![build_string_literal_argument(
-                MATCH_CONSTANTS.js_field_module_arg,
-                module_directive_name_argument,
-                module_directive.name.location,
-            )];
-
-            let mut normalization_name = get_normalization_operation_name(spread.fragment.item);
-            normalization_name.push_str(".graphql");
-            let mut operation_field_arguments = vec![build_string_literal_argument(
-                MATCH_CONSTANTS.js_field_module_arg,
-                normalization_name.intern(),
-                module_directive.name.location,
-            )];
 
             let module_id = if self.path.is_empty() {
                 self.document_name
@@ -451,49 +447,6 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 }
                 str.intern()
             };
-
-            if has_js_field_id_arg {
-                let id_arg = build_string_literal_argument(
-                    MATCH_CONSTANTS.js_field_id_arg,
-                    module_id,
-                    module_directive.name.location,
-                );
-                component_field_arguments.push(id_arg.clone());
-                operation_field_arguments.push(id_arg);
-            }
-
-            if has_js_field_branch_arg && self.enable_3d_branch_arg_generation {
-                let branch_arg = build_string_literal_argument(
-                    MATCH_CONSTANTS.js_field_branch_arg,
-                    self.program
-                        .schema
-                        .as_ref()
-                        .get_type_name(fragment.type_condition),
-                    module_directive.name.location,
-                );
-                component_field_arguments.push(branch_arg.clone());
-                operation_field_arguments.push(branch_arg);
-            }
-
-            let component_field = Selection::ScalarField(Arc::new(ScalarField {
-                alias: Some(WithLocation::new(
-                    module_directive.name.location,
-                    format!("__module_component_{}", match_directive_key_argument).intern(),
-                )),
-                definition: WithLocation::new(module_directive.name.location, js_field_id),
-                arguments: component_field_arguments,
-                directives: Default::default(),
-            }));
-
-            let operation_field = Selection::ScalarField(Arc::new(ScalarField {
-                alias: Some(WithLocation::new(
-                    module_directive.name.location,
-                    format!("__module_operation_{}", match_directive_key_argument).intern(),
-                )),
-                definition: WithLocation::new(module_directive.name.location, js_field_id),
-                arguments: operation_field_arguments,
-                directives: Default::default(),
-            }));
 
             let next_spread = Selection::FragmentSpread(Arc::new(FragmentSpread {
                 directives: spread
@@ -513,6 +466,21 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                     .or_insert_with(std::vec::Vec::new)
                     .push(self.document_name);
             }
+
+            let mut next_selections = vec![next_spread];
+            if needs_js_fields {
+                let (operation_field, component_field) = self.generate_js_fields(
+                    match_directive_key_argument,
+                    module_id,
+                    module_directive_name_argument,
+                    module_directive,
+                    fragment,
+                    spread,
+                )?;
+                next_selections.push(operation_field);
+                next_selections.push(component_field);
+            }
+
             Ok(Transformed::Replace(Selection::InlineFragment(Arc::new(
                 InlineFragment {
                     type_condition: Some(fragment.type_condition),
@@ -531,7 +499,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                             }
                             .into(),
                         ],
-                        selections: vec![next_spread, operation_field, component_field],
+                        selections: next_selections,
                         spread_location: Location::generated(),
                     }))],
                     spread_location: Location::generated(),
@@ -540,6 +508,77 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         } else {
             Ok(Transformed::Keep)
         }
+    }
+
+    fn generate_js_fields(
+        &self,
+        match_directive_key_argument: StringKey,
+        module_id: StringKey,
+        module_directive_name_argument: StringKey,
+        module_directive: &Directive,
+        fragment: &FragmentDefinition,
+        spread: &FragmentSpread,
+    ) -> Result<(Selection, Selection), Diagnostic> {
+        let (js_field_id, has_js_field_id_arg, has_js_field_branch_arg) =
+            self.get_js_field_args(fragment, spread)?;
+
+        let mut component_field_arguments = vec![build_string_literal_argument(
+            MATCH_CONSTANTS.js_field_module_arg,
+            module_directive_name_argument,
+            module_directive.name.location,
+        )];
+
+        let mut normalization_name = get_normalization_operation_name(spread.fragment.item);
+        normalization_name.push_str(".graphql");
+        let mut operation_field_arguments = vec![build_string_literal_argument(
+            MATCH_CONSTANTS.js_field_module_arg,
+            normalization_name.intern(),
+            module_directive.name.location,
+        )];
+
+        if has_js_field_id_arg {
+            let id_arg = build_string_literal_argument(
+                MATCH_CONSTANTS.js_field_id_arg,
+                module_id,
+                module_directive.name.location,
+            );
+            component_field_arguments.push(id_arg.clone());
+            operation_field_arguments.push(id_arg);
+        }
+
+        if has_js_field_branch_arg && self.enable_3d_branch_arg_generation {
+            let branch_arg = build_string_literal_argument(
+                MATCH_CONSTANTS.js_field_branch_arg,
+                self.program
+                    .schema
+                    .as_ref()
+                    .get_type_name(fragment.type_condition),
+                module_directive.name.location,
+            );
+            component_field_arguments.push(branch_arg.clone());
+            operation_field_arguments.push(branch_arg);
+        }
+
+        let component_field = Selection::ScalarField(Arc::new(ScalarField {
+            alias: Some(WithLocation::new(
+                module_directive.name.location,
+                format!("__module_component_{}", match_directive_key_argument).intern(),
+            )),
+            definition: WithLocation::new(module_directive.name.location, js_field_id),
+            arguments: component_field_arguments,
+            directives: Default::default(),
+        }));
+
+        let operation_field = Selection::ScalarField(Arc::new(ScalarField {
+            alias: Some(WithLocation::new(
+                module_directive.name.location,
+                format!("__module_operation_{}", match_directive_key_argument).intern(),
+            )),
+            definition: WithLocation::new(module_directive.name.location, js_field_id),
+            arguments: operation_field_arguments,
+            directives: Default::default(),
+        }));
+        Ok((operation_field, component_field))
     }
 
     fn validate_transform_linked_field_with_match_directive(

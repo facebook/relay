@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<98946b188ace4f17813772b3020839cc>>
+ * @generated SignedSource<<7b9fd25e609a5aa33b9388dd8950bfed>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +18,8 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType = any;
-type DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType = any;
+import type { DataCheckerTestMarkdownUserNameRenderer_nameFragment$fragmentType } from "./DataCheckerTestMarkdownUserNameRenderer_nameFragment.graphql";
+import type { DataCheckerTestPlainUserNameRenderer_nameFragment$fragmentType } from "./DataCheckerTestPlainUserNameRenderer_nameFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type DataCheckerTest4Fragment$fragmentType: FragmentType;
 export type DataCheckerTest4Fragment$data = {|

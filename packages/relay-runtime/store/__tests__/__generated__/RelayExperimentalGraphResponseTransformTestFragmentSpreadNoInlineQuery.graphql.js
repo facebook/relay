@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<00d3e918afded99223a2d137a2510fb3>>
+ * @generated SignedSource<<6fc478aa4dfea45122e44bbbe757b211>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType = any;
+import type { RelayExperimentalGraphResponseTransformTest_no_inline_user_name$fragmentType } from "./RelayExperimentalGraphResponseTransformTest_no_inline_user_name.graphql";
 export type RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$variables = {||};
 export type RelayExperimentalGraphResponseTransformTestFragmentSpreadNoInlineQuery$data = {|
   +node: ?{|

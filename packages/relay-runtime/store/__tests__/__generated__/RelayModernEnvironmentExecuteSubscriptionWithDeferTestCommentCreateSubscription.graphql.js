@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5ff87b01640a86812841cfc34ecc3af3>>
+ * @generated SignedSource<<590ee8832f3a079e3c18df4d2444c392>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
-type RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType = any;
+import type { RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment$fragmentType } from "./RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment.graphql";
 export type CommentCreateSubscriptionInput = {|
   feedbackId?: ?string,
   text?: ?string,

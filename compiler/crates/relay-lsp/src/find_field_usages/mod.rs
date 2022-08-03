@@ -81,7 +81,7 @@ pub fn on_find_field_usages(
     let program = state.get_program(&schema_name)?;
     let root_dir = &state.root_dir();
 
-    let ir_locations = get_usages(&program, schema, type_name, field_name)?;
+    let ir_locations = get_usages(&program, &schema, type_name, field_name)?;
     let lsp_locations = ir_locations
         .into_iter()
         .map(|(label, ir_location)| {
@@ -100,7 +100,7 @@ pub fn on_find_field_usages(
 
 pub fn get_usages(
     program: &Program,
-    schema: Arc<SDLSchema>,
+    schema: &Arc<SDLSchema>,
     type_name: StringKey,
     field_name: StringKey,
 ) -> LSPRuntimeResult<Vec<(String, IRLocation)>> {
@@ -134,20 +134,20 @@ struct FieldUsageFinderScope {
     label: Option<StringKey>,
 }
 
-pub(crate) struct FieldUsageFinder {
+pub(crate) struct FieldUsageFinder<'schema> {
     usages: HashMap<StringKey, Vec<IRLocation>>,
-    schema: Arc<SDLSchema>,
+    schema: &'schema Arc<SDLSchema>,
     type_: Type,
     field_name: StringKey,
     current_scope: FieldUsageFinderScope,
 }
 
-impl FieldUsageFinder {
+impl<'schema> FieldUsageFinder<'schema> {
     pub(crate) fn new(
-        schema: Arc<SDLSchema>,
+        schema: &'schema Arc<SDLSchema>,
         type_: Type,
         field_name: StringKey,
-    ) -> FieldUsageFinder {
+    ) -> FieldUsageFinder<'schema> {
         FieldUsageFinder {
             usages: Default::default(),
             schema,
@@ -196,7 +196,7 @@ impl FieldUsageFinder {
     }
 }
 
-impl Visitor for FieldUsageFinder {
+impl Visitor for FieldUsageFinder<'_> {
     const NAME: &'static str = "FieldUsageFinder";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;

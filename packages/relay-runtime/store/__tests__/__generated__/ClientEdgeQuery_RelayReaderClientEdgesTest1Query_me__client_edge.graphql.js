@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<50749e2bfd33735b6b7a6e8be68a9a6a>>
+ * @generated SignedSource<<63bf26c710278ae18f8524b204585080>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RefetchableClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge$fragmentType = any;
+import type { RefetchableClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge$fragmentType } from "./RefetchableClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge.graphql";
 export type ClientEdgeQuery_RelayReaderClientEdgesTest1Query_me__client_edge$variables = {|
   id: string,
 |};

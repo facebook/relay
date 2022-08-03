@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9be3ee00356ab61098f45bf192bf41f6>>
+ * @generated SignedSource<<6a151c2f4da12ad44e3d44c157a83cd1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,10 +16,10 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$fragmentType = any;
-type RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$fragmentType = any;
-type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType = any;
-type RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType = any;
+import type { RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestAbstractActorFragment.graphql";
+import type { RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment.graphql";
+import type { RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment.graphql";
+import type { RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestConcreteUserFragment.graphql";
 export type RelayModernEnvironmentTypeRefinementTestParentQuery$variables = {||};
 export type RelayModernEnvironmentTypeRefinementTestParentQuery$data = {|
   +userOrPage: ?{|

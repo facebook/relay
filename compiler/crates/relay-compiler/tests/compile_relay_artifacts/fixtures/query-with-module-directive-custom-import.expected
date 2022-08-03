@@ -233,8 +233,6 @@ fragment queryWithModuleDirectiveCustomImport_NameRendererFragment on User {
     __typename
     ... on MarkdownUserNameRenderer {
       ...queryWithModuleDirectiveCustomImport_MarkdownUserNameRenderer_name
-      __module_operation_queryWithModuleDirectiveCustomImport_NameRendererFragment: js(module: "queryWithModuleDirectiveCustomImport_MarkdownUserNameRenderer_name$normalization.graphql", id: "queryWithModuleDirectiveCustomImport_NameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
-      __module_component_queryWithModuleDirectiveCustomImport_NameRendererFragment: js(module: "MarkdownUserNameRenderer.react", id: "queryWithModuleDirectiveCustomImport_NameRendererFragment.nameRenderer", branch: "MarkdownUserNameRenderer")
     }
   }
 }

@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use crate::atomic_arena;
 use crate::atomic_arena::AtomicArena;
-use crate::atomic_arena::{self};
 use crate::idhasher::BuildIdHasher;
 use crate::sharded_set::ShardedSet;
 use once_cell::sync::OnceCell;
@@ -17,8 +17,8 @@ use serde::Serializer;
 use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::fmt;
 use std::fmt::Debug;
-use std::fmt::{self};
 use std::hash::Hash;
 use std::hash::Hasher;
 use std::num::NonZeroU32;

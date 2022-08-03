@@ -43,7 +43,7 @@ impl<'program> DisallowTypenameOnRoot<'program> {
         });
         if let Some(typename_selection) = typename_selection {
             Err(vec![Diagnostic::error(
-                ValidationMessage::DisallowTypenameOnRoot(),
+                ValidationMessage::DisallowTypenameOnRoot,
                 typename_selection.definition.location,
             )])
         } else {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c4bb917d5aa5b8e29df1277d14544fc4>>
+ * @generated SignedSource<<1aa3d35985c67e2f03b4dc2844f8fb70>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type useLazyLoadQueryREACTCACHETest1Fragment$fragmentType = any;
+import type { useLazyLoadQueryREACTCACHETest1Fragment$fragmentType } from "./useLazyLoadQueryREACTCACHETest1Fragment.graphql";
 export type useLazyLoadQueryREACTCACHETest1Query$variables = {|
   id: string,
 |};

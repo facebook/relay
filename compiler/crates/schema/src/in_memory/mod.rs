@@ -346,6 +346,10 @@ impl InMemorySchema {
         self.objects.iter()
     }
 
+    pub fn get_unions(&self) -> impl Iterator<Item = &Union> {
+        self.unions.iter()
+    }
+
     pub fn has_directive(&self, directive_name: StringKey) -> bool {
         self.directives.contains_key(&directive_name)
     }

@@ -366,6 +366,13 @@ impl SDLSchema {
         }
     }
 
+    pub fn get_unions(&self) -> impl Iterator<Item = &Union> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::InMemory(schema) => schema.get_unions(),
+        }
+    }
+
     pub fn has_directive(&self, directive_name: StringKey) -> bool {
         match self {
             SDLSchema::FlatBuffer(_schema) => todo!(),

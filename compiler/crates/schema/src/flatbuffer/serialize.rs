@@ -8,6 +8,17 @@
 #![deny(warnings)]
 #![deny(clippy::all)]
 
+use std::collections::BTreeMap;
+
+use flatbuffers::FlatBufferBuilder;
+use flatbuffers::WIPOffset;
+use fnv::FnvHashMap;
+use graphql_syntax::ConstantArgument;
+use graphql_syntax::ConstantValue;
+use graphql_syntax::DirectiveLocation;
+use graphql_syntax::List;
+use intern::string_key::StringKey;
+
 use crate::in_memory::InMemorySchema;
 use crate::Argument;
 use crate::ArgumentDefinitions;
@@ -25,15 +36,6 @@ use crate::Schema;
 use crate::Type;
 use crate::TypeReference;
 use crate::UnionID;
-use flatbuffers::FlatBufferBuilder;
-use flatbuffers::WIPOffset;
-use fnv::FnvHashMap;
-use graphql_syntax::ConstantArgument;
-use graphql_syntax::ConstantValue;
-use graphql_syntax::DirectiveLocation;
-use graphql_syntax::List;
-use intern::string_key::StringKey;
-use std::collections::BTreeMap;
 
 pub fn serialize_as_flatbuffer(schema: &InMemorySchema) -> Vec<u8> {
     let mut serializer = Serializer::new(schema);

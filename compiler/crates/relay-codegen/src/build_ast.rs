@@ -5,16 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::Ast;
-use crate::ast::AstBuilder;
-use crate::ast::AstKey;
-use crate::ast::ObjectEntry;
-use crate::ast::Primitive;
-use crate::ast::QueryID;
-use crate::ast::RequestParameters;
-use crate::constants::CODEGEN_CONSTANTS;
-use crate::object;
-use crate::top_level_statements::TopLevelStatements;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Argument;
@@ -71,6 +61,17 @@ use relay_transforms::RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME;
 use relay_transforms::TYPE_DISCRIMINATOR_DIRECTIVE_NAME;
 use schema::SDLSchema;
 use schema::Schema;
+
+use crate::ast::Ast;
+use crate::ast::AstBuilder;
+use crate::ast::AstKey;
+use crate::ast::ObjectEntry;
+use crate::ast::Primitive;
+use crate::ast::QueryID;
+use crate::ast::RequestParameters;
+use crate::constants::CODEGEN_CONSTANTS;
+use crate::object;
+use crate::top_level_statements::TopLevelStatements;
 
 pub fn build_request_params_ast_key(
     schema: &SDLSchema,

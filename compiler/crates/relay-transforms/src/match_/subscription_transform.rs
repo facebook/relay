@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::match_::MATCH_CONSTANTS;
-use crate::util::get_normalization_operation_name;
-use crate::ModuleMetadata;
+use std::sync::Arc;
+
 use common::DiagnosticsResult;
 use common::Location;
 use common::WithLocation;
@@ -31,7 +30,10 @@ use schema::FieldID;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
-use std::sync::Arc;
+
+use crate::match_::MATCH_CONSTANTS;
+use crate::util::get_normalization_operation_name;
+use crate::ModuleMetadata;
 
 pub fn transform_subscriptions(program: &Program) -> DiagnosticsResult<Program> {
     let mut transformer = SubscriptionTransform::new(program);

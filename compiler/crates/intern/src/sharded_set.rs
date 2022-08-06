@@ -5,15 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use hashbrown::raw::RawTable;
-use parking_lot::RwLock;
-use parking_lot::RwLockWriteGuard;
 use std::borrow::Borrow;
 use std::collections::hash_map::RandomState;
 use std::fmt;
 use std::hash::BuildHasher;
 use std::hash::Hash;
 use std::hash::Hasher;
+
+use hashbrown::raw::RawTable;
+use parking_lot::RwLock;
+use parking_lot::RwLockWriteGuard;
 
 const SHARD_SHIFT: usize = 6;
 const SHARDS: usize = 1 << SHARD_SHIFT;

@@ -6,15 +6,17 @@
  */
 
 //! Utilities for reporting errors to an LSP client
-use crate::diagnostic_reporter::DiagnosticReporter;
-use crate::status_updater::set_error_status;
-use crate::status_updater::set_ready_status;
-use crate::status_updater::update_in_progress_status;
+use std::path::PathBuf;
+
 use crossbeam::channel::Sender;
 use lsp_server::Message;
 use relay_compiler::errors::Error;
 use relay_compiler::status_reporter::StatusReporter;
-use std::path::PathBuf;
+
+use crate::diagnostic_reporter::DiagnosticReporter;
+use crate::status_updater::set_error_status;
+use crate::status_updater::set_ready_status;
+use crate::status_updater::update_in_progress_status;
 
 pub struct LSPStatusReporter {
     diagnostic_reporter: DiagnosticReporter,

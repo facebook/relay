@@ -5,6 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
+use std::mem;
+use std::sync::Arc;
+
 use graphql_ir::associated_data_impl;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
@@ -19,10 +24,6 @@ use intern::string_key::StringKeySet;
 use schema::ObjectID;
 use schema::Schema;
 use schema::Type;
-use std::collections::hash_map::Entry;
-use std::collections::HashMap;
-use std::mem;
-use std::sync::Arc;
 
 use crate::generate_abstract_type_refinement_key;
 

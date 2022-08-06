@@ -13,14 +13,9 @@ mod utils;
 mod validation_message;
 mod viewer_query_generator;
 
-use crate::connections::extract_connection_metadata_from_directive;
-use crate::connections::ConnectionConstants;
-use crate::relay_directive::PLURAL_ARG_NAME;
-use crate::relay_directive::RELAY_DIRECTIVE_NAME;
-use crate::root_variables::InferVariablesVisitor;
-use crate::root_variables::VariableMap;
+use std::fmt::Write;
+use std::sync::Arc;
 
-use self::validation_message::ValidationMessage;
 use ::errors::validate_map;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -42,8 +37,6 @@ use query_query_generator::QUERY_QUERY_GENERATOR;
 use relay_config::SchemaConfig;
 use schema::SDLSchema;
 use schema::Schema;
-use std::fmt::Write;
-use std::sync::Arc;
 pub use utils::RefetchableDerivedFromMetadata;
 pub use utils::RefetchableMetadata;
 pub use utils::CONSTANTS;
@@ -52,6 +45,13 @@ use viewer_query_generator::VIEWER_QUERY_GENERATOR;
 
 use self::refetchable_directive::RefetchableDirective;
 pub use self::refetchable_directive::REFETCHABLE_NAME;
+use self::validation_message::ValidationMessage;
+use crate::connections::extract_connection_metadata_from_directive;
+use crate::connections::ConnectionConstants;
+use crate::relay_directive::PLURAL_ARG_NAME;
+use crate::relay_directive::RELAY_DIRECTIVE_NAME;
+use crate::root_variables::InferVariablesVisitor;
+use crate::root_variables::VariableMap;
 
 /// This transform synthesizes "refetch" queries for fragments that
 /// are trivially refetchable. This is comprised of three main stages:

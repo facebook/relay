@@ -5,10 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::relay_directive::MASK_ARG_NAME;
-use crate::relay_directive::PLURAL_ARG_NAME;
-use crate::relay_directive::RELAY_DIRECTIVE_NAME;
-use crate::should_generate_hack_preloader;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -25,6 +21,11 @@ use graphql_ir::Value;
 use graphql_ir::VariableDefinition;
 use intern::string_key::StringKeyMap;
 use schema::Schema;
+
+use crate::relay_directive::MASK_ARG_NAME;
+use crate::relay_directive::PLURAL_ARG_NAME;
+use crate::relay_directive::RELAY_DIRECTIVE_NAME;
+use crate::should_generate_hack_preloader;
 
 pub fn validate_relay_directives(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = RelayDirectiveValidation::new(program);

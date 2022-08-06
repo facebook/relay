@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use parking_lot::Mutex;
 use std::cell::UnsafeCell;
 use std::fmt;
 use std::fmt::Debug;
@@ -19,6 +18,8 @@ use std::ptr::NonNull;
 use std::sync::atomic::AtomicPtr;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering;
+
+use parking_lot::Mutex;
 
 const MIN_SHIFT: u32 = 7;
 const U32_BITS: usize = 32;
@@ -661,13 +662,15 @@ impl<T> AtomicArena<'static, T> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use std::sync::Arc;
+    use std::thread;
+
     use parking_lot::Condvar;
     use parking_lot::Mutex;
     use rand::thread_rng;
     use rand::Rng;
-    use std::sync::Arc;
-    use std::thread;
+
+    use super::*;
 
     static mut ZERO: Zero<&str> = Zero::new("zero");
     static STRING_ARENA: AtomicArena<'static, &str> = AtomicArena::with_zero(unsafe { &ZERO });

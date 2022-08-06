@@ -8,8 +8,8 @@
 mod content;
 mod content_section;
 
-use crate::config::Config;
-use crate::config::ProjectConfig;
+use std::sync::Arc;
+
 use common::SourceLocationKey;
 use content::generate_fragment;
 use content::generate_operation;
@@ -21,7 +21,9 @@ use relay_codegen::Printer;
 use relay_codegen::QueryID;
 use relay_typegen::FragmentLocations;
 use schema::SDLSchema;
-use std::sync::Arc;
+
+use crate::config::Config;
+use crate::config::ProjectConfig;
 
 #[derive(Clone)]
 pub enum ArtifactContent {

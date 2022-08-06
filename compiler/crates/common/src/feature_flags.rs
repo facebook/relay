@@ -5,14 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::Rollout;
+use std::fmt::Display;
+use std::fmt::Formatter;
+use std::fmt::Result as FmtResult;
+
 use indexmap::IndexSet;
 use intern::string_key::StringKey;
 use serde::Deserialize;
 use serde::Serialize;
-use std::fmt::Display;
-use std::fmt::Formatter;
-use std::fmt::Result as FmtResult;
+
+use crate::Rollout;
 
 #[derive(Default, Debug, Serialize, Deserialize, Clone)]
 #[serde(deny_unknown_fields)]

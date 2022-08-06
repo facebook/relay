@@ -7,9 +7,9 @@
 
 mod directives;
 
-use super::get_applied_fragment_name;
-use crate::util::remove_directive;
-use crate::util::replace_directive;
+use std::collections::HashMap;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -36,9 +36,11 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
-use std::collections::HashMap;
-use std::sync::Arc;
 use thiserror::Error;
+
+use super::get_applied_fragment_name;
+use crate::util::remove_directive;
+use crate::util::replace_directive;
 
 pub struct DeferStreamConstants {
     pub defer_name: StringKey,

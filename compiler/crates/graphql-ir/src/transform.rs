@@ -5,10 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
+use common::WithLocation;
+
 use crate::ir::*;
 use crate::program::Program;
-use common::WithLocation;
-use std::sync::Arc;
 
 pub trait Transformer {
     const NAME: &'static str;

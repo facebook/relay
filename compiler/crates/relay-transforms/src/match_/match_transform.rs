@@ -5,13 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::validation_message::ValidationMessage;
-use crate::defer_stream::DEFER_STREAM_CONSTANTS;
-use crate::inline_data_fragment::INLINE_DIRECTIVE_NAME;
-use crate::match_::MATCH_CONSTANTS;
-use crate::no_inline::attach_no_inline_directives_to_fragments;
-use crate::no_inline::validate_required_no_inline_directive;
-use crate::util::get_normalization_operation_name;
+use std::hash::Hash;
+use std::hash::Hasher;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlag;
@@ -48,9 +45,14 @@ use schema::ScalarID;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
-use std::hash::Hash;
-use std::hash::Hasher;
-use std::sync::Arc;
+
+use super::validation_message::ValidationMessage;
+use crate::defer_stream::DEFER_STREAM_CONSTANTS;
+use crate::inline_data_fragment::INLINE_DIRECTIVE_NAME;
+use crate::match_::MATCH_CONSTANTS;
+use crate::no_inline::attach_no_inline_directives_to_fragments;
+use crate::no_inline::validate_required_no_inline_directive;
+use crate::util::get_normalization_operation_name;
 
 /// Transform and validate @match and @module
 pub fn transform_match(

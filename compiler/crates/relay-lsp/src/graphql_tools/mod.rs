@@ -30,13 +30,13 @@ use relay_transforms::CustomTransformsConfig;
 use relay_transforms::Programs;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
 use crate::server::LSPState;
 use crate::LSPRuntimeError;
-use serde::Deserialize;
-use serde::Serialize;
 
 pub(crate) enum GraphQLExecuteQuery {}
 

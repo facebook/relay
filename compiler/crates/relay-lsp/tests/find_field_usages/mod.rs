@@ -11,9 +11,8 @@ use graphql_ir::build;
 use graphql_ir::reexport::Intern;
 use graphql_ir::Program;
 use graphql_syntax::parse_executable;
-use relay_test_schema::get_test_schema;
-
 use relay_lsp::find_field_usages;
+use relay_test_schema::get_test_schema;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%arguments%").collect();

@@ -5,9 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::connections::ConnectionInterface;
-use crate::handle_fields::build_handle_field_directive;
-use crate::handle_fields::HandleFieldDirectiveValues;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -26,8 +25,11 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeWithFields;
-use std::sync::Arc;
 use thiserror::Error;
+
+use crate::connections::ConnectionInterface;
+use crate::handle_fields::build_handle_field_directive;
+use crate::handle_fields::HandleFieldDirectiveValues;
 
 pub fn transform_declarative_connection(
     program: &Program,

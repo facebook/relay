@@ -5,17 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::error::Error;
+use std::fmt;
+use std::fmt::Write;
+
 use lsp_types::Diagnostic as LspTypeDiagnostic;
 use lsp_types::DiagnosticSeverity;
 use lsp_types::DiagnosticTag;
+use serde_json::Value;
 
 use crate::Location;
 use crate::SourceLocationKey;
 use crate::TextSource;
-use serde_json::Value;
-use std::error::Error;
-use std::fmt;
-use std::fmt::Write;
 
 pub type DiagnosticsResult<T> = Result<T, Vec<Diagnostic>>;
 

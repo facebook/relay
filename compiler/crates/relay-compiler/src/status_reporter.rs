@@ -5,16 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::PathBuf;
+
+use common::Diagnostic;
+use graphql_cli::DiagnosticPrinter;
+use log::error;
+use log::info;
+
 use crate::errors::BuildProjectError;
 use crate::errors::Error;
 use crate::source_for_location;
 use crate::FsSourceReader;
 use crate::SourceReader;
-use common::Diagnostic;
-use graphql_cli::DiagnosticPrinter;
-use log::error;
-use log::info;
-use std::path::PathBuf;
 
 pub trait StatusReporter {
     fn build_starts(&self);

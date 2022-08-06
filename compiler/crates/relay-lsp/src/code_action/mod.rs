@@ -7,6 +7,9 @@
 
 mod create_name_suggestion;
 
+use std::collections::HashMap;
+use std::collections::HashSet;
+
 use common::Span;
 use create_name_suggestion::create_default_name;
 use create_name_suggestion::create_default_name_with_index;
@@ -31,8 +34,6 @@ use resolution_path::OperationDefinitionPath;
 use resolution_path::ResolutionPath;
 use resolution_path::ResolvePosition;
 use serde_json::Value;
-use std::collections::HashMap;
-use std::collections::HashSet;
 
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;

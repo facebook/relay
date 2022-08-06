@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use serde_derive::Deserialize;
-use serde_derive::Serialize;
 use std::ascii::escape_default;
 use std::borrow::Borrow;
 use std::fmt::Debug;
@@ -16,6 +14,9 @@ use std::hash::Hash;
 use std::hash::Hasher;
 use std::mem::size_of;
 use std::ops::Deref;
+
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
 
 const SMALL_MAX_LEN: usize = 3 * size_of::<usize>() - 2;
 

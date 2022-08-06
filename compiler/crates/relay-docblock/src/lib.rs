@@ -8,7 +8,8 @@
 mod errors;
 mod ir;
 
-use crate::errors::ErrorMessages;
+use std::collections::HashMap;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -35,7 +36,8 @@ pub use ir::On;
 use ir::PopulatedIrField;
 pub use ir::RelayResolverIr;
 use lazy_static::lazy_static;
-use std::collections::HashMap;
+
+use crate::errors::ErrorMessages;
 
 lazy_static! {
     static ref RELAY_RESOLVER_FIELD: StringKey = "RelayResolver".intern();

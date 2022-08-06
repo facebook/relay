@@ -5,15 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DiagnosticsResult;
+use common::SourceLocationKey;
+use graphql_syntax::*;
+use intern::string_key::StringKey;
+
 use crate::definitions::Directive;
 use crate::definitions::*;
 use crate::flatbuffer::SchemaWrapper;
 use crate::graphql_schema::Schema;
 use crate::in_memory::InMemorySchema;
-use common::DiagnosticsResult;
-use common::SourceLocationKey;
-use graphql_syntax::*;
-use intern::string_key::StringKey;
 
 #[derive(Debug)]
 pub enum SDLSchema {

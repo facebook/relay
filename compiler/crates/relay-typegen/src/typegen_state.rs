@@ -5,13 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::ExactObject;
-use crate::writer::Writer;
-use crate::writer::AST;
-use crate::LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH;
-use crate::LIVE_RESOLVERS_LIVE_STATE;
-use crate::LOCAL_3D_PAYLOAD;
-use crate::RELAY_RUNTIME;
+use std::fmt::Result as FmtResult;
+use std::sync::Arc;
+
 use common::Location;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
@@ -22,8 +18,14 @@ use intern::string_key::StringKey;
 use schema::EnumID;
 use schema::SDLSchema;
 use schema::Schema;
-use std::fmt::Result as FmtResult;
-use std::sync::Arc;
+
+use crate::writer::ExactObject;
+use crate::writer::Writer;
+use crate::writer::AST;
+use crate::LIVE_RESOLVERS_EXPERIMENTAL_STORE_PATH;
+use crate::LIVE_RESOLVERS_LIVE_STATE;
+use crate::LOCAL_3D_PAYLOAD;
+use crate::RELAY_RUNTIME;
 
 /// A struct that is mutated as we iterate through an operation/fragment and
 /// contains information about whether and how to write import types.

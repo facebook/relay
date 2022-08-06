@@ -12,8 +12,6 @@
 mod check;
 
 pub mod definitions;
-use crate::definitions::*;
-
 use common::SourceLocationKey;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
@@ -30,6 +28,8 @@ use graphql_syntax::ScalarTypeDefinition;
 use graphql_syntax::TypeSystemDefinition;
 use graphql_syntax::UnionTypeDefinition;
 use intern::string_key::StringKey;
+
+use crate::definitions::*;
 
 fn add_definition(changes: &mut Vec<DefinitionChange>, def: &TypeSystemDefinition) -> bool {
     use DefinitionChange::*;

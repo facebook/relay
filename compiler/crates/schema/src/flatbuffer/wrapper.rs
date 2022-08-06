@@ -15,6 +15,7 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use ouroboros::self_referencing;
 
+use super::FlatBufferSchema;
 use crate::Argument;
 use crate::ArgumentDefinitions;
 use crate::Directive;
@@ -35,8 +36,6 @@ use crate::Type;
 use crate::TypeReference;
 use crate::Union;
 use crate::UnionID;
-
-use super::FlatBufferSchema;
 
 #[self_referencing]
 struct OwnedFlatBufferSchema {

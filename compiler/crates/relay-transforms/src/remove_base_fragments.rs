@@ -7,7 +7,6 @@
 
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
-
 use graphql_ir::Program;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;

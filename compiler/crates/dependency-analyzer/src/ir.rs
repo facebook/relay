@@ -5,6 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
+use std::fmt;
+
 use graphql_ir::*;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
@@ -12,9 +16,6 @@ use intern::string_key::StringKeySet;
 use relay_transforms::get_resolver_fragment_name;
 use schema::SDLSchema;
 use schema::Schema;
-use std::collections::hash_map::Entry;
-use std::collections::HashMap;
-use std::fmt;
 
 struct Node {
     ir: Option<ExecutableDefinition>,

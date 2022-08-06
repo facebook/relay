@@ -5,6 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+
 use common::Named;
 use common::NamedItem;
 use common::WithLocation;
@@ -28,8 +31,6 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use schema::SDLSchema;
 use schema::Schema;
-use std::fmt::Result as FmtResult;
-use std::fmt::Write;
 
 pub fn print_ir(schema: &SDLSchema, definitions: &[ExecutableDefinition]) -> Vec<String> {
     definitions

@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::CustomMetadataDirectives;
-use crate::ModuleMetadata;
 use graphql_ir::node_identifier::LocationAgnosticBehavior;
 use intern::string_key::StringKey;
+
+use crate::util::CustomMetadataDirectives;
+use crate::ModuleMetadata;
 
 #[derive(Clone)]
 pub struct RelayLocationAgnosticBehavior;

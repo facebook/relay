@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::primitive::*;
-use super::value::Argument;
 use common::Named;
 use common::Span;
 use intern::string_key::StringKey;
+
+use super::primitive::*;
+use super::value::Argument;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Directive {

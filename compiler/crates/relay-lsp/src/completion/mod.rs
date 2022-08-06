@@ -6,16 +6,11 @@
  */
 
 //! Utilities for providing the completion language feature
-use crate::lsp_runtime_error::LSPRuntimeResult;
-use crate::node_resolution_info::TypePath;
-use crate::node_resolution_info::TypePathItem;
-use crate::server::GlobalState;
-use crate::LSPRuntimeError;
-use crate::SchemaDocumentation;
+use std::iter::once;
+
 use common::Named;
 use common::NamedItem;
 use common::Span;
-
 use fnv::FnvHashSet;
 use graphql_ir::Program;
 use graphql_ir::VariableDefinition;
@@ -55,7 +50,13 @@ use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 use schema::TypeWithFields;
-use std::iter::once;
+
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::node_resolution_info::TypePath;
+use crate::node_resolution_info::TypePathItem;
+use crate::server::GlobalState;
+use crate::LSPRuntimeError;
+use crate::SchemaDocumentation;
 
 #[derive(Debug, Clone)]
 pub enum CompletionKind {

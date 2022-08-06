@@ -67,6 +67,7 @@ macro_rules! associated_data_impl {
             fn hash_box(&self) -> u64 {
                 use std::hash::Hash;
                 use std::hash::Hasher;
+
                 use $crate::reexport::AsAny;
                 use $crate::reexport::FnvHasher;
                 let mut state = FnvHasher::default();

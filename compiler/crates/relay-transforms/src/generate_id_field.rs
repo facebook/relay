@@ -5,6 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
+use std::sync::Arc;
+
 use common::Location;
 use common::WithLocation;
 use graphql_ir::FragmentSpread;
@@ -16,7 +20,6 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
-
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use relay_config::SchemaConfig;
@@ -25,9 +28,6 @@ use schema::InterfaceID;
 use schema::ObjectID;
 use schema::Schema;
 use schema::Type;
-use std::collections::hash_map::Entry;
-use std::collections::HashMap;
-use std::sync::Arc;
 
 /// A transform that adds an `id` field on any type that has an id field but
 /// where there is no unaliased `id` selection.

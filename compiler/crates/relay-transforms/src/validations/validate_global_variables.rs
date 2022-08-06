@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::root_variables::InferVariablesVisitor;
-use crate::DIRECTIVE_SPLIT_OPERATION;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -15,6 +13,9 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
+
+use crate::root_variables::InferVariablesVisitor;
+use crate::DIRECTIVE_SPLIT_OPERATION;
 
 pub fn validate_global_variables(program: &Program) -> DiagnosticsResult<()> {
     ValidateGlobalVariables::new(program).validate_program(program)

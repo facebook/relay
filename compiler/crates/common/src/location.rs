@@ -5,12 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::span::Span;
 use core::cmp::Ordering;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use std::fmt;
 use std::path::PathBuf;
+
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+
+use crate::span::Span;
 
 /// The location of a source. Could be a standalone file (e.g. test.graphql),
 /// an embedded source (GraphQL tag in a JS file) or generated code without a

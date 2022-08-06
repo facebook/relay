@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::FeatureFlag;
 use common::FeatureFlags;
 use common::SourceLocationKey;
@@ -16,7 +18,6 @@ use relay_codegen::print_fragment;
 use relay_codegen::print_operation;
 use relay_config::ProjectConfig;
 use relay_test_schema::TEST_SCHEMA;
-use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let ast = parse_executable(

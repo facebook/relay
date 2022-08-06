@@ -5,14 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::connections::extract_connection_directive;
-use crate::connections::ConnectionConstants;
-use crate::connections::ConnectionInterface;
-use crate::handle_fields::extract_handle_field_directive_args_for_connection;
-use crate::handle_fields::CONNECTION_HANDLER_ARG_NAME;
-use crate::handle_fields::DYNAMIC_KEY_ARG_NAME;
-use crate::handle_fields::FILTERS_ARG_NAME;
-use crate::handle_fields::KEY_ARG_NAME;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -32,6 +24,15 @@ use schema::Field;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
+
+use crate::connections::extract_connection_directive;
+use crate::connections::ConnectionConstants;
+use crate::connections::ConnectionInterface;
+use crate::handle_fields::extract_handle_field_directive_args_for_connection;
+use crate::handle_fields::CONNECTION_HANDLER_ARG_NAME;
+use crate::handle_fields::DYNAMIC_KEY_ARG_NAME;
+use crate::handle_fields::FILTERS_ARG_NAME;
+use crate::handle_fields::KEY_ARG_NAME;
 
 pub fn validate_connections(
     program: &Program,

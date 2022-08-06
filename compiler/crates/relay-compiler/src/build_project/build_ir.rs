@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::config::ProjectConfig;
 use common::Diagnostic;
 use dependency_analyzer::get_reachable_ir;
 use fnv::FnvHashMap;
@@ -17,6 +16,7 @@ use md5::Md5;
 use schema::SDLSchema;
 
 use super::ProjectAsts;
+use crate::config::ProjectConfig;
 
 pub struct BuildIRResult {
     pub ir: Vec<graphql_ir::ExecutableDefinition>,

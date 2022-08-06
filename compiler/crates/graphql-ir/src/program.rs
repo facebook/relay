@@ -5,14 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ir::ExecutableDefinition;
-use crate::ir::FragmentDefinition;
-use crate::ir::OperationDefinition;
+use std::collections::HashMap;
+use std::sync::Arc;
+
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
 use schema::SDLSchema;
-use std::collections::HashMap;
-use std::sync::Arc;
+
+use crate::ir::ExecutableDefinition;
+use crate::ir::FragmentDefinition;
+use crate::ir::OperationDefinition;
 
 /// A collection of all documents that are being compiled.
 #[derive(Debug, Clone)]

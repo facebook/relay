@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::hash_arguments;
-
 use graphql_ir::Argument;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+
+use super::hash_arguments;
 
 pub fn get_applied_fragment_name(spread_name: StringKey, args: &[Argument]) -> StringKey {
     let arguments_hash = hash_arguments(args);

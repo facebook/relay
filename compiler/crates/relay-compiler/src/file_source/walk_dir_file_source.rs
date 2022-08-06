@@ -9,10 +9,6 @@ use std::collections::HashSet;
 use std::path::Path;
 use std::path::PathBuf;
 
-use crate::compiler_state::CompilerState;
-use crate::config::Config;
-use crate::errors::Result;
-use crate::FileSourceResult;
 use common::PerfLogEvent;
 use common::PerfLogger;
 use log::debug;
@@ -20,6 +16,10 @@ use relay_typegen::TypegenLanguage;
 use walkdir::WalkDir;
 
 use super::File;
+use crate::compiler_state::CompilerState;
+use crate::config::Config;
+use crate::errors::Result;
+use crate::FileSourceResult;
 
 #[derive(Debug)]
 pub struct WalkDirFileSourceResult {

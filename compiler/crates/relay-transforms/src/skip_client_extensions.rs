@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::CustomMetadataDirectives;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
@@ -19,6 +18,8 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use intern::string_key::StringKey;
 use schema::Schema;
+
+use crate::util::CustomMetadataDirectives;
 
 /// Transform to skip IR nodes if they are client-defined extensions
 /// to the schema

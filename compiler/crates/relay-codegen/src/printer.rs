@@ -5,6 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::borrow::Borrow;
+use std::borrow::Cow;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+use std::path::Path;
+
+use fnv::FnvBuildHasher;
+use fnv::FnvHashSet;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use indexmap::IndexMap;
+use intern::string_key::StringKey;
+use relay_config::DynamicModuleProvider;
+use relay_config::ProjectConfig;
+use schema::SDLSchema;
+
 use crate::ast::Ast;
 use crate::ast::AstBuilder;
 use crate::ast::AstKey;
@@ -27,22 +43,6 @@ use crate::utils::escape;
 use crate::CodegenBuilder;
 use crate::CodegenVariant;
 use crate::JsModuleFormat;
-
-use graphql_ir::FragmentDefinition;
-use graphql_ir::OperationDefinition;
-use relay_config::DynamicModuleProvider;
-use relay_config::ProjectConfig;
-use schema::SDLSchema;
-
-use fnv::FnvBuildHasher;
-use fnv::FnvHashSet;
-use indexmap::IndexMap;
-use intern::string_key::StringKey;
-use std::borrow::Borrow;
-use std::borrow::Cow;
-use std::fmt::Result as FmtResult;
-use std::fmt::Write;
-use std::path::Path;
 
 pub fn print_operation(
     schema: &SDLSchema,

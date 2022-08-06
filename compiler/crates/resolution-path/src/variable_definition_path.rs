@@ -31,9 +31,8 @@ impl<'a> TypeAnnotationParent<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::test::test_resolution;
-
     use super::*;
+    use crate::test::test_resolution;
 
     #[test]
     fn variable_definition_path_named_type_annotation() {

@@ -5,9 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt;
+
 pub use graphql_syntax::TypeAnnotation;
 use intern::string_key::StringKey;
-use std::fmt;
 
 #[derive(Eq, PartialEq, PartialOrd, Ord)]
 pub enum DefinitionChange {

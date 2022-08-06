@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ValidationMessage;
 use ::intern::string_key::StringKey;
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -23,6 +22,8 @@ use lazy_static::lazy_static;
 use schema::Argument as SchemaArgument;
 use schema::ArgumentDefinitions;
 use schema::Schema;
+
+use crate::ValidationMessage;
 
 lazy_static! {
     static ref STATIC_ARG: StringKey = intern!("static");

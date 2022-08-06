@@ -5,12 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::errors::BuildProjectError;
-use crate::errors::Error;
-use dashmap::DashSet;
-use log::info;
-use serde::Serialize;
-use serde::Serializer;
 use std::fmt::Write as _;
 use std::fs::create_dir_all;
 use std::fs::File;
@@ -18,6 +12,14 @@ use std::io;
 use std::io::prelude::*;
 use std::path::PathBuf;
 use std::sync::Mutex;
+
+use dashmap::DashSet;
+use log::info;
+use serde::Serialize;
+use serde::Serializer;
+
+use crate::errors::BuildProjectError;
+use crate::errors::Error;
 
 type BuildProjectResult = Result<(), BuildProjectError>;
 

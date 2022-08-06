@@ -5,9 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::create_metadata_directive;
-use crate::ValidationMessage;
-use crate::DIRECTIVE_SPLIT_OPERATION;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -31,6 +28,10 @@ use schema::Field;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
+
+use crate::create_metadata_directive;
+use crate::ValidationMessage;
+use crate::DIRECTIVE_SPLIT_OPERATION;
 
 lazy_static! {
     static ref TEST_OPERATION_DIRECTIVE: StringKey = "relay_test_operation".intern();

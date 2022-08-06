@@ -5,13 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::WatchmanFile;
+use std::process::Command;
+
 use log::debug;
 use serde_bser::value::Value;
-use std::process::Command;
 use watchman_client::prelude::*;
 use watchman_client::Subscription as WatchmanSubscription;
 use watchman_client::SubscriptionData;
+
+use crate::WatchmanFile;
 
 #[derive(Debug)]
 pub enum WatchmanFileSourceSubscriptionNextChange {

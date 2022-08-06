@@ -5,14 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::super::ArtifactGeneratedTypes;
-use super::content_section::CommentAnnotationsSection;
-use super::content_section::ContentSection;
-use super::content_section::ContentSections;
-use super::content_section::DocblockSection;
-use super::content_section::GenericSection;
-use crate::config::Config;
-use crate::config::ProjectConfig;
+use std::fmt::Error as FmtError;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+use std::sync::Arc;
+
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
@@ -35,10 +32,15 @@ use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
 use schema::SDLSchema;
 use signedsource::SIGNING_TOKEN;
-use std::fmt::Error as FmtError;
-use std::fmt::Result as FmtResult;
-use std::fmt::Write;
-use std::sync::Arc;
+
+use super::super::ArtifactGeneratedTypes;
+use super::content_section::CommentAnnotationsSection;
+use super::content_section::ContentSection;
+use super::content_section::ContentSections;
+use super::content_section::DocblockSection;
+use super::content_section::GenericSection;
+use crate::config::Config;
+use crate::config::ProjectConfig;
 
 #[allow(clippy::too_many_arguments)]
 pub fn generate_updatable_query(

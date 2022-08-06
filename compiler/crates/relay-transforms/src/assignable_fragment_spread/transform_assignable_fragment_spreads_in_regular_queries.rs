@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -23,7 +25,6 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use schema::Schema;
-use std::sync::Arc;
 
 use super::ensure_discriminated_union_is_created;
 use super::errors::ValidationMessage;

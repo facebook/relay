@@ -8,9 +8,8 @@
 mod serialize;
 mod wrapper;
 
-use crate::definitions::Argument;
-use crate::definitions::Directive;
-use crate::definitions::*;
+use std::cmp::Ordering;
+
 use common::Span;
 use common::WithLocation;
 use flatbuffers::ForwardsUOffset;
@@ -31,8 +30,11 @@ use graphql_syntax::TokenKind;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 pub use serialize::serialize_as_flatbuffer;
-use std::cmp::Ordering;
 pub use wrapper::SchemaWrapper;
+
+use crate::definitions::Argument;
+use crate::definitions::Directive;
+use crate::definitions::*;
 
 #[derive(Debug)]
 pub struct FlatBufferSchema<'fb> {
@@ -579,9 +581,10 @@ fn get_mapped_location(location: schema_flatbuffer::DirectiveLocation) -> Direct
 
 #[cfg(test)]
 mod tests {
+    use common::DiagnosticsResult;
+
     use super::*;
     use crate::build_schema;
-    use common::DiagnosticsResult;
 
     #[test]
     fn binary_search() -> DiagnosticsResult<()> {

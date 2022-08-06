@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 use common::Diagnostic;
 use common::NamedItem;
 use common::WithLocation;
@@ -22,6 +21,8 @@ use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
 use schema::Schema;
 use schema::TypeReference;
+
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 
 pub type VariableMap = StringKeyMap<Variable>;
 type Visited = StringKeyMap<VariableMap>;

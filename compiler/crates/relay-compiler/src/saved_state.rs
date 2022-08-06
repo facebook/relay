@@ -5,9 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::config::Config;
-use serde_bser::value::Value;
 use std::path::PathBuf;
+
+use serde_bser::value::Value;
+
+use crate::config::Config;
 
 pub trait SavedStateLoader {
     fn load(&self, saved_state_info: &Value, config: &Config) -> Option<PathBuf>;

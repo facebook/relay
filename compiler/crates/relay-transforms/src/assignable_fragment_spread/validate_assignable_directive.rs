@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::ValidationMessage;
-use super::ASSIGNABLE_DIRECTIVE;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -18,6 +16,9 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
+
+use super::ValidationMessage;
+use super::ASSIGNABLE_DIRECTIVE;
 
 lazy_static! {
     static ref ALLOW_LISTED_DIRECTIVES: Vec<StringKey> = vec![

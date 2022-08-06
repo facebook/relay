@@ -5,21 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::constants::ARGUMENT_DEFINITION;
-use crate::errors::ValidationMessage;
-use crate::errors::ValidationMessageWithData;
-use crate::ir::*;
-use crate::signatures::build_signatures;
-use crate::signatures::FragmentSignature;
-use crate::signatures::FragmentSignatures;
-use crate::signatures::ProvidedVariableMetadata;
+use core::cmp::Ordering;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
 use common::NamedItem;
 use common::Span;
 use common::WithLocation;
-use core::cmp::Ordering;
 use errors::par_try_map;
 use errors::try2;
 use errors::try3;
@@ -47,6 +40,15 @@ use schema::Scalar;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
+
+use crate::constants::ARGUMENT_DEFINITION;
+use crate::errors::ValidationMessage;
+use crate::errors::ValidationMessageWithData;
+use crate::ir::*;
+use crate::signatures::build_signatures;
+use crate::signatures::FragmentSignature;
+use crate::signatures::FragmentSignatures;
+use crate::signatures::ProvidedVariableMetadata;
 
 lazy_static! {
     static ref TYPENAME_FIELD_NAME: StringKey = "__typename".intern();

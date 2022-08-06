@@ -5,11 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::PathBuf;
+
+use relay_typegen::TypegenLanguage;
+use watchman_client::prelude::*;
+
 use crate::config::Config;
 use crate::config::SchemaLocation;
-use relay_typegen::TypegenLanguage;
-use std::path::PathBuf;
-use watchman_client::prelude::*;
 
 pub fn get_watchman_expr(config: &Config) -> Expr {
     let mut sources_conditions = vec![expr_any(

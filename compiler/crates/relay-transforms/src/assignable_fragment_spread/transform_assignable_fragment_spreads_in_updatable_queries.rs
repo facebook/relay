@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
@@ -22,7 +24,6 @@ use lazy_static::lazy_static;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
-use std::sync::Arc;
 
 lazy_static! {
     static ref UPDATABLE_DIRECTIVE: StringKey = "updatable".intern();

@@ -5,11 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::primitive::*;
+use core::fmt;
+
 use common::Named;
 use common::Span;
-use core::fmt;
 use intern::string_key::StringKey;
+
+use super::primitive::*;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ConstantValue {

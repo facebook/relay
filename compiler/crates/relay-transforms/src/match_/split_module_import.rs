@@ -5,10 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::SplitOperationMetadata;
-use super::MATCH_CONSTANTS;
-use crate::util::get_normalization_operation_name;
-use crate::ModuleMetadata;
+use std::sync::Arc;
+
 use common::WithLocation;
 use graphql_ir::InlineFragment;
 use graphql_ir::OperationDefinition;
@@ -22,7 +20,11 @@ use intern::string_key::Intern;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
 use schema::Schema;
-use std::sync::Arc;
+
+use super::SplitOperationMetadata;
+use super::MATCH_CONSTANTS;
+use crate::util::get_normalization_operation_name;
+use crate::ModuleMetadata;
 
 pub fn split_module_import(program: &Program, base_fragment_names: &StringKeySet) -> Program {
     let mut transform = SplitModuleImportTransform::new(program, base_fragment_names);

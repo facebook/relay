@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::SourceLocationKey;
 use common::TextSource;
 use fixture_tests::Fixture;
@@ -17,7 +19,6 @@ use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use intern::string_key::StringKey;
 use relay_test_schema::TEST_SCHEMA;
-use std::sync::Arc;
 
 #[derive(Clone)]
 struct LocationAgnosticBehaviorForTestOnly;

@@ -5,13 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ClientEdgeMetadata;
-use crate::FragmentAliasMetadata;
-use crate::RequiredMetadataDirective;
-use crate::CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME;
-use crate::REQUIRED_DIRECTIVE_NAME;
+use std::sync::Arc;
 
-use super::ValidationMessage;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -37,7 +32,13 @@ use lazy_static::lazy_static;
 use schema::ArgumentValue;
 use schema::Field;
 use schema::Schema;
-use std::sync::Arc;
+
+use super::ValidationMessage;
+use crate::ClientEdgeMetadata;
+use crate::FragmentAliasMetadata;
+use crate::RequiredMetadataDirective;
+use crate::CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME;
+use crate::REQUIRED_DIRECTIVE_NAME;
 
 pub fn relay_resolvers(program: &Program, enabled: bool) -> DiagnosticsResult<Program> {
     let transformed_fields_program = relay_resolvers_fields_transform(program, enabled)?;

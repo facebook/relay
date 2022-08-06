@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt;
+
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Value;
-use std::fmt;
 
 use crate::murmurhash::murmurhash;
 

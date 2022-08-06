@@ -32,6 +32,8 @@ mod status_reporter;
 pub mod status_updater;
 pub mod text_documents;
 pub mod utils;
+use std::sync::Arc;
+
 use common::PerfLogger;
 use docblock_resolution_info::DocblockResolutionInfo;
 pub use extract_graphql::JavaScriptSourceFeature;
@@ -57,7 +59,6 @@ pub use server::LSPNotificationDispatch;
 pub use server::LSPRequestDispatch;
 pub use server::LSPState;
 pub use server::Schemas;
-use std::sync::Arc;
 pub use utils::position_to_offset;
 
 pub enum Feature {
@@ -111,12 +112,13 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::client;
-    use super::lsp_process_error::LSPProcessResult;
-    use super::server;
     use lsp_server::Connection;
     use lsp_types::ClientCapabilities;
     use lsp_types::InitializeParams;
+
+    use super::client;
+    use super::lsp_process_error::LSPProcessResult;
+    use super::server;
     #[test]
     fn initialize() -> LSPProcessResult<()> {
         // Test with an in-memory connection pair

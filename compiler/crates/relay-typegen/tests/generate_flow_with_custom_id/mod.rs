@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::ConsoleLogger;
 use common::FeatureFlag;
 use common::FeatureFlags;
@@ -26,7 +28,6 @@ use relay_transforms::apply_transforms;
 use relay_typegen::FragmentLocations;
 use relay_typegen::TypegenConfig;
 use relay_typegen::TypegenLanguage;
-use std::sync::Arc;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 

@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::INTERNAL_RELAY_VARIABLES_PREFIX;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use graphql_ir::OperationDefinition;
@@ -13,6 +12,8 @@ use graphql_ir::Program;
 use graphql_ir::Validator;
 use intern::string_key::StringKey;
 use thiserror::Error;
+
+use crate::util::INTERNAL_RELAY_VARIABLES_PREFIX;
 
 pub fn validate_global_variable_names(program: &Program) -> DiagnosticsResult<()> {
     ValidateGlobalVariableNames {}.validate_program(program)

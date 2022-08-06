@@ -5,12 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::UPDATABLE_DIRECTIVE;
 use common::Named;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
+
+use crate::UPDATABLE_DIRECTIVE;
 
 pub fn skip_updatable_queries(program: &Program) -> Program {
     let mut transform = SkipUpdatableQueries::new(program);

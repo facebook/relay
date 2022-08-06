@@ -7,9 +7,6 @@
 
 use std::sync::Arc;
 
-use crate::lsp_runtime_error::LSPRuntimeError;
-use crate::lsp_runtime_error::LSPRuntimeResult;
-
 use common::Span;
 use graphql_syntax::ExecutableDocument;
 use intern::string_key::StringKey;
@@ -24,6 +21,8 @@ use resolution_path::TypeConditionPath;
 use schema::SDLSchema;
 
 use super::DefinitionDescription;
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
 
 pub fn get_graphql_definition_description(
     document: ExecutableDocument,

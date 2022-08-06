@@ -5,19 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::idhasher::BuildIdHasher;
-use crate::intern_struct;
-use crate::string;
-use crate::InternId;
-use crate::InternSerdes;
-use serde_derive::Deserialize;
-use serde_derive::Serialize;
 use std::cmp::Ordering;
 use std::ffi::OsStr;
 #[cfg(unix)]
 use std::os::unix::ffi::OsStrExt;
 use std::path::Path;
 use std::path::PathBuf;
+
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
+
+use crate::idhasher::BuildIdHasher;
+use crate::intern_struct;
+use crate::string;
+use crate::InternId;
+use crate::InternSerdes;
 
 intern_struct! {
     /// A path whose path components are interned.

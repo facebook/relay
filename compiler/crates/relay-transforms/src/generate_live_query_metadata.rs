@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::create_metadata_directive;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -22,6 +21,8 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use thiserror::Error;
+
+use crate::create_metadata_directive;
 
 lazy_static! {
     static ref LIVE_QUERY_DIRECTIVE_NAME: StringKey = "live_query".intern();

@@ -5,9 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt::Result as FmtResult;
+
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
-use std::fmt::Result as FmtResult;
 
 #[derive(Default, Clone)]
 pub struct TopLevelStatements(IndexMap<String, TopLevelStatement, FnvBuildHasher>);

@@ -5,15 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+
+use intern::string_key::StringKey;
+use itertools::Itertools;
+
 use crate::writer::FunctionTypeAssertion;
 use crate::writer::KeyValuePairProp;
 use crate::writer::Prop;
 use crate::writer::Writer;
 use crate::writer::AST;
-use intern::string_key::StringKey;
-use itertools::Itertools;
-use std::fmt::Result as FmtResult;
-use std::fmt::Write;
 
 pub struct FlowPrinter {
     result: String,
@@ -354,13 +356,13 @@ impl FlowPrinter {
 
 #[cfg(test)]
 mod tests {
+    use intern::string_key::Intern;
+
+    use super::*;
     use crate::writer::ExactObject;
     use crate::writer::InexactObject;
     use crate::writer::KeyValuePairProp;
     use crate::writer::SortedASTList;
-
-    use super::*;
-    use intern::string_key::Intern;
 
     fn print_type(ast: &AST) -> String {
         let mut printer = Box::new(FlowPrinter::new());

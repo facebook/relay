@@ -5,13 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::SourcePrinter;
+use std::fmt::Write;
+
 use colored::*;
 use common::Diagnostic;
 use common::Location;
 use common::SourceLocationKey;
 use common::TextSource;
-use std::fmt::Write;
+
+use crate::SourcePrinter;
 
 pub struct DiagnosticPrinter<T: Sources> {
     sources: T,

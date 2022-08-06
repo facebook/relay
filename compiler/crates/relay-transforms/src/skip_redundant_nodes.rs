@@ -5,9 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::is_relay_custom_inline_fragment_directive;
-use crate::RelayLocationAgnosticBehavior;
-use crate::DEFER_STREAM_CONSTANTS;
+use std::sync::Arc;
 
 use common::sync::*;
 use common::NamedItem;
@@ -24,7 +22,10 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use schema::SDLSchema;
-use std::sync::Arc;
+
+use crate::util::is_relay_custom_inline_fragment_directive;
+use crate::RelayLocationAgnosticBehavior;
+use crate::DEFER_STREAM_CONSTANTS;
 
 /**
  * A transform that removes redundant fields and fragment spreads. Redundancy is

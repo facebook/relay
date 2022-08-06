@@ -5,6 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use graphql_ir::Argument;
+use graphql_ir::Directive;
+use graphql_ir::ProvidedVariableMetadata;
+use graphql_ir::Value;
+use graphql_ir::ARGUMENT_DEFINITION;
+use graphql_ir::UNUSED_LOCAL_VARIABLE_DEPRECATED;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use lazy_static::lazy_static;
+use regex::Regex;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+
 use crate::client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use crate::connections::ConnectionMetadataDirective;
 use crate::handle_fields::HANDLE_FIELD_DIRECTIVE_NAME;
@@ -26,20 +40,6 @@ use crate::RequiredMetadataDirective;
 use crate::CLIENT_EDGE_GENERATED_FRAGMENT_KEY;
 use crate::DIRECTIVE_SPLIT_OPERATION;
 use crate::INTERNAL_METADATA_DIRECTIVE;
-
-use graphql_ir::Argument;
-use graphql_ir::Directive;
-use graphql_ir::ProvidedVariableMetadata;
-use graphql_ir::Value;
-use graphql_ir::ARGUMENT_DEFINITION;
-use graphql_ir::UNUSED_LOCAL_VARIABLE_DEPRECATED;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use lazy_static::lazy_static;
-use regex::Regex;
-use schema::SDLSchema;
-use schema::Schema;
-use schema::Type;
 
 /// This function will return a new Vec[...] of directives,
 /// where one will be missing. The one with `remove_directive_name` name

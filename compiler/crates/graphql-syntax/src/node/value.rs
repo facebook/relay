@@ -5,14 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::constant_value::*;
-use super::primitive::*;
+use core::fmt;
+
 use common::Named;
 use common::SourceLocationKey;
 use common::Span;
 use common::WithLocation;
-use core::fmt;
 use intern::string_key::StringKey;
+
+use super::constant_value::*;
+use super::primitive::*;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct VariableIdentifier {

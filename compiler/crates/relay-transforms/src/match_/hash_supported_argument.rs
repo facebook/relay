@@ -7,8 +7,6 @@
 
 use std::sync::Arc;
 
-use super::MATCH_CONSTANTS;
-use crate::murmurhash::murmurhash;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlag;
@@ -26,6 +24,9 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::TypeReference;
 use thiserror::Error;
+
+use super::MATCH_CONSTANTS;
+use crate::murmurhash::murmurhash;
 
 pub fn hash_supported_argument(
     program: &Program,

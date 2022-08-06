@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::root_variables::VariableMap;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -22,9 +23,9 @@ use graphql_ir::VariableDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use std::sync::Arc;
 
 use super::validation_message::ValidationMessage;
+use crate::root_variables::VariableMap;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RefetchableMetadata {

@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -33,7 +35,6 @@ use schema::Field;
 use schema::FieldID;
 use schema::Schema;
 use schema::Type;
-use std::sync::Arc;
 use thiserror::Error;
 
 lazy_static! {

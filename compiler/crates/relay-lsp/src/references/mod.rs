@@ -7,15 +7,8 @@
 
 //! Utilities for providing the goto definition feature
 
-use crate::docblock_resolution_info::DocblockResolutionInfo;
-use crate::find_field_usages::find_field_locations;
-use crate::find_field_usages::get_usages;
-use crate::location::transform_relay_location_to_lsp_location;
-use crate::lsp_runtime_error::LSPRuntimeError;
-use crate::lsp_runtime_error::LSPRuntimeResult;
-use crate::node_resolution_info::NodeKind;
-use crate::server::GlobalState;
-use crate::FeatureResolutionInfo;
+use std::path::Path;
+
 use common::Location as IRLocation;
 use graphql_ir::FragmentSpread;
 use graphql_ir::Program;
@@ -27,7 +20,16 @@ use lsp_types::Location as LSPLocation;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
 use schema::Schema;
-use std::path::Path;
+
+use crate::docblock_resolution_info::DocblockResolutionInfo;
+use crate::find_field_usages::find_field_locations;
+use crate::find_field_usages::get_usages;
+use crate::location::transform_relay_location_to_lsp_location;
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::node_resolution_info::NodeKind;
+use crate::server::GlobalState;
+use crate::FeatureResolutionInfo;
 
 fn get_references_response(
     feature_resolution_info: FeatureResolutionInfo,

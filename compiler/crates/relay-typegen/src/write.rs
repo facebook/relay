@@ -5,6 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
+use std::fmt::Result as FmtResult;
+use std::path::PathBuf;
+
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
@@ -23,9 +27,6 @@ use relay_transforms::RelayDirective;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
 use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
 use schema::Schema;
-use std::collections::HashSet;
-use std::fmt::Result as FmtResult;
-use std::path::PathBuf;
 
 use crate::typegen_state::ActorChangeStatus;
 use crate::typegen_state::EncounteredEnums;

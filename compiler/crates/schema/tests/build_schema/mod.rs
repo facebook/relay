@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::BTreeMap;
+
 use common::Diagnostic;
 use common::SourceLocationKey;
 use common::TextSource;
@@ -16,7 +18,6 @@ use schema::serialize_as_flatbuffer;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
-use std::collections::BTreeMap;
 
 const SCHEMA_SEPARATOR: &str = "%extensions%";
 

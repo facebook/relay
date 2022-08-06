@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::FeatureFlag;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
@@ -18,7 +20,6 @@ use relay_codegen::JsModuleFormat;
 use relay_config::ProjectConfig;
 use relay_test_schema::get_test_schema;
 use relay_transforms::fragment_alias_directive;
-use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let base = fixture.content;

@@ -5,13 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use intern::string_key::StringKey;
-use relay_config::TypegenConfig;
-use relay_config::TypegenLanguage;
 use std::cmp::Ordering;
 use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 use std::ops::Deref;
+
+use intern::string_key::StringKey;
+use relay_config::TypegenConfig;
+use relay_config::TypegenLanguage;
 
 use crate::flow::FlowPrinter;
 use crate::javascript::JavaScriptPrinter;
@@ -371,9 +372,8 @@ pub trait Writer: Write {
 mod tests {
     use graphql_ir::reexport::Intern;
 
-    use crate::FUTURE_ENUM_VALUE;
-
     use super::StringLiteral;
+    use crate::FUTURE_ENUM_VALUE;
 
     #[test]
     fn ast_string_key_sort() {

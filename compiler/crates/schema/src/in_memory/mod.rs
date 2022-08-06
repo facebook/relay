@@ -5,11 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::definitions::Argument;
-use crate::definitions::Directive;
-use crate::definitions::*;
-use crate::errors::SchemaError;
-use crate::graphql_schema::Schema;
+use std::collections::BTreeMap;
+use std::collections::HashMap;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -18,8 +16,12 @@ use common::WithLocation;
 use graphql_syntax::*;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use std::collections::BTreeMap;
-use std::collections::HashMap;
+
+use crate::definitions::Argument;
+use crate::definitions::Directive;
+use crate::definitions::*;
+use crate::errors::SchemaError;
+use crate::graphql_schema::Schema;
 
 fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
     Err(vec![Diagnostic::error(error, Location::generated())])

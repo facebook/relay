@@ -5,10 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::defer_stream::DEFER_STREAM_CONSTANTS;
-use crate::DeferDirective;
-use crate::NoInlineFragmentSpreadMetadata;
-use crate::StreamDirective;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -29,8 +27,12 @@ use graphql_ir::Transformer;
 use graphql_ir::Value;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
-use std::sync::Arc;
 use thiserror::Error;
+
+use super::defer_stream::DEFER_STREAM_CONSTANTS;
+use crate::DeferDirective;
+use crate::NoInlineFragmentSpreadMetadata;
+use crate::StreamDirective;
 
 enum ValidationMode {
     Strict(Vec<Diagnostic>),

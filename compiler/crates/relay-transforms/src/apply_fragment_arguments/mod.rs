@@ -7,13 +7,8 @@
 
 mod scope;
 
-use super::get_applied_fragment_name;
-use crate::match_::SplitOperationMetadata;
-use crate::match_::DIRECTIVE_SPLIT_OPERATION;
-use crate::no_inline::is_raw_response_type_enabled;
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use crate::no_inline::PARENT_DOCUMENTS_ARG;
-use crate::util::get_normalization_operation_name;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlag;
@@ -51,8 +46,15 @@ use intern::string_key::StringKeySet;
 use itertools::Itertools;
 use scope::format_local_variable;
 use scope::Scope;
-use std::sync::Arc;
 use thiserror::Error;
+
+use super::get_applied_fragment_name;
+use crate::match_::SplitOperationMetadata;
+use crate::match_::DIRECTIVE_SPLIT_OPERATION;
+use crate::no_inline::is_raw_response_type_enabled;
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use crate::no_inline::PARENT_DOCUMENTS_ARG;
+use crate::util::get_normalization_operation_name;
 
 /// A transform that converts a set of documents containing fragments/fragment
 /// spreads *with* arguments to one where all arguments have been inlined. This

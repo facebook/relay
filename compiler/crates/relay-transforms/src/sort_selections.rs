@@ -5,6 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::cmp::Ordering;
+use std::collections::HashMap;
+
 use common::PointerAddress;
 use graphql_ir::transform_list;
 use graphql_ir::Field;
@@ -15,8 +18,6 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
-use std::cmp::Ordering;
-use std::collections::HashMap;
 
 type Seen = HashMap<PointerAddress, Transformed<Selection>>;
 

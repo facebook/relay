@@ -59,18 +59,18 @@ where
 
 #[cfg(test)]
 mod test {
+    use std::sync::atomic::AtomicI32;
+    use std::sync::atomic::Ordering;
+
     use lsp_types::notification::LogMessage;
     use lsp_types::notification::Notification;
     use lsp_types::notification::TelemetryEvent;
     use lsp_types::LogMessageParams;
     use lsp_types::MessageType;
-    use std::sync::atomic::AtomicI32;
-    use std::sync::atomic::Ordering;
-
-    use crate::lsp_runtime_error::LSPRuntimeError;
-    use crate::lsp_runtime_error::LSPRuntimeResult;
 
     use super::LSPNotificationDispatch;
+    use crate::lsp_runtime_error::LSPRuntimeError;
+    use crate::lsp_runtime_error::LSPRuntimeResult;
 
     #[test]
     fn calls_first_matching_notification_handler() {

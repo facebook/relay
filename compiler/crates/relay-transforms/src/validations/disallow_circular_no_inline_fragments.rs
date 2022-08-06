@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -17,6 +16,8 @@ use graphql_ir::Validator;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
 use thiserror::Error;
+
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 
 pub fn disallow_circular_no_inline_fragments(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = DisallowCircularNoInlineFragments::new(program);

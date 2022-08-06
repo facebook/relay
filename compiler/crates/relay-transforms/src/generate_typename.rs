@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::generate_abstract_type_refinement_key;
-use crate::util::is_relay_custom_inline_fragment_directive;
+use std::sync::Arc;
+
 use common::Location;
 use common::PointerAddress;
 use common::WithLocation;
@@ -29,7 +29,9 @@ use lazy_static::lazy_static;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
-use std::sync::Arc;
+
+use crate::util::generate_abstract_type_refinement_key;
+use crate::util::is_relay_custom_inline_fragment_directive;
 
 lazy_static! {
     pub static ref TYPE_DISCRIMINATOR_DIRECTIVE_NAME: StringKey = "__TypeDiscriminator".intern();

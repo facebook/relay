@@ -5,13 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::DIRECTIVE_SPLIT_OPERATION;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
+
+use crate::DIRECTIVE_SPLIT_OPERATION;
 
 /// A transform that removes field `splitOperations`. Intended for use when e.g.
 /// printing queries to send to a GraphQL server.

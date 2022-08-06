@@ -5,9 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt::Write;
+
 use colored::*;
 use common::Span;
-use std::fmt::Write;
 
 #[derive(Default)]
 pub struct SourcePrinter;

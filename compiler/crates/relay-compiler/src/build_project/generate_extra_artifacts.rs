@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use schema::SDLSchema;
+
 use super::Artifact;
 use super::Programs;
 use super::ProjectConfig;
-use schema::SDLSchema;
 
 pub type GenerateExtraArtifactsFn =
     Box<dyn Fn(&ProjectConfig, &SDLSchema, &Programs, &[Artifact]) -> Vec<Artifact> + Send + Sync>;

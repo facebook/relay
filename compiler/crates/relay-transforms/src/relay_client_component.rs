@@ -5,12 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::ValidationMessage;
-use crate::match_::SplitOperationMetadata;
-use crate::no_inline::attach_no_inline_directives_to_fragments;
-use crate::no_inline::validate_required_no_inline_directive;
-use crate::util::get_fragment_filename;
-use crate::util::get_normalization_operation_name;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlag;
@@ -39,7 +35,13 @@ use lazy_static::lazy_static;
 use schema::InterfaceID;
 use schema::Schema;
 use schema::Type;
-use std::sync::Arc;
+
+use super::ValidationMessage;
+use crate::match_::SplitOperationMetadata;
+use crate::no_inline::attach_no_inline_directives_to_fragments;
+use crate::no_inline::validate_required_no_inline_directive;
+use crate::util::get_fragment_filename;
+use crate::util::get_normalization_operation_name;
 
 lazy_static! {
     pub static ref RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME: StringKey =

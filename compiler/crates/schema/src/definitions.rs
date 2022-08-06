@@ -5,6 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashMap;
+use std::fmt;
+use std::hash::Hash;
+use std::slice::Iter;
+
 use common::Named;
 use common::NamedItem;
 use common::WithLocation;
@@ -13,10 +18,6 @@ use graphql_syntax::DirectiveLocation;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use std::collections::HashMap;
-use std::fmt;
-use std::hash::Hash;
-use std::slice::Iter;
 
 lazy_static! {
     static ref DIRECTIVE_DEPRECATED: StringKey = "deprecated".intern();

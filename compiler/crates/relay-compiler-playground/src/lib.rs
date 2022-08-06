@@ -5,15 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::FeatureFlags;
 use common::NoopPerfLogger;
 use common::SourceLocationKey;
 use common::SourceLocationKey::Generated;
 use common::TextSource;
-
 use graphql_ir::Program;
-
 use graphql_text_printer::PrinterOptions;
 use intern::string_key::Intern;
 use relay_codegen::print_fragment;
@@ -28,9 +28,6 @@ use relay_typegen::FragmentLocations;
 use relay_typegen::TypegenConfig;
 use schema::SDLSchema;
 use serde::Serialize;
-
-use std::sync::Arc;
-
 use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global

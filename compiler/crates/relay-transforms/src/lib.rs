@@ -66,11 +66,11 @@ mod util;
 mod validate_operation_variables;
 mod validations;
 
-use intern::string_key::StringKey;
-use intern::BuildIdHasher;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
+use intern::string_key::StringKey;
+use intern::BuildIdHasher;
 pub use metadata_directive::create_metadata_directive;
 pub use metadata_directive::INTERNAL_METADATA_DIRECTIVE;
 
@@ -81,8 +81,6 @@ type OperationName = StringKey;
 pub type DependencyMap = HashMap<OperationName, DependencySet, BuildIdHasher<u32>>;
 pub type DependencySet = HashSet<OperationName, BuildIdHasher<u32>>;
 
-pub use crate::errors::ValidationMessage;
-pub use crate::errors::ValidationMessageWithData;
 pub use applied_fragment_name::get_applied_fragment_name;
 pub use apply_custom_transforms::BaseFragmentNames;
 pub use apply_custom_transforms::CustomTransform;
@@ -202,3 +200,6 @@ pub use util::get_normalization_operation_name;
 pub use util::remove_directive;
 pub use validate_operation_variables::validate_operation_variables;
 pub use validations::*;
+
+pub use crate::errors::ValidationMessage;
+pub use crate::errors::ValidationMessageWithData;

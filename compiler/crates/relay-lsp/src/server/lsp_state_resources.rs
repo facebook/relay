@@ -41,12 +41,11 @@ use schema_documentation::SchemaDocumentation;
 use tokio::task;
 use tokio::task::JoinHandle;
 
+use super::lsp_state::ProjectStatus;
+use super::lsp_state::Task;
 use crate::status_updater::set_ready_status;
 use crate::status_updater::update_in_progress_status;
 use crate::LSPState;
-
-use super::lsp_state::ProjectStatus;
-use super::lsp_state::Task;
 
 /// This structure is responsible for keeping schemas/programs in sync with the current state of the world
 pub(crate) struct LSPStateResources<

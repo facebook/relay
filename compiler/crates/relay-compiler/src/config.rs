@@ -5,18 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::artifact_writer::ArtifactFileWriter;
-use crate::build_project::artifact_writer::ArtifactWriter;
-use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
-use crate::build_project::AdditionalValidations;
-use crate::compiler_state::ProjectName;
-use crate::compiler_state::ProjectSet;
-use crate::errors::ConfigValidationError;
-use crate::errors::Error;
-use crate::errors::Result;
-use crate::saved_state::SavedStateLoader;
-use crate::status_reporter::ConsoleStatusReporter;
-use crate::status_reporter::StatusReporter;
+use std::env::current_dir;
+use std::ffi::OsStr;
+use std::fmt;
+use std::path::Path;
+use std::path::PathBuf;
+use std::sync::Arc;
+use std::vec;
+
 use async_trait::async_trait;
 use common::FeatureFlags;
 use common::Rollout;
@@ -52,14 +48,20 @@ use serde::Serialize;
 use serde_json::Value;
 use sha1::Digest;
 use sha1::Sha1;
-use std::env::current_dir;
-use std::ffi::OsStr;
-use std::fmt;
-use std::path::Path;
-use std::path::PathBuf;
-use std::sync::Arc;
-use std::vec;
 use watchman_client::pdu::ScmAwareClockData;
+
+use crate::build_project::artifact_writer::ArtifactFileWriter;
+use crate::build_project::artifact_writer::ArtifactWriter;
+use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
+use crate::build_project::AdditionalValidations;
+use crate::compiler_state::ProjectName;
+use crate::compiler_state::ProjectSet;
+use crate::errors::ConfigValidationError;
+use crate::errors::Error;
+use crate::errors::Result;
+use crate::saved_state::SavedStateLoader;
+use crate::status_reporter::ConsoleStatusReporter;
+use crate::status_reporter::StatusReporter;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 

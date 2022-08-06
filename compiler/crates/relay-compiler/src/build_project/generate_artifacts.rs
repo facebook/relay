@@ -5,10 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-pub use super::artifact_content::ArtifactContent;
-use super::build_ir::SourceHashes;
-use crate::config::Config;
-use crate::config::ProjectConfig;
+use std::path::PathBuf;
+use std::sync::Arc;
+
 use common::NamedItem;
 use common::SourceLocationKey;
 use fnv::FnvHashMap;
@@ -24,8 +23,11 @@ use relay_transforms::CLIENT_EDGE_GENERATED_FRAGMENT_KEY;
 use relay_transforms::CLIENT_EDGE_SOURCE_NAME;
 use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
 use relay_transforms::UPDATABLE_DIRECTIVE;
-use std::path::PathBuf;
-use std::sync::Arc;
+
+pub use super::artifact_content::ArtifactContent;
+use super::build_ir::SourceHashes;
+use crate::config::Config;
+use crate::config::ProjectConfig;
 
 /// Represents a generated output artifact.
 pub struct Artifact {

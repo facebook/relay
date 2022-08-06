@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::relay_directive::RelayDirective;
+use std::ops::RangeFull;
+use std::sync::Arc;
+
 use common::Location;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
@@ -20,8 +22,8 @@ use graphql_ir::VariableDefinition;
 use indexmap::map::Entry;
 use intern::string_key::StringKeyIndexMap;
 use schema::Schema;
-use std::ops::RangeFull;
-use std::sync::Arc;
+
+use crate::relay_directive::RelayDirective;
 
 /// Transform to inline fragment spreads with @relay(mask:false)
 pub fn mask(program: &Program) -> Program {

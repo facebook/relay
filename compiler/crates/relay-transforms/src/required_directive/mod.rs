@@ -8,6 +8,10 @@
 mod requireable_field;
 mod validation_message;
 
+use std::borrow::Cow;
+use std::mem;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -32,14 +36,10 @@ use intern::string_key::StringKeyMap;
 use lazy_static::lazy_static;
 use requireable_field::RequireableField;
 use requireable_field::RequiredMetadata;
-use std::borrow::Cow;
-use std::mem;
-use std::sync::Arc;
-
-use crate::DirectiveFinder;
-use crate::FragmentAliasMetadata;
 
 use self::validation_message::ValidationMessage;
+use crate::DirectiveFinder;
+use crate::FragmentAliasMetadata;
 
 lazy_static! {
     pub static ref REQUIRED_DIRECTIVE_NAME: StringKey = "required".intern();

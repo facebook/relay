@@ -7,8 +7,6 @@
 
 use std::collections::HashSet;
 
-use crate::errors::ErrorMessages;
-use crate::errors::ErrorMessagesWithData;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -35,7 +33,6 @@ use graphql_syntax::TypeAnnotation;
 use graphql_syntax::TypeSystemDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-
 use lazy_static::lazy_static;
 use schema::suggestion_list::GraphQLSuggestions;
 use schema::InterfaceID;
@@ -43,6 +40,9 @@ use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
+
+use crate::errors::ErrorMessages;
+use crate::errors::ErrorMessagesWithData;
 
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();

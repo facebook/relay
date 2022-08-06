@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::hash::Hash;
+
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
@@ -41,7 +43,6 @@ use schema::ScalarID;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
-use std::hash::Hash;
 
 use crate::type_selection::ModuleDirective;
 use crate::type_selection::RawResponseFragmentSpread;

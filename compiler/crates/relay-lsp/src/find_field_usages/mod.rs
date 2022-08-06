@@ -7,12 +7,12 @@
 
 mod find_field_locations;
 
-use crate::location::transform_relay_location_to_lsp_location;
-use crate::server::GlobalState;
-use crate::LSPRuntimeError;
-use crate::LSPRuntimeResult;
+use std::collections::HashMap;
+use std::sync::Arc;
+
 use common::Location as IRLocation;
 use common::WithLocation;
+pub(crate) use find_field_locations::find_field_locations;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -30,10 +30,11 @@ use schema::Schema;
 use schema::Type;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashMap;
-use std::sync::Arc;
 
-pub(crate) use find_field_locations::find_field_locations;
+use crate::location::transform_relay_location_to_lsp_location;
+use crate::server::GlobalState;
+use crate::LSPRuntimeError;
+use crate::LSPRuntimeResult;
 
 // This implementation of FindFieldUsages find matching fields in:
 //   - exact type matches

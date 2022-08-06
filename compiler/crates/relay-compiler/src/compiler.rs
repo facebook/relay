@@ -5,6 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
+use common::PerfLogEvent;
+use common::PerfLogger;
+use futures::future::join_all;
+use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
+use log::debug;
+use log::info;
+use rayon::prelude::*;
+use tokio::sync::Notify;
+use tokio::task;
+use tokio::task::JoinHandle;
+
 use crate::build_project::build_project;
 use crate::build_project::commit_project;
 use crate::build_project::BuildProjectFailure;
@@ -18,17 +31,6 @@ use crate::file_source::FileSourceSubscriptionNextChange;
 use crate::graphql_asts::GraphQLAsts;
 use crate::red_to_green::RedToGreen;
 use crate::FileSourceResult;
-use common::PerfLogEvent;
-use common::PerfLogger;
-use futures::future::join_all;
-use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
-use log::debug;
-use log::info;
-use rayon::prelude::*;
-use std::sync::Arc;
-use tokio::sync::Notify;
-use tokio::task;
-use tokio::task::JoinHandle;
 
 pub struct Compiler<TPerfLogger>
 where

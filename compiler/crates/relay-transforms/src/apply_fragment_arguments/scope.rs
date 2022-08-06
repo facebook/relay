@@ -93,8 +93,6 @@ pub fn format_local_variable(fragment_name: StringKey, arg_name: StringKey) -> S
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     use common::Location;
     use common::SourceLocationKey;
     use common::Span;
@@ -103,10 +101,11 @@ mod tests {
     use graphql_ir::ConstantValue;
     use graphql_ir::VariableDefinition;
     use intern::string_key::Intern;
+    use relay_test_schema::TEST_SCHEMA;
     use schema::Schema;
     use schema::TypeReference;
 
-    use relay_test_schema::TEST_SCHEMA;
+    use super::*;
 
     fn default_location() -> Location {
         Location::new(SourceLocationKey::standalone("test-file"), Span::new(0, 0))

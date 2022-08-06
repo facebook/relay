@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::ValidationMessage;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlag;
@@ -25,7 +26,8 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
-use std::sync::Arc;
+
+use super::ValidationMessage;
 
 pub fn relay_actor_change_transform(
     program: &Program,

@@ -5,22 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::refetchable_fragment::RefetchableFragment;
-use crate::refetchable_fragment::REFETCHABLE_NAME;
-use crate::RequiredMetadataDirective;
-use crate::ValidationMessage;
-use crate::REQUIRED_DIRECTIVE_NAME;
-use graphql_syntax::OperationKind;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
-use lazy_static::lazy_static;
-use relay_config::SchemaConfig;
-use schema::Type;
 use std::sync::Arc;
 
-use super::ValidationMessageWithData;
-use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -41,7 +27,22 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
+use graphql_syntax::OperationKind;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
+use lazy_static::lazy_static;
+use relay_config::SchemaConfig;
 use schema::Schema;
+use schema::Type;
+
+use super::ValidationMessageWithData;
+use crate::refetchable_fragment::RefetchableFragment;
+use crate::refetchable_fragment::REFETCHABLE_NAME;
+use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
+use crate::RequiredMetadataDirective;
+use crate::ValidationMessage;
+use crate::REQUIRED_DIRECTIVE_NAME;
 
 lazy_static! {
     // This gets attached to the generated query

@@ -5,7 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use self::ignoring_type_and_location::arguments_equals;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::collections::VecDeque;
+use std::marker::PhantomData;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -28,12 +33,9 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
-use std::collections::HashMap;
-use std::collections::HashSet;
-use std::collections::VecDeque;
-use std::marker::PhantomData;
-use std::sync::Arc;
 use thiserror::Error;
+
+use self::ignoring_type_and_location::arguments_equals;
 
 /// Note:set `further_optimization` will enable: (1) cache the paired-fields; and (2) avoid duplicate fragment validations in multi-core machines.
 pub fn validate_selection_conflict<B: LocationAgnosticBehavior + Sync>(

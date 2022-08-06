@@ -6,11 +6,10 @@
  */
 
 use fixture_tests::Fixture;
+use graphql_test_helpers::apply_transform_for_test;
 use relay_transforms::transform_connections;
 use relay_transforms::transform_refetchable_fragment;
 use relay_transforms::ConnectionInterface;
-
-use graphql_test_helpers::apply_transform_for_test;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {

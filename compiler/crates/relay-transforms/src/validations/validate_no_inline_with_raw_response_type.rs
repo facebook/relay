@@ -5,9 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::no_inline::is_raw_response_type_enabled;
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use crate::no_inline::RAW_RESPONSE_TYPE_NAME;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -21,6 +18,10 @@ use graphql_ir::Program;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use intern::string_key::StringKeySet;
+
+use crate::no_inline::is_raw_response_type_enabled;
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use crate::no_inline::RAW_RESPONSE_TYPE_NAME;
 
 /// To generate full raw response types, we need to also generate raw response types for
 /// @no_inline fragment normalization files. So raw_response_type argument is required

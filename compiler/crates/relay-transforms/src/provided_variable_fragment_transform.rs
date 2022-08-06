@@ -7,7 +7,6 @@
 
 use std::cmp::Reverse;
 
-use crate::util::format_provided_variable_name;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -30,6 +29,8 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::TypeReference;
 use thiserror::Error;
+
+use crate::util::format_provided_variable_name;
 
 /// This transform applies provided variables in each fragment.
 ///  - Rename all uses of provided variables (in values)

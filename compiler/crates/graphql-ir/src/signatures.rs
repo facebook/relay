@@ -5,17 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::associated_data_impl;
-use crate::build::build_constant_value;
-use crate::build::build_type_annotation;
-use crate::build::build_variable_definitions;
-use crate::build::ValidationLevel;
-use crate::build_directive;
-use crate::constants::ARGUMENT_DEFINITION;
-use crate::errors::ValidationMessage;
-use crate::errors::ValidationMessageWithData;
-use crate::ir::ConstantValue;
-use crate::ir::VariableDefinition;
+use std::collections::HashMap;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -31,7 +22,18 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
-use std::collections::HashMap;
+
+use crate::associated_data_impl;
+use crate::build::build_constant_value;
+use crate::build::build_type_annotation;
+use crate::build::build_variable_definitions;
+use crate::build::ValidationLevel;
+use crate::build_directive;
+use crate::constants::ARGUMENT_DEFINITION;
+use crate::errors::ValidationMessage;
+use crate::errors::ValidationMessageWithData;
+use crate::ir::ConstantValue;
+use crate::ir::VariableDefinition;
 
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();

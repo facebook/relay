@@ -7,6 +7,10 @@
 
 mod errors;
 
+use std::fmt::Write;
+use std::sync::Mutex;
+use std::time::Instant;
+
 use common::Named;
 use errors::*;
 use fnv::FnvHashMap;
@@ -29,9 +33,6 @@ use schema::TypeWithFields;
 use schema::UnionID;
 use schema_print::print_directive;
 use schema_print::print_type;
-use std::fmt::Write;
-use std::sync::Mutex;
-use std::time::Instant;
 
 lazy_static! {
     static ref INTROSPECTION_TYPES: FnvHashSet<StringKey> = vec![

@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::client_edges::ClientEdgeMetadataDirective;
+use std::sync::Arc;
+
 use common::Location;
 use common::PointerAddress;
 use common::WithLocation;
@@ -23,7 +24,8 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
-use std::sync::Arc;
+
+use crate::client_edges::ClientEdgeMetadataDirective;
 
 /// A transform that group all client selections and generates ... @__clientExtension inline fragments
 /// the generated result is used by codegen only to generate `ClientExtension` nodes.

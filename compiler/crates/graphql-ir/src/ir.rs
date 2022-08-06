@@ -5,6 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt;
+use std::hash::Hash;
+use std::sync::Arc;
+
 use common::Location;
 use common::Named;
 use common::WithLocation;
@@ -16,9 +20,6 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
-use std::fmt;
-use std::hash::Hash;
-use std::sync::Arc;
 
 use crate::AssociatedData;
 // Definitions

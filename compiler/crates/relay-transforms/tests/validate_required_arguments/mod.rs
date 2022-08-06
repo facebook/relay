@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::build;
@@ -13,7 +15,6 @@ use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use relay_test_schema::TEST_SCHEMA;
 use relay_transforms::validate_required_arguments;
-use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);

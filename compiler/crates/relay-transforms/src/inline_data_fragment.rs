@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -19,11 +21,9 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::VariableDefinition;
-
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use once_cell::sync::Lazy;
-use std::sync::Arc;
 use thiserror::Error;
 
 pub fn inline_data_fragment(program: &Program) -> DiagnosticsResult<Program> {

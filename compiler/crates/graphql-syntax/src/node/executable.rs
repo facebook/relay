@@ -5,15 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt;
+
+use common::Location;
+use common::Span;
+use intern::string_key::StringKey;
+
 use super::constant_value::*;
 use super::directive::Directive;
 use super::primitive::*;
 use super::type_annotation::*;
 use super::value::*;
-use common::Location;
-use common::Span;
-use intern::string_key::StringKey;
-use std::fmt;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ExecutableDefinition {

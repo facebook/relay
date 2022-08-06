@@ -5,11 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::RequiredAction;
-
-use super::validation_message::ValidationMessage;
-use super::ACTION_ARGUMENT;
-use super::REQUIRED_DIRECTIVE_NAME;
 use common::Diagnostic;
 use common::Location;
 use common::NamedItem;
@@ -20,6 +15,11 @@ use graphql_ir::LinkedField;
 use graphql_ir::ScalarField;
 use intern::string_key::StringKey;
 use schema::SDLSchema;
+
+use super::validation_message::ValidationMessage;
+use super::ACTION_ARGUMENT;
+use super::REQUIRED_DIRECTIVE_NAME;
+use crate::RequiredAction;
 
 #[derive(Clone, Copy)]
 pub struct RequiredMetadata {

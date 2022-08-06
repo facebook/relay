@@ -7,9 +7,6 @@
 
 use std::collections::HashSet;
 
-use super::ValidationMessage;
-use super::ASSIGNABLE_DIRECTIVE;
-use super::UPDATABLE_DIRECTIVE;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -31,6 +28,10 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
+
+use super::ValidationMessage;
+use super::ASSIGNABLE_DIRECTIVE;
+use super::UPDATABLE_DIRECTIVE;
 
 lazy_static! {
     static ref ALLOW_LISTED_DIRECTIVES: Vec<StringKey> = vec![

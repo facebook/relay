@@ -29,6 +29,7 @@ use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
 use relay_config::CustomScalarType;
+use relay_config::DiagnosticReportConfig;
 use relay_config::FlowTypegenConfig;
 use relay_config::JsModuleFormat;
 pub use relay_config::LocalPersistConfig;
@@ -356,6 +357,7 @@ Example file:
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
                     module_import_config: config_file_project.module_import_config,
+                    diagnostic_report_config: config_file_project.diagnostic_report_config,
                 };
                 Ok((project_name, project_config))
             })
@@ -1000,6 +1002,9 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub module_import_config: ModuleImportConfig,
+
+    #[serde(default)]
+    pub diagnostic_report_config: DiagnosticReportConfig,
 }
 
 pub type PersistId = String;

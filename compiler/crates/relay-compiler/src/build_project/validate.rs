@@ -5,8 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::escalate_and_check;
+use common::CriticalDiagnostics;
 use common::DiagnosticsResult;
 use common::FeatureFlags;
+use common::StableDiagnostics;
+use common::WithDiagnostics;
 use errors::try_all;
 use graphql_ir::Program;
 use relay_config::ProjectConfig;
@@ -34,8 +38,8 @@ pub fn validate(
     program: &Program,
     project_config: &ProjectConfig,
     additional_validations: &Option<AdditionalValidations>,
-) -> DiagnosticsResult<()> {
-    try_all(vec![
+) -> DiagnosticsResult<WithDiagnostics<()>> {
+    let output = try_all(vec![
         disallow_reserved_aliases(program, &project_config.schema_config),
         validate_no_double_underscore_alias(program),
         validate_unused_variables(program),
@@ -61,7 +65,27 @@ pub fn validate(
         } else {
             Ok(())
         },
-    ])?;
+    ]);
 
-    Ok(())
+    match output {
+        Ok(_) => Ok(WithDiagnostics {
+            item: (),
+            errors: Vec::new(),
+        }),
+        Err(errors) => {
+            let critical_level = project_config.diagnostic_report_config.critical_level;
+
+            // We are ignoring the results of successful validations in the error branch, since
+            // `try_map` returns a vector of all errors if any validator returned an error.
+            // This is okay because successful validations return no special information
+            // (i.e. their Ok variant contains ()).
+
+            escalate_and_check(critical_level.into(), errors)
+                .map(|StableDiagnostics(diagnostics)| WithDiagnostics {
+                    item: (),
+                    errors: diagnostics,
+                })
+                .map_err(|CriticalDiagnostics(errors)| errors)
+        }
+    }
 }

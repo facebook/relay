@@ -97,6 +97,12 @@ impl DiagnosticReporter {
         }
     }
 
+    pub fn report_diagnostics(&self, diagnostics: &[common::Diagnostic]) {
+        for diagnostic in diagnostics {
+            self.report_diagnostic(diagnostic);
+        }
+    }
+
     pub fn commit_diagnostics(&self) {
         for r in self.active_diagnostics.iter() {
             let (url, diagnostics) = r.pair();

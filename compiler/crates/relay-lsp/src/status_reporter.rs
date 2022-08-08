@@ -9,6 +9,7 @@
 use std::path::PathBuf;
 
 use crossbeam::channel::Sender;
+use log::info;
 use lsp_server::Message;
 use relay_compiler::errors::Error;
 use relay_compiler::status_reporter::StatusReporter;
@@ -42,10 +43,12 @@ impl StatusReporter for LSPStatusReporter {
         );
     }
 
-    fn build_completes(&self) {
+    fn build_completes(&self, diagnostics: &[common::Diagnostic]) {
         set_ready_status(&self.sender);
         self.diagnostic_reporter.clear_regular_diagnostics();
+        self.diagnostic_reporter.report_diagnostics(diagnostics);
         self.diagnostic_reporter.commit_diagnostics();
+        info!("Compilation completed.");
     }
 
     fn build_errors(&self, error: &Error) {

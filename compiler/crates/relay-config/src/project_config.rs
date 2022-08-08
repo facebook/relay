@@ -29,6 +29,7 @@ use serde::Serialize;
 use serde_json::Value;
 
 use crate::connection_interface::ConnectionInterface;
+use crate::diagnostic_report_config::DiagnosticReportConfig;
 use crate::module_import_config::ModuleImportConfig;
 use crate::non_node_id_fields_config::NonNodeIdFieldsConfig;
 use crate::JsModuleFormat;
@@ -190,6 +191,7 @@ pub struct ProjectConfig {
     pub rollout: Rollout,
     pub js_module_format: JsModuleFormat,
     pub module_import_config: ModuleImportConfig,
+    pub diagnostic_report_config: DiagnosticReportConfig,
 }
 
 impl Default for ProjectConfig {
@@ -216,6 +218,7 @@ impl Default for ProjectConfig {
             rollout: Default::default(),
             js_module_format: Default::default(),
             module_import_config: Default::default(),
+            diagnostic_report_config: Default::default(),
         }
     }
 }
@@ -244,6 +247,7 @@ impl Debug for ProjectConfig {
             rollout,
             js_module_format,
             module_import_config,
+            diagnostic_report_config,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -281,6 +285,7 @@ impl Debug for ProjectConfig {
             .field("rollout", rollout)
             .field("js_module_format", js_module_format)
             .field("module_import_config", module_import_config)
+            .field("diagnostic_report_config", diagnostic_report_config)
             .finish()
     }
 }

@@ -28,8 +28,10 @@ use build_ir::BuildIRResult;
 pub use build_ir::SourceHashes;
 pub use build_schema::build_schema;
 use common::sync::*;
+use common::Diagnostic;
 use common::PerfLogEvent;
 use common::PerfLogger;
+use common::WithDiagnostics;
 use dashmap::mapref::entry::Entry;
 use dashmap::DashSet;
 use fnv::FnvBuildHasher;
@@ -71,8 +73,8 @@ use crate::errors::BuildProjectError;
 use crate::file_source::SourceControlUpdateStatus;
 use crate::graphql_asts::GraphQLAsts;
 
-type BuildProjectOutput = (ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>);
-type BuildProgramsOutput = (Programs, Arc<SourceHashes>);
+type BuildProjectOutput = WithDiagnostics<(ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>)>;
+type BuildProgramsOutput = WithDiagnostics<(Programs, Arc<SourceHashes>)>;
 
 pub enum BuildProjectFailure {
     Error(BuildProjectError),
@@ -118,16 +120,18 @@ pub fn validate_program(
     project_config: &ProjectConfig,
     program: &Program,
     log_event: &impl PerfLogEvent,
-) -> Result<(), BuildProjectError> {
+) -> Result<Vec<Diagnostic>, BuildProjectError> {
     let timer = log_event.start("validate_time");
     log_event.number("validate_documents_count", program.document_count());
-    let result =
-        validate(program, project_config, &config.additional_validations).map_err(|errors| {
-            BuildProjectError::ValidationErrors {
+    let result = validate(program, project_config, &config.additional_validations).map_or_else(
+        |errors| {
+            Err(BuildProjectError::ValidationErrors {
                 errors,
                 project_name: project_config.name,
-            }
-        });
+            })
+        },
+        |result| Ok(result.errors),
+    );
 
     log_event.stop(timer);
 
@@ -197,7 +201,8 @@ pub fn build_programs(
     }
 
     // Call validation rules that go beyond type checking.
-    validate_program(config, project_config, &program, log_event)?;
+    // FIXME: Return non-fatal diagnostics from transforms (only validations for now)
+    let diagnostics = validate_program(config, project_config, &program, log_event)?;
 
     let programs = transform_program(
         project_config,
@@ -208,7 +213,10 @@ pub fn build_programs(
         config.custom_transforms.as_ref(),
     )?;
 
-    Ok((programs, Arc::new(source_hashes)))
+    Ok(WithDiagnostics {
+        item: (programs, Arc::new(source_hashes)),
+        errors: diagnostics,
+    })
 }
 
 pub fn build_project(
@@ -247,7 +255,10 @@ pub fn build_project(
     }
 
     // Apply different transform pipelines to produce the `Programs`.
-    let (programs, source_hashes) = build_programs(
+    let WithDiagnostics {
+        item: (programs, source_hashes),
+        errors: diagnostics,
+    } = build_programs(
         config,
         project_config,
         compiler_state,
@@ -280,7 +291,10 @@ pub fn build_project(
 
     log_event.stop(build_time);
     log_event.complete();
-    Ok((project_config.name, schema, programs, artifacts))
+    Ok(WithDiagnostics {
+        item: (project_config.name, schema, programs, artifacts),
+        errors: diagnostics,
+    })
 }
 
 #[allow(clippy::too_many_arguments)]

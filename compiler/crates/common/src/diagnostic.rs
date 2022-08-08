@@ -18,7 +18,8 @@ use crate::Location;
 use crate::SourceLocationKey;
 use crate::TextSource;
 
-pub type DiagnosticsResult<T> = Result<T, Vec<Diagnostic>>;
+pub type Diagnostics = Vec<Diagnostic>;
+pub type DiagnosticsResult<T> = Result<T, Diagnostics>;
 
 #[derive(fmt::Debug)]
 pub struct WithDiagnostics<T> {
@@ -26,8 +27,8 @@ pub struct WithDiagnostics<T> {
     pub errors: Vec<Diagnostic>,
 }
 
-impl<T> From<WithDiagnostics<T>> for Result<T, Vec<Diagnostic>> {
-    fn from(s: WithDiagnostics<T>) -> Result<T, Vec<Diagnostic>> {
+impl<T> From<WithDiagnostics<T>> for Result<T, Diagnostics> {
+    fn from(s: WithDiagnostics<T>) -> Result<T, Diagnostics> {
         if s.errors.is_empty() {
             Ok(s.item)
         } else {
@@ -36,7 +37,7 @@ impl<T> From<WithDiagnostics<T>> for Result<T, Vec<Diagnostic>> {
     }
 }
 
-pub fn diagnostics_result<T>(result: T, diagnostics: Vec<Diagnostic>) -> DiagnosticsResult<T> {
+pub fn diagnostics_result<T>(result: T, diagnostics: Diagnostics) -> DiagnosticsResult<T> {
     if diagnostics.is_empty() {
         Ok(result)
     } else {
@@ -56,17 +57,26 @@ pub fn diagnostics_result<T>(result: T, diagnostics: Vec<Diagnostic>) -> Diagnos
 pub struct Diagnostic(Box<DiagnosticData>);
 
 impl Diagnostic {
-    /// Creates a new error Diagnostic.
-    /// Additional locations can be added with the `.annotate()` function.
-    pub fn error<T: 'static + DiagnosticDisplay>(message: T, location: Location) -> Self {
+    fn with_severity<T: 'static + DiagnosticDisplay>(
+        severity: DiagnosticSeverity,
+        message: T,
+        location: Location,
+        tags: Vec<DiagnosticTag>,
+    ) -> Self {
         Self(Box::new(DiagnosticData {
             message: Box::new(message),
             location,
-            tags: Vec::new(),
-            severity: DiagnosticSeverity::ERROR,
             related_information: Vec::new(),
+            tags,
+            severity,
             data: Vec::new(),
         }))
+    }
+
+    /// Creates a new error Diagnostic.
+    /// Additional locations can be added with the `.annotate()` function.
+    pub fn error<T: 'static + DiagnosticDisplay>(message: T, location: Location) -> Self {
+        Diagnostic::with_severity(DiagnosticSeverity::ERROR, message, location, Vec::new())
     }
 
     /// Creates a new error Diagnostic with additional data that
@@ -86,6 +96,26 @@ impl Diagnostic {
         }))
     }
 
+    /// Creates a new Diagnostic with a severity of Warning
+    /// Additional locations can be added with the `.annotate()` function.
+    pub fn warning<T: 'static + DiagnosticDisplay>(
+        message: T,
+        location: Location,
+        tags: Vec<DiagnosticTag>,
+    ) -> Self {
+        Diagnostic::with_severity(DiagnosticSeverity::WARNING, message, location, tags)
+    }
+
+    /// Creates a new Diagnostic with a severity of Information
+    /// Additional locations can be added with the `.annotate()` function.
+    pub fn info<T: 'static + DiagnosticDisplay>(
+        message: T,
+        location: Location,
+        tags: Vec<DiagnosticTag>,
+    ) -> Self {
+        Diagnostic::with_severity(DiagnosticSeverity::INFORMATION, message, location, tags)
+    }
+
     /// Creates a new Diagnostic with a severity of Hint
     /// Additional locations can be added with the `.annotate()` function.
     pub fn hint<T: 'static + DiagnosticDisplay>(
@@ -93,14 +123,7 @@ impl Diagnostic {
         location: Location,
         tags: Vec<DiagnosticTag>,
     ) -> Self {
-        Self(Box::new(DiagnosticData {
-            message: Box::new(message),
-            location,
-            tags,
-            related_information: Vec::new(),
-            severity: DiagnosticSeverity::HINT, // TODO: Make this an argument?
-            data: Vec::new(),
-        }))
+        Diagnostic::with_severity(DiagnosticSeverity::HINT, message, location, tags)
     }
 
     /// Annotates this error with an additional location and associated message.
@@ -146,6 +169,19 @@ impl Diagnostic {
             "Diagnostic::override_location can only be called when the location is generated."
         );
         self.0.location = location;
+    }
+
+    /// Override the severity. This should only be used for escalating
+    /// diagnostics for error reporting. For example, any warnings that
+    /// need to be reported as errors can be reconstructed as diagnostics
+    /// with a severity of DiagnosticSeverity::ERROR.
+    pub fn override_severity(&mut self, severity: DiagnosticSeverity) {
+        assert!(
+            self.0.severity >= severity, // NOTE: The most critical severity level is actually the lowest enum value
+            "Diagnostic::override_severity can only be called when increasing the severity level",
+        );
+
+        self.0.severity = severity;
     }
 
     pub fn related_information(&self) -> &[DiagnosticRelatedInformation] {
@@ -236,7 +272,7 @@ pub trait DiagnosticDisplay: fmt::Debug + fmt::Display + Send + Sync {}
 /// implementors don't need to.
 impl<T> DiagnosticDisplay for T where T: fmt::Debug + fmt::Display + Send + Sync {}
 
-impl From<Diagnostic> for Vec<Diagnostic> {
+impl From<Diagnostic> for Diagnostics {
     fn from(diagnostic: Diagnostic) -> Self {
         vec![diagnostic]
     }

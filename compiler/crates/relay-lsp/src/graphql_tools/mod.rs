@@ -224,10 +224,10 @@ pub(crate) fn get_query_text<
 
     let result = parse_executable_with_error_recovery(&original_text, SourceLocationKey::Generated);
 
-    if !&result.errors.is_empty() {
+    if !&result.diagnostics.is_empty() {
         return Err(LSPRuntimeError::UnexpectedError(
             result
-                .errors
+                .diagnostics
                 .iter()
                 .map(|err| format!("- {}\n", err))
                 .collect::<String>(),

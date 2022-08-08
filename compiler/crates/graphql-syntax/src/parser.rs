@@ -133,7 +133,7 @@ impl<'a> Parser<'a> {
         });
         WithDiagnostics {
             item: document,
-            errors: self.errors,
+            diagnostics: self.errors,
         }
     }
 

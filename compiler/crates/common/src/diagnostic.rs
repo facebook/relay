@@ -24,15 +24,15 @@ pub type DiagnosticsResult<T> = Result<T, Diagnostics>;
 #[derive(fmt::Debug)]
 pub struct WithDiagnostics<T> {
     pub item: T,
-    pub errors: Vec<Diagnostic>,
+    pub diagnostics: Vec<Diagnostic>,
 }
 
 impl<T> From<WithDiagnostics<T>> for Result<T, Diagnostics> {
     fn from(s: WithDiagnostics<T>) -> Result<T, Diagnostics> {
-        if s.errors.is_empty() {
+        if s.diagnostics.is_empty() {
             Ok(s.item)
         } else {
-            Err(s.errors)
+            Err(s.diagnostics)
         }
     }
 }

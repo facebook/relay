@@ -70,7 +70,7 @@ pub fn validate(
     match output {
         Ok(_) => Ok(WithDiagnostics {
             item: (),
-            errors: Vec::new(),
+            diagnostics: Vec::new(),
         }),
         Err(errors) => {
             let critical_level = project_config.diagnostic_report_config.critical_level;
@@ -83,7 +83,7 @@ pub fn validate(
             escalate_and_check(critical_level.into(), errors)
                 .map(|StableDiagnostics(diagnostics)| WithDiagnostics {
                     item: (),
-                    errors: diagnostics,
+                    diagnostics,
                 })
                 .map_err(|CriticalDiagnostics(errors)| errors)
         }

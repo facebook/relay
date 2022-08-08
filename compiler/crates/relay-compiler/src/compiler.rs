@@ -341,7 +341,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     let mut handles: Vec<JoinHandle<std::result::Result<_, BuildProjectFailure>>> = Vec::new();
     for WithDiagnostics {
         item: (project_name, schema, programs, artifacts),
-        errors: diagnostics,
+        diagnostics,
     } in results
     {
         let config = Arc::clone(&config);

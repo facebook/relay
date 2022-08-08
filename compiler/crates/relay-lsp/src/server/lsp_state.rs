@@ -236,7 +236,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         &graphql_source.text_source().text,
                         source_location_key,
                     );
-                    diagnostics.extend(result.errors.iter().map(|diagnostic| {
+                    diagnostics.extend(result.diagnostics.iter().map(|diagnostic| {
                         convert_diagnostic(graphql_source.text_source(), diagnostic)
                     }));
 

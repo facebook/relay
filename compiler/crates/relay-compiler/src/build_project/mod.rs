@@ -130,7 +130,7 @@ pub fn validate_program(
                 project_name: project_config.name,
             })
         },
-        |result| Ok(result.errors),
+        |result| Ok(result.diagnostics),
     );
 
     log_event.stop(timer);
@@ -215,7 +215,7 @@ pub fn build_programs(
 
     Ok(WithDiagnostics {
         item: (programs, Arc::new(source_hashes)),
-        errors: diagnostics,
+        diagnostics,
     })
 }
 
@@ -257,7 +257,7 @@ pub fn build_project(
     // Apply different transform pipelines to produce the `Programs`.
     let WithDiagnostics {
         item: (programs, source_hashes),
-        errors: diagnostics,
+        diagnostics,
     } = build_programs(
         config,
         project_config,
@@ -293,7 +293,7 @@ pub fn build_project(
     log_event.complete();
     Ok(WithDiagnostics {
         item: (project_config.name, schema, programs, artifacts),
-        errors: diagnostics,
+        diagnostics,
     })
 }
 

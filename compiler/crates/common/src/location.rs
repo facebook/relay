@@ -155,6 +155,13 @@ impl<T> WithLocation<T> {
             item,
         }
     }
+
+    pub fn map<U>(self, f: impl FnOnce(T) -> U) -> WithLocation<U> {
+        WithLocation {
+            location: self.location,
+            item: f(self.item),
+        }
+    }
 }
 
 #[cfg(test)]

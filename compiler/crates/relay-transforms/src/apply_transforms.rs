@@ -23,6 +23,7 @@ use crate::assignable_fragment_spread::annotate_updatable_fragment_spreads;
 use crate::assignable_fragment_spread::replace_updatable_fragment_spreads;
 use crate::client_extensions_abstract_types::client_extensions_abstract_types;
 use crate::disallow_non_node_id_fields;
+use crate::generate_relay_resolvers_self_fragment::generate_relay_resolvers_self_fragment;
 use crate::match_::hash_supported_argument;
 use crate::skip_updatable_queries::skip_updatable_queries;
 
@@ -192,6 +193,10 @@ fn apply_common_transforms(
     program = log_event.time("provided_variable_fragment_transform", || {
         provided_variable_fragment_transform(&program)
     })?;
+
+    program = log_event.time("generate_relay_resolvers_self_fragment", || {
+        generate_relay_resolvers_self_fragment(&program)
+    });
 
     program = apply_after_custom_transforms(
         &program,
@@ -616,6 +621,9 @@ fn apply_typegen_transforms(
         transform_subscriptions(&program)
     })?;
     program = log_event.time("required_directive", || required_directive(&program))?;
+    program = log_event.time("generate_relay_resolvers_self_fragment", || {
+        generate_relay_resolvers_self_fragment(&program)
+    });
     program = log_event.time("client_edges", || {
         client_edges(&program, &project_config.schema_config)
     })?;

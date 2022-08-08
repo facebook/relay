@@ -29,6 +29,7 @@ mod fragment_alias_directive;
 mod generate_data_driven_dependency_metadata;
 mod generate_id_field;
 mod generate_live_query_metadata;
+mod generate_relay_resolvers_self_fragment;
 mod generate_typename;
 mod handle_fields;
 mod hash_arguments;

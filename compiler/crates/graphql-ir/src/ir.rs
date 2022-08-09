@@ -6,6 +6,7 @@
  */
 
 use std::fmt;
+use std::fmt::Display;
 use std::hash::Hash;
 use std::sync::Arc;
 
@@ -47,9 +48,19 @@ impl ExecutableDefinition {
 
     pub fn name_with_location(&self) -> WithLocation<StringKey> {
         match self {
-            ExecutableDefinition::Operation(node) => node.name,
+            ExecutableDefinition::Operation(node) => {
+                WithLocation::new(node.name.location, node.name.item.0)
+            }
             ExecutableDefinition::Fragment(node) => node.name,
         }
+    }
+}
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy)]
+pub struct OperationDefinitionName(pub StringKey);
+
+impl Display for OperationDefinitionName {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
@@ -57,11 +68,17 @@ impl ExecutableDefinition {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct OperationDefinition {
     pub kind: OperationKind,
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<OperationDefinitionName>,
     pub type_: Type,
     pub variable_definitions: Vec<VariableDefinition>,
     pub directives: Vec<Directive>,
     pub selections: Vec<Selection>,
+}
+
+impl Named for OperationDefinition {
+    fn name(&self) -> StringKey {
+        self.name.item.0
+    }
 }
 
 impl OperationDefinition {

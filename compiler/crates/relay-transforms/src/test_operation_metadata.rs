@@ -15,6 +15,7 @@ use graphql_ir::ConstantValue;
 use graphql_ir::Field as IrField;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
@@ -250,8 +251,9 @@ impl RelayTestOperationMetadata {
                         }
                         Selection::FragmentSpread(spread) => {
                             // Must be a shared normalization fragment
-                            let operation =
-                                program.operation(spread.fragment.item).unwrap_or_else(|| {
+                            let operation = program
+                                .operation(OperationDefinitionName(spread.fragment.item))
+                                .unwrap_or_else(|| {
                                     panic!("Expected fragment '{}' to exist.", spread.fragment.item)
                                 });
                             assert!(

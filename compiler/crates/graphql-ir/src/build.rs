@@ -425,7 +425,9 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         } else {
             Ok(OperationDefinition {
                 kind,
-                name: name.name_with_location(self.location.source_location()),
+                name: name
+                    .name_with_location(self.location.source_location())
+                    .map(OperationDefinitionName),
                 type_: operation_type,
                 variable_definitions,
                 directives,

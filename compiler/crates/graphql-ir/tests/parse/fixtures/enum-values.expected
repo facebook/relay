@@ -13,7 +13,9 @@ query EnumValueQuery {
             kind: Query,
             name: WithLocation {
                 location: enum-values.graphql:6:20,
-                item: "EnumValueQuery",
+                item: OperationDefinitionName(
+                    "EnumValueQuery",
+                ),
             },
             type_: Object(0),
             variable_definitions: [],

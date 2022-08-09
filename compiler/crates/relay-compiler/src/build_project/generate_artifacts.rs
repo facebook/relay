@@ -70,7 +70,7 @@ pub fn generate_artifacts(
                     return Artifact {
                         source_definition_names: metadata.parent_documents.into_iter().collect(),
                         path: project_config
-                            .path_for_artifact(source_file, normalization.name.item),
+                            .path_for_artifact(source_file, normalization.name.item.0),
                         content: ArtifactContent::SplitOperation {
                             normalization_operation: Arc::clone(normalization),
                             typegen_operation,
@@ -115,12 +115,12 @@ pub fn generate_artifacts(
                     )
                 } else {
                     let source_hash = source_hashes
-                        .get(&normalization.name.item)
+                        .get(&normalization.name.item.0)
                         .cloned()
                         .unwrap();
                     return generate_normalization_artifact(
                         &mut operation_printer,
-                        normalization.name.item,
+                        normalization.name.item.0,
                         project_config,
                         &operations,
                         source_hash,
@@ -136,11 +136,11 @@ pub fn generate_artifacts(
                     .is_some()
                 {
                     let source_hash = source_hashes
-                        .get(&reader.name.item)
+                        .get(&reader.name.item.0)
                         .cloned()
                         .unwrap();
                     return generate_updatable_query_artifact(
-                        reader.name.item,
+                        reader.name.item.0,
                         project_config,
                         &operations,
                         source_hash,
@@ -148,7 +148,6 @@ pub fn generate_artifacts(
                     )
                 }
             }
-
             panic!("Expected at least one of an @updatable reader AST, or normalization AST to be present");
         })
         .chain(programs.reader.fragments().map(|reader_fragment| {
@@ -198,7 +197,7 @@ fn generate_normalization_artifact(
 
     Artifact {
         source_definition_names: vec![source_definition_name],
-        path: project_config.path_for_artifact(source_file, normalization.name.item),
+        path: project_config.path_for_artifact(source_file, normalization.name.item.0),
         content: ArtifactContent::Operation {
             normalization_operation: Arc::clone(normalization),
             reader_operation: operations.expect_reader(),
@@ -224,7 +223,7 @@ fn generate_updatable_query_artifact(
 
     Artifact {
         source_definition_names: vec![source_definition_name],
-        path: project_config.path_for_artifact(source_file, reader.name.item),
+        path: project_config.path_for_artifact(source_file, reader.name.item.0),
         content: ArtifactContent::UpdatableQuery {
             reader_operation: operations.expect_reader(),
             typegen_operation: operations.expect_typegen(),
@@ -280,7 +279,7 @@ impl<'a> OperationGroup<'a> {
     fn expect_reader(&self) -> Arc<OperationDefinition> {
         let normal_name = self
             .normalization
-            .map_or("MISSING_ENTRY", |n| n.name.item.lookup());
+            .map_or("MISSING_ENTRY", |n| n.name.item.0.lookup());
 
         Arc::clone(
             self.reader.unwrap_or_else(|| {
@@ -292,7 +291,7 @@ impl<'a> OperationGroup<'a> {
     fn expect_typegen(&self) -> Arc<OperationDefinition> {
         let normal_name = self
             .normalization
-            .map_or("MISSING_ENTRY", |n| n.name.item.lookup());
+            .map_or("MISSING_ENTRY", |n| n.name.item.0.lookup());
 
         Arc::clone(self.typegen.unwrap_or_else(|| {
             panic!("Expected to have a typegen operation for `{}`", normal_name)
@@ -310,7 +309,7 @@ fn group_operations(programs: &Programs) -> FnvHashMap<StringKey, OperationGroup
         .iter()
         .map(|normalization_operation| {
             (
-                normalization_operation.name.item,
+                normalization_operation.name.item.0,
                 OperationGroup {
                     normalization: Some(normalization_operation),
                     operation_text: None,
@@ -323,19 +322,19 @@ fn group_operations(programs: &Programs) -> FnvHashMap<StringKey, OperationGroup
 
     for operation in programs.operation_text.operations() {
         grouped_operations
-            .entry(operation.name.item)
+            .entry(operation.name.item.0)
             .or_insert_with(OperationGroup::new)
             .operation_text = Some(operation);
     }
     for operation in programs.reader.operations() {
         grouped_operations
-            .entry(operation.name.item)
+            .entry(operation.name.item.0)
             .or_insert_with(OperationGroup::new)
             .reader = Some(operation);
     }
     for operation in programs.typegen.operations() {
         grouped_operations
-            .entry(operation.name.item)
+            .entry(operation.name.item.0)
             .or_insert_with(OperationGroup::new)
             .typegen = Some(operation);
     }

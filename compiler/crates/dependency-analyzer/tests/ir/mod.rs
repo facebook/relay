@@ -20,7 +20,9 @@ use schema::SDLSchema;
 
 fn format_definition(def: ExecutableDefinition) -> String {
     match def {
-        ExecutableDefinition::Operation(operation) => format!("Operation: {}", operation.name.item),
+        ExecutableDefinition::Operation(operation) => {
+            format!("Operation: {}", operation.name.item)
+        }
         ExecutableDefinition::Fragment(fragment) => format!("Fragment: {}", fragment.name.item),
     }
 }

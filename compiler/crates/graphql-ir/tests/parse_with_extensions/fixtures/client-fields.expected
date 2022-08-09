@@ -52,7 +52,9 @@ type Foo {
             kind: Query,
             name: WithLocation {
                 location: client-fields.graphql:6:22,
-                item: "BestFriendsQuery",
+                item: OperationDefinitionName(
+                    "BestFriendsQuery",
+                ),
             },
             type_: Object(0),
             variable_definitions: [

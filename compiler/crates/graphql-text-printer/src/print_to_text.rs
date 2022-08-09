@@ -209,7 +209,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             OperationKind::Mutation => "mutation",
             OperationKind::Subscription => "subscription",
         };
-        let operation_name = operation.name.item;
+        let operation_name = operation.name.item.0;
         write!(self.writer, "{} {}", operation_kind, operation_name)?;
         self.print_variable_definitions(&operation.variable_definitions)?;
         self.print_directives(&operation.directives, None, None)?;

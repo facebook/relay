@@ -11,7 +11,9 @@ query TestQuery($id: ID!) {
             kind: Query,
             name: WithLocation {
                 location: simple-query.graphql:6:15,
-                item: "TestQuery",
+                item: OperationDefinitionName(
+                    "TestQuery",
+                ),
             },
             type_: Object(0),
             variable_definitions: [

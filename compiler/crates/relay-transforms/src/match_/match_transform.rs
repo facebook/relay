@@ -806,7 +806,7 @@ impl Transformer for MatchTransform<'_, '_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = operation.name.item;
+        self.document_name = operation.name.item.0;
         self.matches_for_path = Default::default();
         self.match_directive_key_argument = None;
         self.parent_type = operation.type_;

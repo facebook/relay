@@ -89,7 +89,7 @@ fn build_dependency_graph(
 
     for definition in definitions.into_iter() {
         let name = match &definition {
-            ExecutableDefinition::Operation(operation) => operation.name.item,
+            ExecutableDefinition::Operation(operation) => operation.name.item.0,
             ExecutableDefinition::Fragment(fragment) => fragment.name.item,
         };
 

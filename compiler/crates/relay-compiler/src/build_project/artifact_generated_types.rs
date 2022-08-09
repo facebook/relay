@@ -53,13 +53,13 @@ impl ArtifactGeneratedTypes {
                 format!(
                     "{kind}<\n  {name}$variables,\n  {name}$data,\n  {name}$rawResponse,\n>",
                     kind = kind,
-                    name = operation.name.item
+                    name = operation.name.item.0
                 )
             } else {
                 format!(
                     "{kind}<\n  {name}$variables,\n  {name}$data,\n>",
                     kind = kind,
-                    name = operation.name.item
+                    name = operation.name.item.0
                 )
             };
             Self {
@@ -84,7 +84,7 @@ impl ArtifactGeneratedTypes {
         } else {
             let exported_type = format!(
                 "UpdatableQuery<\n  {name}$variables,\n  {name}$data,\n>",
-                name = typegen_operation.name.item,
+                name = typegen_operation.name.item.0,
             );
             Self {
                 imported_types: "UpdatableQuery, ConcreteUpdatableQuery",

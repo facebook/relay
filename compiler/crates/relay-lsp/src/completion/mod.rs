@@ -13,6 +13,7 @@ use common::Named;
 use common::NamedItem;
 use common::Span;
 use fnv::FnvHashSet;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::VariableDefinition;
 use graphql_ir::DIRECTIVE_ARGUMENTS;
@@ -782,7 +783,7 @@ fn resolve_completion_items_for_argument_value(
             }
         }
         ExecutableName::Operation(name) => {
-            if let Some(operation) = program.operation(name) {
+            if let Some(operation) = program.operation(OperationDefinitionName(name)) {
                 operation
                     .variable_definitions
                     .iter()

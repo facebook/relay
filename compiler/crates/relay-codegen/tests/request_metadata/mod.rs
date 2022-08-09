@@ -63,7 +63,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                         };
 
                         let operation_fragment = FragmentDefinition {
-                            name: operation.name,
+                            name: WithLocation::new(operation.name.location, operation.name.item.0),
                             variable_definitions: operation.variable_definitions.clone(),
                             selections: operation.selections.clone(),
                             used_global_variables: Default::default(),

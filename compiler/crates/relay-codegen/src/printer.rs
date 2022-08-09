@@ -11,6 +11,7 @@ use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 use std::path::Path;
 
+use common::WithLocation;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
 use graphql_ir::FragmentDefinition;
@@ -96,7 +97,7 @@ pub fn print_request_params(
         &mut builder,
         operation,
         top_level_statements,
-        operation.name,
+        operation.name.map(|x| x.0),
         project_config,
     );
     let printer = JSONPrinter::new(&builder, project_config, top_level_statements);
@@ -136,7 +137,7 @@ impl<'p> Printer<'p> {
             schema,
             &mut self.builder,
             operation,
-            operation.name,
+            WithLocation::new(operation.name.location, operation.name.item.0),
             self.project_config,
         )?;
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
@@ -184,7 +185,7 @@ impl<'p> Printer<'p> {
             &mut self.builder,
             operation,
             top_level_statements,
-            operation.name,
+            WithLocation::new(operation.name.location, operation.name.item.0),
             self.project_config,
         );
         let key = build_request(
@@ -210,7 +211,7 @@ impl<'p> Printer<'p> {
             schema,
             &mut self.builder,
             operation,
-            operation.name,
+            WithLocation::new(operation.name.location, operation.name.item.0),
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
@@ -247,7 +248,7 @@ impl<'p> Printer<'p> {
             &mut self.builder,
             operation,
             top_level_statements,
-            operation.name,
+            WithLocation::new(operation.name.location, operation.name.item.0),
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);

@@ -17,7 +17,9 @@ query TestQuery {
             kind: Query,
             name: WithLocation {
                 location: field-arguments.graphql:6:15,
-                item: "TestQuery",
+                item: OperationDefinitionName(
+                    "TestQuery",
+                ),
             },
             type_: Object(0),
             variable_definitions: [],

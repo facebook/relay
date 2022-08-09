@@ -56,7 +56,10 @@ impl Validator for ValidateRequiredArguments<'_> {
     const VALIDATE_DIRECTIVES: bool = true;
 
     fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
-        self.root_name_with_location = Some(operation.name);
+        self.root_name_with_location = Some(WithLocation::new(
+            operation.name.location,
+            operation.name.item.0,
+        ));
         self.default_validate_operation(operation)
     }
 

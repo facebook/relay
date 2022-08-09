@@ -67,7 +67,7 @@ impl Validator for ValidateGlobalVariables<'_> {
                 .map(|arg_def| arg_def.name.location);
             let mut error = Diagnostic::error(
                 ValidationMessage::GlobalVariables {
-                    operation_name: operation.name.item,
+                    operation_name: operation.name.item.0,
                     variables_string: format!(
                         "{}: '${}'",
                         if is_plural { "s" } else { "" },

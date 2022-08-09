@@ -10,6 +10,7 @@ use std::sync::Arc;
 use common::WithLocation;
 use graphql_ir::InlineFragment;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
@@ -136,7 +137,10 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                             raw_response_type: false,
                         },
                         OperationDefinition {
-                            name: WithLocation::new(module_metadata.location, normalization_name),
+                            name: WithLocation::new(
+                                module_metadata.location,
+                                OperationDefinitionName(normalization_name),
+                            ),
                             type_: parent_type,
                             variable_definitions: vec![],
                             directives: vec![],

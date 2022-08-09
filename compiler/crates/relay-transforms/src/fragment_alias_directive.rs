@@ -177,7 +177,7 @@ impl Transformer for FragmentAliasTransform<'_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = Some(operation.name.item);
+        self.document_name = Some(operation.name.item.0);
         self.parent_type = Some(operation.type_);
         let transformed = self.default_transform_operation(operation);
         self.parent_type = None;

@@ -272,7 +272,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
     fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
         if operation.directives.named(*UPDATABLE_DIRECTIVE).is_some() {
             self.executable_definition_info = Some(ExecutableDefinitionInfo {
-                name: operation.name.item,
+                name: operation.name.item.0,
                 location: operation.name.location,
                 type_plural: "operations",
             });

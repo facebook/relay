@@ -55,7 +55,7 @@ pub fn generate_updatable_query(
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let operation_fragment = FragmentDefinition {
-        name: reader_operation.name,
+        name: reader_operation.name.map(|x| x.0),
         variable_definitions: reader_operation.variable_definitions.clone(),
         selections: reader_operation.selections.clone(),
         used_global_variables: Default::default(),
@@ -182,7 +182,7 @@ pub fn generate_operation(
         request_parameters.text = text.clone();
     };
     let operation_fragment = FragmentDefinition {
-        name: reader_operation.name,
+        name: reader_operation.name.map(|x| x.0),
         variable_definitions: reader_operation.variable_definitions.clone(),
         selections: reader_operation.selections.clone(),
         used_global_variables: Default::default(),

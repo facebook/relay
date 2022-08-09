@@ -50,7 +50,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .operations()
         .map(|def| {
             let operation_fragment = FragmentDefinition {
-                name: def.name,
+                name: def.name.map(|x| x.0),
                 variable_definitions: def.variable_definitions.clone(),
                 selections: def.selections.clone(),
                 used_global_variables: Default::default(),

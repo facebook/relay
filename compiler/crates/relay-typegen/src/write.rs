@@ -186,12 +186,12 @@ pub(crate) fn write_operation_type_exports_section(
     write_custom_scalar_imports(custom_scalars, writer)?;
     write_input_object_types(input_object_types, writer)?;
 
-    let variables_identifier = format!("{}$variables", typegen_operation.name.item);
+    let variables_identifier = format!("{}$variables", typegen_operation.name.item.0);
     let variables_identifier_key = variables_identifier.as_str().intern();
 
     writer.write_export_type(&variables_identifier, &input_variables_type.into())?;
 
-    let response_identifier = format!("{}$data", typegen_operation.name.item);
+    let response_identifier = format!("{}$data", typegen_operation.name.item.0);
     let response_identifier_key = response_identifier.as_str().intern();
     writer.write_export_type(&response_identifier, &data_type)?;
 
@@ -206,7 +206,7 @@ pub(crate) fn write_operation_type_exports_section(
         raw_response_prop,
     )?;
     writer.write_export_type(
-        typegen_operation.name.item.lookup(),
+        typegen_operation.name.item.0.lookup(),
         &query_wrapper_type.into(),
     )?;
 
@@ -226,7 +226,7 @@ fn write_raw_response_and_get_raw_response_prop(
         for (key, ast) in match_fields.0 {
             writer.write_export_type(key.lookup(), &ast)?;
         }
-        let raw_response_identifier = format!("{}$rawResponse", typegen_operation.name.item);
+        let raw_response_identifier = format!("{}$rawResponse", typegen_operation.name.item.0);
         writer.write_export_type(&raw_response_identifier, &raw_response_type)?;
 
         Ok(Some(KeyValuePairProp {
@@ -284,7 +284,7 @@ pub(crate) fn write_split_operation_type_exports_section(
         writer.write_export_type(key.lookup(), &ast)?;
     }
 
-    writer.write_export_type(typegen_operation.name.item.lookup(), &raw_response_type)?;
+    writer.write_export_type(typegen_operation.name.item.0.lookup(), &raw_response_type)?;
 
     Ok(())
 }

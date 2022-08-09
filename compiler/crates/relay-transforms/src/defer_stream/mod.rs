@@ -290,7 +290,7 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.set_current_document_name(operation.name.item);
+        self.set_current_document_name(operation.name.item.0);
         self.default_transform_operation(operation)
     }
 

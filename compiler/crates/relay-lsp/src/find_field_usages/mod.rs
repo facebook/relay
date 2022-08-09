@@ -207,7 +207,7 @@ impl Visitor for FieldUsageFinder<'_> {
         //  before recursively visiting the operation's selections
         assert!(self.current_scope.label.is_none());
         assert!(self.current_scope.types.is_empty());
-        self.current_scope.label = Some(operation.name.item);
+        self.current_scope.label = Some(operation.name.item.0);
         self.current_scope
             .types
             .push(self.schema.get_type_name(operation.type_));

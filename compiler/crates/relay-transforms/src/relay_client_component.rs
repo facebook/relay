@@ -21,6 +21,7 @@ use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
@@ -101,7 +102,9 @@ pub fn relay_client_component(
     if !transform.split_operations.is_empty() {
         for (_, (metadata, mut operation)) in transform.split_operations.drain() {
             operation.directives.push(metadata.to_directive());
-            if let Some(prev_operation) = next_program.operation(operation.name.item) {
+            if let Some(prev_operation) =
+                next_program.operation(OperationDefinitionName(operation.name.item.0))
+            {
                 transform.errors.push(Diagnostic::error(
                     ValidationMessage::DuplicateRelayClientComponentSplitOperation,
                     prev_operation.name.location,
@@ -248,7 +251,10 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
                             raw_response_type: false,
                         },
                         OperationDefinition {
-                            name: WithLocation::new(spread.fragment.location, normalization_name),
+                            name: WithLocation::new(
+                                spread.fragment.location,
+                                OperationDefinitionName(normalization_name),
+                            ),
                             type_: fragment.type_condition,
                             kind: OperationKind::Query,
                             variable_definitions: fragment.variable_definitions.clone(),
@@ -346,7 +352,7 @@ impl<'program, 'flag> Transformer for RelayClientComponentTransform<'program, 'f
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         assert!(self.split_operation_filenames.is_empty());
-        self.document_name = Some(operation.name.item);
+        self.document_name = Some(operation.name.item.0);
 
         let transformed = self.default_transform_operation(operation);
         if self.split_operation_filenames.is_empty() {

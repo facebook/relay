@@ -172,7 +172,10 @@ pub fn generate_operation_type_exports_section(
             .directives
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
-        typegen_operation.name,
+        WithLocation::new(
+            typegen_operation.name.location,
+            typegen_operation.name.item.0,
+        ),
         fragment_locations,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
@@ -200,7 +203,10 @@ pub fn generate_split_operation_type_exports_section(
             .directives
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
-        typegen_operation.name,
+        WithLocation::new(
+            typegen_operation.name.location,
+            typegen_operation.name.item.0,
+        ),
         fragment_locations,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);

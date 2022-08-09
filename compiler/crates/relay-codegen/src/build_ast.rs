@@ -146,7 +146,7 @@ pub fn build_request(
 
 pub fn build_request_params(operation: &OperationDefinition) -> RequestParameters<'_> {
     RequestParameters {
-        name: operation.name.item,
+        name: operation.name.item.0,
         operation_kind: operation.kind,
         id: &None,
         text: None,
@@ -237,7 +237,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 let mut fields = object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.split_operation),
                     metadata: metadata,
-                    name: Primitive::String(operation.name.item),
+                    name: Primitive::String(operation.name.item.0),
                     selections: selections,
                 };
                 if !operation.variable_definitions.is_empty() {
@@ -260,7 +260,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 let mut fields = object! {
                     argument_definitions: Primitive::Key(argument_definitions),
                     kind: Primitive::String(CODEGEN_CONSTANTS.operation_value),
-                    name: Primitive::String(operation.name.item),
+                    name: Primitive::String(operation.name.item.0),
                     selections: selections,
                 };
                 if let Some(client_abstract_types) =
@@ -1719,7 +1719,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             vec![
                 ObjectEntry {
                     key: CODEGEN_CONSTANTS.cache_id,
-                    value: Primitive::RawString(md5(operation.name.item.lookup())),
+                    value: Primitive::RawString(md5(operation.name.item.0.lookup())),
                 },
                 id_prop,
                 metadata_prop,

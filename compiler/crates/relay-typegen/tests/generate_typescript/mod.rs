@@ -85,7 +85,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let fragment_locations = FragmentLocations::new(programs.typegen.fragments());
     let mut operations: Vec<_> = programs.typegen.operations().collect();
-    operations.sort_by_key(|op| op.name.item);
+    operations.sort_by_key(|op| op.name.item.0);
     let operation_strings = operations.into_iter().map(|typegen_operation| {
         let normalization_operation = programs
             .normalization

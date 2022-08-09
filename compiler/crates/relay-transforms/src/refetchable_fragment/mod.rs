@@ -25,6 +25,7 @@ use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::VariableDefinition;
@@ -93,7 +94,7 @@ pub fn transform_refetchable_fragment(
                     kind: OperationKind::Query,
                     name: WithLocation::new(
                         fragment.name.location,
-                        refetchable_directive.query_name.item,
+                        OperationDefinitionName(refetchable_directive.query_name.item),
                     ),
                     type_: program.schema.query_type().unwrap(),
                     variable_definitions: operation_result.variable_definitions,
@@ -245,10 +246,9 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
         }
 
         // check for conflict with operations
-        if let Some(existing_query) = self
-            .program
-            .operation(refetchable_directive.query_name.item)
-        {
+        if let Some(existing_query) = self.program.operation(OperationDefinitionName(
+            refetchable_directive.query_name.item,
+        )) {
             return Err(vec![
                 Diagnostic::error(
                     ValidationMessage::RefetchableQueryConflictWithQuery {

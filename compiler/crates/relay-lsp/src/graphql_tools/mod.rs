@@ -16,6 +16,7 @@ use graphql_ir::ExecutableDefinition;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentVariablesSemantic;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_syntax::parse_executable_with_error_recovery;
@@ -150,7 +151,9 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
 }
 
 fn print_full_operation_text(programs: Programs, operation_name: StringKey) -> Option<String> {
-    let print_operation_node = programs.operation_text.operation(operation_name)?;
+    let print_operation_node = programs
+        .operation_text
+        .operation(OperationDefinitionName(operation_name))?;
 
     Some(print_full_operation(
         &programs.operation_text,
@@ -238,7 +241,7 @@ pub(crate) fn get_query_text<
         build_operation_ir_with_fragments(&result.item.definitions, schema)
             .map_err(LSPRuntimeError::UnexpectedError)?;
 
-    let operation_name = operation.name.item;
+    let operation_name = operation.name.item.0;
     let program = state.get_program(project_name)?;
 
     let query_text =

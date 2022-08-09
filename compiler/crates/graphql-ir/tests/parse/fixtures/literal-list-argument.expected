@@ -13,7 +13,9 @@ query LiteralListArgumentQuery {
             kind: Query,
             name: WithLocation {
                 location: literal-list-argument.graphql:6:30,
-                item: "LiteralListArgumentQuery",
+                item: OperationDefinitionName(
+                    "LiteralListArgumentQuery",
+                ),
             },
             type_: Object(0),
             variable_definitions: [],

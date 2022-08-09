@@ -22,6 +22,7 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
@@ -268,7 +269,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                     kind: OperationKind::Query,
                     name: WithLocation::new(
                         document_name.location,
-                        refetchable_directive.query_name.item,
+                        OperationDefinitionName(refetchable_directive.query_name.item),
                     ),
                     type_: query_type,
                     variable_definitions: refetchable_root.variable_definitions,
@@ -451,7 +452,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = Some(operation.name);
+        self.document_name = Some(operation.name.map(|x| x.0));
         let new_operation = self.default_transform_operation(operation);
         self.document_name = None;
         new_operation

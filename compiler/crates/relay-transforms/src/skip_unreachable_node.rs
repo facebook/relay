@@ -105,7 +105,7 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
                         errors.push(Diagnostic::error(
                             ValidationMessage::EmptySelectionsInDocument {
                                 document: "query",
-                                name: operation.name.item,
+                                name: operation.name.item.0,
                             },
                             operation.name.location,
                         ));

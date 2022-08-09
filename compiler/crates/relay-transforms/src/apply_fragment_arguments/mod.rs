@@ -27,6 +27,7 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Selection;
@@ -464,7 +465,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             None
         } else {
             Some(OperationDefinition {
-                name: WithLocation::new(name.location, normalization_name),
+                name: WithLocation::new(name.location, OperationDefinitionName(normalization_name)),
                 type_: type_condition,
                 variable_definitions,
                 directives,
@@ -473,7 +474,11 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             })
         };
 
-        if self.program.operation(normalization_name).is_some() {
+        if self
+            .program
+            .operation(OperationDefinitionName(normalization_name))
+            .is_some()
+        {
             self.errors.push(Diagnostic::error(
                 format!(
                     "Invalid usage of @no_inline on fragment '{}' - @no_inline is only allowed on allowlisted fragments loaded with @module",

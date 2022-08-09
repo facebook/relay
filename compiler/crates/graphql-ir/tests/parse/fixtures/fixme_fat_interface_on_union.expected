@@ -12,7 +12,9 @@ query Test {
             kind: Query,
             name: WithLocation {
                 location: fixme_fat_interface_on_union.graphql:6:10,
-                item: "Test",
+                item: OperationDefinitionName(
+                    "Test",
+                ),
             },
             type_: Object(0),
             variable_definitions: [],

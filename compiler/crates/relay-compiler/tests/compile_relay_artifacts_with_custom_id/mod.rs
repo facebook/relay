@@ -18,6 +18,7 @@ use graphql_ir::BuilderOptions;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentVariablesSemantic;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::RelayMode;
 use graphql_syntax::parse_executable;
@@ -113,7 +114,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let mut operations: Vec<&std::sync::Arc<OperationDefinition>> =
         programs.normalization.operations().collect();
-    operations.sort_by_key(|operation| operation.name.item);
+    operations.sort_by_key(|operation| operation.name.item.0);
     let result = operations
         .into_iter()
         .map(|operation| {
@@ -127,8 +128,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                     print_operation(&schema, operation, &project_config, &mut import_statements);
                 format!("{}{}", import_statements, operation)
             } else {
-                let name = operation.name.item;
-                let print_operation_node = programs.operation_text.operation(name);
+                let name = operation.name.item.0;
+                let print_operation_node = programs
+                    .operation_text
+                    .operation(OperationDefinitionName(name));
                 let text = print_operation_node.map_or_else(
                     || "Query Text is Empty.".to_string(),
                     |print_operation_node| {
@@ -138,10 +141,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
                 let reader_operation = programs
                     .reader
-                    .operation(name)
+                    .operation(OperationDefinitionName(name))
                     .expect("a reader fragment should be generated for this operation");
                 let operation_fragment = FragmentDefinition {
-                    name: reader_operation.name,
+                    name: reader_operation.name.map(|x| x.0),
                     variable_definitions: reader_operation.variable_definitions.clone(),
                     selections: reader_operation.selections.clone(),
                     used_global_variables: Default::default(),

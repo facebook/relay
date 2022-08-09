@@ -3,6 +3,7 @@
 <PROJECT_ROOT>/compiler/.*
 <PROJECT_ROOT>/.*/node_modules/.*
 .*/node_modules/resolve/test/resolver/malformed_package_json/package.json
+<PROJECT_ROOT>/packages/relay-flight-experimental/.*
 
 [options]
 exact_by_default=true

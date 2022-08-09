@@ -96,7 +96,8 @@
     "testRegex": "/__tests__/.*-test\\.js$",
     "modulePathIgnorePatterns": [
       "<rootDir>/lib/",
-      "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/))"
+      "<rootDir>/node_modules/(?!(fbjs/lib/|react/lib/))",
+      "<rootDir>/packages/relay-flight-experimental/"
     ],
     "rootDir": "",
     "roots": [

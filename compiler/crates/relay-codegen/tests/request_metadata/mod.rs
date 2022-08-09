@@ -15,6 +15,7 @@ use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::ExecutableDefinition;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Value;
 use graphql_syntax::parse_executable;
@@ -63,7 +64,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                         };
 
                         let operation_fragment = FragmentDefinition {
-                            name: WithLocation::new(operation.name.location, operation.name.item.0),
+                            name: operation.name.map(|x| FragmentDefinitionName(x.0)),
                             variable_definitions: operation.variable_definitions.clone(),
                             selections: operation.selections.clone(),
                             used_global_variables: Default::default(),

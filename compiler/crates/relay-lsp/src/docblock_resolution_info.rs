@@ -7,6 +7,7 @@
 
 use common::Span;
 use graphql_ir::reexport::StringKey;
+use graphql_ir::FragmentDefinitionName;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
 
@@ -16,7 +17,7 @@ use crate::LSPRuntimeResult;
 pub enum DocblockResolutionInfo {
     OnType(StringKey),
     OnInterface(StringKey),
-    RootFragment(StringKey),
+    RootFragment(FragmentDefinitionName),
     FieldName(StringKey),
     EdgeTo(StringKey),
     Deprecated,

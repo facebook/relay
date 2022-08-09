@@ -15,7 +15,9 @@ fragment TestFragment on User
         FragmentDefinition {
             name: WithLocation {
                 location: fragment_with_valid_provider.graphql:9:21,
-                item: "TestFragment",
+                item: FragmentDefinitionName(
+                    "TestFragment",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {

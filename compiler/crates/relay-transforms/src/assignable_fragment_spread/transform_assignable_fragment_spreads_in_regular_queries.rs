@@ -232,7 +232,7 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
                 directives: vec![],
                 selections: vec![Selection::ScalarField(Arc::new(ScalarField {
                     alias: Some(WithLocation::generated(
-                        format!("__is{}", fragment_spread.fragment.item.lookup()).intern(),
+                        format!("__is{}", fragment_spread.fragment.item.0.lookup()).intern(),
                     )),
                     definition: WithLocation::generated(self.program.schema.typename_field()),
                     arguments: vec![],

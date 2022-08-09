@@ -14,6 +14,7 @@ use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
 use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Selection;
@@ -343,7 +344,7 @@ pub(crate) fn write_fragment_type_exports_section(
         read_only: true,
         value: AST::Identifier(data_type_name.as_str().intern()),
     });
-    let fragment_name = fragment_definition.name.item;
+    let fragment_name = fragment_definition.name.item.0;
     let ref_type_fragment_spreads_property = Prop::KeyValuePair(KeyValuePairProp {
         key: if typegen_context.generating_updatable_types {
             *KEY_UPDATABLE_FRAGMENT_SPREADS
@@ -442,7 +443,7 @@ pub(crate) fn write_fragment_type_exports_section(
 
 fn write_fragment_imports(
     typegen_context: &'_ TypegenContext<'_>,
-    fragment_name_to_skip: Option<StringKey>,
+    fragment_name_to_skip: Option<FragmentDefinitionName>,
     encountered_fragments: EncounteredFragments,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
@@ -722,7 +723,7 @@ fn write_abstract_validator_function(
     fragment_definition: &FragmentDefinition,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
-    let fragment_name = fragment_definition.name.item.lookup();
+    let fragment_name = fragment_definition.name.item.0.lookup();
     let abstract_fragment_spread_marker = format!("__is{}", fragment_name).intern();
     let id_prop = Prop::KeyValuePair(KeyValuePairProp {
         key: *KEY_CLIENTID,
@@ -809,7 +810,7 @@ fn write_concrete_validator_function(
     fragment_definition: &FragmentDefinition,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
-    let fragment_name = fragment_definition.name.item.lookup();
+    let fragment_name = fragment_definition.name.item.0.lookup();
     let concrete_typename = typegen_context
         .schema
         .get_type_name(fragment_definition.type_condition);

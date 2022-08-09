@@ -11,6 +11,7 @@ use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::build;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::Program;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
@@ -50,7 +51,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .operations()
         .map(|def| {
             let operation_fragment = FragmentDefinition {
-                name: def.name.map(|x| x.0),
+                name: def.name.map(|x| FragmentDefinitionName(x.0)),
                 variable_definitions: def.variable_definitions.clone(),
                 selections: def.selections.clone(),
                 used_global_variables: Default::default(),

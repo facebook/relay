@@ -384,7 +384,7 @@ impl<'s> Transformer for ConnectionTransform<'s> {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         // TODO(T63626938): This assumes that each document is processed serially (not in parallel or concurrently)
-        self.current_document_name = fragment.name.item;
+        self.current_document_name = fragment.name.item.0;
         self.current_path = Some(Vec::new());
         self.current_connection_metadata = Vec::new();
 

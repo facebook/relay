@@ -153,7 +153,7 @@ impl<'program> SubscriptionTransform<'program> {
             format!("{}__subscription", operation.name.item.0.lookup());
         let normalization_operation_name = format!(
             "{}.graphql",
-            get_normalization_operation_name(fragment_spread.fragment.item)
+            get_normalization_operation_name(fragment_spread.fragment.item.0)
         )
         .intern();
 

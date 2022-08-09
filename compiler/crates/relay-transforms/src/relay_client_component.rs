@@ -19,6 +19,7 @@ use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinition;
 use graphql_ir::OperationDefinitionName;
@@ -132,7 +133,7 @@ struct RelayClientComponentTransform<'program, 'flag> {
     split_operation_filenames: StringKeySet,
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
-    no_inline_fragments: StringKeyMap<Vec<StringKey>>,
+    no_inline_fragments: FragmentDefinitionNameMap<Vec<StringKey>>,
 }
 
 impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
@@ -230,7 +231,7 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
             ));
         }
 
-        let should_use_no_inline = self.no_inline_flag.is_enabled_for(spread.fragment.item);
+        let should_use_no_inline = self.no_inline_flag.is_enabled_for(spread.fragment.item.0);
         if should_use_no_inline {
             self.no_inline_fragments
                 .entry(fragment.name.item)
@@ -240,10 +241,10 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
             // Generate a SplitOperation AST
             let created_split_operation = self
                 .split_operations
-                .entry(spread.fragment.item)
+                .entry(spread.fragment.item.0)
                 .or_insert_with(|| {
                     let normalization_name =
-                        get_normalization_operation_name(spread.fragment.item).intern();
+                        get_normalization_operation_name(spread.fragment.item.0).intern();
                     (
                         SplitOperationMetadata {
                             derived_from: spread.fragment.item,
@@ -372,7 +373,7 @@ impl<'program, 'flag> Transformer for RelayClientComponentTransform<'program, 'f
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         assert!(self.split_operation_filenames.is_empty());
-        self.document_name = Some(fragment.name.item);
+        self.document_name = Some(fragment.name.item.0);
 
         let transformed = self.default_transform_fragment(fragment);
         if self.split_operation_filenames.is_empty() {

@@ -40,9 +40,9 @@ use fnv::FnvHashSet;
 pub use generate_artifacts::generate_artifacts;
 pub use generate_artifacts::Artifact;
 pub use generate_artifacts::ArtifactContent;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
 use intern::string_key::StringKey;
-use intern::string_key::StringKeySet;
 use log::debug;
 use log::info;
 use log::warn;
@@ -142,7 +142,7 @@ pub fn validate_program(
 pub fn transform_program(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger + 'static>,
     log_event: &impl PerfLogEvent,
     custom_transforms_config: Option<&CustomTransformsConfig>,
@@ -173,7 +173,7 @@ pub fn build_programs(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     project_asts: ProjectAsts,
-    base_fragment_names: StringKeySet,
+    base_fragment_names: FragmentDefinitionNameSet,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     perf_logger: Arc<impl PerfLogger + 'static>,

@@ -7,6 +7,7 @@
 
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
+use graphql_ir::FragmentDefinitionName;
 use indexmap::IndexMap;
 use relay_config::SchemaConfig;
 use relay_transforms::TypeConditionInfo;
@@ -108,7 +109,7 @@ impl TypeSelection {
             TypeSelection::ScalarField(s) => s.field_name_or_alias,
             TypeSelection::FragmentSpread(i) => format!("__fragments_{}", i.fragment_name).intern(),
             TypeSelection::InlineFragment(i) => format!("__fragments_{}", i.fragment_name).intern(),
-            TypeSelection::ModuleDirective(md) => md.fragment_name,
+            TypeSelection::ModuleDirective(md) => md.fragment_name.0,
             TypeSelection::RawResponseFragmentSpread(_) => *SPREAD_KEY,
         }
     }
@@ -123,7 +124,7 @@ pub(crate) struct RawResponseFragmentSpread {
 
 #[derive(Debug, Clone)]
 pub(crate) struct ModuleDirective {
-    pub(crate) fragment_name: StringKey,
+    pub(crate) fragment_name: FragmentDefinitionName,
     pub(crate) document_name: StringKey,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
@@ -149,14 +150,14 @@ pub(crate) struct TypeSelectionScalarField {
 
 #[derive(Debug, Clone)]
 pub(crate) struct TypeSelectionInlineFragment {
-    pub(crate) fragment_name: StringKey,
+    pub(crate) fragment_name: FragmentDefinitionName,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
 }
 
 #[derive(Debug, Clone)]
 pub(crate) struct TypeSelectionFragmentSpread {
-    pub(crate) fragment_name: StringKey,
+    pub(crate) fragment_name: FragmentDefinitionName,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
     // Why are we using TypeSelectionInfo instead of re-using concrete_type?

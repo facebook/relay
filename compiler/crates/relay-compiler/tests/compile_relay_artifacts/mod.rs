@@ -13,11 +13,11 @@ use common::FeatureFlag;
 use common::FeatureFlags;
 use common::NamedItem;
 use common::SourceLocationKey;
-use common::WithLocation;
 use fixture_tests::Fixture;
 use graphql_ir::build_ir_with_extra_features;
 use graphql_ir::BuilderOptions;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentVariablesSemantic;
 use graphql_ir::OperationDefinition;
 use graphql_ir::OperationDefinitionName;
@@ -234,10 +234,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                     .operation(OperationDefinitionName(name))
                     .expect("a reader fragment should be generated for this operation");
                 let operation_fragment = FragmentDefinition {
-                    name: WithLocation::new(
-                        reader_operation.name.location,
-                        reader_operation.name.item.0,
-                    ),
+                    name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
                     variable_definitions: reader_operation.variable_definitions.clone(),
                     selections: reader_operation.selections.clone(),
                     used_global_variables: Default::default(),

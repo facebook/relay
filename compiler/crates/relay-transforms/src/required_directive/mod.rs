@@ -22,6 +22,7 @@ use graphql_ir::associated_data_impl;
 use graphql_ir::Directive;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
@@ -547,7 +548,7 @@ impl From<StringKey> for RequiredAction {
 
 struct RequiredDirectiveVisitor<'s> {
     program: &'s Program,
-    visited_fragments: StringKeyMap<bool>,
+    visited_fragments: FragmentDefinitionNameMap<bool>,
 }
 
 impl<'s> DirectiveFinder for RequiredDirectiveVisitor<'s> {

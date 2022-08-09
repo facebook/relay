@@ -13,6 +13,7 @@ use common::Named;
 use common::NamedItem;
 use common::Span;
 use fnv::FnvHashSet;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::VariableDefinition;
@@ -115,7 +116,7 @@ impl CompletionRequest {
 #[derive(Debug, Copy, Clone)]
 pub enum ExecutableName {
     Operation(StringKey),
-    Fragment(StringKey),
+    Fragment(FragmentDefinitionName),
 }
 
 trait ArgumentLike {
@@ -204,8 +205,9 @@ impl CompletionRequestBuilder {
                 }
                 ExecutableDefinition::Fragment(fragment) => {
                     if fragment.location.contains(position_span) {
-                        self.current_executable_name =
-                            Some(ExecutableName::Fragment(fragment.name.value));
+                        self.current_executable_name = Some(ExecutableName::Fragment(
+                            FragmentDefinitionName(fragment.name.value),
+                        ));
                         let type_name = fragment.type_condition.type_.value;
                         let type_path = vec![TypePathItem::FragmentDefinition { type_name }];
                         if let Some(req) = self.build_request_from_selection_or_directives(
@@ -597,7 +599,7 @@ fn completion_items_for_request(
                 ))
             }
             ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
-                let fragment = program.fragment(fragment_spread_name)?;
+                let fragment = program.fragment(FragmentDefinitionName(fragment_spread_name))?;
                 Some(resolve_completion_items_for_argument_name(
                     fragment.variable_definitions.iter(),
                     schema,
@@ -625,7 +627,8 @@ fn completion_items_for_request(
                     &field.arguments.named(argument_name)?.type_
                 }
                 ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
-                    let fragment = program.fragment(fragment_spread_name)?;
+                    let fragment =
+                        program.fragment(FragmentDefinitionName(fragment_spread_name))?;
                     &fragment.variable_definitions.named(argument_name)?.type_
                 }
                 ArgumentKind::Directive(directive_name) => {

@@ -8,7 +8,9 @@ query RefetchableFragmentQuery(
   $id: ID!
 ) @__RefetchableDerivedFromMetadata
 # RefetchableDerivedFromMetadata(
-#     "RefetchableFragment",
+#     FragmentDefinitionName(
+#         "RefetchableFragment",
+#     ),
 # )
  {
   node(id: $id) {

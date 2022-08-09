@@ -13,6 +13,7 @@ use ::intern::string_key::StringKey;
 use common::NamedItem;
 use graphql_ir::Condition;
 use graphql_ir::Directive;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -282,7 +283,7 @@ fn generate_resolver_type(
     encountered_fragments: &mut EncounteredFragments,
     runtime_imports: &mut RuntimeImports,
     resolver_name: StringKey,
-    fragment_name: Option<StringKey>,
+    fragment_name: Option<FragmentDefinitionName>,
     resolver_metadata: &RelayResolverMetadata,
 ) -> AST {
     let mut resolver_arguments = vec![];
@@ -367,7 +368,7 @@ fn generate_local_resolver_name(field_parent_type: StringKey, field_name: String
 #[allow(clippy::too_many_arguments)]
 fn import_relay_resolver_function_type(
     typegen_context: &'_ TypegenContext<'_>,
-    fragment_name: Option<StringKey>,
+    fragment_name: Option<FragmentDefinitionName>,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
@@ -409,7 +410,7 @@ fn import_relay_resolver_function_type(
 #[allow(clippy::too_many_arguments)]
 fn visit_relay_resolver(
     typegen_context: &'_ TypegenContext<'_>,
-    fragment_name: Option<StringKey>,
+    fragment_name: Option<FragmentDefinitionName>,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
@@ -745,7 +746,7 @@ fn raw_response_visit_inline_fragment(
 
     if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
         let fragment_name = module_metadata.fragment_name;
-        if !match_fields.0.contains_key(&fragment_name) {
+        if !match_fields.0.contains_key(&fragment_name.0) {
             let match_field = raw_response_selections_to_babel(
                 typegen_context,
                 selections.iter().filter(|sel| !sel.is_js_field()).cloned(),
@@ -754,7 +755,7 @@ fn raw_response_visit_inline_fragment(
                 runtime_imports,
                 custom_scalars,
             );
-            match_fields.0.insert(fragment_name, match_field);
+            match_fields.0.insert(fragment_name.0, match_field);
         }
 
         type_selections.extend(selections.iter().filter(|sel| sel.is_js_field()).cloned());
@@ -1390,7 +1391,7 @@ fn make_prop(
                                         let assignable_fragment_spread_ref= Prop::KeyValuePair(KeyValuePairProp {
                                             key: *KEY_FRAGMENT_SPREADS,
                                             value: AST::FragmentReferenceType(
-                                                fragment_spread.fragment_name,
+                                                fragment_spread.fragment_name.0,
                                             ),
                                             read_only: true,
                                             optional: false,
@@ -1497,7 +1498,7 @@ fn raw_response_make_prop(
     let optional = type_selection.is_conditional();
     match type_selection {
         TypeSelection::ModuleDirective(module_directive) => Prop::Spread(SpreadProp {
-            value: module_directive.fragment_name,
+            value: module_directive.fragment_name.0,
         }),
         TypeSelection::LinkedField(linked_field) => {
             let node_type = linked_field.node_type;
@@ -1689,7 +1690,7 @@ pub(crate) fn raw_response_visit_selections(
                 // @relay_client_component generate fragment spreads without
                 // @no_inline if no_inline isn't enabled for the fragment.
                 if NoInlineFragmentSpreadMetadata::find(&spread.directives).is_some() {
-                    let spread_type = spread.fragment.item;
+                    let spread_type = spread.fragment.item.0;
                     imported_raw_response_types.0.insert(spread_type);
                     type_selections.push(TypeSelection::RawResponseFragmentSpread(
                         RawResponseFragmentSpread {
@@ -2025,19 +2026,23 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                 return Some(prop);
             }
         }
+
+        let get_fragment_as_stringkey = |fragment_name: FragmentDefinitionName| fragment_name.0;
         if let Some(refs) = regular_fragment_spreads.take() {
+            let refs_as_stringkeys = refs.into_iter().map(get_fragment_as_stringkey).collect();
             return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
                 field_name_or_alias: *KEY_FRAGMENT_SPREADS,
-                value: AST::FragmentReference(SortedStringKeyList::new(refs)),
+                value: AST::FragmentReference(SortedStringKeyList::new(refs_as_stringkeys)),
                 special_field: None,
                 conditional: false,
                 concrete_type: None,
             }));
         }
         if let Some(refs) = updatable_fragment_spreads.take() {
+            let refs_as_stringkeys = refs.into_iter().map(get_fragment_as_stringkey).collect();
             return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
                 field_name_or_alias: *KEY_UPDATABLE_FRAGMENT_SPREADS,
-                value: AST::FragmentReference(SortedStringKeyList::new(refs)),
+                value: AST::FragmentReference(SortedStringKeyList::new(refs_as_stringkeys)),
                 special_field: None,
                 conditional: false,
                 concrete_type: None,

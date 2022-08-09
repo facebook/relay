@@ -5,8 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashMap;
+use std::collections::HashSet;
 use std::fmt;
 use std::fmt::Display;
+use std::fmt::Formatter;
 use std::hash::Hash;
 use std::sync::Arc;
 
@@ -17,11 +20,13 @@ use common::WithLocation;
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
 use intern::string_key::StringKey;
+use intern::BuildIdHasher;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
+use serde::Serialize;
 
 use crate::AssociatedData;
 // Definitions
@@ -48,10 +53,8 @@ impl ExecutableDefinition {
 
     pub fn name_with_location(&self) -> WithLocation<StringKey> {
         match self {
-            ExecutableDefinition::Operation(node) => {
-                WithLocation::new(node.name.location, node.name.item.0)
-            }
-            ExecutableDefinition::Fragment(node) => node.name,
+            ExecutableDefinition::Operation(node) => node.name.map(|x| x.0),
+            ExecutableDefinition::Fragment(node) => node.name.map(|x| x.0),
         }
     }
 }
@@ -93,10 +96,23 @@ impl OperationDefinition {
     }
 }
 
+/// A newtype wrapper around StringKey to represent a FragmentDefinition's name
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize)]
+pub struct FragmentDefinitionName(pub StringKey);
+
+impl fmt::Display for FragmentDefinitionName {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
+pub type FragmentDefinitionNameMap<V> = HashMap<FragmentDefinitionName, V, BuildIdHasher<u32>>;
+pub type FragmentDefinitionNameSet = HashSet<FragmentDefinitionName, BuildIdHasher<u32>>;
+
 /// A fully-typed fragment definition
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FragmentDefinition {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<FragmentDefinitionName>,
     pub variable_definitions: Vec<VariableDefinition>,
     pub used_global_variables: Vec<VariableDefinition>,
     pub type_condition: Type,
@@ -238,7 +254,7 @@ impl fmt::Debug for Selection {
 /// ... Name
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FragmentSpread {
-    pub fragment: WithLocation<StringKey>,
+    pub fragment: WithLocation<FragmentDefinitionName>,
     pub arguments: Vec<Argument>,
     pub directives: Vec<Directive>,
 }

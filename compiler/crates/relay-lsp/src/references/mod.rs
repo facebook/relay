@@ -10,6 +10,7 @@
 use std::path::Path;
 
 use common::Location as IRLocation;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::Program;
 use graphql_ir::Visitor;
@@ -119,7 +120,7 @@ impl Visitor for ReferenceFinder {
     const VISIT_DIRECTIVES: bool = false;
 
     fn visit_fragment_spread(&mut self, spread: &FragmentSpread) {
-        if spread.fragment.item == self.name {
+        if spread.fragment.item == FragmentDefinitionName(self.name) {
             self.references.push(spread.fragment.location);
         }
     }

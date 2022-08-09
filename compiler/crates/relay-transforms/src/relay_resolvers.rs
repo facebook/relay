@@ -16,6 +16,7 @@ use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
 use graphql_ir::Field as IrField;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -56,7 +57,7 @@ lazy_static! {
 struct RelayResolverFieldMetadata {
     field_parent_type: StringKey,
     import_path: StringKey,
-    fragment_name: Option<StringKey>,
+    fragment_name: Option<FragmentDefinitionName>,
     field_path: StringKey,
     live: bool,
 }
@@ -409,7 +410,7 @@ impl Transformer for RelayResolverFieldTransform<'_> {
 }
 
 struct ResolverInfo {
-    fragment_name: Option<StringKey>,
+    fragment_name: Option<FragmentDefinitionName>,
     import_path: StringKey,
     live: bool,
 }
@@ -431,7 +432,8 @@ fn get_resolver_info(
                 *RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
                 error_location,
             )
-            .ok();
+            .ok()
+            .map(FragmentDefinitionName);
             let import_path = get_argument_value(
                 arguments,
                 *RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
@@ -490,7 +492,7 @@ fn get_bool_argument_is_true(arguments: &[ArgumentValue], argument_name: StringK
     }
 }
 
-pub fn get_resolver_fragment_name(field: &Field) -> Option<StringKey> {
+pub fn get_resolver_fragment_name(field: &Field) -> Option<FragmentDefinitionName> {
     if !field.is_extension {
         return None;
     }
@@ -503,5 +505,5 @@ pub fn get_resolver_fragment_name(field: &Field) -> Option<StringKey> {
                 .arguments
                 .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
         })
-        .and_then(|arg| arg.value.get_string_literal())
+        .and_then(|arg| arg.value.get_string_literal().map(FragmentDefinitionName))
 }

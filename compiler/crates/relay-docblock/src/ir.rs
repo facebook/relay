@@ -13,6 +13,7 @@ use common::Location;
 use common::Named;
 use common::Span;
 use common::WithLocation;
+use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantArgument;
 use graphql_syntax::ConstantDirective;
@@ -108,7 +109,7 @@ impl Named for Argument {
 pub struct RelayResolverIr {
     pub field: FieldDefinitionStub,
     pub on: On,
-    pub root_fragment: Option<WithLocation<StringKey>>,
+    pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
     pub edge_to: Option<WithLocation<TypeAnnotation>>,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
@@ -413,7 +414,10 @@ impl RelayResolverIr {
         )];
 
         if let Some(root_fragment) = self.root_fragment {
-            arguments.push(string_argument(*FRAGMENT_KEY_ARGUMENT_NAME, root_fragment));
+            arguments.push(string_argument(
+                *FRAGMENT_KEY_ARGUMENT_NAME,
+                root_fragment.map(|x| x.0),
+            ));
         }
 
         if let Some(live_field) = self.live {

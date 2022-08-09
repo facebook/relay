@@ -14,6 +14,8 @@ use schema::SDLSchema;
 
 use crate::ir::ExecutableDefinition;
 use crate::ir::FragmentDefinition;
+use crate::ir::FragmentDefinitionName;
+use crate::ir::FragmentDefinitionNameMap;
 use crate::ir::OperationDefinition;
 use crate::ir::OperationDefinitionName;
 
@@ -21,7 +23,7 @@ use crate::ir::OperationDefinitionName;
 #[derive(Debug, Clone)]
 pub struct Program {
     pub schema: Arc<SDLSchema>,
-    pub fragments: StringKeyMap<Arc<FragmentDefinition>>,
+    pub fragments: FragmentDefinitionNameMap<Arc<FragmentDefinition>>,
     pub operations: Vec<Arc<OperationDefinition>>,
 }
 
@@ -67,11 +69,14 @@ impl Program {
         };
     }
 
-    pub fn fragment(&self, name: StringKey) -> Option<&Arc<FragmentDefinition>> {
+    pub fn fragment(&self, name: FragmentDefinitionName) -> Option<&Arc<FragmentDefinition>> {
         self.fragments.get(&name)
     }
 
-    pub fn fragment_mut(&mut self, name: StringKey) -> Option<&mut Arc<FragmentDefinition>> {
+    pub fn fragment_mut(
+        &mut self,
+        name: FragmentDefinitionName,
+    ) -> Option<&mut Arc<FragmentDefinition>> {
         self.fragments.get_mut(&name)
     }
 
@@ -120,7 +125,7 @@ impl Program {
         }
         if let Some(removed_definition_names) = removed_definition_names {
             for removed in removed_definition_names {
-                self.fragments.remove(removed);
+                self.fragments.remove(&FragmentDefinitionName(*removed));
                 operations.remove(removed);
             }
         }

@@ -326,7 +326,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 } else {
                     self.build_fragment_metadata(context, fragment)
                 },
-            name: Primitive::String(fragment.name.item),
+            name: Primitive::String(fragment.name.item.0),
             selections: selections,
             type_: Primitive::String(self.schema.get_type_name(fragment.type_condition)),
             abstract_key: if fragment.type_condition.is_abstract_type() {
@@ -493,7 +493,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     fn build_inline_data_fragment(&mut self, fragment: &FragmentDefinition) -> AstKey {
         let object = object! {
             kind: Primitive::String(CODEGEN_CONSTANTS.inline_data_fragment),
-            name: Primitive::String(fragment.name.item),
+            name: Primitive::String(fragment.name.item.0),
         };
         self.object(object)
     }
@@ -851,7 +851,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
             let path_for_artifact = self.project_config.create_path_for_artifact(
                 fragment_source_location_key,
-                frag_spread.fragment.item.lookup().to_string(),
+                frag_spread.fragment.item.0.lookup().to_string(),
             );
 
             let normalization_import_path = self.project_config.js_module_import_path(
@@ -877,7 +877,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     Some(key) => Primitive::Key(key),
                 },
             kind: Primitive::String(CODEGEN_CONSTANTS.fragment_spread),
-            name: Primitive::String(frag_spread.fragment.item),
+            name: Primitive::String(frag_spread.fragment.item.0),
         }));
 
         if let Some(fragment_alias_metadata) = FragmentAliasMetadata::find(&frag_spread.directives)
@@ -1519,7 +1519,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         inline_fragment: &InlineFragment,
     ) -> Vec<Primitive> {
         let fragment_name = module_metadata.fragment_name;
-        let fragment_name_str = fragment_name.lookup();
+        let fragment_name_str = fragment_name.0.lookup();
         let underscore_idx = fragment_name_str.find('_').unwrap_or_else(|| {
             panic!(
                 "@module fragments should be named 'FragmentName_propName', got '{}'.",
@@ -1542,7 +1542,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 Some(key) => Primitive::Key(key),
             },
             document_name: Primitive::String(module_metadata.key),
-            fragment_name: Primitive::String(fragment_name),
+            fragment_name: Primitive::String(fragment_name.0),
             fragment_prop_name: Primitive::String(fragment_name_str[underscore_idx + 1..].intern()),
             kind: Primitive::String(CODEGEN_CONSTANTS.module_import),
         };
@@ -1563,7 +1563,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     key: CODEGEN_CONSTANTS.operation_module_provider,
                     value: Primitive::DynamicImport {
                         provider: dynamic_module_provider,
-                        module: get_fragment_filename(module_metadata.fragment_name),
+                        module: get_fragment_filename(fragment_name),
                     },
                 });
             }
@@ -1590,7 +1590,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         Primitive::Key(self.object(object! {
             kind: Primitive::String(CODEGEN_CONSTANTS.inline_data_fragment_spread),
-            name: Primitive::String(inline_directive_data.fragment_name),
+            name: Primitive::String(inline_directive_data.fragment_name.0),
             selections: selections,
             args: match args {
                 None => Primitive::SkippableNull,

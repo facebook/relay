@@ -9,6 +9,8 @@ use common::Diagnostic;
 use dependency_analyzer::get_reachable_ast;
 use dependency_analyzer::ReachableAst;
 use fnv::FnvHashMap;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_syntax::ExecutableDefinition;
 use intern::string_key::StringKeySet;
 use relay_config::ProjectConfig;
@@ -28,7 +30,7 @@ pub struct ProjectAsts {
 
 pub struct ProjectAstData {
     pub project_asts: ProjectAsts,
-    pub base_fragment_names: StringKeySet,
+    pub base_fragment_names: FragmentDefinitionNameSet,
 }
 
 pub fn get_project_asts(
@@ -73,7 +75,7 @@ pub fn get_project_asts(
     base_fragment_names.extend(
         base_resolver_fragment_asts
             .iter()
-            .filter_map(|ast| ast.name()),
+            .filter_map(|ast| ast.name().map(FragmentDefinitionName)),
     );
     definitions.append(&mut base_resolver_fragment_asts);
 
@@ -144,8 +146,8 @@ fn find_base_resolver_fragment_asts(
     let mut base_resolver_fragments = StringKeySet::default();
     for field in schema.fields() {
         if let Some(fragment_name) = get_resolver_fragment_name(field) {
-            if base_definition_asts.contains(&fragment_name) {
-                base_resolver_fragments.insert(fragment_name);
+            if base_definition_asts.contains(&fragment_name.0) {
+                base_resolver_fragments.insert(fragment_name.0);
             }
         }
     }

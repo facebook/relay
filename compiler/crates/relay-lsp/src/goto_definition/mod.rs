@@ -12,6 +12,7 @@ mod goto_graphql_definition;
 use std::str;
 use std::sync::Arc;
 
+use graphql_ir::FragmentDefinitionName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lsp_types::request::GotoDefinition;
@@ -41,7 +42,7 @@ pub enum DefinitionDescription {
         field_name: StringKey,
     },
     Fragment {
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
     },
     Type {
         type_name: StringKey,
@@ -110,7 +111,7 @@ pub fn on_goto_definition(
 
 fn locate_fragment_definition(
     program: graphql_ir::Program,
-    fragment_name: StringKey,
+    fragment_name: FragmentDefinitionName,
     root_dir: &std::path::Path,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
     let fragment = program.fragment(fragment_name).ok_or_else(|| {

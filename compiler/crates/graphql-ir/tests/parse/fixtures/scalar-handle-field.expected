@@ -10,7 +10,9 @@ fragment ScalarHandleField on User {
         FragmentDefinition {
             name: WithLocation {
                 location: scalar-handle-field.graphql:9:26,
-                item: "ScalarHandleField",
+                item: FragmentDefinitionName(
+                    "ScalarHandleField",
+                ),
             },
             variable_definitions: [],
             used_global_variables: [],

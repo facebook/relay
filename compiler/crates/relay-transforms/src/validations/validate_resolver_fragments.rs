@@ -9,12 +9,13 @@ use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Validator;
 use graphql_ir::Variable;
-use intern::string_key::StringKeySet;
 use schema::SDLSchema;
 use schema::Schema;
 
@@ -28,7 +29,7 @@ pub fn validate_resolver_fragments(program: &Program) -> DiagnosticsResult<()> {
 }
 
 struct ValidateResolverFragments {
-    resolver_fragments: StringKeySet,
+    resolver_fragments: FragmentDefinitionNameSet,
     current_fragment: Option<FragmentDefinition>,
 }
 
@@ -54,9 +55,10 @@ impl ValidateResolverFragments {
                                 field.name.location,
                             )
                             .ok()
+                            .map(FragmentDefinitionName)
                         })
                 })
-                .collect::<StringKeySet>(),
+                .collect::<FragmentDefinitionNameSet>(),
         };
 
         validator

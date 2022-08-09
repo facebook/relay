@@ -18,6 +18,7 @@ use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
@@ -28,7 +29,6 @@ use graphql_ir::Transformer;
 use graphql_ir::Value;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
 use itertools::Itertools;
 use lazy_static::lazy_static;
@@ -89,7 +89,7 @@ struct ReactFlightTransform<'s> {
     // NOTE: this is operation/fragment-specific
     local_components: StringKeySet,
     transitive_components: StringKeySet,
-    fragments: StringKeyMap<FragmentResult>,
+    fragments: FragmentDefinitionNameMap<FragmentResult>,
 }
 
 enum FragmentResult {

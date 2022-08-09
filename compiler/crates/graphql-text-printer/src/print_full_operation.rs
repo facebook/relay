@@ -9,12 +9,12 @@ use std::sync::Arc;
 
 use fnv::FnvHashMap;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Visitor;
-use intern::string_key::StringKey;
 
 use crate::print_fragment;
 use crate::print_operation;
@@ -25,8 +25,8 @@ pub fn print_full_operation(program: &Program, operation: &OperationDefinition) 
 }
 
 pub struct OperationPrinter<'s> {
-    fragment_result: FnvHashMap<StringKey, String>,
-    reachable_fragments: FnvHashMap<StringKey, Arc<FragmentDefinition>>,
+    fragment_result: FnvHashMap<FragmentDefinitionName, String>,
+    reachable_fragments: FnvHashMap<FragmentDefinitionName, Arc<FragmentDefinition>>,
     program: &'s Program,
 }
 
@@ -42,7 +42,7 @@ impl<'s> OperationPrinter<'s> {
     pub fn print(&mut self, operation: &OperationDefinition) -> String {
         let mut result = print_operation(&self.program.schema, operation, Default::default());
         self.visit_operation(operation);
-        let mut fragments: Vec<(StringKey, Arc<FragmentDefinition>)> =
+        let mut fragments: Vec<(FragmentDefinitionName, Arc<FragmentDefinition>)> =
             self.reachable_fragments.drain().collect();
         fragments.sort_unstable_by_key(|(name, _)| *name);
         for (_, fragment) in fragments {

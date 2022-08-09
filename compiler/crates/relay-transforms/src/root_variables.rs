@@ -9,6 +9,7 @@ use common::Diagnostic;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
@@ -25,7 +26,7 @@ use schema::TypeReference;
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 
 pub type VariableMap = StringKeyMap<Variable>;
-type Visited = StringKeyMap<VariableMap>;
+type Visited = FragmentDefinitionNameMap<VariableMap>;
 
 pub struct InferVariablesVisitor<'program> {
     /// Cache fragments as they are transformed to avoid duplicate processing.

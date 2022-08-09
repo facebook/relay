@@ -19,6 +19,7 @@ use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
@@ -217,7 +218,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             // source, and thus will be placed in the same `__generated__`
             // directory. Based on this assumption they import the file using `./`.
             document_name.location,
-            format!("Refetchable{}", generated_query_name).intern(),
+            FragmentDefinitionName(format!("Refetchable{}", generated_query_name).intern()),
         );
 
         let synthetic_refetchable_fragment = FragmentDefinition {
@@ -442,7 +443,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.document_name = Some(fragment.name);
+        self.document_name = Some(fragment.name.map(|x| x.0));
         let new_fragment = self.default_transform_fragment(fragment);
         self.document_name = None;
         new_fragment

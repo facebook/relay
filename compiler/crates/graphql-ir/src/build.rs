@@ -290,7 +290,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     ) -> DiagnosticsResult<FragmentDefinition> {
         let signature = self
             .signatures
-            .get(&fragment.name.value)
+            .get(&FragmentDefinitionName(fragment.name.value))
             .expect("Expected signature to be created");
         let fragment_type = TypeReference::Named(signature.type_condition);
 
@@ -707,12 +707,17 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         spread: &graphql_syntax::FragmentSpread,
         parent_types: &[TypeReference],
     ) -> DiagnosticsResult<FragmentSpread> {
-        let spread_name_with_location = spread
-            .name
-            .name_with_location(self.location.source_location());
+        let spread_name_with_location = WithLocation::from_span(
+            self.location.source_location(),
+            spread.name.span,
+            FragmentDefinitionName(spread.name.value),
+        );
 
         // Exit early if the fragment does not exist
-        let signature = match self.signatures.get(&spread.name.value) {
+        let signature = match self
+            .signatures
+            .get(&FragmentDefinitionName(spread.name.value))
+        {
             Some(fragment) => fragment,
             None if self.options.allow_undefined_fragment_spreads => {
                 let directives = if self.options.relay_mode.is_some() {
@@ -740,13 +745,13 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                         self.find_conflicting_parent_type(parent_types, signature.type_condition)
                             .is_none()
                     })
-                    .map(|signature| signature.name.item)
+                    .map(|signature| signature.name.item.0)
                     .collect::<Vec<StringKey>>();
                 let suggestions =
                     suggestion_list::suggestion_list(spread.name.value, &fragment_names, 5);
                 return Err(vec![Diagnostic::error_with_data(
                     ValidationMessageWithData::UndefinedFragment {
-                        fragment_name: spread.name.value,
+                        fragment_name: FragmentDefinitionName(spread.name.value),
                         suggestions,
                     },
                     self.location.with_span(spread.name.span),
@@ -760,7 +765,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             // no possible overlap
             return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidFragmentSpreadType {
-                    fragment_name: spread.name.value,
+                    fragment_name: FragmentDefinitionName(spread.name.value),
                     parent_type: self.schema.get_type_name(parent_type.inner()),
                     type_condition: self.schema.get_type_name(signature.type_condition),
                 },

@@ -59,7 +59,7 @@ pub fn generate_artifacts(
                         .source
                         .fragment(metadata.derived_from)
                         .expect("Expected the source document for the SplitOperation to exist.");
-                    let source_hash = source_hashes.get(&metadata.derived_from).cloned().unwrap();
+                    let source_hash = source_hashes.get(&metadata.derived_from.0).cloned().unwrap();
                     let source_file = source_fragment.name.location.source_location();
                     let typegen_operation = if metadata.raw_response_type {
                         Some(Arc::clone(normalization))
@@ -86,11 +86,11 @@ pub fn generate_artifacts(
                         .source
                         .fragment(source_name)
                         .expect("Expected the source document for the SplitOperation to exist.");
-                    let source_hash = source_hashes.get(&source_name).cloned().unwrap();
+                    let source_hash = source_hashes.get(&source_name.0).cloned().unwrap();
 
                     return generate_normalization_artifact(
                         &mut operation_printer,
-                        source_name,
+                        source_name.0,
                         project_config,
                         &operations,
                         source_hash,
@@ -163,7 +163,7 @@ pub fn generate_artifacts(
                     .item
                     .expect_string_literal()
             } else {
-                reader_fragment.name.item
+                reader_fragment.name.item.0
             };
 
             let source_hash = source_hashes.get(&source_name).cloned().unwrap();
@@ -248,7 +248,7 @@ fn generate_reader_artifact(
     Artifact {
         source_definition_names,
         path: project_config
-            .path_for_artifact(reader_fragment.name.location.source_location(), name),
+            .path_for_artifact(reader_fragment.name.location.source_location(), name.0),
         content: ArtifactContent::Fragment {
             reader_fragment: Arc::clone(reader_fragment),
             typegen_fragment: Arc::clone(typegen_fragment),

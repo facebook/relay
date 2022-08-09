@@ -8,6 +8,7 @@
 use common::DirectiveName;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Value;
 use graphql_ir::ARGUMENT_DEFINITION;
@@ -164,10 +165,10 @@ pub fn get_normalization_operation_name(name: StringKey) -> String {
     format!("{}$normalization", name)
 }
 
-pub fn get_fragment_filename(fragment_name: StringKey) -> StringKey {
+pub fn get_fragment_filename(fragment_name: FragmentDefinitionName) -> StringKey {
     format!(
         "{}.graphql",
-        get_normalization_operation_name(fragment_name)
+        get_normalization_operation_name(fragment_name.0)
     )
     .intern()
 }

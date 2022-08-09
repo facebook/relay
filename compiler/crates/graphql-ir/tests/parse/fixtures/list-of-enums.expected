@@ -8,7 +8,9 @@ fragment TestFragment on User {
         FragmentDefinition {
             name: WithLocation {
                 location: list-of-enums.graphql:9:21,
-                item: "TestFragment",
+                item: FragmentDefinitionName(
+                    "TestFragment",
+                ),
             },
             variable_definitions: [],
             used_global_variables: [],

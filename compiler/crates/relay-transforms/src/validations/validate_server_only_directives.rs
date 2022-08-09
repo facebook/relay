@@ -14,6 +14,7 @@ use errors::validate;
 use errors::validate_map;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentSpread;
 use graphql_ir::LinkedField;
 use graphql_ir::Program;
@@ -21,7 +22,6 @@ use graphql_ir::ScalarField;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use intern::string_key::Intern;
-use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
 use schema::Schema;
 
@@ -44,7 +44,7 @@ struct ServerOnlyDirectivesValidation<'s> {
     // if so, a server directive is invalid on it
     is_current_fragment_client_only: bool,
     // For storing the above data
-    fragment_cache: StringKeyMap<FragmentState>,
+    fragment_cache: FragmentDefinitionNameMap<FragmentState>,
     client_invalid_directive_names: StringKeySet,
 }
 

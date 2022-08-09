@@ -10,6 +10,7 @@ use common::NamedItem;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::Value;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
@@ -87,7 +88,10 @@ impl Scope {
     }
 }
 
-pub fn format_local_variable(fragment_name: StringKey, arg_name: StringKey) -> StringKey {
+pub fn format_local_variable(
+    fragment_name: FragmentDefinitionName,
+    arg_name: StringKey,
+) -> StringKey {
     format!("{}${}", fragment_name, arg_name).intern()
 }
 
@@ -121,7 +125,7 @@ mod tests {
 
     fn empty_fragment_definition() -> FragmentDefinition {
         FragmentDefinition {
-            name: with_test_location("TestFragment".intern()),
+            name: with_test_location(FragmentDefinitionName("TestFragment".intern())),
             type_condition: TEST_SCHEMA.get_type("User".intern()).unwrap(),
             directives: vec![],
             selections: vec![],

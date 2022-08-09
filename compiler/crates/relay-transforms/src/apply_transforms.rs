@@ -11,8 +11,8 @@ use common::sync::try_join;
 use common::DiagnosticsResult;
 use common::PerfLogEvent;
 use common::PerfLogger;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
-use intern::string_key::StringKeySet;
 use relay_config::ProjectConfig;
 
 use super::*;
@@ -39,7 +39,7 @@ pub struct Programs {
 pub fn apply_transforms<TPerfLogger>(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<TPerfLogger>,
     print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
@@ -136,7 +136,7 @@ where
 fn apply_common_transforms(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
@@ -217,7 +217,7 @@ fn apply_common_transforms(
 fn apply_reader_transforms(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
@@ -299,7 +299,7 @@ fn apply_reader_transforms(
 fn apply_operation_transforms(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
@@ -374,7 +374,7 @@ fn apply_operation_transforms(
 fn apply_normalization_transforms(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     maybe_print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
@@ -495,7 +495,7 @@ fn apply_normalization_transforms(
 fn apply_operation_text_transforms(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
@@ -585,7 +585,7 @@ fn apply_operation_text_transforms(
 fn apply_typegen_transforms(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {

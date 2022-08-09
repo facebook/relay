@@ -16,7 +16,6 @@ use errors::par_try_map;
 use errors::try2;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
 use lazy_static::lazy_static;
 use schema::suggestion_list::GraphQLSuggestions;
 use schema::SDLSchema;
@@ -34,6 +33,8 @@ use crate::constants::ARGUMENT_DEFINITION;
 use crate::errors::ValidationMessage;
 use crate::errors::ValidationMessageWithData;
 use crate::ir::ConstantValue;
+use crate::ir::FragmentDefinitionName;
+use crate::ir::FragmentDefinitionNameMap;
 use crate::ir::VariableDefinition;
 
 lazy_static! {
@@ -45,7 +46,7 @@ lazy_static! {
     static ref DIRECTIVES: StringKey = "directives".intern();
 }
 
-pub type FragmentSignatures = StringKeyMap<FragmentSignature>;
+pub type FragmentSignatures = FragmentDefinitionNameMap<FragmentSignature>;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ProvidedVariableMetadata {
@@ -64,7 +65,7 @@ associated_data_impl!(ProvidedVariableMetadata);
 /// and using these to type check fragment spreads in selections.
 #[derive(Debug, Eq, PartialEq)]
 pub struct FragmentSignature {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<FragmentDefinitionName>,
     pub variable_definitions: Vec<VariableDefinition>,
     pub type_condition: Type,
 }
@@ -74,7 +75,7 @@ pub fn build_signatures(
     definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> DiagnosticsResult<FragmentSignatures> {
     let suggestions = GraphQLSuggestions::new(schema);
-    let mut seen_signatures: StringKeyMap<FragmentSignature> =
+    let mut seen_signatures: FragmentDefinitionNameMap<FragmentSignature> =
         HashMap::with_capacity_and_hasher(definitions.len(), Default::default());
     let signatures = par_try_map(definitions, |definition| match definition {
         graphql_syntax::ExecutableDefinition::Fragment(fragment) => Ok(Some(
@@ -88,7 +89,7 @@ pub fn build_signatures(
         if let Some(previous_signature) = previous_signature {
             errors.push(
                 Diagnostic::error(
-                    ValidationMessage::DuplicateDefinition(signature.name.item),
+                    ValidationMessage::DuplicateDefinition(signature.name.item.0),
                     previous_signature.name.location,
                 )
                 .annotate("also defined here", signature.name.location),
@@ -178,10 +179,13 @@ fn build_fragment_signature(
         .unwrap_or_else(|| Ok(Default::default()));
 
     let (type_condition, variable_definitions) = try2(type_condition, variable_definitions)?;
+
     Ok(FragmentSignature {
-        name: fragment
-            .name
-            .name_with_location(fragment.location.source_location()),
+        name: WithLocation::from_span(
+            fragment.location.source_location(),
+            fragment.name.span,
+            FragmentDefinitionName(fragment.name.value),
+        ),
         type_condition,
         variable_definitions,
     })

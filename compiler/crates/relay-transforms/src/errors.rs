@@ -8,6 +8,7 @@
 use common::DiagnosticDisplay;
 use common::DirectiveName;
 use common::WithDiagnosticData;
+use graphql_ir::FragmentDefinitionName;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
@@ -64,13 +65,15 @@ pub enum ValidationMessage {
     #[error(
         "The Relay Resolver backing this field is defined with an invalid `fragment_name`. Could not find a fragment named '{fragment_name}'."
     )]
-    InvalidRelayResolverFragmentName { fragment_name: StringKey },
+    InvalidRelayResolverFragmentName {
+        fragment_name: FragmentDefinitionName,
+    },
     #[error(
         "The usage of global variable `${variable_name}` is not supported in the Relay resolvers fragments. Please, add this variable to the `@argumentDefinitions` of the `{fragment_name}` fragment."
     )]
     UnsupportedGlobalVariablesInResolverFragment {
         variable_name: StringKey,
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
     },
 
     #[error(
@@ -117,7 +120,9 @@ pub enum ValidationMessage {
     #[error(
         "The '{fragment_name}' is transformed to use @no_inline implictly by `@module` or `@relay_client_component`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
     )]
-    RequiredExplicitNoInlineDirective { fragment_name: StringKey },
+    RequiredExplicitNoInlineDirective {
+        fragment_name: FragmentDefinitionName,
+    },
 
     #[error(
         "The `@relay_test_operation` directive is only allowed within test \
@@ -127,7 +132,7 @@ pub enum ValidationMessage {
     TestOperationOutsideTestDirectory { test_path_regex: String },
 
     #[error("Undefined fragment '{0}'")]
-    UndefinedFragment(StringKey),
+    UndefinedFragment(FragmentDefinitionName),
 
     #[error(
         "Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases."

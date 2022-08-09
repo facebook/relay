@@ -64,7 +64,7 @@ impl Validator for ValidateRequiredArguments<'_> {
     }
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
-        self.root_name_with_location = Some(fragment.name);
+        self.root_name_with_location = Some(fragment.name.map(|x| x.0));
         self.default_validate_fragment(fragment)
     }
 

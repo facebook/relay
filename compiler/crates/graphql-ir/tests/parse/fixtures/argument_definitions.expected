@@ -12,7 +12,9 @@ fragment TestFragment on User
         FragmentDefinition {
             name: WithLocation {
                 location: argument_definitions.graphql:9:21,
-                item: "TestFragment",
+                item: FragmentDefinitionName(
+                    "TestFragment",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {

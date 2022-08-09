@@ -23,6 +23,7 @@ use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -134,8 +135,9 @@ impl DeferStreamTransform<'_> {
         }
 
         let label_value = get_literal_string_argument(defer, label_arg)?;
-        let label = label_value
-            .unwrap_or_else(|| get_applied_fragment_name(spread.fragment.item, &spread.arguments));
+        let label = label_value.unwrap_or_else(|| {
+            get_applied_fragment_name(spread.fragment.item, &spread.arguments).0
+        });
         let transformed_label = transform_label(
             self.current_document_name
                 .expect("We expect the parent name to be defined here."),
@@ -233,9 +235,10 @@ impl DeferStreamTransform<'_> {
         let label_value = get_literal_string_argument(stream, label_arg)?;
         let label = label_value.unwrap_or_else(|| {
             get_applied_fragment_name(
-                linked_field.alias_or_name(&self.program.schema),
+                FragmentDefinitionName(linked_field.alias_or_name(&self.program.schema)),
                 &linked_field.arguments,
             )
+            .0
         });
         let transformed_label = transform_label(
             self.current_document_name
@@ -298,7 +301,7 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.set_current_document_name(fragment.name.item);
+        self.set_current_document_name(fragment.name.item.0);
         self.default_transform_fragment(fragment)
     }
 

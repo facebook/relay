@@ -94,7 +94,7 @@ fn get_viewer_field_id(
     }
     Err(vec![Diagnostic::error(
         ValidationMessage::InvalidViewerSchemaForRefetchableFragmentOnViewer {
-            fragment_name: fragment.name.item,
+            fragment_name: fragment.name.item.0,
         },
         fragment.name.location,
     )])

@@ -15,6 +15,7 @@ use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::Selection;
 use graphql_ir::Value;
@@ -135,5 +136,5 @@ pub fn build_fragment_metadata_as_directive(
 /// Metadata attached to generated refetch queries storing the name of the
 /// fragment the operation was derived from.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct RefetchableDerivedFromMetadata(pub StringKey);
+pub struct RefetchableDerivedFromMetadata(pub FragmentDefinitionName);
 associated_data_impl!(RefetchableDerivedFromMetadata);

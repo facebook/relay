@@ -11,6 +11,7 @@ use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::Value;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
@@ -50,7 +51,7 @@ lazy_static! {
 pub struct SplitOperationMetadata {
     /// Name of the fragment that this split operation represents. This is used
     /// to determine the name of the generated artifact.
-    pub derived_from: StringKey,
+    pub derived_from: FragmentDefinitionName,
 
     /// The names of the fragments and operations that included this fragment.
     /// They are the reason this split operation exist. If they are all removed,
@@ -67,7 +68,7 @@ impl SplitOperationMetadata {
             Argument {
                 name: WithLocation::generated(*ARG_DERIVED_FROM),
                 value: WithLocation::generated(Value::Constant(ConstantValue::String(
-                    self.derived_from,
+                    self.derived_from.0,
                 ))),
             },
             Argument {
@@ -102,7 +103,8 @@ impl From<&Directive> for SplitOperationMetadata {
             .arguments
             .named(*ARG_DERIVED_FROM)
             .expect("Expected derived_from arg to exist");
-        let derived_from = derived_from_arg.value.item.expect_string_literal();
+        let derived_from =
+            FragmentDefinitionName(derived_from_arg.value.item.expect_string_literal());
         let parent_documents_arg = directive
             .arguments
             .named(*ARG_PARENT_DOCUMENTS)

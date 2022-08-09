@@ -20,6 +20,7 @@ use docblock_syntax::DocblockAST;
 use docblock_syntax::DocblockField;
 use docblock_syntax::DocblockSection;
 use errors::ErrorMessagesWithData;
+use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::parse_field_definition_stub;
 use graphql_syntax::parse_type;
 use graphql_syntax::ConstantValue;
@@ -197,7 +198,8 @@ impl RelayResolverParser {
         Ok(RelayResolverIr {
             field,
             on: on?,
-            root_fragment: root_fragment.map(|root_fragment| root_fragment.value),
+            root_fragment: root_fragment
+                .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
             edge_to,
             description: self.description,
             location: ast.location,

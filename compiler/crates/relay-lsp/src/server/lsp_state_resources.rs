@@ -12,9 +12,9 @@ use common::PerfLogEvent;
 use common::PerfLogger;
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
 use intern::string_key::StringKey;
-use intern::string_key::StringKeySet;
 use log::debug;
 use rayon::iter::ParallelIterator;
 use relay_compiler::build_project::get_project_asts;
@@ -379,7 +379,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         project_config: &ProjectConfig,
         project_asts: ProjectAsts,
-        base_fragment_names: StringKeySet,
+        base_fragment_names: FragmentDefinitionNameSet,
         compiler_state: &CompilerState,
         graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
         schema: Arc<SDLSchema>,

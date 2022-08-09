@@ -15,6 +15,8 @@ use schema::Type;
 use schema::TypeReference;
 use thiserror::Error;
 
+use crate::ir::FragmentDefinitionName;
+
 /// Fixed set of validation errors with custom display messages
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ValidationMessage {
@@ -140,7 +142,7 @@ pub enum ValidationMessage {
         "Invalid fragment spread '{fragment_name}', the type of this fragment ('{type_condition}') can never occur for parent type '{parent_type}'"
     )]
     InvalidFragmentSpreadType {
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
         parent_type: StringKey,
         type_condition: StringKey,
     },
@@ -356,7 +358,7 @@ pub enum ValidationMessage {
     )]
     UnusedFragmentVariable {
         variable_name: StringKey,
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
     },
 
     #[error(
@@ -364,7 +366,7 @@ pub enum ValidationMessage {
     )]
     UselessUnusedFragmentVariableAnnotation {
         variable_name: StringKey,
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
     },
 
     #[error(
@@ -436,7 +438,9 @@ pub enum ValidationMessage {
     #[error(
         "The `raw_response_type` argument should be set to `true` for the @no_inline fragment `{fragment_name}` used in the query with @raw_response_type."
     )]
-    RequiredRawResponseTypeOnNoInline { fragment_name: StringKey },
+    RequiredRawResponseTypeOnNoInline {
+        fragment_name: FragmentDefinitionName,
+    },
 
     #[error("No fields can have an alias that start with two underscores.")]
     NoDoubleUnderscoreAlias,
@@ -465,7 +469,7 @@ pub enum ValidationMessageWithData {
 
     #[error("Undefined fragment '{fragment_name}'.{suggestions}", suggestions = did_you_mean(suggestions))]
     UndefinedFragment {
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
         suggestions: Vec<StringKey>,
     },
 

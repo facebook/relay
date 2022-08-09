@@ -223,7 +223,7 @@ impl Visitor for FieldUsageFinder<'_> {
         assert!(self.current_scope.label.is_none());
         assert!(self.current_scope.types.is_empty());
 
-        self.current_scope.label = Some(fragment.name.item);
+        self.current_scope.label = Some(fragment.name.item.0);
         self.current_scope
             .types
             .push(self.schema.get_type_name(fragment.type_condition));

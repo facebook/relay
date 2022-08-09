@@ -143,7 +143,7 @@ fn build_refetch_operation(
             if let Some(id_argument) = variable_definitions.named(id_name) {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
-                        fragment_name: fragment.name.item,
+                        fragment_name: fragment.name.item.0,
                     },
                     id_argument.name.location,
                 )]);
@@ -196,7 +196,7 @@ fn get_node_field_id_and_id_arg<'s>(
     }
     Err(vec![Diagnostic::error(
         ValidationMessage::InvalidNodeSchemaForRefetchableFragmentOnNode {
-            fragment_name: fragment.name.item,
+            fragment_name: fragment.name.item.0,
         },
         fragment.name.location,
     )])

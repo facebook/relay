@@ -285,7 +285,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
         if fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some() {
             self.executable_definition_info = Some(ExecutableDefinitionInfo {
-                name: fragment.name.item,
+                name: fragment.name.item.0,
                 location: fragment.name.location,
                 type_plural: "fragments",
             });

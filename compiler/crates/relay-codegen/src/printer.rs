@@ -154,7 +154,7 @@ impl<'p> Printer<'p> {
             CodegenVariant::Reader,
             &mut self.builder,
             self.project_config,
-            fragment.name,
+            fragment.name.map(|x| x.0),
         );
         let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
         let key = self.builder.intern(Ast::Object(object! {
@@ -188,13 +188,14 @@ impl<'p> Printer<'p> {
             WithLocation::new(operation.name.location, operation.name.item.0),
             self.project_config,
         );
+
         let key = build_request(
             schema,
             &mut self.builder,
             operation,
             fragment,
             request_parameters,
-            fragment.name,
+            fragment.name.map(|x| x.0),
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
@@ -228,7 +229,7 @@ impl<'p> Printer<'p> {
             schema,
             &mut self.builder,
             fragment,
-            fragment.name,
+            fragment.name.map(|x| x.0),
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);

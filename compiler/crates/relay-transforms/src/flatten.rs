@@ -18,13 +18,13 @@ use graphql_ir::node_identifier::NodeIdentifier;
 use graphql_ir::Condition;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::TransformedValue;
-use intern::string_key::StringKeyMap;
 use parking_lot::Mutex;
 use parking_lot::RwLock;
 use schema::SDLSchema;
@@ -61,7 +61,7 @@ pub fn flatten(
     is_for_codegen: bool,
     should_validate_fragment_spreads: bool,
 ) -> DiagnosticsResult<()> {
-    let mut fragment_for_validation = StringKeyMap::default();
+    let mut fragment_for_validation = FragmentDefinitionNameMap::default();
     if should_validate_fragment_spreads {
         for (name, fragment) in &program.fragments {
             fragment_for_validation.insert(*name, Arc::clone(fragment));
@@ -95,7 +95,7 @@ pub fn flatten(
 }
 
 struct FlattenTransform {
-    fragments: StringKeyMap<Arc<FragmentDefinition>>,
+    fragments: FragmentDefinitionNameMap<Arc<FragmentDefinition>>,
     schema: Arc<SDLSchema>,
     is_for_codegen: bool,
     should_validate_fragment_spreads: bool,
@@ -106,7 +106,7 @@ struct FlattenTransform {
 impl FlattenTransform {
     fn new(
         schema: Arc<SDLSchema>,
-        fragments: StringKeyMap<Arc<FragmentDefinition>>,
+        fragments: FragmentDefinitionNameMap<Arc<FragmentDefinition>>,
         is_for_codegen: bool,
         should_validate_fragment_spreads: bool,
     ) -> Self {

@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use graphql_ir::FragmentDefinitionName;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
@@ -38,7 +39,7 @@ pub enum ValidationMessage {
     )]
     UpdatableOnlyAssignableFragmentSpreads {
         outer_type_plural: &'static str,
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
     },
 
     #[error(

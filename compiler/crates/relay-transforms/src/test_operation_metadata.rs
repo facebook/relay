@@ -252,7 +252,7 @@ impl RelayTestOperationMetadata {
                         Selection::FragmentSpread(spread) => {
                             // Must be a shared normalization fragment
                             let operation = program
-                                .operation(OperationDefinitionName(spread.fragment.item))
+                                .operation(OperationDefinitionName(spread.fragment.item.0))
                                 .unwrap_or_else(|| {
                                     panic!("Expected fragment '{}' to exist.", spread.fragment.item)
                                 });

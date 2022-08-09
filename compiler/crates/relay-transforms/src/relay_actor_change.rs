@@ -90,7 +90,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                 Selection::FragmentSpread(fragment_spread) => {
                     if !self
                         .feature_flag
-                        .is_enabled_for(fragment_spread.fragment.item)
+                        .is_enabled_for(fragment_spread.fragment.item.0)
                     {
                         self.errors.push(Diagnostic::error(
                             ValidationMessage::ActorChangeIsExperimental,

@@ -15,7 +15,9 @@ fragment ChildFragment on User
         FragmentDefinition {
             name: WithLocation {
                 location: fragment-with-literal-arguments.graphql:9:23,
-                item: "ParentFragment",
+                item: FragmentDefinitionName(
+                    "ParentFragment",
+                ),
             },
             variable_definitions: [],
             used_global_variables: [],
@@ -25,7 +27,9 @@ fragment ChildFragment on User
                 FragmentSpread {
                     fragment: WithLocation {
                         location: fragment-with-literal-arguments.graphql:39:52,
-                        item: "ChildFragment",
+                        item: FragmentDefinitionName(
+                            "ChildFragment",
+                        ),
                     },
                     arguments: [
                         Argument {
@@ -56,7 +60,9 @@ fragment ChildFragment on User
         FragmentDefinition {
             name: WithLocation {
                 location: fragment-with-literal-arguments.graphql:95:108,
-                item: "ChildFragment",
+                item: FragmentDefinitionName(
+                    "ChildFragment",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {

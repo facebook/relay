@@ -14,7 +14,9 @@ fragment UserProfile on User
 fragment User on User {
   ... @__InlineDirectiveMetadata
   # InlineDirectiveMetadata {
-  #     fragment_name: "UserProfile",
+  #     fragment_name: FragmentDefinitionName(
+  #         "UserProfile",
+  #     ),
   #     arguments: [
   #         Argument {
   #             name: WithLocation {

@@ -13,11 +13,11 @@ use common::SourceLocationKey;
 use common::Span;
 use errors::validate_map;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::FragmentSpread;
 use graphql_ir::Program;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
-use intern::string_key::StringKeySet;
 
 use crate::no_inline::is_raw_response_type_enabled;
 use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
@@ -34,7 +34,7 @@ pub fn validate_no_inline_fragments_with_raw_response_type(
 }
 
 struct NoInlineRawResponseTypeValidator<'a> {
-    validated: StringKeySet,
+    validated: FragmentDefinitionNameSet,
     program: &'a Program,
     current_query_location: Location,
 }

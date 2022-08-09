@@ -7,6 +7,7 @@
 
 use common::DirectiveName;
 use common::NamedItem;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Value;
 use graphql_syntax::FragmentDefinition;
@@ -823,7 +824,7 @@ fn on_hover_fragment_spread<'a>(
         inner: fragment_spread,
         parent: _,
     } = fragment_spread_path;
-    let fragment_name = fragment_spread.name.value;
+    let fragment_name = FragmentDefinitionName(fragment_spread.name.value);
 
     let fragment_definition = program.fragment(fragment_name)?;
 
@@ -873,7 +874,7 @@ fn on_hover_fragment_spread<'a>(
     }
 
     if matches!(content_consumer_type, ContentConsumerType::Relay) {
-        let fragment_name_details: Vec<&str> = fragment_name.lookup().split('_').collect();
+        let fragment_name_details: Vec<&str> = fragment_name.0.lookup().split('_').collect();
         // We expect the fragment name to be `ComponentName_propName`
         if fragment_name_details.len() == 2 {
             hover_contents.push(MarkedString::from_markdown(format!(

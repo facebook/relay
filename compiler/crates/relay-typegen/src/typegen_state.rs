@@ -12,6 +12,7 @@ use common::Location;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use indexmap::IndexMap;
 use indexmap::IndexSet;
 use intern::string_key::StringKey;
@@ -95,8 +96,8 @@ pub(crate) struct MatchFields(pub(crate) IndexMap<StringKey, AST>);
 
 #[derive(PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub(crate) enum EncounteredFragment {
-    Spread(StringKey),
-    Key(StringKey),
+    Spread(FragmentDefinitionName),
+    Key(FragmentDefinitionName),
 }
 
 /// This is a map FragmentName => Fragment Location
@@ -105,7 +106,7 @@ pub(crate) enum EncounteredFragment {
 /// reference it in another generated artifact.
 /// This is used in non-haste setups that do not have a single
 /// directory for generated artifacts.
-pub struct FragmentLocations(pub FnvHashMap<StringKey, Location>);
+pub struct FragmentLocations(pub FnvHashMap<FragmentDefinitionName, Location>);
 
 impl FragmentLocations {
     pub fn new<'a>(fragments: impl Iterator<Item = &'a Arc<FragmentDefinition>>) -> Self {
@@ -116,7 +117,7 @@ impl FragmentLocations {
         )
     }
 
-    pub fn location(&self, fragment_name: &StringKey) -> Option<&Location> {
+    pub fn location(&self, fragment_name: &FragmentDefinitionName) -> Option<&Location> {
         self.0.get(fragment_name)
     }
 }

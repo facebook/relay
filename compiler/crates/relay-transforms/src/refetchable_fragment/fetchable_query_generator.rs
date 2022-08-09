@@ -83,7 +83,7 @@ fn build_refetch_operation(
         if let Some(id_argument) = variable_definitions.named(id_name) {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
-                    fragment_name: fragment.name.item,
+                    fragment_name: fragment.name.item.0,
                 },
                 id_argument.name.location,
             )]);
@@ -135,7 +135,7 @@ fn get_fetchable_field_name(
             }
             return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidRefetchDirectiveDefinition {
-                    fragment_name: fragment.name.item,
+                    fragment_name: fragment.name.item.0,
                 },
                 fragment.name.location,
             )]);
@@ -158,7 +158,7 @@ fn get_identifier_field_id(
     }
     Err(vec![Diagnostic::error(
         ValidationMessage::InvalidRefetchIdentifyingField {
-            fragment_name: fragment.name.item,
+            fragment_name: fragment.name.item.0,
             identifier_field_name,
             type_name: schema.get_type_name(fragment.type_condition),
         },
@@ -189,7 +189,7 @@ fn get_fetch_field_id_and_id_arg<'s>(
     Err(vec![Diagnostic::error(
         ValidationMessage::InvalidRefetchFetchField {
             fetch_field_name,
-            fragment_name: fragment.name.item,
+            fragment_name: fragment.name.item.0,
             type_name: schema.get_type_name(fragment.type_condition),
         },
         fragment.name.location,

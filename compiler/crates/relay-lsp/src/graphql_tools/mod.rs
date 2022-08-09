@@ -14,6 +14,7 @@ use graphql_ir::build_ir_with_extra_features;
 use graphql_ir::BuilderOptions;
 use graphql_ir::ExecutableDefinition;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentVariablesSemantic;
 use graphql_ir::OperationDefinition;
 use graphql_ir::OperationDefinitionName;
@@ -89,7 +90,7 @@ fn get_operation_only_program(
         next_program.insert_fragment(Arc::clone(fragment));
     }
 
-    let mut visited_fragments: HashSet<StringKey> = HashSet::default();
+    let mut visited_fragments: HashSet<FragmentDefinitionName> = HashSet::default();
 
     while !selections_to_visit.is_empty() {
         let current_selections = selections_to_visit.pop()?;

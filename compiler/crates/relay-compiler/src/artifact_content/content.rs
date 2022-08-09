@@ -12,6 +12,7 @@ use std::sync::Arc;
 
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
 use relay_codegen::build_request_params;
 use relay_codegen::Printer;
@@ -55,7 +56,7 @@ pub fn generate_updatable_query(
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let operation_fragment = FragmentDefinition {
-        name: reader_operation.name.map(|x| x.0),
+        name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
         variable_definitions: reader_operation.variable_definitions.clone(),
         selections: reader_operation.selections.clone(),
         used_global_variables: Default::default(),
@@ -182,7 +183,7 @@ pub fn generate_operation(
         request_parameters.text = text.clone();
     };
     let operation_fragment = FragmentDefinition {
-        name: reader_operation.name.map(|x| x.0),
+        name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
         variable_definitions: reader_operation.variable_definitions.clone(),
         selections: reader_operation.selections.clone(),
         used_global_variables: Default::default(),

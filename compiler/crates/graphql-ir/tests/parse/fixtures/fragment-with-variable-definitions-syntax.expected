@@ -22,7 +22,9 @@ fragment Foo($localId: ID!) on User {
         FragmentDefinition {
             name: WithLocation {
                 location: fragment-with-variable-definitions-syntax.graphql:9:21,
-                item: "TestFragment",
+                item: FragmentDefinitionName(
+                    "TestFragment",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {
@@ -186,7 +188,9 @@ fragment Foo($localId: ID!) on User {
                 FragmentSpread {
                     fragment: WithLocation {
                         location: fragment-with-variable-definitions-syntax.graphql:245:248,
-                        item: "Foo",
+                        item: FragmentDefinitionName(
+                            "Foo",
+                        ),
                     },
                     arguments: [
                         Argument {
@@ -221,7 +225,9 @@ fragment Foo($localId: ID!) on User {
         FragmentDefinition {
             name: WithLocation {
                 location: fragment-with-variable-definitions-syntax.graphql:286:289,
-                item: "Foo",
+                item: FragmentDefinitionName(
+                    "Foo",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {

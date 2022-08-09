@@ -11,6 +11,7 @@ use std::sync::Arc;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
@@ -23,12 +24,13 @@ use crate::relay_resolvers::get_argument_value;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
 
 lazy_static! {
-    pub static ref SELF_FRAGMENT_NAME_ARG: StringKey = "self_fragment_name".intern();
+    pub static ref SELF_FRAGMENT_NAME_ARG: FragmentDefinitionName =
+        FragmentDefinitionName("self_fragment_name".intern());
     pub static ref SELF_FIELD_NAME: StringKey = "__self".intern();
 }
 
 pub fn generate_relay_resolvers_self_fragment(program: &Program) -> Program {
-    let mut fragments = HashMap::<StringKey, Arc<FragmentDefinition>>::new();
+    let mut fragments = HashMap::<FragmentDefinitionName, Arc<FragmentDefinition>>::new();
     for field in program.schema.get_fields() {
         if !field.is_extension {
             continue;
@@ -41,9 +43,10 @@ pub fn generate_relay_resolvers_self_fragment(program: &Program) -> Program {
         if let Some(directive) = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME) {
             let self_fragment_name = get_argument_value(
                 &directive.arguments,
-                *SELF_FRAGMENT_NAME_ARG,
+                SELF_FRAGMENT_NAME_ARG.0,
                 field.name.location,
             )
+            .map(FragmentDefinitionName)
             .unwrap();
 
             let parent_type = field.parent_type.unwrap_or_else(|| {

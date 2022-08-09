@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use graphql_ir::FragmentDefinitionName;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
@@ -23,7 +24,7 @@ pub enum ValidationMessage {
         "@module used on invalid fragment spread '...{spread_name}'. @module requires the fragment type '{type_string}' to have a '{js_field_name}({js_field_module_arg}: String!, {js_field_id_arg}: String): {js_field_type}' field (your schema may choose to omit the 'id'  argument but if present it must accept a 'String')."
     )]
     InvalidModuleInvalidSchemaArguments {
-        spread_name: StringKey,
+        spread_name: FragmentDefinitionName,
         type_string: StringKey,
         js_field_name: StringKey,
         js_field_module_arg: StringKey,
@@ -35,7 +36,7 @@ pub enum ValidationMessage {
         "@module used on invalid fragment spread '...{spread_name}'. @module may only be used with fragments on a concrete (object) type, but the fragment has abstract type '{type_string}'."
     )]
     InvalidModuleNotOnObject {
-        spread_name: StringKey,
+        spread_name: FragmentDefinitionName,
         type_string: StringKey,
     },
 
@@ -45,7 +46,7 @@ pub enum ValidationMessage {
     #[error(
         "@module used on invalid fragment spread '...{spread_name}'. @module may not have additional directives."
     )]
-    InvalidModuleWithAdditionalDirectives { spread_name: StringKey },
+    InvalidModuleWithAdditionalDirectives { spread_name: FragmentDefinitionName },
 
     #[error("@module does not support @inline fragments.")]
     InvalidModuleWithInline,

@@ -8,6 +8,7 @@
 use std::sync::Arc;
 
 use common::Span;
+use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::ExecutableDocument;
 use intern::string_key::StringKey;
 use resolution_path::IdentParent;
@@ -35,7 +36,7 @@ pub fn get_graphql_definition_description(
             inner: fragment_name,
             parent: IdentParent::FragmentSpreadName(_),
         }) => Ok(DefinitionDescription::Fragment {
-            fragment_name: fragment_name.value,
+            fragment_name: FragmentDefinitionName(fragment_name.value),
         }),
         ResolutionPath::Ident(IdentPath {
             inner: field_name,

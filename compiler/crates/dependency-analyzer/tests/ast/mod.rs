@@ -34,7 +34,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     texts.push("========== Base definitions ==========".to_string());
     let mut defs = base_fragment_names
         .iter()
-        .map(|key| key.lookup())
+        .map(|key| key.0.lookup())
         .collect::<Vec<_>>();
     defs.sort_unstable();
     texts.push(defs.join(", "));

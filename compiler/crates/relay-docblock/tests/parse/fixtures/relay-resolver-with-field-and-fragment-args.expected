@@ -93,7 +93,9 @@ RelayResolver(
         root_fragment: Some(
             WithLocation {
                 location: /path/to/test/fixture/relay-resolver-with-field-and-fragment-args.js:100:114,
-                item: "myRootFragment",
+                item: FragmentDefinitionName(
+                    "myRootFragment",
+                ),
             },
         ),
         edge_to: None,

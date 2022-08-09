@@ -19,7 +19,9 @@ fragment F2 on Query @argumentDefinitions(
         FragmentDefinition {
             name: WithLocation {
                 location: fragment_with_arguments_defaulting.graphql:9:21,
-                item: "TestFragment",
+                item: FragmentDefinitionName(
+                    "TestFragment",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {
@@ -59,7 +61,9 @@ fragment F2 on Query @argumentDefinitions(
                 FragmentSpread {
                     fragment: WithLocation {
                         location: fragment_with_arguments_defaulting.graphql:185:187,
-                        item: "F2",
+                        item: FragmentDefinitionName(
+                            "F2",
+                        ),
                     },
                     arguments: [
                         Argument {
@@ -94,7 +98,9 @@ fragment F2 on Query @argumentDefinitions(
         FragmentDefinition {
             name: WithLocation {
                 location: fragment_with_arguments_defaulting.graphql:236:238,
-                item: "F2",
+                item: FragmentDefinitionName(
+                    "F2",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {

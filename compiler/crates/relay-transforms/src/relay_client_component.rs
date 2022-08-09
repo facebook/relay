@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::FeatureFlag;
 use common::FeatureFlags;
 use common::NamedItem;
@@ -44,11 +45,11 @@ use crate::util::get_fragment_filename;
 use crate::util::get_normalization_operation_name;
 
 lazy_static! {
-    pub static ref RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME: StringKey =
-        "relay_client_component_server".intern();
+    pub static ref RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("relay_client_component_server".intern());
     pub static ref RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME: StringKey = "module_id".intern();
-    pub static ref RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME: StringKey =
-        "relay_client_component".intern();
+    pub static ref RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("relay_client_component".intern());
     static ref STRING_TYPE: StringKey = "String".intern();
     static ref NODE_TYPE_NAME: StringKey = "Node".intern();
     static ref VIEWER_TYPE_NAME: StringKey = "Viewer".intern();
@@ -313,7 +314,7 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
                     None
                 }
             })
-            .collect::<Vec<StringKey>>();
+            .collect::<Vec<DirectiveName>>();
         if !incompatible_directives.is_empty() {
             Some(Diagnostic::error(
                 ValidationMessage::IncompatibleRelayClientComponentDirectives {
@@ -383,7 +384,7 @@ impl<'program, 'flag> Transformer for RelayClientComponentTransform<'program, 'f
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
         let relay_client_component_directive = spread
             .directives
-            .named(*RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME);
+            .named(RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME.0);
         if relay_client_component_directive.is_some() {
             match self.transform_relay_client_component(spread) {
                 Ok(transformed) => transformed,

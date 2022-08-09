@@ -139,7 +139,7 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
         &mut self,
         fragment: &Arc<FragmentDefinition>,
     ) -> DiagnosticsResult<Option<(RefetchableDirective, RefetchRoot)>> {
-        let refetchable_directive = fragment.directives.named(*REFETCHABLE_NAME);
+        let refetchable_directive = fragment.directives.named(REFETCHABLE_NAME.0);
         if refetchable_directive.is_some() && self.program.schema.query_type().is_none() {
             return Err(vec![Diagnostic::error(
                 "Unable to use @refetchable directive. The `Query` type is not defined on the schema.",

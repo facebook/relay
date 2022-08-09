@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
@@ -38,11 +39,11 @@ use schema::Type;
 use thiserror::Error;
 
 lazy_static! {
-    static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME: StringKey =
-        "react_flight".intern();
+    static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("react_flight".intern());
     static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG: StringKey = "components".intern();
-    pub static ref REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY: StringKey =
-        "__ReactFlightComponent".intern();
+    pub static ref REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY: DirectiveName =
+        DirectiveName("__ReactFlightComponent".intern());
     static ref REACT_FLIGHT_COMPONENT_ARGUMENT_NAME: StringKey = "component".intern();
     static ref REACT_FLIGHT_PROPS_ARGUMENT_NAME: StringKey = "props".intern();
     static ref REACT_FLIGHT_PROPS_TYPE: StringKey = "ReactFlightProps".intern();

@@ -378,7 +378,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             self.print_condition_directives(conditions)?;
         }
         for directive in directives {
-            if directive.name.item.lookup() == "argumentDefinitions" {
+            if directive.name.item.0.lookup() == "argumentDefinitions" {
                 self.print_argument_definitions(fragment_argument_definitions.unwrap())?;
             } else {
                 self.print_directive(directive)?;
@@ -388,7 +388,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     }
 
     fn print_directive(&mut self, directive: &Directive) -> FmtResult {
-        write!(self.writer, " @{}", directive.name.item)?;
+        write!(self.writer, " @{}", directive.name.item.0)?;
         self.print_arguments(&directive.arguments)?;
 
         if self.options.debug_directive_data {

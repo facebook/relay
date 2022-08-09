@@ -230,7 +230,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
     fn build_operation(&mut self, operation: &OperationDefinition) -> AstKey {
         let mut context = ContextualMetadata::default();
-        match operation.directives.named(*DIRECTIVE_SPLIT_OPERATION) {
+        match operation.directives.named(DIRECTIVE_SPLIT_OPERATION.0) {
             Some(_split_directive) => {
                 let metadata = Primitive::Key(self.object(vec![]));
                 let selections = self.build_selections(&mut context, operation.selections.iter());
@@ -477,7 +477,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 };
                 if metadata.is_stream_connection {
                     object.push(ObjectEntry {
-                        key: DEFER_STREAM_CONSTANTS.stream_name,
+                        key: DEFER_STREAM_CONSTANTS.stream_name.0,
                         value: Primitive::Bool(true),
                     })
                 }
@@ -525,7 +525,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             Selection::InlineFragment(inline_fragment) => {
                 let defer = inline_fragment
                     .directives
-                    .named(DEFER_STREAM_CONSTANTS.defer_name);
+                    .named(DEFER_STREAM_CONSTANTS.defer_name.0);
                 if let Some(defer) = defer {
                     vec![self.build_defer(context, inline_fragment, defer)]
                 } else if let Some(inline_data_directive) =
@@ -544,7 +544,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     self.build_module_import_selections(module_metadata, inline_fragment)
                 } else if inline_fragment
                     .directives
-                    .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
+                    .named(RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN.0)
                     .is_some()
                 {
                     vec![self.build_actor_change(context, inline_fragment)]
@@ -553,7 +553,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 }
             }
             Selection::LinkedField(field) => {
-                let stream = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name);
+                let stream = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name.0);
 
                 match stream {
                     Some(stream) => vec![self.build_stream(context, field, stream)],
@@ -637,7 +637,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let args = self.build_arguments(&field.arguments);
         let kind = match field
             .directives
-            .named(*REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY)
+            .named(REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY.0)
         {
             Some(_flight_directive) => Primitive::String(CODEGEN_CONSTANTS.flight_field),
             None => Primitive::String(CODEGEN_CONSTANTS.scalar_field),
@@ -865,7 +865,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         if self.variant == CodegenVariant::Normalization
             && frag_spread
                 .directives
-                .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
+                .named(RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME.0)
                 .is_some()
         {
             return self.build_relay_client_component_fragment_spread(frag_spread);
@@ -969,7 +969,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 kind: Primitive::String(
                         if frag_spread
                             .directives
-                            .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
+                            .named(RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME.0)
                             .is_some()
                         {
                             CODEGEN_CONSTANTS.client_component
@@ -986,7 +986,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
     ) -> Primitive {
         let normalization_name = frag_spread
             .directives
-            .named(*RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME)
+            .named(RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME.0)
             .unwrap()
             .arguments
             .named(*RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME)
@@ -1816,7 +1816,7 @@ fn is_type_discriminator_selection(selection: &Selection) -> bool {
     if let Selection::ScalarField(selection) = selection {
         selection
             .directives
-            .named(*TYPE_DISCRIMINATOR_DIRECTIVE_NAME)
+            .named(TYPE_DISCRIMINATOR_DIRECTIVE_NAME.0)
             .is_some()
     } else {
         false

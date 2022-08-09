@@ -108,7 +108,9 @@ fragment ChildFragment2 on User
                         Directive {
                             name: WithLocation {
                                 location: use_fragment_spread_with_provider.graphql:247:275,
-                                item: "__ProvidedVariableMetadata",
+                                item: DirectiveName(
+                                    "__ProvidedVariableMetadata",
+                                ),
                             },
                             arguments: [],
                             data: Some(
@@ -127,7 +129,9 @@ fragment ChildFragment2 on User
                 Directive {
                     name: WithLocation {
                         location: use_fragment_spread_with_provider.graphql:142:161,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,
@@ -221,7 +225,9 @@ fragment ChildFragment2 on User
                         Directive {
                             name: WithLocation {
                                 location: use_fragment_spread_with_provider.graphql:487:515,
-                                item: "__ProvidedVariableMetadata",
+                                item: DirectiveName(
+                                    "__ProvidedVariableMetadata",
+                                ),
                             },
                             arguments: [],
                             data: Some(
@@ -240,7 +246,9 @@ fragment ChildFragment2 on User
                 Directive {
                     name: WithLocation {
                         location: use_fragment_spread_with_provider.graphql:415:434,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,

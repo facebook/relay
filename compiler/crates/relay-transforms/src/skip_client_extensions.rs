@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DirectiveName;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
@@ -16,7 +17,6 @@ use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
-use intern::string_key::StringKey;
 use schema::Schema;
 
 use crate::util::CustomMetadataDirectives;
@@ -41,7 +41,7 @@ impl<'s> SkipClientExtensionsTransform<'s> {
 }
 
 impl<'s> SkipClientExtensionsTransform<'s> {
-    fn is_client_directive(&self, name: StringKey) -> bool {
+    fn is_client_directive(&self, name: DirectiveName) -> bool {
         // Return true if:
         // - directive is a custom internal directive used to hold
         //   metadata in the IR

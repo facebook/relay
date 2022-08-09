@@ -452,7 +452,7 @@ impl FlattenTransform {
                     || (inline_fragment.type_condition == Some(parent_type)
                         && inline_fragment
                             .directives
-                            .named(ModuleMetadata::directive_name())
+                            .named(ModuleMetadata::directive_name().0)
                             .is_none())
                 {
                     self.can_flatten_selections(

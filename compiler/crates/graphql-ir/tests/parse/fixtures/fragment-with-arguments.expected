@@ -83,7 +83,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 Directive {
                     name: WithLocation {
                         location: fragment-with-arguments.graphql:33:52,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,
@@ -242,7 +244,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 Directive {
                     name: WithLocation {
                         location: fragment-with-arguments.graphql:299:318,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,

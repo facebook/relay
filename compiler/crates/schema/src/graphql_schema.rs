@@ -8,6 +8,7 @@
 use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 
+use common::DirectiveName;
 use intern::string_key::StringKey;
 
 use crate::definitions::Directive;
@@ -32,7 +33,7 @@ pub trait Schema {
 
     fn get_type(&self, type_name: StringKey) -> Option<Type>;
 
-    fn get_directive(&self, name: StringKey) -> Option<&Directive>;
+    fn get_directive(&self, name: DirectiveName) -> Option<&Directive>;
 
     fn input_object(&self, id: InputObjectID) -> &InputObject;
     fn input_objects<'a>(&'a self) -> Box<dyn Iterator<Item = &'a InputObject> + 'a>;
@@ -238,11 +239,11 @@ pub trait Schema {
         result
     }
 
-    fn is_extension_directive(&self, name: StringKey) -> bool {
+    fn is_extension_directive(&self, name: DirectiveName) -> bool {
         if let Some(directive) = self.get_directive(name) {
             directive.is_extension
         } else {
-            panic!("Unknown directive {}.", name.lookup())
+            panic!("Unknown directive {}.", name.0.lookup())
         }
     }
 }

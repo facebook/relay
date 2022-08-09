@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DirectiveName;
 use graphql_ir::node_identifier::LocationAgnosticBehavior;
-use intern::string_key::StringKey;
 
 use crate::util::CustomMetadataDirectives;
 use crate::ModuleMetadata;
@@ -14,10 +14,10 @@ use crate::ModuleMetadata;
 #[derive(Clone)]
 pub struct RelayLocationAgnosticBehavior;
 impl LocationAgnosticBehavior for RelayLocationAgnosticBehavior {
-    fn should_skip_in_node_identifier(name: StringKey) -> bool {
+    fn should_skip_in_node_identifier(name: DirectiveName) -> bool {
         CustomMetadataDirectives::should_skip_in_node_identifier(name)
     }
-    fn hash_for_name_only(name: StringKey) -> bool {
+    fn hash_for_name_only(name: DirectiveName) -> bool {
         ModuleMetadata::directive_name() == name
     }
 }

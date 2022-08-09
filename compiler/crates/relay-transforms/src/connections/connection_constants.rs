@@ -5,13 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DirectiveName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 
 #[derive(Debug, Copy, Clone)]
 pub struct ConnectionConstants {
-    pub connection_directive_name: StringKey,
-    pub stream_connection_directive_name: StringKey,
+    pub connection_directive_name: DirectiveName,
+    pub stream_connection_directive_name: DirectiveName,
 
     pub direction_forward: StringKey,
     pub direction_backward: StringKey,
@@ -39,8 +40,8 @@ impl ConnectionConstants {
 impl Default for ConnectionConstants {
     fn default() -> Self {
         Self {
-            connection_directive_name: "connection".intern(),
-            stream_connection_directive_name: "stream_connection".intern(),
+            connection_directive_name: DirectiveName("connection".intern()),
+            stream_connection_directive_name: DirectiveName("stream_connection".intern()),
 
             direction_forward: "forward".intern(),
             direction_backward: "backward".intern(),

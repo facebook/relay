@@ -9,6 +9,7 @@ use std::collections::HashSet;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use errors::validate;
@@ -34,10 +35,10 @@ use super::ASSIGNABLE_DIRECTIVE;
 use super::UPDATABLE_DIRECTIVE;
 
 lazy_static! {
-    static ref ALLOW_LISTED_DIRECTIVES: Vec<StringKey> = vec![
-        *UPDATABLE_DIRECTIVE,
+    static ref ALLOW_LISTED_DIRECTIVES: Vec<DirectiveName> = vec![
+        DirectiveName(*UPDATABLE_DIRECTIVE),
         // TODO have a global list of directives...?
-        "fb_owner".intern(),
+        DirectiveName("fb_owner".intern()),
     ];
 }
 
@@ -298,7 +299,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
         if !ALLOW_LISTED_DIRECTIVES.contains(&directive.name.item) {
             Err(vec![Diagnostic::error(
                 ValidationMessage::UpdatableDisallowOtherDirectives {
-                    disallowed_directive_name: directive.name.item,
+                    disallowed_directive_name: directive.name.item.0,
                     outer_type_plural: self.executable_definition_info.unwrap().type_plural,
                 },
                 directive.name.location,

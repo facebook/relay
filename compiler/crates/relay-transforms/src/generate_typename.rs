@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::DirectiveName;
 use common::Location;
 use common::PointerAddress;
 use common::WithLocation;
@@ -24,7 +25,6 @@ use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::SDLSchema;
 use schema::Schema;
@@ -34,7 +34,8 @@ use crate::util::generate_abstract_type_refinement_key;
 use crate::util::is_relay_custom_inline_fragment_directive;
 
 lazy_static! {
-    pub static ref TYPE_DISCRIMINATOR_DIRECTIVE_NAME: StringKey = "__TypeDiscriminator".intern();
+    pub static ref TYPE_DISCRIMINATOR_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("__TypeDiscriminator".intern());
 }
 
 /// Transform to add the `__typename` field to any LinkedField that both a) returns an

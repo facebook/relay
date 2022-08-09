@@ -400,11 +400,11 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             let left_stream_directive = l
                 .directives()
                 .iter()
-                .find(|d| d.name.item.lookup() == "stream");
+                .find(|d| d.name.item.0.lookup() == "stream");
             let right_stream_directive = r
                 .directives()
                 .iter()
-                .find(|d| d.name.item.lookup() == "stream");
+                .find(|d| d.name.item.0.lookup() == "stream");
             match (left_stream_directive, right_stream_directive) {
                 (Some(_), None) => Err(Diagnostic::error(
                     ValidationMessage::StreamConflictOnlyUsedInOnePlace { response_key },

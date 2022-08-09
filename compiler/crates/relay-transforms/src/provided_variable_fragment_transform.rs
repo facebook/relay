@@ -164,7 +164,7 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
             .iter()
             .filter(|def| {
                 def.directives
-                    .named(ProvidedVariableMetadata::directive_name())
+                    .named(ProvidedVariableMetadata::directive_name().0)
                     .is_none()
             })
             .cloned()

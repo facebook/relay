@@ -9,8 +9,8 @@ use std::sync::Arc;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
-use common::Named;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
@@ -50,8 +50,8 @@ lazy_static! {
     pub static ref TYPE_NAME_ARG: StringKey = "typeName".intern();
     pub static ref CLIENT_EDGE_SOURCE_NAME: StringKey = "clientEdgeSourceDocument".intern();
     // This gets attached to fragment which defines the selection in the generated query
-    pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: StringKey = "__clientEdgeGeneratedFragment".intern();
-    pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: StringKey = "waterfall".intern();
+    pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: DirectiveName = DirectiveName("__clientEdgeGeneratedFragment".intern());
+    pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: DirectiveName = DirectiveName("waterfall".intern());
 }
 
 /// Directive added to inline fragments created by the transform. The inline
@@ -294,7 +294,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
         let waterfall_directive = field
             .directives()
-            .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME);
+            .named(CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME.0);
 
         if !is_client_edge {
             // Non-Client-Edge fields do not incur a waterfall, and thus should
@@ -320,14 +320,14 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             .filter(|directive| {
                 !allowed_directive_names
                     .iter()
-                    .any(|item| directive.name() == *item)
+                    .any(|item| directive.name.item == *item)
             })
             .collect::<Vec<_>>();
 
         for directive in other_directives {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::ClientEdgeUnsupportedDirective {
-                    directive_name: directive.name(),
+                    directive_name: directive.name.item,
                 },
                 directive.name.location,
             ));
@@ -401,7 +401,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
         let mut inline_fragment_directives: Vec<Directive> = vec![metadata_directive.into()];
         if let Some(required_directive_metadata) = field
             .directives
-            .named(RequiredMetadataDirective::directive_name())
+            .named(RequiredMetadataDirective::directive_name().0)
             .cloned()
         {
             inline_fragment_directives.push(required_directive_metadata);
@@ -491,7 +491,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
     ) -> Transformed<Selection> {
         if let Some(directive) = field
             .directives()
-            .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
+            .named(CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME.0)
         {
             self.errors.push(Diagnostic::error_with_data(
                 ValidationMessageWithData::RelayResolversUnexpectedWaterfall,

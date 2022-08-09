@@ -7,6 +7,7 @@
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::SourceLocationKey;
 use common::WithLocation;
@@ -22,7 +23,7 @@ use schema::SDLSchema;
 use super::validation_message::ValidationMessage;
 
 lazy_static! {
-    pub static ref REFETCHABLE_NAME: StringKey = "refetchable".intern();
+    pub static ref REFETCHABLE_NAME: DirectiveName = DirectiveName("refetchable".intern());
     static ref QUERY_NAME_ARG: StringKey = "queryName".intern();
     static ref DIRECTIVES_ARG: StringKey = "directives".intern();
 }

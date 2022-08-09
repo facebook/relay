@@ -118,7 +118,9 @@ fragment ChildFragment on Query
                 Directive {
                     name: WithLocation {
                         location: fragment-with-literal-enum-arguments.graphql:189:208,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,

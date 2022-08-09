@@ -6,6 +6,7 @@
  */
 
 use common::DiagnosticDisplay;
+use common::DirectiveName;
 use common::WithDiagnosticData;
 use intern::string_key::StringKey;
 use thiserror::Error;
@@ -26,12 +27,12 @@ pub enum ValidationMessage {
          if incompatible_directives.len() > 1 { "directives" } else { "directive" },
          incompatible_directives
              .iter()
-             .map(|directive| directive.lookup())
+             .map(|name| name.0.lookup())
              .collect::<Vec<_>>()
              .join("`, `"))
      ]
     IncompatibleRelayClientComponentDirectives {
-        incompatible_directives: Vec<StringKey>,
+        incompatible_directives: Vec<DirectiveName>,
     },
 
     #[error("@relay_client_component is not compatible with @arguments.")]
@@ -97,7 +98,7 @@ pub enum ValidationMessage {
         "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. But the field '{actor_change_field}' does not exist on the type '{type_name}'. Please makes sure the GraphQL schema supports actor change on '{type_name}'."
     )]
     ActorChangeExpectViewerFieldOnType {
-        directive_name: StringKey,
+        directive_name: DirectiveName,
         actor_change_field: StringKey,
         field_name: StringKey,
         type_name: StringKey,
@@ -107,7 +108,7 @@ pub enum ValidationMessage {
         "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. The field '{actor_change_field}' should be defined as a scalar field in the GraphQL Schema, but is defined with the type '{actor_change_field_type}' instead."
     )]
     ActorChangeViewerShouldBeScalar {
-        directive_name: StringKey,
+        directive_name: DirectiveName,
         actor_change_field: StringKey,
         field_name: StringKey,
         actor_change_field_type: StringKey,
@@ -168,7 +169,7 @@ pub enum ValidationMessage {
     #[error(
         "Unexpected directive on Client Edge field. The `@{directive_name}` directive is not currently supported on fields backed by Client Edges."
     )]
-    ClientEdgeUnsupportedDirective { directive_name: StringKey },
+    ClientEdgeUnsupportedDirective { directive_name: DirectiveName },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

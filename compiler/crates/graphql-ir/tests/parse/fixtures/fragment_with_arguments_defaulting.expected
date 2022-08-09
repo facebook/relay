@@ -47,7 +47,9 @@ fragment F2 on Query @argumentDefinitions(
                 Directive {
                     name: WithLocation {
                         location: fragment_with_arguments_defaulting.graphql:32:51,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,
@@ -115,7 +117,9 @@ fragment F2 on Query @argumentDefinitions(
                 Directive {
                     name: WithLocation {
                         location: fragment_with_arguments_defaulting.graphql:249:268,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,

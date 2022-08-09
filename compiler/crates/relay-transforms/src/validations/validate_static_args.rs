@@ -62,7 +62,7 @@ impl<'a> Validator for StaticArgValidator<'a> {
         let validation_errors = self
             .program
             .schema
-            .get_directive(directive.name())
+            .get_directive(directive.name.item)
             .map(|schema_directive| {
                 validate_all_static_args(
                     &mut self.field_to_static_args,

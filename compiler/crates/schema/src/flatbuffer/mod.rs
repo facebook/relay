@@ -10,6 +10,7 @@ mod wrapper;
 
 use std::cmp::Ordering;
 
+use common::DirectiveName;
 use common::Span;
 use common::WithLocation;
 use flatbuffers::ForwardsUOffset;
@@ -102,7 +103,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         self.get_type(type_name).is_some()
     }
 
-    pub fn get_directive(&self, directive_name: StringKey) -> Option<Directive> {
+    pub fn get_directive(&self, directive_name: DirectiveName) -> Option<Directive> {
         self.read_directive(directive_name)
     }
 
@@ -134,10 +135,10 @@ impl<'fb> FlatBufferSchema<'fb> {
         self.parse_interface(id).unwrap()
     }
 
-    fn read_directive(&self, name: StringKey) -> Option<Directive> {
+    fn read_directive(&self, name: DirectiveName) -> Option<Directive> {
         let mut start = 0;
         let mut end = self.directives.len();
-        let name = name.lookup();
+        let name = name.0.lookup();
         while start < end {
             let mid = start + ((end - start) / 2);
             match self.directives.get(mid).key_compare_with_value(name) {
@@ -161,7 +162,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             .map(get_mapped_location)
             .collect::<Vec<_>>();
         let parsed_directive = Directive {
-            name: directive.name()?.intern(),
+            name: DirectiveName(directive.name()?.intern()),
             is_extension: directive.is_extension(),
             arguments: self.parse_arguments(directive.arguments()?)?,
             locations,
@@ -378,7 +379,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     ) -> Option<DirectiveValue> {
         let arguments = self.parse_argument_values(directive.arguments()?)?;
         Some(DirectiveValue {
-            name: directive.name()?.intern(),
+            name: DirectiveName(directive.name()?.intern()),
             arguments,
         })
     }
@@ -610,13 +611,37 @@ mod tests {
         assert!(fb_schema.read_type("Aaaa".intern()).is_none());
         assert!(fb_schema.read_type("Zzzz".intern()).is_none());
 
-        assert!(fb_schema.read_directive("ref_type".intern()).is_some());
-        assert!(fb_schema.read_directive("extern_type".intern()).is_some());
-        assert!(fb_schema.read_directive("fetchable".intern()).is_some());
+        assert!(
+            fb_schema
+                .read_directive(DirectiveName("ref_type".intern()))
+                .is_some()
+        );
+        assert!(
+            fb_schema
+                .read_directive(DirectiveName("extern_type".intern()))
+                .is_some()
+        );
+        assert!(
+            fb_schema
+                .read_directive(DirectiveName("fetchable".intern()))
+                .is_some()
+        );
 
-        assert!(fb_schema.read_directive("goto".intern()).is_none());
-        assert!(fb_schema.read_directive("aaaa".intern()).is_none());
-        assert!(fb_schema.read_directive("zzzz".intern()).is_none());
+        assert!(
+            fb_schema
+                .read_directive(DirectiveName("goto".intern()))
+                .is_none()
+        );
+        assert!(
+            fb_schema
+                .read_directive(DirectiveName("aaaa".intern()))
+                .is_none()
+        );
+        assert!(
+            fb_schema
+                .read_directive(DirectiveName("zzzz".intern()))
+                .is_none()
+        );
 
         Ok(())
     }

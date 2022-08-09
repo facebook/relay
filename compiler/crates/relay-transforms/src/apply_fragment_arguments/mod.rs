@@ -176,7 +176,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         if self.provided_variables.is_empty()
             || operation
                 .directives
-                .named(*DIRECTIVE_SPLIT_OPERATION)
+                .named(DIRECTIVE_SPLIT_OPERATION.0)
                 .is_some()
         {
             // this transform does not add the SplitOperation directive, so this
@@ -213,7 +213,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         if self.is_normalization {
-            let no_inline_directive = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME);
+            let no_inline_directive = fragment.directives.named(NO_INLINE_DIRECTIVE_NAME.0);
             if let Some(no_inline_directive) = no_inline_directive {
                 self.transform_no_inline_fragment(fragment, no_inline_directive);
             }
@@ -257,7 +257,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
         }
 
         if self.is_normalization {
-            if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
+            if let Some(directive) = fragment.directives.named(NO_INLINE_DIRECTIVE_NAME.0) {
                 self.transform_no_inline_fragment(fragment, directive);
                 let transformed_arguments = spread
                     .arguments
@@ -501,7 +501,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 .filter(|variable_definition| {
                     variable_definition
                         .directives
-                        .named(ProvidedVariableMetadata::directive_name())
+                        .named(ProvidedVariableMetadata::directive_name().0)
                         .is_some()
                 });
         for definition in provided_arguments {

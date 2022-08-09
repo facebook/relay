@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Argument;
@@ -17,7 +18,8 @@ use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref DIRECTIVE_SPLIT_OPERATION: StringKey = "__splitOperation".intern();
+    pub static ref DIRECTIVE_SPLIT_OPERATION: DirectiveName =
+        DirectiveName("__splitOperation".intern());
     static ref ARG_DERIVED_FROM: StringKey = "derivedFrom".intern();
     static ref ARG_PARENT_DOCUMENTS: StringKey = "parentDocuments".intern();
     static ref ARG_RAW_RESPONSE_TYPE: StringKey = "rawResponseType".intern();

@@ -51,7 +51,7 @@ pub fn generate_artifacts(
         .map(|(_, operations)| -> Artifact {
             if let Some(normalization) = operations.normalization {
                 // We have a normalization AST... so we'll move forward with that
-                if let Some(directive) = normalization.directives.named(*DIRECTIVE_SPLIT_OPERATION)
+                if let Some(directive) = normalization.directives.named(DIRECTIVE_SPLIT_OPERATION.0)
                 {
                     // Generate normalization file for SplitOperation
                     let metadata = SplitOperationMetadata::from(directive);
@@ -154,7 +154,7 @@ pub fn generate_artifacts(
         .chain(programs.reader.fragments().map(|reader_fragment| {
             let source_name = if let Some(client_edges_directive) = reader_fragment
                 .directives
-                .named(*CLIENT_EDGE_GENERATED_FRAGMENT_KEY)
+                .named(CLIENT_EDGE_GENERATED_FRAGMENT_KEY.0)
             {
                 client_edges_directive
                     .arguments

@@ -293,7 +293,7 @@ impl<'s> ConnectionTransform<'s> {
     ) -> Vec<Directive> {
         let connection_handle_directive = build_handle_field_directive_from_connection_directive(
             connection_directive,
-            Some(self.connection_constants.connection_directive_name),
+            Some(self.connection_constants.connection_directive_name.0),
             get_default_filters(connection_field, self.connection_constants),
         );
         let mut next_directives = connection_field

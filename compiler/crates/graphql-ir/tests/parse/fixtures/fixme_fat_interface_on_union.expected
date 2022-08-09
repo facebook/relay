@@ -38,7 +38,9 @@ query Test {
                                 Directive {
                                     name: WithLocation {
                                         location: fixme_fat_interface_on_union.graphql:54:74,
-                                        item: "fixme_fat_interface",
+                                        item: DirectiveName(
+                                            "fixme_fat_interface",
+                                        ),
                                     },
                                     arguments: [],
                                     data: None,

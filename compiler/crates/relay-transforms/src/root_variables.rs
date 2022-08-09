@@ -130,7 +130,7 @@ impl VariablesVisitor<'_, '_> {
                 .collect::<StringKeySet>();
             let transitive_local_variables = if fragment
                 .directives
-                .named(*NO_INLINE_DIRECTIVE_NAME)
+                .named(NO_INLINE_DIRECTIVE_NAME.0)
                 .is_some()
             {
                 Some(local_variables.clone())

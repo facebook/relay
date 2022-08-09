@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DirectiveName;
 use common::SourceLocationKey;
 use common::WithLocation;
 use fixture_tests::Fixture;
@@ -42,7 +43,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                             directives: vec![Directive {
                                 name: WithLocation::new(
                                     operation.name.location,
-                                    "__metadata".intern(),
+                                    DirectiveName("__metadata".intern()),
                                 ),
                                 arguments: vec![Argument {
                                     name: WithLocation::new(

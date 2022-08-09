@@ -130,7 +130,9 @@ fragment ChildFragment on User
                 Directive {
                     name: WithLocation {
                         location: fragment-with-literal-enum-list-arguments.graphql:190:209,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,

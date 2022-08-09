@@ -43,7 +43,7 @@ impl Validator for ValidateGlobalVariables<'_> {
         // Skip 3D normalization fragments
         if operation
             .directives
-            .named(*DIRECTIVE_SPLIT_OPERATION)
+            .named(DIRECTIVE_SPLIT_OPERATION.0)
             .is_some()
         {
             return Ok(());

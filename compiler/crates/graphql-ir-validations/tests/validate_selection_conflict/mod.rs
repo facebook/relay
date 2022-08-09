@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::DirectiveName;
 use common::SourceLocationKey;
 use common::TextSource;
 use fixture_tests::Fixture;
@@ -17,16 +18,15 @@ use graphql_ir::Program;
 use graphql_ir_validations::validate_selection_conflict;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
-use intern::string_key::StringKey;
 use relay_test_schema::TEST_SCHEMA;
 
 #[derive(Clone)]
 struct LocationAgnosticBehaviorForTestOnly;
 impl LocationAgnosticBehavior for LocationAgnosticBehaviorForTestOnly {
-    fn should_skip_in_node_identifier(_name: StringKey) -> bool {
+    fn should_skip_in_node_identifier(_name: DirectiveName) -> bool {
         false
     }
-    fn hash_for_name_only(_name: StringKey) -> bool {
+    fn hash_for_name_only(_name: DirectiveName) -> bool {
         false
     }
 }

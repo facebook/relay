@@ -106,7 +106,7 @@ pub(crate) fn write_operation_type_exports_section(
         None,
         typegen_operation
             .directives
-            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+            .named(CHILDREN_CAN_BUBBLE_METADATA_KEY.0)
             .is_some(),
         false, // Query types can never be plural
         &mut encountered_enums,
@@ -380,7 +380,7 @@ pub(crate) fn write_fragment_type_exports_section(
         },
         fragment_definition
             .directives
-            .named(*CHILDREN_CAN_BUBBLE_METADATA_KEY)
+            .named(CHILDREN_CAN_BUBBLE_METADATA_KEY.0)
             .is_some(),
         is_plural_fragment,
         &mut encountered_enums,
@@ -625,7 +625,7 @@ fn generate_provided_variables_type(
         .iter()
         .filter_map(|def| {
             def.directives
-                .named(ProvidedVariableMetadata::directive_name())?;
+                .named(ProvidedVariableMetadata::directive_name().0)?;
 
             let provider_func = AST::Callable(Box::new(transform_input_type(
                 typegen_context,

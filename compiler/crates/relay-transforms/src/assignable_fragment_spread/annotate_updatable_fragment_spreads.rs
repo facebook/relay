@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Directive;
@@ -16,13 +17,13 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 use crate::UPDATABLE_DIRECTIVE;
 
 lazy_static! {
-    pub static ref UPDATABLE_DIRECTIVE_FOR_TYPEGEN: StringKey = "__updatable".intern();
+    pub static ref UPDATABLE_DIRECTIVE_FOR_TYPEGEN: DirectiveName =
+        DirectiveName("__updatable".intern());
 }
 
 pub fn annotate_updatable_fragment_spreads(program: &Program) -> Program {

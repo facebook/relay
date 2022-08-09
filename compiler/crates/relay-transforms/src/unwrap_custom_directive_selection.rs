@@ -37,7 +37,9 @@ impl Transformer for UnwrapCustomDirectiveSelection {
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         if fragment.type_condition.is_none() {
             // Remove the wrapping `... @defer` for `@defer` on fragment spreads.
-            let defer = fragment.directives.named(DEFER_STREAM_CONSTANTS.defer_name);
+            let defer = fragment
+                .directives
+                .named(DEFER_STREAM_CONSTANTS.defer_name.0);
             if let Some(defer) = defer {
                 if let Selection::FragmentSpread(frag_spread) = &fragment.selections[0] {
                     return Transformed::Replace(Selection::FragmentSpread(Arc::new(

@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Argument;
@@ -28,7 +29,7 @@ use crate::MATCH_CONSTANTS;
 use crate::RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME;
 
 lazy_static! {
-    pub static ref NO_INLINE_DIRECTIVE_NAME: StringKey = "no_inline".intern();
+    pub static ref NO_INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("no_inline".intern());
     pub static ref PARENT_DOCUMENTS_ARG: StringKey = "__parentDocuments".intern();
     pub static ref RAW_RESPONSE_TYPE_NAME: StringKey = "raw_response_type".intern();
 }
@@ -134,7 +135,7 @@ impl<'f, 'p> Validator for RequiredNoInlineValidator<'f, 'p> {
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         let has_no_inline = fragment
             .directives
-            .named(*NO_INLINE_DIRECTIVE_NAME)
+            .named(NO_INLINE_DIRECTIVE_NAME.0)
             .is_some();
         if has_no_inline {
             return Ok(());

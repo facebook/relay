@@ -53,7 +53,9 @@ Text Schema:Schema {
   subscription_type: None
   directives: [
     Directive {
-        name: "extern_type",
+        name: DirectiveName(
+            "extern_type",
+        ),
         arguments: [
             Argument {
                 name: "schema",
@@ -82,7 +84,9 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
-        name: "fetchable",
+        name: DirectiveName(
+            "fetchable",
+        ),
         arguments: [
             Argument {
                 name: "field_name",
@@ -102,7 +106,9 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
-        name: "include",
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
                 name: "if",
@@ -126,7 +132,9 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
-        name: "ref_type",
+        name: DirectiveName(
+            "ref_type",
+        ),
         arguments: [
             Argument {
                 name: "schema",
@@ -155,7 +163,9 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
-        name: "skip",
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
                 name: "if",
@@ -179,7 +189,9 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
-        name: "source",
+        name: DirectiveName(
+            "source",
+        ),
         arguments: [
             Argument {
                 name: "name",
@@ -318,7 +330,9 @@ Text Schema:Schema {
         ),
         directives: [
             DirectiveValue {
-                name: "ref_type",
+                name: DirectiveName(
+                    "ref_type",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",
@@ -570,7 +584,9 @@ Text Schema:Schema {
         ],
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",
@@ -617,7 +633,9 @@ Text Schema:Schema {
         ],
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",
@@ -681,7 +699,9 @@ Text Schema:Schema {
         ],
         directives: [
             DirectiveValue {
-                name: "fetchable",
+                name: DirectiveName(
+                    "fetchable",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "field_name",
@@ -728,7 +748,9 @@ Text Schema:Schema {
         interfaces: [],
         directives: [
             DirectiveValue {
-                name: "fetchable",
+                name: DirectiveName(
+                    "fetchable",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "field_name",
@@ -745,7 +767,9 @@ Text Schema:Schema {
                 ],
             },
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",
@@ -831,7 +855,9 @@ Text Schema:Schema {
         is_extension: false,
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",
@@ -876,7 +902,9 @@ Text Schema:Schema {
         ],
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",
@@ -913,7 +941,9 @@ Text Schema:Schema {
 FlatBuffer Schema:FB Schema {
 directives: [
     Directive {
-        name: "extern_type",
+        name: DirectiveName(
+            "extern_type",
+        ),
         arguments: [
             Argument {
                 name: "schema",
@@ -942,7 +972,9 @@ directives: [
         description: None,
     },
     Directive {
-        name: "fetchable",
+        name: DirectiveName(
+            "fetchable",
+        ),
         arguments: [
             Argument {
                 name: "field_name",
@@ -962,7 +994,9 @@ directives: [
         description: None,
     },
     Directive {
-        name: "include",
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
                 name: "if",
@@ -986,7 +1020,9 @@ directives: [
         description: None,
     },
     Directive {
-        name: "ref_type",
+        name: DirectiveName(
+            "ref_type",
+        ),
         arguments: [
             Argument {
                 name: "schema",
@@ -1015,7 +1051,9 @@ directives: [
         description: None,
     },
     Directive {
-        name: "skip",
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
                 name: "if",
@@ -1039,7 +1077,9 @@ directives: [
         description: None,
     },
     Directive {
-        name: "source",
+        name: DirectiveName(
+            "source",
+        ),
         arguments: [
             Argument {
                 name: "name",
@@ -1196,7 +1236,9 @@ fields: [
         ),
         directives: [
             DirectiveValue {
-                name: "ref_type",
+                name: DirectiveName(
+                    "ref_type",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",
@@ -1326,7 +1368,9 @@ input_objects: [
         ],
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",
@@ -1373,7 +1417,9 @@ interfaces: [
         ],
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",
@@ -1452,7 +1498,9 @@ objects: [
         ],
         directives: [
             DirectiveValue {
-                name: "fetchable",
+                name: DirectiveName(
+                    "fetchable",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "field_name",
@@ -1484,7 +1532,9 @@ objects: [
         interfaces: [],
         directives: [
             DirectiveValue {
-                name: "fetchable",
+                name: DirectiveName(
+                    "fetchable",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "field_name",
@@ -1501,7 +1551,9 @@ objects: [
                 ],
             },
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",
@@ -1560,7 +1612,9 @@ scalars: [
         is_extension: false,
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",
@@ -1623,7 +1677,9 @@ unions: [
         ],
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",

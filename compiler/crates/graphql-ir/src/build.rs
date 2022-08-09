@@ -9,6 +9,7 @@ use core::cmp::Ordering;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use common::Span;
@@ -1268,7 +1269,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         directive: &graphql_syntax::Directive,
         location: DirectiveLocation,
     ) -> DiagnosticsResult<Directive> {
-        if directive.name.value == *ARGUMENT_DEFINITION {
+        if DirectiveName(directive.name.value) == *ARGUMENT_DEFINITION {
             if location != DirectiveLocation::FragmentDefinition {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition,
@@ -1278,23 +1279,29 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             return Ok(Directive {
                 name: directive
                     .name
-                    .name_with_location(self.location.source_location()),
+                    .name_with_location(self.location.source_location())
+                    .map(DirectiveName),
                 arguments: vec![],
                 data: None,
             });
         }
-        let directive_definition = match self.schema.get_directive(directive.name.value) {
+        let directive_definition = match self
+            .schema
+            .get_directive(DirectiveName(directive.name.value))
+        {
             Some(directive_definition) => directive_definition,
             None => {
                 return Err(vec![Diagnostic::error(
-                    ValidationMessage::UnknownDirective(directive.name.value),
+                    ValidationMessage::UnknownDirective(DirectiveName(directive.name.value)),
                     self.location.with_span(directive.name.span),
                 )]);
             }
         };
         if !directive_definition.locations.contains(&location) {
             return Err(vec![Diagnostic::error(
-                ValidationMessage::InvalidDirectiveUsageUnsupportedLocation(directive.name.value),
+                ValidationMessage::InvalidDirectiveUsageUnsupportedLocation(DirectiveName(
+                    directive.name.value,
+                )),
                 self.location.with_span(directive.name.span),
             )]);
         }
@@ -1311,7 +1318,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 // so error highlighting of the directive include the @ for stylistic
                 // purposes.
                 Span::new(directive.at.span.start, directive.name.span.end),
-                directive.name.value,
+                DirectiveName(directive.name.value),
             ),
             arguments,
             data: None,
@@ -1892,7 +1899,7 @@ pub enum ValidationLevel {
 fn split_conditions_and_directives(directives: &[Directive]) -> (Vec<Directive>, Vec<Directive>) {
     let (mut conditions, directives): (Vec<_>, Vec<_>) =
         directives.iter().cloned().partition(|directive| {
-            let name = directive.name.item.lookup();
+            let name = directive.name.item.0.lookup();
             name == "skip" || name == "include"
         });
     conditions.sort_by(
@@ -1924,7 +1931,7 @@ fn wrap_selection_with_condition(selection: &Selection, condition: &Directive) -
             Value::Variable(variable) => ConditionValue::Variable(variable.clone()),
             _ => unreachable!("Unexpected variable type for the condition directive"),
         },
-        passing_value: condition.name.item.lookup() == "include",
+        passing_value: condition.name.item.0.lookup() == "include",
         selections: vec![selection.clone()],
         location: condition.name.location,
     }))
@@ -1935,6 +1942,6 @@ fn variable_definition_requires_argument(variable_definition: &VariableDefinitio
         && variable_definition.default_value.is_none()
         && variable_definition
             .directives
-            .named(ProvidedVariableMetadata::directive_name())
+            .named(ProvidedVariableMetadata::directive_name().0)
             .is_none()
 }

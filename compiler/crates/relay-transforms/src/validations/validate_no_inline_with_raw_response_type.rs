@@ -70,7 +70,7 @@ impl<'a> Validator for NoInlineRawResponseTypeValidator<'a> {
     }
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
-        if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
+        if let Some(directive) = fragment.directives.named(NO_INLINE_DIRECTIVE_NAME.0) {
             if !is_raw_response_type_enabled(directive) {
                 return Err(vec![
                     Diagnostic::error(

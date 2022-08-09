@@ -249,7 +249,7 @@ fn visit_fragment_spread(
             type_condition_info: get_type_condition_info(fragment_spread),
             is_updatable_fragment_spread: fragment_spread
                 .directives
-                .named(*UPDATABLE_DIRECTIVE_FOR_TYPEGEN)
+                .named(UPDATABLE_DIRECTIVE_FOR_TYPEGEN.0)
                 .is_some(),
         });
 
@@ -555,7 +555,7 @@ fn visit_inline_fragment(
         }));
     } else if inline_fragment
         .directives
-        .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
+        .named(RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN.0)
         .is_some()
     {
         visit_actor_change(
@@ -735,7 +735,7 @@ fn raw_response_visit_inline_fragment(
     );
     if inline_fragment
         .directives
-        .named(*CLIENT_EXTENSION_DIRECTIVE_NAME)
+        .named(CLIENT_EXTENSION_DIRECTIVE_NAME.0)
         .is_some()
     {
         for selection in &mut selections {
@@ -2055,11 +2055,11 @@ fn apply_required_directive_nullability(
     // negate the effects of bubbling) because we need handle the case where
     // null can bubble to the _items_ in a plural field which is itself
     // @required.
-    let bubbled_type = match directives.named(*CHILDREN_CAN_BUBBLE_METADATA_KEY) {
+    let bubbled_type = match directives.named(CHILDREN_CAN_BUBBLE_METADATA_KEY.0) {
         Some(_) => field_type.with_nullable_item_type(),
         None => field_type.clone(),
     };
-    match directives.named(RequiredMetadataDirective::directive_name()) {
+    match directives.named(RequiredMetadataDirective::directive_name().0) {
         Some(_) => bubbled_type.non_null(),
         None => bubbled_type,
     }
@@ -2086,7 +2086,7 @@ fn to_camel_case(non_camelized_string: String) -> String {
 fn get_type_condition_info(fragment_spread: &FragmentSpread) -> Option<TypeConditionInfo> {
     fragment_spread
         .directives
-        .named(*ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN)
+        .named(ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN.0)
         .map(|directive| {
             directive
                 .data

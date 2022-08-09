@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DirectiveName;
 use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
@@ -16,7 +17,8 @@ use lazy_static::lazy_static;
 
 lazy_static! {
     pub static ref CONNECTION_HANDLER_ARG_NAME: StringKey = "handler".intern();
-    pub static ref HANDLE_FIELD_DIRECTIVE_NAME: StringKey = "__clientField".intern();
+    pub static ref HANDLE_FIELD_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("__clientField".intern());
     pub static ref HANDLER_ARG_NAME: StringKey = "handle".intern();
     pub static ref FILTERS_ARG_NAME: StringKey = "filters".intern();
     pub static ref KEY_ARG_NAME: StringKey = "key".intern();

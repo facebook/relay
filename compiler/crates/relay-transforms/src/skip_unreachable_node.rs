@@ -197,7 +197,7 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
         if spread
             .directives
-            .named(NoInlineFragmentSpreadMetadata::directive_name())
+            .named(NoInlineFragmentSpreadMetadata::directive_name().0)
             .is_some()
         {
             return Transformed::Keep;
@@ -211,7 +211,7 @@ impl<'s> Transformer for SkipUnreachableNodeTransform<'s> {
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let transformed_field = self.default_transform_linked_field(field);
-        if let Some(directive) = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name) {
+        if let Some(directive) = field.directives.named(DEFER_STREAM_CONSTANTS.stream_name.0) {
             if let Some(if_arg) = StreamDirective::from(directive).if_arg {
                 if let Value::Constant(ConstantValue::Boolean(false)) = &if_arg.value.item {
                     let mut next_field = match transformed_field {
@@ -290,7 +290,7 @@ impl<'s> SkipUnreachableNodeTransform<'s> {
     ) -> TransformedMulti<Selection> {
         if let Some(directive) = inline_fragment
             .directives
-            .named(DEFER_STREAM_CONSTANTS.defer_name)
+            .named(DEFER_STREAM_CONSTANTS.defer_name.0)
         {
             assert!(inline_fragment.directives.len() == 1);
             if let Some(if_arg) = DeferDirective::from(directive).if_arg {

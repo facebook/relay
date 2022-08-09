@@ -68,7 +68,9 @@ fragment TestFragment on User
                         Directive {
                             name: WithLocation {
                                 location: fragment_with_valid_provider.graphql:173:199,
-                                item: "__ProvidedVariableMetadata",
+                                item: DirectiveName(
+                                    "__ProvidedVariableMetadata",
+                                ),
                             },
                             arguments: [],
                             data: Some(
@@ -101,7 +103,9 @@ fragment TestFragment on User
                 Directive {
                     name: WithLocation {
                         location: fragment_with_valid_provider.graphql:33:52,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,

@@ -9,6 +9,7 @@ use std::collections::HashMap;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::WithLocation;
 use errors::par_try_map;
@@ -39,8 +40,8 @@ lazy_static! {
     static ref TYPE: StringKey = "type".intern();
     static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
     static ref PROVIDER: StringKey = "provider".intern();
-    pub static ref UNUSED_LOCAL_VARIABLE_DEPRECATED: StringKey =
-        "unusedLocalVariable_DEPRECATED".intern();
+    pub static ref UNUSED_LOCAL_VARIABLE_DEPRECATED: DirectiveName =
+        DirectiveName("unusedLocalVariable_DEPRECATED".intern());
     static ref DIRECTIVES: StringKey = "directives".intern();
 }
 
@@ -134,7 +135,7 @@ fn build_fragment_signature(
     let argument_definition_directives = fragment
         .directives
         .iter()
-        .filter(|x| x.name.value == *ARGUMENT_DEFINITION)
+        .filter(|x| DirectiveName(x.name.value) == *ARGUMENT_DEFINITION)
         .collect::<Vec<_>>();
     if fragment.variable_definitions.is_some() && !argument_definition_directives.is_empty() {
         return Err(Diagnostic::error(
@@ -212,7 +213,7 @@ fn build_fragment_variable_definitions(
                             type_arg = Some(item);
                         } else if name == *DEFAULT_VALUE {
                             default_arg = Some(item);
-                        } else if name == *UNUSED_LOCAL_VARIABLE_DEPRECATED {
+                        } else if DirectiveName(name) == *UNUSED_LOCAL_VARIABLE_DEPRECATED {
                             unused_local_variable_arg = Some(item);
                         } else if name == *DIRECTIVES {
                             directives_arg = Some(item);

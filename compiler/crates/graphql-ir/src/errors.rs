@@ -6,6 +6,7 @@
  */
 
 use common::DiagnosticDisplay;
+use common::DirectiveName;
 use common::WithDiagnosticData;
 use graphql_syntax::OperationKind;
 use intern::string_key::StringKey;
@@ -33,7 +34,7 @@ pub enum ValidationMessage {
     },
 
     #[error("Unknown directive '{0}'")]
-    UnknownDirective(StringKey),
+    UnknownDirective(DirectiveName),
 
     #[error(
         "Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined and of correct type, use @arguments instead."
@@ -145,7 +146,7 @@ pub enum ValidationMessage {
     },
 
     #[error("Directive '{0}' not supported in this location")]
-    InvalidDirectiveUsageUnsupportedLocation(StringKey),
+    InvalidDirectiveUsageUnsupportedLocation(DirectiveName),
 
     #[error(
         "Invalid value passed to `@argumentDefinitions`, supported options include `type` and `defaultValue`, got `{0}`"
@@ -185,13 +186,13 @@ pub enum ValidationMessage {
     #[error(
         "Unexpected directive: '{0}'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection."
     )]
-    InvalidServerOnlyDirectiveInClientFields(StringKey),
+    InvalidServerOnlyDirectiveInClientFields(DirectiveName),
 
     #[error(
         "@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the return type to be a non-plural interface or object, got '{connection_type_string}'."
     )]
     InvalidConnectionFieldType {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         connection_type_string: String,
     },
@@ -215,7 +216,7 @@ pub enum ValidationMessage {
         "@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{edges_selection_name}' field that returns a list of objects."
     )]
     ExpectedConnectionToExposeValidEdgesField {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         connection_type_name: StringKey,
         edges_selection_name: StringKey,
@@ -225,7 +226,7 @@ pub enum ValidationMessage {
         "@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{edges_selection_name} {{ {node_selection_name} }}' field that returns an object, interface or union."
     )]
     ExpectedConnectionToExposeValidNodeField {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         connection_type_name: StringKey,
         edges_selection_name: StringKey,
@@ -236,7 +237,7 @@ pub enum ValidationMessage {
         "@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{edges_selection_name} {{ {cursor_selection_name} }}' field that returns a scalar."
     )]
     ExpectedConnectionToExposeValidCursorField {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         connection_type_name: StringKey,
         cursor_selection_name: StringKey,
@@ -247,7 +248,7 @@ pub enum ValidationMessage {
         "@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{page_info_selection_name}' field that returns an object."
     )]
     ExpectedConnectionToExposeValidPageInfoField {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         connection_type_name: StringKey,
         page_info_selection_name: StringKey,
@@ -257,7 +258,7 @@ pub enum ValidationMessage {
         "@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{page_info_selection_name} {{ {page_info_sub_field_name} }}' field that returns a scalar."
     )]
     ExpectedConnectionToExposeValidPageInfoSubField {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         connection_type_name: StringKey,
         page_info_selection_name: StringKey,
@@ -268,7 +269,7 @@ pub enum ValidationMessage {
         "Expected the {handler_arg_name} argument to @{connection_directive_name} to be a string literal for field '{connection_field_name}'."
     )]
     InvalidConnectionHandlerArg {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         handler_arg_name: StringKey,
     },
@@ -277,7 +278,7 @@ pub enum ValidationMessage {
         "Expected the {key_arg_name} argument to @{connection_directive_name} to be a string literal for field '{connection_field_name}'."
     )]
     InvalidConnectionKeyArg {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         key_arg_name: StringKey,
     },
@@ -286,7 +287,7 @@ pub enum ValidationMessage {
         "Expected the {dynamic_key_arg_name} argument to @{connection_directive_name} to be a variable for field '{connection_field_name}'."
     )]
     InvalidConnectionDynamicKeyArg {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         dynamic_key_arg_name: StringKey,
     },
@@ -295,7 +296,7 @@ pub enum ValidationMessage {
         "Expected the {key_arg_name} argument to @{connection_directive_name} to be of form '<SomeName>_{postfix}', got '{key_arg_value}'. For a detailed explanation, check out https://relay.dev/docs/en/pagination-container#connection"
     )]
     InvalidConnectionKeyArgPostfix {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         key_arg_name: StringKey,
         key_arg_value: StringKey,
@@ -306,7 +307,7 @@ pub enum ValidationMessage {
         "Expected the {filters_arg_name} argument to @{connection_directive_name} to be a list of string literals for field '{connection_field_name}'."
     )]
     InvalidConnectionFiltersArg {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         filters_arg_name: StringKey,
     },
@@ -341,7 +342,7 @@ pub enum ValidationMessage {
     )]
     LiteralStringArgumentExpectedForDirective {
         arg_name: StringKey,
-        directive_name: StringKey,
+        directive_name: DirectiveName,
     },
 
     #[error("Variable `${variable_name}` is never used in operation `{operation_name}`")]
@@ -386,7 +387,7 @@ pub enum ValidationMessage {
     GenerateSubscriptionNameSingleSelectionItem { subscription_name: StringKey },
 
     #[error("The directive `@{name}` can only be used once at this location.")]
-    RepeatedNonRepeatableDirective { name: StringKey },
+    RepeatedNonRepeatableDirective { name: DirectiveName },
 
     #[error("Module-provided variable ('{argument_name}') may not declare a default value")]
     ProvidedVariableIncompatibleWithDefaultValue { argument_name: StringKey },

@@ -45,6 +45,7 @@ pub use location::SourceLocationKey;
 pub use location::WithLocation;
 pub use lsp_types::DiagnosticSeverity;
 pub use lsp_types::DiagnosticTag;
+pub use named_item::DirectiveName;
 pub use named_item::Named;
 pub use named_item::NamedItem;
 pub use perf_logger::NoopPerfLogger;

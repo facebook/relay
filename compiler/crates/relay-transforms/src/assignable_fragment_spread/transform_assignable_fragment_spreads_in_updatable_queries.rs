@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
@@ -27,7 +28,8 @@ use schema::Type;
 
 lazy_static! {
     static ref UPDATABLE_DIRECTIVE: StringKey = "updatable".intern();
-    pub static ref ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN: StringKey = "__assignable".intern();
+    pub static ref ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN: DirectiveName =
+        DirectiveName("__assignable".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Copy)]

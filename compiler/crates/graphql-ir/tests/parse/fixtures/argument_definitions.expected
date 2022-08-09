@@ -28,7 +28,9 @@ fragment TestFragment on User
                         Directive {
                             name: WithLocation {
                                 location: <generated>:89:102,
-                                item: "configurable",
+                                item: DirectiveName(
+                                    "configurable",
+                                ),
                             },
                             arguments: [],
                             data: None,
@@ -66,7 +68,9 @@ fragment TestFragment on User
                 Directive {
                     name: WithLocation {
                         location: argument_definitions.graphql:33:52,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,

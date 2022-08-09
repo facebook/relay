@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::DirectiveName;
 use common::Location;
 use common::PointerAddress;
 use common::WithLocation;
@@ -21,7 +22,6 @@ use graphql_ir::Transformed;
 use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
 
@@ -40,7 +40,8 @@ pub fn client_extensions(program: &Program) -> Program {
 type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
 
 lazy_static! {
-    pub static ref CLIENT_EXTENSION_DIRECTIVE_NAME: StringKey = "__clientExtension".intern();
+    pub static ref CLIENT_EXTENSION_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("__clientExtension".intern());
 }
 
 struct ClientExtensionsTransform<'program> {

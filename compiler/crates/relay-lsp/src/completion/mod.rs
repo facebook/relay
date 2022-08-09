@@ -8,6 +8,7 @@
 //! Utilities for providing the completion language feature
 use std::iter::once;
 
+use common::DirectiveName;
 use common::Named;
 use common::NamedItem;
 use common::Span;
@@ -85,7 +86,7 @@ pub enum CompletionKind {
 #[derive(Debug, Clone)]
 pub enum ArgumentKind {
     Field,
-    Directive(StringKey),
+    Directive(DirectiveName),
     ArgumentsDirective(StringKey),
 }
 
@@ -491,10 +492,10 @@ impl CompletionRequestBuilder {
                             if directive.name.value == *DIRECTIVE_ARGUMENTS {
                                 ArgumentKind::ArgumentsDirective(fragment_spread_name)
                             } else {
-                                ArgumentKind::Directive(directive.name.value)
+                                ArgumentKind::Directive(DirectiveName(directive.name.value))
                             }
                         } else {
-                            ArgumentKind::Directive(directive.name.value)
+                            ArgumentKind::Directive(DirectiveName(directive.name.value))
                         },
                     )
                 } else {

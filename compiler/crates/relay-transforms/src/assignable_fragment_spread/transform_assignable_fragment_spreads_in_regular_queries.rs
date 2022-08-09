@@ -211,7 +211,7 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
         if let Some(directive) = fragment_spread.directives.first() {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::AssignableFragmentSpreadNoOtherDirectives {
-                    disallowed_directive_name: directive.name.item,
+                    disallowed_directive_name: directive.name.item.0,
                 },
                 directive.name.location,
             ));

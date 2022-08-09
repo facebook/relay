@@ -9,6 +9,7 @@ use std::fmt;
 use std::hash::Hash;
 use std::sync::Arc;
 
+use common::DirectiveName;
 use common::Location;
 use common::Named;
 use common::WithLocation;
@@ -31,7 +32,7 @@ pub enum ExecutableDefinition {
 }
 
 impl ExecutableDefinition {
-    pub fn has_directive(&self, directive_name: StringKey) -> bool {
+    pub fn has_directive(&self, directive_name: DirectiveName) -> bool {
         match self {
             ExecutableDefinition::Operation(node) => node
                 .directives
@@ -335,7 +336,7 @@ impl Condition {
 /// @ Name Arguments?
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Directive {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<DirectiveName>,
     pub arguments: Vec<Argument>,
     /// Optional typed data that has no textual representation. This can be used
     /// to attach arbitrary data on compiler-internal directives, such as to
@@ -344,7 +345,7 @@ pub struct Directive {
 }
 impl Named for Directive {
     fn name(&self) -> StringKey {
-        self.name.item
+        self.name.item.0
     }
 }
 

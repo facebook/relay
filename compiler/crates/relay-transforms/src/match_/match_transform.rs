@@ -288,7 +288,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
     ) -> Result<Transformed<Selection>, Diagnostic> {
         let module_directive = spread
             .directives
-            .named(MATCH_CONSTANTS.module_directive_name);
+            .named(MATCH_CONSTANTS.module_directive_name.0);
 
         // Only process the fragment spread with @module
         if let Some(module_directive) = module_directive {
@@ -306,7 +306,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 && !(spread.directives.len() == 2
                     && spread
                         .directives
-                        .named(DEFER_STREAM_CONSTANTS.defer_name)
+                        .named(DEFER_STREAM_CONSTANTS.defer_name.0)
                         .is_some())
             {
                 // allow @defer and @module in typegen transforms
@@ -856,7 +856,9 @@ impl Transformer for MatchTransform<'_, '_> {
 
     // Validate and transform `@match`
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        let match_directive = field.directives.named(MATCH_CONSTANTS.match_directive_name);
+        let match_directive = field
+            .directives
+            .named(MATCH_CONSTANTS.match_directive_name.0);
         let match_directive_key_argument = self.match_directive_key_argument;
         self.match_directive_key_argument = None;
 

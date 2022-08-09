@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DirectiveName;
 use common::NamedItem;
 use graphql_ir::Program;
 use graphql_ir::Value;
@@ -914,10 +915,10 @@ fn get_directive_hover_content<'a>(
         parent: _,
     } = directive_path;
 
-    let directive_name = directive.name.value;
+    let directive_name = DirectiveName(directive.name.value);
 
     if let Some(argument_definition_hover_info) =
-        super::argument_definition_hover_info(directive_name.lookup())
+        super::argument_definition_hover_info(directive_name.0.lookup())
     {
         return Some(vec![argument_definition_hover_info]);
     }

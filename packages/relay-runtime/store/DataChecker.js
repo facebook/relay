@@ -33,8 +33,6 @@ import type {
   RecordSource,
 } from './RelayStoreTypes';
 
-import {TYPE_SCHEMA_TYPE} from './TypeID';
-
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const getOperation = require('../util/getOperation');
@@ -48,7 +46,7 @@ const RelayModernRecord = require('./RelayModernRecord');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
-const {generateTypeID} = require('./TypeID');
+const {generateTypeID, TYPE_SCHEMA_TYPE} = require('./TypeID');
 const invariant = require('invariant');
 
 export type Availability = {

@@ -1054,7 +1054,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let label_name = label_arg.unwrap().value.item.expect_string_literal();
 
         Primitive::Key(self.object(object! {
-            if_: Primitive::string_or_null(if_variable_name),
+            if_: Primitive::string_or_null(if_variable_name.map(|variable_name| variable_name.0)),
             kind: Primitive::String(CODEGEN_CONSTANTS.defer),
             label: Primitive::String(label_name),
             selections: next_selections,
@@ -1098,9 +1098,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     other => panic!("unexpected value for @stream if argument: {:?}", other),
                 });
                 let label_name = label_arg.unwrap().value.item.expect_string_literal();
-
                 self.object(object! {
-                    if_: Primitive::string_or_null(if_variable_name),
+                    if_: Primitive::string_or_null(if_variable_name.map(|variable_name| variable_name.0)),
                     kind: Primitive::String(CODEGEN_CONSTANTS.stream),
                     label: Primitive::String(label_name),
                     selections: next_selections,
@@ -1307,7 +1306,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let selections = self.build_selections(context, condition.selections.iter());
         Primitive::Key(self.object(object! {
             condition: Primitive::String(match &condition.value {
-                ConditionValue::Variable(variable) => variable.name.item,
+                ConditionValue::Variable(variable) => variable.name.item.0,
                 ConditionValue::Constant(_) => panic!(
                     "Expected Condition with static value to have been pruned or inlined."
                 ),
@@ -1333,7 +1332,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 Primitive::Key(self.object(object! {
                     default_value: default_value,
                     kind: Primitive::String(CODEGEN_CONSTANTS.local_argument),
-                    name: Primitive::String(def.name.item),
+                    name: Primitive::String(def.name.item.0),
                 }))
             })
             .collect::<Vec<_>>();
@@ -1358,7 +1357,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     Primitive::Null
                 },
                 kind: Primitive::String(CODEGEN_CONSTANTS.local_argument),
-                name: Primitive::String(def.name.item),
+                name: Primitive::String(def.name.item.0),
             };
 
             var_defs.push((def.name.item, Primitive::Key(self.object(object))));
@@ -1368,7 +1367,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 def.name.item,
                 Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.root_argument),
-                    name: Primitive::String(def.name.item),
+                    name: Primitive::String(def.name.item.0),
                 })),
             ));
         }
@@ -1405,7 +1404,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             Value::Constant(const_val) => self.build_constant_argument(arg_name, const_val),
             Value::Variable(variable) => {
                 let name = Primitive::String(arg_name);
-                let variable_name = Primitive::String(variable.name.item);
+                let variable_name = Primitive::String(variable.name.item.0);
                 Some(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.variable),
                     name: name,
@@ -1609,7 +1608,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             .filter_map(|def| {
                 let provider_module = ProvidedVariableMetadata::find(&def.directives)?.module_name;
                 Some(ObjectEntry {
-                    key: def.name.item,
+                    key: def.name.item.0,
                     value: Primitive::JSModuleDependency(provider_module),
                 })
             })

@@ -10,7 +10,7 @@ use common::DiagnosticsResult;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Validator;
-use intern::string_key::StringKey;
+use graphql_ir::VariableName;
 use thiserror::Error;
 
 use crate::util::INTERNAL_RELAY_VARIABLES_PREFIX;
@@ -32,6 +32,7 @@ impl Validator for ValidateGlobalVariableNames {
             if def
                 .name
                 .item
+                .0
                 .lookup()
                 .starts_with(INTERNAL_RELAY_VARIABLES_PREFIX.lookup())
             {
@@ -61,5 +62,5 @@ enum ValidationMessage {
     #[error(
         "Invalid name `${0}` for an operation variable. The `__relay_internal` prefix is reserved for relay internal usage."
     )]
-    InvalidOperationVariablePrefix(StringKey),
+    InvalidOperationVariablePrefix(VariableName),
 }

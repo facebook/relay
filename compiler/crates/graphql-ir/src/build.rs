@@ -6,6 +6,7 @@
  */
 
 use core::cmp::Ordering;
+use std::collections::HashMap;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
@@ -24,9 +25,9 @@ use graphql_syntax::List;
 use graphql_syntax::OperationKind;
 use graphql_syntax::Token;
 use graphql_syntax::TokenKind;
+use indexmap::IndexMap;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
 use lazy_static::lazy_static;
@@ -233,8 +234,8 @@ pub fn build_variable_definitions(
 
 // Helper Types
 
-type VariableDefinitions = StringKeyMap<VariableDefinition>;
-type UsedVariables = StringKeyIndexMap<VariableUsage>;
+type VariableDefinitions = HashMap<VariableName, VariableDefinition>;
+type UsedVariables = IndexMap<VariableName, VariableUsage>;
 
 #[derive(Debug)]
 struct VariableUsage {
@@ -481,10 +482,12 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             &definition.directives,
             DirectiveLocation::VariableDefinition,
         )?;
+
         Ok(VariableDefinition {
             name: definition
                 .name
-                .name_with_location(self.location.source_location()),
+                .name_with_location(self.location.source_location())
+                .map(VariableName),
             type_,
             default_value,
             directives,
@@ -617,13 +620,13 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             if variable_definition_requires_argument(variable_definition)
                 && arg_list
                     .items
-                    .named(variable_definition.name.item)
+                    .named(variable_definition.name.item.0)
                     .is_none()
             {
                 errors.push(
                     Diagnostic::error(
                         ValidationMessage::MissingRequiredFragmentArgument {
-                            argument_name: variable_definition.name.item,
+                            argument_name: variable_definition.name.item.0,
                         },
                         self.location.with_span(arg_list.span),
                     )
@@ -675,7 +678,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     let possible_argument_names = signature
                         .variable_definitions
                         .iter()
-                        .map(|arg_def| arg_def.name.item)
+                        .map(|arg_def| arg_def.name.item.0)
                         .collect::<Vec<_>>();
                     let suggestions = suggestion_list::suggestion_list(
                         arg.name.value,
@@ -827,7 +830,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 .map(|variable_definition| {
                     Diagnostic::error(
                         ValidationMessage::MissingRequiredFragmentArgument {
-                            argument_name: variable_definition.name.item,
+                            argument_name: variable_definition.name.item.0,
                         },
                         self.location.with_span(spread.span),
                     )
@@ -1355,7 +1358,8 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         validation: ValidationLevel,
     ) -> DiagnosticsResult<Variable> {
         // Check current usage against definition and previous usage
-        if let Some(variable_definition) = self.defined_variables.get(&variable.name) {
+        if let Some(variable_definition) = self.defined_variables.get(&VariableName(variable.name))
+        {
             // The effective type of the variable when taking into account its default value:
             // if there is a non-null default then the value's type is non-null.
             let non_null_type = variable_definition.type_.non_null();
@@ -1379,7 +1383,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     self.location.with_span(variable.span),
                 )]);
             }
-        } else if let Some(prev_usage) = self.used_variables.get(&variable.name) {
+        } else if let Some(prev_usage) = self.used_variables.get(&VariableName(variable.name)) {
             let is_used_subtype = self
                 .schema
                 .is_type_subtype_of(used_as_type, &prev_usage.type_);
@@ -1407,7 +1411,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             // be a narrower type. Update our inference to reflect the stronger requirements.
             if is_used_subtype {
                 self.used_variables.insert(
-                    variable.name,
+                    VariableName(variable.name),
                     VariableUsage {
                         type_: used_as_type.clone(),
                         span: variable.span,
@@ -1416,7 +1420,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             }
         } else {
             self.used_variables.insert(
-                variable.name,
+                VariableName(variable.name),
                 VariableUsage {
                     type_: used_as_type.clone(),
                     span: variable.span,
@@ -1424,7 +1428,9 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             );
         }
         Ok(Variable {
-            name: variable.name_with_location(self.location.source_location()),
+            name: variable
+                .name_with_location(self.location.source_location())
+                .map(VariableName),
             type_: used_as_type.clone(),
         })
     }
@@ -1912,7 +1918,7 @@ fn split_conditions_and_directives(directives: &[Directive]) -> (Vec<Directive>,
     conditions.sort_by(
         |a, b| match (&a.arguments[0].value.item, &b.arguments[0].value.item) {
             (Value::Variable(a), Value::Variable(b)) => {
-                a.name.item.lookup().cmp(b.name.item.lookup())
+                a.name.item.0.lookup().cmp(b.name.item.0.lookup())
             }
             (Value::Constant(_), Value::Variable(_)) => Ordering::Less,
             (Value::Variable(_), Value::Constant(_)) => Ordering::Greater,

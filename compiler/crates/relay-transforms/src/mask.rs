@@ -19,8 +19,9 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
 use indexmap::map::Entry;
-use intern::string_key::StringKeyIndexMap;
+use indexmap::IndexMap;
 use schema::Schema;
 
 use crate::relay_directive::RelayDirective;
@@ -33,7 +34,7 @@ pub fn mask(program: &Program) -> Program {
         .replace_or_else(|| program.clone())
 }
 
-type JoinedArguments<'s> = StringKeyIndexMap<&'s VariableDefinition>;
+type JoinedArguments<'s> = IndexMap<VariableName, &'s VariableDefinition>;
 
 struct Mask<'s> {
     program: &'s Program,

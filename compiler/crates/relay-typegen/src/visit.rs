@@ -1875,7 +1875,7 @@ pub(crate) fn get_input_variables_type<'a>(
             .iter()
             .map(|var_def| {
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: var_def.name.item,
+                    key: var_def.name.item.0,
                     read_only: false,
                     optional: !var_def.type_.is_non_null(),
                     value: transform_input_type(

@@ -36,6 +36,7 @@ use crate::ir::ConstantValue;
 use crate::ir::FragmentDefinitionName;
 use crate::ir::FragmentDefinitionNameMap;
 use crate::ir::VariableDefinition;
+use crate::VariableName;
 
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();
@@ -363,7 +364,7 @@ fn build_fragment_variable_definitions(
 
                     Ok(VariableDefinition {
                         name: variable_name
-                            .name_with_location(fragment.location.source_location()),
+                        .name_with_location(fragment.location.source_location()).map(VariableName),
                         type_,
                         directives,
                         default_value,

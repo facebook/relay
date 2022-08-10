@@ -30,7 +30,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-arguments.graphql:58:60,
-                        item: "id",
+                        item: VariableName(
+                            "id",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -43,7 +45,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-arguments.graphql:80:84,
-                        item: "size",
+                        item: VariableName(
+                            "size",
+                        ),
                     },
                     type_: List(
                         Named(
@@ -69,7 +73,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-arguments.graphql:152:164,
-                        item: "PictureSize",
+                        item: VariableName(
+                            "PictureSize",
+                        ),
                     },
                     type_: List(
                         Named(
@@ -112,7 +118,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                                     Variable {
                                         name: WithLocation {
                                             location: fragment-with-arguments.graphql:152:164,
-                                            item: "PictureSize",
+                                            item: VariableName(
+                                                "PictureSize",
+                                            ),
                                         },
                                         type_: List(
                                             Named(
@@ -160,7 +168,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                                     Variable {
                                         name: WithLocation {
                                             location: fragment-with-arguments.graphql:219:224,
-                                            item: "size",
+                                            item: VariableName(
+                                                "size",
+                                            ),
                                         },
                                         type_: List(
                                             Named(
@@ -204,7 +214,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                                     Variable {
                                         name: WithLocation {
                                             location: fragment-with-arguments.graphql:269:272,
-                                            item: "id",
+                                            item: VariableName(
+                                                "id",
+                                            ),
                                         },
                                         type_: NonNull(
                                             Named(
@@ -233,7 +245,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-arguments.graphql:319:326,
-                        item: "localId",
+                        item: VariableName(
+                            "localId",
+                        ),
                     },
                     type_: NonNull(
                         Named(

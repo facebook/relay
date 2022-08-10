@@ -135,7 +135,7 @@ impl ArgumentLike for &SchemaArgument {
 
 impl ArgumentLike for &VariableDefinition {
     fn name(&self) -> StringKey {
-        self.name.item
+        self.name.item.0
     }
     fn type_(&self) -> &TypeReference {
         &self.type_

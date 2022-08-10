@@ -27,7 +27,9 @@ fragment F2 on Query @argumentDefinitions(
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment_with_arguments_defaulting.graphql:132:143,
-                        item: "defaultedID",
+                        item: VariableName(
+                            "defaultedID",
+                        ),
                     },
                     type_: Named(
                         Scalar(4),
@@ -77,7 +79,9 @@ fragment F2 on Query @argumentDefinitions(
                                     Variable {
                                         name: WithLocation {
                                             location: fragment_with_arguments_defaulting.graphql:210:222,
-                                            item: "defaultedID",
+                                            item: VariableName(
+                                                "defaultedID",
+                                            ),
                                         },
                                         type_: NonNull(
                                             Named(
@@ -106,7 +110,9 @@ fragment F2 on Query @argumentDefinitions(
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment_with_arguments_defaulting.graphql:272:281,
-                        item: "nonnullID",
+                        item: VariableName(
+                            "nonnullID",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -150,7 +156,9 @@ fragment F2 on Query @argumentDefinitions(
                                     Variable {
                                         name: WithLocation {
                                             location: fragment_with_arguments_defaulting.graphql:324:334,
-                                            item: "nonnullID",
+                                            item: VariableName(
+                                                "nonnullID",
+                                            ),
                                         },
                                         type_: NonNull(
                                             Named(

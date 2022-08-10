@@ -16,6 +16,7 @@ use schema::TypeReference;
 use thiserror::Error;
 
 use crate::ir::FragmentDefinitionName;
+use crate::VariableName;
 
 /// Fixed set of validation errors with custom display messages
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -99,7 +100,7 @@ pub enum ValidationMessage {
     ArgumentDefinitionsDirectivesNotStringListLiteral,
 
     #[error("Non-nullable variable '{variable_name}' has a default value.")]
-    NonNullableVariableHasDefaultValue { variable_name: StringKey },
+    NonNullableVariableHasDefaultValue { variable_name: VariableName },
 
     #[error(
         "Variable was defined as type '{defined_type}' but used where a variable of type '{used_type}' is expected."
@@ -118,7 +119,7 @@ pub enum ValidationMessage {
     },
 
     #[error("Expected variable `${0}` to be defined on the operation")]
-    ExpectedOperationVariableToBeDefined(StringKey),
+    ExpectedOperationVariableToBeDefined(VariableName),
 
     #[error(
         "Expected argument definition to have an input type (scalar, enum, or input object), found type '{0}'"
@@ -349,7 +350,7 @@ pub enum ValidationMessage {
 
     #[error("Variable `${variable_name}` is never used in operation `{operation_name}`")]
     UnusedVariable {
-        variable_name: StringKey,
+        variable_name: VariableName,
         operation_name: StringKey,
     },
 
@@ -357,7 +358,7 @@ pub enum ValidationMessage {
         "Variable `${variable_name}` is never used in fragment `{fragment_name}`. `@argumentDefinitions` defines local variables, global variables are implicitly available."
     )]
     UnusedFragmentVariable {
-        variable_name: StringKey,
+        variable_name: VariableName,
         fragment_name: FragmentDefinitionName,
     },
 
@@ -365,7 +366,7 @@ pub enum ValidationMessage {
         "Variable `${variable_name}` of fragment `{fragment_name}` is marked as unused using `unusedLocalVariable_DEPRECATED: true`, but is actually used. `unusedLocalVariable_DEPRECATED: true` should be removed."
     )]
     UselessUnusedFragmentVariableAnnotation {
-        variable_name: StringKey,
+        variable_name: VariableName,
         fragment_name: FragmentDefinitionName,
     },
 

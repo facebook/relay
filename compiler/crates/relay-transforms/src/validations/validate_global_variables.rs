@@ -73,7 +73,7 @@ impl Validator for ValidateGlobalVariables<'_> {
                         if is_plural { "s" } else { "" },
                         undefined_variables
                             .iter()
-                            .map(|var| var.name.item.lookup())
+                            .map(|var| var.name.item.0.lookup())
                             .collect::<Vec<_>>()
                             .join("', '$"),
                     ),

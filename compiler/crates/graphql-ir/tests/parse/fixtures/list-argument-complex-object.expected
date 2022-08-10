@@ -22,7 +22,9 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                 VariableDefinition {
                     name: WithLocation {
                         location: list-argument-complex-object.graphql:24:33,
-                        item: "waypoint",
+                        item: VariableName(
+                            "waypoint",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -55,7 +57,9 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                                             Variable {
                                                 name: WithLocation {
                                                     location: list-argument-complex-object.graphql:68:77,
-                                                    item: "waypoint",
+                                                    item: VariableName(
+                                                        "waypoint",
+                                                    ),
                                                 },
                                                 type_: NonNull(
                                                     Named(

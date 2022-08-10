@@ -111,7 +111,9 @@ fragment ChildFragment on User
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-literal-enum-arguments-into-enum-list.graphql:208:220,
-                        item: "environments",
+                        item: VariableName(
+                            "environments",
+                        ),
                     },
                     type_: NonNull(
                         List(
@@ -159,7 +161,9 @@ fragment ChildFragment on User
                                     Variable {
                                         name: WithLocation {
                                             location: fragment-with-literal-enum-arguments-into-enum-list.graphql:276:289,
-                                            item: "environments",
+                                            item: VariableName(
+                                                "environments",
+                                            ),
                                         },
                                         type_: NonNull(
                                             List(

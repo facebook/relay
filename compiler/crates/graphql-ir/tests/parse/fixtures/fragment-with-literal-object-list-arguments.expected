@@ -137,7 +137,9 @@ fragment ChildFragment on Query
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-literal-object-list-arguments.graphql:229:235,
-                        item: "inputs",
+                        item: VariableName(
+                            "inputs",
+                        ),
                     },
                     type_: NonNull(
                         List(
@@ -208,7 +210,9 @@ fragment ChildFragment on Query
                                                     Variable {
                                                         name: WithLocation {
                                                             location: fragment-with-literal-object-list-arguments.graphql:324:331,
-                                                            item: "inputs",
+                                                            item: VariableName(
+                                                                "inputs",
+                                                            ),
                                                         },
                                                         type_: List(
                                                             Named(

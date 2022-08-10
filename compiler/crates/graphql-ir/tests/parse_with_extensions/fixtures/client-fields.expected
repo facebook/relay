@@ -61,7 +61,9 @@ type Foo {
                 VariableDefinition {
                     name: WithLocation {
                         location: client-fields.graphql:23:26,
-                        item: "id",
+                        item: VariableName(
+                            "id",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -92,7 +94,9 @@ type Foo {
                                     Variable {
                                         name: WithLocation {
                                             location: client-fields.graphql:46:49,
-                                            item: "id",
+                                            item: VariableName(
+                                                "id",
+                                            ),
                                         },
                                         type_: Named(
                                             Scalar(4),

@@ -68,7 +68,9 @@ fragment ChildFragment on User
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-literal-arguments.graphql:140:151,
-                        item: "pictureSize",
+                        item: VariableName(
+                            "pictureSize",
+                        ),
                     },
                     type_: List(
                         Named(
@@ -112,7 +114,9 @@ fragment ChildFragment on User
                                     Variable {
                                         name: WithLocation {
                                             location: fragment-with-literal-arguments.graphql:195:207,
-                                            item: "pictureSize",
+                                            item: VariableName(
+                                                "pictureSize",
+                                            ),
                                         },
                                         type_: List(
                                             Named(

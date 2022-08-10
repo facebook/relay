@@ -20,7 +20,9 @@ fragment LinkedHandleField on User {
                 VariableDefinition {
                     name: WithLocation {
                         location: linked-handle-field-with-filters.graphql:67:75,
-                        item: "orderby",
+                        item: VariableName(
+                            "orderby",
+                        ),
                     },
                     type_: List(
                         Named(
@@ -66,7 +68,9 @@ fragment LinkedHandleField on User {
                                     Variable {
                                         name: WithLocation {
                                             location: linked-handle-field-with-filters.graphql:67:75,
-                                            item: "orderby",
+                                            item: VariableName(
+                                                "orderby",
+                                            ),
                                         },
                                         type_: List(
                                             Named(

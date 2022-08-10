@@ -64,7 +64,7 @@ pub fn build_fragment_spread(fragment: &FragmentDefinition) -> Selection {
             .variable_definitions
             .iter()
             .map(|var| Argument {
-                name: var.name,
+                name: var.name.map(|x| x.0),
                 value: WithLocation::new(
                     var.name.location,
                     Value::Variable(Variable {
@@ -86,7 +86,7 @@ pub fn build_operation_variable_definitions(
         .chain(fragment.variable_definitions.iter())
         .cloned()
         .collect();
-    result.sort_unstable_by(|l, r| l.name.item.lookup().cmp(r.name.item.lookup()));
+    result.sort_unstable_by(|l, r| l.name.item.cmp(&r.name.item));
     result
 }
 
@@ -99,7 +99,7 @@ pub fn build_used_global_variables(
     let global_variables = variable_map
         .values()
         .map(|var| {
-            if let Some(local_conflicting_var) = local_variable_definitions.named(var.name.item) {
+            if let Some(local_conflicting_var) = local_variable_definitions.named(var.name.item.0) {
                 errors.push(Diagnostic::error(
                     ValidationMessage::LocalGlobalVariableConflict {
                         name: local_conflicting_var.name.item,

@@ -440,14 +440,18 @@ impl LocationAgnosticPartialEq for Value {
 
 impl LocationAgnosticHash for Variable {
     fn location_agnostic_hash<H: Hasher, B: LocationAgnosticBehavior>(&self, state: &mut H) {
-        self.name.location_agnostic_hash::<_, B>(state);
+        self.name.item.0.location_agnostic_hash::<_, B>(state);
         self.type_.hash(state);
     }
 }
 
 impl LocationAgnosticPartialEq for Variable {
     fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
-        self.name.location_agnostic_eq::<B>(&other.name) && self.type_.eq(&other.type_)
+        self.name
+            .item
+            .0
+            .location_agnostic_eq::<B>(&other.name.item.0)
+            && self.type_.eq(&other.type_)
     }
 }
 

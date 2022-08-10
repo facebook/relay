@@ -20,7 +20,9 @@ query TestQuery($id: ID!) {
                 VariableDefinition {
                     name: WithLocation {
                         location: simple-query.graphql:16:19,
-                        item: "id",
+                        item: VariableName(
+                            "id",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -56,7 +58,9 @@ query TestQuery($id: ID!) {
                                     Variable {
                                         name: WithLocation {
                                             location: simple-query.graphql:44:47,
-                                            item: "id",
+                                            item: VariableName(
+                                                "id",
+                                            ),
                                         },
                                         type_: Named(
                                             Scalar(4),

@@ -9,6 +9,7 @@ use common::DiagnosticDisplay;
 use common::DirectiveName;
 use common::WithDiagnosticData;
 use graphql_ir::FragmentDefinitionName;
+use graphql_ir::VariableName;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
@@ -72,7 +73,7 @@ pub enum ValidationMessage {
         "The usage of global variable `${variable_name}` is not supported in the Relay resolvers fragments. Please, add this variable to the `@argumentDefinitions` of the `{fragment_name}` fragment."
     )]
     UnsupportedGlobalVariablesInResolverFragment {
-        variable_name: StringKey,
+        variable_name: VariableName,
         fragment_name: FragmentDefinitionName,
     },
 

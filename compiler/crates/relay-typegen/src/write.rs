@@ -642,7 +642,7 @@ fn generate_provided_variables_type(
                 value: provider_func,
             });
             Some(Prop::KeyValuePair(KeyValuePairProp {
-                key: def.name.item,
+                key: def.name.item.0,
                 read_only: true,
                 optional: false,
                 value: AST::ExactObject(ExactObject::new(vec![provider_module])),

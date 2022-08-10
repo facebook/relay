@@ -19,6 +19,7 @@ use graphql_ir::Selection;
 use graphql_ir::Value;
 use graphql_ir::Variable;
 use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use relay_config::SchemaConfig;
@@ -89,7 +90,7 @@ fn build_refetch_operation(
             )]);
         }
         variable_definitions.push(VariableDefinition {
-            name: WithLocation::new(fragment.name.location, id_name),
+            name: WithLocation::new(fragment.name.location, VariableName(id_name)),
             type_: id_arg.type_.non_null(),
             default_value: None,
             directives: vec![],
@@ -105,7 +106,7 @@ fn build_refetch_operation(
                     value: WithLocation::new(
                         fragment.name.location,
                         Value::Variable(Variable {
-                            name: WithLocation::new(fragment.name.location, id_name),
+                            name: WithLocation::new(fragment.name.location, VariableName(id_name)),
                             type_: id_arg.type_.non_null(),
                         }),
                     ),

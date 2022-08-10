@@ -78,7 +78,7 @@ pub fn replace_directive(directives: &[Directive], replacement: Directive) -> Ve
 pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
     match argument {
         Some(arg) => match &arg.value.item {
-            Value::Variable(var) => Some(var.name.item),
+            Value::Variable(var) => Some(var.name.item.0),
             _ => None,
         },
         None => None,

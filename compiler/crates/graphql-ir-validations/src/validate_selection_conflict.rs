@@ -522,7 +522,9 @@ mod ignoring_type_and_location {
     fn value_equals<B: LocationAgnosticBehavior>(a: &Value, b: &Value) -> bool {
         match (a, b) {
             (Value::Constant(a), Value::Constant(b)) => a.location_agnostic_eq::<B>(b),
-            (Value::Variable(a), Value::Variable(b)) => a.name.location_agnostic_eq::<B>(&b.name),
+            (Value::Variable(a), Value::Variable(b)) => {
+                a.name.item.0.location_agnostic_eq::<B>(&b.name.item.0)
+            }
             (Value::List(a), Value::List(b)) => slice_equals(a, b, value_equals::<B>),
             (Value::Object(a), Value::Object(b)) => arguments_equals::<B>(a, b),
             _ => false,

@@ -44,7 +44,9 @@ fragment User on User {
   #         VariableDefinition {
   #             name: WithLocation {
   #                 location: variables.graphql:141:159,
-  #                 item: "profilePictureSize",
+  #                 item: VariableName(
+  #                     "profilePictureSize",
+  #                 ),
   #             },
   #             type_: List(
   #                 Named(

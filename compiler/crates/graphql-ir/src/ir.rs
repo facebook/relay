@@ -120,10 +120,19 @@ pub struct FragmentDefinition {
     pub selections: Vec<Selection>,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct VariableName(pub StringKey);
+
+impl Display for VariableName {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(fmt, "{}", self.0)
+    }
+}
+
 /// A variable definition of an operation or fragment
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct VariableDefinition {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<VariableName>,
     pub type_: TypeReference,
     pub default_value: Option<WithLocation<ConstantValue>>,
     pub directives: Vec<Directive>,
@@ -140,7 +149,7 @@ impl VariableDefinition {
 
 impl Named for VariableDefinition {
     fn name(&self) -> StringKey {
-        self.name.item
+        self.name.item.0
     }
 }
 
@@ -439,7 +448,7 @@ impl Value {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Variable {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<VariableName>,
     pub type_: TypeReference,
 }
 

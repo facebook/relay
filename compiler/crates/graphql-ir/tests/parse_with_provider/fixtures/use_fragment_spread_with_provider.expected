@@ -91,7 +91,9 @@ fragment ChildFragment2 on User
                 VariableDefinition {
                     name: WithLocation {
                         location: use_fragment_spread_with_provider.graphql:167:178,
-                        item: "pictureSize",
+                        item: VariableName(
+                            "pictureSize",
+                        ),
                     },
                     type_: List(
                         Named(
@@ -104,7 +106,9 @@ fragment ChildFragment2 on User
                 VariableDefinition {
                     name: WithLocation {
                         location: use_fragment_spread_with_provider.graphql:200:226,
-                        item: "arg_with_enabled_provider0",
+                        item: VariableName(
+                            "arg_with_enabled_provider0",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -164,7 +168,9 @@ fragment ChildFragment2 on User
                                     Variable {
                                         name: WithLocation {
                                             location: use_fragment_spread_with_provider.graphql:307:319,
-                                            item: "pictureSize",
+                                            item: VariableName(
+                                                "pictureSize",
+                                            ),
                                         },
                                         type_: List(
                                             Named(
@@ -194,7 +200,9 @@ fragment ChildFragment2 on User
                                 Variable {
                                     name: WithLocation {
                                         location: use_fragment_spread_with_provider.graphql:344:371,
-                                        item: "arg_with_enabled_provider0",
+                                        item: VariableName(
+                                            "arg_with_enabled_provider0",
+                                        ),
                                     },
                                     type_: NonNull(
                                         Named(
@@ -223,7 +231,9 @@ fragment ChildFragment2 on User
                 VariableDefinition {
                     name: WithLocation {
                         location: use_fragment_spread_with_provider.graphql:440:466,
-                        item: "arg_with_enabled_provider0",
+                        item: VariableName(
+                            "arg_with_enabled_provider0",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -281,7 +291,9 @@ fragment ChildFragment2 on User
                         Variable {
                             name: WithLocation {
                                 location: use_fragment_spread_with_provider.graphql:546:573,
-                                item: "arg_with_enabled_provider0",
+                                item: VariableName(
+                                    "arg_with_enabled_provider0",
+                                ),
                             },
                             type_: NonNull(
                                 Named(

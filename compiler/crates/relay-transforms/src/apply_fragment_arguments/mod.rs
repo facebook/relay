@@ -7,6 +7,7 @@
 
 mod scope;
 
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use common::Diagnostic;
@@ -41,6 +42,7 @@ use graphql_ir::Transformer;
 use graphql_ir::Value;
 use graphql_ir::Variable;
 use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
@@ -439,7 +441,10 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         } = fragment;
 
         for variable in &mut variable_definitions {
-            variable.name.item = format_local_variable(fragment.name.item, variable.name.item);
+            variable.name.item = VariableName(format_local_variable(
+                fragment.name.item,
+                variable.name.item.0,
+            ));
         }
         let mut metadata = SplitOperationMetadata {
             derived_from: fragment.name.item,
@@ -516,7 +521,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 });
         for definition in provided_arguments {
             self.provided_variables
-                .entry(definition.name.item)
+                .entry(definition.name.item.0)
                 .or_insert_with(|| definition.clone());
         }
     }
@@ -656,17 +661,20 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
 }
 
 fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
-    let mut bindings = StringKeyMap::with_capacity_and_hasher(
+    let mut bindings = HashMap::<VariableName, Value>::with_capacity_and_hasher(
         fragment.variable_definitions.len(),
         Default::default(),
     );
     for variable_definition in &fragment.variable_definitions {
         let variable_name = variable_definition.name.item;
-        let scoped_variable_name = format_local_variable(fragment.name.item, variable_name);
+        let scoped_variable_name = format_local_variable(fragment.name.item, variable_name.0);
         bindings.insert(
             variable_name,
             Value::Variable(Variable {
-                name: WithLocation::new(variable_definition.name.location, scoped_variable_name),
+                name: WithLocation::new(
+                    variable_definition.name.location,
+                    VariableName(scoped_variable_name),
+                ),
                 type_: variable_definition.type_.clone(),
             }),
         );

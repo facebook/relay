@@ -3271,4 +3271,46 @@ describe('check()', () => {
       expect(target.size()).toBe(0);
     });
   });
+
+  it('should assign client-only abstract type information to the target source', () => {
+    graphql`
+      fragment DataCheckerTestClientInterface on ClientInterface {
+        description
+      }
+    `;
+    const clientQuery = graphql`
+      query DataCheckerTestClientAbstractQuery {
+        client_interface {
+          ...DataCheckerTestClientInterface
+        }
+      }
+    `;
+    const source = RelayRecordSource.create();
+    const target = RelayRecordSource.create();
+    const status = check(
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      createNormalizationSelector(
+        getRequest(clientQuery).operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(target.toJSON()).toEqual({
+      'client:__type:ClientTypeImplementingClientInterface': {
+        __id: 'client:__type:ClientTypeImplementingClientInterface',
+        __typename: '__TypeSchema',
+        __isClientInterface: true,
+      },
+      'client:__type:OtherClientTypeImplementingClientInterface': {
+        __id: 'client:__type:OtherClientTypeImplementingClientInterface',
+        __typename: '__TypeSchema',
+        __isClientInterface: true,
+      },
+    });
+  });
 });

@@ -33,6 +33,8 @@ import type {
   RecordSource,
 } from './RelayStoreTypes';
 
+import {TYPE_SCHEMA_TYPE} from './TypeID';
+
 const RelayRecordSourceMutator = require('../mutations/RelayRecordSourceMutator');
 const RelayRecordSourceProxy = require('../mutations/RelayRecordSourceProxy');
 const getOperation = require('../util/getOperation');
@@ -184,6 +186,7 @@ class DataChecker {
   }
 
   check(node: NormalizationNode, dataID: DataID): Availability {
+    this._assignClientAbstractTypes(node);
     this._traverse(node, dataID);
 
     return this._recordWasMissing === true
@@ -592,6 +595,7 @@ class DataChecker {
       this._source = this._getSourceForActor(actorIdentifier);
       this._mutator = mutator;
       this._recordSourceProxy = recordSourceProxy;
+      this._assignClientAbstractTypes(field);
       this._traverse(field, linkedID);
       this._source = prevSource;
       this._mutator = prevMutator;
@@ -648,6 +652,25 @@ class DataChecker {
       }
     }
     this._variables = prevVariables;
+  }
+
+  // For abstract types defined in the client schema extension, we won't be
+  // getting `__is<AbstractType>` hints from the server. To handle this, the
+  // compiler attaches additional metadata on the normalization artifact,
+  // which we need to record into the store.
+  _assignClientAbstractTypes(node: NormalizationNode) {
+    const {clientAbstractTypes} = node;
+    if (clientAbstractTypes != null) {
+      for (const abstractType of Object.keys(clientAbstractTypes)) {
+        for (const concreteType of clientAbstractTypes[abstractType]) {
+          const typeID = generateTypeID(concreteType);
+          if (this._source.get(typeID) == null) {
+            this._mutator.create(typeID, TYPE_SCHEMA_TYPE);
+          }
+          this._mutator.setValue(typeID, abstractType, true);
+        }
+      }
+    }
   }
 }
 

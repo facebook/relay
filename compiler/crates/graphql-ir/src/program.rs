@@ -42,13 +42,29 @@ impl Program {
     ) -> Self {
         let mut operations = Vec::new();
         let mut fragments = HashMap::default();
+        let mut seen_operation_loc = HashMap::new();
         for definition in definitions {
             match definition {
                 ExecutableDefinition::Operation(operation) => {
-                    operations.push(Arc::new(operation));
+                    let loc = operation.name.location;
+                    let name = operation.name.item;
+                    if let Some(another) = seen_operation_loc.insert(name, loc) {
+                        panic!(
+                            "\nDuplicate operation definitions named {}: \nfirst one: {:?}\nsecond one: {:?}\n",
+                            name, loc, another
+                        );
+                    }
+                    operations.push(Arc::new(operation)); // Keep the order the operations same as inputs.
                 }
                 ExecutableDefinition::Fragment(fragment) => {
-                    fragments.insert(fragment.name.item, Arc::new(fragment));
+                    let loc = fragment.name.location;
+                    let name = fragment.name.item;
+                    if let Some(another) = fragments.insert(name, Arc::new(fragment)) {
+                        panic!(
+                            "\nDuplicate fragment definitions named {}: \nfirst one: {:?}\nsecond one: {:?}\n",
+                            name, loc, &another.name.location
+                        );
+                    }
                 }
             }
         }

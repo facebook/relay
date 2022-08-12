@@ -3274,14 +3274,14 @@ describe('check()', () => {
 
   it('should assign client-only abstract type information to the target source', () => {
     graphql`
-      fragment DataCheckerTestClientInterface on ClientInterface {
+      fragment DataCheckerTestClient2Interface on ClientInterface {
         description
       }
     `;
     const clientQuery = graphql`
-      query DataCheckerTestClientAbstractQuery {
+      query DataCheckerTestClient2AbstractQuery {
         client_interface {
-          ...DataCheckerTestClientInterface
+          ...DataCheckerTestClient2Interface
         }
       }
     `;
@@ -3312,5 +3312,57 @@ describe('check()', () => {
         __isClientInterface: true,
       },
     });
+  });
+
+  it('should assign client-only abstract type information to the target source if it is not available in the source', () => {
+    graphql`
+      fragment DataCheckerTestClientInterface on ClientInterface {
+        description
+      }
+    `;
+    const clientQuery = graphql`
+      query DataCheckerTestClientAbstractQuery {
+        client_interface {
+          ...DataCheckerTestClientInterface
+        }
+      }
+    `;
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        client_interface: {__ref: 'object-1'},
+      },
+      'client:__type:ClientTypeImplementingClientInterface': {
+        __id: 'client:__type:ClientTypeImplementingClientInterface',
+        __typename: '__TypeSchema',
+        __isClientInterface: true,
+      },
+      'client:__type:OtherClientTypeImplementingClientInterface': {
+        __id: 'client:__type:OtherClientTypeImplementingClientInterface',
+        __typename: '__TypeSchema',
+        __isClientInterface: true,
+      },
+      'object-1': {
+        __id: 'object-1',
+        __typename: 'ClientTypeImplementingClientInterface',
+        id: 'object-1',
+      },
+    });
+    const target = RelayRecordSource.create();
+    const status = check(
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      createNormalizationSelector(
+        getRequest(clientQuery).operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(target.toJSON()).toEqual({});
   });
 });

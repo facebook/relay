@@ -1914,5 +1914,36 @@ describe('missing data detection', () => {
       });
       expect(fragmentSnapshot.isMissingData).toBe(false);
     });
+
+    it('knows when concrete types match abstract types by metadata attached to normalizaiton AST: check after commited payload', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      environment.commitUpdate(store => {
+        const rootRecord = nullthrows(store.get(ROOT_ID));
+        const clientObj = store.create(
+          '4',
+          'OtherClientTypeImplementingClientInterface',
+        );
+        clientObj.setValue('4', 'id');
+        clientObj.setValue('My Description', 'description');
+        rootRecord.setLinkedRecord(clientObj, 'client_interface');
+      });
+      environment.commitPayload(operation, {});
+
+      // DataChecker similar to normalizer will put abstract type information to the record source.
+      // In the previouse test we use `commitPayload(...)` so the normalizer can assign these `abstract types`.
+      environment.check(operation);
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSelector = nullthrows(
+        getSingularSelector(
+          AbstractClientInterfaceFragment,
+          parentSnapshot.data.client_interface,
+        ),
+      );
+      const fragmentSnapshot = environment.lookup(fragmentSelector);
+      expect(fragmentSnapshot.data).toEqual({
+        description: 'My Description',
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false);
+    });
   });
 });

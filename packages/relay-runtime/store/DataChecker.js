@@ -665,7 +665,9 @@ class DataChecker {
           if (this._source.get(typeID) == null) {
             this._mutator.create(typeID, TYPE_SCHEMA_TYPE);
           }
-          this._mutator.setValue(typeID, abstractType, true);
+          if (this._mutator.getValue(typeID, abstractType) == null) {
+            this._mutator.setValue(typeID, abstractType, true);
+          }
         }
       }
     }

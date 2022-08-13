@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::root_variables::InferVariablesVisitor;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use graphql_ir::FragmentDefinition;
@@ -15,6 +14,8 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::ValidationMessage;
 use schema::Schema;
+
+use crate::root_variables::InferVariablesVisitor;
 
 /// Transform that validates/updates operation variable definitions:
 /// - Removes unused variable definitions. Variables can become dynamically unused due to

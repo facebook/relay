@@ -5,13 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::SplitOperationMetadata;
-use super::MATCH_CONSTANTS;
-use crate::util::get_normalization_operation_name;
-use crate::ModuleMetadata;
+use std::sync::Arc;
+
 use common::WithLocation;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::InlineFragment;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
@@ -20,11 +20,17 @@ use graphql_ir::Transformer;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
 use intern::string_key::StringKeyMap;
-use intern::string_key::StringKeySet;
 use schema::Schema;
-use std::sync::Arc;
 
-pub fn split_module_import(program: &Program, base_fragment_names: &StringKeySet) -> Program {
+use super::SplitOperationMetadata;
+use super::MATCH_CONSTANTS;
+use crate::util::get_normalization_operation_name;
+use crate::ModuleMetadata;
+
+pub fn split_module_import(
+    program: &Program,
+    base_fragment_names: &FragmentDefinitionNameSet,
+) -> Program {
     let mut transform = SplitModuleImportTransform::new(program, base_fragment_names);
     transform
         .transform_program(program)
@@ -34,13 +40,13 @@ pub fn split_module_import(program: &Program, base_fragment_names: &StringKeySet
 pub struct SplitModuleImportTransform<'program, 'base_fragment_names> {
     program: &'program Program,
     split_operations: StringKeyMap<(SplitOperationMetadata, OperationDefinition)>,
-    base_fragment_names: &'base_fragment_names StringKeySet,
+    base_fragment_names: &'base_fragment_names FragmentDefinitionNameSet,
 }
 
 impl<'program, 'base_fragment_names> SplitModuleImportTransform<'program, 'base_fragment_names> {
     fn new(
         program: &'program Program,
-        base_fragment_names: &'base_fragment_names StringKeySet,
+        base_fragment_names: &'base_fragment_names FragmentDefinitionNameSet,
     ) -> Self {
         Self {
             program,
@@ -107,7 +113,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
             }
 
             let normalization_name =
-                get_normalization_operation_name(module_metadata.fragment_name).intern();
+                get_normalization_operation_name(module_metadata.fragment_name.0).intern();
             let schema = &self.program.schema;
             let created_split_operation = self
                 .split_operations
@@ -134,7 +140,10 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                             raw_response_type: false,
                         },
                         OperationDefinition {
-                            name: WithLocation::new(module_metadata.location, normalization_name),
+                            name: WithLocation::new(
+                                module_metadata.location,
+                                OperationDefinitionName(normalization_name),
+                            ),
                             type_: parent_type,
                             variable_definitions: vec![],
                             directives: vec![],

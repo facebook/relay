@@ -5,14 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt;
+
+use common::Span;
+use intern::string_key::StringKey;
+
 use super::constant_directive::ConstantDirective;
 use super::constant_value::ConstantValue;
 use super::constant_value::StringNode;
 use super::primitive::*;
 use super::type_annotation::TypeAnnotation;
-use common::Span;
-use intern::string_key::StringKey;
-use std::fmt;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub enum TypeSystemDefinition {

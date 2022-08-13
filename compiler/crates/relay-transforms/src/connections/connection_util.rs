@@ -5,9 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::connections::ConnectionConstants;
-use crate::connections::ConnectionInterface;
-use crate::util::extract_variable_name;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
@@ -21,6 +18,10 @@ use intern::string_key::StringKey;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
+
+use crate::connections::ConnectionConstants;
+use crate::connections::ConnectionInterface;
+use crate::util::extract_variable_name;
 
 /// Helper to assert and extract the expected selections for a connection
 /// field. This function will panic if the expected selections aren't present,

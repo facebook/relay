@@ -5,6 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashMap;
+use std::sync::Arc;
+
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use graphql_ir::build;
@@ -16,8 +19,6 @@ use relay_config::NonNodeIdFieldsConfig;
 use relay_config::SchemaConfig;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::disallow_non_node_id_fields;
-use std::collections::HashMap;
-use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();

@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::definitions::Type;
 use graphql_syntax::OperationType;
 use intern::string_key::StringKey;
 use thiserror::Error;
+
+use crate::definitions::Type;
 
 pub type Result<T> = std::result::Result<T, SchemaError>;
 

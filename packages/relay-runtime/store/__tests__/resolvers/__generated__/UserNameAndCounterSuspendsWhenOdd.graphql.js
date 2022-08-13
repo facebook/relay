@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5704f54ca20a96a9b35ceba2b9ba3a8e>>
+ * @generated SignedSource<<165da928af98fe197c90c319f1e1616b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type CounterSuspendsWhenOdd$key = any;
+import type { CounterSuspendsWhenOdd$key } from "./CounterSuspendsWhenOdd.graphql";
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { FragmentType } from "relay-runtime";
 import queryCounterSuspendsWhenOddResolver from "../CounterSuspendsWhenOdd.js";

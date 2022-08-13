@@ -66,7 +66,9 @@ Text Schema:Schema {
   subscription_type: None
   directives: [
     Directive {
-        name: "include",
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
                 name: "if",
@@ -90,7 +92,9 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
-        name: "skip",
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
                 name: "if",
@@ -114,7 +118,9 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
-        name: "source",
+        name: DirectiveName(
+            "source",
+        ),
         arguments: [
             Argument {
                 name: "schema",
@@ -180,7 +186,9 @@ Text Schema:Schema {
                 value: "DEAULT",
                 directives: [
                     DirectiveValue {
-                        name: "deprecated",
+                        name: DirectiveName(
+                            "deprecated",
+                        ),
                         arguments: [
                             ArgumentValue {
                                 name: "reason",
@@ -564,7 +572,9 @@ Text Schema:Schema {
         ],
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",
@@ -729,7 +739,9 @@ Text Schema:Schema {
         is_extension: false,
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",
@@ -808,7 +820,9 @@ Text Schema:Schema {
 FlatBuffer Schema:FB Schema {
 directives: [
     Directive {
-        name: "include",
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
                 name: "if",
@@ -832,7 +846,9 @@ directives: [
         description: None,
     },
     Directive {
-        name: "skip",
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
                 name: "if",
@@ -856,7 +872,9 @@ directives: [
         description: None,
     },
     Directive {
-        name: "source",
+        name: DirectiveName(
+            "source",
+        ),
         arguments: [
             Argument {
                 name: "schema",
@@ -906,7 +924,9 @@ enums: [
                 value: "DEAULT",
                 directives: [
                     DirectiveValue {
-                        name: "deprecated",
+                        name: DirectiveName(
+                            "deprecated",
+                        ),
                         arguments: [
                             ArgumentValue {
                                 name: "reason",
@@ -1200,7 +1220,9 @@ input_objects: [
         ],
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",
@@ -1365,7 +1387,9 @@ scalars: [
         is_extension: false,
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
                         name: "schema",

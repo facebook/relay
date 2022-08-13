@@ -5,9 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::time::Instant;
+
 use common::PerfLogEvent;
 use common::PerfLogger;
-use std::time::Instant;
 
 /// A struct to keep track of the state of how many build,
 ///  and how long it takes for errors to be resolved

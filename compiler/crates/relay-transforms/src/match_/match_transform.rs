@@ -5,13 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::validation_message::ValidationMessage;
-use crate::defer_stream::DEFER_STREAM_CONSTANTS;
-use crate::inline_data_fragment::INLINE_DIRECTIVE_NAME;
-use crate::match_::MATCH_CONSTANTS;
-use crate::no_inline::attach_no_inline_directives_to_fragments;
-use crate::no_inline::validate_required_no_inline_directive;
-use crate::util::get_normalization_operation_name;
+use std::hash::Hash;
+use std::hash::Hasher;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::FeatureFlag;
@@ -27,6 +24,8 @@ use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -41,16 +40,20 @@ use graphql_ir::Value;
 use indexmap::IndexSet;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
 use relay_config::ModuleImportConfig;
 use schema::FieldID;
 use schema::ScalarID;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
-use std::hash::Hash;
-use std::hash::Hasher;
-use std::sync::Arc;
+
+use super::validation_message::ValidationMessage;
+use crate::defer_stream::DEFER_STREAM_CONSTANTS;
+use crate::inline_data_fragment::INLINE_DIRECTIVE_NAME;
+use crate::match_::MATCH_CONSTANTS;
+use crate::no_inline::attach_no_inline_directives_to_fragments;
+use crate::no_inline::validate_required_no_inline_directive;
+use crate::util::get_normalization_operation_name;
 
 /// Transform and validate @match and @module
 pub fn transform_match(
@@ -84,7 +87,7 @@ impl Hash for Path {
 }
 
 struct TypeMatch {
-    fragment: WithLocation<StringKey>,
+    fragment: WithLocation<FragmentDefinitionName>,
     module_directive_name_argument: StringKey,
 }
 struct Matches {
@@ -104,7 +107,7 @@ pub struct MatchTransform<'program, 'flag> {
     enable_3d_branch_arg_generation: bool,
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
-    no_inline_fragments: StringKeyMap<Vec<StringKey>>,
+    no_inline_fragments: FragmentDefinitionNameMap<Vec<StringKey>>,
     module_import_config: ModuleImportConfig,
 }
 
@@ -286,11 +289,11 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
     ) -> Result<Transformed<Selection>, Diagnostic> {
         let module_directive = spread
             .directives
-            .named(MATCH_CONSTANTS.module_directive_name);
+            .named(MATCH_CONSTANTS.module_directive_name.0);
 
         // Only process the fragment spread with @module
         if let Some(module_directive) = module_directive {
-            let should_use_no_inline = self.no_inline_flag.is_enabled_for(spread.fragment.item);
+            let should_use_no_inline = self.no_inline_flag.is_enabled_for(spread.fragment.item.0);
             // @arguments on the fragment spread is not allowed without @no_inline
             if !should_use_no_inline && !spread.arguments.is_empty() {
                 return Err(Diagnostic::error(
@@ -304,7 +307,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 && !(spread.directives.len() == 2
                     && spread
                         .directives
-                        .named(DEFER_STREAM_CONSTANTS.defer_name)
+                        .named(DEFER_STREAM_CONSTANTS.defer_name.0)
                         .is_some())
             {
                 // allow @defer and @module in typegen transforms
@@ -528,7 +531,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             module_directive.name.location,
         )];
 
-        let mut normalization_name = get_normalization_operation_name(spread.fragment.item);
+        let mut normalization_name = get_normalization_operation_name(spread.fragment.item.0);
         normalization_name.push_str(".graphql");
         let mut operation_field_arguments = vec![build_string_literal_argument(
             MATCH_CONSTANTS.js_field_module_arg,
@@ -792,7 +795,7 @@ impl Transformer for MatchTransform<'_, '_> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.document_name = fragment.name.item;
+        self.document_name = fragment.name.item.0;
         self.matches_for_path = Default::default();
         self.match_directive_key_argument = None;
         self.parent_type = fragment.type_condition;
@@ -804,7 +807,7 @@ impl Transformer for MatchTransform<'_, '_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = operation.name.item;
+        self.document_name = operation.name.item.0;
         self.matches_for_path = Default::default();
         self.match_directive_key_argument = None;
         self.parent_type = operation.type_;
@@ -854,7 +857,9 @@ impl Transformer for MatchTransform<'_, '_> {
 
     // Validate and transform `@match`
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        let match_directive = field.directives.named(MATCH_CONSTANTS.match_directive_name);
+        let match_directive = field
+            .directives
+            .named(MATCH_CONSTANTS.match_directive_name.0);
         let match_directive_key_argument = self.match_directive_key_argument;
         self.match_directive_key_argument = None;
 
@@ -926,7 +931,7 @@ pub struct ModuleMetadata {
     pub module_id: StringKey,
     pub module_name: StringKey,
     pub source_document_name: StringKey,
-    pub fragment_name: StringKey,
+    pub fragment_name: FragmentDefinitionName,
     pub no_inline: bool,
 }
 associated_data_impl!(ModuleMetadata);

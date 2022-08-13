@@ -12,13 +12,17 @@ fragment TestFragment on User
         FragmentDefinition {
             name: WithLocation {
                 location: argument_definitions.graphql:9:21,
-                item: "TestFragment",
+                item: FragmentDefinitionName(
+                    "TestFragment",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
                         location: argument_definitions.graphql:58:60,
-                        item: "id",
+                        item: VariableName(
+                            "id",
+                        ),
                     },
                     type_: Named(
                         Scalar(4),
@@ -28,7 +32,9 @@ fragment TestFragment on User
                         Directive {
                             name: WithLocation {
                                 location: <generated>:89:102,
-                                item: "configurable",
+                                item: DirectiveName(
+                                    "configurable",
+                                ),
                             },
                             arguments: [],
                             data: None,
@@ -38,7 +44,9 @@ fragment TestFragment on User
                 VariableDefinition {
                     name: WithLocation {
                         location: argument_definitions.graphql:110:114,
-                        item: "size",
+                        item: VariableName(
+                            "size",
+                        ),
                     },
                     type_: List(
                         Named(
@@ -66,7 +74,9 @@ fragment TestFragment on User
                 Directive {
                     name: WithLocation {
                         location: argument_definitions.graphql:33:52,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,

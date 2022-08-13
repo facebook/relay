@@ -67,6 +67,7 @@ macro_rules! associated_data_impl {
             fn hash_box(&self) -> u64 {
                 use std::hash::Hash;
                 use std::hash::Hasher;
+
                 use $crate::reexport::AsAny;
                 use $crate::reexport::FnvHasher;
                 let mut state = FnvHasher::default();
@@ -87,11 +88,12 @@ macro_rules! associated_data_impl {
         }
 
         impl $name {
-            pub fn directive_name() -> $crate::reexport::StringKey {
-                static DIRECTIVE_NAME: $crate::reexport::Lazy<$crate::reexport::StringKey> =
+            pub fn directive_name() -> common::DirectiveName {
+                static DIRECTIVE_NAME: $crate::reexport::Lazy<common::DirectiveName> =
                     $crate::reexport::Lazy::new(|| {
+                        use common::DirectiveName;
                         use $crate::reexport::string_key::Intern;
-                        concat!("__", stringify!($name)).intern()
+                        DirectiveName(concat!("__", stringify!($name)).intern())
                     });
                 return *DIRECTIVE_NAME;
             }
@@ -99,7 +101,7 @@ macro_rules! associated_data_impl {
             #[allow(dead_code)]
             pub fn find(directives: &[$crate::Directive]) -> Option<&Self> {
                 use $crate::reexport::NamedItem;
-                directives.named(Self::directive_name()).map(|directive| {
+                directives.named(Self::directive_name().0).map(|directive| {
                     directive
                         .data
                         .as_ref()

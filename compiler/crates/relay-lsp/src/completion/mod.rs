@@ -6,17 +6,15 @@
  */
 
 //! Utilities for providing the completion language feature
-use crate::lsp_runtime_error::LSPRuntimeResult;
-use crate::node_resolution_info::TypePath;
-use crate::node_resolution_info::TypePathItem;
-use crate::server::GlobalState;
-use crate::LSPRuntimeError;
-use crate::SchemaDocumentation;
+use std::iter::once;
+
+use common::DirectiveName;
 use common::Named;
 use common::NamedItem;
 use common::Span;
-
 use fnv::FnvHashSet;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::VariableDefinition;
 use graphql_ir::DIRECTIVE_ARGUMENTS;
@@ -55,7 +53,13 @@ use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
 use schema::TypeWithFields;
-use std::iter::once;
+
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::node_resolution_info::TypePath;
+use crate::node_resolution_info::TypePathItem;
+use crate::server::GlobalState;
+use crate::LSPRuntimeError;
+use crate::SchemaDocumentation;
 
 #[derive(Debug, Clone)]
 pub enum CompletionKind {
@@ -84,7 +88,7 @@ pub enum CompletionKind {
 #[derive(Debug, Clone)]
 pub enum ArgumentKind {
     Field,
-    Directive(StringKey),
+    Directive(DirectiveName),
     ArgumentsDirective(StringKey),
 }
 
@@ -112,7 +116,7 @@ impl CompletionRequest {
 #[derive(Debug, Copy, Clone)]
 pub enum ExecutableName {
     Operation(StringKey),
-    Fragment(StringKey),
+    Fragment(FragmentDefinitionName),
 }
 
 trait ArgumentLike {
@@ -131,7 +135,7 @@ impl ArgumentLike for &SchemaArgument {
 
 impl ArgumentLike for &VariableDefinition {
     fn name(&self) -> StringKey {
-        self.name.item
+        self.name.item.0
     }
     fn type_(&self) -> &TypeReference {
         &self.type_
@@ -201,8 +205,9 @@ impl CompletionRequestBuilder {
                 }
                 ExecutableDefinition::Fragment(fragment) => {
                     if fragment.location.contains(position_span) {
-                        self.current_executable_name =
-                            Some(ExecutableName::Fragment(fragment.name.value));
+                        self.current_executable_name = Some(ExecutableName::Fragment(
+                            FragmentDefinitionName(fragment.name.value),
+                        ));
                         let type_name = fragment.type_condition.type_.value;
                         let type_path = vec![TypePathItem::FragmentDefinition { type_name }];
                         if let Some(req) = self.build_request_from_selection_or_directives(
@@ -490,10 +495,10 @@ impl CompletionRequestBuilder {
                             if directive.name.value == *DIRECTIVE_ARGUMENTS {
                                 ArgumentKind::ArgumentsDirective(fragment_spread_name)
                             } else {
-                                ArgumentKind::Directive(directive.name.value)
+                                ArgumentKind::Directive(DirectiveName(directive.name.value))
                             }
                         } else {
-                            ArgumentKind::Directive(directive.name.value)
+                            ArgumentKind::Directive(DirectiveName(directive.name.value))
                         },
                     )
                 } else {
@@ -594,7 +599,7 @@ fn completion_items_for_request(
                 ))
             }
             ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
-                let fragment = program.fragment(fragment_spread_name)?;
+                let fragment = program.fragment(FragmentDefinitionName(fragment_spread_name))?;
                 Some(resolve_completion_items_for_argument_name(
                     fragment.variable_definitions.iter(),
                     schema,
@@ -622,7 +627,8 @@ fn completion_items_for_request(
                     &field.arguments.named(argument_name)?.type_
                 }
                 ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
-                    let fragment = program.fragment(fragment_spread_name)?;
+                    let fragment =
+                        program.fragment(FragmentDefinitionName(fragment_spread_name))?;
                     &fragment.variable_definitions.named(argument_name)?.type_
                 }
                 ArgumentKind::Directive(directive_name) => {
@@ -780,7 +786,7 @@ fn resolve_completion_items_for_argument_value(
             }
         }
         ExecutableName::Operation(name) => {
-            if let Some(operation) = program.operation(name) {
+            if let Some(operation) = program.operation(OperationDefinitionName(name)) {
                 operation
                     .variable_definitions
                     .iter()

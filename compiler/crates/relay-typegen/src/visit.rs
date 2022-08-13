@@ -5,12 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::hash::Hash;
+
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use common::NamedItem;
 use graphql_ir::Condition;
 use graphql_ir::Directive;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -41,7 +44,6 @@ use schema::ScalarID;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
-use std::hash::Hash;
 
 use crate::type_selection::ModuleDirective;
 use crate::type_selection::RawResponseFragmentSpread;
@@ -248,7 +250,7 @@ fn visit_fragment_spread(
             type_condition_info: get_type_condition_info(fragment_spread),
             is_updatable_fragment_spread: fragment_spread
                 .directives
-                .named(*UPDATABLE_DIRECTIVE_FOR_TYPEGEN)
+                .named(UPDATABLE_DIRECTIVE_FOR_TYPEGEN.0)
                 .is_some(),
         });
 
@@ -281,7 +283,7 @@ fn generate_resolver_type(
     encountered_fragments: &mut EncounteredFragments,
     runtime_imports: &mut RuntimeImports,
     resolver_name: StringKey,
-    fragment_name: Option<StringKey>,
+    fragment_name: Option<FragmentDefinitionName>,
     resolver_metadata: &RelayResolverMetadata,
 ) -> AST {
     let mut resolver_arguments = vec![];
@@ -343,7 +345,7 @@ fn generate_resolver_type(
         typegen_context.project_config.typegen_config.language,
         TypegenLanguage::TypeScript
     ) {
-        // TODO: Add proper support for Resolver typegeneration in typescript
+        // TODO: Add proper support for Resolver type generation in typescript
         AST::Any
     } else if resolver_metadata.live {
         runtime_imports.import_relay_resolver_live_state_type = true;
@@ -366,7 +368,7 @@ fn generate_local_resolver_name(field_parent_type: StringKey, field_name: String
 #[allow(clippy::too_many_arguments)]
 fn import_relay_resolver_function_type(
     typegen_context: &'_ TypegenContext<'_>,
-    fragment_name: Option<StringKey>,
+    fragment_name: Option<FragmentDefinitionName>,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
@@ -408,7 +410,7 @@ fn import_relay_resolver_function_type(
 #[allow(clippy::too_many_arguments)]
 fn visit_relay_resolver(
     typegen_context: &'_ TypegenContext<'_>,
-    fragment_name: Option<StringKey>,
+    fragment_name: Option<FragmentDefinitionName>,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
@@ -554,7 +556,7 @@ fn visit_inline_fragment(
         }));
     } else if inline_fragment
         .directives
-        .named(*RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN)
+        .named(RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN.0)
         .is_some()
     {
         visit_actor_change(
@@ -734,7 +736,7 @@ fn raw_response_visit_inline_fragment(
     );
     if inline_fragment
         .directives
-        .named(*CLIENT_EXTENSION_DIRECTIVE_NAME)
+        .named(CLIENT_EXTENSION_DIRECTIVE_NAME.0)
         .is_some()
     {
         for selection in &mut selections {
@@ -744,7 +746,7 @@ fn raw_response_visit_inline_fragment(
 
     if let Some(module_metadata) = ModuleMetadata::find(&inline_fragment.directives) {
         let fragment_name = module_metadata.fragment_name;
-        if !match_fields.0.contains_key(&fragment_name) {
+        if !match_fields.0.contains_key(&fragment_name.0) {
             let match_field = raw_response_selections_to_babel(
                 typegen_context,
                 selections.iter().filter(|sel| !sel.is_js_field()).cloned(),
@@ -753,7 +755,7 @@ fn raw_response_visit_inline_fragment(
                 runtime_imports,
                 custom_scalars,
             );
-            match_fields.0.insert(fragment_name, match_field);
+            match_fields.0.insert(fragment_name.0, match_field);
         }
 
         type_selections.extend(selections.iter().filter(|sel| sel.is_js_field()).cloned());
@@ -1389,7 +1391,7 @@ fn make_prop(
                                         let assignable_fragment_spread_ref= Prop::KeyValuePair(KeyValuePairProp {
                                             key: *KEY_FRAGMENT_SPREADS,
                                             value: AST::FragmentReferenceType(
-                                                fragment_spread.fragment_name,
+                                                fragment_spread.fragment_name.0,
                                             ),
                                             read_only: true,
                                             optional: false,
@@ -1496,7 +1498,7 @@ fn raw_response_make_prop(
     let optional = type_selection.is_conditional();
     match type_selection {
         TypeSelection::ModuleDirective(module_directive) => Prop::Spread(SpreadProp {
-            value: module_directive.fragment_name,
+            value: module_directive.fragment_name.0,
         }),
         TypeSelection::LinkedField(linked_field) => {
             let node_type = linked_field.node_type;
@@ -1688,7 +1690,7 @@ pub(crate) fn raw_response_visit_selections(
                 // @relay_client_component generate fragment spreads without
                 // @no_inline if no_inline isn't enabled for the fragment.
                 if NoInlineFragmentSpreadMetadata::find(&spread.directives).is_some() {
-                    let spread_type = spread.fragment.item;
+                    let spread_type = spread.fragment.item.0;
                     imported_raw_response_types.0.insert(spread_type);
                     type_selections.push(TypeSelection::RawResponseFragmentSpread(
                         RawResponseFragmentSpread {
@@ -1873,7 +1875,7 @@ pub(crate) fn get_input_variables_type<'a>(
             .iter()
             .map(|var_def| {
                 Prop::KeyValuePair(KeyValuePairProp {
-                    key: var_def.name.item,
+                    key: var_def.name.item.0,
                     read_only: false,
                     optional: !var_def.type_.is_non_null(),
                     value: transform_input_type(
@@ -2024,19 +2026,23 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
                 return Some(prop);
             }
         }
+
+        let get_fragment_as_stringkey = |fragment_name: FragmentDefinitionName| fragment_name.0;
         if let Some(refs) = regular_fragment_spreads.take() {
+            let refs_as_stringkeys = refs.into_iter().map(get_fragment_as_stringkey).collect();
             return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
                 field_name_or_alias: *KEY_FRAGMENT_SPREADS,
-                value: AST::FragmentReference(SortedStringKeyList::new(refs)),
+                value: AST::FragmentReference(SortedStringKeyList::new(refs_as_stringkeys)),
                 special_field: None,
                 conditional: false,
                 concrete_type: None,
             }));
         }
         if let Some(refs) = updatable_fragment_spreads.take() {
+            let refs_as_stringkeys = refs.into_iter().map(get_fragment_as_stringkey).collect();
             return Some(TypeSelection::ScalarField(TypeSelectionScalarField {
                 field_name_or_alias: *KEY_UPDATABLE_FRAGMENT_SPREADS,
-                value: AST::FragmentReference(SortedStringKeyList::new(refs)),
+                value: AST::FragmentReference(SortedStringKeyList::new(refs_as_stringkeys)),
                 special_field: None,
                 conditional: false,
                 concrete_type: None,
@@ -2054,11 +2060,11 @@ fn apply_required_directive_nullability(
     // negate the effects of bubbling) because we need handle the case where
     // null can bubble to the _items_ in a plural field which is itself
     // @required.
-    let bubbled_type = match directives.named(*CHILDREN_CAN_BUBBLE_METADATA_KEY) {
+    let bubbled_type = match directives.named(CHILDREN_CAN_BUBBLE_METADATA_KEY.0) {
         Some(_) => field_type.with_nullable_item_type(),
         None => field_type.clone(),
     };
-    match directives.named(RequiredMetadataDirective::directive_name()) {
+    match directives.named(RequiredMetadataDirective::directive_name().0) {
         Some(_) => bubbled_type.non_null(),
         None => bubbled_type,
     }
@@ -2085,7 +2091,7 @@ fn to_camel_case(non_camelized_string: String) -> String {
 fn get_type_condition_info(fragment_spread: &FragmentSpread) -> Option<TypeConditionInfo> {
     fragment_spread
         .directives
-        .named(*ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN)
+        .named(ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN.0)
         .map(|directive| {
             directive
                 .data

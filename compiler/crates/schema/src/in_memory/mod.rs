@@ -5,21 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::definitions::Argument;
-use crate::definitions::Directive;
-use crate::definitions::*;
-use crate::errors::SchemaError;
-use crate::graphql_schema::Schema;
+use std::collections::BTreeMap;
+use std::collections::HashMap;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::SourceLocationKey;
 use common::WithLocation;
 use graphql_syntax::*;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use std::collections::BTreeMap;
-use std::collections::HashMap;
+
+use crate::definitions::Argument;
+use crate::definitions::Directive;
+use crate::definitions::*;
+use crate::errors::SchemaError;
+use crate::graphql_schema::Schema;
 
 fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
     Err(vec![Diagnostic::error(error, Location::generated())])
@@ -49,7 +52,7 @@ pub struct InMemorySchema {
 
     unchecked_argument_type_sentinel: Option<TypeReference>,
 
-    directives: HashMap<StringKey, Directive>,
+    directives: HashMap<DirectiveName, Directive>,
 
     enums: Vec<Enum>,
     fields: Vec<Field>,
@@ -97,7 +100,7 @@ impl Schema for InMemorySchema {
         self.type_map.get(&type_name).copied()
     }
 
-    fn get_directive(&self, name: StringKey) -> Option<&Directive> {
+    fn get_directive(&self, name: DirectiveName) -> Option<&Directive> {
         self.directives.get(&name)
     }
 
@@ -248,7 +251,7 @@ impl Schema for InMemorySchema {
         let ordered_type_map: BTreeMap<_, _> = type_map.iter().collect();
 
         let mut ordered_directives = directives.values().collect::<Vec<&Directive>>();
-        ordered_directives.sort_by_key(|dir| dir.name.lookup());
+        ordered_directives.sort_by_key(|dir| dir.name.0.lookup());
 
         format!(
             r#"Schema {{
@@ -310,7 +313,7 @@ impl Schema for InMemorySchema {
 }
 
 impl InMemorySchema {
-    pub fn get_directive_mut(&mut self, name: StringKey) -> Option<&mut Directive> {
+    pub fn get_directive_mut(&mut self, name: DirectiveName) -> Option<&mut Directive> {
         self.directives.get_mut(&name)
     }
 
@@ -346,7 +349,11 @@ impl InMemorySchema {
         self.objects.iter()
     }
 
-    pub fn has_directive(&self, directive_name: StringKey) -> bool {
+    pub fn get_unions(&self) -> impl Iterator<Item = &Union> {
+        self.unions.iter()
+    }
+
+    pub fn has_directive(&self, directive_name: DirectiveName) -> bool {
         self.directives.contains_key(&directive_name)
     }
 
@@ -356,7 +363,7 @@ impl InMemorySchema {
 
     pub fn add_directive(&mut self, directive: Directive) -> DiagnosticsResult<()> {
         if self.directives.contains_key(&directive.name) {
-            return todo_add_location(SchemaError::DuplicateDirectiveDefinition(directive.name));
+            return todo_add_location(SchemaError::DuplicateDirectiveDefinition(directive.name.0));
         }
         self.directives.insert(directive.name, directive);
         Ok(())
@@ -1048,7 +1055,7 @@ impl InMemorySchema {
                 locations,
                 description,
             }) => {
-                if self.directives.contains_key(&name.value) {
+                if self.directives.contains_key(&DirectiveName(name.value)) {
                     let str_name = name.value.lookup();
                     if str_name != "skip" && str_name != "include" {
                         // TODO(T63941319) @skip and @include directives are duplicated in our schema
@@ -1060,9 +1067,9 @@ impl InMemorySchema {
                 }
                 let arguments = self.build_arguments(arguments)?;
                 self.directives.insert(
-                    name.value,
+                    DirectiveName(name.value),
                     Directive {
-                        name: name.value,
+                        name: DirectiveName(name.value),
                         arguments,
                         locations: locations.clone(),
                         repeatable: *repeatable,
@@ -1510,7 +1517,7 @@ impl InMemorySchema {
                     Vec::new()
                 };
                 DirectiveValue {
-                    name: directive.name.value,
+                    name: DirectiveName(directive.name.value),
                     arguments,
                 }
             })

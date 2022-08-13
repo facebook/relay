@@ -24,7 +24,6 @@ lazy_static! {
     pub static ref UPDATABLE_DIRECTIVE: StringKey = "updatable".intern();
 }
 
-use self::errors::ValidationMessage;
 pub use annotate_updatable_fragment_spreads::*;
 use ensure_discriminated_union_is_created::*;
 pub use replace_updatable_fragment_spreads::*;
@@ -33,3 +32,5 @@ pub use transform_assignable_fragment_spreads_in_updatable_queries::*;
 pub use validate_assignable_directive::*;
 pub use validate_updatable_directive::*;
 pub use validate_updatable_fragment_spread::*;
+
+use self::errors::ValidationMessage;

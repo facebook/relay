@@ -18,7 +18,9 @@ query RefetchableFragmentQuery(
   $size: [Int]
 ) @__RefetchableDerivedFromMetadata
 # RefetchableDerivedFromMetadata(
-#     "RefetchableFragment",
+#     FragmentDefinitionName(
+#         "RefetchableFragment",
+#     ),
 # )
  {
   viewer {

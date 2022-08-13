@@ -15,13 +15,17 @@ fragment TestFragment on User
         FragmentDefinition {
             name: WithLocation {
                 location: fragment_with_valid_provider.graphql:9:21,
-                item: "TestFragment",
+                item: FragmentDefinitionName(
+                    "TestFragment",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment_with_valid_provider.graphql:58:60,
-                        item: "id",
+                        item: VariableName(
+                            "id",
+                        ),
                     },
                     type_: Named(
                         Scalar(4),
@@ -32,7 +36,9 @@ fragment TestFragment on User
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment_with_valid_provider.graphql:79:83,
-                        item: "size",
+                        item: VariableName(
+                            "size",
+                        ),
                     },
                     type_: List(
                         Named(
@@ -56,7 +62,9 @@ fragment TestFragment on User
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment_with_valid_provider.graphql:126:152,
-                        item: "arg_with_enabled_provider0",
+                        item: VariableName(
+                            "arg_with_enabled_provider0",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -68,7 +76,9 @@ fragment TestFragment on User
                         Directive {
                             name: WithLocation {
                                 location: fragment_with_valid_provider.graphql:173:199,
-                                item: "__ProvidedVariableMetadata",
+                                item: DirectiveName(
+                                    "__ProvidedVariableMetadata",
+                                ),
                             },
                             arguments: [],
                             data: Some(
@@ -85,7 +95,9 @@ fragment TestFragment on User
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment_with_valid_provider.graphql:231:243,
-                        item: "PictureSize",
+                        item: VariableName(
+                            "PictureSize",
+                        ),
                     },
                     type_: List(
                         Named(
@@ -101,7 +113,9 @@ fragment TestFragment on User
                 Directive {
                     name: WithLocation {
                         location: fragment_with_valid_provider.graphql:33:52,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,
@@ -126,7 +140,9 @@ fragment TestFragment on User
                                     Variable {
                                         name: WithLocation {
                                             location: fragment_with_valid_provider.graphql:231:243,
-                                            item: "PictureSize",
+                                            item: VariableName(
+                                                "PictureSize",
+                                            ),
                                         },
                                         type_: List(
                                             Named(

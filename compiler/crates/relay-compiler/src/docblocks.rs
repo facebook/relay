@@ -7,7 +7,6 @@
 
 use std::path::Path;
 
-use crate::file_source::LocatedDocblockSource;
 use common::DiagnosticsResult;
 use common::SourceLocationKey;
 use docblock_syntax::parse_docblock;
@@ -16,6 +15,8 @@ use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::SchemaDocument;
 use relay_docblock::parse_docblock_ast;
 use schema::SDLSchema;
+
+use crate::file_source::LocatedDocblockSource;
 
 pub fn extract_schema_from_docblock_sources(
     file_path: &Path,

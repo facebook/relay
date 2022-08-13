@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4c36f310f48f7dc1d76f165a630888cf>>
+ * @generated SignedSource<<bb96aa3bc29a8b22ba31fa11de05f9ef>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTest_noInline$fragmentType = any;
+import type { RelayModernEnvironmentNoInlineTest_noInline$fragmentType } from "./RelayModernEnvironmentNoInlineTest_noInline.graphql";
 export type PhotoSize = "LARGE" | "SMALL" | "%future added value";
 export type RelayModernEnvironmentNoInlineTestQuery$variables = {|
   preset?: ?PhotoSize,

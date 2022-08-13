@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5ddbf340885a1276efa7f75ef187d052>>
+ * @generated SignedSource<<0ec67fff24840dfc385df74271a4c7d9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture$fragmentType = any;
+import type { RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture$fragmentType } from "./RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture.graphql";
 export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$variables = {|
   size?: ?$ReadOnlyArray<?number>,
 |};

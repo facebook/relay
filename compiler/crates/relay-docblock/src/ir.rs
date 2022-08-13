@@ -7,14 +7,13 @@
 
 use std::collections::HashSet;
 
-use crate::errors::ErrorMessages;
-use crate::errors::ErrorMessagesWithData;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
 use common::Named;
 use common::Span;
 use common::WithLocation;
+use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantArgument;
 use graphql_syntax::ConstantDirective;
@@ -35,7 +34,6 @@ use graphql_syntax::TypeAnnotation;
 use graphql_syntax::TypeSystemDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-
 use lazy_static::lazy_static;
 use schema::suggestion_list::GraphQLSuggestions;
 use schema::InterfaceID;
@@ -43,6 +41,9 @@ use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
+
+use crate::errors::ErrorMessages;
+use crate::errors::ErrorMessagesWithData;
 
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();
@@ -108,7 +109,7 @@ impl Named for Argument {
 pub struct RelayResolverIr {
     pub field: FieldDefinitionStub,
     pub on: On,
-    pub root_fragment: Option<WithLocation<StringKey>>,
+    pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
     pub edge_to: Option<WithLocation<TypeAnnotation>>,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
@@ -413,7 +414,10 @@ impl RelayResolverIr {
         )];
 
         if let Some(root_fragment) = self.root_fragment {
-            arguments.push(string_argument(*FRAGMENT_KEY_ARGUMENT_NAME, root_fragment));
+            arguments.push(string_argument(
+                *FRAGMENT_KEY_ARGUMENT_NAME,
+                root_fragment.map(|x| x.0),
+            ));
         }
 
         if let Some(live_field) = self.live {

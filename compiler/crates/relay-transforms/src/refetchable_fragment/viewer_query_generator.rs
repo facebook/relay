@@ -5,16 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::build_fragment_metadata_as_directive;
-use super::build_fragment_spread;
-use super::build_operation_variable_definitions;
-use super::build_used_global_variables;
-use super::validation_message::ValidationMessage;
-use super::QueryGenerator;
-use super::RefetchRoot;
-use super::RefetchableMetadata;
-use super::CONSTANTS;
-use crate::root_variables::VariableMap;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::WithLocation;
@@ -27,7 +19,17 @@ use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
-use std::sync::Arc;
+
+use super::build_fragment_metadata_as_directive;
+use super::build_fragment_spread;
+use super::build_operation_variable_definitions;
+use super::build_used_global_variables;
+use super::validation_message::ValidationMessage;
+use super::QueryGenerator;
+use super::RefetchRoot;
+use super::RefetchableMetadata;
+use super::CONSTANTS;
+use crate::root_variables::VariableMap;
 
 fn build_refetch_operation(
     schema: &SDLSchema,
@@ -92,7 +94,7 @@ fn get_viewer_field_id(
     }
     Err(vec![Diagnostic::error(
         ValidationMessage::InvalidViewerSchemaForRefetchableFragmentOnViewer {
-            fragment_name: fragment.name.item,
+            fragment_name: fragment.name.item.0,
         },
         fragment.name.location,
     )])

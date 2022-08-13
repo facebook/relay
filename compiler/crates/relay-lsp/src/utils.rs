@@ -7,9 +7,6 @@
 
 use std::path::PathBuf;
 
-use crate::lsp_runtime_error::LSPRuntimeError;
-use crate::lsp_runtime_error::LSPRuntimeResult;
-use crate::Feature;
 use common::SourceLocationKey;
 use common::Span;
 use common::TextSource;
@@ -26,6 +23,10 @@ use lsp_types::Url;
 use relay_compiler::FileCategorizer;
 use relay_compiler::FileGroup;
 use relay_docblock::parse_docblock_ast;
+
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::Feature;
 
 pub fn extract_executable_definitions_from_text_document(
     text_document_uri: &Url,

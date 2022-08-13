@@ -8,8 +8,8 @@
 mod content;
 mod content_section;
 
-use crate::config::Config;
-use crate::config::ProjectConfig;
+use std::sync::Arc;
+
 use common::SourceLocationKey;
 use content::generate_fragment;
 use content::generate_operation;
@@ -19,8 +19,11 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
+use relay_typegen::FragmentLocations;
 use schema::SDLSchema;
-use std::sync::Arc;
+
+use crate::config::Config;
+use crate::config::ProjectConfig;
 
 #[derive(Clone)]
 pub enum ArtifactContent {
@@ -60,6 +63,7 @@ impl ArtifactContent {
         printer: &mut Printer<'_>,
         schema: &SDLSchema,
         source_file: SourceLocationKey,
+        fragment_locations: &FragmentLocations,
     ) -> Vec<u8> {
         let skip_types = project_config
             .skip_types_for_artifact
@@ -85,6 +89,7 @@ impl ArtifactContent {
                 text,
                 id_and_text_hash,
                 skip_types,
+                fragment_locations,
             )
             .unwrap(),
             ArtifactContent::UpdatableQuery {
@@ -100,6 +105,7 @@ impl ArtifactContent {
                 typegen_operation,
                 source_hash.into(),
                 skip_types,
+                fragment_locations,
             )
             .unwrap(),
             ArtifactContent::SplitOperation {
@@ -114,6 +120,7 @@ impl ArtifactContent {
                 normalization_operation,
                 typegen_operation,
                 source_hash,
+                fragment_locations,
             )
             .unwrap(),
             ArtifactContent::Fragment {
@@ -129,6 +136,7 @@ impl ArtifactContent {
                 typegen_fragment,
                 source_hash,
                 skip_types,
+                fragment_locations,
             )
             .unwrap(),
             ArtifactContent::Generic { content } => content.clone(),

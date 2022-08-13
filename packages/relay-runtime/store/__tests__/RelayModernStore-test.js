@@ -288,7 +288,7 @@ function cloneEventWithSets(event: LogEvent) {
       });
 
       it('includes fragment owner in selector data when owner is provided', () => {
-        UserQuery = graphql`
+        const CustomUserQuery = graphql`
           query RelayModernStoreTest3Query($size: [Int]) {
             me {
               ...RelayModernStoreTest3Fragment
@@ -296,7 +296,7 @@ function cloneEventWithSets(event: LogEvent) {
           }
         `;
 
-        UserFragment = graphql`
+        const CustomUserFragment = graphql`
           fragment RelayModernStoreTest3Fragment on User {
             name
             profilePicture(size: $size) {
@@ -311,9 +311,9 @@ function cloneEventWithSets(event: LogEvent) {
           }
         `;
 
-        const owner = createOperationDescriptor(UserQuery, {size: 32});
+        const owner = createOperationDescriptor(CustomUserQuery, {size: 32});
         const selector = createReaderSelector(
-          UserFragment,
+          CustomUserFragment,
           '4',
           {size: 32},
           owner.request,
@@ -503,14 +503,14 @@ function cloneEventWithSets(event: LogEvent) {
 
       it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
         // subscribe(), publish(), notify() -> subscriber called
-        UserQuery = graphql`
+        const CustomUserQuery = graphql`
           query RelayModernStoreTest5Query($size: [Int]) {
             me {
               ...RelayModernStoreTest6Fragment
             }
           }
         `;
-        UserFragment = graphql`
+        const CustomUserFragment = graphql`
           fragment RelayModernStoreTest6Fragment on User {
             name
             profilePicture(size: $size) {
@@ -519,9 +519,9 @@ function cloneEventWithSets(event: LogEvent) {
             emailAddresses
           }
         `;
-        const owner = createOperationDescriptor(UserQuery, {size: 32});
+        const owner = createOperationDescriptor(CustomUserQuery, {size: 32});
         const selector = createReaderSelector(
-          UserFragment,
+          CustomUserFragment,
           '4',
           {size: 32},
           owner.request,

@@ -110,7 +110,9 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::lsp_runtime_error::LSPRuntimeResult;
+    use std::sync::atomic::AtomicI32;
+    use std::sync::atomic::Ordering;
+
     use lsp_types::request::GotoDefinition;
     use lsp_types::request::HoverRequest;
     use lsp_types::request::Request;
@@ -118,10 +120,9 @@ mod test {
     use lsp_types::TextDocumentIdentifier;
     use lsp_types::TextDocumentPositionParams;
     use lsp_types::Url;
-    use std::sync::atomic::AtomicI32;
-    use std::sync::atomic::Ordering;
 
     use super::LSPRequestDispatch;
+    use crate::lsp_runtime_error::LSPRuntimeResult;
 
     #[test]
     fn calls_first_matching_request_handler() {
@@ -175,9 +176,10 @@ mod test {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use lsp_types::request::CodeActionRequest;
     use serde_json::json;
+
+    use super::*;
 
     #[test]
     fn test_extract_request_params_error() {

@@ -1253,3 +1253,64 @@ test('Errors when reading a non-@live resolver that returns a LiveState object',
     'Unexpected LiveState value retuned from the non-@live Relay Resolver backing the field "non_live_resolver_with_live_return_value". Did you intend to add @live to this resolver?.',
   );
 });
+
+test('Errors when reading a @live resolver that does not return a LiveState object and throws instead.', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+  const FooQuery = graphql`
+    query LiveResolversTest18Query {
+      live_resolver_throws
+    }
+  `;
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store: new LiveResolverStore(source, {
+      gcReleaseBufferSize: 0,
+    }),
+  });
+
+  const data = environment.lookup(operation.fragment);
+  expect(data.relayResolverErrors).toEqual([
+    {
+      field: {
+        owner: 'LiveResolversTest18Query',
+        path: 'live_resolver_throws',
+      },
+      error: new Error('What?'),
+    },
+  ]);
+});
+
+test('Errors when reading a @live resolver that does not return a LiveState object and returns `undefined`.', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+  const FooQuery = graphql`
+    query LiveResolversTest19Query {
+      live_resolver_return_undefined
+    }
+  `;
+
+  const operation = createOperationDescriptor(FooQuery, {});
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store: new LiveResolverStore(source, {
+      gcReleaseBufferSize: 0,
+    }),
+  });
+
+  expect(() => {
+    environment.lookup(operation.fragment);
+  }).toThrow(
+    'Expected the @live Relay Resolver backing the field "live_resolver_return_undefined" to return a value that implements LiveState interface. The result for this field is `undefined`, we also did not detect any errors, or missing data during resolver execution. Did you mean to remove the @live annotation on this resolver, or was there unexpected early return in the function?',
+  );
+});

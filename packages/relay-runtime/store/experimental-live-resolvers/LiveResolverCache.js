@@ -125,7 +125,7 @@ class LiveResolverCache implements ResolverCache {
       const evaluationResult = evaluate();
 
       if (field.kind === RELAY_LIVE_RESOLVER) {
-        if (evaluationResult.resolverResult !== undefined) {
+        if (evaluationResult.resolverResult != undefined) {
           if (__DEV__) {
             invariant(
               isLiveStateValue(evaluationResult.resolverResult),
@@ -138,6 +138,19 @@ class LiveResolverCache implements ResolverCache {
             // $FlowFixMe[incompatible-type] - casting mixed
             evaluationResult.resolverResult;
           this._setLiveStateValue(linkedRecord, linkedID, liveState);
+        } else {
+          if (__DEV__) {
+            invariant(
+              evaluationResult.error != null ||
+                evaluationResult.snapshot?.isMissingData,
+              'Expected the @live Relay Resolver backing the field "%s" to return a value ' +
+                'that implements LiveState interface. The result for this field is `%s`, we also did not detect any errors, ' +
+                'or missing data during resolver execution. Did you mean to remove the @live annotation on this ' +
+                'resolver, or was there unexpected early return in the function?',
+              field.path,
+              String(evaluationResult.resolverResult),
+            );
+          }
         }
       } else {
         if (__DEV__) {

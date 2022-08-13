@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fs::create_dir_all;
+
 use js_config_loader::search;
 use js_config_loader::ConfigError;
 use js_config_loader::ErrorCode;
 use serde::Deserialize;
-use std::fs::create_dir_all;
 use tempfile::tempdir;
 
 #[derive(Debug, Deserialize)]

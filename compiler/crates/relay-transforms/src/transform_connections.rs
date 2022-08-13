@@ -5,19 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::connections::assert_connection_selections;
-use crate::connections::build_connection_metadata;
-use crate::connections::build_edge_selections;
-use crate::connections::build_page_info_selections;
-use crate::connections::extract_connection_directive;
-use crate::connections::get_default_filters;
-use crate::connections::ConnectionConstants;
-use crate::connections::ConnectionInterface;
-use crate::connections::ConnectionMetadata;
-use crate::connections::ConnectionMetadataDirective;
-use crate::defer_stream::DEFER_STREAM_CONSTANTS;
-use crate::handle_fields::build_handle_field_directive_from_connection_directive;
-use crate::handle_fields::KEY_ARG_NAME;
+use std::sync::Arc;
+
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
@@ -36,7 +25,20 @@ use graphql_ir::Value;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use schema::Schema;
-use std::sync::Arc;
+
+use crate::connections::assert_connection_selections;
+use crate::connections::build_connection_metadata;
+use crate::connections::build_edge_selections;
+use crate::connections::build_page_info_selections;
+use crate::connections::extract_connection_directive;
+use crate::connections::get_default_filters;
+use crate::connections::ConnectionConstants;
+use crate::connections::ConnectionInterface;
+use crate::connections::ConnectionMetadata;
+use crate::connections::ConnectionMetadataDirective;
+use crate::defer_stream::DEFER_STREAM_CONSTANTS;
+use crate::handle_fields::build_handle_field_directive_from_connection_directive;
+use crate::handle_fields::KEY_ARG_NAME;
 
 pub fn transform_connections(
     program: &Program,
@@ -291,7 +293,7 @@ impl<'s> ConnectionTransform<'s> {
     ) -> Vec<Directive> {
         let connection_handle_directive = build_handle_field_directive_from_connection_directive(
             connection_directive,
-            Some(self.connection_constants.connection_directive_name),
+            Some(self.connection_constants.connection_directive_name.0),
             get_default_filters(connection_field, self.connection_constants),
         );
         let mut next_directives = connection_field
@@ -355,7 +357,7 @@ impl<'s> Transformer for ConnectionTransform<'s> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         // TODO(T63626938): This assumes that each document is processed serially (not in parallel or concurrently)
-        self.current_document_name = operation.name.item;
+        self.current_document_name = operation.name.item.0;
         self.current_path = Some(Vec::new());
         self.current_connection_metadata = Vec::new();
 
@@ -382,7 +384,7 @@ impl<'s> Transformer for ConnectionTransform<'s> {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         // TODO(T63626938): This assumes that each document is processed serially (not in parallel or concurrently)
-        self.current_document_name = fragment.name.item;
+        self.current_document_name = fragment.name.item.0;
         self.current_path = Some(Vec::new());
         self.current_connection_metadata = Vec::new();
 

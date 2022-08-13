@@ -5,7 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::root_variables::VariableMap;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -14,6 +15,7 @@ use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::Selection;
 use graphql_ir::Value;
@@ -22,9 +24,9 @@ use graphql_ir::VariableDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use std::sync::Arc;
 
 use super::validation_message::ValidationMessage;
+use crate::root_variables::VariableMap;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RefetchableMetadata {
@@ -62,7 +64,7 @@ pub fn build_fragment_spread(fragment: &FragmentDefinition) -> Selection {
             .variable_definitions
             .iter()
             .map(|var| Argument {
-                name: var.name,
+                name: var.name.map(|x| x.0),
                 value: WithLocation::new(
                     var.name.location,
                     Value::Variable(Variable {
@@ -84,7 +86,7 @@ pub fn build_operation_variable_definitions(
         .chain(fragment.variable_definitions.iter())
         .cloned()
         .collect();
-    result.sort_unstable_by(|l, r| l.name.item.lookup().cmp(r.name.item.lookup()));
+    result.sort_unstable_by(|l, r| l.name.item.cmp(&r.name.item));
     result
 }
 
@@ -97,7 +99,7 @@ pub fn build_used_global_variables(
     let global_variables = variable_map
         .values()
         .map(|var| {
-            if let Some(local_conflicting_var) = local_variable_definitions.named(var.name.item) {
+            if let Some(local_conflicting_var) = local_variable_definitions.named(var.name.item.0) {
                 errors.push(Diagnostic::error(
                     ValidationMessage::LocalGlobalVariableConflict {
                         name: local_conflicting_var.name.item,
@@ -134,5 +136,5 @@ pub fn build_fragment_metadata_as_directive(
 /// Metadata attached to generated refetch queries storing the name of the
 /// fragment the operation was derived from.
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct RefetchableDerivedFromMetadata(pub StringKey);
+pub struct RefetchableDerivedFromMetadata(pub FragmentDefinitionName);
 associated_data_impl!(RefetchableDerivedFromMetadata);

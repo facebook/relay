@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e77169e21a9a6a7f4b9acc150da594e9>>
+ * @generated SignedSource<<695fa4623d5c1c2446da2791a032569c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType = any;
+import type { RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType } from "./RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType: FragmentType;
 export type RelayModernEnvironmentNoInlineTestDeferredStreamParent$data = {|

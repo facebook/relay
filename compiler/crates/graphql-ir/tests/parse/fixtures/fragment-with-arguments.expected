@@ -22,13 +22,17 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
         FragmentDefinition {
             name: WithLocation {
                 location: fragment-with-arguments.graphql:9:21,
-                item: "TestFragment",
+                item: FragmentDefinitionName(
+                    "TestFragment",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-arguments.graphql:58:60,
-                        item: "id",
+                        item: VariableName(
+                            "id",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -41,7 +45,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-arguments.graphql:80:84,
-                        item: "size",
+                        item: VariableName(
+                            "size",
+                        ),
                     },
                     type_: List(
                         Named(
@@ -67,7 +73,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-arguments.graphql:152:164,
-                        item: "PictureSize",
+                        item: VariableName(
+                            "PictureSize",
+                        ),
                     },
                     type_: List(
                         Named(
@@ -83,7 +91,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 Directive {
                     name: WithLocation {
                         location: fragment-with-arguments.graphql:33:52,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,
@@ -108,7 +118,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                                     Variable {
                                         name: WithLocation {
                                             location: fragment-with-arguments.graphql:152:164,
-                                            item: "PictureSize",
+                                            item: VariableName(
+                                                "PictureSize",
+                                            ),
                                         },
                                         type_: List(
                                             Named(
@@ -156,7 +168,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                                     Variable {
                                         name: WithLocation {
                                             location: fragment-with-arguments.graphql:219:224,
-                                            item: "size",
+                                            item: VariableName(
+                                                "size",
+                                            ),
                                         },
                                         type_: List(
                                             Named(
@@ -184,7 +198,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 FragmentSpread {
                     fragment: WithLocation {
                         location: fragment-with-arguments.graphql:245:248,
-                        item: "Foo",
+                        item: FragmentDefinitionName(
+                            "Foo",
+                        ),
                     },
                     arguments: [
                         Argument {
@@ -198,7 +214,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                                     Variable {
                                         name: WithLocation {
                                             location: fragment-with-arguments.graphql:269:272,
-                                            item: "id",
+                                            item: VariableName(
+                                                "id",
+                                            ),
                                         },
                                         type_: NonNull(
                                             Named(
@@ -219,13 +237,17 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
         FragmentDefinition {
             name: WithLocation {
                 location: fragment-with-arguments.graphql:286:289,
-                item: "Foo",
+                item: FragmentDefinitionName(
+                    "Foo",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-arguments.graphql:319:326,
-                        item: "localId",
+                        item: VariableName(
+                            "localId",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -242,7 +264,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                 Directive {
                     name: WithLocation {
                         location: fragment-with-arguments.graphql:299:318,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,

@@ -11,13 +11,15 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+use std::iter::once;
+
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::SourceLocationKey;
 use intern::intern;
 use schema::ArgumentDefinitions;
 use schema::SDLSchema;
 use schema::TypeReference;
-use std::iter::once;
 
 const RELAY_EXTENSIONS: &str = include_str!("./relay-extensions.graphql");
 
@@ -37,7 +39,10 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
 
     // Remove label arg from @defer and @stream directives since the compiler
     // adds these arguments.
-    for directive_name in &[intern!("defer"), intern!("stream")] {
+    for directive_name in &[
+        DirectiveName(intern!("defer")),
+        DirectiveName(intern!("stream")),
+    ] {
         if let Some(directive) = schema.get_directive_mut(*directive_name) {
             let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
             for arg in next_args.iter_mut() {

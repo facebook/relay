@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<10bfb6d50c2d86bf900e290fc780ac8d>>
+ * @generated SignedSource<<741eb9cf63450e8db1091734784660a2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,10 +16,10 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type AstrologicalSignHouseResolver$key = any;
-type AstrologicalSignNameResolver$key = any;
-type AstrologicalSignOppositeResolver$key = any;
-type UserAstrologicalSignResolver$key = any;
+import type { AstrologicalSignHouseResolver$key } from "./../resolvers/__generated__/AstrologicalSignHouseResolver.graphql";
+import type { AstrologicalSignNameResolver$key } from "./../resolvers/__generated__/AstrologicalSignNameResolver.graphql";
+import type { AstrologicalSignOppositeResolver$key } from "./../resolvers/__generated__/AstrologicalSignOppositeResolver.graphql";
+import type { UserAstrologicalSignResolver$key } from "./../resolvers/__generated__/UserAstrologicalSignResolver.graphql";
 import astrologicalSignHouseResolver from "../resolvers/AstrologicalSignHouseResolver.js";
 // Type assertion validating that `astrologicalSignHouseResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b751d6445e8e05beb51299d387ca042b>>
+ * @generated SignedSource<<df94703f902289ae0692d94479852fb0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type UserClientEdgeResolver$key = any;
+import type { UserClientEdgeResolver$key } from "./UserClientEdgeResolver.graphql";
 import type { FragmentType } from "relay-runtime";
 import userClientEdgeResolver from "../UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.

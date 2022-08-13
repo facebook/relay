@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2bfb7451ee6478da97ea4ca4411ce146>>
+ * @generated SignedSource<<7a888582aca94e2ad06865c36933124a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType = any;
+import type { ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType } from "./ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment.graphql";
 export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserQuery$variables = {|
   id: string,
   scale: number,

@@ -5,6 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+
 use common::Named;
 use common::NamedItem;
 use common::WithLocation;
@@ -28,8 +31,6 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use schema::SDLSchema;
 use schema::Schema;
-use std::fmt::Result as FmtResult;
-use std::fmt::Write;
 
 pub fn print_ir(schema: &SDLSchema, definitions: &[ExecutableDefinition]) -> Vec<String> {
     definitions
@@ -208,7 +209,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             OperationKind::Mutation => "mutation",
             OperationKind::Subscription => "subscription",
         };
-        let operation_name = operation.name.item;
+        let operation_name = operation.name.item.0;
         write!(self.writer, "{} {}", operation_kind, operation_name)?;
         self.print_variable_definitions(&operation.variable_definitions)?;
         self.print_directives(&operation.directives, None, None)?;
@@ -377,7 +378,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             self.print_condition_directives(conditions)?;
         }
         for directive in directives {
-            if directive.name.item.lookup() == "argumentDefinitions" {
+            if directive.name.item.0.lookup() == "argumentDefinitions" {
                 self.print_argument_definitions(fragment_argument_definitions.unwrap())?;
             } else {
                 self.print_directive(directive)?;
@@ -387,7 +388,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     }
 
     fn print_directive(&mut self, directive: &Directive) -> FmtResult {
-        write!(self.writer, " @{}", directive.name.item)?;
+        write!(self.writer, " @{}", directive.name.item.0)?;
         self.print_arguments(&directive.arguments)?;
 
         if self.options.debug_directive_data {

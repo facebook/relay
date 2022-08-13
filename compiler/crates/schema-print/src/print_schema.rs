@@ -5,16 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::FnvHashMap;
-use intern::string_key::StringKey;
-use itertools::Itertools;
-use schema::*;
 use std::collections::hash_map::DefaultHasher;
 use std::collections::BTreeMap;
 use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 use std::hash::Hash;
 use std::hash::Hasher;
+
+use fnv::FnvHashMap;
+use intern::string_key::StringKey;
+use itertools::Itertools;
+use schema::*;
 
 const DEAULT_SHARD_COUNT: usize = 1;
 

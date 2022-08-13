@@ -20,7 +20,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     Ok(format!(
         "{:#?}\nErrors:\n{}",
         result.item,
-        diagnostics_to_sorted_string(fixture.content, &result.errors)
+        diagnostics_to_sorted_string(fixture.content, &result.diagnostics)
     ))
 }
 

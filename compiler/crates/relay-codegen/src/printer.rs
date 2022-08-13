@@ -5,6 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::borrow::Borrow;
+use std::borrow::Cow;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+use std::path::Path;
+
+use common::WithLocation;
+use fnv::FnvBuildHasher;
+use fnv::FnvHashSet;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use indexmap::IndexMap;
+use intern::string_key::StringKey;
+use relay_config::DynamicModuleProvider;
+use relay_config::ProjectConfig;
+use schema::SDLSchema;
+
 use crate::ast::Ast;
 use crate::ast::AstBuilder;
 use crate::ast::AstKey;
@@ -27,22 +44,6 @@ use crate::utils::escape;
 use crate::CodegenBuilder;
 use crate::CodegenVariant;
 use crate::JsModuleFormat;
-
-use graphql_ir::FragmentDefinition;
-use graphql_ir::OperationDefinition;
-use relay_config::DynamicModuleProvider;
-use relay_config::ProjectConfig;
-use schema::SDLSchema;
-
-use fnv::FnvBuildHasher;
-use fnv::FnvHashSet;
-use indexmap::IndexMap;
-use intern::string_key::StringKey;
-use std::borrow::Borrow;
-use std::borrow::Cow;
-use std::fmt::Result as FmtResult;
-use std::fmt::Write;
-use std::path::Path;
 
 pub fn print_operation(
     schema: &SDLSchema,
@@ -96,7 +97,7 @@ pub fn print_request_params(
         &mut builder,
         operation,
         top_level_statements,
-        operation.name,
+        operation.name.map(|x| x.0),
         project_config,
     );
     let printer = JSONPrinter::new(&builder, project_config, top_level_statements);
@@ -136,7 +137,7 @@ impl<'p> Printer<'p> {
             schema,
             &mut self.builder,
             operation,
-            operation.name,
+            WithLocation::new(operation.name.location, operation.name.item.0),
             self.project_config,
         )?;
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
@@ -153,7 +154,7 @@ impl<'p> Printer<'p> {
             CodegenVariant::Reader,
             &mut self.builder,
             self.project_config,
-            fragment.name,
+            fragment.name.map(|x| x.0),
         );
         let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
         let key = self.builder.intern(Ast::Object(object! {
@@ -184,16 +185,17 @@ impl<'p> Printer<'p> {
             &mut self.builder,
             operation,
             top_level_statements,
-            operation.name,
+            WithLocation::new(operation.name.location, operation.name.item.0),
             self.project_config,
         );
+
         let key = build_request(
             schema,
             &mut self.builder,
             operation,
             fragment,
             request_parameters,
-            fragment.name,
+            fragment.name.map(|x| x.0),
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
@@ -210,7 +212,7 @@ impl<'p> Printer<'p> {
             schema,
             &mut self.builder,
             operation,
-            operation.name,
+            WithLocation::new(operation.name.location, operation.name.item.0),
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
@@ -227,7 +229,7 @@ impl<'p> Printer<'p> {
             schema,
             &mut self.builder,
             fragment,
-            fragment.name,
+            fragment.name.map(|x| x.0),
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
@@ -247,7 +249,7 @@ impl<'p> Printer<'p> {
             &mut self.builder,
             operation,
             top_level_statements,
-            operation.name,
+            WithLocation::new(operation.name.location, operation.name.item.0),
             self.project_config,
         );
         let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);

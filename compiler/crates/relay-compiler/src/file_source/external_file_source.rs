@@ -5,18 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fs::File as FsFile;
 use std::io::BufReader;
 use std::path::PathBuf;
 
+use common::PerfLogger;
+
+use super::File;
 use crate::compiler_state::CompilerState;
 use crate::config::Config;
 use crate::errors::Error;
 use crate::errors::Result;
 use crate::FileSourceResult;
-use common::PerfLogger;
-use std::fs::File as FsFile;
-
-use super::File;
 
 /// The purpose of this module is to handle saved state and list of changed files
 /// from the external source, and not from the watchman

@@ -7,6 +7,11 @@
 
 mod errors;
 
+use std::fmt::Write;
+use std::sync::Mutex;
+use std::time::Instant;
+
+use common::DirectiveName;
 use common::Named;
 use errors::*;
 use fnv::FnvHashMap;
@@ -29,9 +34,6 @@ use schema::TypeWithFields;
 use schema::UnionID;
 use schema_print::print_directive;
 use schema_print::print_type;
-use std::fmt::Write;
-use std::sync::Mutex;
-use std::time::Instant;
 
 lazy_static! {
     static ref INTROSPECTION_TYPES: FnvHashSet<StringKey> = vec![
@@ -121,8 +123,8 @@ impl<'schema> ValidationContext<'schema> {
 
     fn validate_directives(&mut self) {
         for directive in self.schema.get_directives() {
-            let context = ValidationContextType::DirectiveNode(directive.name);
-            self.validate_name(directive.name, context);
+            let context = ValidationContextType::DirectiveNode(directive.name.0);
+            self.validate_name(directive.name.0, context);
             let mut arg_names = FnvHashSet::default();
             for argument in directive.arguments.iter() {
                 self.validate_name(argument.name, context);
@@ -130,7 +132,7 @@ impl<'schema> ValidationContext<'schema> {
                 // Ensure unique arguments per directive.
                 if arg_names.contains(&argument.name) {
                     self.report_error(
-                        SchemaValidationError::DuplicateArgument(argument.name, directive.name),
+                        SchemaValidationError::DuplicateArgument(argument.name, directive.name.0),
                         context,
                     );
                     continue;
@@ -552,7 +554,9 @@ impl<'schema> ValidationContext<'schema> {
                     directive_name,
                     print_directive(
                         self.schema,
-                        self.schema.get_directive(*directive_name).unwrap()
+                        self.schema
+                            .get_directive(DirectiveName(*directive_name))
+                            .unwrap()
                     )
                     .trim_end()
                 )

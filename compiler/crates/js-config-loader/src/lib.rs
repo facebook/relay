@@ -8,6 +8,10 @@
 mod error;
 mod loader;
 
+use std::fmt::Display;
+use std::path::Path;
+use std::path::PathBuf;
+
 pub use error::ConfigError;
 pub use error::ErrorCode;
 use loader::JsLoader;
@@ -16,9 +20,6 @@ use loader::Loader;
 use loader::PackageJsonLoader;
 use loader::YamlLoader;
 use serde::Deserialize;
-use std::fmt::Display;
-use std::path::Path;
-use std::path::PathBuf;
 
 #[derive(Debug)]
 pub struct Config<T> {

@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::constant_value::ConstantArgument;
-use super::primitive::*;
 use common::Named;
 use common::Span;
 use intern::string_key::StringKey;
+
+use super::constant_value::ConstantArgument;
+use super::primitive::*;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ConstantDirective {

@@ -5,10 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::relay_directive::MASK_ARG_NAME;
-use crate::relay_directive::PLURAL_ARG_NAME;
-use crate::relay_directive::RELAY_DIRECTIVE_NAME;
-use crate::should_generate_hack_preloader;
+use std::collections::HashMap;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -23,8 +21,13 @@ use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use graphql_ir::Value;
 use graphql_ir::VariableDefinition;
-use intern::string_key::StringKeyMap;
+use graphql_ir::VariableName;
 use schema::Schema;
+
+use crate::relay_directive::MASK_ARG_NAME;
+use crate::relay_directive::PLURAL_ARG_NAME;
+use crate::relay_directive::RELAY_DIRECTIVE_NAME;
+use crate::should_generate_hack_preloader;
 
 pub fn validate_relay_directives(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = RelayDirectiveValidation::new(program);
@@ -64,7 +67,7 @@ impl<'program> RelayDirectiveValidation<'program> {
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         if !(fragment.directives.is_empty()
             || fragment.directives.len() == 1
-                && fragment.directives[0].name.item == *RELAY_DIRECTIVE_NAME)
+                && fragment.directives[0].name.item.0 == *RELAY_DIRECTIVE_NAME)
         {
             errs.push(
                 Diagnostic::error(
@@ -85,7 +88,7 @@ impl<'program> RelayDirectiveValidation<'program> {
     /// 2. Their types should be same, or one is the subset of the
     fn validate_reachable_arguments(
         &self,
-        map: &mut StringKeyMap<ArgumentDefinition<'program>>,
+        map: &mut HashMap<VariableName, ArgumentDefinition<'program>>,
     ) -> DiagnosticsResult<()> {
         let mut errs = vec![];
         for arg in &self.current_reachable_arguments {
@@ -159,7 +162,7 @@ impl Validator for RelayDirectiveValidation<'_> {
             if self.current_reachable_arguments.is_empty() {
                 Ok(())
             } else {
-                let mut map: StringKeyMap<_> = Default::default();
+                let mut map: HashMap<VariableName, _> = Default::default();
                 for variable in &fragment.used_global_variables {
                     map.insert(variable.name.item, ArgumentDefinition::Global(variable));
                 }
@@ -180,7 +183,7 @@ impl Validator for RelayDirectiveValidation<'_> {
             if self.current_reachable_arguments.is_empty() {
                 Ok(())
             } else {
-                let mut map: StringKeyMap<_> = Default::default();
+                let mut map: HashMap<VariableName, _> = Default::default();
                 for variable in &operation.variable_definitions {
                     map.insert(variable.name.item, ArgumentDefinition::Global(variable));
                 }

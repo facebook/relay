@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashMap;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use graphql_ir::Program;
@@ -19,7 +21,6 @@ use schema::Interface;
 use schema::Object;
 use schema::Schema;
 use schema::Type;
-use std::collections::HashMap;
 
 lazy_static! {
     static ref DEFAULT_CONFIG: NonNodeIdFieldsConfig = NonNodeIdFieldsConfig::default();

@@ -9,14 +9,10 @@
 
 mod goto_docblock_definition;
 mod goto_graphql_definition;
-use crate::location::transform_relay_location_to_lsp_location;
-use crate::lsp_runtime_error::LSPRuntimeError;
-use crate::lsp_runtime_error::LSPRuntimeResult;
-use crate::server::GlobalState;
-use crate::FieldDefinitionSourceInfo;
-use crate::FieldSchemaInfo;
-use crate::LSPExtraDataProvider;
+use std::str;
+use std::sync::Arc;
 
+use graphql_ir::FragmentDefinitionName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lsp_types::request::GotoDefinition;
@@ -28,11 +24,16 @@ use schema::Schema;
 use schema::Type;
 use serde::Deserialize;
 use serde::Serialize;
-use std::str;
-use std::sync::Arc;
 
 use self::goto_docblock_definition::get_docblock_definition_description;
 use self::goto_graphql_definition::get_graphql_definition_description;
+use crate::location::transform_relay_location_to_lsp_location;
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::server::GlobalState;
+use crate::FieldDefinitionSourceInfo;
+use crate::FieldSchemaInfo;
+use crate::LSPExtraDataProvider;
 
 /// A concrete description of a GraphQL definition that a user would like to goto.
 pub enum DefinitionDescription {
@@ -41,7 +42,7 @@ pub enum DefinitionDescription {
         field_name: StringKey,
     },
     Fragment {
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
     },
     Type {
         type_name: StringKey,
@@ -110,7 +111,7 @@ pub fn on_goto_definition(
 
 fn locate_fragment_definition(
     program: graphql_ir::Program,
-    fragment_name: StringKey,
+    fragment_name: FragmentDefinitionName,
     root_dir: &std::path::Path,
 ) -> Result<GotoDefinitionResponse, LSPRuntimeError> {
     let fragment = program.fragment(fragment_name).ok_or_else(|| {

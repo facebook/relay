@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -12,6 +14,7 @@ use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::Program;
@@ -19,11 +22,9 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::VariableDefinition;
-
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use once_cell::sync::Lazy;
-use std::sync::Arc;
 use thiserror::Error;
 
 pub fn inline_data_fragment(program: &Program) -> DiagnosticsResult<Program> {
@@ -44,7 +45,7 @@ pub const INLINE_DIRECTIVE_NAME: Lazy<StringKey> = Lazy::new(|| "inline".intern(
 struct InlineDataFragmentsTransform<'s> {
     program: &'s Program,
     errors: Vec<Diagnostic>,
-    parent_inline_fragments: Vec<WithLocation<StringKey>>,
+    parent_inline_fragments: Vec<WithLocation<FragmentDefinitionName>>,
 }
 
 impl<'s> InlineDataFragmentsTransform<'s> {
@@ -59,7 +60,7 @@ impl<'s> InlineDataFragmentsTransform<'s> {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct InlineDirectiveMetadata {
-    pub fragment_name: StringKey,
+    pub fragment_name: FragmentDefinitionName,
     pub arguments: Vec<Argument>,
     pub variable_definitions: Vec<VariableDefinition>,
     pub used_global_variables: Vec<VariableDefinition>,
@@ -169,7 +170,9 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
 #[derive(Error, Debug)]
 enum ValidationMessage {
     #[error("Found a circular reference from fragment '{fragment_name}'.")]
-    CircularFragmentReference { fragment_name: StringKey },
+    CircularFragmentReference {
+        fragment_name: FragmentDefinitionName,
+    },
 
     #[error("Directives on fragment spreads for @inline fragments are not yet supported")]
     InlineDataFragmentDirectivesNotSupported,

@@ -17,12 +17,11 @@ use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use lsp_types::HoverContents;
 use lsp_types::MarkedString;
-use relay_test_schema::get_test_schema;
-use relay_test_schema::get_test_schema_with_extensions;
-
 use relay_lsp::hover::get_hover;
 use relay_lsp::ContentConsumerType;
 use relay_lsp::DummyExtraDataProvider;
+use relay_test_schema::get_test_schema;
+use relay_test_schema::get_test_schema_with_extensions;
 use resolution_path::ResolvePosition;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {

@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DirectiveName;
 use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
@@ -15,7 +16,8 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref INTERNAL_METADATA_DIRECTIVE: StringKey = "__metadata".intern();
+    pub static ref INTERNAL_METADATA_DIRECTIVE: DirectiveName =
+        DirectiveName("__metadata".intern());
 }
 
 /// Creates a directive that is used during codegen to generate a "metadata"

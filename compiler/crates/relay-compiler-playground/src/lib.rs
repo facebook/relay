@@ -5,16 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::FeatureFlags;
 use common::NoopPerfLogger;
 use common::SourceLocationKey;
 use common::SourceLocationKey::Generated;
 use common::TextSource;
-
 use graphql_ir::Program;
-
-use graphql_text_printer;
 use graphql_text_printer::PrinterOptions;
 use intern::string_key::Intern;
 use relay_codegen::print_fragment;
@@ -25,12 +24,10 @@ use relay_transforms::apply_transforms;
 use relay_transforms::Programs;
 use relay_typegen::generate_fragment_type_exports_section;
 use relay_typegen::generate_operation_type_exports_section;
+use relay_typegen::FragmentLocations;
 use relay_typegen::TypegenConfig;
 use schema::SDLSchema;
 use serde::Serialize;
-
-use std::sync::Arc;
-
 use wasm_bindgen::prelude::*;
 
 // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
@@ -233,10 +230,18 @@ pub fn parse_to_types_impl(
     let project_config = get_project_config(feature_flags_json, Some(typegen_config_json))?;
     let programs = get_programs(&schema, &project_config, document_text)?;
 
+    let fragment_locations = FragmentLocations::new(programs.typegen.fragments());
     let types_string = programs
         .typegen
         .fragments()
-        .map(|def| generate_fragment_type_exports_section(def, &schema, &project_config))
+        .map(|def| {
+            generate_fragment_type_exports_section(
+                def,
+                &schema,
+                &project_config,
+                &fragment_locations,
+            )
+        })
         .chain(programs.typegen.operations().map(|typegen_operation| {
             let normalization_operation = programs
                 .normalization
@@ -248,6 +253,7 @@ pub fn parse_to_types_impl(
                 normalization_operation,
                 &schema,
                 &project_config,
+                &fragment_locations,
             )
         }))
         .collect::<Vec<_>>()

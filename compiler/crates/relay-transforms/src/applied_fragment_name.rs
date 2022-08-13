@@ -5,16 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use graphql_ir::Argument;
+use graphql_ir::FragmentDefinitionName;
+use intern::string_key::Intern;
+
 use super::hash_arguments;
 
-use graphql_ir::Argument;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-
-pub fn get_applied_fragment_name(spread_name: StringKey, args: &[Argument]) -> StringKey {
+pub fn get_applied_fragment_name(
+    spread_name: FragmentDefinitionName,
+    args: &[Argument],
+) -> FragmentDefinitionName {
     let arguments_hash = hash_arguments(args);
     match arguments_hash {
-        Some(hash) => format!("{}_{}", spread_name, hash).intern(),
+        Some(hash) => FragmentDefinitionName(format!("{}_{}", spread_name, hash).intern()),
         None => spread_name,
     }
 }

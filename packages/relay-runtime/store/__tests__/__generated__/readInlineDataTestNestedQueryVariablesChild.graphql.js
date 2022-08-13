@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<56f6329262c409a206e63def6ccfa118>>
+ * @generated SignedSource<<8afb6b238df2eaef81fa5994cccee0ed>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type readInlineDataTestNestedQueryVariablesGrandchild$fragmentType = any;
+import type { readInlineDataTestNestedQueryVariablesGrandchild$fragmentType } from "./readInlineDataTestNestedQueryVariablesGrandchild.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type readInlineDataTestNestedQueryVariablesChild$fragmentType: FragmentType;
 export type readInlineDataTestNestedQueryVariablesChild$data = {|

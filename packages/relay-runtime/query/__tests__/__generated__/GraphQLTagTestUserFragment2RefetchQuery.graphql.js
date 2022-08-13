@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7a69cefb4c31a0d3275367ba4ee8edcd>>
+ * @generated SignedSource<<85243c86d2bf59f882f953f9049fc176>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +17,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-type GraphQLTagTest3UserFragment$fragmentType = any;
+import type { GraphQLTagTest3UserFragment$fragmentType } from "./GraphQLTagTest3UserFragment.graphql";
 export type GraphQLTagTestUserFragment2RefetchQuery$variables = {|
   after?: ?string,
   first?: ?number,

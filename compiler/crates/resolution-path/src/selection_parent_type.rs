@@ -109,13 +109,6 @@ impl<'a> SelectionParent<'a> {
 
 #[cfg(test)]
 mod tests {
-    use crate::IdentParent;
-    use crate::IdentPath;
-    use crate::ResolutionPath;
-    use crate::ResolvePosition;
-    use crate::ScalarFieldPath;
-
-    use super::*;
     use common::SourceLocationKey;
     use common::Span;
     use graphql_syntax::parse_executable_with_features;
@@ -123,6 +116,13 @@ mod tests {
     use intern::string_key::Intern;
     use intern::string_key::StringKey;
     use relay_test_schema::get_test_schema;
+
+    use super::*;
+    use crate::IdentParent;
+    use crate::IdentPath;
+    use crate::ResolutionPath;
+    use crate::ResolvePosition;
+    use crate::ScalarFieldPath;
 
     fn get_field_parent_type_name(source: &str, sub_str: &str) -> StringKey {
         let schema = get_test_schema();

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1b80f5fe9b3d0dfbba5b265346843bd8>>
+ * @generated SignedSource<<000f19d4e38adb173671d5c6da4c22ad>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
-type usePaginationFragmentTestNestedUserFragment$fragmentType = any;
+import type { usePaginationFragmentTestNestedUserFragment$fragmentType } from "./usePaginationFragmentTestNestedUserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type usePaginationFragmentTestUserFragment$fragmentType: FragmentType;
 type usePaginationFragmentTestUserFragmentPaginationQuery$variables = any;

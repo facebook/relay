@@ -5,26 +5,29 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use std::collections::HashMap;
+use std::collections::HashSet;
+
 use common::Diagnostic;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Value;
 use graphql_ir::Variable;
+use graphql_ir::VariableName;
 use graphql_ir::Visitor;
-use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
-use intern::string_key::StringKeySet;
 use schema::Schema;
 use schema::TypeReference;
 
-pub type VariableMap = StringKeyMap<Variable>;
-type Visited = StringKeyMap<VariableMap>;
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+
+pub type VariableMap = HashMap<VariableName, Variable>;
+type Visited = FragmentDefinitionNameMap<VariableMap>;
 
 pub struct InferVariablesVisitor<'program> {
     /// Cache fragments as they are transformed to avoid duplicate processing.
@@ -80,8 +83,8 @@ struct VariablesVisitor<'a, 'b> {
     variable_map: VariableMap,
     visited_fragments: &'a mut Visited,
     program: &'a Program,
-    local_variables: StringKeySet,
-    transitive_local_variables: &'b StringKeySet,
+    local_variables: HashSet<VariableName>,
+    transitive_local_variables: &'b HashSet<VariableName>,
     errors: Vec<Diagnostic>,
 }
 
@@ -89,8 +92,8 @@ impl<'a, 'b> VariablesVisitor<'a, 'b> {
     fn new(
         program: &'a Program,
         visited_fragments: &'a mut Visited,
-        local_variables: StringKeySet,
-        transitive_local_variables: &'b StringKeySet,
+        local_variables: HashSet<VariableName>,
+        transitive_local_variables: &'b HashSet<VariableName>,
     ) -> Self {
         Self {
             variable_map: Default::default(),
@@ -126,10 +129,10 @@ impl VariablesVisitor<'_, '_> {
                 .variable_definitions
                 .iter()
                 .map(|var| var.name.item)
-                .collect::<StringKeySet>();
+                .collect::<HashSet<VariableName>>();
             let transitive_local_variables = if fragment
                 .directives
-                .named(*NO_INLINE_DIRECTIVE_NAME)
+                .named(NO_INLINE_DIRECTIVE_NAME.0)
                 .is_some()
             {
                 Some(local_variables.clone())
@@ -152,7 +155,7 @@ impl VariablesVisitor<'_, '_> {
         }
     }
 
-    fn is_root_variable(&self, name: StringKey) -> bool {
+    fn is_root_variable(&self, name: VariableName) -> bool {
         !self.local_variables.contains(&name) && !self.transitive_local_variables.contains(&name)
     }
 
@@ -165,7 +168,7 @@ impl VariablesVisitor<'_, '_> {
     // with a location that requires that type.
     fn record_root_variable_usage(
         &mut self,
-        name: &WithLocation<StringKey>,
+        name: &WithLocation<VariableName>,
         type_: &TypeReference,
     ) {
         let schema = &self.program.schema;

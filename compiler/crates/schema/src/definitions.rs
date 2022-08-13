@@ -5,6 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashMap;
+use std::fmt;
+use std::hash::Hash;
+use std::slice::Iter;
+
+use common::DirectiveName;
 use common::Named;
 use common::NamedItem;
 use common::WithLocation;
@@ -13,10 +19,6 @@ use graphql_syntax::DirectiveLocation;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use std::collections::HashMap;
-use std::fmt;
-use std::hash::Hash;
-use std::slice::Iter;
 
 lazy_static! {
     static ref DIRECTIVE_DEPRECATED: StringKey = "deprecated".intern();
@@ -244,12 +246,18 @@ impl TypeReference {
 
 #[derive(Clone, Debug)]
 pub struct Directive {
-    pub name: StringKey,
+    pub name: DirectiveName,
     pub arguments: ArgumentDefinitions,
     pub locations: Vec<DirectiveLocation>,
     pub repeatable: bool,
     pub is_extension: bool,
     pub description: Option<StringKey>,
+}
+
+impl Named for Directive {
+    fn name(&self) -> StringKey {
+        self.name.0
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -356,7 +364,7 @@ pub struct ArgumentValue {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct DirectiveValue {
-    pub name: StringKey,
+    pub name: DirectiveName,
     pub arguments: Vec<ArgumentValue>,
 }
 
@@ -461,5 +469,9 @@ impl_named_for_with_location!(Enum);
 
 impl_named!(Argument);
 impl_named!(ArgumentValue);
-impl_named!(Directive);
-impl_named!(DirectiveValue);
+
+impl Named for DirectiveValue {
+    fn name(&self) -> StringKey {
+        self.name.0
+    }
+}

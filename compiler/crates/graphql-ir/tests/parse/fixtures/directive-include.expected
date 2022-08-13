@@ -16,14 +16,18 @@ fragment Foo on User {
         FragmentDefinition {
             name: WithLocation {
                 location: directive-include.graphql:9:21,
-                item: "TestFragment",
+                item: FragmentDefinitionName(
+                    "TestFragment",
+                ),
             },
             variable_definitions: [],
             used_global_variables: [
                 VariableDefinition {
                     name: WithLocation {
                         location: directive-include.graphql:133:138,
-                        item: "Cond",
+                        item: VariableName(
+                            "Cond",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -53,7 +57,9 @@ fragment Foo on User {
                         Variable {
                             name: WithLocation {
                                 location: directive-include.graphql:50:55,
-                                item: "Cond",
+                                item: VariableName(
+                                    "Cond",
+                                ),
                             },
                             type_: NonNull(
                                 Named(
@@ -90,7 +96,9 @@ fragment Foo on User {
                         Variable {
                             name: WithLocation {
                                 location: directive-include.graphql:84:89,
-                                item: "Cond",
+                                item: VariableName(
+                                    "Cond",
+                                ),
                             },
                             type_: NonNull(
                                 Named(
@@ -107,7 +115,9 @@ fragment Foo on User {
                         FragmentSpread {
                             fragment: WithLocation {
                                 location: directive-include.graphql:116:119,
-                                item: "Foo",
+                                item: FragmentDefinitionName(
+                                    "Foo",
+                                ),
                             },
                             arguments: [],
                             directives: [],
@@ -117,7 +127,9 @@ fragment Foo on User {
                         Variable {
                             name: WithLocation {
                                 location: directive-include.graphql:133:138,
-                                item: "Cond",
+                                item: VariableName(
+                                    "Cond",
+                                ),
                             },
                             type_: NonNull(
                                 Named(
@@ -136,7 +148,9 @@ fragment Foo on User {
         FragmentDefinition {
             name: WithLocation {
                 location: directive-include.graphql:152:155,
-                item: "Foo",
+                item: FragmentDefinitionName(
+                    "Foo",
+                ),
             },
             variable_definitions: [],
             used_global_variables: [],

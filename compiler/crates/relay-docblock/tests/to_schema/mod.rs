@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::DiagnosticsResult;
 use common::SourceLocationKey;
 use docblock_syntax::parse_docblock;
@@ -19,7 +21,6 @@ use relay_docblock::parse_docblock_ast;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
 use schema::SDLSchema;
-use std::sync::Arc;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();

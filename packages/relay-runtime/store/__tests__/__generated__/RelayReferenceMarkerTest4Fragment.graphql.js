@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<710797b72b1fd2074de80ff843de549f>>
+ * @generated SignedSource<<e4405825cde2a8a451a9c1605b636744>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +18,8 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type RelayReferenceMarkerTest2MarkdownUserNameRenderer_name$fragmentType = any;
-type RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType = any;
+import type { RelayReferenceMarkerTest2MarkdownUserNameRenderer_name$fragmentType } from "./RelayReferenceMarkerTest2MarkdownUserNameRenderer_name.graphql";
+import type { RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType } from "./RelayReferenceMarkerTest2PlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReferenceMarkerTest4Fragment$fragmentType: FragmentType;
 export type RelayReferenceMarkerTest4Fragment$data = {|

@@ -18,7 +18,9 @@ fragment ChildFragment on Query
         FragmentDefinition {
             name: WithLocation {
                 location: fragment-with-literal-enum-arguments.graphql:9:23,
-                item: "ParentFragment",
+                item: FragmentDefinitionName(
+                    "ParentFragment",
+                ),
             },
             variable_definitions: [],
             used_global_variables: [],
@@ -68,7 +70,9 @@ fragment ChildFragment on Query
                 FragmentSpread {
                     fragment: WithLocation {
                         location: fragment-with-literal-enum-arguments.graphql:108:121,
-                        item: "ChildFragment",
+                        item: FragmentDefinitionName(
+                            "ChildFragment",
+                        ),
                     },
                     arguments: [
                         Argument {
@@ -95,13 +99,17 @@ fragment ChildFragment on Query
         FragmentDefinition {
             name: WithLocation {
                 location: fragment-with-literal-enum-arguments.graphql:163:176,
-                item: "ChildFragment",
+                item: FragmentDefinitionName(
+                    "ChildFragment",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-literal-enum-arguments.graphql:209:220,
-                        item: "environment",
+                        item: VariableName(
+                            "environment",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -118,7 +126,9 @@ fragment ChildFragment on Query
                 Directive {
                     name: WithLocation {
                         location: fragment-with-literal-enum-arguments.graphql:189:208,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,
@@ -143,7 +153,9 @@ fragment ChildFragment on Query
                                     Variable {
                                         name: WithLocation {
                                             location: fragment-with-literal-enum-arguments.graphql:272:284,
-                                            item: "environment",
+                                            item: VariableName(
+                                                "environment",
+                                            ),
                                         },
                                         type_: Named(
                                             Enum(1),

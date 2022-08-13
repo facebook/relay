@@ -7,8 +7,6 @@
 
 mod connection_constants;
 mod connection_util;
-pub use relay_config::ConnectionInterface;
-
 pub use connection_constants::ConnectionConstants;
 pub use connection_util::assert_connection_selections;
 pub use connection_util::build_connection_metadata;
@@ -19,3 +17,4 @@ pub use connection_util::extract_connection_metadata_from_directive;
 pub use connection_util::get_default_filters;
 pub use connection_util::ConnectionMetadata;
 pub use connection_util::ConnectionMetadataDirective;
+pub use relay_config::ConnectionInterface;

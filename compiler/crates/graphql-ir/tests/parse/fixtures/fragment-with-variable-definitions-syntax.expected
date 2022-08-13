@@ -22,13 +22,17 @@ fragment Foo($localId: ID!) on User {
         FragmentDefinition {
             name: WithLocation {
                 location: fragment-with-variable-definitions-syntax.graphql:9:21,
-                item: "TestFragment",
+                item: FragmentDefinitionName(
+                    "TestFragment",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-variable-definitions-syntax.graphql:58:60,
-                        item: "id",
+                        item: VariableName(
+                            "id",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -41,7 +45,9 @@ fragment Foo($localId: ID!) on User {
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-variable-definitions-syntax.graphql:80:84,
-                        item: "size",
+                        item: VariableName(
+                            "size",
+                        ),
                     },
                     type_: List(
                         Named(
@@ -67,7 +73,9 @@ fragment Foo($localId: ID!) on User {
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-variable-definitions-syntax.graphql:152:164,
-                        item: "PictureSize",
+                        item: VariableName(
+                            "PictureSize",
+                        ),
                     },
                     type_: List(
                         Named(
@@ -83,7 +91,9 @@ fragment Foo($localId: ID!) on User {
                 Directive {
                     name: WithLocation {
                         location: fragment-with-variable-definitions-syntax.graphql:33:52,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,
@@ -108,7 +118,9 @@ fragment Foo($localId: ID!) on User {
                                     Variable {
                                         name: WithLocation {
                                             location: fragment-with-variable-definitions-syntax.graphql:152:164,
-                                            item: "PictureSize",
+                                            item: VariableName(
+                                                "PictureSize",
+                                            ),
                                         },
                                         type_: List(
                                             Named(
@@ -156,7 +168,9 @@ fragment Foo($localId: ID!) on User {
                                     Variable {
                                         name: WithLocation {
                                             location: fragment-with-variable-definitions-syntax.graphql:219:224,
-                                            item: "size",
+                                            item: VariableName(
+                                                "size",
+                                            ),
                                         },
                                         type_: List(
                                             Named(
@@ -184,7 +198,9 @@ fragment Foo($localId: ID!) on User {
                 FragmentSpread {
                     fragment: WithLocation {
                         location: fragment-with-variable-definitions-syntax.graphql:245:248,
-                        item: "Foo",
+                        item: FragmentDefinitionName(
+                            "Foo",
+                        ),
                     },
                     arguments: [
                         Argument {
@@ -198,7 +214,9 @@ fragment Foo($localId: ID!) on User {
                                     Variable {
                                         name: WithLocation {
                                             location: fragment-with-variable-definitions-syntax.graphql:269:272,
-                                            item: "id",
+                                            item: VariableName(
+                                                "id",
+                                            ),
                                         },
                                         type_: NonNull(
                                             Named(
@@ -219,13 +237,17 @@ fragment Foo($localId: ID!) on User {
         FragmentDefinition {
             name: WithLocation {
                 location: fragment-with-variable-definitions-syntax.graphql:286:289,
-                item: "Foo",
+                item: FragmentDefinitionName(
+                    "Foo",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-variable-definitions-syntax.graphql:290:298,
-                        item: "localId",
+                        item: VariableName(
+                            "localId",
+                        ),
                     },
                     type_: NonNull(
                         Named(

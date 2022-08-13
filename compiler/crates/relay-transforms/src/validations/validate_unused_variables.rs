@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::root_variables::InferVariablesVisitor;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -16,6 +15,8 @@ use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+
+use crate::root_variables::InferVariablesVisitor;
 
 pub fn validate_unused_variables(program: &Program) -> DiagnosticsResult<()> {
     ValidateUnusedVariables::new(program).validate_program(program)
@@ -57,7 +58,7 @@ impl Validator for ValidateUnusedVariables<'_> {
                 .map(|unused_variable| {
                     Diagnostic::error(
                         ValidationMessage::UnusedVariable {
-                            operation_name: operation.name.item,
+                            operation_name: operation.name.item.0,
                             variable_name: unused_variable.name.item,
                         },
                         unused_variable.name.location,
@@ -69,7 +70,7 @@ impl Validator for ValidateUnusedVariables<'_> {
             if let Some(directive) = ignore_directive {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::UnusedIgnoreUnusedVariablesDirective {
-                        operation_name: operation.name.item,
+                        operation_name: operation.name.item.0,
                     },
                     directive.name.location,
                 )]);

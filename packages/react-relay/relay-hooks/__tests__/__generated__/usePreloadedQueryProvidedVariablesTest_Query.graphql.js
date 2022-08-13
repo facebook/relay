@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<05e59adeaee6d948122fd5d1087b901e>>
+ * @generated SignedSource<<9996e78a7d5f670d8669fad140b58f43>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType = any;
+import type { usePreloadedQueryProvidedVariablesTest_Fragment$fragmentType } from "./usePreloadedQueryProvidedVariablesTest_Fragment.graphql";
 export type usePreloadedQueryProvidedVariablesTest_Query$variables = {|
   id: string,
 |};

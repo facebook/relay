@@ -1,0 +1,32 @@
+fragment inlineFragmentOnAbstractClientTypeNestedInResolverClientEdge_some_resolver on Query {
+  me {
+    __typename
+  }
+}
+
+query inlineFragmentOnAbstractClientTypeNestedInResolverClientEdgeQuery {
+  some_resolver {
+    # This client-defined inteface should cause us to attach metadata to the query
+    ... on SomeInterface {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+interface SomeInterface {
+  name: String
+}
+
+type ClientUser implements SomeInterface {
+  name: String
+}
+
+extend type Query {
+  some_resolver: ClientUser
+    @relay_resolver(
+      fragment_name: "inlineFragmentOnAbstractClientTypeNestedInResolverClientEdge_some_resolver"
+      import_path: "./foo/bar/baz/BestFriendResolver.js"
+    )
+}

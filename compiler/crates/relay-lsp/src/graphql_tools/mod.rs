@@ -14,8 +14,10 @@ use graphql_ir::build_ir_with_extra_features;
 use graphql_ir::BuilderOptions;
 use graphql_ir::ExecutableDefinition;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentVariablesSemantic;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_syntax::parse_executable_with_error_recovery;
@@ -30,13 +32,13 @@ use relay_transforms::CustomTransformsConfig;
 use relay_transforms::Programs;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::lsp_runtime_error::LSPRuntimeResult;
 use crate::server::GlobalState;
 use crate::server::LSPState;
 use crate::LSPRuntimeError;
-use serde::Deserialize;
-use serde::Serialize;
 
 pub(crate) enum GraphQLExecuteQuery {}
 
@@ -88,7 +90,7 @@ fn get_operation_only_program(
         next_program.insert_fragment(Arc::clone(fragment));
     }
 
-    let mut visited_fragments: HashSet<StringKey> = HashSet::default();
+    let mut visited_fragments: HashSet<FragmentDefinitionName> = HashSet::default();
 
     while !selections_to_visit.is_empty() {
         let current_selections = selections_to_visit.pop()?;
@@ -150,7 +152,9 @@ fn transform_program<TPerfLogger: PerfLogger + 'static>(
 }
 
 fn print_full_operation_text(programs: Programs, operation_name: StringKey) -> Option<String> {
-    let print_operation_node = programs.operation_text.operation(operation_name)?;
+    let print_operation_node = programs
+        .operation_text
+        .operation(OperationDefinitionName(operation_name))?;
 
     Some(print_full_operation(
         &programs.operation_text,
@@ -224,10 +228,10 @@ pub(crate) fn get_query_text<
 
     let result = parse_executable_with_error_recovery(&original_text, SourceLocationKey::Generated);
 
-    if !&result.errors.is_empty() {
+    if !&result.diagnostics.is_empty() {
         return Err(LSPRuntimeError::UnexpectedError(
             result
-                .errors
+                .diagnostics
                 .iter()
                 .map(|err| format!("- {}\n", err))
                 .collect::<String>(),
@@ -238,7 +242,7 @@ pub(crate) fn get_query_text<
         build_operation_ir_with_fragments(&result.item.definitions, schema)
             .map_err(LSPRuntimeError::UnexpectedError)?;
 
-    let operation_name = operation.name.item;
+    let operation_name = operation.name.item.0;
     let program = state.get_program(project_name)?;
 
     let query_text =

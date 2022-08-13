@@ -6,7 +6,10 @@
  */
 
 use common::DiagnosticDisplay;
+use common::DirectiveName;
 use common::WithDiagnosticData;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::VariableName;
 use intern::string_key::StringKey;
 use thiserror::Error;
 
@@ -26,12 +29,12 @@ pub enum ValidationMessage {
          if incompatible_directives.len() > 1 { "directives" } else { "directive" },
          incompatible_directives
              .iter()
-             .map(|directive| directive.lookup())
+             .map(|name| name.0.lookup())
              .collect::<Vec<_>>()
              .join("`, `"))
      ]
     IncompatibleRelayClientComponentDirectives {
-        incompatible_directives: Vec<StringKey>,
+        incompatible_directives: Vec<DirectiveName>,
     },
 
     #[error("@relay_client_component is not compatible with @arguments.")]
@@ -63,13 +66,15 @@ pub enum ValidationMessage {
     #[error(
         "The Relay Resolver backing this field is defined with an invalid `fragment_name`. Could not find a fragment named '{fragment_name}'."
     )]
-    InvalidRelayResolverFragmentName { fragment_name: StringKey },
+    InvalidRelayResolverFragmentName {
+        fragment_name: FragmentDefinitionName,
+    },
     #[error(
         "The usage of global variable `${variable_name}` is not supported in the Relay resolvers fragments. Please, add this variable to the `@argumentDefinitions` of the `{fragment_name}` fragment."
     )]
     UnsupportedGlobalVariablesInResolverFragment {
-        variable_name: StringKey,
-        fragment_name: StringKey,
+        variable_name: VariableName,
+        fragment_name: FragmentDefinitionName,
     },
 
     #[error(
@@ -97,7 +102,7 @@ pub enum ValidationMessage {
         "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. But the field '{actor_change_field}' does not exist on the type '{type_name}'. Please makes sure the GraphQL schema supports actor change on '{type_name}'."
     )]
     ActorChangeExpectViewerFieldOnType {
-        directive_name: StringKey,
+        directive_name: DirectiveName,
         actor_change_field: StringKey,
         field_name: StringKey,
         type_name: StringKey,
@@ -107,7 +112,7 @@ pub enum ValidationMessage {
         "The directive '{directive_name}' automatically adds '{actor_change_field}' to the selection of the field '{field_name}'. The field '{actor_change_field}' should be defined as a scalar field in the GraphQL Schema, but is defined with the type '{actor_change_field_type}' instead."
     )]
     ActorChangeViewerShouldBeScalar {
-        directive_name: StringKey,
+        directive_name: DirectiveName,
         actor_change_field: StringKey,
         field_name: StringKey,
         actor_change_field_type: StringKey,
@@ -116,7 +121,9 @@ pub enum ValidationMessage {
     #[error(
         "The '{fragment_name}' is transformed to use @no_inline implictly by `@module` or `@relay_client_component`, but it's also used in a regular fragment spread. It's required to explicitly add `@no_inline` to the definition of '{fragment_name}'."
     )]
-    RequiredExplicitNoInlineDirective { fragment_name: StringKey },
+    RequiredExplicitNoInlineDirective {
+        fragment_name: FragmentDefinitionName,
+    },
 
     #[error(
         "The `@relay_test_operation` directive is only allowed within test \
@@ -126,7 +133,7 @@ pub enum ValidationMessage {
     TestOperationOutsideTestDirectory { test_path_regex: String },
 
     #[error("Undefined fragment '{0}'")]
-    UndefinedFragment(StringKey),
+    UndefinedFragment(FragmentDefinitionName),
 
     #[error(
         "Each field on a given type can have only a single @module directive, but here there is more than one (perhaps within different spreads). To fix it, put each @module directive into its own aliased copy of the field with different aliases."
@@ -168,7 +175,7 @@ pub enum ValidationMessage {
     #[error(
         "Unexpected directive on Client Edge field. The `@{directive_name}` directive is not currently supported on fields backed by Client Edges."
     )]
-    ClientEdgeUnsupportedDirective { directive_name: StringKey },
+    ClientEdgeUnsupportedDirective { directive_name: DirectiveName },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

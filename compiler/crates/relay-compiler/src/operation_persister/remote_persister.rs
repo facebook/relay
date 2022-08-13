@@ -5,14 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::config::ArtifactForPersister;
+use std::iter::empty;
+
 use async_trait::async_trait;
 use persist_query::persist;
 use persist_query::PersistError;
 use relay_config::RemotePersistConfig;
-use std::iter::empty;
 use tokio::sync::Semaphore;
 
+use crate::config::ArtifactForPersister;
 use crate::OperationPersister;
 
 pub struct RemotePersister {

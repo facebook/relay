@@ -5,6 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
+use std::fmt;
+
 use graphql_ir::*;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
@@ -12,9 +16,6 @@ use intern::string_key::StringKeySet;
 use relay_transforms::get_resolver_fragment_name;
 use schema::SDLSchema;
 use schema::Schema;
-use std::collections::hash_map::Entry;
-use std::collections::HashMap;
-use std::fmt;
 
 struct Node {
     ir: Option<ExecutableDefinition>,
@@ -88,8 +89,8 @@ fn build_dependency_graph(
 
     for definition in definitions.into_iter() {
         let name = match &definition {
-            ExecutableDefinition::Operation(operation) => operation.name.item,
-            ExecutableDefinition::Fragment(fragment) => fragment.name.item,
+            ExecutableDefinition::Operation(operation) => operation.name.item.0,
+            ExecutableDefinition::Fragment(fragment) => fragment.name.item.0,
         };
 
         // Visit the selections of the IR to build it's `children`
@@ -170,7 +171,7 @@ fn visit_selections(
     for selection in selections {
         match selection {
             Selection::FragmentSpread(node) => {
-                let current_node = node.fragment.item;
+                let current_node = node.fragment.item.0;
                 update_dependecy_graph(current_node, parent_name, dependency_graph, children);
             }
             Selection::InlineFragment(node) => {
@@ -186,7 +187,12 @@ fn visit_selections(
                 if let Some(fragment_name) =
                     get_resolver_fragment_name(schema.field(linked_field.definition.item))
                 {
-                    update_dependecy_graph(fragment_name, parent_name, dependency_graph, children);
+                    update_dependecy_graph(
+                        fragment_name.0,
+                        parent_name,
+                        dependency_graph,
+                        children,
+                    );
                 }
                 visit_selections(
                     schema,
@@ -200,7 +206,12 @@ fn visit_selections(
                 if let Some(fragment_name) =
                     get_resolver_fragment_name(schema.field(scalar_field.definition.item))
                 {
-                    update_dependecy_graph(fragment_name, parent_name, dependency_graph, children);
+                    update_dependecy_graph(
+                        fragment_name.0,
+                        parent_name,
+                        dependency_graph,
+                        children,
+                    );
                 }
             }
             Selection::Condition(node) => {

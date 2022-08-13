@@ -5,6 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
+use common::sync::try_join;
+use common::DiagnosticsResult;
+use common::PerfLogEvent;
+use common::PerfLogger;
+use graphql_ir::FragmentDefinitionNameSet;
+use graphql_ir::Program;
+use relay_config::ProjectConfig;
+
 use super::*;
 use crate::apply_custom_transforms::apply_after_custom_transforms;
 use crate::apply_custom_transforms::apply_before_custom_transforms;
@@ -13,15 +23,9 @@ use crate::assignable_fragment_spread::annotate_updatable_fragment_spreads;
 use crate::assignable_fragment_spread::replace_updatable_fragment_spreads;
 use crate::client_extensions_abstract_types::client_extensions_abstract_types;
 use crate::disallow_non_node_id_fields;
+use crate::generate_relay_resolvers_self_fragment::generate_relay_resolvers_self_fragment;
 use crate::match_::hash_supported_argument;
-use common::sync::try_join;
-use common::DiagnosticsResult;
-use common::PerfLogEvent;
-use common::PerfLogger;
-use graphql_ir::Program;
-use intern::string_key::StringKeySet;
-use relay_config::ProjectConfig;
-use std::sync::Arc;
+use crate::skip_updatable_queries::skip_updatable_queries;
 
 #[derive(Debug)]
 pub struct Programs {
@@ -35,7 +39,7 @@ pub struct Programs {
 pub fn apply_transforms<TPerfLogger>(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<TPerfLogger>,
     print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
@@ -132,7 +136,7 @@ where
 fn apply_common_transforms(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
@@ -190,6 +194,10 @@ fn apply_common_transforms(
         provided_variable_fragment_transform(&program)
     })?;
 
+    program = log_event.time("generate_relay_resolvers_self_fragment", || {
+        generate_relay_resolvers_self_fragment(&program)
+    });
+
     program = apply_after_custom_transforms(
         &program,
         custom_transforms,
@@ -209,7 +217,7 @@ fn apply_common_transforms(
 fn apply_reader_transforms(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
@@ -291,7 +299,7 @@ fn apply_reader_transforms(
 fn apply_operation_transforms(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
@@ -308,6 +316,10 @@ fn apply_operation_transforms(
         None,
     )?;
 
+    program = log_event.time("skip_updatable_queries", || {
+        skip_updatable_queries(&program)
+    });
+
     program = log_event.time("client_edges", || {
         client_edges(&program, &project_config.schema_config)
     })?;
@@ -316,10 +328,6 @@ fn apply_operation_transforms(
             &program,
             project_config.feature_flags.enable_relay_resolver_transform,
         )
-    })?;
-
-    program = log_event.time("remove_client_edge_selections", || {
-        remove_client_edge_selections(&program)
     })?;
 
     program = log_event.time("split_module_import", || {
@@ -366,7 +374,7 @@ fn apply_operation_transforms(
 fn apply_normalization_transforms(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     maybe_print_stats: Option<fn(extra_info: &str, program: &Program) -> ()>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
@@ -400,6 +408,22 @@ fn apply_normalization_transforms(
         print_stats("apply_fragment_arguments", &program);
     }
 
+    program = log_event.time("client_extensions_abstract_types", || {
+        client_extensions_abstract_types(&program)
+    });
+
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("client_extensions_abstract_types", &program);
+    }
+
+    program = log_event.time("remove_client_edge_selections", || {
+        remove_client_edge_selections(&program)
+    })?;
+
+    if let Some(print_stats) = maybe_print_stats {
+        print_stats("remove_client_edge_selections", &program);
+    }
+
     program = log_event.time("replace_updatable_fragment_spreads", || {
         replace_updatable_fragment_spreads(&program)
     });
@@ -417,10 +441,6 @@ fn apply_normalization_transforms(
     if let Some(print_stats) = maybe_print_stats {
         print_stats("skip_unreachable_node", &program);
     }
-
-    program = log_event.time("client_extnsions_abstract_types", || {
-        client_extensions_abstract_types(&program)
-    });
 
     program = log_event.time("inline_fragments", || inline_fragments(&program));
     if let Some(print_stats) = maybe_print_stats {
@@ -475,7 +495,7 @@ fn apply_normalization_transforms(
 fn apply_operation_text_transforms(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
@@ -501,6 +521,11 @@ fn apply_operation_text_transforms(
             &base_fragment_names,
         )
     })?;
+
+    program = log_event.time("remove_client_edge_selections", || {
+        remove_client_edge_selections(&program)
+    })?;
+
     log_event.time("validate_global_variables", || {
         validate_global_variables(&program)
     })?;
@@ -560,7 +585,7 @@ fn apply_operation_text_transforms(
 fn apply_typegen_transforms(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger>,
     custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> DiagnosticsResult<Arc<Program>> {
@@ -596,6 +621,9 @@ fn apply_typegen_transforms(
         transform_subscriptions(&program)
     })?;
     program = log_event.time("required_directive", || required_directive(&program))?;
+    program = log_event.time("generate_relay_resolvers_self_fragment", || {
+        generate_relay_resolvers_self_fragment(&program)
+    });
     program = log_event.time("client_edges", || {
         client_edges(&program, &project_config.schema_config)
     })?;

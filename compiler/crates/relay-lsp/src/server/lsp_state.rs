@@ -5,21 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::diagnostic_reporter::DiagnosticReporter;
-use crate::docblock_resolution_info::create_docblock_resolution_info;
-use crate::graphql_tools::get_query_text;
-use crate::js_language_server::JSLanguageServer;
-use crate::lsp_runtime_error::LSPRuntimeResult;
-use crate::node_resolution_info::create_node_resolution_info;
-use crate::utils::extract_executable_definitions_from_text_document;
-use crate::utils::extract_feature_from_text;
-use crate::utils::extract_project_name_from_url;
-use crate::ContentConsumerType;
-use crate::DocblockNode;
-use crate::Feature;
-use crate::FeatureResolutionInfo;
-use crate::LSPExtraDataProvider;
-use crate::LSPRuntimeError;
+use std::path::PathBuf;
+use std::sync::Arc;
+
 use common::convert_diagnostic;
 use common::PerfLogger;
 use common::SourceLocationKey;
@@ -55,11 +43,24 @@ use schema::SDLSchema;
 use schema_documentation::CombinedSchemaDocumentation;
 use schema_documentation::SchemaDocumentation;
 use schema_documentation::SchemaDocumentationLoader;
-use std::path::PathBuf;
-use std::sync::Arc;
 use tokio::sync::Notify;
 
 use super::task_queue::TaskScheduler;
+use crate::diagnostic_reporter::DiagnosticReporter;
+use crate::docblock_resolution_info::create_docblock_resolution_info;
+use crate::graphql_tools::get_query_text;
+use crate::js_language_server::JSLanguageServer;
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::node_resolution_info::create_node_resolution_info;
+use crate::utils::extract_executable_definitions_from_text_document;
+use crate::utils::extract_feature_from_text;
+use crate::utils::extract_project_name_from_url;
+use crate::ContentConsumerType;
+use crate::DocblockNode;
+use crate::Feature;
+use crate::FeatureResolutionInfo;
+use crate::LSPExtraDataProvider;
+use crate::LSPRuntimeError;
 
 pub type Schemas = Arc<DashMap<StringKey, Arc<SDLSchema>, FnvBuildHasher>>;
 pub type SourcePrograms = Arc<DashMap<StringKey, Program, FnvBuildHasher>>;
@@ -235,7 +236,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         &graphql_source.text_source().text,
                         source_location_key,
                     );
-                    diagnostics.extend(result.errors.iter().map(|diagnostic| {
+                    diagnostics.extend(result.diagnostics.iter().map(|diagnostic| {
                         convert_diagnostic(graphql_source.text_source(), diagnostic)
                     }));
 

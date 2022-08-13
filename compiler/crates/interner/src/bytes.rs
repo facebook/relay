@@ -5,9 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::types::Intern;
-use crate::types::RawInternKey;
 use core::cmp::Ordering;
+use std::fmt;
+use std::num::NonZeroU32;
+use std::str::FromStr;
+use std::sync::Arc;
+
 use fnv::FnvHashMap;
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
@@ -15,10 +18,9 @@ use serde::Deserialize;
 use serde::Deserializer;
 use serde::Serialize;
 use serde::Serializer;
-use std::fmt;
-use std::num::NonZeroU32;
-use std::str::FromStr;
-use std::sync::Arc;
+
+use crate::types::Intern;
+use crate::types::RawInternKey;
 
 /// Slices of bytes intern as BytesKey
 impl Intern for &[u8] {

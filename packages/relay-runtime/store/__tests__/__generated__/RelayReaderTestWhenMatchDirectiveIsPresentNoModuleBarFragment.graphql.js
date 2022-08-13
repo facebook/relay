@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e44e92daa82984a3392788090443b90b>>
+ * @generated SignedSource<<e93948303a464c24c2dd8bb050b433d9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +18,8 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType = any;
-type RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType = any;
+import type { RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$fragmentType } from "./RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name.graphql";
+import type { RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$fragmentType } from "./RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType: FragmentType;
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$data = {|

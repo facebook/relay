@@ -5,15 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::SourceLocationKey;
+use graphql_syntax::*;
+use intern::string_key::StringKey;
+
 use crate::definitions::Directive;
 use crate::definitions::*;
 use crate::flatbuffer::SchemaWrapper;
 use crate::graphql_schema::Schema;
 use crate::in_memory::InMemorySchema;
-use common::DiagnosticsResult;
-use common::SourceLocationKey;
-use graphql_syntax::*;
-use intern::string_key::StringKey;
 
 #[derive(Debug)]
 pub enum SDLSchema {
@@ -85,7 +87,7 @@ impl Schema for SDLSchema {
         }
     }
 
-    fn get_directive(&self, name: StringKey) -> Option<&Directive> {
+    fn get_directive(&self, name: DirectiveName) -> Option<&Directive> {
         match self {
             SDLSchema::FlatBuffer(schema) => schema.get_directive(name),
             SDLSchema::InMemory(schema) => schema.get_directive(name),
@@ -309,7 +311,7 @@ impl SDLSchema {
         }
     }
 
-    pub fn get_directive_mut(&mut self, name: StringKey) -> Option<&mut Directive> {
+    pub fn get_directive_mut(&mut self, name: DirectiveName) -> Option<&mut Directive> {
         match self {
             SDLSchema::FlatBuffer(_schema) => todo!(),
             SDLSchema::InMemory(schema) => schema.get_directive_mut(name),
@@ -366,7 +368,14 @@ impl SDLSchema {
         }
     }
 
-    pub fn has_directive(&self, directive_name: StringKey) -> bool {
+    pub fn get_unions(&self) -> impl Iterator<Item = &Union> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::InMemory(schema) => schema.get_unions(),
+        }
+    }
+
+    pub fn has_directive(&self, directive_name: DirectiveName) -> bool {
         match self {
             SDLSchema::FlatBuffer(_schema) => todo!(),
             SDLSchema::InMemory(schema) => schema.has_directive(directive_name),

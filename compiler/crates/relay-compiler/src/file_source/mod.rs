@@ -16,20 +16,24 @@ mod walk_dir_file_source;
 mod watchman_file_source;
 mod watchman_query_builder;
 
-use crate::compiler_state::CompilerState;
-use crate::config::Config;
-use crate::config::FileSourceKind;
-use crate::errors::Error;
-use crate::errors::Result;
+use std::path::PathBuf;
+
 use common::PerfLogEvent;
 use common::PerfLogger;
+use external_file_source::ExternalFileSource;
+pub use file_categorizer::categorize_files;
+pub use file_categorizer::FileCategorizer;
+pub use file_group::FileGroup;
 use graphql_watchman::WatchmanFileSourceResult;
 use graphql_watchman::WatchmanFileSourceSubscription;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
 use log::warn;
+pub use read_file_to_string::read_file_to_string;
 use serde::Deserialize;
 use serde_bser::value::Value;
-use std::path::PathBuf;
+pub use source_control_update_status::SourceControlUpdateStatus;
+pub use watchman_client::prelude::Clock;
+use watchman_file_source::WatchmanFileSource;
 
 use self::external_file_source::ExternalFileSourceResult;
 pub use self::extract_graphql::extract_javascript_features_from_file;
@@ -41,14 +45,11 @@ pub use self::extract_graphql::LocatedJavascriptSourceFeatures;
 pub use self::extract_graphql::SourceReader;
 use self::walk_dir_file_source::WalkDirFileSource;
 use self::walk_dir_file_source::WalkDirFileSourceResult;
-use external_file_source::ExternalFileSource;
-pub use file_categorizer::categorize_files;
-pub use file_categorizer::FileCategorizer;
-pub use file_group::FileGroup;
-pub use read_file_to_string::read_file_to_string;
-pub use source_control_update_status::SourceControlUpdateStatus;
-pub use watchman_client::prelude::Clock;
-use watchman_file_source::WatchmanFileSource;
+use crate::compiler_state::CompilerState;
+use crate::config::Config;
+use crate::config::FileSourceKind;
+use crate::errors::Error;
+use crate::errors::Result;
 
 pub enum FileSource<'config> {
     Watchman(WatchmanFileSource<'config>),

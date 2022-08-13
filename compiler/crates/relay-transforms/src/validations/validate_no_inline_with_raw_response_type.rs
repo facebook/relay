@@ -5,9 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::no_inline::is_raw_response_type_enabled;
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use crate::no_inline::RAW_RESPONSE_TYPE_NAME;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -16,11 +13,15 @@ use common::SourceLocationKey;
 use common::Span;
 use errors::validate_map;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::FragmentSpread;
 use graphql_ir::Program;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
-use intern::string_key::StringKeySet;
+
+use crate::no_inline::is_raw_response_type_enabled;
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use crate::no_inline::RAW_RESPONSE_TYPE_NAME;
 
 /// To generate full raw response types, we need to also generate raw response types for
 /// @no_inline fragment normalization files. So raw_response_type argument is required
@@ -33,7 +34,7 @@ pub fn validate_no_inline_fragments_with_raw_response_type(
 }
 
 struct NoInlineRawResponseTypeValidator<'a> {
-    validated: StringKeySet,
+    validated: FragmentDefinitionNameSet,
     program: &'a Program,
     current_query_location: Location,
 }
@@ -69,7 +70,7 @@ impl<'a> Validator for NoInlineRawResponseTypeValidator<'a> {
     }
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
-        if let Some(directive) = fragment.directives.named(*NO_INLINE_DIRECTIVE_NAME) {
+        if let Some(directive) = fragment.directives.named(NO_INLINE_DIRECTIVE_NAME.0) {
             if !is_raw_response_type_enabled(directive) {
                 return Err(vec![
                     Diagnostic::error(

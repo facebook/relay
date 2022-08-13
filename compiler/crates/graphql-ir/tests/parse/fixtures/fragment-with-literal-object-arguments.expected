@@ -18,7 +18,9 @@ fragment ChildFragment on Query
         FragmentDefinition {
             name: WithLocation {
                 location: fragment-with-literal-object-arguments.graphql:9:23,
-                item: "ParentFragment",
+                item: FragmentDefinitionName(
+                    "ParentFragment",
+                ),
             },
             variable_definitions: [],
             used_global_variables: [],
@@ -81,7 +83,9 @@ fragment ChildFragment on Query
                 FragmentSpread {
                     fragment: WithLocation {
                         location: fragment-with-literal-object-arguments.graphql:120:133,
-                        item: "ChildFragment",
+                        item: FragmentDefinitionName(
+                            "ChildFragment",
+                        ),
                     },
                     arguments: [
                         Argument {
@@ -121,13 +125,17 @@ fragment ChildFragment on Query
         FragmentDefinition {
             name: WithLocation {
                 location: fragment-with-literal-object-arguments.graphql:180:193,
-                item: "ChildFragment",
+                item: FragmentDefinitionName(
+                    "ChildFragment",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-literal-object-arguments.graphql:226:231,
-                        item: "query",
+                        item: VariableName(
+                            "query",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -144,7 +152,9 @@ fragment ChildFragment on Query
                 Directive {
                     name: WithLocation {
                         location: fragment-with-literal-object-arguments.graphql:206:225,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,
@@ -169,7 +179,9 @@ fragment ChildFragment on Query
                                     Variable {
                                         name: WithLocation {
                                             location: fragment-with-literal-object-arguments.graphql:294:300,
-                                            item: "query",
+                                            item: VariableName(
+                                                "query",
+                                            ),
                                         },
                                         type_: Named(
                                             InputObject(16),

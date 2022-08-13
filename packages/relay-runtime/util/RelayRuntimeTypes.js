@@ -117,6 +117,7 @@ declare export opaque type Query<
 declare export opaque type ClientQuery<
   -TVariables: Variables,
   +TData,
+  TRawResponse = void,
 >: ClientRequest;
 
 /**

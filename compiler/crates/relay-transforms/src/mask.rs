@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::relay_directive::RelayDirective;
+use std::ops::RangeFull;
+use std::sync::Arc;
+
 use common::Location;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentSpread;
@@ -17,11 +19,12 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
 use indexmap::map::Entry;
-use intern::string_key::StringKeyIndexMap;
+use indexmap::IndexMap;
 use schema::Schema;
-use std::ops::RangeFull;
-use std::sync::Arc;
+
+use crate::relay_directive::RelayDirective;
 
 /// Transform to inline fragment spreads with @relay(mask:false)
 pub fn mask(program: &Program) -> Program {
@@ -31,7 +34,7 @@ pub fn mask(program: &Program) -> Program {
         .replace_or_else(|| program.clone())
 }
 
-type JoinedArguments<'s> = StringKeyIndexMap<&'s VariableDefinition>;
+type JoinedArguments<'s> = IndexMap<VariableName, &'s VariableDefinition>;
 
 struct Mask<'s> {
     program: &'s Program,

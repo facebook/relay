@@ -1,4 +1,5 @@
 .nvmrc
+.yarnrc
 node_modules
 npm-debug.log
 /compiler/target

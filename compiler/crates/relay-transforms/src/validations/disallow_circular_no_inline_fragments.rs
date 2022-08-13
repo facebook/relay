@@ -5,18 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Validator;
-use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
 use thiserror::Error;
+
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
 
 pub fn disallow_circular_no_inline_fragments(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = DisallowCircularNoInlineFragments::new(program);
@@ -29,7 +30,7 @@ enum FragmentStatus {
 
 struct DisallowCircularNoInlineFragments<'program> {
     program: &'program Program,
-    fragments: StringKeyMap<FragmentStatus>,
+    fragments: FragmentDefinitionNameMap<FragmentStatus>,
 }
 
 impl<'program> DisallowCircularNoInlineFragments<'program> {
@@ -64,7 +65,7 @@ impl Validator for DisallowCircularNoInlineFragments<'_> {
             Some(FragmentStatus::Visiting) => {
                 if fragment
                     .directives
-                    .named(*NO_INLINE_DIRECTIVE_NAME)
+                    .named(NO_INLINE_DIRECTIVE_NAME.0)
                     .is_some()
                 {
                     Err(vec![Diagnostic::error(
@@ -89,5 +90,7 @@ impl Validator for DisallowCircularNoInlineFragments<'_> {
 #[derive(Debug, Error)]
 enum ValidationMessage {
     #[error("Found a circular reference from fragment '{fragment_name}'.")]
-    CircularFragmentReference { fragment_name: StringKey },
+    CircularFragmentReference {
+        fragment_name: FragmentDefinitionName,
+    },
 }

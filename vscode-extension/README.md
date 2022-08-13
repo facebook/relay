@@ -76,4 +76,4 @@ We do not support running multiple instances of the LSP at once. We currently us
 
 ## Credits
 
-- [`vscode-graphql`](https://github.com/graphql/graphiql/tree/main/packages/vscode-graphql). All of the grammars for syntax highlighting were taken directly from vscode-graphql.
+- [GraphQL Syntax](https://marketplace.visualstudio.com/items?itemName=GraphQL.vscode-graphql-syntax) All of the GraphQL syntax highlighting is supported by this extension.

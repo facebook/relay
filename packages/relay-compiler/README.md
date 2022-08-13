@@ -107,6 +107,10 @@ file sources, and "listen" to the file changes in the "watch" mode. If
   [string]
 - `jsModuleFormat` Formatting style for generated files. `commonjs` or `haste`.
   Default is `commonjs`. [string]
+- `diagnosticReportConfig` Options for configuring the output of compiler
+  diagnostics. [object]
+  - `criticalLevel` The severity level of diagnostics that will cause the
+    compiler to error out on. ["error" | "warning" | "info"]
 
 ### CLI Arguments
 

@@ -6,18 +6,20 @@
  */
 
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::OperationDefinition;
-
 use graphql_ir::Program;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
-use intern::string_key::StringKeySet;
 
 /// This transform removes the given list of base fragments from the Program.
 /// This is useful if earlier steps need access to fragments from some base
 /// project, but we don't want to write output files for them and can skip over
 /// some transform steps.
-pub fn remove_base_fragments(program: &Program, base_fragment_names: &StringKeySet) -> Program {
+pub fn remove_base_fragments(
+    program: &Program,
+    base_fragment_names: &FragmentDefinitionNameSet,
+) -> Program {
     if base_fragment_names.is_empty() {
         // Nothing to remove.
         return program.clone();
@@ -31,7 +33,7 @@ pub fn remove_base_fragments(program: &Program, base_fragment_names: &StringKeyS
 }
 
 struct StripBaseFragmentsTransform<'a> {
-    base_fragment_names: &'a StringKeySet,
+    base_fragment_names: &'a FragmentDefinitionNameSet,
 }
 
 impl<'a> Transformer for StripBaseFragmentsTransform<'a> {

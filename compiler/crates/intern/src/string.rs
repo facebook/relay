@@ -5,15 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::idhasher::BuildIdHasher;
-use crate::intern::InternId;
-use crate::intern::InternSerdes;
-use crate::intern_struct;
-use crate::small_bytes::SmallBytes;
-#[doc(hidden)]
-pub use once_cell::sync::Lazy; // For macros
-use serde_derive::Deserialize;
-use serde_derive::Serialize;
 use std::borrow::Borrow;
 use std::borrow::Cow;
 use std::cmp::Ordering;
@@ -24,6 +15,17 @@ use std::fmt::Formatter;
 use std::hash::Hash;
 use std::str::FromStr;
 use std::str::Utf8Error;
+
+#[doc(hidden)]
+pub use once_cell::sync::Lazy; // For macros
+use serde_derive::Deserialize;
+use serde_derive::Serialize;
+
+use crate::idhasher::BuildIdHasher;
+use crate::intern::InternId;
+use crate::intern::InternSerdes;
+use crate::intern_struct;
+use crate::small_bytes::SmallBytes;
 
 intern_struct! {
     /// An opaque token corresponding to an interned &[u8].
@@ -374,13 +376,14 @@ mod tests {
 
     #[test]
     fn multithreaded() {
-        use rand::thread_rng;
-        use rand::Rng;
         use std::sync::atomic::AtomicU32;
         use std::sync::atomic::Ordering;
         use std::sync::Arc;
         use std::thread;
         use std::u32;
+
+        use rand::thread_rng;
+        use rand::Rng;
 
         // Load test lots of threads creating strings, with load
         // gradually getting heavier on later (popular) strings.

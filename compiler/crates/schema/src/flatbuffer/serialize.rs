@@ -8,6 +8,17 @@
 #![deny(warnings)]
 #![deny(clippy::all)]
 
+use std::collections::BTreeMap;
+
+use flatbuffers::FlatBufferBuilder;
+use flatbuffers::WIPOffset;
+use fnv::FnvHashMap;
+use graphql_syntax::ConstantArgument;
+use graphql_syntax::ConstantValue;
+use graphql_syntax::DirectiveLocation;
+use graphql_syntax::List;
+use intern::string_key::StringKey;
+
 use crate::in_memory::InMemorySchema;
 use crate::Argument;
 use crate::ArgumentDefinitions;
@@ -25,15 +36,6 @@ use crate::Schema;
 use crate::Type;
 use crate::TypeReference;
 use crate::UnionID;
-use flatbuffers::FlatBufferBuilder;
-use flatbuffers::WIPOffset;
-use fnv::FnvHashMap;
-use graphql_syntax::ConstantArgument;
-use graphql_syntax::ConstantValue;
-use graphql_syntax::DirectiveLocation;
-use graphql_syntax::List;
-use intern::string_key::StringKey;
-use std::collections::BTreeMap;
 
 pub fn serialize_as_flatbuffer(schema: &InMemorySchema) -> Vec<u8> {
     let mut serializer = Serializer::new(schema);
@@ -138,7 +140,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
     }
 
     fn serialize_directive(&mut self, directive: &Directive) {
-        let name = directive.name.lookup();
+        let name = directive.name.0.lookup();
         if self.directives.contains_key(name) {
             return;
         }
@@ -458,7 +460,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
     ) -> WIPOffset<schema_flatbuffer::DirectiveValue<'fb>> {
         let argument_values = &self.serialize_argument_values(&directive.arguments);
         let args = schema_flatbuffer::DirectiveValueArgs {
-            name: Some(self.bldr.create_string(directive.name.lookup())),
+            name: Some(self.bldr.create_string(directive.name.0.lookup())),
             arguments: Some(self.bldr.create_vector(argument_values)),
         };
         schema_flatbuffer::DirectiveValue::create(&mut self.bldr, &args)

@@ -5,12 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::io::Error as IOError;
+
 use crossbeam::channel::SendError;
 use lsp_server::Message;
 use lsp_server::ProtocolError;
 use relay_compiler::errors::Error as CompilerError;
 use serde_json::Error as SerdeError;
-use std::io::Error as IOError;
 use tokio::task::JoinError;
 
 pub type LSPProcessResult<T> = std::result::Result<T, LSPProcessError>;

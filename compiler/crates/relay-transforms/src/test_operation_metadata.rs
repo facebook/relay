@@ -5,11 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::create_metadata_directive;
-use crate::ValidationMessage;
-use crate::DIRECTIVE_SPLIT_OPERATION;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::ConstantArgument;
@@ -17,6 +15,7 @@ use graphql_ir::ConstantValue;
 use graphql_ir::Field as IrField;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
@@ -32,8 +31,13 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
+use crate::create_metadata_directive;
+use crate::ValidationMessage;
+use crate::DIRECTIVE_SPLIT_OPERATION;
+
 lazy_static! {
-    static ref TEST_OPERATION_DIRECTIVE: StringKey = "relay_test_operation".intern();
+    static ref TEST_OPERATION_DIRECTIVE: DirectiveName =
+        DirectiveName("relay_test_operation".intern());
     static ref TEST_OPERATION_METADATA_KEY: StringKey = "relayTestingSelectionTypeInfo".intern();
     static ref ENUM_VALUES_KEY: StringKey = "enumValues".intern();
     static ref NULLABLE_KEY: StringKey = "nullable".intern();
@@ -87,7 +91,7 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         if let Some(test_operation_directive) =
-            operation.directives.named(*TEST_OPERATION_DIRECTIVE)
+            operation.directives.named(TEST_OPERATION_DIRECTIVE.0)
         {
             if let Some(test_path_regex) = self.test_path_regex {
                 if !test_path_regex.is_match(operation.name.location.source_location().path()) {
@@ -247,14 +251,15 @@ impl RelayTestOperationMetadata {
                         }
                         Selection::FragmentSpread(spread) => {
                             // Must be a shared normalization fragment
-                            let operation =
-                                program.operation(spread.fragment.item).unwrap_or_else(|| {
+                            let operation = program
+                                .operation(OperationDefinitionName(spread.fragment.item.0))
+                                .unwrap_or_else(|| {
                                     panic!("Expected fragment '{}' to exist.", spread.fragment.item)
                                 });
                             assert!(
                                 operation
                                     .directives
-                                    .named(*DIRECTIVE_SPLIT_OPERATION)
+                                    .named(DIRECTIVE_SPLIT_OPERATION.0)
                                     .is_some(),
                                 "Expected normalization fragment spreads to reference shared normalization asts (SplitOperation)"
                             );

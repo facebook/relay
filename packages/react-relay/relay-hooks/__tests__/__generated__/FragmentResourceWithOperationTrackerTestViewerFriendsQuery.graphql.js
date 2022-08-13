@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<94f7ef1248eb0387a9debc52fc738752>>
+ * @generated SignedSource<<b3f527c066fc2b1cca5bd1c83866365a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type FragmentResourceWithOperationTrackerTestUserFragment$fragmentType = any;
+import type { FragmentResourceWithOperationTrackerTestUserFragment$fragmentType } from "./FragmentResourceWithOperationTrackerTestUserFragment.graphql";
 export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery$variables = {||};
 export type FragmentResourceWithOperationTrackerTestViewerFriendsQuery$data = {|
   +viewer: ?{|

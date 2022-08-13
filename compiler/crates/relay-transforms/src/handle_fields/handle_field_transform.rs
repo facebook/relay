@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::extract_values_from_handle_field_directive;
-use crate::extract_handle_field_directives;
+use std::sync::Arc;
+
 use common::Location;
 use common::WithLocation;
 use graphql_ir::Argument;
@@ -18,7 +18,9 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use intern::string_key::Intern;
-use std::sync::Arc;
+
+use super::extract_values_from_handle_field_directive;
+use crate::extract_handle_field_directives;
 
 /// This transform applies field argument updates for client handle fields:
 /// - If filters is not set, existing arguments are removed.

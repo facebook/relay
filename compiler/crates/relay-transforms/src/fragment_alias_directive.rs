@@ -165,7 +165,7 @@ impl Transformer for FragmentAliasTransform<'_> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.document_name = Some(fragment.name.item);
+        self.document_name = Some(fragment.name.item.0);
         self.parent_type = Some(fragment.type_condition);
         let transformed = self.default_transform_fragment(fragment);
         self.parent_type = None;
@@ -177,7 +177,7 @@ impl Transformer for FragmentAliasTransform<'_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = Some(operation.name.item);
+        self.document_name = Some(operation.name.item.0);
         self.parent_type = Some(operation.type_);
         let transformed = self.default_transform_operation(operation);
         self.parent_type = None;
@@ -227,7 +227,7 @@ impl Transformer for FragmentAliasTransform<'_> {
                 .expect("I believe we have already validated that all fragments exist")
                 .type_condition,
         );
-        let get_default_name = || Some(spread.fragment.item);
+        let get_default_name = || Some(spread.fragment.item.0);
         self.transform_alias_directives(&spread.directives, type_condition, get_default_name)
             .map(|directives| {
                 Selection::FragmentSpread(Arc::new(FragmentSpread {

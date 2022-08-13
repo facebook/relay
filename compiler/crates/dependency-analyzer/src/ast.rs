@@ -5,8 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentDefinitionNameMap;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_syntax::*;
-use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
 
@@ -16,7 +18,7 @@ pub struct ReachableAst {
     /// reachable from the project definitions.
     pub definitions: Vec<ExecutableDefinition>,
     /// The fragment names added from the base definitions.
-    pub base_fragment_names: StringKeySet,
+    pub base_fragment_names: FragmentDefinitionNameSet,
 }
 
 /// Get all definitions that reachable from project defintions
@@ -32,14 +34,15 @@ pub fn get_reachable_ast(
     }
 
     let mut reachable_base_asts = Default::default();
-    let mut base_definitions_map: StringKeyMap<ExecutableDefinition> = Default::default();
+    let mut base_definitions_map: FragmentDefinitionNameMap<ExecutableDefinition> =
+        Default::default();
 
     // Preprocess all base fragment definitions
     // Skipping operations because project definitions can't reference base operations
     for base_definition in base_definitions {
         match &base_definition {
             ExecutableDefinition::Fragment(fragment) => {
-                let name = fragment.name.value;
+                let name = FragmentDefinitionName(fragment.name.value);
                 assert!(
                     base_definitions_map.insert(name, base_definition).is_none(),
                     "get_reachable_ast called on graph with duplicate definition of `{}`",
@@ -111,19 +114,20 @@ pub fn get_definition_references<'a>(
 }
 
 fn visit_selections(
-    base_definitions_map: &StringKeyMap<ExecutableDefinition>,
-    reachable_base_asts: &mut StringKeySet,
+    base_definitions_map: &FragmentDefinitionNameMap<ExecutableDefinition>,
+    reachable_base_asts: &mut FragmentDefinitionNameSet,
     selections: &List<Selection>,
     is_base: bool,
 ) {
     for selection in &selections.items {
         match selection {
             Selection::FragmentSpread(selection) => {
-                if is_base || base_definitions_map.contains_key(&selection.name.value) {
+                let fragment_name = FragmentDefinitionName(selection.name.value);
+                if is_base || base_definitions_map.contains_key(&fragment_name) {
                     traverse_base_ast_definition(
                         base_definitions_map,
                         reachable_base_asts,
-                        selection.name.value,
+                        fragment_name,
                     )
                 }
             }
@@ -145,9 +149,9 @@ fn visit_selections(
 }
 
 fn traverse_base_ast_definition(
-    base_definitions_map: &StringKeyMap<ExecutableDefinition>,
-    reachable_base_asts: &mut StringKeySet,
-    key: StringKey,
+    base_definitions_map: &FragmentDefinitionNameMap<ExecutableDefinition>,
+    reachable_base_asts: &mut FragmentDefinitionNameSet,
+    key: FragmentDefinitionName,
 ) {
     if reachable_base_asts.contains(&key) {
         return;

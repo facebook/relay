@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::DEFER_STREAM_CONSTANTS;
+use std::iter;
+use std::sync::Arc;
+
 use common::NamedItem;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
@@ -13,8 +15,8 @@ use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
-use std::iter;
-use std::sync::Arc;
+
+use crate::DEFER_STREAM_CONSTANTS;
 
 /// Transform to unwrap selections wrapped in a InlineFragment with custom
 /// directive for printing
@@ -35,7 +37,9 @@ impl Transformer for UnwrapCustomDirectiveSelection {
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
         if fragment.type_condition.is_none() {
             // Remove the wrapping `... @defer` for `@defer` on fragment spreads.
-            let defer = fragment.directives.named(DEFER_STREAM_CONSTANTS.defer_name);
+            let defer = fragment
+                .directives
+                .named(DEFER_STREAM_CONSTANTS.defer_name.0);
             if let Some(defer) = defer {
                 if let Selection::FragmentSpread(frag_spread) = &fragment.selections[0] {
                     return Transformed::Replace(Selection::FragmentSpread(Arc::new(

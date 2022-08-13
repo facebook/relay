@@ -5,6 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
+use common::DiagnosticsResult;
+use graphql_ir::FragmentDefinition;
+use intern::string_key::StringKey;
+use relay_config::SchemaConfig;
+use schema::SDLSchema;
+use schema::Schema;
+
 use super::build_fragment_metadata_as_directive;
 use super::build_fragment_spread;
 use super::build_operation_variable_definitions;
@@ -13,13 +22,6 @@ use super::QueryGenerator;
 use super::RefetchRoot;
 use super::RefetchableMetadata;
 use crate::root_variables::VariableMap;
-use common::DiagnosticsResult;
-use graphql_ir::FragmentDefinition;
-use intern::string_key::StringKey;
-use relay_config::SchemaConfig;
-use schema::SDLSchema;
-use schema::Schema;
-use std::sync::Arc;
 
 fn build_refetch_operation(
     schema: &SDLSchema,

@@ -9,8 +9,6 @@ use std::collections::HashMap;
 use std::collections::HashSet;
 use std::sync::Arc;
 
-use super::make_markdown_table_documentation;
-use super::resolve_completion_items;
 use common::SourceLocationKey;
 use common::Span;
 use graphql_ir::build;
@@ -21,6 +19,9 @@ use intern::string_key::Intern;
 use lsp_types::CompletionItem;
 use lsp_types::Documentation;
 use relay_test_schema::get_test_schema;
+
+use super::make_markdown_table_documentation;
+use super::resolve_completion_items;
 
 fn parse_and_resolve_completion_items(
     source: &str,

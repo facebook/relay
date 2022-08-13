@@ -5,16 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::build_fragment_metadata_as_directive;
-use super::build_fragment_spread;
-use super::build_operation_variable_definitions;
-use super::build_used_global_variables;
-use super::validation_message::ValidationMessage;
-use super::QueryGenerator;
-use super::RefetchRoot;
-use super::RefetchableMetadata;
-use super::CONSTANTS;
-use crate::root_variables::VariableMap;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -27,6 +19,7 @@ use graphql_ir::Selection;
 use graphql_ir::Value;
 use graphql_ir::Variable;
 use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use relay_config::SchemaConfig;
@@ -35,7 +28,17 @@ use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
-use std::sync::Arc;
+
+use super::build_fragment_metadata_as_directive;
+use super::build_fragment_spread;
+use super::build_operation_variable_definitions;
+use super::build_used_global_variables;
+use super::validation_message::ValidationMessage;
+use super::QueryGenerator;
+use super::RefetchRoot;
+use super::RefetchableMetadata;
+use super::CONSTANTS;
+use crate::root_variables::VariableMap;
 
 fn build_refetch_operation(
     schema: &SDLSchema,
@@ -81,13 +84,13 @@ fn build_refetch_operation(
         if let Some(id_argument) = variable_definitions.named(id_name) {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
-                    fragment_name: fragment.name.item,
+                    fragment_name: fragment.name.item.0,
                 },
                 id_argument.name.location,
             )]);
         }
         variable_definitions.push(VariableDefinition {
-            name: WithLocation::new(fragment.name.location, id_name),
+            name: WithLocation::new(fragment.name.location, VariableName(id_name)),
             type_: id_arg.type_.non_null(),
             default_value: None,
             directives: vec![],
@@ -103,7 +106,7 @@ fn build_refetch_operation(
                     value: WithLocation::new(
                         fragment.name.location,
                         Value::Variable(Variable {
-                            name: WithLocation::new(fragment.name.location, id_name),
+                            name: WithLocation::new(fragment.name.location, VariableName(id_name)),
                             type_: id_arg.type_.non_null(),
                         }),
                     ),
@@ -133,7 +136,7 @@ fn get_fetchable_field_name(
             }
             return Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidRefetchDirectiveDefinition {
-                    fragment_name: fragment.name.item,
+                    fragment_name: fragment.name.item.0,
                 },
                 fragment.name.location,
             )]);
@@ -156,7 +159,7 @@ fn get_identifier_field_id(
     }
     Err(vec![Diagnostic::error(
         ValidationMessage::InvalidRefetchIdentifyingField {
-            fragment_name: fragment.name.item,
+            fragment_name: fragment.name.item.0,
             identifier_field_name,
             type_name: schema.get_type_name(fragment.type_condition),
         },
@@ -187,7 +190,7 @@ fn get_fetch_field_id_and_id_arg<'s>(
     Err(vec![Diagnostic::error(
         ValidationMessage::InvalidRefetchFetchField {
             fetch_field_name,
-            fragment_name: fragment.name.item,
+            fragment_name: fragment.name.item.0,
             type_name: schema.get_type_name(fragment.type_condition),
         },
         fragment.name.location,

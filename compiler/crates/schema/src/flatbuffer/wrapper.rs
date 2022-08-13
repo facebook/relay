@@ -8,6 +8,7 @@
 use std::fmt;
 use std::hash::Hash;
 
+use common::DirectiveName;
 use common::WithLocation;
 use dashmap::DashMap;
 use fnv::FnvBuildHasher;
@@ -15,6 +16,7 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use ouroboros::self_referencing;
 
+use super::FlatBufferSchema;
 use crate::Argument;
 use crate::ArgumentDefinitions;
 use crate::Directive;
@@ -35,8 +37,6 @@ use crate::Type;
 use crate::TypeReference;
 use crate::Union;
 use crate::UnionID;
-
-use super::FlatBufferSchema;
 
 #[self_referencing]
 struct OwnedFlatBufferSchema {
@@ -62,7 +62,7 @@ pub struct SchemaWrapper {
     is_fulfilled_field_name: StringKey,
     unchecked_argument_type_sentinel: Option<TypeReference>,
 
-    directives: Cache<StringKey, Option<Directive>>,
+    directives: Cache<DirectiveName, Option<Directive>>,
     interfaces: Cache<InterfaceID, Interface>,
     unions: Cache<UnionID, Union>,
     input_objects: Cache<InputObjectID, InputObject>,
@@ -183,7 +183,7 @@ impl SchemaWrapper {
         self.flatbuffer_schema().has_type(type_name)
     }
 
-    pub fn has_directive(&self, name: StringKey) -> bool {
+    pub fn has_directive(&self, name: DirectiveName) -> bool {
         self.get_directive(name).is_some()
     }
 
@@ -240,10 +240,13 @@ impl Schema for SchemaWrapper {
         self.flatbuffer_schema().get_type(type_name)
     }
 
-    fn get_directive(&self, name: StringKey) -> Option<&Directive> {
+    fn get_directive(&self, name: DirectiveName) -> Option<&Directive> {
         self.directives
             .get(name, || {
-                match (name.lookup(), self.flatbuffer_schema().get_directive(name)) {
+                match (
+                    name.0.lookup(),
+                    self.flatbuffer_schema().get_directive(name),
+                ) {
                     ("defer", Some(mut directive)) | ("stream", Some(mut directive)) => {
                         let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
                         for arg in next_args.iter_mut() {

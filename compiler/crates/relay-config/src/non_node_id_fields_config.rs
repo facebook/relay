@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashMap;
+
 use intern::string_key::StringKey;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashMap;
 
 /// Configuration of Relay's validation for `id` fields outside of the `Node` interface.
 #[derive(Debug, Default, Serialize, Deserialize)]

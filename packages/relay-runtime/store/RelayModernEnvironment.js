@@ -94,7 +94,7 @@ class RelayModernEnvironment implements IEnvironment {
   _scheduler: ?TaskScheduler;
   _store: Store;
   configName: ?string;
-  _missingFieldHandlers: ?$ReadOnlyArray<MissingFieldHandler>;
+  _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
   _operationTracker: OperationTracker;
   _getDataID: GetDataID;
   _treatMissingFieldsAsNull: boolean;
@@ -160,7 +160,7 @@ class RelayModernEnvironment implements IEnvironment {
       (this: any).DEBUG_inspect = (dataID: ?string) => inspect(this, dataID);
     }
 
-    this._missingFieldHandlers = config.missingFieldHandlers;
+    this._missingFieldHandlers = config.missingFieldHandlers ?? [];
     this._operationTracker =
       config.operationTracker ?? new RelayOperationTracker();
     this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
@@ -242,8 +242,8 @@ class RelayModernEnvironment implements IEnvironment {
 
   check(operation: OperationDescriptor): OperationAvailability {
     if (
-      this._missingFieldHandlers == null ||
-      this._missingFieldHandlers.length === 0
+      this._missingFieldHandlers.length === 0 &&
+      !operationHasClientAbstractTypes(operation)
     ) {
       return this._store.check(operation);
     }
@@ -503,6 +503,15 @@ class RelayModernEnvironment implements IEnvironment {
       return () => executor.cancel();
     });
   }
+}
+
+function operationHasClientAbstractTypes(
+  operation: OperationDescriptor,
+): boolean {
+  return (
+    operation.root.node.kind === 'Operation' &&
+    operation.root.node.clientAbstractTypes != null
+  );
 }
 
 // Add a sigil for detection by `isRelayModernEnvironment()` to avoid a

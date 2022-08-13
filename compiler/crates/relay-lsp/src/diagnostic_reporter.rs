@@ -6,7 +6,8 @@
  */
 
 //! Utilities for reporting errors to an LSP client
-use crate::lsp_process_error::LSPProcessResult;
+use std::path::PathBuf;
+
 use common::convert_diagnostic;
 use common::Diagnostic as CompilerDiagnostic;
 use common::Location;
@@ -28,7 +29,8 @@ use relay_compiler::errors::Error;
 use relay_compiler::source_for_location;
 use relay_compiler::FsSourceReader;
 use relay_compiler::SourceReader;
-use std::path::PathBuf;
+
+use crate::lsp_process_error::LSPProcessResult;
 
 /// Converts a Location to a Url pointing to the canonical path based on the root_dir provided.
 /// Returns None if we are unable to do the conversion
@@ -92,6 +94,12 @@ impl DiagnosticReporter {
             error => {
                 self.print_generic_error(format!("{}", error));
             }
+        }
+    }
+
+    pub fn report_diagnostics(&self, diagnostics: &[common::Diagnostic]) {
+        for diagnostic in diagnostics {
+            self.report_diagnostic(diagnostic);
         }
     }
 
@@ -270,8 +278,9 @@ pub fn publish_diagnostic(
 
 #[cfg(test)]
 mod tests {
-    use super::is_sub_range;
-    use super::DiagnosticReporter;
+    use std::env;
+    use std::path::PathBuf;
+
     use common::Diagnostic;
     use common::Location;
     use common::SourceLocationKey;
@@ -280,8 +289,9 @@ mod tests {
     use lsp_types::Position;
     use lsp_types::Range;
     use relay_compiler::SourceReader;
-    use std::env;
-    use std::path::PathBuf;
+
+    use super::is_sub_range;
+    use super::DiagnosticReporter;
 
     struct MockSourceReader(String);
 

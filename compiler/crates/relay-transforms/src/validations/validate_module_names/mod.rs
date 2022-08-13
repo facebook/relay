@@ -30,7 +30,7 @@ impl Validator for ValidateModuleNames {
     const VALIDATE_DIRECTIVES: bool = true;
 
     fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
-        let operation_name = operation.name.item.to_string();
+        let operation_name = operation.name.item.0.to_string();
         let path = operation.name.location.source_location().path();
         let module_name = extract_module_name(path).expect("Unable to extract module name.");
         let (operation_type_suffix, pluralized_string) = match operation.kind {

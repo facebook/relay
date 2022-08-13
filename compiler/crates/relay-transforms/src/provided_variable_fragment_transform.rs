@@ -7,7 +7,6 @@
 
 use std::cmp::Reverse;
 
-use crate::util::format_provided_variable_name;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -23,6 +22,7 @@ use graphql_ir::TransformedValue;
 use graphql_ir::Transformer;
 use graphql_ir::Variable;
 use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use itertools::Itertools;
@@ -30,6 +30,8 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::TypeReference;
 use thiserror::Error;
+
+use crate::util::format_provided_variable_name;
 
 /// This transform applies provided variables in each fragment.
 ///  - Rename all uses of provided variables (in values)
@@ -122,7 +124,7 @@ struct ProvidedVariableFragmentTransform<'schema> {
     schema: &'schema SDLSchema,
     all_provided_variables: FnvHashMap<StringKey, ProvidedVariableDefinitions>,
     // fragment local identifier --> transformed identifier
-    in_scope_providers: FnvHashMap<StringKey, StringKey>,
+    in_scope_providers: FnvHashMap<VariableName, VariableName>,
 }
 
 impl<'schema> ProvidedVariableFragmentTransform<'schema> {
@@ -163,7 +165,7 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
             .iter()
             .filter(|def| {
                 def.directives
-                    .named(ProvidedVariableMetadata::directive_name())
+                    .named(ProvidedVariableMetadata::directive_name().0)
                     .is_none()
             })
             .cloned()
@@ -173,7 +175,7 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
     fn get_global_variables(&self, fragment: &FragmentDefinition) -> Vec<VariableDefinition> {
         let mut new_globals = fragment.used_global_variables.clone();
         new_globals.extend(fragment.variable_definitions.iter().filter_map(|def| {
-            let transformed_name = self.in_scope_providers.get(&def.name())?;
+            let transformed_name = self.in_scope_providers.get(&VariableName(def.name()))?;
             Some(VariableDefinition {
                 name: WithLocation {
                     item: *transformed_name,
@@ -213,7 +215,8 @@ impl<'schema> Transformer for ProvidedVariableFragmentTransform<'schema> {
         for def in fragment.variable_definitions.iter() {
             if let Some(metadata) = ProvidedVariableMetadata::find(&def.directives) {
                 let transformed_name = format_provided_variable_name(metadata.module_name);
-                self.in_scope_providers.insert(def.name(), transformed_name);
+                self.in_scope_providers
+                    .insert(VariableName(def.name()), VariableName(transformed_name));
                 self.add_provided_variable(transformed_name, metadata.module_name, def);
             }
         }

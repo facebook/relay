@@ -5,29 +5,31 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::relay_resolvers::get_argument_value;
-use crate::ValidationMessage;
-use crate::RELAY_RESOLVER_DIRECTIVE_NAME;
-use crate::RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::FragmentSpread;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Validator;
 use graphql_ir::Variable;
-use intern::string_key::StringKeySet;
 use schema::SDLSchema;
 use schema::Schema;
+
+use crate::relay_resolvers::get_argument_value;
+use crate::ValidationMessage;
+use crate::RELAY_RESOLVER_DIRECTIVE_NAME;
+use crate::RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME;
 
 pub fn validate_resolver_fragments(program: &Program) -> DiagnosticsResult<()> {
     ValidateResolverFragments::new(&program.schema).validate_program(program)
 }
 
 struct ValidateResolverFragments {
-    resolver_fragments: StringKeySet,
+    resolver_fragments: FragmentDefinitionNameSet,
     current_fragment: Option<FragmentDefinition>,
 }
 
@@ -53,9 +55,10 @@ impl ValidateResolverFragments {
                                 field.name.location,
                             )
                             .ok()
+                            .map(FragmentDefinitionName)
                         })
                 })
-                .collect::<StringKeySet>(),
+                .collect::<FragmentDefinitionNameSet>(),
         };
 
         validator

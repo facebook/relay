@@ -10,7 +10,9 @@ fragment ScalarHandleField on User {
         FragmentDefinition {
             name: WithLocation {
                 location: scalar-handle-field.graphql:9:26,
-                item: "ScalarHandleField",
+                item: FragmentDefinitionName(
+                    "ScalarHandleField",
+                ),
             },
             variable_definitions: [],
             used_global_variables: [],
@@ -28,7 +30,9 @@ fragment ScalarHandleField on User {
                         Directive {
                             name: WithLocation {
                                 location: scalar-handle-field.graphql:48:62,
-                                item: "__clientField",
+                                item: DirectiveName(
+                                    "__clientField",
+                                ),
                             },
                             arguments: [
                                 Argument {
@@ -51,7 +55,9 @@ fragment ScalarHandleField on User {
                         Directive {
                             name: WithLocation {
                                 location: scalar-handle-field.graphql:89:103,
-                                item: "__clientField",
+                                item: DirectiveName(
+                                    "__clientField",
+                                ),
                             },
                             arguments: [
                                 Argument {

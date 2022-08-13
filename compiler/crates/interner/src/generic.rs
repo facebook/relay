@@ -5,14 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::types::InternKey;
-use crate::types::RawInternKey;
-use fnv::FnvHashMap;
-use parking_lot::RwLock;
 use std::hash::Hash;
 use std::mem::MaybeUninit;
 use std::num::NonZeroU32;
 use std::sync::Arc;
+
+use fnv::FnvHashMap;
+use parking_lot::RwLock;
+
+use crate::types::InternKey;
+use crate::types::RawInternKey;
 
 /// An interner implementation that can be used to intern new values and lookup
 /// the value of previously interned keys.

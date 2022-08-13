@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt;
+
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Value;
-use std::fmt;
 
 use crate::murmurhash::murmurhash;
 
@@ -128,7 +129,7 @@ fn build_constant_value_string(value: &ConstantValue) -> String {
 fn identifier_for_argument_value(value: &Value) -> IdentiferValue {
     match value {
         Value::Constant(value) => IdentiferValue::Value(build_constant_value_string(value)),
-        Value::Variable(variable) => IdentiferValue::Variable(variable.name.item.lookup()),
+        Value::Variable(variable) => IdentiferValue::Variable(variable.name.item.0.lookup()),
         Value::List(items) => {
             IdentiferValue::List(items.iter().map(identifier_for_argument_value).collect())
         }

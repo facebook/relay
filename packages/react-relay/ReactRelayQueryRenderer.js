@@ -169,7 +169,12 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       this._maybeHiddenOrFastRefresh = false;
       // eslint-disable-next-line react/no-did-mount-set-state
       this.setState(prevState => {
-        return resetQueryStateForUpdate(this.props, prevState);
+        const newState = resetQueryStateForUpdate(this.props, prevState);
+        const {requestCacheKey, queryFetcher} = newState;
+        if (requestCacheKey != null && requestCache[requestCacheKey] != null) {
+          queryFetcher.setOnDataChange(this._handleDataChange);
+        }
+        return newState;
       });
       return;
     }

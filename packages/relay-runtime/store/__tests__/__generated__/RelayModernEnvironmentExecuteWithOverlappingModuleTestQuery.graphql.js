@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f6aefbfb6c4d8081ec6cc7a61183cac3>>
+ * @generated SignedSource<<95f2d63c33e4bb9857a0d0bb5226e68e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +18,8 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType = any;
-type RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType = any;
+import type { RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name.graphql";
+import type { RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name.graphql";
 export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$variables = {|
   id: string,
 |};

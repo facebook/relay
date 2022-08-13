@@ -5,6 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashMap;
+
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::Location;
+use common::WithLocation;
+use errors::par_try_map;
+use errors::try2;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use lazy_static::lazy_static;
+use schema::suggestion_list::GraphQLSuggestions;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
+
 use crate::associated_data_impl;
 use crate::build::build_constant_value;
 use crate::build::build_type_annotation;
@@ -15,34 +33,21 @@ use crate::constants::ARGUMENT_DEFINITION;
 use crate::errors::ValidationMessage;
 use crate::errors::ValidationMessageWithData;
 use crate::ir::ConstantValue;
+use crate::ir::FragmentDefinitionName;
+use crate::ir::FragmentDefinitionNameMap;
 use crate::ir::VariableDefinition;
-use common::Diagnostic;
-use common::DiagnosticsResult;
-use common::Location;
-use common::WithLocation;
-use errors::par_try_map;
-use errors::try2;
-use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
-use lazy_static::lazy_static;
-use schema::suggestion_list::GraphQLSuggestions;
-use schema::SDLSchema;
-use schema::Schema;
-use schema::Type;
-use schema::TypeReference;
-use std::collections::HashMap;
+use crate::VariableName;
 
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();
     static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
     static ref PROVIDER: StringKey = "provider".intern();
-    pub static ref UNUSED_LOCAL_VARIABLE_DEPRECATED: StringKey =
-        "unusedLocalVariable_DEPRECATED".intern();
+    pub static ref UNUSED_LOCAL_VARIABLE_DEPRECATED: DirectiveName =
+        DirectiveName("unusedLocalVariable_DEPRECATED".intern());
     static ref DIRECTIVES: StringKey = "directives".intern();
 }
 
-pub type FragmentSignatures = StringKeyMap<FragmentSignature>;
+pub type FragmentSignatures = FragmentDefinitionNameMap<FragmentSignature>;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ProvidedVariableMetadata {
@@ -61,7 +66,7 @@ associated_data_impl!(ProvidedVariableMetadata);
 /// and using these to type check fragment spreads in selections.
 #[derive(Debug, Eq, PartialEq)]
 pub struct FragmentSignature {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<FragmentDefinitionName>,
     pub variable_definitions: Vec<VariableDefinition>,
     pub type_condition: Type,
 }
@@ -71,7 +76,7 @@ pub fn build_signatures(
     definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> DiagnosticsResult<FragmentSignatures> {
     let suggestions = GraphQLSuggestions::new(schema);
-    let mut seen_signatures: StringKeyMap<FragmentSignature> =
+    let mut seen_signatures: FragmentDefinitionNameMap<FragmentSignature> =
         HashMap::with_capacity_and_hasher(definitions.len(), Default::default());
     let signatures = par_try_map(definitions, |definition| match definition {
         graphql_syntax::ExecutableDefinition::Fragment(fragment) => Ok(Some(
@@ -85,7 +90,7 @@ pub fn build_signatures(
         if let Some(previous_signature) = previous_signature {
             errors.push(
                 Diagnostic::error(
-                    ValidationMessage::DuplicateDefinition(signature.name.item),
+                    ValidationMessage::DuplicateDefinition(signature.name.item.0),
                     previous_signature.name.location,
                 )
                 .annotate("also defined here", signature.name.location),
@@ -132,7 +137,7 @@ fn build_fragment_signature(
     let argument_definition_directives = fragment
         .directives
         .iter()
-        .filter(|x| x.name.value == *ARGUMENT_DEFINITION)
+        .filter(|x| DirectiveName(x.name.value) == *ARGUMENT_DEFINITION)
         .collect::<Vec<_>>();
     if fragment.variable_definitions.is_some() && !argument_definition_directives.is_empty() {
         return Err(Diagnostic::error(
@@ -175,10 +180,13 @@ fn build_fragment_signature(
         .unwrap_or_else(|| Ok(Default::default()));
 
     let (type_condition, variable_definitions) = try2(type_condition, variable_definitions)?;
+
     Ok(FragmentSignature {
-        name: fragment
-            .name
-            .name_with_location(fragment.location.source_location()),
+        name: WithLocation::from_span(
+            fragment.location.source_location(),
+            fragment.name.span,
+            FragmentDefinitionName(fragment.name.value),
+        ),
         type_condition,
         variable_definitions,
     })
@@ -210,7 +218,7 @@ fn build_fragment_variable_definitions(
                             type_arg = Some(item);
                         } else if name == *DEFAULT_VALUE {
                             default_arg = Some(item);
-                        } else if name == *UNUSED_LOCAL_VARIABLE_DEPRECATED {
+                        } else if DirectiveName(name) == *UNUSED_LOCAL_VARIABLE_DEPRECATED {
                             unused_local_variable_arg = Some(item);
                         } else if name == *DIRECTIVES {
                             directives_arg = Some(item);
@@ -356,7 +364,7 @@ fn build_fragment_variable_definitions(
 
                     Ok(VariableDefinition {
                         name: variable_name
-                            .name_with_location(fragment.location.source_location()),
+                        .name_with_location(fragment.location.source_location()).map(VariableName),
                         type_,
                         directives,
                         default_value,

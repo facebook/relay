@@ -11,7 +11,9 @@ query NullValuesQuery {
             kind: Query,
             name: WithLocation {
                 location: null-values.graphql:6:21,
-                item: "NullValuesQuery",
+                item: OperationDefinitionName(
+                    "NullValuesQuery",
+                ),
             },
             type_: Object(0),
             variable_definitions: [],

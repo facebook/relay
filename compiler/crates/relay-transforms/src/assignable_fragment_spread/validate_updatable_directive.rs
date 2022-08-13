@@ -7,11 +7,9 @@
 
 use std::collections::HashSet;
 
-use super::ValidationMessage;
-use super::ASSIGNABLE_DIRECTIVE;
-use super::UPDATABLE_DIRECTIVE;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use errors::validate;
@@ -32,11 +30,15 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
 
+use super::ValidationMessage;
+use super::ASSIGNABLE_DIRECTIVE;
+use super::UPDATABLE_DIRECTIVE;
+
 lazy_static! {
-    static ref ALLOW_LISTED_DIRECTIVES: Vec<StringKey> = vec![
-        *UPDATABLE_DIRECTIVE,
+    static ref ALLOW_LISTED_DIRECTIVES: Vec<DirectiveName> = vec![
+        DirectiveName(*UPDATABLE_DIRECTIVE),
         // TODO have a global list of directives...?
-        "fb_owner".intern(),
+        DirectiveName("fb_owner".intern()),
     ];
 }
 
@@ -270,7 +272,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
     fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
         if operation.directives.named(*UPDATABLE_DIRECTIVE).is_some() {
             self.executable_definition_info = Some(ExecutableDefinitionInfo {
-                name: operation.name.item,
+                name: operation.name.item.0,
                 location: operation.name.location,
                 type_plural: "operations",
             });
@@ -283,7 +285,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
         if fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some() {
             self.executable_definition_info = Some(ExecutableDefinitionInfo {
-                name: fragment.name.item,
+                name: fragment.name.item.0,
                 location: fragment.name.location,
                 type_plural: "fragments",
             });
@@ -297,7 +299,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
         if !ALLOW_LISTED_DIRECTIVES.contains(&directive.name.item) {
             Err(vec![Diagnostic::error(
                 ValidationMessage::UpdatableDisallowOtherDirectives {
-                    disallowed_directive_name: directive.name.item,
+                    disallowed_directive_name: directive.name.item.0,
                     outer_type_plural: self.executable_definition_info.unwrap().type_plural,
                 },
                 directive.name.location,

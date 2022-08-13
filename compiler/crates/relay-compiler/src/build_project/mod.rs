@@ -20,6 +20,44 @@ mod project_asts;
 mod source_control;
 mod validate;
 
+use std::path::PathBuf;
+use std::sync::Arc;
+
+pub use artifact_generated_types::ArtifactGeneratedTypes;
+use build_ir::BuildIRResult;
+pub use build_ir::SourceHashes;
+pub use build_schema::build_schema;
+use common::sync::*;
+use common::Diagnostic;
+use common::PerfLogEvent;
+use common::PerfLogger;
+use common::WithDiagnostics;
+use dashmap::mapref::entry::Entry;
+use dashmap::DashSet;
+use fnv::FnvBuildHasher;
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
+pub use generate_artifacts::generate_artifacts;
+pub use generate_artifacts::Artifact;
+pub use generate_artifacts::ArtifactContent;
+use graphql_ir::FragmentDefinitionNameSet;
+use graphql_ir::Program;
+use intern::string_key::StringKey;
+use log::debug;
+use log::info;
+use log::warn;
+use rayon::iter::IntoParallelRefIterator;
+use rayon::slice::ParallelSlice;
+use relay_codegen::Printer;
+use relay_transforms::apply_transforms;
+use relay_transforms::CustomTransformsConfig;
+use relay_transforms::Programs;
+use relay_typegen::FragmentLocations;
+use schema::SDLSchema;
+pub use source_control::add_to_mercurial;
+pub use validate::validate;
+pub use validate::AdditionalValidations;
+
 use self::log_program_stats::print_stats;
 pub use self::project_asts::get_project_asts;
 pub use self::project_asts::ProjectAstData;
@@ -34,42 +72,9 @@ use crate::config::ProjectConfig;
 use crate::errors::BuildProjectError;
 use crate::file_source::SourceControlUpdateStatus;
 use crate::graphql_asts::GraphQLAsts;
-pub use artifact_generated_types::ArtifactGeneratedTypes;
-use build_ir::BuildIRResult;
-pub use build_ir::SourceHashes;
-pub use build_schema::build_schema;
-use common::sync::*;
-use common::PerfLogEvent;
-use common::PerfLogger;
-use dashmap::mapref::entry::Entry;
-use dashmap::DashSet;
-use fnv::FnvBuildHasher;
-use fnv::FnvHashMap;
-use fnv::FnvHashSet;
-pub use generate_artifacts::generate_artifacts;
-pub use generate_artifacts::Artifact;
-pub use generate_artifacts::ArtifactContent;
-use graphql_ir::Program;
-use intern::string_key::StringKey;
-use intern::string_key::StringKeySet;
-use log::debug;
-use log::info;
-use log::warn;
-use rayon::iter::IntoParallelRefIterator;
-use rayon::slice::ParallelSlice;
-use relay_codegen::Printer;
-use relay_transforms::apply_transforms;
-use relay_transforms::CustomTransformsConfig;
-use relay_transforms::Programs;
-use schema::SDLSchema;
-pub use source_control::add_to_mercurial;
-use std::path::PathBuf;
-use std::sync::Arc;
-pub use validate::validate;
-pub use validate::AdditionalValidations;
 
-type BuildProjectOutput = (ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>);
-type BuildProgramsOutput = (Programs, Arc<SourceHashes>);
+type BuildProjectOutput = WithDiagnostics<(ProjectName, Arc<SDLSchema>, Programs, Vec<Artifact>)>;
+type BuildProgramsOutput = WithDiagnostics<(Programs, Arc<SourceHashes>)>;
 
 pub enum BuildProjectFailure {
     Error(BuildProjectError),
@@ -115,16 +120,18 @@ pub fn validate_program(
     project_config: &ProjectConfig,
     program: &Program,
     log_event: &impl PerfLogEvent,
-) -> Result<(), BuildProjectError> {
+) -> Result<Vec<Diagnostic>, BuildProjectError> {
     let timer = log_event.start("validate_time");
     log_event.number("validate_documents_count", program.document_count());
-    let result =
-        validate(program, project_config, &config.additional_validations).map_err(|errors| {
-            BuildProjectError::ValidationErrors {
+    let result = validate(program, project_config, &config.additional_validations).map_or_else(
+        |errors| {
+            Err(BuildProjectError::ValidationErrors {
                 errors,
                 project_name: project_config.name,
-            }
-        });
+            })
+        },
+        |result| Ok(result.diagnostics),
+    );
 
     log_event.stop(timer);
 
@@ -135,7 +142,7 @@ pub fn validate_program(
 pub fn transform_program(
     project_config: &ProjectConfig,
     program: Arc<Program>,
-    base_fragment_names: Arc<StringKeySet>,
+    base_fragment_names: Arc<FragmentDefinitionNameSet>,
     perf_logger: Arc<impl PerfLogger + 'static>,
     log_event: &impl PerfLogEvent,
     custom_transforms_config: Option<&CustomTransformsConfig>,
@@ -166,7 +173,7 @@ pub fn build_programs(
     project_config: &ProjectConfig,
     compiler_state: &CompilerState,
     project_asts: ProjectAsts,
-    base_fragment_names: StringKeySet,
+    base_fragment_names: FragmentDefinitionNameSet,
     schema: Arc<SDLSchema>,
     log_event: &impl PerfLogEvent,
     perf_logger: Arc<impl PerfLogger + 'static>,
@@ -194,7 +201,8 @@ pub fn build_programs(
     }
 
     // Call validation rules that go beyond type checking.
-    validate_program(config, project_config, &program, log_event)?;
+    // FIXME: Return non-fatal diagnostics from transforms (only validations for now)
+    let diagnostics = validate_program(config, project_config, &program, log_event)?;
 
     let programs = transform_program(
         project_config,
@@ -205,7 +213,10 @@ pub fn build_programs(
         config.custom_transforms.as_ref(),
     )?;
 
-    Ok((programs, Arc::new(source_hashes)))
+    Ok(WithDiagnostics {
+        item: (programs, Arc::new(source_hashes)),
+        diagnostics,
+    })
 }
 
 pub fn build_project(
@@ -244,7 +255,10 @@ pub fn build_project(
     }
 
     // Apply different transform pipelines to produce the `Programs`.
-    let (programs, source_hashes) = build_programs(
+    let WithDiagnostics {
+        item: (programs, source_hashes),
+        diagnostics,
+    } = build_programs(
         config,
         project_config,
         compiler_state,
@@ -277,7 +291,10 @@ pub fn build_project(
 
     log_event.stop(build_time);
     log_event.complete();
-    Ok((project_config.name, schema, programs, artifacts))
+    Ok(WithDiagnostics {
+        item: (project_config.name, schema, programs, artifacts),
+        diagnostics,
+    })
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -299,6 +316,7 @@ pub async fn commit_project(
     log_event.string("project", project_config.name.to_string());
     let commit_time = log_event.start("commit_project_time");
 
+    let fragment_locations = FragmentLocations::new(programs.typegen.fragments());
     if source_control_update_status.is_started() {
         debug!("commit_project cancelled before persisting due to source control updates");
         return Err(BuildProjectFailure::Cancelled);
@@ -370,6 +388,7 @@ pub async fn commit_project(
                 schema,
                 should_stop_updating_artifacts,
                 &artifacts,
+                &fragment_locations,
             )?;
             for artifact in &artifacts {
                 if !existing_artifacts.remove(&artifact.path) {
@@ -404,6 +423,7 @@ pub async fn commit_project(
                 schema,
                 should_stop_updating_artifacts,
                 &artifacts,
+                &fragment_locations,
             )?;
             artifacts.into_par_iter().for_each(|artifact| {
                 current_paths_map.insert(artifact);
@@ -501,6 +521,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
     schema: &SDLSchema,
     should_stop_updating_artifacts: F,
     artifacts: &[Artifact],
+    fragment_locations: &FragmentLocations,
 ) -> Result<(), BuildProjectFailure> {
     artifacts.par_chunks(8192).try_for_each_init(
         || Printer::with_dedupe(project_config),
@@ -516,6 +537,7 @@ fn write_artifacts<F: Fn() -> bool + Sync + Send>(
                     &mut printer,
                     schema,
                     artifact.source_file,
+                    fragment_locations,
                 );
                 if config.artifact_writer.should_write(&path, &content)? {
                     config.artifact_writer.write(path, content)?;

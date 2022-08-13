@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-pub use rayon::prelude::IntoParallelIterator;
-pub use rayon::prelude::ParallelIterator;
 pub use std::sync::atomic::Ordering;
 pub use std::sync::atomic::Ordering::SeqCst;
+
+pub use rayon::prelude::IntoParallelIterator;
+pub use rayon::prelude::ParallelIterator;
 
 /// An abstraction over rayon's par_iter that falls back to a normal
 /// iterator when compiling to WebAssembly.

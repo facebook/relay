@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -26,7 +28,6 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::FieldID;
 use schema::Schema;
-use std::sync::Arc;
 
 lazy_static! {
     static ref ASSIGNABLE_DIRECTIVE: StringKey = "assignable".intern();

@@ -5,6 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+
 use graphql_syntax::Argument;
 use graphql_syntax::Directive;
 use graphql_syntax::ExecutableDefinition;
@@ -17,9 +20,6 @@ use graphql_syntax::OperationDefinition;
 use graphql_syntax::ScalarField;
 use graphql_syntax::Selection;
 use graphql_syntax::VariableDefinition;
-
-use std::fmt::Result as FmtResult;
-use std::fmt::Write;
 
 pub fn print_operation_ast(node: &OperationDefinition) -> String {
     let mut printer: Printer = Default::default();

@@ -5,13 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::config::ArtifactForPersister;
-use crate::config::Config;
-use crate::config::ProjectConfig;
-use crate::errors::BuildProjectError;
-use crate::Artifact;
-use crate::ArtifactContent;
-use crate::OperationPersister;
+use std::fs;
+use std::path::PathBuf;
+
 use common::sync::ParallelIterator;
 use common::PerfLogEvent;
 use lazy_static::lazy_static;
@@ -22,8 +18,14 @@ use rayon::iter::IntoParallelRefMutIterator;
 use regex::Regex;
 use relay_codegen::QueryID;
 use relay_transforms::Programs;
-use std::fs;
-use std::path::PathBuf;
+
+use crate::config::ArtifactForPersister;
+use crate::config::Config;
+use crate::config::ProjectConfig;
+use crate::errors::BuildProjectError;
+use crate::Artifact;
+use crate::ArtifactContent;
+use crate::OperationPersister;
 
 lazy_static! {
     static ref RELAY_HASH_REGEX: Regex = Regex::new(r#"@relayHash (\w{32})\n"#).unwrap();

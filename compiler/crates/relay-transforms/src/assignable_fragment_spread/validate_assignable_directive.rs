@@ -5,25 +5,26 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::ValidationMessage;
-use super::ASSIGNABLE_DIRECTIVE;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::Program;
 use graphql_ir::Selection;
 use graphql_ir::Validator;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
 
+use super::ValidationMessage;
+use super::ASSIGNABLE_DIRECTIVE;
+
 lazy_static! {
-    static ref ALLOW_LISTED_DIRECTIVES: Vec<StringKey> = vec![
-        *ASSIGNABLE_DIRECTIVE,
+    static ref ALLOW_LISTED_DIRECTIVES: Vec<DirectiveName> = vec![
+        DirectiveName(*ASSIGNABLE_DIRECTIVE),
         // TODO have a global list of directives...?
-        "fb_owner".intern(),
+        DirectiveName("fb_owner".intern()),
     ];
 }
 
@@ -81,7 +82,7 @@ impl<'a> Validator for AssignableDirective<'a> {
             if !ALLOW_LISTED_DIRECTIVES.contains(&directive.name.item) {
                 errors.push(Diagnostic::error(
                     ValidationMessage::AssignableDisallowOtherDirectives {
-                        disallowed_directive_name: directive.name.item,
+                        disallowed_directive_name: directive.name.item.0,
                     },
                     directive.name.location,
                 ))

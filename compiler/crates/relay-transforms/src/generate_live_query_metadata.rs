@@ -5,7 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::create_metadata_directive;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -13,6 +12,7 @@ use common::WithLocation;
 use graphql_ir::ConstantArgument;
 use graphql_ir::ConstantValue;
 use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
@@ -22,6 +22,8 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use thiserror::Error;
+
+use crate::create_metadata_directive;
 
 lazy_static! {
     static ref LIVE_QUERY_DIRECTIVE_NAME: StringKey = "live_query".intern();
@@ -144,15 +146,15 @@ enum ValidationMessage {
     #[error(
         "Live query expects 'polling_interval' or 'config_id' as an argument to @live_query to for root field {query_name}"
     )]
-    LiveQueryTransformMissingConfig { query_name: StringKey },
+    LiveQueryTransformMissingConfig { query_name: OperationDefinitionName },
 
     #[error(
         "Expected the 'polling_interval' argument to @live_query to be a literal number for root field {query_name}"
     )]
-    LiveQueryTransformInvalidPollingInterval { query_name: StringKey },
+    LiveQueryTransformInvalidPollingInterval { query_name: OperationDefinitionName },
 
     #[error(
         "Expected the 'config_id' argument to @live_query to be a literal string for root field {query_name}"
     )]
-    LiveQueryTransformInvalidConfigId { query_name: StringKey },
+    LiveQueryTransformInvalidConfigId { query_name: OperationDefinitionName },
 }

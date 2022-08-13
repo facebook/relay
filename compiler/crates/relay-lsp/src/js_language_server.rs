@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::lsp_runtime_error::LSPRuntimeResult;
 use lsp_types::request::CodeActionRequest;
 use lsp_types::request::Completion;
 use lsp_types::request::Request;
 use lsp_types::Url;
+
+use crate::lsp_runtime_error::LSPRuntimeResult;
 
 /// Interface for the LSP server to handle JavaScript text
 pub trait JSLanguageServer: Send + Sync {

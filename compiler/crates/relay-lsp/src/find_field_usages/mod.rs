@@ -7,12 +7,12 @@
 
 mod find_field_locations;
 
-use crate::location::transform_relay_location_to_lsp_location;
-use crate::server::GlobalState;
-use crate::LSPRuntimeError;
-use crate::LSPRuntimeResult;
+use std::collections::HashMap;
+use std::sync::Arc;
+
 use common::Location as IRLocation;
 use common::WithLocation;
+pub(crate) use find_field_locations::find_field_locations;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
@@ -30,10 +30,11 @@ use schema::Schema;
 use schema::Type;
 use serde::Deserialize;
 use serde::Serialize;
-use std::collections::HashMap;
-use std::sync::Arc;
 
-pub(crate) use find_field_locations::find_field_locations;
+use crate::location::transform_relay_location_to_lsp_location;
+use crate::server::GlobalState;
+use crate::LSPRuntimeError;
+use crate::LSPRuntimeResult;
 
 // This implementation of FindFieldUsages find matching fields in:
 //   - exact type matches
@@ -206,7 +207,7 @@ impl Visitor for FieldUsageFinder<'_> {
         //  before recursively visiting the operation's selections
         assert!(self.current_scope.label.is_none());
         assert!(self.current_scope.types.is_empty());
-        self.current_scope.label = Some(operation.name.item);
+        self.current_scope.label = Some(operation.name.item.0);
         self.current_scope
             .types
             .push(self.schema.get_type_name(operation.type_));
@@ -222,7 +223,7 @@ impl Visitor for FieldUsageFinder<'_> {
         assert!(self.current_scope.label.is_none());
         assert!(self.current_scope.types.is_empty());
 
-        self.current_scope.label = Some(fragment.name.item);
+        self.current_scope.label = Some(fragment.name.item.0);
         self.current_scope
             .types
             .push(self.schema.get_type_name(fragment.type_condition));

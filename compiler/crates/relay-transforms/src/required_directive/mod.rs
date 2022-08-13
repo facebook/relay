@@ -8,8 +8,13 @@
 mod requireable_field;
 mod validation_message;
 
+use std::borrow::Cow;
+use std::mem;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
@@ -17,6 +22,7 @@ use graphql_ir::associated_data_impl;
 use graphql_ir::Directive;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
@@ -32,19 +38,16 @@ use intern::string_key::StringKeyMap;
 use lazy_static::lazy_static;
 use requireable_field::RequireableField;
 use requireable_field::RequiredMetadata;
-use std::borrow::Cow;
-use std::mem;
-use std::sync::Arc;
 
+use self::validation_message::ValidationMessage;
 use crate::DirectiveFinder;
 use crate::FragmentAliasMetadata;
 
-use self::validation_message::ValidationMessage;
-
 lazy_static! {
-    pub static ref REQUIRED_DIRECTIVE_NAME: StringKey = "required".intern();
+    pub static ref REQUIRED_DIRECTIVE_NAME: DirectiveName = DirectiveName("required".intern());
     pub static ref ACTION_ARGUMENT: StringKey = "action".intern();
-    pub static ref CHILDREN_CAN_BUBBLE_METADATA_KEY: StringKey = "__childrenCanBubbleNull".intern();
+    pub static ref CHILDREN_CAN_BUBBLE_METADATA_KEY: DirectiveName =
+        DirectiveName("__childrenCanBubbleNull".intern());
     static ref THROW_ACTION: StringKey = "THROW".intern();
     static ref LOG_ACTION: StringKey = "LOG".intern();
     static ref NONE_ACTION: StringKey = "NONE".intern();
@@ -545,7 +548,7 @@ impl From<StringKey> for RequiredAction {
 
 struct RequiredDirectiveVisitor<'s> {
     program: &'s Program,
-    visited_fragments: StringKeyMap<bool>,
+    visited_fragments: FragmentDefinitionNameMap<bool>,
 }
 
 impl<'s> DirectiveFinder for RequiredDirectiveVisitor<'s> {

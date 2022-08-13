@@ -7,9 +7,6 @@
 
 use std::collections::VecDeque;
 
-use crate::lexer::TokenKind;
-use crate::node::*;
-use crate::syntax_error::SyntaxError;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -18,6 +15,10 @@ use common::Span;
 use common::WithDiagnostics;
 use intern::string_key::Intern;
 use logos::Logos;
+
+use crate::lexer::TokenKind;
+use crate::node::*;
+use crate::syntax_error::SyntaxError;
 
 type ParseResult<T> = Result<T, ()>;
 
@@ -132,7 +133,7 @@ impl<'a> Parser<'a> {
         });
         WithDiagnostics {
             item: document,
-            errors: self.errors,
+            diagnostics: self.errors,
         }
     }
 

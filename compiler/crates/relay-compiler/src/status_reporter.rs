@@ -5,20 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::PathBuf;
+
+use common::Diagnostic;
+use common::DiagnosticSeverity;
+use graphql_cli::DiagnosticPrinter;
+use log::error;
+use log::info;
+use log::warn;
+
 use crate::errors::BuildProjectError;
 use crate::errors::Error;
 use crate::source_for_location;
 use crate::FsSourceReader;
 use crate::SourceReader;
-use common::Diagnostic;
-use graphql_cli::DiagnosticPrinter;
-use log::error;
-use log::info;
-use std::path::PathBuf;
 
 pub trait StatusReporter {
     fn build_starts(&self);
-    fn build_completes(&self);
+    fn build_completes(&self, diagnostics: &[Diagnostic]);
     fn build_errors(&self, error: &Error);
 }
 
@@ -40,9 +44,7 @@ impl ConsoleStatusReporter {
     fn print_error(&self, error: &Error) {
         match error {
             Error::DiagnosticsError { errors } => {
-                for diagnostic in errors {
-                    error!("{}", self.print_diagnostic(diagnostic));
-                }
+                self.print_diagnostics_by_severity(errors);
             }
             Error::BuildProjectsErrors { errors } => {
                 for error in errors {
@@ -58,19 +60,41 @@ impl ConsoleStatusReporter {
         }
     }
 
+    fn print_diagnostics_by_severity(&self, diagnostics: &[Diagnostic]) {
+        diagnostics
+            .iter()
+            .map(|diagnostic| (diagnostic.severity(), self.print_diagnostic(diagnostic)))
+            .for_each(|(severity, output)| self.print_by_severity(severity, output));
+    }
+
+    fn print_by_severity(&self, severity: DiagnosticSeverity, output: String) {
+        match severity {
+            DiagnosticSeverity::ERROR => error!("{}", output),
+            DiagnosticSeverity::WARNING => warn!("{}", output),
+            _ => info!("{}", output),
+        }
+    }
+
     fn print_project_error(&self, error: &BuildProjectError) {
         match error {
             BuildProjectError::ValidationErrors {
                 errors,
                 project_name,
             } => {
-                for diagnostic in errors {
-                    error!(
-                        "Error in the project `{}`: {}",
-                        project_name,
-                        self.print_diagnostic(diagnostic)
-                    );
-                }
+                errors
+                    .iter()
+                    .map(|diagnostic| {
+                        let output = self.print_diagnostic(diagnostic);
+                        let formatted_output = match diagnostic.severity() {
+                            DiagnosticSeverity::ERROR => {
+                                format!("Error in the project `{}`: {}", project_name, output)
+                            }
+                            _ => format!("In the project `{}`: {}", project_name, output),
+                        };
+
+                        (diagnostic.severity(), formatted_output)
+                    })
+                    .for_each(|(severity, output)| self.print_by_severity(severity, output));
             }
             BuildProjectError::PersistErrors {
                 errors,
@@ -98,10 +122,14 @@ impl ConsoleStatusReporter {
 impl StatusReporter for ConsoleStatusReporter {
     fn build_starts(&self) {}
 
-    fn build_completes(&self) {}
+    fn build_completes(&self, diagnostics: &[Diagnostic]) {
+        self.print_diagnostics_by_severity(diagnostics);
+        info!("Compilation completed.");
+    }
 
     fn build_errors(&self, error: &Error) {
         self.print_error(error);
+
         if !matches!(error, Error::Cancelled) {
             error!("Compilation failed.");
         }

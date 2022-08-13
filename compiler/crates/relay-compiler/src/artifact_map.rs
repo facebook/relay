@@ -5,15 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::Artifact;
-use crate::build_project::ArtifactContent;
+use std::path::PathBuf;
+
 use dashmap::mapref::entry::Entry;
 use dashmap::DashMap;
 use intern::string_key::StringKey;
 use relay_codegen::QueryID;
 use serde::Deserialize;
 use serde::Serialize;
-use std::path::PathBuf;
+
+use crate::build_project::Artifact;
+use crate::build_project::ArtifactContent;
 
 /// Name of a fragment or operation.
 pub type DefinitionName = StringKey;

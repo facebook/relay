@@ -7,12 +7,14 @@
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::WithLocation;
 use errors::validate;
 use errors::validate_map;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentSpread;
 use graphql_ir::LinkedField;
 use graphql_ir::Program;
@@ -20,8 +22,6 @@ use graphql_ir::ScalarField;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
 use schema::Schema;
 
@@ -32,19 +32,19 @@ pub fn validate_server_only_directives(program: &Program) -> DiagnosticsResult<(
 
 #[derive(Default, Clone)]
 struct FragmentState {
-    client_invalid_directives: Vec<WithLocation<StringKey>>,
+    client_invalid_directives: Vec<WithLocation<DirectiveName>>,
     is_client_only: bool,
 }
 
 struct ServerOnlyDirectivesValidation<'s> {
     program: &'s Program,
     current_root_client_selection: Option<Location>,
-    current_client_invalid_directives: Vec<WithLocation<StringKey>>,
+    current_client_invalid_directives: Vec<WithLocation<DirectiveName>>,
     // For keeping track of if the current fragment only contains client selections,
     // if so, a server directive is invalid on it
     is_current_fragment_client_only: bool,
     // For storing the above data
-    fragment_cache: StringKeyMap<FragmentState>,
+    fragment_cache: FragmentDefinitionNameMap<FragmentState>,
     client_invalid_directive_names: StringKeySet,
 }
 
@@ -99,7 +99,7 @@ impl<'s> ServerOnlyDirectivesValidation<'s> {
             self.fragment_cache
                 .insert(fragment.name.item, Default::default());
             let parent_root_client_selection = self.current_root_client_selection;
-            let parent_client_invalid_directives: Vec<WithLocation<StringKey>> =
+            let parent_client_invalid_directives: Vec<WithLocation<DirectiveName>> =
                 self.current_client_invalid_directives.clone();
             let parent_is_current_fragment_client_only = self.is_current_fragment_client_only;
             // Keep traversing the fragment with the current client selection root or the current client fragment root
@@ -220,7 +220,7 @@ impl<'s> Validator for ServerOnlyDirectivesValidation<'s> {
     fn validate_directive(&mut self, directive: &Directive) -> DiagnosticsResult<()> {
         if self
             .client_invalid_directive_names
-            .contains(&directive.name.item)
+            .contains(&directive.name.item.0)
         {
             self.current_client_invalid_directives.push(directive.name);
             if let Some(location) = self.current_root_client_selection {

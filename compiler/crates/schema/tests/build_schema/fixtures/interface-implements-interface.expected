@@ -35,7 +35,9 @@ Text Schema:Schema {
   subscription_type: None
   directives: [
     Directive {
-        name: "include",
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
                 name: "if",
@@ -59,7 +61,9 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
-        name: "skip",
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
                 name: "if",
@@ -480,7 +484,9 @@ Text Schema:Schema {
 FlatBuffer Schema:FB Schema {
 directives: [
     Directive {
-        name: "include",
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
                 name: "if",
@@ -504,7 +510,9 @@ directives: [
         description: None,
     },
     Directive {
-        name: "skip",
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
                 name: "if",

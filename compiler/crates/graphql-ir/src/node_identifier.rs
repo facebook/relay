@@ -5,15 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::*;
-use common::WithLocation;
-use intern::string_key::StringKey;
-use schema::SDLSchema;
 use std::fmt;
 use std::hash::Hash;
 use std::hash::Hasher;
 use std::marker::PhantomData;
 use std::sync::Arc;
+
+use common::DirectiveName;
+use common::WithLocation;
+use intern::string_key::StringKey;
+use schema::SDLSchema;
+
+use crate::*;
 
 #[derive(Clone, Debug)]
 enum NodeIdentifierInner<TBehavior: LocationAgnosticBehavior> {
@@ -258,8 +261,8 @@ pub trait LocationAgnosticHash {
 /// Additional behaviors that appliable to the implementation of `LocationAgnosticPartialEq`
 /// and `LocationAgnosticHash`
 pub trait LocationAgnosticBehavior {
-    fn should_skip_in_node_identifier(name: StringKey) -> bool;
-    fn hash_for_name_only(name: StringKey) -> bool;
+    fn should_skip_in_node_identifier(name: DirectiveName) -> bool;
+    fn hash_for_name_only(name: DirectiveName) -> bool;
 }
 
 impl<T: LocationAgnosticHash> LocationAgnosticHash for WithLocation<T> {
@@ -359,9 +362,9 @@ impl LocationAgnosticPartialEq for Vec<Directive> {
 impl LocationAgnosticHash for Directive {
     fn location_agnostic_hash<H: Hasher, B: LocationAgnosticBehavior>(&self, state: &mut H) {
         if B::hash_for_name_only(self.name.item) {
-            self.name.item.hash(state);
+            self.name.hash(state);
         } else if !B::should_skip_in_node_identifier(self.name.item) {
-            self.name.location_agnostic_hash::<_, B>(state);
+            self.name.item.0.location_agnostic_hash::<_, B>(state);
             self.arguments.location_agnostic_hash::<_, B>(state);
             self.data.hash(state);
         }
@@ -370,7 +373,12 @@ impl LocationAgnosticHash for Directive {
 
 impl LocationAgnosticPartialEq for Directive {
     fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
-        if !self.name.location_agnostic_eq::<B>(&other.name) {
+        if !self
+            .name
+            .item
+            .0
+            .location_agnostic_eq::<B>(&other.name.item.0)
+        {
             return false;
         }
         if B::hash_for_name_only(self.name.item) {
@@ -432,14 +440,18 @@ impl LocationAgnosticPartialEq for Value {
 
 impl LocationAgnosticHash for Variable {
     fn location_agnostic_hash<H: Hasher, B: LocationAgnosticBehavior>(&self, state: &mut H) {
-        self.name.location_agnostic_hash::<_, B>(state);
+        self.name.item.0.location_agnostic_hash::<_, B>(state);
         self.type_.hash(state);
     }
 }
 
 impl LocationAgnosticPartialEq for Variable {
     fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
-        self.name.location_agnostic_eq::<B>(&other.name) && self.type_.eq(&other.type_)
+        self.name
+            .item
+            .0
+            .location_agnostic_eq::<B>(&other.name.item.0)
+            && self.type_.eq(&other.type_)
     }
 }
 

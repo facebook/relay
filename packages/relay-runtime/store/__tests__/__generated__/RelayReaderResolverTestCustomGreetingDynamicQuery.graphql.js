@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fa3ea6df938336ffeb6f13d87f7e9fa6>>
+ * @generated SignedSource<<4b551163a17a6ac23817e38f4bb19c56>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type UserCustomGreetingResolver$key = any;
+import type { UserCustomGreetingResolver$key } from "./../resolvers/__generated__/UserCustomGreetingResolver.graphql";
 import userCustomGreetingResolver from "../resolvers/UserCustomGreetingResolver.js";
 // Type assertion validating that `userCustomGreetingResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.

@@ -5,15 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::atomic_arena;
-use crate::atomic_arena::AtomicArena;
-use crate::idhasher::BuildIdHasher;
-use crate::sharded_set::ShardedSet;
-use once_cell::sync::OnceCell;
-use serde::Deserialize;
-use serde::Deserializer;
-use serde::Serialize;
-use serde::Serializer;
 use std::borrow::Borrow;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -25,6 +16,17 @@ use std::num::NonZeroU32;
 use std::sync::atomic::AtomicU32;
 use std::sync::atomic::Ordering;
 use std::u32;
+
+use once_cell::sync::OnceCell;
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
+use serde::Serializer;
+
+use crate::atomic_arena;
+use crate::atomic_arena::AtomicArena;
+use crate::idhasher::BuildIdHasher;
+use crate::sharded_set::ShardedSet;
 
 /// `InternId`s wrap the `Ref<T>` type.
 #[doc(hidden)]
@@ -699,9 +701,10 @@ macro_rules! intern_struct {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use serde_derive::Deserialize;
     use serde_derive::Serialize;
+
+    use super::*;
 
     #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize, Serialize)]
     struct MyType {

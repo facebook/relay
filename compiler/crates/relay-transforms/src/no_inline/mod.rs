@@ -5,34 +5,37 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ValidationMessage;
-use crate::MATCH_CONSTANTS;
-use crate::RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
+use graphql_ir::FragmentDefinitionNameMap;
 use graphql_ir::FragmentSpread;
 use graphql_ir::Program;
 use graphql_ir::Validator;
 use graphql_ir::Value;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
-use intern::string_key::StringKeyMap;
 use lazy_static::lazy_static;
-use std::sync::Arc;
+
+use crate::ValidationMessage;
+use crate::MATCH_CONSTANTS;
+use crate::RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME;
 
 lazy_static! {
-    pub static ref NO_INLINE_DIRECTIVE_NAME: StringKey = "no_inline".intern();
+    pub static ref NO_INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("no_inline".intern());
     pub static ref PARENT_DOCUMENTS_ARG: StringKey = "__parentDocuments".intern();
     pub static ref RAW_RESPONSE_TYPE_NAME: StringKey = "raw_response_type".intern();
 }
 
 pub fn attach_no_inline_directives_to_fragments(
-    no_inline_fragments: &mut StringKeyMap<Vec<StringKey>>,
+    no_inline_fragments: &mut FragmentDefinitionNameMap<Vec<StringKey>>,
     program: &mut Program,
 ) {
     for (fragment_name, parent_sources) in no_inline_fragments.drain() {
@@ -87,7 +90,7 @@ pub fn is_raw_response_type_enabled(directive: &Directive) -> bool {
 /// adding `@no_inline` is required. Because in watch mode, if the path with @module
 /// or @relay_client_component isn't changed, `@no_inline` won't get added.
 pub fn validate_required_no_inline_directive(
-    no_inline_fragments: &StringKeyMap<Vec<StringKey>>,
+    no_inline_fragments: &FragmentDefinitionNameMap<Vec<StringKey>>,
     program: &Program,
 ) -> DiagnosticsResult<()> {
     let mut validator = RequiredNoInlineValidator::new(no_inline_fragments, program);
@@ -107,12 +110,15 @@ fn create_parent_documents_arg(parent_sources: Vec<StringKey>) -> Argument {
 }
 
 struct RequiredNoInlineValidator<'f, 'p> {
-    no_inline_fragments: &'f StringKeyMap<Vec<StringKey>>,
+    no_inline_fragments: &'f FragmentDefinitionNameMap<Vec<StringKey>>,
     program: &'p Program,
 }
 
 impl<'f, 'p> RequiredNoInlineValidator<'f, 'p> {
-    fn new(no_inline_fragments: &'f StringKeyMap<Vec<StringKey>>, program: &'p Program) -> Self {
+    fn new(
+        no_inline_fragments: &'f FragmentDefinitionNameMap<Vec<StringKey>>,
+        program: &'p Program,
+    ) -> Self {
         Self {
             no_inline_fragments,
             program,
@@ -132,7 +138,7 @@ impl<'f, 'p> Validator for RequiredNoInlineValidator<'f, 'p> {
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         let has_no_inline = fragment
             .directives
-            .named(*NO_INLINE_DIRECTIVE_NAME)
+            .named(NO_INLINE_DIRECTIVE_NAME.0)
             .is_some();
         if has_no_inline {
             return Ok(());

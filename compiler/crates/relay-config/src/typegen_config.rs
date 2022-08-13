@@ -5,12 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::PathBuf;
+
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
 use serde::Deserialize;
 use serde::Serialize;
-use std::path::PathBuf;
 use strum::IntoEnumIterator;
 use strum_macros::EnumIter;
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;

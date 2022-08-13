@@ -8,7 +8,9 @@ fragment TestFragment on User {
         FragmentDefinition {
             name: WithLocation {
                 location: directive-generic.graphql:9:21,
-                item: "TestFragment",
+                item: FragmentDefinitionName(
+                    "TestFragment",
+                ),
             },
             variable_definitions: [],
             used_global_variables: [],
@@ -26,7 +28,9 @@ fragment TestFragment on User {
                         Directive {
                             name: WithLocation {
                                 location: directive-generic.graphql:37:53,
-                                item: "customDirective",
+                                item: DirectiveName(
+                                    "customDirective",
+                                ),
                             },
                             arguments: [
                                 Argument {

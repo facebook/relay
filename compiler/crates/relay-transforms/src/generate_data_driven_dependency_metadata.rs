@@ -5,8 +5,6 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::get_fragment_filename;
-use crate::ModuleMetadata;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
@@ -20,6 +18,9 @@ use intern::string_key::StringKeyMap;
 use itertools::Itertools;
 use schema::Schema;
 use schema::TypeReference;
+
+use crate::util::get_fragment_filename;
+use crate::ModuleMetadata;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct RelayDataDrivenDependencyMetadata {
@@ -53,7 +54,7 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Option<&ModuleEntries> {
-        let cache_key = fragment.name.item;
+        let cache_key = fragment.name.item.0;
         #[allow(clippy::map_entry)]
         if !self.cache.contains_key(&cache_key) {
             let entries = self.extract_module_entries_from_selections(

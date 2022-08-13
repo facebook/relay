@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -23,7 +25,6 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use schema::Schema;
-use std::sync::Arc;
 
 use super::ensure_discriminated_union_is_created;
 use super::errors::ValidationMessage;
@@ -210,7 +211,7 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
         if let Some(directive) = fragment_spread.directives.first() {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::AssignableFragmentSpreadNoOtherDirectives {
-                    disallowed_directive_name: directive.name.item,
+                    disallowed_directive_name: directive.name.item.0,
                 },
                 directive.name.location,
             ));
@@ -231,7 +232,7 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
                 directives: vec![],
                 selections: vec![Selection::ScalarField(Arc::new(ScalarField {
                     alias: Some(WithLocation::generated(
-                        format!("__is{}", fragment_spread.fragment.item.lookup()).intern(),
+                        format!("__is{}", fragment_spread.fragment.item.0.lookup()).intern(),
                     )),
                     definition: WithLocation::generated(self.program.schema.typename_field()),
                     arguments: vec![],

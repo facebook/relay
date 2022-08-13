@@ -5,7 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use self::ignoring_type_and_location::arguments_equals;
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::collections::VecDeque;
+use std::marker::PhantomData;
+use std::sync::Arc;
+
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -18,6 +23,7 @@ use graphql_ir::node_identifier::LocationAgnosticBehavior;
 use graphql_ir::Argument;
 use graphql_ir::Field as IRField;
 use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
 use graphql_ir::LinkedField;
 use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
@@ -28,12 +34,9 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 use schema::TypeReference;
-use std::collections::HashMap;
-use std::collections::HashSet;
-use std::collections::VecDeque;
-use std::marker::PhantomData;
-use std::sync::Arc;
 use thiserror::Error;
+
+use self::ignoring_type_and_location::arguments_equals;
 
 /// Note:set `further_optimization` will enable: (1) cache the paired-fields; and (2) avoid duplicate fragment validations in multi-core machines.
 pub fn validate_selection_conflict<B: LocationAgnosticBehavior + Sync>(
@@ -85,13 +88,15 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
 
     fn prewarm_fragments(&self, program: &'s Program) {
         // Validate the fragments in topology order.
-        let mut unclaimed_fragment_queue: VecDeque<StringKey> = VecDeque::new();
+        let mut unclaimed_fragment_queue: VecDeque<FragmentDefinitionName> = VecDeque::new();
 
         // Construct the dependency graph, which is represented by two maps:
         // DAG1: fragment K -> Used by: {Fragment v_1, v_2, v_3, ...}
         // DAG2: fragment K -> Spreading: {Fragment v_1, v_2, v_3, ...}
-        let mut dag_used_by: HashMap<StringKey, HashSet<StringKey>> = HashMap::new();
-        let mut dag_spreading: HashMap<StringKey, HashSet<StringKey>> = HashMap::new();
+        let mut dag_used_by: HashMap<FragmentDefinitionName, HashSet<FragmentDefinitionName>> =
+            HashMap::new();
+        let mut dag_spreading: HashMap<FragmentDefinitionName, HashSet<FragmentDefinitionName>> =
+            HashMap::new();
         for fragment in program.fragments() {
             let fragment_ = fragment.name.item;
             let spreads = fragment
@@ -178,12 +183,12 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         &self,
         fragment: &'s FragmentDefinition,
     ) -> DiagnosticsResult<Arc<Fields<'s>>> {
-        if let Some(cached) = self.fragment_cache.get(&fragment.name.item) {
+        if let Some(cached) = self.fragment_cache.get(&fragment.name.item.0) {
             return Ok(Arc::clone(&cached));
         }
         let fields = Arc::new(self.validate_selections(&fragment.selections)?);
         self.fragment_cache
-            .insert(fragment.name.item, Arc::clone(&fields));
+            .insert(fragment.name.item.0, Arc::clone(&fields));
         Ok(fields)
     }
 
@@ -398,11 +403,11 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             let left_stream_directive = l
                 .directives()
                 .iter()
-                .find(|d| d.name.item.lookup() == "stream");
+                .find(|d| d.name.item.0.lookup() == "stream");
             let right_stream_directive = r
                 .directives()
                 .iter()
-                .find(|d| d.name.item.lookup() == "stream");
+                .find(|d| d.name.item.0.lookup() == "stream");
             match (left_stream_directive, right_stream_directive) {
                 (Some(_), None) => Err(Diagnostic::error(
                     ValidationMessage::StreamConflictOnlyUsedInOnePlace { response_key },
@@ -517,7 +522,9 @@ mod ignoring_type_and_location {
     fn value_equals<B: LocationAgnosticBehavior>(a: &Value, b: &Value) -> bool {
         match (a, b) {
             (Value::Constant(a), Value::Constant(b)) => a.location_agnostic_eq::<B>(b),
-            (Value::Variable(a), Value::Variable(b)) => a.name.location_agnostic_eq::<B>(&b.name),
+            (Value::Variable(a), Value::Variable(b)) => {
+                a.name.item.0.location_agnostic_eq::<B>(&b.name.item.0)
+            }
             (Value::List(a), Value::List(b)) => slice_equals(a, b, value_equals::<B>),
             (Value::Object(a), Value::Object(b)) => arguments_equals::<B>(a, b),
             _ => false,

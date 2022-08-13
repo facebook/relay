@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<28bec8ba0a1de90196ee5009d35402a9>>
+ * @generated SignedSource<<a006d3e943f30ed6fb0541186c739fc7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +16,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type getFragmentIdentifierTest1NestedUserFragment$fragmentType = any;
+import type { getFragmentIdentifierTest1NestedUserFragment$fragmentType } from "./getFragmentIdentifierTest1NestedUserFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type getFragmentIdentifierTest1UserFragmentWithArgs$fragmentType: FragmentType;
 export type getFragmentIdentifierTest1UserFragmentWithArgs$data = {|

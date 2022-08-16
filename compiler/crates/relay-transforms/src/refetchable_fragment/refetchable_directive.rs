@@ -47,7 +47,7 @@ impl RefetchableDirective {
         let mut directives = Vec::new();
 
         for argument in &directive.arguments {
-            if argument.name.item == *QUERY_NAME_ARG {
+            if argument.name.item.0 == *QUERY_NAME_ARG {
                 if let Some(query_name) = argument.value.item.get_string_literal() {
                     name = Some(WithLocation::new(argument.value.location, query_name));
                 } else {
@@ -58,7 +58,7 @@ impl RefetchableDirective {
                         argument.name.location,
                     )]);
                 }
-            } else if argument.name.item == *DIRECTIVES_ARG {
+            } else if argument.name.item.0 == *DIRECTIVES_ARG {
                 directives = if let Value::Constant(ConstantValue::List(items)) =
                     &argument.value.item
                 {

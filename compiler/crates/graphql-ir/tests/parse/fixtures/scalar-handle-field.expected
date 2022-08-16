@@ -38,7 +38,9 @@ fragment ScalarHandleField on User {
                                 Argument {
                                     name: WithLocation {
                                         location: scalar-handle-field.graphql:63:69,
-                                        item: "handle",
+                                        item: ArgumentName(
+                                            "handle",
+                                        ),
                                     },
                                     value: WithLocation {
                                         location: scalar-handle-field.graphql:71:83,
@@ -63,7 +65,9 @@ fragment ScalarHandleField on User {
                                 Argument {
                                     name: WithLocation {
                                         location: scalar-handle-field.graphql:104:110,
-                                        item: "handle",
+                                        item: ArgumentName(
+                                            "handle",
+                                        ),
                                     },
                                     value: WithLocation {
                                         location: scalar-handle-field.graphql:112:125,

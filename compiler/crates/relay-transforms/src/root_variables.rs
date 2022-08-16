@@ -223,7 +223,7 @@ impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
         if !fragment.variable_definitions.is_empty() {
             for arg in spread.arguments.iter() {
                 if let Value::Variable(var) = &arg.value.item {
-                    if let Some(def) = fragment.variable_definitions.named(arg.name.item) {
+                    if let Some(def) = fragment.variable_definitions.named(arg.name.item.0) {
                         if self.is_root_variable(var.name.item) {
                             self.record_root_variable_usage(&var.name, &def.type_);
                         }

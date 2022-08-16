@@ -49,13 +49,13 @@ impl RelayDirective {
             let mut unmask = false;
             let mut plural = false;
             for arg in &relay_directive.arguments {
-                if arg.name.item == *MASK_ARG_NAME {
+                if arg.name.item.0 == *MASK_ARG_NAME {
                     if let Value::Constant(ConstantValue::Boolean(arg_value)) = arg.value.item {
                         unmask = !arg_value;
                     } else {
                         panic!("Invalid @relay(mask: ...) directive argument: {:?}", arg);
                     }
-                } else if arg.name.item == *PLURAL_ARG_NAME {
+                } else if arg.name.item.0 == *PLURAL_ARG_NAME {
                     if let Value::Constant(ConstantValue::Boolean(arg_value)) = arg.value.item {
                         plural = arg_value;
                     } else {

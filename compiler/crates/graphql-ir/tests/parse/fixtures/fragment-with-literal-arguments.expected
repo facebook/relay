@@ -35,7 +35,9 @@ fragment ChildFragment on User
                         Argument {
                             name: WithLocation {
                                 location: fragment-with-literal-arguments.graphql:64:75,
-                                item: "pictureSize",
+                                item: ArgumentName(
+                                    "pictureSize",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment-with-literal-arguments.graphql:77:81,
@@ -106,7 +108,9 @@ fragment ChildFragment on User
                         Argument {
                             name: WithLocation {
                                 location: fragment-with-literal-arguments.graphql:189:193,
-                                item: "size",
+                                item: ArgumentName(
+                                    "size",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment-with-literal-arguments.graphql:195:207,

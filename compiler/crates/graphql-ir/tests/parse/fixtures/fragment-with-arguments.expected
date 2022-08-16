@@ -110,7 +110,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                         Argument {
                             name: WithLocation {
                                 location: fragment-with-arguments.graphql:146:150,
-                                item: "size",
+                                item: ArgumentName(
+                                    "size",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment-with-arguments.graphql:152:164,
@@ -160,7 +162,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                         Argument {
                             name: WithLocation {
                                 location: fragment-with-arguments.graphql:213:217,
-                                item: "size",
+                                item: ArgumentName(
+                                    "size",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment-with-arguments.graphql:219:224,
@@ -206,7 +210,9 @@ fragment Foo on User @argumentDefinitions(localId: {type: "ID!"}) {
                         Argument {
                             name: WithLocation {
                                 location: fragment-with-arguments.graphql:260:267,
-                                item: "localId",
+                                item: ArgumentName(
+                                    "localId",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment-with-arguments.graphql:269:272,

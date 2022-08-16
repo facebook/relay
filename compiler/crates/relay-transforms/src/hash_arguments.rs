@@ -20,7 +20,7 @@ pub fn hash_arguments(args: &[Argument]) -> Option<String> {
         let mut converted_args: Vec<_> = args
             .iter()
             .map(|arg| HashArgument {
-                name: arg.name.item.lookup(),
+                name: arg.name.item.0.lookup(),
                 value: identifier_for_argument_value(&arg.value.item),
             })
             .collect();
@@ -137,7 +137,7 @@ fn identifier_for_argument_value(value: &Value) -> IdentiferValue {
             entries
                 .iter()
                 .map(|entry| IdentiferObjectProperty {
-                    name: entry.name.item.lookup(),
+                    name: entry.name.item.0.lookup(),
                     value: identifier_for_argument_value(&entry.value.item),
                 })
                 .collect(),

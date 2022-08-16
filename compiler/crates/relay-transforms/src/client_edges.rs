@@ -15,6 +15,7 @@ use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
+use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::Field;
@@ -229,7 +230,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             directives: vec![Directive {
                 name: WithLocation::generated(*CLIENT_EDGE_GENERATED_FRAGMENT_KEY),
                 arguments: vec![Argument {
-                    name: WithLocation::generated(*CLIENT_EDGE_SOURCE_NAME),
+                    name: WithLocation::generated(ArgumentName(*CLIENT_EDGE_SOURCE_NAME)),
                     value: WithLocation::generated(Value::Constant(ConstantValue::String(
                         document_name.item,
                     ))),
@@ -508,7 +509,7 @@ fn make_refetchable_directive(query_name: StringKey) -> Directive {
     Directive {
         name: WithLocation::generated(*REFETCHABLE_NAME),
         arguments: vec![Argument {
-            name: WithLocation::generated(*QUERY_NAME_ARG),
+            name: WithLocation::generated(ArgumentName(*QUERY_NAME_ARG)),
             value: WithLocation::generated(Value::Constant(ConstantValue::String(query_name))),
         }],
         data: None,

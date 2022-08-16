@@ -13,6 +13,7 @@ use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
+use graphql_ir::ArgumentName;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
@@ -64,7 +65,7 @@ pub fn build_fragment_spread(fragment: &FragmentDefinition) -> Selection {
             .variable_definitions
             .iter()
             .map(|var| Argument {
-                name: var.name.map(|x| x.0),
+                name: var.name.map(|x| x.0).map(ArgumentName),
                 value: WithLocation::new(
                     var.name.location,
                     Value::Variable(Variable {

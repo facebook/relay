@@ -71,7 +71,9 @@ fragment F2 on Query @argumentDefinitions(
                         Argument {
                             name: WithLocation {
                                 location: fragment_with_arguments_defaulting.graphql:199:208,
-                                item: "nonnullID",
+                                item: ArgumentName(
+                                    "nonnullID",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment_with_arguments_defaulting.graphql:210:222,
@@ -148,7 +150,9 @@ fragment F2 on Query @argumentDefinitions(
                         Argument {
                             name: WithLocation {
                                 location: fragment_with_arguments_defaulting.graphql:320:322,
-                                item: "id",
+                                item: ArgumentName(
+                                    "id",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment_with_arguments_defaulting.graphql:324:334,

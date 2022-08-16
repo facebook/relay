@@ -118,7 +118,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                     if let Some(fragment_definition) = fragment_definition {
                         fragment_definition
                             .variable_definitions
-                            .named(arg.name.item)
+                            .named(arg.name.item.0)
                             .is_some()
                     } else {
                         false

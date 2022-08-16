@@ -36,7 +36,9 @@ fragment TestFragment on User {
                                 Argument {
                                     name: WithLocation {
                                         location: directive-generic.graphql:54:59,
-                                        item: "level",
+                                        item: ArgumentName(
+                                            "level",
+                                        ),
                                     },
                                     value: WithLocation {
                                         location: directive-generic.graphql:61:63,

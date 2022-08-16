@@ -13,6 +13,7 @@ use common::Location;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Argument;
+use graphql_ir::ArgumentName;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::InlineFragment;
@@ -162,7 +163,7 @@ fn build_refetch_operation(
                     alias: None,
                     definition: WithLocation::new(fragment.name.location, node_field_id),
                     arguments: vec![Argument {
-                        name: WithLocation::new(fragment.name.location, id_arg.name),
+                        name: WithLocation::new(fragment.name.location, ArgumentName(id_arg.name)),
                         value: WithLocation::new(
                             fragment.name.location,
                             Value::Variable(Variable {

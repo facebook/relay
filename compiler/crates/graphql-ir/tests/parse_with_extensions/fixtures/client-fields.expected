@@ -86,7 +86,9 @@ type Foo {
                         Argument {
                             name: WithLocation {
                                 location: client-fields.graphql:42:44,
-                                item: "id",
+                                item: ArgumentName(
+                                    "id",
+                                ),
                             },
                             value: WithLocation {
                                 location: client-fields.graphql:46:49,

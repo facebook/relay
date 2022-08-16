@@ -8,6 +8,7 @@
 use common::DirectiveName;
 use common::WithLocation;
 use graphql_ir::Argument;
+use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::Value;
@@ -100,15 +101,15 @@ pub fn build_handle_field_directive(values: HandleFieldDirectiveValues) -> Direc
     } = values;
     let mut directive_arguments = vec![
         Argument {
-            name: WithLocation::generated(*KEY_ARG_NAME),
+            name: WithLocation::generated(ArgumentName(*KEY_ARG_NAME)),
             value: WithLocation::generated(Value::Constant(ConstantValue::String(key))),
         },
         Argument {
-            name: WithLocation::generated(*HANDLER_ARG_NAME),
+            name: WithLocation::generated(ArgumentName(*HANDLER_ARG_NAME)),
             value: WithLocation::generated(Value::Constant(ConstantValue::String(handle))),
         },
         Argument {
-            name: WithLocation::generated(*FILTERS_ARG_NAME),
+            name: WithLocation::generated(ArgumentName(*FILTERS_ARG_NAME)),
             value: WithLocation::generated(Value::Constant(match filters {
                 Some(filters) => ConstantValue::List(
                     filters
@@ -120,7 +121,7 @@ pub fn build_handle_field_directive(values: HandleFieldDirectiveValues) -> Direc
             })),
         },
         Argument {
-            name: WithLocation::generated(*DYNAMIC_KEY_ARG_NAME),
+            name: WithLocation::generated(ArgumentName(*DYNAMIC_KEY_ARG_NAME)),
             value: WithLocation::generated(
                 dynamic_key.unwrap_or(Value::Constant(ConstantValue::Null())),
             ),
@@ -129,7 +130,7 @@ pub fn build_handle_field_directive(values: HandleFieldDirectiveValues) -> Direc
 
     if let Some(handle_args) = handle_args {
         directive_arguments.push(Argument {
-            name: WithLocation::generated(*HANLDE_ARGS_NAME),
+            name: WithLocation::generated(ArgumentName(*HANLDE_ARGS_NAME)),
             value: WithLocation::generated(Value::Object(handle_args)),
         });
     }
@@ -162,23 +163,23 @@ fn extract_handle_field_directive_args_helper(
     let mut handle_args_arg: Option<&Argument> = None;
 
     for arg in handle_field_directive.arguments.iter() {
-        if arg.name.item == handler_arg_name {
+        if arg.name.item.0 == handler_arg_name {
             if let Value::Constant(constant_val) = &arg.value.item {
                 handler_arg = Some((arg, constant_val));
             }
-        } else if arg.name.item == *KEY_ARG_NAME {
+        } else if arg.name.item.0 == *KEY_ARG_NAME {
             if let Value::Constant(constant_val) = &arg.value.item {
                 key_arg = Some((arg, constant_val));
             }
-        } else if arg.name.item == *FILTERS_ARG_NAME {
+        } else if arg.name.item.0 == *FILTERS_ARG_NAME {
             if let Value::Constant(constant_val) = &arg.value.item {
                 filters_arg = Some((arg, constant_val));
             }
-        } else if arg.name.item == *DYNAMIC_KEY_ARG_NAME {
+        } else if arg.name.item.0 == *DYNAMIC_KEY_ARG_NAME {
             if let Value::Variable(_) = arg.value.item {
                 dynamic_key_arg = Some((arg, &arg.value.item));
             }
-        } else if arg.name.item == *HANLDE_ARGS_NAME {
+        } else if arg.name.item.0 == *HANLDE_ARGS_NAME {
             handle_args_arg = Some(arg)
         }
     }

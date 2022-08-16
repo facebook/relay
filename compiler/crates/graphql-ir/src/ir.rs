@@ -391,15 +391,24 @@ impl Named for Directive {
     }
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct ArgumentName(pub StringKey);
+
+impl Display for ArgumentName {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(fmt, "{}", self.0)
+    }
+}
+
 /// Name : Value
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Argument {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<ArgumentName>,
     pub value: WithLocation<Value>,
 }
 impl Named for Argument {
     fn name(&self) -> StringKey {
-        self.name.item
+        self.name.item.0
     }
 }
 

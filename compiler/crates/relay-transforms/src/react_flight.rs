@@ -15,6 +15,7 @@ use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
+use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
@@ -242,7 +243,9 @@ impl<'s> ReactFlightTransform<'s> {
         Directive {
             name: WithLocation::generated(*REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME),
             arguments: vec![Argument {
-                name: WithLocation::generated(*REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG),
+                name: WithLocation::generated(ArgumentName(
+                    *REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG,
+                )),
                 value: WithLocation::generated(Value::Constant(ConstantValue::List(
                     components.into_iter().map(ConstantValue::String).collect(),
                 ))),
@@ -409,13 +412,15 @@ impl<'s> Transformer for ReactFlightTransform<'s> {
             alias: Some(alias),
             arguments: vec![
                 Argument {
-                    name: WithLocation::generated(*REACT_FLIGHT_COMPONENT_ARGUMENT_NAME),
+                    name: WithLocation::generated(ArgumentName(
+                        *REACT_FLIGHT_COMPONENT_ARGUMENT_NAME,
+                    )),
                     value: WithLocation::generated(Value::Constant(ConstantValue::String(
                         component_name,
                     ))),
                 },
                 Argument {
-                    name: WithLocation::generated(*REACT_FLIGHT_PROPS_ARGUMENT_NAME),
+                    name: WithLocation::generated(ArgumentName(*REACT_FLIGHT_PROPS_ARGUMENT_NAME)),
                     value: WithLocation::generated(Value::Object(field.arguments.clone())),
                 },
             ],

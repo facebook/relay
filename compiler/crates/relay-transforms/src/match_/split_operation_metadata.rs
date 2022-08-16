@@ -9,6 +9,7 @@ use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Argument;
+use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinitionName;
@@ -66,13 +67,13 @@ impl SplitOperationMetadata {
     pub fn to_directive(&self) -> Directive {
         let mut arguments = vec![
             Argument {
-                name: WithLocation::generated(*ARG_DERIVED_FROM),
+                name: WithLocation::generated(ArgumentName(*ARG_DERIVED_FROM)),
                 value: WithLocation::generated(Value::Constant(ConstantValue::String(
                     self.derived_from.0,
                 ))),
             },
             Argument {
-                name: WithLocation::generated(*ARG_PARENT_DOCUMENTS),
+                name: WithLocation::generated(ArgumentName(*ARG_PARENT_DOCUMENTS)),
                 value: WithLocation::generated(Value::Constant(ConstantValue::List(
                     self.parent_documents
                         .iter()
@@ -84,7 +85,7 @@ impl SplitOperationMetadata {
         ];
         if self.raw_response_type {
             arguments.push(Argument {
-                name: WithLocation::generated(*ARG_RAW_RESPONSE_TYPE),
+                name: WithLocation::generated(ArgumentName(*ARG_RAW_RESPONSE_TYPE)),
                 value: WithLocation::generated(Value::Constant(ConstantValue::Null())),
             });
         }

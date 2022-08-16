@@ -8,6 +8,7 @@
 use common::DirectiveName;
 use common::WithLocation;
 use graphql_ir::Argument;
+use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::Value;
@@ -28,7 +29,7 @@ pub fn create_metadata_directive(key: StringKey, value: ConstantValue) -> Direct
     Directive {
         name: WithLocation::generated(*INTERNAL_METADATA_DIRECTIVE),
         arguments: vec![Argument {
-            name: WithLocation::generated(key),
+            name: WithLocation::generated(ArgumentName(key)),
             value: WithLocation::generated(Value::Constant(value)),
         }],
         data: None,

@@ -79,7 +79,7 @@ impl<'a> Transformer for HashSupportedArgumentTransform<'a> {
         let supported_arg = Arc::make_mut(&mut new_field)
             .arguments
             .iter_mut()
-            .find(|arg| arg.name.item == MATCH_CONSTANTS.supported_arg)
+            .find(|arg| arg.name.item.0 == MATCH_CONSTANTS.supported_arg)
             .expect("expected to find a supported argument as checked before");
 
         let mut input = String::new();

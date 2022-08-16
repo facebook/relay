@@ -42,7 +42,9 @@ fragment ChildFragment on Query
                         Argument {
                             name: WithLocation {
                                 location: fragment-with-literal-object-list-arguments.graphql:73:78,
-                                item: "query",
+                                item: ArgumentName(
+                                    "query",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment-with-literal-object-list-arguments.graphql:80:97,
@@ -91,7 +93,9 @@ fragment ChildFragment on Query
                         Argument {
                             name: WithLocation {
                                 location: fragment-with-literal-object-list-arguments.graphql:145:151,
-                                item: "inputs",
+                                item: ArgumentName(
+                                    "inputs",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment-with-literal-object-list-arguments.graphql:153:169,
@@ -179,7 +183,9 @@ fragment ChildFragment on Query
                         Argument {
                             name: WithLocation {
                                 location: fragment-with-literal-object-list-arguments.graphql:294:299,
-                                item: "query",
+                                item: ArgumentName(
+                                    "query",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment-with-literal-object-list-arguments.graphql:301:332,
@@ -188,7 +194,9 @@ fragment ChildFragment on Query
                                         Argument {
                                             name: WithLocation {
                                                 location: fragment-with-literal-object-list-arguments.graphql:302:307,
-                                                item: "query",
+                                                item: ArgumentName(
+                                                    "query",
+                                                ),
                                             },
                                             value: WithLocation {
                                                 location: fragment-with-literal-object-list-arguments.graphql:309:314,
@@ -202,7 +210,9 @@ fragment ChildFragment on Query
                                         Argument {
                                             name: WithLocation {
                                                 location: fragment-with-literal-object-list-arguments.graphql:316:322,
-                                                item: "inputs",
+                                                item: ArgumentName(
+                                                    "inputs",
+                                                ),
                                             },
                                             value: WithLocation {
                                                 location: fragment-with-literal-object-list-arguments.graphql:324:331,

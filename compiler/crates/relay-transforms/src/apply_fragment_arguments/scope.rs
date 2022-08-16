@@ -104,6 +104,7 @@ mod tests {
     use common::Span;
     use common::WithLocation;
     use graphql_ir::Argument;
+    use graphql_ir::ArgumentName;
     use graphql_ir::ConstantValue;
     use graphql_ir::VariableDefinition;
     use graphql_ir::VariableName;
@@ -158,7 +159,7 @@ mod tests {
         };
 
         let spread_arguments = vec![Argument {
-            name: with_test_location("size".intern()),
+            name: with_test_location(ArgumentName("size".intern())),
             value: with_test_location(Value::Constant(ConstantValue::Int(42))),
         }];
 
@@ -227,11 +228,11 @@ mod tests {
 
         let spread_arguments = vec![
             Argument {
-                name: with_test_location("defaultAndValuePassed".intern()),
+                name: with_test_location(ArgumentName("defaultAndValuePassed".intern())),
                 value: with_test_location(Value::Constant(ConstantValue::Int(3))),
             },
             Argument {
-                name: with_test_location("defaultAndNullPassed".intern()),
+                name: with_test_location(ArgumentName("defaultAndNullPassed".intern())),
                 value: with_test_location(Value::Constant(ConstantValue::Null())),
             },
         ];

@@ -269,7 +269,8 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     .iter()
                     .map(|arg| {
                         let mut arg = self.transform_argument(arg).unwrap_or_else(|| arg.clone());
-                        arg.name.item = format_local_variable(fragment.name.item, arg.name.item);
+                        arg.name.item.0 =
+                            format_local_variable(fragment.name.item, arg.name.item.0);
                         arg
                     })
                     .collect();

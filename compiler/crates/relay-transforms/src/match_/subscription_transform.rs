@@ -11,6 +11,7 @@ use common::DiagnosticsResult;
 use common::Location;
 use common::WithLocation;
 use graphql_ir::Argument;
+use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Field;
 use graphql_ir::FragmentDefinition;
@@ -165,7 +166,10 @@ impl<'program> SubscriptionTransform<'program> {
             )),
             definition: WithLocation::new(location, js_field_id),
             arguments: vec![Argument {
-                name: WithLocation::new(location, MATCH_CONSTANTS.js_field_module_arg),
+                name: WithLocation::new(
+                    location,
+                    ArgumentName(MATCH_CONSTANTS.js_field_module_arg),
+                ),
                 value: WithLocation::new(
                     location,
                     Value::Constant(ConstantValue::String(normalization_operation_name)),

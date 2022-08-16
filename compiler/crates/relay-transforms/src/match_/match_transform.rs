@@ -20,6 +20,7 @@ use fnv::FnvBuildHasher;
 use fnv::FnvHashMap;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
+use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::Field;
@@ -734,7 +735,10 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
         let mut next_arguments = field.arguments.clone();
         next_arguments.push(Argument {
-            name: WithLocation::new(field.definition.location, MATCH_CONSTANTS.supported_arg),
+            name: WithLocation::new(
+                field.definition.location,
+                ArgumentName(MATCH_CONSTANTS.supported_arg),
+            ),
             value: WithLocation::new(
                 field.definition.location,
                 Value::Constant(ConstantValue::List(
@@ -942,7 +946,7 @@ fn build_string_literal_argument(
     location: Location,
 ) -> Argument {
     Argument {
-        name: WithLocation::new(location, name),
+        name: WithLocation::new(location, ArgumentName(name)),
         value: WithLocation::new(location, Value::Constant(ConstantValue::String(value))),
     }
 }

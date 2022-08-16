@@ -40,7 +40,9 @@ query EnumValueQuery {
                                 Argument {
                                     name: WithLocation {
                                         location: enum-values.graphql:49:55,
-                                        item: "preset",
+                                        item: ArgumentName(
+                                            "preset",
+                                        ),
                                     },
                                     value: WithLocation {
                                         location: enum-values.graphql:57:62,

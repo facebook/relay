@@ -46,7 +46,9 @@ fragment LinkedHandleField on User {
                         Argument {
                             name: WithLocation {
                                 location: linked-handle-field-with-filters.graphql:47:52,
-                                item: "first",
+                                item: ArgumentName(
+                                    "first",
+                                ),
                             },
                             value: WithLocation {
                                 location: linked-handle-field-with-filters.graphql:54:56,
@@ -60,7 +62,9 @@ fragment LinkedHandleField on User {
                         Argument {
                             name: WithLocation {
                                 location: linked-handle-field-with-filters.graphql:58:65,
-                                item: "orderby",
+                                item: ArgumentName(
+                                    "orderby",
+                                ),
                             },
                             value: WithLocation {
                                 location: linked-handle-field-with-filters.graphql:67:75,
@@ -94,7 +98,9 @@ fragment LinkedHandleField on User {
                                 Argument {
                                     name: WithLocation {
                                         location: linked-handle-field-with-filters.graphql:96:102,
-                                        item: "handle",
+                                        item: ArgumentName(
+                                            "handle",
+                                        ),
                                     },
                                     value: WithLocation {
                                         location: linked-handle-field-with-filters.graphql:104:119,
@@ -108,7 +114,9 @@ fragment LinkedHandleField on User {
                                 Argument {
                                     name: WithLocation {
                                         location: linked-handle-field-with-filters.graphql:121:128,
-                                        item: "filters",
+                                        item: ArgumentName(
+                                            "filters",
+                                        ),
                                     },
                                     value: WithLocation {
                                         location: linked-handle-field-with-filters.graphql:130:150,

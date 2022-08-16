@@ -50,7 +50,9 @@ query TestQuery($id: ID!) {
                         Argument {
                             name: WithLocation {
                                 location: simple-query.graphql:40:42,
-                                item: "id",
+                                item: ArgumentName(
+                                    "id",
+                                ),
                             },
                             value: WithLocation {
                                 location: simple-query.graphql:44:47,

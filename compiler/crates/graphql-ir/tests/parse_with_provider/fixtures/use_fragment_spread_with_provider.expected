@@ -48,7 +48,9 @@ fragment ChildFragment2 on User
                         Argument {
                             name: WithLocation {
                                 location: use_fragment_spread_with_provider.graphql:65:76,
-                                item: "pictureSize",
+                                item: ArgumentName(
+                                    "pictureSize",
+                                ),
                             },
                             value: WithLocation {
                                 location: use_fragment_spread_with_provider.graphql:78:82,
@@ -160,7 +162,9 @@ fragment ChildFragment2 on User
                         Argument {
                             name: WithLocation {
                                 location: use_fragment_spread_with_provider.graphql:301:305,
-                                item: "size",
+                                item: ArgumentName(
+                                    "size",
+                                ),
                             },
                             value: WithLocation {
                                 location: use_fragment_spread_with_provider.graphql:307:319,

@@ -11,6 +11,7 @@ use common::WithLocation;
 use fixture_tests::Fixture;
 use graphql_ir::build;
 use graphql_ir::Argument;
+use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::ExecutableDefinition;
@@ -49,7 +50,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                                 arguments: vec![Argument {
                                     name: WithLocation::new(
                                         operation.name.location,
-                                        "metadataKey".intern(),
+                                        ArgumentName("metadataKey".intern()),
                                     ),
                                     value: WithLocation::new(
                                         operation.name.location,

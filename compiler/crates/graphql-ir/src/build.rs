@@ -1346,7 +1346,8 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         Ok(Argument {
             name: argument
                 .name
-                .name_with_location(self.location.source_location()),
+                .name_with_location(self.location.source_location())
+                .map(ArgumentName),
             value: WithLocation::from_span(self.location.source_location(), value_span, value),
         })
     }
@@ -1545,7 +1546,10 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                         ValidationLevel::Strict,
                     )?;
                     Ok(Argument {
-                        name: x.name.name_with_location(self.location.source_location()),
+                        name: x
+                            .name
+                            .name_with_location(self.location.source_location())
+                            .map(ArgumentName),
                         value: WithLocation::from_span(
                             self.location.source_location(),
                             value_span,

@@ -16,6 +16,7 @@ use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
+use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
@@ -287,7 +288,9 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
                     location: relay_client_component_directive.name.location,
                 },
                 arguments: vec![Argument {
-                    name: WithLocation::generated(*RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME),
+                    name: WithLocation::generated(ArgumentName(
+                        *RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
+                    )),
                     value: WithLocation::generated(Value::Constant(ConstantValue::String(
                         module_id,
                     ))),

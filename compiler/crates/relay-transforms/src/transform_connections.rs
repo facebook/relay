@@ -11,6 +11,7 @@ use common::Location;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Argument;
+use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
@@ -131,16 +132,16 @@ impl<'s> ConnectionTransform<'s> {
         if is_stream_connection {
             let mut arguments = vec![];
             for arg in &connection_directive.arguments {
-                if arg.name.item == DEFER_STREAM_CONSTANTS.if_arg
-                    || arg.name.item == DEFER_STREAM_CONSTANTS.initial_count_arg
-                    || arg.name.item == DEFER_STREAM_CONSTANTS.use_customized_batch_arg
+                if arg.name.item.0 == DEFER_STREAM_CONSTANTS.if_arg
+                    || arg.name.item.0 == DEFER_STREAM_CONSTANTS.initial_count_arg
+                    || arg.name.item.0 == DEFER_STREAM_CONSTANTS.use_customized_batch_arg
                 {
                     arguments.push(arg.clone());
-                } else if arg.name.item == *KEY_ARG_NAME {
+                } else if arg.name.item.0 == *KEY_ARG_NAME {
                     arguments.push(Argument {
                         name: WithLocation::new(
                             arg.name.location,
-                            DEFER_STREAM_CONSTANTS.label_arg,
+                            ArgumentName(DEFER_STREAM_CONSTANTS.label_arg),
                         ),
                         value: arg.value.clone(),
                     });
@@ -217,7 +218,7 @@ impl<'s> ConnectionTransform<'s> {
                 arguments.push(Argument {
                     name: WithLocation::new(
                         key_arg.name.location,
-                        DEFER_STREAM_CONSTANTS.label_arg,
+                        ArgumentName(DEFER_STREAM_CONSTANTS.label_arg),
                     ),
                     value: WithLocation::new(
                         key_arg.value.location,

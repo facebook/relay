@@ -296,10 +296,10 @@ pub fn get_default_filters(
         .arguments
         .iter()
         .filter_map(|arg| {
-            if connection_constants.is_connection_argument(arg.name.item) {
+            if connection_constants.is_connection_argument(arg.name.item.0) {
                 None
             } else {
-                Some(arg.name.item)
+                Some(arg.name.item.0)
             }
         })
         .collect::<Vec<_>>();

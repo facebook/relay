@@ -19,6 +19,7 @@ use common::WithLocation;
 pub use directives::DeferDirective;
 pub use directives::StreamDirective;
 use graphql_ir::Argument;
+use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::Field;
@@ -148,7 +149,7 @@ impl DeferStreamTransform<'_> {
         let next_label_value = Value::Constant(ConstantValue::String(transformed_label));
         let next_label_arg = Argument {
             name: WithLocation {
-                item: DEFER_STREAM_CONSTANTS.label_arg,
+                item: ArgumentName(DEFER_STREAM_CONSTANTS.label_arg),
                 location: label_arg.map_or(defer.name.location, |arg| arg.name.location),
             },
             value: WithLocation {
@@ -250,7 +251,7 @@ impl DeferStreamTransform<'_> {
         let next_label_value = Value::Constant(ConstantValue::String(transformed_label));
         let next_label_arg = Argument {
             name: WithLocation {
-                item: DEFER_STREAM_CONSTANTS.label_arg,
+                item: ArgumentName(DEFER_STREAM_CONSTANTS.label_arg),
                 location: label_arg.map_or(stream.name.location, |arg| arg.name.location),
             },
             value: WithLocation {
@@ -411,7 +412,7 @@ fn get_literal_string_argument(
         } else {
             Err(Diagnostic::error(
                 ValidationMessage::LiteralStringArgumentExpectedForDirective {
-                    arg_name: arg.name.item,
+                    arg_name: arg.name.item.0,
                     directive_name: directive.name.item,
                 },
                 directive.name.location,

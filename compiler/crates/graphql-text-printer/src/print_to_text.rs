@@ -546,7 +546,11 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                             write!(self.writer, " ")?;
                         }
                     }
-                    write!(self.writer, "{}:", arg.name.item)?;
+                    if self.options.json_format {
+                        write!(self.writer, "\"{}\":", arg.name.item)?;
+                    } else {
+                        write!(self.writer, "{}:", arg.name.item)?;
+                    }
                     if !self.options.compact {
                         write!(self.writer, " ")?;
                     }

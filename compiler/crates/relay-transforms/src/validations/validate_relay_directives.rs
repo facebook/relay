@@ -132,12 +132,12 @@ impl<'program> RelayDirectiveValidation<'program> {
         let mut errs = vec![];
         if let Some(directive) = find_relay_directive(directives) {
             for arg in &directive.arguments {
-                if arg.name.item.0 == *PLURAL_ARG_NAME || arg.name.item.0 == *MASK_ARG_NAME {
+                if arg.name.item == *PLURAL_ARG_NAME || arg.name.item == *MASK_ARG_NAME {
                     match arg.value.item {
                         Value::Constant(ConstantValue::Boolean(_))
                         | Value::Constant(ConstantValue::Null()) => {}
                         _ => errs.push(Diagnostic::error(
-                            ValidationMessage::InvalidRelayDirectiveArg(arg.name.item.0),
+                            ValidationMessage::InvalidRelayDirectiveArg(arg.name.item),
                             arg.value.location,
                         )),
                     }
@@ -195,7 +195,7 @@ impl Validator for RelayDirectiveValidation<'_> {
     fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> DiagnosticsResult<()> {
         validate!(
             if let Some(directive) = find_relay_directive(&spread.directives) {
-                let mask_argument = directive.arguments.named(*MASK_ARG_NAME);
+                let mask_argument = directive.arguments.named(MASK_ARG_NAME.0);
                 if let Some(arg) = mask_argument {
                     match arg.value.item {
                         Value::Constant(ConstantValue::Boolean(val)) => {
@@ -208,7 +208,7 @@ impl Validator for RelayDirectiveValidation<'_> {
                         Value::Constant(ConstantValue::Null()) => Ok(()),
                         _ => Err(vec![
                             Diagnostic::error(
-                                ValidationMessage::InvalidRelayDirectiveArg(arg.name.item.0),
+                                ValidationMessage::InvalidRelayDirectiveArg(arg.name.item),
                                 spread.fragment.location,
                             )
                             .annotate("related location", arg.value.location),

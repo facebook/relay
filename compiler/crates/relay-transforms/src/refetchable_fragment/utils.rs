@@ -65,7 +65,7 @@ pub fn build_fragment_spread(fragment: &FragmentDefinition) -> Selection {
             .variable_definitions
             .iter()
             .map(|var| Argument {
-                name: var.name.map(|x| x.0).map(ArgumentName),
+                name: var.name.map(|x| ArgumentName(x.0)),
                 value: WithLocation::new(
                     var.name.location,
                     Value::Variable(Variable {

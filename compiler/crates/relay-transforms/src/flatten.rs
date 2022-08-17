@@ -593,13 +593,13 @@ fn merge_handle_directives(
             if handles.is_empty() {
                 handles.push(directive.clone());
             } else {
-                let current_handler_arg = directive.arguments.named(*HANDLER_ARG_NAME);
-                let current_name_arg = directive.arguments.named(*KEY_ARG_NAME);
+                let current_handler_arg = directive.arguments.named(HANDLER_ARG_NAME.0);
+                let current_name_arg = directive.arguments.named(KEY_ARG_NAME.0);
                 let is_duplicate_handle = handles.iter().any(|handle| {
                     current_handler_arg.location_agnostic_eq::<RelayLocationAgnosticBehavior>(
-                        &handle.arguments.named(*HANDLER_ARG_NAME),
+                        &handle.arguments.named(HANDLER_ARG_NAME.0),
                     ) && current_name_arg.location_agnostic_eq::<RelayLocationAgnosticBehavior>(
-                        &handle.arguments.named(*KEY_ARG_NAME),
+                        &handle.arguments.named(KEY_ARG_NAME.0),
                     )
                 });
                 if !is_duplicate_handle {

@@ -24,9 +24,9 @@ impl<'a> DeferDirective<'a> {
         let mut if_arg = None;
         let mut label_arg = None;
         for arg in &directive.arguments {
-            if arg.name.item.0 == DEFER_STREAM_CONSTANTS.if_arg {
+            if arg.name.item == DEFER_STREAM_CONSTANTS.if_arg {
                 if_arg = Some(arg);
-            } else if arg.name.item.0 == DEFER_STREAM_CONSTANTS.label_arg {
+            } else if arg.name.item == DEFER_STREAM_CONSTANTS.label_arg {
                 label_arg = Some(arg);
             } else {
                 panic!("Unexpected argument to @defer: {}", arg.name.item);
@@ -54,13 +54,13 @@ impl<'a> StreamDirective<'a> {
         let mut initial_count_arg = None;
         let mut use_customized_batch_arg = None;
         for arg in &directive.arguments {
-            if arg.name.item.0 == DEFER_STREAM_CONSTANTS.if_arg {
+            if arg.name.item == DEFER_STREAM_CONSTANTS.if_arg {
                 if_arg = Some(arg);
-            } else if arg.name.item.0 == DEFER_STREAM_CONSTANTS.label_arg {
+            } else if arg.name.item == DEFER_STREAM_CONSTANTS.label_arg {
                 label_arg = Some(arg);
-            } else if arg.name.item.0 == DEFER_STREAM_CONSTANTS.initial_count_arg {
+            } else if arg.name.item == DEFER_STREAM_CONSTANTS.initial_count_arg {
                 initial_count_arg = Some(arg);
-            } else if arg.name.item.0 == DEFER_STREAM_CONSTANTS.use_customized_batch_arg {
+            } else if arg.name.item == DEFER_STREAM_CONSTANTS.use_customized_batch_arg {
                 use_customized_batch_arg = Some(arg);
             } else {
                 panic!("Unexpected argument to @stream: {}", arg.name.item);

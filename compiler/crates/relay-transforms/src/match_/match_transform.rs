@@ -206,7 +206,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
                     let js_field_module_arg = js_field
                         .arguments
-                        .named(MATCH_CONSTANTS.js_field_module_arg);
+                        .named(MATCH_CONSTANTS.js_field_module_arg.0);
                     let is_module_valid = {
                         if let Some(js_field_module_arg) = js_field_module_arg {
                             if let Some(non_list_type) = js_field_module_arg.type_.non_list_type() {
@@ -219,7 +219,8 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                         }
                     };
 
-                    let js_field_id_arg = js_field.arguments.named(MATCH_CONSTANTS.js_field_id_arg);
+                    let js_field_id_arg =
+                        js_field.arguments.named(MATCH_CONSTANTS.js_field_id_arg.0);
                     let is_id_valid = {
                         if let Some(js_field_id_arg) = js_field_id_arg {
                             if let Some(id_non_list_type) = js_field_id_arg.type_.non_list_type() {
@@ -235,7 +236,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
                     let js_field_branch_arg = js_field
                         .arguments
-                        .named(MATCH_CONSTANTS.js_field_branch_arg);
+                        .named(MATCH_CONSTANTS.js_field_branch_arg.0);
                     let is_branch_valid = {
                         if let Some(js_field_branch_arg) = js_field_branch_arg {
                             if let Some(branch_non_list_type) =
@@ -621,7 +622,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         // The linked field definition should have: 'supported: [String]'
         let supported_arg_definition = field_definition
             .arguments
-            .named(MATCH_CONSTANTS.supported_arg);
+            .named(MATCH_CONSTANTS.supported_arg.0);
         match supported_arg_definition {
             None => {
                 if key_arg.is_none() {
@@ -677,7 +678,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         }
 
         // The supported arg shouldn't be defined by the user
-        let supported_arg = field.arguments.named(MATCH_CONSTANTS.supported_arg);
+        let supported_arg = field.arguments.named(MATCH_CONSTANTS.supported_arg.0);
         if let Some(supported_arg) = supported_arg {
             return Err(Diagnostic::error(
                 ValidationMessage::InvalidMatchNoUserSuppliedSupportedArg {
@@ -735,10 +736,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
         let mut next_arguments = field.arguments.clone();
         next_arguments.push(Argument {
-            name: WithLocation::new(
-                field.definition.location,
-                ArgumentName(MATCH_CONSTANTS.supported_arg),
-            ),
+            name: WithLocation::new(field.definition.location, MATCH_CONSTANTS.supported_arg),
             value: WithLocation::new(
                 field.definition.location,
                 Value::Constant(ConstantValue::List(
@@ -916,7 +914,7 @@ fn get_module_directive_name_argument(
 ) -> Result<StringKey, Diagnostic> {
     let name_arg = module_directive
         .arguments
-        .named(MATCH_CONSTANTS.name_arg)
+        .named(MATCH_CONSTANTS.name_arg.0)
         .ok_or_else(|| {
             Diagnostic::error(ValidationMessage::InvalidModuleNoName, spread_location)
         })?;
@@ -941,12 +939,12 @@ pub struct ModuleMetadata {
 associated_data_impl!(ModuleMetadata);
 
 fn build_string_literal_argument(
-    name: StringKey,
+    name: ArgumentName,
     value: StringKey,
     location: Location,
 ) -> Argument {
     Argument {
-        name: WithLocation::new(location, ArgumentName(name)),
+        name: WithLocation::new(location, name),
         value: WithLocation::new(location, Value::Constant(ConstantValue::String(value))),
     }
 }

@@ -9,6 +9,7 @@ use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
 use common::WithLocation;
+use graphql_ir::ArgumentName;
 use graphql_ir::ConstantArgument;
 use graphql_ir::ConstantValue;
 use graphql_ir::OperationDefinition;
@@ -96,7 +97,7 @@ impl Transformer for GenerateLiveQueryMetadata {
                             }
                         };
                         next_directives.push(create_metadata_directive(
-                            *LIVE_METADATA_KEY,
+                            ArgumentName(*LIVE_METADATA_KEY),
                             ConstantValue::Object(vec![ConstantArgument {
                                 name: WithLocation::generated(*POLLING_INTERVAL_ARG),
                                 value: WithLocation::generated(ConstantValue::Int(
@@ -118,7 +119,7 @@ impl Transformer for GenerateLiveQueryMetadata {
                             }
                         };
                         next_directives.push(create_metadata_directive(
-                            *LIVE_METADATA_KEY,
+                            ArgumentName(*LIVE_METADATA_KEY),
                             ConstantValue::Object(vec![ConstantArgument {
                                 name: WithLocation::generated(*CONFIG_ID_ARG),
                                 value: WithLocation::generated(ConstantValue::String(

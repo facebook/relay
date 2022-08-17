@@ -79,7 +79,7 @@ impl<'a> Transformer for HashSupportedArgumentTransform<'a> {
         let supported_arg = Arc::make_mut(&mut new_field)
             .arguments
             .iter_mut()
-            .find(|arg| arg.name.item.0 == MATCH_CONSTANTS.supported_arg)
+            .find(|arg| arg.name.item == MATCH_CONSTANTS.supported_arg)
             .expect("expected to find a supported argument as checked before");
 
         let mut input = String::new();
@@ -122,7 +122,7 @@ impl<'a> HashSupportedArgumentTransform<'a> {
     fn has_match_supported_arg(&self, field: &LinkedField) -> bool {
         if field
             .arguments
-            .named(MATCH_CONSTANTS.supported_arg)
+            .named(MATCH_CONSTANTS.supported_arg.0)
             .is_none()
         {
             return false;
@@ -131,7 +131,7 @@ impl<'a> HashSupportedArgumentTransform<'a> {
             .schema
             .field(field.definition.item)
             .arguments
-            .named(MATCH_CONSTANTS.supported_arg)
+            .named(MATCH_CONSTANTS.supported_arg.0)
             .expect("field has supported arg, but missing from the schema");
 
         let field_type_name = {

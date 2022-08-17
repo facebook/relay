@@ -10,6 +10,7 @@ use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
+use graphql_ir::ArgumentName;
 use graphql_ir::ConstantArgument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Field as IrField;
@@ -110,7 +111,7 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
                 // replace @relay_test_operation with @__metadata
                 if directive.name.item == *TEST_OPERATION_DIRECTIVE {
                     next_directives.push(create_metadata_directive(
-                        *TEST_OPERATION_METADATA_KEY,
+                        ArgumentName(*TEST_OPERATION_METADATA_KEY),
                         ConstantValue::Object(From::from(RelayTestOperationMetadata::new(
                             self.program,
                             &operation.selections,

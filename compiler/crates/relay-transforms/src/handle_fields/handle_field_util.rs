@@ -17,14 +17,15 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref CONNECTION_HANDLER_ARG_NAME: StringKey = "handler".intern();
+    pub static ref CONNECTION_HANDLER_ARG_NAME: ArgumentName = ArgumentName("handler".intern());
     pub static ref HANDLE_FIELD_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("__clientField".intern());
-    pub static ref HANDLER_ARG_NAME: StringKey = "handle".intern();
-    pub static ref FILTERS_ARG_NAME: StringKey = "filters".intern();
-    pub static ref KEY_ARG_NAME: StringKey = "key".intern();
-    pub static ref DYNAMIC_KEY_ARG_NAME: StringKey = "dynamicKey_UNSTABLE".intern();
-    static ref HANLDE_ARGS_NAME: StringKey = "handleArgs".intern();
+    pub static ref HANDLER_ARG_NAME: ArgumentName = ArgumentName("handle".intern());
+    pub static ref FILTERS_ARG_NAME: ArgumentName = ArgumentName("filters".intern());
+    pub static ref KEY_ARG_NAME: ArgumentName = ArgumentName("key".intern());
+    pub static ref DYNAMIC_KEY_ARG_NAME: ArgumentName =
+        ArgumentName("dynamicKey_UNSTABLE".intern());
+    static ref HANLDE_ARGS_NAME: ArgumentName = ArgumentName("handleArgs".intern());
 }
 
 pub struct HandleFieldDirectiveArgs<'s> {
@@ -101,15 +102,15 @@ pub fn build_handle_field_directive(values: HandleFieldDirectiveValues) -> Direc
     } = values;
     let mut directive_arguments = vec![
         Argument {
-            name: WithLocation::generated(ArgumentName(*KEY_ARG_NAME)),
+            name: WithLocation::generated(*KEY_ARG_NAME),
             value: WithLocation::generated(Value::Constant(ConstantValue::String(key))),
         },
         Argument {
-            name: WithLocation::generated(ArgumentName(*HANDLER_ARG_NAME)),
+            name: WithLocation::generated(*HANDLER_ARG_NAME),
             value: WithLocation::generated(Value::Constant(ConstantValue::String(handle))),
         },
         Argument {
-            name: WithLocation::generated(ArgumentName(*FILTERS_ARG_NAME)),
+            name: WithLocation::generated(*FILTERS_ARG_NAME),
             value: WithLocation::generated(Value::Constant(match filters {
                 Some(filters) => ConstantValue::List(
                     filters
@@ -121,7 +122,7 @@ pub fn build_handle_field_directive(values: HandleFieldDirectiveValues) -> Direc
             })),
         },
         Argument {
-            name: WithLocation::generated(ArgumentName(*DYNAMIC_KEY_ARG_NAME)),
+            name: WithLocation::generated(*DYNAMIC_KEY_ARG_NAME),
             value: WithLocation::generated(
                 dynamic_key.unwrap_or(Value::Constant(ConstantValue::Null())),
             ),
@@ -130,7 +131,7 @@ pub fn build_handle_field_directive(values: HandleFieldDirectiveValues) -> Direc
 
     if let Some(handle_args) = handle_args {
         directive_arguments.push(Argument {
-            name: WithLocation::generated(ArgumentName(*HANLDE_ARGS_NAME)),
+            name: WithLocation::generated(*HANLDE_ARGS_NAME),
             value: WithLocation::generated(Value::Object(handle_args)),
         });
     }
@@ -154,7 +155,7 @@ pub fn extract_handle_field_directives(
 
 fn extract_handle_field_directive_args_helper(
     handle_field_directive: &Directive,
-    handler_arg_name: StringKey,
+    handler_arg_name: ArgumentName,
 ) -> HandleFieldDirectiveArgs<'_> {
     let mut handler_arg = None;
     let mut key_arg = None;
@@ -163,23 +164,23 @@ fn extract_handle_field_directive_args_helper(
     let mut handle_args_arg: Option<&Argument> = None;
 
     for arg in handle_field_directive.arguments.iter() {
-        if arg.name.item.0 == handler_arg_name {
+        if arg.name.item == handler_arg_name {
             if let Value::Constant(constant_val) = &arg.value.item {
                 handler_arg = Some((arg, constant_val));
             }
-        } else if arg.name.item.0 == *KEY_ARG_NAME {
+        } else if arg.name.item == *KEY_ARG_NAME {
             if let Value::Constant(constant_val) = &arg.value.item {
                 key_arg = Some((arg, constant_val));
             }
-        } else if arg.name.item.0 == *FILTERS_ARG_NAME {
+        } else if arg.name.item == *FILTERS_ARG_NAME {
             if let Value::Constant(constant_val) = &arg.value.item {
                 filters_arg = Some((arg, constant_val));
             }
-        } else if arg.name.item.0 == *DYNAMIC_KEY_ARG_NAME {
+        } else if arg.name.item == *DYNAMIC_KEY_ARG_NAME {
             if let Value::Variable(_) = arg.value.item {
                 dynamic_key_arg = Some((arg, &arg.value.item));
             }
-        } else if arg.name.item.0 == *HANLDE_ARGS_NAME {
+        } else if arg.name.item == *HANLDE_ARGS_NAME {
             handle_args_arg = Some(arg)
         }
     }
@@ -195,7 +196,7 @@ fn extract_handle_field_directive_args_helper(
 
 fn extract_values_from_handle_field_directive_helper(
     handle_field_directive: &Directive,
-    hanlder_arg_name: StringKey,
+    hanlder_arg_name: ArgumentName,
     default_handler: Option<StringKey>,
     default_filters: Option<Vec<StringKey>>,
 ) -> HandleFieldDirectiveValues {

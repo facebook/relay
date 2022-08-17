@@ -11,6 +11,7 @@ use common::DirectiveName;
 use common::Location;
 use common::SourceLocationKey;
 use common::WithLocation;
+use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::Value;
@@ -24,8 +25,8 @@ use super::validation_message::ValidationMessage;
 
 lazy_static! {
     pub static ref REFETCHABLE_NAME: DirectiveName = DirectiveName("refetchable".intern());
-    static ref QUERY_NAME_ARG: StringKey = "queryName".intern();
-    static ref DIRECTIVES_ARG: StringKey = "directives".intern();
+    static ref QUERY_NAME_ARG: ArgumentName = ArgumentName("queryName".intern());
+    static ref DIRECTIVES_ARG: ArgumentName = ArgumentName("directives".intern());
 }
 
 /// Represents the @refetchable Relay directive:
@@ -47,7 +48,7 @@ impl RefetchableDirective {
         let mut directives = Vec::new();
 
         for argument in &directive.arguments {
-            if argument.name.item.0 == *QUERY_NAME_ARG {
+            if argument.name.item == *QUERY_NAME_ARG {
                 if let Some(query_name) = argument.value.item.get_string_literal() {
                     name = Some(WithLocation::new(argument.value.location, query_name));
                 } else {
@@ -58,7 +59,7 @@ impl RefetchableDirective {
                         argument.name.location,
                     )]);
                 }
-            } else if argument.name.item.0 == *DIRECTIVES_ARG {
+            } else if argument.name.item == *DIRECTIVES_ARG {
                 directives = if let Value::Constant(ConstantValue::List(items)) =
                     &argument.value.item
                 {

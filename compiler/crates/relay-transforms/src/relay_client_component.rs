@@ -50,7 +50,8 @@ use crate::util::get_normalization_operation_name;
 lazy_static! {
     pub static ref RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("relay_client_component_server".intern());
-    pub static ref RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME: StringKey = "module_id".intern();
+    pub static ref RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("module_id".intern());
     pub static ref RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("relay_client_component".intern());
     static ref STRING_TYPE: StringKey = "String".intern();
@@ -288,9 +289,7 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
                     location: relay_client_component_directive.name.location,
                 },
                 arguments: vec![Argument {
-                    name: WithLocation::generated(ArgumentName(
-                        *RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME,
-                    )),
+                    name: WithLocation::generated(*RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME),
                     value: WithLocation::generated(Value::Constant(ConstantValue::String(
                         module_id,
                     ))),

@@ -31,7 +31,7 @@ use crate::RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME;
 
 lazy_static! {
     pub static ref NO_INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("no_inline".intern());
-    pub static ref PARENT_DOCUMENTS_ARG: StringKey = "__parentDocuments".intern();
+    pub static ref PARENT_DOCUMENTS_ARG: ArgumentName = ArgumentName("__parentDocuments".intern());
     pub static ref RAW_RESPONSE_TYPE_NAME: StringKey = "raw_response_type".intern();
 }
 
@@ -50,7 +50,7 @@ pub fn attach_no_inline_directives_to_fragments(
             let parent_documents_arg = no_inline_directive
                 .arguments
                 .iter_mut()
-                .find(|arg| arg.name.item.0 == *PARENT_DOCUMENTS_ARG);
+                .find(|arg| arg.name.item == *PARENT_DOCUMENTS_ARG);
             if let Some(parent_documents_arg) = parent_documents_arg {
                 if let Value::Constant(ConstantValue::List(parent_documents)) =
                     &mut parent_documents_arg.value.item
@@ -100,7 +100,7 @@ pub fn validate_required_no_inline_directive(
 
 fn create_parent_documents_arg(parent_sources: Vec<StringKey>) -> Argument {
     Argument {
-        name: WithLocation::generated(ArgumentName(*PARENT_DOCUMENTS_ARG)),
+        name: WithLocation::generated(*PARENT_DOCUMENTS_ARG),
         value: WithLocation::generated(Value::Constant(ConstantValue::List(
             parent_sources
                 .into_iter()

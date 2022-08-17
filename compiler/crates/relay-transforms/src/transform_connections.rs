@@ -11,7 +11,6 @@ use common::Location;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Argument;
-use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
@@ -132,16 +131,16 @@ impl<'s> ConnectionTransform<'s> {
         if is_stream_connection {
             let mut arguments = vec![];
             for arg in &connection_directive.arguments {
-                if arg.name.item.0 == DEFER_STREAM_CONSTANTS.if_arg
-                    || arg.name.item.0 == DEFER_STREAM_CONSTANTS.initial_count_arg
-                    || arg.name.item.0 == DEFER_STREAM_CONSTANTS.use_customized_batch_arg
+                if arg.name.item == DEFER_STREAM_CONSTANTS.if_arg
+                    || arg.name.item == DEFER_STREAM_CONSTANTS.initial_count_arg
+                    || arg.name.item == DEFER_STREAM_CONSTANTS.use_customized_batch_arg
                 {
                     arguments.push(arg.clone());
-                } else if arg.name.item.0 == *KEY_ARG_NAME {
+                } else if arg.name.item == *KEY_ARG_NAME {
                     arguments.push(Argument {
                         name: WithLocation::new(
                             arg.name.location,
-                            ArgumentName(DEFER_STREAM_CONSTANTS.label_arg),
+                            DEFER_STREAM_CONSTANTS.label_arg,
                         ),
                         value: arg.value.clone(),
                     });
@@ -213,12 +212,12 @@ impl<'s> ConnectionTransform<'s> {
         let transformed_page_info_field_selection = if is_stream_connection {
             let mut arguments = vec![];
             let connection_args = &connection_directive.arguments;
-            if let Some(key_arg) = connection_args.named(*KEY_ARG_NAME) {
+            if let Some(key_arg) = connection_args.named(KEY_ARG_NAME.0) {
                 let key = key_arg.value.item.expect_string_literal();
                 arguments.push(Argument {
                     name: WithLocation::new(
                         key_arg.name.location,
-                        ArgumentName(DEFER_STREAM_CONSTANTS.label_arg),
+                        DEFER_STREAM_CONSTANTS.label_arg,
                     ),
                     value: WithLocation::new(
                         key_arg.value.location,
@@ -234,7 +233,7 @@ impl<'s> ConnectionTransform<'s> {
                     ),
                 });
             }
-            if let Some(if_arg) = connection_args.named(DEFER_STREAM_CONSTANTS.if_arg) {
+            if let Some(if_arg) = connection_args.named(DEFER_STREAM_CONSTANTS.if_arg.0) {
                 arguments.push(if_arg.clone());
             }
             Selection::InlineFragment(Arc::new(InlineFragment {

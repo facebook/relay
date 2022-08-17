@@ -157,7 +157,7 @@ pub fn generate_artifacts(
             {
                 client_edges_directive
                     .arguments
-                    .named(*CLIENT_EDGE_SOURCE_NAME)
+                    .named(CLIENT_EDGE_SOURCE_NAME.0)
                     .expect("Client edges should have a source argument")
                     .value
                     .item

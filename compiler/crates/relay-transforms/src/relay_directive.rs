@@ -13,8 +13,8 @@ use lazy_static::lazy_static;
 
 lazy_static! {
     pub static ref RELAY_DIRECTIVE_NAME: StringKey = "relay".intern();
-    pub static ref PLURAL_ARG_NAME: StringKey = "plural".intern();
-    pub static ref MASK_ARG_NAME: StringKey = "mask".intern();
+    pub static ref PLURAL_ARG_NAME: ArgumentName = ArgumentName("plural".intern());
+    pub static ref MASK_ARG_NAME: ArgumentName = ArgumentName("mask".intern());
 }
 
 /// Easy access to the arguments of the @relay directive.
@@ -49,13 +49,13 @@ impl RelayDirective {
             let mut unmask = false;
             let mut plural = false;
             for arg in &relay_directive.arguments {
-                if arg.name.item.0 == *MASK_ARG_NAME {
+                if arg.name.item == *MASK_ARG_NAME {
                     if let Value::Constant(ConstantValue::Boolean(arg_value)) = arg.value.item {
                         unmask = !arg_value;
                     } else {
                         panic!("Invalid @relay(mask: ...) directive argument: {:?}", arg);
                     }
-                } else if arg.name.item.0 == *PLURAL_ARG_NAME {
+                } else if arg.name.item == *PLURAL_ARG_NAME {
                     if let Value::Constant(ConstantValue::Boolean(arg_value)) = arg.value.item {
                         plural = arg_value;
                     } else {
@@ -73,7 +73,7 @@ impl RelayDirective {
 
     fn has_unmasked_directive(directives: &[Directive]) -> bool {
         if let Some(relay_directive) = directives.named(*RELAY_DIRECTIVE_NAME) {
-            if let Some(mask_arg) = relay_directive.arguments.named(*MASK_ARG_NAME) {
+            if let Some(mask_arg) = relay_directive.arguments.named(MASK_ARG_NAME.0) {
                 if let Value::Constant(ConstantValue::Boolean(arg_value)) = mask_arg.value.item {
                     return !arg_value;
                 } else {

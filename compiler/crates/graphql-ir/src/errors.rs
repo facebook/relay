@@ -16,6 +16,7 @@ use schema::TypeReference;
 use thiserror::Error;
 
 use crate::ir::FragmentDefinitionName;
+use crate::ArgumentName;
 use crate::VariableName;
 
 /// Fixed set of validation errors with custom display messages
@@ -205,8 +206,8 @@ pub enum ValidationMessage {
     )]
     ExpectedConnectionToHaveCountArgs {
         connection_field_name: StringKey,
-        first_arg: StringKey,
-        last_arg: StringKey,
+        first_arg: ArgumentName,
+        last_arg: ArgumentName,
     },
 
     #[error("Expected '{connection_field_name}' to have a '{edges_selection_name}' selection.")]
@@ -274,7 +275,7 @@ pub enum ValidationMessage {
     InvalidConnectionHandlerArg {
         connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
-        handler_arg_name: StringKey,
+        handler_arg_name: ArgumentName,
     },
 
     #[error(
@@ -283,7 +284,7 @@ pub enum ValidationMessage {
     InvalidConnectionKeyArg {
         connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
-        key_arg_name: StringKey,
+        key_arg_name: ArgumentName,
     },
 
     #[error(
@@ -292,7 +293,7 @@ pub enum ValidationMessage {
     InvalidConnectionDynamicKeyArg {
         connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
-        dynamic_key_arg_name: StringKey,
+        dynamic_key_arg_name: ArgumentName,
     },
 
     #[error(
@@ -301,7 +302,7 @@ pub enum ValidationMessage {
     InvalidConnectionKeyArgPostfix {
         connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
-        key_arg_name: StringKey,
+        key_arg_name: ArgumentName,
         key_arg_value: StringKey,
         postfix: String,
     },
@@ -312,14 +313,14 @@ pub enum ValidationMessage {
     InvalidConnectionFiltersArg {
         connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
-        filters_arg_name: StringKey,
+        filters_arg_name: ArgumentName,
     },
 
     #[error("@stream_connection does not support aliasing the '{field_name}' field.")]
     UnsupportedAliasingInStreamConnection { field_name: StringKey },
 
     #[error("Expected the `{0}` argument to @relay to be a boolean literal if specified.")]
-    InvalidRelayDirectiveArg(StringKey),
+    InvalidRelayDirectiveArg(ArgumentName),
 
     #[error("Cannot use @relay(mask: false) on fragment spreads for fragments with directives.")]
     InvalidUnmaskOnFragmentWithDirectives,
@@ -344,7 +345,7 @@ pub enum ValidationMessage {
         "Expected the '{arg_name}' value to @{directive_name} to be a string literal if provided."
     )]
     LiteralStringArgumentExpectedForDirective {
-        arg_name: StringKey,
+        arg_name: ArgumentName,
         directive_name: DirectiveName,
     },
 

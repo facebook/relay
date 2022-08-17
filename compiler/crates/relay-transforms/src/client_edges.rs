@@ -49,9 +49,9 @@ use crate::REQUIRED_DIRECTIVE_NAME;
 
 lazy_static! {
     // This gets attached to the generated query
-    pub static ref QUERY_NAME_ARG: StringKey = "queryName".intern();
+    pub static ref QUERY_NAME_ARG: ArgumentName = ArgumentName("queryName".intern());
     pub static ref TYPE_NAME_ARG: StringKey = "typeName".intern();
-    pub static ref CLIENT_EDGE_SOURCE_NAME: StringKey = "clientEdgeSourceDocument".intern();
+    pub static ref CLIENT_EDGE_SOURCE_NAME: ArgumentName = ArgumentName("clientEdgeSourceDocument".intern());
     // This gets attached to fragment which defines the selection in the generated query
     pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: DirectiveName = DirectiveName("__clientEdgeGeneratedFragment".intern());
     pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: DirectiveName = DirectiveName("waterfall".intern());
@@ -230,7 +230,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
             directives: vec![Directive {
                 name: WithLocation::generated(*CLIENT_EDGE_GENERATED_FRAGMENT_KEY),
                 arguments: vec![Argument {
-                    name: WithLocation::generated(ArgumentName(*CLIENT_EDGE_SOURCE_NAME)),
+                    name: WithLocation::generated(*CLIENT_EDGE_SOURCE_NAME),
                     value: WithLocation::generated(Value::Constant(ConstantValue::String(
                         document_name.item,
                     ))),
@@ -509,7 +509,7 @@ fn make_refetchable_directive(query_name: StringKey) -> Directive {
     Directive {
         name: WithLocation::generated(*REFETCHABLE_NAME),
         arguments: vec![Argument {
-            name: WithLocation::generated(ArgumentName(*QUERY_NAME_ARG)),
+            name: WithLocation::generated(*QUERY_NAME_ARG),
             value: WithLocation::generated(Value::Constant(ConstantValue::String(query_name))),
         }],
         data: None,

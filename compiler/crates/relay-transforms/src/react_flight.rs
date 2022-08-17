@@ -42,11 +42,13 @@ use thiserror::Error;
 lazy_static! {
     static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("react_flight".intern());
-    static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG: StringKey = "components".intern();
+    static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG: ArgumentName =
+        ArgumentName("components".intern());
     pub static ref REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY: DirectiveName =
         DirectiveName("__ReactFlightComponent".intern());
-    static ref REACT_FLIGHT_COMPONENT_ARGUMENT_NAME: StringKey = "component".intern();
-    static ref REACT_FLIGHT_PROPS_ARGUMENT_NAME: StringKey = "props".intern();
+    static ref REACT_FLIGHT_COMPONENT_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("component".intern());
+    static ref REACT_FLIGHT_PROPS_ARGUMENT_NAME: ArgumentName = ArgumentName("props".intern());
     static ref REACT_FLIGHT_PROPS_TYPE: StringKey = "ReactFlightProps".intern();
     static ref REACT_FLIGHT_COMPONENT_TYPE: StringKey = "ReactFlightComponent".intern();
     static ref REACT_FLIGHT_FIELD_NAME: StringKey = "flight".intern();
@@ -194,7 +196,7 @@ impl<'s> ReactFlightTransform<'s> {
 
         // flight field must have `props: ReactFlightProps` arg
         let props_argument = flight_field_definition.arguments.iter().find(|arg| {
-            arg.name == *REACT_FLIGHT_PROPS_ARGUMENT_NAME && arg.type_.inner() == self.props_type
+            arg.name == REACT_FLIGHT_PROPS_ARGUMENT_NAME.0 && arg.type_.inner() == self.props_type
         });
         if props_argument.is_none() {
             self.errors.push(Diagnostic::error(
@@ -205,7 +207,7 @@ impl<'s> ReactFlightTransform<'s> {
         }
         // flight field must have `component: String` arg
         let component_argument = flight_field_definition.arguments.iter().find(|arg| {
-            arg.name == *REACT_FLIGHT_COMPONENT_ARGUMENT_NAME
+            arg.name == REACT_FLIGHT_COMPONENT_ARGUMENT_NAME.0
                 && Some(arg.type_.inner()) == self.program.schema.get_type("String".intern())
         });
         if component_argument.is_none() {
@@ -243,9 +245,7 @@ impl<'s> ReactFlightTransform<'s> {
         Directive {
             name: WithLocation::generated(*REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME),
             arguments: vec![Argument {
-                name: WithLocation::generated(ArgumentName(
-                    *REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG,
-                )),
+                name: WithLocation::generated(*REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG),
                 value: WithLocation::generated(Value::Constant(ConstantValue::List(
                     components.into_iter().map(ConstantValue::String).collect(),
                 ))),
@@ -412,15 +412,13 @@ impl<'s> Transformer for ReactFlightTransform<'s> {
             alias: Some(alias),
             arguments: vec![
                 Argument {
-                    name: WithLocation::generated(ArgumentName(
-                        *REACT_FLIGHT_COMPONENT_ARGUMENT_NAME,
-                    )),
+                    name: WithLocation::generated(*REACT_FLIGHT_COMPONENT_ARGUMENT_NAME),
                     value: WithLocation::generated(Value::Constant(ConstantValue::String(
                         component_name,
                     ))),
                 },
                 Argument {
-                    name: WithLocation::generated(ArgumentName(*REACT_FLIGHT_PROPS_ARGUMENT_NAME)),
+                    name: WithLocation::generated(*REACT_FLIGHT_PROPS_ARGUMENT_NAME),
                     value: WithLocation::generated(Value::Object(field.arguments.clone())),
                 },
             ],

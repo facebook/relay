@@ -989,7 +989,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             .named(RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME.0)
             .unwrap()
             .arguments
-            .named(*RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME)
+            .named(RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME.0)
             .unwrap()
             .value
             .item

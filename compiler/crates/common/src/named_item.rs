@@ -47,3 +47,12 @@ impl FromStr for DirectiveName {
         Ok(DirectiveName(s.intern()))
     }
 }
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct ArgumentName(pub StringKey);
+
+impl fmt::Display for ArgumentName {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(fmt, "{}", self.0)
+    }
+}

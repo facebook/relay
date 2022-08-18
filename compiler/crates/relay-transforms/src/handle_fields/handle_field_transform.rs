@@ -7,10 +7,10 @@
 
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Location;
 use common::WithLocation;
 use graphql_ir::Argument;
-use graphql_ir::ArgumentName;
 use graphql_ir::Directive;
 use graphql_ir::LinkedField;
 use graphql_ir::Program;

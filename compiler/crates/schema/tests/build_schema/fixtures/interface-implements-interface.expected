@@ -40,7 +40,9 @@ Text Schema:Schema {
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -66,7 +68,9 @@ Text Schema:Schema {
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -325,7 +329,9 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -489,7 +495,9 @@ directives: [
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -515,7 +523,9 @@ directives: [
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(1),

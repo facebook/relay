@@ -411,7 +411,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         value: &Argument,
     ) -> WIPOffset<schema_flatbuffer::Argument<'fb>> {
         let args = schema_flatbuffer::ArgumentArgs {
-            name: Some(self.bldr.create_string(value.name.lookup())),
+            name: Some(self.bldr.create_string(value.name.0.lookup())),
             value: value
                 .default_value
                 .as_ref()
@@ -481,7 +481,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         argument_value: &ArgumentValue,
     ) -> WIPOffset<schema_flatbuffer::ArgumentValue<'fb>> {
         let args = schema_flatbuffer::ArgumentValueArgs {
-            name: Some(self.bldr.create_string(argument_value.name.lookup())),
+            name: Some(self.bldr.create_string(argument_value.name.0.lookup())),
             value: Some(self.serialize_const_value(&argument_value.value)),
         };
         schema_flatbuffer::ArgumentValue::create(&mut self.bldr, &args)

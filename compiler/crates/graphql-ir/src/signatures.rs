@@ -7,6 +7,7 @@
 
 use std::collections::HashMap;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -36,7 +37,6 @@ use crate::ir::ConstantValue;
 use crate::ir::FragmentDefinitionName;
 use crate::ir::FragmentDefinitionNameMap;
 use crate::ir::VariableDefinition;
-use crate::ArgumentName;
 use crate::VariableName;
 
 lazy_static! {

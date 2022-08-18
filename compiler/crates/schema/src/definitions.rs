@@ -10,6 +10,7 @@ use std::fmt;
 use std::hash::Hash;
 use std::slice::Iter;
 
+use common::ArgumentName;
 use common::DirectiveName;
 use common::Named;
 use common::NamedItem;
@@ -349,16 +350,22 @@ impl Field {
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Argument {
-    pub name: StringKey,
+    pub name: ArgumentName,
     pub type_: TypeReference,
     pub default_value: Option<ConstantValue>,
     pub description: Option<StringKey>,
     pub directives: Vec<DirectiveValue>,
 }
 
+impl Named for Argument {
+    fn name(&self) -> StringKey {
+        self.name.0
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct ArgumentValue {
-    pub name: StringKey,
+    pub name: ArgumentName,
     pub value: ConstantValue,
 }
 
@@ -387,7 +394,7 @@ impl ArgumentDefinitions {
     }
 
     pub fn contains(&self, name: StringKey) -> bool {
-        self.0.iter().any(|x| x.name == name)
+        self.0.iter().any(|x| x.name == ArgumentName(name))
     }
 
     pub fn iter(&self) -> Iter<'_, Argument> {
@@ -439,6 +446,7 @@ impl TypeWithFields for Object {
     }
 }
 
+#[allow(unused_macros)]
 macro_rules! impl_named {
     ($type_name:ident) => {
         impl Named for $type_name {
@@ -467,10 +475,13 @@ impl_named_for_with_location!(Union);
 impl_named_for_with_location!(Scalar);
 impl_named_for_with_location!(Enum);
 
-impl_named!(Argument);
-impl_named!(ArgumentValue);
-
 impl Named for DirectiveValue {
+    fn name(&self) -> StringKey {
+        self.name.0
+    }
+}
+
+impl Named for ArgumentValue {
     fn name(&self) -> StringKey {
         self.name.0
     }

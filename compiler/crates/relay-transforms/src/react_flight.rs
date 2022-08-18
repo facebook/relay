@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -15,7 +16,6 @@ use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
-use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinition;
@@ -53,7 +53,7 @@ lazy_static! {
     static ref REACT_FLIGHT_COMPONENT_TYPE: StringKey = "ReactFlightComponent".intern();
     static ref REACT_FLIGHT_FIELD_NAME: StringKey = "flight".intern();
     static ref REACT_FLIGHT_EXTENSION_DIRECTIVE_NAME: StringKey = "react_flight_component".intern();
-    static ref NAME: StringKey = "name".intern();
+    static ref NAME_ARGUMENT: ArgumentName = ArgumentName("name".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -140,7 +140,7 @@ impl<'s> ReactFlightTransform<'s> {
             .arguments
             .iter()
             .cloned()
-            .find(|arg| arg.name == *NAME)
+            .find(|arg| arg.name == *NAME_ARGUMENT)
             .unwrap()
             .value;
         match value {
@@ -196,7 +196,7 @@ impl<'s> ReactFlightTransform<'s> {
 
         // flight field must have `props: ReactFlightProps` arg
         let props_argument = flight_field_definition.arguments.iter().find(|arg| {
-            arg.name == REACT_FLIGHT_PROPS_ARGUMENT_NAME.0 && arg.type_.inner() == self.props_type
+            arg.name == *REACT_FLIGHT_PROPS_ARGUMENT_NAME && arg.type_.inner() == self.props_type
         });
         if props_argument.is_none() {
             self.errors.push(Diagnostic::error(
@@ -207,7 +207,7 @@ impl<'s> ReactFlightTransform<'s> {
         }
         // flight field must have `component: String` arg
         let component_argument = flight_field_definition.arguments.iter().find(|arg| {
-            arg.name == REACT_FLIGHT_COMPONENT_ARGUMENT_NAME.0
+            arg.name == *REACT_FLIGHT_COMPONENT_ARGUMENT_NAME
                 && Some(arg.type_.inner()) == self.program.schema.get_type("String".intern())
         });
         if component_argument.is_none() {

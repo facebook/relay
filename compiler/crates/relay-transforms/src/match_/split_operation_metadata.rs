@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Argument;
-use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::FragmentDefinitionName;

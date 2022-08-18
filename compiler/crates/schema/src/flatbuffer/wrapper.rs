@@ -8,6 +8,7 @@
 use std::fmt;
 use std::hash::Hash;
 
+use common::ArgumentName;
 use common::DirectiveName;
 use common::WithLocation;
 use dashmap::DashMap;
@@ -156,7 +157,7 @@ impl SchemaWrapper {
             name: WithLocation::generated(result.is_fulfilled_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(vec![Argument {
-                name: "name".intern(),
+                name: ArgumentName("name".intern()),
                 type_: TypeReference::NonNull(Box::new(TypeReference::Named(
                     result.get_type("String".intern()).unwrap(),
                 ))),
@@ -250,7 +251,7 @@ impl Schema for SchemaWrapper {
                     ("defer", Some(mut directive)) | ("stream", Some(mut directive)) => {
                         let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
                         for arg in next_args.iter_mut() {
-                            if arg.name.lookup() == "label" {
+                            if arg.name.0.lookup() == "label" {
                                 if let TypeReference::NonNull(of) = &arg.type_ {
                                     arg.type_ = *of.clone()
                                 };

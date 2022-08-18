@@ -10,6 +10,7 @@ mod directives;
 use std::collections::HashMap;
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -19,7 +20,6 @@ use common::WithLocation;
 pub use directives::DeferDirective;
 pub use directives::StreamDirective;
 use graphql_ir::Argument;
-use graphql_ir::ArgumentName;
 use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::Field;

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_ir::ArgumentName;
+use common::ArgumentName;
 use graphql_ir::FragmentDefinitionName;
 use intern::string_key::StringKey;
 use thiserror::Error;

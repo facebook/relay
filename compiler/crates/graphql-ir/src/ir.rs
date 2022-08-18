@@ -13,6 +13,7 @@ use std::fmt::Formatter;
 use std::hash::Hash;
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::DirectiveName;
 use common::Location;
 use common::Named;
@@ -388,15 +389,6 @@ pub struct Directive {
 impl Named for Directive {
     fn name(&self) -> StringKey {
         self.name.item.0
-    }
-}
-
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub struct ArgumentName(pub StringKey);
-
-impl Display for ArgumentName {
-    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(fmt, "{}", self.0)
     }
 }
 

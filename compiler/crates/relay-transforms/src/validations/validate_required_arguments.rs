@@ -135,7 +135,7 @@ impl ValidateRequiredArguments<'_> {
                     && def.default_value.is_none()
                     && !arguments
                         .iter()
-                        .map(|arg| arg.name.item.0)
+                        .map(|arg| arg.name.item)
                         .any(|x| x == def.name)
                 {
                     return Err(vec![

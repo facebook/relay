@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use common::DiagnosticDisplay;
 use common::DirectiveName;
 use common::WithDiagnosticData;
@@ -16,7 +17,6 @@ use schema::TypeReference;
 use thiserror::Error;
 
 use crate::ir::FragmentDefinitionName;
-use crate::ArgumentName;
 use crate::VariableName;
 
 /// Fixed set of validation errors with custom display messages
@@ -425,7 +425,7 @@ pub enum ValidationMessage {
         "Required argument '{argument_name}: {type_string}' is missing on '{node_name}' in '{root_name}'."
     )]
     MissingRequiredArgument {
-        argument_name: StringKey,
+        argument_name: ArgumentName,
         type_string: String,
         node_name: StringKey,
         root_name: StringKey,

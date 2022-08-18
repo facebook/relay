@@ -720,7 +720,7 @@ fn get_scalar_or_linked_field_hover_content(
                 if let Some(description) = schema_documentation.get_field_argument_description(
                     parent_type_name,
                     field.name.item.lookup(),
-                    arg.name.lookup(),
+                    arg.name.0.lookup(),
                 ) {
                     description.to_string()
                 } else {

@@ -99,12 +99,12 @@ pub fn format_local_variable(
 
 #[cfg(test)]
 mod tests {
+    use common::ArgumentName;
     use common::Location;
     use common::SourceLocationKey;
     use common::Span;
     use common::WithLocation;
     use graphql_ir::Argument;
-    use graphql_ir::ArgumentName;
     use graphql_ir::ConstantValue;
     use graphql_ir::VariableDefinition;
     use graphql_ir::VariableName;

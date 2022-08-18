@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use common::NamedItem;
 use graphql_ir::*;
 use intern::string_key::Intern;

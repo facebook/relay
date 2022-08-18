@@ -346,6 +346,7 @@ function createContainerWithFragments<
     createGetFragmentVariables(metadata);
 
   return class extends React.Component<$FlowFixMeProps, ContainerState> {
+    // $FlowFixMe[missing-local-annot]
     static displayName = containerName;
 
     _isARequestInFlight: boolean;
@@ -902,6 +903,7 @@ function createContainerWithFragments<
       }
     }
 
+    // $FlowFixMe[missing-local-annot]
     render() {
       const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
         this.props;

@@ -1,0 +1,23 @@
+query ClientFieldsQuery @relay_test_operation {
+  node(id: "test-id") {
+    id
+    ... on User {
+      name
+      client_info {
+        name
+        description
+      }
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  client_info: ClientInfo
+}
+
+type ClientInfo {
+  name: String
+  description: String
+}

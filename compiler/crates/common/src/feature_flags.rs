@@ -76,6 +76,10 @@ pub struct FeatureFlags {
     /// Print queries in compact form
     #[serde(default)]
     pub compact_query_text: FeatureFlag,
+
+    // Enables @relay_test_operation support for client data.
+    #[serde(default)]
+    pub enable_mock_client_data_metadata: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

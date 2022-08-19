@@ -479,7 +479,13 @@ fn apply_normalization_transforms(
     }
 
     program = log_event.time("generate_test_operation_metadata", || {
-        generate_test_operation_metadata(&program, &project_config.test_path_regex)
+        generate_test_operation_metadata(
+            &program,
+            &project_config.test_path_regex,
+            &project_config
+                .feature_flags
+                .enable_mock_client_data_metadata,
+        )
     })?;
     if let Some(print_stats) = maybe_print_stats {
         print_stats("generate_test_operation_metadata", &program);

@@ -120,6 +120,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         use_named_imports_for_relay_resolvers: false,
         relay_resolver_model_syntax_enabled: false,
         relay_resolver_enable_terse_syntax: false,
+        enable_mock_client_data_metadata: FeatureFlag::Disabled,
     };
 
     let default_project_config = ProjectConfig {

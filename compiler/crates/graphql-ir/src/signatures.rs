@@ -7,6 +7,7 @@
 
 use std::collections::HashMap;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -288,7 +289,7 @@ fn build_fragment_variable_definitions(
                     if let Some(provider_arg) = provider_arg {
                         let provider_module_name = provider_arg.value.get_string_literal().ok_or_else(|| {
                             vec![Diagnostic::error(
-                                ValidationMessage::LiteralStringArgumentExpectedForDirective{arg_name: *PROVIDER, directive_name: *ARGUMENT_DEFINITION },
+                                ValidationMessage::LiteralStringArgumentExpectedForDirective{arg_name: ArgumentName(*PROVIDER), directive_name: *ARGUMENT_DEFINITION },
                                 fragment
                                     .location
                                     .with_span(provider_arg.value.span()),

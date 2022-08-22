@@ -399,7 +399,7 @@ impl LocationAgnosticPartialEq for Vec<Argument> {
 impl LocationAgnosticHash for Argument {
     fn location_agnostic_hash<H: Hasher, B: LocationAgnosticBehavior>(&self, state: &mut H) {
         if !matches!(self.value.item, Value::Constant(ConstantValue::Null())) {
-            self.name.location_agnostic_hash::<_, B>(state);
+            self.name.item.0.location_agnostic_hash::<_, B>(state);
             self.value.location_agnostic_hash::<_, B>(state);
         }
     }
@@ -407,7 +407,10 @@ impl LocationAgnosticHash for Argument {
 
 impl LocationAgnosticPartialEq for Argument {
     fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
-        self.name.location_agnostic_eq::<B>(&other.name)
+        self.name
+            .item
+            .0
+            .location_agnostic_eq::<B>(&other.name.item.0)
             && self.value.location_agnostic_eq::<B>(&other.value)
     }
 }

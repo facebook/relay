@@ -58,7 +58,9 @@ Text Schema:Schema {
         ),
         arguments: [
             Argument {
-                name: "schema",
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -67,7 +69,9 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -89,7 +93,9 @@ Text Schema:Schema {
         ),
         arguments: [
             Argument {
-                name: "field_name",
+                name: ArgumentName(
+                    "field_name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -111,7 +117,9 @@ Text Schema:Schema {
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -137,7 +145,9 @@ Text Schema:Schema {
         ),
         arguments: [
             Argument {
-                name: "schema",
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -146,7 +156,9 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -168,7 +180,9 @@ Text Schema:Schema {
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -194,7 +208,9 @@ Text Schema:Schema {
         ),
         arguments: [
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -242,7 +258,9 @@ Text Schema:Schema {
         is_extension: false,
         arguments: [
             Argument {
-                name: "id",
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: Named(
                     Scalar(5),
                 ),
@@ -268,7 +286,9 @@ Text Schema:Schema {
         is_extension: false,
         arguments: [
             Argument {
-                name: "id",
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: Named(
                     Scalar(5),
                 ),
@@ -335,7 +355,9 @@ Text Schema:Schema {
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -347,7 +369,9 @@ Text Schema:Schema {
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -374,7 +398,9 @@ Text Schema:Schema {
         is_extension: false,
         arguments: [
             Argument {
-                name: "country",
+                name: ArgumentName(
+                    "country",
+                ),
                 type_: Named(
                     InputObject(0),
                 ),
@@ -542,7 +568,9 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -571,7 +599,9 @@ Text Schema:Schema {
         },
         fields: [
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -589,7 +619,9 @@ Text Schema:Schema {
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -601,7 +633,9 @@ Text Schema:Schema {
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -638,7 +672,9 @@ Text Schema:Schema {
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -650,7 +686,9 @@ Text Schema:Schema {
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -704,7 +742,9 @@ Text Schema:Schema {
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "field_name",
+                        name: ArgumentName(
+                            "field_name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -753,7 +793,9 @@ Text Schema:Schema {
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "field_name",
+                        name: ArgumentName(
+                            "field_name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -772,7 +814,9 @@ Text Schema:Schema {
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -784,7 +828,9 @@ Text Schema:Schema {
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -860,7 +906,9 @@ Text Schema:Schema {
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -872,7 +920,9 @@ Text Schema:Schema {
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -907,7 +957,9 @@ Text Schema:Schema {
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -919,7 +971,9 @@ Text Schema:Schema {
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -946,7 +1000,9 @@ directives: [
         ),
         arguments: [
             Argument {
-                name: "schema",
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -955,7 +1011,9 @@ directives: [
                 directives: [],
             },
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -977,7 +1035,9 @@ directives: [
         ),
         arguments: [
             Argument {
-                name: "field_name",
+                name: ArgumentName(
+                    "field_name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -999,7 +1059,9 @@ directives: [
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -1025,7 +1087,9 @@ directives: [
         ),
         arguments: [
             Argument {
-                name: "schema",
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -1034,7 +1098,9 @@ directives: [
                 directives: [],
             },
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
@@ -1056,7 +1122,9 @@ directives: [
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -1082,7 +1150,9 @@ directives: [
         ),
         arguments: [
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -1164,7 +1234,9 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: "id",
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: Named(
                     Scalar(0),
                 ),
@@ -1190,7 +1262,9 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: "id",
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: Named(
                     Scalar(0),
                 ),
@@ -1241,7 +1315,9 @@ fields: [
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1253,7 +1329,9 @@ fields: [
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1280,7 +1358,9 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: "country",
+                name: ArgumentName(
+                    "country",
+                ),
                 type_: Named(
                     InputObject(0),
                 ),
@@ -1355,7 +1435,9 @@ input_objects: [
         },
         fields: [
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -1373,7 +1455,9 @@ input_objects: [
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1385,7 +1469,9 @@ input_objects: [
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1422,7 +1508,9 @@ interfaces: [
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1434,7 +1522,9 @@ interfaces: [
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1503,7 +1593,9 @@ objects: [
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "field_name",
+                        name: ArgumentName(
+                            "field_name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1537,7 +1629,9 @@ objects: [
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "field_name",
+                        name: ArgumentName(
+                            "field_name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1556,7 +1650,9 @@ objects: [
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1568,7 +1664,9 @@ objects: [
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1617,7 +1715,9 @@ scalars: [
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1629,7 +1729,9 @@ scalars: [
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1682,7 +1784,9 @@ unions: [
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1694,7 +1798,9 @@ unions: [
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {

@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use common::NamedItem;
 use graphql_ir::*;
 use intern::string_key::Intern;
@@ -13,8 +14,8 @@ use lazy_static::lazy_static;
 
 lazy_static! {
     pub static ref RELAY_DIRECTIVE_NAME: StringKey = "relay".intern();
-    pub static ref PLURAL_ARG_NAME: StringKey = "plural".intern();
-    pub static ref MASK_ARG_NAME: StringKey = "mask".intern();
+    pub static ref PLURAL_ARG_NAME: ArgumentName = ArgumentName("plural".intern());
+    pub static ref MASK_ARG_NAME: ArgumentName = ArgumentName("mask".intern());
 }
 
 /// Easy access to the arguments of the @relay directive.
@@ -73,7 +74,7 @@ impl RelayDirective {
 
     fn has_unmasked_directive(directives: &[Directive]) -> bool {
         if let Some(relay_directive) = directives.named(*RELAY_DIRECTIVE_NAME) {
-            if let Some(mask_arg) = relay_directive.arguments.named(*MASK_ARG_NAME) {
+            if let Some(mask_arg) = relay_directive.arguments.named(MASK_ARG_NAME.0) {
                 if let Value::Constant(ConstantValue::Boolean(arg_value)) = mask_arg.value.item {
                     return !arg_value;
                 } else {

@@ -26,7 +26,9 @@ Text Schema:Schema {
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -52,7 +54,9 @@ Text Schema:Schema {
         ),
         arguments: [
             Argument {
-                name: "action",
+                name: ArgumentName(
+                    "action",
+                ),
                 type_: NonNull(
                     Named(
                         Enum(0),
@@ -83,7 +87,9 @@ Text Schema:Schema {
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -237,7 +243,9 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -333,7 +341,9 @@ directives: [
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(0),
@@ -359,7 +369,9 @@ directives: [
         ),
         arguments: [
             Argument {
-                name: "action",
+                name: ArgumentName(
+                    "action",
+                ),
                 type_: NonNull(
                     Named(
                         Enum(0),
@@ -383,7 +395,9 @@ directives: [
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(0),

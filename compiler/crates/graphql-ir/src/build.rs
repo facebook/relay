@@ -8,6 +8,7 @@
 use core::cmp::Ordering;
 use std::collections::HashMap;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -1185,7 +1186,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                         None => {
                             let possible_argument_names = argument_definitions
                                 .iter()
-                                .map(|arg_def| arg_def.name)
+                                .map(|arg_def| arg_def.name.0)
                                 .collect::<Vec<_>>();
                             let suggestions = suggestion_list::suggestion_list(
                                 argument.name.value,
@@ -1217,9 +1218,9 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 arguments
                     .iter()
                     .flat_map(|args| &args.items)
-                    .all(|arg| arg.name.value != required_arg_def.name)
+                    .all(|arg| arg.name.value != required_arg_def.name.0)
             })
-            .map(|missing_arg| missing_arg.name)
+            .map(|missing_arg| missing_arg.name.0)
             .filter(is_non_nullable_field_required)
             .collect::<Vec<_>>();
         if !missing_arg_names.is_empty() {
@@ -1346,7 +1347,8 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         Ok(Argument {
             name: argument
                 .name
-                .name_with_location(self.location.source_location()),
+                .name_with_location(self.location.source_location())
+                .map(ArgumentName),
             value: WithLocation::from_span(self.location.source_location(), value_span, value),
         })
     }
@@ -1518,7 +1520,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             .fields
             .iter()
             .filter(|x| x.type_.is_non_null())
-            .map(|x| x.name)
+            .map(|x| x.name.0)
             .collect::<StringKeySet>();
 
         let fields: DiagnosticsResult<Vec<Argument>> = object
@@ -1545,7 +1547,10 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                         ValidationLevel::Strict,
                     )?;
                     Ok(Argument {
-                        name: x.name.name_with_location(self.location.source_location()),
+                        name: x
+                            .name
+                            .name_with_location(self.location.source_location())
+                            .map(ArgumentName),
                         value: WithLocation::from_span(
                             self.location.source_location(),
                             value_span,
@@ -1654,7 +1659,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             .fields
             .iter()
             .filter(|x| x.type_.is_non_null())
-            .map(|x| x.name)
+            .map(|x| x.name.0)
             .collect::<StringKeySet>();
 
         let fields: DiagnosticsResult<Vec<ConstantArgument>> = object

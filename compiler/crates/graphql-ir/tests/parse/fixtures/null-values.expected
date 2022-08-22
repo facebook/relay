@@ -29,7 +29,9 @@ query NullValuesQuery {
                         Argument {
                             name: WithLocation {
                                 location: null-values.graphql:32:38,
-                                item: "filter",
+                                item: ArgumentName(
+                                    "filter",
+                                ),
                             },
                             value: WithLocation {
                                 location: null-values.graphql:40:52,

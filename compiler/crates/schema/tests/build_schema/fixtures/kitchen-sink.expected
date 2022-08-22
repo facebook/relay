@@ -71,7 +71,9 @@ Text Schema:Schema {
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -97,7 +99,9 @@ Text Schema:Schema {
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -123,7 +127,9 @@ Text Schema:Schema {
         ),
         arguments: [
             Argument {
-                name: "schema",
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(8),
@@ -134,7 +140,9 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(8),
@@ -191,7 +199,9 @@ Text Schema:Schema {
                         ),
                         arguments: [
                             ArgumentValue {
-                                name: "reason",
+                                name: ArgumentName(
+                                    "reason",
+                                ),
                                 value: String(
                                     StringNode {
                                         token: Token {
@@ -228,7 +238,9 @@ Text Schema:Schema {
         is_extension: false,
         arguments: [
             Argument {
-                name: "id",
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(4),
@@ -256,7 +268,9 @@ Text Schema:Schema {
         is_extension: false,
         arguments: [
             Argument {
-                name: "ids",
+                name: ArgumentName(
+                    "ids",
+                ),
                 type_: NonNull(
                     List(
                         NonNull(
@@ -488,7 +502,9 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(8),
@@ -517,7 +533,9 @@ Text Schema:Schema {
         },
         fields: [
             Argument {
-                name: "lat",
+                name: ArgumentName(
+                    "lat",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(6),
@@ -528,7 +546,9 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: "lon",
+                name: ArgumentName(
+                    "lon",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(6),
@@ -539,7 +559,9 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: "city",
+                name: ArgumentName(
+                    "city",
+                ),
                 type_: Named(
                     Scalar(8),
                 ),
@@ -548,7 +570,9 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: "zip",
+                name: ArgumentName(
+                    "zip",
+                ),
                 type_: Named(
                     Scalar(7),
                 ),
@@ -557,7 +581,9 @@ Text Schema:Schema {
                 directives: [],
             },
             Argument {
-                name: "previous_cities",
+                name: ArgumentName(
+                    "previous_cities",
+                ),
                 type_: List(
                     NonNull(
                         Named(
@@ -577,7 +603,9 @@ Text Schema:Schema {
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -589,7 +617,9 @@ Text Schema:Schema {
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -744,7 +774,9 @@ Text Schema:Schema {
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -756,7 +788,9 @@ Text Schema:Schema {
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -825,7 +859,9 @@ directives: [
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -851,7 +887,9 @@ directives: [
         ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -877,7 +915,9 @@ directives: [
         ),
         arguments: [
             Argument {
-                name: "schema",
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -888,7 +928,9 @@ directives: [
                 directives: [],
             },
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -929,7 +971,9 @@ enums: [
                         ),
                         arguments: [
                             ArgumentValue {
-                                name: "reason",
+                                name: ArgumentName(
+                                    "reason",
+                                ),
                                 value: String(
                                     StringNode {
                                         token: Token {
@@ -1032,7 +1076,9 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: "id",
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(0),
@@ -1060,7 +1106,9 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: "ids",
+                name: ArgumentName(
+                    "ids",
+                ),
                 type_: NonNull(
                     List(
                         NonNull(
@@ -1165,7 +1213,9 @@ input_objects: [
         },
         fields: [
             Argument {
-                name: "lat",
+                name: ArgumentName(
+                    "lat",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -1176,7 +1226,9 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: "lon",
+                name: ArgumentName(
+                    "lon",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -1187,7 +1239,9 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: "city",
+                name: ArgumentName(
+                    "city",
+                ),
                 type_: Named(
                     Scalar(1),
                 ),
@@ -1196,7 +1250,9 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: "zip",
+                name: ArgumentName(
+                    "zip",
+                ),
                 type_: Named(
                     Scalar(4),
                 ),
@@ -1205,7 +1261,9 @@ input_objects: [
                 directives: [],
             },
             Argument {
-                name: "previous_cities",
+                name: ArgumentName(
+                    "previous_cities",
+                ),
                 type_: List(
                     NonNull(
                         Named(
@@ -1225,7 +1283,9 @@ input_objects: [
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1237,7 +1297,9 @@ input_objects: [
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1392,7 +1454,9 @@ scalars: [
                 ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1404,7 +1468,9 @@ scalars: [
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {

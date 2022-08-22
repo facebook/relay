@@ -21,7 +21,9 @@ fragment User on User {
   #         Argument {
   #             name: WithLocation {
   #                 location: variables.graphql:52:70,
-  #                 item: "profilePictureSize",
+  #                 item: ArgumentName(
+  #                     "profilePictureSize",
+  #                 ),
   #             },
   #             value: WithLocation {
   #                 location: variables.graphql:72:78,

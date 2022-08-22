@@ -132,7 +132,9 @@ fragment TestFragment on User
                         Argument {
                             name: WithLocation {
                                 location: fragment_with_valid_provider.graphql:225:229,
-                                item: "size",
+                                item: ArgumentName(
+                                    "size",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment_with_valid_provider.graphql:231:243,

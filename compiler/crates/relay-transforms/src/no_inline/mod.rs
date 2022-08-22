@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -30,7 +31,7 @@ use crate::RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME;
 
 lazy_static! {
     pub static ref NO_INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("no_inline".intern());
-    pub static ref PARENT_DOCUMENTS_ARG: StringKey = "__parentDocuments".intern();
+    pub static ref PARENT_DOCUMENTS_ARG: ArgumentName = ArgumentName("__parentDocuments".intern());
     pub static ref RAW_RESPONSE_TYPE_NAME: StringKey = "raw_response_type".intern();
 }
 

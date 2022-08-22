@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use common::DirectiveName;
 use common::SourceLocationKey;
 use common::WithLocation;
@@ -49,7 +50,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                                 arguments: vec![Argument {
                                     name: WithLocation::new(
                                         operation.name.location,
-                                        "metadataKey".intern(),
+                                        ArgumentName("metadataKey".intern()),
                                     ),
                                     value: WithLocation::new(
                                         operation.name.location,

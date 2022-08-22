@@ -10,6 +10,7 @@ mod wrapper;
 
 use std::cmp::Ordering;
 
+use common::ArgumentName;
 use common::DirectiveName;
 use common::Span;
 use common::WithLocation;
@@ -333,7 +334,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_argument(&self, argument: schema_flatbuffer::Argument<'fb>) -> Option<Argument> {
         Some(Argument {
-            name: argument.name().unwrap().intern(),
+            name: ArgumentName(argument.name().unwrap().intern()),
             default_value: match argument.value() {
                 Some(value) => Some(self.parse_const_value(value)?),
                 _ => None,
@@ -399,7 +400,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         argument: schema_flatbuffer::ArgumentValue<'fb>,
     ) -> Option<ArgumentValue> {
         Some(ArgumentValue {
-            name: argument.name()?.intern(),
+            name: ArgumentName(argument.name()?.intern()),
             value: self.parse_const_value(argument.value()?)?,
         })
     }

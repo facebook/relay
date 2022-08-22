@@ -126,7 +126,7 @@ trait ArgumentLike {
 
 impl ArgumentLike for &SchemaArgument {
     fn name(&self) -> StringKey {
-        self.name
+        self.name.0
     }
     fn type_(&self) -> &TypeReference {
         &self.type_

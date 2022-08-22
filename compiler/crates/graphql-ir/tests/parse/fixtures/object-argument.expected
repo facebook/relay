@@ -45,7 +45,9 @@ query ObjectArgument($text: String!) {
                         Argument {
                             name: WithLocation {
                                 location: object-argument.graphql:60:65,
-                                item: "query",
+                                item: ArgumentName(
+                                    "query",
+                                ),
                             },
                             value: WithLocation {
                                 location: object-argument.graphql:67:81,
@@ -54,7 +56,9 @@ query ObjectArgument($text: String!) {
                                         Argument {
                                             name: WithLocation {
                                                 location: object-argument.graphql:68:73,
-                                                item: "query",
+                                                item: ArgumentName(
+                                                    "query",
+                                                ),
                                             },
                                             value: WithLocation {
                                                 location: object-argument.graphql:75:80,

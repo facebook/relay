@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -24,8 +25,8 @@ use super::validation_message::ValidationMessage;
 
 lazy_static! {
     pub static ref REFETCHABLE_NAME: DirectiveName = DirectiveName("refetchable".intern());
-    static ref QUERY_NAME_ARG: StringKey = "queryName".intern();
-    static ref DIRECTIVES_ARG: StringKey = "directives".intern();
+    static ref QUERY_NAME_ARG: ArgumentName = ArgumentName("queryName".intern());
+    static ref DIRECTIVES_ARG: ArgumentName = ArgumentName("directives".intern());
 }
 
 /// Represents the @refetchable Relay directive:

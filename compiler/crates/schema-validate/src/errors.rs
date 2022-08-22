@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use intern::string_key::StringKey;
 use schema::Type;
 use schema::TypeReference;
@@ -28,7 +29,7 @@ pub enum SchemaValidationError {
     DuplicateField(StringKey),
 
     #[error("Duplicate argument '{0}' found on field/directive '{1}'.")]
-    DuplicateArgument(StringKey, StringKey),
+    DuplicateArgument(ArgumentName, StringKey),
 
     #[error("Type must define one or more fields.")]
     TypeWithNoFields,
@@ -37,7 +38,7 @@ pub enum SchemaValidationError {
     InvalidFieldType(StringKey, StringKey, TypeReference),
 
     #[error("The type of '{0}.{1}({2}:)' must be InputType but got: '{3:?}'.")]
-    InvalidArgumentType(StringKey, StringKey, StringKey, TypeReference),
+    InvalidArgumentType(StringKey, StringKey, ArgumentName, TypeReference),
 
     #[error("Type '{0}' can only implement '{1}' once.")]
     DuplicateInterfaceImplementation(StringKey, StringKey),
@@ -51,7 +52,7 @@ pub enum SchemaValidationError {
     #[error(
         "Interface field argument '{0}.{1}({2}:)' expected but '{3}.{1}' does not provide it."
     )]
-    InterfaceFieldArgumentNotProvided(StringKey, StringKey, StringKey, StringKey),
+    InterfaceFieldArgumentNotProvided(StringKey, StringKey, ArgumentName, StringKey),
 
     #[error(
         "Interface field argument '{0}.{1}({2}:)' expects type '{3}' but '{4}.{1}({2}:)' is type '{5}'."
@@ -59,7 +60,7 @@ pub enum SchemaValidationError {
     NotEqualType(
         StringKey,
         StringKey,
-        StringKey,
+        ArgumentName,
         StringKey,
         StringKey,
         StringKey,
@@ -68,7 +69,7 @@ pub enum SchemaValidationError {
     #[error(
         "Object field '{0}.{1}' includes required argument '{2}' that is missing from the Interface field '{3}.{1}'."
     )]
-    MissingRequiredArgument(StringKey, StringKey, StringKey, StringKey),
+    MissingRequiredArgument(StringKey, StringKey, ArgumentName, StringKey),
 
     #[error("Union type must define one or more member types.")]
     UnionWithNoMembers(StringKey),

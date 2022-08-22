@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use common::DirectiveName;
 use common::WithLocation;
 use graphql_ir::Argument;
@@ -12,7 +13,6 @@ use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::Value;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 lazy_static! {
@@ -24,7 +24,7 @@ lazy_static! {
 /// key in the generated AST.
 /// This "metadata" can be used for various purposes to transfer additional
 /// information from a compile time transform to be available at runtime.
-pub fn create_metadata_directive(key: StringKey, value: ConstantValue) -> Directive {
+pub fn create_metadata_directive(key: ArgumentName, value: ConstantValue) -> Directive {
     Directive {
         name: WithLocation::generated(*INTERNAL_METADATA_DIRECTIVE),
         arguments: vec![Argument {

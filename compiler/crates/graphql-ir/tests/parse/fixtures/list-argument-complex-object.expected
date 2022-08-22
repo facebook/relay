@@ -47,7 +47,9 @@ query ListArgumentQuery($waypoint: WayPoint!) {
                         Argument {
                             name: WithLocation {
                                 location: list-argument-complex-object.graphql:56:65,
-                                item: "waypoints",
+                                item: ArgumentName(
+                                    "waypoints",
+                                ),
                             },
                             value: WithLocation {
                                 location: list-argument-complex-object.graphql:67:104,

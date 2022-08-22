@@ -29,7 +29,9 @@ query LiteralObjectArgument {
                         Argument {
                             name: WithLocation {
                                 location: literal-object-argument.graphql:51:56,
-                                item: "query",
+                                item: ArgumentName(
+                                    "query",
+                                ),
                             },
                             value: WithLocation {
                                 location: literal-object-argument.graphql:58:77,

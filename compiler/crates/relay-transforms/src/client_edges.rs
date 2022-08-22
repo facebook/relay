@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -48,9 +49,9 @@ use crate::REQUIRED_DIRECTIVE_NAME;
 
 lazy_static! {
     // This gets attached to the generated query
-    pub static ref QUERY_NAME_ARG: StringKey = "queryName".intern();
+    pub static ref QUERY_NAME_ARG: ArgumentName = ArgumentName("queryName".intern());
     pub static ref TYPE_NAME_ARG: StringKey = "typeName".intern();
-    pub static ref CLIENT_EDGE_SOURCE_NAME: StringKey = "clientEdgeSourceDocument".intern();
+    pub static ref CLIENT_EDGE_SOURCE_NAME: ArgumentName = ArgumentName("clientEdgeSourceDocument".intern());
     // This gets attached to fragment which defines the selection in the generated query
     pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: DirectiveName = DirectiveName("__clientEdgeGeneratedFragment".intern());
     pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: DirectiveName = DirectiveName("waterfall".intern());

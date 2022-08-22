@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -110,7 +111,7 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
                 // replace @relay_test_operation with @__metadata
                 if directive.name.item == *TEST_OPERATION_DIRECTIVE {
                     next_directives.push(create_metadata_directive(
-                        *TEST_OPERATION_METADATA_KEY,
+                        ArgumentName(*TEST_OPERATION_METADATA_KEY),
                         ConstantValue::Object(From::from(RelayTestOperationMetadata::new(
                             self.program,
                             &operation.selections,

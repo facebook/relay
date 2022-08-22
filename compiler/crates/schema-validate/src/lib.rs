@@ -127,7 +127,7 @@ impl<'schema> ValidationContext<'schema> {
             self.validate_name(directive.name.0, context);
             let mut arg_names = FnvHashSet::default();
             for argument in directive.arguments.iter() {
-                self.validate_name(argument.name, context);
+                self.validate_name(argument.name.0, context);
 
                 // Ensure unique arguments per directive.
                 if arg_names.contains(&argument.name) {
@@ -223,7 +223,7 @@ impl<'schema> ValidationContext<'schema> {
             let mut arg_names = FnvHashSet::default();
             for argument in field.arguments.iter() {
                 // Ensure they are named correctly.
-                self.validate_name(argument.name, context);
+                self.validate_name(argument.name.0, context);
 
                 // Ensure they are unique per field.
                 // Ensure unique arguments per directive.
@@ -303,14 +303,14 @@ impl<'schema> ValidationContext<'schema> {
         // Ensure the arguments are valid
         for field in input_object.fields.iter() {
             // Ensure they are named correctly.
-            self.validate_name(field.name, context);
+            self.validate_name(field.name.0, context);
 
             // Ensure the type is an input type
             if !is_input_type(&field.type_) {
                 self.report_error(
                     SchemaValidationError::InvalidArgumentType(
                         input_object.name.item,
-                        field.name,
+                        field.name.0,
                         field.name,
                         field.type_.clone(),
                     ),
@@ -425,7 +425,7 @@ impl<'schema> ValidationContext<'schema> {
 
             // Assert additional arguments must not be required.
             for object_argument in object_field.arguments.iter() {
-                if !interface_field.arguments.contains(object_argument.name)
+                if !interface_field.arguments.contains(object_argument.name.0)
                     && object_argument.type_.is_non_null()
                 {
                     self.report_error(

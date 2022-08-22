@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use common::DirectiveName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
@@ -18,16 +19,16 @@ pub struct ConnectionConstants {
     pub direction_backward: StringKey,
     pub direction_bidirectional: StringKey,
 
-    pub after_arg_name: StringKey,
-    pub before_arg_name: StringKey,
-    pub first_arg_name: StringKey,
-    pub last_arg_name: StringKey,
-    pub find_arg_name: StringKey,
-    pub surrounds_arg_name: StringKey,
+    pub after_arg_name: ArgumentName,
+    pub before_arg_name: ArgumentName,
+    pub first_arg_name: ArgumentName,
+    pub last_arg_name: ArgumentName,
+    pub find_arg_name: ArgumentName,
+    pub surrounds_arg_name: ArgumentName,
 }
 
 impl ConnectionConstants {
-    pub fn is_connection_argument(&self, arg: StringKey) -> bool {
+    pub fn is_connection_argument(&self, arg: ArgumentName) -> bool {
         arg == self.after_arg_name
             || arg == self.before_arg_name
             || arg == self.first_arg_name
@@ -47,12 +48,12 @@ impl Default for ConnectionConstants {
             direction_backward: "backward".intern(),
             direction_bidirectional: "bidirectional".intern(),
 
-            after_arg_name: "after".intern(),
-            before_arg_name: "before".intern(),
-            first_arg_name: "first".intern(),
-            last_arg_name: "last".intern(),
-            find_arg_name: "find".intern(),
-            surrounds_arg_name: "surrounds".intern(),
+            after_arg_name: ArgumentName("after".intern()),
+            before_arg_name: ArgumentName("before".intern()),
+            first_arg_name: ArgumentName("first".intern()),
+            last_arg_name: ArgumentName("last".intern()),
+            find_arg_name: ArgumentName("find".intern()),
+            surrounds_arg_name: ArgumentName("surrounds".intern()),
         }
     }
 }

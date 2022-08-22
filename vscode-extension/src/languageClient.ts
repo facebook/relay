@@ -81,7 +81,7 @@ export function createAndStartLanguageClient(context: RelayExtensionContext) {
   client.registerFeature(new LSPStatusBarFeature(context));
 
   context.primaryOutputChannel.appendLine(
-    `Starting the Relay Langauge Server with these options: ${JSON.stringify(
+    `Starting the Relay Language Server with these options: ${JSON.stringify(
       serverOptions,
     )}`,
   );

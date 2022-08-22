@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use graphql_ir::FragmentDefinitionName;
 use intern::string_key::StringKey;
 use thiserror::Error;
@@ -27,8 +28,8 @@ pub enum ValidationMessage {
         spread_name: FragmentDefinitionName,
         type_string: StringKey,
         js_field_name: StringKey,
-        js_field_module_arg: StringKey,
-        js_field_id_arg: StringKey,
+        js_field_module_arg: ArgumentName,
+        js_field_id_arg: ArgumentName,
         js_field_type: StringKey,
     },
 
@@ -94,7 +95,7 @@ pub enum ValidationMessage {
     #[error(
         "Invalid @match selection: the '{supported_arg}' argument is automatically added and cannot be supplied explicitly.'"
     )]
-    InvalidMatchNoUserSuppliedSupportedArg { supported_arg: StringKey },
+    InvalidMatchNoUserSuppliedSupportedArg { supported_arg: ArgumentName },
 
     #[error(
         "Invalid @match selection: expected at least one @module selection. Remove @match or add a '...Fragment @module()' selection."

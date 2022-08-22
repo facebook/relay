@@ -320,7 +320,7 @@ fn generate_resolver_type(
     let mut args = vec![];
     for field_argument in typegen_context.schema.field(field).arguments.iter() {
         args.push(Prop::KeyValuePair(KeyValuePairProp {
-            key: field_argument.name,
+            key: field_argument.name.0,
             optional: false,
             read_only: false,
             value: transform_input_type(
@@ -1804,14 +1804,14 @@ fn transform_non_nullable_input_type(
                             .iter()
                             .map(|field| {
                                 Prop::KeyValuePair(KeyValuePairProp {
-                                    key: field.name,
+                                    key: field.name.0,
                                     read_only: false,
                                     optional: !field.type_.is_non_null()
                                         || typegen_context
                                             .project_config
                                             .typegen_config
                                             .optional_input_fields
-                                            .contains(&field.name),
+                                            .contains(&field.name.0),
                                     value: transform_input_type(
                                         typegen_context,
                                         &field.type_,

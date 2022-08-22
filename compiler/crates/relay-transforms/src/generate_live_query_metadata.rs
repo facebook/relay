@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -96,7 +97,7 @@ impl Transformer for GenerateLiveQueryMetadata {
                             }
                         };
                         next_directives.push(create_metadata_directive(
-                            *LIVE_METADATA_KEY,
+                            ArgumentName(*LIVE_METADATA_KEY),
                             ConstantValue::Object(vec![ConstantArgument {
                                 name: WithLocation::generated(*POLLING_INTERVAL_ARG),
                                 value: WithLocation::generated(ConstantValue::Int(
@@ -118,7 +119,7 @@ impl Transformer for GenerateLiveQueryMetadata {
                             }
                         };
                         next_directives.push(create_metadata_directive(
-                            *LIVE_METADATA_KEY,
+                            ArgumentName(*LIVE_METADATA_KEY),
                             ConstantValue::Object(vec![ConstantArgument {
                                 name: WithLocation::generated(*CONFIG_ID_ARG),
                                 value: WithLocation::generated(ConstantValue::String(

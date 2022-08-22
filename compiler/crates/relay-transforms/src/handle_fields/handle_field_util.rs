@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use common::DirectiveName;
 use common::WithLocation;
 use graphql_ir::Argument;
@@ -16,14 +17,15 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref CONNECTION_HANDLER_ARG_NAME: StringKey = "handler".intern();
+    pub static ref CONNECTION_HANDLER_ARG_NAME: ArgumentName = ArgumentName("handler".intern());
     pub static ref HANDLE_FIELD_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("__clientField".intern());
-    pub static ref HANDLER_ARG_NAME: StringKey = "handle".intern();
-    pub static ref FILTERS_ARG_NAME: StringKey = "filters".intern();
-    pub static ref KEY_ARG_NAME: StringKey = "key".intern();
-    pub static ref DYNAMIC_KEY_ARG_NAME: StringKey = "dynamicKey_UNSTABLE".intern();
-    static ref HANLDE_ARGS_NAME: StringKey = "handleArgs".intern();
+    pub static ref HANDLER_ARG_NAME: ArgumentName = ArgumentName("handle".intern());
+    pub static ref FILTERS_ARG_NAME: ArgumentName = ArgumentName("filters".intern());
+    pub static ref KEY_ARG_NAME: ArgumentName = ArgumentName("key".intern());
+    pub static ref DYNAMIC_KEY_ARG_NAME: ArgumentName =
+        ArgumentName("dynamicKey_UNSTABLE".intern());
+    static ref HANLDE_ARGS_NAME: ArgumentName = ArgumentName("handleArgs".intern());
 }
 
 pub struct HandleFieldDirectiveArgs<'s> {
@@ -153,7 +155,7 @@ pub fn extract_handle_field_directives(
 
 fn extract_handle_field_directive_args_helper(
     handle_field_directive: &Directive,
-    handler_arg_name: StringKey,
+    handler_arg_name: ArgumentName,
 ) -> HandleFieldDirectiveArgs<'_> {
     let mut handler_arg = None;
     let mut key_arg = None;
@@ -194,7 +196,7 @@ fn extract_handle_field_directive_args_helper(
 
 fn extract_values_from_handle_field_directive_helper(
     handle_field_directive: &Directive,
-    hanlder_arg_name: StringKey,
+    hanlder_arg_name: ArgumentName,
     default_handler: Option<StringKey>,
     default_filters: Option<Vec<StringKey>>,
 ) -> HandleFieldDirectiveValues {

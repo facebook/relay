@@ -99,6 +99,7 @@ pub fn format_local_variable(
 
 #[cfg(test)]
 mod tests {
+    use common::ArgumentName;
     use common::Location;
     use common::SourceLocationKey;
     use common::Span;
@@ -158,7 +159,7 @@ mod tests {
         };
 
         let spread_arguments = vec![Argument {
-            name: with_test_location("size".intern()),
+            name: with_test_location(ArgumentName("size".intern())),
             value: with_test_location(Value::Constant(ConstantValue::Int(42))),
         }];
 
@@ -227,11 +228,11 @@ mod tests {
 
         let spread_arguments = vec![
             Argument {
-                name: with_test_location("defaultAndValuePassed".intern()),
+                name: with_test_location(ArgumentName("defaultAndValuePassed".intern())),
                 value: with_test_location(Value::Constant(ConstantValue::Int(3))),
             },
             Argument {
-                name: with_test_location("defaultAndNullPassed".intern()),
+                name: with_test_location(ArgumentName("defaultAndNullPassed".intern())),
                 value: with_test_location(Value::Constant(ConstantValue::Null())),
             },
         ];

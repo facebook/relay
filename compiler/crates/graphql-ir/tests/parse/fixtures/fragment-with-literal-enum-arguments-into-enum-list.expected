@@ -42,7 +42,9 @@ fragment ChildFragment on User
                         Argument {
                             name: WithLocation {
                                 location: fragment-with-literal-enum-arguments-into-enum-list.graphql:62:74,
-                                item: "environments",
+                                item: ArgumentName(
+                                    "environments",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment-with-literal-enum-arguments-into-enum-list.graphql:76:84,
@@ -82,7 +84,9 @@ fragment ChildFragment on User
                         Argument {
                             name: WithLocation {
                                 location: fragment-with-literal-enum-arguments-into-enum-list.graphql:132:144,
-                                item: "environments",
+                                item: ArgumentName(
+                                    "environments",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment-with-literal-enum-arguments-into-enum-list.graphql:146:149,
@@ -153,7 +157,9 @@ fragment ChildFragment on User
                         Argument {
                             name: WithLocation {
                                 location: fragment-with-literal-enum-arguments-into-enum-list.graphql:262:274,
-                                item: "environments",
+                                item: ArgumentName(
+                                    "environments",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment-with-literal-enum-arguments-into-enum-list.graphql:276:289,

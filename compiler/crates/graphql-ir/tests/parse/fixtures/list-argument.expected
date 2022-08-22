@@ -31,7 +31,9 @@ query ListArgumentQuery {
                         Argument {
                             name: WithLocation {
                                 location: list-argument.graphql:34:43,
-                                item: "waypoints",
+                                item: ArgumentName(
+                                    "waypoints",
+                                ),
                             },
                             value: WithLocation {
                                 location: list-argument.graphql:45:71,

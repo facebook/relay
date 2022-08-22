@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -41,16 +42,18 @@ use thiserror::Error;
 lazy_static! {
     static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("react_flight".intern());
-    static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG: StringKey = "components".intern();
+    static ref REACT_FLIGHT_TRANSITIVE_COMPONENTS_DIRECTIVE_ARG: ArgumentName =
+        ArgumentName("components".intern());
     pub static ref REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY: DirectiveName =
         DirectiveName("__ReactFlightComponent".intern());
-    static ref REACT_FLIGHT_COMPONENT_ARGUMENT_NAME: StringKey = "component".intern();
-    static ref REACT_FLIGHT_PROPS_ARGUMENT_NAME: StringKey = "props".intern();
+    static ref REACT_FLIGHT_COMPONENT_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("component".intern());
+    static ref REACT_FLIGHT_PROPS_ARGUMENT_NAME: ArgumentName = ArgumentName("props".intern());
     static ref REACT_FLIGHT_PROPS_TYPE: StringKey = "ReactFlightProps".intern();
     static ref REACT_FLIGHT_COMPONENT_TYPE: StringKey = "ReactFlightComponent".intern();
     static ref REACT_FLIGHT_FIELD_NAME: StringKey = "flight".intern();
     static ref REACT_FLIGHT_EXTENSION_DIRECTIVE_NAME: StringKey = "react_flight_component".intern();
-    static ref NAME: StringKey = "name".intern();
+    static ref NAME_ARGUMENT: ArgumentName = ArgumentName("name".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -137,7 +140,7 @@ impl<'s> ReactFlightTransform<'s> {
             .arguments
             .iter()
             .cloned()
-            .find(|arg| arg.name == *NAME)
+            .find(|arg| arg.name == *NAME_ARGUMENT)
             .unwrap()
             .value;
         match value {

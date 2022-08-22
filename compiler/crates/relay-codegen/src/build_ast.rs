@@ -989,7 +989,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             .named(RELAY_CLIENT_COMPONENT_SERVER_DIRECTIVE_NAME.0)
             .unwrap()
             .arguments
-            .named(*RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME)
+            .named(RELAY_CLIENT_COMPONENT_MODULE_ID_ARGUMENT_NAME.0)
             .unwrap()
             .value
             .item
@@ -1389,7 +1389,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         let args = sorted_args
             .into_iter()
             // We are filtering out "null" arguments matching JS behavior
-            .filter_map(|arg| self.build_argument(arg.name.item, &arg.value.item))
+            .filter_map(|arg| self.build_argument(arg.name.item.0, &arg.value.item))
             .map(Primitive::Key)
             .collect::<Vec<_>>();
         if args.is_empty() {
@@ -1438,7 +1438,8 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     .into_iter()
                     .map(|arg| {
                         let field_name = arg.name.item;
-                        if let Some(concrete_arg) = self.build_argument(field_name, &arg.value.item)
+                        if let Some(concrete_arg) =
+                            self.build_argument(field_name.0, &arg.value.item)
                         {
                             Primitive::Key(concrete_arg)
                         } else {
@@ -1446,7 +1447,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                             // for null, instead of filtering it out, matching JS behavior
                             Primitive::Key(self.object(object! {
                                 kind: Primitive::String(CODEGEN_CONSTANTS.literal),
-                                name: Primitive::String(field_name),
+                                name: Primitive::String(field_name.0),
                                 value: Primitive::Null,
                             }))
                         }
@@ -1645,7 +1646,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                         }
                     };
 
-                    Some(ObjectEntry { key, value })
+                    Some(ObjectEntry { key: key.0, value })
                 } else {
                     None
                 }

@@ -8,6 +8,7 @@
 use std::collections::BTreeMap;
 use std::collections::HashMap;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -943,7 +944,7 @@ impl InMemorySchema {
             name: WithLocation::generated(self.is_fulfilled_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(vec![Argument {
-                name: "name".intern(),
+                name: ArgumentName("name".intern()),
                 type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
                 default_value: None,
                 description: None,
@@ -1433,7 +1434,7 @@ impl InMemorySchema {
                 .iter()
                 .map(|arg_def| {
                     Ok(Argument {
-                        name: arg_def.name.value,
+                        name: ArgumentName(arg_def.name.value),
                         type_: self.build_input_object_reference(&arg_def.type_)?,
                         default_value: arg_def.default_value.clone(),
                         description: None,
@@ -1509,7 +1510,7 @@ impl InMemorySchema {
                         .items
                         .iter()
                         .map(|argument| ArgumentValue {
-                            name: argument.name.value,
+                            name: ArgumentName(argument.name.value),
                             value: argument.value.clone(),
                         })
                         .collect()

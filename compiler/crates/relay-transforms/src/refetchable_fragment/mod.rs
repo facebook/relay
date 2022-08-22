@@ -204,7 +204,7 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
     ) -> DiagnosticsResult<()> {
         let relay_directive = fragment.directives.named(*RELAY_DIRECTIVE_NAME);
         let plural_directive = relay_directive
-            .filter(|directive| directive.arguments.named(*PLURAL_ARG_NAME).is_some());
+            .filter(|directive| directive.arguments.named(PLURAL_ARG_NAME.0).is_some());
         if let Some(directive) = plural_directive {
             Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidRefetchableFragmentWithRelayPlural {

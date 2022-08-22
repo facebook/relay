@@ -514,7 +514,7 @@ mod ignoring_type_and_location {
     /// which may not always be inferred identically.
     pub fn arguments_equals<B: LocationAgnosticBehavior>(a: &[Argument], b: &[Argument]) -> bool {
         order_agnostic_slice_equals(a, b, |a, b| {
-            a.name.location_agnostic_eq::<B>(&b.name)
+            a.name.item.0.location_agnostic_eq::<B>(&b.name.item.0)
                 && value_equals::<B>(&a.value.item, &b.value.item)
         })
     }

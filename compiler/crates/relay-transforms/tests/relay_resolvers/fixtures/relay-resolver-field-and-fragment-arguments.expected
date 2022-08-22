@@ -26,7 +26,9 @@ fragment Foo_user on User {
   #         Argument {
   #             name: WithLocation {
   #                 location: relay-resolver-field-and-fragment-arguments.graphql:61:70,
-  #                 item: "field_arg",
+  #                 item: ArgumentName(
+  #                     "field_arg",
+  #                 ),
   #             },
   #             value: WithLocation {
   #                 location: relay-resolver-field-and-fragment-arguments.graphql:72:73,

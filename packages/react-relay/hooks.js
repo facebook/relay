@@ -26,6 +26,7 @@ const useRelayEnvironment = require('./relay-hooks/useRelayEnvironment');
 const useSubscribeToInvalidationState = require('./relay-hooks/useSubscribeToInvalidationState');
 const useSubscription = require('./relay-hooks/useSubscription');
 const RelayRuntime = require('relay-runtime');
+const ProfilerContext = require('./relay-hooks/ProfilerContext');
 
 export type * from './relay-hooks/EntryPointTypes.flow';
 export type {
@@ -76,6 +77,8 @@ module.exports = {
 
   EntryPointContainer: EntryPointContainer,
   RelayEnvironmentProvider: RelayEnvironmentProvider,
+
+  ProfilerContext: ProfilerContext,
 
   fetchQuery: RelayRuntime.fetchQuery,
 

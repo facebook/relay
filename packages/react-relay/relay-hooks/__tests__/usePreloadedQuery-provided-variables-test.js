@@ -149,7 +149,9 @@ describe.each([
         store: new Store(new RecordSource()),
       });
       RelayProvider_impure.test_reset();
-      withProvidedVariables.tests_only_resetDebugCache();
+      if (withProvidedVariables.tests_only_resetDebugCache !== undefined) {
+        withProvidedVariables.tests_only_resetDebugCache();
+      }
     });
 
     describe('using preloadQuery_DEPRECATED', () => {

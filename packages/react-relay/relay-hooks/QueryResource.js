@@ -35,6 +35,7 @@ const warning = require('warning');
 
 const CACHE_CAPACITY = 1000;
 const DEFAULT_FETCH_POLICY = 'store-or-network';
+const DEFAULT_LIVE_FETCH_POLICY = 'store-and-network';
 
 export type QueryResource = QueryResourceImpl;
 
@@ -83,7 +84,11 @@ function getQueryCacheIdentifier(
   maybeRenderPolicy: ?RenderPolicy,
   cacheBreaker?: ?string | ?number,
 ): string {
-  const fetchPolicy = maybeFetchPolicy ?? DEFAULT_FETCH_POLICY;
+  const fetchPolicy =
+    maybeFetchPolicy ??
+    (operationIsLiveQuery(operation)
+      ? DEFAULT_LIVE_FETCH_POLICY
+      : DEFAULT_FETCH_POLICY);
   const renderPolicy =
     maybeRenderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
   const cacheIdentifier = `${fetchPolicy}-${renderPolicy}-${operation.request.identifier}`;
@@ -225,7 +230,11 @@ class QueryResourceImpl {
     profilerContext: mixed,
   ): QueryResult {
     const environment = this._environment;
-    const fetchPolicy = maybeFetchPolicy ?? DEFAULT_FETCH_POLICY;
+    const fetchPolicy =
+      maybeFetchPolicy ??
+      (operationIsLiveQuery(operation)
+        ? DEFAULT_LIVE_FETCH_POLICY
+        : DEFAULT_FETCH_POLICY);
     const renderPolicy =
       maybeRenderPolicy ?? environment.UNSTABLE_getDefaultRenderPolicy();
 

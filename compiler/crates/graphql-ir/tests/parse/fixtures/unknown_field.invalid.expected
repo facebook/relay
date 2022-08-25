@@ -31,6 +31,7 @@ query Q4 {
 }
 ==================================== ERROR ====================================
 ✖︎ The type `Query` has no field `taskc`. Did you mean `task`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
   unknown_field.invalid.graphql:3:3
     2 │ query Q1 {
@@ -40,6 +41,7 @@ query Q4 {
 
 
 ✖︎ The type `Query` has no field `my`. Did you mean `me`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
   unknown_field.invalid.graphql:9:3
     8 │ query Q2 {
@@ -49,6 +51,7 @@ query Q4 {
 
 
 ✖︎ The type `Query` has no field `stor`. Did you mean `story`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
   unknown_field.invalid.graphql:13:3
    12 │ query Q3 {
@@ -58,6 +61,7 @@ query Q4 {
 
 
 ✖︎ The type `Story` has no field `names`. Did you mean `name`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
   unknown_field.invalid.graphql:21:5
    20 │   story {
@@ -67,6 +71,7 @@ query Q4 {
 
 
 ✖︎ The type `Story` has no field `ids`. Did you mean `id`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
   unknown_field.invalid.graphql:22:5
    21 │     names
@@ -76,6 +81,7 @@ query Q4 {
 
 
 ✖︎ The type `Story` has no field `actro`. Did you mean `actor`, `actors`, or `author`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
   unknown_field.invalid.graphql:23:5
    22 │     ids
@@ -85,6 +91,7 @@ query Q4 {
 
 
 ✖︎ The type `Story` has no field `nod`. Did you mean `body` or `id`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
   unknown_field.invalid.graphql:24:5
    23 │     actro
@@ -94,6 +101,7 @@ query Q4 {
 
 
 ✖︎ The type `Story` has no field `x_actor`. Did you mean `actor` or `actors`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
   unknown_field.invalid.graphql:25:5
    24 │     nod
@@ -103,6 +111,7 @@ query Q4 {
 
 
 ✖︎ The type `Story` has no field `x_canViewersComment`. Did you mean `canViewerComment`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
   unknown_field.invalid.graphql:26:5
    25 │     x_actor
@@ -112,6 +121,7 @@ query Q4 {
 
 
 ✖︎ The type `Story` has no field `long_prefix_canViewerComment`. Did you mean `canViewerComment`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
   unknown_field.invalid.graphql:27:5
    26 │     x_canViewersComment
@@ -121,6 +131,7 @@ query Q4 {
 
 
 ✖︎ The type `Story` has no field `viewerComment`. Did you mean `canViewerComment`?
+See https://relay.dev/docs/error-reference/unknown-field/
 
   unknown_field.invalid.graphql:28:5
    27 │     long_prefix_canViewerComment

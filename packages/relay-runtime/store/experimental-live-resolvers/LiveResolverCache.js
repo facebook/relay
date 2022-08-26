@@ -116,6 +116,7 @@ class LiveResolverCache implements ResolverCache {
       this._isInvalid(linkedRecord, getDataForResolverFragment)
     ) {
       // Cache miss; evaluate the selector and store the result in a new record:
+      const previousLinkedRecord = linkedRecord;
       linkedID = linkedID ?? generateClientID(recordID, storageKey);
       linkedRecord = RelayModernRecord.create(
         linkedID,
@@ -151,6 +152,9 @@ class LiveResolverCache implements ResolverCache {
               String(evaluationResult.resolverResult),
             );
           }
+        }
+        if (previousLinkedRecord != null) {
+          this._maybeUnsubscribeFromLiveState(previousLinkedRecord);
         }
       } else {
         if (__DEV__) {
@@ -269,6 +273,18 @@ class LiveResolverCache implements ResolverCache {
     });
   }
 
+  _maybeUnsubscribeFromLiveState(linkedRecord: Record) {
+    // If there's an existing subscription, unsubscribe.
+    // $FlowFixMe[incompatible-type] - casting mixed
+    const previousUnsubscribe: () => void = RelayModernRecord.getValue(
+      linkedRecord,
+      RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
+    );
+    if (previousUnsubscribe != null) {
+      previousUnsubscribe();
+    }
+  }
+
   // Register a new Live State object in the store, subscribing to future
   // updates.
   _setLiveStateValue(
@@ -276,16 +292,7 @@ class LiveResolverCache implements ResolverCache {
     linkedID: DataID,
     liveState: LiveState<mixed>,
   ) {
-    // If there's an existing subscription, unsubscribe.
-    // $FlowFixMe[incompatible-type] - casting mixed
-    const previousUnsubscribe: () => void = RelayModernRecord.getValue(
-      linkedRecord,
-      RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
-    );
-
-    if (previousUnsubscribe != null) {
-      previousUnsubscribe();
-    }
+    this._maybeUnsubscribeFromLiveState(linkedRecord);
 
     // Subscribe to future values
     // Note: We subscribe before reading, since subscribing could potentially

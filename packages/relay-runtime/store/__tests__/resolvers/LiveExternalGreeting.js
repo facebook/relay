@@ -1,0 +1,82 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ * @flow strict-local
+ * @emails oncall+relay
+ */
+
+'use strict';
+
+import type {LiveExternalGreetingFragment$key} from './__generated__/LiveExternalGreetingFragment.graphql';
+import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
+
+const {graphql} = require('relay-runtime');
+const {readFragment} = require('relay-runtime/store/ResolverFragments');
+const {
+  suspenseSentinel,
+} = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
+
+/**
+ * @RelayResolver
+ * @fieldName live_external_greeting
+ * @rootFragment LiveExternalGreetingFragment
+ * @onType Query
+ * @live
+ */
+function resolver(
+  rootKey: LiveExternalGreetingFragment$key,
+): LiveState<string> {
+  const data = readFragment(
+    graphql`
+      fragment LiveExternalGreetingFragment on Query {
+        user: live_user_suspends_when_odd @waterfall {
+          name
+        }
+      }
+    `,
+    rootKey,
+  );
+  return {
+    read() {
+      if (data?.user?.name == null) {
+        return suspenseSentinel();
+      }
+      return `${state.salutation} ${data.user.name}`;
+    },
+    subscribe,
+  };
+}
+
+type State = {
+  salutation: string,
+  subscribers: Set<() => void>,
+};
+
+const state: State = {
+  salutation: 'Welcome',
+  subscribers: new Set(),
+};
+
+function subscribe(cb: () => void): () => void {
+  state.subscribers.add(cb);
+  return () => {
+    state.subscribers.delete(cb);
+  };
+}
+
+function updateSalutation(salutation: string) {
+  state.salutation = salutation;
+  state.subscribers.forEach(s => s());
+}
+
+resolver.__debug = {
+  state,
+  subscribe,
+  updateSalutation,
+};
+
+module.exports = resolver;

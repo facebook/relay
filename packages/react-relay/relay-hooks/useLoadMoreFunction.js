@@ -214,7 +214,7 @@ function useLoadMoreFunction<TVariables: Variables>(
             identifierValue,
           );
         }
-        paginationVariables.id = identifierValue;
+        paginationVariables[identifierField] = identifierValue;
       }
 
       const paginationQuery = createOperationDescriptor(

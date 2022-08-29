@@ -32,11 +32,7 @@ const AppQuery = graphql`
   }
 `;
 
-type Props = {
-  initialQueryRef: PreloadedQuery<AppQueryType>,
-};
-
-function QueryFetcherExample(props: Props) {
+function QueryFetcherExample() {
   const [
     queryReference,
     loadQuery,

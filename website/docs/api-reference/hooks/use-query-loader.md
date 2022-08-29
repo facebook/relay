@@ -43,7 +43,6 @@ function QueryFetcherExample(props: Props) {
     disposeQuery,
   ] = useQueryLoader(
     AppQuery,
-    props.initialQueryRef, /* e.g. provided by router */
   );
 
   if (queryReference == null) {

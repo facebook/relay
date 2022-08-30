@@ -29,8 +29,8 @@ function useMemoOperationDescriptor(
   variables: Variables,
   cacheConfig?: ?CacheConfig,
 ): OperationDescriptor {
-  const [memoVariables] = useMemoVariables(variables);
-  const [memoCacheConfig] = useMemoVariables(cacheConfig || {});
+  const memoVariables = useMemoVariables(variables);
+  const memoCacheConfig = useMemoVariables(cacheConfig || {});
   return useMemo(
     () =>
       createOperationDescriptor(

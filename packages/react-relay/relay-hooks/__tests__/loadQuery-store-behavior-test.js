@@ -80,7 +80,6 @@ const updatedResponse = {
 
 const variables = {id: '4'};
 let sink;
-let observable;
 let fetch;
 let environment;
 let store;
@@ -93,7 +92,6 @@ let writeDataToStore;
 
 beforeEach(() => {
   operation = createOperationDescriptor(query, variables);
-  observable = undefined;
   fetch = jest.fn((_query, _variables, _cacheConfig) => {
     const observableCreate = Observable.create(_sink => {
       sink = _sink;

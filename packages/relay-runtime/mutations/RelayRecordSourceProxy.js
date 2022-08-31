@@ -11,7 +11,6 @@
 'use strict';
 
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
-import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {
   DataIDSet,

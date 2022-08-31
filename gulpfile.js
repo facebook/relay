@@ -31,7 +31,6 @@ const del = require('del');
 const fs = require('fs');
 const gulp = require('gulp');
 const babel = require('gulp-babel');
-const chmod = require('gulp-chmod');
 const header = require('gulp-header');
 const rename = require('gulp-rename');
 const gulpUtil = require('gulp-util');

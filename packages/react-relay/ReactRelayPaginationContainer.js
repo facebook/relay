@@ -565,6 +565,7 @@ function createContainerWithFragments<
       ...
     } {
       // Extract connection data and verify there are more edges to fetch
+      // eslint-disable-next-line no-unused-vars
       const {componentRef: _, ...restProps} = this.props;
       const props = {
         ...restProps,
@@ -756,8 +757,11 @@ function createContainerWithFragments<
     ): Subscription {
       const {environment} = assertRelayContext(this.props.__relayContext);
       const {
+        // eslint-disable-next-line no-unused-vars
         componentRef: _,
+        // eslint-disable-next-line no-unused-vars
         __relayContext,
+        // eslint-disable-next-line no-unused-vars
         __rootIsQueryRenderer,
         ...restProps
       } = this.props;
@@ -905,6 +909,7 @@ function createContainerWithFragments<
 
     // $FlowFixMe[missing-local-annot]
     render() {
+      // eslint-disable-next-line no-unused-vars
       const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
         this.props;
       return (

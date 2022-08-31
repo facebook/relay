@@ -97,7 +97,7 @@ test('unsubscribe happens when record is updated due to missing data', () => {
   const environmentUpdateHandler = jest.fn(() => {
     data = environment.lookup(operation.fragment).data;
   });
-  const disposable = environment.subscribe(snapshot, environmentUpdateHandler);
+  environment.subscribe(snapshot, environmentUpdateHandler);
 
   const {__debug} = LiveExternalGreeting;
 

@@ -7,6 +7,8 @@
  * @format
  */
 
+/* eslint-disable no-unused-vars */
+
 'use strict';
 
 // Modified from https://raw.githubusercontent.com/flow-typed/flow-typed/master/definitions/npm/jest_v23.x.x/flow_v0.39.x-v0.103.x/jest_v23.x.x.js

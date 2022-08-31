@@ -14,7 +14,7 @@
 import type {Variables} from 'relay-runtime';
 
 const areEqual = require('areEqual');
-const {useMemo, useRef, useState} = require('react');
+const {useState} = require('react');
 
 /**
  * Memoizes the passed in `variables` object based on `areEqual` equality.

@@ -24,7 +24,6 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');

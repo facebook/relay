@@ -280,7 +280,7 @@ class RelayReader {
   _maybeReportUnexpectedNull(
     fieldPath: string,
     action: 'LOG' | 'THROW',
-    record: Record,
+    _record: Record,
   ) {
     if (this._missingRequiredFields?.action === 'THROW') {
       // Chained @required directives may cause a parent `@required(action:

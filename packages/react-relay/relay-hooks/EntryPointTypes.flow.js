@@ -11,6 +11,8 @@
 
 'use strict';
 
+/* eslint-disable no-unused-vars */
+
 import type {JSResourceReference} from 'JSResourceReference';
 import type {AbstractComponent, ElementConfig} from 'React';
 import type {

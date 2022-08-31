@@ -9,8 +9,6 @@
 
 'use strict';
 
-const path = require('path');
-
 /**
  * This file is a fork from fbjs's transform of the same name. It has been
  * modified to also apply to import statements, and to account for relative

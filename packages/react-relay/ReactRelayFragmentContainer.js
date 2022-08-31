@@ -238,6 +238,7 @@ function createContainerWithFragments<
 
     // $FlowFixMe[missing-local-annot]
     render() {
+      // eslint-disable-next-line no-unused-vars
       const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
         this.props;
       return React.createElement(Component, {

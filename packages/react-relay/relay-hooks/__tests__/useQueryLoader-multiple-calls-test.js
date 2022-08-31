@@ -60,7 +60,6 @@ let environment;
 let fetch;
 let sink;
 let executeObservable;
-let executeUnsubscribe;
 let networkUnsubscribe;
 
 beforeEach(() => {
@@ -91,7 +90,6 @@ beforeEach(() => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.executeWithSource.getMockImplementation();
   executeObservable = undefined;
-  executeUnsubscribe = undefined;
 
   jest
     .spyOn(environment, 'executeWithSource')

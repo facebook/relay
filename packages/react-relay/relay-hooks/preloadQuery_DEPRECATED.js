@@ -31,7 +31,6 @@ import type {
 const {
   Observable,
   PreloadableQueryRegistry,
-  RelayFeatureFlags,
   ReplaySubject,
   createOperationDescriptor,
   getRequest,

@@ -15,6 +15,7 @@ use graphql_syntax::Identifier;
 use graphql_syntax::OperationDefinition;
 use graphql_syntax::VariableDefinition;
 use graphql_text_printer::print_value;
+use graphql_text_printer::PrinterOptions;
 use intern::string_key::StringKey;
 use lsp_types::Hover;
 use lsp_types::HoverContents;
@@ -852,7 +853,11 @@ fn on_hover_fragment_spread<'a>(
             let default_value = match var.default_value.clone() {
                 Some(default_value) => format!(
                     ", with a default value of {}",
-                    print_value(schema, &Value::Constant(default_value.item))
+                    print_value(
+                        schema,
+                        &Value::Constant(default_value.item),
+                        PrinterOptions::default()
+                    )
                 ),
                 None => "".to_string(),
             };

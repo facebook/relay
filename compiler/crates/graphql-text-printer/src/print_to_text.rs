@@ -87,15 +87,19 @@ pub fn print_arguments(
     result
 }
 
-pub fn print_directives(schema: &SDLSchema, directives: &[Directive]) -> String {
+pub fn print_directives(
+    schema: &SDLSchema,
+    directives: &[Directive],
+    options: PrinterOptions,
+) -> String {
     let mut result = String::new();
-    write_directives(schema, directives, &mut result).unwrap();
+    write_directives(schema, directives, options, &mut result).unwrap();
     result
 }
 
-pub fn print_value(schema: &SDLSchema, value: &Value) -> String {
+pub fn print_value(schema: &SDLSchema, value: &Value, options: PrinterOptions) -> String {
     let mut result = String::new();
-    write_value(schema, value, &mut result).unwrap();
+    write_value(schema, value, options, &mut result).unwrap();
     result
 }
 
@@ -159,14 +163,20 @@ pub fn write_arguments(
 pub fn write_directives(
     schema: &SDLSchema,
     directives: &[Directive],
+    options: PrinterOptions,
     mut result: &mut impl Write,
 ) -> FmtResult {
-    let mut printer = Printer::new(schema, &mut result, PrinterOptions::default());
+    let mut printer = Printer::new(schema, &mut result, options);
     printer.print_directives(directives, None, None)
 }
 
-pub fn write_value(schema: &SDLSchema, value: &Value, mut result: &mut impl Write) -> FmtResult {
-    let mut printer = Printer::new(schema, &mut result, PrinterOptions::default());
+pub fn write_value(
+    schema: &SDLSchema,
+    value: &Value,
+    options: PrinterOptions,
+    mut result: &mut impl Write,
+) -> FmtResult {
+    let mut printer = Printer::new(schema, &mut result, options);
     printer.print_value(value)
 }
 

@@ -81,6 +81,7 @@ export type ReaderRefetchMetadata = {
   +operation: string | ConcreteRequest,
   +fragmentPathInResult: Array<string>,
   +identifierField?: ?string,
+  +identifierQueryVariableName?: ?string,
 };
 
 // Stricter form of ConnectionMetadata

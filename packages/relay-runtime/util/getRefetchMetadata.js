@@ -22,6 +22,7 @@ function getRefetchMetadata(
 ): {
   fragmentRefPathInResponse: $ReadOnlyArray<string | number>,
   identifierField: ?string,
+  identifierQueryVariableName: ?string,
   refetchableRequest: ConcreteRequest,
   refetchMetadata: ReaderRefetchMetadata,
 } {
@@ -59,6 +60,8 @@ function getRefetchMetadata(
     componentDisplayName,
   );
   const identifierField = refetchMetadata.identifierField;
+  const identifierQueryVariableName =
+    refetchMetadata.identifierQueryVariableName;
   invariant(
     identifierField == null || typeof identifierField === 'string',
     'Relay: getRefetchMetadata(): Expected `identifierField` to be a string.',
@@ -66,6 +69,7 @@ function getRefetchMetadata(
   return {
     fragmentRefPathInResponse,
     identifierField,
+    identifierQueryVariableName,
     refetchableRequest,
     refetchMetadata,
   };

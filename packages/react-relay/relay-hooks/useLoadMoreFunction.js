@@ -35,6 +35,7 @@ const {
   getPaginationVariables,
   getSelector,
   getValueAtPath,
+  getRefetchMetadata
 } = require('relay-runtime');
 const warning = require('warning');
 
@@ -113,6 +114,9 @@ function useLoadMoreFunction<TVariables: Variables>(
     fragmentData,
     connectionPathInFragmentData,
   );
+
+  const {identifierQueryVariableName} =
+    getRefetchMetadata(fragmentNode, componentDisplayName);
 
   // Dispose of pagination requests in flight when unmounting
   useEffect(() => {
@@ -201,7 +205,7 @@ function useLoadMoreFunction<TVariables: Variables>(
 
       // If the query needs an identifier value ('id' or similar) and one
       // was not explicitly provided, read it from the fragment data.
-      if (identifierField != null) {
+      if (identifierQueryVariableName != null) {
         // @refetchable fragments are guaranteed to have an `id` selection
         // if the type is Node, implements Node, or is @fetchable. Double-check
         // that there actually is a value at runtime.
@@ -214,7 +218,7 @@ function useLoadMoreFunction<TVariables: Variables>(
             identifierValue,
           );
         }
-        paginationVariables[identifierField] = identifierValue;
+        paginationVariables[identifierQueryVariableName] = identifierValue;
       }
 
       const paginationQuery = createOperationDescriptor(

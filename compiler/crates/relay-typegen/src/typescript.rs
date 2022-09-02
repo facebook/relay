@@ -95,11 +95,7 @@ impl Writer for TypeScriptPrinter {
     }
 
     fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult {
-        let from_without_extension = if from.ends_with(".ts") {
-            from.strip_suffix(".ts").unwrap_or(from)
-        } else {
-            from
-        };
+        let from_without_extension = from.strip_suffix(".ts").unwrap_or(from);
         writeln!(
             &mut self.result,
             "import {} from \"{}\";",
@@ -108,11 +104,7 @@ impl Writer for TypeScriptPrinter {
     }
 
     fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult {
-        let from_without_extension = if from.ends_with(".ts") {
-            from.strip_suffix(".ts").unwrap_or(from)
-        } else {
-            from
-        };
+        let from_without_extension = from.strip_suffix(".ts").unwrap_or(from);
         writeln!(
             &mut self.result,
             "import {}{{ {} }} from \"{}\";",

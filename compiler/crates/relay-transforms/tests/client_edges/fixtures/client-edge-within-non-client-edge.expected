@@ -73,6 +73,9 @@ fragment RefetchableClientEdgeQuery_Foo_user_nearest_neighbor__best_friend on Us
 #     identifier_field: Some(
 #         "id",
 #     ),
+#     identifier_query_variable_name: Some(
+#         "id",
+#     ),
 # }
  {
   name

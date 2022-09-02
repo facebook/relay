@@ -445,6 +445,13 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 });
             }
 
+            if let Some(x) = refetch_metadata.identifier_query_variable_name {
+                refetch_object.push(ObjectEntry {
+                    key: CODEGEN_CONSTANTS.identifier_query_variable_name,
+                    value: Primitive::String(x),
+                });
+            }
+
             metadata.push(ObjectEntry {
                 key: CODEGEN_CONSTANTS.refetch,
                 value: Primitive::Key(self.object(refetch_object)),

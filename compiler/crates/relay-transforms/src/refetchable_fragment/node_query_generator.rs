@@ -121,6 +121,7 @@ fn build_refetch_operation(
                         operation_name: query_name,
                         path: vec![CONSTANTS.node_field_name],
                         identifier_field: Some(id_name),
+                        identifier_query_variable_name: Some(id_name),
                     },
                 ),
                 used_global_variables: build_used_global_variables(

@@ -127,7 +127,8 @@ extend type User {
         "node"
       ],
       "operation": require('ClientEdgeQuery_Foo_user_best_friend.graphql'),
-      "identifierField": "id"
+      "identifierField": "id",
+      "identifierQueryVariableName": "id"
     }
   },
   "name": "RefetchableClientEdgeQuery_Foo_user_best_friend",

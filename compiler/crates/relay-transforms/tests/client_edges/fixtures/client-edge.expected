@@ -69,6 +69,9 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__ClientEdgeGe
 #     identifier_field: Some(
 #         "id",
 #     ),
+#     identifier_query_variable_name: Some(
+#         "id",
+#     ),
 # }
  {
   name

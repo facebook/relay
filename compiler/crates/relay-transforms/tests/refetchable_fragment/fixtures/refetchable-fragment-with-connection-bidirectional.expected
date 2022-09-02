@@ -81,6 +81,9 @@ fragment PaginationFragment on Node @refetchable(queryName: "RefetchableFragment
 #     identifier_field: Some(
 #         "id",
 #     ),
+#     identifier_query_variable_name: Some(
+#         "id",
+#     ),
 # }
  {
   id

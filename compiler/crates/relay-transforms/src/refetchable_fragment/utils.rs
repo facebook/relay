@@ -36,6 +36,7 @@ pub struct RefetchableMetadata {
     pub operation_name: OperationDefinitionName,
     pub path: Vec<StringKey>,
     pub identifier_field: Option<StringKey>,
+    pub identifier_query_variable_name: Option<StringKey>,
 }
 associated_data_impl!(RefetchableMetadata);
 

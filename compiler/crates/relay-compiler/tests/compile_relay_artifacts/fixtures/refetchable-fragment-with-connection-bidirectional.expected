@@ -421,7 +421,8 @@ fragment refetchableFragmentWithConnectionBidirectional_PaginationFragment_1G22u
         "node"
       ],
       "operation": require('RefetchableFragmentQuery.graphql'),
-      "identifierField": "id"
+      "identifierField": "id",
+      "identifierQueryVariableName": "id"
     }
   },
   "name": "refetchableFragmentWithConnectionBidirectional_PaginationFragment",

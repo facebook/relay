@@ -44,6 +44,9 @@ fragment RefetchableFragment on NonNodeStory @refetchable(queryName: "Refetchabl
 #     identifier_field: Some(
 #         "fetch_id",
 #     ),
+#     identifier_query_variable_name: Some(
+#         "id",
+#     ),
 # }
  {
   actor {

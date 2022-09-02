@@ -29,6 +29,9 @@ fragment RefetchableFragment on AllConcreteTypesImplementNode @refetchable(query
 #     identifier_field: Some(
 #         "id",
 #     ),
+#     identifier_query_variable_name: Some(
+#         "id",
+#     ),
 # }
  {
   count

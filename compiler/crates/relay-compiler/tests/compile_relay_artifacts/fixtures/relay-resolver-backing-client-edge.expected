@@ -287,7 +287,8 @@ fragment relayResolverBackingClientEdge_best_friend_resolver on User {
         "node"
       ],
       "operation": require('ClientEdgeQuery_relayResolverBackingClientEdgeQuery_me__best_friend.graphql'),
-      "identifierField": "id"
+      "identifierField": "id",
+      "identifierQueryVariableName": "id"
     }
   },
   "name": "RefetchableClientEdgeQuery_relayResolverBackingClientEdgeQuery_me__best_friend",

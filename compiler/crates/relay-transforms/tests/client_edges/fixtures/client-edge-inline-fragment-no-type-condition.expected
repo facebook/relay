@@ -105,6 +105,9 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__ClientEdgeGe
 #     identifier_field: Some(
 #         "id",
 #     ),
+#     identifier_query_variable_name: Some(
+#         "id",
+#     ),
 # }
  {
   doesViewerLike
@@ -131,6 +134,9 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend_1 on User @__ClientEdge
 #         "node",
 #     ],
 #     identifier_field: Some(
+#         "id",
+#     ),
+#     identifier_query_variable_name: Some(
 #         "id",
 #     ),
 # }

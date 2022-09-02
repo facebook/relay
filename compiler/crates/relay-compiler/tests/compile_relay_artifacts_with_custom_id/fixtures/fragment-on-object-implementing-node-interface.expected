@@ -235,7 +235,8 @@ fragment fragmentOnObjectImplementingNodeInterface_RefetchableFragment on User {
         "node"
       ],
       "operation": require('RefetchableFragmentQuery.graphql'),
-      "identifierField": "global_id"
+      "identifierField": "global_id",
+      "identifierQueryVariableName": "global_id"
     }
   },
   "name": "fragmentOnObjectImplementingNodeInterface_RefetchableFragment",

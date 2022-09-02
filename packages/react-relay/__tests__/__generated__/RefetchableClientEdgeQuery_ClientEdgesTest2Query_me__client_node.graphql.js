@@ -43,7 +43,8 @@ var node/*: ReaderFragment*/ = {
         "node"
       ],
       "operation": require('./ClientEdgeQuery_ClientEdgesTest2Query_me__client_node.graphql'),
-      "identifierField": "id"
+      "identifierField": "id",
+      "identifierQueryVariableName": "id"
     }
   },
   "name": "RefetchableClientEdgeQuery_ClientEdgesTest2Query_me__client_node",

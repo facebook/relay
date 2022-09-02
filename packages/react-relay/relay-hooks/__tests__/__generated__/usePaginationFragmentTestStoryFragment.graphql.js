@@ -80,7 +80,8 @@ return {
         "fetch__NonNodeStory"
       ],
       "operation": require('./usePaginationFragmentTestStoryFragmentRefetchQuery.graphql'),
-      "identifierField": "fetch_id"
+      "identifierField": "fetch_id",
+      "identifierQueryVariableName": "id"
     }
   },
   "name": "usePaginationFragmentTestStoryFragment",

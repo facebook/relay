@@ -46,7 +46,8 @@ var node/*: ReaderFragment*/ = {
         "fetch__NonNodeStory"
       ],
       "operation": require('./useRefetchableFragmentNodeTest1FragmentRefetchQuery.graphql'),
-      "identifierField": "fetch_id"
+      "identifierField": "fetch_id",
+      "identifierQueryVariableName": "id"
     }
   },
   "name": "useRefetchableFragmentNodeTest1Fragment",

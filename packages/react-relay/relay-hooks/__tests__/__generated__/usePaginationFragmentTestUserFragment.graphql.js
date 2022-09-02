@@ -121,7 +121,8 @@ return {
         "node"
       ],
       "operation": require('./usePaginationFragmentTestUserFragmentPaginationQuery.graphql'),
-      "identifierField": "id"
+      "identifierField": "id",
+      "identifierQueryVariableName": "id"
     }
   },
   "name": "usePaginationFragmentTestUserFragment",

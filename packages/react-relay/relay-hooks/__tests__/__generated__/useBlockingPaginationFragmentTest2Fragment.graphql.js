@@ -104,7 +104,8 @@ return {
         "node"
       ],
       "operation": require('./useBlockingPaginationFragmentTest2FragmentPaginationQuery.graphql'),
-      "identifierField": "id"
+      "identifierField": "id",
+      "identifierQueryVariableName": "id"
     }
   },
   "name": "useBlockingPaginationFragmentTest2Fragment",

@@ -50,7 +50,8 @@ var node/*: ReaderFragment*/ = {
         "node"
       ],
       "operation": require('./ResolverTest1FragmentRefetchableQuery.graphql'),
-      "identifierField": "id"
+      "identifierField": "id",
+      "identifierQueryVariableName": "id"
     }
   },
   "name": "ResolverTest2Fragment",

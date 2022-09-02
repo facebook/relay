@@ -116,7 +116,8 @@ return {
         "node"
       ],
       "operation": require('./useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery.graphql'),
-      "identifierField": "id"
+      "identifierField": "id",
+      "identifierQueryVariableName": "id"
     }
   },
   "name": "useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment",

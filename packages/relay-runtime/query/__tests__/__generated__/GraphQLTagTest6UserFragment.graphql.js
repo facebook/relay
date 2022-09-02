@@ -85,7 +85,8 @@ return {
         "node"
       ],
       "operation": require('./GraphQLTagTestUserFragment4RefetchQuery.graphql'),
-      "identifierField": "id"
+      "identifierField": "id",
+      "identifierQueryVariableName": "id"
     }
   },
   "name": "GraphQLTagTest6UserFragment",

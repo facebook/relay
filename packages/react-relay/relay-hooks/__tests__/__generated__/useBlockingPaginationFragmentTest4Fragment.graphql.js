@@ -42,7 +42,8 @@ var node/*: ReaderFragment*/ = {
         "node"
       ],
       "operation": require('./useBlockingPaginationFragmentTest4FragmentRefetchQuery.graphql'),
-      "identifierField": "id"
+      "identifierField": "id",
+      "identifierQueryVariableName": "id"
     }
   },
   "name": "useBlockingPaginationFragmentTest4Fragment",

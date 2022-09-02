@@ -43,6 +43,9 @@ fragment RefetchableFragment on RefetchableInterface @refetchable(queryName: "Re
 #     identifier_field: Some(
 #         "id",
 #     ),
+#     identifier_query_variable_name: Some(
+#         "id",
+#     ),
 # }
  {
   id

@@ -11,7 +11,7 @@ fragment FeedbackFragment on Feedback {
   actors
     @stream(
       if: true
-      initial_count: 1
+      initialCount: 1
       label: "StreamedActorsLabel"
       use_customized_batch: $useCustomizedBatch
     ) {
@@ -31,7 +31,7 @@ query QueryWithFragmentWithStream(
 
 fragment FeedbackFragment on Feedback {
   id
-  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", if: true, initial_count: 1, use_customized_batch: $useCustomizedBatch) {
+  actors @stream(label: "FeedbackFragment$stream$StreamedActorsLabel", if: true, initialCount: 1, use_customized_batch: $useCustomizedBatch) {
     name
   }
 }

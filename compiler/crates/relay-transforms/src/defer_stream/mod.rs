@@ -52,6 +52,7 @@ pub struct DeferStreamConstants {
     pub if_arg: ArgumentName,
     pub label_arg: ArgumentName,
     pub initial_count_arg: ArgumentName,
+    pub stream_connection_initial_count_arg: ArgumentName,
     pub use_customized_batch_arg: ArgumentName,
 }
 
@@ -62,7 +63,8 @@ impl Default for DeferStreamConstants {
             stream_name: DirectiveName("stream".intern()),
             if_arg: ArgumentName("if".intern()),
             label_arg: ArgumentName("label".intern()),
-            initial_count_arg: ArgumentName("initial_count".intern()),
+            initial_count_arg: ArgumentName("initialCount".intern()),
+            stream_connection_initial_count_arg: ArgumentName("initial_count".intern()),
             use_customized_batch_arg: ArgumentName("use_customized_batch".intern()),
         }
     }
@@ -434,7 +436,7 @@ enum ValidationMessage {
     #[error("Field '{field_name}' is not of list type, therefore cannot use @stream directive.")]
     StreamFieldIsNotAList { field_name: StringKey },
 
-    #[error("Invalid use of @stream, the 'initial_count' argument is required.")]
+    #[error("Invalid use of @stream, the 'initialCount' argument is required.")]
     StreamInitialCountRequired,
 
     #[error(

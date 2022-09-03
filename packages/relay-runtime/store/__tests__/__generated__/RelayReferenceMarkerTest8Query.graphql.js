@@ -150,7 +150,7 @@ return {
     "metadata": {},
     "name": "RelayReferenceMarkerTest8Query",
     "operationKind": "query",
-    "text": "query RelayReferenceMarkerTest8Query(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayReferenceMarkerTest6Fragment\n    id\n  }\n}\n\nfragment RelayReferenceMarkerTest6Fragment on Feedback {\n  id\n  actors @stream(label: \"RelayReferenceMarkerTest6Fragment$stream$TestFragmentActors\", initial_count: 0) {\n    __typename\n    name\n    id\n  }\n}\n"
+    "text": "query RelayReferenceMarkerTest8Query(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayReferenceMarkerTest6Fragment\n    id\n  }\n}\n\nfragment RelayReferenceMarkerTest6Fragment on Feedback {\n  id\n  actors @stream(label: \"RelayReferenceMarkerTest6Fragment$stream$TestFragmentActors\", initialCount: 0) {\n    __typename\n    name\n    id\n  }\n}\n"
   }
 };
 })();

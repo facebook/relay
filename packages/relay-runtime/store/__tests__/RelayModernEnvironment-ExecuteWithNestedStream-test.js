@@ -67,18 +67,13 @@ describe('execute() a query with nested @stream', () => {
     feedFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment on Viewer {
         newsFeed(first: 10) {
-          edges
-            @stream(label: "newsFeed", if: $enableStream, initial_count: 0) {
+          edges @stream(label: "newsFeed", if: $enableStream, initialCount: 0) {
             cursor
             node {
               id
               feedback {
                 actors
-                  @stream(
-                    label: "actors"
-                    if: $enableStream
-                    initial_count: 0
-                  ) {
+                  @stream(label: "actors", if: $enableStream, initialCount: 0) {
                   name @__clientField(handle: "name_handler")
                 }
               }

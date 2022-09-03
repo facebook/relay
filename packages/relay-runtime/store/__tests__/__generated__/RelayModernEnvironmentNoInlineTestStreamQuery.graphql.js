@@ -131,7 +131,7 @@ return {
     "metadata": {},
     "name": "RelayModernEnvironmentNoInlineTestStreamQuery",
     "operationKind": "query",
-    "text": "query RelayModernEnvironmentNoInlineTestStreamQuery(\n  $cond: Boolean!\n) {\n  node(id: \"1\") {\n    __typename\n    ...RelayModernEnvironmentNoInlineTestStream_feedback_yuQoQ\n    id\n  }\n}\n\nfragment RelayModernEnvironmentNoInlineTestStream_feedback_yuQoQ on Feedback {\n  actors @stream(label: \"RelayModernEnvironmentNoInlineTestStream_feedback$stream$actors\", initial_count: 0) {\n    __typename\n    __isActor: __typename @include(if: $cond)\n    name @include(if: $cond)\n    id\n  }\n}\n"
+    "text": "query RelayModernEnvironmentNoInlineTestStreamQuery(\n  $cond: Boolean!\n) {\n  node(id: \"1\") {\n    __typename\n    ...RelayModernEnvironmentNoInlineTestStream_feedback_yuQoQ\n    id\n  }\n}\n\nfragment RelayModernEnvironmentNoInlineTestStream_feedback_yuQoQ on Feedback {\n  actors @stream(label: \"RelayModernEnvironmentNoInlineTestStream_feedback$stream$actors\", initialCount: 0) {\n    __typename\n    __isActor: __typename @include(if: $cond)\n    name @include(if: $cond)\n    id\n  }\n}\n"
   }
 };
 })();

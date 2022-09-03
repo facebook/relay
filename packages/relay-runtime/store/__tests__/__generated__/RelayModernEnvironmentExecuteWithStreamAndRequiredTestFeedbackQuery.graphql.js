@@ -160,7 +160,7 @@ return {
     "metadata": {},
     "name": "RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQuery",
     "operationKind": "query",
-    "text": "query RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQuery(\n  $id: ID!\n  $enableStream: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment on Feedback {\n  id\n  actors @stream(label: \"RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$stream$actors\", if: $enableStream, initial_count: 0) {\n    __typename\n    name\n    id\n  }\n}\n"
+    "text": "query RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQuery(\n  $id: ID!\n  $enableStream: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment\n    id\n  }\n}\n\nfragment RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment on Feedback {\n  id\n  actors @stream(label: \"RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$stream$actors\", if: $enableStream, initialCount: 0) {\n    __typename\n    name\n    id\n  }\n}\n"
   }
 };
 })();

@@ -160,7 +160,7 @@ return {
     "metadata": {},
     "name": "RelayResponseNormalizerTest12Query",
     "operationKind": "query",
-    "text": "query RelayResponseNormalizerTest12Query(\n  $id: ID!\n  $enableStream: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayResponseNormalizerTest9Fragment\n    id\n  }\n}\n\nfragment RelayResponseNormalizerTest9Fragment on Feedback {\n  id\n  actors @stream(label: \"RelayResponseNormalizerTest9Fragment$stream$actors\", if: $enableStream, initial_count: 0) {\n    __typename\n    name\n    id\n  }\n}\n"
+    "text": "query RelayResponseNormalizerTest12Query(\n  $id: ID!\n  $enableStream: Boolean!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayResponseNormalizerTest9Fragment\n    id\n  }\n}\n\nfragment RelayResponseNormalizerTest9Fragment on Feedback {\n  id\n  actors @stream(label: \"RelayResponseNormalizerTest9Fragment$stream$actors\", if: $enableStream, initialCount: 0) {\n    __typename\n    name\n    id\n  }\n}\n"
   }
 };
 })();

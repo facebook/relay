@@ -150,7 +150,7 @@ return {
     "metadata": {},
     "name": "RelayResponseNormalizerTest14Query",
     "operationKind": "query",
-    "text": "query RelayResponseNormalizerTest14Query(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayResponseNormalizerTest11Fragment\n    id\n  }\n}\n\nfragment RelayResponseNormalizerTest11Fragment on Feedback {\n  id\n  actors @stream(label: \"RelayResponseNormalizerTest11Fragment$stream$actors\", initial_count: 0) {\n    __typename\n    name\n    id\n  }\n}\n"
+    "text": "query RelayResponseNormalizerTest14Query(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayResponseNormalizerTest11Fragment\n    id\n  }\n}\n\nfragment RelayResponseNormalizerTest11Fragment on Feedback {\n  id\n  actors @stream(label: \"RelayResponseNormalizerTest11Fragment$stream$actors\", initialCount: 0) {\n    __typename\n    name\n    id\n  }\n}\n"
   }
 };
 })();

@@ -178,7 +178,7 @@ return {
     "metadata": {},
     "name": "RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription",
     "operationKind": "subscription",
-    "text": "subscription RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription(\n  $input: CommentCreateSubscriptionInput!\n) {\n  commentCreateSubscribe(input: $input) {\n    feedback {\n      ...RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment\n      id\n    }\n  }\n}\n\nfragment RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment on Feedback {\n  id\n  actors @stream(label: \"RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$stream$actors\", initial_count: 0) {\n    __typename\n    name\n    id\n  }\n}\n"
+    "text": "subscription RelayModernEnvironmentExecuteSubscriptionWithStreamTestCommentCreateSubscription(\n  $input: CommentCreateSubscriptionInput!\n) {\n  commentCreateSubscribe(input: $input) {\n    feedback {\n      ...RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment\n      id\n    }\n  }\n}\n\nfragment RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment on Feedback {\n  id\n  actors @stream(label: \"RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment$stream$actors\", initialCount: 0) {\n    __typename\n    name\n    id\n  }\n}\n"
   }
 };
 })();

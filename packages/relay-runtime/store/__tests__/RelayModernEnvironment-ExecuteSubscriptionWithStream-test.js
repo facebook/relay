@@ -67,7 +67,7 @@ describe('executeSubscrption() with @stream', () => {
     feedbackFragment = graphql`
       fragment RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment on Feedback {
         id
-        actors @stream(label: "actors", initial_count: 0) {
+        actors @stream(label: "actors", initialCount: 0) {
           name @__clientField(handle: "name_handler")
         }
       }

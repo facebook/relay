@@ -133,10 +133,19 @@ impl<'s> ConnectionTransform<'s> {
             let mut arguments = vec![];
             for arg in &connection_directive.arguments {
                 if arg.name.item == DEFER_STREAM_CONSTANTS.if_arg
-                    || arg.name.item == DEFER_STREAM_CONSTANTS.initial_count_arg
                     || arg.name.item == DEFER_STREAM_CONSTANTS.use_customized_batch_arg
                 {
                     arguments.push(arg.clone());
+                } else if arg.name.item
+                    == DEFER_STREAM_CONSTANTS.stream_connection_initial_count_arg
+                {
+                    arguments.push(Argument {
+                        name: WithLocation::new(
+                            arg.name.location,
+                            DEFER_STREAM_CONSTANTS.initial_count_arg,
+                        ),
+                        value: arg.value.clone(),
+                    });
                 } else if arg.name.item == *KEY_ARG_NAME {
                     arguments.push(Argument {
                         name: WithLocation::new(

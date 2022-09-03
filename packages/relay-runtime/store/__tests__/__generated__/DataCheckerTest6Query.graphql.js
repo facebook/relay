@@ -150,7 +150,7 @@ return {
     "metadata": {},
     "name": "DataCheckerTest6Query",
     "operationKind": "query",
-    "text": "query DataCheckerTest6Query(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...DataCheckerTest7Fragment\n    id\n  }\n}\n\nfragment DataCheckerTest7Fragment on Feedback {\n  id\n  actors @stream(label: \"DataCheckerTest7Fragment$stream$TestFragmentActors\", initial_count: 0) {\n    __typename\n    name\n    id\n  }\n}\n"
+    "text": "query DataCheckerTest6Query(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...DataCheckerTest7Fragment\n    id\n  }\n}\n\nfragment DataCheckerTest7Fragment on Feedback {\n  id\n  actors @stream(label: \"DataCheckerTest7Fragment$stream$TestFragmentActors\", initialCount: 0) {\n    __typename\n    name\n    id\n  }\n}\n"
   }
 };
 })();

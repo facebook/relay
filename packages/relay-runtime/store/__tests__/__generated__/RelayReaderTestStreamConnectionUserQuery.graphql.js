@@ -227,7 +227,7 @@ return {
     "metadata": {},
     "name": "RelayReaderTestStreamConnectionUserQuery",
     "operationKind": "query",
-    "text": "query RelayReaderTestStreamConnectionUserQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayReaderTestStreamConnectionUserProfile\n    id\n  }\n}\n\nfragment RelayReaderTestStreamConnectionUserProfile on User {\n  friends(first: 3) {\n    edges @stream(label: \"RelayReaderTestStreamConnectionUserProfile$stream$UserProfile_friends\", initial_count: 0) {\n      node {\n        name\n        id\n        __typename\n      }\n      cursor\n    }\n    ... @defer(label: \"RelayReaderTestStreamConnectionUserProfile$defer$UserProfile_friends$pageInfo\") {\n      pageInfo {\n        endCursor\n        hasNextPage\n      }\n    }\n  }\n}\n"
+    "text": "query RelayReaderTestStreamConnectionUserQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...RelayReaderTestStreamConnectionUserProfile\n    id\n  }\n}\n\nfragment RelayReaderTestStreamConnectionUserProfile on User {\n  friends(first: 3) {\n    edges @stream(label: \"RelayReaderTestStreamConnectionUserProfile$stream$UserProfile_friends\", initialCount: 0) {\n      node {\n        name\n        id\n        __typename\n      }\n      cursor\n    }\n    ... @defer(label: \"RelayReaderTestStreamConnectionUserProfile$defer$UserProfile_friends$pageInfo\") {\n      pageInfo {\n        endCursor\n        hasNextPage\n      }\n    }\n  }\n}\n"
   }
 };
 })();

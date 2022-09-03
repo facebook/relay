@@ -79,11 +79,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             newsFeed(first: 10, after: $after)
               @connection(key: "RelayModernEnvironment_newsFeed") {
               edges
-                @stream(
-                  label: "newsFeed"
-                  if: $enableStream
-                  initial_count: 0
-                ) {
+                @stream(label: "newsFeed", if: $enableStream, initialCount: 0) {
                 cursor
                 node {
                   __typename
@@ -437,7 +433,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
       });
 
-      it('initializes the connection with subsequent edges (1 => 2 edges) when initial_count=1', () => {
+      it('initializes the connection with subsequent edges (1 => 2 edges) when initialCount=1', () => {
         const initialSnapshot = environment.lookup(selector);
         callback = jest.fn();
         environment.subscribe(initialSnapshot, callback);

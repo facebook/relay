@@ -682,7 +682,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             fragment RelayModernEnvironmentNoInlineTestStream_feedback on Feedback
             @no_inline
             @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
-              actors @stream(label: "actors", initial_count: 0) {
+              actors @stream(label: "actors", initialCount: 0) {
                 ... @include(if: $cond) {
                   name
                 }
@@ -841,7 +841,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                   @stream(
                     label: "newsFeed"
                     if: $enableStream
-                    initial_count: 0
+                    initialCount: 0
                   ) {
                   node {
                     ... @include(if: $cond) {

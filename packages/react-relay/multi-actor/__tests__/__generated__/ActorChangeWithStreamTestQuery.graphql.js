@@ -241,7 +241,7 @@ return {
     "metadata": {},
     "name": "ActorChangeWithStreamTestQuery",
     "operationKind": "query",
-    "text": "query ActorChangeWithStreamTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node @fb_actor_change {\n          __typename\n          ...ActorChangeWithStreamTestFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithStreamTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  message {\n    text\n  }\n  feedback {\n    id\n    actors @stream(label: \"ActorChangeWithStreamTestFragment$stream$actors\", initial_count: 1) {\n      __typename\n      name\n      id\n    }\n  }\n}\n"
+    "text": "query ActorChangeWithStreamTestQuery {\n  viewer {\n    newsFeed {\n      edges {\n        node @fb_actor_change {\n          __typename\n          ...ActorChangeWithStreamTestFragment\n          actor_key\n          id\n        }\n      }\n    }\n  }\n}\n\nfragment ActorChangeWithStreamTestFragment on FeedUnit {\n  __isFeedUnit: __typename\n  id\n  message {\n    text\n  }\n  feedback {\n    id\n    actors @stream(label: \"ActorChangeWithStreamTestFragment$stream$actors\", initialCount: 1) {\n      __typename\n      name\n      id\n    }\n  }\n}\n"
   }
 };
 })();

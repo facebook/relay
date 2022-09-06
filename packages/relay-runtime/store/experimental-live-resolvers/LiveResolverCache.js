@@ -49,7 +49,7 @@ const warning = require('warning');
 // When this experiment gets promoted to stable, these keys will move into
 // `RelayStoreUtils`.
 const RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY =
-  '__resolverLieStateSubscription';
+  '__resolverLiveStateSubscription';
 const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
 const RELAY_RESOLVER_RECORD_TYPENAME = '__RELAY_RESOLVER__';
@@ -219,18 +219,37 @@ class LiveResolverCache implements ResolverCache {
         RELAY_RESOLVER_LIVE_STATE_VALUE,
       );
 
+      let resolverValue;
+      if (isLiveStateValue(liveState)) {
+        // Set the new value for this and future reads.
+        resolverValue = liveState.read();
+      } else {
+        warning(
+          false,
+          'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. ' +
+            'It is likely a bug in Relay, or a corrupt state of the relay store state ' +
+            'Field Path `%s`. Record `%s`.',
+          field.path,
+          JSON.stringify(linkedRecord),
+        );
+
+        resolverValue = null;
+      }
+
       // Set the new value for this and future reads.
       RelayModernRecord.setValue(
         linkedRecord,
         RELAY_RESOLVER_VALUE_KEY,
-        liveState.read(),
+        resolverValue,
       );
+
       // Mark the resolver as clean again.
       RelayModernRecord.setValue(
         linkedRecord,
         RELAY_RESOLVER_LIVE_STATE_DIRTY,
         false,
       );
+
       recordSource.set(linkedID, linkedRecord);
     }
 

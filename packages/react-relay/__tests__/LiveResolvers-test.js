@@ -41,6 +41,7 @@ const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
   disallowWarnings,
+  expectToWarn,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -1262,6 +1263,48 @@ describe.each([
         GLOBAL_STORE.dispatch({type: 'INCREMENT'});
       });
       expect(renderer.toJSON()).toEqual('2');
+    });
+
+    test('warning for invalid liveState value in the Relay store.', () => {
+      const environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(jest.fn()),
+        store: new LiveResolverStore(RelayRecordSource.create()),
+      });
+      environment.commitPayload(
+        createOperationDescriptor(LiveResolversTestLiveResolverSuspenseQuery, {
+          id: '1',
+        }),
+        {
+          node: {id: '1', __typename: 'User'},
+        },
+      );
+      const renderer = TestRenderer.create(
+        <Environment environment={environment}>
+          <TestComponent id="1" />
+        </Environment>,
+      );
+      expect(renderer.toJSON()).toEqual('0');
+      TestRenderer.act(() => {
+        GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+      });
+      TestRenderer.act(() => jest.runAllImmediates());
+      expect(renderer.toJSON()).toEqual('Loading...');
+      environment.applyUpdate({
+        storeUpdater: store => {
+          const record = store.get('client:1:counter_suspends_when_odd');
+          // this will force the invalid `liveState` value` in the resolver record
+          record?.setValue(undefined, '__resolverLiveStateValue');
+        },
+      });
+      expectToWarn(
+        'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverLiveStateDirty":true,"__resolverError":null}`',
+        () => {
+          TestRenderer.act(() => {
+            GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+          });
+        },
+      );
+      expect(renderer.toJSON()).toEqual(null);
     });
   });
 });

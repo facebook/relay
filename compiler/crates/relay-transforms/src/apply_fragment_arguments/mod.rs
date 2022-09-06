@@ -448,7 +448,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             ));
         }
         let mut metadata = SplitOperationMetadata {
-            derived_from: fragment.name.item,
+            derived_from: Some(fragment.name.item),
             location: fragment.name.location,
             parent_documents: Default::default(),
             raw_response_type: is_raw_response_type_enabled(directive),

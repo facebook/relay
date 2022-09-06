@@ -249,7 +249,7 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
                         get_normalization_operation_name(spread.fragment.item.0).intern();
                     (
                         SplitOperationMetadata {
-                            derived_from: spread.fragment.item,
+                            derived_from: Some(spread.fragment.item),
                             location: spread.fragment.location,
                             parent_documents: Default::default(),
                             raw_response_type: false,

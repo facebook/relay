@@ -55,7 +55,8 @@ pub fn generate_artifacts(
                 {
                     // Generate normalization file for SplitOperation
                     let metadata = SplitOperationMetadata::from(directive);
-                    let source_hash = source_hashes.get(&metadata.derived_from.0).cloned().unwrap();
+                    let source_hash = metadata.derived_from.and_then(|derived_from|
+                        source_hashes.get(&derived_from.0).cloned()).unwrap_or_else(|| panic!("Expected a source hash for split operation."));
                     let source_file = metadata.location.source_location();
                     let typegen_operation = if metadata.raw_response_type {
                         Some(Arc::clone(normalization))

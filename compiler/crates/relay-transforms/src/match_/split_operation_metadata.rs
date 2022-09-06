@@ -7,6 +7,7 @@
 
 use common::ArgumentName;
 use common::DirectiveName;
+use common::Location;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::Argument;
@@ -53,6 +54,9 @@ pub struct SplitOperationMetadata {
     /// to determine the name of the generated artifact.
     pub derived_from: FragmentDefinitionName,
 
+    /// Location of the source file for this split operation
+    pub location: Location,
+
     /// The names of the fragments and operations that included this fragment.
     /// They are the reason this split operation exist. If they are all removed,
     /// this file also needs to be removed.
@@ -89,7 +93,7 @@ impl SplitOperationMetadata {
             });
         }
         Directive {
-            name: WithLocation::generated(*DIRECTIVE_SPLIT_OPERATION),
+            name: WithLocation::new(self.location, *DIRECTIVE_SPLIT_OPERATION),
             arguments,
             data: None,
         }
@@ -99,10 +103,12 @@ impl SplitOperationMetadata {
 impl From<&Directive> for SplitOperationMetadata {
     fn from(directive: &Directive) -> Self {
         debug_assert!(directive.name.item == *DIRECTIVE_SPLIT_OPERATION);
+        let location = directive.name.location;
         let derived_from_arg = directive
             .arguments
             .named(ARG_DERIVED_FROM.0)
             .expect("Expected derived_from arg to exist");
+
         let derived_from =
             FragmentDefinitionName(derived_from_arg.value.item.expect_string_literal());
         let parent_documents_arg = directive
@@ -127,6 +133,7 @@ impl From<&Directive> for SplitOperationMetadata {
                 .collect();
             Self {
                 derived_from,
+                location,
                 parent_documents,
                 raw_response_type,
             }

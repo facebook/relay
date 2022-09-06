@@ -136,6 +136,7 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
                     (
                         SplitOperationMetadata {
                             derived_from: module_metadata.fragment_name,
+                            location: module_metadata.location,
                             parent_documents: Default::default(),
                             raw_response_type: false,
                         },

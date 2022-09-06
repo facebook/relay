@@ -421,10 +421,11 @@ class RelayReader {
           );
           // The only case where we want to suspend due to missing data off of
           // a client extension is if we reached a client edge that we might be
-          // able to fetch:
+          // able to fetch, or there is a missing data in one of the live resolvers.
           this._isMissingData =
             isMissingData ||
-            this._missingClientEdges.length > alreadyMissingClientEdges;
+            this._missingClientEdges.length > alreadyMissingClientEdges ||
+            this._missingLiveResolverFields.length > 0;
           if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
             this._clientEdgeTraversalPath.pop();
           }

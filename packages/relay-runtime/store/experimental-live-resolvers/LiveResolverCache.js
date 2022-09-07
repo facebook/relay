@@ -219,12 +219,8 @@ class LiveResolverCache implements ResolverCache {
         RELAY_RESOLVER_LIVE_STATE_VALUE,
       );
 
-      let resolverValue;
-      if (isLiveStateValue(liveState)) {
-        // Set the new value for this and future reads.
-        resolverValue = liveState.read();
-      } else {
-        warning(
+      if (!isLiveStateValue(liveState)) {
+        invariant(
           false,
           'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. ' +
             'It is likely a bug in Relay, or a corrupt state of the relay store state ' +
@@ -232,9 +228,9 @@ class LiveResolverCache implements ResolverCache {
           field.path,
           JSON.stringify(linkedRecord),
         );
-
-        resolverValue = null;
       }
+
+      const resolverValue = liveState.read();
 
       // Set the new value for this and future reads.
       RelayModernRecord.setValue(

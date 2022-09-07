@@ -41,7 +41,6 @@ const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
   disallowWarnings,
-  expectToWarn,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -1265,7 +1264,7 @@ describe.each([
       expect(renderer.toJSON()).toEqual('2');
     });
 
-    test('warning for invalid liveState value in the Relay store.', () => {
+    test('invariant for invalid liveState value in the Relay store.', () => {
       const environment = new RelayModernEnvironment({
         network: RelayNetwork.create(jest.fn()),
         store: new LiveResolverStore(RelayRecordSource.create()),
@@ -1296,15 +1295,12 @@ describe.each([
           record?.setValue(undefined, '__resolverLiveStateValue');
         },
       });
-      expectToWarn(
+      expect(() => {
+        GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+      }).toThrowError(
         'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverLiveStateDirty":true,"__resolverError":null}`',
-        () => {
-          TestRenderer.act(() => {
-            GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-          });
-        },
       );
-      expect(renderer.toJSON()).toEqual(null);
+      expect(renderer.toJSON()).toEqual('Loading...');
     });
   });
 });

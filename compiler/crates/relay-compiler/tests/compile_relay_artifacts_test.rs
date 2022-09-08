@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<26f1213ce0b22a90f8a0f8f63b936ce0>>
+ * @generated SignedSource<<6d41476f043330a5b3cb6ecc73daf095>>
  */
 
 mod compile_relay_artifacts;
@@ -402,6 +402,20 @@ fn duplicate_directive_invalid() {
     let input = include_str!("compile_relay_artifacts/fixtures/duplicate-directive.invalid.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/duplicate-directive.invalid.expected");
     test_fixture(transform_fixture, "duplicate-directive.invalid.graphql", "compile_relay_artifacts/fixtures/duplicate-directive.invalid.expected", input, expected);
+}
+
+#[test]
+fn duplicate_fragment_name() {
+    let input = include_str!("compile_relay_artifacts/fixtures/duplicate_fragment_name.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/duplicate_fragment_name.expected");
+    test_fixture(transform_fixture, "duplicate_fragment_name.graphql", "compile_relay_artifacts/fixtures/duplicate_fragment_name.expected", input, expected);
+}
+
+#[test]
+fn duplicate_query_name() {
+    let input = include_str!("compile_relay_artifacts/fixtures/duplicate_query_name.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/duplicate_query_name.expected");
+    test_fixture(transform_fixture, "duplicate_query_name.graphql", "compile_relay_artifacts/fixtures/duplicate_query_name.expected", input, expected);
 }
 
 #[test]

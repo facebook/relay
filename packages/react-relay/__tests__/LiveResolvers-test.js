@@ -1192,6 +1192,117 @@ describe.each([
 
     expect(renderer.toJSON()).toBe('Loading...');
   });
+
+  describe('client-only fragments', () => {
+    const LiveResolversTestCounterUserFragment = graphql`
+      fragment LiveResolversTestCounterUserFragment on User {
+        counter_suspends_when_odd
+      }
+    `;
+
+    const LiveResolversTestLiveResolverSuspenseQuery = graphql`
+      query LiveResolversTestLiveResolverSuspenseQuery($id: ID!) {
+        node(id: $id) {
+          ...LiveResolversTestCounterUserFragment
+        }
+      }
+    `;
+
+    function Environment({
+      children,
+      environment,
+    }: {
+      children: React.Node,
+      environment: RelayModernEnvironment,
+    }) {
+      return (
+        <RelayEnvironmentProvider environment={environment}>
+          <React.Suspense fallback="Loading...">{children}</React.Suspense>
+        </RelayEnvironmentProvider>
+      );
+    }
+
+    function TestComponent(props: {id: string}) {
+      const queryData = useLazyLoadQuery(
+        LiveResolversTestLiveResolverSuspenseQuery,
+        {id: props.id},
+      );
+      const fragmentData = useFragment(
+        LiveResolversTestCounterUserFragment,
+        queryData.node,
+      );
+      return fragmentData?.counter_suspends_when_odd;
+    }
+
+    test('correctly suspend on fragments with client-only data', () => {
+      const environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(jest.fn()),
+        store: new LiveResolverStore(RelayRecordSource.create()),
+      });
+      environment.commitPayload(
+        createOperationDescriptor(LiveResolversTestLiveResolverSuspenseQuery, {
+          id: '1',
+        }),
+        {
+          node: {id: '1', __typename: 'User'},
+        },
+      );
+      const renderer = TestRenderer.create(
+        <Environment environment={environment}>
+          <TestComponent id="1" />
+        </Environment>,
+      );
+      expect(renderer.toJSON()).toEqual('0');
+      TestRenderer.act(() => {
+        GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+      });
+      TestRenderer.act(() => jest.runAllImmediates());
+      expect(renderer.toJSON()).toEqual('Loading...');
+      TestRenderer.act(() => {
+        GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+      });
+      expect(renderer.toJSON()).toEqual('2');
+    });
+
+    test('invariant for invalid liveState value in the Relay store.', () => {
+      const environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(jest.fn()),
+        store: new LiveResolverStore(RelayRecordSource.create()),
+      });
+      environment.commitPayload(
+        createOperationDescriptor(LiveResolversTestLiveResolverSuspenseQuery, {
+          id: '1',
+        }),
+        {
+          node: {id: '1', __typename: 'User'},
+        },
+      );
+      const renderer = TestRenderer.create(
+        <Environment environment={environment}>
+          <TestComponent id="1" />
+        </Environment>,
+      );
+      expect(renderer.toJSON()).toEqual('0');
+      TestRenderer.act(() => {
+        GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+      });
+      TestRenderer.act(() => jest.runAllImmediates());
+      expect(renderer.toJSON()).toEqual('Loading...');
+      environment.applyUpdate({
+        storeUpdater: store => {
+          const record = store.get('client:1:counter_suspends_when_odd');
+          // this will force the invalid `liveState` value` in the resolver record
+          record?.setValue(undefined, '__resolverLiveStateValue');
+        },
+      });
+      expect(() => {
+        GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+      }).toThrowError(
+        'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. It is likely a bug in Relay, or a corrupt state of the relay store state Field Path `counter_suspends_when_odd`. Record `{"__id":"client:1:counter_suspends_when_odd","__typename":"__RELAY_RESOLVER__","__resolverValue":{"__LIVE_RESOLVER_SUSPENSE_SENTINEL":true},"__resolverLiveStateDirty":true,"__resolverError":null}`',
+      );
+      expect(renderer.toJSON()).toEqual('Loading...');
+    });
+  });
 });
 
 test('Errors when reading a @live resolver that does not return a LiveState object', () => {

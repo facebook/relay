@@ -831,6 +831,28 @@ impl InMemorySchema {
                         }
                     }
                 }
+
+                if let TypeSystemDefinition::InterfaceTypeDefinition(InterfaceTypeDefinition {
+                    name,
+                    interfaces,
+                    ..
+                }) = definition
+                {
+                    let child_interface_id = match schema.type_map.get(&name.value) {
+                        Some(Type::Interface(id)) => id,
+                        _ => unreachable!("Must be an Interface type"),
+                    };
+                    for interface in interfaces {
+                        let type_ = schema.type_map.get(&interface.value).unwrap();
+                        match type_ {
+                            Type::Interface(id) => {
+                                let interface = schema.interfaces.get_mut(id.as_usize()).unwrap();
+                                interface.implementing_interfaces.push(*child_interface_id)
+                            }
+                            _ => unreachable!("Must be an interface"),
+                        }
+                    }
+                }
             }
         }
         schema.load_defaults();
@@ -1134,6 +1156,7 @@ impl InMemorySchema {
                 let directives = self.build_directive_values(directives);
                 self.interfaces.push(Interface {
                     name: WithLocation::new(Location::new(*location_key, name.span), name.value),
+                    implementing_interfaces: vec![],
                     implementing_objects: vec![],
                     is_extension,
                     fields,

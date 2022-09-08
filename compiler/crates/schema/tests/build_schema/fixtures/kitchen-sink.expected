@@ -643,6 +643,7 @@ Text Schema:Schema {
             item: "Node",
         },
         is_extension: false,
+        implementing_interfaces: [],
         implementing_objects: [
             ObjectID(1),
         ],
@@ -1323,6 +1324,7 @@ interfaces: [
             item: "Node",
         },
         is_extension: false,
+        implementing_interfaces: [],
         implementing_objects: [
             ObjectID(0),
         ],

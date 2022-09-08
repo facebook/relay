@@ -267,6 +267,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         let parsed_interface = Interface {
             name: WithLocation::generated(name),
             is_extension: interface.is_extension(),
+            implementing_interfaces: wrap_ids(interface.implementing_interfaces(), InterfaceID),
             implementing_objects: wrap_ids(interface.implementing_objects(), ObjectID),
             fields: wrap_ids(interface.fields(), FieldID),
             directives: self.parse_directive_values(interface.directives()?)?,

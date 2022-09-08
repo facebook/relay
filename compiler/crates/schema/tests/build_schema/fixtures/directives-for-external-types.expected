@@ -659,6 +659,7 @@ Text Schema:Schema {
             item: "XIGHuman",
         },
         is_extension: false,
+        implementing_interfaces: [],
         implementing_objects: [
             ObjectID(1),
         ],
@@ -1495,6 +1496,7 @@ interfaces: [
             item: "XIGHuman",
         },
         is_extension: false,
+        implementing_interfaces: [],
         implementing_objects: [
             ObjectID(2),
         ],

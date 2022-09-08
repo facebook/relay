@@ -14,32 +14,16 @@ query duplicateQueryName {
 ==================================== ERROR ====================================
 ✖︎ Duplicate definitions for 'duplicateQueryName'
 
-  duplicate_fragment_name.graphql:8:1
-    6 │ }
+  duplicate_fragment_name.graphql:8:7
     7 │ 
     8 │ query duplicateQueryName {
-      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^
+      │       ^^^^^^^^^^^^^^^^^^
     9 │   me {
-      │ ^^^^^^
-   10 │     __typename
-      │ ^^^^^^^^^^^^^^
-   11 │   }
-      │ ^^^
-   12 │ }
-      │ ^
 
   ℹ︎ previously defined here
 
-  duplicate_fragment_name.graphql:2:1
+  duplicate_fragment_name.graphql:2:7
     1 │ # expected-to-throw
     2 │ query duplicateQueryName {
-      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^
+      │       ^^^^^^^^^^^^^^^^^^
     3 │   me {
-      │ ^^^^^^
-    4 │     __typename
-      │ ^^^^^^^^^^^^^^
-    5 │   }
-      │ ^^^
-    6 │ }
-      │ ^
-    7 │

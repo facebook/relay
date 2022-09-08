@@ -116,14 +116,19 @@ pub fn find_duplicates(
 
     let mut errors = Vec::new();
     for def in asts.iter().chain(base_asts) {
-        if let Some(name) = def.name() {
-            if let Some(prev_def) = definitions.insert(name, def) {
+        if let Some(name) = def.name_identifier() {
+            if let Some(prev_def) = definitions.insert(name.value, def) {
                 errors.push(
                     Diagnostic::error(
-                        graphql_ir::ValidationMessage::DuplicateDefinition(name),
-                        def.location(),
+                        graphql_ir::ValidationMessage::DuplicateDefinition(name.value),
+                        def.location().with_span(name.span),
                     )
-                    .annotate("previously defined here", prev_def.location()),
+                    .annotate(
+                        "previously defined here",
+                        prev_def
+                            .name_location()
+                            .unwrap_or_else(|| prev_def.location()),
+                    ),
                 );
             }
         }

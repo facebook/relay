@@ -10,24 +10,16 @@ fragment duplicateFragmentName on User {
 ==================================== ERROR ====================================
 ✖︎ Duplicate definitions for 'duplicateFragmentName'
 
-  duplicate_query_name.graphql:6:1
-    4 │ }
+  duplicate_query_name.graphql:6:10
     5 │ 
     6 │ fragment duplicateFragmentName on User {
-      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      │          ^^^^^^^^^^^^^^^^^^^^^
     7 │   age
-      │ ^^^^^
-    8 │ }
-      │ ^
 
   ℹ︎ previously defined here
 
-  duplicate_query_name.graphql:2:1
+  duplicate_query_name.graphql:2:10
     1 │ # expected-to-throw
     2 │ fragment duplicateFragmentName on User {
-      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      │          ^^^^^^^^^^^^^^^^^^^^^
     3 │   name
-      │ ^^^^^^
-    4 │ }
-      │ ^
-    5 │

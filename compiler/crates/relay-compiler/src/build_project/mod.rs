@@ -59,6 +59,7 @@ pub use validate::validate;
 pub use validate::AdditionalValidations;
 
 use self::log_program_stats::print_stats;
+pub use self::project_asts::find_duplicates;
 pub use self::project_asts::get_project_asts;
 pub use self::project_asts::ProjectAstData;
 pub use self::project_asts::ProjectAsts;

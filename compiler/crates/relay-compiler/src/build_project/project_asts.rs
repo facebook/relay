@@ -108,7 +108,7 @@ fn find_changed_names(
     changed_names
 }
 
-fn find_duplicates(
+pub fn find_duplicates(
     asts: &[ExecutableDefinition],
     base_asts: &[ExecutableDefinition],
 ) -> Result<(), Vec<Diagnostic>> {

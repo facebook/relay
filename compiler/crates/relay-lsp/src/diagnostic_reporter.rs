@@ -8,9 +8,10 @@
 //! Utilities for reporting errors to an LSP client
 use std::path::PathBuf;
 
-use common::convert_diagnostic;
+use common::get_diagnostics_data;
 use common::Diagnostic as CompilerDiagnostic;
 use common::Location;
+use common::TextSource;
 use crossbeam::channel::Sender;
 use dashmap::mapref::entry::Entry;
 use dashmap::DashMap;
@@ -20,6 +21,7 @@ use lsp_types::notification::Notification;
 use lsp_types::notification::PublishDiagnostics;
 use lsp_types::Diagnostic;
 use lsp_types::DiagnosticSeverity;
+use lsp_types::DiagnosticTag;
 use lsp_types::Position;
 use lsp_types::PublishDiagnosticsParams;
 use lsp_types::Range;
@@ -197,8 +199,28 @@ impl DiagnosticReporter {
             return;
         };
 
-        let diagnostic = convert_diagnostic(source.text_source(), diagnostic);
+        let diagnostic = self.convert_diagnostic(source.text_source(), diagnostic);
         self.add_diagnostic(url, diagnostic);
+    }
+
+    pub fn convert_diagnostic(
+        &self,
+        text_source: &TextSource,
+        diagnostic: &CompilerDiagnostic,
+    ) -> Diagnostic {
+        let tags: Vec<DiagnosticTag> = diagnostic.tags();
+
+        Diagnostic {
+            code: None,
+            data: get_diagnostics_data(diagnostic),
+            message: diagnostic.message().to_string(),
+            range: text_source.to_span_range(diagnostic.location().span()),
+            related_information: None,
+            severity: Some(diagnostic.severity()),
+            tags: if tags.is_empty() { None } else { Some(tags) },
+            source: None,
+            ..Default::default()
+        }
     }
 
     fn print_project_error(&self, error: &BuildProjectError) {

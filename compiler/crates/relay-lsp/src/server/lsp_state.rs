@@ -8,7 +8,6 @@
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use common::convert_diagnostic;
 use common::PerfLogger;
 use common::SourceLocationKey;
 use common::Span;
@@ -237,7 +236,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         source_location_key,
                     );
                     diagnostics.extend(result.diagnostics.iter().map(|diagnostic| {
-                        convert_diagnostic(graphql_source.text_source(), diagnostic)
+                        self.diagnostic_reporter
+                            .convert_diagnostic(graphql_source.text_source(), diagnostic)
                     }));
 
                     let compiler_diagnostics = match build_ir_with_extra_features(
@@ -267,7 +267,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                     };
 
                     diagnostics.extend(compiler_diagnostics.iter().map(|diagnostic| {
-                        convert_diagnostic(graphql_source.text_source(), diagnostic)
+                        self.diagnostic_reporter
+                            .convert_diagnostic(graphql_source.text_source(), diagnostic)
                     }));
 
                     executable_definitions.extend(result.item.definitions);
@@ -286,11 +287,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 .and_then(|ast| parse_docblock_ast(&ast, Some(&executable_definitions)));
 
             if let Err(errors) = result {
-                diagnostics.extend(
-                    errors
-                        .iter()
-                        .map(|diagnostic| convert_diagnostic(text_source, diagnostic)),
-                );
+                diagnostics.extend(errors.iter().map(|diagnostic| {
+                    self.diagnostic_reporter
+                        .convert_diagnostic(text_source, diagnostic)
+                }));
             }
         }
         self.diagnostic_reporter

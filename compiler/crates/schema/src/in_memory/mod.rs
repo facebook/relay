@@ -23,6 +23,8 @@ use crate::definitions::Argument;
 use crate::definitions::Directive;
 use crate::definitions::*;
 use crate::errors::SchemaError;
+use crate::field_descriptions::CLIENT_ID_DESCRIPTION;
+use crate::field_descriptions::TYPENAME_DESCRIPTION;
 use crate::graphql_schema::Schema;
 
 fn todo_add_location<T>(error: SchemaError) -> DiagnosticsResult<T> {
@@ -906,7 +908,7 @@ impl InMemorySchema {
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(string_type))),
             directives: Vec::new(),
             parent_type: None,
-            description: None,
+            description: Some(*TYPENAME_DESCRIPTION),
         });
     }
 
@@ -936,7 +938,7 @@ impl InMemorySchema {
             type_: TypeReference::NonNull(Box::new(TypeReference::Named(id_type))),
             directives: Vec::new(),
             parent_type: None,
-            description: None,
+            description: Some(*CLIENT_ID_DESCRIPTION),
         });
     }
 

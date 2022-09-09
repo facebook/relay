@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+query MyQuery {
+  me {
+    _|_typename
+  }
+}
+==================================== OUTPUT ===================================
+Field: **__typename**
+--
+This object's GraphQL type. Provided by GraphQL type name introspection.
+--
+Type: **[String!](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Query%22,%22User%22,%22String%22],%22schemaName%22:%22Some%20Schema%20Name%22})**

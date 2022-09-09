@@ -672,6 +672,8 @@ fn get_scalar_or_linked_field_hover_content(
         schema_documentation.get_field_description(parent_type_name, field.name.item.lookup())
     {
         hover_contents.push(MarkedString::String(field_description.to_string()));
+    } else if let Some(description) = field.description {
+        hover_contents.push(MarkedString::String(description.to_string()));
     }
 
     type_path.push(field_type_name);

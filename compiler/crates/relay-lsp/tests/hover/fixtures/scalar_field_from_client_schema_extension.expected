@@ -8,10 +8,15 @@ query MyQuery {
 %extension%
 
 extend type User {
+  """
+  This is a client schema field
+  """
   client_schema_field: Int
 }
 ==================================== OUTPUT ===================================
 Field: **client_schema_field**
+--
+This is a client schema field
 --
 Type: **[Int](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Query%22,%22User%22,%22Int%22],%22schemaName%22:%22Some%20Schema%20Name%22})**
 --

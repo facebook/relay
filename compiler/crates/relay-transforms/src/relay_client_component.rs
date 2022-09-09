@@ -250,7 +250,12 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
                     (
                         SplitOperationMetadata {
                             derived_from: Some(spread.fragment.item),
-                            location: spread.fragment.location,
+                            location: self
+                                .program
+                                .fragment(spread.fragment.item)
+                                .unwrap()
+                                .name
+                                .location,
                             parent_documents: Default::default(),
                             raw_response_type: false,
                         },

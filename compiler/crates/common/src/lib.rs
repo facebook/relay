@@ -29,6 +29,7 @@ pub use diagnostic::diagnostics_result;
 pub use diagnostic::get_diagnostics_data;
 pub use diagnostic::Diagnostic;
 pub use diagnostic::DiagnosticDisplay;
+pub use diagnostic::DiagnosticRelatedInformation;
 pub(crate) use diagnostic::Diagnostics;
 pub use diagnostic::DiagnosticsResult;
 pub use diagnostic::WithDiagnosticData;

@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';

@@ -1,0 +1,51 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment Foo_user on User {
+  poppy: pop_star_name {
+    __typename
+  }
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+type PopStarName {
+  stage_name: IStageName
+  also_a_stage_name: IStageName
+}
+
+interface IStageName {
+  value: String
+}
+
+extend type User {
+  pop_star_name: PopStarName @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", is_output_type: true)
+}
+==================================== ERROR ====================================
+✖︎ @RelayResolver interface type `IStageName` for field `also_a_stage_name` is not supported as @outputType, yet.
+
+  output-type-with-interface.invalid.graphql:3:27
+    2 │ 
+    3 │ fragment Foo_user on User {
+      │                           ^
+    4 │   poppy: pop_star_name {
+      │ ^^^^^^^^^^^^^^^
+    5 │     __typename
+
+
+✖︎ @RelayResolver interface type `IStageName` for field `stage_name` is not supported as @outputType, yet.
+
+  output-type-with-interface.invalid.graphql:3:2
+    2 │ 
+    3 │ fragment Foo_user on User {
+      │  ^^^^^^^^^^
+    4 │   poppy: pop_star_name {

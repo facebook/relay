@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Location;
@@ -50,7 +51,7 @@ lazy_static! {
     pub static ref RELAY_RESOLVER_DIRECTIVE_NAME: StringKey = "relay_resolver".intern();
     pub static ref RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME: StringKey = "fragment_name".intern();
     pub static ref RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME: StringKey = "import_path".intern();
-    pub static ref RELAY_RESOLVER_LIVE_ARGUMENT_NAME: StringKey = "live".intern();
+    pub static ref RELAY_RESOLVER_LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -477,8 +478,11 @@ pub(crate) fn get_argument_value(
     }
 }
 
-fn get_bool_argument_is_true(arguments: &[ArgumentValue], argument_name: StringKey) -> bool {
-    match arguments.named(argument_name) {
+pub(crate) fn get_bool_argument_is_true(
+    arguments: &[ArgumentValue],
+    argument_name: ArgumentName,
+) -> bool {
+    match arguments.named(argument_name.0) {
         Some(ArgumentValue {
             value: ConstantValue::Boolean(BooleanNode { value, .. }),
             ..

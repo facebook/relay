@@ -23,15 +23,23 @@ use graphql_text_printer::print_fragment;
 use graphql_text_printer::print_operation;
 use graphql_text_printer::PrinterOptions;
 use relay_test_schema::get_test_schema;
+use relay_test_schema::get_test_schema_with_located_extensions;
 
 pub fn apply_transform_for_test<T>(fixture: &Fixture<'_>, transform: T) -> Result<String, String>
 where
     T: Fn(&Program) -> DiagnosticsResult<Program>,
 {
-    let source_location = SourceLocationKey::standalone(fixture.file_name);
-    let schema = get_test_schema();
-    let ast = parse_executable(fixture.content, source_location)
-        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+    let parts: Vec<_> = fixture.content.split("%extensions%").collect();
+    let source_location = SourceLocationKey::embedded(fixture.file_name, 0);
+
+    let ast = parse_executable(parts[0], source_location).unwrap();
+    let schema = if let Some(extensions_text) = parts.get(1) {
+        let extension_location = SourceLocationKey::embedded(fixture.file_name, 1);
+        get_test_schema_with_located_extensions(*extensions_text, extension_location)
+    } else {
+        get_test_schema()
+    };
+
     let ir_result = build_ir_with_extra_features(
         &schema,
         &ast.definitions,

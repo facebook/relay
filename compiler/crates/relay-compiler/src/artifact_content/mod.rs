@@ -48,7 +48,7 @@ pub enum ArtifactContent {
     SplitOperation {
         normalization_operation: Arc<OperationDefinition>,
         typegen_operation: Option<Arc<OperationDefinition>>,
-        source_hash: String,
+        source_hash: Option<String>,
     },
     Generic {
         content: Vec<u8>,
@@ -119,7 +119,7 @@ impl ArtifactContent {
                 schema,
                 normalization_operation,
                 typegen_operation,
-                source_hash,
+                source_hash.as_ref(),
                 fragment_locations,
             )
             .unwrap(),

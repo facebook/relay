@@ -395,7 +395,7 @@ pub fn generate_split_operation(
     schema: &SDLSchema,
     normalization_operation: &OperationDefinition,
     typegen_operation: &Option<Arc<OperationDefinition>>,
-    source_hash: &str,
+    source_hash: Option<&String>,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
@@ -477,12 +477,14 @@ pub fn generate_split_operation(
 
     // -- Begin Operation Node Hash Section --
     let mut section = GenericSection::default();
-    write_source_hash(
-        config,
-        &project_config.typegen_config.language,
-        &mut section,
-        source_hash,
-    )?;
+    if let Some(source_hash) = source_hash {
+        write_source_hash(
+            config,
+            &project_config.typegen_config.language,
+            &mut section,
+            source_hash,
+        )?;
+    }
     content_sections.push(ContentSection::Generic(section));
     // -- End Operation Node Hash Section --
 

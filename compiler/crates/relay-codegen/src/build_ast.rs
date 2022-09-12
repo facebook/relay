@@ -1170,13 +1170,37 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     client_edge_selections_key: selections_item,
                 }))
             }
-            ClientEdgeMetadataDirective::ClientObject { type_name, .. } => {
-                Primitive::Key(self.object(object! {
+            ClientEdgeMetadataDirective::ClientObject {
+                type_name,
+                normalization_operation,
+                ..
+            } => {
+                let mut object_props = object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
                     concrete_type: Primitive::String(type_name),
                     client_edge_backing_field_key: backing_field,
                     client_edge_selections_key: selections_item,
-                }))
+                };
+                if let Some(normalization_operation) = normalization_operation {
+                    let normalization_artifact_source_location =
+                        normalization_operation.location.source_location();
+
+                    let path_for_artifact = self.project_config.create_path_for_artifact(
+                        normalization_artifact_source_location,
+                        normalization_operation.item.to_string(),
+                    );
+
+                    let normalization_import_path = self.project_config.js_module_import_path(
+                        self.definition_source_location,
+                        path_for_artifact.to_str().unwrap().intern(),
+                    );
+
+                    object_props.push(ObjectEntry {
+                        key: CODEGEN_CONSTANTS.client_edge_normalization_node_key,
+                        value: Primitive::GraphQLModuleDependency(normalization_import_path),
+                    })
+                }
+                Primitive::Key(self.object(object_props))
             }
         };
 

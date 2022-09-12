@@ -19,7 +19,7 @@ pub enum DocblockResolutionInfo {
     OnInterface(StringKey),
     RootFragment(FragmentDefinitionName),
     FieldName(StringKey),
-    EdgeTo(StringKey),
+    OutputType(StringKey),
     Deprecated,
 }
 
@@ -53,10 +53,10 @@ pub fn create_docblock_resolution_info(
                 ));
             }
 
-            if let Some(edge_to) = &resolver_ir.edge_to {
-                if edge_to.location.contains(position_span) {
-                    return Ok(DocblockResolutionInfo::EdgeTo(
-                        edge_to.item.inner().name.value,
+            if let Some(output_type) = &resolver_ir.output_type {
+                if output_type.inner().location.contains(position_span) {
+                    return Ok(DocblockResolutionInfo::OutputType(
+                        output_type.inner().item.inner().name.value,
                     ));
                 }
             }

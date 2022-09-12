@@ -24,7 +24,7 @@ pub fn get_docblock_definition_description(
         DocblockResolutionInfo::OnInterface(interface_name) => Ok(DefinitionDescription::Type {
             type_name: interface_name,
         }),
-        DocblockResolutionInfo::EdgeTo(edge_type) => Ok(DefinitionDescription::Type {
+        DocblockResolutionInfo::OutputType(edge_type) => Ok(DefinitionDescription::Type {
             type_name: edge_type,
         }),
         DocblockResolutionInfo::RootFragment(fragment_name) => {

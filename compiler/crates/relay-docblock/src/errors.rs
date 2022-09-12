@@ -43,6 +43,11 @@ pub enum ErrorMessages {
     )]
     ExpectedOnTypeOrOnInterface,
 
+    #[error(
+        "Unexpected `edgeTo` and `outputType`. Only one of these docblock fields should be defined on a given @RelayResolver."
+    )]
+    UnexpectedEdgeToAndOutputType,
+
     // The rest of this sentence is expected to be supplied by `.annotate`.
     #[error("Unexpected conflicting argument name. This field argument")]
     ConflictingArguments,

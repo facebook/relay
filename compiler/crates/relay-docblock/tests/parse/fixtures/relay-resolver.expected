@@ -56,22 +56,24 @@ RelayResolver(
                 ),
             },
         ),
-        edge_to: Some(
-            WithLocation {
-                location: /path/to/test/fixture/relay-resolver.js:78:82,
-                item: Named(
-                    NamedTypeAnnotation {
-                        name: Identifier {
-                            span: 78:82,
-                            token: Token {
+        output_type: Some(
+            EdgeTo(
+                WithLocation {
+                    location: /path/to/test/fixture/relay-resolver.js:78:82,
+                    item: Named(
+                        NamedTypeAnnotation {
+                            name: Identifier {
                                 span: 78:82,
-                                kind: Identifier,
+                                token: Token {
+                                    span: 78:82,
+                                    kind: Identifier,
+                                },
+                                value: "Page",
                             },
-                            value: "Page",
                         },
-                    },
-                ),
-            },
+                    ),
+                },
+            ),
         ),
         description: Some(
             WithLocation {

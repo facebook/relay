@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f0e55fe5610ac88bae0f6ff16f40b573>>
+ * @generated SignedSource<<ae6f8fbc9f0d5ef389cba354982ec169>>
  */
 
 mod to_schema;
@@ -129,4 +129,11 @@ fn relay_resolver_with_field_args() {
     let input = include_str!("to_schema/fixtures/relay-resolver-with-field-args.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-with-field-args.expected");
     test_fixture(transform_fixture, "relay-resolver-with-field-args.js", "to_schema/fixtures/relay-resolver-with-field-args.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-with-output-type.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-with-output-type.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type.js", "to_schema/fixtures/relay-resolver-with-output-type.expected", input, expected);
 }

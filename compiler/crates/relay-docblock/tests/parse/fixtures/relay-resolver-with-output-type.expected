@@ -11,15 +11,19 @@
  *
  * @onType User
  * @fieldName favorite_page
- * @edgeTo Page
+ * @outputType ClientPage
  * @rootFragment myRootFragment
- * @deprecated
+ *
+ * The user's favorite page! They probably clicked something in the UI
+ * to tell us that it was their favorite page and then we put that in a
+ * database or something. Then we got that info out again and put it out
+ * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
  */
 
 graphql`
-  fragment myRootFragment on User {
-    name
-  }
+ fragment myRootFragment on User {
+   name
+ }
 `
 ==================================== OUTPUT ===================================
 RelayResolver(
@@ -37,49 +41,49 @@ RelayResolver(
         },
         on: Type(
             PopulatedIrField {
-                key_location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:27:33,
+                key_location: /path/to/test/fixture/relay-resolver-with-output-type.js:27:33,
                 value: WithLocation {
-                    location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:34:38,
+                    location: /path/to/test/fixture/relay-resolver-with-output-type.js:34:38,
                     item: "User",
                 },
             },
         ),
         root_fragment: Some(
             WithLocation {
-                location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:100:114,
+                location: /path/to/test/fixture/relay-resolver-with-output-type.js:110:124,
                 item: FragmentDefinitionName(
                     "myRootFragment",
                 ),
             },
         ),
         output_type: Some(
-            EdgeTo(
+            Output(
                 WithLocation {
-                    location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:78:82,
+                    location: /path/to/test/fixture/relay-resolver-with-output-type.js:82:92,
                     item: Named(
                         NamedTypeAnnotation {
                             name: Identifier {
-                                span: 78:82,
+                                span: 82:92,
                                 token: Token {
-                                    span: 78:82,
+                                    span: 82:92,
                                     kind: Identifier,
                                 },
-                                value: "Page",
+                                value: "ClientPage",
                             },
                         },
                     ),
                 },
             ),
         ),
-        description: None,
-        deprecated: Some(
-            IrField {
-                key_location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:119:129,
-                value: None,
+        description: Some(
+            WithLocation {
+                location: /path/to/test/fixture/relay-resolver-with-output-type.js:127:418,
+                item: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
             },
         ),
+        deprecated: None,
         live: None,
-        location: /path/to/test/fixture/relay-resolver-deprecated-no-description.js:0:130,
+        location: /path/to/test/fixture/relay-resolver-with-output-type.js:0:419,
         fragment_arguments: None,
     },
 )

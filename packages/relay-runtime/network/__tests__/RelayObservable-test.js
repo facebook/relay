@@ -12,7 +12,7 @@
 
 const RelayObservable = require('../RelayObservable');
 
-jest.useFakeTimers();
+jest.useFakeTimers('legacy');
 
 describe('RelayObservable', () => {
   beforeEach(() => {

@@ -818,7 +818,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(fetch).toBeCalledTimes(1);
           });
           it('does not trigger timers', () => {
-            jest.useFakeTimers();
+            jest.useFakeTimers('legacy');
             preloadQuery_DEPRECATED(environment, params, variables, {
               fetchPolicy: 'network-only',
             });

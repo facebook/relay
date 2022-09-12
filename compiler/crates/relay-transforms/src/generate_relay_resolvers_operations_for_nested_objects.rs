@@ -168,7 +168,7 @@ fn generate_selection_from_field(
     }
 }
 
-fn generate_name_for_nested_object_operation(
+pub(crate) fn generate_name_for_nested_object_operation(
     schema: &SDLSchema,
     field: &Field,
 ) -> WithLocation<OperationDefinitionName> {

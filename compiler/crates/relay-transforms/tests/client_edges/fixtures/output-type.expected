@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 fragment Foo_user on User {
   best_friend {
-    id
+    name
   }
 }
 
@@ -11,12 +11,12 @@ fragment BestFriendResolverFragment_name on User {
 
 # %extensions%
 
-type ClientOnlyType implements Node {
-  id: ID!
+type ClientUser {
+  name: String
 }
 
 extend type User {
-  best_friend: ClientOnlyType @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver")
+  best_friend: ClientUser @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver", is_output_type: true)
 }
 ==================================== OUTPUT ===================================
 fragment BestFriendResolverFragment_name on User {
@@ -26,9 +26,16 @@ fragment BestFriendResolverFragment_name on User {
 fragment Foo_user on User {
   ... @__ClientEdgeMetadataDirective
   # ClientObject {
-  #     type_name: "ClientOnlyType",
+  #     type_name: "ClientUser",
   #     unique_id: 0,
-  #     normalization_operation: None,
+  #     normalization_operation: Some(
+  #         WithLocation {
+  #             location: <generated>:59:70,
+  #             item: OperationDefinitionName(
+  #                 "User__best_friend$normalization",
+  #             ),
+  #         },
+  #     ),
   # }
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
@@ -43,7 +50,7 @@ fragment Foo_user on User {
     # }
     
     best_friend {
-      id
+      name
     }
   }
 }

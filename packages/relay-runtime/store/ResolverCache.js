@@ -57,7 +57,7 @@ export type GetDataForResolverFragmentFn =
 
 export interface ResolverCache {
   readFromCacheOrEvaluate<T>(
-    record: Record,
+    recordID: DataID,
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
@@ -80,7 +80,7 @@ const emptySet: $ReadOnlySet<any> = new Set();
 
 class NoopResolverCache implements ResolverCache {
   readFromCacheOrEvaluate<T>(
-    record: Record,
+    recordID: DataID,
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
@@ -135,7 +135,7 @@ class RecordResolverCache implements ResolverCache {
   }
 
   readFromCacheOrEvaluate<T>(
-    record: Record,
+    recordID: DataID,
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
@@ -148,7 +148,13 @@ class RecordResolverCache implements ResolverCache {
     ?DataID /* ID of record containing a suspended Live field */,
   ] {
     const recordSource = this._getRecordSource();
-    const recordID = RelayModernRecord.getDataID(record);
+
+    // NOTE: Be very careful with `record` in this scope. After `evaluate` has
+    // been called, the `record` we have here may have been replaced in the
+    // Relay store with a new record containing new informaiton about nested
+    // resolvers on this parent record.
+    const record = recordSource.get(recordID);
+    invariant(record != null, 'We expect record to exist in the store.');
 
     const storageKey = getStorageKey(field, variables);
     let linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
@@ -180,9 +186,18 @@ class RecordResolverCache implements ResolverCache {
       recordSource.set(linkedID, linkedRecord);
 
       // Link the resolver value record to the resolver field of the record being read:
-      const nextRecord = RelayModernRecord.clone(record);
+
+      // Note: We get a fresh instance of the parent record from the record
+      // source, becuase it may have been updated when we traversed into child
+      // resolvers.
+      const currentRecord = recordSource.get(recordID);
+      invariant(
+        currentRecord != null,
+        'Expected the parent record to still be in the record source.',
+      );
+      const nextRecord = RelayModernRecord.clone(currentRecord);
       RelayModernRecord.setLinkedRecordID(nextRecord, storageKey, linkedID);
-      recordSource.set(RelayModernRecord.getDataID(nextRecord), nextRecord);
+      recordSource.set(recordID, nextRecord);
 
       // Put records observed by the resolver into the dependency graph:
       const resolverID = evaluationResult.resolverID;

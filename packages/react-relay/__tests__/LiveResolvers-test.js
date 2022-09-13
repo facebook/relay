@@ -289,6 +289,100 @@ describe.each([
     });
   });
 
+  test('Outer resolvers do not overwrite subscriptions made by inner resolvers (regression)', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        me: {__ref: '1'},
+      },
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
+    });
+
+    const FooQuery = graphql`
+      query LiveResolversTestNestedQuery {
+        # Outer consumes inner
+        outer
+        # We include inner again as a subsequent sibling of outer. This ensures
+        # that even if outer overwrites the cached version of inner, we end with
+        # inner in a valid state. This is nessesary to trigger the error.
+        inner
+      }
+    `;
+
+    const store = new LiveResolverStore(source, {gcReleaseBufferSize: 0});
+
+    const environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store,
+    });
+
+    function Environment({children}: {children: React.Node}) {
+      return (
+        <RelayEnvironmentProvider environment={environment}>
+          <React.Suspense fallback="Loading...">{children}</React.Suspense>
+        </RelayEnvironmentProvider>
+      );
+    }
+
+    function TestComponent() {
+      const queryData = useLazyLoadQuery(FooQuery, {});
+      return queryData.outer ?? null;
+    }
+
+    const renderer = TestRenderer.create(
+      <Environment>
+        <TestComponent />
+      </Environment>,
+    );
+
+    expect(renderer.toJSON()).toEqual('0');
+
+    let update;
+    // Delete data putting `inner`'s fragment into a state where it's missing
+    // data. This _should_ unsubscribe us from `inner`'s external state.
+    TestRenderer.act(() => {
+      update = environment.applyUpdate({
+        storeUpdater: store => {
+          const alice = store.get('1');
+          if (alice == null) {
+            throw new Error('Expected to have record "1"');
+          }
+          alice.setValue(undefined, 'name');
+        },
+      });
+    });
+
+    TestRenderer.act(() => jest.runAllImmediates());
+    expect(renderer.toJSON()).toEqual(null);
+
+    // Calling increment here should be ignored by Relay. However, if there are
+    // dangling subscriptions, this will put inner into a dirty state.
+    TestRenderer.act(() => {
+      GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    });
+    TestRenderer.act(() => jest.runAllImmediates());
+    expect(renderer.toJSON()).toEqual(null);
+
+    // Revering optimistic update puts inner back into a state where its
+    // fragment is valid. HOWEVER, if a dangling subscription has marked inner
+    // as dirty, we will try to read from a LiveValue that does not exist.
+    TestRenderer.act(() => update.dispose());
+    expect(renderer.toJSON()).toEqual('1');
+
+    // Not part of the repro, but just to confirm: We should now be resubscribed...
+    TestRenderer.act(() => {
+      GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    });
+    TestRenderer.act(() => jest.runAllImmediates());
+    expect(renderer.toJSON()).toEqual('2');
+  });
+
   test("Resolvers without fragments aren't reevaluated when their parent record updates.", async () => {
     const source = RelayRecordSource.create({
       'client:root': {

@@ -602,7 +602,7 @@ class RelayReader {
 
     const [result, seenRecord, resolverError, cachedSnapshot, suspenseID] =
       this._resolverCache.readFromCacheOrEvaluate(
-        record,
+        RelayModernRecord.getDataID(record),
         field,
         this._variables,
         evaluate,

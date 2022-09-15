@@ -33,7 +33,9 @@ function UserConstantDependentResolver(
     `,
     rootKey,
   );
+  // $FlowFixMe[prop-missing]
   UserConstantDependentResolver._relayResolverTestCallCount =
+    // $FlowFixMe[prop-missing]
     (UserConstantDependentResolver._relayResolverTestCallCount ?? 0) + 1;
   return (user.constant ?? NaN) + 1;
 }

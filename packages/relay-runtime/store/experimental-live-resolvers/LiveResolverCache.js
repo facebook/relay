@@ -492,6 +492,22 @@ class LiveResolverCache implements ResolverCache {
     return key;
   }
 
+  unsubscribeFromLiveResolverRecords(invalidatedDataIDs: Set<DataID>): void {
+    if (invalidatedDataIDs.size === 0) {
+      return;
+    }
+
+    for (const dataID of invalidatedDataIDs) {
+      const record = this._getRecordSource().get(dataID);
+      if (
+        record != null &&
+        RelayModernRecord.getType(record) === RELAY_RESOLVER_RECORD_TYPENAME
+      ) {
+        this._maybeUnsubscribeFromLiveState(record);
+      }
+    }
+  }
+
   // Given the set of possible invalidated DataID
   // (Example may be: records from the reverted optimistic update)
   // this method will remove resolver records from the store,

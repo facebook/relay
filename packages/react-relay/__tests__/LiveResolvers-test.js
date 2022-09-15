@@ -289,6 +289,67 @@ describe.each([
     });
   });
 
+  test('Subscriptions created while in an optimisitc state is in place get cleaned up correctly', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+      },
+      '1': {
+        __id: '1',
+        __typename: 'User',
+        id: '1',
+        name: 'Alice',
+      },
+    });
+    const store = new LiveResolverStore(source, {gcReleaseBufferSize: 0});
+
+    const environment = new RelayModernEnvironment({
+      network: RelayNetwork.create(jest.fn()),
+      store,
+    });
+
+    const update = environment.applyUpdate({
+      storeUpdater: store => {
+        const alice = store.get('1');
+        if (alice == null) {
+          throw new Error('Expected to have record "1"');
+        }
+        const storeRoot = store.getRoot();
+        storeRoot.setLinkedRecord(alice, 'me');
+      },
+    });
+
+    const FooQuery = graphql`
+      query LiveResolversTestOptimisticUpdateQuery {
+        counter
+      }
+    `;
+
+    const operation = createOperationDescriptor(FooQuery, {});
+
+    // Read a live resolver field (Creating a subscription to the live state)
+    const snapshot = environment.lookup(operation.fragment);
+    const disposable = environment.subscribe(snapshot, () => {
+      // Noop. We just need to be subscribed.
+    });
+
+    // Revert the optimisitic update.
+    // This should unsubscribe the subscription created during the optimistic
+    // update, and then reread `counter`. Since `counter` is missing its `me`
+    // dependency, it should leave `counter` in a state with no liveValue and
+    // _no subscription_.
+    update.dispose();
+
+    // Fire the subscription, which should be ignored by Relay.
+    expect(() => {
+      GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+    }).not.toThrow();
+
+    // Clean up (just good hygiene)
+    disposable.dispose();
+  });
+
   test('Outer resolvers do not overwrite subscriptions made by inner resolvers (regression)', () => {
     const source = RelayRecordSource.create({
       'client:root': {

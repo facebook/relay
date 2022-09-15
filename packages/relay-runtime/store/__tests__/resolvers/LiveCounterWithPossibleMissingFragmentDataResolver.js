@@ -1,0 +1,55 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @format
+ * @flow strict-local
+ * @emails oncall+relay
+ */
+
+'use strict';
+
+import type {LiveCounterWithPossibleMissingFragmentDataResolverFragment$key} from './__generated__/LiveCounterWithPossibleMissingFragmentDataResolverFragment.graphql';
+
+const {graphql} = require('relay-runtime');
+const {readFragment} = require('relay-runtime/store/ResolverFragments');
+
+import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
+
+const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
+
+/**
+ * @RelayResolver
+ * @fieldName live_counter_with_possible_missing_fragment_data
+ * @rootFragment LiveCounterWithPossibleMissingFragmentDataResolverFragment
+ * @onType Query
+ * @live
+ */
+function LiveCounterWithPossibleMissingFragmentDataResolver(
+  rootKey: LiveCounterWithPossibleMissingFragmentDataResolverFragment$key,
+): LiveState<number> {
+  readFragment(
+    graphql`
+      fragment LiveCounterWithPossibleMissingFragmentDataResolverFragment on Query {
+        me {
+          id @required(action: THROW)
+        }
+      }
+    `,
+    rootKey,
+  );
+  return {
+    read() {
+      return Selectors.getNumber(GLOBAL_STORE.getState());
+    },
+    subscribe(cb): () => void {
+      // Here we could try to run the selector and short-circut if the value has
+      // not changed, but for now we'll over-notify.
+      return GLOBAL_STORE.subscribe(cb);
+    },
+  };
+}
+
+module.exports = LiveCounterWithPossibleMissingFragmentDataResolver;

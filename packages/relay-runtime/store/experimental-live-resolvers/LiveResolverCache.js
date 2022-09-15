@@ -376,6 +376,19 @@ class LiveResolverCache implements ResolverCache {
         return;
       }
 
+      if (!(RELAY_RESOLVER_LIVE_STATE_VALUE in currentRecord)) {
+        warning(
+          false,
+          'Unexpected callback for a incomplete live resolver record (__id: `%s`). The record has missing live state value. ' +
+            'This is a no-op and indicates a memory leak, and possible bug in Relay Live Resolvers. ' +
+            'Possible cause: The original record was GC-ed, or was created with the optimistic record source.' +
+            ' Record details: `%s`.',
+          linkedID,
+          JSON.stringify(currentRecord),
+        );
+        return;
+      }
+
       const nextSource = RelayRecordSource.create();
       const nextRecord = RelayModernRecord.clone(currentRecord);
 

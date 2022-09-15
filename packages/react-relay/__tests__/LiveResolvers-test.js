@@ -41,6 +41,7 @@ const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
 const {
   disallowConsoleErrors,
   disallowWarnings,
+  expectToWarn,
 } = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -1471,23 +1472,26 @@ describe.each([
     // We're adding some data for `me { id } ` query so the initial read for
     // `live_counter_with_possible_missing_fragment_data` won't have any missing data
     //  and we will be able to create a valid live resolver record for it.
-    environment.commitPayload(
-      createOperationDescriptor(
-        graphql`
-          query LiveResolversTestWithGCUserQuery {
-            me {
-              id
+    function publishMeData() {
+      environment.commitPayload(
+        createOperationDescriptor(
+          graphql`
+            query LiveResolversTestWithGCUserQuery {
+              me {
+                id
+              }
             }
-          }
-        `,
-        {},
-      ),
-      {
-        me: {
-          id: '1',
+          `,
+          {},
+        ),
+        {
+          me: {
+            id: '1',
+          },
         },
-      },
-    );
+      );
+    }
+    publishMeData();
 
     const operation = createOperationDescriptor(
       graphql`
@@ -1500,7 +1504,11 @@ describe.each([
 
     // The first time we read `live_counter_with_possible_missing_fragment_data` we will
     // create live resolver record and subscribe to the external store for updates
-    environment.lookup(operation.fragment);
+    let snapshot = environment.lookup(operation.fragment);
+    expect(snapshot.data).toEqual({
+      live_counter_with_possible_missing_fragment_data: 0,
+    });
+    expect(snapshot.isMissingData).toBe(false);
 
     // Note: this is another issue with GC here.
     // Our GC will remove **all** records from the store(including __ROOT__) if they are not retained.
@@ -1530,16 +1538,28 @@ describe.each([
     environment.lookup(operation.fragment);
 
     // this will dispatch an action from the extenrnal store and the callback that was created before GC
-    // will mark the record for `live_counter_with_possible_missing_fragment_data` as dirty.
-    // but this record is in invalid state now, so...
-    expect(() => {
-      GLOBAL_STORE.dispatch({type: 'INCREMENT'});
-    }).not.toThrow();
+    expectToWarn(
+      'Unexpected callback for a incomplete live resolver record',
+      () => {
+        GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+      },
+    );
 
-    // the next time we read it, the reader will throw
-    expect(() => {
-      environment.lookup(operation.fragment);
-    }).toThrowError(/Unexpected LiveState value returned from Relay Resolver/);
+    // The data for the live resolver is missing (it has missing dependecies)
+    snapshot = environment.lookup(operation.fragment);
+    expect(snapshot.data).toEqual({
+      live_counter_with_possible_missing_fragment_data: undefined,
+    });
+    expect(snapshot.isMissingData).toBe(true);
+
+    // We should be able to re-read the data once the missing data in avaialbe again
+    publishMeData();
+
+    snapshot = environment.lookup(operation.fragment);
+    expect(snapshot.data).toEqual({
+      live_counter_with_possible_missing_fragment_data: 1,
+    });
+    expect(snapshot.isMissingData).toBe(false);
   });
 });
 

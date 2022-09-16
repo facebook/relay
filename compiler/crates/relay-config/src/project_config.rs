@@ -51,6 +51,10 @@ pub struct RemotePersistConfig {
     #[serde(default)]
     pub params: FnvIndexMap<String, String>,
 
+    /// Additional headers to send
+    #[serde(default)]
+    pub headers: FnvIndexMap<String, String>,
+
     #[serde(
         default,
         rename = "concurrency",

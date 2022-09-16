@@ -1,0 +1,19 @@
+fragment Foo_user on User {
+  best_friend {
+    name
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+type ClientUser {
+  name: String
+}
+
+extend type User {
+  best_friend: ClientUser @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver", is_output_type: true)
+}

@@ -1,0 +1,56 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  best_friend {
+    name
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+type ClientUser {
+  name: String
+}
+
+extend type User {
+  best_friend: ClientUser @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver", is_output_type: true)
+}
+==================================== OUTPUT ===================================
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+fragment Foo_user on User {
+  ... @__ClientEdgeMetadataDirective
+  # ClientObject {
+  #     type_name: "ClientUser",
+  #     unique_id: 0,
+  #     normalization_operation: Some(
+  #         WithLocation {
+  #             location: <generated>:59:70,
+  #             item: OperationDefinitionName(
+  #                 "User__best_friend$normalization",
+  #             ),
+  #         },
+  #     ),
+  # }
+   {
+    ...BestFriendResolverFragment_name @__RelayResolverMetadata
+    # RelayResolverMetadata {
+    #     field_parent_type: "User",
+    #     import_path: "BestFriendResolver",
+    #     field_name: "best_friend",
+    #     field_alias: None,
+    #     field_path: "best_friend",
+    #     field_arguments: [],
+    #     live: false,
+    # }
+    
+    best_friend {
+      name
+    }
+  }
+}

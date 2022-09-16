@@ -32,6 +32,7 @@ use relay_codegen::print_fragment;
 use relay_codegen::print_operation;
 use relay_codegen::print_request;
 use relay_codegen::JsModuleFormat;
+use relay_compiler::find_duplicates;
 use relay_compiler::validate;
 use relay_compiler::ConfigFileProject;
 use relay_compiler::ProjectConfig;
@@ -174,6 +175,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let ast = parse_executable(base, source_location)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+
+    find_duplicates(&ast.definitions, &[])
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+
     let ir_result = build_ir_with_extra_features(
         &schema,
         &ast.definitions,

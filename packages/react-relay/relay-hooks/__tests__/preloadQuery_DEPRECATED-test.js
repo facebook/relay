@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -818,7 +818,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             expect(fetch).toBeCalledTimes(1);
           });
           it('does not trigger timers', () => {
-            jest.useFakeTimers();
+            jest.useFakeTimers('legacy');
             preloadQuery_DEPRECATED(environment, params, variables, {
               fetchPolicy: 'network-only',
             });

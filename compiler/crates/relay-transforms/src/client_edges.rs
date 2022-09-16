@@ -40,6 +40,7 @@ use schema::Schema;
 use schema::Type;
 
 use super::ValidationMessageWithData;
+use crate::generate_relay_resolvers_operations_for_nested_objects::generate_name_for_nested_object_operation;
 use crate::refetchable_fragment::RefetchableFragment;
 use crate::refetchable_fragment::REFETCHABLE_NAME;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
@@ -55,6 +56,7 @@ lazy_static! {
     // This gets attached to fragment which defines the selection in the generated query
     pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: DirectiveName = DirectiveName("__clientEdgeGeneratedFragment".intern());
     pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: DirectiveName = DirectiveName("waterfall".intern());
+    pub static ref RELAY_RESOLVER_IS_OUTPUT_TYPE: ArgumentName  = ArgumentName("is_output_type".intern());
 }
 
 /// Directive added to inline fragments created by the transform. The inline
@@ -73,6 +75,7 @@ pub enum ClientEdgeMetadataDirective {
     ClientObject {
         type_name: StringKey,
         unique_id: u32,
+        normalization_operation: Option<WithLocation<OperationDefinitionName>>,
     },
 }
 associated_data_impl!(ClientEdgeMetadataDirective);
@@ -288,12 +291,9 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
         // Eventually we will want to enable client edges on non-resolver client
         // schema extensions, but we'll start with limiting them to resolvers.
-        let is_resolver = field_type
-            .directives
-            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
-            .is_some();
+        let resolver_directive = field_type.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
 
-        let is_client_edge = field_type.is_extension && is_resolver;
+        let is_client_edge = field_type.is_extension && resolver_directive.is_some();
 
         let waterfall_directive = field
             .directives()
@@ -354,6 +354,20 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                     directive.name.location,
                 ));
             }
+
+            let is_resolver_with_output_type = resolver_directive
+                .and_then(|directive| directive.arguments.named(RELAY_RESOLVER_IS_OUTPUT_TYPE.0))
+                .is_some();
+
+            let normalization_operation_name = if is_resolver_with_output_type {
+                Some(generate_name_for_nested_object_operation(
+                    &self.program.schema,
+                    self.program.schema.field(field.definition().item),
+                ))
+            } else {
+                None
+            };
+
             match edge_to_type {
                 Type::Interface(_) => {
                     self.errors.push(Diagnostic::error(
@@ -372,6 +386,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 Type::Object(object_id) => ClientEdgeMetadataDirective::ClientObject {
                     type_name: schema.object(object_id).name.item,
                     unique_id: self.get_key(),
+                    normalization_operation: normalization_operation_name,
                 },
                 _ => {
                     panic!(

@@ -309,6 +309,7 @@ pub struct Union {
 pub struct Interface {
     pub name: WithLocation<StringKey>,
     pub is_extension: bool,
+    pub implementing_interfaces: Vec<InterfaceID>,
     pub implementing_objects: Vec<ObjectID>,
     pub fields: Vec<FieldID>,
     pub directives: Vec<DirectiveValue>,

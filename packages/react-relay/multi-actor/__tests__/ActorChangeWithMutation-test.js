@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';

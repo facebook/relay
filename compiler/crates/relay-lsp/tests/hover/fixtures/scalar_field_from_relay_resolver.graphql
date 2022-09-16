@@ -7,6 +7,7 @@ query MyQuery {
 %extension%
 
 extend type User {
+  """My Resolver Description"""
   client_schema_field: Int @relay_resolver(
     fragment_name: "MyResolverFragment"
     import_path: "./some_path.js"

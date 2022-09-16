@@ -16,6 +16,7 @@ use graphql_ir::ConstantValue;
 use graphql_ir::Directive;
 use graphql_ir::Value;
 use graphql_text_printer::print_value;
+use graphql_text_printer::PrinterOptions;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
@@ -54,7 +55,11 @@ impl RefetchableDirective {
                 } else {
                     return Err(vec![Diagnostic::error(
                         ValidationMessage::ExpectQueryNameToBeString {
-                            query_name_value: print_value(schema, &argument.value.item),
+                            query_name_value: print_value(
+                                schema,
+                                &argument.value.item,
+                                PrinterOptions::default(),
+                            ),
                         },
                         argument.name.location,
                     )]);

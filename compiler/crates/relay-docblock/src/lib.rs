@@ -34,6 +34,7 @@ pub use ir::Argument;
 pub use ir::DocblockIr;
 use ir::IrField;
 pub use ir::On;
+use ir::OutputType;
 use ir::PopulatedIrField;
 pub use ir::RelayResolverIr;
 use lazy_static::lazy_static;
@@ -43,12 +44,13 @@ use crate::errors::ErrorMessages;
 lazy_static! {
     static ref RELAY_RESOLVER_FIELD: StringKey = "RelayResolver".intern();
     static ref FIELD_NAME_FIELD: StringKey = "fieldName".intern();
-    pub static ref ON_TYPE_FIELD: StringKey = "onType".intern();
-    pub static ref ON_INTERFACE_FIELD: StringKey = "onInterface".intern();
+    static ref ON_TYPE_FIELD: StringKey = "onType".intern();
+    static ref ON_INTERFACE_FIELD: StringKey = "onInterface".intern();
     static ref EDGE_TO_FIELD: StringKey = "edgeTo".intern();
     static ref DEPRECATED_FIELD: StringKey = "deprecated".intern();
     static ref LIVE_FIELD: StringKey = "live".intern();
     static ref ROOT_FRAGMENT_FIELD: StringKey = "rootFragment".intern();
+    static ref OUTPUT_TYPE_FIELD: StringKey = "outputType".intern();
     static ref EMPTY_STRING: StringKey = "".intern();
     static ref ARGUMENT_DEFINITIONS: StringKey = "argumentDefinitions".intern();
     static ref ARGUMENT_TYPE: StringKey = "type".intern();
@@ -93,6 +95,7 @@ impl RelayResolverParser {
                 *EDGE_TO_FIELD,
                 *DEPRECATED_FIELD,
                 *LIVE_FIELD,
+                *OUTPUT_TYPE_FIELD,
             ],
         }
     }
@@ -181,26 +184,12 @@ impl RelayResolverParser {
             }
         }
 
-        let edge_to = match self
-            .fields
-            .get(&EDGE_TO_FIELD)
-            .and_then(|f| f.value)
-            .map(|type_str| self.parse_edge_to(type_str))
-            .transpose()
-        {
-            Ok(edge_to) => edge_to,
-            Err(mut errors) => {
-                self.errors.append(&mut errors);
-                None
-            }
-        };
-
         Ok(RelayResolverIr {
             field,
             on: on?,
             root_fragment: root_fragment
                 .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
-            edge_to,
+            output_type: self.output_type(),
             description: self.description,
             location: ast.location,
             deprecated,
@@ -209,7 +198,7 @@ impl RelayResolverParser {
         })
     }
 
-    fn parse_edge_to(
+    fn parse_type_annotation(
         &mut self,
         type_str: WithLocation<StringKey>,
     ) -> DiagnosticsResult<WithLocation<TypeAnnotation>> {
@@ -267,6 +256,36 @@ impl RelayResolverParser {
                     key_location: field.field_name.location,
                     value: field_value,
                 });
+            }
+        }
+    }
+
+    fn output_type(&mut self) -> Option<OutputType> {
+        let edge_to = self.fields.get(&EDGE_TO_FIELD).copied();
+        let output_type = self.fields.get(&OUTPUT_TYPE_FIELD).copied();
+
+        let value = edge_to.or(output_type)?.value?;
+        match self.parse_type_annotation(value) {
+            Ok(type_annotation) => match (edge_to, output_type) {
+                (Some(_), None) => Some(OutputType::EdgeTo(type_annotation)),
+                (None, Some(_)) => Some(OutputType::Output(type_annotation)),
+                (Some(edge_to), Some(output_type)) => {
+                    self.errors.push(
+                        Diagnostic::error(
+                            ErrorMessages::UnexpectedEdgeToAndOutputType,
+                            edge_to.key_location,
+                        )
+                        .annotate(" @outputType found here", output_type.key_location),
+                    );
+                    None
+                }
+                (None, None) => {
+                    unreachable!()
+                }
+            },
+            Err(mut errors) => {
+                self.errors.append(&mut errors);
+                None
             }
         }
     }

@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -231,6 +232,7 @@ module.exports = {
         'principles-and-architecture/runtime-architecture',
         'principles-and-architecture/videos',
       ],
+      'Error reference': ['error-reference/unknown-field'],
     },
     'editor-support',
     'community/learning-resources',

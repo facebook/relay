@@ -1,0 +1,25 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment duplicateFragmentName on User {
+  name
+}
+
+fragment duplicateFragmentName on User {
+  age
+}
+==================================== ERROR ====================================
+✖︎ Duplicate definitions for 'duplicateFragmentName'
+
+  duplicate_query_name.graphql:6:10
+    5 │ 
+    6 │ fragment duplicateFragmentName on User {
+      │          ^^^^^^^^^^^^^^^^^^^^^
+    7 │   age
+
+  ℹ︎ previously defined here
+
+  duplicate_query_name.graphql:2:10
+    1 │ # expected-to-throw
+    2 │ fragment duplicateFragmentName on User {
+      │          ^^^^^^^^^^^^^^^^^^^^^
+    3 │   name

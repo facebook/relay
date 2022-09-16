@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -577,6 +578,9 @@ class LiveResolverStore implements Store {
     const optimisticIDs =
       RelayOptimisticRecordSource.getOptimisticRecordIDs(optimisticSource);
 
+    // Clean up any LiveResolver subscriptions made while in the optimistic
+    // state.
+    this._resolverCache.unsubscribeFromLiveResolverRecords(optimisticIDs);
     this._optimisticSource = null;
     if (this._shouldScheduleGC) {
       this.scheduleGC();

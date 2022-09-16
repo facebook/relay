@@ -5,14 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 import {DEFAULT_STATE, FEATURE_FLAGS} from './ExplorerStateConstants';
 import {deserializeState, serializeState} from './ExplorerStateSerialization';
-import * as LZString from 'lz-string';
 import * as React from 'react';
 
-const {useReducer, useCallback, useMemo, useEffect} = React;
+const {useReducer, useMemo, useEffect} = React;
 
 const LOCAL_STORAGE_KEY = 'relayCompilerExplorerLastContent';
 

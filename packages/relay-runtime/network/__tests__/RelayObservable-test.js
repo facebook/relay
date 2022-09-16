@@ -5,14 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';
 
 const RelayObservable = require('../RelayObservable');
 
-jest.useFakeTimers();
+jest.useFakeTimers('legacy');
 
 describe('RelayObservable', () => {
   beforeEach(() => {

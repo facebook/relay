@@ -7,5 +7,8 @@ query MyQuery {
 %extension%
 
 extend type User {
+  """
+  This is a client schema field
+  """
   client_schema_field: Int
 }

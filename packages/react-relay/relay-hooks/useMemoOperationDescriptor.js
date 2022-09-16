@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -29,8 +29,8 @@ function useMemoOperationDescriptor(
   variables: Variables,
   cacheConfig?: ?CacheConfig,
 ): OperationDescriptor {
-  const [memoVariables] = useMemoVariables(variables);
-  const [memoCacheConfig] = useMemoVariables(cacheConfig || {});
+  const memoVariables = useMemoVariables(variables);
+  const memoCacheConfig = useMemoVariables(cacheConfig || {});
   return useMemo(
     () =>
       createOperationDescriptor(

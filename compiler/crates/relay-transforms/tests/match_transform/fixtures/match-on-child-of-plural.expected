@@ -39,6 +39,7 @@ fragment ActorsRendererFragment on Node {
         #     fragment_name: FragmentDefinitionName(
         #         "PlainUserNameRenderer_name",
         #     ),
+        #     fragment_source_location: match-on-child-of-plural.graphql:282:308,
         #     no_inline: false,
         # }
          {
@@ -58,6 +59,7 @@ fragment ActorsRendererFragment on Node {
         #     fragment_name: FragmentDefinitionName(
         #         "MarkdownUserNameRenderer_name",
         #     ),
+        #     fragment_source_location: match-on-child-of-plural.graphql:382:411,
         #     no_inline: false,
         # }
          {

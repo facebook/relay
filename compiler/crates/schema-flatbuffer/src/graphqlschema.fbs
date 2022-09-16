@@ -155,6 +155,7 @@ table Interface {
     is_extension: bool;
     fields: [uint32];
     interfaces: [uint32];
+    implementing_interfaces: [uint32];
     implementing_objects: [uint32];
     directives: [DirectiveValue];
 }

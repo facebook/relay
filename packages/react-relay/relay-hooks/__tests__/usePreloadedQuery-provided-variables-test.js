@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -149,7 +149,9 @@ describe.each([
         store: new Store(new RecordSource()),
       });
       RelayProvider_impure.test_reset();
-      withProvidedVariables.tests_only_resetDebugCache();
+      if (withProvidedVariables.tests_only_resetDebugCache !== undefined) {
+        withProvidedVariables.tests_only_resetDebugCache();
+      }
     });
 
     describe('using preloadQuery_DEPRECATED', () => {

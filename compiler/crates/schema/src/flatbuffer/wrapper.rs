@@ -18,6 +18,8 @@ use intern::string_key::StringKey;
 use ouroboros::self_referencing;
 
 use super::FlatBufferSchema;
+use crate::field_descriptions::CLIENT_ID_DESCRIPTION;
+use crate::field_descriptions::TYPENAME_DESCRIPTION;
 use crate::Argument;
 use crate::ArgumentDefinitions;
 use crate::Directive;
@@ -122,16 +124,18 @@ impl SchemaWrapper {
             parent_type: None,
             description: None,
         });
-        result.fields.get(CLIENTID_FIELD_ID, || Field {
-            name: WithLocation::generated(result.clientid_field_name),
-            is_extension: true,
-            arguments: ArgumentDefinitions::new(Default::default()),
-            type_: TypeReference::NonNull(Box::new(TypeReference::Named(
-                result.get_type("ID".intern()).unwrap(),
-            ))),
-            directives: Vec::new(),
-            parent_type: None,
-            description: None,
+        result.fields.get(CLIENTID_FIELD_ID, || -> Field {
+            Field {
+                name: WithLocation::generated(result.clientid_field_name),
+                is_extension: true,
+                arguments: ArgumentDefinitions::new(Default::default()),
+                type_: TypeReference::NonNull(Box::new(TypeReference::Named(
+                    result.get_type("ID".intern()).unwrap(),
+                ))),
+                directives: Vec::new(),
+                parent_type: None,
+                description: Some(*CLIENT_ID_DESCRIPTION),
+            }
         });
         result.fields.get(STRONGID_FIELD_ID, || Field {
             name: WithLocation::generated(result.strongid_field_name),
@@ -140,7 +144,7 @@ impl SchemaWrapper {
             type_: TypeReference::Named(result.get_type("ID".intern()).unwrap()),
             directives: Vec::new(),
             parent_type: None,
-            description: None,
+            description: Some(*TYPENAME_DESCRIPTION),
         });
         result.fields.get(FETCH_TOKEN_FIELD_ID, || Field {
             name: WithLocation::generated(result.fetch_token_field_name),

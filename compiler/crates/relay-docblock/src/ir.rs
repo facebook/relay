@@ -53,6 +53,7 @@ lazy_static! {
     static ref IMPORT_PATH_ARGUMENT_NAME: StringKey = "import_path".intern();
     static ref LIVE_ARGUMENT_NAME: StringKey = "live".intern();
     static ref DEPRECATED_REASON_ARGUMENT_NAME: StringKey = "reason".intern();
+    static ref IS_OUTPUT_TYPE_ARGUMENT_NAME: StringKey = "is_output_type".intern();
 }
 
 #[derive(Debug, PartialEq)]
@@ -106,11 +107,26 @@ impl Named for Argument {
 }
 
 #[derive(Debug, PartialEq)]
+pub enum OutputType {
+    EdgeTo(WithLocation<TypeAnnotation>),
+    Output(WithLocation<TypeAnnotation>),
+}
+
+impl OutputType {
+    pub fn inner(&self) -> &WithLocation<TypeAnnotation> {
+        match self {
+            Self::EdgeTo(inner) => inner,
+            Self::Output(inner) => inner,
+        }
+    }
+}
+
+#[derive(Debug, PartialEq)]
 pub struct RelayResolverIr {
     pub field: FieldDefinitionStub,
     pub on: On,
     pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
-    pub edge_to: Option<WithLocation<TypeAnnotation>>,
+    pub output_type: Option<OutputType>,
     pub description: Option<WithLocation<StringKey>>,
     pub deprecated: Option<IrField>,
     pub live: Option<IrField>,
@@ -136,7 +152,7 @@ impl RelayResolverIr {
     }
 
     fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
-        if let Some(edge_to_with_location) = &self.edge_to {
+        if let Some(OutputType::EdgeTo(edge_to_with_location)) = &self.output_type {
             if let TypeAnnotation::List(edge_to_type) = &edge_to_with_location.item {
                 if let Some(false) = schema
                     .get_type(edge_to_type.type_.inner().name.value)
@@ -335,7 +351,7 @@ impl RelayResolverIr {
     }
 
     fn fields(&self) -> List<FieldDefinition> {
-        let edge_to = self.edge_to.as_ref().map_or_else(
+        let edge_to = self.output_type.as_ref().map_or_else(
             || {
                 // Resolvers return arbitrary JavaScript values. However, we
                 // need some GraphQL type to use in the schema. As a placeholder
@@ -345,7 +361,7 @@ impl RelayResolverIr {
                     name: string_key_as_identifier(*INT_TYPE),
                 })
             },
-            |annotation| annotation.item.clone(),
+            |output_type| output_type.inner().item.clone(),
         );
 
         let args = match (self.fragment_arguments(), self.field.arguments.as_ref()) {
@@ -423,6 +439,11 @@ impl RelayResolverIr {
         if let Some(live_field) = self.live {
             arguments.push(true_argument(*LIVE_ARGUMENT_NAME, live_field.key_location))
         }
+
+        if let Some(OutputType::Output(type_)) = &self.output_type {
+            arguments.push(true_argument(*IS_OUTPUT_TYPE_ARGUMENT_NAME, type_.location))
+        }
+
         ConstantDirective {
             span: span.clone(),
             at: dummy_token(span),

@@ -71,6 +71,7 @@ fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
       #     fragment_name: FragmentDefinitionName(
       #         "PlainUserNameRenderer_name",
       #     ),
+      #     fragment_source_location: query-with-transitive-module-dep.graphql:332:358,
       #     no_inline: false,
       # }
        {
@@ -90,6 +91,7 @@ fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
       #     fragment_name: FragmentDefinitionName(
       #         "MarkdownUserNameRenderer_name",
       #     ),
+      #     fragment_source_location: query-with-transitive-module-dep.graphql:432:461,
       #     no_inline: false,
       # }
        {

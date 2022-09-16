@@ -1,0 +1,8 @@
+# expected-to-throw
+fragment duplicateFragmentName on User {
+  name
+}
+
+fragment duplicateFragmentName on User {
+  age
+}

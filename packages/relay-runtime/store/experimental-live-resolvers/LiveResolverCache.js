@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -49,7 +50,7 @@ const warning = require('warning');
 // When this experiment gets promoted to stable, these keys will move into
 // `RelayStoreUtils`.
 const RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY =
-  '__resolverLieStateSubscription';
+  '__resolverLiveStateSubscription';
 const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
 const RELAY_RESOLVER_RECORD_TYPENAME = '__RELAY_RESOLVER__';
@@ -92,7 +93,7 @@ class LiveResolverCache implements ResolverCache {
   }
 
   readFromCacheOrEvaluate<T>(
-    record: Record,
+    recordID: DataID,
     field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
@@ -105,7 +106,13 @@ class LiveResolverCache implements ResolverCache {
     ?DataID /* ID of record containing a suspended Live field */,
   ] {
     const recordSource = this._getRecordSource();
-    const recordID = RelayModernRecord.getDataID(record);
+
+    // NOTE: Be very careful with `record` in this scope. After `evaluate` has
+    // been called, the `record` we have here may have been replaced in the
+    // Relay store with a new record containing new informaiton about nested
+    // resolvers on this parent record.
+    const record = recordSource.get(recordID);
+    invariant(record != null, 'We expect this record to exist in the store.');
 
     const storageKey = getStorageKey(field, variables);
     let linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
@@ -116,6 +123,13 @@ class LiveResolverCache implements ResolverCache {
       this._isInvalid(linkedRecord, getDataForResolverFragment)
     ) {
       // Cache miss; evaluate the selector and store the result in a new record:
+
+      if (linkedRecord != null) {
+        // Clean up any existing subscriptions before creating the new subsciption
+        // to avoid being double subscribed, or having a dangling subscription in
+        // the event of an error during subscription.
+        this._maybeUnsubscribeFromLiveState(linkedRecord);
+      }
       linkedID = linkedID ?? generateClientID(recordID, storageKey);
       linkedRecord = RelayModernRecord.create(
         linkedID,
@@ -179,9 +193,18 @@ class LiveResolverCache implements ResolverCache {
       recordSource.set(linkedID, linkedRecord);
 
       // Link the resolver value record to the resolver field of the record being read:
-      const nextRecord = RelayModernRecord.clone(record);
+
+      // Note: We get a fresh instance of the parent record from the record
+      // source, becuase it may have been updated when we traversed into child
+      // resolvers.
+      const currentRecord = recordSource.get(recordID);
+      invariant(
+        currentRecord != null,
+        'Expected the parent record to still be in the record source.',
+      );
+      const nextRecord = RelayModernRecord.clone(currentRecord);
       RelayModernRecord.setLinkedRecordID(nextRecord, storageKey, linkedID);
-      recordSource.set(RelayModernRecord.getDataID(nextRecord), nextRecord);
+      recordSource.set(recordID, nextRecord);
 
       if (field.fragment != null) {
         // Put records observed by the resolver into the dependency graph:
@@ -215,18 +238,33 @@ class LiveResolverCache implements ResolverCache {
         RELAY_RESOLVER_LIVE_STATE_VALUE,
       );
 
+      if (!isLiveStateValue(liveState)) {
+        invariant(
+          false,
+          'Unexpected LiveState value returned from Relay Resolver internal field `RELAY_RESOLVER_LIVE_STATE_VALUE`. ' +
+            'It is likely a bug in Relay, or a corrupt state of the relay store state ' +
+            'Field Path `%s`. Record `%s`.',
+          field.path,
+          JSON.stringify(linkedRecord),
+        );
+      }
+
+      const resolverValue = liveState.read();
+
       // Set the new value for this and future reads.
       RelayModernRecord.setValue(
         linkedRecord,
         RELAY_RESOLVER_VALUE_KEY,
-        liveState.read(),
+        resolverValue,
       );
+
       // Mark the resolver as clean again.
       RelayModernRecord.setValue(
         linkedRecord,
         RELAY_RESOLVER_LIVE_STATE_DIRTY,
         false,
       );
+
       recordSource.set(linkedID, linkedRecord);
     }
 
@@ -269,6 +307,18 @@ class LiveResolverCache implements ResolverCache {
     });
   }
 
+  _maybeUnsubscribeFromLiveState(linkedRecord: Record) {
+    // If there's an existing subscription, unsubscribe.
+    // $FlowFixMe[incompatible-type] - casting mixed
+    const previousUnsubscribe: () => void = RelayModernRecord.getValue(
+      linkedRecord,
+      RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
+    );
+    if (previousUnsubscribe != null) {
+      previousUnsubscribe();
+    }
+  }
+
   // Register a new Live State object in the store, subscribing to future
   // updates.
   _setLiveStateValue(
@@ -276,17 +326,6 @@ class LiveResolverCache implements ResolverCache {
     linkedID: DataID,
     liveState: LiveState<mixed>,
   ) {
-    // If there's an existing subscription, unsubscribe.
-    // $FlowFixMe[incompatible-type] - casting mixed
-    const previousUnsubscribe: () => void = RelayModernRecord.getValue(
-      linkedRecord,
-      RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
-    );
-
-    if (previousUnsubscribe != null) {
-      previousUnsubscribe();
-    }
-
     // Subscribe to future values
     // Note: We subscribe before reading, since subscribing could potentially
     // trigger a synchronous update. By reading second way we will always
@@ -334,6 +373,19 @@ class LiveResolverCache implements ResolverCache {
         // update synchronously on subscribe (before we even created the record).
         // In this case we can safely ignore this update, since we will be
         // reading the new value when we create the record.
+        return;
+      }
+
+      if (!(RELAY_RESOLVER_LIVE_STATE_VALUE in currentRecord)) {
+        warning(
+          false,
+          'Unexpected callback for a incomplete live resolver record (__id: `%s`). The record has missing live state value. ' +
+            'This is a no-op and indicates a memory leak, and possible bug in Relay Live Resolvers. ' +
+            'Possible cause: The original record was GC-ed, or was created with the optimistic record source.' +
+            ' Record details: `%s`.',
+          linkedID,
+          JSON.stringify(currentRecord),
+        );
         return;
       }
 
@@ -452,6 +504,22 @@ class LiveResolverCache implements ResolverCache {
       recordSource.set(key, newRecord);
     }
     return key;
+  }
+
+  unsubscribeFromLiveResolverRecords(invalidatedDataIDs: Set<DataID>): void {
+    if (invalidatedDataIDs.size === 0) {
+      return;
+    }
+
+    for (const dataID of invalidatedDataIDs) {
+      const record = this._getRecordSource().get(dataID);
+      if (
+        record != null &&
+        RelayModernRecord.getType(record) === RELAY_RESOLVER_RECORD_TYPENAME
+      ) {
+        this._maybeUnsubscribeFromLiveState(record);
+      }
+    }
   }
 
   // Given the set of possible invalidated DataID

@@ -273,7 +273,9 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
-        description: None,
+        description: Some(
+            "This object's GraphQL type. Provided by GraphQL type name introspection.",
+        ),
     },
     Field {
         name: WithLocation {
@@ -305,7 +307,9 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
-        description: None,
+        description: Some(
+            "Relay's cache key for this object.",
+        ),
     },
     Field {
         name: WithLocation {
@@ -360,6 +364,9 @@ Text Schema:Schema {
             item: "BaseNode",
         },
         is_extension: false,
+        implementing_interfaces: [
+            InterfaceID(1),
+        ],
         implementing_objects: [],
         fields: [
             FieldID(1),
@@ -374,6 +381,10 @@ Text Schema:Schema {
             item: "Node",
         },
         is_extension: false,
+        implementing_interfaces: [
+            InterfaceID(2),
+            InterfaceID(3),
+        ],
         implementing_objects: [],
         fields: [
             FieldID(2),
@@ -390,6 +401,9 @@ Text Schema:Schema {
             item: "Resource",
         },
         is_extension: false,
+        implementing_interfaces: [
+            InterfaceID(3),
+        ],
         implementing_objects: [],
         fields: [
             FieldID(3),
@@ -408,6 +422,7 @@ Text Schema:Schema {
             item: "Image",
         },
         is_extension: false,
+        implementing_interfaces: [],
         implementing_objects: [],
         fields: [
             FieldID(6),
@@ -500,7 +515,7 @@ directives: [
                 ),
                 type_: NonNull(
                     Named(
-                        Scalar(1),
+                        Scalar(2),
                     ),
                 ),
                 default_value: None,
@@ -528,7 +543,7 @@ directives: [
                 ),
                 type_: NonNull(
                     Named(
-                        Scalar(1),
+                        Scalar(2),
                     ),
                 ),
                 default_value: None,
@@ -580,7 +595,7 @@ fields: [
         ),
         directives: [],
         parent_type: Some(
-            Interface(1),
+            Interface(3),
         ),
         description: None,
     },
@@ -592,11 +607,11 @@ fields: [
         is_extension: false,
         arguments: [],
         type_: Named(
-            Scalar(3),
+            Scalar(1),
         ),
         directives: [],
         parent_type: Some(
-            Interface(1),
+            Interface(3),
         ),
         description: None,
     },
@@ -608,11 +623,11 @@ fields: [
         is_extension: false,
         arguments: [],
         type_: Named(
-            Scalar(3),
+            Scalar(1),
         ),
         directives: [],
         parent_type: Some(
-            Interface(1),
+            Interface(3),
         ),
         description: None,
     },
@@ -625,12 +640,12 @@ fields: [
         arguments: [],
         type_: NonNull(
             Named(
-                Scalar(3),
+                Scalar(1),
             ),
         ),
         directives: [],
         parent_type: Some(
-            Interface(3),
+            Interface(1),
         ),
         description: None,
     },
@@ -642,7 +657,7 @@ fields: [
         is_extension: false,
         arguments: [],
         type_: Named(
-            Interface(3),
+            Interface(1),
         ),
         directives: [],
         parent_type: Some(
@@ -677,7 +692,7 @@ fields: [
         arguments: [],
         type_: NonNull(
             Named(
-                Scalar(3),
+                Scalar(1),
             ),
         ),
         directives: [],
@@ -694,7 +709,7 @@ fields: [
         is_extension: false,
         arguments: [],
         type_: Named(
-            Scalar(3),
+            Scalar(1),
         ),
         directives: [],
         parent_type: Some(
@@ -711,6 +726,9 @@ interfaces: [
             item: "BaseNode",
         },
         is_extension: false,
+        implementing_interfaces: [
+            InterfaceID(1),
+        ],
         implementing_objects: [],
         fields: [
             FieldID(0),
@@ -725,16 +743,17 @@ interfaces: [
             item: "Image",
         },
         is_extension: false,
+        implementing_interfaces: [],
         implementing_objects: [],
         fields: [
-            FieldID(1),
-            FieldID(2),
-            FieldID(3),
+            FieldID(5),
+            FieldID(6),
+            FieldID(7),
         ],
         directives: [],
         interfaces: [
             InterfaceID(2),
-            InterfaceID(3),
+            InterfaceID(1),
         ],
         description: None,
     },
@@ -744,9 +763,13 @@ interfaces: [
             item: "Node",
         },
         is_extension: false,
+        implementing_interfaces: [
+            InterfaceID(2),
+            InterfaceID(3),
+        ],
         implementing_objects: [],
         fields: [
-            FieldID(7),
+            FieldID(1),
         ],
         directives: [],
         interfaces: [
@@ -760,15 +783,18 @@ interfaces: [
             item: "Resource",
         },
         is_extension: false,
+        implementing_interfaces: [
+            InterfaceID(3),
+        ],
         implementing_objects: [],
         fields: [
+            FieldID(2),
+            FieldID(3),
             FieldID(4),
-            FieldID(5),
-            FieldID(6),
         ],
         directives: [],
         interfaces: [
-            InterfaceID(3),
+            InterfaceID(1),
         ],
         description: None,
     },

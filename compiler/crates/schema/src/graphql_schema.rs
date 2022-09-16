@@ -182,14 +182,23 @@ pub trait Schema {
             a.iter().any(|item| b.contains(item))
         }
 
+        fn overlapping_interfaces(a: &[InterfaceID], b: &[InterfaceID]) -> bool {
+            a.iter().any(|item| b.contains(item))
+        }
+
         if a == b {
             return true;
         };
         match (a, b) {
-            (Type::Interface(a), Type::Interface(b)) => overlapping_objects(
-                &self.interface(a).implementing_objects,
-                &self.interface(b).implementing_objects,
-            ),
+            (Type::Interface(a), Type::Interface(b)) => {
+                overlapping_objects(
+                    &self.interface(a).implementing_objects,
+                    &self.interface(b).implementing_objects,
+                ) || overlapping_interfaces(
+                    &self.interface(a).implementing_interfaces,
+                    &self.interface(b).implementing_interfaces,
+                )
+            }
 
             (Type::Union(a), Type::Union(b)) => {
                 overlapping_objects(&self.union(a).members, &self.union(b).members)

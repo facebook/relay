@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -40,7 +41,7 @@ module.exports = {
     // TODO T31139228: remove or re-enable these once eslint-plugin-flowtype
     // is compatible with babel-eslint >= 8
     'no-undef': 'off',
-    'no-unused-vars': 'off',
+    'no-unused-vars': [1, {args: 'none'}],
 
     // This has a different name internally
     'no-label-var': 'off',

@@ -6,11 +6,13 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type {ConnectionMetadata} from '../handlers/connection/ConnectionHandler';
+import type {NormalizationSelectableNode} from './NormalizationNode';
 import type {ConcreteRequest} from './RelayConcreteNode';
 
 export type ReaderFragmentSpread = {
@@ -272,6 +274,7 @@ export type ReaderClientEdgeToClientObject = {
     | ReaderRelayResolver
     | ReaderRelayLiveResolver
     | ReaderClientExtension,
+  +normalizationNode?: NormalizationSelectableNode,
 };
 
 export type ReaderClientEdgeToServerObject = {

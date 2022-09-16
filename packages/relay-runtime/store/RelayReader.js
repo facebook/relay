@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -280,7 +281,7 @@ class RelayReader {
   _maybeReportUnexpectedNull(
     fieldPath: string,
     action: 'LOG' | 'THROW',
-    record: Record,
+    _record: Record,
   ) {
     if (this._missingRequiredFields?.action === 'THROW') {
       // Chained @required directives may cause a parent `@required(action:
@@ -421,10 +422,11 @@ class RelayReader {
           );
           // The only case where we want to suspend due to missing data off of
           // a client extension is if we reached a client edge that we might be
-          // able to fetch:
+          // able to fetch, or there is a missing data in one of the live resolvers.
           this._isMissingData =
             isMissingData ||
-            this._missingClientEdges.length > alreadyMissingClientEdges;
+            this._missingClientEdges.length > alreadyMissingClientEdges ||
+            this._missingLiveResolverFields.length > 0;
           if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
             this._clientEdgeTraversalPath.pop();
           }
@@ -600,7 +602,7 @@ class RelayReader {
 
     const [result, seenRecord, resolverError, cachedSnapshot, suspenseID] =
       this._resolverCache.readFromCacheOrEvaluate(
-        record,
+        RelayModernRecord.getDataID(record),
         field,
         this._variables,
         evaluate,

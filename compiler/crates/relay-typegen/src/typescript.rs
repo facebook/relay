@@ -95,10 +95,16 @@ impl Writer for TypeScriptPrinter {
     }
 
     fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult {
-        writeln!(&mut self.result, "import {} from \"{}\";", name, from)
+        let from_without_extension = from.strip_suffix(".ts").unwrap_or(from);
+        writeln!(
+            &mut self.result,
+            "import {} from \"{}\";",
+            name, from_without_extension
+        )
     }
 
     fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult {
+        let from_without_extension = from.strip_suffix(".ts").unwrap_or(from);
         writeln!(
             &mut self.result,
             "import {}{{ {} }} from \"{}\";",
@@ -108,7 +114,7 @@ impl Writer for TypeScriptPrinter {
                 ""
             },
             types.iter().format(", "),
-            from
+            from_without_extension
         )
     }
 
@@ -519,6 +525,19 @@ mod tests {
         printer.write_import_type(&["A", "B"], "module").unwrap();
         assert_eq!(printer.into_string(), "import { A, B } from \"module\";\n");
 
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        printer.write_import_type(&["A", "B"], "module.ts").unwrap();
+        assert_eq!(printer.into_string(), "import { A, B } from \"module\";\n");
+
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        printer
+            .write_import_type(&["A", "B"], "../../../module.ts.ts")
+            .unwrap();
+        assert_eq!(
+            printer.into_string(),
+            "import { A, B } from \"../../../module.ts\";\n"
+        );
+
         let mut printer = Box::new(TypeScriptPrinter::new(&TypegenConfig {
             use_import_type_syntax: true,
             ..Default::default()
@@ -532,6 +551,21 @@ mod tests {
         let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
         printer.write_import_module_default("A", "module").unwrap();
         assert_eq!(printer.into_string(), "import A from \"module\";\n");
+
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        printer
+            .write_import_module_default("A", "../../module.ts")
+            .unwrap();
+        assert_eq!(printer.into_string(), "import A from \"../../module\";\n");
+
+        let mut printer = Box::new(TypeScriptPrinter::new(&Default::default()));
+        printer
+            .write_import_module_default("A", "../../module.ts.ts")
+            .unwrap();
+        assert_eq!(
+            printer.into_string(),
+            "import A from \"../../module.ts\";\n"
+        );
     }
 
     #[test]

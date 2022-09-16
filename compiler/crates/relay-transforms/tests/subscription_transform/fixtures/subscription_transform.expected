@@ -26,6 +26,7 @@ subscription CommentCreateSubscription(
       #     fragment_name: FragmentDefinitionName(
       #         "CommentCreate_CommentCreateResponsePayload",
       #     ),
+      #     fragment_source_location: subscription_transform.graphql:194:236,
       #     no_inline: false,
       # }
        {

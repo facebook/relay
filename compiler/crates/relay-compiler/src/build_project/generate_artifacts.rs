@@ -55,12 +55,8 @@ pub fn generate_artifacts(
                 {
                     // Generate normalization file for SplitOperation
                     let metadata = SplitOperationMetadata::from(directive);
-                    let source_fragment = programs
-                        .source
-                        .fragment(metadata.derived_from)
-                        .expect("Expected the source document for the SplitOperation to exist.");
-                    let source_hash = source_hashes.get(&metadata.derived_from.0).cloned().unwrap();
-                    let source_file = source_fragment.name.location.source_location();
+                    let source_file = metadata.location.source_location();
+                    let source_hash = metadata.derived_from.and_then(|derived_from| source_hashes.get(&derived_from.0).cloned());
                     let typegen_operation = if metadata.raw_response_type {
                         Some(Arc::clone(normalization))
                     } else {

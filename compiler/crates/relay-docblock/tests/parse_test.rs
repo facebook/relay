@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a5b313a4fdd3a9a5025c4fc2112cce40>>
+ * @generated SignedSource<<5f08fb834712e36cfb8d384567778614>>
  */
 
 mod parse;
@@ -31,6 +31,20 @@ fn edge_to_not_identifier_invalid() {
     let input = include_str!("parse/fixtures/edge-to-not-identifier.invalid.js");
     let expected = include_str!("parse/fixtures/edge-to-not-identifier.invalid.expected");
     test_fixture(transform_fixture, "edge-to-not-identifier.invalid.js", "parse/fixtures/edge-to-not-identifier.invalid.expected", input, expected);
+}
+
+#[test]
+fn output_type_edge_to_invalid() {
+    let input = include_str!("parse/fixtures/output-type-edge-to-invalid.js");
+    let expected = include_str!("parse/fixtures/output-type-edge-to-invalid.expected");
+    test_fixture(transform_fixture, "output-type-edge-to-invalid.js", "parse/fixtures/output-type-edge-to-invalid.expected", input, expected);
+}
+
+#[test]
+fn output_type_invalid_type() {
+    let input = include_str!("parse/fixtures/output-type-invalid-type.js");
+    let expected = include_str!("parse/fixtures/output-type-invalid-type.expected");
+    test_fixture(transform_fixture, "output-type-invalid-type.js", "parse/fixtures/output-type-invalid-type.expected", input, expected);
 }
 
 #[test]
@@ -164,4 +178,11 @@ fn relay_resolver_with_fragment_invalid() {
     let input = include_str!("parse/fixtures/relay-resolver-with-fragment.invalid.js");
     let expected = include_str!("parse/fixtures/relay-resolver-with-fragment.invalid.expected");
     test_fixture(transform_fixture, "relay-resolver-with-fragment.invalid.js", "parse/fixtures/relay-resolver-with-fragment.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type() {
+    let input = include_str!("parse/fixtures/relay-resolver-with-output-type.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-with-output-type.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type.js", "parse/fixtures/relay-resolver-with-output-type.expected", input, expected);
 }

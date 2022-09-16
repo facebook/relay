@@ -43,6 +43,7 @@ fragment NameRendererFragment on User {
       #     fragment_name: FragmentDefinitionName(
       #         "PlainUserNameRenderer_name",
       #     ),
+      #     fragment_source_location: relay-match-on-union.graphql:255:281,
       #     no_inline: false,
       # }
        {
@@ -62,6 +63,7 @@ fragment NameRendererFragment on User {
       #     fragment_name: FragmentDefinitionName(
       #         "MarkdownUserNameRenderer_name",
       #     ),
+      #     fragment_source_location: relay-match-on-union.graphql:355:384,
       #     no_inline: false,
       # }
        {

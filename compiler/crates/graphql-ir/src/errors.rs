@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt::Display;
+
 use common::ArgumentName;
 use common::DiagnosticDisplay;
 use common::DirectiveName;
@@ -18,6 +20,15 @@ use thiserror::Error;
 
 use crate::ir::FragmentDefinitionName;
 use crate::VariableName;
+
+struct ErrorLink(&'static str);
+
+impl Display for ErrorLink {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f)?;
+        write!(f, "See https://relay.dev/docs/error-reference/{}/", self.0)
+    }
+}
 
 /// Fixed set of validation errors with custom display messages
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -456,7 +467,9 @@ pub enum ValidationMessageWithData {
         suggestions: Vec<StringKey>,
     },
 
-    #[error("The type `{type_}` has no field `{field}`.{suggestions}", suggestions = did_you_mean(suggestions))]
+    #[error("The type `{type_}` has no field `{field}`.{suggestions}{error_link}",
+        suggestions = did_you_mean(suggestions),
+        error_link = ErrorLink("unknown-field"))]
     UnknownField {
         type_: StringKey,
         field: StringKey,

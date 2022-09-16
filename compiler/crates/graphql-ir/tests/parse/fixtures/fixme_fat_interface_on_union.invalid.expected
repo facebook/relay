@@ -9,6 +9,7 @@ query Test {
 }
 ==================================== ERROR ====================================
 ✖︎ The type `MaybeNode` has no field `doesNotExist`.
+See https://relay.dev/docs/error-reference/unknown-field/
 
   fixme_fat_interface_on_union.invalid.graphql:6:5
     5 │   maybeNode {

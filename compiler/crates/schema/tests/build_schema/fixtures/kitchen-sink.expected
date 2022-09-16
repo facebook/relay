@@ -446,7 +446,9 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
-        description: None,
+        description: Some(
+            "This object's GraphQL type. Provided by GraphQL type name introspection.",
+        ),
     },
     Field {
         name: WithLocation {
@@ -478,7 +480,9 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
-        description: None,
+        description: Some(
+            "Relay's cache key for this object.",
+        ),
     },
     Field {
         name: WithLocation {
@@ -643,6 +647,7 @@ Text Schema:Schema {
             item: "Node",
         },
         is_extension: false,
+        implementing_interfaces: [],
         implementing_objects: [
             ObjectID(1),
         ],
@@ -1323,6 +1328,7 @@ interfaces: [
             item: "Node",
         },
         is_extension: false,
+        implementing_interfaces: [],
         implementing_objects: [
             ObjectID(0),
         ],

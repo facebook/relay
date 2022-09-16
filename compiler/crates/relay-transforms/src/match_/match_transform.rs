@@ -499,6 +499,12 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                                 module_name: module_directive_name_argument,
                                 source_document_name: self.document_name,
                                 fragment_name: spread.fragment.item,
+                                fragment_source_location: self
+                                    .program
+                                    .fragment(spread.fragment.item)
+                                    .unwrap()
+                                    .name
+                                    .location,
                                 location: module_directive.name.location,
                                 no_inline: should_use_no_inline,
                             }
@@ -934,6 +940,7 @@ pub struct ModuleMetadata {
     pub module_name: StringKey,
     pub source_document_name: StringKey,
     pub fragment_name: FragmentDefinitionName,
+    pub fragment_source_location: Location,
     pub no_inline: bool,
 }
 associated_data_impl!(ModuleMetadata);

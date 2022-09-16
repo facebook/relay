@@ -199,6 +199,12 @@ impl<'program> SubscriptionTransform<'program> {
                         module_name: normalization_operation_name,
                         source_document_name: operation.name.item.0,
                         fragment_name: fragment_spread.fragment.item,
+                        fragment_source_location: self
+                            .program
+                            .fragment(fragment_spread.fragment.item)
+                            .unwrap()
+                            .name
+                            .location,
                         location: name_location,
                         no_inline: false,
                     }

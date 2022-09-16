@@ -28,6 +28,7 @@ fragment Foo_user on User {
   # ClientObject {
   #     type_name: "ClientOnlyType",
   #     unique_id: 0,
+  #     normalization_operation: None,
   # }
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata

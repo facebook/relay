@@ -9,14 +9,12 @@ use std::error::Error;
 use std::fmt;
 use std::fmt::Write;
 
-use lsp_types::Diagnostic as LspTypeDiagnostic;
 use lsp_types::DiagnosticSeverity;
 use lsp_types::DiagnosticTag;
 use serde_json::Value;
 
 use crate::Location;
 use crate::SourceLocationKey;
-use crate::TextSource;
 
 pub type Diagnostics = Vec<Diagnostic>;
 pub type DiagnosticsResult<T> = Result<T, Diagnostics>;
@@ -275,22 +273,6 @@ impl<T> DiagnosticDisplay for T where T: fmt::Debug + fmt::Display + Send + Sync
 impl From<Diagnostic> for Diagnostics {
     fn from(diagnostic: Diagnostic) -> Self {
         vec![diagnostic]
-    }
-}
-
-pub fn convert_diagnostic(text_source: &TextSource, diagnostic: &Diagnostic) -> LspTypeDiagnostic {
-    let tags: Vec<DiagnosticTag> = diagnostic.tags();
-
-    LspTypeDiagnostic {
-        code: None,
-        data: get_diagnostics_data(diagnostic),
-        message: diagnostic.message().to_string(),
-        range: text_source.to_span_range(diagnostic.location().span()),
-        related_information: None,
-        severity: Some(diagnostic.severity()),
-        tags: if tags.is_empty() { None } else { Some(tags) },
-        source: None,
-        ..Default::default()
     }
 }
 

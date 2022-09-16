@@ -176,6 +176,23 @@ pub enum ValidationMessage {
         "Unexpected directive on Client Edge field. The `@{directive_name}` directive is not currently supported on fields backed by Client Edges."
     )]
     ClientEdgeUnsupportedDirective { directive_name: DirectiveName },
+
+    #[error(
+        "Invalid @RelayResolver output type for field `{field_name}`. Got input object `{type_name}`."
+    )]
+    RelayResolverOutputTypeInvalidInputObjectType {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
+
+    #[error(
+        "@RelayResolver {type_kind} type `{type_name}` for field `{field_name}` is not supported as @outputType, yet."
+    )]
+    RelayResolverOutputTypeUnsupported {
+        type_kind: StringKey,
+        field_name: StringKey,
+        type_name: StringKey,
+    },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

@@ -196,14 +196,14 @@ impl<'schema> ValidationContext<'schema> {
         let mut field_names = FnvHashSet::default();
         for field_id in fields {
             let field = self.schema.field(*field_id);
-            if field_names.contains(&field.name) {
+            if field_names.contains(&field.name.item) {
                 self.report_error(
                     SchemaValidationError::DuplicateField(field.name.item),
                     context,
                 );
                 continue;
             }
-            field_names.insert(field.name);
+            field_names.insert(field.name.item);
 
             // Ensure they are named correctly.
             self.validate_name(field.name.item, context);

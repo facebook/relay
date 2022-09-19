@@ -14,14 +14,13 @@ mod transform_assignable_fragment_spreads_in_updatable_queries;
 mod validate_assignable_directive;
 mod validate_updatable_directive;
 mod validate_updatable_fragment_spread;
-
+use common::DirectiveName;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref ASSIGNABLE_DIRECTIVE: StringKey = "assignable".intern();
-    pub static ref UPDATABLE_DIRECTIVE: StringKey = "updatable".intern();
+    pub static ref ASSIGNABLE_DIRECTIVE: DirectiveName = DirectiveName("assignable".intern());
+    pub static ref UPDATABLE_DIRECTIVE: DirectiveName = DirectiveName("updatable".intern());
 }
 
 pub use annotate_updatable_fragment_spreads::*;

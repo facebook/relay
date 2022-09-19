@@ -291,7 +291,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
         // Eventually we will want to enable client edges on non-resolver client
         // schema extensions, but we'll start with limiting them to resolvers.
-        let resolver_directive = field_type.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
+        let resolver_directive = field_type.directives.named(RELAY_RESOLVER_DIRECTIVE_NAME.0);
 
         let is_client_edge = field_type.is_extension && resolver_directive.is_some();
 

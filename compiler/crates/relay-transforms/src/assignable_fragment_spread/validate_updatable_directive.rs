@@ -36,7 +36,7 @@ use super::UPDATABLE_DIRECTIVE;
 
 lazy_static! {
     static ref ALLOW_LISTED_DIRECTIVES: Vec<DirectiveName> = vec![
-        DirectiveName(*UPDATABLE_DIRECTIVE),
+        *UPDATABLE_DIRECTIVE,
         // TODO have a global list of directives...?
         DirectiveName("fb_owner".intern()),
     ];
@@ -104,7 +104,7 @@ impl<'a> UpdatableDirective<'a> {
 
             if let Some(fragment) = self.program.fragments.get(&fragment_spread.fragment.item) {
                 // Only fragments which are assignable can be spread.
-                if fragment.directives.named(*ASSIGNABLE_DIRECTIVE).is_none() {
+                if fragment.directives.named(ASSIGNABLE_DIRECTIVE.0).is_none() {
                     errors.push(Diagnostic::error(
                         ValidationMessage::UpdatableOnlyAssignableFragmentSpreads {
                             outer_type_plural: self.executable_definition_info.unwrap().type_plural,
@@ -270,7 +270,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
     const VALIDATE_DIRECTIVES: bool = true;
 
     fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
-        if operation.directives.named(*UPDATABLE_DIRECTIVE).is_some() {
+        if operation.directives.named(UPDATABLE_DIRECTIVE.0).is_some() {
             self.executable_definition_info = Some(ExecutableDefinitionInfo {
                 name: operation.name.item.0,
                 location: operation.name.location,
@@ -283,7 +283,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
     }
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
-        if fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some() {
+        if fragment.directives.named(UPDATABLE_DIRECTIVE.0).is_some() {
             self.executable_definition_info = Some(ExecutableDefinitionInfo {
                 name: fragment.name.item.0,
                 location: fragment.name.location,

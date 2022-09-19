@@ -128,7 +128,7 @@ pub fn generate_artifacts(
                 // Therefore this must be an updatable query in order to continue.
                 if reader
                     .directives
-                    .named(*UPDATABLE_DIRECTIVE)
+                    .named(UPDATABLE_DIRECTIVE.0)
                     .is_some()
                 {
                     let source_hash = source_hashes

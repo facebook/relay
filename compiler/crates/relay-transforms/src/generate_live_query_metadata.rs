@@ -8,6 +8,7 @@
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::ConstantArgument;
@@ -27,7 +28,7 @@ use thiserror::Error;
 use crate::create_metadata_directive;
 
 lazy_static! {
-    static ref LIVE_QUERY_DIRECTIVE_NAME: StringKey = "live_query".intern();
+    static ref LIVE_QUERY_DIRECTIVE_NAME: DirectiveName = DirectiveName("live_query".intern());
     static ref LIVE_METADATA_KEY: StringKey = "live".intern();
     static ref POLLING_INTERVAL_ARG: StringKey = "polling_interval".intern();
     static ref CONFIG_ID_ARG: StringKey = "config_id".intern();
@@ -62,7 +63,7 @@ impl Transformer for GenerateLiveQueryMetadata {
     ) -> Transformed<OperationDefinition> {
         match operation.kind {
             OperationKind::Query => {
-                let live_query_directive = operation.directives.named(*LIVE_QUERY_DIRECTIVE_NAME);
+                let live_query_directive = operation.directives.named(LIVE_QUERY_DIRECTIVE_NAME.0);
 
                 if let Some(live_query_directive) = live_query_directive {
                     let polling_interval =

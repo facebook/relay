@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -51,7 +52,7 @@ pub fn transform_declarative_connection(
 lazy_static! {
     static ref APPEND_EDGE: DirectiveName = DirectiveName("appendEdge".intern());
     static ref APPEND_NODE: DirectiveName = DirectiveName("appendNode".intern());
-    static ref CONNECTIONS_ARG_NAME: StringKey = "connections".intern();
+    static ref CONNECTIONS_ARG_NAME: ArgumentName = ArgumentName("connections".intern());
     static ref DELETE_RECORD: DirectiveName = DirectiveName("deleteRecord".intern());
     static ref DELETE_EDGE: DirectiveName = DirectiveName("deleteEdge".intern());
     static ref PREPEND_EDGE: DirectiveName = DirectiveName("prependEdge".intern());
@@ -134,7 +135,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                     ));
                     Transformed::Keep
                 } else {
-                    let connections_arg = delete_directive.arguments.named(*CONNECTIONS_ARG_NAME);
+                    let connections_arg = delete_directive.arguments.named(CONNECTIONS_ARG_NAME.0);
                     let handle_directive =
                         build_handle_field_directive(HandleFieldDirectiveValues {
                             handle: delete_directive.name.item.0,
@@ -192,7 +193,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
             }
             (None, None) => transformed_field,
             (Some(edge_directive), None) => {
-                let connections_arg = edge_directive.arguments.named(*CONNECTIONS_ARG_NAME);
+                let connections_arg = edge_directive.arguments.named(CONNECTIONS_ARG_NAME.0);
                 match connections_arg {
                     None => {
                         self.errors.push(Diagnostic::error(
@@ -258,7 +259,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                 }
             }
             (None, Some(node_directive)) => {
-                let connections_arg = node_directive.arguments.named(*CONNECTIONS_ARG_NAME);
+                let connections_arg = node_directive.arguments.named(CONNECTIONS_ARG_NAME.0);
                 match connections_arg {
                     None => {
                         self.errors.push(Diagnostic::error(

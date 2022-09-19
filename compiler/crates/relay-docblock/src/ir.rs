@@ -7,8 +7,10 @@
 
 use std::collections::HashSet;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::Named;
 use common::Span;
@@ -47,13 +49,15 @@ use crate::errors::ErrorMessagesWithData;
 
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();
-    static ref RELAY_RESOLVER_DIRECTIVE_NAME: StringKey = "relay_resolver".intern();
-    static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: StringKey = "deprecated".intern();
-    static ref FRAGMENT_KEY_ARGUMENT_NAME: StringKey = "fragment_name".intern();
-    static ref IMPORT_PATH_ARGUMENT_NAME: StringKey = "import_path".intern();
-    static ref LIVE_ARGUMENT_NAME: StringKey = "live".intern();
-    static ref DEPRECATED_REASON_ARGUMENT_NAME: StringKey = "reason".intern();
-    static ref IS_OUTPUT_TYPE_ARGUMENT_NAME: StringKey = "is_output_type".intern();
+    static ref RELAY_RESOLVER_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("relay_resolver".intern());
+    static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("deprecated".intern());
+    static ref FRAGMENT_KEY_ARGUMENT_NAME: ArgumentName = ArgumentName("fragment_name".intern());
+    static ref IMPORT_PATH_ARGUMENT_NAME: ArgumentName = ArgumentName("import_path".intern());
+    static ref LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
+    static ref DEPRECATED_REASON_ARGUMENT_NAME: ArgumentName = ArgumentName("reason".intern());
+    static ref IS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName = ArgumentName("is_output_type".intern());
 }
 
 #[derive(Debug, PartialEq)]
@@ -408,10 +412,10 @@ impl RelayResolverIr {
             directives.push(ConstantDirective {
                 span: span.clone(),
                 at: dummy_token(span),
-                name: string_key_as_identifier(*DEPRECATED_RESOLVER_DIRECTIVE_NAME),
+                name: string_key_as_identifier(DEPRECATED_RESOLVER_DIRECTIVE_NAME.0),
                 arguments: deprecated.value.map(|value| {
                     List::generated(vec![string_argument(
-                        *DEPRECATED_REASON_ARGUMENT_NAME,
+                        DEPRECATED_REASON_ARGUMENT_NAME.0,
                         value,
                     )])
                 }),
@@ -425,29 +429,32 @@ impl RelayResolverIr {
         let span = self.location.span();
         let import_path = self.location.source_location().path().intern();
         let mut arguments = vec![string_argument(
-            *IMPORT_PATH_ARGUMENT_NAME,
+            IMPORT_PATH_ARGUMENT_NAME.0,
             WithLocation::new(self.location, import_path),
         )];
 
         if let Some(root_fragment) = self.root_fragment {
             arguments.push(string_argument(
-                *FRAGMENT_KEY_ARGUMENT_NAME,
+                FRAGMENT_KEY_ARGUMENT_NAME.0,
                 root_fragment.map(|x| x.0),
             ));
         }
 
         if let Some(live_field) = self.live {
-            arguments.push(true_argument(*LIVE_ARGUMENT_NAME, live_field.key_location))
+            arguments.push(true_argument(LIVE_ARGUMENT_NAME.0, live_field.key_location))
         }
 
         if let Some(OutputType::Output(type_)) = &self.output_type {
-            arguments.push(true_argument(*IS_OUTPUT_TYPE_ARGUMENT_NAME, type_.location))
+            arguments.push(true_argument(
+                IS_OUTPUT_TYPE_ARGUMENT_NAME.0,
+                type_.location,
+            ))
         }
 
         ConstantDirective {
             span: span.clone(),
             at: dummy_token(span),
-            name: string_key_as_identifier(*RELAY_RESOLVER_DIRECTIVE_NAME),
+            name: string_key_as_identifier(RELAY_RESOLVER_DIRECTIVE_NAME.0),
             arguments: Some(List::generated(arguments)),
         }
     }

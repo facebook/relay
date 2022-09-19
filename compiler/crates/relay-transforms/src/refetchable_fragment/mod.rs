@@ -202,7 +202,7 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> DiagnosticsResult<()> {
-        let relay_directive = fragment.directives.named(*RELAY_DIRECTIVE_NAME);
+        let relay_directive = fragment.directives.named(RELAY_DIRECTIVE_NAME.0);
         let plural_directive = relay_directive
             .filter(|directive| directive.arguments.named(PLURAL_ARG_NAME.0).is_some());
         if let Some(directive) = plural_directive {

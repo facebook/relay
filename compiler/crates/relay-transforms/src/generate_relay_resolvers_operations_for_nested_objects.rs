@@ -271,7 +271,7 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
             continue;
         }
 
-        if let Some(directive) = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME) {
+        if let Some(directive) = field.directives.named(RELAY_RESOLVER_DIRECTIVE_NAME.0) {
             let is_output_type =
                 get_bool_argument_is_true(&directive.arguments, *IS_OUTPUT_TYPE_ARGUMENT_NAME);
             if !is_output_type {

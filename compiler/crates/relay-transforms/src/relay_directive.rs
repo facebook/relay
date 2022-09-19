@@ -6,14 +6,14 @@
  */
 
 use common::ArgumentName;
+use common::DirectiveName;
 use common::NamedItem;
 use graphql_ir::*;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref RELAY_DIRECTIVE_NAME: StringKey = "relay".intern();
+    pub static ref RELAY_DIRECTIVE_NAME: DirectiveName = DirectiveName("relay".intern());
     pub static ref PLURAL_ARG_NAME: ArgumentName = ArgumentName("plural".intern());
     pub static ref MASK_ARG_NAME: ArgumentName = ArgumentName("mask".intern());
 }
@@ -46,7 +46,7 @@ impl RelayDirective {
     /// Panics on unknown @relay arguments or arguments with invalid values.
     /// Validation should happen on the IR before.
     pub fn find(directives: &[Directive]) -> Option<Self> {
-        if let Some(relay_directive) = directives.named(*RELAY_DIRECTIVE_NAME) {
+        if let Some(relay_directive) = directives.named(RELAY_DIRECTIVE_NAME.0) {
             let mut unmask = false;
             let mut plural = false;
             for arg in &relay_directive.arguments {
@@ -73,7 +73,7 @@ impl RelayDirective {
     }
 
     fn has_unmasked_directive(directives: &[Directive]) -> bool {
-        if let Some(relay_directive) = directives.named(*RELAY_DIRECTIVE_NAME) {
+        if let Some(relay_directive) = directives.named(RELAY_DIRECTIVE_NAME.0) {
             if let Some(mask_arg) = relay_directive.arguments.named(MASK_ARG_NAME.0) {
                 if let Value::Constant(ConstantValue::Boolean(arg_value)) = mask_arg.value.item {
                     return !arg_value;

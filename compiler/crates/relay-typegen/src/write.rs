@@ -298,7 +298,7 @@ pub(crate) fn write_fragment_type_exports_section(
     // Assignable fragments do not require $data and $ref type exports, and their aliases
     let is_assignable_fragment = fragment_definition
         .directives
-        .named(*ASSIGNABLE_DIRECTIVE)
+        .named(ASSIGNABLE_DIRECTIVE.0)
         .is_some();
 
     let mut encountered_enums = Default::default();

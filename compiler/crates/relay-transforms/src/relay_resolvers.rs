@@ -10,6 +10,7 @@ use std::sync::Arc;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
@@ -57,9 +58,12 @@ pub fn relay_resolvers(program: &Program, enabled: bool) -> DiagnosticsResult<Pr
 }
 
 lazy_static! {
-    pub static ref RELAY_RESOLVER_DIRECTIVE_NAME: StringKey = "relay_resolver".intern();
-    pub static ref RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME: StringKey = "fragment_name".intern();
-    pub static ref RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME: StringKey = "import_path".intern();
+    pub static ref RELAY_RESOLVER_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("relay_resolver".intern());
+    pub static ref RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("fragment_name".intern());
+    pub static ref RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("import_path".intern());
     pub static ref RELAY_RESOLVER_LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
 }
 
@@ -454,19 +458,19 @@ fn get_resolver_info(
     }
     field_type
         .directives
-        .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+        .named(RELAY_RESOLVER_DIRECTIVE_NAME.0)
         .map(|directive| {
             let arguments = &directive.arguments;
             let fragment_name = get_argument_value(
                 arguments,
-                *RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
+                RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME.0,
                 error_location,
             )
             .ok()
             .map(FragmentDefinitionName);
             let import_path = get_argument_value(
                 arguments,
-                *RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
+                RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME.0,
                 error_location,
             )?;
             let live = get_bool_argument_is_true(arguments, *RELAY_RESOLVER_LIVE_ARGUMENT_NAME);
@@ -532,11 +536,11 @@ pub fn get_resolver_fragment_name(field: &Field) -> Option<FragmentDefinitionNam
 
     field
         .directives
-        .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+        .named(RELAY_RESOLVER_DIRECTIVE_NAME.0)
         .and_then(|resolver_directive| {
             resolver_directive
                 .arguments
-                .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
+                .named(RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME.0)
         })
         .and_then(|arg| arg.value.get_string_literal().map(FragmentDefinitionName))
 }

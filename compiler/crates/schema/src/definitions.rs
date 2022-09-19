@@ -22,8 +22,8 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    static ref DIRECTIVE_DEPRECATED: StringKey = "deprecated".intern();
-    static ref ARGUMENT_REASON: StringKey = "reason".intern();
+    static ref DIRECTIVE_DEPRECATED: DirectiveName = DirectiveName("deprecated".intern());
+    static ref ARGUMENT_REASON: ArgumentName = ArgumentName("reason".intern());
 }
 
 pub(crate) type TypeMap = HashMap<StringKey, Type>;
@@ -339,11 +339,11 @@ pub struct Deprecation {
 impl Field {
     pub fn deprecated(&self) -> Option<Deprecation> {
         self.directives
-            .named(*DIRECTIVE_DEPRECATED)
+            .named(DIRECTIVE_DEPRECATED.0)
             .map(|directive| Deprecation {
                 reason: directive
                     .arguments
-                    .named(*ARGUMENT_REASON)
+                    .named(ARGUMENT_REASON.0)
                     .and_then(|reason| reason.value.get_string_literal()),
             })
     }

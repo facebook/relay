@@ -47,7 +47,7 @@ struct RelayDirectiveValidation<'program> {
 }
 
 fn find_relay_directive(directives: &[Directive]) -> Option<&Directive> {
-    directives.named(*RELAY_DIRECTIVE_NAME)
+    directives.named(RELAY_DIRECTIVE_NAME.0)
 }
 
 impl<'program> RelayDirectiveValidation<'program> {
@@ -67,7 +67,7 @@ impl<'program> RelayDirectiveValidation<'program> {
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         if !(fragment.directives.is_empty()
             || fragment.directives.len() == 1
-                && fragment.directives[0].name.item.0 == *RELAY_DIRECTIVE_NAME)
+                && fragment.directives[0].name.item == *RELAY_DIRECTIVE_NAME)
         {
             errs.push(
                 Diagnostic::error(

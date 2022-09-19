@@ -31,6 +31,7 @@ pub use build::BuilderOptions;
 pub use build::FragmentVariablesSemantic;
 pub use build::RelayMode;
 pub use build::DIRECTIVE_ARGUMENTS;
+pub use build::FIXME_FAT_INTERFACE;
 pub use constants::ARGUMENT_DEFINITION;
 pub use ir::*;
 pub use program::Program;

@@ -22,7 +22,7 @@ use super::ASSIGNABLE_DIRECTIVE;
 
 lazy_static! {
     static ref ALLOW_LISTED_DIRECTIVES: Vec<DirectiveName> = vec![
-        DirectiveName(*ASSIGNABLE_DIRECTIVE),
+        *ASSIGNABLE_DIRECTIVE,
         // TODO have a global list of directives...?
         DirectiveName("fb_owner".intern()),
     ];
@@ -42,7 +42,7 @@ impl<'a> Validator for AssignableDirective<'a> {
     const VALIDATE_DIRECTIVES: bool = false;
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
-        if fragment.directives.named(*ASSIGNABLE_DIRECTIVE).is_none() {
+        if fragment.directives.named(ASSIGNABLE_DIRECTIVE.0).is_none() {
             return Ok(());
         }
 

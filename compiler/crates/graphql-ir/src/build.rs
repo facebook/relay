@@ -59,10 +59,10 @@ lazy_static! {
 
     /// Relay extension field that's available on all types.
     static ref CLIENT_ID_FIELD_NAME: StringKey = "__id".intern();
-    static ref MATCH_NAME: StringKey = "match".intern();
+    static ref MATCH_NAME: DirectiveName = DirectiveName("match".intern());
     static ref SUPPORTED_NAME: StringKey = "supported".intern();
 
-    static ref FIXME_FAT_INTERFACE: StringKey = "fixme_fat_interface".intern();
+    pub static ref FIXME_FAT_INTERFACE: DirectiveName = DirectiveName("fixme_fat_interface".intern());
 
     static ref DIRECTIVE_UNCHECKED_ARGUMENTS: StringKey = "uncheckedArguments_DEPRECATED".intern();
     pub static ref DIRECTIVE_ARGUMENTS: StringKey = "arguments".intern();
@@ -979,7 +979,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             &field_definition.arguments,
             |arg_name: &StringKey| {
                 if relay_supported_arg_optional {
-                    field.directives.named(*MATCH_NAME).is_none() || *arg_name != *SUPPORTED_NAME
+                    field.directives.named(MATCH_NAME.0).is_none() || *arg_name != *SUPPORTED_NAME
                 } else {
                     true
                 }
@@ -1853,7 +1853,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         }
 
         #[allow(clippy::question_mark)]
-        if directives.named(*FIXME_FAT_INTERFACE).is_none() {
+        if directives.named(FIXME_FAT_INTERFACE.0).is_none() {
             return None;
         }
 

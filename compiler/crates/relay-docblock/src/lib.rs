@@ -12,6 +12,7 @@ use std::collections::HashMap;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use common::SourceLocationKey;
@@ -52,7 +53,7 @@ lazy_static! {
     static ref ROOT_FRAGMENT_FIELD: StringKey = "rootFragment".intern();
     static ref OUTPUT_TYPE_FIELD: StringKey = "outputType".intern();
     static ref EMPTY_STRING: StringKey = "".intern();
-    static ref ARGUMENT_DEFINITIONS: StringKey = "argumentDefinitions".intern();
+    static ref ARGUMENT_DEFINITIONS: DirectiveName = DirectiveName("argumentDefinitions".intern());
     static ref ARGUMENT_TYPE: StringKey = "type".intern();
     static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
 }
@@ -444,7 +445,7 @@ impl RelayResolverParser {
     ) -> ParseResult<Option<Vec<Argument>>> {
         Ok(fragment_definition
             .directives
-            .named(*ARGUMENT_DEFINITIONS)
+            .named(ARGUMENT_DEFINITIONS.0)
             .and_then(|directive| directive.arguments.as_ref())
             .map(|arguments| {
                 arguments

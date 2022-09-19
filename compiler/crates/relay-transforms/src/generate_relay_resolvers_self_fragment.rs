@@ -40,7 +40,7 @@ pub fn generate_relay_resolvers_self_fragment(program: &Program) -> Program {
             continue;
         }
 
-        if let Some(directive) = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME) {
+        if let Some(directive) = field.directives.named(RELAY_RESOLVER_DIRECTIVE_NAME.0) {
             let self_fragment_name = get_argument_value(
                 &directive.arguments,
                 SELF_FRAGMENT_NAME_ARG.0,

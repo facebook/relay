@@ -52,7 +52,8 @@ lazy_static! {
     static ref REACT_FLIGHT_PROPS_TYPE: StringKey = "ReactFlightProps".intern();
     static ref REACT_FLIGHT_COMPONENT_TYPE: StringKey = "ReactFlightComponent".intern();
     static ref REACT_FLIGHT_FIELD_NAME: StringKey = "flight".intern();
-    static ref REACT_FLIGHT_EXTENSION_DIRECTIVE_NAME: StringKey = "react_flight_component".intern();
+    static ref REACT_FLIGHT_EXTENSION_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("react_flight_component".intern());
     static ref NAME_ARGUMENT: ArgumentName = ArgumentName("name".intern());
 }
 
@@ -124,7 +125,7 @@ impl<'s> ReactFlightTransform<'s> {
         // the field definition must specify the backing component's module name
         let component_directive = match field_definition
             .directives
-            .named(*REACT_FLIGHT_EXTENSION_DIRECTIVE_NAME)
+            .named(REACT_FLIGHT_EXTENSION_DIRECTIVE_NAME.0)
         {
             Some(component_directive) => component_directive,
             None => {

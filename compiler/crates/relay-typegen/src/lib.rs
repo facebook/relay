@@ -117,7 +117,7 @@ pub fn generate_fragment_type_exports_section(
         project_config,
         fragment_definition
             .directives
-            .named(*UPDATABLE_DIRECTIVE)
+            .named(UPDATABLE_DIRECTIVE.0)
             .is_some(),
         fragment_definition.name.map(|x| x.0),
         fragment_locations,
@@ -139,7 +139,7 @@ pub fn generate_named_validator_export(
         project_config,
         fragment_definition
             .directives
-            .named(*UPDATABLE_DIRECTIVE)
+            .named(UPDATABLE_DIRECTIVE.0)
             .is_some(),
         fragment_definition.name.map(|x| x.0),
         fragment_locations,
@@ -170,7 +170,7 @@ pub fn generate_operation_type_exports_section(
         project_config,
         typegen_operation
             .directives
-            .named(*UPDATABLE_DIRECTIVE)
+            .named(UPDATABLE_DIRECTIVE.0)
             .is_some(),
         WithLocation::new(
             typegen_operation.name.location,
@@ -201,7 +201,7 @@ pub fn generate_split_operation_type_exports_section(
         project_config,
         typegen_operation
             .directives
-            .named(*UPDATABLE_DIRECTIVE)
+            .named(UPDATABLE_DIRECTIVE.0)
             .is_some(),
         WithLocation::new(
             typegen_operation.name.location,

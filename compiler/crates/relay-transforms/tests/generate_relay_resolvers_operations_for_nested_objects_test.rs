@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8ea7527764ab93c4a98ff025fb80bd3f>>
+ * @generated SignedSource<<222b9f589099d454a8ba3b71e0f6969b>>
  */
 
 mod generate_relay_resolvers_operations_for_nested_objects;
@@ -31,6 +31,13 @@ fn output_type_scalar_invalid() {
     let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-scalar.invalid.graphql");
     let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-scalar.invalid.expected");
     test_fixture(transform_fixture, "output-type-scalar.invalid.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-scalar.invalid.expected", input, expected);
+}
+
+#[test]
+fn output_type_with_id() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-id.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-id.expected");
+    test_fixture(transform_fixture, "output-type-with-id.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-id.expected", input, expected);
 }
 
 #[test]
@@ -73,4 +80,11 @@ fn output_type_with_server_type() {
     let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-type.graphql");
     let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-type.expected");
     test_fixture(transform_fixture, "output-type-with-server-type.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-server-type.expected", input, expected);
+}
+
+#[test]
+fn output_type_with_type_with_id() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-type-with-id.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-type-with-id.expected");
+    test_fixture(transform_fixture, "output-type-with-type-with-id.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-type-with-id.expected", input, expected);
 }

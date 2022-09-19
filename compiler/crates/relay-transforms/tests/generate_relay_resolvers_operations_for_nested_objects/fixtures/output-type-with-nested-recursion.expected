@@ -10,7 +10,7 @@ fragment Foo_user on User {
 # %extensions%
 
 type Todo {
-  id: ID!
+  todo_id: ID!
   blocked_by: TodoDependencies
 }
 

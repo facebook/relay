@@ -9,8 +9,7 @@ fragment Foo_user on User {
 # %extensions%
 
 type Todo {
-  todo_id: ID!
-  blocked_by: [Todo!]!
+  id: ID!
 }
 
 extend type User {

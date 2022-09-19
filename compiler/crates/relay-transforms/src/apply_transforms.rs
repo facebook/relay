@@ -201,7 +201,12 @@ fn apply_common_transforms(
 
     program = log_event.time(
         "generate_relay_resolvers_operations_for_nested_objects",
-        || generate_relay_resolvers_operations_for_nested_objects(&program),
+        || {
+            generate_relay_resolvers_operations_for_nested_objects(
+                &program,
+                &project_config.schema_config,
+            )
+        },
     )?;
 
     program = apply_after_custom_transforms(
@@ -632,7 +637,12 @@ fn apply_typegen_transforms(
     });
     program = log_event.time(
         "generate_relay_resolvers_operations_for_nested_objects",
-        || generate_relay_resolvers_operations_for_nested_objects(&program),
+        || {
+            generate_relay_resolvers_operations_for_nested_objects(
+                &program,
+                &project_config.schema_config,
+            )
+        },
     )?;
 
     program = log_event.time("client_edges", || {

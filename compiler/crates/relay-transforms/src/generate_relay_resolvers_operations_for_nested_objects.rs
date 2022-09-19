@@ -23,6 +23,7 @@ use graphql_ir::Selection;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
 use lazy_static::lazy_static;
+use relay_config::SchemaConfig;
 use schema::Field;
 use schema::FieldID;
 use schema::SDLSchema;
@@ -42,6 +43,7 @@ lazy_static! {
 
 fn generate_fat_selections_from_type(
     schema: &SDLSchema,
+    schema_config: &SchemaConfig,
     type_: Type,
     field_name: WithLocation<StringKey>,
 ) -> DiagnosticsResult<Vec<Selection>> {
@@ -62,6 +64,7 @@ fn generate_fat_selections_from_type(
 
             generate_selections_from_fields(
                 schema,
+                schema_config,
                 &schema.object(object_id).fields,
                 &mut parent_types,
             )
@@ -110,6 +113,7 @@ fn generate_fat_selections_from_type(
 
 fn generate_selections_from_fields(
     schema: &SDLSchema,
+    schema_config: &SchemaConfig,
     field_ids: &[FieldID],
     parent_types: &mut HashSet<Type>,
 ) -> DiagnosticsResult<Vec<Selection>> {
@@ -124,7 +128,7 @@ fn generate_selections_from_fields(
         {
             continue;
         }
-        match generate_selection_from_field(schema, field_id, parent_types) {
+        match generate_selection_from_field(schema, schema_config, field_id, parent_types) {
             Ok(selection) => selections.push(selection),
             Err(err) => {
                 errors.extend(err);
@@ -140,11 +144,21 @@ fn generate_selections_from_fields(
 
 fn generate_selection_from_field(
     schema: &SDLSchema,
+    schema_config: &SchemaConfig,
     field_id: &FieldID,
     parent_types: &mut HashSet<Type>,
 ) -> DiagnosticsResult<Selection> {
     let field = schema.field(*field_id);
     let type_ = field.type_.inner();
+    if field.name.item == schema_config.node_interface_id_field {
+        return Err(vec![Diagnostic::error(
+            ValidationMessage::RelayResolverIDFieldNotSupported {
+                id_name: field.name.item,
+            },
+            field.name.location,
+        )]);
+    }
+
     match type_ {
         Type::Enum(_) => Ok(Selection::ScalarField(Arc::new(ScalarField {
             alias: None,
@@ -181,6 +195,7 @@ fn generate_selection_from_field(
             parent_types.insert(type_);
             let selections = generate_selections_from_fields(
                 schema,
+                schema_config,
                 &schema.object(object_id).fields,
                 parent_types,
             )?;
@@ -240,6 +255,7 @@ pub(crate) fn generate_name_for_nested_object_operation(
 
 pub fn generate_relay_resolvers_operations_for_nested_objects(
     program: &Program,
+    schema_config: &SchemaConfig,
 ) -> DiagnosticsResult<Program> {
     let mut operations = vec![];
     let mut errors = vec![];
@@ -257,6 +273,7 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
 
             let selections = match generate_fat_selections_from_type(
                 &program.schema,
+                schema_config,
                 field.type_.inner(),
                 field.name,
             ) {

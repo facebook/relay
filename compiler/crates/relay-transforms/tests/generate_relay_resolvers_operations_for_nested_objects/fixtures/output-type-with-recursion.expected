@@ -10,7 +10,7 @@ fragment Foo_user on User {
 # %extensions%
 
 type Todo {
-  id: ID!
+  todo_id: ID!
   blocked_by: [Todo!]!
 }
 
@@ -21,7 +21,7 @@ extend type User {
 ✖︎ @RelayResolver type recursion detected for the output type `Todo`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation.
 
   output-type-with-recursion.graphql:5:3
-    4 │   id: ID!
+    4 │   todo_id: ID!
     5 │   blocked_by: [Todo!]!
       │   ^^^^^^^^^^
     6 │ }

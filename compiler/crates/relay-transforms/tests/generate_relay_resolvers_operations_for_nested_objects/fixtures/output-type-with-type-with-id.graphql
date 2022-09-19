@@ -8,11 +8,14 @@ fragment Foo_user on User {
 
 # %extensions%
 
+type Context {
+  id: ID!
+}
+
 type Todo {
-  todo_id: ID!
-  blocked_by: [Todo!]!
+  context: Context
 }
 
 extend type User {
-  todo: [Todo] @relay_resolver(import_path: "TodoResolver", is_output_type: true)
+  todo: Todo @relay_resolver(import_path: "TodoResolver", is_output_type: true)
 }

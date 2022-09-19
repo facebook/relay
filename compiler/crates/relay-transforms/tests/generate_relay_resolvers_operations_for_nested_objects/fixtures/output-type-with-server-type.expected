@@ -1,0 +1,22 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment Foo_user on User {
+  page {
+    __typename
+  }
+}
+
+# %extensions%
+
+extend type User {
+  page: Page @relay_resolver(import_path: "TodoResolver", is_output_type: true)
+}
+==================================== ERROR ====================================
+✖︎ Field `page` has output type `Page`. `Page` is a server type, and server types cannot be used with @outputType on @RelayResolver. Edges to server types can be exposed with @edgeTo and @waterfall.
+
+  output-type-with-server-type.graphql:4:3
+    3 │ extend type User {
+    4 │   page: Page @relay_resolver(import_path: "TodoResolver", is_output_type: true)
+      │   ^^^^
+    5 │ }

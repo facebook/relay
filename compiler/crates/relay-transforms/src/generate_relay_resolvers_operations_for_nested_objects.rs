@@ -49,11 +49,23 @@ fn generate_fat_selections_from_type(
     parent_types.insert(type_);
 
     match type_ {
-        Type::Object(object_id) => generate_selections_from_fields(
-            schema,
-            &schema.object(object_id).fields,
-            &mut parent_types,
-        ),
+        Type::Object(object_id) => {
+            if !schema.object(object_id).is_extension {
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::RelayResolverServerTypeNotSupported {
+                        field_name: field_name.item,
+                        type_name: schema.get_type_name(type_),
+                    },
+                    field_name.location,
+                )]);
+            }
+
+            generate_selections_from_fields(
+                schema,
+                &schema.object(object_id).fields,
+                &mut parent_types,
+            )
+        }
         Type::Enum(_) => Err(vec![Diagnostic::error(
             ValidationMessage::RelayResolverOutputTypeUnsupported {
                 type_kind: "enum".intern(),
@@ -139,6 +151,16 @@ fn generate_selection_from_field(
             directives: vec![],
         }))),
         Type::Object(object_id) => {
+            if !schema.object(object_id).is_extension {
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::RelayResolverServerTypeNotSupported {
+                        field_name: field.name.item,
+                        type_name: schema.get_type_name(type_),
+                    },
+                    field.name.location,
+                )]);
+            }
+
             if parent_types.contains(&type_) {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::RelayResolverTypeRecursionDetected {

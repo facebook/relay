@@ -198,6 +198,14 @@ pub enum ValidationMessage {
         "@RelayResolver type recursion detected for the output type `{type_name}`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation."
     )]
     RelayResolverTypeRecursionDetected { type_name: StringKey },
+
+    #[error(
+        "Field `{field_name}` has output type `{type_name}`. `{type_name}` is a server type, and server types cannot be used with @outputType on @RelayResolver. Edges to server types can be exposed with @edgeTo and @waterfall."
+    )]
+    RelayResolverServerTypeNotSupported {
+        field_name: StringKey,
+        type_name: StringKey,
+    },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

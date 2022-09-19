@@ -1,0 +1,17 @@
+# expected-to-throw
+
+fragment Foo_user on User {
+  page {
+    __typename
+  }
+}
+
+# %extensions%
+
+type PageWrapper {
+  page: Page
+}
+
+extend type User {
+  page: PageWrapper @relay_resolver(import_path: "TodoResolver", is_output_type: true)
+}

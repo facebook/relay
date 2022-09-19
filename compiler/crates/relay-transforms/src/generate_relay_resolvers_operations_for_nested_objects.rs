@@ -159,6 +159,13 @@ fn generate_selection_from_field(
         )]);
     }
 
+    if !field.arguments.is_empty() {
+        return Err(vec![Diagnostic::error(
+            ValidationMessage::RelayResolverArgumentsNotSupported,
+            field.name.location,
+        )]);
+    }
+
     match type_ {
         Type::Enum(_) => Ok(Selection::ScalarField(Arc::new(ScalarField {
             alias: None,

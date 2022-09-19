@@ -1,0 +1,17 @@
+# expected-to-throw
+
+fragment Foo_user on User {
+  my_things {
+    __typename
+  }
+}
+
+# %extensions%
+
+type MyThing {
+  something(arg: String): Float
+}
+
+extend type User {
+  my_things: [MyThing] @relay_resolver(import_path: "MyThingResolver", is_output_type: true)
+}

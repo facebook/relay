@@ -211,6 +211,11 @@ pub enum ValidationMessage {
         "Field name `{id_name}` is reserved for strong objects (objects that implement Node interface). Defining `{id_name}` fields is not currently supported on @RelayResolver with @outputType."
     )]
     RelayResolverIDFieldNotSupported { id_name: StringKey },
+
+    #[error(
+        "Arguments are not supported in the fields on the @outputType in @RelayResolvers. You'll need to expose these fields using @RelayResolver for them."
+    )]
+    RelayResolverArgumentsNotSupported,
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

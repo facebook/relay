@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<222b9f589099d454a8ba3b71e0f6969b>>
+ * @generated SignedSource<<7b007c9666060ed3db53a0e0dccab34a>>
  */
 
 mod generate_relay_resolvers_operations_for_nested_objects;
@@ -31,6 +31,13 @@ fn output_type_scalar_invalid() {
     let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-scalar.invalid.graphql");
     let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-scalar.invalid.expected");
     test_fixture(transform_fixture, "output-type-scalar.invalid.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-scalar.invalid.expected", input, expected);
+}
+
+#[test]
+fn output_type_with_arguments() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-arguments.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-arguments.expected");
+    test_fixture(transform_fixture, "output-type-with-arguments.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-arguments.expected", input, expected);
 }
 
 #[test]

@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment Foo_user on User {
+  todo {
+    __typename
+  }
+}
+
+# %extensions%
+
+type Todo {
+  id: ID!
+  blocked_by: [Todo!]!
+}
+
+extend type User {
+  todo: [Todo] @relay_resolver(import_path: "TodoResolver", is_output_type: true)
+}
+==================================== ERROR ====================================
+✖︎ @RelayResolver type recursion detected for the output type `Todo`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation.
+
+  output-type-with-recursion.graphql:3:6
+    2 │ 
+    3 │ fragment Foo_user on User {
+      │      ^^^^^^^^^^
+    4 │   todo {

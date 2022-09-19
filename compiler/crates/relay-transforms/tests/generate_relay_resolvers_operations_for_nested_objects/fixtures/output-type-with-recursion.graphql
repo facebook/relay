@@ -1,0 +1,18 @@
+# expected-to-throw
+
+fragment Foo_user on User {
+  todo {
+    __typename
+  }
+}
+
+# %extensions%
+
+type Todo {
+  id: ID!
+  blocked_by: [Todo!]!
+}
+
+extend type User {
+  todo: [Todo] @relay_resolver(import_path: "TodoResolver", is_output_type: true)
+}

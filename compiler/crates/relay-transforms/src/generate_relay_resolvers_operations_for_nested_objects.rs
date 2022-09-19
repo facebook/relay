@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
 use std::sync::Arc;
 
 use common::ArgumentName;
@@ -44,10 +45,15 @@ fn generate_fat_selections_from_type(
     type_: Type,
     field_name: WithLocation<StringKey>,
 ) -> DiagnosticsResult<Vec<Selection>> {
+    let mut parent_types = HashSet::new();
+    parent_types.insert(type_);
+
     match type_ {
-        Type::Object(object_id) => {
-            generate_selections_from_fields(schema, &schema.object(object_id).fields)
-        }
+        Type::Object(object_id) => generate_selections_from_fields(
+            schema,
+            &schema.object(object_id).fields,
+            &mut parent_types,
+        ),
         Type::Enum(_) => Err(vec![Diagnostic::error(
             ValidationMessage::RelayResolverOutputTypeUnsupported {
                 type_kind: "enum".intern(),
@@ -93,11 +99,12 @@ fn generate_fat_selections_from_type(
 fn generate_selections_from_fields(
     schema: &SDLSchema,
     field_ids: &[FieldID],
+    parent_types: &mut HashSet<Type>,
 ) -> DiagnosticsResult<Vec<Selection>> {
     let mut errors = vec![];
     let mut selections = vec![];
     for field_id in field_ids {
-        match generate_selection_from_field(schema, field_id) {
+        match generate_selection_from_field(schema, field_id, parent_types) {
             Ok(selection) => selections.push(selection),
             Err(err) => {
                 errors.extend(err);
@@ -114,6 +121,7 @@ fn generate_selections_from_fields(
 fn generate_selection_from_field(
     schema: &SDLSchema,
     field_id: &FieldID,
+    parent_types: &mut HashSet<Type>,
 ) -> DiagnosticsResult<Selection> {
     let field = schema.field(*field_id);
     let type_ = field.type_.inner();
@@ -131,8 +139,22 @@ fn generate_selection_from_field(
             directives: vec![],
         }))),
         Type::Object(object_id) => {
-            let selections =
-                generate_selections_from_fields(schema, &schema.object(object_id).fields)?;
+            if parent_types.contains(&type_) {
+                return Err(vec![Diagnostic::error(
+                    ValidationMessage::RelayResolverTypeRecursionDetected {
+                        type_name: schema.get_type_name(type_),
+                    },
+                    field.name.location,
+                )]);
+            }
+
+            parent_types.insert(type_);
+            let selections = generate_selections_from_fields(
+                schema,
+                &schema.object(object_id).fields,
+                parent_types,
+            )?;
+            parent_types.remove(&type_);
 
             Ok(Selection::LinkedField(Arc::new(LinkedField {
                 alias: None,

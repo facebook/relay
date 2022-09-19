@@ -193,6 +193,11 @@ pub enum ValidationMessage {
         field_name: StringKey,
         type_name: StringKey,
     },
+
+    #[error(
+        "@RelayResolver type recursion detected for the output type `{type_name}`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation."
+    )]
+    RelayResolverTypeRecursionDetected { type_name: StringKey },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

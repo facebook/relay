@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<20ab42723e37f4addfe04c564491ca86>>
+ * @generated SignedSource<<af4f49a896913513296b76c22643926d>>
  */
 
 mod generate_relay_resolvers_operations_for_nested_objects;
@@ -38,4 +38,18 @@ fn output_type_with_interface_invalid() {
     let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-interface.invalid.graphql");
     let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-interface.invalid.expected");
     test_fixture(transform_fixture, "output-type-with-interface.invalid.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-interface.invalid.expected", input, expected);
+}
+
+#[test]
+fn output_type_with_nested_recursion() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-nested-recursion.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-nested-recursion.expected");
+    test_fixture(transform_fixture, "output-type-with-nested-recursion.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-nested-recursion.expected", input, expected);
+}
+
+#[test]
+fn output_type_with_recursion() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-recursion.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-recursion.expected");
+    test_fixture(transform_fixture, "output-type-with-recursion.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-recursion.expected", input, expected);
 }

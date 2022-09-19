@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0dd8c5f3a14e8facc807df89cc60552f>>
+ * @generated SignedSource<<8ea7527764ab93c4a98ff025fb80bd3f>>
  */
 
 mod generate_relay_resolvers_operations_for_nested_objects;
@@ -59,6 +59,13 @@ fn output_type_with_recursion() {
     let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-recursion.graphql");
     let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-recursion.expected");
     test_fixture(transform_fixture, "output-type-with-recursion.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-recursion.expected", input, expected);
+}
+
+#[test]
+fn output_type_with_relay_resolver_fields() {
+    let input = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-relay-resolver-fields.graphql");
+    let expected = include_str!("generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-relay-resolver-fields.expected");
+    test_fixture(transform_fixture, "output-type-with-relay-resolver-fields.graphql", "generate_relay_resolvers_operations_for_nested_objects/fixtures/output-type-with-relay-resolver-fields.expected", input, expected);
 }
 
 #[test]

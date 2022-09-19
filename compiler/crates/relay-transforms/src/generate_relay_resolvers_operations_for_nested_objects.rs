@@ -116,6 +116,14 @@ fn generate_selections_from_fields(
     let mut errors = vec![];
     let mut selections = vec![];
     for field_id in field_ids {
+        if schema
+            .field(*field_id)
+            .directives
+            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+            .is_some()
+        {
+            continue;
+        }
         match generate_selection_from_field(schema, field_id, parent_types) {
             Ok(selection) => selections.push(selection),
             Err(err) => {

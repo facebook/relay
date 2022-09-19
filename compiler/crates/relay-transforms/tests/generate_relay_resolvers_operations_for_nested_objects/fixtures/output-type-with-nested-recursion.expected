@@ -25,19 +25,17 @@ extend type User {
 ==================================== ERROR ====================================
 ✖︎ @RelayResolver type recursion detected for the output type `TodoDependencies`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation.
 
-  output-type-with-nested-recursion.graphql:12:1
-   10 │ 
-   11 │ type Todo {
-   12 │   id: ID!
-      │ ^^^^^^^^^
-   13 │   blocked_by: TodoDependencies
+  output-type-with-nested-recursion.graphql:10:3
+    9 │   dependencies: [Todo]!
+   10 │   blocked_by: [TodoDependencies]!
+      │   ^^^^^^^^^^
+   11 │ }
 
 
 ✖︎ @RelayResolver type recursion detected for the output type `Todo`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation.
 
-  output-type-with-nested-recursion.graphql:9:5
-    8 │ 
-    9 │ # %extensions%
-      │     ^^^^^^^^^^
-   10 │ 
-   11 │ type Todo {
+  output-type-with-nested-recursion.graphql:9:3
+    8 │ type TodoDependencies {
+    9 │   dependencies: [Todo]!
+      │   ^^^^^^^^^^^^
+   10 │   blocked_by: [TodoDependencies]!

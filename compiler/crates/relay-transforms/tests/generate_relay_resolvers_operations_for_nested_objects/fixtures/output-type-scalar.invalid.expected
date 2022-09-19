@@ -23,8 +23,8 @@ extend type User {
 ==================================== ERROR ====================================
 ✖︎ @RelayResolver scalar type `String` for field `pop_star_name` is not supported as @outputType, yet.
 
-  output-type-scalar.invalid.graphql:3:3
-    2 │ 
-    3 │ fragment Foo_user on User {
+  output-type-scalar.invalid.graphql:4:3
+    3 │ extend type User {
+    4 │   pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", is_output_type: true)
       │   ^^^^^^^^^^^^^
-    4 │   poppy: pop_star_name
+    5 │ }

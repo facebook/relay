@@ -6,6 +6,7 @@
  */
 
 use ::intern::string_key::StringKey;
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::Named;
@@ -34,7 +35,6 @@ pub fn validate_static_args(program: &Program) -> DiagnosticsResult<()> {
 }
 
 type FieldName = StringKey;
-type ArgumentName = StringKey;
 type StaticArguments = FnvHashSet<ArgumentName>;
 type StaticArgCache = FnvHashMap<FieldName, StaticArguments>;
 
@@ -94,7 +94,7 @@ fn validate_all_static_args<'a, 'b>(
     ir_arguments
         .iter()
         .filter_map(|arg| {
-            if static_args.contains(&arg.name()) && !is_constant_value(&arg.value.item) {
+            if static_args.contains(&arg.name.item) && !is_constant_value(&arg.value.item) {
                 Some(Diagnostic::error(
                     ValidationMessage::InvalidStaticArgument {
                         field_name: *field_name,
@@ -113,7 +113,7 @@ fn find_static_argument_names(schema_arguments: &ArgumentDefinitions) -> FnvHash
     schema_arguments
         .iter()
         .filter(|a| has_static_directive(a))
-        .map(|a| a.name())
+        .map(|a| a.name)
         .collect()
 }
 

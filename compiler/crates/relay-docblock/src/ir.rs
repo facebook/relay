@@ -105,6 +105,7 @@ pub struct Argument {
 }
 
 impl Named for Argument {
+    type Name = StringKey;
     fn name(&self) -> StringKey {
         self.name.value
     }

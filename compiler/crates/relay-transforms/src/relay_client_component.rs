@@ -399,7 +399,7 @@ impl<'program, 'flag> Transformer for RelayClientComponentTransform<'program, 'f
     fn transform_fragment_spread(&mut self, spread: &FragmentSpread) -> Transformed<Selection> {
         let relay_client_component_directive = spread
             .directives
-            .named(RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME.0);
+            .named(*RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME);
         if relay_client_component_directive.is_some() {
             match self.transform_relay_client_component(spread) {
                 Ok(transformed) => transformed,

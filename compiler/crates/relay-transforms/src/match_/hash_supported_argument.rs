@@ -122,7 +122,7 @@ impl<'a> HashSupportedArgumentTransform<'a> {
     fn has_match_supported_arg(&self, field: &LinkedField) -> bool {
         if field
             .arguments
-            .named(MATCH_CONSTANTS.supported_arg.0)
+            .named(MATCH_CONSTANTS.supported_arg)
             .is_none()
         {
             return false;
@@ -131,7 +131,7 @@ impl<'a> HashSupportedArgumentTransform<'a> {
             .schema
             .field(field.definition.item)
             .arguments
-            .named(MATCH_CONSTANTS.supported_arg.0)
+            .named(MATCH_CONSTANTS.supported_arg)
             .expect("field has supported arg, but missing from the schema");
 
         let field_type_name = {

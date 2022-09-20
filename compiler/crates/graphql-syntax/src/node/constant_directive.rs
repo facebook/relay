@@ -21,6 +21,7 @@ pub struct ConstantDirective {
 }
 
 impl Named for ConstantDirective {
+    type Name = StringKey;
     fn name(&self) -> StringKey {
         self.name.value
     }

@@ -657,7 +657,7 @@ fn get_scalar_or_linked_field_hover_content(
 
     let is_resolver = field
         .directives
-        .named(RELAY_RESOLVER_DIRECTIVE_NAME.0)
+        .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
         .is_some();
 
     let rendered_type_string = schema.get_type_string(&field.type_);

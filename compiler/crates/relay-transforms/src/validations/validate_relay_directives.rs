@@ -47,7 +47,7 @@ struct RelayDirectiveValidation<'program> {
 }
 
 fn find_relay_directive(directives: &[Directive]) -> Option<&Directive> {
-    directives.named(RELAY_DIRECTIVE_NAME.0)
+    directives.named(*RELAY_DIRECTIVE_NAME)
 }
 
 impl<'program> RelayDirectiveValidation<'program> {
@@ -195,7 +195,7 @@ impl Validator for RelayDirectiveValidation<'_> {
     fn validate_fragment_spread(&mut self, spread: &FragmentSpread) -> DiagnosticsResult<()> {
         validate!(
             if let Some(directive) = find_relay_directive(&spread.directives) {
-                let mask_argument = directive.arguments.named(MASK_ARG_NAME.0);
+                let mask_argument = directive.arguments.named(*MASK_ARG_NAME);
                 if let Some(arg) = mask_argument {
                     match arg.value.item {
                         Value::Constant(ConstantValue::Boolean(val)) => {

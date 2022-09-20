@@ -66,7 +66,7 @@ impl Validator for ValidateRequiredArguments<'_> {
     fn validate_scalar_field(&mut self, field: &ScalarField) -> DiagnosticsResult<()> {
         let definition = self.program.schema.field(field.definition.item);
         validate!(
-            if field.directives.named(FIXME_FAT_INTERFACE.0).is_some() {
+            if field.directives.named(*FIXME_FAT_INTERFACE).is_some() {
                 Ok(())
             } else {
                 self.validate_required_arguments(
@@ -84,7 +84,7 @@ impl Validator for ValidateRequiredArguments<'_> {
     fn validate_linked_field(&mut self, field: &LinkedField) -> DiagnosticsResult<()> {
         let definition = self.program.schema.field(field.definition.item);
         validate!(
-            if field.directives.named(FIXME_FAT_INTERFACE.0).is_some() {
+            if field.directives.named(*FIXME_FAT_INTERFACE).is_some() {
                 Ok(())
             } else {
                 self.validate_required_arguments(

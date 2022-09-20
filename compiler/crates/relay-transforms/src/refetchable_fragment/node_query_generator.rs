@@ -141,7 +141,7 @@ fn build_refetch_operation(
                 ..fragment.as_ref().clone()
             });
             let mut variable_definitions = build_operation_variable_definitions(&fragment);
-            if let Some(id_argument) = variable_definitions.named(id_name) {
+            if let Some(id_argument) = variable_definitions.named(VariableName(id_name)) {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::RefetchableFragmentOnNodeWithExistingID {
                         fragment_name: fragment.name.item.0,

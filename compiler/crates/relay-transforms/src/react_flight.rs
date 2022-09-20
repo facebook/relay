@@ -125,7 +125,7 @@ impl<'s> ReactFlightTransform<'s> {
         // the field definition must specify the backing component's module name
         let component_directive = match field_definition
             .directives
-            .named(REACT_FLIGHT_EXTENSION_DIRECTIVE_NAME.0)
+            .named(*REACT_FLIGHT_EXTENSION_DIRECTIVE_NAME)
         {
             Some(component_directive) => component_directive,
             None => {

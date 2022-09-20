@@ -9,6 +9,7 @@ use std::sync::Arc;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use common::WithLocation;
@@ -23,7 +24,6 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::VariableDefinition;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use once_cell::sync::Lazy;
 use thiserror::Error;
 
@@ -40,7 +40,8 @@ pub fn inline_data_fragment(program: &Program) -> DiagnosticsResult<Program> {
     }
 }
 
-pub const INLINE_DIRECTIVE_NAME: Lazy<StringKey> = Lazy::new(|| "inline".intern());
+pub const INLINE_DIRECTIVE_NAME: Lazy<DirectiveName> =
+    Lazy::new(|| DirectiveName("inline".intern()));
 
 struct InlineDataFragmentsTransform<'s> {
     program: &'s Program,

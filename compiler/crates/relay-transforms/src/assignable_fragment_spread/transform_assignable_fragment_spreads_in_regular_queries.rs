@@ -145,7 +145,7 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        if operation.directives.named(UPDATABLE_DIRECTIVE.0).is_some() {
+        if operation.directives.named(*UPDATABLE_DIRECTIVE).is_some() {
             Transformed::Keep
         } else {
             self.default_transform_operation(operation)
@@ -158,7 +158,7 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
     ) -> Transformed<FragmentDefinition> {
         if fragment_definition
             .directives
-            .named(UPDATABLE_DIRECTIVE.0)
+            .named(*UPDATABLE_DIRECTIVE)
             .is_some()
         {
             Transformed::Keep
@@ -201,7 +201,7 @@ impl<'s> Transformer for AssignableFragmentSpread<'s> {
 
         if fragment_definition
             .directives
-            .named(ASSIGNABLE_DIRECTIVE.0)
+            .named(*ASSIGNABLE_DIRECTIVE)
             .is_none()
         {
             return Transformed::Keep;

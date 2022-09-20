@@ -109,7 +109,7 @@ impl<'program> FragmentAliasTransform<'program> {
                 ));
                 return Transformed::Keep;
             }
-            let alias = match directive.arguments.named(FRAGMENT_ALIAS_ARGUMENT_NAME.0) {
+            let alias = match directive.arguments.named(*FRAGMENT_ALIAS_ARGUMENT_NAME) {
                 Some(arg) => match arg.value.item.get_string_literal() {
                     Some(name) => WithLocation::new(arg.name.location, name),
                     None => {

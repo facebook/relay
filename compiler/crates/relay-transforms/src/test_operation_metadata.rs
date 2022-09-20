@@ -93,7 +93,7 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         if let Some(test_operation_directive) =
-            operation.directives.named(TEST_OPERATION_DIRECTIVE.0)
+            operation.directives.named(*TEST_OPERATION_DIRECTIVE)
         {
             if let Some(test_path_regex) = self.test_path_regex {
                 if !test_path_regex.is_match(operation.name.location.source_location().path()) {
@@ -261,7 +261,7 @@ impl RelayTestOperationMetadata {
                             assert!(
                                 operation
                                     .directives
-                                    .named(DIRECTIVE_SPLIT_OPERATION.0)
+                                    .named(*DIRECTIVE_SPLIT_OPERATION)
                                     .is_some(),
                                 "Expected normalization fragment spreads to reference shared normalization asts (SplitOperation)"
                             );

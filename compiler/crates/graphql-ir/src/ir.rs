@@ -80,8 +80,9 @@ pub struct OperationDefinition {
 }
 
 impl Named for OperationDefinition {
-    fn name(&self) -> StringKey {
-        self.name.item.0
+    type Name = OperationDefinitionName;
+    fn name(&self) -> OperationDefinitionName {
+        self.name.item
     }
 }
 
@@ -149,8 +150,9 @@ impl VariableDefinition {
 }
 
 impl Named for VariableDefinition {
-    fn name(&self) -> StringKey {
-        self.name.item.0
+    type Name = VariableName;
+    fn name(&self) -> VariableName {
+        self.name.item
     }
 }
 
@@ -387,8 +389,9 @@ pub struct Directive {
     pub data: Option<Box<dyn AssociatedData>>,
 }
 impl Named for Directive {
-    fn name(&self) -> StringKey {
-        self.name.item.0
+    type Name = DirectiveName;
+    fn name(&self) -> DirectiveName {
+        self.name.item
     }
 }
 
@@ -399,8 +402,9 @@ pub struct Argument {
     pub value: WithLocation<Value>,
 }
 impl Named for Argument {
-    fn name(&self) -> StringKey {
-        self.name.item.0
+    type Name = ArgumentName;
+    fn name(&self) -> ArgumentName {
+        self.name.item
     }
 }
 
@@ -460,8 +464,9 @@ pub struct ConstantArgument {
     pub value: WithLocation<ConstantValue>,
 }
 impl Named for ConstantArgument {
-    fn name(&self) -> StringKey {
-        self.name.item.0
+    type Name = ArgumentName;
+    fn name(&self) -> ArgumentName {
+        self.name.item
     }
 }
 

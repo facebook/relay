@@ -32,6 +32,7 @@ use crate::RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME;
 lazy_static! {
     pub static ref NO_INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("no_inline".intern());
     pub static ref PARENT_DOCUMENTS_ARG: ArgumentName = ArgumentName("__parentDocuments".intern());
+    // Note: this is used as both an ArgumentName and as a DirectiveName
     pub static ref RAW_RESPONSE_TYPE_NAME: StringKey = "raw_response_type".intern();
 }
 
@@ -77,7 +78,7 @@ pub fn attach_no_inline_directives_to_fragments(
 pub fn is_raw_response_type_enabled(directive: &Directive) -> bool {
     if let Some(Value::Constant(ConstantValue::Boolean(val))) = directive
         .arguments
-        .named(*RAW_RESPONSE_TYPE_NAME)
+        .named(ArgumentName(*RAW_RESPONSE_TYPE_NAME))
         .map(|arg| &arg.value.item)
     {
         *val
@@ -139,7 +140,7 @@ impl<'f, 'p> Validator for RequiredNoInlineValidator<'f, 'p> {
         let fragment = self.program.fragment(spread.fragment.item).unwrap();
         let has_no_inline = fragment
             .directives
-            .named(NO_INLINE_DIRECTIVE_NAME.0)
+            .named(*NO_INLINE_DIRECTIVE_NAME)
             .is_some();
         if has_no_inline {
             return Ok(());

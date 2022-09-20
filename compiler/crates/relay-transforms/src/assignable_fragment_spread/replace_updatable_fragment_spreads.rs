@@ -45,7 +45,7 @@ impl<'s> Transformer for ReplaceAssignableFragmentSpreads<'s> {
         if let Some(fragment_definition) = self.program.fragment(fragment_spread.fragment.item) {
             if fragment_definition
                 .directives
-                .named(UPDATABLE_DIRECTIVE.0)
+                .named(*UPDATABLE_DIRECTIVE)
                 .is_some()
             {
                 Transformed::Replace(Selection::ScalarField(Arc::new(ScalarField {

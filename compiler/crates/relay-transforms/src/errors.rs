@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
 use common::DiagnosticDisplay;
 use common::DirectiveName;
 use common::WithDiagnosticData;
@@ -51,12 +52,12 @@ pub enum ValidationMessage {
     #[error(
         "The Relay Resolver backing this field has an `@relay_resolver` directive with an invalid '{key}' argument. Expected a literal string value."
     )]
-    InvalidRelayResolverKeyArg { key: StringKey },
+    InvalidRelayResolverKeyArg { key: ArgumentName },
 
     #[error(
         "The Relay Resolver backing this field is missing a '{key}' argument in its `@relay_resolver` directive."
     )]
-    MissingRelayResolverKeyArg { key: StringKey },
+    MissingRelayResolverKeyArg { key: ArgumentName },
 
     #[error(
         "Unexpected directive on Relay Resolver field. Relay Resolver fields do not currently support directives."
@@ -169,7 +170,7 @@ pub enum ValidationMessage {
     )]
     InvalidStaticArgument {
         field_name: StringKey,
-        argument_name: StringKey,
+        argument_name: ArgumentName,
     },
 
     #[error(

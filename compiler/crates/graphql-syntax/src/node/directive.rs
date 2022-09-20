@@ -21,6 +21,7 @@ pub struct Directive {
 }
 
 impl Named for Directive {
+    type Name = StringKey;
     fn name(&self) -> StringKey {
         self.name.value
     }

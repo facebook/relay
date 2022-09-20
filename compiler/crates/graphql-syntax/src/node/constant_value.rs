@@ -92,6 +92,7 @@ impl fmt::Display for ConstantArgument {
 }
 
 impl Named for ConstantArgument {
+    type Name = StringKey;
     fn name(&self) -> StringKey {
         self.name.value
     }

@@ -46,7 +46,7 @@ impl RelayDirective {
     /// Panics on unknown @relay arguments or arguments with invalid values.
     /// Validation should happen on the IR before.
     pub fn find(directives: &[Directive]) -> Option<Self> {
-        if let Some(relay_directive) = directives.named(RELAY_DIRECTIVE_NAME.0) {
+        if let Some(relay_directive) = directives.named(*RELAY_DIRECTIVE_NAME) {
             let mut unmask = false;
             let mut plural = false;
             for arg in &relay_directive.arguments {
@@ -73,8 +73,8 @@ impl RelayDirective {
     }
 
     fn has_unmasked_directive(directives: &[Directive]) -> bool {
-        if let Some(relay_directive) = directives.named(RELAY_DIRECTIVE_NAME.0) {
-            if let Some(mask_arg) = relay_directive.arguments.named(MASK_ARG_NAME.0) {
+        if let Some(relay_directive) = directives.named(*RELAY_DIRECTIVE_NAME) {
+            if let Some(mask_arg) = relay_directive.arguments.named(*MASK_ARG_NAME) {
                 if let Value::Constant(ConstantValue::Boolean(arg_value)) = mask_arg.value.item {
                     return !arg_value;
                 } else {

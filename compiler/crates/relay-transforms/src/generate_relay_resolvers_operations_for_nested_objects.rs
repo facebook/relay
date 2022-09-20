@@ -123,7 +123,7 @@ fn generate_selections_from_fields(
         if schema
             .field(*field_id)
             .directives
-            .named(RELAY_RESOLVER_DIRECTIVE_NAME.0)
+            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
             .is_some()
         {
             continue;
@@ -271,7 +271,7 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
             continue;
         }
 
-        if let Some(directive) = field.directives.named(RELAY_RESOLVER_DIRECTIVE_NAME.0) {
+        if let Some(directive) = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME) {
             let is_output_type =
                 get_bool_argument_is_true(&directive.arguments, *IS_OUTPUT_TYPE_ARGUMENT_NAME);
             if !is_output_type {

@@ -645,8 +645,9 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             .items
             .iter()
             .map(|arg| {
-                if let Some(argument_definition) =
-                    signature.variable_definitions.named(arg.name.value)
+                if let Some(argument_definition) = signature
+                    .variable_definitions
+                    .named(VariableName(arg.name.value))
                 {
                     // TODO: We didn't use to enforce types of @args/@argDefs properly, which resulted
                     // in a lot of code that is technically valid but doesn't type-check. Specifically,
@@ -1176,8 +1177,8 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             arguments
                 .items
                 .iter()
-                .map(
-                    |argument| match argument_definitions.named(argument.name.value) {
+                .map(|argument| {
+                    match argument_definitions.named(ArgumentName(argument.name.value)) {
                         Some(argument_definition) => self.build_argument(
                             argument,
                             &argument_definition.type_,
@@ -1201,8 +1202,8 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                                 self.location.with_span(argument.name.span),
                             )])
                         }
-                    },
-                )
+                    }
+                })
                 .collect()
         } else {
             Ok(vec![])
@@ -1526,50 +1527,55 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let fields: DiagnosticsResult<Vec<Argument>> = object
             .items
             .iter()
-            .map(|x| match type_definition.fields.named(x.name.value) {
-                Some(field_definition) => {
-                    required_fields.remove(&x.name.value);
-                    let prev_span = seen_fields.insert(x.name.value, x.name.span);
-                    if let Some(prev_span) = prev_span {
-                        return Err(vec![
-                            Diagnostic::error(
-                                ValidationMessage::DuplicateInputField(x.name.value),
-                                self.location.with_span(prev_span),
-                            )
-                            .annotate("also defined here", self.location.with_span(x.name.span)),
-                        ]);
-                    };
+            .map(
+                |x| match type_definition.fields.named(ArgumentName(x.name.value)) {
+                    Some(field_definition) => {
+                        required_fields.remove(&x.name.value);
+                        let prev_span = seen_fields.insert(x.name.value, x.name.span);
+                        if let Some(prev_span) = prev_span {
+                            return Err(vec![
+                                Diagnostic::error(
+                                    ValidationMessage::DuplicateInputField(x.name.value),
+                                    self.location.with_span(prev_span),
+                                )
+                                .annotate(
+                                    "also defined here",
+                                    self.location.with_span(x.name.span),
+                                ),
+                            ]);
+                        };
 
-                    let value_span = x.value.span();
-                    let value = self.build_value(
-                        &x.value,
-                        &field_definition.type_,
-                        ValidationLevel::Strict,
-                    )?;
-                    Ok(Argument {
-                        name: x
-                            .name
-                            .name_with_location(self.location.source_location())
-                            .map(ArgumentName),
-                        value: WithLocation::from_span(
-                            self.location.source_location(),
-                            value_span,
-                            value,
-                        ),
-                    })
-                }
-                None => Err(vec![Diagnostic::error(
-                    ValidationMessageWithData::UnknownField {
-                        type_: type_definition.name.item,
-                        field: x.name.value,
-                        suggestions: self.suggestions.field_name_suggestion(
-                            self.schema.get_type(type_definition.name.item),
-                            x.name.value,
-                        ),
-                    },
-                    self.location.with_span(x.name.span),
-                )]),
-            })
+                        let value_span = x.value.span();
+                        let value = self.build_value(
+                            &x.value,
+                            &field_definition.type_,
+                            ValidationLevel::Strict,
+                        )?;
+                        Ok(Argument {
+                            name: x
+                                .name
+                                .name_with_location(self.location.source_location())
+                                .map(ArgumentName),
+                            value: WithLocation::from_span(
+                                self.location.source_location(),
+                                value_span,
+                                value,
+                            ),
+                        })
+                    }
+                    None => Err(vec![Diagnostic::error(
+                        ValidationMessageWithData::UnknownField {
+                            type_: type_definition.name.item,
+                            field: x.name.value,
+                            suggestions: self.suggestions.field_name_suggestion(
+                                self.schema.get_type(type_definition.name.item),
+                                x.name.value,
+                            ),
+                        },
+                        self.location.with_span(x.name.span),
+                    )]),
+                },
+            )
             .collect();
         if required_fields.is_empty() {
             Ok(Value::Object(fields?))
@@ -1665,47 +1671,55 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         let fields: DiagnosticsResult<Vec<ConstantArgument>> = object
             .items
             .iter()
-            .map(|x| match type_definition.fields.named(x.name.value) {
-                Some(field_definition) => {
-                    required_fields.remove(&x.name.value);
-                    let prev_span = seen_fields.insert(x.name.value, x.name.span);
-                    if let Some(prev_span) = prev_span {
-                        return Err(vec![
-                            Diagnostic::error(
-                                ValidationMessage::DuplicateInputField(x.name.value),
-                                self.location.with_span(prev_span),
-                            )
-                            .annotate("also defined here", self.location.with_span(x.name.span)),
-                        ]);
-                    };
+            .map(
+                |x| match type_definition.fields.named(ArgumentName(x.name.value)) {
+                    Some(field_definition) => {
+                        required_fields.remove(&x.name.value);
+                        let prev_span = seen_fields.insert(x.name.value, x.name.span);
+                        if let Some(prev_span) = prev_span {
+                            return Err(vec![
+                                Diagnostic::error(
+                                    ValidationMessage::DuplicateInputField(x.name.value),
+                                    self.location.with_span(prev_span),
+                                )
+                                .annotate(
+                                    "also defined here",
+                                    self.location.with_span(x.name.span),
+                                ),
+                            ]);
+                        };
 
-                    let value_span = x.value.span();
-                    let value =
-                        self.build_constant_value(&x.value, &field_definition.type_, validation)?;
-                    Ok(ConstantArgument {
-                        name: x
-                            .name
-                            .name_with_location(self.location.source_location())
-                            .map(ArgumentName),
-                        value: WithLocation::from_span(
-                            self.location.source_location(),
-                            value_span,
-                            value,
-                        ),
-                    })
-                }
-                None => Err(vec![Diagnostic::error(
-                    ValidationMessageWithData::UnknownField {
-                        type_: type_definition.name.item,
-                        field: x.name.value,
-                        suggestions: self.suggestions.field_name_suggestion(
-                            self.schema.get_type(type_definition.name.item),
-                            x.name.value,
-                        ),
-                    },
-                    self.location.with_span(x.name.span),
-                )]),
-            })
+                        let value_span = x.value.span();
+                        let value = self.build_constant_value(
+                            &x.value,
+                            &field_definition.type_,
+                            validation,
+                        )?;
+                        Ok(ConstantArgument {
+                            name: x
+                                .name
+                                .name_with_location(self.location.source_location())
+                                .map(ArgumentName),
+                            value: WithLocation::from_span(
+                                self.location.source_location(),
+                                value_span,
+                                value,
+                            ),
+                        })
+                    }
+                    None => Err(vec![Diagnostic::error(
+                        ValidationMessageWithData::UnknownField {
+                            type_: type_definition.name.item,
+                            field: x.name.value,
+                            suggestions: self.suggestions.field_name_suggestion(
+                                self.schema.get_type(type_definition.name.item),
+                                x.name.value,
+                            ),
+                        },
+                        self.location.with_span(x.name.span),
+                    )]),
+                },
+            )
             .collect();
         if required_fields.is_empty() {
             Ok(ConstantValue::Object(fields?))
@@ -1963,6 +1977,6 @@ fn variable_definition_requires_argument(variable_definition: &VariableDefinitio
         && variable_definition.default_value.is_none()
         && variable_definition
             .directives
-            .named(ProvidedVariableMetadata::directive_name().0)
+            .named(ProvidedVariableMetadata::directive_name())
             .is_none()
 }

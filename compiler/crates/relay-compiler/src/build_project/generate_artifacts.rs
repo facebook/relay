@@ -51,7 +51,7 @@ pub fn generate_artifacts(
         .map(|(_, operations)| -> Artifact {
             if let Some(normalization) = operations.normalization {
                 // We have a normalization AST... so we'll move forward with that
-                if let Some(directive) = normalization.directives.named(DIRECTIVE_SPLIT_OPERATION.0)
+                if let Some(directive) = normalization.directives.named(*DIRECTIVE_SPLIT_OPERATION)
                 {
                     // Generate normalization file for SplitOperation
                     let metadata = SplitOperationMetadata::from(directive);
@@ -128,7 +128,7 @@ pub fn generate_artifacts(
                 // Therefore this must be an updatable query in order to continue.
                 if reader
                     .directives
-                    .named(UPDATABLE_DIRECTIVE.0)
+                    .named(*UPDATABLE_DIRECTIVE)
                     .is_some()
                 {
                     let source_hash = source_hashes
@@ -149,11 +149,11 @@ pub fn generate_artifacts(
         .chain(programs.reader.fragments().map(|reader_fragment| {
             let source_name = if let Some(client_edges_directive) = reader_fragment
                 .directives
-                .named(CLIENT_EDGE_GENERATED_FRAGMENT_KEY.0)
+                .named(*CLIENT_EDGE_GENERATED_FRAGMENT_KEY)
             {
                 client_edges_directive
                     .arguments
-                    .named(CLIENT_EDGE_SOURCE_NAME.0)
+                    .named(*CLIENT_EDGE_SOURCE_NAME)
                     .expect("Client edges should have a source argument")
                     .value
                     .item

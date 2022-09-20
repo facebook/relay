@@ -53,7 +53,7 @@ impl Validator for ValidateUnusedVariables<'_> {
             .filter(|var| !variables.contains_key(&var.name.item))
             .collect();
 
-        let ignore_directive = operation.directives.named(self.ignore_directive_name.0);
+        let ignore_directive = operation.directives.named(self.ignore_directive_name);
         if !unused_variables.is_empty() && ignore_directive.is_none() {
             return Err(unused_variables
                 .into_iter()

@@ -42,7 +42,7 @@ impl<'a> Validator for AssignableDirective<'a> {
     const VALIDATE_DIRECTIVES: bool = false;
 
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
-        if fragment.directives.named(ASSIGNABLE_DIRECTIVE.0).is_none() {
+        if fragment.directives.named(*ASSIGNABLE_DIRECTIVE).is_none() {
             return Ok(());
         }
 

@@ -36,7 +36,7 @@ impl Transformer for SkipSplitOperation {
     ) -> Transformed<OperationDefinition> {
         if operation
             .directives
-            .named(DIRECTIVE_SPLIT_OPERATION.0)
+            .named(*DIRECTIVE_SPLIT_OPERATION)
             .is_some()
         {
             Transformed::Delete

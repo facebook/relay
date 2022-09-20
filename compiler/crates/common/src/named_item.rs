@@ -13,21 +13,21 @@ use intern::string_key::StringKey;
 
 /// Utility to access an item in a list by its name where name is defined by the
 /// `Named` trait.
-/// TODO T128218149 Refactor this functionality to work with ArgumentName and DirectiveName
 pub trait NamedItem<'a, T: Named> {
-    fn named(self, name: StringKey) -> Option<&'a T>;
+    fn named(self, name: <T as Named>::Name) -> Option<&'a T>;
 }
 
 impl<'a, T: Named> NamedItem<'a, T> for &'a [T] {
-    fn named(self, name: StringKey) -> Option<&'a T> {
+    fn named(self, name: <T as Named>::Name) -> Option<&'a T> {
         self.iter().find(|x| x.name() == name)
     }
 }
 
 /// Represents a node that has a name such as an `Argument` or `Directive`.
-/// TODO T128218149 Refactor this functionality to work with ArgumentName and DirectiveName
+/// The Name associated type should be a newtype wrapper around StringKey.
 pub trait Named {
-    fn name(&self) -> StringKey;
+    type Name: Eq + PartialEq<<Self as Named>::Name>;
+    fn name(&self) -> Self::Name;
 }
 
 /// Wrapper struct for clarity rather than having StringKey everywhere.

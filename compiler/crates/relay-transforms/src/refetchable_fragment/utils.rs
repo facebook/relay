@@ -10,6 +10,7 @@ use std::sync::Arc;
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
@@ -38,8 +39,8 @@ pub struct RefetchableMetadata {
 associated_data_impl!(RefetchableMetadata);
 
 pub struct Constants {
-    pub fetchable: StringKey,
-    pub field_name: StringKey,
+    pub fetchable: DirectiveName,
+    pub field_name: ArgumentName,
     pub node_field_name: StringKey,
     pub node_type_name: StringKey,
     pub viewer_field_name: StringKey,
@@ -48,8 +49,8 @@ pub struct Constants {
 
 lazy_static! {
     pub static ref CONSTANTS: Constants = Constants {
-        fetchable: "fetchable".intern(),
-        field_name: "field_name".intern(),
+        fetchable: DirectiveName("fetchable".intern()),
+        field_name: ArgumentName("field_name".intern()),
         node_field_name: "node".intern(),
         node_type_name: "Node".intern(),
         viewer_field_name: "viewer".intern(),
@@ -100,7 +101,7 @@ pub fn build_used_global_variables(
     let global_variables = variable_map
         .values()
         .map(|var| {
-            if let Some(local_conflicting_var) = local_variable_definitions.named(var.name.item.0) {
+            if let Some(local_conflicting_var) = local_variable_definitions.named(var.name.item) {
                 errors.push(Diagnostic::error(
                     ValidationMessage::LocalGlobalVariableConflict {
                         name: local_conflicting_var.name.item,

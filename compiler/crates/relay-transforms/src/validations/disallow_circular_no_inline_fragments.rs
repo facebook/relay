@@ -65,7 +65,7 @@ impl Validator for DisallowCircularNoInlineFragments<'_> {
             Some(FragmentStatus::Visiting) => {
                 if fragment
                     .directives
-                    .named(NO_INLINE_DIRECTIVE_NAME.0)
+                    .named(*NO_INLINE_DIRECTIVE_NAME)
                     .is_some()
                 {
                     Err(vec![Diagnostic::error(

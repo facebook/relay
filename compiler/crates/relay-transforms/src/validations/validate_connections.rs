@@ -96,10 +96,10 @@ impl<'s> ConnectionValidation<'s> {
 
         let first_arg = connection_field
             .arguments
-            .named(self.connection_constants.first_arg_name.0);
+            .named(self.connection_constants.first_arg_name);
         let last_arg = connection_field
             .arguments
-            .named(self.connection_constants.last_arg_name.0);
+            .named(self.connection_constants.last_arg_name);
         if first_arg.is_none() && last_arg.is_none() {
             return Err(vec![Diagnostic::error(
                 ValidationMessage::ExpectedConnectionToHaveCountArgs {

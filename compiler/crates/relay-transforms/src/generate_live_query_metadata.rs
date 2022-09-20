@@ -62,11 +62,11 @@ impl Transformer for GenerateLiveQueryMetadata {
     ) -> Transformed<OperationDefinition> {
         match operation.kind {
             OperationKind::Query => {
-                let live_query_directive = operation.directives.named(LIVE_QUERY_DIRECTIVE_NAME.0);
+                let live_query_directive = operation.directives.named(*LIVE_QUERY_DIRECTIVE_NAME);
                 if let Some(live_query_directive) = live_query_directive {
                     let polling_interval =
-                        live_query_directive.arguments.named(POLLING_INTERVAL_ARG.0);
-                    let config_id = live_query_directive.arguments.named(CONFIG_ID_ARG.0);
+                        live_query_directive.arguments.named(*POLLING_INTERVAL_ARG);
+                    let config_id = live_query_directive.arguments.named(*CONFIG_ID_ARG);
 
                     if polling_interval.is_none() && config_id.is_none() {
                         self.errors.push(Diagnostic::error(

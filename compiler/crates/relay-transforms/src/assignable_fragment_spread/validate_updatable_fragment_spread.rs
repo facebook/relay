@@ -245,7 +245,7 @@ impl<'a> Validator for UpdatableFragmentSpread<'a> {
 
         if fragment_definition
             .directives
-            .named(UPDATABLE_DIRECTIVE.0)
+            .named(*UPDATABLE_DIRECTIVE)
             .is_some()
         {
             self.validate_fragment_spread_and_mark_enclosing_linked_field(

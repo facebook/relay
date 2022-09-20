@@ -8,6 +8,7 @@
 //! Utilities for providing the completion language feature
 use std::iter::once;
 
+use common::ArgumentName;
 use common::DirectiveName;
 use common::Named;
 use common::NamedItem;
@@ -17,6 +18,7 @@ use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
 use graphql_ir::DIRECTIVE_ARGUMENTS;
 use graphql_syntax::Argument;
 use graphql_syntax::ConstantValue;
@@ -624,18 +626,21 @@ fn completion_items_for_request(
             let argument_type = match kind {
                 ArgumentKind::Field => {
                     let (_, field) = request.type_path.resolve_current_field(schema)?;
-                    &field.arguments.named(argument_name)?.type_
+                    &field.arguments.named(ArgumentName(argument_name))?.type_
                 }
                 ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
                     let fragment =
                         program.fragment(FragmentDefinitionName(fragment_spread_name))?;
-                    &fragment.variable_definitions.named(argument_name)?.type_
+                    &fragment
+                        .variable_definitions
+                        .named(VariableName(argument_name))?
+                        .type_
                 }
                 ArgumentKind::Directive(directive_name) => {
                     &schema
                         .get_directive(directive_name)?
                         .arguments
-                        .named(argument_name)?
+                        .named(ArgumentName(argument_name))?
                         .type_
                 }
             };
@@ -816,7 +821,7 @@ fn resolve_completion_items_for_argument_value(
     completion_items
 }
 
-fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
+fn resolve_completion_items_from_fields<T: TypeWithFields + Named<Name = StringKey>>(
     type_: &T,
     schema: &SDLSchema,
     schema_documentation: impl SchemaDocumentation,

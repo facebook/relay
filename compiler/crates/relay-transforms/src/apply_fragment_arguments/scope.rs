@@ -7,6 +7,7 @@
 
 use std::collections::HashMap;
 
+use common::ArgumentName;
 use common::Location;
 use common::NamedItem;
 use graphql_ir::Argument;
@@ -56,7 +57,7 @@ impl Scope {
         let mut bindings = HashMap::<VariableName, Value>::default();
         for variable_definition in &fragment.variable_definitions {
             let arg_name = variable_definition.name.item;
-            let arg_value = match arguments.named(arg_name.0) {
+            let arg_value = match arguments.named(ArgumentName(arg_name.0)) {
                 Some(arg_from_spread) => {
                     if arg_from_spread.value.item == Value::Constant(ConstantValue::Null()) {
                         if let Some(default_value) = &variable_definition.default_value {

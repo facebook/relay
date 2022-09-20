@@ -140,7 +140,7 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
         &mut self,
         fragment: &Arc<FragmentDefinition>,
     ) -> DiagnosticsResult<Option<(RefetchableDirective, RefetchRoot)>> {
-        let refetchable_directive = fragment.directives.named(REFETCHABLE_NAME.0);
+        let refetchable_directive = fragment.directives.named(*REFETCHABLE_NAME);
         if refetchable_directive.is_some() && self.program.schema.query_type().is_none() {
             return Err(vec![Diagnostic::error(
                 "Unable to use @refetchable directive. The `Query` type is not defined on the schema.",
@@ -202,9 +202,9 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> DiagnosticsResult<()> {
-        let relay_directive = fragment.directives.named(RELAY_DIRECTIVE_NAME.0);
+        let relay_directive = fragment.directives.named(*RELAY_DIRECTIVE_NAME);
         let plural_directive = relay_directive
-            .filter(|directive| directive.arguments.named(PLURAL_ARG_NAME.0).is_some());
+            .filter(|directive| directive.arguments.named(*PLURAL_ARG_NAME).is_some());
         if let Some(directive) = plural_directive {
             Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidRefetchableFragmentWithRelayPlural {

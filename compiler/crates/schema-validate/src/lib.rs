@@ -320,7 +320,10 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_with_interfaces<T: TypeWithFields + Named>(&self, type_: &T) {
+    fn validate_type_with_interfaces<T: TypeWithFields + Named<Name = StringKey>>(
+        &self,
+        type_: &T,
+    ) {
         let mut interface_names = FnvHashSet::default();
         for interface_id in type_.interfaces().iter() {
             let interface = self.schema.interface(*interface_id);
@@ -339,7 +342,7 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_implements_interface<T: TypeWithFields + Named>(
+    fn validate_type_implements_interface<T: TypeWithFields + Named<Name = StringKey>>(
         &self,
         type_: &T,
         interface: &Interface,

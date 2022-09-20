@@ -122,7 +122,7 @@ impl ProvidedVariableDefinitions {
 
 struct ProvidedVariableFragmentTransform<'schema> {
     schema: &'schema SDLSchema,
-    all_provided_variables: FnvHashMap<StringKey, ProvidedVariableDefinitions>,
+    all_provided_variables: FnvHashMap<VariableName, ProvidedVariableDefinitions>,
     // fragment local identifier --> transformed identifier
     in_scope_providers: FnvHashMap<VariableName, VariableName>,
 }
@@ -147,7 +147,7 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
 
     fn add_provided_variable(
         &mut self,
-        transformed_name: StringKey,
+        transformed_name: VariableName,
         module_name: StringKey,
         variable_def: &VariableDefinition,
     ) {
@@ -165,7 +165,7 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
             .iter()
             .filter(|def| {
                 def.directives
-                    .named(ProvidedVariableMetadata::directive_name().0)
+                    .named(ProvidedVariableMetadata::directive_name())
                     .is_none()
             })
             .cloned()
@@ -175,7 +175,7 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
     fn get_global_variables(&self, fragment: &FragmentDefinition) -> Vec<VariableDefinition> {
         let mut new_globals = fragment.used_global_variables.clone();
         new_globals.extend(fragment.variable_definitions.iter().filter_map(|def| {
-            let transformed_name = self.in_scope_providers.get(&VariableName(def.name()))?;
+            let transformed_name = self.in_scope_providers.get(&def.name())?;
             Some(VariableDefinition {
                 name: WithLocation {
                     item: *transformed_name,
@@ -215,8 +215,7 @@ impl<'schema> Transformer for ProvidedVariableFragmentTransform<'schema> {
         for def in fragment.variable_definitions.iter() {
             if let Some(metadata) = ProvidedVariableMetadata::find(&def.directives) {
                 let transformed_name = format_provided_variable_name(metadata.module_name);
-                self.in_scope_providers
-                    .insert(VariableName(def.name()), VariableName(transformed_name));
+                self.in_scope_providers.insert(def.name(), transformed_name);
                 self.add_provided_variable(transformed_name, metadata.module_name, def);
             }
         }

@@ -76,7 +76,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
     const VISIT_DIRECTIVES: bool = false;
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        if let Some(actor_change_directive) = field.directives.named(RELAY_ACTOR_CHANGE_DIRECTIVE.0)
+        if let Some(actor_change_directive) = field.directives.named(*RELAY_ACTOR_CHANGE_DIRECTIVE)
         {
             if field.selections.len() != 1 {
                 self.errors.push(Diagnostic::error(
@@ -190,7 +190,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         if field
             .directives
-            .named(RELAY_ACTOR_CHANGE_DIRECTIVE.0)
+            .named(*RELAY_ACTOR_CHANGE_DIRECTIVE)
             .is_some()
         {
             self.errors.push(Diagnostic::error(

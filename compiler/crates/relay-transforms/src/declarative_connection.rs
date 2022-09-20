@@ -57,7 +57,7 @@ lazy_static! {
     static ref DELETE_EDGE: DirectiveName = DirectiveName("deleteEdge".intern());
     static ref PREPEND_EDGE: DirectiveName = DirectiveName("prependEdge".intern());
     static ref PREPEND_NODE: DirectiveName = DirectiveName("prependNode".intern());
-    static ref EDGE_TYPENAME_ARG: StringKey = "edgeTypeName".intern();
+    static ref EDGE_TYPENAME_ARG: ArgumentName = ArgumentName("edgeTypeName".intern());
     static ref EMPTY_STRING: StringKey = "".intern();
 }
 
@@ -135,7 +135,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                     ));
                     Transformed::Keep
                 } else {
-                    let connections_arg = delete_directive.arguments.named(CONNECTIONS_ARG_NAME.0);
+                    let connections_arg = delete_directive.arguments.named(*CONNECTIONS_ARG_NAME);
                     let handle_directive =
                         build_handle_field_directive(HandleFieldDirectiveValues {
                             handle: delete_directive.name.item.0,
@@ -163,7 +163,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let transformed_field = self.default_transform_linked_field(field);
-        let delete_directive = field.directives.named(DELETE_RECORD.0);
+        let delete_directive = field.directives.named(*DELETE_RECORD);
         if let Some(delete_directive) = delete_directive {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::DeleteRecordDirectiveOnLinkedField {
@@ -193,7 +193,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
             }
             (None, None) => transformed_field,
             (Some(edge_directive), None) => {
-                let connections_arg = edge_directive.arguments.named(CONNECTIONS_ARG_NAME.0);
+                let connections_arg = edge_directive.arguments.named(*CONNECTIONS_ARG_NAME);
                 match connections_arg {
                     None => {
                         self.errors.push(Diagnostic::error(
@@ -259,7 +259,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
                 }
             }
             (None, Some(node_directive)) => {
-                let connections_arg = node_directive.arguments.named(CONNECTIONS_ARG_NAME.0);
+                let connections_arg = node_directive.arguments.named(*CONNECTIONS_ARG_NAME);
                 match connections_arg {
                     None => {
                         self.errors.push(Diagnostic::error(

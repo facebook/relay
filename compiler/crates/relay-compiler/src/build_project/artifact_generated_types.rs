@@ -96,7 +96,7 @@ impl ArtifactGeneratedTypes {
 
     pub fn from_fragment(fragment: &FragmentDefinition, skip_types: bool) -> Self {
         let is_inline_data_fragment = fragment.directives.named(*INLINE_DIRECTIVE_NAME).is_some();
-        let is_updatable_fragment = fragment.directives.named(UPDATABLE_DIRECTIVE.0).is_some();
+        let is_updatable_fragment = fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some();
 
         if skip_types {
             if is_inline_data_fragment {

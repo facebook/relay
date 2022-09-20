@@ -132,7 +132,7 @@ impl VariablesVisitor<'_, '_> {
                 .collect::<HashSet<VariableName>>();
             let transitive_local_variables = if fragment
                 .directives
-                .named(NO_INLINE_DIRECTIVE_NAME.0)
+                .named(*NO_INLINE_DIRECTIVE_NAME)
                 .is_some()
             {
                 Some(local_variables.clone())
@@ -223,7 +223,10 @@ impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
         if !fragment.variable_definitions.is_empty() {
             for arg in spread.arguments.iter() {
                 if let Value::Variable(var) = &arg.value.item {
-                    if let Some(def) = fragment.variable_definitions.named(arg.name.item.0) {
+                    if let Some(def) = fragment
+                        .variable_definitions
+                        .named(VariableName(arg.name.item.0))
+                    {
                         if self.is_root_variable(var.name.item) {
                             self.record_root_variable_usage(&var.name, &def.type_);
                         }

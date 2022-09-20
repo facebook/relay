@@ -32,7 +32,7 @@ pub trait RequireableField {
     fn directives(&self) -> &Vec<Directive>;
     fn name_with_location(&self, schema: &SDLSchema) -> WithLocation<StringKey>;
     fn required_metadata(&self) -> Result<Option<RequiredMetadata>, Diagnostic> {
-        if let Some(required_directive) = self.directives().named(REQUIRED_DIRECTIVE_NAME.0) {
+        if let Some(required_directive) = self.directives().named(*REQUIRED_DIRECTIVE_NAME) {
             let action_arg = get_action_argument(required_directive)?;
             Ok(Some(RequiredMetadata {
                 action: action_arg.item,

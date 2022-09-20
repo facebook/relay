@@ -27,6 +27,7 @@ use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
+use graphql_ir::VariableName;
 use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantValue;
 use intern::string_key::Intern;
@@ -140,7 +141,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                     if let Some(fragment_definition) = fragment_definition {
                         fragment_definition
                             .variable_definitions
-                            .named(arg.name.item.0)
+                            .named(VariableName(arg.name.item.0))
                             .is_some()
                     } else {
                         false
@@ -458,19 +459,19 @@ fn get_resolver_info(
     }
     field_type
         .directives
-        .named(RELAY_RESOLVER_DIRECTIVE_NAME.0)
+        .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
         .map(|directive| {
             let arguments = &directive.arguments;
             let fragment_name = get_argument_value(
                 arguments,
-                RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME.0,
+                *RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
                 error_location,
             )
             .ok()
             .map(FragmentDefinitionName);
             let import_path = get_argument_value(
                 arguments,
-                RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME.0,
+                *RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME,
                 error_location,
             )?;
             let live = get_bool_argument_is_true(arguments, *RELAY_RESOLVER_LIVE_ARGUMENT_NAME);
@@ -485,7 +486,7 @@ fn get_resolver_info(
 
 pub(crate) fn get_argument_value(
     arguments: &[ArgumentValue],
-    argument_name: StringKey,
+    argument_name: ArgumentName,
     error_location: Location,
 ) -> DiagnosticsResult<StringKey> {
     match arguments.named(argument_name) {
@@ -515,7 +516,7 @@ pub(crate) fn get_bool_argument_is_true(
     arguments: &[ArgumentValue],
     argument_name: ArgumentName,
 ) -> bool {
-    match arguments.named(argument_name.0) {
+    match arguments.named(argument_name) {
         Some(ArgumentValue {
             value: ConstantValue::Boolean(BooleanNode { value, .. }),
             ..
@@ -536,11 +537,11 @@ pub fn get_resolver_fragment_name(field: &Field) -> Option<FragmentDefinitionNam
 
     field
         .directives
-        .named(RELAY_RESOLVER_DIRECTIVE_NAME.0)
+        .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
         .and_then(|resolver_directive| {
             resolver_directive
                 .arguments
-                .named(RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME.0)
+                .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
         })
         .and_then(|arg| arg.value.get_string_literal().map(FragmentDefinitionName))
 }

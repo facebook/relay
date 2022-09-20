@@ -215,7 +215,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .map(|operation| {
             if operation
                 .directives
-                .named(DIRECTIVE_SPLIT_OPERATION.0)
+                .named(*DIRECTIVE_SPLIT_OPERATION)
                 .is_some()
             {
                 let mut import_statements = Default::default();

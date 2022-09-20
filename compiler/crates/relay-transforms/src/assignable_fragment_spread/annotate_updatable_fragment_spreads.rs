@@ -52,7 +52,7 @@ impl<'s> Transformer for AnnotateUpdatableFragmentSpreads<'s> {
 
         if fragment_definition
             .directives
-            .named(UPDATABLE_DIRECTIVE.0)
+            .named(*UPDATABLE_DIRECTIVE)
             .is_some()
         {
             let mut fragment_spread = fragment_spread.clone();

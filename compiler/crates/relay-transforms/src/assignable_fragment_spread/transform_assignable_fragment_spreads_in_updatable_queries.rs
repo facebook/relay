@@ -79,7 +79,7 @@ impl<'s> Transformer for AssignableFragmentSpreadForUpdatable<'s> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        if operation.directives.named(UPDATABLE_DIRECTIVE.0).is_some() {
+        if operation.directives.named(*UPDATABLE_DIRECTIVE).is_some() {
             self.default_transform_operation(operation)
         } else {
             Transformed::Keep
@@ -90,7 +90,7 @@ impl<'s> Transformer for AssignableFragmentSpreadForUpdatable<'s> {
         &mut self,
         operation: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        if operation.directives.named(UPDATABLE_DIRECTIVE.0).is_some() {
+        if operation.directives.named(*UPDATABLE_DIRECTIVE).is_some() {
             self.default_transform_fragment(operation)
         } else {
             Transformed::Keep

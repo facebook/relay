@@ -20,6 +20,7 @@ mod writer;
 
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
+use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::FragmentDefinition;
@@ -62,7 +63,8 @@ lazy_static! {
     static ref KEY_NODE: StringKey = "node".intern();
     static ref KEY_NODES: StringKey = "nodes".intern();
     static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
-    static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: StringKey = "raw_response_type".intern();
+    static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("raw_response_type".intern());
     static ref RESPONSE: StringKey = "response".intern();
     static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
     static ref TYPE_FLOAT: StringKey = "Float".intern();
@@ -117,7 +119,7 @@ pub fn generate_fragment_type_exports_section(
         project_config,
         fragment_definition
             .directives
-            .named(UPDATABLE_DIRECTIVE.0)
+            .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
         fragment_definition.name.map(|x| x.0),
         fragment_locations,
@@ -139,7 +141,7 @@ pub fn generate_named_validator_export(
         project_config,
         fragment_definition
             .directives
-            .named(UPDATABLE_DIRECTIVE.0)
+            .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
         fragment_definition.name.map(|x| x.0),
         fragment_locations,
@@ -170,7 +172,7 @@ pub fn generate_operation_type_exports_section(
         project_config,
         typegen_operation
             .directives
-            .named(UPDATABLE_DIRECTIVE.0)
+            .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
         WithLocation::new(
             typegen_operation.name.location,
@@ -201,7 +203,7 @@ pub fn generate_split_operation_type_exports_section(
         project_config,
         typegen_operation
             .directives
-            .named(UPDATABLE_DIRECTIVE.0)
+            .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
         WithLocation::new(
             typegen_operation.name.location,

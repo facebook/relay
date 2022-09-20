@@ -511,7 +511,7 @@ pub fn generate_fragment(
 ) -> Result<Vec<u8>, FmtError> {
     let is_assignable_fragment = typegen_fragment
         .directives
-        .named(ASSIGNABLE_DIRECTIVE.0)
+        .named(*ASSIGNABLE_DIRECTIVE)
         .is_some();
     if is_assignable_fragment {
         generate_assignable_fragment(

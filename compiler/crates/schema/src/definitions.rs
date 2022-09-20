@@ -256,8 +256,9 @@ pub struct Directive {
 }
 
 impl Named for Directive {
-    fn name(&self) -> StringKey {
-        self.name.0
+    type Name = DirectiveName;
+    fn name(&self) -> DirectiveName {
+        self.name
     }
 }
 
@@ -339,11 +340,11 @@ pub struct Deprecation {
 impl Field {
     pub fn deprecated(&self) -> Option<Deprecation> {
         self.directives
-            .named(DIRECTIVE_DEPRECATED.0)
+            .named(*DIRECTIVE_DEPRECATED)
             .map(|directive| Deprecation {
                 reason: directive
                     .arguments
-                    .named(ARGUMENT_REASON.0)
+                    .named(*ARGUMENT_REASON)
                     .and_then(|reason| reason.value.get_string_literal()),
             })
     }
@@ -359,8 +360,9 @@ pub struct Argument {
 }
 
 impl Named for Argument {
-    fn name(&self) -> StringKey {
-        self.name.0
+    type Name = ArgumentName;
+    fn name(&self) -> ArgumentName {
+        self.name
     }
 }
 
@@ -390,7 +392,7 @@ impl ArgumentDefinitions {
         Self(arguments)
     }
 
-    pub fn named(&self, name: StringKey) -> Option<&Argument> {
+    pub fn named(&self, name: ArgumentName) -> Option<&Argument> {
         self.0.named(name)
     }
 
@@ -451,6 +453,7 @@ impl TypeWithFields for Object {
 macro_rules! impl_named {
     ($type_name:ident) => {
         impl Named for $type_name {
+            type Name = StringKey;
             fn name(&self) -> StringKey {
                 self.name
             }
@@ -461,6 +464,7 @@ macro_rules! impl_named {
 macro_rules! impl_named_for_with_location {
     ($type_name:ident) => {
         impl Named for $type_name {
+            type Name = StringKey;
             fn name(&self) -> StringKey {
                 self.name.item
             }
@@ -477,13 +481,15 @@ impl_named_for_with_location!(Scalar);
 impl_named_for_with_location!(Enum);
 
 impl Named for DirectiveValue {
-    fn name(&self) -> StringKey {
-        self.name.0
+    type Name = DirectiveName;
+    fn name(&self) -> DirectiveName {
+        self.name
     }
 }
 
 impl Named for ArgumentValue {
-    fn name(&self) -> StringKey {
-        self.name.0
+    type Name = ArgumentName;
+    fn name(&self) -> ArgumentName {
+        self.name
     }
 }

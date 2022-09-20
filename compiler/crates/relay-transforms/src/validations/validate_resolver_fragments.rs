@@ -46,12 +46,12 @@ impl ValidateResolverFragments {
 
                     field
                         .directives
-                        .named(RELAY_RESOLVER_DIRECTIVE_NAME.0)
+                        .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
                         .and_then(|directive| {
                             let arguments = &directive.arguments;
                             get_argument_value(
                                 arguments,
-                                RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME.0,
+                                *RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME,
                                 field.name.location,
                             )
                             .ok()

@@ -8,6 +8,7 @@
 use std::fmt::Result as FmtResult;
 use std::fmt::Write;
 
+use common::DirectiveName;
 use common::Named;
 use common::NamedItem;
 use common::WithLocation;
@@ -232,7 +233,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         write!(self.writer, "fragment {}", fragment_name)?;
         if fragment
             .directives
-            .named("argumentDefinitions".intern())
+            .named(DirectiveName("argumentDefinitions".intern()))
             .is_none()
         {
             self.print_variable_definitions(&fragment.variable_definitions)?;

@@ -11,6 +11,7 @@ use graphql_ir::Directive;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Value;
+use graphql_ir::VariableName;
 use graphql_ir::ARGUMENT_DEFINITION;
 use graphql_ir::UNUSED_LOCAL_VARIABLE_DEPRECATED;
 use intern::string_key::Intern;
@@ -173,8 +174,8 @@ pub fn get_fragment_filename(fragment_name: FragmentDefinitionName) -> StringKey
     .intern()
 }
 
-pub fn format_provided_variable_name(module_name: StringKey) -> StringKey {
-    if VALID_PROVIDED_VARIABLE_NAME.is_match(module_name.lookup()) {
+pub fn format_provided_variable_name(module_name: StringKey) -> VariableName {
+    let x = if VALID_PROVIDED_VARIABLE_NAME.is_match(module_name.lookup()) {
         format!(
             "{}__pv__{}",
             *INTERNAL_RELAY_VARIABLES_PREFIX,
@@ -192,5 +193,6 @@ pub fn format_provided_variable_name(module_name: StringKey) -> StringKey {
             *INTERNAL_RELAY_VARIABLES_PREFIX, transformed_name
         )
         .intern()
-    }
+    };
+    VariableName(x)
 }

@@ -12,6 +12,7 @@ use std::borrow::Cow;
 use std::mem;
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -45,13 +46,13 @@ use crate::FragmentAliasMetadata;
 
 lazy_static! {
     pub static ref REQUIRED_DIRECTIVE_NAME: DirectiveName = DirectiveName("required".intern());
-    pub static ref ACTION_ARGUMENT: StringKey = "action".intern();
+    pub static ref ACTION_ARGUMENT: ArgumentName = ArgumentName("action".intern());
     pub static ref CHILDREN_CAN_BUBBLE_METADATA_KEY: DirectiveName =
         DirectiveName("__childrenCanBubbleNull".intern());
     static ref THROW_ACTION: StringKey = "THROW".intern();
     static ref LOG_ACTION: StringKey = "LOG".intern();
     static ref NONE_ACTION: StringKey = "NONE".intern();
-    static ref INLINE_DIRECTIVE_NAME: StringKey = "inline".intern();
+    static ref INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("inline".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]

@@ -105,7 +105,7 @@ impl From<&Directive> for SplitOperationMetadata {
     fn from(directive: &Directive) -> Self {
         debug_assert!(directive.name.item == *DIRECTIVE_SPLIT_OPERATION);
         let location = directive.name.location;
-        let derived_from_arg = directive.arguments.named(ARG_DERIVED_FROM.0);
+        let derived_from_arg = directive.arguments.named(*ARG_DERIVED_FROM);
 
         let derived_from = derived_from_arg.map(|derived_from_arg| {
             FragmentDefinitionName(derived_from_arg.value.item.expect_string_literal())
@@ -113,9 +113,9 @@ impl From<&Directive> for SplitOperationMetadata {
 
         let parent_documents_arg = directive
             .arguments
-            .named(ARG_PARENT_DOCUMENTS.0)
+            .named(*ARG_PARENT_DOCUMENTS)
             .expect("Expected parent_documents arg to exist");
-        let raw_response_type = directive.arguments.named(ARG_RAW_RESPONSE_TYPE.0).is_some();
+        let raw_response_type = directive.arguments.named(*ARG_RAW_RESPONSE_TYPE).is_some();
 
         if let Value::Constant(ConstantValue::List(source_definition_names)) =
             &parent_documents_arg.value.item

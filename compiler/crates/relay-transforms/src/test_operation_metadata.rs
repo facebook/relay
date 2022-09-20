@@ -39,11 +39,12 @@ use crate::DIRECTIVE_SPLIT_OPERATION;
 lazy_static! {
     static ref TEST_OPERATION_DIRECTIVE: DirectiveName =
         DirectiveName("relay_test_operation".intern());
-    static ref TEST_OPERATION_METADATA_KEY: StringKey = "relayTestingSelectionTypeInfo".intern();
-    static ref ENUM_VALUES_KEY: StringKey = "enumValues".intern();
-    static ref NULLABLE_KEY: StringKey = "nullable".intern();
-    static ref PLURAL_KEY: StringKey = "plural".intern();
-    static ref TYPE_KEY: StringKey = "type".intern();
+    static ref TEST_OPERATION_METADATA_KEY: ArgumentName =
+        ArgumentName("relayTestingSelectionTypeInfo".intern());
+    static ref ENUM_VALUES_KEY: ArgumentName = ArgumentName("enumValues".intern());
+    static ref NULLABLE_KEY: ArgumentName = ArgumentName("nullable".intern());
+    static ref PLURAL_KEY: ArgumentName = ArgumentName("plural".intern());
+    static ref TYPE_KEY: ArgumentName = ArgumentName("type".intern());
 }
 
 /// Transforms the @relay_test_operation directive to @__metadata thats printed
@@ -111,7 +112,7 @@ impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
                 // replace @relay_test_operation with @__metadata
                 if directive.name.item == *TEST_OPERATION_DIRECTIVE {
                     next_directives.push(create_metadata_directive(
-                        ArgumentName(*TEST_OPERATION_METADATA_KEY),
+                        *TEST_OPERATION_METADATA_KEY,
                         ConstantValue::Object(From::from(RelayTestOperationMetadata::new(
                             self.program,
                             &operation.selections,
@@ -142,7 +143,7 @@ impl From<RelayTestOperationMetadata> for Vec<ConstantArgument> {
             Vec::with_capacity(test_metadata.selection_type_info.len());
         for (path, type_info) in test_metadata.selection_type_info {
             metadata.push(ConstantArgument {
-                name: WithLocation::generated(path),
+                name: WithLocation::generated(ArgumentName(path)),
                 value: WithLocation::generated(ConstantValue::Object(From::from(type_info))),
             })
         }

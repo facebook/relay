@@ -123,7 +123,7 @@ fn generate_selections_from_fields(
         if schema
             .field(*field_id)
             .directives
-            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+            .named(RELAY_RESOLVER_DIRECTIVE_NAME.0)
             .is_some()
         {
             continue;

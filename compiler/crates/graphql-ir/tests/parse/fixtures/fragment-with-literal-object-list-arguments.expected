@@ -54,7 +54,9 @@ fragment ChildFragment on Query
                                             ConstantArgument {
                                                 name: WithLocation {
                                                     location: fragment-with-literal-object-list-arguments.graphql:81:86,
-                                                    item: "query",
+                                                    item: ArgumentName(
+                                                        "query",
+                                                    ),
                                                 },
                                                 value: WithLocation {
                                                     location: fragment-with-literal-object-list-arguments.graphql:88:96,
@@ -107,7 +109,9 @@ fragment ChildFragment on Query
                                                     ConstantArgument {
                                                         name: WithLocation {
                                                             location: fragment-with-literal-object-list-arguments.graphql:155:160,
-                                                            item: "query",
+                                                            item: ArgumentName(
+                                                                "query",
+                                                            ),
                                                         },
                                                         value: WithLocation {
                                                             location: fragment-with-literal-object-list-arguments.graphql:162:167,

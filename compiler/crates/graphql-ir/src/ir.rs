@@ -456,12 +456,12 @@ pub struct Variable {
 /// Name : Value[Const]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ConstantArgument {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<ArgumentName>,
     pub value: WithLocation<ConstantValue>,
 }
 impl Named for ConstantArgument {
     fn name(&self) -> StringKey {
-        self.name.item
+        self.name.item.0
     }
 }
 

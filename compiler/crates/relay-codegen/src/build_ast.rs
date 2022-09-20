@@ -1528,7 +1528,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 let json_values = sorted_val_object
                     .into_iter()
                     .map(|arg| ObjectEntry {
-                        key: arg.name.item,
+                        key: arg.name.item.0,
                         value: self.build_constant_value(&arg.value.item),
                     })
                     .collect::<Vec<_>>();

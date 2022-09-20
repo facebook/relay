@@ -460,14 +460,17 @@ impl LocationAgnosticPartialEq for Variable {
 
 impl LocationAgnosticHash for ConstantArgument {
     fn location_agnostic_hash<H: Hasher, B: LocationAgnosticBehavior>(&self, state: &mut H) {
-        self.name.location_agnostic_hash::<_, B>(state);
+        self.name.item.0.location_agnostic_hash::<_, B>(state);
         self.value.location_agnostic_hash::<_, B>(state);
     }
 }
 
 impl LocationAgnosticPartialEq for ConstantArgument {
     fn location_agnostic_eq<B: LocationAgnosticBehavior>(&self, other: &Self) -> bool {
-        self.name.location_agnostic_eq::<B>(&other.name)
+        self.name
+            .item
+            .0
+            .location_agnostic_eq::<B>(&other.name.item.0)
             && self.value.location_agnostic_eq::<B>(&other.value)
     }
 }

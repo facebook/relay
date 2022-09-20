@@ -41,7 +41,9 @@ query NullValuesQuery {
                                             ConstantArgument {
                                                 name: WithLocation {
                                                     location: null-values.graphql:41:45,
-                                                    item: "date",
+                                                    item: ArgumentName(
+                                                        "date",
+                                                    ),
                                                 },
                                                 value: WithLocation {
                                                     location: null-values.graphql:47:51,

@@ -45,7 +45,9 @@ query ListArgumentQuery {
                                                     ConstantArgument {
                                                         name: WithLocation {
                                                             location: list-argument.graphql:47:50,
-                                                            item: "lat",
+                                                            item: ArgumentName(
+                                                                "lat",
+                                                            ),
                                                         },
                                                         value: WithLocation {
                                                             location: list-argument.graphql:52:57,
@@ -57,7 +59,9 @@ query ListArgumentQuery {
                                                     ConstantArgument {
                                                         name: WithLocation {
                                                             location: list-argument.graphql:59:62,
-                                                            item: "lon",
+                                                            item: ArgumentName(
+                                                                "lon",
+                                                            ),
                                                         },
                                                         value: WithLocation {
                                                             location: list-argument.graphql:64:69,

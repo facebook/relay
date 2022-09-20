@@ -1683,7 +1683,10 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     let value =
                         self.build_constant_value(&x.value, &field_definition.type_, validation)?;
                     Ok(ConstantArgument {
-                        name: x.name.name_with_location(self.location.source_location()),
+                        name: x
+                            .name
+                            .name_with_location(self.location.source_location())
+                            .map(ArgumentName),
                         value: WithLocation::from_span(
                             self.location.source_location(),
                             value_span,
@@ -1824,7 +1827,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                         object_props.push(ConstantArgument {
                             name: WithLocation {
                                 location: self.location.with_span(item.span),
-                                item: item.name.value,
+                                item: ArgumentName(item.name.value),
                             },
                             value: WithLocation {
                                 location: self.location.with_span(item.value.span()),

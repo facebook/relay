@@ -114,7 +114,7 @@ fn build_constant_value_string(value: &ConstantValue) -> String {
         ConstantValue::Object(val_object) => {
             let mut rows: Vec<String> = Vec::with_capacity(val_object.len());
             for arg in val_object.iter() {
-                let field_name = String::from(arg.name.item.lookup());
+                let field_name = arg.name.item;
                 rows.push(format!(
                     "\"{}\":{}",
                     field_name,

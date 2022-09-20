@@ -21,7 +21,6 @@ use graphql_ir::Transformer;
 use graphql_ir::Value;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use thiserror::Error;
 
@@ -29,9 +28,9 @@ use crate::create_metadata_directive;
 
 lazy_static! {
     static ref LIVE_QUERY_DIRECTIVE_NAME: DirectiveName = DirectiveName("live_query".intern());
-    static ref LIVE_METADATA_KEY: StringKey = "live".intern();
-    static ref POLLING_INTERVAL_ARG: StringKey = "polling_interval".intern();
-    static ref CONFIG_ID_ARG: StringKey = "config_id".intern();
+    static ref LIVE_METADATA_KEY: ArgumentName = ArgumentName("live".intern());
+    static ref POLLING_INTERVAL_ARG: ArgumentName = ArgumentName("polling_interval".intern());
+    static ref CONFIG_ID_ARG: ArgumentName = ArgumentName("config_id".intern());
 }
 
 pub fn generate_live_query_metadata(program: &Program) -> DiagnosticsResult<Program> {
@@ -64,11 +63,10 @@ impl Transformer for GenerateLiveQueryMetadata {
         match operation.kind {
             OperationKind::Query => {
                 let live_query_directive = operation.directives.named(LIVE_QUERY_DIRECTIVE_NAME.0);
-
                 if let Some(live_query_directive) = live_query_directive {
                     let polling_interval =
-                        live_query_directive.arguments.named(*POLLING_INTERVAL_ARG);
-                    let config_id = live_query_directive.arguments.named(*CONFIG_ID_ARG);
+                        live_query_directive.arguments.named(POLLING_INTERVAL_ARG.0);
+                    let config_id = live_query_directive.arguments.named(CONFIG_ID_ARG.0);
 
                     if polling_interval.is_none() && config_id.is_none() {
                         self.errors.push(Diagnostic::error(
@@ -98,7 +96,7 @@ impl Transformer for GenerateLiveQueryMetadata {
                             }
                         };
                         next_directives.push(create_metadata_directive(
-                            ArgumentName(*LIVE_METADATA_KEY),
+                            *LIVE_METADATA_KEY,
                             ConstantValue::Object(vec![ConstantArgument {
                                 name: WithLocation::generated(*POLLING_INTERVAL_ARG),
                                 value: WithLocation::generated(ConstantValue::Int(
@@ -120,7 +118,7 @@ impl Transformer for GenerateLiveQueryMetadata {
                             }
                         };
                         next_directives.push(create_metadata_directive(
-                            ArgumentName(*LIVE_METADATA_KEY),
+                            *LIVE_METADATA_KEY,
                             ConstantValue::Object(vec![ConstantArgument {
                                 name: WithLocation::generated(*CONFIG_ID_ARG),
                                 value: WithLocation::generated(ConstantValue::String(

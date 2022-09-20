@@ -17,7 +17,9 @@ query TestQuery(
   $__relay_internal__pv__fooGKProvider: Boolean! @__ProvidedVariableMetadata
   # ProvidedVariableMetadata {
   #     module_name: "fooGKProvider",
-  #     original_variable_name: "foo_gk",
+  #     original_variable_name: VariableName(
+  #         "foo_gk",
+  #     ),
   # }
   
 ) {

@@ -130,7 +130,9 @@ fragment ChildFragment2 on User
                             data: Some(
                                 ProvidedVariableMetadata {
                                     module_name: "foo_gk_module.js",
-                                    original_variable_name: "arg_with_enabled_provider0",
+                                    original_variable_name: VariableName(
+                                        "arg_with_enabled_provider0",
+                                    ),
                                 },
                             ),
                         },
@@ -257,7 +259,9 @@ fragment ChildFragment2 on User
                             data: Some(
                                 ProvidedVariableMetadata {
                                     module_name: "foo_gk_module.js",
-                                    original_variable_name: "arg_with_enabled_provider0",
+                                    original_variable_name: VariableName(
+                                        "arg_with_enabled_provider0",
+                                    ),
                                 },
                             ),
                         },

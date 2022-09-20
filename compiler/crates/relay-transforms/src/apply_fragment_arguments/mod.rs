@@ -45,7 +45,6 @@ use graphql_ir::VariableDefinition;
 use graphql_ir::VariableName;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use intern::string_key::StringKeyIndexMap;
 use intern::string_key::StringKeyMap;
 use itertools::Itertools;
@@ -248,7 +247,7 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 ))
             })
         {
-            if let Some(invalid_argument) = spread.arguments.named(original_definition_name) {
+            if let Some(invalid_argument) = spread.arguments.named(original_definition_name.0) {
                 self.errors.push(
                     Diagnostic::error(
                         ValidationMessage::ProvidedVariableIncompatibleWithArguments {
@@ -695,5 +694,7 @@ enum ValidationMessage {
     #[error(
         "Passing a value to '{original_definition_name}' (a provided variable) through @arguments is not supported."
     )]
-    ProvidedVariableIncompatibleWithArguments { original_definition_name: StringKey },
+    ProvidedVariableIncompatibleWithArguments {
+        original_definition_name: VariableName,
+    },
 }

@@ -53,7 +53,7 @@ pub type FragmentSignatures = FragmentDefinitionNameMap<FragmentSignature>;
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ProvidedVariableMetadata {
     pub module_name: StringKey,
-    pub original_variable_name: StringKey,
+    pub original_variable_name: VariableName,
 }
 
 associated_data_impl!(ProvidedVariableMetadata);
@@ -312,9 +312,9 @@ fn build_fragment_variable_definitions(
                                 ProvidedVariableMetadata::directive_name(),
                             ),
                             arguments: Vec::new(),
-                            data: Some(Box::new(ProvidedVariableMetadata{
+                            data: Some(Box::new(ProvidedVariableMetadata {
                                 module_name: provider_module_name,
-                                original_variable_name: variable_name.value
+                                original_variable_name: VariableName(variable_name.value)
                             })),
                         });
                     }

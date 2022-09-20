@@ -84,7 +84,9 @@ fragment TestFragment on User
                             data: Some(
                                 ProvidedVariableMetadata {
                                     module_name: "test_foo_gk.js",
-                                    original_variable_name: "arg_with_enabled_provider0",
+                                    original_variable_name: VariableName(
+                                        "arg_with_enabled_provider0",
+                                    ),
                                 },
                             ),
                         },

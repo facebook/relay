@@ -174,9 +174,8 @@ class LiveResolverCache implements ResolverCache {
             field.path,
           );
         }
-        RelayModernRecord.setValue(
+        this._setRelayResolverValue(
           linkedRecord,
-          RELAY_RESOLVER_VALUE_KEY,
           evaluationResult.resolverResult,
         );
       }
@@ -249,14 +248,7 @@ class LiveResolverCache implements ResolverCache {
         );
       }
 
-      const resolverValue = liveState.read();
-
-      // Set the new value for this and future reads.
-      RelayModernRecord.setValue(
-        linkedRecord,
-        RELAY_RESOLVER_VALUE_KEY,
-        resolverValue,
-      );
+      this._setRelayResolverValue(linkedRecord, liveState.read());
 
       // Mark the resolver as clean again.
       RelayModernRecord.setValue(
@@ -269,7 +261,8 @@ class LiveResolverCache implements ResolverCache {
     }
 
     // $FlowFixMe[incompatible-type] - will always be empty
-    const answer: T = linkedRecord[RELAY_RESOLVER_VALUE_KEY];
+    const answer: T = this._getRelayResolverValue(linkedRecord);
+
     // $FlowFixMe[incompatible-type] - casting mixed
     const snapshot: ?Snapshot = linkedRecord[RELAY_RESOLVER_SNAPSHOT_KEY];
     // $FlowFixMe[incompatible-type] - casting mixed
@@ -341,11 +334,7 @@ class LiveResolverCache implements ResolverCache {
     );
 
     // Store the current value, for this read, and future cached reads.
-    RelayModernRecord.setValue(
-      linkedRecord,
-      RELAY_RESOLVER_VALUE_KEY,
-      liveState.read(),
-    );
+    this._setRelayResolverValue(linkedRecord, liveState.read());
 
     // Mark the field as clean.
     RelayModernRecord.setValue(
@@ -407,6 +396,14 @@ class LiveResolverCache implements ResolverCache {
       // transaction.
       this._store.notify();
     };
+  }
+
+  _setRelayResolverValue(resolverRecord: Record, value: mixed) {
+    RelayModernRecord.setValue(resolverRecord, RELAY_RESOLVER_VALUE_KEY, value);
+  }
+
+  _getRelayResolverValue(resolverRecord: Record): mixed {
+    return RelayModernRecord.getValue(resolverRecord, RELAY_RESOLVER_VALUE_KEY);
   }
 
   invalidateDataIDs(

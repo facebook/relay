@@ -115,7 +115,7 @@ graphql-ir = { path = "../graphql-ir" }
 graphql-ir-validations = { path = "../graphql-ir-validations" }
 graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
-indexmap = { version = "1.8.0", features = ["rayon", "serde-1"] }
+indexmap = { version = "1.9.1", features = ["rayon", "serde-1"] }
 intern = { path = "../intern" }
 itertools = "0.10.3"
 lazy_static = "1.4"

@@ -40,7 +40,7 @@ fnv = "1.0"
 graphql-ir = { path = "../graphql-ir" }
 graphql-syntax = { path = "../graphql-syntax" }
 hex = "0.4.3"
-indexmap = { version = "1.8.0", features = ["rayon", "serde-1"] }
+indexmap = { version = "1.9.1", features = ["rayon", "serde-1"] }
 intern = { path = "../intern" }
 lazy_static = "1.4"
 md-5 = "0.10"

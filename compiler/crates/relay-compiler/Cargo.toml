@@ -33,7 +33,7 @@ graphql-syntax = { path = "../graphql-syntax" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-watchman = { path = "../graphql-watchman" }
 hex = "0.4.3"
-indexmap = { version = "1.8.0", features = ["rayon", "serde-1"] }
+indexmap = { version = "1.9.1", features = ["rayon", "serde-1"] }
 intern = { path = "../intern" }
 js-config-loader = { path = "../js-config-loader" }
 lazy_static = "1.4"

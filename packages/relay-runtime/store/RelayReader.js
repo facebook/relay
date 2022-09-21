@@ -70,7 +70,6 @@ const {
   STREAM,
 } = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const ClientID = require('./ClientID');
 const {
   isSuspenseSentinel,
 } = require('./experimental-live-resolvers/LiveResolverSuspenseSentinel');
@@ -522,11 +521,6 @@ class RelayReader {
     data: SelectorData,
   ): mixed {
     const {fragment} = field;
-    const storageKey = getStorageKey(fragment ?? field, this._variables);
-    const resolverID = ClientID.generateClientID(
-      RelayModernRecord.getDataID(record),
-      storageKey,
-    );
 
     // Found when reading the resolver fragment, which can happen either when
     // evaluating the resolver and it calls readFragment, or when checking if the
@@ -580,7 +574,6 @@ class RelayReader {
           return {
             resolverResult,
             snapshot: snapshot,
-            resolverID,
             error: resolverError,
           };
         });
@@ -594,7 +587,6 @@ class RelayReader {
         return {
           resolverResult,
           snapshot: undefined,
-          resolverID,
           error: resolverError,
         };
       }

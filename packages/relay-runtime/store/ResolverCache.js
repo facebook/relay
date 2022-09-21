@@ -42,7 +42,6 @@ type ResolverID = string;
 
 export type EvaluationResult<T> = {
   resolverResult: ?T,
-  resolverID: ResolverID,
   snapshot: ?Snapshot,
   error: ?RelayResolverError,
 };
@@ -199,18 +198,21 @@ class RecordResolverCache implements ResolverCache {
       RelayModernRecord.setLinkedRecordID(nextRecord, storageKey, linkedID);
       recordSource.set(recordID, nextRecord);
 
-      // Put records observed by the resolver into the dependency graph:
-      const resolverID = evaluationResult.resolverID;
-      addDependencyEdge(this._resolverIDToRecordIDs, resolverID, linkedID);
-      addDependencyEdge(this._recordIDToResolverIDs, recordID, resolverID);
-      const seenRecordIds = evaluationResult.snapshot?.seenRecords;
-      if (seenRecordIds != null) {
-        for (const seenRecordID of seenRecordIds) {
-          addDependencyEdge(
-            this._recordIDToResolverIDs,
-            seenRecordID,
-            resolverID,
-          );
+      if (field.fragment != null) {
+        // Put records observed by the resolver into the dependency graph:
+        const fragmentStorageKey = getStorageKey(field.fragment, variables);
+        const resolverID = generateClientID(recordID, fragmentStorageKey);
+        addDependencyEdge(this._resolverIDToRecordIDs, resolverID, linkedID);
+        addDependencyEdge(this._recordIDToResolverIDs, recordID, resolverID);
+        const seenRecordIds = evaluationResult.snapshot?.seenRecords;
+        if (seenRecordIds != null) {
+          for (const seenRecordID of seenRecordIds) {
+            addDependencyEdge(
+              this._recordIDToResolverIDs,
+              seenRecordID,
+              resolverID,
+            );
+          }
         }
       }
     }

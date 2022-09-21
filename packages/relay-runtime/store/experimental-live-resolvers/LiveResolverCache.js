@@ -207,7 +207,8 @@ class LiveResolverCache implements ResolverCache {
 
       if (field.fragment != null) {
         // Put records observed by the resolver into the dependency graph:
-        const resolverID = evaluationResult.resolverID;
+        const fragmentStorageKey = getStorageKey(field.fragment, variables);
+        const resolverID = generateClientID(recordID, fragmentStorageKey);
         addDependencyEdge(this._resolverIDToRecordIDs, resolverID, linkedID);
         addDependencyEdge(this._recordIDToResolverIDs, recordID, resolverID);
         const seenRecordIds = evaluationResult.snapshot?.seenRecords;

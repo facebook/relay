@@ -245,7 +245,7 @@ impl TypeReference {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Directive {
     pub name: DirectiveName,
     pub arguments: ArgumentDefinitions,

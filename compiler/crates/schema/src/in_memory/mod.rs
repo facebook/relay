@@ -372,6 +372,15 @@ impl InMemorySchema {
         Ok(())
     }
 
+    pub fn remove_directive(&mut self, directive_name: DirectiveName) -> DiagnosticsResult<()> {
+        if !self.directives.contains_key(&directive_name) {
+            // Cannot find the directive to remove
+            return todo_add_location(SchemaError::UndefinedDirective(directive_name.0));
+        }
+        self.directives.remove(&directive_name);
+        Ok(())
+    }
+
     pub fn add_field(&mut self, field: Field) -> DiagnosticsResult<FieldID> {
         Ok(self.build_field(field))
     }

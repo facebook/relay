@@ -396,6 +396,13 @@ impl SDLSchema {
         }
     }
 
+    pub fn remove_directive(&mut self, directive_name: DirectiveName) -> DiagnosticsResult<()> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::InMemory(schema) => schema.remove_directive(directive_name),
+        }
+    }
+
     pub fn add_field(&mut self, field: Field) -> DiagnosticsResult<FieldID> {
         match self {
             SDLSchema::FlatBuffer(_schema) => todo!(),

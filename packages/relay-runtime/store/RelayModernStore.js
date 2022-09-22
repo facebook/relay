@@ -34,7 +34,7 @@ import type {ResolverCache} from './ResolverCache';
 
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-  assertInternalActorIndentifier,
+  assertInternalActorIdentifier,
 } = require('../multi-actor-environment/ActorIdentifier');
 const deepFreeze = require('../util/deepFreeze');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
@@ -200,13 +200,13 @@ class RelayModernStore implements Store {
     const getSourceForActor =
       options?.getSourceForActor ??
       (actorIdentifier => {
-        assertInternalActorIndentifier(actorIdentifier);
+        assertInternalActorIdentifier(actorIdentifier);
         return source;
       });
     const getTargetForActor =
       options?.getTargetForActor ??
       (actorIdentifier => {
-        assertInternalActorIndentifier(actorIdentifier);
+        assertInternalActorIdentifier(actorIdentifier);
         return source;
       });
 

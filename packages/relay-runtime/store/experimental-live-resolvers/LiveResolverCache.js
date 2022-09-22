@@ -109,7 +109,7 @@ class LiveResolverCache implements ResolverCache {
 
     // NOTE: Be very careful with `record` in this scope. After `evaluate` has
     // been called, the `record` we have here may have been replaced in the
-    // Relay store with a new record containing new informaiton about nested
+    // Relay store with a new record containing new information about nested
     // resolvers on this parent record.
     const record = recordSource.get(recordID);
     invariant(record != null, 'We expect this record to exist in the store.');
@@ -125,7 +125,7 @@ class LiveResolverCache implements ResolverCache {
       // Cache miss; evaluate the selector and store the result in a new record:
 
       if (linkedRecord != null) {
-        // Clean up any existing subscriptions before creating the new subsciption
+        // Clean up any existing subscriptions before creating the new subscription
         // to avoid being double subscribed, or having a dangling subscription in
         // the event of an error during subscription.
         this._maybeUnsubscribeFromLiveState(linkedRecord);
@@ -170,7 +170,7 @@ class LiveResolverCache implements ResolverCache {
         if (__DEV__) {
           invariant(
             !isLiveStateValue(evaluationResult.resolverResult),
-            'Unexpected LiveState value retuned from the non-@live Relay Resolver backing the field "%s". Did you intend to add @live to this resolver?.',
+            'Unexpected LiveState value returned from the non-@live Relay Resolver backing the field "%s". Did you intend to add @live to this resolver?.',
             field.path,
           );
         }
@@ -194,7 +194,7 @@ class LiveResolverCache implements ResolverCache {
       // Link the resolver value record to the resolver field of the record being read:
 
       // Note: We get a fresh instance of the parent record from the record
-      // source, becuase it may have been updated when we traversed into child
+      // source, because it may have been updated when we traversed into child
       // resolvers.
       const currentRecord = recordSource.get(recordID);
       invariant(
@@ -393,7 +393,7 @@ class LiveResolverCache implements ResolverCache {
       nextSource.set(linkedID, nextRecord);
       this._store.publish(nextSource);
 
-      // In the future, this notify might be defferred if we are within a
+      // In the future, this notify might be deferred if we are within a
       // transaction.
       this._store.notify();
     };

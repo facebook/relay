@@ -21,9 +21,7 @@ const invariant = require('invariant');
 const INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE: ActorIdentifier =
   'INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE';
 
-function assertInternalActorIndentifier(
-  actorIdentifier: ActorIdentifier,
-): void {
+function assertInternalActorIdentifier(actorIdentifier: ActorIdentifier): void {
   invariant(
     actorIdentifier === INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
     'Expected to use only internal version of the `actorIdentifier`. "%s" was provided.',
@@ -32,7 +30,7 @@ function assertInternalActorIndentifier(
 }
 
 module.exports = {
-  assertInternalActorIndentifier,
+  assertInternalActorIdentifier,
   getActorIdentifier(actorID: string): ActorIdentifier {
     return (actorID: ActorIdentifier);
   },

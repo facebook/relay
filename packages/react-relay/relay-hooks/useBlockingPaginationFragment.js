@@ -161,7 +161,9 @@ function useLoadMore<TQuery: OperationType>(args: {
   >,
 }): [LoadMoreFn<TQuery>, boolean, () => void] {
   const {disableStoreUpdates, enableStoreUpdates, ...loadMoreArgs} = args;
-  const [requestPromise, setRequestPromise] = useState(null);
+  const [requestPromise, setRequestPromise] = useState<null | Promise<mixed>>(
+    null,
+  );
   const requestPromiseRef = useRef(null);
   const promiseResolveRef = useRef(null);
 

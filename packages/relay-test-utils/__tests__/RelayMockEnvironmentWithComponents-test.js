@@ -651,7 +651,7 @@ describe('ReactRelayTestMocker with Containers', () => {
 
       function FeedbackComponent(props: $FlowFixMe) {
         const [busy, setBusy] = useState(false);
-        const [errorMessage, setErrorMessage] = useState(null);
+        const [errorMessage, setErrorMessage] = useState<null | string>(null);
         return (
           <div>
             {errorMessage != null && (

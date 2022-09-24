@@ -1,4 +1,4 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates. All Rights Reserved.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
 
 extend type User {
   nickname: String

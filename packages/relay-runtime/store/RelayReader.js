@@ -44,6 +44,7 @@ import type {
   SelectorData,
   SingularReaderSelector,
   Snapshot,
+  ResolverNormalizationInfo,
 } from './RelayStoreTypes';
 import type {Arguments} from './RelayStoreUtils';
 import type {EvaluationResult, ResolverCache} from './ResolverCache';
@@ -128,6 +129,7 @@ class RelayReader {
   _resolverCache: ResolverCache;
   _resolverErrors: RelayResolverErrors;
   _fragmentName: string;
+  _resolverNormalizationInfo: ?ResolverNormalizationInfo;
 
   constructor(
     recordSource: RecordSource,
@@ -152,6 +154,7 @@ class RelayReader {
     this._resolverCache = resolverCache;
     this._resolverErrors = [];
     this._fragmentName = selector.node.name;
+    this._resolverNormalizationInfo = null;
   }
 
   read(): Snapshot {
@@ -211,6 +214,7 @@ class RelayReader {
 
     this._isWithinUnmatchedTypeRefinement = !isDataExpectedToBePresent;
     const data = this._traverse(node, dataID, null);
+
     return {
       data,
       isMissingData: this._isMissingData && isDataExpectedToBePresent,
@@ -599,6 +603,7 @@ class RelayReader {
         this._variables,
         evaluate,
         getDataForResolverFragment,
+        this._resolverNormalizationInfo,
       );
 
     if (cachedSnapshot != null) {
@@ -660,10 +665,13 @@ class RelayReader {
 
     const applicationName = backingField.alias ?? backingField.name;
 
+    const prevResolverNormalizationInfo = this._resolverNormalizationInfo;
+    this._resolverNormalizationInfo = getResolverNormalizationInfo(field);
     const backingFieldData = {};
     this._traverseSelections([backingField], record, backingFieldData);
-    let destinationDataID = backingFieldData[applicationName];
+    this._resolverNormalizationInfo = prevResolverNormalizationInfo;
 
+    let destinationDataID = backingFieldData[applicationName];
     if (destinationDataID == null || isSuspenseSentinel(destinationDataID)) {
       data[applicationName] = destinationDataID;
       return;
@@ -682,19 +690,25 @@ class RelayReader {
     }
 
     if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
-      // Client objects might use ids that are not gobally unique and instead are just
+      // Client objects might use ids that are not globally unique and instead are just
       // local within their type. ResolverCache will derive a namespaced ID for us.
-      if (field.linkedField.plural) {
-        // $FlowFixMe[prop-missing]
-        destinationDataID = destinationDataID.map(id =>
-          this._resolverCache.ensureClientRecord(id, field.concreteType),
-        );
+      if (field.normalizationNode == null) {
+        // @edgeTo case where we need to ensure that the record has `id` field
+        if (field.linkedField.plural) {
+          // $FlowFixMe[prop-missing]
+          destinationDataID = destinationDataID.map(id =>
+            this._resolverCache.ensureClientRecord(id, field.concreteType),
+          );
+        } else {
+          destinationDataID = this._resolverCache.ensureClientRecord(
+            destinationDataID,
+            field.concreteType,
+          );
+        }
       } else {
-        destinationDataID = this._resolverCache.ensureClientRecord(
-          destinationDataID,
-          field.concreteType,
-        );
+        // Normalization process in LiveResolverCache should take care of generating correct ID.
       }
+
       this._clientEdgeTraversalPath.push(null);
     } else {
       invariant(
@@ -1214,6 +1228,23 @@ function getResolverValue(
     }
   }
   return [resolverResult, resolverError];
+}
+
+function getResolverNormalizationInfo(
+  field: ReaderClientEdgeToClientObject | ReaderClientEdgeToServerObject,
+): ResolverNormalizationInfo | null {
+  if (
+    field.kind === 'ClientEdgeToClientObject' &&
+    field.normalizationNode != null
+  ) {
+    return {
+      normalizationNode: field.normalizationNode,
+      concreteType: field.concreteType,
+      plural: field.linkedField.plural,
+    };
+  } else {
+    return null;
+  }
 }
 
 module.exports = {read};

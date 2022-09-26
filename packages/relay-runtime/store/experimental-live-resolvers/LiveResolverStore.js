@@ -11,9 +11,10 @@
 
 'use strict';
 
+import type {ActorIdentifier} from '../../multi-actor-environment/ActorIdentifier';
 import type {DataID, Disposable} from '../../util/RelayRuntimeTypes';
 import type {Availability} from '../DataChecker';
-import type {GetDataID} from '../RelayResponseNormalizer';
+import type {GetDataID, NormalizationOptions} from '../RelayResponseNormalizer';
 import type {
   CheckOptions,
   DataIDSet,
@@ -22,6 +23,8 @@ import type {
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
+  ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler,
   RecordSource,
   RequestDescriptor,
   Scheduler,
@@ -105,18 +108,26 @@ class LiveResolverStore implements Store {
   _shouldScheduleGC: boolean;
   _storeSubscriptions: StoreSubscriptions;
   _updatedRecordIDs: DataIDSet;
-  _shouldProcessClientComponents: ?boolean;
+  _actorIdentifier: ?ActorIdentifier;
+  _treatMissingFieldsAsNull: boolean;
+  _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
+  _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
+  _shouldProcessClientComponents: boolean;
 
   constructor(
     source: MutableRecordSource,
     options?: {
+      actorIdentifier?: ?ActorIdentifier,
+      gcReleaseBufferSize?: ?number,
       gcScheduler?: ?Scheduler,
+      getDataID?: ?GetDataID,
       log?: ?LogFunction,
       operationLoader?: ?OperationLoader,
-      getDataID?: ?GetDataID,
-      gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
+      reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
+      reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
       shouldProcessClientComponents?: ?boolean,
+      treatMissingFieldsAsNull?: ?boolean,
     },
   ) {
     // Prevent mutation of a record from outside the store.
@@ -156,8 +167,14 @@ class LiveResolverStore implements Store {
       this._resolverCache,
     );
     this._updatedRecordIDs = new Set();
+    this._treatMissingFieldsAsNull = options?.treatMissingFieldsAsNull ?? false;
+    this._actorIdentifier = options?.actorIdentifier;
+    this._reactFlightPayloadDeserializer =
+      options?.reactFlightPayloadDeserializer;
+    this._reactFlightServerErrorHandler =
+      options?.reactFlightServerErrorHandler;
     this._shouldProcessClientComponents =
-      options?.shouldProcessClientComponents;
+      options?.shouldProcessClientComponents ?? false;
 
     initializeRecordSource(this._recordSource);
   }
@@ -307,6 +324,25 @@ class LiveResolverStore implements Store {
       deepFreeze(snapshot);
     }
     return snapshot;
+  }
+
+  // Internal API for LiveRsolver Cache.
+  // This method should be used for publishing new source
+  // and notifying subscribers that are subscribed to the
+  // `IDs` only in the published `sources`.
+  // Other updatedIds are not notified.
+  __publishSourcesAndNotifyOnlyUpdatedIds(
+    sources: $ReadOnlyArray<RecordSource>,
+  ): void {
+    const currentUpdatedIds = this._updatedRecordIDs;
+    this._updatedRecordIDs = new Set();
+    for (const source of sources) {
+      this.publish(source);
+    }
+    if (this._updatedRecordIDs.size > 0) {
+      this.notify();
+    }
+    this._updatedRecordIDs = currentUpdatedIds;
   }
 
   // This method will return a list of updated owners from the subscriptions
@@ -672,6 +708,21 @@ class LiveResolverStore implements Store {
       }
       return;
     }
+  }
+
+  // Internal API for normalizing @outputType payloads in LiveResolverCache.
+  __getNormalizationOptions(
+    path: $ReadOnlyArray<string>,
+  ): NormalizationOptions {
+    return {
+      path,
+      getDataID: this._getDataID,
+      treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+      reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+      reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
+      shouldProcessClientComponents: this._shouldProcessClientComponents,
+      actorIdentifier: this._actorIdentifier,
+    };
   }
 }
 

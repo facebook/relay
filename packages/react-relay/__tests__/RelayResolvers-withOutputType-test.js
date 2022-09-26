@@ -1,0 +1,594 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @emails oncall+relay
+ * @flow strict-local
+ * @format
+ */
+
+'use strict';
+
+import type {LogEvent} from '../../relay-runtime/store/RelayStoreTypes';
+import type {RelayResolversWithOutputTypeTestFragment$key} from './__generated__/RelayResolversWithOutputTypeTestFragment.graphql';
+import type {RelayResolversWithOutputTypeTestTextColorComponentFragment$key} from './__generated__/RelayResolversWithOutputTypeTestTextColorComponentFragment.graphql';
+import type {RelayResolversWithOutputTypeTestTextStyleComponentFragment$key} from './__generated__/RelayResolversWithOutputTypeTestTextStyleComponentFragment.graphql';
+import type {RelayResolversWithOutputTypeTestTodoCompleteFragment$key} from './__generated__/RelayResolversWithOutputTypeTestTodoCompleteFragment.graphql';
+
+const React = require('react');
+const {
+  RelayEnvironmentProvider,
+  useClientQuery,
+  useFragment: useFragment_LEGACY,
+  useLazyLoadQuery: useLazyLoadQuery_LEGACY,
+} = require('react-relay');
+const useFragment_REACT_CACHE = require('react-relay/relay-hooks/react-cache/useFragment_REACT_CACHE');
+const useLazyLoadQuery_REACT_CACHE = require('react-relay/relay-hooks/react-cache/useLazyLoadQuery_REACT_CACHE');
+const TestRenderer = require('react-test-renderer');
+const {RelayFeatureFlags} = require('relay-runtime');
+const RelayNetwork = require('relay-runtime/network/RelayNetwork');
+const {graphql} = require('relay-runtime/query/GraphQLTag');
+const {
+  resetStore,
+  addTodo,
+  completeTodo,
+  removeTodo,
+  blockedBy,
+} = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
+const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
+const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
+const RelayRecordSource = require('relay-runtime/store/RelayRecordSource');
+const {
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
+
+let logEvents: Array<LogEvent> = [];
+function logFn(event: LogEvent): void {
+  logEvents.push(event);
+}
+
+beforeEach(() => {
+  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
+  RelayFeatureFlags.ENABLE_CLIENT_EDGES = true;
+  logEvents = [];
+  resetStore(logFn);
+});
+
+afterEach(() => {
+  RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = false;
+  RelayFeatureFlags.ENABLE_CLIENT_EDGES = false;
+});
+
+function createEnvironment() {
+  return new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store: new LiveResolverStore(RelayRecordSource.create(), {
+      log: logFn,
+    }),
+    log: logFn,
+  });
+}
+
+function EnvironmentWrapper({
+  children,
+  environment,
+}: {
+  children: React.Node,
+  environment: RelayModernEnvironment,
+}) {
+  return (
+    <RelayEnvironmentProvider environment={environment}>
+      <React.Suspense fallback="Loading...">{children}</React.Suspense>
+    </RelayEnvironmentProvider>
+  );
+}
+
+describe.each([
+  ['React Cache', useLazyLoadQuery_REACT_CACHE, useFragment_REACT_CACHE],
+  ['Legacy', useLazyLoadQuery_LEGACY, useFragment_LEGACY],
+])('Hook implementation: %s', (_hookName, useLazyLoadQuery, useFragment) => {
+  const usingReactCache = useLazyLoadQuery === useLazyLoadQuery_REACT_CACHE;
+  // Our open-source build is still on React 17, so we need to skip these tests there:
+  if (usingReactCache) {
+    // $FlowExpectedError[prop-missing] Cache not yet part of Flow types
+    if (React.unstable_getCacheForType === undefined) {
+      return;
+    }
+  }
+  let environment;
+  beforeEach(() => {
+    RelayFeatureFlags.USE_REACT_CACHE = usingReactCache;
+    environment = createEnvironment();
+  });
+
+  function TodoComponent(props: {
+    fragmentKey: ?RelayResolversWithOutputTypeTestFragment$key,
+  }) {
+    const data = useFragment(
+      graphql`
+        fragment RelayResolversWithOutputTypeTestFragment on Todo {
+          text {
+            content
+            style {
+              ...RelayResolversWithOutputTypeTestTextStyleComponentFragment
+            }
+          }
+          ...RelayResolversWithOutputTypeTestTodoCompleteFragment
+        }
+      `,
+      props.fragmentKey,
+    );
+    if (data == null) {
+      return null;
+    }
+
+    return (
+      <>
+        {data.text?.content ?? 'no text'}
+        <TodoCompleteComponent fragmentKey={data} />
+        <TodoTextStyleComponent fragmentKey={data.text?.style} />
+      </>
+    );
+  }
+
+  function TodoCompleteComponent(props: {
+    fragmentKey: ?RelayResolversWithOutputTypeTestTodoCompleteFragment$key,
+  }) {
+    const data = useFragment(
+      graphql`
+        fragment RelayResolversWithOutputTypeTestTodoCompleteFragment on Todo {
+          complete
+        }
+      `,
+      props.fragmentKey,
+    );
+    let status = 'unknown';
+    if (data?.complete != null) {
+      status = data?.complete ? 'is completed' : 'is not completed';
+    }
+    return status;
+  }
+
+  function TodoTextStyleComponent(props: {
+    fragmentKey: ?RelayResolversWithOutputTypeTestTextStyleComponentFragment$key,
+  }) {
+    const data = useFragment(
+      graphql`
+        fragment RelayResolversWithOutputTypeTestTextStyleComponentFragment on TodoTextStyle {
+          font_style
+          color {
+            ...RelayResolversWithOutputTypeTestTextColorComponentFragment
+          }
+        }
+      `,
+      props.fragmentKey,
+    );
+    if (data == null) {
+      return 'unknown style';
+    }
+    return (
+      <>
+        {`style: ${data.font_style ?? 'unknown font style'}`}
+        <TodoTextColorComponent fragmentKey={data?.color} />
+      </>
+    );
+  }
+
+  function TodoTextColorComponent(props: {
+    fragmentKey: ?RelayResolversWithOutputTypeTestTextColorComponentFragment$key,
+  }) {
+    const data = useFragment(
+      graphql`
+        fragment RelayResolversWithOutputTypeTestTextColorComponentFragment on TodoTextColor {
+          human_readable_color
+        }
+      `,
+      props.fragmentKey,
+    );
+    return `color: ${data?.human_readable_color ?? 'unknown color'}`;
+  }
+
+  function TodoListComponent() {
+    const data = useClientQuery(
+      graphql`
+        query RelayResolversWithOutputTypeTestExceptionalProjectQuery {
+          todos(first: 10) {
+            edges {
+              node {
+                ...RelayResolversWithOutputTypeTestFragment
+              }
+            }
+          }
+        }
+      `,
+      {},
+    );
+    if (data.todos?.edges?.length === 0) {
+      return 'No Items';
+    }
+
+    return data.todos?.edges?.map((edge, index) => {
+      return <TodoComponent key={index} fragmentKey={edge?.node} />;
+    });
+  }
+
+  function TodoRootComponent(props: {todoID: string}) {
+    const data = useClientQuery(
+      graphql`
+        query RelayResolversWithOutputTypeTestTodoQuery($id: ID!) {
+          todo(todoID: $id) {
+            ...RelayResolversWithOutputTypeTestFragment
+          }
+        }
+      `,
+      {id: props.todoID},
+    );
+    if (data?.todo == null) {
+      return null;
+    }
+
+    return <TodoComponent fragmentKey={data?.todo} />;
+  }
+
+  function TodoRootWithBlockedComponent(props: {todoID: string}) {
+    const data = useClientQuery(
+      graphql`
+        query RelayResolversWithOutputTypeTestTodoWithBlockedQuery($id: ID!) {
+          todo(todoID: $id) {
+            blocked_by {
+              ...RelayResolversWithOutputTypeTestFragment
+            }
+          }
+        }
+      `,
+      {id: props.todoID},
+    );
+    if (data?.todo == null) {
+      return null;
+    }
+    return data?.todo.blocked_by?.map((blocking_todo, index) => {
+      return <TodoComponent fragmentKey={blocking_todo} key={index} />;
+    });
+  }
+
+  test('should render empty state', () => {
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('No Items');
+  });
+
+  test('add new item to the list', () => {
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+
+    TestRenderer.act(() => {
+      addTodo('My first todo');
+      jest.runAllImmediates();
+    });
+
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+
+    TestRenderer.act(() => {
+      addTodo('My second todo');
+      jest.runAllImmediates();
+    });
+
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'My second todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+  });
+
+  test('complete todo', () => {
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+    TestRenderer.act(() => {
+      addTodo('My first todo');
+      jest.runAllImmediates();
+    });
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+
+    TestRenderer.act(() => {
+      completeTodo('todo-1');
+      jest.runAllImmediates();
+    });
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is completed',
+      'style: normal',
+      'color: color is green',
+    ]);
+  });
+
+  test('complete todo and add one more', () => {
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+    TestRenderer.act(() => {
+      addTodo('My first todo');
+      completeTodo('todo-1');
+      jest.runAllImmediates();
+    });
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is completed',
+      'style: normal',
+      'color: color is green',
+    ]);
+    TestRenderer.act(() => {
+      addTodo('My second todo');
+      jest.runAllImmediates();
+    });
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is completed',
+      'style: normal',
+      'color: color is green',
+      'My second todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+  });
+
+  test('query single todo item (item is missing)', () => {
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoRootComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toBe(null);
+  });
+
+  test('query single todo item (item is present) and complete it', () => {
+    addTodo('My first todo');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoRootComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+    TestRenderer.act(() => {
+      completeTodo('todo-1');
+      jest.runAllImmediates();
+    });
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is completed',
+      'style: normal',
+      'color: color is green',
+    ]);
+  });
+
+  test('render both list and item component', () => {
+    addTodo('My first todo');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+        <TodoRootComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'My first todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+
+    TestRenderer.act(() => {
+      addTodo('Second todo');
+      jest.runAllImmediates();
+    });
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'Second todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'My first todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+
+    // complete the first item
+    TestRenderer.act(() => {
+      completeTodo('todo-1');
+      jest.runAllImmediates();
+    });
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is completed',
+      'style: normal',
+      'color: color is green',
+      'Second todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'My first todo',
+      'is completed',
+      'style: normal',
+      'color: color is green',
+    ]);
+  });
+
+  test('removes item', () => {
+    addTodo('My first todo');
+    addTodo('Second todo');
+    completeTodo('todo-1');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+        <TodoRootComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is completed',
+      'style: normal',
+      'color: color is green',
+      'Second todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'My first todo',
+      'is completed',
+      'style: normal',
+      'color: color is green',
+    ]);
+
+    TestRenderer.act(() => {
+      removeTodo('todo-1');
+      jest.runAllImmediates();
+    });
+
+    expect(renderer.toJSON()).toEqual([
+      'Second todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+  });
+
+  test('renders after GC', () => {
+    addTodo('My first todo');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+      </EnvironmentWrapper>,
+    );
+
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+
+    (environment.getStore(): $FlowFixMe).__gc();
+    jest.runAllTimers();
+
+    // TODO: Fix re-rendering of the components after GK
+    // Currently, it breaks with different errors in Legacy and React_CACHE modes (so we put this as a
+    // follow-up to fix together with proper GK handling)
+    // expect(() => {
+    //   renderer.update(
+    //     <EnvironmentWrapper environment={environment} key="1">
+    //       <TodoListComponent />
+    //     </EnvironmentWrapper>,
+    //   );
+    // }).not.toThrow();
+    expect(environment.getStore().getSource().toJSON()).toEqual({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'todos(first:10)': {
+          __ref: 'client:root:todos(first:10)',
+        },
+      },
+    });
+  });
+
+  test('render with recursive resolvers (with blocked_by)', () => {
+    addTodo('My first todo');
+    addTodo('My second todo');
+    addTodo('My 3rd todo');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoListComponent />
+        <TodoRootWithBlockedComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'My second todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'My 3rd todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+
+    TestRenderer.act(() => {
+      blockedBy('todo-1', 'todo-2');
+      jest.runAllImmediates();
+    });
+
+    expect(renderer.toJSON()).toEqual([
+      'My first todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'My second todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'My 3rd todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'My second todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+  });
+});

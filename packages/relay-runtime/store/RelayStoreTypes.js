@@ -149,6 +149,12 @@ export type MissingLiveResolverField = {
   +liveStateID: DataID,
 };
 
+export type ResolverNormalizationInfo = {
+  +concreteType: string,
+  +normalizationNode: NormalizationSelectableNode,
+  +plural: boolean,
+};
+
 /**
  * A representation of a selector and its results at a particular point in time.
  */

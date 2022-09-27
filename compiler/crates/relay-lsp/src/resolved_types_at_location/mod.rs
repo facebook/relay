@@ -45,7 +45,7 @@ impl ResolvedTypesAtLocationParams {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(crate) struct ResolvedTypesAtLocationResponse {
-    pub path_and_schema_name: Option<PathAndSchemaName>,
+    pub path_and_schema_name: PathAndSchemaName,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -66,10 +66,11 @@ pub(crate) fn on_get_resolved_types_at_location(
     params: <ResolvedTypesAtLocation as Request>::Params,
 ) -> LSPRuntimeResult<<ResolvedTypesAtLocation as Request>::Result> {
     let params = params.to_text_document_position_params()?;
-    if let Ok(feature_resolution_info) = state.resolve_node(&params) {
-        let project_name = state.extract_project_name_from_url(&params.text_document.uri)?;
-        let schema = state.get_schema(&project_name)?;
+    let project_name = state.extract_project_name_from_url(&params.text_document.uri)?;
+    let schema = state.get_schema(&project_name)?;
+    let schema_name = project_name.to_string();
 
+    if let Ok(feature_resolution_info) = state.resolve_node(&params) {
         match feature_resolution_info {
             FeatureResolutionInfo::GraphqlNode(node_resolution_info) => {
                 // If type_path is empty, type_path.resolve_current_field() will panic.
@@ -81,10 +82,10 @@ pub(crate) fn on_get_resolved_types_at_location(
                         let type_name = schema.get_type_name(field.type_.inner()).to_string();
                         // TODO resolve enclosing types, not just types immediately under the cursor
                         return Ok(ResolvedTypesAtLocationResponse {
-                            path_and_schema_name: Some(PathAndSchemaName {
+                            path_and_schema_name: PathAndSchemaName {
                                 path: vec![type_name],
-                                schema_name: project_name.to_string(),
-                            }),
+                                schema_name,
+                            },
                         });
                     }
                 }
@@ -92,13 +93,19 @@ pub(crate) fn on_get_resolved_types_at_location(
             FeatureResolutionInfo::DocblockNode(_) => {
                 // Get types at location not implemented for docblocks yet.
                 return Ok(ResolvedTypesAtLocationResponse {
-                    path_and_schema_name: None,
+                    path_and_schema_name: PathAndSchemaName {
+                        path: Vec::default(),
+                        schema_name,
+                    },
                 });
             }
         }
     }
 
     Ok(ResolvedTypesAtLocationResponse {
-        path_and_schema_name: None,
+        path_and_schema_name: PathAndSchemaName {
+            path: Vec::default(),
+            schema_name,
+        },
     })
 }

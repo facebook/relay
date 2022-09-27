@@ -10,6 +10,7 @@ use std::str::FromStr;
 
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use serde::Deserialize;
 
 /// Utility to access an item in a list by its name where name is defined by the
 /// `Named` trait.
@@ -31,7 +32,7 @@ pub trait Named {
 }
 
 /// Wrapper struct for clarity rather than having StringKey everywhere.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd)]
 pub struct DirectiveName(pub StringKey);
 
 impl fmt::Display for DirectiveName {

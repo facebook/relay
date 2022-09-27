@@ -47,12 +47,6 @@ type ACTION =
       },
     };
 
-function actionToString(action: ACTION): string {
-  return action.type === 'BLOCKED_BY'
-    ? `${action.payload.todoID} is blocked by ${action.payload.blockedBy}`
-    : action.payload;
-}
-
 // A fake flux-like store for testing purposes.
 class TodoStore {
   _state: State;
@@ -106,7 +100,7 @@ class TodoStore {
             return todo.todoID != action.payload;
           })
           .map(todo => {
-            const blockedBy = new Set([...todo.blockedBy]);
+            const blockedBy = new Set(todo.blockedBy);
             blockedBy.delete(action.payload);
             return {
               ...todo,
@@ -123,9 +117,11 @@ class TodoStore {
       case 'BLOCKED_BY': {
         this._state = this._state.map(todo => {
           if (todo.todoID === action.payload.todoID) {
+            const blockedBy = new Set(todo.blockedBy);
+            blockedBy.add(action.payload.blockedBy);
             return {
               ...todo,
-              blockedBy: new Set([...todo.blockedBy, action.payload.blockedBy]),
+              blockedBy,
             };
           } else {
             return todo;

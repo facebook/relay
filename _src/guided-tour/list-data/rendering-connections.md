@@ -12,7 +12,7 @@ keywords:
 import DocsRating from '@site/src/core/DocsRating';
 import FbSuspenseListAlternative from './fb/FbSuspenseListAlternative.md';
 import FbRenderingConnectionsUsingSuspenseList from './fb/FbRenderingConnectionsUsingSuspenseList.md';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 In Relay, in order to display a list of data that is backed by a GraphQL connection, first you need to declare a fragment that queries for a connection:
 

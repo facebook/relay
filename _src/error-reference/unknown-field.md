@@ -12,7 +12,7 @@ keywords:
 - error
 ---
 
-import {FbInternalOnly} from 'internaldocs-fb-helpers';
+import {FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import DocsRating from '@site/src/core/DocsRating';
 
 ## [ERROR] Error in the project `some_project`: ✖︎ The type `Some_Type` has no field `some_unknown_field`.

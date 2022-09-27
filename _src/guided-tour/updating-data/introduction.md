@@ -11,7 +11,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 In previous sections, the guided tour discussed how to fetch data using GraphQL queries. Though [refetching data](../refetching/) can have the *incidental* effect of modifying data in Relay's local store (if the refetched data has changed), we haven't discussed any ways to *intentionally* modify our locally stored data.
 

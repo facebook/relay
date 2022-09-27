@@ -5,7 +5,7 @@ slug: /guided-tour/rendering/fragments/
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 The main building block for declaring data dependencies for React Components in Relay are [GraphQL Fragments](https://graphql.org/learn/queries/#fragments). Fragments are reusable units in GraphQL that represent a set of data to query from a GraphQL type exposed in the [schema](https://graphql.org/learn/schema/).
 

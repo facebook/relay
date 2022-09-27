@@ -12,7 +12,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 In order to manually retain a query so that the data it references isn’t garbage collected by Relay, we can use the `environment.retain` method:
 

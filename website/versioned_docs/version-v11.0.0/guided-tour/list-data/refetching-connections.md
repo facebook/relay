@@ -5,7 +5,7 @@ slug: /guided-tour/list-data/refetching-connections/
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import FbRefetchingConnectionsUsingUseTransition from './fb/FbRefetchingConnectionsUsingUseTransition.md';
 
 Often times when querying for a list of data, you can provide different values in the query which serve as filters that change the result set, or sort it differently.

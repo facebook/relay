@@ -8,7 +8,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 In GraphQL, data on the server is updated using [GraphQL mutations](https://graphql.org/learn/queries/#mutations). Mutations are read-write server operations, which both modify the data on the backend and allow you to query the modified data in the same request.
 

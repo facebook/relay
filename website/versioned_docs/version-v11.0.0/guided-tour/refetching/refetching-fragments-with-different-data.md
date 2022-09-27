@@ -5,7 +5,7 @@ slug: /guided-tour/refetching/refetching-fragments-with-different-data/
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import FbRefetchingFragments from './fb/FbRefetchingFragments.md';
 import FbAvoidSuspenseCaution from './fb/FbAvoidSuspenseCaution.md';
 import OssAvoidSuspenseNote from './OssAvoidSuspenseNote.md';

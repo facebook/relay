@@ -12,7 +12,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
+import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 Components that use preloaded queries (`useQueryLoader` and `usePreloadedQuery` hooks) require slightly different and more convoluted test setup.
 

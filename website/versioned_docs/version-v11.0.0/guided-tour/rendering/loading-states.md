@@ -6,7 +6,7 @@ slug: /guided-tour/rendering/loading-states/
 
 import DocsRating from '@site/src/core/DocsRating';
 import FbSuspensePlaceholder from '../../fb/FbSuspensePlaceholder.md';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import FbSuspenseDefinition from './fb/FbSuspenseDefinition.md';
 import FbSuspenseMoreInfo from './fb/FbSuspenseMoreInfo.md';
 import FbSuspenseTransitionsAndUpdatesThatSuspend from './fb/FbSuspenseTransitionsAndUpdatesThatSuspend.md';

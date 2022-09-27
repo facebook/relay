@@ -5,7 +5,7 @@ slug: /guided-tour/refetching/refreshing-queries/
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import FbRefreshingUsingRealTimeFeatures from './fb/FbRefreshingUsingRealTimeFeatures.md';
 import FbRefreshingQueriesUsingUseQueryLoader from './fb/FbRefreshingQueriesUsingUseQueryLoader.md';
 import FbAvoidSuspenseCaution from './fb/FbAvoidSuspenseCaution.md';

@@ -9,7 +9,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import FbRefetchingQueriesUsingUseQueryLoader from './fb/FbRefetchingQueriesUsingUseQueryLoader.md';
 import FbRefetchingQueriesUsingUseLazyLoadQuery from './fb/FbRefetchingQueriesUsingUseLazyLoadQuery.md';
 import FbAvoidSuspenseCaution from './fb/FbAvoidSuspenseCaution.md';

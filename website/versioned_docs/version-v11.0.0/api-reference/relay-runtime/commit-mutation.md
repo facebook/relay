@@ -5,7 +5,7 @@ slug: /api-reference/commit-mutation/
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import MutationConfig from '../types/MutationConfig.md';
 import Disposable from '../types/Disposable.md';
 

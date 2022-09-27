@@ -5,7 +5,7 @@ slug: /guided-tour/list-data/connections/
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
 There are several scenarios in which we'll want to query a list of data from the GraphQL server. Often times we don't want to query the *entire* set of data up front, but rather discrete sub-parts of the list, incrementally, usually in response to user input or other events. Querying a list of data in discrete parts is usually known as [Pagination](https://graphql.org/learn/pagination/).

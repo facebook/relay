@@ -10,7 +10,7 @@
 
 import './docsRating.css';
 import Link from '@docusaurus/Link';
-import {fbContent} from 'internaldocs-fb-helpers';
+import {fbContent} from 'docusaurus-plugin-internaldocs-fb/internal';
 import * as React from 'react';
 
 function provideFeedbackToGoogleAnalytics(value) {

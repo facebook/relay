@@ -5,7 +5,7 @@ slug: /guided-tour/
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 import FbCrashCourse from './fb/FbCrashCourse.md';
 

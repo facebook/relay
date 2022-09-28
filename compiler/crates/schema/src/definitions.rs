@@ -462,23 +462,23 @@ macro_rules! impl_named {
 }
 
 macro_rules! impl_named_for_with_location {
-    ($type_name:ident) => {
+    ($type_name:ident, $name_type:ident) => {
         impl Named for $type_name {
-            type Name = StringKey;
-            fn name(&self) -> StringKey {
+            type Name = $name_type;
+            fn name(&self) -> $name_type {
                 self.name.item
             }
         }
     };
 }
 
-impl_named_for_with_location!(Object);
-impl_named_for_with_location!(Field);
-impl_named_for_with_location!(InputObject);
-impl_named_for_with_location!(Interface);
-impl_named_for_with_location!(Union);
-impl_named_for_with_location!(Scalar);
-impl_named_for_with_location!(Enum);
+impl_named_for_with_location!(Object, StringKey);
+impl_named_for_with_location!(Field, StringKey);
+impl_named_for_with_location!(InputObject, StringKey);
+impl_named_for_with_location!(Interface, StringKey);
+impl_named_for_with_location!(Union, StringKey);
+impl_named_for_with_location!(Scalar, StringKey);
+impl_named_for_with_location!(Enum, StringKey);
 
 impl Named for DirectiveValue {
     type Name = DirectiveName;

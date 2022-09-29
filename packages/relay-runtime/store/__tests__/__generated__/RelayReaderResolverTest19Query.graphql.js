@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6be0ce7aadffad551b193e1e9803ebd1>>
+ * @generated SignedSource<<bded8c90b2607ea8d3993179ebc04034>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -136,14 +136,27 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
-            "args": (v1/*: any*/),
-            "concreteType": "Image",
-            "kind": "LinkedField",
-            "name": "profile_picture",
-            "plural": false,
-            "selections": (v2/*: any*/),
-            "storageKey": "profile_picture(scale:2)"
+            "name": "user_profile_picture_uri_with_scale_and_default_value",
+            "args": null,
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": (v1/*: any*/),
+                  "concreteType": "Image",
+                  "kind": "LinkedField",
+                  "name": "profile_picture",
+                  "plural": false,
+                  "selections": (v2/*: any*/),
+                  "storageKey": "profile_picture(scale:2)"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null
           },
           (v3/*: any*/),
           {

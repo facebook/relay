@@ -1191,7 +1191,10 @@ pub(crate) fn raw_response_selections_to_babel(
     let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
 
     for selection in selections {
-        if let Some(concrete_type) = selection.get_enclosing_concrete_type() {
+        let enclosing_concrete_type = selection.get_enclosing_concrete_type();
+        if enclosing_concrete_type == concrete_type {
+            base_fields.push(selection);
+        } else if let Some(concrete_type) = enclosing_concrete_type {
             by_concrete_type
                 .entry(concrete_type)
                 .or_insert_with(Vec::new)

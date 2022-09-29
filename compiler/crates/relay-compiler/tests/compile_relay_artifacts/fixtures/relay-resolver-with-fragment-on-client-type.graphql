@@ -1,0 +1,29 @@
+fragment relayResolverWithFragmentOnClientType_ResolverFragment on ClientType {
+  id
+  some_field
+}
+
+query relayResolverWithFragmentOnClientTypeQuery {
+  client_type {
+    resolver_field
+  }
+}
+
+# %extensions%
+
+type ClientType {
+  id: ID!
+  some_field: String
+}
+
+extend type Query {
+  client_type: ClientType
+}
+
+extend type ClientType {
+  resolver_field: String
+    @relay_resolver(
+      fragment_name: "relayResolverWithFragmentOnClientType_ResolverFragment"
+      import_path: "./path/to/Resolver.js"
+    )
+}

@@ -537,6 +537,19 @@ describe.each([
           __ref: 'client:root:todos(first:10)',
         },
       },
+      'client:root:todos(first:10)': {
+        __id: 'client:root:todos(first:10)',
+        __resolverError: null,
+        __resolverLiveStateDirty: false,
+        __resolverLiveStateSubscription: expect.anything(),
+        __resolverLiveStateValue: {
+          read: expect.anything(),
+          subscribe: expect.anything(),
+        },
+        __resolverSnapshot: undefined,
+        __resolverValue: 'client:TodoConnection:client:root:todos(first:10)',
+        __typename: '__RELAY_RESOLVER__',
+      },
     });
   });
 

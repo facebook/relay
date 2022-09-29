@@ -44,10 +44,10 @@ extend type Query {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
+            "name": "relay_live_resolver_example",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

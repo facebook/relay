@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<4408496423b1ebb6782f3e9528f716e0>>
+ * @generated SignedSource<<be4f1ce7bdc0bc85064c1f66aca751e0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -138,28 +138,67 @@ return {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": null,
+                "name": "user_profile_picture_uri_suspends_when_the_counter_is_odd",
                 "args": null,
-                "kind": "ScalarField",
-                "name": "name",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": (v2/*: any*/),
-                "concreteType": "Image",
-                "kind": "LinkedField",
-                "name": "profile_picture",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "uri",
-                    "storageKey": null
-                  }
-                ],
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "name": "greeting",
+                      "args": null,
+                      "fragment": {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "name",
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "User",
+                        "abstractKey": null
+                      },
+                      "kind": "RelayResolver",
+                      "storageKey": null
+                    },
+                    {
+                      "name": "user_profile_picture_uri_with_scale",
+                      "args": null,
+                      "fragment": {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": (v2/*: any*/),
+                            "concreteType": "Image",
+                            "kind": "LinkedField",
+                            "name": "profile_picture",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "uri",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "User",
+                        "abstractKey": null
+                      },
+                      "kind": "RelayResolver",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
                 "storageKey": null
               }
             ],

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<269935b6991ffb904e4770d76f88c53e>>
+ * @generated SignedSource<<528d8520fea40a664d441997de2a6d11>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -87,10 +87,23 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "always_throws",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__typename",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "__typename",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

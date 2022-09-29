@@ -1,34 +1,31 @@
 ==================================== INPUT ====================================
-# This client-defined inteface should cause us to attach metadata to the query
-fragment relayResolverOnAbstractClientType_some_resolver on SomeInterface {
-  name
+fragment relayResolverWithFragmentOnClientType_ResolverFragment on ClientType {
+  id
+  some_field
 }
 
-query relayResolverOnAbstractClientTypeQuery {
-  some_interface {
-    some_resolver
+query relayResolverWithFragmentOnClientTypeQuery {
+  client_type {
+    resolver_field
   }
 }
 
 # %extensions%
 
-interface SomeInterface {
-  name: String
-}
-
-type ClientUser implements SomeInterface {
-  name: String
+type ClientType {
+  id: ID!
+  some_field: String
 }
 
 extend type Query {
-  some_interface: SomeInterface
+  client_type: ClientType
 }
 
-extend interface SomeInterface {
-  some_resolver: Int
+extend type ClientType {
+  resolver_field: String
     @relay_resolver(
-      fragment_name: "relayResolverOnAbstractClientType_some_resolver"
-      import_path: "./foo/bar/baz/BestFriendResolver.js"
+      fragment_name: "relayResolverWithFragmentOnClientType_ResolverFragment"
+      import_path: "./path/to/Resolver.js"
     )
 }
 ==================================== OUTPUT ===================================
@@ -37,7 +34,7 @@ extend interface SomeInterface {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "relayResolverOnAbstractClientTypeQuery",
+    "name": "relayResolverWithFragmentOnClientTypeQuery",
     "selections": [
       {
         "kind": "ClientExtension",
@@ -45,9 +42,9 @@ extend interface SomeInterface {
           {
             "alias": null,
             "args": null,
-            "concreteType": null,
+            "concreteType": "ClientType",
             "kind": "LinkedField",
-            "name": "some_interface",
+            "name": "client_type",
             "plural": false,
             "selections": [
               {
@@ -56,12 +53,12 @@ extend interface SomeInterface {
                 "fragment": {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "relayResolverOnAbstractClientType_some_resolver"
+                  "name": "relayResolverWithFragmentOnClientType_ResolverFragment"
                 },
                 "kind": "RelayResolver",
-                "name": "some_resolver",
-                "resolverModule": require('BestFriendResolver'),
-                "path": "some_interface.some_resolver"
+                "name": "resolver_field",
+                "resolverModule": require('Resolver'),
+                "path": "client_type.resolver_field"
               }
             ],
             "storageKey": null
@@ -76,7 +73,7 @@ extend interface SomeInterface {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "relayResolverOnAbstractClientTypeQuery",
+    "name": "relayResolverWithFragmentOnClientTypeQuery",
     "selections": [
       {
         "kind": "ClientExtension",
@@ -84,20 +81,13 @@ extend interface SomeInterface {
           {
             "alias": null,
             "args": null,
-            "concreteType": null,
+            "concreteType": "ClientType",
             "kind": "LinkedField",
-            "name": "some_interface",
+            "name": "client_type",
             "plural": false,
             "selections": [
               {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__typename",
-                "storageKey": null
-              },
-              {
-                "name": "some_resolver",
+                "name": "resolver_field",
                 "args": null,
                 "fragment": {
                   "kind": "InlineFragment",
@@ -106,14 +96,28 @@ extend interface SomeInterface {
                       "alias": null,
                       "args": null,
                       "kind": "ScalarField",
-                      "name": "name",
+                      "name": "id",
+                      "storageKey": null
+                    },
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "some_field",
                       "storageKey": null
                     }
                   ],
-                  "type": "SomeInterface",
-                  "abstractKey": "__isSomeInterface"
+                  "type": "ClientType",
+                  "abstractKey": null
                 },
                 "kind": "RelayResolver",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
                 "storageKey": null
               }
             ],
@@ -121,18 +125,13 @@ extend interface SomeInterface {
           }
         ]
       }
-    ],
-    "clientAbstractTypes": {
-      "__isSomeInterface": [
-        "ClientUser"
-      ]
-    }
+    ]
   },
   "params": {
-    "cacheID": "49fcd5d334fd3a820e1080fcaf506335",
+    "cacheID": "57fc7bae0df99cb14afd15a3315d63dc",
     "id": null,
     "metadata": {},
-    "name": "relayResolverOnAbstractClientTypeQuery",
+    "name": "relayResolverWithFragmentOnClientTypeQuery",
     "operationKind": "query",
     "text": null
   }
@@ -146,7 +145,7 @@ Query Text is Empty.
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "relayResolverOnAbstractClientType_some_resolver",
+  "name": "relayResolverWithFragmentOnClientType_ResolverFragment",
   "selections": [
     {
       "kind": "ClientExtension",
@@ -155,12 +154,19 @@ Query Text is Empty.
           "alias": null,
           "args": null,
           "kind": "ScalarField",
-          "name": "name",
+          "name": "id",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "some_field",
           "storageKey": null
         }
       ]
     }
   ],
-  "type": "SomeInterface",
-  "abstractKey": "__isSomeInterface"
+  "type": "ClientType",
+  "abstractKey": null
 }

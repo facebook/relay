@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<717b0d8205e425035b749a1977224521>>
+ * @generated SignedSource<<11623bf0494ee64893396c8b4471c338>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -132,10 +132,23 @@ return {
             "selections": [
               (v2/*: any*/),
               {
-                "alias": null,
+                "name": "resolver_that_throws",
                 "args": null,
-                "kind": "ScalarField",
-                "name": "username",
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "username",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
                 "storageKey": null
               }
             ],

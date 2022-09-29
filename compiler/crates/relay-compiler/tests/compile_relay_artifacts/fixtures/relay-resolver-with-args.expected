@@ -105,35 +105,48 @@ extend type User {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": null,
+                "name": "pop_star_name",
                 "args": null,
-                "kind": "ScalarField",
-                "name": "name",
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "name",
+                      "storageKey": null
+                    },
+                    {
+                      "alias": null,
+                      "args": [
+                        {
+                          "kind": "Literal",
+                          "name": "scale",
+                          "value": 1.5
+                        }
+                      ],
+                      "concreteType": "Image",
+                      "kind": "LinkedField",
+                      "name": "profile_picture",
+                      "plural": false,
+                      "selections": [
+                        {
+                          "alias": null,
+                          "args": null,
+                          "kind": "ScalarField",
+                          "name": "uri",
+                          "storageKey": null
+                        }
+                      ],
+                      "storageKey": "profile_picture(scale:1.5)"
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
                 "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": [
-                  {
-                    "kind": "Literal",
-                    "name": "scale",
-                    "value": 1.5
-                  }
-                ],
-                "concreteType": "Image",
-                "kind": "LinkedField",
-                "name": "profile_picture",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "uri",
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": "profile_picture(scale:1.5)"
               }
             ],
             "type": "User",

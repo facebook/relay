@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d42da8dba8f4e3d3e7518024cc7d0a84>>
+ * @generated SignedSource<<42ad5779c7d30d856ef6f5609b2ca724>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -40,13 +40,15 @@ export type RelayReaderClientEdgesTest7Query = {|
 */
 
 var node/*: ConcreteRequest*/ = (function(){
-var v0 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "name",
-  "storageKey": null
-};
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "name",
+    "storageKey": null
+  }
+];
 return {
   "fragment": {
     "argumentDefinitions": [],
@@ -87,9 +89,7 @@ return {
               "kind": "LinkedField",
               "name": "null_client_edge",
               "plural": false,
-              "selections": [
-                (v0/*: any*/)
-              ],
+              "selections": (v0/*: any*/),
               "storageKey": null
             }
           }
@@ -114,7 +114,18 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          {
+            "name": "null_client_edge",
+            "args": null,
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": (v0/*: any*/),
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null
+          },
           {
             "alias": null,
             "args": null,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3fcc1c1be13f9aff87815b05098fdc88>>
+ * @generated SignedSource<<44791a1d4aecd5cb1ce764dda1b700c4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -44,7 +44,46 @@ export type LiveResolversTestNestedQuery = {|
 |};
 */
 
-var node/*: ConcreteRequest*/ = {
+var node/*: ConcreteRequest*/ = (function(){
+var v0 = {
+  "name": "inner",
+  "args": null,
+  "fragment": {
+    "kind": "InlineFragment",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "me",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "RelayResolver",
+  "storageKey": null
+};
+return {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
@@ -88,30 +127,20 @@ var node/*: ConcreteRequest*/ = {
     "name": "LiveResolversTestNestedQuery",
     "selections": [
       {
-        "alias": null,
+        "name": "outer",
         "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          }
-        ],
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            (v0/*: any*/)
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
         "storageKey": null
-      }
+      },
+      (v0/*: any*/)
     ]
   },
   "params": {
@@ -123,6 +152,7 @@ var node/*: ConcreteRequest*/ = {
     "text": "query LiveResolversTestNestedQuery {\n  ...OuterResolver\n  ...InnerResolver\n}\n\nfragment InnerResolver on Query {\n  me {\n    name\n    id\n  }\n}\n\nfragment OuterResolver on Query {\n  ...InnerResolver\n}\n"
   }
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "6985c8175a8d589a4b7a04f9e8bb0265";

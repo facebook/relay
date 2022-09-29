@@ -118,18 +118,30 @@ extend type User {
                 "kind": "ClientExtension",
                 "selections": [
                   {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "__id",
-                    "storageKey": null
+                    "name": "pop_star_name",
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "scale",
+                        "value": 1.5
+                      }
+                    ],
+                    "fragment": null,
+                    "kind": "RelayResolver",
+                    "storageKey": "pop_star_name(scale:1.5)"
                   },
                   {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "__id",
-                    "storageKey": null
+                    "name": "pop_star_name",
+                    "args": [
+                      {
+                        "kind": "Literal",
+                        "name": "scale",
+                        "value": 2.5
+                      }
+                    ],
+                    "fragment": null,
+                    "kind": "RelayResolver",
+                    "storageKey": "pop_star_name(scale:2.5)"
                   }
                 ]
               }

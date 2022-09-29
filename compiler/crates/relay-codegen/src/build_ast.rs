@@ -548,6 +548,25 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                     .is_some()
                 {
                     vec![self.build_actor_change(context, inline_fragment)]
+                } else if let Some(resolver_metadata) =
+                    RelayResolverMetadata::find(&inline_fragment.directives)
+                {
+                    match self.variant {
+                        CodegenVariant::Reader => {
+                            panic!(
+                                "Unexpected RelayResolverMetadata on inline fragment while generating Reader AST"
+                            )
+                        }
+                        CodegenVariant::Normalization => {
+                            let fragment_primitive =
+                                self.build_inline_fragment(context, inline_fragment);
+
+                            vec![self.build_normalization_relay_resolver(
+                                resolver_metadata,
+                                Some(fragment_primitive),
+                            )]
+                        }
+                    }
                 } else {
                     vec![self.build_inline_fragment(context, inline_fragment)]
                 }
@@ -589,18 +608,53 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         field: &ScalarField,
         resolver_metadata: &RelayResolverMetadata,
     ) -> Primitive {
-        match self.variant {
-            CodegenVariant::Reader => {
-                let resolver_primitive = self.build_relay_resolver(None, resolver_metadata);
-                if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives)
-                {
-                    self.build_required_field(required_metadata, resolver_primitive)
-                } else {
-                    resolver_primitive
-                }
+        let resolver_primitive = match self.variant {
+            CodegenVariant::Reader => self.build_reader_relay_resolver(resolver_metadata, None),
+            CodegenVariant::Normalization => {
+                self.build_normalization_relay_resolver(resolver_metadata, None)
             }
-            CodegenVariant::Normalization => self.build_scalar_field(field),
+        };
+        if let Some(required_metadata) = RequiredMetadataDirective::find(&field.directives) {
+            self.build_required_field(required_metadata, resolver_primitive)
+        } else {
+            resolver_primitive
         }
+    }
+
+    // For Relay Resolvers in the normalization AST, we need to include enough
+    // information to retain resolver fields during GC. Tha means the data for
+    // the resolver's root query as well as enough data to derive the storage
+    // key for the resolver itself in the cache.
+    fn build_normalization_relay_resolver(
+        &mut self,
+        resolver_metadata: &RelayResolverMetadata,
+        inline_fragment: Option<Primitive>,
+    ) -> Primitive {
+        let field_name = resolver_metadata.field_name;
+        let field_arguments = &resolver_metadata.field_arguments;
+        let args = self.build_arguments(field_arguments);
+        Primitive::Key(self.object(object! {
+            name: Primitive::String(field_name),
+            args: match args {
+                None => Primitive::SkippableNull,
+                Some(key) => Primitive::Key(key),
+            },
+            fragment: match inline_fragment {
+                None => Primitive::SkippableNull,
+                Some(fragment) => fragment,
+            },
+            kind: Primitive::String(CODEGEN_CONSTANTS.relay_resolver),
+            storage_key: match args {
+                None => Primitive::SkippableNull,
+                Some(key) => {
+                    if is_static_storage_key_available(&resolver_metadata.field_arguments) {
+                        Primitive::StorageKey(field_name, key)
+                    } else {
+                        Primitive::SkippableNull
+                    }
+                }
+            },
+        }))
     }
 
     fn build_scalar_field_and_handles(&mut self, field: &ScalarField) -> Vec<Primitive> {
@@ -900,7 +954,16 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             }))
         } else if let Some(resolver_metadata) = RelayResolverMetadata::find(&frag_spread.directives)
         {
-            let resolver_primitive = self.build_relay_resolver(Some(primitive), resolver_metadata);
+            let resolver_primitive = match self.variant {
+                CodegenVariant::Reader => {
+                    self.build_reader_relay_resolver(resolver_metadata, Some(primitive))
+                }
+                // We expect all RelayResolver fragment spreads to be inlined into inline fragment spreads when generating Normalization ASTs.
+                CodegenVariant::Normalization => panic!(
+                    "Unexpected RelayResolverMetadata on fragment spread while generating normalizaton AST."
+                ),
+            };
+
             if let Some(required_metadata) =
                 RequiredMetadataDirective::find(&frag_spread.directives)
             {
@@ -913,10 +976,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         }
     }
 
-    fn build_relay_resolver(
+    fn build_reader_relay_resolver(
         &mut self,
-        fragment_primitive: Option<Primitive>,
         relay_resolver_metadata: &RelayResolverMetadata,
+        fragment_primitive: Option<Primitive>,
     ) -> Primitive {
         let module = relay_resolver_metadata.import_path;
         let field_name = relay_resolver_metadata.field_name;
@@ -936,6 +999,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         let args = self.build_arguments(field_arguments);
 
+        // For Relay Resolvers in the Reader AST, we need enough
+        // information to _read_ the resolver. Specifically, enough data
+        // to construct a fragment key, and an import of the resolver
+        // module itself.
         Primitive::Key(self.object(object! {
             :build_alias(field_alias, field_name),
             args: match args {

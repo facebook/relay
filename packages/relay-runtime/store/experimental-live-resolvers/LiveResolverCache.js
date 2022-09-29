@@ -437,22 +437,14 @@ class LiveResolverCache implements ResolverCache {
     resolverNoramlizationInfo: ?ResolverNormalizationInfo,
   ): void {
     if (value != null && resolverNoramlizationInfo != null) {
-      invariant(
-        typeof value == 'object',
-        '_setRelayResolverValue: Expected object value as the payload for the @outputType resolver.',
-      );
       const resolverDataID = RelayModernRecord.getDataID(resolverRecord);
       let resolverValue: DataID | Array<DataID>;
       const target = this._getRecordSource();
-
       if (resolverNoramlizationInfo.plural) {
-        if (!Array.isArray(value)) {
-          invariant(
-            false,
-            '_setRelayResolverValue: Expected array value for plural @outputType resolver. Got `%s`.',
-            JSON.stringify(value),
-          );
-        }
+        invariant(
+          Array.isArray(value),
+          '_setRelayResolverValue: Expected array value for plural @outputType resolver.',
+        );
 
         // For plural resolvers we will be returning
         // the list of generated @outputType record `ID`s.
@@ -460,6 +452,14 @@ class LiveResolverCache implements ResolverCache {
 
         const existingRecords = [];
         for (let ii = 0; ii < value.length; ii++) {
+          const currentValue = value[ii];
+          if (currentValue == null) {
+            continue;
+          }
+          invariant(
+            typeof currentValue == 'object',
+            '_setRelayResolverValue: Expected object value as the payload for the @outputType resolver.',
+          );
           // The `id` of the nested object (@outputType resolver)
           // is localized to it's resolver record. To ensure that
           // there is only one path to the records created from the
@@ -470,7 +470,7 @@ class LiveResolverCache implements ResolverCache {
           );
           const source = normalizeOutputTypeValue(
             outputTypeDataID,
-            value[ii],
+            currentValue,
             variables,
             resolverNoramlizationInfo,
             this._store.__getNormalizationOptions([`${fieldPath}.${ii}`]),
@@ -504,6 +504,10 @@ class LiveResolverCache implements ResolverCache {
           this._store.__publishSourcesAndNotifyOnlyUpdatedIds(existingRecords);
         }
       } else {
+        invariant(
+          typeof value == 'object',
+          '_setRelayResolverValue: Expected object value as the payload for the @outputType resolver.',
+        );
         const outputTypeDataID = generateClientObjectClientID(
           resolverNoramlizationInfo.concreteType,
           resolverDataID,

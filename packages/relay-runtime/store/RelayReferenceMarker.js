@@ -158,7 +158,18 @@ class RelayReferenceMarker {
         case INLINE_FRAGMENT:
           if (selection.abstractKey == null) {
             const typeName = RelayModernRecord.getType(record);
-            if (typeName != null && typeName === selection.type) {
+            if (
+              (typeName != null && typeName === selection.type) ||
+              // Our root record has a special type of `__Root` which may not
+              // match the shcema type of Query/Mutation or whatever the shcema
+              // specifies.
+              //
+              // If we have an inline fragment on a concrete type within an
+              // operation root, and our query has been validated, we know that
+              // concrete type must match, since the operation selection must be
+              // on a concrete type.
+              typeName === RelayStoreUtils.ROOT_TYPE
+            ) {
               this._traverseSelections(selection.selections, record);
             }
           } else {

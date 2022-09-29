@@ -29,6 +29,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * Resolver interface.
  */
 function counter(rootKey: LiveCounterResolver$key): LiveState<number> {
+  counter.callCount += 1;
   readFragment(
     graphql`
       fragment LiveCounterResolver on Query {
@@ -51,5 +52,7 @@ function counter(rootKey: LiveCounterResolver$key): LiveState<number> {
     },
   };
 }
+
+counter.callCount = 0;
 
 module.exports = counter;

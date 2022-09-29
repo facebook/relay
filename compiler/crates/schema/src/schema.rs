@@ -182,7 +182,7 @@ impl Schema for SDLSchema {
     /// have a type to instantiate the argument.
     ///
     /// TODO: we probably want to replace this with a proper `Unknown` type.
-    fn unchecked_argument_type_sentinel(&self) -> &TypeReference {
+    fn unchecked_argument_type_sentinel(&self) -> &TypeReference<Type> {
         match self {
             SDLSchema::FlatBuffer(schema) => schema.unchecked_argument_type_sentinel(),
             SDLSchema::InMemory(schema) => schema.unchecked_argument_type_sentinel(),

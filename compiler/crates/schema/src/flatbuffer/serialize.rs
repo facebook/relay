@@ -432,7 +432,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
 
     fn serialize_type_reference(
         &mut self,
-        type_: &TypeReference,
+        type_: &TypeReference<Type>,
     ) -> WIPOffset<schema_flatbuffer::TypeReference<'fb>> {
         let mut args = schema_flatbuffer::TypeReferenceArgs::default();
         match type_ {

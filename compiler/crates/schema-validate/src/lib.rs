@@ -592,7 +592,7 @@ fn is_introspection_type(type_: &Type, type_name: StringKey) -> bool {
     is_named_type(type_) && INTROSPECTION_TYPES.contains(&type_name)
 }
 
-fn is_output_type(type_: &TypeReference) -> bool {
+fn is_output_type(type_: &TypeReference<Type>) -> bool {
     let type_ = type_.inner();
     type_.is_enum()
         || type_.is_interface()
@@ -601,7 +601,7 @@ fn is_output_type(type_: &TypeReference) -> bool {
         || type_.is_union()
 }
 
-fn is_input_type(type_: &TypeReference) -> bool {
+fn is_input_type(type_: &TypeReference<Type>) -> bool {
     let type_ = type_.inner();
     type_.is_enum() || type_.is_input_type() || type_.is_scalar()
 }

@@ -349,7 +349,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     fn parse_type_reference(
         &self,
         type_reference: schema_flatbuffer::TypeReference<'fb>,
-    ) -> Option<TypeReference> {
+    ) -> Option<TypeReference<Type>> {
         Some(match type_reference.kind() {
             schema_flatbuffer::TypeReferenceKind::Named => {
                 let type_name = self.get_fbtype_name(&type_reference.named()?);

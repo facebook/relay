@@ -35,10 +35,10 @@ pub enum SchemaValidationError {
     TypeWithNoFields,
 
     #[error("The type of '{0}.{1}' must be Output Type but got: '{2:?}'.")]
-    InvalidFieldType(StringKey, StringKey, TypeReference),
+    InvalidFieldType(StringKey, StringKey, TypeReference<Type>),
 
     #[error("The type of '{0}.{1}({2}:)' must be InputType but got: '{3:?}'.")]
-    InvalidArgumentType(StringKey, StringKey, ArgumentName, TypeReference),
+    InvalidArgumentType(StringKey, StringKey, ArgumentName, TypeReference<Type>),
 
     #[error("Type '{0}' can only implement '{1}' once.")]
     DuplicateInterfaceImplementation(StringKey, StringKey),

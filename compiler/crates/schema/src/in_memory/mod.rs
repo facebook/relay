@@ -53,7 +53,7 @@ pub struct InMemorySchema {
     string_type: Option<Type>,
     id_type: Option<Type>,
 
-    unchecked_argument_type_sentinel: Option<TypeReference>,
+    unchecked_argument_type_sentinel: Option<TypeReference<Type>>,
 
     directives: HashMap<DirectiveName, Directive>,
 
@@ -219,7 +219,7 @@ impl Schema for InMemorySchema {
     /// have a type to instantiate the argument.
     ///
     /// TODO: we probably want to replace this with a proper `Unknown` type.
-    fn unchecked_argument_type_sentinel(&self) -> &TypeReference {
+    fn unchecked_argument_type_sentinel(&self) -> &TypeReference<Type> {
         self.unchecked_argument_type_sentinel.as_ref().unwrap()
     }
 
@@ -1485,7 +1485,7 @@ impl InMemorySchema {
     fn build_input_object_reference(
         &mut self,
         ast_type: &TypeAnnotation,
-    ) -> DiagnosticsResult<TypeReference> {
+    ) -> DiagnosticsResult<TypeReference<Type>> {
         Ok(match ast_type {
             TypeAnnotation::Named(named_type) => {
                 let type_ = self.type_map.get(&named_type.name.value).ok_or_else(|| {
@@ -1516,7 +1516,7 @@ impl InMemorySchema {
         &mut self,
         ast_type: &TypeAnnotation,
         source_location: SourceLocationKey,
-    ) -> DiagnosticsResult<TypeReference> {
+    ) -> DiagnosticsResult<TypeReference<Type>> {
         Ok(match ast_type {
             TypeAnnotation::Named(named_type) => TypeReference::Named(
                 *self.type_map.get(&named_type.name.value).ok_or_else(|| {

@@ -168,14 +168,14 @@ impl fmt::Debug for Type {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub enum TypeReference {
-    Named(Type),
-    NonNull(Box<TypeReference>),
-    List(Box<TypeReference>),
+pub enum TypeReference<T> {
+    Named(T),
+    NonNull(Box<TypeReference<T>>),
+    List(Box<TypeReference<T>>),
 }
 
-impl TypeReference {
-    pub fn inner(&self) -> Type {
+impl<T: Copy> TypeReference<T> {
+    pub fn inner(&self) -> T {
         match self {
             TypeReference::Named(type_) => *type_,
             TypeReference::List(of) => of.inner(),
@@ -183,7 +183,7 @@ impl TypeReference {
         }
     }
 
-    pub fn non_null(&self) -> TypeReference {
+    pub fn non_null(&self) -> TypeReference<T> {
         match self {
             TypeReference::Named(_) => TypeReference::NonNull(Box::new(self.clone())),
             TypeReference::List(_) => TypeReference::NonNull(Box::new(self.clone())),
@@ -191,7 +191,59 @@ impl TypeReference {
         }
     }
 
-    pub fn nullable_type(&self) -> &TypeReference {
+    // If the type is Named or NonNull<Named> return the inner named.
+    // If the type is a List or NonNull<List> returns a matching list with nullable items.
+    pub fn with_nullable_item_type(&self) -> TypeReference<T> {
+        match self {
+            TypeReference::Named(_) => self.clone(),
+            TypeReference::List(of) => TypeReference::List(Box::new(of.nullable_type().clone())),
+            TypeReference::NonNull(of) => {
+                let inner: &TypeReference<T> = of;
+                match inner {
+                    TypeReference::List(_) => {
+                        TypeReference::NonNull(Box::new(of.with_nullable_item_type()))
+                    }
+                    TypeReference::Named(_) => inner.clone(),
+                    TypeReference::NonNull(_) => {
+                        unreachable!("Invalid nested TypeReference::NonNull")
+                    }
+                }
+            }
+        }
+    }
+
+    // Return None if the type is a List, otherwise return the inner type
+    pub fn non_list_type(&self) -> Option<T> {
+        match self {
+            TypeReference::List(_) => None,
+            TypeReference::Named(type_) => Some(*type_),
+            TypeReference::NonNull(of) => of.non_list_type(),
+        }
+    }
+}
+
+impl<T> TypeReference<T> {
+    pub fn map<U>(self, transform: impl FnOnce(T) -> U) -> TypeReference<U> {
+        match self {
+            TypeReference::Named(inner) => TypeReference::Named(transform(inner)),
+            TypeReference::NonNull(inner) => TypeReference::NonNull(Box::new(inner.map(transform))),
+            TypeReference::List(inner) => TypeReference::List(Box::new(inner.map(transform))),
+        }
+    }
+
+    pub fn as_ref(&self) -> TypeReference<&T> {
+        match self {
+            TypeReference::Named(inner) => TypeReference::Named(inner),
+            TypeReference::NonNull(inner) => {
+                TypeReference::NonNull(Box::new(Box::as_ref(inner).as_ref()))
+            }
+            TypeReference::List(inner) => {
+                TypeReference::List(Box::new(Box::as_ref(inner).as_ref()))
+            }
+        }
+    }
+
+    pub fn nullable_type(&self) -> &TypeReference<T> {
         match self {
             TypeReference::Named(_) => self,
             TypeReference::List(_) => self,
@@ -207,40 +259,10 @@ impl TypeReference {
         matches!(self.nullable_type(), TypeReference::List(_))
     }
 
-    // If the type is Named or NonNull<Named> return the inner named.
-    // If the type is a List or NonNull<List> returns a matching list with nullable items.
-    pub fn with_nullable_item_type(&self) -> TypeReference {
-        match self {
-            TypeReference::Named(_) => self.clone(),
-            TypeReference::List(of) => TypeReference::List(Box::new(of.nullable_type().clone())),
-            TypeReference::NonNull(of) => {
-                let inner: &TypeReference = of;
-                match inner {
-                    TypeReference::List(_) => {
-                        TypeReference::NonNull(Box::new(of.with_nullable_item_type()))
-                    }
-                    TypeReference::Named(_) => inner.clone(),
-                    TypeReference::NonNull(_) => {
-                        unreachable!("Invalid nested TypeReference::NonNull")
-                    }
-                }
-            }
-        }
-    }
-
-    pub fn list_item_type(&self) -> Option<&TypeReference> {
+    pub fn list_item_type(&self) -> Option<&TypeReference<T>> {
         match self.nullable_type() {
             TypeReference::List(of) => Some(of),
             _ => None,
-        }
-    }
-
-    // Return None if the type is a List, otherwise return the inner type
-    pub fn non_list_type(&self) -> Option<Type> {
-        match self {
-            TypeReference::List(_) => None,
-            TypeReference::Named(type_) => Some(*type_),
-            TypeReference::NonNull(of) => of.non_list_type(),
         }
     }
 }
@@ -323,7 +345,7 @@ pub struct Field {
     pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub arguments: ArgumentDefinitions,
-    pub type_: TypeReference,
+    pub type_: TypeReference<Type>,
     pub directives: Vec<DirectiveValue>,
     /// The type on which this field was defined. This field is (should)
     /// always be set, except for special fields such as __typename and
@@ -353,7 +375,7 @@ impl Field {
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Argument {
     pub name: ArgumentName,
-    pub type_: TypeReference,
+    pub type_: TypeReference<Type>,
     pub default_value: Option<ConstantValue>,
     pub description: Option<StringKey>,
     pub directives: Vec<DirectiveValue>,

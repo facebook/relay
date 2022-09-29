@@ -112,6 +112,7 @@ mod tests {
     use intern::string_key::Intern;
     use relay_test_schema::TEST_SCHEMA;
     use schema::Schema;
+    use schema::Type;
     use schema::TypeReference;
 
     use super::*;
@@ -124,7 +125,7 @@ mod tests {
         WithLocation::new(default_location(), item)
     }
 
-    fn optional_int_type_reference() -> TypeReference {
+    fn optional_int_type_reference() -> TypeReference<Type> {
         TypeReference::Named(TEST_SCHEMA.get_type("Int".intern()).unwrap())
     }
 

@@ -123,14 +123,14 @@ pub enum ExecutableName {
 
 trait ArgumentLike {
     fn name(&self) -> StringKey;
-    fn type_(&self) -> &TypeReference;
+    fn type_(&self) -> &TypeReference<Type>;
 }
 
 impl ArgumentLike for &SchemaArgument {
     fn name(&self) -> StringKey {
         self.name.0
     }
-    fn type_(&self) -> &TypeReference {
+    fn type_(&self) -> &TypeReference<Type> {
         &self.type_
     }
 }
@@ -139,7 +139,7 @@ impl ArgumentLike for &VariableDefinition {
     fn name(&self) -> StringKey {
         self.name.item.0
     }
-    fn type_(&self) -> &TypeReference {
+    fn type_(&self) -> &TypeReference<Type> {
         &self.type_
     }
 }
@@ -770,7 +770,7 @@ fn resolve_completion_items_for_inline_fragment_type(
 
 fn resolve_completion_items_for_argument_value(
     schema: &SDLSchema,
-    type_: &TypeReference,
+    type_: &TypeReference<Type>,
     program: &Program,
     executable_name: ExecutableName,
 ) -> Vec<CompletionItem> {

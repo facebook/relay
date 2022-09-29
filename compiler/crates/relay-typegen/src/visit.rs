@@ -1569,7 +1569,7 @@ fn raw_response_make_prop(
 
 fn transform_scalar_type(
     typegen_context: &'_ TypegenContext<'_>,
-    type_reference: &TypeReference,
+    type_reference: &TypeReference<Type>,
     object_props: Option<AST>,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
@@ -1594,7 +1594,7 @@ fn transform_scalar_type(
 
 fn transform_non_nullable_scalar_type(
     typegen_context: &'_ TypegenContext<'_>,
-    type_reference: &TypeReference,
+    type_reference: &TypeReference<Type>,
     object_props: Option<AST>,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
@@ -1772,7 +1772,7 @@ pub(crate) fn raw_response_visit_selections(
 
 fn transform_non_nullable_input_type(
     typegen_context: &'_ TypegenContext<'_>,
-    type_ref: &TypeReference,
+    type_ref: &TypeReference<Type>,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
@@ -1840,7 +1840,7 @@ fn transform_non_nullable_input_type(
 
 pub(crate) fn transform_input_type(
     typegen_context: &'_ TypegenContext<'_>,
-    type_ref: &TypeReference,
+    type_ref: &TypeReference<Type>,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
@@ -2053,9 +2053,9 @@ fn group_refs(props: impl Iterator<Item = TypeSelection>) -> impl Iterator<Item 
 }
 
 fn apply_required_directive_nullability(
-    field_type: &TypeReference,
+    field_type: &TypeReference<Type>,
     directives: &[Directive],
-) -> TypeReference {
+) -> TypeReference<Type> {
     // We apply bubbling before the field's own @required directive (which may
     // negate the effects of bubbling) because we need handle the case where
     // null can bubble to the _items_ in a plural field which is itself

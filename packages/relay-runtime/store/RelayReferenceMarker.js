@@ -17,6 +17,7 @@ import type {
   NormalizationModuleImport,
   NormalizationNode,
   NormalizationSelection,
+  NormalizationResolverField,
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
@@ -55,6 +56,7 @@ const {
   SCALAR_HANDLE,
   STREAM,
   TYPE_DISCRIMINATOR,
+  RELAY_RESOLVER,
 } = RelayConcreteNode;
 const {ROOT_ID, getStorageKey, getModuleOperationKey} = RelayStoreUtils;
 
@@ -229,6 +231,9 @@ class RelayReferenceMarker {
           }
           this._traverseSelections(selection.fragment.selections, record);
           break;
+        case RELAY_RESOLVER:
+          this._traverseResolverField(selection, record);
+          break;
         default:
           (selection: empty);
           invariant(
@@ -238,6 +243,24 @@ class RelayReferenceMarker {
           );
       }
     });
+  }
+
+  _traverseResolverField(field: NormalizationResolverField, record: Record) {
+    const storageKey = getStorageKey(field, this._variables);
+    const dataID = RelayModernRecord.getLinkedRecordID(record, storageKey);
+
+    // If the resolver value has been created, we should retain it.
+    // This record contains our cached resolver value, and potential Live
+    // Resolver subscription.
+    if (dataID != null) {
+      this._references.add(dataID);
+    }
+
+    const {fragment} = field;
+    if (fragment != null) {
+      // Mark the contents of the resolver's data dependencies.
+      this._traverseSelections([fragment], record);
+    }
   }
 
   _traverseModuleImport(

@@ -192,6 +192,12 @@ module.exports = {
         infoLink: 'https://www.atlassian.com/',
         pinned: false,
       },
+      {
+        caption: 'Ariga',
+        image: '/img/logos/ariga.png',
+        infoLink: 'https://ariga.io/',
+        pinned: false,
+      },
     ],
   },
   onBrokenLinks: 'throw',

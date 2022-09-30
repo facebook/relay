@@ -460,14 +460,15 @@ class LiveResolverCache implements ResolverCache {
           // @outputType payload.
           const outputTypeDataID = generateClientObjectClientID(
             normalizationInfo.concreteType,
-            `${resolverDataID}:${ii}`,
+            resolverDataID,
+            ii,
           );
           const source = normalizeOutputTypeValue(
             outputTypeDataID,
             currentValue,
             variables,
             normalizationInfo,
-            this._store.__getNormalizationOptions([`${field.path}.${ii}`]),
+            this._store.__getNormalizationOptions([field.path, String(ii)]),
           );
 
           // If, the `target` source (the current store)

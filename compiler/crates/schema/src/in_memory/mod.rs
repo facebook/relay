@@ -13,6 +13,7 @@ use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
+use common::ScalarName;
 use common::SourceLocationKey;
 use common::WithLocation;
 use graphql_syntax::*;
@@ -141,7 +142,7 @@ impl Schema for InMemorySchema {
             Type::InputObject(id) => self.input_objects[id.as_usize()].name.item,
             Type::Interface(id) => self.interfaces[id.as_usize()].name.item,
             Type::Object(id) => self.objects[id.as_usize()].name.item,
-            Type::Scalar(id) => self.scalars[id.as_usize()].name.item,
+            Type::Scalar(id) => self.scalars[id.as_usize()].name.item.0,
             Type::Union(id) => self.unions[id.as_usize()].name.item,
         }
     }
@@ -439,13 +440,13 @@ impl InMemorySchema {
     }
 
     pub fn add_scalar(&mut self, scalar: Scalar) -> DiagnosticsResult<ScalarID> {
-        if self.type_map.contains_key(&scalar.name.item) {
-            return todo_add_location(SchemaError::DuplicateType(scalar.name.item));
+        if self.type_map.contains_key(&scalar.name.item.0) {
+            return todo_add_location(SchemaError::DuplicateType(scalar.name.item.0));
         }
         let index: u32 = self.scalars.len().try_into().unwrap();
         let name = scalar.name.item;
         self.scalars.push(scalar);
-        self.type_map.insert(name, Type::Scalar(ScalarID(index)));
+        self.type_map.insert(name.0, Type::Scalar(ScalarID(index)));
         Ok(ScalarID(index))
     }
 
@@ -1240,7 +1241,10 @@ impl InMemorySchema {
             }) => {
                 let directives = self.build_directive_values(directives);
                 self.scalars.push(Scalar {
-                    name: WithLocation::new(Location::new(*location_key, name.span), name.value),
+                    name: WithLocation::new(
+                        Location::new(*location_key, name.span),
+                        ScalarName(name.value),
+                    ),
                     is_extension,
                     directives,
                     description: None,

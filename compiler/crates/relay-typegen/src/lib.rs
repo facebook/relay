@@ -22,6 +22,7 @@ use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use common::DirectiveName;
 use common::NamedItem;
+use common::ScalarName;
 use common::WithLocation;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
@@ -66,11 +67,11 @@ lazy_static! {
     static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("raw_response_type".intern());
     static ref RESPONSE: StringKey = "response".intern();
-    static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
-    static ref TYPE_FLOAT: StringKey = "Float".intern();
-    static ref TYPE_ID: StringKey = "ID".intern();
-    static ref TYPE_INT: StringKey = "Int".intern();
-    static ref TYPE_STRING: StringKey = "String".intern();
+    static ref TYPE_BOOLEAN: ScalarName = ScalarName("Boolean".intern());
+    static ref TYPE_FLOAT: ScalarName = ScalarName("Float".intern());
+    static ref TYPE_ID: ScalarName = ScalarName("ID".intern());
+    static ref TYPE_INT: ScalarName = ScalarName("Int".intern());
+    static ref TYPE_STRING: ScalarName = ScalarName("String".intern());
     static ref VARIABLES: StringKey = "variables".intern();
     static ref SPREAD_KEY: StringKey = "\0SPREAD".intern();
 }

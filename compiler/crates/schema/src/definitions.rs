@@ -14,6 +14,7 @@ use common::ArgumentName;
 use common::DirectiveName;
 use common::Named;
 use common::NamedItem;
+use common::ScalarName;
 use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
@@ -286,7 +287,7 @@ impl Named for Directive {
 
 #[derive(Clone, Debug)]
 pub struct Scalar {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<ScalarName>,
     pub is_extension: bool,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
@@ -499,7 +500,7 @@ impl_named_for_with_location!(Field, StringKey);
 impl_named_for_with_location!(InputObject, StringKey);
 impl_named_for_with_location!(Interface, StringKey);
 impl_named_for_with_location!(Union, StringKey);
-impl_named_for_with_location!(Scalar, StringKey);
+impl_named_for_with_location!(Scalar, ScalarName);
 impl_named_for_with_location!(Enum, StringKey);
 
 impl Named for DirectiveValue {

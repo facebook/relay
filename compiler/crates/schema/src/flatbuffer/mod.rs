@@ -12,6 +12,7 @@ use std::cmp::Ordering;
 
 use common::ArgumentName;
 use common::DirectiveName;
+use common::ScalarName;
 use common::Span;
 use common::WithLocation;
 use flatbuffers::ForwardsUOffset;
@@ -211,7 +212,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_scalar(&self, id: ScalarID) -> Option<Scalar> {
         let scalar = self.scalars.get(id.0.try_into().unwrap());
-        let name = scalar.name()?.to_string().intern();
+        let name = ScalarName(scalar.name()?.intern());
         let parsed_scalar = Scalar {
             name: WithLocation::generated(name),
             is_extension: scalar.is_extension(),

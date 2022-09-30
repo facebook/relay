@@ -306,7 +306,7 @@ impl Schema for SchemaWrapper {
             Type::InputObject(id) => self.input_object(id).name.item,
             Type::Interface(id) => self.interface(id).name.item,
             Type::Object(id) => self.object(id).name.item,
-            Type::Scalar(id) => self.scalar(id).name.item,
+            Type::Scalar(id) => self.scalar(id).name.item.0,
             Type::Union(id) => self.union(id).name.item,
         }
     }

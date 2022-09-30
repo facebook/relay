@@ -49,6 +49,7 @@ pub use named_item::ArgumentName;
 pub use named_item::DirectiveName;
 pub use named_item::Named;
 pub use named_item::NamedItem;
+pub use named_item::ScalarName;
 pub use perf_logger::NoopPerfLogger;
 pub use perf_logger::NoopPerfLoggerEvent;
 pub use perf_logger::PerfLogEvent;

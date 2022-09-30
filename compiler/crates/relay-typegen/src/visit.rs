@@ -1374,46 +1374,46 @@ fn make_prop(
                     }
                 } else {
                     let setter_parameter = AST::Union(
-                            	SortedASTList::new(
-                                just_fragments
-                                    .iter()
-                                    .map(|fragment_spread| {
-                                        let type_condition_info =  fragment_spread
-                                            .type_condition_info
-                                            .expect("Fragment spreads in updatable queries should have TypeConditionInfo");
-                                        let (key, value) = match type_condition_info {
-                                            TypeConditionInfo::Abstract => (format!("__is{}", fragment_spread.fragment_name).intern(), AST::String),
-                                            TypeConditionInfo::Concrete { concrete_type } => ("__typename".intern(), AST::StringLiteral(StringLiteral(concrete_type))),
-                                        };
-                                        let fragment_spread_or_concrete_type_marker = Prop::KeyValuePair(KeyValuePairProp {
-                                            key,
-                                            value,
-                                            read_only: true,
-                                            optional: false,
-                                        });
-                                        let assignable_fragment_spread_ref= Prop::KeyValuePair(KeyValuePairProp {
-                                            key: *KEY_FRAGMENT_SPREADS,
-                                            value: AST::FragmentReferenceType(
-                                                fragment_spread.fragment_name.0,
-                                            ),
-                                            read_only: true,
-                                            optional: false,
-                                        });
-                                        let client_id_field = Prop::KeyValuePair(KeyValuePairProp {
-                                            key: "__id".intern(),
-                                            value: AST::String,
-                                            read_only: true,
-                                            optional: false,
-                                        });
+                                 SortedASTList::new(
+                                 just_fragments
+                                     .iter()
+                                     .map(|fragment_spread| {
+                                         let type_condition_info =  fragment_spread
+                                             .type_condition_info
+                                             .expect("Fragment spreads in updatable queries should have TypeConditionInfo");
+                                         let (key, value) = match type_condition_info {
+                                             TypeConditionInfo::Abstract => (format!("__is{}", fragment_spread.fragment_name).intern(), AST::String),
+                                             TypeConditionInfo::Concrete { concrete_type } => ("__typename".intern(), AST::StringLiteral(StringLiteral(concrete_type))),
+                                         };
+                                         let fragment_spread_or_concrete_type_marker = Prop::KeyValuePair(KeyValuePairProp {
+                                             key,
+                                             value,
+                                             read_only: true,
+                                             optional: false,
+                                         });
+                                         let assignable_fragment_spread_ref= Prop::KeyValuePair(KeyValuePairProp {
+                                             key: *KEY_FRAGMENT_SPREADS,
+                                             value: AST::FragmentReferenceType(
+                                                 fragment_spread.fragment_name.0,
+                                             ),
+                                             read_only: true,
+                                             optional: false,
+                                         });
+                                         let client_id_field = Prop::KeyValuePair(KeyValuePairProp {
+                                             key: "__id".intern(),
+                                             value: AST::String,
+                                             read_only: true,
+                                             optional: false,
+                                         });
 
-                                        AST::InexactObject(InexactObject::new(vec![
-                                            assignable_fragment_spread_ref,
-                                            fragment_spread_or_concrete_type_marker,
-                                            client_id_field,
-                                        ]))
-                                    })
-                                    .collect(),
-                            ));
+                                         AST::InexactObject(InexactObject::new(vec![
+                                             assignable_fragment_spread_ref,
+                                             fragment_spread_or_concrete_type_marker,
+                                             client_id_field,
+                                         ]))
+                                     })
+                                     .collect(),
+                             ));
                     if linked_field.node_type.is_list() {
                         AST::ReadOnlyArray(Box::new(setter_parameter))
                     } else {
@@ -2093,15 +2093,15 @@ fn to_camel_case(non_camelized_string: String) -> String {
 
 fn get_type_condition_info(fragment_spread: &FragmentSpread) -> Option<TypeConditionInfo> {
     fragment_spread
-        .directives
-        .named(*ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN)
-        .map(|directive| {
-            directive
-                .data
-                .as_ref()
-                .and_then(|data| data.downcast_ref().copied())
-                .expect("If a fragment spread contains an __updatable directive, the associated data should be present and have type TypeConditionInfo")
-        })
+         .directives
+         .named(*ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN)
+         .map(|directive| {
+             directive
+                 .data
+                 .as_ref()
+                 .and_then(|data| data.downcast_ref().copied())
+                 .expect("If a fragment spread contains an __updatable directive, the associated data should be present and have type TypeConditionInfo")
+         })
 }
 
 /// Returns the type of the generated query. This is the type parameter that you would have

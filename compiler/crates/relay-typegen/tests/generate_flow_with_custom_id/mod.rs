@@ -10,6 +10,7 @@ use std::sync::Arc;
 use common::ConsoleLogger;
 use common::FeatureFlag;
 use common::FeatureFlags;
+use common::ScalarName;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use fnv::FnvBuildHasher;
@@ -63,7 +64,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let mut custom_scalar_types = FnvIndexMap::default();
     custom_scalar_types.insert(
-        "Boolean".intern(),
+        ScalarName("Boolean".intern()),
         relay_config::CustomScalarType::Name("CustomBoolean".intern()),
     );
     let project_config = ProjectConfig {

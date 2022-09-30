@@ -204,7 +204,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         self.add_to_type_map(
             self.scalars.len(),
             schema_flatbuffer::TypeKind::Scalar,
-            name.item,
+            name.item.0,
         );
         self.scalars
             .push(schema_flatbuffer::Scalar::create(&mut self.bldr, &args));

@@ -62,7 +62,7 @@ test('Live Resolver without fragment', async () => {
       }
     `,
     variables: {},
-    payload: {data: {}},
+    payloads: [{data: {}}],
     beforeLookup: recordIdsInStore => {
       expect(recordIdsInStore).toEqual(['client:root']);
     },
@@ -105,7 +105,7 @@ test('Live Resolver _with_ root fragment', async () => {
       }
     `,
     variables: {},
-    payload: {data: {me: {__typename: 'User', id: '1'}}},
+    payloads: [{data: {me: {__typename: 'User', id: '1'}}}],
     beforeLookup: recordIdsInStore => {
       expect(recordIdsInStore).toEqual(['client:root']);
     },
@@ -147,7 +147,7 @@ test('Regular resolver with fragment reads live resovler with fragment', async (
       }
     `,
     variables: {},
-    payload: {data: {me: {__typename: 'User', id: '1'}}},
+    payloads: [{data: {me: {__typename: 'User', id: '1'}}}],
     beforeLookup: recordIdsInStore => {
       expect(recordIdsInStore).toEqual(['client:root']);
     },
@@ -197,7 +197,7 @@ test('Non-live Resolver with fragment', async () => {
       }
     `,
     variables: {},
-    payload: {data: {me: {__typename: 'User', id: '1', name: 'Elizabeth'}}},
+    payloads: [{data: {me: {__typename: 'User', id: '1', name: 'Elizabeth'}}}],
     beforeLookup: recordIdsInStore => {
       expect(recordIdsInStore).toEqual(['client:root']);
     },
@@ -236,7 +236,7 @@ test('Non-live Resolver with no fragment and static arguments', async () => {
       }
     `,
     variables: {},
-    payload: {data: {}},
+    payloads: [{data: {}}],
     beforeLookup: recordIdsInStore => {
       expect(recordIdsInStore).toEqual(['client:root']);
     },
@@ -275,7 +275,7 @@ test('Non-live Resolver with no fragment and dynamic arguments', async () => {
       }
     `,
     variables: {world: 'Planet'},
-    payload: {data: {}},
+    payloads: [{data: {}}],
     beforeLookup: recordIdsInStore => {
       expect(recordIdsInStore).toEqual(['client:root']);
     },
@@ -307,10 +307,189 @@ test('Non-live Resolver with no fragment and dynamic arguments', async () => {
   });
 });
 
+test('Resolver reading a client-edge to a server type', async () => {
+  await testResolverGC({
+    query: graphql`
+      query ResolverGCTestResolverClientEdgeToServerQuery {
+        me {
+          name
+          client_edge @waterfall {
+            id
+            name
+            nearest_neighbor {
+              id
+              name
+            }
+          }
+        }
+      }
+    `,
+    variables: {},
+    payloads: [
+      {data: {me: {__typename: 'User', id: '1', name: 'Elizabeth'}}},
+      {
+        data: {
+          node: {
+            __typename: 'User',
+            id: '1337',
+            name: 'Chelsea',
+            nearest_neighbor: {
+              id: '1234',
+              name: 'Cathy',
+            },
+          },
+        },
+      },
+    ],
+    beforeLookup: recordIdsInStore => {
+      expect(recordIdsInStore).toEqual(['client:root']);
+    },
+    afterLookup: (snapshot, recordIdsInStore) => {
+      expect(snapshot.data).toEqual({
+        me: {
+          name: 'Elizabeth',
+          client_edge: {
+            id: '1337',
+            name: 'Chelsea',
+            nearest_neighbor: {id: '1234', name: 'Cathy'},
+          },
+        },
+      });
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        '1',
+        'client:1:client_edge',
+        '1337',
+        '1234',
+      ]);
+    },
+    afterRetainedGC: (snapshot, recordIdsInStore) => {
+      expect(snapshot.data).toEqual({
+        me: {
+          name: 'Elizabeth',
+          client_edge: {
+            id: '1337',
+            name: 'Chelsea',
+            nearest_neighbor: {id: '1234', name: 'Cathy'},
+          },
+        },
+      });
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        '1',
+        'client:1:client_edge',
+        '1337',
+        '1234',
+      ]);
+    },
+    afterFreedGC: recordIdsInStore => {
+      expect(recordIdsInStore).toEqual(['client:root']);
+    },
+    afterLookupAfterFreedGC: (snapshot, recordIdsInStore) => {
+      // Note that we _can't_ recreate the Resolver value because it's root fragment has been GGed.
+      expect(snapshot.data).toEqual({me: undefined});
+      expect(recordIdsInStore).toEqual(['client:root']);
+    },
+  });
+});
+
+test('Resolver reading a client-edge to a server type (recursive)', async () => {
+  await testResolverGC({
+    query: graphql`
+      query ResolverGCTestResolverClientEdgeToServerRecursiveQuery {
+        me {
+          name
+          client_edge @waterfall {
+            id
+            name
+            another_client_edge @waterfall {
+              id
+              name
+            }
+          }
+        }
+      }
+    `,
+    variables: {},
+    payloads: [
+      {data: {me: {__typename: 'User', id: '1', name: 'Elizabeth'}}},
+      {
+        data: {
+          node: {
+            __typename: 'User',
+            id: '1337',
+            name: 'Chelsea',
+          },
+        },
+      },
+      {
+        data: {
+          node: {
+            __typename: 'User',
+            id: '1338',
+            name: 'Jordan',
+          },
+        },
+      },
+    ],
+    beforeLookup: recordIdsInStore => {
+      expect(recordIdsInStore).toEqual(['client:root']);
+    },
+    afterLookup: (snapshot, recordIdsInStore) => {
+      expect(snapshot.data).toEqual({
+        me: {
+          name: 'Elizabeth',
+          client_edge: {
+            id: '1337',
+            name: 'Chelsea',
+            another_client_edge: {id: '1338', name: 'Jordan'},
+          },
+        },
+      });
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        '1',
+        'client:1:client_edge',
+        '1337',
+        'client:1337:another_client_edge',
+        '1338',
+      ]);
+    },
+    afterRetainedGC: (snapshot, recordIdsInStore) => {
+      expect(snapshot.data).toEqual({
+        me: {
+          name: 'Elizabeth',
+          client_edge: {
+            id: '1337',
+            name: 'Chelsea',
+            another_client_edge: {id: '1338', name: 'Jordan'},
+          },
+        },
+      });
+      expect(recordIdsInStore).toEqual([
+        'client:root',
+        '1',
+        'client:1:client_edge',
+        '1337',
+        'client:1337:another_client_edge',
+        '1338',
+      ]);
+    },
+    afterFreedGC: recordIdsInStore => {
+      expect(recordIdsInStore).toEqual(['client:root']);
+    },
+    afterLookupAfterFreedGC: (snapshot, recordIdsInStore) => {
+      // Note that we _can't_ recreate the Resolver value because it's root fragment has been GGed.
+      expect(snapshot.data).toEqual({me: undefined});
+      expect(recordIdsInStore).toEqual(['client:root']);
+    },
+  });
+});
+
 type TestProps<T: OperationType> = {
   query: ConcreteRequest,
   variables: VariablesOf<T>,
-  payload: GraphQLResponse,
+  payloads: Array<GraphQLResponse>,
   beforeLookup: (recordIdsInStore: Array<DataID>) => void,
   afterLookup: (snapshot: Snapshot, recordIdsInStore: Array<DataID>) => void,
   afterRetainedGC: (
@@ -339,7 +518,7 @@ type TestProps<T: OperationType> = {
 // Note that #7 is expected to fail for resolvers that have fragment dependencies.
 async function testResolverGC<T: OperationType>({
   query,
-  payload,
+  payloads,
   variables,
   afterLookup,
   afterRetainedGC,
@@ -365,20 +544,61 @@ async function testResolverGC<T: OperationType>({
     gcReleaseBufferSize: 0,
     log: mockLogger,
   });
-  const mockPaylaod = Promise.resolve(payload);
   const environment = new RelayModernEnvironment({
-    network: RelayNetwork.create(() => mockPaylaod),
+    network: RelayNetwork.create((request, variables) => {
+      const mockPaylaod = payloads.shift();
+      if (mockPaylaod == null) {
+        throw new Error(
+          `Expected a payload for for query "${
+            request.name
+          }" with variables: ${JSON.stringify(variables)}`,
+        );
+      }
+      return Promise.resolve(mockPaylaod);
+    }),
     store,
     log: mockLogger,
   });
 
   await environment.execute({operation}).toPromise();
 
-  const snapshot = environment.lookup(operation.fragment);
+  const retains = [];
+  const operations = [operation];
+  let snapshot = environment.lookup(operation.fragment);
+
+  // As long as we have missing client edges, go fetch them.
+  // This should handle recursive client edges.
+  while (
+    snapshot.missingClientEdges != null &&
+    snapshot.missingClientEdges.length > 0
+  ) {
+    for (const missingClientEdge of snapshot.missingClientEdges) {
+      const originalVariables = operation.fragment.variables;
+      const variables = {
+        ...originalVariables,
+        id: missingClientEdge.clientEdgeDestinationID, // TODO should be a reserved name
+      };
+      const clientEdgeOperation = createOperationDescriptor(
+        missingClientEdge.request,
+        variables,
+        {}, //  TODO cacheConfig should probably inherent from parent operation
+      );
+      await environment.execute({operation: clientEdgeOperation}).toPromise();
+
+      operations.push(clientEdgeOperation);
+    }
+    // Reread the root operation in the hopes that all missing client edges have
+    // been resolved.
+    snapshot = environment.lookup(operation.fragment);
+  }
   afterLookup(snapshot, store.getSource().getRecordIDs());
 
   environment.retain(emptyQueryOperation);
-  const disposable = environment.retain(operation);
+
+  // Retain the original query, and all client edge queries fetched.
+  for (const op of operations) {
+    retains.push(environment.retain(op));
+  }
   store.__gc();
 
   const nextSnapshot = environment.lookup(operation.fragment);
@@ -386,7 +606,10 @@ async function testResolverGC<T: OperationType>({
 
   expect(nextSnapshot.isMissingData).toEqual(false); // Sanity check results
 
-  disposable.dispose();
+  // Dispose of the original query and all client edge queries fetched.
+  for (const disposable of retains) {
+    disposable.dispose();
+  }
   store.__gc();
   afterFreedGC(store.getSource().getRecordIDs());
 

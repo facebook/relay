@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<864dd3a4ed1c88af50f1007a30f666c0>>
+ * @generated SignedSource<<976a16e8607856f32ae128585702e8dd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,13 +28,15 @@ import queryTodoResolver from "../../../relay-runtime/store/__tests__/resolvers/
   args: {|
     todoID: string,
   |}, 
-) => LiveState<any>);
+) => LiveState<?Query__todo$normalization>);
 import todoBlockedByResolver from "../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver.js";
 // Type assertion validating that `todoBlockedByResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoBlockedByResolver: (
   rootKey: TodoBlockedByResolverFragment$key, 
-) => mixed);
+) => $ReadOnlyArray<?Todo__blocked_by$normalization>);
+import type { Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql";
+import type { Todo__blocked_by$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql";
 export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery$variables = {|
   id: string,
 |};

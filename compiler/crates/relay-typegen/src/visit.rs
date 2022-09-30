@@ -84,6 +84,7 @@ use crate::FRAGMENT_PROP_NAME;
 use crate::KEY_FRAGMENT_SPREADS;
 use crate::KEY_FRAGMENT_TYPE;
 use crate::KEY_UPDATABLE_FRAGMENT_SPREADS;
+use crate::LIVE_STATE_TYPE;
 use crate::MODULE_COMPONENT;
 use crate::RESPONSE;
 use crate::TYPE_BOOLEAN;
@@ -99,6 +100,7 @@ pub(crate) fn visit_selections(
     selections: &[Selection],
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
+    imported_raw_response_types: &mut ImportedRawResponseTypes,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
@@ -116,6 +118,7 @@ pub(crate) fn visit_selections(
                 input_object_types,
                 encountered_enums,
                 custom_scalars,
+                imported_raw_response_types,
                 encountered_fragments,
                 imported_resolvers,
                 runtime_imports,
@@ -126,6 +129,7 @@ pub(crate) fn visit_selections(
                 inline_fragment,
                 input_object_types,
                 encountered_enums,
+                imported_raw_response_types,
                 encountered_fragments,
                 imported_resolvers,
                 actor_change_status,
@@ -155,6 +159,7 @@ pub(crate) fn visit_selections(
                             selections,
                             input_object_types,
                             encountered_enums,
+                            imported_raw_response_types,
                             encountered_fragments,
                             imported_resolvers,
                             actor_change_status,
@@ -175,6 +180,7 @@ pub(crate) fn visit_selections(
                         input_object_types,
                         encountered_enums,
                         custom_scalars,
+                        imported_raw_response_types,
                         encountered_fragments,
                         runtime_imports,
                         &mut type_selections,
@@ -199,6 +205,7 @@ pub(crate) fn visit_selections(
                 condition,
                 input_object_types,
                 encountered_enums,
+                imported_raw_response_types,
                 encountered_fragments,
                 imported_resolvers,
                 actor_change_status,
@@ -219,6 +226,7 @@ fn visit_fragment_spread(
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
+    imported_raw_response_types: &mut ImportedRawResponseTypes,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
     runtime_imports: &mut RuntimeImports,
@@ -230,6 +238,7 @@ fn visit_fragment_spread(
             input_object_types,
             encountered_enums,
             custom_scalars,
+            imported_raw_response_types,
             encountered_fragments,
             runtime_imports,
             type_selections,
@@ -280,6 +289,7 @@ fn generate_resolver_type(
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
+    imported_raw_response_types: &mut ImportedRawResponseTypes,
     encountered_fragments: &mut EncounteredFragments,
     runtime_imports: &mut RuntimeImports,
     resolver_name: StringKey,
@@ -340,6 +350,25 @@ fn generate_resolver_type(
             optional: false,
         });
     }
+    let inner_type = resolver_metadata
+        .normalization_info
+        .as_ref()
+        .map(|normalization_info| {
+            imported_raw_response_types.0.insert(
+                normalization_info.normalization_operation.item.0,
+                Some(normalization_info.normalization_operation.location),
+            );
+
+            let type_ = AST::Nullable(Box::new(AST::RawType(
+                normalization_info.normalization_operation.item.0,
+            )));
+
+            if normalization_info.plural {
+                AST::ReadOnlyArray(Box::new(type_))
+            } else {
+                type_
+            }
+        });
 
     let return_type = if matches!(
         typegen_context.project_config.typegen_config.language,
@@ -349,9 +378,12 @@ fn generate_resolver_type(
         AST::Any
     } else if resolver_metadata.live {
         runtime_imports.import_relay_resolver_live_state_type = true;
-        AST::RawType("LiveState<any>".intern())
+        AST::GenericType {
+            outer: *LIVE_STATE_TYPE,
+            inner: Box::new(inner_type.unwrap_or(AST::Any)),
+        }
     } else {
-        AST::RawType("mixed".intern())
+        inner_type.unwrap_or(AST::RawType("mixed".intern()))
     };
 
     AST::AssertFunctionType(FunctionTypeAssertion {
@@ -372,6 +404,7 @@ fn import_relay_resolver_function_type(
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
+    imported_raw_response_types: &mut ImportedRawResponseTypes,
     encountered_fragments: &mut EncounteredFragments,
     runtime_imports: &mut RuntimeImports,
     resolver_metadata: &RelayResolverMetadata,
@@ -393,6 +426,7 @@ fn import_relay_resolver_function_type(
             input_object_types,
             encountered_enums,
             custom_scalars,
+            imported_raw_response_types,
             encountered_fragments,
             runtime_imports,
             local_resolver_name,
@@ -414,6 +448,7 @@ fn visit_relay_resolver(
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
+    imported_raw_response_types: &mut ImportedRawResponseTypes,
     encountered_fragments: &mut EncounteredFragments,
     runtime_imports: &mut RuntimeImports,
     type_selections: &mut Vec<TypeSelection>,
@@ -427,6 +462,7 @@ fn visit_relay_resolver(
         input_object_types,
         encountered_enums,
         custom_scalars,
+        imported_raw_response_types,
         encountered_fragments,
         runtime_imports,
         resolver_metadata,
@@ -466,6 +502,7 @@ fn visit_client_edge(
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
     custom_scalars: &mut CustomScalarsImports,
+    imported_raw_response_types: &mut ImportedRawResponseTypes,
     encountered_fragments: &mut EncounteredFragments,
     type_selections: &mut Vec<TypeSelection>,
     client_edge_metadata: &ClientEdgeMetadata<'_>,
@@ -494,6 +531,7 @@ fn visit_client_edge(
             input_object_types,
             encountered_enums,
             custom_scalars,
+            imported_raw_response_types,
             encountered_fragments,
             runtime_imports,
             resolver_metadata,
@@ -506,6 +544,7 @@ fn visit_client_edge(
         &[client_edge_metadata.selections.clone()],
         input_object_types,
         encountered_enums,
+        imported_raw_response_types,
         encountered_fragments,
         imported_resolvers,
         actor_change_status,
@@ -523,6 +562,7 @@ fn visit_inline_fragment(
     inline_fragment: &InlineFragment,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
+    imported_raw_response_types: &mut ImportedRawResponseTypes,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
@@ -565,6 +605,7 @@ fn visit_inline_fragment(
             inline_fragment,
             input_object_types,
             encountered_enums,
+            imported_raw_response_types,
             encountered_fragments,
             imported_resolvers,
             actor_change_status,
@@ -578,6 +619,7 @@ fn visit_inline_fragment(
             input_object_types,
             encountered_enums,
             custom_scalars,
+            imported_raw_response_types,
             encountered_fragments,
             type_selections,
             &client_edge_metadata,
@@ -592,6 +634,7 @@ fn visit_inline_fragment(
             &inline_fragment.selections,
             input_object_types,
             encountered_enums,
+            imported_raw_response_types,
             encountered_fragments,
             imported_resolvers,
             actor_change_status,
@@ -653,6 +696,7 @@ fn visit_actor_change(
     inline_fragment: &InlineFragment,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
+    imported_raw_response_types: &mut ImportedRawResponseTypes,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
@@ -681,6 +725,7 @@ fn visit_actor_change(
         &linked_field.selections,
         input_object_types,
         encountered_enums,
+        imported_raw_response_types,
         encountered_fragments,
         imported_resolvers,
         actor_change_status,
@@ -872,6 +917,7 @@ fn visit_condition(
     condition: &Condition,
     input_object_types: &mut InputObjectTypes,
     encountered_enums: &mut EncounteredEnums,
+    imported_raw_response_types: &mut ImportedRawResponseTypes,
     encountered_fragments: &mut EncounteredFragments,
     imported_resolvers: &mut ImportedResolvers,
     actor_change_status: &mut ActorChangeStatus,
@@ -884,6 +930,7 @@ fn visit_condition(
         &condition.selections,
         input_object_types,
         encountered_enums,
+        imported_raw_response_types,
         encountered_fragments,
         imported_resolvers,
         actor_change_status,
@@ -1695,7 +1742,13 @@ pub(crate) fn raw_response_visit_selections(
                 // @no_inline if no_inline isn't enabled for the fragment.
                 if NoInlineFragmentSpreadMetadata::find(&spread.directives).is_some() {
                     let spread_type = spread.fragment.item.0;
-                    imported_raw_response_types.0.insert(spread_type);
+                    imported_raw_response_types.0.insert(
+                        spread_type,
+                        typegen_context
+                            .fragment_locations
+                            .location(&spread.fragment.item)
+                            .copied(),
+                    );
                     type_selections.push(TypeSelection::RawResponseFragmentSpread(
                         RawResponseFragmentSpread {
                             value: spread_type,

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<14bd9d75c6a49376caeb6b5f782c2592>>
+ * @generated SignedSource<<7e1639025882961a6cb827aab1f601ce>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,8 @@ import queryTodoResolver from "../../../relay-runtime/store/__tests__/resolvers/
   args: {|
     todoID: string,
   |}, 
-) => LiveState<any>);
+) => LiveState<?Query__todo$normalization>);
+import type { Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql";
 export type RelayResolversWithOutputTypeTestTodoQuery$variables = {|
   id: string,
 |};

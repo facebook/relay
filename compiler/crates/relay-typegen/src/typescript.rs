@@ -79,6 +79,7 @@ impl Writer for TypeScriptPrinter {
                 // TODO: Implement type generation for typescript
                 Ok(())
             }
+            AST::GenericType { outer, inner } => self.write_generic_type(*outer, inner),
         }
     }
 
@@ -305,6 +306,12 @@ impl TypeScriptPrinter {
     fn write_callable(&mut self, return_type: &AST) -> FmtResult {
         write!(&mut self.result, "() => ")?;
         self.write(return_type)
+    }
+
+    fn write_generic_type(&mut self, outer: StringKey, inner: &AST) -> FmtResult {
+        write!(&mut self.result, "{}<", outer)?;
+        self.write(inner)?;
+        write!(&mut self.result, ">")
     }
 }
 

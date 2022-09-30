@@ -14,7 +14,6 @@ use fnv::FnvHashSet;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use indexmap::IndexMap;
-use indexmap::IndexSet;
 use intern::string_key::StringKey;
 use schema::EnumID;
 use schema::SDLSchema;
@@ -134,7 +133,7 @@ pub(crate) struct ImportedResolver {
 pub(crate) struct ImportedResolvers(pub(crate) IndexMap<StringKey, ImportedResolver>);
 
 #[derive(Default)]
-pub(crate) struct ImportedRawResponseTypes(pub(crate) IndexSet<StringKey>);
+pub(crate) struct ImportedRawResponseTypes(pub(crate) IndexMap<StringKey, Option<Location>>);
 
 /// Have we encountered an actor change? Use an enum for bookkeeping, since it
 /// will be passed around in many places.

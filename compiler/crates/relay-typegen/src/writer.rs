@@ -48,6 +48,10 @@ pub enum AST {
     ReturnTypeOfMethodCall(Box<AST>, StringKey),
     ActorChangePoint(Box<AST>),
     AssertFunctionType(FunctionTypeAssertion),
+    GenericType {
+        outer: StringKey,
+        inner: Box<AST>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]

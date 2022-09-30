@@ -69,6 +69,7 @@ impl Writer for FlowPrinter {
                 arguments,
                 return_type,
             }) => self.write_assert_function_type(*function_name, arguments, return_type),
+            AST::GenericType { outer, inner } => self.write_generic_type(*outer, inner),
         }
     }
 
@@ -351,6 +352,12 @@ impl FlowPrinter {
         writeln!(&mut self.result, ");")?;
 
         Ok(())
+    }
+
+    fn write_generic_type(&mut self, outer: StringKey, inner: &AST) -> FmtResult {
+        write!(&mut self.result, "{}<", outer)?;
+        self.write(inner)?;
+        write!(&mut self.result, ">")
     }
 }
 

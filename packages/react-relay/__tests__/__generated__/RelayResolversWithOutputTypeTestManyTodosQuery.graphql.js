@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a3ab7a997b59a8e0216277f86d192ab5>>
+ * @generated SignedSource<<86ac1311ea94149643356ec55f037d90>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -26,7 +26,8 @@ import queryManyTodosResolver from "../../../relay-runtime/store/__tests__/resol
   args: {|
     todo_ids: $ReadOnlyArray<?string>,
   |}, 
-) => mixed);
+) => $ReadOnlyArray<?Query__many_todos$normalization>);
+import type { Query__many_todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_todos$normalization.graphql";
 export type RelayResolversWithOutputTypeTestManyTodosQuery$variables = {|
   todos: $ReadOnlyArray<?string>,
 |};

@@ -30,7 +30,7 @@ import type {Query__todos$normalization as ReturnType} from './__generated__/Que
 function QueryTodos(args: {
   first: ?number,
   last: ?number,
-}): LiveState<ReturnType> {
+}): LiveState<?ReturnType> {
   return {
     read() {
       const todoIDs = Selectors.getTodoIDs(TODO_STORE.getState());

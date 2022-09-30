@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<5dc58acce768c6c0fdbcc16f9ce85213>>
+ * @generated SignedSource<<54920abcb4856176287c3e14731c452b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,14 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { RelayResolversWithOutputTypeTestTextStyleComponentFragment$fragmentType } from "./RelayResolversWithOutputTypeTestTextStyleComponentFragment.graphql";
 import type { RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType } from "./RelayResolversWithOutputTypeTestTodoCompleteFragment.graphql";
 import type { TodoTextResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoTextResolverFragment.graphql";
+import type { Todo__text$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__text$normalization.graphql";
 import type { FragmentType } from "relay-runtime";
 import todoTextResolver from "../../../relay-runtime/store/__tests__/resolvers/TodoTextResolver.js";
 // Type assertion validating that `todoTextResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoTextResolver: (
   rootKey: TodoTextResolverFragment$key, 
-) => mixed);
+) => ?Todo__text$normalization);
 declare export opaque type RelayResolversWithOutputTypeTestFragment$fragmentType: FragmentType;
 export type RelayResolversWithOutputTypeTestFragment$data = {|
   +text: ?{|

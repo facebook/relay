@@ -74,6 +74,7 @@ lazy_static! {
     static ref TYPE_STRING: ScalarName = ScalarName("String".intern());
     static ref VARIABLES: StringKey = "variables".intern();
     static ref SPREAD_KEY: StringKey = "\0SPREAD".intern();
+    static ref LIVE_STATE_TYPE: StringKey = "LiveState".intern();
 }
 
 /// Determines whether a generated data type is "unmasked", which controls whether

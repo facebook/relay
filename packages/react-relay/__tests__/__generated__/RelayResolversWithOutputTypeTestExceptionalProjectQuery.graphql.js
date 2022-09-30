@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<29b063a5c68107193a12034d01afd092>>
+ * @generated SignedSource<<46adfc6d58663097d2afc0fb77629f45>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,8 @@ import queryTodosResolver from "../../../relay-runtime/store/__tests__/resolvers
     first: ?number,
     last: ?number,
   |}, 
-) => LiveState<any>);
+) => LiveState<?Query__todos$normalization>);
+import type { Query__todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql";
 export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$variables = {||};
 export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$data = {|
   +todos: ?{|

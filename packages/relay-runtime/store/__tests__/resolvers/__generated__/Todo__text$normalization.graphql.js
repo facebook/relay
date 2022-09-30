@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3bbdda90efdb373299fdddc823c96f99>>
+ * @generated SignedSource<<aaf9338d8c4b3f154560b1a0d0c1540f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,8 +20,8 @@
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
 export type Todo__text$normalization = {|
-  +content?: string,
-  +style?: ?{|
+  +content: string,
+  +style: ?{|
     +color: ?{|
       +hex: ?string,
     |},

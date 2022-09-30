@@ -18,6 +18,7 @@ use graphql_text_printer::PrinterOptions;
 use intern::string_key::StringKey;
 use relay_transforms::ClientEdgeGeneratedQueryMetadataDirective;
 use relay_transforms::Programs;
+use relay_transforms::RawResponseGenerationMode;
 use relay_transforms::RefetchableDerivedFromMetadata;
 use relay_transforms::SplitOperationMetadata;
 use relay_transforms::CLIENT_EDGE_GENERATED_FRAGMENT_KEY;
@@ -65,7 +66,7 @@ pub fn generate_artifacts(
                     let metadata = SplitOperationMetadata::from(directive);
                     let source_file = metadata.location.source_location();
                     let source_hash = metadata.derived_from.and_then(|derived_from| source_hashes.get(&derived_from.0).cloned());
-                    let typegen_operation = if metadata.raw_response_type {
+                    let typegen_operation = if metadata.raw_response_type_generation_mode.is_some() {
                         Some(Arc::clone(normalization))
                     } else {
                         None
@@ -78,6 +79,7 @@ pub fn generate_artifacts(
                         content: ArtifactContent::SplitOperation {
                             normalization_operation: Arc::clone(normalization),
                             typegen_operation,
+                            no_optional_fields_in_raw_response_type: matches!(metadata.raw_response_type_generation_mode, Some(RawResponseGenerationMode::AllFieldsRequired)),
                             source_hash,
                         },
                         source_file,

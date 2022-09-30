@@ -31,6 +31,7 @@ use schema::Schema;
 use schema::Type;
 
 use crate::get_normalization_operation_name;
+use crate::match_::RawResponseGenerationMode;
 use crate::relay_resolvers::get_bool_argument_is_true;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
 use crate::SplitOperationMetadata;
@@ -301,7 +302,9 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
                     location: field.name.location,
                     parent_documents: Default::default(),
                     derived_from: None,
-                    raw_response_type: true,
+                    raw_response_type_generation_mode: Some(
+                        RawResponseGenerationMode::AllFieldsRequired,
+                    ),
                 }
                 .to_directive(),
             ];

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3b52454e56e882d32ecf78144f4349d7>>
+ * @generated SignedSource<<e8557147b547ebbf2ac205ebc4b95017>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,14 +20,14 @@
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
 export type Query__todos$normalization = {|
-  +count?: number,
-  +edges?: ?$ReadOnlyArray<?{|
+  +count: number,
+  +edges: ?$ReadOnlyArray<?{|
     +cursor: ?string,
     +node: ?{|
       +todo_id: string,
     |},
   |}>,
-  +pageInfo?: {|
+  +pageInfo: {|
     +endCursor: ?string,
     +hasNextPage: boolean,
     +hasPreviousPage: boolean,

@@ -397,6 +397,7 @@ pub fn generate_split_operation(
     typegen_operation: &Option<Arc<OperationDefinition>>,
     source_hash: Option<&String>,
     fragment_locations: &FragmentLocations,
+    no_optional_fields_in_raw_response_type: bool,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
 
@@ -443,6 +444,7 @@ pub fn generate_split_operation(
                 schema,
                 project_config,
                 fragment_locations,
+                no_optional_fields_in_raw_response_type
             )
         )?;
     }

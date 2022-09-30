@@ -29,6 +29,7 @@ fragment Foo_user on User {
   #     field_path: "pop_star_name",
   #     field_arguments: [],
   #     live: false,
+  #     normalization_info: None,
   # }
   
 }

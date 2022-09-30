@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<533bb48724b1c0e25a9a96308886b696>>
+ * @generated SignedSource<<5dc58acce768c6c0fdbcc16f9ce85213>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -68,7 +68,12 @@ var node/*: ReaderFragment*/ = {
         "kind": "RelayResolver",
         "name": "text",
         "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoTextResolver'),
-        "path": "text"
+        "path": "text",
+        "normalizationInfo": {
+          "concreteType": "TodoText",
+          "plural": false,
+          "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__text$normalization.graphql')
+        }
       },
       "linkedField": {
         "alias": null,
@@ -103,8 +108,7 @@ var node/*: ReaderFragment*/ = {
           }
         ],
         "storageKey": null
-      },
-      "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__text$normalization.graphql')
+      }
     },
     {
       "args": null,

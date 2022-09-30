@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<f3ca83532a4d8dadc4de72cad12b8fa8>>
+ * @generated SignedSource<<14bd9d75c6a49376caeb6b5f782c2592>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -76,7 +76,12 @@ return {
           "kind": "RelayLiveResolver",
           "name": "todo",
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodo'),
-          "path": "todo"
+          "path": "todo",
+          "normalizationInfo": {
+            "concreteType": "Todo",
+            "plural": false,
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
+          }
         },
         "linkedField": {
           "alias": null,
@@ -93,8 +98,7 @@ return {
             }
           ],
           "storageKey": null
-        },
-        "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
+        }
       }
     ],
     "type": "Query",

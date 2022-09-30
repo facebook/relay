@@ -28,7 +28,6 @@ fragment Foo_user on User {
   # ClientObject {
   #     type_name: "ClientOnlyType",
   #     unique_id: 0,
-  #     normalization_operation: None,
   # }
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
@@ -40,6 +39,7 @@ fragment Foo_user on User {
     #     field_path: "best_friend",
     #     field_arguments: [],
     #     live: false,
+    #     normalization_info: None,
     # }
     
     best_friend {

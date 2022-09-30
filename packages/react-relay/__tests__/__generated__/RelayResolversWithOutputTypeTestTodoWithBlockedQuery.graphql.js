@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<718d3485dcf9ba01884bddebcd1bc47f>>
+ * @generated SignedSource<<864dd3a4ed1c88af50f1007a30f666c0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -85,7 +85,12 @@ return {
           "kind": "RelayLiveResolver",
           "name": "todo",
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodo'),
-          "path": "todo"
+          "path": "todo",
+          "normalizationInfo": {
+            "concreteType": "Todo",
+            "plural": false,
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
+          }
         },
         "linkedField": {
           "alias": null,
@@ -109,7 +114,12 @@ return {
                 "kind": "RelayResolver",
                 "name": "blocked_by",
                 "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver'),
-                "path": "blocked_by"
+                "path": "blocked_by",
+                "normalizationInfo": {
+                  "concreteType": "Todo",
+                  "plural": true,
+                  "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql')
+                }
               },
               "linkedField": {
                 "alias": null,
@@ -126,13 +136,11 @@ return {
                   }
                 ],
                 "storageKey": null
-              },
-              "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql')
+              }
             }
           ],
           "storageKey": null
-        },
-        "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
+        }
       }
     ],
     "type": "Query",

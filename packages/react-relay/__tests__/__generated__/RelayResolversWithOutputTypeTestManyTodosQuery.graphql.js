@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<39750bad97c995763ea79f7bbabdb8d0>>
+ * @generated SignedSource<<a3ab7a997b59a8e0216277f86d192ab5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -75,7 +75,12 @@ return {
           "kind": "RelayResolver",
           "name": "many_todos",
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryManyTodos'),
-          "path": "many_todos"
+          "path": "many_todos",
+          "normalizationInfo": {
+            "concreteType": "Todo",
+            "plural": true,
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_todos$normalization.graphql')
+          }
         },
         "linkedField": {
           "alias": null,
@@ -92,8 +97,7 @@ return {
             }
           ],
           "storageKey": null
-        },
-        "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__many_todos$normalization.graphql')
+        }
       }
     ],
     "type": "Query",
@@ -109,10 +113,10 @@ return {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "name": "many_todos",
+            "args": (v1/*: any*/),
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

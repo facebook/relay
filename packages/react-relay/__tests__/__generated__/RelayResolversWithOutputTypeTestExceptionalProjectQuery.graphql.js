@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<7dc568a653144073f51c0cc7a94e11b5>>
+ * @generated SignedSource<<29b063a5c68107193a12034d01afd092>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -72,7 +72,12 @@ return {
           "kind": "RelayLiveResolver",
           "name": "todos",
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodos'),
-          "path": "todos"
+          "path": "todos",
+          "normalizationInfo": {
+            "concreteType": "TodoConnection",
+            "plural": false,
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql')
+          }
         },
         "linkedField": {
           "alias": null,
@@ -111,8 +116,7 @@ return {
             }
           ],
           "storageKey": "todos(first:10)"
-        },
-        "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql')
+        }
       }
     ],
     "type": "Query",

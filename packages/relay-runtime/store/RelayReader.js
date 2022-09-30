@@ -44,7 +44,6 @@ import type {
   SelectorData,
   SingularReaderSelector,
   Snapshot,
-  ResolverNormalizationInfo,
 } from './RelayStoreTypes';
 import type {Arguments} from './RelayStoreUtils';
 import type {EvaluationResult, ResolverCache} from './ResolverCache';
@@ -129,7 +128,6 @@ class RelayReader {
   _resolverCache: ResolverCache;
   _resolverErrors: RelayResolverErrors;
   _fragmentName: string;
-  _resolverNormalizationInfo: ?ResolverNormalizationInfo;
 
   constructor(
     recordSource: RecordSource,
@@ -154,7 +152,6 @@ class RelayReader {
     this._resolverCache = resolverCache;
     this._resolverErrors = [];
     this._fragmentName = selector.node.name;
-    this._resolverNormalizationInfo = null;
   }
 
   read(): Snapshot {
@@ -618,7 +615,6 @@ class RelayReader {
         this._variables,
         evaluate,
         getDataForResolverFragment,
-        this._resolverNormalizationInfo,
       );
 
     // The resolver's root fragment (if there is one) may be missing data, have
@@ -695,12 +691,8 @@ class RelayReader {
     );
 
     const applicationName = backingField.alias ?? backingField.name;
-
-    const prevResolverNormalizationInfo = this._resolverNormalizationInfo;
-    this._resolverNormalizationInfo = getResolverNormalizationInfo(field);
     const backingFieldData = {};
     this._traverseSelections([backingField], record, backingFieldData);
-    this._resolverNormalizationInfo = prevResolverNormalizationInfo;
 
     let destinationDataID = backingFieldData[applicationName];
     if (destinationDataID == null || isSuspenseSentinel(destinationDataID)) {
@@ -723,7 +715,7 @@ class RelayReader {
     if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
       // Client objects might use ids that are not globally unique and instead are just
       // local within their type. ResolverCache will derive a namespaced ID for us.
-      if (field.normalizationNode == null) {
+      if (backingField.normalizationInfo == null) {
         // @edgeTo case where we need to ensure that the record has `id` field
         if (field.linkedField.plural) {
           // $FlowFixMe[prop-missing]
@@ -1266,23 +1258,6 @@ function getResolverValue(
     }
   }
   return [resolverResult, resolverError];
-}
-
-function getResolverNormalizationInfo(
-  field: ReaderClientEdgeToClientObject | ReaderClientEdgeToServerObject,
-): ResolverNormalizationInfo | null {
-  if (
-    field.kind === 'ClientEdgeToClientObject' &&
-    field.normalizationNode != null
-  ) {
-    return {
-      normalizationNode: field.normalizationNode,
-      concreteType: field.concreteType,
-      plural: field.linkedField.plural,
-    };
-  } else {
-    return null;
-  }
 }
 
 module.exports = {read};

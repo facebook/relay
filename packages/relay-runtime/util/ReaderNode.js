@@ -246,6 +246,12 @@ type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear
 // With ES6 imports, a resolver function might be exported under the `default` key.
 type ResolverModule = ResolverFunction | {default: ResolverFunction};
 
+export type ResolverNormalizationInfo = {
+  +concreteType: string,
+  +plural: boolean,
+  +normalizationNode: NormalizationSelectableNode,
+};
+
 export type ReaderRelayResolver = {
   +kind: 'RelayResolver',
   +alias: ?string,
@@ -254,6 +260,7 @@ export type ReaderRelayResolver = {
   +fragment: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
+  +normalizationInfo?: ResolverNormalizationInfo,
 };
 
 export type ReaderRelayLiveResolver = {
@@ -264,6 +271,7 @@ export type ReaderRelayLiveResolver = {
   +fragment: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
+  +normalizationInfo?: ResolverNormalizationInfo,
 };
 
 export type ReaderClientEdgeToClientObject = {
@@ -274,7 +282,6 @@ export type ReaderClientEdgeToClientObject = {
     | ReaderRelayResolver
     | ReaderRelayLiveResolver
     | ReaderClientExtension,
-  +normalizationNode?: NormalizationSelectableNode,
 };
 
 export type ReaderClientEdgeToServerObject = {

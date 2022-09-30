@@ -37,8 +37,8 @@ use crate::SplitOperationMetadata;
 use crate::ValidationMessage;
 
 lazy_static! {
-    pub static ref IS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
-        ArgumentName("is_output_type".intern());
+    pub static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("has_output_type".intern());
 }
 
 fn generate_fat_selections_from_type(
@@ -272,9 +272,9 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
         }
 
         if let Some(directive) = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME) {
-            let is_output_type =
-                get_bool_argument_is_true(&directive.arguments, *IS_OUTPUT_TYPE_ARGUMENT_NAME);
-            if !is_output_type {
+            let has_output_type =
+                get_bool_argument_is_true(&directive.arguments, *HAS_OUTPUT_TYPE_ARGUMENT_NAME);
+            if !has_output_type {
                 continue;
             }
 

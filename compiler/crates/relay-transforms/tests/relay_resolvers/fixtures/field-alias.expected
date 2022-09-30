@@ -31,6 +31,7 @@ fragment Foo_user on User {
   #     field_path: "poppy",
   #     field_arguments: [],
   #     live: false,
+  #     normalization_info: None,
   # }
   
 }

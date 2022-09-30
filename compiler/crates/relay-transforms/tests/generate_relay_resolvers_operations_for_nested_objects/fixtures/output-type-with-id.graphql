@@ -13,5 +13,5 @@ type Todo {
 }
 
 extend type User {
-  todo: [Todo] @relay_resolver(import_path: "TodoResolver", is_output_type: true)
+  todo: [Todo] @relay_resolver(import_path: "TodoResolver", has_output_type: true)
 }

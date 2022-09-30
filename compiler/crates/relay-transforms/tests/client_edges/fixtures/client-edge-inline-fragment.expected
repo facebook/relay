@@ -48,6 +48,7 @@ fragment Foo_node on Node {
         #     field_path: "author.best_friend",
         #     field_arguments: [],
         #     live: false,
+        #     normalization_info: None,
         # }
          @waterfall
         best_friend @waterfall {
@@ -73,6 +74,7 @@ fragment Foo_node on Node {
         #     field_path: "author.best_friend",
         #     field_arguments: [],
         #     live: false,
+        #     normalization_info: None,
         # }
          @waterfall
         best_friend @waterfall {

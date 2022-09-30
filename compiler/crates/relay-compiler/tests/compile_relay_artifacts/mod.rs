@@ -116,6 +116,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_client_edges: FeatureFlag::Enabled,
         skip_printing_nulls: FeatureFlag::Disabled,
         enable_fragment_aliases: FeatureFlag::Enabled,
+        compact_query_text: FeatureFlag::Disabled,
     };
 
     let default_project_config = ProjectConfig {
@@ -230,7 +231,11 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 let text = print_operation_node.map_or_else(
                     || "Query Text is Empty.".to_string(),
                     |print_operation_node| {
-                        print_full_operation(&programs.operation_text, print_operation_node)
+                        print_full_operation(
+                            &programs.operation_text,
+                            print_operation_node,
+                            Default::default(),
+                        )
                     },
                 );
 

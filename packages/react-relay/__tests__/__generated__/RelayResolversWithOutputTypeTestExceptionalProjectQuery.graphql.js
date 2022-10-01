@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<01b70909db129665045dca1717151982>>
+ * @generated SignedSource<<46adfc6d58663097d2afc0fb77629f45>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,7 +28,8 @@ import queryTodosResolver from "../../../relay-runtime/store/__tests__/resolvers
     first: ?number,
     last: ?number,
   |}, 
-) => LiveState<any>);
+) => LiveState<?Query__todos$normalization>);
+import type { Query__todos$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql";
 export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$variables = {||};
 export type RelayResolversWithOutputTypeTestExceptionalProjectQuery$data = {|
   +todos: ?{|
@@ -72,7 +73,12 @@ return {
           "kind": "RelayLiveResolver",
           "name": "todos",
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodos'),
-          "path": "todos"
+          "path": "todos",
+          "normalizationInfo": {
+            "concreteType": "TodoConnection",
+            "plural": false,
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql')
+          }
         },
         "linkedField": {
           "alias": null,
@@ -111,8 +117,7 @@ return {
             }
           ],
           "storageKey": "todos(first:10)"
-        },
-        "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todos$normalization.graphql')
+        }
       }
     ],
     "type": "Query",
@@ -128,11 +133,11 @@ return {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
-            "storageKey": null
+            "name": "todos",
+            "args": (v0/*: any*/),
+            "fragment": null,
+            "kind": "RelayResolver",
+            "storageKey": "todos(first:10)"
           }
         ]
       }

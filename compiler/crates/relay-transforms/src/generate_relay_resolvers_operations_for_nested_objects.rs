@@ -31,14 +31,15 @@ use schema::Schema;
 use schema::Type;
 
 use crate::get_normalization_operation_name;
+use crate::match_::RawResponseGenerationMode;
 use crate::relay_resolvers::get_bool_argument_is_true;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
 use crate::SplitOperationMetadata;
 use crate::ValidationMessage;
 
 lazy_static! {
-    pub static ref IS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
-        ArgumentName("is_output_type".intern());
+    pub static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("has_output_type".intern());
 }
 
 fn generate_fat_selections_from_type(
@@ -272,9 +273,9 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
         }
 
         if let Some(directive) = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME) {
-            let is_output_type =
-                get_bool_argument_is_true(&directive.arguments, *IS_OUTPUT_TYPE_ARGUMENT_NAME);
-            if !is_output_type {
+            let has_output_type =
+                get_bool_argument_is_true(&directive.arguments, *HAS_OUTPUT_TYPE_ARGUMENT_NAME);
+            if !has_output_type {
                 continue;
             }
 
@@ -301,7 +302,9 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
                     location: field.name.location,
                     parent_documents: Default::default(),
                     derived_from: None,
-                    raw_response_type: true,
+                    raw_response_type_generation_mode: Some(
+                        RawResponseGenerationMode::AllFieldsRequired,
+                    ),
                 }
                 .to_directive(),
             ];

@@ -97,10 +97,23 @@ extend interface SomeInterface {
                 "storageKey": null
               },
               {
-                "alias": null,
+                "name": "some_resolver",
                 "args": null,
-                "kind": "ScalarField",
-                "name": "name",
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "name",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "SomeInterface",
+                  "abstractKey": "__isSomeInterface"
+                },
+                "kind": "RelayResolver",
                 "storageKey": null
               }
             ],

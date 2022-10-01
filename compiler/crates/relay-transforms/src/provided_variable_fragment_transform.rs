@@ -28,6 +28,7 @@ use intern::string_key::StringKey;
 use itertools::Itertools;
 use schema::SDLSchema;
 use schema::Schema;
+use schema::Type;
 use schema::TypeReference;
 use thiserror::Error;
 
@@ -58,7 +59,7 @@ struct ProvidedVariableDefinitions {
     //  provided variable definitions.
     // We need to keep track of usages under each definition for stable
     //  error reporting.
-    usages_map: FnvHashMap<(StringKey, TypeReference), Vec<Location>>,
+    usages_map: FnvHashMap<(StringKey, TypeReference<Type>), Vec<Location>>,
 }
 
 impl ProvidedVariableDefinitions {

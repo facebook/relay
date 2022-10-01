@@ -465,7 +465,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     }
 }
 
-fn has_same_type_reference_wrapping(l: &TypeReference, r: &TypeReference) -> bool {
+fn has_same_type_reference_wrapping(l: &TypeReference<Type>, r: &TypeReference<Type>) -> bool {
     match (l, r) {
         (TypeReference::Named(_), TypeReference::Named(_)) => true,
         (TypeReference::NonNull(l), TypeReference::NonNull(r))

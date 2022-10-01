@@ -81,7 +81,7 @@ pub(crate) fn on_search_schema_items(
         &filter,
     );
     let scalars = filter_and_transform_items(
-        schema.scalars().map(|s| s.name.item),
+        schema.scalars().map(|s| s.name.item.0),
         &schema_documentation,
         &filter,
     );

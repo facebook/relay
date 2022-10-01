@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<782c83c43bb79591031cf8682599bb8e>>
+ * @generated SignedSource<<d1be508e470b50b4edf0aa605d7d071c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -46,6 +46,13 @@ var v0 = [
     "kind": "LocalArgument",
     "name": "prefix"
   }
+],
+v1 = [
+  {
+    "kind": "Variable",
+    "name": "prefix",
+    "variableName": "prefix"
+  }
 ];
 return {
   "fragment": {
@@ -59,13 +66,7 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "prefix",
-                "variableName": "prefix"
-              }
-            ],
+            "args": (v1/*: any*/),
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "counter_no_fragment_with_arg",
@@ -88,10 +89,10 @@ return {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "name": "counter_no_fragment_with_arg",
+            "args": (v1/*: any*/),
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

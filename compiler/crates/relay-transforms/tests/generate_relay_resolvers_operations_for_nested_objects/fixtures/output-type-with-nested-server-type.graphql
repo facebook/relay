@@ -13,5 +13,5 @@ type PageWrapper {
 }
 
 extend type User {
-  page: PageWrapper @relay_resolver(import_path: "TodoResolver", is_output_type: true)
+  page: PageWrapper @relay_resolver(import_path: "TodoResolver", has_output_type: true)
 }

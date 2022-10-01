@@ -133,7 +133,7 @@ pub(crate) struct ModuleDirective {
 #[derive(Debug, Clone)]
 pub(crate) struct TypeSelectionLinkedField {
     pub(crate) field_name_or_alias: StringKey,
-    pub(crate) node_type: TypeReference,
+    pub(crate) node_type: TypeReference<Type>,
     pub(crate) node_selections: TypeSelectionMap,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,

@@ -856,7 +856,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:187:190,
-            item: "Int",
+            item: ScalarName(
+                "Int",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -865,7 +867,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:198:203,
-            item: "Float",
+            item: ScalarName(
+                "Float",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -874,7 +878,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:211:217,
-            item: "String",
+            item: ScalarName(
+                "String",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -883,7 +889,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:225:232,
-            item: "Boolean",
+            item: ScalarName(
+                "Boolean",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -892,7 +900,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:240:242,
-            item: "ID",
+            item: ScalarName(
+                "ID",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -901,7 +911,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:293:295,
-            item: "ID",
+            item: ScalarName(
+                "ID",
+            ),
         },
         is_extension: false,
         directives: [
@@ -1693,7 +1705,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Boolean",
+            item: ScalarName(
+                "Boolean",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -1702,7 +1716,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Float",
+            item: ScalarName(
+                "Float",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -1711,7 +1727,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "ID",
+            item: ScalarName(
+                "ID",
+            ),
         },
         is_extension: false,
         directives: [
@@ -1756,7 +1774,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Int",
+            item: ScalarName(
+                "Int",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -1765,7 +1785,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "String",
+            item: ScalarName(
+                "String",
+            ),
         },
         is_extension: false,
         directives: [],

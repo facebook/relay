@@ -11,6 +11,7 @@ use std::str::FromStr;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use serde::Deserialize;
+use serde::Serialize;
 
 /// Utility to access an item in a list by its name where name is defined by the
 /// `Named` trait.
@@ -53,6 +54,32 @@ impl FromStr for DirectiveName {
 pub struct ArgumentName(pub StringKey);
 
 impl fmt::Display for ArgumentName {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(fmt, "{}", self.0)
+    }
+}
+
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    PartialEq,
+    Ord,
+    PartialOrd,
+    Hash,
+    Serialize,
+    Deserialize
+)]
+pub struct ScalarName(pub StringKey);
+
+impl ScalarName {
+    pub fn lookup(self) -> &'static str {
+        self.0.lookup()
+    }
+}
+
+impl fmt::Display for ScalarName {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(fmt, "{}", self.0)
     }

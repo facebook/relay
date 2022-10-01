@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c2eea8de4ca01af0fcaa416e0f81595c>>
+ * @generated SignedSource<<2627804800b1f9f5088a6682d2adad14>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -225,28 +225,41 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "astrological_sign",
             "args": null,
-            "concreteType": "Date",
-            "kind": "LinkedField",
-            "name": "birthdate",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "month",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "day",
-                "storageKey": null
-              }
-            ],
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": "Date",
+                  "kind": "LinkedField",
+                  "name": "birthdate",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "month",
+                      "storageKey": null
+                    },
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "day",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

@@ -147,6 +147,7 @@ pub use match_::split_module_import;
 pub use match_::transform_match;
 pub use match_::transform_subscriptions;
 pub use match_::ModuleMetadata;
+pub use match_::RawResponseGenerationMode;
 pub use match_::SplitOperationMetadata;
 pub use match_::DIRECTIVE_SPLIT_OPERATION;
 pub use match_::MATCH_CONSTANTS;

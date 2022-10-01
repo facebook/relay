@@ -257,6 +257,28 @@ describe.each([
     });
   }
 
+  function ManyTodosComponent(props: {todos: $ReadOnlyArray<?string>}) {
+    const data = useClientQuery(
+      graphql`
+        query RelayResolversWithOutputTypeTestManyTodosQuery($todos: [ID]!) {
+          many_todos(todo_ids: $todos) {
+            ...RelayResolversWithOutputTypeTestFragment
+          }
+        }
+      `,
+      {
+        todos: props.todos,
+      },
+    );
+    if (data.many_todos?.length === 0) {
+      return 'No Items';
+    }
+
+    return data.many_todos?.map((todo, index) => {
+      return <TodoComponent key={index} fragmentKey={todo} />;
+    });
+  }
+
   test('should render empty state', () => {
     const renderer = TestRenderer.create(
       <EnvironmentWrapper environment={environment}>
@@ -537,6 +559,19 @@ describe.each([
           __ref: 'client:root:todos(first:10)',
         },
       },
+      'client:root:todos(first:10)': {
+        __id: 'client:root:todos(first:10)',
+        __resolverError: null,
+        __resolverLiveStateDirty: false,
+        __resolverLiveStateSubscription: expect.anything(),
+        __resolverLiveStateValue: {
+          read: expect.anything(),
+          subscribe: expect.anything(),
+        },
+        __resolverSnapshot: undefined,
+        __resolverValue: 'client:TodoConnection:client:root:todos(first:10)',
+        __typename: '__RELAY_RESOLVER__',
+      },
     });
   });
 
@@ -586,6 +621,49 @@ describe.each([
       'style: bold',
       'color: color is red',
       'My second todo',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+  });
+
+  test('rendering lists with nulls', () => {
+    addTodo('Todo 1');
+    addTodo('Todo 2');
+    addTodo('Todo 3');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <ManyTodosComponent todos={['todo-1', null, 'todo-2']} />
+      </EnvironmentWrapper>,
+    );
+
+    expect(renderer.toJSON()).toEqual([
+      'Todo 1',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'Todo 2',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+    ]);
+
+    renderer.update(
+      <EnvironmentWrapper environment={environment}>
+        <ManyTodosComponent todos={['todo-1', 'todo-2', 'todo-3']} />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual([
+      'Todo 1',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'Todo 2',
+      'is not completed',
+      'style: bold',
+      'color: color is red',
+      'Todo 3',
       'is not completed',
       'style: bold',
       'color: color is red',

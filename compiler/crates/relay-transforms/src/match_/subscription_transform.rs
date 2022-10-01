@@ -128,7 +128,7 @@ impl<'program> SubscriptionTransform<'program> {
         }
     }
 
-    fn is_valid_js_dependency(&self, type_: &TypeReference) -> bool {
+    fn is_valid_js_dependency(&self, type_: &TypeReference<Type>) -> bool {
         match type_ {
             TypeReference::Named(Type::Scalar(scalar_id)) => {
                 let scalar = self.program.schema.scalar(*scalar_id);

@@ -57,7 +57,8 @@ lazy_static! {
     static ref IMPORT_PATH_ARGUMENT_NAME: ArgumentName = ArgumentName("import_path".intern());
     static ref LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
     static ref DEPRECATED_REASON_ARGUMENT_NAME: ArgumentName = ArgumentName("reason".intern());
-    static ref IS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName = ArgumentName("is_output_type".intern());
+    static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("has_output_type".intern());
 }
 
 #[derive(Debug, PartialEq)]
@@ -447,7 +448,7 @@ impl RelayResolverIr {
 
         if let Some(OutputType::Output(type_)) = &self.output_type {
             arguments.push(true_argument(
-                IS_OUTPUT_TYPE_ARGUMENT_NAME.0,
+                HAS_OUTPUT_TYPE_ARGUMENT_NAME.0,
                 type_.location,
             ))
         }

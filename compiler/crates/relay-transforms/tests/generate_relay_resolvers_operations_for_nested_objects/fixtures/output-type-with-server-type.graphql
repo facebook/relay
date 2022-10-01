@@ -9,5 +9,5 @@ fragment Foo_user on User {
 # %extensions%
 
 extend type User {
-  page: Page @relay_resolver(import_path: "TodoResolver", is_output_type: true)
+  page: Page @relay_resolver(import_path: "TodoResolver", has_output_type: true)
 }

@@ -41,6 +41,7 @@ fragment Foo_user on User {
   #         },
   #     ],
   #     live: false,
+  #     normalization_info: None,
   # }
    @arguments(fragment_arg: 1)
 }

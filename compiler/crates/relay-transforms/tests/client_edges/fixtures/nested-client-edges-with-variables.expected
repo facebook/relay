@@ -39,6 +39,7 @@ fragment Foo_user on User {
     #     field_path: "best_friend",
     #     field_arguments: [],
     #     live: false,
+    #     normalization_info: None,
     # }
      @waterfall
     best_friend @waterfall {
@@ -58,6 +59,7 @@ fragment Foo_user on User {
         #     field_path: "best_friend",
         #     field_arguments: [],
         #     live: false,
+        #     normalization_info: None,
         # }
          @waterfall
         best_friend @waterfall {
@@ -96,6 +98,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGe
     #     field_path: "best_friend",
     #     field_arguments: [],
     #     live: false,
+    #     normalization_info: None,
     # }
      @waterfall
     best_friend @waterfall {

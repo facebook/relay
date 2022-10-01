@@ -38,6 +38,7 @@ fragment Foo_user on User {
       #     field_path: "nearest_neighbor.best_friend",
       #     field_arguments: [],
       #     live: false,
+      #     normalization_info: None,
       # }
        @waterfall
       best_friend @waterfall {

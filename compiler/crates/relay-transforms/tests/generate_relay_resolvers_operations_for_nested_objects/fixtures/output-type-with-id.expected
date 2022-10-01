@@ -14,7 +14,7 @@ type Todo {
 }
 
 extend type User {
-  todo: [Todo] @relay_resolver(import_path: "TodoResolver", is_output_type: true)
+  todo: [Todo] @relay_resolver(import_path: "TodoResolver", has_output_type: true)
 }
 ==================================== ERROR ====================================
 ✖︎ Field name `id` is reserved for strong objects (objects that implement Node interface). Defining `id` fields is not currently supported on @RelayResolver with @outputType.

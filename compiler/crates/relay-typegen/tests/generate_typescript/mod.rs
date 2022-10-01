@@ -10,6 +10,7 @@ use std::sync::Arc;
 use common::ConsoleLogger;
 use common::FeatureFlag;
 use common::FeatureFlags;
+use common::ScalarName;
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
 use fnv::FnvBuildHasher;
@@ -53,7 +54,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let program = Program::from_definitions(Arc::clone(&schema), ir);
     let mut custom_scalar_types = FnvIndexMap::default();
     custom_scalar_types.insert(
-        "JSON".intern(),
+        ScalarName("JSON".intern()),
         CustomScalarType::Path(CustomScalarTypeImport {
             name: "JSON".intern(),
             path: "TypeDefsFile".into(),

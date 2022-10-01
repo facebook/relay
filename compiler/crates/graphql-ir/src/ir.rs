@@ -135,7 +135,7 @@ impl Display for VariableName {
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct VariableDefinition {
     pub name: WithLocation<VariableName>,
-    pub type_: TypeReference,
+    pub type_: TypeReference<Type>,
     pub default_value: Option<WithLocation<ConstantValue>>,
     pub directives: Vec<Directive>,
 }
@@ -454,7 +454,7 @@ impl Value {
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Variable {
     pub name: WithLocation<VariableName>,
-    pub type_: TypeReference,
+    pub type_: TypeReference<Type>,
 }
 
 /// Name : Value[Const]

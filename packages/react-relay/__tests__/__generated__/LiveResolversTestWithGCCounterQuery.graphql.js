@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c0e80fdc1dba0cdd653253e2b1261c9a>>
+ * @generated SignedSource<<d927a966e983b83c7c47d1f71bc50717>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -68,10 +68,10 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
+            "name": "counter_no_fragment",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

@@ -22,7 +22,6 @@ import type {
   RelayResolverError,
   SingularReaderSelector,
   Snapshot,
-  ResolverNormalizationInfo,
 } from './RelayStoreTypes';
 
 const recycleNodesInto = require('../util/recycleNodesInto');
@@ -62,7 +61,6 @@ export interface ResolverCache {
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: GetDataForResolverFragmentFn,
-    normalizationObject: ?ResolverNormalizationInfo,
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
@@ -86,7 +84,6 @@ class NoopResolverCache implements ResolverCache {
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: GetDataForResolverFragmentFn,
-    normalizationObject: ?ResolverNormalizationInfo,
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,
@@ -142,7 +139,6 @@ class RecordResolverCache implements ResolverCache {
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
     getDataForResolverFragment: GetDataForResolverFragmentFn,
-    normalizationObject: ?ResolverNormalizationInfo,
   ): [
     ?T /* Answer */,
     ?DataID /* Seen record */,

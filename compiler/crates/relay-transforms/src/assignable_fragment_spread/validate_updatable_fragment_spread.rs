@@ -16,6 +16,7 @@ use graphql_ir::LinkedField;
 use graphql_ir::Program;
 use graphql_ir::Validator;
 use schema::Schema;
+use schema::Type;
 use schema::TypeReference;
 
 use super::ensure_discriminated_union_is_created;
@@ -46,7 +47,7 @@ enum PathItem {
 }
 
 struct LinkedFieldPathItem {
-    type_reference: TypeReference,
+    type_reference: TypeReference<Type>,
     should_ensure_discriminated_union_is_created: bool,
 }
 

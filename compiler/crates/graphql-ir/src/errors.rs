@@ -40,7 +40,7 @@ pub enum ValidationMessage {
     ExpectedCompositeType(Type),
 
     #[error("Expected type '{0:?}")]
-    ExpectedType(TypeReference),
+    ExpectedType(TypeReference<Type>),
 
     #[error("Expected no selections on scalar field `{field_name}` of type `{type_name}`")]
     InvalidSelectionsOnScalarField {

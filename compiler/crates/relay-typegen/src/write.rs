@@ -85,12 +85,14 @@ pub(crate) fn write_operation_type_exports_section(
     let mut runtime_imports = RuntimeImports::default();
     let mut custom_scalars = CustomScalarsImports::default();
     let mut input_object_types = Default::default();
+    let mut imported_raw_response_types = Default::default();
 
     let type_selections = visit_selections(
         typegen_context,
         &typegen_operation.selections,
         &mut input_object_types,
         &mut encountered_enums,
+        &mut imported_raw_response_types,
         &mut encountered_fragments,
         &mut imported_resolvers,
         &mut actor_change_status,
@@ -99,7 +101,6 @@ pub(crate) fn write_operation_type_exports_section(
         None,
     );
 
-    let mut imported_raw_response_types = Default::default();
     let data_type = get_data_type(
         typegen_context,
         type_selections.into_iter(),
@@ -311,11 +312,14 @@ pub(crate) fn write_fragment_type_exports_section(
         generic_fragment_type_should_be_imported: true,
         ..Default::default()
     };
+    let mut imported_raw_response_types = Default::default();
+
     let mut type_selections = visit_selections(
         typegen_context,
         &fragment_definition.selections,
         &mut input_object_types,
         &mut encountered_enums,
+        &mut imported_raw_response_types,
         &mut encountered_fragments,
         &mut imported_resolvers,
         &mut actor_change_status,
@@ -401,6 +405,7 @@ pub(crate) fn write_fragment_type_exports_section(
         encountered_fragments,
         writer,
     )?;
+    write_split_raw_response_type_imports(typegen_context, imported_raw_response_types, writer)?;
 
     write_enum_definitions(typegen_context, encountered_enums, writer)?;
     write_custom_scalar_imports(custom_scalars, writer)?;
@@ -547,14 +552,35 @@ fn write_split_raw_response_type_imports(
         return Ok(());
     }
 
-    imported_raw_response_types.0.sort();
-    for imported_raw_response_type in imported_raw_response_types.0 {
+    imported_raw_response_types.0.sort_keys();
+    for (imported_raw_response_type, imported_raw_response_document_location) in
+        imported_raw_response_types.0
+    {
         match typegen_context.project_config.js_module_format {
             JsModuleFormat::CommonJS => {
                 if typegen_context.has_unified_output {
                     writer.write_import_fragment_type(
                         &[imported_raw_response_type.lookup()],
                         &format!("./{}.graphql", imported_raw_response_type),
+                    )?;
+                } else if let Some(imported_raw_response_document_location) =
+                    imported_raw_response_document_location
+                {
+                    let path_for_artifact =
+                        typegen_context.project_config.create_path_for_artifact(
+                            imported_raw_response_document_location.source_location(),
+                            imported_raw_response_type.to_string(),
+                        );
+
+                    let artifact_import_path =
+                        typegen_context.project_config.js_module_import_path(
+                            typegen_context.definition_source_location,
+                            path_for_artifact.to_str().unwrap().intern(),
+                        );
+
+                    writer.write_import_fragment_type(
+                        &[imported_raw_response_type.lookup()],
+                        &format!("./{}.graphql", artifact_import_path),
                     )?;
                 } else {
                     writer.write_any_type_definition(imported_raw_response_type.lookup())?;

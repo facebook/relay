@@ -125,7 +125,7 @@ lazy_static! {
         *REQUIRED_DIRECTIVE_NAME,
         RelayClientComponentMetadata::directive_name(),
     ];
-    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [DirectiveName; 7] = [
+    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [DirectiveName; 8] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ModuleMetadata::directive_name(),
         InlineDirectiveMetadata::directive_name(),
@@ -133,6 +133,7 @@ lazy_static! {
         ClientEdgeMetadataDirective::directive_name(),
         DirectiveName("defer".intern()),
         FragmentAliasMetadata::directive_name(),
+        RelayResolverMetadata::directive_name(),
     ];
     static ref VALID_PROVIDED_VARIABLE_NAME: Regex = Regex::new(r#"^[A-Za-z0-9_]*$"#).unwrap();
     pub static ref INTERNAL_RELAY_VARIABLES_PREFIX: StringKey = "__relay_internal".intern();

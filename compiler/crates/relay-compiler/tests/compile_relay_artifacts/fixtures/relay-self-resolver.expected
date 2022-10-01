@@ -96,16 +96,29 @@ extend type User {
             "kind": "InlineFragment",
             "selections": [
               {
-                "kind": "ClientExtension",
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "__id",
-                    "storageKey": null
-                  }
-                ]
+                "name": "self_user_name",
+                "args": null,
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "kind": "ClientExtension",
+                      "selections": [
+                        {
+                          "name": "__self",
+                          "args": null,
+                          "fragment": null,
+                          "kind": "RelayResolver",
+                          "storageKey": null
+                        }
+                      ]
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
+                "storageKey": null
               }
             ],
             "type": "User",

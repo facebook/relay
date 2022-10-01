@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<23e8e4adb548eaef03ff26053fbeab87>>
+ * @generated SignedSource<<225efc1d1af21d5492e024c9e2099fce>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -100,11 +100,11 @@ return {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
-            "storageKey": null
+            "name": "hello_user",
+            "args": (v0/*: any*/),
+            "fragment": null,
+            "kind": "RelayResolver",
+            "storageKey": "hello_user(id:\"4\")"
           }
         ]
       }

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d70a217350d998c6a369bddde0add9ee>>
+ * @generated SignedSource<<976a16e8607856f32ae128585702e8dd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -28,13 +28,15 @@ import queryTodoResolver from "../../../relay-runtime/store/__tests__/resolvers/
   args: {|
     todoID: string,
   |}, 
-) => LiveState<any>);
+) => LiveState<?Query__todo$normalization>);
 import todoBlockedByResolver from "../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver.js";
 // Type assertion validating that `todoBlockedByResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoBlockedByResolver: (
   rootKey: TodoBlockedByResolverFragment$key, 
-) => mixed);
+) => $ReadOnlyArray<?Todo__blocked_by$normalization>);
+import type { Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql";
+import type { Todo__blocked_by$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql";
 export type RelayResolversWithOutputTypeTestTodoWithBlockedQuery$variables = {|
   id: string,
 |};
@@ -85,7 +87,12 @@ return {
           "kind": "RelayLiveResolver",
           "name": "todo",
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodo'),
-          "path": "todo"
+          "path": "todo",
+          "normalizationInfo": {
+            "concreteType": "Todo",
+            "plural": false,
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
+          }
         },
         "linkedField": {
           "alias": null,
@@ -109,7 +116,12 @@ return {
                 "kind": "RelayResolver",
                 "name": "blocked_by",
                 "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver'),
-                "path": "blocked_by"
+                "path": "blocked_by",
+                "normalizationInfo": {
+                  "concreteType": "Todo",
+                  "plural": true,
+                  "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql')
+                }
               },
               "linkedField": {
                 "alias": null,
@@ -126,13 +138,11 @@ return {
                   }
                 ],
                 "storageKey": null
-              },
-              "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__blocked_by$normalization.graphql')
+              }
             }
           ],
           "storageKey": null
-        },
-        "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
+        }
       }
     ],
     "type": "Query",
@@ -148,10 +158,10 @@ return {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "name": "todo",
+            "args": (v1/*: any*/),
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

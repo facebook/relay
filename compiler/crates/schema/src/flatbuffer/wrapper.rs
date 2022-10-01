@@ -63,7 +63,7 @@ pub struct SchemaWrapper {
     typename_field_name: StringKey,
     fetch_token_field_name: StringKey,
     is_fulfilled_field_name: StringKey,
-    unchecked_argument_type_sentinel: Option<TypeReference>,
+    unchecked_argument_type_sentinel: Option<TypeReference<Type>>,
 
     directives: Cache<DirectiveName, Option<Directive>>,
     interfaces: Cache<InterfaceID, Interface>,
@@ -306,7 +306,7 @@ impl Schema for SchemaWrapper {
             Type::InputObject(id) => self.input_object(id).name.item,
             Type::Interface(id) => self.interface(id).name.item,
             Type::Object(id) => self.object(id).name.item,
-            Type::Scalar(id) => self.scalar(id).name.item,
+            Type::Scalar(id) => self.scalar(id).name.item.0,
             Type::Union(id) => self.union(id).name.item,
         }
     }
@@ -389,7 +389,7 @@ impl Schema for SchemaWrapper {
             .cloned()
     }
 
-    fn unchecked_argument_type_sentinel(&self) -> &TypeReference {
+    fn unchecked_argument_type_sentinel(&self) -> &TypeReference<Type> {
         self.unchecked_argument_type_sentinel.as_ref().unwrap()
     }
 

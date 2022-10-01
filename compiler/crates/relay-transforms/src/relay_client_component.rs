@@ -257,7 +257,7 @@ impl<'program, 'flag> RelayClientComponentTransform<'program, 'flag> {
                                 .name
                                 .location,
                             parent_documents: Default::default(),
-                            raw_response_type: false,
+                            raw_response_type_generation_mode: None,
                         },
                         OperationDefinition {
                             name: WithLocation::new(

@@ -58,6 +58,10 @@ pub struct FeatureFlags {
     /// Enable support for the experimental `@alias` directive on fragment spreads.
     #[serde(default)]
     pub enable_fragment_aliases: FeatureFlag,
+
+    /// Print queries in compact form
+    #[serde(default)]
+    pub compact_query_text: FeatureFlag,
 }
 
 #[derive(Debug, Deserialize, Clone, Serialize)]

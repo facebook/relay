@@ -17,6 +17,7 @@ use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
 use itertools::Itertools;
 use schema::Schema;
+use schema::Type;
 use schema::TypeReference;
 
 use crate::util::get_fragment_filename;
@@ -69,7 +70,7 @@ impl<'s> GenerateDataDrivenDependencyMetadata<'s> {
 
     fn extract_module_entries_from_selections(
         &mut self,
-        type_: TypeReference,
+        type_: TypeReference<Type>,
         selections: &[Selection],
         kind: ModuleEntriesKind,
     ) -> Option<ModuleEntries> {
@@ -217,7 +218,7 @@ enum ModuleEntriesKind {
 #[derive(Debug)]
 struct ProcessingItem<'a> {
     plural: bool,
-    parent_type: TypeReference,
+    parent_type: TypeReference<Type>,
     selections: &'a [Selection],
 }
 

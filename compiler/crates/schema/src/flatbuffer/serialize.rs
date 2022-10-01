@@ -204,7 +204,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         self.add_to_type_map(
             self.scalars.len(),
             schema_flatbuffer::TypeKind::Scalar,
-            name.item,
+            name.item.0,
         );
         self.scalars
             .push(schema_flatbuffer::Scalar::create(&mut self.bldr, &args));
@@ -432,7 +432,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
 
     fn serialize_type_reference(
         &mut self,
-        type_: &TypeReference,
+        type_: &TypeReference<Type>,
     ) -> WIPOffset<schema_flatbuffer::TypeReference<'fb>> {
         let mut args = schema_flatbuffer::TypeReferenceArgs::default();
         match type_ {

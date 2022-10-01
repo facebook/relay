@@ -22,6 +22,7 @@ use graphql_ir::FragmentDefinitionName;
 use graphql_ir::FragmentSpread;
 use graphql_ir::InlineFragment;
 use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinitionName;
 use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
@@ -38,6 +39,7 @@ use schema::Field;
 use schema::Schema;
 
 use super::ValidationMessage;
+use crate::generate_relay_resolvers_operations_for_nested_objects::generate_name_for_nested_object_operation;
 use crate::ClientEdgeMetadata;
 use crate::FragmentAliasMetadata;
 use crate::RequiredMetadataDirective;
@@ -66,6 +68,15 @@ lazy_static! {
     pub static ref RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME: ArgumentName =
         ArgumentName("import_path".intern());
     pub static ref RELAY_RESOLVER_LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
+    pub static ref RELAY_RESOLVER_IS_OUTPUT_TYPE: ArgumentName =
+        ArgumentName("has_output_type".intern());
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct ResolverNormalizationInfo {
+    pub type_name: StringKey,
+    pub plural: bool,
+    pub normalization_operation: WithLocation<OperationDefinitionName>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -75,6 +86,7 @@ struct RelayResolverFieldMetadata {
     fragment_name: Option<FragmentDefinitionName>,
     field_path: StringKey,
     live: bool,
+    normalization_info: Option<ResolverNormalizationInfo>,
 }
 associated_data_impl!(RelayResolverFieldMetadata);
 
@@ -87,6 +99,7 @@ pub struct RelayResolverMetadata {
     pub field_path: StringKey,
     pub field_arguments: Vec<Argument>,
     pub live: bool,
+    pub normalization_info: Option<ResolverNormalizationInfo>,
 }
 associated_data_impl!(RelayResolverMetadata);
 
@@ -156,6 +169,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                 field_path: field_metadata.field_path,
                 field_arguments,
                 live: field_metadata.live,
+                normalization_info: field_metadata.normalization_info.clone(),
             };
 
             let mut new_directives: Vec<Directive> = vec![resolver_metadata.into()];
@@ -299,6 +313,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                     fragment_name,
                     import_path,
                     live,
+                    has_output_type,
                 }) => {
                     let mut non_required_directives =
                         field.directives().iter().filter(|directive| {
@@ -328,12 +343,28 @@ impl<'program> RelayResolverFieldTransform<'program> {
                     }
                     let parent_type = field_type.parent_type.unwrap();
 
+                    let normalization_info = if has_output_type {
+                        let normalization_operation = generate_name_for_nested_object_operation(
+                            &self.program.schema,
+                            self.program.schema.field(field.definition().item),
+                        );
+
+                        Some(ResolverNormalizationInfo {
+                            type_name: self.program.schema.get_type_name(field_type.type_.inner()),
+                            plural: field_type.type_.is_list(),
+                            normalization_operation,
+                        })
+                    } else {
+                        None
+                    };
+
                     let resolver_field_metadata = RelayResolverFieldMetadata {
                         import_path,
                         field_parent_type: self.program.schema.get_type_name(parent_type),
                         fragment_name,
                         field_path: self.path.join(".").intern(),
                         live,
+                        normalization_info,
                     };
 
                     let mut directives: Vec<Directive> = field.directives().to_vec();
@@ -448,6 +479,7 @@ struct ResolverInfo {
     fragment_name: Option<FragmentDefinitionName>,
     import_path: StringKey,
     live: bool,
+    has_output_type: bool,
 }
 
 fn get_resolver_info(
@@ -475,11 +507,13 @@ fn get_resolver_info(
                 error_location,
             )?;
             let live = get_bool_argument_is_true(arguments, *RELAY_RESOLVER_LIVE_ARGUMENT_NAME);
-
+            let has_output_type =
+                get_bool_argument_is_true(arguments, *RELAY_RESOLVER_IS_OUTPUT_TYPE);
             Ok(ResolverInfo {
                 fragment_name,
                 import_path,
                 live,
+                has_output_type,
             })
         })
 }

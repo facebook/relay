@@ -16,7 +16,7 @@ type ClientUser {
 }
 
 extend type User {
-  best_friend: ClientUser @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver", is_output_type: true)
+  best_friend: ClientUser @relay_resolver(fragment_name: "BestFriendResolverFragment_name", import_path: "BestFriendResolver", has_output_type: true)
 }
 ==================================== OUTPUT ===================================
 fragment BestFriendResolverFragment_name on User {
@@ -28,14 +28,6 @@ fragment Foo_user on User {
   # ClientObject {
   #     type_name: "ClientUser",
   #     unique_id: 0,
-  #     normalization_operation: Some(
-  #         WithLocation {
-  #             location: <generated>:59:70,
-  #             item: OperationDefinitionName(
-  #                 "User__best_friend$normalization",
-  #             ),
-  #         },
-  #     ),
   # }
    {
     ...BestFriendResolverFragment_name @__RelayResolverMetadata
@@ -47,6 +39,18 @@ fragment Foo_user on User {
     #     field_path: "best_friend",
     #     field_arguments: [],
     #     live: false,
+    #     normalization_info: Some(
+    #         ResolverNormalizationInfo {
+    #             type_name: "ClientUser",
+    #             plural: false,
+    #             normalization_operation: WithLocation {
+    #                 location: <generated>:59:70,
+    #                 item: OperationDefinitionName(
+    #                     "User__best_friend$normalization",
+    #                 ),
+    #             },
+    #         },
+    #     ),
     # }
     
     best_friend {

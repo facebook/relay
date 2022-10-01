@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e85dc7c79142ce5a521bf2d8d6061071>>
+ * @generated SignedSource<<8c7577316ca444060bd62cc73ae6045b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -68,10 +68,10 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
+            "name": "live_resolver_throws",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

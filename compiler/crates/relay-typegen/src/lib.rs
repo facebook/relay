@@ -22,6 +22,7 @@ use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
 use common::DirectiveName;
 use common::NamedItem;
+use common::ScalarName;
 use common::WithLocation;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
@@ -66,13 +67,14 @@ lazy_static! {
     static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("raw_response_type".intern());
     static ref RESPONSE: StringKey = "response".intern();
-    static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
-    static ref TYPE_FLOAT: StringKey = "Float".intern();
-    static ref TYPE_ID: StringKey = "ID".intern();
-    static ref TYPE_INT: StringKey = "Int".intern();
-    static ref TYPE_STRING: StringKey = "String".intern();
+    static ref TYPE_BOOLEAN: ScalarName = ScalarName("Boolean".intern());
+    static ref TYPE_FLOAT: ScalarName = ScalarName("Float".intern());
+    static ref TYPE_ID: ScalarName = ScalarName("ID".intern());
+    static ref TYPE_INT: ScalarName = ScalarName("Int".intern());
+    static ref TYPE_STRING: ScalarName = ScalarName("String".intern());
     static ref VARIABLES: StringKey = "variables".intern();
     static ref SPREAD_KEY: StringKey = "\0SPREAD".intern();
+    static ref LIVE_STATE_TYPE: StringKey = "LiveState".intern();
 }
 
 /// Determines whether a generated data type is "unmasked", which controls whether
@@ -123,6 +125,7 @@ pub fn generate_fragment_type_exports_section(
             .is_some(),
         fragment_definition.name.map(|x| x.0),
         fragment_locations,
+        false,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_fragment_type_exports_section(&typegen_context, fragment_definition, &mut writer)
@@ -145,6 +148,7 @@ pub fn generate_named_validator_export(
             .is_some(),
         fragment_definition.name.map(|x| x.0),
         fragment_locations,
+        false,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_validator_function(&typegen_context, fragment_definition, &mut writer).unwrap();
@@ -179,6 +183,7 @@ pub fn generate_operation_type_exports_section(
             typegen_operation.name.item.0,
         ),
         fragment_locations,
+        false,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_operation_type_exports_section(
@@ -197,6 +202,7 @@ pub fn generate_split_operation_type_exports_section(
     schema: &SDLSchema,
     project_config: &ProjectConfig,
     fragment_locations: &FragmentLocations,
+    no_optional_fields_in_raw_response_type: bool,
 ) -> String {
     let typegen_context = TypegenContext::new(
         schema,
@@ -210,6 +216,7 @@ pub fn generate_split_operation_type_exports_section(
             typegen_operation.name.item.0,
         ),
         fragment_locations,
+        no_optional_fields_in_raw_response_type,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
 
@@ -224,6 +231,7 @@ pub fn generate_split_operation_type_exports_section(
 }
 
 /// An immutable grab bag of configuration, etc. for type generation.
+/// A new `TypegenContext` is created for each operation, fragment, and so on.
 struct TypegenContext<'a> {
     schema: &'a SDLSchema,
     project_config: &'a ProjectConfig,
@@ -231,6 +239,8 @@ struct TypegenContext<'a> {
     has_unified_output: bool,
     generating_updatable_types: bool,
     definition_source_location: WithLocation<StringKey>,
+    // All keys in raw response should be required
+    no_optional_fields_in_raw_response_type: bool,
 }
 
 impl<'a> TypegenContext<'a> {
@@ -240,6 +250,7 @@ impl<'a> TypegenContext<'a> {
         generating_updatable_types: bool,
         definition_source_location: WithLocation<StringKey>,
         fragment_locations: &'a FragmentLocations,
+        no_optional_fields_in_raw_response_type: bool,
     ) -> Self {
         Self {
             schema,
@@ -248,6 +259,7 @@ impl<'a> TypegenContext<'a> {
             has_unified_output: project_config.output.is_some(),
             generating_updatable_types,
             definition_source_location,
+            no_optional_fields_in_raw_response_type,
         }
     }
 }

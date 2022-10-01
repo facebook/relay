@@ -154,7 +154,7 @@ pub fn build_type_annotation(
     schema: &SDLSchema,
     annotation: &graphql_syntax::TypeAnnotation,
     location: Location,
-) -> DiagnosticsResult<TypeReference> {
+) -> DiagnosticsResult<TypeReference<Type>> {
     let signatures = Default::default();
     let mut builder = Builder::new(
         schema,
@@ -194,7 +194,7 @@ pub fn build_directive(
 pub fn build_constant_value(
     schema: &SDLSchema,
     value: &graphql_syntax::ConstantValue,
-    type_: &TypeReference,
+    type_: &TypeReference<Type>,
     location: Location,
     validation: ValidationLevel,
 ) -> DiagnosticsResult<ConstantValue> {
@@ -241,7 +241,7 @@ type UsedVariables = IndexMap<VariableName, VariableUsage>;
 #[derive(Debug)]
 struct VariableUsage {
     span: Span,
-    type_: TypeReference,
+    type_: TypeReference<Type>,
 }
 
 struct Builder<'schema, 'signatures, 'options> {
@@ -498,14 +498,14 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     fn build_type_annotation(
         &mut self,
         annotation: &graphql_syntax::TypeAnnotation,
-    ) -> DiagnosticsResult<TypeReference> {
+    ) -> DiagnosticsResult<TypeReference<Type>> {
         self.build_type_annotation_inner(annotation, false)
     }
 
     fn build_type_annotation_for_input(
         &mut self,
         annotation: &graphql_syntax::TypeAnnotation,
-    ) -> DiagnosticsResult<TypeReference> {
+    ) -> DiagnosticsResult<TypeReference<Type>> {
         self.build_type_annotation_inner(annotation, true)
     }
 
@@ -513,7 +513,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
         &mut self,
         annotation: &graphql_syntax::TypeAnnotation,
         is_for_input: bool,
-    ) -> DiagnosticsResult<TypeReference> {
+    ) -> DiagnosticsResult<TypeReference<Type>> {
         match annotation {
             graphql_syntax::TypeAnnotation::Named(named_type) => {
                 match self.schema.get_type(named_type.name.value) {
@@ -559,7 +559,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     fn build_selections(
         &mut self,
         selections: &[graphql_syntax::Selection],
-        parent_types: &[TypeReference],
+        parent_types: &[TypeReference<Type>],
     ) -> DiagnosticsResult<Vec<Selection>> {
         try_map(selections, |selection| {
             // Here we've built our normal selections (fragments, linked fields, etc)
@@ -591,7 +591,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     fn build_selection(
         &mut self,
         selection: &graphql_syntax::Selection,
-        parent_types: &[TypeReference],
+        parent_types: &[TypeReference<Type>],
     ) -> DiagnosticsResult<Selection> {
         match selection {
             graphql_syntax::Selection::FragmentSpread(selection) => Ok(Selection::FragmentSpread(
@@ -710,7 +710,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     fn build_fragment_spread(
         &mut self,
         spread: &graphql_syntax::FragmentSpread,
-        parent_types: &[TypeReference],
+        parent_types: &[TypeReference<Type>],
     ) -> DiagnosticsResult<FragmentSpread> {
         let spread_name_with_location = WithLocation::from_span(
             self.location.source_location(),
@@ -860,7 +860,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     fn build_inline_fragment(
         &mut self,
         fragment: &graphql_syntax::InlineFragment,
-        parent_types: &[TypeReference],
+        parent_types: &[TypeReference<Type>],
     ) -> DiagnosticsResult<InlineFragment> {
         // Error early if the type condition is invalid, since we can't correctly build
         // its selections w an invalid parent type
@@ -939,7 +939,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     fn build_linked_field(
         &mut self,
         field: &graphql_syntax::LinkedField,
-        parent_type: &TypeReference,
+        parent_type: &TypeReference<Type>,
     ) -> DiagnosticsResult<LinkedField> {
         let span = field.name.span;
         let field_id = match self.lookup_field(
@@ -1002,7 +1002,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     fn build_scalar_field(
         &mut self,
         field: &graphql_syntax::ScalarField,
-        parent_type: &TypeReference,
+        parent_type: &TypeReference<Type>,
     ) -> DiagnosticsResult<ScalarField> {
         let field_name = field.name.value;
         if field_name == *TYPENAME_FIELD_NAME {
@@ -1340,7 +1340,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     fn build_argument(
         &mut self,
         argument: &graphql_syntax::Argument,
-        type_: &TypeReference,
+        type_: &TypeReference<Type>,
         validation: ValidationLevel,
     ) -> DiagnosticsResult<Argument> {
         let value_span = argument.value.span();
@@ -1357,7 +1357,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     fn build_variable(
         &mut self,
         variable: &graphql_syntax::VariableIdentifier,
-        used_as_type: &TypeReference,
+        used_as_type: &TypeReference<Type>,
         validation: ValidationLevel,
     ) -> DiagnosticsResult<Variable> {
         // Check current usage against definition and previous usage
@@ -1441,7 +1441,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     fn build_value(
         &mut self,
         value: &graphql_syntax::Value,
-        type_: &TypeReference,
+        type_: &TypeReference<Type>,
         validation: ValidationLevel,
     ) -> DiagnosticsResult<Value> {
         // Early return if a constant so that later matches only have to handle
@@ -1489,7 +1489,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 Type::Scalar(id) => {
                     let type_definition = self.schema.scalar(*id);
                     Err(vec![Diagnostic::error(
-                        ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                        ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                         self.location.with_span(value.span()),
                     )])
                 }
@@ -1592,7 +1592,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
     fn build_constant_value(
         &mut self,
         value: &graphql_syntax::ConstantValue,
-        type_: &TypeReference,
+        type_: &TypeReference<Type>,
         enum_validation: ValidationLevel,
     ) -> DiagnosticsResult<ConstantValue> {
         // Special case for null: if the type is nullable then just return null,
@@ -1779,7 +1779,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     Ok(ConstantValue::String(node.value))
                 }
                 _ => Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                     self.location.with_span(value.span()),
                 )]),
             },
@@ -1788,7 +1788,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     Ok(ConstantValue::String(node.value))
                 }
                 _ => Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                     self.location.with_span(value.span()),
                 )]),
             },
@@ -1798,7 +1798,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     Ok(ConstantValue::Float(From::from(node.value)))
                 }
                 _ => Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                     self.location.with_span(value.span()),
                 )]),
             },
@@ -1807,14 +1807,14 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     Ok(ConstantValue::Boolean(node.value))
                 }
                 _ => Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                     self.location.with_span(value.span()),
                 )]),
             },
             "Int" => match value {
                 graphql_syntax::ConstantValue::Int(node) => Ok(ConstantValue::Int(node.value)),
                 _ => Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                     self.location.with_span(value.span()),
                 )]),
             },
@@ -1852,7 +1852,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     Ok(ConstantValue::Object(object_props))
                 }
                 graphql_syntax::ConstantValue::Enum(_) => Err(vec![Diagnostic::error(
-                    ValidationMessage::UnsupportedCustomScalarType(type_definition.name.item),
+                    ValidationMessage::UnsupportedCustomScalarType(type_definition.name.item.0),
                     self.location.with_span(value.span()),
                 )]),
             },
@@ -1914,9 +1914,9 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
 
     fn find_conflicting_parent_type<'a>(
         &self,
-        parent_types: &'a [TypeReference],
+        parent_types: &'a [TypeReference<Type>],
         type_condition: Type,
-    ) -> Option<&'a TypeReference> {
+    ) -> Option<&'a TypeReference<Type>> {
         parent_types.iter().find(|parent_type| {
             !self
                 .schema

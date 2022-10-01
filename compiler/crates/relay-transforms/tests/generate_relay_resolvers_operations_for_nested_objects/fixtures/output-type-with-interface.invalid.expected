@@ -28,7 +28,7 @@ interface IStageName {
 }
 
 extend type User {
-  pop_star_name: PopStarName @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", is_output_type: true)
+  pop_star_name: PopStarName @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
 }
 ==================================== ERROR ====================================
 ✖︎ @RelayResolver interface type `IStageName` for field `also_a_stage_name` is not supported as @outputType, yet.

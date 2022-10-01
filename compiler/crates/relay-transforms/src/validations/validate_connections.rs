@@ -325,9 +325,9 @@ impl<'s> ConnectionValidation<'s> {
         &self,
         parent_type: Type,
         selection_name: StringKey,
-        is_valid: impl Fn(&Field, &TypeReference) -> bool,
+        is_valid: impl Fn(&Field, &TypeReference<Type>) -> bool,
         error: impl Fn() -> Vec<Diagnostic>,
-    ) -> DiagnosticsResult<(&Field, &TypeReference)> {
+    ) -> DiagnosticsResult<(&Field, &TypeReference<Type>)> {
         let schema = &self.program.schema;
         if let Some(field_id) = schema.named_field(parent_type, selection_name) {
             let field = schema.field(field_id);

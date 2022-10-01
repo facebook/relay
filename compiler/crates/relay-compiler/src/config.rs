@@ -16,6 +16,7 @@ use std::vec;
 use async_trait::async_trait;
 use common::FeatureFlags;
 use common::Rollout;
+use common::ScalarName;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
 use graphql_ir::OperationDefinition;
@@ -682,7 +683,7 @@ pub struct SingleProjectConfigFile {
 
     /// Mappings from custom scalars in your schema to built-in GraphQL
     /// types, for type emission purposes.
-    pub custom_scalars: FnvIndexMap<StringKey, CustomScalarType>,
+    pub custom_scalars: FnvIndexMap<ScalarName, CustomScalarType>,
 
     /// This option enables emitting es modules artifacts.
     pub eager_es_modules: bool,

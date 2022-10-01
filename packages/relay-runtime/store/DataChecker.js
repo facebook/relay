@@ -66,6 +66,7 @@ const {
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -473,6 +474,11 @@ class DataChecker {
             break;
           }
           this._traverseSelections(selection.fragment.selections, dataID);
+          break;
+        case RELAY_RESOLVER:
+          if (selection.fragment) {
+            this._traverseSelections([selection.fragment], dataID);
+          }
           break;
         default:
           (selection: empty);

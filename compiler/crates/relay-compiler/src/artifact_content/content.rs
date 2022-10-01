@@ -96,7 +96,7 @@ pub fn generate_updatable_query(
     }
 
     write_import_type_from(
-        &project_config.typegen_config.language,
+        project_config,
         &mut section,
         generated_types.imported_types,
         "relay-runtime",
@@ -260,7 +260,7 @@ pub fn generate_operation(
     }
 
     write_import_type_from(
-        &project_config.typegen_config.language,
+        project_config,
         &mut section,
         generated_types.imported_types,
         "relay-runtime",
@@ -397,6 +397,7 @@ pub fn generate_split_operation(
     typegen_operation: &Option<Arc<OperationDefinition>>,
     source_hash: Option<&String>,
     fragment_locations: &FragmentLocations,
+    no_optional_fields_in_raw_response_type: bool,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
 
@@ -426,7 +427,7 @@ pub fn generate_split_operation(
         writeln!(section, "/*::")?;
     }
     write_import_type_from(
-        &project_config.typegen_config.language,
+        project_config,
         &mut section,
         "NormalizationSplitOperation",
         "relay-runtime",
@@ -443,6 +444,7 @@ pub fn generate_split_operation(
                 schema,
                 project_config,
                 fragment_locations,
+                no_optional_fields_in_raw_response_type
             )
         )?;
     }
@@ -600,7 +602,7 @@ fn generate_read_only_fragment(
     }
 
     write_import_type_from(
-        &project_config.typegen_config.language,
+        project_config,
         &mut section,
         generated_types.imported_types,
         "relay-runtime",
@@ -790,15 +792,26 @@ fn generate_use_strict_section(language: &TypegenLanguage) -> Result<GenericSect
 }
 
 fn write_import_type_from(
-    language: &TypegenLanguage,
+    project_config: &ProjectConfig,
     section: &mut dyn Write,
     type_: &str,
     from: &str,
 ) -> FmtResult {
+    let language = &project_config.typegen_config.language;
     match language {
         TypegenLanguage::JavaScript => Ok(()),
         TypegenLanguage::Flow => writeln!(section, "import type {{ {} }} from '{}';", type_, from),
-        TypegenLanguage::TypeScript => writeln!(section, "import {{ {} }} from '{}';", type_, from),
+        TypegenLanguage::TypeScript => writeln!(
+            section,
+            "import {}{{ {} }} from '{}';",
+            if project_config.typegen_config.use_import_type_syntax {
+                "type "
+            } else {
+                ""
+            },
+            type_,
+            from
+        ),
     }
 }
 

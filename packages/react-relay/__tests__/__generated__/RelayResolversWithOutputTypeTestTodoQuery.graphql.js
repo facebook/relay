@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8eb848e912eb193bfbbe8068f4d3b27f>>
+ * @generated SignedSource<<7e1639025882961a6cb827aab1f601ce>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -27,7 +27,8 @@ import queryTodoResolver from "../../../relay-runtime/store/__tests__/resolvers/
   args: {|
     todoID: string,
   |}, 
-) => LiveState<any>);
+) => LiveState<?Query__todo$normalization>);
+import type { Query__todo$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql";
 export type RelayResolversWithOutputTypeTestTodoQuery$variables = {|
   id: string,
 |};
@@ -76,7 +77,12 @@ return {
           "kind": "RelayLiveResolver",
           "name": "todo",
           "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodo'),
-          "path": "todo"
+          "path": "todo",
+          "normalizationInfo": {
+            "concreteType": "Todo",
+            "plural": false,
+            "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
+          }
         },
         "linkedField": {
           "alias": null,
@@ -93,8 +99,7 @@ return {
             }
           ],
           "storageKey": null
-        },
-        "normalizationNode": require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/Query__todo$normalization.graphql')
+        }
       }
     ],
     "type": "Query",
@@ -110,10 +115,10 @@ return {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "name": "todo",
+            "args": (v1/*: any*/),
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

@@ -44,7 +44,6 @@ impl fmt::Display for DirectiveName {
 
 impl FromStr for DirectiveName {
     type Err = std::convert::Infallible;
-
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(DirectiveName(s.intern()))
     }
@@ -82,5 +81,20 @@ impl ScalarName {
 impl fmt::Display for ScalarName {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(fmt, "{}", self.0)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct InputObjectName(pub StringKey);
+
+impl fmt::Display for InputObjectName {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(fmt, "{}", self.0)
+    }
+}
+
+impl InputObjectName {
+    pub fn lookup(&self) -> &'static str {
+        self.0.lookup()
     }
 }

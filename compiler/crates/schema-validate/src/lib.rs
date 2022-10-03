@@ -295,7 +295,7 @@ impl<'schema> ValidationContext<'schema> {
 
     fn validate_input_object_fields(&self, id: InputObjectID) {
         let input_object = self.schema.input_object(id);
-        let context = ValidationContextType::TypeNode(input_object.name.item);
+        let context = ValidationContextType::TypeNode(input_object.name.item.0);
         if input_object.fields.is_empty() {
             self.report_error(SchemaValidationError::TypeWithNoFields, context);
         }
@@ -309,7 +309,7 @@ impl<'schema> ValidationContext<'schema> {
             if !is_input_type(&field.type_) {
                 self.report_error(
                     SchemaValidationError::InvalidArgumentType(
-                        input_object.name.item,
+                        input_object.name.item.0,
                         field.name.0,
                         field.name,
                         field.type_.clone(),

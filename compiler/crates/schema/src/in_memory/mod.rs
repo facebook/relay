@@ -12,6 +12,7 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::InputObjectName;
 use common::Location;
 use common::ScalarName;
 use common::SourceLocationKey;
@@ -139,7 +140,7 @@ impl Schema for InMemorySchema {
     fn get_type_name(&self, type_: Type) -> StringKey {
         match type_ {
             Type::Enum(id) => self.enums[id.as_usize()].name.item,
-            Type::InputObject(id) => self.input_objects[id.as_usize()].name.item,
+            Type::InputObject(id) => self.input_objects[id.as_usize()].name.item.0,
             Type::Interface(id) => self.interfaces[id.as_usize()].name.item,
             Type::Object(id) => self.objects[id.as_usize()].name.item,
             Type::Scalar(id) => self.scalars[id.as_usize()].name.item.0,
@@ -401,14 +402,14 @@ impl InMemorySchema {
         &mut self,
         input_object: InputObject,
     ) -> DiagnosticsResult<InputObjectID> {
-        if self.type_map.contains_key(&input_object.name.item) {
-            return todo_add_location(SchemaError::DuplicateType(input_object.name.item));
+        if self.type_map.contains_key(&input_object.name.item.0) {
+            return todo_add_location(SchemaError::DuplicateType(input_object.name.item.0));
         }
         let index: u32 = self.input_objects.len().try_into().unwrap();
         let name = input_object.name;
         self.input_objects.push(input_object);
         self.type_map
-            .insert(name.item, Type::InputObject(InputObjectID(index)));
+            .insert(name.item.0, Type::InputObject(InputObjectID(index)));
         Ok(InputObjectID(index))
     }
 
@@ -615,7 +616,7 @@ impl InMemorySchema {
         self.type_map
             .remove(&self.get_type_name(Type::InputObject(id)));
         self.type_map
-            .insert(input_object.name.item, Type::InputObject(id));
+            .insert(input_object.name.item.0, Type::InputObject(id));
         self.input_objects[id.as_usize()] = input_object;
         Ok(())
     }
@@ -1203,7 +1204,11 @@ impl InMemorySchema {
                 let fields = self.build_arguments(fields)?;
                 let directives = self.build_directive_values(directives);
                 self.input_objects.push(InputObject {
-                    name: WithLocation::new(Location::new(*location_key, name.span), name.value),
+                    name: WithLocation::new(
+                        Location::new(*location_key, name.span),
+                        InputObjectName(name.value),
+                    ),
+
                     fields,
                     directives,
                     description: None,

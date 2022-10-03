@@ -533,7 +533,9 @@ Text Schema:Schema {
     InputObject {
         name: WithLocation {
             location: <generated>:510:518,
-            item: "Location",
+            item: InputObjectName(
+                "Location",
+            ),
         },
         fields: [
             Argument {
@@ -1232,7 +1234,9 @@ input_objects: [
     InputObject {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Location",
+            item: InputObjectName(
+                "Location",
+            ),
         },
         fields: [
             Argument {

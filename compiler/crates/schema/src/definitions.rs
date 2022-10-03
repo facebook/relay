@@ -12,6 +12,7 @@ use std::slice::Iter;
 
 use common::ArgumentName;
 use common::DirectiveName;
+use common::InputObjectName;
 use common::Named;
 use common::NamedItem;
 use common::ScalarName;
@@ -305,7 +306,7 @@ pub struct Object {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct InputObject {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<InputObjectName>,
     pub fields: ArgumentDefinitions,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
@@ -497,7 +498,7 @@ macro_rules! impl_named_for_with_location {
 
 impl_named_for_with_location!(Object, StringKey);
 impl_named_for_with_location!(Field, StringKey);
-impl_named_for_with_location!(InputObject, StringKey);
+impl_named_for_with_location!(InputObject, InputObjectName);
 impl_named_for_with_location!(Interface, StringKey);
 impl_named_for_with_location!(Union, StringKey);
 impl_named_for_with_location!(Scalar, ScalarName);

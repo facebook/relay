@@ -1511,7 +1511,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             }
             _ => {
                 return Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                     self.location.with_span(value.span()),
                 )]);
             }
@@ -1565,10 +1565,10 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     }
                     None => Err(vec![Diagnostic::error(
                         ValidationMessageWithData::UnknownField {
-                            type_: type_definition.name.item,
+                            type_: type_definition.name.item.0,
                             field: x.name.value,
                             suggestions: self.suggestions.field_name_suggestion(
-                                self.schema.get_type(type_definition.name.item),
+                                self.schema.get_type(type_definition.name.item.0),
                                 x.name.value,
                             ),
                         },
@@ -1583,7 +1583,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             let mut missing: Vec<StringKey> = required_fields.into_iter().collect();
             missing.sort();
             Err(vec![Diagnostic::error(
-                ValidationMessage::MissingRequiredFields(missing, type_definition.name.item),
+                ValidationMessage::MissingRequiredFields(missing, type_definition.name.item.0),
                 self.location.with_span(object.span),
             )])
         }
@@ -1655,7 +1655,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             graphql_syntax::ConstantValue::Object(object) => object,
             _ => {
                 return Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                     self.location.with_span(value.span()),
                 )]);
             }
@@ -1709,10 +1709,10 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     }
                     None => Err(vec![Diagnostic::error(
                         ValidationMessageWithData::UnknownField {
-                            type_: type_definition.name.item,
+                            type_: type_definition.name.item.0,
                             field: x.name.value,
                             suggestions: self.suggestions.field_name_suggestion(
-                                self.schema.get_type(type_definition.name.item),
+                                self.schema.get_type(type_definition.name.item.0),
                                 x.name.value,
                             ),
                         },
@@ -1727,7 +1727,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             let mut missing: Vec<StringKey> = required_fields.into_iter().collect();
             missing.sort();
             Err(vec![Diagnostic::error(
-                ValidationMessage::MissingRequiredFields(missing, type_definition.name.item),
+                ValidationMessage::MissingRequiredFields(missing, type_definition.name.item.0),
                 self.location.with_span(object.span),
             )])
         }

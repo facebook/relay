@@ -12,6 +12,7 @@ use std::cmp::Ordering;
 
 use common::ArgumentName;
 use common::DirectiveName;
+use common::InputObjectName;
 use common::ScalarName;
 use common::Span;
 use common::WithLocation;
@@ -224,7 +225,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_input_object(&self, id: InputObjectID) -> Option<InputObject> {
         let input_object = self.input_objects.get(id.0.try_into().unwrap());
-        let name = input_object.name()?.to_string().intern();
+        let name = InputObjectName(input_object.name()?.to_string().intern());
         let parsed_input_object = InputObject {
             name: WithLocation::generated(name),
             fields: self.parse_arguments(input_object.fields()?)?,

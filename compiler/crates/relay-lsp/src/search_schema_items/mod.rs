@@ -76,7 +76,7 @@ pub(crate) fn on_search_schema_items(
         &filter,
     );
     let input_objects = filter_and_transform_items(
-        schema.input_objects().map(|io| io.name.item),
+        schema.input_objects().map(|io| io.name.item.0),
         &schema_documentation,
         &filter,
     );

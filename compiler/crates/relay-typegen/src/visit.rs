@@ -1885,7 +1885,7 @@ fn transform_non_nullable_input_type(
                         GeneratedInputObject::Resolved(props),
                     );
                 }
-                AST::Identifier(input_object.name.item)
+                AST::Identifier(input_object.name.item.0)
             }
             Type::Union(_) | Type::Object(_) | Type::Interface(_) => {
                 panic!("unexpected non-input type")

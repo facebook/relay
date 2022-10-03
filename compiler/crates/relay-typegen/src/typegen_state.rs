@@ -8,6 +8,7 @@
 use std::fmt::Result as FmtResult;
 use std::sync::Arc;
 
+use common::InputObjectName;
 use common::Location;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
@@ -75,7 +76,7 @@ impl GeneratedInputObject {
     }
 }
 
-pub(crate) type InputObjectTypes = IndexMap<StringKey, GeneratedInputObject>;
+pub(crate) type InputObjectTypes = IndexMap<InputObjectName, GeneratedInputObject>;
 
 /// Because EncounteredEnums is passed around everywhere, we use a newtype
 /// to make it easy to track.

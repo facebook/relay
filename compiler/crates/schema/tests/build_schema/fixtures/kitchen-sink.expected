@@ -186,7 +186,9 @@ Text Schema:Schema {
     Enum {
         name: WithLocation {
             location: <generated>:340:348,
-            item: "PageType",
+            item: EnumName(
+                "PageType",
+            ),
         },
         is_extension: false,
         values: [
@@ -983,7 +985,9 @@ enums: [
     Enum {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "PageType",
+            item: EnumName(
+                "PageType",
+            ),
         },
         is_extension: false,
         values: [

@@ -245,7 +245,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         self.add_to_type_map(
             self.enums.len(),
             schema_flatbuffer::TypeKind::Enum,
-            name.item,
+            name.item.0,
         );
         self.enums
             .push(schema_flatbuffer::Enum::create(&mut self.bldr, &args));

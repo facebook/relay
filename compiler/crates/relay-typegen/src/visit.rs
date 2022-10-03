@@ -1719,7 +1719,7 @@ fn transform_graphql_enum_type(
     encountered_enums: &mut EncounteredEnums,
 ) -> AST {
     encountered_enums.0.insert(enum_id);
-    AST::Identifier(schema.enum_(enum_id).name.item)
+    AST::Identifier(schema.enum_(enum_id).name.item.0)
 }
 
 #[allow(clippy::too_many_arguments)]

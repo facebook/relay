@@ -98,3 +98,17 @@ impl InputObjectName {
         self.0.lookup()
     }
 }
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct EnumName(pub StringKey);
+
+impl EnumName {
+    pub fn lookup(self) -> &'static str {
+        self.0.lookup()
+    }
+}
+impl fmt::Display for EnumName {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(fmt, "{}", self.0)
+    }
+}

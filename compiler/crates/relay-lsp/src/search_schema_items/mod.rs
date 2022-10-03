@@ -66,7 +66,7 @@ pub(crate) fn on_search_schema_items(
         &filter,
     );
     let enums = filter_and_transform_items(
-        schema.enums().map(|e| e.name.item),
+        schema.enums().map(|e| e.name.item.0),
         &schema_documentation,
         &filter,
     );

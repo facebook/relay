@@ -12,6 +12,7 @@ use std::slice::Iter;
 
 use common::ArgumentName;
 use common::DirectiveName;
+use common::EnumName;
 use common::InputObjectName;
 use common::Named;
 use common::NamedItem;
@@ -314,7 +315,7 @@ pub struct InputObject {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Enum {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<EnumName>,
     pub is_extension: bool,
     pub values: Vec<EnumValue>,
     pub directives: Vec<DirectiveValue>,
@@ -502,7 +503,7 @@ impl_named_for_with_location!(InputObject, InputObjectName);
 impl_named_for_with_location!(Interface, StringKey);
 impl_named_for_with_location!(Union, StringKey);
 impl_named_for_with_location!(Scalar, ScalarName);
-impl_named_for_with_location!(Enum, StringKey);
+impl_named_for_with_location!(Enum, EnumName);
 
 impl Named for DirectiveValue {
     type Name = DirectiveName;

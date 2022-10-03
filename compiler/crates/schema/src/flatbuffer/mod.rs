@@ -12,6 +12,7 @@ use std::cmp::Ordering;
 
 use common::ArgumentName;
 use common::DirectiveName;
+use common::EnumName;
 use common::InputObjectName;
 use common::ScalarName;
 use common::Span;
@@ -237,7 +238,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_enum(&self, id: EnumID) -> Option<Enum> {
         let enum_ = self.enums.get(id.0.try_into().unwrap());
-        let name = enum_.name()?.to_string().intern();
+        let name = EnumName(enum_.name()?.to_string().intern());
         let parsed_enum = Enum {
             name: WithLocation::generated(name),
             is_extension: enum_.is_extension(),

@@ -12,6 +12,7 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::EnumName;
 use common::InputObjectName;
 use common::Location;
 use common::ScalarName;
@@ -139,8 +140,8 @@ impl Schema for InMemorySchema {
 
     fn get_type_name(&self, type_: Type) -> StringKey {
         match type_ {
-            Type::Enum(id) => self.enums[id.as_usize()].name.item,
             Type::InputObject(id) => self.input_objects[id.as_usize()].name.item.0,
+            Type::Enum(id) => self.enums[id.as_usize()].name.item.0,
             Type::Interface(id) => self.interfaces[id.as_usize()].name.item,
             Type::Object(id) => self.objects[id.as_usize()].name.item,
             Type::Scalar(id) => self.scalars[id.as_usize()].name.item.0,
@@ -388,13 +389,13 @@ impl InMemorySchema {
     }
 
     pub fn add_enum(&mut self, enum_: Enum) -> DiagnosticsResult<EnumID> {
-        if self.type_map.contains_key(&enum_.name.item) {
-            return todo_add_location(SchemaError::DuplicateType(enum_.name.item));
+        if self.type_map.contains_key(&enum_.name.item.0) {
+            return todo_add_location(SchemaError::DuplicateType(enum_.name.item.0));
         }
         let index: u32 = self.enums.len().try_into().unwrap();
         let name = enum_.name;
         self.enums.push(enum_);
-        self.type_map.insert(name.item, Type::Enum(EnumID(index)));
+        self.type_map.insert(name.item.0, Type::Enum(EnumID(index)));
         Ok(EnumID(index))
     }
 
@@ -595,7 +596,7 @@ impl InMemorySchema {
             ));
         }
         self.type_map.remove(&self.get_type_name(Type::Enum(id)));
-        self.type_map.insert(enum_.name.item, Type::Enum(id));
+        self.type_map.insert(enum_.name.item.0, Type::Enum(id));
         self.enums[id.as_usize()] = enum_;
         Ok(())
     }
@@ -1233,7 +1234,10 @@ impl InMemorySchema {
                     Vec::new()
                 };
                 self.enums.push(Enum {
-                    name: WithLocation::new(Location::new(*location_key, name.span), name.value),
+                    name: WithLocation::new(
+                        Location::new(*location_key, name.span),
+                        EnumName(name.value),
+                    ),
                     is_extension,
                     values,
                     directives,

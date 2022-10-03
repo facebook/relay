@@ -47,6 +47,7 @@ pub use lsp_types::DiagnosticSeverity;
 pub use lsp_types::DiagnosticTag;
 pub use named_item::ArgumentName;
 pub use named_item::DirectiveName;
+pub use named_item::EnumName;
 pub use named_item::InputObjectName;
 pub use named_item::Named;
 pub use named_item::NamedItem;

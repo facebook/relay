@@ -1482,7 +1482,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 Type::Enum(id) => {
                     let type_definition = self.schema.enum_(*id);
                     Err(vec![Diagnostic::error(
-                        ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                        ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                         self.location.with_span(value.span()),
                     )])
                 }
@@ -1742,13 +1742,13 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             graphql_syntax::ConstantValue::Enum(value) => value.value,
             graphql_syntax::ConstantValue::String(_) => {
                 return Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedEnumValueGotString(type_definition.name.item),
+                    ValidationMessage::ExpectedEnumValueGotString(type_definition.name.item.0),
                     self.location.with_span(node.span()),
                 )]);
             }
             _ => {
                 return Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                     self.location.with_span(node.span()),
                 )]);
             }
@@ -1761,7 +1761,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             Ok(ConstantValue::Enum(value))
         } else {
             Err(vec![Diagnostic::error(
-                ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                 self.location.with_span(node.span()),
             )])
         }

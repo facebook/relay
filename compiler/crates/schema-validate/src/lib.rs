@@ -275,7 +275,7 @@ impl<'schema> ValidationContext<'schema> {
 
     fn validate_enum_type(&self, id: EnumID) {
         let enum_ = self.schema.enum_(id);
-        let context = ValidationContextType::TypeNode(enum_.name.item);
+        let context = ValidationContextType::TypeNode(enum_.name.item.0);
         if enum_.values.is_empty() {
             self.report_error(SchemaValidationError::EnumWithNoValues, context);
         }

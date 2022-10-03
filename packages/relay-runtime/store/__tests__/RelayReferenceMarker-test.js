@@ -15,13 +15,12 @@ import RelayNetwork from '../../network/RelayNetwork';
 import RelayModernEnvironment from '../RelayModernEnvironment';
 import {createOperationDescriptor} from '../RelayModernOperationDescriptor';
 import LiveResolverStore from '../experimental-live-resolvers/LiveResolverStore';
-
-const {graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const {createNormalizationSelector} = require('../RelayModernSelector');
-const RelayRecordSource = require('../RelayRecordSource');
-const {mark} = require('../RelayReferenceMarker');
-const {ROOT_ID} = require('../RelayStoreUtils');
+import {graphql} from '../../query/GraphQLTag';
+import RelayFeatureFlags from '../../util/RelayFeatureFlags';
+import {createNormalizationSelector} from '../RelayModernSelector';
+import RelayRecordSource from '../RelayRecordSource';
+import {mark} from '../RelayReferenceMarker';
+import {ROOT_ID} from '../RelayStoreUtils';
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;

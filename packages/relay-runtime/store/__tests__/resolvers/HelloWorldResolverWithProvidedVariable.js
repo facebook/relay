@@ -33,7 +33,7 @@ function HelloWorldResolverWithProvidedVariableResolver(
       @argumentDefinitions(
         provided_variable: {
           type: "String!"
-          provider: "../HelloWorldProvider.js"
+          provider: "./HelloWorldProvider.js"
         }
       ) {
         hello(world: $provided_variable)

@@ -20,6 +20,10 @@ query TestQuery(
   #     original_variable_name: VariableName(
   #         "foo_gk",
   #     ),
+  #     fragment_source_location: Embedded {
+  #         path: "fragment-include-with-provided-argument.graphql",
+  #         index: 0,
+  #     },
   # }
   
 ) {

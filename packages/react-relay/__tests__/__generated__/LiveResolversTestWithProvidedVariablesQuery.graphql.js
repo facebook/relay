@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<b05fc5c255a9a4eb08cdb8ff6dd5d20f>>
+ * @generated SignedSource<<58949bc803273e85b255320545d25a2c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -41,7 +41,7 @@ type ProvidedVariablesType = {|
 */
 
 var providedVariablesDefinition/*: ProvidedVariablesType*/ = {
-  "__relay_internal__pv__HelloWorldProviderjs": require('./../HelloWorldProvider')
+  "__relay_internal__pv__HelloWorldProviderjs": require('./../../../relay-runtime/store/__tests__/resolvers/HelloWorldProvider')
 };
 
 var node/*: ClientRequest*/ = {

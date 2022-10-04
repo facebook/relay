@@ -27,6 +27,7 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use md5::Digest;
 use md5::Md5;
+use relay_config::JsModuleFormat;
 use relay_config::ProjectConfig;
 use relay_transforms::extract_connection_metadata_from_directive;
 use relay_transforms::extract_handle_field_directives;
@@ -107,7 +108,7 @@ pub fn build_provided_variables(
         definition_source_location,
     );
 
-    operation_builder.build_operation_provided_variables(&operation.variable_definitions)
+    operation_builder.build_operation_provided_variables(operation)
 }
 
 pub fn build_request(
@@ -1698,12 +1699,25 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
     pub fn build_operation_provided_variables(
         &mut self,
-        variable_definitions: &[VariableDefinition],
+        operation: &OperationDefinition,
     ) -> Option<AstKey> {
-        let var_defs = variable_definitions
+        let var_defs = operation
+            .variable_definitions
             .iter()
             .filter_map(|def| {
-                let provider_module = ProvidedVariableMetadata::find(&def.directives)?.module_name;
+                let provider = ProvidedVariableMetadata::find(&def.directives)?;
+
+                let provider_module =
+                    if matches!(self.project_config.js_module_format, JsModuleFormat::Haste) {
+                        provider.module_name
+                    } else {
+                        // This will build a path from the operation artifact to the provider module
+                        self.project_config.js_module_import_path(
+                            operation.name.map(|name| name.0),
+                            provider.module_path().to_str().unwrap().intern(),
+                        )
+                    };
+
                 Some(ObjectEntry {
                     key: def.name.item.0,
                     value: Primitive::JSModuleDependency(provider_module),
@@ -1835,7 +1849,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 CODEGEN_CONSTANTS.provided_variables_definition,
             ))
         } else {
-            self.build_operation_provided_variables(&operation.variable_definitions)
+            self.build_operation_provided_variables(operation)
                 .map(Primitive::Key)
         };
         if let Some(value) = provided_variables {

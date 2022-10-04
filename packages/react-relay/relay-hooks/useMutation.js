@@ -65,7 +65,7 @@ function useMutation<TMutation: MutationParameters>(
   const [isMutationInFlight, setMutationInFlight] = useState(false);
 
   const cleanup = useCallback(
-    disposable => {
+    (disposable: Disposable) => {
       if (
         environmentRef.current === environment &&
         mutationRef.current === mutation

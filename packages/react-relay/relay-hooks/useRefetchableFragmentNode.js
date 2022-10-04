@@ -391,7 +391,10 @@ function useRefetchFunction<TQuery: OperationType>(
       ? fragmentData[identifierField]
       : null;
   return useCallback(
-    (providedRefetchVariables, options) => {
+    (
+      providedRefetchVariables: VariablesOf<TQuery>,
+      options: void | InternalOptions,
+    ) => {
       // Bail out and warn if we're trying to refetch after the component
       // has unmounted
       if (isMountedRef.current !== true) {

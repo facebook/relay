@@ -277,7 +277,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Option<ObjectEntry> {
-        // If the query contains frament spreads on abstract types which are
+        // If the query contains fragment spreads on abstract types which are
         // defined in the client schema, we attach extra metadata so that we
         // know which concrete types match these type conditions at runtime.
         ClientExtensionAbstractTypeMetadataDirective::find(&operation.directives).map(|directive| {
@@ -960,7 +960,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 }
                 // We expect all RelayResolver fragment spreads to be inlined into inline fragment spreads when generating Normalization ASTs.
                 CodegenVariant::Normalization => panic!(
-                    "Unexpected RelayResolverMetadata on fragment spread while generating normalizaton AST."
+                    "Unexpected RelayResolverMetadata on fragment spread while generating normalization AST."
                 ),
             };
 

@@ -56,6 +56,7 @@ lazy_static! {
     static ref ARGUMENT_DEFINITIONS: DirectiveName = DirectiveName("argumentDefinitions".intern());
     static ref ARGUMENT_TYPE: StringKey = "type".intern();
     static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
+    static ref PROVIDER_ARG_NAME: StringKey = "provider".intern();
 }
 
 pub fn parse_docblock_ast(
@@ -451,11 +452,19 @@ impl RelayResolverParser {
                 arguments
                     .items
                     .iter()
-                    .map(|arg: &graphql_syntax::Argument| {
+                    .filter_map(|arg: &graphql_syntax::Argument| {
                         let (type_, default_value) = if let graphql_syntax::Value::Constant(
                             graphql_syntax::ConstantValue::Object(object),
                         ) = &arg.value
                         {
+                            if object
+                                .items
+                                .iter()
+                                .any(|item| item.name.value == *PROVIDER_ARG_NAME)
+                            {
+                                return None;
+                            }
+
                             let type_value = &object
                                 .items
                                 .iter()
@@ -487,11 +496,11 @@ impl RelayResolverParser {
                             panic!("Expect the constant value for the argDef: {:?}", &arg.value);
                         };
 
-                        type_.map(|type_| Argument {
+                        Some(type_.map(|type_| Argument {
                             name: arg.name.clone(),
                             type_,
                             default_value,
-                        })
+                        }))
                     })
                     .filter_map(|result| result.map_err(|err| self.errors.extend(err)).ok())
                     .collect::<Vec<_>>()

@@ -869,7 +869,7 @@ describe('RelayReferenceMarker', () => {
           __typename: '__Root',
           counter_no_fragment: {
             __ref: 'client:root:counter_no_fragment',
-          }
+          },
         },
         'client:root:counter_no_fragment': {},
       };
@@ -914,13 +914,13 @@ describe('RelayReferenceMarker', () => {
           me: {__ref: '1'},
           counter: {
             __ref: 'client:root:counter',
-          }
+          },
         },
         '1': {
           __id: '1',
           __typename: 'User',
         },
-        'client:root:counter': {}
+        'client:root:counter': {},
       };
       const nodes = {
         FooQuery: graphql`

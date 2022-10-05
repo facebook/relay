@@ -7,6 +7,7 @@
 
 use graphql_ir::reexport::StringKey;
 use intern::string_key::Intern;
+use intern::Lookup;
 use lsp_types::request::Request;
 use schema::Schema;
 use schema_documentation::SchemaDocumentation;
@@ -56,7 +57,7 @@ pub(crate) fn on_search_schema_items(
     let schema_documentation = state.get_schema_documentation(schema_name);
 
     let objects = filter_and_transform_items(
-        schema.objects().map(|o| o.name.item),
+        schema.objects().map(|o| o.name.item.0),
         &schema_documentation,
         &filter,
     );

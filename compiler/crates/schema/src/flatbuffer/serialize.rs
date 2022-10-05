@@ -18,6 +18,7 @@ use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
 use graphql_syntax::List;
 use intern::string_key::StringKey;
+use intern::Lookup;
 
 use crate::in_memory::InMemorySchema;
 use crate::Argument;
@@ -255,7 +256,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let object = self.schema.object(id);
         let name = object.name;
         let idx = self.objects.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Object, name.item);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Object, name.item.0);
         self.objects.push(schema_flatbuffer::Object::create(
             &mut self.bldr,
             &schema_flatbuffer::ObjectArgs::default(),

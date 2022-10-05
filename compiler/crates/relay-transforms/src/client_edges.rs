@@ -13,6 +13,7 @@ use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
+use common::ObjectName;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
@@ -34,6 +35,7 @@ use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
 use schema::Schema;
@@ -71,7 +73,7 @@ pub enum ClientEdgeMetadataDirective {
         unique_id: u32,
     },
     ClientObject {
-        type_name: StringKey,
+        type_name: ObjectName,
         unique_id: u32,
     },
 }

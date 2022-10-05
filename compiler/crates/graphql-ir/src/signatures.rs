@@ -19,6 +19,7 @@ use errors::par_try_map;
 use errors::try2;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use schema::suggestion_list::GraphQLSuggestions;
 use schema::SDLSchema;

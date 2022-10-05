@@ -37,6 +37,7 @@ use graphql_ir::Transformer;
 use graphql_ir::Value;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use schema::Schema;
 use thiserror::Error;

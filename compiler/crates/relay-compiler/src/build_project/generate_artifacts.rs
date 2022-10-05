@@ -16,6 +16,7 @@ use graphql_ir::OperationDefinition;
 use graphql_text_printer::OperationPrinter;
 use graphql_text_printer::PrinterOptions;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use relay_transforms::ClientEdgeGeneratedQueryMetadataDirective;
 use relay_transforms::Programs;
 use relay_transforms::RawResponseGenerationMode;

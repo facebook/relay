@@ -6,6 +6,7 @@
  */
 
 use common::ArgumentName;
+use common::ObjectName;
 use intern::string_key::StringKey;
 use schema::Type;
 use schema::TypeReference;
@@ -75,7 +76,7 @@ pub enum SchemaValidationError {
     UnionWithNoMembers(StringKey),
 
     #[error("Union can only include member {0} once.")]
-    DuplicateMember(StringKey),
+    DuplicateMember(ObjectName),
 
     #[error("Enum must define one or more values.")]
     EnumWithNoValues,

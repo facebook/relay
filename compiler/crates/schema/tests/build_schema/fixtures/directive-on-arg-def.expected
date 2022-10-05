@@ -278,7 +278,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:166:171,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -497,7 +499,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [

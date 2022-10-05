@@ -13,6 +13,7 @@ use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
 use common::Named;
+use common::ObjectName;
 use common::Span;
 use common::WithLocation;
 use graphql_ir::FragmentDefinitionName;
@@ -183,7 +184,7 @@ impl RelayResolverIr {
                                 schema,
                                 &schema.object(object_id).interfaces,
                             )?;
-                            return Ok(self.object_definitions(value));
+                            return Ok(self.object_definitions(value.map(ObjectName)));
                         }
                         Type::Interface(_) => {
                             return Err(vec![Diagnostic::error_with_data(
@@ -345,10 +346,10 @@ impl RelayResolverIr {
         Ok(())
     }
 
-    fn object_definitions(&self, on_type: WithLocation<StringKey>) -> Vec<TypeSystemDefinition> {
+    fn object_definitions(&self, on_type: WithLocation<ObjectName>) -> Vec<TypeSystemDefinition> {
         vec![TypeSystemDefinition::ObjectTypeExtension(
             ObjectTypeExtension {
-                name: as_identifier(on_type),
+                name: obj_as_identifier(on_type),
                 interfaces: Vec::new(),
                 directives: vec![],
                 fields: Some(self.fields()),
@@ -502,6 +503,15 @@ fn as_identifier(value: WithLocation<StringKey>) -> Identifier {
         span: span.clone(),
         token: dummy_token(span),
         value: value.item,
+    }
+}
+
+fn obj_as_identifier(value: WithLocation<ObjectName>) -> Identifier {
+    let span = value.location.span();
+    Identifier {
+        span: span.clone(),
+        token: dummy_token(span),
+        value: value.item.0,
     }
 }
 

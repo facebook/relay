@@ -20,8 +20,10 @@ use common::Named;
 use common::WithLocation;
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
+use intern::impl_lookup;
 use intern::string_key::StringKey;
 use intern::BuildIdHasher;
+use intern::Lookup;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
@@ -67,7 +69,7 @@ impl Display for OperationDefinitionName {
         write!(f, "{}", self.0)
     }
 }
-
+impl_lookup!(OperationDefinitionName);
 /// A fully-typed mutation, query, or subscription definition
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct OperationDefinition {
@@ -108,6 +110,8 @@ impl fmt::Display for FragmentDefinitionName {
     }
 }
 
+impl_lookup!(FragmentDefinitionName);
+
 pub type FragmentDefinitionNameMap<V> = HashMap<FragmentDefinitionName, V, BuildIdHasher<u32>>;
 pub type FragmentDefinitionNameSet = HashSet<FragmentDefinitionName, BuildIdHasher<u32>>;
 
@@ -130,6 +134,8 @@ impl Display for VariableName {
         write!(fmt, "{}", self.0)
     }
 }
+
+impl_lookup!(VariableName);
 
 /// A variable definition of an operation or fragment
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]

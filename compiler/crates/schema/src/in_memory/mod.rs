@@ -15,12 +15,14 @@ use common::DirectiveName;
 use common::EnumName;
 use common::InputObjectName;
 use common::Location;
+use common::ObjectName;
 use common::ScalarName;
 use common::SourceLocationKey;
 use common::WithLocation;
 use graphql_syntax::*;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 
 use crate::definitions::Argument;
 use crate::definitions::Directive;
@@ -143,7 +145,7 @@ impl Schema for InMemorySchema {
             Type::InputObject(id) => self.input_objects[id.as_usize()].name.item.0,
             Type::Enum(id) => self.enums[id.as_usize()].name.item.0,
             Type::Interface(id) => self.interfaces[id.as_usize()].name.item,
-            Type::Object(id) => self.objects[id.as_usize()].name.item,
+            Type::Object(id) => self.objects[id.as_usize()].name.item.0,
             Type::Scalar(id) => self.scalars[id.as_usize()].name.item.0,
             Type::Union(id) => self.unions[id.as_usize()].name.item,
         }
@@ -427,9 +429,9 @@ impl InMemorySchema {
     }
 
     pub fn add_object(&mut self, object: Object) -> DiagnosticsResult<ObjectID> {
-        if self.type_map.contains_key(&object.name.item) {
+        if self.type_map.contains_key(&object.name.item.0) {
             return Err(vec![Diagnostic::error(
-                SchemaError::DuplicateType(object.name.item),
+                SchemaError::DuplicateType(object.name.item.0),
                 object.name.location,
             )]);
         }
@@ -437,7 +439,7 @@ impl InMemorySchema {
         let name = object.name;
         self.objects.push(object);
         self.type_map
-            .insert(name.item, Type::Object(ObjectID(index)));
+            .insert(name.item.0, Type::Object(ObjectID(index)));
         Ok(ObjectID(index))
     }
 
@@ -581,7 +583,7 @@ impl InMemorySchema {
             ));
         }
         self.type_map.remove(&self.get_type_name(Type::Object(id)));
-        self.type_map.insert(object.name.item, Type::Object(id));
+        self.type_map.insert(object.name.item.0, Type::Object(id));
         self.objects[id.as_usize()] = object;
         Ok(())
     }
@@ -1138,7 +1140,10 @@ impl InMemorySchema {
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(directives);
                 self.objects.push(Object {
-                    name: WithLocation::new(Location::new(*location_key, name.span), name.value),
+                    name: WithLocation::new(
+                        Location::new(*location_key, name.span),
+                        ObjectName(name.value),
+                    ),
                     fields,
                     is_extension,
                     interfaces,

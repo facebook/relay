@@ -20,6 +20,7 @@ use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use graphql_ir::Value;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::Field;
 use schema::Schema;
 use schema::Type;

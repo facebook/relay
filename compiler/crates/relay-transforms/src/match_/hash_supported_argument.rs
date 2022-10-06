@@ -20,6 +20,7 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
 use intern::string_key::Intern;
+use intern::Lookup;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::TypeReference;

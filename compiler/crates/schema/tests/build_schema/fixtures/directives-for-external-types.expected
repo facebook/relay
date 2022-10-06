@@ -717,7 +717,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:342:347,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -731,7 +733,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:505:509,
-            item: "User",
+            item: ObjectName(
+                "User",
+            ),
         },
         is_extension: false,
         fields: [
@@ -770,7 +774,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:702:716,
-            item: "MailingAddress",
+            item: ObjectName(
+                "MailingAddress",
+            ),
         },
         is_extension: false,
         fields: [
@@ -785,7 +791,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:872:880,
-            item: "XIGStory",
+            item: ObjectName(
+                "XIGStory",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1568,7 +1576,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "MailingAddress",
+            item: ObjectName(
+                "MailingAddress",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1583,7 +1593,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1597,7 +1609,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "User",
+            item: ObjectName(
+                "User",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1636,7 +1650,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "XIGStory",
+            item: ObjectName(
+                "XIGStory",
+            ),
         },
         is_extension: false,
         fields: [

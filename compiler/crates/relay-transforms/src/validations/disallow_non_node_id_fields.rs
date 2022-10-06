@@ -63,7 +63,7 @@ impl<'a> FieldSelectableType<'a> {
     fn name(&'a self) -> StringKey {
         match *self {
             Self::Interface(i) => i.name.item,
-            Self::Object(o) => o.name.item,
+            Self::Object(o) => o.name.item.0,
         }
     }
 }

@@ -15,6 +15,7 @@ use dashmap::DashMap;
 use fnv::FnvBuildHasher;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use ouroboros::self_referencing;
 
 use super::FlatBufferSchema;
@@ -305,7 +306,7 @@ impl Schema for SchemaWrapper {
             Type::Enum(id) => self.enum_(id).name.item.0,
             Type::InputObject(id) => self.input_object(id).name.item.0,
             Type::Interface(id) => self.interface(id).name.item,
-            Type::Object(id) => self.object(id).name.item,
+            Type::Object(id) => self.object(id).name.item.0,
             Type::Scalar(id) => self.scalar(id).name.item.0,
             Type::Union(id) => self.union(id).name.item,
         }

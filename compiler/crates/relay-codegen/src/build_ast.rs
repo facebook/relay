@@ -25,6 +25,7 @@ use graphql_ir::VariableDefinition;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use md5::Digest;
 use md5::Md5;
 use relay_config::JsModuleFormat;
@@ -1270,7 +1271,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             ClientEdgeMetadataDirective::ClientObject { type_name, .. } => {
                 Primitive::Key(self.object(object! {
                     kind: Primitive::String(CODEGEN_CONSTANTS.client_edge_to_client_object),
-                    concrete_type: Primitive::String(type_name),
+                    concrete_type: Primitive::String(type_name.0),
                     client_edge_backing_field_key: backing_field,
                     client_edge_selections_key: selections_item,
                 }))

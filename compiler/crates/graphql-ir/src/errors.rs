@@ -13,6 +13,7 @@ use common::DirectiveName;
 use common::WithDiagnosticData;
 use graphql_syntax::OperationKind;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::suggestion_list::did_you_mean;
 use schema::Type;
 use schema::TypeReference;

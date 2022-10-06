@@ -36,6 +36,7 @@ use graphql_ir::Transformer;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use requireable_field::RequireableField;
 use requireable_field::RequiredMetadata;

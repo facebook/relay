@@ -37,6 +37,7 @@ use graphql_syntax::Selection;
 use graphql_syntax::TokenKind;
 use graphql_syntax::Value;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use log::debug;
 use lsp_types::request::Completion;
 use lsp_types::request::Request;
@@ -718,7 +719,7 @@ fn resolve_completion_items_for_inline_fragment_type(
                     interface
                         .implementing_objects
                         .iter()
-                        .filter_map(|id| schema.get_type(schema.object(*id).name.item)),
+                        .filter_map(|id| schema.get_type(schema.object(*id).name.item.0)),
                 )
                 .collect()
         }
@@ -729,7 +730,7 @@ fn resolve_completion_items_for_inline_fragment_type(
                     union
                         .members
                         .iter()
-                        .filter_map(|id| schema.get_type(schema.object(*id).name.item)),
+                        .filter_map(|id| schema.get_type(schema.object(*id).name.item.0)),
                 )
                 .collect()
         }
@@ -821,7 +822,7 @@ fn resolve_completion_items_for_argument_value(
     completion_items
 }
 
-fn resolve_completion_items_from_fields<T: TypeWithFields + Named<Name = StringKey>>(
+fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
     type_: &T,
     schema: &SDLSchema,
     schema_documentation: impl SchemaDocumentation,

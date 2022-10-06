@@ -16,6 +16,7 @@ use common::EnumName;
 use common::InputObjectName;
 use common::Named;
 use common::NamedItem;
+use common::ObjectName;
 use common::ScalarName;
 use common::WithLocation;
 use graphql_syntax::ConstantValue;
@@ -297,7 +298,7 @@ pub struct Scalar {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Object {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<ObjectName>,
     pub is_extension: bool,
     pub fields: Vec<FieldID>,
     pub interfaces: Vec<InterfaceID>,
@@ -497,7 +498,7 @@ macro_rules! impl_named_for_with_location {
     };
 }
 
-impl_named_for_with_location!(Object, StringKey);
+impl_named_for_with_location!(Object, ObjectName);
 impl_named_for_with_location!(Field, StringKey);
 impl_named_for_with_location!(InputObject, InputObjectName);
 impl_named_for_with_location!(Interface, StringKey);

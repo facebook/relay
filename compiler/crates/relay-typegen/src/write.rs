@@ -12,6 +12,7 @@ use std::path::PathBuf;
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
+use ::intern::Lookup;
 use common::InputObjectName;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;

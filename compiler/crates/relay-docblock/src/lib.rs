@@ -31,6 +31,7 @@ use graphql_syntax::FragmentDefinition;
 use graphql_syntax::TypeAnnotation;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 pub use ir::Argument;
 pub use ir::DocblockIr;
 use ir::IrField;

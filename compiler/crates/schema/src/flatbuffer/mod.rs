@@ -14,6 +14,7 @@ use common::ArgumentName;
 use common::DirectiveName;
 use common::EnumName;
 use common::InputObjectName;
+use common::ObjectName;
 use common::ScalarName;
 use common::Span;
 use common::WithLocation;
@@ -34,6 +35,7 @@ use graphql_syntax::Token;
 use graphql_syntax::TokenKind;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 pub use serialize::serialize_as_flatbuffer;
 pub use wrapper::SchemaWrapper;
 
@@ -253,7 +255,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         let object = self.objects.get(id.0.try_into().unwrap());
         let name = object.name()?.intern();
         let parsed_object = Object {
-            name: WithLocation::generated(name),
+            name: WithLocation::generated(ObjectName(name)),
             is_extension: object.is_extension(),
             fields: object.fields()?.iter().map(FieldID).collect(),
             interfaces: object.interfaces()?.iter().map(InterfaceID).collect(),

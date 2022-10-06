@@ -14,6 +14,7 @@ use std::hash::Hasher;
 
 use fnv::FnvHashMap;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use itertools::Itertools;
 use schema::*;
 
@@ -285,7 +286,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         self.print_implementing_interfaces(&object.interfaces)?;
         self.print_directive_values(&object.directives)?;
         self.print_space()?;
-        self.print_fields(&object.fields, object.name.item)?;
+        self.print_fields(&object.fields, object.name.item.0)?;
         self.print_definition_end()
     }
 

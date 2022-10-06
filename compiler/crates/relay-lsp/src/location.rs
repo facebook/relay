@@ -11,6 +11,7 @@ use std::path::PathBuf;
 use common::Location;
 use common::SourceLocationKey;
 use common::TextSource;
+use intern::Lookup;
 use lsp_types::Url;
 
 use crate::lsp_runtime_error::LSPRuntimeError;

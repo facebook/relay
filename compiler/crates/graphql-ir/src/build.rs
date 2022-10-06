@@ -31,6 +31,7 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use schema::suggestion_list;
 use schema::suggestion_list::GraphQLSuggestions;

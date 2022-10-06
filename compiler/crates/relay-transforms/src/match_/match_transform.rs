@@ -41,6 +41,7 @@ use graphql_ir::Value;
 use indexmap::IndexSet;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use relay_config::ModuleImportConfig;
 use schema::FieldID;
 use schema::ScalarID;

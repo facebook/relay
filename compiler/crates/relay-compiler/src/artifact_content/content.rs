@@ -14,6 +14,7 @@ use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
+use intern::Lookup;
 use relay_codegen::build_request_params;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;

@@ -667,7 +667,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:144:149,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -681,7 +683,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:243:247,
-            item: "User",
+            item: ObjectName(
+                "User",
+            ),
         },
         is_extension: false,
         fields: [
@@ -699,7 +703,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:299:303,
-            item: "Page",
+            item: ObjectName(
+                "Page",
+            ),
         },
         is_extension: false,
         fields: [
@@ -713,7 +719,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: kitchen-sink.graphql:715:725,
-            item: "ClientType",
+            item: ObjectName(
+                "ClientType",
+            ),
         },
         is_extension: true,
         fields: [
@@ -1370,7 +1378,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "ClientType",
+            item: ObjectName(
+                "ClientType",
+            ),
         },
         is_extension: true,
         fields: [
@@ -1383,7 +1393,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Page",
+            item: ObjectName(
+                "Page",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1397,7 +1409,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1411,7 +1425,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "User",
+            item: ObjectName(
+                "User",
+            ),
         },
         is_extension: false,
         fields: [

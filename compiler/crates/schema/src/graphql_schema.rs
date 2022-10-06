@@ -10,6 +10,7 @@ use std::fmt::Write;
 
 use common::DirectiveName;
 use intern::string_key::StringKey;
+use intern::Lookup;
 
 use crate::definitions::Directive;
 use crate::definitions::*;

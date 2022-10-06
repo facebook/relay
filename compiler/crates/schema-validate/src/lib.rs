@@ -18,6 +18,7 @@ use fnv::FnvHashMap;
 use fnv::FnvHashSet;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use rayon::prelude::*;
 use regex::Regex;
@@ -320,20 +321,18 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_with_interfaces<T: TypeWithFields + Named<Name = StringKey>>(
-        &self,
-        type_: &T,
-    ) {
+    fn validate_type_with_interfaces<T: TypeWithFields + Named>(&self, type_: &T) {
+        let typename = type_.name().lookup().intern();
         let mut interface_names = FnvHashSet::default();
         for interface_id in type_.interfaces().iter() {
             let interface = self.schema.interface(*interface_id);
             if interface_names.contains(&interface.name) {
                 self.report_error(
                     SchemaValidationError::DuplicateInterfaceImplementation(
-                        type_.name(),
+                        typename,
                         interface.name.item,
                     ),
-                    ValidationContextType::TypeNode(type_.name()),
+                    ValidationContextType::TypeNode(typename),
                 );
                 continue;
             }
@@ -342,14 +341,15 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_implements_interface<T: TypeWithFields + Named<Name = StringKey>>(
+    fn validate_type_implements_interface<T: TypeWithFields + Named>(
         &self,
         type_: &T,
         interface: &Interface,
     ) {
+        let typename = type_.name().lookup().intern();
         let object_field_map = self.field_map(type_.fields());
         let interface_field_map = self.field_map(&interface.fields);
-        let context = ValidationContextType::TypeNode(type_.name());
+        let context = ValidationContextType::TypeNode(typename);
 
         // Assert each interface field is implemented.
         for (field_name, interface_field) in interface_field_map {
@@ -359,7 +359,7 @@ impl<'schema> ValidationContext<'schema> {
                     SchemaValidationError::InterfaceFieldNotProvided(
                         interface.name.item,
                         field_name,
-                        type_.name(),
+                        typename,
                     ),
                     context,
                 );
@@ -378,7 +378,7 @@ impl<'schema> ValidationContext<'schema> {
                         interface.name.item,
                         field_name,
                         self.schema.get_type_name(interface_field.type_.inner()),
-                        type_.name(),
+                        typename,
                         self.schema.get_type_name(object_field.type_.inner()),
                     ),
                     context,
@@ -399,7 +399,7 @@ impl<'schema> ValidationContext<'schema> {
                             interface.name.item,
                             field_name,
                             interface_argument.name,
-                            type_.name(),
+                            typename,
                         ),
                         context,
                     );
@@ -417,7 +417,7 @@ impl<'schema> ValidationContext<'schema> {
                             field_name,
                             interface_argument.name,
                             self.schema.get_type_name(interface_argument.type_.inner()),
-                            type_.name(),
+                            typename,
                             self.schema.get_type_name(object_argument.type_.inner()),
                         ),
                         context,
@@ -433,7 +433,7 @@ impl<'schema> ValidationContext<'schema> {
                 {
                     self.report_error(
                         SchemaValidationError::MissingRequiredArgument(
-                            type_.name(),
+                            typename,
                             field_name,
                             object_argument.name,
                             interface.name.item,

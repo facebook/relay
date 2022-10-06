@@ -33,6 +33,7 @@ use graphql_syntax::BooleanNode;
 use graphql_syntax::ConstantValue;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use schema::ArgumentValue;
 use schema::Field;

@@ -12,7 +12,7 @@ keywords:
 
 import DocsRating from '@site/src/core/DocsRating';
 
-`@required` is a directive you can add to fields in your Relay queries to declare how null values should be handled at runtime. You can think of it as saying "if this field is ever null, its parent field is invalid and should be null".
+The `@required` directive can be added to fields in your Relay queries to declare how null values should be handled at runtime. You can think of it as saying "if this field is ever null, its parent field is invalid and should be null".
 
 When you have a GraphQL schema where many fields are nullable, a considerable amount of product code is needed to handle each field's potential "nullness" before the underlying data can be used. With `@required`, Relay can handle some types of null checks before it returns data to your component, which means that **any field you annotate with** **`@required`** **will become non-nullable in the generated types for your response**.
 
@@ -59,9 +59,24 @@ A field's `@required` status is **local to the fragment where it is specified**.
 
 This choice reflects the fact that some components may be able to recover better from missing data than others. For example, a `<RestaurantInfo />` component could probably render something sensible even if the restaurant's address is missing, but a `<RestaurantLocationMap />` component might not.
 
-## Examples
+However, all usages of the `@required` directive on the same field in a single fragment must be consistent with their usage. This situation mostly occurs when selecting fields in inline fragments. For example, the following fragment would fail to compile:
 
-### Chaining
+```graphql
+fragment UserInfo on User {
+  job {
+    ... on Actor {
+      certifications
+    }
+    ... on Lawyer {
+      certifications @required(action: LOG)
+    }
+  }
+}
+```
+
+The Relay compiler will give you an error like `All references to a field must have matching @required declarations.`. To fix this, either set the `@required` directive on each of the fields selected in the inline fragment or remove the directive entirely.
+
+## Chaining
 
 `@required` directives can be chained to make a deeply nested field accessible after just one null check:
 
@@ -80,6 +95,60 @@ const user = useFragment(graphql`
 ```
 
 **Note**: If you use `@required` on a top level field of a fragment, the object returned from `useFragment` itself may become nullable. The generated types will reflect this.
+
+When chaining `@required` directives, the Relay compiler will help you from unintentionally creating a chain with a more severe action than intended. Consider the following fragment
+
+```graphql
+fragment MyUser on User {
+  profile_picture @required(action: THROW) {
+    url @required(action: LOG)
+  }
+}
+```
+
+In this example we want the component to THROW if the `profile_picture` field is null but we only want to LOG an error if the `url` field is null. But recall, Relay will "bubble" nullness up to the parent field, if the `url` field is null it will then cause the `profile_picture` field to become null as well. And once that happens, the component will THROW. If you implement a pattern like this, the Relay compiler will give you an error
+
+```
+A @required field may not have an `action` less severe than that of its @required parent. This @required directive should probably have `action: LOG` so that it can match its parent
+```
+
+To fix this, either change the `profile_picture` to use `action: LOG` or change the `url` field to use `action: THROW`.
+
+## Caveats with Connections
+
+There are currently some limitations in using the `@required` and `@connection` directives together. When you use the `@connection` directive, Relay  automatically inserts some additional fields into the connection, and those fields won't be generated with the `@required` directive. This can result in inconsistencies if you use the `@required` directive on fields in a Connection type. Consider the following example:
+
+```graphql
+fragment FriendsList on User @refetchable(queryName: "FriendsListQuery") {
+  friends(after: $cursor, first: $count) @connection(key: "FriendsList_friends") {
+    edges {
+      node @required(action: LOG) {
+        job @required(action: LOG) {
+          title @required(action: LOG)
+        }
+      }
+    }
+  }
+}
+```
+
+Any usages of `@required` on the `node` field or any of its direct child fields will cause the Relay compiler to give you an error saying `All references to a field must have matching @required declarations.`. In order to bypass this you'll need to remove the `@required` directives on those fields.
+
+In the above example, we'd need to remove the `@required` directives on both the `node` and `job` fields, but the usage on the `title` field would not create an error.
+
+```graphql
+fragment FriendsList on User @refetchable(queryName: "FriendsListQuery") {
+  friends(after: $cursor, first: $count) @connection(key: "FriendsList_friends") {
+    edges {
+      node {
+        job {
+          title @required(action: LOG)
+        }
+      }
+    }
+  }
+}
+```
 
 ## FAQ
 

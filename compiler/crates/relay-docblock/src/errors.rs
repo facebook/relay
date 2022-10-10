@@ -6,6 +6,7 @@
  */
 
 use common::DiagnosticDisplay;
+use common::InterfaceName;
 use common::WithDiagnosticData;
 use intern::string_key::StringKey;
 use schema::suggestion_list::did_you_mean;
@@ -87,7 +88,7 @@ pub enum ErrorMessages {
     )]
     ResolverImplementingInterfaceField {
         field_name: StringKey,
-        interface_name: StringKey,
+        interface_name: InterfaceName,
     },
 }
 

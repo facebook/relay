@@ -14,6 +14,7 @@ use common::ArgumentName;
 use common::DirectiveName;
 use common::EnumName;
 use common::InputObjectName;
+use common::InterfaceName;
 use common::Named;
 use common::NamedItem;
 use common::ObjectName;
@@ -334,7 +335,7 @@ pub struct Union {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Interface {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<InterfaceName>,
     pub is_extension: bool,
     pub implementing_interfaces: Vec<InterfaceID>,
     pub implementing_objects: Vec<ObjectID>,
@@ -501,7 +502,7 @@ macro_rules! impl_named_for_with_location {
 impl_named_for_with_location!(Object, ObjectName);
 impl_named_for_with_location!(Field, StringKey);
 impl_named_for_with_location!(InputObject, InputObjectName);
-impl_named_for_with_location!(Interface, StringKey);
+impl_named_for_with_location!(Interface, InterfaceName);
 impl_named_for_with_location!(Union, StringKey);
 impl_named_for_with_location!(Scalar, ScalarName);
 impl_named_for_with_location!(Enum, EnumName);

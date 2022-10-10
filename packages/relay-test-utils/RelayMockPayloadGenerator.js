@@ -503,7 +503,17 @@ class RelayMockPayloadGenerator {
         case ACTOR_CHANGE:
           throw new Error('ActorChange fields are not yet supported.');
         case RELAY_RESOLVER:
-          throw new Error('Relay Resolvers are not yet supported.');
+          if (selection.fragment) {
+            mockData = this._traverseSelections(
+              selection.fragment.selections,
+              typeName,
+              isAbstractType,
+              path,
+              mockData,
+              defaultValues,
+            );
+          }
+          break;
         default:
           (selection: empty);
           invariant(

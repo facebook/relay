@@ -290,7 +290,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let interface = self.schema.interface(id);
         let name = interface.name;
         let idx = self.interfaces.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Interface, name.item);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Interface, name.item.0);
         self.interfaces.push(schema_flatbuffer::Interface::create(
             &mut self.bldr,
             &schema_flatbuffer::InterfaceArgs::default(),

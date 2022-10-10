@@ -648,7 +648,9 @@ Text Schema:Schema {
     Interface {
         name: WithLocation {
             location: <generated>:218:222,
-            item: "Node",
+            item: InterfaceName(
+                "Node",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [],
@@ -1359,7 +1361,9 @@ interfaces: [
     Interface {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Node",
+            item: InterfaceName(
+                "Node",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [],

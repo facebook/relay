@@ -14,6 +14,7 @@ use common::ArgumentName;
 use common::DirectiveName;
 use common::EnumName;
 use common::InputObjectName;
+use common::InterfaceName;
 use common::ObjectName;
 use common::ScalarName;
 use common::Span;
@@ -267,7 +268,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_interface(&self, id: InterfaceID) -> Option<Interface> {
         let interface = self.interfaces.get(id.0.try_into().unwrap());
-        let name = interface.name()?.intern();
+        let name = InterfaceName(interface.name()?.intern());
 
         let parsed_interface = Interface {
             name: WithLocation::generated(name),

@@ -12,6 +12,7 @@ use std::sync::Mutex;
 use std::time::Instant;
 
 use common::DirectiveName;
+use common::InterfaceName;
 use common::Named;
 use errors::*;
 use fnv::FnvHashMap;
@@ -464,7 +465,7 @@ impl<'schema> ValidationContext<'schema> {
                             .join("->"),
                         interface.name.item
                     )),
-                    ValidationContextType::TypeNode(interface.name.item),
+                    ValidationContextType::TypeNode(interface.name.item.0),
                 );
                 return true;
             }
@@ -475,11 +476,11 @@ impl<'schema> ValidationContext<'schema> {
     fn has_path(
         &self,
         root: &Interface,
-        target: StringKey,
+        target: InterfaceName,
         path: &mut Vec<StringKey>,
         visited: &mut FnvHashSet<StringKey>,
     ) -> bool {
-        if visited.contains(&root.name.item) {
+        if visited.contains(&root.name.item.0) {
             return false;
         }
 
@@ -487,8 +488,8 @@ impl<'schema> ValidationContext<'schema> {
             return true;
         }
 
-        path.push(root.name.item);
-        visited.insert(root.name.item);
+        path.push(root.name.item.0);
+        visited.insert(root.name.item.0);
         for id in root.interfaces() {
             if self.has_path(self.schema.interface(*id), target, path, visited) {
                 return true;

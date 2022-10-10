@@ -14,6 +14,7 @@ use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::EnumName;
 use common::InputObjectName;
+use common::InterfaceName;
 use common::Location;
 use common::ObjectName;
 use common::ScalarName;
@@ -144,7 +145,7 @@ impl Schema for InMemorySchema {
         match type_ {
             Type::InputObject(id) => self.input_objects[id.as_usize()].name.item.0,
             Type::Enum(id) => self.enums[id.as_usize()].name.item.0,
-            Type::Interface(id) => self.interfaces[id.as_usize()].name.item,
+            Type::Interface(id) => self.interfaces[id.as_usize()].name.item.0,
             Type::Object(id) => self.objects[id.as_usize()].name.item.0,
             Type::Scalar(id) => self.scalars[id.as_usize()].name.item.0,
             Type::Union(id) => self.unions[id.as_usize()].name.item,
@@ -417,14 +418,14 @@ impl InMemorySchema {
     }
 
     pub fn add_interface(&mut self, interface: Interface) -> DiagnosticsResult<InterfaceID> {
-        if self.type_map.contains_key(&interface.name.item) {
-            return todo_add_location(SchemaError::DuplicateType(interface.name.item));
+        if self.type_map.contains_key(&interface.name.item.0) {
+            return todo_add_location(SchemaError::DuplicateType(interface.name.item.0));
         }
         let index: u32 = self.interfaces.len().try_into().unwrap();
         let name = interface.name;
         self.interfaces.push(interface);
         self.type_map
-            .insert(name.item, Type::Interface(InterfaceID(index)));
+            .insert(name.item.0, Type::Interface(InterfaceID(index)));
         Ok(InterfaceID(index))
     }
 
@@ -568,7 +569,7 @@ impl InMemorySchema {
         self.type_map
             .remove(&self.get_type_name(Type::Interface(id)));
         self.type_map
-            .insert(interface.name.item, Type::Interface(id));
+            .insert(interface.name.item.0, Type::Interface(id));
         self.interfaces[id.as_usize()] = interface;
         Ok(())
     }
@@ -1174,7 +1175,10 @@ impl InMemorySchema {
                     .collect::<DiagnosticsResult<Vec<_>>>()?;
                 let directives = self.build_directive_values(directives);
                 self.interfaces.push(Interface {
-                    name: WithLocation::new(Location::new(*location_key, name.span), name.value),
+                    name: WithLocation::new(
+                        Location::new(*location_key, name.span),
+                        InterfaceName(name.value),
+                    ),
                     implementing_interfaces: vec![],
                     implementing_objects: vec![],
                     is_extension,

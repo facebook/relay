@@ -21,6 +21,7 @@ use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use regex::Regex;
 use serde::de::Error;
 use serde::Deserialize;

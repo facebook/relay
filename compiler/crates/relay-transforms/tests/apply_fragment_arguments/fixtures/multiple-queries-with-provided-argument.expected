@@ -25,6 +25,10 @@ query TestQuery1(
   #     original_variable_name: VariableName(
   #         "foo_gk",
   #     ),
+  #     fragment_source_location: Embedded {
+  #         path: "multiple-queries-with-provided-argument.graphql",
+  #         index: 0,
+  #     },
   # }
   
 ) {
@@ -42,6 +46,10 @@ query TestQuery2(
   #     original_variable_name: VariableName(
   #         "foo_gk",
   #     ),
+  #     fragment_source_location: Embedded {
+  #         path: "multiple-queries-with-provided-argument.graphql",
+  #         index: 0,
+  #     },
   # }
   
 ) {

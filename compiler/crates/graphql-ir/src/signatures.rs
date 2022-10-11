@@ -6,17 +6,20 @@
  */
 
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
+use common::SourceLocationKey;
 use common::WithLocation;
 use errors::par_try_map;
 use errors::try2;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use schema::suggestion_list::GraphQLSuggestions;
 use schema::SDLSchema;
@@ -54,6 +57,19 @@ pub type FragmentSignatures = FragmentDefinitionNameMap<FragmentSignature>;
 pub struct ProvidedVariableMetadata {
     pub module_name: StringKey,
     pub original_variable_name: VariableName,
+    fragment_source_location: SourceLocationKey,
+}
+
+impl ProvidedVariableMetadata {
+    /// Return a path to the provider module, based on the fragment location
+    /// where this provider is used.
+    pub fn module_path(&self) -> PathBuf {
+        let mut fragment_path = PathBuf::from(self.fragment_source_location.path());
+        fragment_path.pop();
+        fragment_path.push(PathBuf::from(self.module_name.lookup()));
+
+        fragment_path
+    }
 }
 
 associated_data_impl!(ProvidedVariableMetadata);
@@ -314,7 +330,8 @@ fn build_fragment_variable_definitions(
                             arguments: Vec::new(),
                             data: Some(Box::new(ProvidedVariableMetadata {
                                 module_name: provider_module_name,
-                                original_variable_name: VariableName(variable_name.value)
+                                original_variable_name: VariableName(variable_name.value),
+                                fragment_source_location: fragment.location.source_location(),
                             })),
                         });
                     }

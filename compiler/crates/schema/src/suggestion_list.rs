@@ -7,6 +7,7 @@
 
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use strsim::damerau_levenshtein;
 
 use crate::SDLSchema;

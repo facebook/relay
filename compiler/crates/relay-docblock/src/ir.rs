@@ -11,8 +11,10 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
+use common::InterfaceName;
 use common::Location;
 use common::Named;
+use common::ObjectName;
 use common::Span;
 use common::WithLocation;
 use graphql_ir::FragmentDefinitionName;
@@ -183,7 +185,7 @@ impl RelayResolverIr {
                                 schema,
                                 &schema.object(object_id).interfaces,
                             )?;
-                            return Ok(self.object_definitions(value));
+                            return Ok(self.object_definitions(value.map(ObjectName)));
                         }
                         Type::Interface(_) => {
                             return Err(vec![Diagnostic::error_with_data(
@@ -213,7 +215,11 @@ impl RelayResolverIr {
                             schema,
                             &schema.interface(interface_type).interfaces,
                         )?;
-                        return Ok(self.interface_definitions(value, interface_type, schema));
+                        return Ok(self.interface_definitions(
+                            value.map(InterfaceName),
+                            interface_type,
+                            schema,
+                        ));
                     } else if _type.is_object() {
                         return Err(vec![Diagnostic::error_with_data(
                             ErrorMessagesWithData::OnInterfaceForType,
@@ -237,7 +243,7 @@ impl RelayResolverIr {
     /// types that will need it.
     fn interface_definitions(
         &self,
-        interface_name: WithLocation<StringKey>,
+        interface_name: WithLocation<InterfaceName>,
         interface_id: InterfaceID,
         schema: &SDLSchema,
     ) -> Vec<TypeSystemDefinition> {
@@ -252,18 +258,17 @@ impl RelayResolverIr {
 
     fn interface_definitions_impl(
         &self,
-        interface_name: WithLocation<StringKey>,
+        interface_name: WithLocation<InterfaceName>,
         interface_id: InterfaceID,
         schema: &SDLSchema,
         seen_objects: &mut HashSet<ObjectID>,
         seen_interfaces: &mut HashSet<InterfaceID>,
     ) -> Vec<TypeSystemDefinition> {
         let fields = self.fields();
-
         // First we extend the interface itself...
         let mut definitions = vec![TypeSystemDefinition::InterfaceTypeExtension(
             InterfaceTypeExtension {
-                name: as_identifier(interface_name),
+                name: as_identifier(interface_name.map(|x| x.0)),
                 interfaces: Vec::new(),
                 directives: vec![],
                 fields: Some(fields.clone()),
@@ -289,7 +294,7 @@ impl RelayResolverIr {
             .filter(|i| i.interfaces.contains(&interface_id))
         {
             let interface_id = match schema
-                .get_type(existing_interface.name.item)
+                .get_type(existing_interface.name.item.0)
                 .expect("Expect to find type for interface.")
             {
                 schema::Type::Interface(interface_id) => interface_id,
@@ -301,7 +306,7 @@ impl RelayResolverIr {
                     self.interface_definitions_impl(
                         WithLocation::new(interface_name.location, existing_interface.name.item),
                         schema
-                            .get_type(existing_interface.name.item)
+                            .get_type(existing_interface.name.item.0)
                             .unwrap()
                             .get_interface_id()
                             .unwrap(),
@@ -345,10 +350,10 @@ impl RelayResolverIr {
         Ok(())
     }
 
-    fn object_definitions(&self, on_type: WithLocation<StringKey>) -> Vec<TypeSystemDefinition> {
+    fn object_definitions(&self, on_type: WithLocation<ObjectName>) -> Vec<TypeSystemDefinition> {
         vec![TypeSystemDefinition::ObjectTypeExtension(
             ObjectTypeExtension {
-                name: as_identifier(on_type),
+                name: obj_as_identifier(on_type),
                 interfaces: Vec::new(),
                 directives: vec![],
                 fields: Some(self.fields()),
@@ -502,6 +507,15 @@ fn as_identifier(value: WithLocation<StringKey>) -> Identifier {
         span: span.clone(),
         token: dummy_token(span),
         value: value.item,
+    }
+}
+
+fn obj_as_identifier(value: WithLocation<ObjectName>) -> Identifier {
+    let span = value.location.span();
+    Identifier {
+        span: span.clone(),
+        token: dummy_token(span),
+        value: value.item.0,
     }
 }
 

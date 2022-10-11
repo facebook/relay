@@ -12,6 +12,7 @@ use common::WithDiagnosticData;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::VariableName;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use thiserror::Error;
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

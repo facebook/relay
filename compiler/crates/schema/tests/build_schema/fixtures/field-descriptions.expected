@@ -337,7 +337,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:32:37,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -350,7 +352,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:59:62,
-            item: "Foo",
+            item: ObjectName(
+                "Foo",
+            ),
         },
         is_extension: false,
         fields: [
@@ -606,7 +610,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Foo",
+            item: ObjectName(
+                "Foo",
+            ),
         },
         is_extension: false,
         fields: [
@@ -624,7 +630,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [

@@ -12,6 +12,8 @@ use std::path::PathBuf;
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
+use ::intern::Lookup;
+use common::InputObjectName;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
@@ -683,7 +685,7 @@ fn generate_provided_variables_type(
 }
 
 fn write_input_object_types(
-    input_object_types: impl Iterator<Item = (StringKey, ExactObject)>,
+    input_object_types: impl Iterator<Item = (InputObjectName, ExactObject)>,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     for (type_identifier, input_object_type) in input_object_types {

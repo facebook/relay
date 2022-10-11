@@ -12,12 +12,14 @@ use std::sync::Mutex;
 use std::time::Instant;
 
 use common::DirectiveName;
+use common::InterfaceName;
 use common::Named;
 use errors::*;
 use fnv::FnvHashMap;
 use fnv::FnvHashSet;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use rayon::prelude::*;
 use regex::Regex;
@@ -275,7 +277,7 @@ impl<'schema> ValidationContext<'schema> {
 
     fn validate_enum_type(&self, id: EnumID) {
         let enum_ = self.schema.enum_(id);
-        let context = ValidationContextType::TypeNode(enum_.name.item);
+        let context = ValidationContextType::TypeNode(enum_.name.item.0);
         if enum_.values.is_empty() {
             self.report_error(SchemaValidationError::EnumWithNoValues, context);
         }
@@ -295,7 +297,7 @@ impl<'schema> ValidationContext<'schema> {
 
     fn validate_input_object_fields(&self, id: InputObjectID) {
         let input_object = self.schema.input_object(id);
-        let context = ValidationContextType::TypeNode(input_object.name.item);
+        let context = ValidationContextType::TypeNode(input_object.name.item.0);
         if input_object.fields.is_empty() {
             self.report_error(SchemaValidationError::TypeWithNoFields, context);
         }
@@ -309,7 +311,7 @@ impl<'schema> ValidationContext<'schema> {
             if !is_input_type(&field.type_) {
                 self.report_error(
                     SchemaValidationError::InvalidArgumentType(
-                        input_object.name.item,
+                        input_object.name.item.0,
                         field.name.0,
                         field.name,
                         field.type_.clone(),
@@ -320,20 +322,18 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_with_interfaces<T: TypeWithFields + Named<Name = StringKey>>(
-        &self,
-        type_: &T,
-    ) {
+    fn validate_type_with_interfaces<T: TypeWithFields + Named>(&self, type_: &T) {
+        let typename = type_.name().lookup().intern();
         let mut interface_names = FnvHashSet::default();
         for interface_id in type_.interfaces().iter() {
             let interface = self.schema.interface(*interface_id);
             if interface_names.contains(&interface.name) {
                 self.report_error(
                     SchemaValidationError::DuplicateInterfaceImplementation(
-                        type_.name(),
+                        typename,
                         interface.name.item,
                     ),
-                    ValidationContextType::TypeNode(type_.name()),
+                    ValidationContextType::TypeNode(typename),
                 );
                 continue;
             }
@@ -342,14 +342,15 @@ impl<'schema> ValidationContext<'schema> {
         }
     }
 
-    fn validate_type_implements_interface<T: TypeWithFields + Named<Name = StringKey>>(
+    fn validate_type_implements_interface<T: TypeWithFields + Named>(
         &self,
         type_: &T,
         interface: &Interface,
     ) {
+        let typename = type_.name().lookup().intern();
         let object_field_map = self.field_map(type_.fields());
         let interface_field_map = self.field_map(&interface.fields);
-        let context = ValidationContextType::TypeNode(type_.name());
+        let context = ValidationContextType::TypeNode(typename);
 
         // Assert each interface field is implemented.
         for (field_name, interface_field) in interface_field_map {
@@ -359,7 +360,7 @@ impl<'schema> ValidationContext<'schema> {
                     SchemaValidationError::InterfaceFieldNotProvided(
                         interface.name.item,
                         field_name,
-                        type_.name(),
+                        typename,
                     ),
                     context,
                 );
@@ -378,7 +379,7 @@ impl<'schema> ValidationContext<'schema> {
                         interface.name.item,
                         field_name,
                         self.schema.get_type_name(interface_field.type_.inner()),
-                        type_.name(),
+                        typename,
                         self.schema.get_type_name(object_field.type_.inner()),
                     ),
                     context,
@@ -399,7 +400,7 @@ impl<'schema> ValidationContext<'schema> {
                             interface.name.item,
                             field_name,
                             interface_argument.name,
-                            type_.name(),
+                            typename,
                         ),
                         context,
                     );
@@ -417,7 +418,7 @@ impl<'schema> ValidationContext<'schema> {
                             field_name,
                             interface_argument.name,
                             self.schema.get_type_name(interface_argument.type_.inner()),
-                            type_.name(),
+                            typename,
                             self.schema.get_type_name(object_argument.type_.inner()),
                         ),
                         context,
@@ -433,7 +434,7 @@ impl<'schema> ValidationContext<'schema> {
                 {
                     self.report_error(
                         SchemaValidationError::MissingRequiredArgument(
-                            type_.name(),
+                            typename,
                             field_name,
                             object_argument.name,
                             interface.name.item,
@@ -464,7 +465,7 @@ impl<'schema> ValidationContext<'schema> {
                             .join("->"),
                         interface.name.item
                     )),
-                    ValidationContextType::TypeNode(interface.name.item),
+                    ValidationContextType::TypeNode(interface.name.item.0),
                 );
                 return true;
             }
@@ -475,11 +476,11 @@ impl<'schema> ValidationContext<'schema> {
     fn has_path(
         &self,
         root: &Interface,
-        target: StringKey,
+        target: InterfaceName,
         path: &mut Vec<StringKey>,
         visited: &mut FnvHashSet<StringKey>,
     ) -> bool {
-        if visited.contains(&root.name.item) {
+        if visited.contains(&root.name.item.0) {
             return false;
         }
 
@@ -487,8 +488,8 @@ impl<'schema> ValidationContext<'schema> {
             return true;
         }
 
-        path.push(root.name.item);
-        visited.insert(root.name.item);
+        path.push(root.name.item.0);
+        visited.insert(root.name.item.0);
         for id in root.interfaces() {
             if self.has_path(self.schema.interface(*id), target, path, visited) {
                 return true;

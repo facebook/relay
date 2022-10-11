@@ -599,7 +599,9 @@ Text Schema:Schema {
     InputObject {
         name: WithLocation {
             location: <generated>:775:782,
-            item: "Country",
+            item: InputObjectName(
+                "Country",
+            ),
         },
         fields: [
             Argument {
@@ -660,7 +662,9 @@ Text Schema:Schema {
     Interface {
         name: WithLocation {
             location: <generated>:427:435,
-            item: "XIGHuman",
+            item: InterfaceName(
+                "XIGHuman",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [],
@@ -715,7 +719,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:342:347,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -729,7 +735,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:505:509,
-            item: "User",
+            item: ObjectName(
+                "User",
+            ),
         },
         is_extension: false,
         fields: [
@@ -768,7 +776,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:702:716,
-            item: "MailingAddress",
+            item: ObjectName(
+                "MailingAddress",
+            ),
         },
         is_extension: false,
         fields: [
@@ -783,7 +793,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:872:880,
-            item: "XIGStory",
+            item: ObjectName(
+                "XIGStory",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1448,7 +1460,9 @@ input_objects: [
     InputObject {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Country",
+            item: InputObjectName(
+                "Country",
+            ),
         },
         fields: [
             Argument {
@@ -1509,7 +1523,9 @@ interfaces: [
     Interface {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "XIGHuman",
+            item: InterfaceName(
+                "XIGHuman",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [],
@@ -1564,7 +1580,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "MailingAddress",
+            item: ObjectName(
+                "MailingAddress",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1579,7 +1597,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1593,7 +1613,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "User",
+            item: ObjectName(
+                "User",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1632,7 +1654,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "XIGStory",
+            item: ObjectName(
+                "XIGStory",
+            ),
         },
         is_extension: false,
         fields: [

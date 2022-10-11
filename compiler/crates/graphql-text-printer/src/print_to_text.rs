@@ -31,6 +31,7 @@ use graphql_ir::VariableDefinition;
 use graphql_ir::VariableName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;

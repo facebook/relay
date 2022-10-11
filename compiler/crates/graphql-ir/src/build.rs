@@ -31,6 +31,7 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
 use intern::string_key::StringKeySet;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use schema::suggestion_list;
 use schema::suggestion_list::GraphQLSuggestions;
@@ -1482,7 +1483,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                 Type::Enum(id) => {
                     let type_definition = self.schema.enum_(*id);
                     Err(vec![Diagnostic::error(
-                        ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                        ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                         self.location.with_span(value.span()),
                     )])
                 }
@@ -1511,7 +1512,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             }
             _ => {
                 return Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                     self.location.with_span(value.span()),
                 )]);
             }
@@ -1565,10 +1566,10 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     }
                     None => Err(vec![Diagnostic::error(
                         ValidationMessageWithData::UnknownField {
-                            type_: type_definition.name.item,
+                            type_: type_definition.name.item.0,
                             field: x.name.value,
                             suggestions: self.suggestions.field_name_suggestion(
-                                self.schema.get_type(type_definition.name.item),
+                                self.schema.get_type(type_definition.name.item.0),
                                 x.name.value,
                             ),
                         },
@@ -1583,7 +1584,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             let mut missing: Vec<StringKey> = required_fields.into_iter().collect();
             missing.sort();
             Err(vec![Diagnostic::error(
-                ValidationMessage::MissingRequiredFields(missing, type_definition.name.item),
+                ValidationMessage::MissingRequiredFields(missing, type_definition.name.item.0),
                 self.location.with_span(object.span),
             )])
         }
@@ -1655,7 +1656,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             graphql_syntax::ConstantValue::Object(object) => object,
             _ => {
                 return Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                     self.location.with_span(value.span()),
                 )]);
             }
@@ -1709,10 +1710,10 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
                     }
                     None => Err(vec![Diagnostic::error(
                         ValidationMessageWithData::UnknownField {
-                            type_: type_definition.name.item,
+                            type_: type_definition.name.item.0,
                             field: x.name.value,
                             suggestions: self.suggestions.field_name_suggestion(
-                                self.schema.get_type(type_definition.name.item),
+                                self.schema.get_type(type_definition.name.item.0),
                                 x.name.value,
                             ),
                         },
@@ -1727,7 +1728,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             let mut missing: Vec<StringKey> = required_fields.into_iter().collect();
             missing.sort();
             Err(vec![Diagnostic::error(
-                ValidationMessage::MissingRequiredFields(missing, type_definition.name.item),
+                ValidationMessage::MissingRequiredFields(missing, type_definition.name.item.0),
                 self.location.with_span(object.span),
             )])
         }
@@ -1742,13 +1743,13 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             graphql_syntax::ConstantValue::Enum(value) => value.value,
             graphql_syntax::ConstantValue::String(_) => {
                 return Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedEnumValueGotString(type_definition.name.item),
+                    ValidationMessage::ExpectedEnumValueGotString(type_definition.name.item.0),
                     self.location.with_span(node.span()),
                 )]);
             }
             _ => {
                 return Err(vec![Diagnostic::error(
-                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                    ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                     self.location.with_span(node.span()),
                 )]);
             }
@@ -1761,7 +1762,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
             Ok(ConstantValue::Enum(value))
         } else {
             Err(vec![Diagnostic::error(
-                ValidationMessage::ExpectedValueMatchingType(type_definition.name.item),
+                ValidationMessage::ExpectedValueMatchingType(type_definition.name.item.0),
                 self.location.with_span(node.span()),
             )])
         }

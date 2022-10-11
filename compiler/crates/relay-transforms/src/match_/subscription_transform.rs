@@ -26,6 +26,7 @@ use graphql_ir::Transformer;
 use graphql_ir::Value;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
+use intern::Lookup;
 use schema::FieldID;
 use schema::Schema;
 use schema::Type;

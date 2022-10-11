@@ -10,6 +10,7 @@ use std::fmt;
 use graphql_ir::Argument;
 use graphql_ir::ConstantValue;
 use graphql_ir::Value;
+use intern::Lookup;
 
 use crate::murmurhash::murmurhash;
 

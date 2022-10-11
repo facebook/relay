@@ -11,6 +11,7 @@ use std::fmt::Result as FmtResult;
 
 use indexmap::IndexSet;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use serde::Deserialize;
 use serde::Serialize;
 

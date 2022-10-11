@@ -27,10 +27,12 @@ export type relayResolver_Query$data = {|
   |},
 |};
 export type relayResolver_Query$rawResponse = {|
-  +me: ?{|
+  +me: ?({|
+    +id: string,
+  |} | {|
     +id: string,
     +name: ?string,
-  |},
+  |}),
 |};
 export type relayResolver_Query = {|
   rawResponse: relayResolver_Query$rawResponse,

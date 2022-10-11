@@ -12,8 +12,12 @@ use std::slice::Iter;
 
 use common::ArgumentName;
 use common::DirectiveName;
+use common::EnumName;
+use common::InputObjectName;
+use common::InterfaceName;
 use common::Named;
 use common::NamedItem;
+use common::ObjectName;
 use common::ScalarName;
 use common::WithLocation;
 use graphql_syntax::ConstantValue;
@@ -295,7 +299,7 @@ pub struct Scalar {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Object {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<ObjectName>,
     pub is_extension: bool,
     pub fields: Vec<FieldID>,
     pub interfaces: Vec<InterfaceID>,
@@ -305,7 +309,7 @@ pub struct Object {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct InputObject {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<InputObjectName>,
     pub fields: ArgumentDefinitions,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
@@ -313,7 +317,7 @@ pub struct InputObject {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Enum {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<EnumName>,
     pub is_extension: bool,
     pub values: Vec<EnumValue>,
     pub directives: Vec<DirectiveValue>,
@@ -331,7 +335,7 @@ pub struct Union {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Interface {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<InterfaceName>,
     pub is_extension: bool,
     pub implementing_interfaces: Vec<InterfaceID>,
     pub implementing_objects: Vec<ObjectID>,
@@ -495,13 +499,13 @@ macro_rules! impl_named_for_with_location {
     };
 }
 
-impl_named_for_with_location!(Object, StringKey);
+impl_named_for_with_location!(Object, ObjectName);
 impl_named_for_with_location!(Field, StringKey);
-impl_named_for_with_location!(InputObject, StringKey);
-impl_named_for_with_location!(Interface, StringKey);
+impl_named_for_with_location!(InputObject, InputObjectName);
+impl_named_for_with_location!(Interface, InterfaceName);
 impl_named_for_with_location!(Union, StringKey);
 impl_named_for_with_location!(Scalar, ScalarName);
-impl_named_for_with_location!(Enum, StringKey);
+impl_named_for_with_location!(Enum, EnumName);
 
 impl Named for DirectiveValue {
     type Name = DirectiveName;

@@ -1238,10 +1238,7 @@ pub(crate) fn raw_response_selections_to_babel(
     let mut by_concrete_type: IndexMap<Type, Vec<TypeSelection>> = Default::default();
 
     for selection in selections {
-        let enclosing_concrete_type = selection.get_enclosing_concrete_type();
-        if enclosing_concrete_type == concrete_type {
-            base_fields.push(selection);
-        } else if let Some(concrete_type) = enclosing_concrete_type {
+        if let Some(concrete_type) = selection.get_enclosing_concrete_type() {
             by_concrete_type
                 .entry(concrete_type)
                 .or_insert_with(Vec::new)
@@ -1719,7 +1716,7 @@ fn transform_graphql_enum_type(
     encountered_enums: &mut EncounteredEnums,
 ) -> AST {
     encountered_enums.0.insert(enum_id);
-    AST::Identifier(schema.enum_(enum_id).name.item)
+    AST::Identifier(schema.enum_(enum_id).name.item.0)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -1885,7 +1882,7 @@ fn transform_non_nullable_input_type(
                         GeneratedInputObject::Resolved(props),
                     );
                 }
-                AST::Identifier(input_object.name.item)
+                AST::Identifier(input_object.name.item.0)
             }
             Type::Union(_) | Type::Object(_) | Type::Interface(_) => {
                 panic!("unexpected non-input type")

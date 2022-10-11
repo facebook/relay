@@ -87,6 +87,9 @@ fragment TestFragment on User
                                     original_variable_name: VariableName(
                                         "arg_with_enabled_provider0",
                                     ),
+                                    fragment_source_location: Standalone {
+                                        path: "fragment_with_valid_provider.graphql",
+                                    },
                                 },
                             ),
                         },

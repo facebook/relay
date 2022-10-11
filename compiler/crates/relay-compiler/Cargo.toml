@@ -37,7 +37,7 @@ indexmap = { version = "1.9.1", features = ["rayon", "serde-1"] }
 intern = { path = "../intern" }
 js-config-loader = { path = "../js-config-loader" }
 lazy_static = "1.4"
-log = { version = "0.4.14", features = ["kv_unstable", "kv_unstable_std"] }
+log = { version = "0.4.17", features = ["kv_unstable", "kv_unstable_std"] }
 md-5 = "0.10"
 persist-query = { path = "../persist-query" }
 rayon = "1.2"

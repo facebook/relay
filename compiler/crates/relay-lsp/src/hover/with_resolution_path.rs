@@ -17,6 +17,7 @@ use graphql_syntax::VariableDefinition;
 use graphql_text_printer::print_value;
 use graphql_text_printer::PrinterOptions;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use lsp_types::Hover;
 use lsp_types::HoverContents;
 use lsp_types::MarkedString;

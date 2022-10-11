@@ -18,6 +18,7 @@ use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use indexmap::IndexMap;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use relay_config::DynamicModuleProvider;
 use relay_config::ProjectConfig;
 use schema::SDLSchema;

@@ -30,6 +30,7 @@ use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;

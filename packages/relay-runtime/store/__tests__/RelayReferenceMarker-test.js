@@ -15,13 +15,12 @@ import RelayNetwork from '../../network/RelayNetwork';
 import RelayModernEnvironment from '../RelayModernEnvironment';
 import {createOperationDescriptor} from '../RelayModernOperationDescriptor';
 import LiveResolverStore from '../experimental-live-resolvers/LiveResolverStore';
-
-const {graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
-const {createNormalizationSelector} = require('../RelayModernSelector');
-const RelayRecordSource = require('../RelayRecordSource');
-const {mark} = require('../RelayReferenceMarker');
-const {ROOT_ID} = require('../RelayStoreUtils');
+import {graphql} from '../../query/GraphQLTag';
+import RelayFeatureFlags from '../../util/RelayFeatureFlags';
+import {createNormalizationSelector} from '../RelayModernSelector';
+import RelayRecordSource from '../RelayRecordSource';
+import {mark} from '../RelayReferenceMarker';
+import {ROOT_ID} from '../RelayStoreUtils';
 
 beforeEach(() => {
   RelayFeatureFlags.ENABLE_RELAY_RESOLVERS = true;
@@ -868,6 +867,9 @@ describe('RelayReferenceMarker', () => {
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
+          counter_no_fragment: {
+            __ref: 'client:root:counter_no_fragment',
+          },
         },
         'client:root:counter_no_fragment': {},
       };
@@ -910,11 +912,15 @@ describe('RelayReferenceMarker', () => {
           __id: 'client:root',
           __typename: 'Query',
           me: {__ref: '1'},
+          counter: {
+            __ref: 'client:root:counter',
+          },
         },
         '1': {
           __id: '1',
           __typename: 'User',
         },
+        'client:root:counter': {},
       };
       const nodes = {
         FooQuery: graphql`

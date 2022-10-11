@@ -35,7 +35,7 @@ describe('withProvidedVariables', () => {
         @argumentDefinitions(
           numberOfFriends: {
             type: "Int!"
-            provider: "../provideNumberOfFriends.relayprovider"
+            provider: "./provideNumberOfFriends.relayprovider"
           }
         ) {
           friends(first: $numberOfFriends) {
@@ -71,7 +71,7 @@ describe('withProvidedVariables', () => {
         @argumentDefinitions(
           numberOfFriends: {
             type: "Int!"
-            provider: "../provideNumberOfFriends.relayprovider"
+            provider: "./provideNumberOfFriends.relayprovider"
           }
           includeFriendsCount_: {type: "Boolean!"}
         ) {
@@ -108,11 +108,11 @@ describe('withProvidedVariables', () => {
         @argumentDefinitions(
           numberOfFriends: {
             type: "Int!"
-            provider: "../provideNumberOfFriends.relayprovider"
+            provider: "./provideNumberOfFriends.relayprovider"
           }
           includeName: {
             type: "Boolean!"
-            provider: "../provideIncludeUserNames.relayprovider"
+            provider: "./provideIncludeUserNames.relayprovider"
           }
         ) {
           name @include(if: $includeName)
@@ -152,11 +152,11 @@ describe('withProvidedVariables', () => {
         @argumentDefinitions(
           numberOfFriends: {
             type: "Int!"
-            provider: "../provideNumberOfFriends.relayprovider"
+            provider: "./provideNumberOfFriends.relayprovider"
           }
           includeName: {
             type: "Boolean!"
-            provider: "../provideIncludeUserNames.relayprovider"
+            provider: "./provideIncludeUserNames.relayprovider"
           }
         ) {
           friends(first: $numberOfFriends) {
@@ -176,7 +176,7 @@ describe('withProvidedVariables', () => {
         @argumentDefinitions(
           includeName: {
             type: "Boolean!"
-            provider: "../provideIncludeUserNames.relayprovider"
+            provider: "./provideIncludeUserNames.relayprovider"
           }
         ) {
           name @include(if: $includeName)
@@ -212,11 +212,11 @@ describe('withProvidedVariables', () => {
         @argumentDefinitions(
           impureProvider1: {
             type: "Float!"
-            provider: "../provideRandomNumber_invalid1.relayprovider"
+            provider: "./provideRandomNumber_invalid1.relayprovider"
           }
           impureProvider2: {
             type: "Float!"
-            provider: "../provideRandomNumber_invalid2.relayprovider"
+            provider: "./provideRandomNumber_invalid2.relayprovider"
           }
         ) {
           profile_picture(scale: $impureProvider1) {
@@ -278,7 +278,7 @@ describe('withProvidedVariables', () => {
         @argumentDefinitions(
           impureProvider: {
             type: "Float!"
-            provider: "../provideRandomNumber_invalid1.relayprovider"
+            provider: "./provideRandomNumber_invalid1.relayprovider"
           }
         ) {
           profile_picture(scale: $impureProvider) {

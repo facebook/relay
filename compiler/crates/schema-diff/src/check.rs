@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::InterfaceName;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
@@ -95,7 +96,7 @@ impl SchemaChange {
 
 lazy_static! {
     static ref JS_FIELD_KEY: StringKey = "js".intern();
-    static ref NODE_INTERFACE_KEY: StringKey = "Node".intern();
+    static ref NODE_INTERFACE_KEY: InterfaceName = InterfaceName("Node".intern());
 }
 
 /// If the type has an `id` field and the type implements interfaces

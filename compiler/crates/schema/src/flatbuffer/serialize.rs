@@ -18,6 +18,7 @@ use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
 use graphql_syntax::List;
 use intern::string_key::StringKey;
+use intern::Lookup;
 
 use crate::in_memory::InMemorySchema;
 use crate::Argument;
@@ -215,7 +216,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let name = input_object.name;
         // Reserve idx and add to typemap. Else we could endup in a cycle
         let idx = self.input_objects.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::InputObject, name.item);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::InputObject, name.item.0);
         self.input_objects
             .push(schema_flatbuffer::InputObject::create(
                 &mut self.bldr,
@@ -224,7 +225,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let items = &self.serialize_directive_values(&input_object.directives);
         let fields = &self.serialize_arguments(&input_object.fields);
         let args = schema_flatbuffer::InputObjectArgs {
-            name: Some(self.bldr.create_string(name.item.lookup())),
+            name: Some(self.bldr.create_string(name.item.0.lookup())),
             directives: Some(self.bldr.create_vector(items)),
             fields: Some(self.bldr.create_vector(fields)),
         };
@@ -245,7 +246,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         self.add_to_type_map(
             self.enums.len(),
             schema_flatbuffer::TypeKind::Enum,
-            name.item,
+            name.item.0,
         );
         self.enums
             .push(schema_flatbuffer::Enum::create(&mut self.bldr, &args));
@@ -255,7 +256,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let object = self.schema.object(id);
         let name = object.name;
         let idx = self.objects.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Object, name.item);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Object, name.item.0);
         self.objects.push(schema_flatbuffer::Object::create(
             &mut self.bldr,
             &schema_flatbuffer::ObjectArgs::default(),
@@ -289,7 +290,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let interface = self.schema.interface(id);
         let name = interface.name;
         let idx = self.interfaces.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Interface, name.item);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Interface, name.item.0);
         self.interfaces.push(schema_flatbuffer::Interface::create(
             &mut self.bldr,
             &schema_flatbuffer::InterfaceArgs::default(),

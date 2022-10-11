@@ -13,7 +13,9 @@ use std::hash::Hash;
 use std::hash::Hasher;
 
 use fnv::FnvHashMap;
+use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use itertools::Itertools;
 use schema::*;
 
@@ -334,15 +336,16 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
         self.print_definition_end()
     }
 
-    fn print_fields(&mut self, fields: &[FieldID], type_name: StringKey) -> FmtResult {
+    fn print_fields(&mut self, fields: &[FieldID], type_name: impl Lookup) -> FmtResult {
         if fields.is_empty() {
             return Ok(());
         }
         write!(self.writer(), "{{")?;
         self.print_new_line()?;
+        let typename = type_name.lookup().intern();
         for field_id in fields {
             let field = &self.schema.field(*field_id);
-            self.update_writer_index_for_field_start(field.name.item, type_name);
+            self.update_writer_index_for_field_start(field.name.item, typename);
             self.print_space()?;
             self.print_space()?;
             write!(self.writer(), "{}", field.name.item)?;
@@ -352,7 +355,7 @@ impl<'schema, 'writer, 'curent_writer> Printer<'schema, 'writer> {
             self.print_directive_values(&field.directives)?;
             self.print_new_line()?;
         }
-        self.update_writer_index_for_all_field_end(type_name);
+        self.update_writer_index_for_all_field_end(typename);
         write!(self.writer(), "}}")
     }
 

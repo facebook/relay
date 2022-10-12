@@ -10,7 +10,7 @@
  */
 
 'use strict';
-import type {ReaderFragment} from '../relay-runtime/util/ReaderNode';
+
 import type {GeneratedNodeMap} from './ReactRelayTypes';
 import type {FragmentMap} from 'relay-runtime';
 
@@ -21,10 +21,11 @@ const {
 } = require('./ReactRelayContainerUtils');
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
-const readContext = require('./readContext');
 const invariant = require('invariant');
 const React = require('react');
 const {getFragment} = require('relay-runtime');
+
+const {useContext} = React;
 
 type ContainerCreator = (
   Component: React$ComponentType<any>,
@@ -44,7 +45,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
   const containerName = getContainerName(ComponentClass);
   assertFragmentMap(getComponentName(ComponentClass), fragmentSpec);
 
-  const fragments: {[string]: ReaderFragment} = {};
+  const fragments = {};
   for (const key in fragmentSpec) {
     fragments[key] = getFragment(fragmentSpec[key]);
   }
@@ -55,7 +56,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
     props: any,
     ref: ((null | any) => mixed) | {current: null | any, ...},
   ) {
-    const context = readContext(ReactRelayContext);
+    const context = useContext(ReactRelayContext);
     invariant(
       context != null,
       '`%s` tried to render a context that was not valid this means that ' +
@@ -63,7 +64,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
       containerName,
       containerName,
     );
-    const queryRendererContext = readContext(ReactRelayQueryRendererContext);
+    const queryRendererContext = useContext(ReactRelayQueryRendererContext);
 
     return (
       <Container

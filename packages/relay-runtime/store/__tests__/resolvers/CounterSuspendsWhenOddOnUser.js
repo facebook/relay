@@ -27,7 +27,7 @@ const {
  * A Relay Resolver that returns an object implementing the External State
  * Resolver interface.
  */
-function CounterSuspendsWhenOddOnUser(): LiveState<number> {
+function counter_suspends_when_odd(): LiveState<number> {
   return {
     read() {
       const number = Selectors.getNumber(GLOBAL_STORE.getState());
@@ -45,4 +45,6 @@ function CounterSuspendsWhenOddOnUser(): LiveState<number> {
   };
 }
 
-module.exports = CounterSuspendsWhenOddOnUser;
+module.exports = {
+  counter_suspends_when_odd,
+};

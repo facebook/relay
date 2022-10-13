@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9cd47f8eaf1e0b505ebb2d0f0b465ca7>>
+ * @generated SignedSource<<5bb43d9a139ee55bee38d4fcfc5ff2e2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { TodoCompleteResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoCompleteResolverFragment.graphql";
 import type { FragmentType } from "relay-runtime";
-import todoCompleteResolver from "../../../relay-runtime/store/__tests__/resolvers/TodoCompleteResolver.js";
+import {complete as todoCompleteResolver} from "../../../relay-runtime/store/__tests__/resolvers/TodoCompleteResolver.js";
 // Type assertion validating that `todoCompleteResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoCompleteResolver: (
@@ -54,7 +54,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "complete",
-      "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoCompleteResolver'),
+      "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoCompleteResolver').complete,
       "path": "complete"
     }
   ],

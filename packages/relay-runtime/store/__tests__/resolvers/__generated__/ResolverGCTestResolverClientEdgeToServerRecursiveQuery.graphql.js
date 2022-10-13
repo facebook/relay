@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2074a1b09435e747d5a1bf4e8360003a>>
+ * @generated SignedSource<<d81ec95989c3f1870f4600f159110427>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,13 +20,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserAnotherClientEdgeResolver$key } from "./UserAnotherClientEdgeResolver.graphql";
 import type { UserClientEdgeResolver$key } from "./UserClientEdgeResolver.graphql";
-import userAnotherClientEdgeResolver from "../UserAnotherClientEdgeResolver.js";
+import {another_client_edge as userAnotherClientEdgeResolver} from "../UserAnotherClientEdgeResolver.js";
 // Type assertion validating that `userAnotherClientEdgeResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAnotherClientEdgeResolver: (
   rootKey: UserAnotherClientEdgeResolver$key, 
 ) => mixed);
-import userClientEdgeResolver from "../UserClientEdgeResolver.js";
+import {client_edge as userClientEdgeResolver} from "../UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientEdgeResolver: (
@@ -98,7 +98,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "client_edge",
-              "resolverModule": require('./../UserClientEdgeResolver'),
+              "resolverModule": require('./../UserClientEdgeResolver').client_edge,
               "path": "me.client_edge"
             },
             "linkedField": {
@@ -124,7 +124,7 @@ return {
                     },
                     "kind": "RelayResolver",
                     "name": "another_client_edge",
-                    "resolverModule": require('./../UserAnotherClientEdgeResolver'),
+                    "resolverModule": require('./../UserAnotherClientEdgeResolver').another_client_edge,
                     "path": "me.another_client_edge"
                   },
                   "linkedField": {

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<94cc5afa227da9e67ebc36bdad82a45b>>
+ * @generated SignedSource<<b988057af0b9d7b30b5622d32e061f17>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserAlwaysThrowsTransitivelyResolver$key } from "./../resolvers/__generated__/UserAlwaysThrowsTransitivelyResolver.graphql";
-import userAlwaysThrowsTransitivelyResolver from "../resolvers/UserAlwaysThrowsTransitivelyResolver.js";
+import {always_throws_transitively as userAlwaysThrowsTransitivelyResolver} from "../resolvers/UserAlwaysThrowsTransitivelyResolver.js";
 // Type assertion validating that `userAlwaysThrowsTransitivelyResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAlwaysThrowsTransitivelyResolver: (
@@ -62,7 +62,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "always_throws_transitively",
-            "resolverModule": require('./../resolvers/UserAlwaysThrowsTransitivelyResolver'),
+            "resolverModule": require('./../resolvers/UserAlwaysThrowsTransitivelyResolver').always_throws_transitively,
             "path": "me.always_throws_transitively"
           }
         ],

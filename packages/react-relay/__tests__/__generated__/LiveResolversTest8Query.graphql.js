@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<11623bf0494ee64893396c8b4471c338>>
+ * @generated SignedSource<<e6e013e5a940a0fd86da240869d01352>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { ResolverThatThrows$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/ResolverThatThrows.graphql";
-import userResolverThatThrowsResolver from "../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js";
+import {resolver_that_throws as userResolverThatThrowsResolver} from "../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js";
 // Type assertion validating that `userResolverThatThrowsResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userResolverThatThrowsResolver: (
@@ -92,7 +92,7 @@ return {
                 },
                 "kind": "RelayLiveResolver",
                 "name": "resolver_that_throws",
-                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows'),
+                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows').resolver_that_throws,
                 "path": "node.resolver_that_throws"
               }
             ],

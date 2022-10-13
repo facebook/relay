@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<401aa2dae7b91e26351e036694adaf70>>
+ * @generated SignedSource<<c81dde69290e74cdeb96ea34c73f06a7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserProfilePictureResolver$key } from "./../resolvers/__generated__/UserProfilePictureResolver.graphql";
-import userUserProfilePictureUriWithScaleResolver from "../resolvers/UserProfilePictureResolver.js";
+import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScaleResolver} from "../resolvers/UserProfilePictureResolver.js";
 // Type assertion validating that `userUserProfilePictureUriWithScaleResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriWithScaleResolver: (
@@ -82,7 +82,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "user_profile_picture_uri_with_scale",
-            "resolverModule": require('./../resolvers/UserProfilePictureResolver'),
+            "resolverModule": require('./../resolvers/UserProfilePictureResolver').user_profile_picture_uri_with_scale,
             "path": "me.profile_picture"
           }
         ],

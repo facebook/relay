@@ -26,7 +26,7 @@ const {
  * @onType Query
  * @live
  */
-function resolver(): LiveState<DataID> {
+function live_user_suspends_when_odd(): LiveState<DataID> {
   return {
     read() {
       const number = Selectors.getNumber(GLOBAL_STORE.getState());
@@ -42,4 +42,6 @@ function resolver(): LiveState<DataID> {
   };
 }
 
-module.exports = resolver;
+module.exports = {
+  live_user_suspends_when_odd,
+};

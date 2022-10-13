@@ -25,7 +25,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * Expose a sign's opposite as an edge in the graph.
  */
-function astrologicalSignOpposite(
+function opposite(
   rootKey: AstrologicalSignOppositeResolver$key,
 ): string | null {
   const sign = readFragment(
@@ -39,4 +39,6 @@ function astrologicalSignOpposite(
   return sign.self?.oppositeSignId ?? null;
 }
 
-module.exports = astrologicalSignOpposite;
+module.exports = {
+  opposite,
+};

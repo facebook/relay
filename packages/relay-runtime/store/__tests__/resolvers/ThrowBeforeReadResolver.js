@@ -24,7 +24,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * A resolver that exercises the edge case where a resolver throws before reading.
  */
-function pingPong(rootKey: ThrowBeforeReadResolver$key): mixed {
+function throw_before_read(rootKey: ThrowBeforeReadResolver$key): mixed {
   // Trick Flow's unreachable code detection.
   if (true) {
     throw new Error(
@@ -44,4 +44,6 @@ function pingPong(rootKey: ThrowBeforeReadResolver$key): mixed {
   );
 }
 
-module.exports = pingPong;
+module.exports = {
+  throw_before_read,
+};

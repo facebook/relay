@@ -22,7 +22,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @rootFragment UserBestFriendGreetingResolver
  * @onType User
  */
-function UserBestFriendGreetingResolver(
+function best_friend_greeting(
   rootKey: UserBestFriendGreetingResolver$key,
 ): string {
   const user = readFragment(
@@ -44,4 +44,6 @@ function UserBestFriendGreetingResolver(
   return `Hello, ${name}!`;
 }
 
-module.exports = UserBestFriendGreetingResolver;
+module.exports = {
+  best_friend_greeting,
+};

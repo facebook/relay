@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<de1e0124ba6f2485acdf44fc9d9bf0b9>>
+ * @generated SignedSource<<5a14ac0999c3a2d74205e46fa9fdd632>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { FragmentType } from "relay-runtime";
-import queryLiveUserSuspendsWhenOddResolver from "../LiveUserSuspendsWhenOdd.js";
+import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolver} from "../LiveUserSuspendsWhenOdd.js";
 // Type assertion validating that `queryLiveUserSuspendsWhenOddResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveUserSuspendsWhenOddResolver: () => LiveState<any>);
@@ -55,7 +55,7 @@ var node/*: ReaderFragment*/ = {
         "fragment": null,
         "kind": "RelayLiveResolver",
         "name": "live_user_suspends_when_odd",
-        "resolverModule": require('./../LiveUserSuspendsWhenOdd'),
+        "resolverModule": require('./../LiveUserSuspendsWhenOdd').live_user_suspends_when_odd,
         "path": "user"
       },
       "linkedField": {

@@ -25,7 +25,7 @@ import type {TodoBlockedByResolverFragment$key} from './__generated__/TodoBlocke
  * @fieldName blocked_by
  * @outputType [Todo]
  */
-function TodoBlockedByResolver(
+function blocked_by(
   rootKey: TodoBlockedByResolverFragment$key,
 ): $ReadOnlyArray<ReturnType> {
   const data = readFragment(
@@ -50,4 +50,6 @@ function TodoBlockedByResolver(
   }
 }
 
-module.exports = TodoBlockedByResolver;
+module.exports = {
+  blocked_by,
+};

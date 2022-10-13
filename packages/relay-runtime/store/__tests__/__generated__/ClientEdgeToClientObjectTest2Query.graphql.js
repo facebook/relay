@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<567809e0fb8e2ff50b2fb4caa9628286>>
+ * @generated SignedSource<<d0fbac22becc12aa5e3ae6d48da11415>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,13 +20,13 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { AstrologicalSignNameResolver$key } from "./../resolvers/__generated__/AstrologicalSignNameResolver.graphql";
 import type { QueryAllAstrologicalSignsResolver$key } from "./../resolvers/__generated__/QueryAllAstrologicalSignsResolver.graphql";
-import astrologicalSignNameResolver from "../resolvers/AstrologicalSignNameResolver.js";
+import {name as astrologicalSignNameResolver} from "../resolvers/AstrologicalSignNameResolver.js";
 // Type assertion validating that `astrologicalSignNameResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolver: (
   rootKey: AstrologicalSignNameResolver$key, 
 ) => mixed);
-import queryAllAstrologicalSignsResolver from "../resolvers/QueryAllAstrologicalSignsResolver.js";
+import {all_astrological_signs as queryAllAstrologicalSignsResolver} from "../resolvers/QueryAllAstrologicalSignsResolver.js";
 // Type assertion validating that `queryAllAstrologicalSignsResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryAllAstrologicalSignsResolver: (
@@ -66,7 +66,7 @@ var node/*: ConcreteRequest*/ = {
           },
           "kind": "RelayResolver",
           "name": "all_astrological_signs",
-          "resolverModule": require('./../resolvers/QueryAllAstrologicalSignsResolver'),
+          "resolverModule": require('./../resolvers/QueryAllAstrologicalSignsResolver').all_astrological_signs,
           "path": "all_astrological_signs"
         },
         "linkedField": {
@@ -87,7 +87,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "name",
-              "resolverModule": require('./../resolvers/AstrologicalSignNameResolver'),
+              "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
               "path": "name"
             }
           ],

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2627804800b1f9f5088a6682d2adad14>>
+ * @generated SignedSource<<d37a05d0fd4ea663ab9f70ef011ad05f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -22,25 +22,25 @@ import type { AstrologicalSignHouseResolver$key } from "./../resolvers/__generat
 import type { AstrologicalSignNameResolver$key } from "./../resolvers/__generated__/AstrologicalSignNameResolver.graphql";
 import type { AstrologicalSignOppositeResolver$key } from "./../resolvers/__generated__/AstrologicalSignOppositeResolver.graphql";
 import type { UserAstrologicalSignResolver$key } from "./../resolvers/__generated__/UserAstrologicalSignResolver.graphql";
-import astrologicalSignHouseResolver from "../resolvers/AstrologicalSignHouseResolver.js";
+import {house as astrologicalSignHouseResolver} from "../resolvers/AstrologicalSignHouseResolver.js";
 // Type assertion validating that `astrologicalSignHouseResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignHouseResolver: (
   rootKey: AstrologicalSignHouseResolver$key, 
 ) => mixed);
-import astrologicalSignNameResolver from "../resolvers/AstrologicalSignNameResolver.js";
+import {name as astrologicalSignNameResolver} from "../resolvers/AstrologicalSignNameResolver.js";
 // Type assertion validating that `astrologicalSignNameResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolver: (
   rootKey: AstrologicalSignNameResolver$key, 
 ) => mixed);
-import astrologicalSignOppositeResolver from "../resolvers/AstrologicalSignOppositeResolver.js";
+import {opposite as astrologicalSignOppositeResolver} from "../resolvers/AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignOppositeResolver: (
   rootKey: AstrologicalSignOppositeResolver$key, 
 ) => mixed);
-import userAstrologicalSignResolver from "../resolvers/UserAstrologicalSignResolver.js";
+import {astrological_sign as userAstrologicalSignResolver} from "../resolvers/UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAstrologicalSignResolver: (
@@ -89,7 +89,7 @@ v1 = {
   },
   "kind": "RelayResolver",
   "name": "name",
-  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver'),
+  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
   "path": "me.name"
 },
 v2 = {
@@ -102,7 +102,7 @@ v2 = {
   },
   "kind": "RelayResolver",
   "name": "house",
-  "resolverModule": require('./../resolvers/AstrologicalSignHouseResolver'),
+  "resolverModule": require('./../resolvers/AstrologicalSignHouseResolver').house,
   "path": "me.house"
 },
 v3 = {
@@ -115,7 +115,7 @@ v3 = {
   },
   "kind": "RelayResolver",
   "name": "opposite",
-  "resolverModule": require('./../resolvers/AstrologicalSignOppositeResolver'),
+  "resolverModule": require('./../resolvers/AstrologicalSignOppositeResolver').opposite,
   "path": "me.opposite"
 };
 return {
@@ -148,7 +148,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "astrological_sign",
-              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver'),
+              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver').astrological_sign,
               "path": "me.astrological_sign"
             },
             "linkedField": {

@@ -31,8 +31,10 @@ const {
   GLOBAL_STORE,
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleExternalStateStore');
-const counterNoFragmentResolver = require('relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
+const {
+  counter_no_fragment: counterNoFragmentResolver,
+} = require('relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment');
+const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,

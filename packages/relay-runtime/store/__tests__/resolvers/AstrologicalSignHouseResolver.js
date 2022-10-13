@@ -24,9 +24,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * Re-expose `house` from our client fat `self` object.
  */
-function astrologicalSignHouse(
-  rootKey: AstrologicalSignHouseResolver$key,
-): number | null {
+function house(rootKey: AstrologicalSignHouseResolver$key): number | null {
   const sign = readFragment(
     graphql`
       fragment AstrologicalSignHouseResolver on AstrologicalSign {
@@ -38,4 +36,6 @@ function astrologicalSignHouse(
   return sign.self?.house ?? null;
 }
 
-module.exports = astrologicalSignHouse;
+module.exports = {
+  house,
+};

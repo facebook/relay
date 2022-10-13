@@ -24,7 +24,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * Greet the user.
  */
-function userGreeting(rootKey: UserGreetingResolver$key): string {
+function greeting(rootKey: UserGreetingResolver$key): string {
   const user = readFragment(
     graphql`
       fragment UserGreetingResolver on User {
@@ -37,4 +37,6 @@ function userGreeting(rootKey: UserGreetingResolver$key): string {
   return `Hello, ${name}!`;
 }
 
-module.exports = userGreeting;
+module.exports = {
+  greeting,
+};

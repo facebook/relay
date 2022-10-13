@@ -24,7 +24,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * Greet the user with a custom salutation provided via arguments.
  */
-function userGreeting(
+function custom_greeting(
   rootKey: UserCustomGreetingResolver$key,
   args: {salutation: string},
 ): string {
@@ -40,4 +40,6 @@ function userGreeting(
   return `${args.salutation}, ${name}!`;
 }
 
-module.exports = userGreeting;
+module.exports = {
+  custom_greeting,
+};

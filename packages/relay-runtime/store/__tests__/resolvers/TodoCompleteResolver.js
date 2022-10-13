@@ -22,9 +22,7 @@ const {graphql} = require('relay-runtime');
  * @rootFragment TodoCompleteResolverFragment
  * @fieldName complete
  */
-function TodoCompleteResolver(
-  rootKey: TodoCompleteResolverFragment$key,
-): ?boolean {
+function complete(rootKey: TodoCompleteResolverFragment$key): ?boolean {
   const data = readFragment(
     graphql`
       fragment TodoCompleteResolverFragment on Todo {
@@ -36,4 +34,6 @@ function TodoCompleteResolver(
   return data.self?.isCompleted;
 }
 
-module.exports = TodoCompleteResolver;
+module.exports = {
+  complete,
+};

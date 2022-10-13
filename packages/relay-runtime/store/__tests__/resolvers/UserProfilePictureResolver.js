@@ -22,7 +22,9 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @rootFragment UserProfilePictureResolver
  * @onType User
  */
-function userProfilePicture(rootKey: UserProfilePictureResolver$key): ?string {
+function user_profile_picture_uri_with_scale(
+  rootKey: UserProfilePictureResolver$key,
+): ?string {
   const user = readFragment(
     graphql`
       fragment UserProfilePictureResolver on User
@@ -37,4 +39,6 @@ function userProfilePicture(rootKey: UserProfilePictureResolver$key): ?string {
   return user?.profile_picture?.uri;
 }
 
-module.exports = userProfilePicture;
+module.exports = {
+  user_profile_picture_uri_with_scale,
+};

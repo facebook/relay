@@ -20,7 +20,7 @@
  */
 import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
 
-function nonLiveResolverWithLiveReturnValue(): LiveState<string> {
+function non_live_resolver_with_live_return_value(): LiveState<string> {
   return {
     read() {
       return 'Oops!';
@@ -31,4 +31,6 @@ function nonLiveResolverWithLiveReturnValue(): LiveState<string> {
   };
 }
 
-module.exports = nonLiveResolverWithLiveReturnValue;
+module.exports = {
+  non_live_resolver_with_live_return_value,
+};

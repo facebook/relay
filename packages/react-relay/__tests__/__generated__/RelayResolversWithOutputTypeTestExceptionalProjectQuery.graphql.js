@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<46adfc6d58663097d2afc0fb77629f45>>
+ * @generated SignedSource<<06bccd56c478724058514b941c1c3f2f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
-import queryTodosResolver from "../../../relay-runtime/store/__tests__/resolvers/QueryTodos.js";
+import {todos as queryTodosResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodos.js";
 // Type assertion validating that `queryTodosResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodosResolver: (
@@ -72,7 +72,7 @@ return {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "todos",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodos'),
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodos').todos,
           "path": "todos",
           "normalizationInfo": {
             "concreteType": "TodoConnection",

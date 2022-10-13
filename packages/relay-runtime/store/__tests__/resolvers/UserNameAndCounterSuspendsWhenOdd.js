@@ -23,7 +23,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @onType Query
  *
  */
-function UserNameAndCounterSuspendsWhenOdd(
+function user_name_and_counter_suspends_when_odd(
   rootKey: UserNameAndCounterSuspendsWhenOdd$key,
 ): string {
   const data = readFragment(
@@ -40,4 +40,6 @@ function UserNameAndCounterSuspendsWhenOdd(
   return `${String(data.me?.name)} ${String(data.counter_suspends_when_odd)}`;
 }
 
-module.exports = UserNameAndCounterSuspendsWhenOdd;
+module.exports = {
+  user_name_and_counter_suspends_when_odd,
+};

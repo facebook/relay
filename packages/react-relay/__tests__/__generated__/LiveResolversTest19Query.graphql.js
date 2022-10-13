@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<47acba37fd424ff8ed0434ec89e52395>>
+ * @generated SignedSource<<1ca9db5059a37fbf917bdcd482c8bc2e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import queryLiveResolverReturnUndefinedResolver from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverReturnsUndefined.js";
+import {live_resolver_return_undefined as queryLiveResolverReturnUndefinedResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverReturnsUndefined.js";
 // Type assertion validating that `queryLiveResolverReturnUndefinedResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveResolverReturnUndefinedResolver: () => LiveState<any>);
@@ -49,7 +49,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "live_resolver_return_undefined",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverReturnsUndefined'),
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverReturnsUndefined').live_resolver_return_undefined,
             "path": "live_resolver_return_undefined"
           }
         ]

@@ -22,7 +22,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @rootFragment UserConstantDependentResolver
  * @onType User
  */
-function UserConstantDependentResolver(
+function constant_dependent(
   rootKey: UserConstantDependentResolver$key,
 ): number {
   const user = readFragment(
@@ -34,10 +34,12 @@ function UserConstantDependentResolver(
     rootKey,
   );
   // $FlowFixMe[prop-missing]
-  UserConstantDependentResolver._relayResolverTestCallCount =
+  constant_dependent._relayResolverTestCallCount =
     // $FlowFixMe[prop-missing]
-    (UserConstantDependentResolver._relayResolverTestCallCount ?? 0) + 1;
+    (constant_dependent._relayResolverTestCallCount ?? 0) + 1;
   return (user.constant ?? NaN) + 1;
 }
 
-module.exports = UserConstantDependentResolver;
+module.exports = {
+  constant_dependent,
+};

@@ -1,0 +1,21 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver 999
+ */
+==================================== ERROR ====================================
+✖︎ Expected a non-variable identifier (e.g. 'x' or 'Foo')
+
+  /path/to/test/fixture/relay-resolver-terse-invalid-type-name.js:11:19
+   10 │ *
+   11 │  * @RelayResolver 999
+      │                   ^^^
+   12 │

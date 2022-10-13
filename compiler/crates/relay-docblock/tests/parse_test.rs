@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bb85a5b2a59123485d4650ec95fc9be0>>
+ * @generated SignedSource<<0739dad984f51252f80b4611b0eaade7>>
  */
 
 mod parse;
@@ -136,6 +136,13 @@ fn relay_resolver_strong_object() {
     let input = include_str!("parse/fixtures/relay-resolver-strong-object.js");
     let expected = include_str!("parse/fixtures/relay-resolver-strong-object.expected");
     test_fixture(transform_fixture, "relay-resolver-strong-object.js", "parse/fixtures/relay-resolver-strong-object.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_terse_invalid_type_name() {
+    let input = include_str!("parse/fixtures/relay-resolver-terse-invalid-type-name.js");
+    let expected = include_str!("parse/fixtures/relay-resolver-terse-invalid-type-name.expected");
+    test_fixture(transform_fixture, "relay-resolver-terse-invalid-type-name.js", "parse/fixtures/relay-resolver-terse-invalid-type-name.expected", input, expected);
 }
 
 #[test]

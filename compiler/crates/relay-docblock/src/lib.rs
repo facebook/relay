@@ -23,6 +23,7 @@ use docblock_syntax::DocblockSection;
 use errors::ErrorMessagesWithData;
 use graphql_ir::FragmentDefinitionName;
 use graphql_syntax::parse_field_definition_stub;
+use graphql_syntax::parse_identifier;
 use graphql_syntax::parse_type;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::ExecutableDefinition;
@@ -164,18 +165,13 @@ impl RelayResolverParser {
                 return Err(());
             }
 
-            let type_ = PopulatedIrField {
-                key_location: relay_resolver.key_location,
-                value: type_name,
-            };
-
-            if self.fields.get(&WEAK_FIELD).is_some() {
-                self.parse_weak_type(ast.location, type_)
-                    .map(DocblockIr::WeakObjectType)
-            } else {
-                self.parse_strong_object(ast.location, type_)
-                    .map(DocblockIr::StrongObjectResolver)
-            }
+            self.parse_terse_relay_resolver(
+                ast.location,
+                PopulatedIrField {
+                    key_location: relay_resolver.key_location,
+                    value: type_name,
+                },
+            )
         } else {
             self.parse_relay_resolver(ast.location, definitions_in_file)
                 .map(DocblockIr::RelayResolver)
@@ -589,6 +585,39 @@ impl RelayResolverParser {
                     ));
                 }
             }
+        }
+    }
+
+    fn parse_terse_relay_resolver(
+        &mut self,
+        ast_location: Location,
+        field_value: PopulatedIrField,
+    ) -> ParseResult<DocblockIr> {
+        let type_str = field_value.value;
+
+        let type_name = match parse_identifier(
+            type_str.item.lookup(),
+            type_str.location.source_location(),
+            type_str.location.span().start,
+        ) {
+            Ok(type_name) => type_name,
+            Err(diagnostics) => {
+                self.errors.extend(diagnostics);
+                return Err(());
+            }
+        };
+
+        let type_ = PopulatedIrField {
+            key_location: field_value.key_location,
+            value: WithLocation::new(type_str.location.with_span(type_name.span), type_name.value),
+        };
+
+        if self.fields.get(&WEAK_FIELD).is_some() {
+            self.parse_weak_type(ast_location, type_)
+                .map(DocblockIr::WeakObjectType)
+        } else {
+            self.parse_strong_object(ast_location, type_)
+                .map(DocblockIr::StrongObjectResolver)
         }
     }
 

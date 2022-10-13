@@ -1,0 +1,20 @@
+query relayModelResolver_Query {
+  client_user {
+    name
+  }
+}
+
+# %extensions%
+
+type ClientUser @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: Int @relay_resolver(import_path: "./path/to/UserModelResolver.js")
+}
+
+extend type ClientUser {
+  name: Int @relay_resolver(fragment_name: "ClientUser____relay_model_instance", import_path: "./path/to/UserNameResolver.js")
+}
+
+extend type Query {
+  client_user: ClientUser
+}

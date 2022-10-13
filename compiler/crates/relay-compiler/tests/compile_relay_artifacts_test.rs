@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1b6f8341c41090db14cb3d5b52f0cbdd>>
+ * @generated SignedSource<<d0326d641f532cf63bd957c0e0afea12>>
  */
 
 mod compile_relay_artifacts;
@@ -1070,6 +1070,13 @@ fn relay_live_resolver_without_fragment() {
 }
 
 #[test]
+fn relay_model_resolver() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-model-resolver.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-model-resolver.expected");
+    test_fixture(transform_fixture, "relay-model-resolver.graphql", "compile_relay_artifacts/fixtures/relay-model-resolver.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver.expected");
@@ -1172,13 +1179,6 @@ fn relay_resolvers_with_different_field_args_are_not_merged() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolvers-with-different-field-args-are-not-merged.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolvers-with-different-field-args-are-not-merged.expected");
     test_fixture(transform_fixture, "relay-resolvers-with-different-field-args-are-not-merged.graphql", "compile_relay_artifacts/fixtures/relay-resolvers-with-different-field-args-are-not-merged.expected", input, expected);
-}
-
-#[test]
-fn relay_self_resolver() {
-    let input = include_str!("compile_relay_artifacts/fixtures/relay-self-resolver.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/relay-self-resolver.expected");
-    test_fixture(transform_fixture, "relay-self-resolver.graphql", "compile_relay_artifacts/fixtures/relay-self-resolver.expected", input, expected);
 }
 
 #[test]

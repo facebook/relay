@@ -29,6 +29,8 @@ use graphql_syntax::InputValueDefinition;
 use graphql_syntax::InterfaceTypeExtension;
 use graphql_syntax::List;
 use graphql_syntax::NamedTypeAnnotation;
+use graphql_syntax::NonNullTypeAnnotation;
+use graphql_syntax::ObjectTypeDefinition;
 use graphql_syntax::ObjectTypeExtension;
 use graphql_syntax::SchemaDocument;
 use graphql_syntax::StringNode;
@@ -51,8 +53,11 @@ use crate::errors::ErrorMessagesWithData;
 
 lazy_static! {
     static ref INT_TYPE: StringKey = "Int".intern();
+    static ref ID_TYPE: StringKey = "ID".intern();
     static ref RELAY_RESOLVER_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("relay_resolver".intern());
+    static ref RELAY_RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("__RelayResolverModel".intern());
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("deprecated".intern());
     static ref FRAGMENT_KEY_ARGUMENT_NAME: ArgumentName = ArgumentName("fragment_name".intern());
@@ -62,6 +67,8 @@ lazy_static! {
     static ref DEPRECATED_REASON_ARGUMENT_NAME: ArgumentName = ArgumentName("reason".intern());
     static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
         ArgumentName("has_output_type".intern());
+    pub(crate) static ref ID_FIELD_NAME: StringKey = "id".intern();
+    static ref RESOLVER_MODEL_INSTANCE_FIELD_NAME: StringKey = "__relay_model_instance".intern();
 }
 
 #[derive(Debug, PartialEq)]
@@ -74,7 +81,7 @@ impl DocblockIr {
     pub fn to_sdl_string(&self, schema: &SDLSchema) -> DiagnosticsResult<String> {
         match self {
             DocblockIr::RelayResolver(relay_resolver) => relay_resolver.to_sdl_string(schema),
-            DocblockIr::StrongObjectResolver(_) => todo!(),
+            DocblockIr::StrongObjectResolver(strong_object) => strong_object.to_sdl_string(schema),
         }
     }
     pub fn to_graphql_schema_ast(&self, schema: &SDLSchema) -> DiagnosticsResult<SchemaDocument> {
@@ -82,7 +89,9 @@ impl DocblockIr {
             DocblockIr::RelayResolver(relay_resolver) => {
                 relay_resolver.to_graphql_schema_ast(schema)
             }
-            DocblockIr::StrongObjectResolver(_) => todo!(),
+            DocblockIr::StrongObjectResolver(strong_object) => {
+                strong_object.to_graphql_schema_ast(schema)
+            }
         }
     }
 }
@@ -133,6 +142,96 @@ impl OutputType {
     }
 }
 
+trait ResolverIr {
+    fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>>;
+    fn location(&self) -> Location;
+    fn root_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>>;
+    fn output_type(&self) -> Option<&OutputType>;
+    fn deprecated(&self) -> Option<IrField>;
+    fn live(&self) -> Option<IrField>;
+    fn named_import(&self) -> Option<StringKey>;
+
+    fn to_sdl_string(&self, schema: &SDLSchema) -> DiagnosticsResult<String> {
+        Ok(self
+            .to_graphql_schema_ast(schema)?
+            .definitions
+            .iter()
+            .map(|definition| format!("{}", definition))
+            .collect::<Vec<String>>()
+            .join("\n\n"))
+    }
+
+    fn to_graphql_schema_ast(&self, schema: &SDLSchema) -> DiagnosticsResult<SchemaDocument> {
+        Ok(SchemaDocument {
+            location: self.location(),
+            definitions: self.definitions(schema)?,
+        })
+    }
+
+    fn directives(&self) -> Vec<ConstantDirective> {
+        let location = self.location();
+        let span = location.span();
+        let mut directives = vec![self.directive()];
+
+        if let Some(deprecated) = self.deprecated() {
+            directives.push(ConstantDirective {
+                span: span.clone(),
+                at: dummy_token(span),
+                name: string_key_as_identifier(DEPRECATED_RESOLVER_DIRECTIVE_NAME.0),
+                arguments: deprecated.value.map(|value| {
+                    List::generated(vec![string_argument(
+                        DEPRECATED_REASON_ARGUMENT_NAME.0,
+                        value,
+                    )])
+                }),
+            })
+        }
+
+        directives
+    }
+
+    fn directive(&self) -> ConstantDirective {
+        let location = self.location();
+        let span = location.span();
+        let import_path = self.location().source_location().path().intern();
+        let mut arguments = vec![string_argument(
+            IMPORT_PATH_ARGUMENT_NAME.0,
+            WithLocation::new(self.location(), import_path),
+        )];
+
+        if let Some(root_fragment) = self.root_fragment() {
+            arguments.push(string_argument(
+                FRAGMENT_KEY_ARGUMENT_NAME.0,
+                root_fragment.map(|x| x.0),
+            ));
+        }
+
+        if let Some(live_field) = self.live() {
+            arguments.push(true_argument(LIVE_ARGUMENT_NAME.0, live_field.key_location))
+        }
+
+        if let Some(OutputType::Output(type_)) = &self.output_type() {
+            arguments.push(true_argument(
+                HAS_OUTPUT_TYPE_ARGUMENT_NAME.0,
+                type_.location,
+            ))
+        }
+        if let Some(name) = self.named_import() {
+            arguments.push(string_argument(
+                IMPORT_NAME_ARGUMENT_NAME.0,
+                WithLocation::new(self.location(), name),
+            ));
+        }
+
+        ConstantDirective {
+            span: span.clone(),
+            at: dummy_token(span),
+            name: string_key_as_identifier(RELAY_RESOLVER_DIRECTIVE_NAME.0),
+            arguments: Some(List::generated(arguments)),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct RelayResolverIr {
     pub field: FieldDefinitionStub,
@@ -147,35 +246,7 @@ pub struct RelayResolverIr {
     pub named_import: Option<StringKey>,
 }
 
-/// Relay Resolver ID representing a "model" of a strong object
-#[derive(Debug, PartialEq)]
-pub struct StrongObjectIr {
-    pub type_: PopulatedIrField,
-    pub root_fragment: WithLocation<FragmentDefinitionName>,
-    pub description: Option<WithLocation<StringKey>>,
-    pub deprecated: Option<IrField>,
-    pub live: Option<IrField>,
-    pub location: Location,
-    pub named_import: Option<StringKey>,
-}
-
-impl RelayResolverIr {
-    pub fn to_sdl_string(&self, schema: &SDLSchema) -> DiagnosticsResult<String> {
-        Ok(self
-            .to_graphql_schema_ast(schema)?
-            .definitions
-            .iter()
-            .map(|definition| format!("{}", definition))
-            .collect::<Vec<String>>()
-            .join("\n\n"))
-    }
-    pub fn to_graphql_schema_ast(&self, schema: &SDLSchema) -> DiagnosticsResult<SchemaDocument> {
-        Ok(SchemaDocument {
-            location: self.location,
-            definitions: self.definitions(schema)?,
-        })
-    }
-
+impl ResolverIr for RelayResolverIr {
     fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         if let Some(OutputType::EdgeTo(edge_to_with_location)) = &self.output_type {
             if let TypeAnnotation::List(edge_to_type) = &edge_to_with_location.item {
@@ -256,6 +327,32 @@ impl RelayResolverIr {
         }
     }
 
+    fn location(&self) -> Location {
+        self.location
+    }
+
+    fn root_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>> {
+        self.root_fragment
+    }
+
+    fn output_type(&self) -> Option<&OutputType> {
+        self.output_type.as_ref()
+    }
+
+    fn deprecated(&self) -> Option<IrField> {
+        self.deprecated
+    }
+
+    fn live(&self) -> Option<IrField> {
+        self.live
+    }
+
+    fn named_import(&self) -> Option<StringKey> {
+        self.named_import
+    }
+}
+
+impl RelayResolverIr {
     /// Build recursive object/interface extensions to add this field to all
     /// types that will need it.
     fn interface_definitions(
@@ -427,66 +524,84 @@ impl RelayResolverIr {
             )
         })
     }
+}
 
-    fn directives(&self) -> Vec<ConstantDirective> {
-        let span = self.location.span();
-        let mut directives = vec![self.directive()];
+/// Relay Resolver ID representing a "model" of a strong object
+#[derive(Debug, PartialEq)]
+pub struct StrongObjectIr {
+    pub type_: PopulatedIrField,
+    pub root_fragment: WithLocation<FragmentDefinitionName>,
+    pub description: Option<WithLocation<StringKey>>,
+    pub deprecated: Option<IrField>,
+    pub live: Option<IrField>,
+    pub location: Location,
+    pub named_import: Option<StringKey>,
+}
 
-        if let Some(deprecated) = self.deprecated {
-            directives.push(ConstantDirective {
-                span: span.clone(),
-                at: dummy_token(span),
-                name: string_key_as_identifier(DEPRECATED_RESOLVER_DIRECTIVE_NAME.0),
-                arguments: deprecated.value.map(|value| {
-                    List::generated(vec![string_argument(
-                        DEPRECATED_REASON_ARGUMENT_NAME.0,
-                        value,
-                    )])
+impl ResolverIr for StrongObjectIr {
+    fn definitions(&self, _schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+        let span = Span::empty();
+        let fields = vec![
+            FieldDefinition {
+                name: string_key_as_identifier(*ID_FIELD_NAME),
+                type_: TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
+                    span,
+                    type_: TypeAnnotation::Named(NamedTypeAnnotation {
+                        name: string_key_as_identifier(*ID_TYPE),
+                    }),
+                    exclamation: dummy_token(&span),
+                })),
+                arguments: None,
+                directives: vec![],
+                description: None,
+            },
+            FieldDefinition {
+                name: string_key_as_identifier(*RESOLVER_MODEL_INSTANCE_FIELD_NAME),
+                type_: TypeAnnotation::Named(NamedTypeAnnotation {
+                    name: string_key_as_identifier(*INT_TYPE),
                 }),
-            })
-        }
+                arguments: None,
+                directives: self.directives(),
+                description: None,
+            },
+        ];
+        let type_ = TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
+            name: as_identifier(self.type_.value),
+            interfaces: vec![],
+            directives: vec![ConstantDirective {
+                span: span.clone(),
+                at: dummy_token(&span),
+                name: string_key_as_identifier(RELAY_RESOLVER_MODEL_DIRECTIVE_NAME.0),
+                arguments: None,
+            }],
+            fields: Some(List::generated(fields)),
+        });
 
-        directives
+        Ok(vec![type_])
     }
 
-    fn directive(&self) -> ConstantDirective {
-        let span = self.location.span();
-        let import_path = self.location.source_location().path().intern();
-        let mut arguments = vec![string_argument(
-            IMPORT_PATH_ARGUMENT_NAME.0,
-            WithLocation::new(self.location, import_path),
-        )];
+    fn location(&self) -> Location {
+        self.location
+    }
 
-        if let Some(root_fragment) = self.root_fragment {
-            arguments.push(string_argument(
-                FRAGMENT_KEY_ARGUMENT_NAME.0,
-                root_fragment.map(|x| x.0),
-            ));
-        }
+    fn root_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>> {
+        Some(self.root_fragment)
+    }
 
-        if let Some(live_field) = self.live {
-            arguments.push(true_argument(LIVE_ARGUMENT_NAME.0, live_field.key_location))
-        }
+    fn output_type(&self) -> Option<&OutputType> {
+        None
+    }
 
-        if let Some(OutputType::Output(type_)) = &self.output_type {
-            arguments.push(true_argument(
-                HAS_OUTPUT_TYPE_ARGUMENT_NAME.0,
-                type_.location,
-            ))
-        }
-        if let Some(name) = self.named_import {
-            arguments.push(string_argument(
-                IMPORT_NAME_ARGUMENT_NAME.0,
-                WithLocation::new(self.location, name),
-            ));
-        }
+    fn deprecated(&self) -> Option<IrField> {
+        self.deprecated
+    }
 
-        ConstantDirective {
-            span: span.clone(),
-            at: dummy_token(span),
-            name: string_key_as_identifier(RELAY_RESOLVER_DIRECTIVE_NAME.0),
-            arguments: Some(List::generated(arguments)),
-        }
+    fn live(&self) -> Option<IrField> {
+        self.live
+    }
+
+    fn named_import(&self) -> Option<StringKey> {
+        self.named_import
     }
 }
 

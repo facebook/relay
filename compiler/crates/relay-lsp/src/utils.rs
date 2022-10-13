@@ -168,6 +168,7 @@ pub fn extract_feature_from_text(
                             relay_resolver_model_syntax_enabled: project_config
                                 .feature_flags
                                 .relay_resolver_model_syntax_enabled,
+                            id_field_name: project_config.schema_config.node_interface_id_field,
                         },
                     )
                 })

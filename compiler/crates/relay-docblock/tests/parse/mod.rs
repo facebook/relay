@@ -66,6 +66,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                             relay_resolver_model_syntax_enabled: !fixture
                                 .content
                                 .contains("// relay:disable_relay_resolver_model_syntax"),
+                            id_field_name: "id".intern(),
                         },
                     )
                 })

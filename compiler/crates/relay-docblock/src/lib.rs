@@ -44,10 +44,10 @@ use lazy_static::lazy_static;
 
 use crate::errors::ErrorMessages;
 
-#[derive(Default)]
 pub struct ParseOptions {
     pub use_named_imports: bool,
     pub relay_resolver_model_syntax_enabled: bool,
+    pub id_field_name: StringKey,
 }
 
 lazy_static! {
@@ -83,7 +83,6 @@ pub fn parse_docblock_ast(
 
 type ParseResult<T> = Result<T, ()>;
 
-#[derive(Default)]
 struct RelayResolverParser {
     fields: HashMap<StringKey, IrField>,
     description: Option<WithLocation<StringKey>>,
@@ -152,7 +151,7 @@ impl RelayResolverParser {
         let relay_resolver = self.fields.get(&RELAY_RESOLVER_FIELD).copied().unwrap();
         // Currently, we expect Strong objects to be defined
         // as @RelayResolver StrongTypeName. No other fields are expected
-        if relay_resolver.value.is_some() {
+        if let Some(type_name) = relay_resolver.value {
             if !self.options.relay_resolver_model_syntax_enabled {
                 self.errors.push(Diagnostic::error(
                     "Parsing Relay Models (@RelayResolver `StrongTypeName`) is not enabled.",
@@ -162,8 +161,14 @@ impl RelayResolverParser {
                 return Err(());
             }
 
-            self.parse_strong_object(relay_resolver)
-                .map(DocblockIr::StrongObjectResolver)
+            self.parse_strong_object(
+                ast.location,
+                PopulatedIrField {
+                    key_location: relay_resolver.key_location,
+                    value: type_name,
+                },
+            )
+            .map(DocblockIr::StrongObjectResolver)
         } else {
             self.parse_relay_resolver(ast.location, definitions_in_file)
                 .map(DocblockIr::RelayResolver)
@@ -580,7 +585,25 @@ impl RelayResolverParser {
         }
     }
 
-    fn parse_strong_object(&self, _relay_resolver_field: IrField) -> ParseResult<StrongObjectIr> {
-        todo!()
+    fn parse_strong_object(
+        &self,
+        ast_location: Location,
+        type_: PopulatedIrField,
+    ) -> ParseResult<StrongObjectIr> {
+        // For Relay Models (Strong object) we'll automatically inject the
+        // fragment with `id` field.
+        let fragment_name = FragmentDefinitionName(
+            format!("{}__{}", type_.value.item, self.options.id_field_name).intern(),
+        );
+
+        Ok(StrongObjectIr {
+            type_,
+            root_fragment: WithLocation::generated(fragment_name),
+            description: self.description,
+            deprecated: self.fields.get(&DEPRECATED_FIELD).copied(),
+            live: self.fields.get(&LIVE_FIELD).copied(),
+            location: ast_location,
+            named_import: self.options.use_named_imports.then_some(type_.value.item),
+        })
     }
 }

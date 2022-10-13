@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4bf1e2d6bf147bdfbf0b6d9c763f2289>>
+ * @generated SignedSource<<83c48009350539bc419375d2dd6ef433>>
  */
 
 mod to_schema;
@@ -115,6 +115,13 @@ fn relay_resolver_on_type_with_interface_invalid() {
     let input = include_str!("to_schema/fixtures/relay-resolver-on-type-with-interface.invalid.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-on-type-with-interface.invalid.expected");
     test_fixture(transform_fixture, "relay-resolver-on-type-with-interface.invalid.js", "to_schema/fixtures/relay-resolver-on-type-with-interface.invalid.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_strong_object() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object.js", "to_schema/fixtures/relay-resolver-strong-object.expected", input, expected);
 }
 
 #[test]

@@ -196,7 +196,7 @@ fn apply_common_transforms(
     })?;
 
     program = log_event.time("generate_relay_resolvers_model_fragments", || {
-        generate_relay_resolvers_model_fragments(&program)
+        generate_relay_resolvers_model_fragments(&program, &project_config.schema_config)
     });
 
     program = log_event.time(
@@ -633,7 +633,7 @@ fn apply_typegen_transforms(
     })?;
     program = log_event.time("required_directive", || required_directive(&program))?;
     program = log_event.time("generate_relay_resolvers_model_fragments", || {
-        generate_relay_resolvers_model_fragments(&program)
+        generate_relay_resolvers_model_fragments(&program, &project_config.schema_config)
     });
     program = log_event.time(
         "generate_relay_resolvers_operations_for_nested_objects",

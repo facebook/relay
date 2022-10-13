@@ -9,7 +9,7 @@ query relayModelResolver_Query {
 
 type ClientUser @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: Int @relay_resolver(import_path: "./path/to/UserModelResolver.js")
+  __relay_model_instance: Int @relay_resolver(fragment_name: "ClientUser__id", import_path: "./path/to/UserModelResolver.js")
 }
 
 extend type ClientUser {
@@ -86,7 +86,20 @@ extend type Query {
                     {
                       "name": "__relay_model_instance",
                       "args": null,
-                      "fragment": null,
+                      "fragment": {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "id",
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "ClientUser",
+                        "abstractKey": null
+                      },
                       "kind": "RelayResolver",
                       "storageKey": null
                     }
@@ -132,16 +145,38 @@ Query Text is Empty.
   "name": "ClientUser____relay_model_instance",
   "selections": [
     {
+      "alias": null,
+      "args": null,
+      "fragment": {
+        "args": null,
+        "kind": "FragmentSpread",
+        "name": "ClientUser__id"
+      },
+      "kind": "RelayResolver",
+      "name": "__relay_model_instance",
+      "resolverModule": require('UserModelResolver'),
+      "path": "__relay_model_instance"
+    }
+  ],
+  "type": "ClientUser",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ClientUser__id",
+  "selections": [
+    {
       "kind": "ClientExtension",
       "selections": [
         {
           "alias": null,
           "args": null,
-          "fragment": null,
-          "kind": "RelayResolver",
-          "name": "__relay_model_instance",
-          "resolverModule": require('UserModelResolver'),
-          "path": "__relay_model_instance"
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
         }
       ]
     }

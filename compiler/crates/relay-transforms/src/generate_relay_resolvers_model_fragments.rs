@@ -18,6 +18,7 @@ use graphql_ir::Selection;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
+use relay_config::SchemaConfig;
 use schema::Schema;
 
 lazy_static! {
@@ -28,7 +29,10 @@ lazy_static! {
     static ref RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName = DirectiveName("__RelayResolverModel".intern());
 }
 
-pub fn generate_relay_resolvers_model_fragments(program: &Program) -> Program {
+pub fn generate_relay_resolvers_model_fragments(
+    program: &Program,
+    schema_config: &SchemaConfig,
+) -> Program {
     let mut next_program = program.clone();
     for object in program.schema.get_objects() {
         if !object.is_extension {
@@ -75,6 +79,38 @@ pub fn generate_relay_resolvers_model_fragments(program: &Program) -> Program {
             };
 
             next_program.insert_fragment(Arc::new(fragment_definition));
+
+            // For "strong" models (with `id` field) we will also
+            // generate fragment with `id` field, so we can pass it to the Model
+            // resolver function.
+            if let Some(id_field_id) = program
+                .schema
+                .named_field(object_type, schema_config.node_interface_id_field)
+            {
+                let id_fragment_name = FragmentDefinitionName(
+                    format!(
+                        "{}__{}",
+                        object.name.item.0, schema_config.node_interface_id_field
+                    )
+                    .intern(),
+                );
+
+                let id_fragment = FragmentDefinition {
+                    name: WithLocation::new(object.name.location, id_fragment_name),
+                    variable_definitions: vec![],
+                    used_global_variables: vec![],
+                    type_condition: object_type,
+                    directives: vec![],
+                    selections: vec![Selection::ScalarField(Arc::new(ScalarField {
+                        alias: None,
+                        definition: WithLocation::generated(id_field_id),
+                        arguments: vec![],
+                        directives: vec![],
+                    }))],
+                };
+
+                next_program.insert_fragment(Arc::new(id_fragment));
+            }
         }
     }
 

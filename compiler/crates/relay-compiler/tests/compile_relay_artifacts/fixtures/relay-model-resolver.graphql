@@ -8,7 +8,7 @@ query relayModelResolver_Query {
 
 type ClientUser @__RelayResolverModel {
   id: ID!
-  __relay_model_instance: Int @relay_resolver(import_path: "./path/to/UserModelResolver.js")
+  __relay_model_instance: Int @relay_resolver(fragment_name: "ClientUser__id", import_path: "./path/to/UserModelResolver.js")
 }
 
 extend type ClientUser {

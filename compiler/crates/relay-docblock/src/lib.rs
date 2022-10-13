@@ -40,6 +40,7 @@ use ir::OutputType;
 use ir::PopulatedIrField;
 pub use ir::RelayResolverIr;
 use ir::StrongObjectIr;
+use ir::WeakObjectIr;
 use lazy_static::lazy_static;
 
 use crate::errors::ErrorMessages;
@@ -60,6 +61,7 @@ lazy_static! {
     static ref LIVE_FIELD: StringKey = "live".intern();
     static ref ROOT_FRAGMENT_FIELD: StringKey = "rootFragment".intern();
     static ref OUTPUT_TYPE_FIELD: StringKey = "outputType".intern();
+    static ref WEAK_FIELD: StringKey = "weak".intern();
     static ref EMPTY_STRING: StringKey = "".intern();
     static ref ARGUMENT_DEFINITIONS: DirectiveName = DirectiveName("argumentDefinitions".intern());
     static ref ARGUMENT_TYPE: StringKey = "type".intern();
@@ -107,6 +109,7 @@ impl RelayResolverParser {
                 *DEPRECATED_FIELD,
                 *LIVE_FIELD,
                 *OUTPUT_TYPE_FIELD,
+                *WEAK_FIELD,
             ],
             options,
         }
@@ -161,14 +164,18 @@ impl RelayResolverParser {
                 return Err(());
             }
 
-            self.parse_strong_object(
-                ast.location,
-                PopulatedIrField {
-                    key_location: relay_resolver.key_location,
-                    value: type_name,
-                },
-            )
-            .map(DocblockIr::StrongObjectResolver)
+            let type_ = PopulatedIrField {
+                key_location: relay_resolver.key_location,
+                value: type_name,
+            };
+
+            if self.fields.get(&WEAK_FIELD).is_some() {
+                self.parse_weak_type(ast.location, type_)
+                    .map(DocblockIr::WeakObjectType)
+            } else {
+                self.parse_strong_object(ast.location, type_)
+                    .map(DocblockIr::StrongObjectResolver)
+            }
         } else {
             self.parse_relay_resolver(ast.location, definitions_in_file)
                 .map(DocblockIr::RelayResolver)
@@ -604,6 +611,20 @@ impl RelayResolverParser {
             live: self.fields.get(&LIVE_FIELD).copied(),
             location: ast_location,
             named_import: self.options.use_named_imports.then_some(type_.value.item),
+        })
+    }
+
+    fn parse_weak_type(
+        &self,
+        ast_location: Location,
+        type_: PopulatedIrField,
+    ) -> ParseResult<WeakObjectIr> {
+        // TODO: Validate that no incompatible docblock fields are used.
+        Ok(WeakObjectIr {
+            type_name: type_,
+            description: self.description,
+            deprecated: self.fields.get(&DEPRECATED_FIELD).copied(),
+            location: ast_location,
         })
     }
 }

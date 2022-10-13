@@ -399,6 +399,24 @@ pub struct ArgumentValue {
     pub value: ConstantValue,
 }
 
+impl ArgumentValue {
+    /// If the value is a constant string literal, return the value, otherwise None.
+    pub fn get_string_literal(&self) -> Option<StringKey> {
+        if let ConstantValue::String(string_node) = &self.value {
+            Some(string_node.value)
+        } else {
+            None
+        }
+    }
+    /// Return the constant string literal of this value.
+    /// Panics if the value is not a constant string literal.
+    pub fn expect_string_literal(&self) -> StringKey {
+        self.get_string_literal().unwrap_or_else(|| {
+            panic!("expected a string literal, got {:?}", self);
+        })
+    }
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct DirectiveValue {
     pub name: DirectiveName,

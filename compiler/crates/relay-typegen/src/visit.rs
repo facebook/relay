@@ -6,10 +6,14 @@
  */
 
 use std::hash::Hash;
+use std::path::PathBuf;
 
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
+use ::intern::Lookup;
+use common::ArgumentName;
+use common::DirectiveName;
 use common::NamedItem;
 use graphql_ir::Condition;
 use graphql_ir::Directive;
@@ -26,6 +30,9 @@ use indexmap::IndexSet;
 use relay_config::CustomScalarType;
 use relay_config::CustomScalarTypeImport;
 use relay_config::TypegenLanguage;
+use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
+use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
+use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::FragmentAliasMetadata;
 use relay_transforms::ModuleMetadata;
@@ -1677,7 +1684,35 @@ fn transform_graphql_scalar_type(
     scalar: ScalarID,
     custom_scalars: &mut CustomScalarsImports,
 ) -> AST {
-    let scalar_name = typegen_context.schema.scalar(scalar).name;
+    let scalar_definition = typegen_context.schema.scalar(scalar);
+    let scalar_name = scalar_definition.name;
+
+    if let Some(directive) = scalar_definition
+        .directives
+        .named(DirectiveName(*CUSTOM_SCALAR_DIRECTIVE_NAME))
+    {
+        let path = directive
+            .arguments
+            .named(ArgumentName(*PATH_CUSTOM_SCALAR_ARGUMENT_NAME))
+            .expect(&format!(
+                "Expected @{} directive to have a path argument",
+                *CUSTOM_SCALAR_DIRECTIVE_NAME
+            ))
+            .expect_string_literal();
+        let export_name = directive
+            .arguments
+            .named(ArgumentName(*EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME))
+            .expect(&format!(
+                "Expected @{} directive to have an export_name argument",
+                *CUSTOM_SCALAR_DIRECTIVE_NAME
+            ))
+            .expect_string_literal();
+        custom_scalars.insert((export_name, PathBuf::from(path.lookup())));
+        return AST::RawType(scalar_name.item.0);
+    }
+    // TODO: We could implement custom variables that are provided via the
+    // config by inserting them into the schema with directives, thus avoiding
+    // having two different ways to express typed custom scalars internally.
     if let Some(custom_scalar) = typegen_context
         .project_config
         .typegen_config

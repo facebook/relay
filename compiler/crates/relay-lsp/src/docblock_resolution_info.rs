@@ -69,8 +69,39 @@ pub fn create_docblock_resolution_info(
 
             Err(LSPRuntimeError::ExpectedError)
         }
-        DocblockIr::StrongObjectResolver(_) => Err(LSPRuntimeError::UnexpectedError(
-            "TODO: Implement support for strong object.".to_owned(),
-        )),
+        DocblockIr::StrongObjectResolver(strong_object) => {
+            if strong_object.type_.value.location.contains(position_span) {
+                return Ok(DocblockResolutionInfo::OnType(
+                    strong_object.type_.value.item,
+                ));
+            }
+
+            if let Some(deprecated) = strong_object.deprecated {
+                if deprecated.key_location.contains(position_span) {
+                    return Ok(DocblockResolutionInfo::Deprecated);
+                }
+            }
+            Err(LSPRuntimeError::ExpectedError)
+        }
+        DocblockIr::WeakObjectType(weak_type_ir) => {
+            if weak_type_ir
+                .type_name
+                .value
+                .location
+                .contains(position_span)
+            {
+                return Ok(DocblockResolutionInfo::OnType(
+                    weak_type_ir.type_name.value.item,
+                ));
+            }
+
+            if let Some(deprecated) = weak_type_ir.deprecated {
+                if deprecated.key_location.contains(position_span) {
+                    return Ok(DocblockResolutionInfo::Deprecated);
+                }
+            }
+            // TODO: We could provide location mapping for the @weak docblock attribute
+            Err(LSPRuntimeError::ExpectedError)
+        }
     }
 }

@@ -85,6 +85,11 @@ fn get_references_response(
                             "TODO: Implement support for strong object.".to_owned(),
                         ));
                     }
+                    DocblockIr::WeakObjectType(_) => {
+                        return Err(LSPRuntimeError::UnexpectedError(
+                            "TODO: Implement support for weak object.".to_owned(),
+                        ));
+                    }
                 };
 
                 let references = find_field_locations(program, field_name, type_name)

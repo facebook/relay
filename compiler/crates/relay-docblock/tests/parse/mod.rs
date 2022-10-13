@@ -15,6 +15,7 @@ use graphql_syntax::parse_executable;
 use graphql_syntax::ExecutableDefinition;
 use intern::string_key::Intern;
 use relay_docblock::parse_docblock_ast;
+use relay_docblock::ParseOptions;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let js_features = extract_graphql::extract(fixture.content);
@@ -54,7 +55,17 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                         index: i as u16,
                     },
                 )
-                .and_then(|ast| parse_docblock_ast(&ast, Some(&executable_documents)))
+                .and_then(|ast| {
+                    parse_docblock_ast(
+                        &ast,
+                        Some(&executable_documents),
+                        ParseOptions {
+                            use_named_imports: fixture
+                                .content
+                                .contains("// relay:use_named_imports"),
+                        },
+                    )
+                })
                 .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics)),
             ),
         })

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ae6f8fbc9f0d5ef389cba354982ec169>>
+ * @generated SignedSource<<4bf1e2d6bf147bdfbf0b6d9c763f2289>>
  */
 
 mod to_schema;
@@ -66,6 +66,13 @@ fn relay_resolver_implementing_a_field_defined_by_parent_interface() {
     let input = include_str!("to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-parent-interface.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-parent-interface.expected");
     test_fixture(transform_fixture, "relay-resolver-implementing-a-field-defined-by-parent-interface.js", "to_schema/fixtures/relay-resolver-implementing-a-field-defined-by-parent-interface.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_named_export() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-named-export.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-named-export.expected");
+    test_fixture(transform_fixture, "relay-resolver-named-export.js", "to_schema/fixtures/relay-resolver-named-export.expected", input, expected);
 }
 
 #[test]

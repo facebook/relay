@@ -140,6 +140,7 @@ pub struct RelayResolverIr {
     pub live: Option<IrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
+    pub named_import: Option<StringKey>,
 }
 
 impl RelayResolverIr {

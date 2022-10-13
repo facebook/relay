@@ -43,6 +43,11 @@ use lazy_static::lazy_static;
 
 use crate::errors::ErrorMessages;
 
+#[derive(Default)]
+pub struct ParseOptions {
+    pub use_named_imports: bool,
+}
+
 lazy_static! {
     static ref RELAY_RESOLVER_FIELD: StringKey = "RelayResolver".intern();
     static ref FIELD_NAME_FIELD: StringKey = "fieldName".intern();
@@ -63,12 +68,13 @@ lazy_static! {
 pub fn parse_docblock_ast(
     ast: &DocblockAST,
     definitions: Option<&Vec<ExecutableDefinition>>,
+    parse_options: ParseOptions,
 ) -> DiagnosticsResult<Option<DocblockIr>> {
     if ast.find_field(*RELAY_RESOLVER_FIELD).is_none() {
         return Ok(None);
     }
 
-    let parser = RelayResolverParser::new();
+    let parser = RelayResolverParser::new(parse_options);
     let resolver_ir = parser.parse(ast, definitions)?;
     Ok(Some(DocblockIr::RelayResolver(resolver_ir)))
 }
@@ -81,10 +87,11 @@ struct RelayResolverParser {
     description: Option<WithLocation<StringKey>>,
     allowed_fields: Vec<StringKey>,
     errors: Vec<Diagnostic>,
+    options: ParseOptions,
 }
 
 impl RelayResolverParser {
-    fn new() -> Self {
+    fn new(options: ParseOptions) -> Self {
         Self {
             fields: Default::default(),
             description: Default::default(),
@@ -100,6 +107,7 @@ impl RelayResolverParser {
                 *LIVE_FIELD,
                 *OUTPUT_TYPE_FIELD,
             ],
+            options,
         }
     }
     fn parse(
@@ -186,6 +194,10 @@ impl RelayResolverParser {
                 }
             }
         }
+        // For the initial version the name of the export have to match
+        // the name of the resolver field. Adding JS parser capabilities will allow
+        // us to derive the name of the export from the source.
+        let named_import = self.options.use_named_imports.then_some(field.name.value);
 
         Ok(RelayResolverIr {
             field,
@@ -198,6 +210,7 @@ impl RelayResolverParser {
             deprecated,
             live,
             fragment_arguments,
+            named_import,
         })
     }
 

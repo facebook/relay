@@ -6,12 +6,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+// relay:use_named_imports
+
 /**
  * @RelayResolver
  *
  * @onType User
  * @fieldName favorite_page
- * @edgeTo Page
  * @rootFragment myRootFragment
  *
  * The user's favorite page! They probably clicked something in the UI
@@ -22,7 +23,7 @@
 
 graphql`
   fragment myRootFragment on User {
-    name
+    id
   }
 `
 ==================================== OUTPUT ===================================
@@ -41,50 +42,34 @@ RelayResolver(
         },
         on: Type(
             PopulatedIrField {
-                key_location: /path/to/test/fixture/relay-resolver.js:27:33,
+                key_location: /path/to/test/fixture/relay-resolver-named-export.js:27:33,
                 value: WithLocation {
-                    location: /path/to/test/fixture/relay-resolver.js:34:38,
+                    location: /path/to/test/fixture/relay-resolver-named-export.js:34:38,
                     item: "User",
                 },
             },
         ),
         root_fragment: Some(
             WithLocation {
-                location: /path/to/test/fixture/relay-resolver.js:100:114,
+                location: /path/to/test/fixture/relay-resolver-named-export.js:84:98,
                 item: FragmentDefinitionName(
                     "myRootFragment",
                 ),
             },
         ),
-        output_type: Some(
-            EdgeTo(
-                WithLocation {
-                    location: /path/to/test/fixture/relay-resolver.js:78:82,
-                    item: Named(
-                        NamedTypeAnnotation {
-                            name: Identifier {
-                                span: 78:82,
-                                token: Token {
-                                    span: 78:82,
-                                    kind: Identifier,
-                                },
-                                value: "Page",
-                            },
-                        },
-                    ),
-                },
-            ),
-        ),
+        output_type: None,
         description: Some(
             WithLocation {
-                location: /path/to/test/fixture/relay-resolver.js:117:408,
+                location: /path/to/test/fixture/relay-resolver-named-export.js:101:392,
                 item: "\nThe user's favorite page! They probably clicked something in the UI\nto tell us that it was their favorite page and then we put that in a\ndatabase or something. Then we got that info out again and put it out\nagain. Anyway, I'm rambling now. Its a page that the user likes. A lot.",
             },
         ),
         deprecated: None,
         live: None,
-        location: /path/to/test/fixture/relay-resolver.js:0:409,
+        location: /path/to/test/fixture/relay-resolver-named-export.js:0:393,
         fragment_arguments: None,
-        named_import: None,
+        named_import: Some(
+            "favorite_page",
+        ),
     },
 )

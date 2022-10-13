@@ -68,6 +68,8 @@ lazy_static! {
         ArgumentName("fragment_name".intern());
     pub static ref RELAY_RESOLVER_IMPORT_PATH_ARGUMENT_NAME: ArgumentName =
         ArgumentName("import_path".intern());
+    pub static ref RELAY_RESOLVER_IMPORT_NAME_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("import_name".intern());
     pub static ref RELAY_RESOLVER_LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
     pub static ref RELAY_RESOLVER_IS_OUTPUT_TYPE: ArgumentName =
         ArgumentName("has_output_type".intern());
@@ -84,6 +86,7 @@ pub struct ResolverNormalizationInfo {
 struct RelayResolverFieldMetadata {
     field_parent_type: StringKey,
     import_path: StringKey,
+    import_name: Option<StringKey>,
     fragment_name: Option<FragmentDefinitionName>,
     field_path: StringKey,
     live: bool,
@@ -95,6 +98,7 @@ associated_data_impl!(RelayResolverFieldMetadata);
 pub struct RelayResolverMetadata {
     pub field_parent_type: StringKey,
     pub import_path: StringKey,
+    pub import_name: Option<StringKey>,
     pub field_name: StringKey,
     pub field_alias: Option<StringKey>,
     pub field_path: StringKey,
@@ -103,6 +107,16 @@ pub struct RelayResolverMetadata {
     pub normalization_info: Option<ResolverNormalizationInfo>,
 }
 associated_data_impl!(RelayResolverMetadata);
+
+impl RelayResolverMetadata {
+    pub fn generate_local_resolver_name(&self) -> StringKey {
+        to_camel_case(format!(
+            "{}_{}_resolver",
+            self.field_parent_type, self.field_name
+        ))
+        .intern()
+    }
+}
 
 /// Convert fields with attached Relay Resolver metadata into the fragment
 /// spread of their data dependencies (root fragment). Their
@@ -165,6 +179,7 @@ impl<'program> RelayResolverSpreadTransform<'program> {
             let resolver_metadata = RelayResolverMetadata {
                 field_parent_type: field_metadata.field_parent_type,
                 import_path: field_metadata.import_path,
+                import_name: field_metadata.import_name,
                 field_name: self.program.schema.field(field.definition().item).name.item,
                 field_alias: field.alias().map(|alias| alias.item),
                 field_path: field_metadata.field_path,
@@ -313,6 +328,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                 Ok(ResolverInfo {
                     fragment_name,
                     import_path,
+                    import_name,
                     live,
                     has_output_type,
                 }) => {
@@ -361,6 +377,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
 
                     let resolver_field_metadata = RelayResolverFieldMetadata {
                         import_path,
+                        import_name,
                         field_parent_type: self.program.schema.get_type_name(parent_type),
                         fragment_name,
                         field_path: self.path.join(".").intern(),
@@ -479,6 +496,7 @@ impl Transformer for RelayResolverFieldTransform<'_> {
 struct ResolverInfo {
     fragment_name: Option<FragmentDefinitionName>,
     import_path: StringKey,
+    import_name: Option<StringKey>,
     live: bool,
     has_output_type: bool,
 }
@@ -510,9 +528,17 @@ fn get_resolver_info(
             let live = get_bool_argument_is_true(arguments, *RELAY_RESOLVER_LIVE_ARGUMENT_NAME);
             let has_output_type =
                 get_bool_argument_is_true(arguments, *RELAY_RESOLVER_IS_OUTPUT_TYPE);
+            let import_name = get_argument_value(
+                arguments,
+                *RELAY_RESOLVER_IMPORT_NAME_ARGUMENT_NAME,
+                error_location,
+            )
+            .ok();
+
             Ok(ResolverInfo {
                 fragment_name,
                 import_path,
+                import_name,
                 live,
                 has_output_type,
             })
@@ -579,4 +605,21 @@ pub fn get_resolver_fragment_name(field: &Field) -> Option<FragmentDefinitionNam
                 .named(*RELAY_RESOLVER_FRAGMENT_ARGUMENT_NAME)
         })
         .and_then(|arg| arg.value.get_string_literal().map(FragmentDefinitionName))
+}
+
+fn to_camel_case(non_camelized_string: String) -> String {
+    let mut camelized_string = String::with_capacity(non_camelized_string.len());
+    let mut last_character_was_not_alphanumeric = false;
+    for (i, ch) in non_camelized_string.chars().enumerate() {
+        if !ch.is_alphanumeric() {
+            last_character_was_not_alphanumeric = true;
+        } else if last_character_was_not_alphanumeric {
+            camelized_string.push(ch.to_ascii_uppercase());
+            last_character_was_not_alphanumeric = false;
+        } else {
+            camelized_string.push(if i == 0 { ch.to_ascii_lowercase() } else { ch });
+            last_character_was_not_alphanumeric = false;
+        }
+    }
+    camelized_string
 }

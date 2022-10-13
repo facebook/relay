@@ -1,0 +1,46 @@
+==================================== INPUT ====================================
+fragment relayResolverNamedImport_PopStarNameResolverFragment_name on User {
+  name
+}
+
+query relayResolverNamedImport_Query {
+  me {
+    pop_star_name
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: Int @relay_resolver(fragment_name: "relayResolverNamedImport_PopStarNameResolverFragment_name", import_path: "./foo/bar/baz/PopStarNameResolver.js", import_name: "pop_star_name")
+}
+==================================== OUTPUT ===================================
+import type { relayResolverNamedImport_PopStarNameResolverFragment_name$key } from "relayResolverNamedImport_PopStarNameResolverFragment_name.graphql";
+import {pop_star_name as userPopStarNameResolver} from "PopStarNameResolver";
+// Type assertion validating that `userPopStarNameResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userPopStarNameResolver: (
+  rootKey: relayResolverNamedImport_PopStarNameResolverFragment_name$key, 
+) => mixed);
+export type relayResolverNamedImport_Query$variables = {||};
+export type relayResolverNamedImport_Query$data = {|
+  +me: ?{|
+    +pop_star_name: ?$Call<<R>((...empty[]) => R) => R, typeof userPopStarNameResolver>,
+  |},
+|};
+export type relayResolverNamedImport_Query = {|
+  response: relayResolverNamedImport_Query$data,
+  variables: relayResolverNamedImport_Query$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type relayResolverNamedImport_PopStarNameResolverFragment_name$fragmentType: FragmentType;
+export type relayResolverNamedImport_PopStarNameResolverFragment_name$data = {|
+  +name: ?string,
+  +$fragmentType: relayResolverNamedImport_PopStarNameResolverFragment_name$fragmentType,
+|};
+export type relayResolverNamedImport_PopStarNameResolverFragment_name$key = {
+  +$data?: relayResolverNamedImport_PopStarNameResolverFragment_name$data,
+  +$fragmentSpreads: relayResolverNamedImport_PopStarNameResolverFragment_name$fragmentType,
+  ...
+};

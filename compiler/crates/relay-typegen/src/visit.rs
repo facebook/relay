@@ -62,6 +62,7 @@ use crate::typegen_state::EncounteredFragments;
 use crate::typegen_state::GeneratedInputObject;
 use crate::typegen_state::ImportedRawResponseTypes;
 use crate::typegen_state::ImportedResolver;
+use crate::typegen_state::ImportedResolverName;
 use crate::typegen_state::ImportedResolvers;
 use crate::typegen_state::InputObjectTypes;
 use crate::typegen_state::MatchFields;
@@ -292,7 +293,7 @@ fn generate_resolver_type(
     imported_raw_response_types: &mut ImportedRawResponseTypes,
     encountered_fragments: &mut EncounteredFragments,
     runtime_imports: &mut RuntimeImports,
-    resolver_name: StringKey,
+    resolver_function_name: StringKey,
     fragment_name: Option<FragmentDefinitionName>,
     resolver_metadata: &RelayResolverMetadata,
 ) -> AST {
@@ -387,14 +388,10 @@ fn generate_resolver_type(
     };
 
     AST::AssertFunctionType(FunctionTypeAssertion {
-        function_name: resolver_name,
+        function_name: resolver_function_name,
         arguments: resolver_arguments,
         return_type: Box::new(return_type),
     })
-}
-
-fn generate_local_resolver_name(field_parent_type: StringKey, field_name: StringKey) -> StringKey {
-    to_camel_case(format!("{}_{}_resolver", field_parent_type, field_name)).intern()
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -410,9 +407,15 @@ fn import_relay_resolver_function_type(
     resolver_metadata: &RelayResolverMetadata,
     imported_resolvers: &mut ImportedResolvers,
 ) {
-    let field_name = resolver_metadata.field_name;
-    let local_resolver_name =
-        generate_local_resolver_name(resolver_metadata.field_parent_type, field_name);
+    let local_resolver_name = resolver_metadata.generate_local_resolver_name();
+    let resolver_name = if let Some(name) = resolver_metadata.import_name {
+        ImportedResolverName::Named {
+            name,
+            import_as: local_resolver_name,
+        }
+    } else {
+        ImportedResolverName::Default(local_resolver_name)
+    };
 
     let import_path = typegen_context.project_config.js_module_import_path(
         typegen_context.definition_source_location,
@@ -420,7 +423,7 @@ fn import_relay_resolver_function_type(
     );
 
     let imported_resolver = ImportedResolver {
-        resolver_name: local_resolver_name,
+        resolver_name,
         resolver_type: generate_resolver_type(
             typegen_context,
             input_object_types,
@@ -433,11 +436,12 @@ fn import_relay_resolver_function_type(
             fragment_name,
             resolver_metadata,
         ),
+        import_path,
     };
 
     imported_resolvers
         .0
-        .entry(import_path)
+        .entry(local_resolver_name)
         .or_insert(imported_resolver);
 }
 
@@ -472,8 +476,7 @@ fn visit_relay_resolver(
     let field_name = resolver_metadata.field_name;
     let key = resolver_metadata.field_alias.unwrap_or(field_name);
     let live = resolver_metadata.live;
-    let local_resolver_name =
-        generate_local_resolver_name(resolver_metadata.field_parent_type, field_name);
+    let local_resolver_name = resolver_metadata.generate_local_resolver_name();
 
     let mut inner_value = Box::new(AST::ReturnTypeOfFunctionWithName(local_resolver_name));
 
@@ -2122,24 +2125,6 @@ fn apply_required_directive_nullability(
         Some(_) => bubbled_type.non_null(),
         None => bubbled_type,
     }
-}
-
-/// Converts a `String` to a camel case `String`
-fn to_camel_case(non_camelized_string: String) -> String {
-    let mut camelized_string = String::with_capacity(non_camelized_string.len());
-    let mut last_character_was_not_alphanumeric = false;
-    for (i, ch) in non_camelized_string.chars().enumerate() {
-        if !ch.is_alphanumeric() {
-            last_character_was_not_alphanumeric = true;
-        } else if last_character_was_not_alphanumeric {
-            camelized_string.push(ch.to_ascii_uppercase());
-            last_character_was_not_alphanumeric = false;
-        } else {
-            camelized_string.push(if i == 0 { ch.to_ascii_lowercase() } else { ch });
-            last_character_was_not_alphanumeric = false;
-        }
-    }
-    camelized_string
 }
 
 fn get_type_condition_info(fragment_spread: &FragmentSpread) -> Option<TypeConditionInfo> {

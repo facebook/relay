@@ -358,6 +358,13 @@ pub trait Writer: Write {
 
     fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult;
 
+    fn write_import_module_named(
+        &mut self,
+        name: &str,
+        import_as: Option<&str>,
+        from: &str,
+    ) -> FmtResult;
+
     fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult;
 
     fn write_import_fragment_type(&mut self, types: &[&str], from: &str) -> FmtResult;

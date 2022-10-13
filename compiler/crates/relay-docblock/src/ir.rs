@@ -57,6 +57,7 @@ lazy_static! {
         DirectiveName("deprecated".intern());
     static ref FRAGMENT_KEY_ARGUMENT_NAME: ArgumentName = ArgumentName("fragment_name".intern());
     static ref IMPORT_PATH_ARGUMENT_NAME: ArgumentName = ArgumentName("import_path".intern());
+    static ref IMPORT_NAME_ARGUMENT_NAME: ArgumentName = ArgumentName("import_name".intern());
     static ref LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
     static ref DEPRECATED_REASON_ARGUMENT_NAME: ArgumentName = ArgumentName("reason".intern());
     static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
@@ -457,6 +458,12 @@ impl RelayResolverIr {
                 HAS_OUTPUT_TYPE_ARGUMENT_NAME.0,
                 type_.location,
             ))
+        }
+        if let Some(name) = self.named_import {
+            arguments.push(string_argument(
+                IMPORT_NAME_ARGUMENT_NAME.0,
+                WithLocation::new(self.location, name),
+            ));
         }
 
         ConstantDirective {

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e232ace0821214978dee9b7a7539ff13>>
+ * @generated SignedSource<<1b6f8341c41090db14cb3d5b52f0cbdd>>
  */
 
 mod compile_relay_artifacts;
@@ -1088,6 +1088,20 @@ fn relay_resolver_backing_client_edge() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.expected");
     test_fixture(transform_fixture, "relay-resolver-backing-client-edge.graphql", "compile_relay_artifacts/fixtures/relay-resolver-backing-client-edge.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_es_modules() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-es-modules.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-es-modules.expected");
+    test_fixture(transform_fixture, "relay-resolver-es-modules.graphql", "compile_relay_artifacts/fixtures/relay-resolver-es-modules.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_named_import() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-named-import.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-named-import.expected");
+    test_fixture(transform_fixture, "relay-resolver-named-import.graphql", "compile_relay_artifacts/fixtures/relay-resolver-named-import.expected", input, expected);
 }
 
 #[test]

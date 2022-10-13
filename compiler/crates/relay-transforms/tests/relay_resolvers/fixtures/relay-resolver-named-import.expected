@@ -1,6 +1,6 @@
 ==================================== INPUT ====================================
 fragment Foo_user on User {
-  pop_star_name @required(action: THROW)
+  pop_star_name
 }
 
 fragment PopStarNameResolverFragment_name on User {
@@ -16,7 +16,7 @@ fragment PopStarNameResolverFragment_name on User {
 # %extensions%
 
 extend type User {
-  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", import_name: "pop_star_name")
 }
 ==================================== OUTPUT ===================================
 fragment Foo_user on User {
@@ -24,7 +24,9 @@ fragment Foo_user on User {
   # RelayResolverMetadata {
   #     field_parent_type: "User",
   #     import_path: "PopStarNameResolver",
-  #     import_name: None,
+  #     import_name: Some(
+  #         "pop_star_name",
+  #     ),
   #     field_name: "pop_star_name",
   #     field_alias: None,
   #     field_path: "pop_star_name",
@@ -32,7 +34,7 @@ fragment Foo_user on User {
   #     live: false,
   #     normalization_info: None,
   # }
-   @required(action: THROW)
+  
 }
 
 fragment PopStarNameResolverFragment_name on User {

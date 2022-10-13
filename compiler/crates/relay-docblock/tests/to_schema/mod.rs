@@ -65,6 +65,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             Some(&executable_documents),
             ParseOptions {
                 use_named_imports: fixture.content.contains("// relay:use_named_imports"),
+                relay_resolver_model_syntax_enabled: !fixture
+                    .content
+                    .contains("// relay:disable_relay_resolver_model_syntax"),
             },
         )?
         .unwrap();

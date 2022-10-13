@@ -69,5 +69,8 @@ pub fn create_docblock_resolution_info(
 
             Err(LSPRuntimeError::ExpectedError)
         }
+        DocblockIr::StrongObjectResolver(_) => Err(LSPRuntimeError::UnexpectedError(
+            "TODO: Implement support for strong object.".to_owned(),
+        )),
     }
 }

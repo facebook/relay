@@ -80,6 +80,11 @@ fn get_references_response(
                         On::Type(type_) => type_.value.item,
                         On::Interface(interface) => interface.value.item,
                     },
+                    DocblockIr::StrongObjectResolver(_) => {
+                        return Err(LSPRuntimeError::UnexpectedError(
+                            "TODO: Implement support for strong object.".to_owned(),
+                        ));
+                    }
                 };
 
                 let references = find_field_locations(program, field_name, type_name)

@@ -67,12 +67,14 @@ lazy_static! {
 #[derive(Debug, PartialEq)]
 pub enum DocblockIr {
     RelayResolver(RelayResolverIr),
+    StrongObjectResolver(StrongObjectIr),
 }
 
 impl DocblockIr {
     pub fn to_sdl_string(&self, schema: &SDLSchema) -> DiagnosticsResult<String> {
         match self {
             DocblockIr::RelayResolver(relay_resolver) => relay_resolver.to_sdl_string(schema),
+            DocblockIr::StrongObjectResolver(_) => todo!(),
         }
     }
     pub fn to_graphql_schema_ast(&self, schema: &SDLSchema) -> DiagnosticsResult<SchemaDocument> {
@@ -80,6 +82,7 @@ impl DocblockIr {
             DocblockIr::RelayResolver(relay_resolver) => {
                 relay_resolver.to_graphql_schema_ast(schema)
             }
+            DocblockIr::StrongObjectResolver(_) => todo!(),
         }
     }
 }
@@ -141,6 +144,18 @@ pub struct RelayResolverIr {
     pub live: Option<IrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
+    pub named_import: Option<StringKey>,
+}
+
+/// Relay Resolver ID representing a "model" of a strong object
+#[derive(Debug, PartialEq)]
+pub struct StrongObjectIr {
+    pub type_: PopulatedIrField,
+    pub root_fragment: WithLocation<FragmentDefinitionName>,
+    pub description: Option<WithLocation<StringKey>>,
+    pub deprecated: Option<IrField>,
+    pub live: Option<IrField>,
+    pub location: Location,
     pub named_import: Option<StringKey>,
 }
 

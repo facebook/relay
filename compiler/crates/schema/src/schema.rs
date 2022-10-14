@@ -304,6 +304,17 @@ impl SDLSchema {
         }
     }
 
+    pub fn add_extension_object(
+        &mut self,
+        object: ObjectTypeDefinition,
+        location_key: SourceLocationKey,
+    ) -> DiagnosticsResult<()> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::InMemory(schema) => schema.add_extension_object(object, location_key),
+        }
+    }
+
     pub fn unwrap_in_memory_impl(self) -> InMemorySchema {
         match self {
             SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),

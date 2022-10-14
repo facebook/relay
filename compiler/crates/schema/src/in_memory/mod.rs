@@ -1026,6 +1026,32 @@ impl InMemorySchema {
         )
     }
 
+    /// Add additional client-only (extension) object
+    pub fn add_extension_object(
+        &mut self,
+        extension_object: ObjectTypeDefinition,
+        location_key: SourceLocationKey,
+    ) -> DiagnosticsResult<()> {
+        let object_name = extension_object.name.name_with_location(location_key);
+
+        if self.type_map.contains_key(&object_name.item) {
+            return Err(vec![Diagnostic::error(
+                SchemaError::DuplicateType(object_name.item),
+                object_name.location,
+            )]);
+        }
+
+        let object_id = Type::Object(ObjectID(self.objects.len() as u32));
+        self.type_map.insert(object_name.item, object_id);
+        self.add_definition(
+            &TypeSystemDefinition::ObjectTypeDefinition(extension_object),
+            &location_key,
+            true,
+        )?;
+
+        Ok(())
+    }
+
     fn add_definition(
         &mut self,
         definition: &TypeSystemDefinition,

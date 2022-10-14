@@ -72,6 +72,7 @@ lazy_static! {
     static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
         ArgumentName("has_output_type".intern());
     pub(crate) static ref ID_FIELD_NAME: StringKey = "id".intern();
+    pub(crate) static ref RESOLVER_VALUE_SCALAR_NAME: StringKey = "RelayResolverValue".intern();
     static ref RESOLVER_MODEL_INSTANCE_FIELD_NAME: StringKey = "__relay_model_instance".intern();
     static ref MODEL_CUSTOM_SCALAR_TYPE_PREFIX: StringKey = "Model".intern();
 }
@@ -479,11 +480,11 @@ impl RelayResolverIr {
         let edge_to = self.output_type.as_ref().map_or_else(
             || {
                 // Resolvers return arbitrary JavaScript values. However, we
-                // need some GraphQL type to use in the schema. As a placeholder
-                // we arbitrarily use Int. In the future we may want to use a custom
-                // scalar here.
+                // need some GraphQL type to use in the schema. We use
+                // `RelayResolverValue` (defined in the relay-extensions.graphql
+                // file) for this purpose.
                 TypeAnnotation::Named(NamedTypeAnnotation {
-                    name: string_key_as_identifier(*INT_TYPE),
+                    name: string_key_as_identifier(*RESOLVER_VALUE_SCALAR_NAME),
                 })
             },
             |output_type| output_type.inner().item.clone(),

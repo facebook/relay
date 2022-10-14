@@ -256,4 +256,15 @@ pub trait Schema {
             panic!("Unknown directive {}.", name.0.lookup())
         }
     }
+
+    fn directives_for_type(&self, type_: Type) -> &Vec<DirectiveValue> {
+        match type_ {
+            Type::Enum(id) => &self.enum_(id).directives,
+            Type::InputObject(id) => &self.input_object(id).directives,
+            Type::Interface(id) => &self.interface(id).directives,
+            Type::Object(id) => &self.object(id).directives,
+            Type::Scalar(id) => &self.scalar(id).directives,
+            Type::Union(id) => &self.union(id).directives,
+        }
+    }
 }

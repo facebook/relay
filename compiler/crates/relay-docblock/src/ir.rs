@@ -65,6 +65,8 @@ lazy_static! {
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("deprecated".intern());
     static ref FRAGMENT_KEY_ARGUMENT_NAME: ArgumentName = ArgumentName("fragment_name".intern());
+    static ref INJECT_FRAGMENT_DATA_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("inject_fragment_data".intern());
     static ref IMPORT_PATH_ARGUMENT_NAME: ArgumentName = ArgumentName("import_path".intern());
     static ref IMPORT_NAME_ARGUMENT_NAME: ArgumentName = ArgumentName("import_name".intern());
     static ref LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
@@ -153,10 +155,24 @@ impl OutputType {
     }
 }
 
+pub enum FragmentDataInjectionMode {
+    /// For `id` and `__relay_model_instance ` resolvers we want to read just one field
+    /// of that fragment and pass it to the resolver
+    Field(StringKey),
+    // TODO: Add `FullData` mode for this
+}
+
+pub struct RootFragment {
+    fragment: WithLocation<FragmentDefinitionName>,
+    // For Model resolvers we need to inject `id` , `__relay_model_instance ` fragment data
+    // the resolver function
+    inject_fragment_data: Option<FragmentDataInjectionMode>,
+}
+
 trait ResolverIr {
     fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>>;
     fn location(&self) -> Location;
-    fn root_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>>;
+    fn root_fragment(&self) -> Option<RootFragment>;
     fn output_type(&self) -> Option<&OutputType>;
     fn deprecated(&self) -> Option<IrField>;
     fn live(&self) -> Option<IrField>;
@@ -203,8 +219,19 @@ trait ResolverIr {
         if let Some(root_fragment) = self.root_fragment() {
             arguments.push(string_argument(
                 FRAGMENT_KEY_ARGUMENT_NAME.0,
-                root_fragment.map(|x| x.0),
+                root_fragment.fragment.map(|x| x.0),
             ));
+
+            if let Some(inject_fragment_data) = root_fragment.inject_fragment_data {
+                match inject_fragment_data {
+                    FragmentDataInjectionMode::Field(field_name) => {
+                        arguments.push(string_argument(
+                            INJECT_FRAGMENT_DATA_ARGUMENT_NAME.0,
+                            WithLocation::new(root_fragment.fragment.location, field_name),
+                        ));
+                    }
+                }
+            }
         }
 
         if let Some(live_field) = self.live() {
@@ -332,8 +359,11 @@ impl ResolverIr for RelayResolverIr {
         self.location
     }
 
-    fn root_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>> {
-        self.root_fragment
+    fn root_fragment(&self) -> Option<RootFragment> {
+        self.root_fragment.map(|fragment| RootFragment {
+            fragment,
+            inject_fragment_data: None,
+        })
     }
 
     fn output_type(&self) -> Option<&OutputType> {
@@ -585,8 +615,11 @@ impl ResolverIr for StrongObjectIr {
         self.location
     }
 
-    fn root_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>> {
-        Some(self.root_fragment)
+    fn root_fragment(&self) -> Option<RootFragment> {
+        Some(RootFragment {
+            fragment: self.root_fragment,
+            inject_fragment_data: Some(FragmentDataInjectionMode::Field(*ID_FIELD_NAME)),
+        })
     }
 
     fn output_type(&self) -> Option<&OutputType> {
@@ -720,7 +753,7 @@ impl ResolverIr for WeakObjectIr {
         self.location
     }
 
-    fn root_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>> {
+    fn root_fragment(&self) -> Option<RootFragment> {
         None
     }
 

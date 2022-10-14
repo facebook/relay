@@ -67,7 +67,7 @@ describe('executeSubscrption() with @stream', () => {
       fragment RelayModernEnvironmentExecuteSubscriptionWithStreamTestFeedbackFragment on Feedback {
         id
         actors @stream(label: "actors", initial_count: 0) {
-          name @__clientField(handle: "name_handler")
+          name @_clientField(handle: "name_handler")
         }
       }
     `;

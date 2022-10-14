@@ -24,7 +24,7 @@ describe('cloneRelayScalarHandleSourceField()', () => {
       query cloneRelayScalarHandleSourceFieldTestQuery {
         me {
           address {
-            street @__clientField(handle: "test")
+            street @_clientField(handle: "test")
           }
         }
       }

@@ -479,12 +479,12 @@ describe('RelayReader', () => {
       ) {
         node(id: $id) {
           ... on User {
-            friends(first: 1) @__clientField(handle: "bestFriends") {
+            friends(first: 1) @_clientField(handle: "bestFriends") {
               edges {
                 cursor
                 node {
                   id
-                  name @__clientField(handle: "friendsName")
+                  name @_clientField(handle: "friendsName")
                 }
               }
             }
@@ -550,12 +550,12 @@ describe('RelayReader', () => {
     source = RelayRecordSource.create(records);
     const UserFriends = graphql`
       fragment RelayReaderTestReadsHandleFieldsForFragmentsUserFriends on User {
-        friends(first: 1) @__clientField(handle: "bestFriends") {
+        friends(first: 1) @_clientField(handle: "bestFriends") {
           edges {
             cursor
             node {
               id
-              name @__clientField(handle: "friendsName")
+              name @_clientField(handle: "friendsName")
             }
           }
         }

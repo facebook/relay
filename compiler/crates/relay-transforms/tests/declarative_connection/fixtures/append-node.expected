@@ -18,7 +18,7 @@ mutation CommentCreateMutation(
   $input: CommentCreateInput
 ) {
   commentCreate(input: $input) {
-    comment @__clientField(key: "", handle: "appendNode", filters: null, dynamicKey_UNSTABLE: null, handleArgs: {connections: $connections, edgeTypeName: $edgeTypeName}) {
+    comment @_clientField(key: "", handle: "appendNode", filters: null, dynamicKey_UNSTABLE: null, handleArgs: {connections: $connections, edgeTypeName: $edgeTypeName}) {
       id
     }
   }

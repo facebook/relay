@@ -1,8 +1,8 @@
 ==================================== INPUT ====================================
 fragment ScalarHandleField on User {
   name
-    @__clientField(handle: "clientName")
-    @__clientField(handle: "clientName2")
+    @_clientField(handle: "clientName")
+    @_clientField(handle: "clientName2")
 }
 ==================================== OUTPUT ===================================
 [
@@ -31,7 +31,7 @@ fragment ScalarHandleField on User {
                             name: WithLocation {
                                 location: scalar-handle-field.graphql:48:62,
                                 item: DirectiveName(
-                                    "__clientField",
+                                    "_clientField",
                                 ),
                             },
                             arguments: [
@@ -58,7 +58,7 @@ fragment ScalarHandleField on User {
                             name: WithLocation {
                                 location: scalar-handle-field.graphql:89:103,
                                 item: DirectiveName(
-                                    "__clientField",
+                                    "_clientField",
                                 ),
                             },
                             arguments: [

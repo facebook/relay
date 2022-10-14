@@ -79,7 +79,7 @@ describe('execute() a query with nested @stream', () => {
                     if: $enableStream
                     initial_count: 0
                   ) {
-                  name @__clientField(handle: "name_handler")
+                  name @_clientField(handle: "name_handler")
                 }
               }
             }
@@ -91,7 +91,7 @@ describe('execute() a query with nested @stream', () => {
     actorFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithNestedStreamTestActorFragment on User {
         # keep in sync with above
-        name @__clientField(handle: "name_handler")
+        name @_clientField(handle: "name_handler")
       }
     `;
     variables = {enableStream: true};

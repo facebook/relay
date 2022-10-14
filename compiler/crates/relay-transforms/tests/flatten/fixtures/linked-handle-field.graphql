@@ -1,14 +1,14 @@
 fragment LinkedHandleField on User {
-  friends(first: 10) @__clientField(handle: "clientFriends") {
+  friends(first: 10) @_clientField(handle: "clientFriends") {
     count
   }
   ... on User {
     # should be de-duped
-    friends(first: 10) @__clientField(handle: "clientFriends") {
+    friends(first: 10) @_clientField(handle: "clientFriends") {
       count
     }
     ... on User {
-      friends(first: 10) @__clientField(handle: "recentFriends") {
+      friends(first: 10) @_clientField(handle: "recentFriends") {
         count
       }
     }

@@ -206,7 +206,7 @@ describe('RelayStoreUtils', () => {
         query RelayStoreUtilsTest1Query {
           me {
             address
-              @__clientField(
+              @_clientField(
                 key: "UserQuery_address"
                 handle: "addressHandler"
               ) {
@@ -227,7 +227,7 @@ describe('RelayStoreUtils', () => {
         query RelayStoreUtilsTest2Query {
           me {
             profile_picture(scale: 42)
-              @__clientField(
+              @_clientField(
                 key: "UserQuery_profile_picture"
                 handle: "photoHandler"
               ) {
@@ -248,7 +248,7 @@ describe('RelayStoreUtils', () => {
         query RelayStoreUtilsTest3Query {
           me {
             profile_picture(scale: 42)
-              @__clientField(
+              @_clientField(
                 key: "UserQuery_profile_picture"
                 handle: "photoHandler"
                 filters: ["scale"]

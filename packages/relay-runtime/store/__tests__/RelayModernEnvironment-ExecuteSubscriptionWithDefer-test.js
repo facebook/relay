@@ -75,7 +75,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           fragment RelayModernEnvironmentExecuteSubscriptionWithDeferTestCommentFragment on Comment {
             id
             actor {
-              name @__clientField(handle: "name_handler")
+              name @_clientField(handle: "name_handler")
             }
           }
         `;

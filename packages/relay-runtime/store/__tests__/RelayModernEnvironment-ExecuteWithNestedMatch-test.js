@@ -94,7 +94,7 @@ describe('execute() a query with nested @match', () => {
         __typename
         markdown
         data {
-          markup @__clientField(handle: "markup_handler")
+          markup @_clientField(handle: "markup_handler")
         }
         user {
           innerRenderer: nameRenderer @match {

@@ -951,8 +951,8 @@ describe('RelayPublishQueue', () => {
       const ActorQuery = graphql`
         query RelayPublishQueueTest3Query {
           me {
-            screennames @__clientField(handle: "handleScreennames") {
-              name @__clientField(handle: "handleName")
+            screennames @_clientField(handle: "handleScreennames") {
+              name @_clientField(handle: "handleName")
             }
           }
         }

@@ -828,7 +828,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         @relay_test_operation {
           viewer {
             actor {
-              name @__clientField(handle: "hello")
+              name @_clientField(handle: "hello")
             }
           }
         }

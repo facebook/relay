@@ -90,7 +90,7 @@ query NodeQuery(
   node(id: $id) {
     id
     ... on Story {
-      forwardComments: comments(first: 1) @__clientField(key: "NodeQuery_forwardComments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
+      forwardComments: comments(first: 1) @_clientField(key: "NodeQuery_forwardComments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
         edges {
           node {
             id
@@ -109,7 +109,7 @@ query NodeQuery(
           }
         }
       }
-      backwardComments: comments(last: 2) @__clientField(key: "NodeQuery_backwardComments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
+      backwardComments: comments(last: 2) @_clientField(key: "NodeQuery_backwardComments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
         edges {
           node {
             id
@@ -128,7 +128,7 @@ query NodeQuery(
           }
         }
       }
-      mixedDirectionComments: comments(last: $last, first: $first) @__clientField(key: "NodeQuery_mixedDirectionComments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
+      mixedDirectionComments: comments(last: $last, first: $first) @_clientField(key: "NodeQuery_mixedDirectionComments", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
         edges {
           node {
             id

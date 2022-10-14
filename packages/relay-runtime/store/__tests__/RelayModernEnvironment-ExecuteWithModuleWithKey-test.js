@@ -104,7 +104,7 @@ describe('execute() a query with @module', () => {
         __typename
         markdown
         data {
-          markup @__clientField(handle: "markup_handler")
+          markup @_clientField(handle: "markup_handler")
         }
       }
     `;

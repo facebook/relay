@@ -68,7 +68,7 @@ describe('execute() a query with @stream', () => {
       fragment RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment on Feedback {
         id
         actors @stream(label: "actors", if: $enableStream, initial_count: 0) {
-          name @__clientField(handle: "name_handler")
+          name @_clientField(handle: "name_handler")
         }
       }
     `;
@@ -76,7 +76,7 @@ describe('execute() a query with @stream', () => {
     actorFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithStreamTestActorFragment on User {
         # keep in sync with above
-        name @__clientField(handle: "name_handler")
+        name @_clientField(handle: "name_handler")
       }
     `;
     variables = {id: '1', enableStream: true};

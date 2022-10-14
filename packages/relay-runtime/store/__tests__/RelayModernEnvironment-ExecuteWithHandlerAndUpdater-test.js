@@ -48,7 +48,7 @@ describe('execute() with handler and updater', () => {
     query = graphql`
       query RelayModernEnvironmentExecuteWithHandlerAndUpdaterTestActorQuery {
         me {
-          name @__clientField(handle: "name_handler")
+          name @_clientField(handle: "name_handler")
         }
       }
     `;

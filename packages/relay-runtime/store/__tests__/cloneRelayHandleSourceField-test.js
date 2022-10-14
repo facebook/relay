@@ -23,7 +23,7 @@ describe('cloneRelayHandleSourceField()', () => {
     const TestQuery = graphql`
       query cloneRelayHandleSourceFieldTestTestQuery {
         me {
-          address @__clientField(handle: "test") {
+          address @_clientField(handle: "test") {
             street
           }
         }

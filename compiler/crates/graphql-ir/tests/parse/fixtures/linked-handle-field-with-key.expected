@@ -1,7 +1,7 @@
 ==================================== INPUT ====================================
 fragment LinkedHandleField on User {
   friends(first: 10)
-    @__clientField(handle: "clientFriends", key: "LinkedHandleField_friends") {
+    @_clientField(handle: "clientFriends", key: "LinkedHandleField_friends") {
     count
   }
 }
@@ -49,7 +49,7 @@ fragment LinkedHandleField on User {
                             name: WithLocation {
                                 location: linked-handle-field-with-key.graphql:62:76,
                                 item: DirectiveName(
-                                    "__clientField",
+                                    "_clientField",
                                 ),
                             },
                             arguments: [

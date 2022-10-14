@@ -92,7 +92,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                     id
                     actors {
                       id
-                      name @__clientField(handle: "name_handler")
+                      name @_clientField(handle: "name_handler")
                     }
                   }
                 }

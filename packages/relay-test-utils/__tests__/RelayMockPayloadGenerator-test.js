@@ -153,8 +153,8 @@ test('generate mock with condition (and other complications)', () => {
           displayNumber
         }
       }
-      emailAddresses @__clientField(handle: "customName")
-      backgroundImage @__clientField(handle: "customBackground") {
+      emailAddresses @_clientField(handle: "customName")
+      backgroundImage @_clientField(handle: "customBackground") {
         uri
       }
     }
@@ -725,7 +725,7 @@ test('generate mock for with directives and handlers', () => {
           id
           pageName: name
         }
-        username @__clientField(handle: "MyUserName")
+        username @_clientField(handle: "MyUserName")
       }
     }
   `;

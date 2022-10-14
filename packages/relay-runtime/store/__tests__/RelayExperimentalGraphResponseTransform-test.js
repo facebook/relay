@@ -756,12 +756,12 @@ it('Ignores "handle" fields (for now)', () => {
         id
         __typename
         ... on User {
-          friends(first: 1) @__clientField(handle: "bestFriends") {
+          friends(first: 1) @_clientField(handle: "bestFriends") {
             edges {
               cursor
               node {
                 id
-                name @__clientField(handle: "friendsName")
+                name @_clientField(handle: "friendsName")
               }
             }
           }

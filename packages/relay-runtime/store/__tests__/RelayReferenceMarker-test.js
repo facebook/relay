@@ -202,12 +202,12 @@ describe('RelayReferenceMarker', () => {
       query RelayReferenceMarkerTest2Query($id: ID!) {
         node(id: $id) {
           ... on User {
-            friends(first: 1) @__clientField(handle: "bestFriends") {
+            friends(first: 1) @_clientField(handle: "bestFriends") {
               edges {
                 cursor
                 node {
                   id
-                  name @__clientField(handle: "friendsName")
+                  name @_clientField(handle: "friendsName")
                 }
               }
             }
@@ -303,7 +303,7 @@ describe('RelayReferenceMarker', () => {
         node(id: $id) {
           ... on User {
             friends(first: 1, orderby: $orderby)
-              @__clientField(
+              @_clientField(
                 handle: "bestFriends"
                 key: "UserProfile_friends"
                 filters: ["orderby"]
@@ -312,7 +312,7 @@ describe('RelayReferenceMarker', () => {
                 cursor
                 node {
                   id
-                  name @__clientField(handle: "friendsName")
+                  name @_clientField(handle: "friendsName")
                 }
               }
             }

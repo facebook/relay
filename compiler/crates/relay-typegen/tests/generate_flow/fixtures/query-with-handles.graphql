@@ -1,7 +1,7 @@
 query LinkedHandleField($id: ID!) @raw_response_type {
   node(id: $id) {
     ... on User {
-      friends(first: 10) @__clientField(handle: "clientFriends") {
+      friends(first: 10) @_clientField(handle: "clientFriends") {
         count
       }
     }
@@ -11,7 +11,7 @@ query LinkedHandleField($id: ID!) @raw_response_type {
 query ScalarHandleField($id: ID!) @raw_response_type {
   node(id: $id) {
     ... on User {
-      name @__clientField(handle: "clientName")
+      name @_clientField(handle: "clientName")
     }
   }
 }

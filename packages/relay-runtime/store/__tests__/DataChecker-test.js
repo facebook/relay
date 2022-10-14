@@ -273,7 +273,7 @@ describe('check()', () => {
     const target = RelayRecordSource.create();
     const Fragment = graphql`
       fragment DataCheckerTest1Fragment on User {
-        profilePicture(size: 32) @__clientField(handle: "test") {
+        profilePicture(size: 32) @_clientField(handle: "test") {
           uri
         }
       }
@@ -318,7 +318,7 @@ describe('check()', () => {
     const target = RelayRecordSource.create();
     const Fragment = graphql`
       fragment DataCheckerTest2Fragment on User {
-        profilePicture(size: 32) @__clientField(handle: "test") {
+        profilePicture(size: 32) @_clientField(handle: "test") {
           uri
         }
       }
@@ -364,7 +364,7 @@ describe('check()', () => {
     const target = RelayRecordSource.create();
     const Fragment = graphql`
       fragment DataCheckerTest3Fragment on User {
-        profilePicture(size: 32) @__clientField(handle: "test") {
+        profilePicture(size: 32) @_clientField(handle: "test") {
           uri
         }
       }
@@ -418,7 +418,7 @@ describe('check()', () => {
     const ProfilePictureQuery = graphql`
       query DataCheckerTest1Query {
         me {
-          profilePicture(size: 32) @__clientField(handle: "test") {
+          profilePicture(size: 32) @_clientField(handle: "test") {
             uri
           }
         }
@@ -477,7 +477,7 @@ describe('check()', () => {
     const ProfilePictureQuery = graphql`
       query DataCheckerTest7Query {
         me {
-          profilePicture(size: 32) @__clientField(handle: "test") {
+          profilePicture(size: 32) @_clientField(handle: "test") {
             uri
           }
         }
@@ -536,7 +536,7 @@ describe('check()', () => {
     const ProfilePictureQuery = graphql`
       query DataCheckerTest8Query {
         me {
-          profilePicture(size: 32) @__clientField(handle: "test") {
+          profilePicture(size: 32) @_clientField(handle: "test") {
             uri
           }
         }
@@ -591,7 +591,7 @@ describe('check()', () => {
       query DataCheckerTest2Query {
         me {
           profilePicture(size: 32) {
-            uri @__clientField(handle: "test")
+            uri @_clientField(handle: "test")
           }
         }
       }
@@ -644,7 +644,7 @@ describe('check()', () => {
       query DataCheckerTest3Query {
         me {
           profilePicture(size: 32) {
-            uri @__clientField(handle: "test")
+            uri @_clientField(handle: "test")
           }
         }
       }

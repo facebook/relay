@@ -89,7 +89,7 @@ describe('ConnectionHandler', () => {
               first: $count
               orderby: $orderby
             )
-              @__clientField(
+              @_clientField(
                 handle: "connection"
                 filters: ["orderby"]
                 key: "ConnectionQuery_friends"

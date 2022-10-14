@@ -67,15 +67,15 @@ describe('execute() a query with @stream with handler', () => {
         id
         actors
           @stream(label: "actors", if: $enableStream, initial_count: 0)
-          @__clientField(handle: "actors_handler") {
-          name @__clientField(handle: "name_handler")
+          @_clientField(handle: "actors_handler") {
+          name @_clientField(handle: "name_handler")
         }
       }
     `;
     actorFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithStreamWithHandlerTestActorFragment on User {
         # keep in sync with above
-        name @__clientField(handle: "name_handler")
+        name @_clientField(handle: "name_handler")
       }
     `;
     variables = {id: '1', enableStream: true};

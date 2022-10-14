@@ -79,7 +79,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
         __typename
         markdown
         data {
-          markup @__clientField(handle: "markup_handler")
+          markup @_clientField(handle: "markup_handler")
         }
       }
     `;
@@ -88,7 +88,7 @@ describe('execute() multiple queries with overlapping @module-s', () => {
         __typename
         markdown
         data {
-          markup @__clientField(handle: "markup_handler")
+          markup @_clientField(handle: "markup_handler")
         }
       }
     `;

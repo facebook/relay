@@ -71,7 +71,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         fragment = graphql`
           fragment RelayModernEnvironmentExecuteWithDeferTestUserFragment on User {
             id
-            name @__clientField(handle: "name_handler")
+            name @_clientField(handle: "name_handler")
           }
         `;
         variables = {id: '1'};

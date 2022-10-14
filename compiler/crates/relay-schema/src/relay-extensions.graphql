@@ -77,7 +77,7 @@ directive @relay(
 
 # Handles
 # prettier-ignore
-directive @__clientField(
+directive @_clientField(
   filters: [String!]
   handle: String!
   key: String

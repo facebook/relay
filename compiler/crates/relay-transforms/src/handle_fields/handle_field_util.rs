@@ -19,7 +19,7 @@ use lazy_static::lazy_static;
 lazy_static! {
     pub static ref CONNECTION_HANDLER_ARG_NAME: ArgumentName = ArgumentName("handler".intern());
     pub static ref HANDLE_FIELD_DIRECTIVE_NAME: DirectiveName =
-        DirectiveName("__clientField".intern());
+        DirectiveName("_clientField".intern());
     pub static ref HANDLER_ARG_NAME: ArgumentName = ArgumentName("handle".intern());
     pub static ref FILTERS_ARG_NAME: ArgumentName = ArgumentName("filters".intern());
     pub static ref KEY_ARG_NAME: ArgumentName = ArgumentName("key".intern());
@@ -57,7 +57,7 @@ pub fn extract_handle_field_directive_args_for_connection(
 }
 
 /// Helper to extract the values for handle field arguments that are present
-/// on the input handle field directive (e.g. a @__clientField or @connection).
+/// on the input handle field directive (e.g. a @_clientField or @connection).
 /// This function will panic if the expected argument values aren't
 /// present on the directive, with the assumption that the directive
 /// has already been validated.
@@ -72,8 +72,8 @@ pub fn extract_values_from_handle_field_directive(
     )
 }
 
-/// Helper to build an internal, custom handle field directive (@__clientField)
-/// based an input handle field directive that has already been validated (e.g. a @__clientField or @connection).
+/// Helper to build an internal, custom handle field directive (@_clientField)
+/// based an input handle field directive that has already been validated (e.g. a @_clientField or @connection).
 /// This directive will be used to store the appropriate metadata for the handle,
 /// to be later used in codegen.
 /// This function will panic if the expected arguments aren't present on the input directive,

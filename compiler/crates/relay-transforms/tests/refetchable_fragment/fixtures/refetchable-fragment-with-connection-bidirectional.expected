@@ -84,7 +84,7 @@ fragment PaginationFragment on Node @refetchable(queryName: "RefetchableFragment
   id
   ... on User {
     name
-    friends(after: $cursor, first: $count, before: $beforeCursor, last: $lastCount) @__clientField(key: "PaginationFragment_friends", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
+    friends(after: $cursor, first: $count, before: $beforeCursor, last: $lastCount) @_clientField(key: "PaginationFragment_friends", handle: "connection", filters: null, dynamicKey_UNSTABLE: null) {
       edges {
         node {
           id

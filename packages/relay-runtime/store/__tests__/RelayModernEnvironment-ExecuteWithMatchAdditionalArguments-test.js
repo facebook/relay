@@ -102,7 +102,7 @@ describe('execute() a query with @match with additional arguments', () => {
         __typename
         markdown
         data {
-          markup @__clientField(handle: "markup_handler")
+          markup @_clientField(handle: "markup_handler")
         }
       }
     `;

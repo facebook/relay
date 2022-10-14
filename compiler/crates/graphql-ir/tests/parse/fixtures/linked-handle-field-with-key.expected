@@ -47,7 +47,7 @@ fragment LinkedHandleField on User {
                     directives: [
                         Directive {
                             name: WithLocation {
-                                location: linked-handle-field-with-key.graphql:62:76,
+                                location: linked-handle-field-with-key.graphql:62:75,
                                 item: DirectiveName(
                                     "_clientField",
                                 ),
@@ -55,13 +55,13 @@ fragment LinkedHandleField on User {
                             arguments: [
                                 Argument {
                                     name: WithLocation {
-                                        location: linked-handle-field-with-key.graphql:77:83,
+                                        location: linked-handle-field-with-key.graphql:76:82,
                                         item: ArgumentName(
                                             "handle",
                                         ),
                                     },
                                     value: WithLocation {
-                                        location: linked-handle-field-with-key.graphql:85:100,
+                                        location: linked-handle-field-with-key.graphql:84:99,
                                         item: Constant(
                                             String(
                                                 "clientFriends",
@@ -71,13 +71,13 @@ fragment LinkedHandleField on User {
                                 },
                                 Argument {
                                     name: WithLocation {
-                                        location: linked-handle-field-with-key.graphql:102:105,
+                                        location: linked-handle-field-with-key.graphql:101:104,
                                         item: ArgumentName(
                                             "key",
                                         ),
                                     },
                                     value: WithLocation {
-                                        location: linked-handle-field-with-key.graphql:107:134,
+                                        location: linked-handle-field-with-key.graphql:106:133,
                                         item: Constant(
                                             String(
                                                 "LinkedHandleField_friends",
@@ -93,7 +93,7 @@ fragment LinkedHandleField on User {
                         ScalarField {
                             alias: None,
                             definition: WithLocation {
-                                location: linked-handle-field-with-key.graphql:142:147,
+                                location: linked-handle-field-with-key.graphql:141:146,
                                 item: FieldID(173),
                             },
                             arguments: [],

@@ -63,10 +63,8 @@ function cloneEventWithSets(event: LogEvent) {
     if (event.hasOwnProperty(key)) {
       const val = event[key];
       if (val instanceof Set) {
-        // $FlowFixMe[prop-missing]
         nextEvent[key] = new Set(val);
       } else {
-        // $FlowFixMe[prop-missing]
         nextEvent[key] = val;
       }
     }

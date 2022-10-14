@@ -21,8 +21,10 @@
  */
 import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
 
-function liveResolverThrows(): LiveState<null> {
+function live_resolver_throws(): LiveState<null> {
   throw new Error('What?');
 }
 
-module.exports = liveResolverThrows;
+module.exports = {
+  live_resolver_throws,
+};

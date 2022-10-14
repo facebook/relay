@@ -87,6 +87,8 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         skip_printing_nulls: FeatureFlag::Disabled,
         enable_fragment_aliases: FeatureFlag::Enabled,
         compact_query_text: FeatureFlag::Disabled,
+        use_named_imports_for_relay_resolvers: false,
+        relay_resolver_model_syntax_enabled: false,
     };
 
     let project_config = ProjectConfig {

@@ -662,7 +662,9 @@ Text Schema:Schema {
     Interface {
         name: WithLocation {
             location: <generated>:427:435,
-            item: "XIGHuman",
+            item: InterfaceName(
+                "XIGHuman",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [],
@@ -1521,7 +1523,9 @@ interfaces: [
     Interface {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "XIGHuman",
+            item: InterfaceName(
+                "XIGHuman",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [],

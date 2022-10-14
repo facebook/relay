@@ -6,6 +6,7 @@
  */
 
 use common::ArgumentName;
+use common::InterfaceName;
 use common::ObjectName;
 use intern::string_key::StringKey;
 use schema::Type;
@@ -42,24 +43,24 @@ pub enum SchemaValidationError {
     InvalidArgumentType(StringKey, StringKey, ArgumentName, TypeReference<Type>),
 
     #[error("Type '{0}' can only implement '{1}' once.")]
-    DuplicateInterfaceImplementation(StringKey, StringKey),
+    DuplicateInterfaceImplementation(StringKey, InterfaceName),
 
     #[error("Interface field '{0}.{1}' expected but '{2}' does not provide it.")]
-    InterfaceFieldNotProvided(StringKey, StringKey, StringKey),
+    InterfaceFieldNotProvided(InterfaceName, StringKey, StringKey),
 
     #[error("Interface field '{0}.{1}' expects type '{2}' but '{3}.{1}' is of type '{4}'.")]
-    NotASubType(StringKey, StringKey, StringKey, StringKey, StringKey),
+    NotASubType(InterfaceName, StringKey, StringKey, StringKey, StringKey),
 
     #[error(
         "Interface field argument '{0}.{1}({2}:)' expected but '{3}.{1}' does not provide it."
     )]
-    InterfaceFieldArgumentNotProvided(StringKey, StringKey, ArgumentName, StringKey),
+    InterfaceFieldArgumentNotProvided(InterfaceName, StringKey, ArgumentName, StringKey),
 
     #[error(
         "Interface field argument '{0}.{1}({2}:)' expects type '{3}' but '{4}.{1}({2}:)' is type '{5}'."
     )]
     NotEqualType(
-        StringKey,
+        InterfaceName,
         StringKey,
         ArgumentName,
         StringKey,
@@ -70,7 +71,7 @@ pub enum SchemaValidationError {
     #[error(
         "Object field '{0}.{1}' includes required argument '{2}' that is missing from the Interface field '{3}.{1}'."
     )]
-    MissingRequiredArgument(StringKey, StringKey, ArgumentName, StringKey),
+    MissingRequiredArgument(StringKey, StringKey, ArgumentName, InterfaceName),
 
     #[error("Union type must define one or more member types.")]
     UnionWithNoMembers(StringKey),

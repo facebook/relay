@@ -24,7 +24,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * You thought "one" was the loneliest number? Pffft. Let me introduce you to zero!
  */
-function UserConstantResolver(rootKey: UserConstantResolver$key): number {
+function constant(rootKey: UserConstantResolver$key): number {
   readFragment(
     graphql`
       fragment UserConstantResolver on User {
@@ -36,4 +36,6 @@ function UserConstantResolver(rootKey: UserConstantResolver$key): number {
   return 0;
 }
 
-module.exports = UserConstantResolver;
+module.exports = {
+  constant,
+};

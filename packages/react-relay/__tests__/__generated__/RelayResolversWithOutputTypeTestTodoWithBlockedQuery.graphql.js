@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<976a16e8607856f32ae128585702e8dd>>
+ * @generated SignedSource<<5576a492ea3984643a4e15277b0e6272>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
 import type { TodoBlockedByResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoBlockedByResolverFragment.graphql";
-import queryTodoResolver from "../../../relay-runtime/store/__tests__/resolvers/QueryTodo.js";
+import {todo as queryTodoResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodo.js";
 // Type assertion validating that `queryTodoResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryTodoResolver: (
@@ -29,7 +29,7 @@ import queryTodoResolver from "../../../relay-runtime/store/__tests__/resolvers/
     todoID: string,
   |}, 
 ) => LiveState<?Query__todo$normalization>);
-import todoBlockedByResolver from "../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver.js";
+import {blocked_by as todoBlockedByResolver} from "../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver.js";
 // Type assertion validating that `todoBlockedByResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoBlockedByResolver: (
@@ -86,7 +86,7 @@ return {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "todo",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodo'),
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryTodo').todo,
           "path": "todo",
           "normalizationInfo": {
             "concreteType": "Todo",
@@ -115,7 +115,7 @@ return {
                 },
                 "kind": "RelayResolver",
                 "name": "blocked_by",
-                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver'),
+                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoBlockedByResolver').blocked_by,
                 "path": "blocked_by",
                 "normalizationInfo": {
                   "concreteType": "Todo",

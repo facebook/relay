@@ -25,10 +25,10 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @onType User
  * @edgeTo AstrologicalSign
  *
- * A Client Edge that points to a client-defined representaiton of the user's
+ * A Client Edge that points to a client-defined representation of the user's
  * star sign.
  */
-function astrologicalSign(
+function astrological_sign(
   rootKey: UserAstrologicalSignResolver$key,
 ): AstrologicalSignID {
   const user = readFragment(
@@ -45,4 +45,6 @@ function astrologicalSign(
   return findSign(user.birthdate.month, user.birthdate.day);
 }
 
-module.exports = astrologicalSign;
+module.exports = {
+  astrological_sign,
+};

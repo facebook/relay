@@ -22,7 +22,7 @@ const {graphql} = require('relay-runtime');
  * @rootFragment TodoTextColorResolverFragment
  * @fieldName human_readable_color
  */
-function TodoTextColorResolver(
+function human_readable_color(
   rootKey: TodoTextColorResolverFragment$key,
 ): string {
   const data = readFragment(
@@ -37,4 +37,6 @@ function TodoTextColorResolver(
   return `color is ${data?.hex ?? 'unknown'}`;
 }
 
-module.exports = TodoTextColorResolver;
+module.exports = {
+  human_readable_color,
+};

@@ -18,6 +18,7 @@ use graphql_syntax::ExecutableDefinition;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use intern::string_key::Intern;
 use relay_docblock::parse_docblock_ast;
+use relay_docblock::ParseOptions;
 use relay_test_schema::get_test_schema;
 use relay_test_schema::get_test_schema_with_extensions;
 use schema::SDLSchema;
@@ -59,7 +60,18 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 index: i as u16,
             },
         )?;
-        let ir = parse_docblock_ast(&ast, Some(&executable_documents))?.unwrap();
+        let ir = parse_docblock_ast(
+            &ast,
+            Some(&executable_documents),
+            ParseOptions {
+                use_named_imports: fixture.content.contains("// relay:use_named_imports"),
+                relay_resolver_model_syntax_enabled: !fixture
+                    .content
+                    .contains("// relay:disable_relay_resolver_model_syntax"),
+                id_field_name: "id".intern(),
+            },
+        )?
+        .unwrap();
 
         ir.to_sdl_string(&schema)
     };

@@ -73,7 +73,11 @@ pub enum Primitive {
     StorageKey(StringKey, AstKey),
     RawString(String),
     GraphQLModuleDependency(StringKey),
-    JSModuleDependency(StringKey),
+    JSModuleDependency {
+        path: StringKey,
+        named_import: Option<StringKey>,
+        import_as: Option<StringKey>,
+    },
     // Don't include the value in the output when
     // skip_printing_nulls is enabled
     SkippableNull,

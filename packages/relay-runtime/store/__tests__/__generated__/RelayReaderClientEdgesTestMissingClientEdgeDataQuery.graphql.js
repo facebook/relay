@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<409f5df4e682da296258a89085141509>>
+ * @generated SignedSource<<86f14783baa931721000095df273e36a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserReadsClientEdgeResolver$key } from "./../resolvers/__generated__/UserReadsClientEdgeResolver.graphql";
-import userReadsClientEdgeResolver from "../resolvers/UserReadsClientEdgeResolver.js";
+import {reads_client_edge as userReadsClientEdgeResolver} from "../resolvers/UserReadsClientEdgeResolver.js";
 // Type assertion validating that `userReadsClientEdgeResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userReadsClientEdgeResolver: (
@@ -62,7 +62,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "reads_client_edge",
-            "resolverModule": require('./../resolvers/UserReadsClientEdgeResolver'),
+            "resolverModule": require('./../resolvers/UserReadsClientEdgeResolver').reads_client_edge,
             "path": "me.reads_client_edge"
           }
         ],

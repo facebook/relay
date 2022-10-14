@@ -24,7 +24,7 @@ import type {HelloWorldResolverWithProvidedVariable$key} from './__generated__/H
  *
  * Say `Hello ${world}!`
  */
-function HelloWorldResolverWithProvidedVariableResolver(
+function hello_world_with_provided_variable(
   fragmentKey: HelloWorldResolverWithProvidedVariable$key,
 ): string {
   const data = readFragment(
@@ -44,4 +44,6 @@ function HelloWorldResolverWithProvidedVariableResolver(
   return `Hello, ${data?.hello ?? 'unknown'}`;
 }
 
-module.exports = HelloWorldResolverWithProvidedVariableResolver;
+module.exports = {
+  hello_world_with_provided_variable,
+};

@@ -26,6 +26,15 @@ pub struct FeatureFlags {
     #[serde(default)]
     pub enable_relay_resolver_transform: bool,
 
+    /// Use `named export` in Relay resolvers modules
+    /// this should allow defining multiple resolvers per module.
+    #[serde(default)]
+    pub use_named_imports_for_relay_resolvers: bool,
+
+    /// Use `@RelayResolver ModelName` syntax in Relay resolvers.
+    #[serde(default)]
+    pub relay_resolver_model_syntax_enabled: bool,
+
     /// Enable hashing of the `supported` argument of 3D fields. Partial
     /// enabling of the feature flag checks the name based on the field type.
     #[serde(default)]

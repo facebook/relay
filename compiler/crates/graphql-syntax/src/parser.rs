@@ -158,6 +158,15 @@ impl<'a> Parser<'a> {
         }
     }
 
+    pub fn parse_identifier_result(mut self) -> DiagnosticsResult<Identifier> {
+        let identifier = self.parse_identifier();
+        if self.errors.is_empty() {
+            Ok(identifier.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
     fn parse_eof(mut self) -> DiagnosticsResult<()> {
         self.parse_kind(TokenKind::EndOfFile)
             .map(|_| ())

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d730a255c818709efd90f2a51595e56a>>
+ * @generated SignedSource<<b225e8da78266a76a8c2226c17a65ad8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import queryHelloResolver from "../HelloWorldResolver.js";
+import {hello as queryHelloResolver} from "../HelloWorldResolver.js";
 // Type assertion validating that `queryHelloResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryHelloResolver: (
@@ -69,7 +69,7 @@ return {
             "fragment": null,
             "kind": "RelayResolver",
             "name": "hello",
-            "resolverModule": require('./../HelloWorldResolver'),
+            "resolverModule": require('./../HelloWorldResolver').hello,
             "path": "hello"
           }
         ]

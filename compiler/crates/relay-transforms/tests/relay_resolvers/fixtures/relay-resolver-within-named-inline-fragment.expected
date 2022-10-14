@@ -35,6 +35,7 @@ fragment Foo_user on Node {
     # RelayResolverMetadata {
     #     field_parent_type: "User",
     #     import_path: "PopStarNameResolver",
+    #     import_name: None,
     #     field_name: "pop_star_name",
     #     field_alias: None,
     #     field_path: "aliased_fragment.pop_star_name",

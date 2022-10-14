@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<44791a1d4aecd5cb1ce764dda1b700c4>>
+ * @generated SignedSource<<cd3fb00b1c2e0fabca179a27262398b6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,13 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { InnerResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/InnerResolver.graphql";
 import type { OuterResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/OuterResolver.graphql";
-import queryInnerResolver from "../../../relay-runtime/store/__tests__/resolvers/InnerResolver.js";
+import {inner as queryInnerResolver} from "../../../relay-runtime/store/__tests__/resolvers/InnerResolver.js";
 // Type assertion validating that `queryInnerResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryInnerResolver: (
   rootKey: InnerResolver$key, 
 ) => LiveState<any>);
-import queryOuterResolver from "../../../relay-runtime/store/__tests__/resolvers/OuterResolver.js";
+import {outer as queryOuterResolver} from "../../../relay-runtime/store/__tests__/resolvers/OuterResolver.js";
 // Type assertion validating that `queryOuterResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryOuterResolver: (
@@ -100,7 +100,7 @@ return {
         },
         "kind": "RelayResolver",
         "name": "outer",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/OuterResolver'),
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/OuterResolver').outer,
         "path": "outer"
       },
       {
@@ -113,7 +113,7 @@ return {
         },
         "kind": "RelayLiveResolver",
         "name": "inner",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/InnerResolver'),
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/InnerResolver').inner,
         "path": "inner"
       }
     ],

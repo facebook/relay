@@ -126,8 +126,18 @@ impl FragmentLocations {
 pub(crate) struct EncounteredFragments(pub(crate) FnvHashSet<EncounteredFragment>);
 
 pub(crate) struct ImportedResolver {
-    pub resolver_name: StringKey,
+    pub resolver_name: ImportedResolverName,
     pub resolver_type: AST,
+    pub import_path: StringKey,
+}
+
+#[derive(Clone, Copy)]
+pub(crate) enum ImportedResolverName {
+    Default(StringKey),
+    Named {
+        name: StringKey,
+        import_as: StringKey,
+    },
 }
 
 #[derive(Default)]

@@ -62,7 +62,7 @@ enum FieldSelectableType<'a> {
 impl<'a> FieldSelectableType<'a> {
     fn name(&'a self) -> StringKey {
         match *self {
-            Self::Interface(i) => i.name.item,
+            Self::Interface(i) => i.name.item.0,
             Self::Object(o) => o.name.item.0,
         }
     }

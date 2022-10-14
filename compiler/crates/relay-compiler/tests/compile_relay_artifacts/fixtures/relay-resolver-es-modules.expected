@@ -1,8 +1,12 @@
 ==================================== INPUT ====================================
-query relaySelfResolver_Query {
+fragment relayResolverEsModules_PopStarNameResolverFragment_name on User {
+  name
+}
+
+query relayResolverEsModules_Query {
   node(id: "SOME_ID") {
     ... on User {
-      self_user_name
+      pop_star_name
     }
   }
 }
@@ -10,19 +14,23 @@ query relaySelfResolver_Query {
 # %extensions%
 
 extend type User {
-  __self: Int @relay_resolver(self_fragment_name: "User__selfFragment", import_path: "./path/to/UserSelfResolver.js")
+  pop_star_name: String @relay_resolver(fragment_name: "relayResolverEsModules_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js", import_name: "pop_star_name")
 }
 
-extend type User {
-  self_user_name: Int @relay_resolver(fragment_name: "User__selfFragment", import_path: "./path/to/UserSelfResolver.js")
+
+%project_config%
+{
+  "eagerEsModules": true,
+  "language": "flow"
 }
 ==================================== OUTPUT ===================================
+import {pop_star_name as userPopStarNameResolver} from './.././path/to/PopStarNameResolver';
 {
   "fragment": {
     "argumentDefinitions": [],
     "kind": "Fragment",
     "metadata": null,
-    "name": "relaySelfResolver_Query",
+    "name": "relayResolverEsModules_Query",
     "selections": [
       {
         "alias": null,
@@ -47,12 +55,12 @@ extend type User {
                 "fragment": {
                   "args": null,
                   "kind": "FragmentSpread",
-                  "name": "User__selfFragment"
+                  "name": "relayResolverEsModules_PopStarNameResolverFragment_name"
                 },
                 "kind": "RelayResolver",
-                "name": "self_user_name",
-                "resolverModule": require('UserSelfResolver'),
-                "path": "node.self_user_name"
+                "name": "pop_star_name",
+                "resolverModule": userPopStarNameResolver,
+                "path": "node.pop_star_name"
               }
             ],
             "type": "User",
@@ -69,7 +77,7 @@ extend type User {
   "operation": {
     "argumentDefinitions": [],
     "kind": "Operation",
-    "name": "relaySelfResolver_Query",
+    "name": "relayResolverEsModules_Query",
     "selections": [
       {
         "alias": null,
@@ -96,22 +104,17 @@ extend type User {
             "kind": "InlineFragment",
             "selections": [
               {
-                "name": "self_user_name",
+                "name": "pop_star_name",
                 "args": null,
                 "fragment": {
                   "kind": "InlineFragment",
                   "selections": [
                     {
-                      "kind": "ClientExtension",
-                      "selections": [
-                        {
-                          "name": "__self",
-                          "args": null,
-                          "fragment": null,
-                          "kind": "RelayResolver",
-                          "storageKey": null
-                        }
-                      ]
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "name",
+                      "storageKey": null
                     }
                   ],
                   "type": "User",
@@ -137,10 +140,10 @@ extend type User {
     ]
   },
   "params": {
-    "cacheID": "fc957ac97707cfa86ce34a5a6afb0e61",
+    "cacheID": "36c1c0daffdfedb16719cba63ed9f40b",
     "id": null,
     "metadata": {},
-    "name": "relaySelfResolver_Query",
+    "name": "relayResolverEsModules_Query",
     "operationKind": "query",
     "text": null
   }
@@ -148,11 +151,18 @@ extend type User {
 
 QUERY:
 
-query relaySelfResolver_Query {
+query relayResolverEsModules_Query {
   node(id: "SOME_ID") {
     __typename
+    ... on User {
+      ...relayResolverEsModules_PopStarNameResolverFragment_name
+    }
     id
   }
+}
+
+fragment relayResolverEsModules_PopStarNameResolverFragment_name on User {
+  name
 }
 
 
@@ -160,21 +170,14 @@ query relaySelfResolver_Query {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "User__selfFragment",
+  "name": "relayResolverEsModules_PopStarNameResolverFragment_name",
   "selections": [
     {
-      "kind": "ClientExtension",
-      "selections": [
-        {
-          "alias": null,
-          "args": null,
-          "fragment": null,
-          "kind": "RelayResolver",
-          "name": "__self",
-          "resolverModule": require('UserSelfResolver'),
-          "path": "__self"
-        }
-      ]
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
     }
   ],
   "type": "User",

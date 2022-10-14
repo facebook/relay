@@ -27,7 +27,7 @@ const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
  * @onType Query
  * @live
  */
-function LiveCounterWithPossibleMissingFragmentDataResolver(
+function live_counter_with_possible_missing_fragment_data(
   rootKey: LiveCounterWithPossibleMissingFragmentDataResolverFragment$key,
 ): LiveState<number> {
   readFragment(
@@ -45,11 +45,13 @@ function LiveCounterWithPossibleMissingFragmentDataResolver(
       return Selectors.getNumber(GLOBAL_STORE.getState());
     },
     subscribe(cb): () => void {
-      // Here we could try to run the selector and short-circut if the value has
+      // Here we could try to run the selector and short-circuit if the value has
       // not changed, but for now we'll over-notify.
       return GLOBAL_STORE.subscribe(cb);
     },
   };
 }
 
-module.exports = LiveCounterWithPossibleMissingFragmentDataResolver;
+module.exports = {
+  live_counter_with_possible_missing_fragment_data,
+};

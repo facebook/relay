@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5793a0c6ff40a7967f2ee7556514c8df>>
+ * @generated SignedSource<<75d4e0b0b2f5ec9edff32af4f045287b>>
  */
 
 mod relay_resolvers;
@@ -80,6 +80,13 @@ fn relay_resolver_field_and_fragment_arguments() {
     let input = include_str!("relay_resolvers/fixtures/relay-resolver-field-and-fragment-arguments.graphql");
     let expected = include_str!("relay_resolvers/fixtures/relay-resolver-field-and-fragment-arguments.expected");
     test_fixture(transform_fixture, "relay-resolver-field-and-fragment-arguments.graphql", "relay_resolvers/fixtures/relay-resolver-field-and-fragment-arguments.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_named_import() {
+    let input = include_str!("relay_resolvers/fixtures/relay-resolver-named-import.graphql");
+    let expected = include_str!("relay_resolvers/fixtures/relay-resolver-named-import.expected");
+    test_fixture(transform_fixture, "relay-resolver-named-import.graphql", "relay_resolvers/fixtures/relay-resolver-named-import.expected", input, expected);
 }
 
 #[test]

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -19,7 +19,7 @@ import type {Query__many_todos$normalization as ReturnType} from './__generated_
  * @fieldName many_todos(todo_ids: [ID]!)
  * @outputType [Todo]
  */
-function QueryManyTodos(args: {
+function many_todos(args: {
   todo_ids: $ReadOnlyArray<?string>,
 }): $ReadOnlyArray<ReturnType | null> {
   return args.todo_ids.map(todo_id => {
@@ -32,4 +32,6 @@ function QueryManyTodos(args: {
   });
 }
 
-module.exports = QueryManyTodos;
+module.exports = {
+  many_todos,
+};

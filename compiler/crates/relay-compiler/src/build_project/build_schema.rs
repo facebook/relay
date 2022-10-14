@@ -68,6 +68,7 @@ pub fn build_schema(
                                 graphql_asts.get_executable_definitions_for_file(file_path);
 
                             for schema_document in extract_schema_from_docblock_sources(
+                                project_config,
                                 file_path,
                                 docblock_sources,
                                 &schema,

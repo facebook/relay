@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d4207bcdd80f4e5a02abfff2b0e84489>>
+ * @generated SignedSource<<e32a7d2e57d9b1e41496169519155a1c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { TodoTextColorResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoTextColorResolverFragment.graphql";
 import type { FragmentType } from "relay-runtime";
-import todoTextColorHumanReadableColorResolver from "../../../relay-runtime/store/__tests__/resolvers/TodoTextColorResolver.js";
+import {human_readable_color as todoTextColorHumanReadableColorResolver} from "../../../relay-runtime/store/__tests__/resolvers/TodoTextColorResolver.js";
 // Type assertion validating that `todoTextColorHumanReadableColorResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoTextColorHumanReadableColorResolver: (
@@ -54,7 +54,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "human_readable_color",
-      "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoTextColorResolver'),
+      "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoTextColorResolver').human_readable_color,
       "path": "human_readable_color"
     }
   ],

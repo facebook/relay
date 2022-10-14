@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<02038e60e4fc2316514b6d2e23f7ef23>>
+ * @generated SignedSource<<3cf5e821b03f189c1681f8e44ba05597>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserBestFriendShoutedGreetingResolver$key } from "./../resolvers/__generated__/UserBestFriendShoutedGreetingResolver.graphql";
-import userBestFriendShoutedGreetingResolver from "../resolvers/UserBestFriendShoutedGreetingResolver.js";
+import {best_friend_shouted_greeting as userBestFriendShoutedGreetingResolver} from "../resolvers/UserBestFriendShoutedGreetingResolver.js";
 // Type assertion validating that `userBestFriendShoutedGreetingResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userBestFriendShoutedGreetingResolver: (
@@ -70,7 +70,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "best_friend_shouted_greeting",
-            "resolverModule": require('./../resolvers/UserBestFriendShoutedGreetingResolver'),
+            "resolverModule": require('./../resolvers/UserBestFriendShoutedGreetingResolver').best_friend_shouted_greeting,
             "path": "me.best_friend_shouted_greeting"
           }
         ],

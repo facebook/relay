@@ -13,16 +13,27 @@
 
 use std::iter::once;
 
+use ::intern::string_key::StringKey;
 use common::ArgumentName;
 use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::SourceLocationKey;
 use intern::intern;
+use lazy_static::lazy_static;
 use schema::ArgumentDefinitions;
 use schema::SDLSchema;
 use schema::TypeReference;
 
 const RELAY_EXTENSIONS: &str = include_str!("./relay-extensions.graphql");
+
+lazy_static! {
+    static ref DEFER: DirectiveName = DirectiveName(intern!("defer"));
+    static ref STREAM: DirectiveName = DirectiveName(intern!("stream"));
+    static ref LABEL: ArgumentName = ArgumentName(intern!("label"));
+    pub static ref CUSTOM_SCALAR_DIRECTIVE_NAME: StringKey = intern!("__RelayCustomScalar");
+    pub static ref PATH_CUSTOM_SCALAR_ARGUMENT_NAME: StringKey = intern!("path");
+    pub static ref EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME: StringKey = intern!("export_name");
+}
 
 pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
     server_sdls: &[(T, SourceLocationKey)],
@@ -40,14 +51,11 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
 
     // Remove label arg from @defer and @stream directives since the compiler
     // adds these arguments.
-    for directive_name in &[
-        DirectiveName(intern!("defer")),
-        DirectiveName(intern!("stream")),
-    ] {
+    for directive_name in &[*DEFER, *STREAM] {
         if let Some(directive) = schema.get_directive_mut(*directive_name) {
             let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
             for arg in next_args.iter_mut() {
-                if arg.name == ArgumentName(intern!("label")) {
+                if arg.name == *LABEL {
                     if let TypeReference::NonNull(of) = &arg.type_ {
                         arg.type_ = *of.clone()
                     };

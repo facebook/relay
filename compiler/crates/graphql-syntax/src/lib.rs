@@ -124,6 +124,17 @@ pub fn parse_type(
     parser.parse_type()
 }
 
+/// Parses a GraphQL identifier, such as `foo` or `User`.
+pub fn parse_identifier(
+    source: &str,
+    source_location: SourceLocationKey,
+    offset: u32,
+) -> DiagnosticsResult<Identifier> {
+    let features = ParserFeatures::default();
+    let parser = Parser::with_offset(source, source_location, features, offset);
+    parser.parse_identifier_result()
+}
+
 /// Parses a GraphQL document that's restricted to type system definitions
 /// including schema definition, type definitions and type system extensions.
 pub fn parse_directive(

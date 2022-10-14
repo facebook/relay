@@ -248,8 +248,10 @@ function NameUpdater({ queryRef }: {
     commitLocalUpdate(environment, store => {
       const {updatableData} = store.readUpdatableQuery_EXPERIMENTAL(
         graphql`
-          viewer {
-            name
+          query NameUpdaterUpdateQuery @updatable {
+            viewer {
+              name
+            }
           }
         `,
         {}

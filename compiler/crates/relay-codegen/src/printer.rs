@@ -39,6 +39,7 @@ use crate::build_ast::build_request_params_ast_key;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
 use crate::object;
+use crate::top_level_statements::ModuleImportName;
 use crate::top_level_statements::TopLevelStatement;
 use crate::top_level_statements::TopLevelStatements;
 use crate::utils::escape;
@@ -465,23 +466,32 @@ impl<'b> JSONPrinter<'b> {
             }
             Primitive::GraphQLModuleDependency(key) => self.write_js_dependency(
                 f,
-                format!("{}_graphql", key),
+                ModuleImportName::Default(format!("{}_graphql", key)),
                 Cow::Owned(format!(
                     "{}.graphql",
                     get_module_path(self.js_module_format, *key)
                 )),
             ),
-            Primitive::JSModuleDependency(key) => self.write_js_dependency(
+            Primitive::JSModuleDependency {
+                path,
+                named_import,
+                import_as,
+            } => self.write_js_dependency(
                 f,
-                key.to_string(),
-                get_module_path(self.js_module_format, *key),
+                named_import
+                    .map(|name| ModuleImportName::Named {
+                        name: name.to_string(),
+                        import_as: import_as.map(|item| item.to_string()),
+                    })
+                    .unwrap_or_else(|| ModuleImportName::Default(path.to_string())),
+                get_module_path(self.js_module_format, *path),
             ),
             Primitive::DynamicImport { provider, module } => match provider {
                 DynamicModuleProvider::JSResource => {
                     self.top_level_statements.insert(
                         "JSResource".to_string(),
                         TopLevelStatement::ImportStatement {
-                            name: "JSResource".to_string(),
+                            module_import_name: ModuleImportName::Default("JSResource".to_string()),
                             path: "JSResource".to_string(),
                         },
                     );
@@ -501,21 +511,38 @@ impl<'b> JSONPrinter<'b> {
     fn write_js_dependency(
         &mut self,
         f: &mut String,
-        name: String,
+        module_import_name: ModuleImportName,
         path: Cow<'_, str>,
     ) -> FmtResult {
         if self.eager_es_modules {
-            let write_result = write!(f, "{}", name);
+            let path = path.into_owned();
+            let key = match module_import_name {
+                ModuleImportName::Default(ref name) => name.to_string(),
+                ModuleImportName::Named {
+                    ref name,
+                    ref import_as,
+                } => import_as
+                    .as_ref()
+                    .cloned()
+                    .unwrap_or_else(|| name.to_string()),
+            };
             self.top_level_statements.insert(
-                name.clone(),
+                key.to_string(),
                 TopLevelStatement::ImportStatement {
-                    name,
-                    path: path.into_owned(),
+                    module_import_name,
+                    path,
                 },
             );
-            write_result
+            write!(f, "{}", key)
         } else {
-            write!(f, "require('{}')", path)
+            match module_import_name {
+                ModuleImportName::Default(_) => {
+                    write!(f, "require('{}')", path)
+                }
+                ModuleImportName::Named { name, .. } => {
+                    write!(f, "require('{}').{}", path, name)
+                }
+            }
         }
     }
 }
@@ -683,7 +710,7 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         Primitive::StorageKey(_, _) => panic!("Unexpected StorageKey"),
         Primitive::RawString(_) => panic!("Unexpected RawString"),
         Primitive::GraphQLModuleDependency(_) => panic!("Unexpected GraphQLModuleDependency"),
-        Primitive::JSModuleDependency(_) => panic!("Unexpected JSModuleDependency"),
+        Primitive::JSModuleDependency { .. } => panic!("Unexpected JSModuleDependency"),
         Primitive::DynamicImport { .. } => panic!("Unexpected DynamicImport"),
     }
 }

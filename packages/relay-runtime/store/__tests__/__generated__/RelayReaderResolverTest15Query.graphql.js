@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<6cc42e9b85442f3dfa1c759889d772f2>>
+ * @generated SignedSource<<dd4b7390651f7620b9f476138d87c484>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UndefinedFieldResolver$key } from "./../resolvers/__generated__/UndefinedFieldResolver.graphql";
-import queryUndefinedFieldResolver from "../resolvers/UndefinedFieldResolver.js";
+import {undefined_field as queryUndefinedFieldResolver} from "../resolvers/UndefinedFieldResolver.js";
 // Type assertion validating that `queryUndefinedFieldResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryUndefinedFieldResolver: (
@@ -52,7 +52,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "undefined_field",
-        "resolverModule": require('./../resolvers/UndefinedFieldResolver'),
+        "resolverModule": require('./../resolvers/UndefinedFieldResolver').undefined_field,
         "path": "undefined_field"
       }
     ],

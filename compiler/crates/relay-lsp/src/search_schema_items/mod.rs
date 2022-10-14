@@ -62,7 +62,7 @@ pub(crate) fn on_search_schema_items(
         &filter,
     );
     let interfaces = filter_and_transform_items(
-        schema.interfaces().map(|i| i.name.item),
+        schema.interfaces().map(|i| i.name.item.0),
         &schema_documentation,
         &filter,
     );

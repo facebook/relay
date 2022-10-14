@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<8a22e903c5aec17f1b19934f2cc52bc0>>
+ * @generated SignedSource<<25e976a302808107b7e7f22a65af8067>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserNamePassthroughResolver$key } from "./../resolvers/__generated__/UserNamePassthroughResolver.graphql";
-import userNamePassthroughResolver from "../resolvers/UserNamePassthroughResolver.js";
+import {name_passthrough as userNamePassthroughResolver} from "../resolvers/UserNamePassthroughResolver.js";
 // Type assertion validating that `userNamePassthroughResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userNamePassthroughResolver: (
@@ -64,7 +64,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "name_passthrough",
-              "resolverModule": require('./../resolvers/UserNamePassthroughResolver'),
+              "resolverModule": require('./../resolvers/UserNamePassthroughResolver').name_passthrough,
               "path": "me.name_passthrough"
             },
             "action": "NONE",

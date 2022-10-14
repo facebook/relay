@@ -21,7 +21,7 @@ import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/Li
  * @edgeTo User
  * @live
  */
-function LiveConstantClientEdgeResolver(): LiveState<DataID> {
+function live_constant_client_edge(): LiveState<DataID> {
   return {
     read() {
       return '1338';
@@ -32,4 +32,6 @@ function LiveConstantClientEdgeResolver(): LiveState<DataID> {
   };
 }
 
-module.exports = LiveConstantClientEdgeResolver;
+module.exports = {
+  live_constant_client_edge,
+};

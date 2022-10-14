@@ -1,0 +1,34 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @RelayResolver ClientUser
+*/
+==================================== OUTPUT ===================================
+StrongObjectResolver(
+    StrongObjectIr {
+        type_: PopulatedIrField {
+            key_location: /path/to/test/fixture/relay-resolver-strong-object.js:6:19,
+            value: WithLocation {
+                location: /path/to/test/fixture/relay-resolver-strong-object.js:20:30,
+                item: "ClientUser",
+            },
+        },
+        root_fragment: WithLocation {
+            location: <generated>:0:0,
+            item: FragmentDefinitionName(
+                "ClientUser__id",
+            ),
+        },
+        description: None,
+        deprecated: None,
+        live: None,
+        location: /path/to/test/fixture/relay-resolver-strong-object.js:0:30,
+        named_import: None,
+    },
+)

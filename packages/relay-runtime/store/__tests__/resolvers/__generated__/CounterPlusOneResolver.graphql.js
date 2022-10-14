@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<de84e55f73df0e00dd9fc834b33205ac>>
+ * @generated SignedSource<<06beabc914072f477d97918752299794>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { LiveCounterResolver$key } from "./LiveCounterResolver.graphql";
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { FragmentType } from "relay-runtime";
-import queryCounterResolver from "../LiveCounterResolver.js";
+import {counter as queryCounterResolver} from "../LiveCounterResolver.js";
 // Type assertion validating that `queryCounterResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterResolver: (
@@ -57,7 +57,7 @@ var node/*: ReaderFragment*/ = {
         },
         "kind": "RelayLiveResolver",
         "name": "counter",
-        "resolverModule": require('./../LiveCounterResolver'),
+        "resolverModule": require('./../LiveCounterResolver').counter,
         "path": "counter"
       },
       "action": "THROW",

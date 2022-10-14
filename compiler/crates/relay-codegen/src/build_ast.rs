@@ -1017,7 +1017,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             },
             kind: Primitive::String(kind),
             name: Primitive::String(field_name),
-            resolver_module: Primitive::JSModuleDependency(import_path),
+            resolver_module: Primitive::JSModuleDependency {
+                path: import_path,
+                named_import: relay_resolver_metadata.import_name,
+                import_as: Some(relay_resolver_metadata.generate_local_resolver_name()),
+            },
             path: Primitive::String(path),
         };
 
@@ -1721,7 +1725,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
                 Some(ObjectEntry {
                     key: def.name.item.0,
-                    value: Primitive::JSModuleDependency(provider_module),
+                    value: Primitive::JSModuleDependency {
+                        path: provider_module,
+                        named_import: None,
+                        import_as: None,
+                    },
                 })
             })
             .collect::<Vec<_>>();
@@ -1795,7 +1803,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             key: CODEGEN_CONSTANTS.id,
             value: match request_parameters.id {
                 Some(QueryID::Persisted { id, .. }) => Primitive::RawString(id.clone()),
-                Some(QueryID::External(name)) => Primitive::JSModuleDependency(*name),
+                Some(QueryID::External(module_name)) => Primitive::JSModuleDependency {
+                    path: *module_name,
+                    named_import: None,
+                    import_as: None,
+                },
                 None => Primitive::Null,
             },
         };

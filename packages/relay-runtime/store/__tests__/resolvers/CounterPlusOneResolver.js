@@ -22,9 +22,9 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @rootFragment CounterPlusOneResolver
  * @onType Query
  *
- * A resolver which reads a @live resover field (`counter`) to return `counter + 1`.
+ * A resolver which reads a @live resolver field (`counter`) to return `counter + 1`.
  */
-function counterPlusOne(rootKey: CounterPlusOneResolver$key): number {
+function counter_plus_one(rootKey: CounterPlusOneResolver$key): number {
   const data = readFragment(
     graphql`
       fragment CounterPlusOneResolver on Query {
@@ -36,4 +36,6 @@ function counterPlusOne(rootKey: CounterPlusOneResolver$key): number {
   return data.counter + 1;
 }
 
-module.exports = counterPlusOne;
+module.exports = {
+  counter_plus_one,
+};

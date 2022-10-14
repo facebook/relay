@@ -114,3 +114,14 @@ impl fmt::Display for EnumName {
     }
 }
 impl_lookup!(EnumName);
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct InterfaceName(pub StringKey);
+
+impl fmt::Display for InterfaceName {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(fmt, "{}", self.0)
+    }
+}
+
+impl_lookup!(InterfaceName);

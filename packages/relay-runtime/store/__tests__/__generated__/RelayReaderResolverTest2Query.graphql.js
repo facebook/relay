@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<176c8363f51d0e4baf18c0d06448a5e3>>
+ * @generated SignedSource<<db6742fac17526d9b7a59eec34ab04c9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserConstantDependentResolver$key } from "./../resolvers/__generated__/UserConstantDependentResolver.graphql";
-import userConstantDependentResolver from "../resolvers/UserConstantDependentResolver.js";
+import {constant_dependent as userConstantDependentResolver} from "../resolvers/UserConstantDependentResolver.js";
 // Type assertion validating that `userConstantDependentResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userConstantDependentResolver: (
@@ -62,7 +62,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "constant_dependent",
-            "resolverModule": require('./../resolvers/UserConstantDependentResolver'),
+            "resolverModule": require('./../resolvers/UserConstantDependentResolver').constant_dependent,
             "path": "me.constant_dependent"
           }
         ],

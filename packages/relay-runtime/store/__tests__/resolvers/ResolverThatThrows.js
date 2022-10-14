@@ -26,7 +26,9 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * This should always throw.
  */
-function ResolverThatThrows(rootKey: ResolverThatThrows$key): LiveState<null> {
+function resolver_that_throws(
+  rootKey: ResolverThatThrows$key,
+): LiveState<null> {
   readFragment(
     graphql`
       fragment ResolverThatThrows on User {
@@ -48,4 +50,6 @@ function ResolverThatThrows(rootKey: ResolverThatThrows$key): LiveState<null> {
   };
 }
 
-module.exports = ResolverThatThrows;
+module.exports = {
+  resolver_that_throws,
+};

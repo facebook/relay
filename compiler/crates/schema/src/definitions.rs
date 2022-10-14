@@ -14,6 +14,7 @@ use common::ArgumentName;
 use common::DirectiveName;
 use common::EnumName;
 use common::InputObjectName;
+use common::InterfaceName;
 use common::Named;
 use common::NamedItem;
 use common::ObjectName;
@@ -334,7 +335,7 @@ pub struct Union {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Interface {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<InterfaceName>,
     pub is_extension: bool,
     pub implementing_interfaces: Vec<InterfaceID>,
     pub implementing_objects: Vec<ObjectID>,
@@ -396,6 +397,24 @@ impl Named for Argument {
 pub struct ArgumentValue {
     pub name: ArgumentName,
     pub value: ConstantValue,
+}
+
+impl ArgumentValue {
+    /// If the value is a constant string literal, return the value, otherwise None.
+    pub fn get_string_literal(&self) -> Option<StringKey> {
+        if let ConstantValue::String(string_node) = &self.value {
+            Some(string_node.value)
+        } else {
+            None
+        }
+    }
+    /// Return the constant string literal of this value.
+    /// Panics if the value is not a constant string literal.
+    pub fn expect_string_literal(&self) -> StringKey {
+        self.get_string_literal().unwrap_or_else(|| {
+            panic!("expected a string literal, got {:?}", self);
+        })
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
@@ -501,7 +520,7 @@ macro_rules! impl_named_for_with_location {
 impl_named_for_with_location!(Object, ObjectName);
 impl_named_for_with_location!(Field, StringKey);
 impl_named_for_with_location!(InputObject, InputObjectName);
-impl_named_for_with_location!(Interface, StringKey);
+impl_named_for_with_location!(Interface, InterfaceName);
 impl_named_for_with_location!(Union, StringKey);
 impl_named_for_with_location!(Scalar, ScalarName);
 impl_named_for_with_location!(Enum, EnumName);

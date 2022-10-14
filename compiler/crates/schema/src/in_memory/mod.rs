@@ -1002,12 +1002,11 @@ impl InMemorySchema {
         &mut self,
         object_extension: ObjectTypeExtension,
         location_key: SourceLocationKey,
-        is_extension: bool,
     ) -> DiagnosticsResult<()> {
         self.add_definition(
             &TypeSystemDefinition::ObjectTypeExtension(object_extension),
             &location_key,
-            is_extension,
+            true,
         )
     }
 
@@ -1017,12 +1016,11 @@ impl InMemorySchema {
         &mut self,
         interface_extension: InterfaceTypeExtension,
         location_key: SourceLocationKey,
-        is_extension: bool,
     ) -> DiagnosticsResult<()> {
         self.add_definition(
             &TypeSystemDefinition::InterfaceTypeExtension(interface_extension),
             &location_key,
-            is_extension,
+            true,
         )
     }
 

@@ -114,10 +114,10 @@ pub fn build_schema(
                     schema.add_extension_object(object, location)?
                 }
                 for (extension, location) in object_extensions {
-                    schema.add_object_type_extension(extension, location, true)?
+                    schema.add_object_type_extension(extension, location)?
                 }
                 for (extension, location) in interface_extensions {
-                    schema.add_interface_type_extension(extension, location, true)?
+                    schema.add_interface_type_extension(extension, location)?
                 }
             }
 

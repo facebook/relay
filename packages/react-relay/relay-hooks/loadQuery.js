@@ -12,6 +12,7 @@
 'use strict';
 
 import type {
+  EnvironmentProviderOptions,
   LoadQueryOptions,
   PreloadableConcreteRequest,
   PreloadedQueryInner,
@@ -55,7 +56,10 @@ function useTrackLoadQueryInRender() {
   }
 }
 
-function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
+function loadQuery<
+  TQuery: OperationType,
+  TEnvironmentProviderOptions = EnvironmentProviderOptions,
+>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
   variables: TQuery['variables'],

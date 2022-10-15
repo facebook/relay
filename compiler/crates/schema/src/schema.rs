@@ -280,12 +280,11 @@ impl SDLSchema {
         &mut self,
         object_extension: ObjectTypeExtension,
         location_key: SourceLocationKey,
-        is_extension: bool,
     ) -> DiagnosticsResult<()> {
         match self {
             SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
             SDLSchema::InMemory(schema) => {
-                schema.add_object_type_extension(object_extension, location_key, is_extension)
+                schema.add_object_type_extension(object_extension, location_key)
             }
         }
     }
@@ -294,13 +293,23 @@ impl SDLSchema {
         &mut self,
         interface_extension: InterfaceTypeExtension,
         location_key: SourceLocationKey,
-        is_extension: bool,
     ) -> DiagnosticsResult<()> {
         match self {
             SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
             SDLSchema::InMemory(schema) => {
-                schema.add_interface_type_extension(interface_extension, location_key, is_extension)
+                schema.add_interface_type_extension(interface_extension, location_key)
             }
+        }
+    }
+
+    pub fn add_extension_object(
+        &mut self,
+        object: ObjectTypeDefinition,
+        location_key: SourceLocationKey,
+    ) -> DiagnosticsResult<()> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::InMemory(schema) => schema.add_extension_object(object, location_key),
         }
     }
 

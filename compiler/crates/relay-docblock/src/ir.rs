@@ -65,6 +65,8 @@ lazy_static! {
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("deprecated".intern());
     static ref FRAGMENT_KEY_ARGUMENT_NAME: ArgumentName = ArgumentName("fragment_name".intern());
+    static ref INJECT_FRAGMENT_DATA_ARGUMENT_NAME: ArgumentName =
+        ArgumentName("inject_fragment_data".intern());
     static ref IMPORT_PATH_ARGUMENT_NAME: ArgumentName = ArgumentName("import_path".intern());
     static ref IMPORT_NAME_ARGUMENT_NAME: ArgumentName = ArgumentName("import_name".intern());
     static ref LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
@@ -72,6 +74,7 @@ lazy_static! {
     static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
         ArgumentName("has_output_type".intern());
     pub(crate) static ref ID_FIELD_NAME: StringKey = "id".intern();
+    pub(crate) static ref RESOLVER_VALUE_SCALAR_NAME: StringKey = "RelayResolverValue".intern();
     static ref RESOLVER_MODEL_INSTANCE_FIELD_NAME: StringKey = "__relay_model_instance".intern();
     static ref MODEL_CUSTOM_SCALAR_TYPE_PREFIX: StringKey = "Model".intern();
 }
@@ -152,10 +155,24 @@ impl OutputType {
     }
 }
 
+pub enum FragmentDataInjectionMode {
+    /// For `id` and `__relay_model_instance ` resolvers we want to read just one field
+    /// of that fragment and pass it to the resolver
+    Field(StringKey),
+    // TODO: Add `FullData` mode for this
+}
+
+pub struct RootFragment {
+    fragment: WithLocation<FragmentDefinitionName>,
+    // For Model resolvers we need to inject `id` , `__relay_model_instance ` fragment data
+    // the resolver function
+    inject_fragment_data: Option<FragmentDataInjectionMode>,
+}
+
 trait ResolverIr {
     fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>>;
     fn location(&self) -> Location;
-    fn root_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>>;
+    fn root_fragment(&self) -> Option<RootFragment>;
     fn output_type(&self) -> Option<&OutputType>;
     fn deprecated(&self) -> Option<IrField>;
     fn live(&self) -> Option<IrField>;
@@ -202,8 +219,19 @@ trait ResolverIr {
         if let Some(root_fragment) = self.root_fragment() {
             arguments.push(string_argument(
                 FRAGMENT_KEY_ARGUMENT_NAME.0,
-                root_fragment.map(|x| x.0),
+                root_fragment.fragment.map(|x| x.0),
             ));
+
+            if let Some(inject_fragment_data) = root_fragment.inject_fragment_data {
+                match inject_fragment_data {
+                    FragmentDataInjectionMode::Field(field_name) => {
+                        arguments.push(string_argument(
+                            INJECT_FRAGMENT_DATA_ARGUMENT_NAME.0,
+                            WithLocation::new(root_fragment.fragment.location, field_name),
+                        ));
+                    }
+                }
+            }
         }
 
         if let Some(live_field) = self.live() {
@@ -331,8 +359,11 @@ impl ResolverIr for RelayResolverIr {
         self.location
     }
 
-    fn root_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>> {
-        self.root_fragment
+    fn root_fragment(&self) -> Option<RootFragment> {
+        self.root_fragment.map(|fragment| RootFragment {
+            fragment,
+            inject_fragment_data: None,
+        })
     }
 
     fn output_type(&self) -> Option<&OutputType> {
@@ -479,11 +510,11 @@ impl RelayResolverIr {
         let edge_to = self.output_type.as_ref().map_or_else(
             || {
                 // Resolvers return arbitrary JavaScript values. However, we
-                // need some GraphQL type to use in the schema. As a placeholder
-                // we arbitrarily use Int. In the future we may want to use a custom
-                // scalar here.
+                // need some GraphQL type to use in the schema. We use
+                // `RelayResolverValue` (defined in the relay-extensions.graphql
+                // file) for this purpose.
                 TypeAnnotation::Named(NamedTypeAnnotation {
-                    name: string_key_as_identifier(*INT_TYPE),
+                    name: string_key_as_identifier(*RESOLVER_VALUE_SCALAR_NAME),
                 })
             },
             |output_type| output_type.inner().item.clone(),
@@ -584,8 +615,11 @@ impl ResolverIr for StrongObjectIr {
         self.location
     }
 
-    fn root_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>> {
-        Some(self.root_fragment)
+    fn root_fragment(&self) -> Option<RootFragment> {
+        Some(RootFragment {
+            fragment: self.root_fragment,
+            inject_fragment_data: Some(FragmentDataInjectionMode::Field(*ID_FIELD_NAME)),
+        })
     }
 
     fn output_type(&self) -> Option<&OutputType> {
@@ -719,7 +753,7 @@ impl ResolverIr for WeakObjectIr {
         self.location
     }
 
-    fn root_fragment(&self) -> Option<WithLocation<FragmentDefinitionName>> {
+    fn root_fragment(&self) -> Option<RootFragment> {
         None
     }
 

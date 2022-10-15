@@ -22,9 +22,15 @@ type PopStarName {
 }
 
 extend type PopStarName {
-  fancy_name: Int @relay_resolver(import_path: "PopStarFancyNameResolver")
+  fancy_name: RelayResolverValue
+    @relay_resolver(import_path: "PopStarFancyNameResolver")
 }
 
 extend type User {
-  pop_star_name: PopStarName @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+  pop_star_name: PopStarName
+    @relay_resolver(
+      fragment_name: "PopStarNameResolverFragment_name"
+      import_path: "PopStarNameResolver"
+      has_output_type: true
+    )
 }

@@ -3,7 +3,7 @@ fragment relayResolver_PopStarNameResolverFragment_name on User {
 }
 
 fragment relayResolver_user on User {
-    pop_star_name
+  pop_star_name
 }
 
 query relayResolver_Query @raw_response_type {
@@ -15,5 +15,9 @@ query relayResolver_Query @raw_response_type {
 # %extensions%
 
 extend type User {
-  pop_star_name: Int @relay_resolver(fragment_name: "relayResolver_PopStarNameResolverFragment_name", import_path: "PopStarNameResolver")
+  pop_star_name: RelayResolverValue
+    @relay_resolver(
+      fragment_name: "relayResolver_PopStarNameResolverFragment_name"
+      import_path: "PopStarNameResolver"
+    )
 }

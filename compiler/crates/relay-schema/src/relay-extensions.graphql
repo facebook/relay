@@ -235,6 +235,17 @@ directive @waterfall on FIELD
 """
 (Relay Only)
 
+A special scalar type which can be used as the return type of a Relay Resolver.
+When used, the resolver field will derive its TypeScript/Flow type from the
+return value of the Resolver function.
+
+[Learn More](https://relay.dev/docs/next/guides/relay-resolvers/)
+"""
+scalar RelayResolverValue
+
+"""
+(Relay Only)
+
 Marks a given query or fragment as updatable.
 
 [Read More](https://fb.quip.com/4FZaADvkQPPl)

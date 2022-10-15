@@ -11,5 +11,10 @@ query relayResolverNamedImport_Query {
 # %extensions%
 
 extend type User {
-  pop_star_name: Int @relay_resolver(fragment_name: "relayResolverNamedImport_PopStarNameResolverFragment_name", import_path: "./foo/bar/baz/PopStarNameResolver.js", import_name: "pop_star_name")
+  pop_star_name: RelayResolverValue
+    @relay_resolver(
+      fragment_name: "relayResolverNamedImport_PopStarNameResolverFragment_name"
+      import_path: "./foo/bar/baz/PopStarNameResolver.js"
+      import_name: "pop_star_name"
+    )
 }

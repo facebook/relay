@@ -246,6 +246,18 @@ scalar RelayResolverValue
 """
 (Relay Only)
 
+Marks a Client Schema Extension type as being an Output Type. This means that if
+a Relay Resolver returns an edge to this type, the Resolver will be expected to
+return the full object, rather than an ID.
+
+This is intended for use on "weak" objects, which don't have their own strong
+identity, but rather are conceptually owned by the parent object.
+"""
+directive @RelayOutputType on OBJECT
+
+"""
+(Relay Only)
+
 Marks a given query or fragment as updatable.
 
 [Read More](https://fb.quip.com/4FZaADvkQPPl)

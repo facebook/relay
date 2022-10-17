@@ -62,6 +62,8 @@ lazy_static! {
         DirectiveName("relay_resolver".intern());
     static ref RELAY_RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("__RelayResolverModel".intern());
+    static ref OBJECT_DEFINITION_OUPTUT_TYPE_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("RelayOutputType".intern());
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("deprecated".intern());
     static ref FRAGMENT_KEY_ARGUMENT_NAME: ArgumentName = ArgumentName("fragment_name".intern());
@@ -653,12 +655,20 @@ impl WeakObjectIr {
     fn type_definition(&self) -> TypeSystemDefinition {
         let span = self.type_name.value.location.span();
 
-        let mut directives = vec![ConstantDirective {
-            span: span.clone(),
-            at: dummy_token(&span),
-            name: string_key_as_identifier(RELAY_RESOLVER_MODEL_DIRECTIVE_NAME.0),
-            arguments: None,
-        }];
+        let mut directives = vec![
+            ConstantDirective {
+                span: span.clone(),
+                at: dummy_token(span),
+                name: string_key_as_identifier(RELAY_RESOLVER_MODEL_DIRECTIVE_NAME.0),
+                arguments: None,
+            },
+            ConstantDirective {
+                span: span.clone(),
+                at: dummy_token(span),
+                name: string_key_as_identifier(OBJECT_DEFINITION_OUPTUT_TYPE_DIRECTIVE_NAME.0),
+                arguments: None,
+            },
+        ];
         if let Some(deprecated) = self.deprecated {
             directives.push(ConstantDirective {
                 span: span.clone(),

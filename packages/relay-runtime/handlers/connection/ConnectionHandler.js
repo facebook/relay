@@ -363,7 +363,7 @@ function insertEdgeAfter(
   if (cursor == null) {
     nextEdges = edges.concat(newEdge);
   } else {
-    nextEdges = [];
+    nextEdges = ([]: Array<?RecordProxy>);
     let foundCursor = false;
     for (let ii = 0; ii < edges.length; ii++) {
       const edge = edges[ii];
@@ -467,7 +467,7 @@ function insertEdgeBefore(
   if (cursor == null) {
     nextEdges = [newEdge].concat(edges);
   } else {
-    nextEdges = [];
+    nextEdges = ([]: Array<?RecordProxy>);
     let foundCursor = false;
     for (let ii = 0; ii < edges.length; ii++) {
       const edge = edges[ii];

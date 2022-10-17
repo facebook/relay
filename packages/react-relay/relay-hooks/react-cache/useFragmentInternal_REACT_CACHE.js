@@ -438,7 +438,7 @@ function useFragmentInternal_REACT_CACHE(
       // eslint-disable-next-line no-shadow
       let clientEdgeQueries;
       if (missingClientEdges?.length) {
-        clientEdgeQueries = [];
+        clientEdgeQueries = ([]: Array<QueryResult>);
         for (const edge of missingClientEdges) {
           clientEdgeQueries.push(
             handleMissingClientEdge(

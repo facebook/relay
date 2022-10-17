@@ -113,7 +113,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         });
 
         function createObserver() {
-          const events = [];
+          const events: Array<$FlowFixMe | GraphQLResponse | Error | string> =
+            [];
           const observer = {
             complete: () => events.push('complete'),
             error: (error: Error) => events.push('error', error),

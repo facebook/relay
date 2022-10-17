@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {NormalizationSplitOperation} from '../../util/NormalizationNode';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
@@ -77,7 +78,14 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
         let resolveFragments;
 
         beforeEach(() => {
-          resolveFragments = [];
+          resolveFragments = ([]: Array<
+            | any
+            | ((
+                result?:
+                  | Promise<NormalizationSplitOperation>
+                  | NormalizationSplitOperation,
+              ) => void),
+          >);
           setFlags(RelayFeatureFlags);
           markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$normalization.graphql');
           plaintextRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization.graphql');

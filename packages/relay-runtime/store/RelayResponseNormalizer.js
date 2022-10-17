@@ -904,7 +904,7 @@ class RelayResponseNormalizer {
       storageKey,
     );
     const prevIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
-    const nextIDs = [];
+    const nextIDs: Array<?DataID> = [];
     fieldValue.forEach((item, nextIndex) => {
       // validate response data
       if (item == null) {

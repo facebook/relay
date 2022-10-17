@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {SelectorData} from 'relay-runtime/store/RelayStoreTypes';
 import type {Disposable} from '../../util/RelayRuntimeTypes';
 import type {
   RelayModernStoreTest2Fragment$data,
@@ -440,7 +441,9 @@ function cloneEventWithSets(event: LogEvent) {
             me: {__ref: '4'},
           },
         };
-        logEvents = [];
+        logEvents = ([]: Array<
+          $FlowFixMe | {...} | {data: ?SelectorData, kind: string},
+        >);
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {
           log: event => {
@@ -2327,7 +2330,7 @@ function cloneEventWithSets(event: LogEvent) {
       }
 
       beforeEach(() => {
-        schedulerQueue = [];
+        schedulerQueue = ([]: Array<$FlowFixMe | (() => void)>);
         source = getRecordSourceImplementation({});
         store = new RelayModernStore(source, {
           gcScheduler: mockScheduler,

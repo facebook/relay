@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {SelectorData} from 'relay-runtime/store/RelayStoreTypes';
 import type {
   RelayModernStoreSubscriptionsTest1Fragment$data,
   RelayModernStoreSubscriptionsTest1Fragment$fragmentType,
@@ -128,7 +129,9 @@ function cloneEventWithSets(event: LogEvent) {
             me: {__ref: '4'},
           },
         };
-        logEvents = [];
+        logEvents = ([]: Array<
+          $FlowFixMe | {...} | {data: ?SelectorData, kind: string},
+        >);
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {
           log: event => {

@@ -13,9 +13,10 @@
 
 import type {ReaderFragment} from 'relay-runtime';
 
+const useUnsafeRef_DEPRECATED = require('./useUnsafeRef_DEPRECATED');
 const {getFragmentResourceForEnvironment} = require('./FragmentResource');
 const useRelayEnvironment = require('./useRelayEnvironment');
-const {useEffect, useRef, useState} = require('react');
+const {useEffect, useState} = require('react');
 const {getFragmentIdentifier} = require('relay-runtime');
 const warning = require('warning');
 
@@ -33,7 +34,7 @@ function useFragmentNode<TFragmentData: mixed>(
   const environment = useRelayEnvironment();
   const FragmentResource = getFragmentResourceForEnvironment(environment);
 
-  const isMountedRef = useRef(false);
+  const isMountedRef = useUnsafeRef_DEPRECATED(false);
   const [, forceUpdate] = useState(0);
   const fragmentIdentifier = getFragmentIdentifier(fragmentNode, fragmentRef);
 
@@ -45,7 +46,7 @@ function useFragmentNode<TFragmentData: mixed>(
     componentDisplayName,
   );
 
-  const isListeningForUpdatesRef = useRef(true);
+  const isListeningForUpdatesRef = useUnsafeRef_DEPRECATED(true);
   function enableStoreUpdates() {
     isListeningForUpdatesRef.current = true;
     const didMissUpdates =

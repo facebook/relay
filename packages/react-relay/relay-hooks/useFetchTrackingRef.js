@@ -13,7 +13,8 @@
 
 import type {Subscription} from 'relay-runtime';
 
-const {useCallback, useEffect, useRef} = require('react');
+const useUnsafeRef_DEPRECATED = require('./useUnsafeRef_DEPRECATED');
+const {useCallback, useEffect} = require('react');
 
 /**
  * This hook returns a mutable React ref that holds the value of whether a
@@ -33,8 +34,8 @@ function useFetchTrackingRef(): {
   disposeFetch: () => void,
   completeFetch: () => void,
 } {
-  const subscriptionRef = useRef<?Subscription>(null);
-  const isFetchingRef = useRef<?boolean>(false);
+  const subscriptionRef = useUnsafeRef_DEPRECATED<?Subscription>(null);
+  const isFetchingRef = useUnsafeRef_DEPRECATED<?boolean>(false);
 
   const disposeFetch = useCallback(() => {
     if (subscriptionRef.current != null) {

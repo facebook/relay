@@ -1439,7 +1439,7 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       `;
-      const payload = {
+      const payload: $FlowFixMe = {
         node: {
           id: '1',
           __typename: 'Feedback',
@@ -3536,7 +3536,7 @@ describe('RelayResponseNormalizer', () => {
 
     describe('when successful', () => {
       it('normalizes Flight fields', () => {
-        const payload = {
+        const payload: $FlowFixMe = {
           node: {
             id: '1',
             __typename: 'Story',
@@ -3656,7 +3656,7 @@ describe('RelayResponseNormalizer', () => {
       });
 
       it('asserts that reactFlightPayloadDeserializer is defined as a function', () => {
-        const payload = {
+        const payload: $FlowFixMe = {
           node: {
             id: '1',
             __typename: 'Story',
@@ -3703,7 +3703,7 @@ describe('RelayResponseNormalizer', () => {
       describe('and ReactFlightServerErrorHandler is specified', () => {
         const reactFlightServerErrorHandler = jest.fn();
         it('calls ReactFlightServerErrorHandler', () => {
-          const payload = {
+          const payload: $FlowFixMe = {
             node: {
               id: '1',
               __typename: 'Story',
@@ -3748,7 +3748,7 @@ describe('RelayResponseNormalizer', () => {
       });
       describe('and no ReactFlightServerErrorHandler is specified', () => {
         it('warns', () => {
-          const payload = {
+          const payload: $FlowFixMe = {
             node: {
               id: '1',
               __typename: 'Story',
@@ -3855,7 +3855,7 @@ describe('RelayResponseNormalizer', () => {
       });
 
       it('warns if the row protocol is null', () => {
-        const payload = {
+        const payload: $FlowFixMe = {
           node: {
             id: '1',
             __typename: 'Story',

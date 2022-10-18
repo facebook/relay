@@ -148,7 +148,7 @@ describe('execute() a query with @stream with handler', () => {
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
-    const payload = {
+    const payload: $FlowFixMe = {
       data: {
         node: {
           __typename: 'Feedback',

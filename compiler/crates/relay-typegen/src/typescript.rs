@@ -80,6 +80,12 @@ impl Writer for TypeScriptPrinter {
                 Ok(())
             }
             AST::GenericType { outer, inner } => self.write_generic_type(*outer, inner),
+            AST::PropertyType {
+                type_name,
+                property_name,
+            } => {
+                write!(&mut self.result, "{}['{}']", type_name, property_name)
+            }
         }
     }
 

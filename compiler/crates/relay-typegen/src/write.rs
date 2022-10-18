@@ -465,6 +465,10 @@ fn write_fragment_imports(
                 current_referenced_fragment,
                 format!("{}$fragmentType", current_referenced_fragment),
             ),
+            EncounteredFragment::Data(current_referenced_fragment) => (
+                current_referenced_fragment,
+                format!("{}$data", current_referenced_fragment),
+            ),
         };
 
         let should_write_current_referenced_fragment = fragment_name_to_skip

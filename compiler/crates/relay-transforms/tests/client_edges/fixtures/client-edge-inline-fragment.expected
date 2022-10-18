@@ -50,6 +50,7 @@ fragment Foo_node on Node {
         #     field_arguments: [],
         #     live: false,
         #     normalization_info: None,
+        #     inject_fragment_data: None,
         # }
          @waterfall
         best_friend @waterfall {
@@ -77,6 +78,7 @@ fragment Foo_node on Node {
         #     field_arguments: [],
         #     live: false,
         #     normalization_info: None,
+        #     inject_fragment_data: None,
         # }
          @waterfall
         best_friend @waterfall {

@@ -42,6 +42,7 @@ fragment Foo_user on Node {
     #     field_arguments: [],
     #     live: false,
     #     normalization_info: None,
+    #     inject_fragment_data: None,
     # }
     
   }

@@ -62,6 +62,13 @@ impl Ast {
 }
 
 #[derive(Eq, PartialEq, Hash, Debug)]
+pub struct JSModuleDependency {
+    pub path: StringKey,
+    pub named_import: Option<StringKey>,
+    pub import_as: Option<StringKey>,
+}
+
+#[derive(Eq, PartialEq, Hash, Debug)]
 pub enum Primitive {
     Key(AstKey),
     Variable(StringKey),
@@ -73,17 +80,19 @@ pub enum Primitive {
     StorageKey(StringKey, AstKey),
     RawString(String),
     GraphQLModuleDependency(StringKey),
-    JSModuleDependency {
-        path: StringKey,
-        named_import: Option<StringKey>,
-        import_as: Option<StringKey>,
-    },
+    JSModuleDependency(JSModuleDependency),
+
     // Don't include the value in the output when
     // skip_printing_nulls is enabled
     SkippableNull,
     DynamicImport {
         provider: DynamicModuleProvider,
         module: StringKey,
+    },
+    RelayResolverModel {
+        graphql_module: StringKey,
+        js_module: JSModuleDependency,
+        field_name: Option<StringKey>,
     },
 }
 

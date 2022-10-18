@@ -73,6 +73,8 @@ lazy_static! {
     pub static ref RELAY_RESOLVER_LIVE_ARGUMENT_NAME: ArgumentName = ArgumentName("live".intern());
     pub static ref RELAY_RESOLVER_IS_OUTPUT_TYPE: ArgumentName =
         ArgumentName("has_output_type".intern());
+    pub static ref RELAY_RESOLVER_INJECT_FRAGMENT_DATA: ArgumentName =
+        ArgumentName("inject_fragment_data".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -82,12 +84,18 @@ pub struct ResolverNormalizationInfo {
     pub normalization_operation: WithLocation<OperationDefinitionName>,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum FragmentDataInjectionMode {
+    Field(StringKey), // TODO: Add Support for FullData
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 struct RelayResolverFieldMetadata {
     field_parent_type: StringKey,
     import_path: StringKey,
     import_name: Option<StringKey>,
     fragment_name: Option<FragmentDefinitionName>,
+    inject_fragment_data: Option<FragmentDataInjectionMode>,
     field_path: StringKey,
     live: bool,
     normalization_info: Option<ResolverNormalizationInfo>,
@@ -105,6 +113,12 @@ pub struct RelayResolverMetadata {
     pub field_arguments: Vec<Argument>,
     pub live: bool,
     pub normalization_info: Option<ResolverNormalizationInfo>,
+    // a tuple with fragment name and field name we need read of that fragment
+    // to pass it to the resolver function
+    pub inject_fragment_data: Option<(
+        WithLocation<FragmentDefinitionName>,
+        FragmentDataInjectionMode,
+    )>,
 }
 associated_data_impl!(RelayResolverMetadata);
 
@@ -186,6 +200,17 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                 field_arguments,
                 live: field_metadata.live,
                 normalization_info: field_metadata.normalization_info.clone(),
+                inject_fragment_data: field_metadata.inject_fragment_data.as_ref().map(
+                    |injection_mode| {
+                        (
+                            self.program
+                                .fragment(field_metadata.fragment_name.unwrap())
+                                .unwrap()
+                                .name,
+                            *injection_mode,
+                        )
+                    },
+                ),
             };
 
             let mut new_directives: Vec<Directive> = vec![resolver_metadata.into()];
@@ -331,6 +356,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                     import_name,
                     live,
                     has_output_type,
+                    inject_fragment_data,
                 }) => {
                     let mut non_required_directives =
                         field.directives().iter().filter(|directive| {
@@ -383,6 +409,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                         field_path: self.path.join(".").intern(),
                         live,
                         normalization_info,
+                        inject_fragment_data,
                     };
 
                     let mut directives: Vec<Directive> = field.directives().to_vec();
@@ -495,6 +522,7 @@ impl Transformer for RelayResolverFieldTransform<'_> {
 
 struct ResolverInfo {
     fragment_name: Option<FragmentDefinitionName>,
+    inject_fragment_data: Option<FragmentDataInjectionMode>,
     import_path: StringKey,
     import_name: Option<StringKey>,
     live: bool,
@@ -534,6 +562,12 @@ fn get_resolver_info(
                 error_location,
             )
             .ok();
+            let inject_fragment_data = get_argument_value(
+                arguments,
+                *RELAY_RESOLVER_INJECT_FRAGMENT_DATA,
+                error_location,
+            )
+            .ok();
 
             Ok(ResolverInfo {
                 fragment_name,
@@ -541,6 +575,7 @@ fn get_resolver_info(
                 import_name,
                 live,
                 has_output_type,
+                inject_fragment_data: inject_fragment_data.map(FragmentDataInjectionMode::Field),
             })
         })
 }

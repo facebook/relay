@@ -41,6 +41,7 @@ fragment Foo_user on User {
     #     field_arguments: [],
     #     live: false,
     #     normalization_info: None,
+    #     inject_fragment_data: None,
     # }
      @waterfall
     best_friend @waterfall {
@@ -62,6 +63,7 @@ fragment Foo_user on User {
         #     field_arguments: [],
         #     live: false,
         #     normalization_info: None,
+        #     inject_fragment_data: None,
         # }
          @waterfall
         best_friend @waterfall {
@@ -102,6 +104,7 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGe
     #     field_arguments: [],
     #     live: false,
     #     normalization_info: None,
+    #     inject_fragment_data: None,
     # }
      @waterfall
     best_friend @waterfall {

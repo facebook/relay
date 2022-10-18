@@ -13,6 +13,7 @@ type ClientUser @__RelayResolverModel {
     @relay_resolver(
       fragment_name: "ClientUser__id"
       import_path: "./path/to/UserModelResolver.js"
+      inject_fragment_data: "id"
     )
 }
 
@@ -21,6 +22,7 @@ extend type ClientUser {
     @relay_resolver(
       fragment_name: "ClientUser____relay_model_instance"
       import_path: "./path/to/UserNameResolver.js"
+      inject_fragment_data: "id"
     )
 }
 
@@ -56,7 +58,7 @@ extend type Query {
                 },
                 "kind": "RelayResolver",
                 "name": "name",
-                "resolverModule": require('UserNameResolver'),
+                "resolverModule": require('relay-runtime/store/experimental-live-resolvers/FragmentDataInjector')(require('ClientUser____relay_model_instance.graphql'), require('UserNameResolver'), 'id'),
                 "path": "client_user.name"
               }
             ],
@@ -162,7 +164,7 @@ Query Text is Empty.
       },
       "kind": "RelayResolver",
       "name": "__relay_model_instance",
-      "resolverModule": require('UserModelResolver'),
+      "resolverModule": require('relay-runtime/store/experimental-live-resolvers/FragmentDataInjector')(require('ClientUser__id.graphql'), require('UserModelResolver'), 'id'),
       "path": "__relay_model_instance"
     }
   ],

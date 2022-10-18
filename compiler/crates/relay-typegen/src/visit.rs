@@ -35,6 +35,7 @@ use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::FragmentAliasMetadata;
+use relay_transforms::FragmentDataInjectionMode;
 use relay_transforms::ModuleMetadata;
 use relay_transforms::NoInlineFragmentSpreadMetadata;
 use relay_transforms::RelayResolverMetadata;
@@ -306,15 +307,35 @@ fn generate_resolver_type(
 ) -> AST {
     let mut resolver_arguments = vec![];
     if let Some(fragment_name) = fragment_name {
-        encountered_fragments
-            .0
-            .insert(EncounteredFragment::Key(fragment_name));
-        resolver_arguments.push(KeyValuePairProp {
-            key: "rootKey".intern(),
-            value: AST::RawType(format!("{}$key", fragment_name).intern()),
-            read_only: false,
-            optional: false,
-        });
+        if let Some((fragment_name, injection_mode)) = resolver_metadata.inject_fragment_data {
+            match injection_mode {
+                FragmentDataInjectionMode::Field(field_name) => {
+                    encountered_fragments
+                        .0
+                        .insert(EncounteredFragment::Data(fragment_name.item));
+
+                    resolver_arguments.push(KeyValuePairProp {
+                        key: field_name,
+                        value: AST::PropertyType {
+                            type_name: format!("{}$data", fragment_name.item).intern(),
+                            property_name: field_name,
+                        },
+                        read_only: false,
+                        optional: false,
+                    });
+                }
+            }
+        } else {
+            encountered_fragments
+                .0
+                .insert(EncounteredFragment::Key(fragment_name));
+            resolver_arguments.push(KeyValuePairProp {
+                key: "rootKey".intern(),
+                value: AST::RawType(format!("{}$key", fragment_name).intern()),
+                read_only: false,
+                optional: false,
+            });
+        }
     }
 
     let parent_resolver_type = typegen_context

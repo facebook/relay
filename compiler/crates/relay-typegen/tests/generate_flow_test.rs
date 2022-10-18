@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<40e28ca764c2c97dfc7df1f620282c5a>>
+ * @generated SignedSource<<d8d55674575e3aa95de5eb0f66426525>>
  */
 
 mod generate_flow;
@@ -353,6 +353,13 @@ fn relay_resolver_in_fragment() {
     let input = include_str!("generate_flow/fixtures/relay-resolver-in-fragment.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver-in-fragment.expected");
     test_fixture(transform_fixture, "relay-resolver-in-fragment.graphql", "generate_flow/fixtures/relay-resolver-in-fragment.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_inject_fragment_data() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-inject-fragment-data.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-inject-fragment-data.expected");
+    test_fixture(transform_fixture, "relay-resolver-inject-fragment-data.graphql", "generate_flow/fixtures/relay-resolver-inject-fragment-data.expected", input, expected);
 }
 
 #[test]

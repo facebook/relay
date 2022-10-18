@@ -21,6 +21,7 @@ fragment Foo_user on User {
   #     field_arguments: [],
   #     live: true,
   #     normalization_info: None,
+  #     inject_fragment_data: None,
   # }
   
 }

@@ -53,6 +53,10 @@ pub enum AST {
         outer: StringKey,
         inner: Box<AST>,
     },
+    PropertyType {
+        type_name: StringKey,
+        property_name: StringKey,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]

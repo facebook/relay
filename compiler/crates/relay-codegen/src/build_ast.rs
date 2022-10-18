@@ -43,6 +43,7 @@ use relay_transforms::ConnectionConstants;
 use relay_transforms::ConnectionMetadata;
 use relay_transforms::DeferDirective;
 use relay_transforms::FragmentAliasMetadata;
+use relay_transforms::FragmentDataInjectionMode;
 use relay_transforms::InlineDirectiveMetadata;
 use relay_transforms::ModuleMetadata;
 use relay_transforms::NoInlineFragmentSpreadMetadata;
@@ -67,6 +68,7 @@ use schema::Schema;
 use crate::ast::Ast;
 use crate::ast::AstBuilder;
 use crate::ast::AstKey;
+use crate::ast::JSModuleDependency;
 use crate::ast::ObjectEntry;
 use crate::ast::Primitive;
 use crate::ast::QueryID;
@@ -1001,6 +1003,38 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         let args = self.build_arguments(field_arguments);
 
+        let resolver_module = if let Some((fragment_name, injection_mode)) =
+            relay_resolver_metadata.inject_fragment_data
+        {
+            let path_for_artifact = self.project_config.create_path_for_artifact(
+                fragment_name.location.source_location(),
+                fragment_name.item.to_string(),
+            );
+
+            let fragment_import_path = self.project_config.js_module_import_path(
+                self.definition_source_location,
+                path_for_artifact.to_str().unwrap().intern(),
+            );
+
+            Primitive::RelayResolverModel {
+                graphql_module: fragment_import_path,
+                js_module: JSModuleDependency {
+                    path: import_path,
+                    named_import: relay_resolver_metadata.import_name,
+                    import_as: Some(relay_resolver_metadata.generate_local_resolver_name()),
+                },
+                field_name: match injection_mode {
+                    FragmentDataInjectionMode::Field(field_name) => Some(field_name),
+                },
+            }
+        } else {
+            Primitive::JSModuleDependency(JSModuleDependency {
+                path: import_path,
+                named_import: relay_resolver_metadata.import_name,
+                import_as: Some(relay_resolver_metadata.generate_local_resolver_name()),
+            })
+        };
+
         // For Relay Resolvers in the Reader AST, we need enough
         // information to _read_ the resolver. Specifically, enough data
         // to construct a fragment key, and an import of the resolver
@@ -1017,11 +1051,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             },
             kind: Primitive::String(kind),
             name: Primitive::String(field_name),
-            resolver_module: Primitive::JSModuleDependency {
-                path: import_path,
-                named_import: relay_resolver_metadata.import_name,
-                import_as: Some(relay_resolver_metadata.generate_local_resolver_name()),
-            },
+            resolver_module: resolver_module,
             path: Primitive::String(path),
         };
 
@@ -1725,11 +1755,11 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
                 Some(ObjectEntry {
                     key: def.name.item.0,
-                    value: Primitive::JSModuleDependency {
+                    value: Primitive::JSModuleDependency(JSModuleDependency {
                         path: provider_module,
                         named_import: None,
                         import_as: None,
-                    },
+                    }),
                 })
             })
             .collect::<Vec<_>>();
@@ -1803,11 +1833,13 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             key: CODEGEN_CONSTANTS.id,
             value: match request_parameters.id {
                 Some(QueryID::Persisted { id, .. }) => Primitive::RawString(id.clone()),
-                Some(QueryID::External(module_name)) => Primitive::JSModuleDependency {
-                    path: *module_name,
-                    named_import: None,
-                    import_as: None,
-                },
+                Some(QueryID::External(module_name)) => {
+                    Primitive::JSModuleDependency(JSModuleDependency {
+                        path: *module_name,
+                        named_import: None,
+                        import_as: None,
+                    })
+                }
                 None => Primitive::Null,
             },
         };

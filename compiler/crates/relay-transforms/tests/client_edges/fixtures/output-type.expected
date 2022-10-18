@@ -54,6 +54,7 @@ fragment Foo_user on User {
     #             },
     #         },
     #     ),
+    #     inject_fragment_data: None,
     # }
     
     best_friend {

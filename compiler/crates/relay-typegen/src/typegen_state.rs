@@ -98,6 +98,7 @@ pub(crate) struct MatchFields(pub(crate) IndexMap<StringKey, AST>);
 pub(crate) enum EncounteredFragment {
     Spread(FragmentDefinitionName),
     Key(FragmentDefinitionName),
+    Data(FragmentDefinitionName),
 }
 
 /// This is a map FragmentName => Fragment Location

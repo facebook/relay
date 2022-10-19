@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<c9a81bce4a7b4a9f150f9feedd839386>>
+ * @generated SignedSource<<93e535f1b0ada38075a674cd447116a6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { CounterPlusOneResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/CounterPlusOneResolver.graphql";
-import queryCounterPlusOneResolver from "../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver.js";
+import {counter_plus_one as queryCounterPlusOneResolver} from "../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver.js";
 // Type assertion validating that `queryCounterPlusOneResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterPlusOneResolver: (
@@ -52,7 +52,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "counter_plus_one",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver'),
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver').counter_plus_one,
         "path": "counter_plus_one"
       }
     ],

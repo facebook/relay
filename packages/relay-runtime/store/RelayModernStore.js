@@ -333,7 +333,7 @@ class RelayModernStore implements Store {
       this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
     }
     const source = this.getSource();
-    const updatedOwners = [];
+    const updatedOwners: Array<RequestDescriptor> = [];
     this._storeSubscriptions.updateSubscriptions(
       source,
       this._updatedRecordIDs,

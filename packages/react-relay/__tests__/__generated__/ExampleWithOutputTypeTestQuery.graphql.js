@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<dc479261ebdf996c452c5e7b4dda4198>>
+ * @generated SignedSource<<918f907dc1b5afb2cdd180e69f75c012>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import queryExampleClientObjectResolver from "../../../relay-runtime/store/__tests__/resolvers/ExampleClientObjectResolver.js";
+import {example_client_object as queryExampleClientObjectResolver} from "../../../relay-runtime/store/__tests__/resolvers/ExampleClientObjectResolver.js";
 // Type assertion validating that `queryExampleClientObjectResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryExampleClientObjectResolver: () => ?Query__example_client_object$normalization);
@@ -53,7 +53,7 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "example_client_object",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ExampleClientObjectResolver'),
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ExampleClientObjectResolver').example_client_object,
           "path": "example_client_object",
           "normalizationInfo": {
             "concreteType": "ClientObject",

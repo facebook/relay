@@ -80,6 +80,12 @@ impl Writer for TypeScriptPrinter {
                 Ok(())
             }
             AST::GenericType { outer, inner } => self.write_generic_type(*outer, inner),
+            AST::PropertyType {
+                type_name,
+                property_name,
+            } => {
+                write!(&mut self.result, "{}['{}']", type_name, property_name)
+            }
         }
     }
 
@@ -102,6 +108,20 @@ impl Writer for TypeScriptPrinter {
             "import {} from \"{}\";",
             name, from_without_extension
         )
+    }
+
+    fn write_import_module_named(
+        &mut self,
+        name: &str,
+        import_as: Option<&str>,
+        from: &str,
+    ) -> FmtResult {
+        let local_name = if let Some(import_as) = import_as {
+            format!("{{{} as {}}}", name, import_as)
+        } else {
+            format!("{{{}}}", name)
+        };
+        self.write_import_module_default(&local_name, from)
     }
 
     fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult {

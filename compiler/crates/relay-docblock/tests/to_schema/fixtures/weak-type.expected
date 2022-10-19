@@ -1,0 +1,27 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @RelayResolver MyClientType
+ *
+ * @weak
+ * @deprecated Don't use this any more
+ *
+ * Check out this awesome client type!
+ */
+
+ export type MyClientType = {
+    name: string
+}
+==================================== OUTPUT ===================================
+scalar MyClientTypeModel @__RelayCustomScalar(path: "/path/to/test/fixture/weak-type.js", export_name: "MyClientType")
+
+
+type MyClientType @__RelayResolverModel @RelayOutputType @deprecated(reason: "Don't use this any more") {
+  __relay_model_instance: MyClientTypeModel
+}

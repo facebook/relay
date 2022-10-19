@@ -26,8 +26,12 @@ const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleExternalStateStore');
-const counterNoFragmentResolver = require('relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment');
-const counterResolver = require('relay-runtime/store/__tests__/resolvers/LiveCounterResolver');
+const {
+  counter_no_fragment: counterNoFragmentResolver,
+} = require('relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment');
+const {
+  counter: counterResolver,
+} = require('relay-runtime/store/__tests__/resolvers/LiveCounterResolver');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {

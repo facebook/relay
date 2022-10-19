@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<99eae34cc8ea8181c8b2e4fd5493cd4d>>
+ * @generated SignedSource<<7a8fc26b3a063c3b73ba4b0ac85acb14>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserCustomGreetingResolver$key } from "./../resolvers/__generated__/UserCustomGreetingResolver.graphql";
-import userCustomGreetingResolver from "../resolvers/UserCustomGreetingResolver.js";
+import {custom_greeting as userCustomGreetingResolver} from "../resolvers/UserCustomGreetingResolver.js";
 // Type assertion validating that `userCustomGreetingResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userCustomGreetingResolver: (
@@ -113,7 +113,7 @@ return {
             "fragment": (v2/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../resolvers/UserCustomGreetingResolver'),
+            "resolverModule": require('./../resolvers/UserCustomGreetingResolver').custom_greeting,
             "path": "me.dynamic_greeting"
           },
           {
@@ -122,7 +122,7 @@ return {
             "fragment": (v2/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../resolvers/UserCustomGreetingResolver'),
+            "resolverModule": require('./../resolvers/UserCustomGreetingResolver').custom_greeting,
             "path": "me.greetz"
           },
           {
@@ -131,7 +131,7 @@ return {
             "fragment": (v2/*: any*/),
             "kind": "RelayResolver",
             "name": "custom_greeting",
-            "resolverModule": require('./../resolvers/UserCustomGreetingResolver'),
+            "resolverModule": require('./../resolvers/UserCustomGreetingResolver').custom_greeting,
             "path": "me.willkommen"
           }
         ],

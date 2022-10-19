@@ -1,0 +1,59 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  pop_star_name
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", inject_fragment_data: "name")
+}
+==================================== OUTPUT ===================================
+fragment Foo_user on User {
+  ...PopStarNameResolverFragment_name @__RelayResolverMetadata
+  # RelayResolverMetadata {
+  #     field_parent_type: "User",
+  #     import_path: "PopStarNameResolver",
+  #     import_name: None,
+  #     field_name: "pop_star_name",
+  #     field_alias: None,
+  #     field_path: "pop_star_name",
+  #     field_arguments: [],
+  #     live: false,
+  #     normalization_info: None,
+  #     inject_fragment_data: Some(
+  #         (
+  #             WithLocation {
+  #                 location: relay-resolver-model.graphql:56:88,
+  #                 item: FragmentDefinitionName(
+  #                     "PopStarNameResolverFragment_name",
+  #                 ),
+  #             },
+  #             Field(
+  #                 "name",
+  #             ),
+  #         ),
+  #     ),
+  # }
+  
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}

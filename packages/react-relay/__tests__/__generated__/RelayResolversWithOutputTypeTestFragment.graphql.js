@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<54920abcb4856176287c3e14731c452b>>
+ * @generated SignedSource<<6644bb4841980c1bda6466418e74e80c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -23,7 +23,7 @@ import type { RelayResolversWithOutputTypeTestTodoCompleteFragment$fragmentType 
 import type { TodoTextResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoTextResolverFragment.graphql";
 import type { Todo__text$normalization } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/Todo__text$normalization.graphql";
 import type { FragmentType } from "relay-runtime";
-import todoTextResolver from "../../../relay-runtime/store/__tests__/resolvers/TodoTextResolver.js";
+import {text as todoTextResolver} from "../../../relay-runtime/store/__tests__/resolvers/TodoTextResolver.js";
 // Type assertion validating that `todoTextResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (todoTextResolver: (
@@ -68,7 +68,7 @@ var node/*: ReaderFragment*/ = {
         },
         "kind": "RelayResolver",
         "name": "text",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoTextResolver'),
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/TodoTextResolver').text,
         "path": "text",
         "normalizationInfo": {
           "concreteType": "TodoText",

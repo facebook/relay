@@ -36,6 +36,7 @@ use crate::typegen_state::EncounteredEnums;
 use crate::typegen_state::EncounteredFragment;
 use crate::typegen_state::EncounteredFragments;
 use crate::typegen_state::ImportedRawResponseTypes;
+use crate::typegen_state::ImportedResolverName;
 use crate::typegen_state::ImportedResolvers;
 use crate::typegen_state::InputObjectTypes;
 use crate::typegen_state::MatchFields;
@@ -464,6 +465,10 @@ fn write_fragment_imports(
                 current_referenced_fragment,
                 format!("{}$fragmentType", current_referenced_fragment),
             ),
+            EncounteredFragment::Data(current_referenced_fragment) => (
+                current_referenced_fragment,
+                format!("{}$data", current_referenced_fragment),
+            ),
         };
 
         let should_write_current_referenced_fragment = fragment_name_to_skip
@@ -538,8 +543,19 @@ fn write_relay_resolver_imports(
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
     imported_resolvers.0.sort_keys();
-    for (from, resolver) in imported_resolvers.0 {
-        writer.write_import_module_default(resolver.resolver_name.lookup(), from.lookup())?;
+    for resolver in imported_resolvers.0.values() {
+        match resolver.resolver_name {
+            ImportedResolverName::Default(name) => {
+                writer.write_import_module_default(name.lookup(), resolver.import_path.lookup())?;
+            }
+            ImportedResolverName::Named { name, import_as } => {
+                writer.write_import_module_named(
+                    name.lookup(),
+                    Some(import_as.lookup()),
+                    resolver.import_path.lookup(),
+                )?;
+            }
+        }
         writer.write(&resolver.resolver_type)?;
     }
     Ok(())

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9a3489556aa52af9b4482cb8bb98087a>>
+ * @generated SignedSource<<4a552f12accd7549b272250252742fad>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { AstrologicalSignSelfResolver$key } from "./AstrologicalSignSelfResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import astrologicalSignSelfResolver from "../AstrologicalSignSelfResolver.js";
+import {self as astrologicalSignSelfResolver} from "../AstrologicalSignSelfResolver.js";
 // Type assertion validating that `astrologicalSignSelfResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignSelfResolver: (
@@ -54,7 +54,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "self",
-      "resolverModule": require('./../AstrologicalSignSelfResolver'),
+      "resolverModule": require('./../AstrologicalSignSelfResolver').self,
       "path": "self"
     }
   ],

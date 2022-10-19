@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+query RelayClientIDFieldQuery($id: ID!) {
+  my_custom_type {
+    __instance
+  }
+}
+
+# %extensions%
+
+scalar CustomClientTypeModel
+  @__RelayCustomScalar(
+    path: "./path/to/the/module.js"
+    export_name: "CustomClientTypeModel"
+  )
+
+type CustomClientType {
+  __instance: CustomClientTypeModel
+}
+
+extend type Query {
+  my_custom_type: CustomClientType
+}
+==================================== OUTPUT ===================================
+import type { CustomClientTypeModel } from "./path/to/the/module.js";
+export type RelayClientIDFieldQuery$variables = {|
+  id: string,
+|};
+export type RelayClientIDFieldQuery$data = {|
+  +my_custom_type: ?{|
+    +__instance: ?CustomClientTypeModel,
+  |},
+|};
+export type RelayClientIDFieldQuery = {|
+  response: RelayClientIDFieldQuery$data,
+  variables: RelayClientIDFieldQuery$variables,
+|};

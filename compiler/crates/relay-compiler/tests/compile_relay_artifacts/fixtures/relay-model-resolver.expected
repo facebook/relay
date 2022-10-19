@@ -1,0 +1,196 @@
+==================================== INPUT ====================================
+query relayModelResolver_Query {
+  client_user {
+    name
+  }
+}
+
+# %extensions%
+
+type ClientUser @__RelayResolverModel {
+  id: ID!
+  __relay_model_instance: RelayResolverValue
+    @relay_resolver(
+      fragment_name: "ClientUser__id"
+      import_path: "./path/to/UserModelResolver.js"
+      inject_fragment_data: "id"
+    )
+}
+
+extend type ClientUser {
+  name: RelayResolverValue
+    @relay_resolver(
+      fragment_name: "ClientUser____relay_model_instance"
+      import_path: "./path/to/UserNameResolver.js"
+      inject_fragment_data: "id"
+    )
+}
+
+extend type Query {
+  client_user: ClientUser
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "relayModelResolver_Query",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "ClientUser",
+            "kind": "LinkedField",
+            "name": "client_user",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "fragment": {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "ClientUser____relay_model_instance"
+                },
+                "kind": "RelayResolver",
+                "name": "name",
+                "resolverModule": require('relay-runtime/store/experimental-live-resolvers/FragmentDataInjector')(require('ClientUser____relay_model_instance.graphql'), require('UserNameResolver'), 'id'),
+                "path": "client_user.name"
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "relayModelResolver_Query",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "ClientUser",
+            "kind": "LinkedField",
+            "name": "client_user",
+            "plural": false,
+            "selections": [
+              {
+                "name": "name",
+                "args": null,
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "name": "__relay_model_instance",
+                      "args": null,
+                      "fragment": {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "id",
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "ClientUser",
+                        "abstractKey": null
+                      },
+                      "kind": "RelayResolver",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "ClientUser",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "adf34d8d7dac09e44f3dcf18e41be594",
+    "id": null,
+    "metadata": {},
+    "name": "relayModelResolver_Query",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ClientUser____relay_model_instance",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "fragment": {
+        "args": null,
+        "kind": "FragmentSpread",
+        "name": "ClientUser__id"
+      },
+      "kind": "RelayResolver",
+      "name": "__relay_model_instance",
+      "resolverModule": require('relay-runtime/store/experimental-live-resolvers/FragmentDataInjector')(require('ClientUser__id.graphql'), require('UserModelResolver'), 'id'),
+      "path": "__relay_model_instance"
+    }
+  ],
+  "type": "ClientUser",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "ClientUser__id",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "ClientUser",
+  "abstractKey": null
+}

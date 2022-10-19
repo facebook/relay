@@ -21,8 +21,10 @@ import type {DataID} from '../../../util/RelayRuntimeTypes';
  *
  * This should return the User
  */
-function helloUserResolver(args: {id: string}): DataID {
+function hello_user(args: {id: string}): DataID {
   return args.id;
 }
 
-module.exports = helloUserResolver;
+module.exports = {
+  hello_user,
+};

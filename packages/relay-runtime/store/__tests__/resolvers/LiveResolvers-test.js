@@ -18,7 +18,7 @@ const {
   GLOBAL_STORE,
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleExternalStateStore');
-const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
+const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore');
 const RelayModernEnvironment = require('relay-runtime/store/RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -31,7 +31,9 @@ const {
 const {
   suspenseSentinel,
 } = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
-const LiveExternalGreeting = require('./LiveExternalGreeting');
+const {
+  live_external_greeting: LiveExternalGreeting,
+} = require('./LiveExternalGreeting');
 
 disallowWarnings();
 disallowConsoleErrors();

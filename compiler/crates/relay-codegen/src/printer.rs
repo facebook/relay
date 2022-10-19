@@ -26,6 +26,7 @@ use schema::SDLSchema;
 use crate::ast::Ast;
 use crate::ast::AstBuilder;
 use crate::ast::AstKey;
+use crate::ast::JSModuleDependency;
 use crate::ast::ObjectEntry;
 use crate::ast::Primitive;
 use crate::ast::QueryID;
@@ -39,6 +40,7 @@ use crate::build_ast::build_request_params_ast_key;
 use crate::constants::CODEGEN_CONSTANTS;
 use crate::indentation::print_indentation;
 use crate::object;
+use crate::top_level_statements::ModuleImportName;
 use crate::top_level_statements::TopLevelStatement;
 use crate::top_level_statements::TopLevelStatements;
 use crate::utils::escape;
@@ -465,23 +467,32 @@ impl<'b> JSONPrinter<'b> {
             }
             Primitive::GraphQLModuleDependency(key) => self.write_js_dependency(
                 f,
-                format!("{}_graphql", key),
+                ModuleImportName::Default(format!("{}_graphql", key)),
                 Cow::Owned(format!(
                     "{}.graphql",
                     get_module_path(self.js_module_format, *key)
                 )),
             ),
-            Primitive::JSModuleDependency(key) => self.write_js_dependency(
+            Primitive::JSModuleDependency(JSModuleDependency {
+                path,
+                named_import,
+                import_as,
+            }) => self.write_js_dependency(
                 f,
-                key.to_string(),
-                get_module_path(self.js_module_format, *key),
+                named_import
+                    .map(|name| ModuleImportName::Named {
+                        name: name.to_string(),
+                        import_as: import_as.map(|item| item.to_string()),
+                    })
+                    .unwrap_or_else(|| ModuleImportName::Default(path.to_string())),
+                get_module_path(self.js_module_format, *path),
             ),
             Primitive::DynamicImport { provider, module } => match provider {
                 DynamicModuleProvider::JSResource => {
                     self.top_level_statements.insert(
                         "JSResource".to_string(),
                         TopLevelStatement::ImportStatement {
-                            name: "JSResource".to_string(),
+                            module_import_name: ModuleImportName::Default("JSResource".to_string()),
                             path: "JSResource".to_string(),
                         },
                     );
@@ -495,28 +506,98 @@ impl<'b> JSONPrinter<'b> {
                     Ok(())
                 }
             },
+            Primitive::RelayResolverModel {
+                graphql_module,
+                js_module,
+                field_name,
+            } => self.write_relay_resolver_model(
+                f,
+                *graphql_module,
+                js_module,
+                field_name.as_ref().copied(),
+            ),
         }
     }
 
     fn write_js_dependency(
         &mut self,
         f: &mut String,
-        name: String,
+        module_import_name: ModuleImportName,
         path: Cow<'_, str>,
     ) -> FmtResult {
         if self.eager_es_modules {
-            let write_result = write!(f, "{}", name);
+            let path = path.into_owned();
+            let key = match module_import_name {
+                ModuleImportName::Default(ref name) => name.to_string(),
+                ModuleImportName::Named {
+                    ref name,
+                    ref import_as,
+                } => import_as
+                    .as_ref()
+                    .cloned()
+                    .unwrap_or_else(|| name.to_string()),
+            };
             self.top_level_statements.insert(
-                name.clone(),
+                key.to_string(),
                 TopLevelStatement::ImportStatement {
-                    name,
-                    path: path.into_owned(),
+                    module_import_name,
+                    path,
                 },
             );
-            write_result
+            write!(f, "{}", key)
         } else {
-            write!(f, "require('{}')", path)
+            match module_import_name {
+                ModuleImportName::Default(_) => {
+                    write!(f, "require('{}')", path)
+                }
+                ModuleImportName::Named { name, .. } => {
+                    write!(f, "require('{}').{}", path, name)
+                }
+            }
         }
+    }
+
+    fn write_relay_resolver_model(
+        &mut self,
+        f: &mut String,
+        graphql_module: StringKey,
+        js_module: &JSModuleDependency,
+        field_name: Option<StringKey>,
+    ) -> FmtResult {
+        let relay_resolver_with_type_module =
+            "relay-runtime/store/experimental-live-resolvers/FragmentDataInjector";
+        let relay_resolver_with_type_module_name = "RelayResolversFragmentDataInjector";
+
+        self.write_js_dependency(
+            f,
+            ModuleImportName::Default(relay_resolver_with_type_module_name.to_string()),
+            Cow::Borrowed(relay_resolver_with_type_module),
+        )?;
+        write!(f, "(")?;
+        self.write_js_dependency(
+            f,
+            ModuleImportName::Default(format!("{}_graphql", graphql_module)),
+            Cow::Owned(format!(
+                "{}.graphql",
+                get_module_path(self.js_module_format, graphql_module)
+            )),
+        )?;
+        write!(f, ", ")?;
+        self.write_js_dependency(
+            f,
+            js_module.named_import.map_or_else(
+                || ModuleImportName::Default(js_module.path.to_string()),
+                |name| ModuleImportName::Named {
+                    name: name.to_string(),
+                    import_as: js_module.import_as.map(|item| item.to_string()),
+                },
+            ),
+            get_module_path(self.js_module_format, js_module.path),
+        )?;
+        if let Some(field_name) = field_name {
+            write!(f, ", '{}'", field_name)?;
+        }
+        write!(f, ")")
     }
 }
 
@@ -683,7 +764,8 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         Primitive::StorageKey(_, _) => panic!("Unexpected StorageKey"),
         Primitive::RawString(_) => panic!("Unexpected RawString"),
         Primitive::GraphQLModuleDependency(_) => panic!("Unexpected GraphQLModuleDependency"),
-        Primitive::JSModuleDependency(_) => panic!("Unexpected JSModuleDependency"),
+        Primitive::JSModuleDependency { .. } => panic!("Unexpected JSModuleDependency"),
         Primitive::DynamicImport { .. } => panic!("Unexpected DynamicImport"),
+        Primitive::RelayResolverModel { .. } => panic!("Unexpected RelayResolver"),
     }
 }

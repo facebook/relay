@@ -11,6 +11,7 @@ use std::fmt;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::hash::Hash;
+use std::str::FromStr;
 use std::sync::Arc;
 
 use common::ArgumentName;
@@ -21,6 +22,7 @@ use common::WithLocation;
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
 use intern::impl_lookup;
+use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::BuildIdHasher;
 use intern::Lookup;
@@ -132,6 +134,13 @@ pub struct VariableName(pub StringKey);
 impl Display for VariableName {
     fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(fmt, "{}", self.0)
+    }
+}
+
+impl FromStr for VariableName {
+    type Err = std::convert::Infallible;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(VariableName(s.intern()))
     }
 }
 

@@ -24,9 +24,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * Re-expose `Name` from our client fat `self` object.
  */
-function astrologicalSignName(
-  rootKey: AstrologicalSignNameResolver$key,
-): string | null {
+function name(rootKey: AstrologicalSignNameResolver$key): string | null {
   const sign = readFragment(
     graphql`
       fragment AstrologicalSignNameResolver on AstrologicalSign {
@@ -38,4 +36,6 @@ function astrologicalSignName(
   return sign.self?.name ?? null;
 }
 
-module.exports = astrologicalSignName;
+module.exports = {
+  name,
+};

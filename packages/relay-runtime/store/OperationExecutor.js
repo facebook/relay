@@ -746,7 +746,7 @@ class Executor<TMutation: MutationParameters> {
     moduleImportPayload: ModuleImportPayload,
   ): $ReadOnlyArray<OptimisticUpdate<TMutation>> {
     const operation = getOperation(normalizationRootNode);
-    const optimisticUpdates = [];
+    const optimisticUpdates: Array<OptimisticUpdate<TMutation>> = [];
     const modulePayload = this._normalizeFollowupPayload(
       moduleImportPayload,
       operation,

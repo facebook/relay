@@ -18,8 +18,10 @@
  *
  * Say `Hello ${world}!`
  */
-function helloWorldResolver(args: {world: string}): string {
+function hello(args: {world: string}): string {
   return `Hello, ${args.world}!`;
 }
 
-module.exports = helloWorldResolver;
+module.exports = {
+  hello,
+};

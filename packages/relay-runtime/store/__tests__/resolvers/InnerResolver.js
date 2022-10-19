@@ -41,11 +41,13 @@ function inner(rootKey: InnerResolver$key): LiveState<number> {
       return Selectors.getNumber(GLOBAL_STORE.getState());
     },
     subscribe(cb): () => void {
-      // Here we could try to run the selector and short-circut if the value has
+      // Here we could try to run the selector and short-circuit if the value has
       // not changed, but for now we'll over-notify.
       return GLOBAL_STORE.subscribe(cb);
     },
   };
 }
 
-module.exports = inner;
+module.exports = {
+  inner,
+};

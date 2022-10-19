@@ -575,7 +575,7 @@ https://phabricator.internmc.facebook.com/diffusion/FBS/browse/master/xplat/js/R
 
 <OssOnly>
 
-The best source of example tests is in [the relay-experimental package](https://github.com/facebook/relay/tree/main/packages/relay-experimental/__tests__).
+The best source of example tests is in [the relay-experimental package](https://github.com/facebook/relay/tree/main/packages/relay-test-utils/__tests__).
 
 </OssOnly>
 

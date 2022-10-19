@@ -24,7 +24,7 @@ const {graphql} = require('relay-runtime');
  * @fieldName text
  * @outputType TodoText
  */
-function TodoTextResolver(rootKey: TodoTextResolverFragment$key): ?ReturnType {
+function text(rootKey: TodoTextResolverFragment$key): ?ReturnType {
   const data = readFragment(
     graphql`
       fragment TodoTextResolverFragment on Todo {
@@ -50,4 +50,6 @@ function TodoTextResolver(rootKey: TodoTextResolverFragment$key): ?ReturnType {
   };
 }
 
-module.exports = TodoTextResolver;
+module.exports = {
+  text,
+};

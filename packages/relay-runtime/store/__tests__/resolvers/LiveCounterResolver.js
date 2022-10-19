@@ -46,7 +46,7 @@ function counter(rootKey: LiveCounterResolver$key): LiveState<number> {
       return Selectors.getNumber(GLOBAL_STORE.getState());
     },
     subscribe(cb): () => void {
-      // Here we could try to run the selector and short-circut if the value has
+      // Here we could try to run the selector and short-circuit if the value has
       // not changed, but for now we'll over-notify.
       return GLOBAL_STORE.subscribe(cb);
     },
@@ -55,4 +55,6 @@ function counter(rootKey: LiveCounterResolver$key): LiveState<number> {
 
 counter.callCount = 0;
 
-module.exports = counter;
+module.exports = {
+  counter,
+};

@@ -53,6 +53,10 @@ pub enum AST {
         outer: StringKey,
         inner: Box<AST>,
     },
+    PropertyType {
+        type_name: StringKey,
+        property_name: StringKey,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -357,6 +361,13 @@ pub trait Writer: Write {
     fn write_export_type(&mut self, name: &str, ast: &AST) -> FmtResult;
 
     fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult;
+
+    fn write_import_module_named(
+        &mut self,
+        name: &str,
+        import_as: Option<&str>,
+        from: &str,
+    ) -> FmtResult;
 
     fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult;
 

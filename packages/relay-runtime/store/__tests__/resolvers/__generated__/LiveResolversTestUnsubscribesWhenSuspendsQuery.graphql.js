@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d80ba1142ba83c206dbb0c9aafc00a87>>
+ * @generated SignedSource<<d9873989937ddb818cbe87b8839b2549>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,13 +20,13 @@
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { LiveExternalGreetingFragment$key } from "./LiveExternalGreetingFragment.graphql";
-import queryLiveExternalGreetingResolver from "../LiveExternalGreeting.js";
+import {live_external_greeting as queryLiveExternalGreetingResolver} from "../LiveExternalGreeting.js";
 // Type assertion validating that `queryLiveExternalGreetingResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveExternalGreetingResolver: (
   rootKey: LiveExternalGreetingFragment$key, 
 ) => LiveState<any>);
-import queryLiveUserSuspendsWhenOddResolver from "../LiveUserSuspendsWhenOdd.js";
+import {live_user_suspends_when_odd as queryLiveUserSuspendsWhenOddResolver} from "../LiveUserSuspendsWhenOdd.js";
 // Type assertion validating that `queryLiveUserSuspendsWhenOddResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveUserSuspendsWhenOddResolver: () => LiveState<any>);
@@ -74,7 +74,7 @@ return {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "live_user_suspends_when_odd",
-          "resolverModule": require('./../LiveUserSuspendsWhenOdd'),
+          "resolverModule": require('./../LiveUserSuspendsWhenOdd').live_user_suspends_when_odd,
           "path": "user"
         },
         "linkedField": {
@@ -106,7 +106,7 @@ return {
         },
         "kind": "RelayLiveResolver",
         "name": "live_external_greeting",
-        "resolverModule": require('./../LiveExternalGreeting'),
+        "resolverModule": require('./../LiveExternalGreeting').live_external_greeting,
         "path": "greeting"
       }
     ],

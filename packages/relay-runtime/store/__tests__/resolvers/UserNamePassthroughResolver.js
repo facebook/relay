@@ -22,7 +22,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @rootFragment UserNamePassthroughResolver
  * @onType User
  */
-function userGreeting(rootKey: UserNamePassthroughResolver$key): ?string {
+function name_passthrough(rootKey: UserNamePassthroughResolver$key): ?string {
   const user = readFragment(
     graphql`
       fragment UserNamePassthroughResolver on User {
@@ -34,4 +34,6 @@ function userGreeting(rootKey: UserNamePassthroughResolver$key): ?string {
   return user.name;
 }
 
-module.exports = userGreeting;
+module.exports = {
+  name_passthrough,
+};

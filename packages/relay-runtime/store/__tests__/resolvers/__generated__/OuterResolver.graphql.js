@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<9563aef1f31e611868f64201c8fc6f2e>>
+ * @generated SignedSource<<2347bb8cced35e635dc8afeb07665ed3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,7 +21,7 @@ import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { InnerResolver$key } from "./InnerResolver.graphql";
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { FragmentType } from "relay-runtime";
-import queryInnerResolver from "../InnerResolver.js";
+import {inner as queryInnerResolver} from "../InnerResolver.js";
 // Type assertion validating that `queryInnerResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryInnerResolver: (
@@ -55,7 +55,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayLiveResolver",
       "name": "inner",
-      "resolverModule": require('./../InnerResolver'),
+      "resolverModule": require('./../InnerResolver').inner,
       "path": "inner"
     }
   ],

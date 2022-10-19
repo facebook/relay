@@ -27,10 +27,7 @@ import type {Query__todos$normalization as ReturnType} from './__generated__/Que
  * @outputType TodoConnection
  * @live
  */
-function QueryTodos(args: {
-  first: ?number,
-  last: ?number,
-}): LiveState<?ReturnType> {
+function todos(args: {first: ?number, last: ?number}): LiveState<?ReturnType> {
   return {
     read() {
       const todoIDs = Selectors.getTodoIDs(TODO_STORE.getState());
@@ -58,4 +55,6 @@ function QueryTodos(args: {
   };
 }
 
-module.exports = QueryTodos;
+module.exports = {
+  todos,
+};

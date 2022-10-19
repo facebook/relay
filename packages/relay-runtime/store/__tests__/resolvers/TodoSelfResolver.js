@@ -31,9 +31,7 @@ import type {TodoItem} from 'relay-runtime/store/__tests__/resolvers/ExampleTodo
  * @fieldName self
  * @live
  */
-function TodoSelfResolver(
-  rootKey: TodoSelfResolverFragment$key,
-): LiveState<?TodoItem> {
+function self(rootKey: TodoSelfResolverFragment$key): LiveState<?TodoItem> {
   const data = readFragment(
     graphql`
       fragment TodoSelfResolverFragment on Todo {
@@ -55,4 +53,6 @@ function TodoSelfResolver(
   };
 }
 
-module.exports = TodoSelfResolver;
+module.exports = {
+  self,
+};

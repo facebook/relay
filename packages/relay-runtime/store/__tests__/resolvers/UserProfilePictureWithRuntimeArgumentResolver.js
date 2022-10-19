@@ -22,7 +22,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @rootFragment UserProfilePictureWithRuntimeArgumentResolver
  * @onType User
  */
-function UserProfilePictureWithRuntimeArgumentResolver(
+function user_profile_picture_uri_with_scale_and_additional_argument(
   rootKey: UserProfilePictureWithRuntimeArgumentResolver$key,
   args: mixed,
 ): ?string {
@@ -42,4 +42,6 @@ function UserProfilePictureWithRuntimeArgumentResolver(
   return `${String(name)}: ${String(user?.profile_picture?.uri)}`;
 }
 
-module.exports = UserProfilePictureWithRuntimeArgumentResolver;
+module.exports = {
+  user_profile_picture_uri_with_scale_and_additional_argument,
+};

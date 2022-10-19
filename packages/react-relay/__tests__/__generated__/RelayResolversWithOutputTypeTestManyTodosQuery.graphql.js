@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<86ac1311ea94149643356ec55f037d90>>
+ * @generated SignedSource<<0fc1e1e19bc49a255a1c84a7811d3874>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { RelayResolversWithOutputTypeTestFragment$fragmentType } from "./RelayResolversWithOutputTypeTestFragment.graphql";
-import queryManyTodosResolver from "../../../relay-runtime/store/__tests__/resolvers/QueryManyTodos.js";
+import {many_todos as queryManyTodosResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryManyTodos.js";
 // Type assertion validating that `queryManyTodosResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryManyTodosResolver: (
@@ -75,7 +75,7 @@ return {
           "fragment": null,
           "kind": "RelayResolver",
           "name": "many_todos",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryManyTodos'),
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryManyTodos').many_todos,
           "path": "many_todos",
           "normalizationInfo": {
             "concreteType": "Todo",

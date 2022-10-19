@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2865cb2e8f6813f07a9293f975065982>>
+ * @generated SignedSource<<e3d36e34acd7b1adeec7b695e00fdd41>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserClientEdgeResolver$key } from "./../resolvers/__generated__/UserClientEdgeResolver.graphql";
-import userClientEdgeResolver from "../resolvers/UserClientEdgeResolver.js";
+import {client_edge as userClientEdgeResolver} from "../resolvers/UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientEdgeResolver: (
@@ -99,7 +99,7 @@ return {
                       },
                       "kind": "RelayResolver",
                       "name": "client_edge",
-                      "resolverModule": require('./../resolvers/UserClientEdgeResolver'),
+                      "resolverModule": require('./../resolvers/UserClientEdgeResolver').client_edge,
                       "path": "me.client_extension_linked_field.client_edge"
                     },
                     "linkedField": {

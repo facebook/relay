@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 
 import type {FetchPolicy, GraphQLResponse, RenderPolicy} from 'relay-runtime';
 
@@ -212,7 +213,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
       beforeEach(() => {
         jest.clearAllTimers();
         errorBoundaryDidCatchFn = jest.fn();
-        logs = [];
+        logs = ([]: Array<LogEvent>);
         subject = new RelayReplaySubject();
         fetch = jest.fn((_query, _vars, config) => {
           return RelayObservable.create(sink => {

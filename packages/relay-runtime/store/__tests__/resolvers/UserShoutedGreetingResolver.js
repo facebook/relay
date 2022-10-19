@@ -22,7 +22,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @rootFragment UserShoutedGreetingResolver
  * @onType User
  */
-function userShoutedGreeting(rootKey: UserShoutedGreetingResolver$key): string {
+function shouted_greeting(rootKey: UserShoutedGreetingResolver$key): string {
   const user = readFragment(
     graphql`
       fragment UserShoutedGreetingResolver on User {
@@ -35,4 +35,6 @@ function userShoutedGreeting(rootKey: UserShoutedGreetingResolver$key): string {
   return greeting.toUpperCase();
 }
 
-module.exports = userShoutedGreeting;
+module.exports = {
+  shouted_greeting,
+};

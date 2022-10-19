@@ -22,11 +22,11 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @rootFragment UndefinedFieldResolver
  * @onType Query
  *
- * A resolver that always returns undefined. This is inteneded to exercise an
- * edge case in Relay Reader where `undefined` is generally interperated as
+ * A resolver that always returns undefined. This is intended to exercise an
+ * edge case in Relay Reader where `undefined` is generally interpreted as
  * indicating that a field has not been fetched, and thus we should suspend.
  */
-function pingPong(rootKey: UndefinedFieldResolver$key): void {
+function undefined_field(rootKey: UndefinedFieldResolver$key): void {
   readFragment(
     graphql`
       fragment UndefinedFieldResolver on Query {
@@ -41,4 +41,6 @@ function pingPong(rootKey: UndefinedFieldResolver$key): void {
   return undefined;
 }
 
-module.exports = pingPong;
+module.exports = {
+  undefined_field,
+};

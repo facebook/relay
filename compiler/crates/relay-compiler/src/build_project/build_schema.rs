@@ -61,6 +61,10 @@ pub fn build_schema(
                     )
                 });
 
+                let mut client_objects = vec![];
+                let mut object_extensions = vec![];
+                let mut interface_extensions = vec![];
+
                 for docblock_ast in docblock_ast_sources {
                     if let (Some(docblocks), Some(graphql_asts)) = docblock_ast {
                         for (file_path, docblock_sources) in &docblocks.get_all() {
@@ -68,6 +72,7 @@ pub fn build_schema(
                                 graphql_asts.get_executable_definitions_for_file(file_path);
 
                             for schema_document in extract_schema_from_docblock_sources(
+                                project_config,
                                 file_path,
                                 docblock_sources,
                                 &schema,
@@ -76,18 +81,22 @@ pub fn build_schema(
                                 for definition in schema_document.definitions {
                                     match definition {
                                         TypeSystemDefinition::ObjectTypeExtension(extension) => {
-                                            schema.add_object_type_extension(
+                                            object_extensions.push((
                                                 extension,
                                                 schema_document.location.source_location(),
-                                                true,
-                                            )?
+                                            ));
                                         }
                                         TypeSystemDefinition::InterfaceTypeExtension(extension) => {
-                                            schema.add_interface_type_extension(
+                                            interface_extensions.push((
                                                 extension,
                                                 schema_document.location.source_location(),
-                                                true,
-                                            )?
+                                            ));
+                                        }
+                                        TypeSystemDefinition::ObjectTypeDefinition(extension) => {
+                                            client_objects.push((
+                                                extension,
+                                                schema_document.location.source_location(),
+                                            ));
                                         }
                                         _ => panic!(
                                             "Expected docblocks to only expose object and interface extensions"
@@ -99,6 +108,16 @@ pub fn build_schema(
                     } else {
                         panic!("Expected to have access to AST and docblock sources.");
                     }
+                }
+
+                for (object, location) in client_objects {
+                    schema.add_extension_object(object, location)?
+                }
+                for (extension, location) in object_extensions {
+                    schema.add_object_type_extension(extension, location)?
+                }
+                for (extension, location) in interface_extensions {
+                    schema.add_interface_type_extension(extension, location)?
                 }
             }
 

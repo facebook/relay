@@ -24,6 +24,7 @@ fragment Foo_user on User {
   # RelayResolverMetadata {
   #     field_parent_type: "User",
   #     import_path: "PopStarNameResolver",
+  #     import_name: None,
   #     field_name: "pop_star_name",
   #     field_alias: Some(
   #         "poppy",
@@ -32,6 +33,7 @@ fragment Foo_user on User {
   #     field_arguments: [],
   #     live: false,
   #     normalization_info: None,
+  #     inject_fragment_data: None,
   # }
   
 }

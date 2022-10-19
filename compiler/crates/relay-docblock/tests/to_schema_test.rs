@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ae6f8fbc9f0d5ef389cba354982ec169>>
+ * @generated SignedSource<<ece51c14bd366613961436d5bbea1465>>
  */
 
 mod to_schema;
@@ -69,6 +69,13 @@ fn relay_resolver_implementing_a_field_defined_by_parent_interface() {
 }
 
 #[test]
+fn relay_resolver_named_export() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-named-export.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-named-export.expected");
+    test_fixture(transform_fixture, "relay-resolver-named-export.js", "to_schema/fixtures/relay-resolver-named-export.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_on_interface() {
     let input = include_str!("to_schema/fixtures/relay-resolver-on-interface.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-on-interface.expected");
@@ -111,6 +118,13 @@ fn relay_resolver_on_type_with_interface_invalid() {
 }
 
 #[test]
+fn relay_resolver_strong_object() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-strong-object.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-strong-object.expected");
+    test_fixture(transform_fixture, "relay-resolver-strong-object.js", "to_schema/fixtures/relay-resolver-strong-object.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_with_args() {
     let input = include_str!("to_schema/fixtures/relay-resolver-with-args.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-with-args.expected");
@@ -136,4 +150,11 @@ fn relay_resolver_with_output_type() {
     let input = include_str!("to_schema/fixtures/relay-resolver-with-output-type.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-with-output-type.expected");
     test_fixture(transform_fixture, "relay-resolver-with-output-type.js", "to_schema/fixtures/relay-resolver-with-output-type.expected", input, expected);
+}
+
+#[test]
+fn weak_type() {
+    let input = include_str!("to_schema/fixtures/weak-type.js");
+    let expected = include_str!("to_schema/fixtures/weak-type.expected");
+    test_fixture(transform_fixture, "weak-type.js", "to_schema/fixtures/weak-type.expected", input, expected);
 }

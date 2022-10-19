@@ -661,7 +661,6 @@ fn get_scalar_or_linked_field_hover_content(
         .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
         .is_some();
 
-    let rendered_type_string = schema.get_type_string(&field.type_);
     let field_type_name = schema.get_type_name(field.type_.inner()).lookup();
 
     let mut hover_contents: Vec<MarkedString> = vec![MarkedString::String(format!(
@@ -679,21 +678,17 @@ fn get_scalar_or_linked_field_hover_content(
 
     type_path.push(field_type_name);
 
-    // Relay Resolvers return the return type of their resolver function. This can be any JavaScript value
-    // so it's not correctly modeled in our schema types.
-    if !is_resolver {
-        hover_contents.push(MarkedString::String(format!(
-            "Type: **{}**",
-            content_consumer_type.render_text_with_params(
-                &rendered_type_string,
-                &GraphQLSchemaExplorerParams {
-                    path: type_path,
-                    schema_name: schema_name.lookup(),
-                    filter: None,
-                }
-            )
-        )));
-    }
+    hover_contents.push(MarkedString::String(format!(
+        "Type: **{}**",
+        content_consumer_type.render_text_with_params(
+            &schema.get_type_string(&field.type_),
+            &GraphQLSchemaExplorerParams {
+                path: type_path,
+                schema_name: schema_name.lookup(),
+                filter: None,
+            }
+        )
+    )));
     if let Some(type_description) = schema_documentation.get_type_description(field_type_name) {
         hover_contents.push(MarkedString::String(type_description.to_string()));
     }

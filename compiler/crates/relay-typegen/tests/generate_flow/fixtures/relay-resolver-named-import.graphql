@@ -1,0 +1,20 @@
+fragment relayResolverNamedImport_PopStarNameResolverFragment_name on User {
+  name
+}
+
+query relayResolverNamedImport_Query {
+  me {
+    pop_star_name
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: RelayResolverValue
+    @relay_resolver(
+      fragment_name: "relayResolverNamedImport_PopStarNameResolverFragment_name"
+      import_path: "./foo/bar/baz/PopStarNameResolver.js"
+      import_name: "pop_star_name"
+    )
+}

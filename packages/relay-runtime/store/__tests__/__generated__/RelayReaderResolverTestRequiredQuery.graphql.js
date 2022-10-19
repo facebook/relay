@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0cccf3c6d0d2baf968f2ce442a89ac39>>
+ * @generated SignedSource<<01e18da9c79f1f18e53e167b802c8d2f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserRequiredNameResolver$key } from "./../resolvers/__generated__/UserRequiredNameResolver.graphql";
-import userRequiredNameResolver from "../resolvers/UserRequiredNameResolver.js";
+import {required_name as userRequiredNameResolver} from "../resolvers/UserRequiredNameResolver.js";
 // Type assertion validating that `userRequiredNameResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userRequiredNameResolver: (
@@ -62,7 +62,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "required_name",
-            "resolverModule": require('./../resolvers/UserRequiredNameResolver'),
+            "resolverModule": require('./../resolvers/UserRequiredNameResolver').required_name,
             "path": "me.required_name"
           }
         ],

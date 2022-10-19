@@ -6,10 +6,14 @@
  */
 
 use std::hash::Hash;
+use std::path::PathBuf;
 
 use ::intern::intern;
 use ::intern::string_key::Intern;
 use ::intern::string_key::StringKey;
+use ::intern::Lookup;
+use common::ArgumentName;
+use common::DirectiveName;
 use common::NamedItem;
 use graphql_ir::Condition;
 use graphql_ir::Directive;
@@ -26,8 +30,12 @@ use indexmap::IndexSet;
 use relay_config::CustomScalarType;
 use relay_config::CustomScalarTypeImport;
 use relay_config::TypegenLanguage;
+use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
+use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
+use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_transforms::ClientEdgeMetadata;
 use relay_transforms::FragmentAliasMetadata;
+use relay_transforms::FragmentDataInjectionMode;
 use relay_transforms::ModuleMetadata;
 use relay_transforms::NoInlineFragmentSpreadMetadata;
 use relay_transforms::RelayResolverMetadata;
@@ -62,6 +70,7 @@ use crate::typegen_state::EncounteredFragments;
 use crate::typegen_state::GeneratedInputObject;
 use crate::typegen_state::ImportedRawResponseTypes;
 use crate::typegen_state::ImportedResolver;
+use crate::typegen_state::ImportedResolverName;
 use crate::typegen_state::ImportedResolvers;
 use crate::typegen_state::InputObjectTypes;
 use crate::typegen_state::MatchFields;
@@ -292,21 +301,41 @@ fn generate_resolver_type(
     imported_raw_response_types: &mut ImportedRawResponseTypes,
     encountered_fragments: &mut EncounteredFragments,
     runtime_imports: &mut RuntimeImports,
-    resolver_name: StringKey,
+    resolver_function_name: StringKey,
     fragment_name: Option<FragmentDefinitionName>,
     resolver_metadata: &RelayResolverMetadata,
 ) -> AST {
     let mut resolver_arguments = vec![];
     if let Some(fragment_name) = fragment_name {
-        encountered_fragments
-            .0
-            .insert(EncounteredFragment::Key(fragment_name));
-        resolver_arguments.push(KeyValuePairProp {
-            key: "rootKey".intern(),
-            value: AST::RawType(format!("{}$key", fragment_name).intern()),
-            read_only: false,
-            optional: false,
-        });
+        if let Some((fragment_name, injection_mode)) = resolver_metadata.inject_fragment_data {
+            match injection_mode {
+                FragmentDataInjectionMode::Field(field_name) => {
+                    encountered_fragments
+                        .0
+                        .insert(EncounteredFragment::Data(fragment_name.item));
+
+                    resolver_arguments.push(KeyValuePairProp {
+                        key: field_name,
+                        value: AST::PropertyType {
+                            type_name: format!("{}$data", fragment_name.item).intern(),
+                            property_name: field_name,
+                        },
+                        read_only: false,
+                        optional: false,
+                    });
+                }
+            }
+        } else {
+            encountered_fragments
+                .0
+                .insert(EncounteredFragment::Key(fragment_name));
+            resolver_arguments.push(KeyValuePairProp {
+                key: "rootKey".intern(),
+                value: AST::RawType(format!("{}$key", fragment_name).intern()),
+                read_only: false,
+                optional: false,
+            });
+        }
     }
 
     let parent_resolver_type = typegen_context
@@ -387,14 +416,10 @@ fn generate_resolver_type(
     };
 
     AST::AssertFunctionType(FunctionTypeAssertion {
-        function_name: resolver_name,
+        function_name: resolver_function_name,
         arguments: resolver_arguments,
         return_type: Box::new(return_type),
     })
-}
-
-fn generate_local_resolver_name(field_parent_type: StringKey, field_name: StringKey) -> StringKey {
-    to_camel_case(format!("{}_{}_resolver", field_parent_type, field_name)).intern()
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -410,9 +435,15 @@ fn import_relay_resolver_function_type(
     resolver_metadata: &RelayResolverMetadata,
     imported_resolvers: &mut ImportedResolvers,
 ) {
-    let field_name = resolver_metadata.field_name;
-    let local_resolver_name =
-        generate_local_resolver_name(resolver_metadata.field_parent_type, field_name);
+    let local_resolver_name = resolver_metadata.generate_local_resolver_name();
+    let resolver_name = if let Some(name) = resolver_metadata.import_name {
+        ImportedResolverName::Named {
+            name,
+            import_as: local_resolver_name,
+        }
+    } else {
+        ImportedResolverName::Default(local_resolver_name)
+    };
 
     let import_path = typegen_context.project_config.js_module_import_path(
         typegen_context.definition_source_location,
@@ -420,7 +451,7 @@ fn import_relay_resolver_function_type(
     );
 
     let imported_resolver = ImportedResolver {
-        resolver_name: local_resolver_name,
+        resolver_name,
         resolver_type: generate_resolver_type(
             typegen_context,
             input_object_types,
@@ -433,11 +464,12 @@ fn import_relay_resolver_function_type(
             fragment_name,
             resolver_metadata,
         ),
+        import_path,
     };
 
     imported_resolvers
         .0
-        .entry(import_path)
+        .entry(local_resolver_name)
         .or_insert(imported_resolver);
 }
 
@@ -472,8 +504,7 @@ fn visit_relay_resolver(
     let field_name = resolver_metadata.field_name;
     let key = resolver_metadata.field_alias.unwrap_or(field_name);
     let live = resolver_metadata.live;
-    let local_resolver_name =
-        generate_local_resolver_name(resolver_metadata.field_parent_type, field_name);
+    let local_resolver_name = resolver_metadata.generate_local_resolver_name();
 
     let mut inner_value = Box::new(AST::ReturnTypeOfFunctionWithName(local_resolver_name));
 
@@ -1674,7 +1705,35 @@ fn transform_graphql_scalar_type(
     scalar: ScalarID,
     custom_scalars: &mut CustomScalarsImports,
 ) -> AST {
-    let scalar_name = typegen_context.schema.scalar(scalar).name;
+    let scalar_definition = typegen_context.schema.scalar(scalar);
+    let scalar_name = scalar_definition.name;
+
+    if let Some(directive) = scalar_definition
+        .directives
+        .named(DirectiveName(*CUSTOM_SCALAR_DIRECTIVE_NAME))
+    {
+        let path = directive
+            .arguments
+            .named(ArgumentName(*PATH_CUSTOM_SCALAR_ARGUMENT_NAME))
+            .expect(&format!(
+                "Expected @{} directive to have a path argument",
+                *CUSTOM_SCALAR_DIRECTIVE_NAME
+            ))
+            .expect_string_literal();
+        let export_name = directive
+            .arguments
+            .named(ArgumentName(*EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME))
+            .expect(&format!(
+                "Expected @{} directive to have an export_name argument",
+                *CUSTOM_SCALAR_DIRECTIVE_NAME
+            ))
+            .expect_string_literal();
+        custom_scalars.insert((export_name, PathBuf::from(path.lookup())));
+        return AST::RawType(scalar_name.item.0);
+    }
+    // TODO: We could implement custom variables that are provided via the
+    // config by inserting them into the schema with directives, thus avoiding
+    // having two different ways to express typed custom scalars internally.
     if let Some(custom_scalar) = typegen_context
         .project_config
         .typegen_config
@@ -2122,24 +2181,6 @@ fn apply_required_directive_nullability(
         Some(_) => bubbled_type.non_null(),
         None => bubbled_type,
     }
-}
-
-/// Converts a `String` to a camel case `String`
-fn to_camel_case(non_camelized_string: String) -> String {
-    let mut camelized_string = String::with_capacity(non_camelized_string.len());
-    let mut last_character_was_not_alphanumeric = false;
-    for (i, ch) in non_camelized_string.chars().enumerate() {
-        if !ch.is_alphanumeric() {
-            last_character_was_not_alphanumeric = true;
-        } else if last_character_was_not_alphanumeric {
-            camelized_string.push(ch.to_ascii_uppercase());
-            last_character_was_not_alphanumeric = false;
-        } else {
-            camelized_string.push(if i == 0 { ch.to_ascii_lowercase() } else { ch });
-            last_character_was_not_alphanumeric = false;
-        }
-    }
-    camelized_string
 }
 
 fn get_type_condition_info(fragment_spread: &FragmentSpread) -> Option<TypeConditionInfo> {

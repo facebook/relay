@@ -139,7 +139,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           _variables: Variables,
           _cacheConfig: CacheConfig,
         ) => {
-          return RelayObservable.create(sink => {
+          return RelayObservable.create<any>(sink => {
             subject = sink;
           });
         };

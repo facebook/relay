@@ -457,7 +457,7 @@ class RelayModernStore implements Store {
   }
 
   lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): InvalidationState {
-    const invalidations = new Map();
+    const invalidations = new Map<DataID, ?number>();
     dataIDs.forEach(dataID => {
       const record = this.getSource().get(dataID);
       invalidations.set(
@@ -602,7 +602,7 @@ class RelayModernStore implements Store {
     /* eslint-disable no-labels */
     top: while (true) {
       const startEpoch = this._currentWriteEpoch;
-      const references = new Set();
+      const references = new Set<DataID>();
 
       // Mark all records that are traversable from a root
       for (const {operation} of this._roots.values()) {

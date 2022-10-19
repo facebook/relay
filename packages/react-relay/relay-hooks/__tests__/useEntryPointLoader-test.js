@@ -73,7 +73,10 @@ beforeEach(() => {
   }) {
     renderCount = (renderCount || 0) + 1;
     [loadedEntryPoint, entryPointLoaderCallback, disposeEntryPoint] =
-      useEntryPointLoader(environmentProvider, entryPoint);
+      useEntryPointLoader<{...}, any, any, any, any, any, any>(
+        environmentProvider,
+        entryPoint,
+      );
     return null;
   };
   loadEntryPoint.mockClear();

@@ -178,7 +178,7 @@ export class GraphModeNormalizer {
     if (maybeSent != null) {
       return maybeSent;
     }
-    const sent = new Set();
+    const sent = new Set<string>();
     this._sentFields.set(cacheKey, sent);
     return sent;
   }

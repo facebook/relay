@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0739dad984f51252f80b4611b0eaade7>>
+ * @generated SignedSource<<72de4990b5083582ce28bb5e7f3503d6>>
  */
 
 mod parse;
@@ -206,4 +206,39 @@ fn relay_resolver_with_output_type() {
     let input = include_str!("parse/fixtures/relay-resolver-with-output-type.js");
     let expected = include_str!("parse/fixtures/relay-resolver-with-output-type.expected");
     test_fixture(transform_fixture, "relay-resolver-with-output-type.js", "parse/fixtures/relay-resolver-with-output-type.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver.js", "parse/fixtures/terse-relay-resolver.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_forbidden_fields_invalid() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver-forbidden-fields.invalid.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver-forbidden-fields.invalid.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-forbidden-fields.invalid.js", "parse/fixtures/terse-relay-resolver-forbidden-fields.invalid.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_fragment_type_does_not_match_parent_invalid() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver-fragment-type-does-not-match-parent.invalid.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver-fragment-type-does-not-match-parent.invalid.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-fragment-type-does-not-match-parent.invalid.js", "parse/fixtures/terse-relay-resolver-fragment-type-does-not-match-parent.invalid.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_no_dot_invalid() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver-no-dot.invalid.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver-no-dot.invalid.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-no-dot.invalid.js", "parse/fixtures/terse-relay-resolver-no-dot.invalid.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_not_enabled_invalid() {
+    let input = include_str!("parse/fixtures/terse-relay-resolver-not-enabled.invalid.js");
+    let expected = include_str!("parse/fixtures/terse-relay-resolver-not-enabled.invalid.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-not-enabled.invalid.js", "parse/fixtures/terse-relay-resolver-not-enabled.invalid.expected", input, expected);
 }

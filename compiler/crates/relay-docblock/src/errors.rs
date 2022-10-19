@@ -76,6 +76,14 @@ pub enum ErrorMessages {
     },
 
     #[error(
+        "The type specified in the fragment (`{fragment_type_condition}`) and the parent type (`{type_name}`) are different. Please make sure these are exactly the same."
+    )]
+    MismatchRootFragmentTypeConditionTerseSyntax {
+        fragment_type_condition: StringKey,
+        type_name: StringKey,
+    },
+
+    #[error(
         "Unexpected plural server type in `@edgeTo` field. Currently Relay Resolvers only support plural `@edgeTo` if the type is defined via Client Schema Extensions."
     )]
     ClientEdgeToPluralServerType,
@@ -90,6 +98,21 @@ pub enum ErrorMessages {
         field_name: StringKey,
         interface_name: InterfaceName,
     },
+
+    #[error(
+        "Unexpected character `{found}`. Expected @RelayResolver field to either be a GraphQL typename, or a field definition of the form `ParentType.field_name: ReturnType`."
+    )]
+    UnexpectedNonDot { found: char },
+
+    #[error(
+        "Unexpected character `{found}`. Terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand, is not enabled in your project's config."
+    )]
+    UnexpectedTerseSyntax { found: char },
+
+    #[error(
+        "Unexpected docblock field `{field_name}`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand."
+    )]
+    UnexpectedFieldInTerseSyntax { field_name: StringKey },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

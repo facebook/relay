@@ -43,7 +43,7 @@ pub enum ArtifactContent {
     Fragment {
         reader_fragment: Arc<FragmentDefinition>,
         typegen_fragment: Arc<FragmentDefinition>,
-        source_hash: String,
+        source_hash: Option<String>,
     },
     SplitOperation {
         normalization_operation: Arc<OperationDefinition>,
@@ -137,7 +137,7 @@ impl ArtifactContent {
                 schema,
                 reader_fragment,
                 typegen_fragment,
-                source_hash,
+                source_hash.as_ref(),
                 skip_types,
                 fragment_locations,
             )

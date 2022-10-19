@@ -508,7 +508,7 @@ pub fn generate_fragment(
     schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
-    source_hash: &str,
+    source_hash: Option<&String>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
@@ -548,7 +548,7 @@ fn generate_read_only_fragment(
     schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
-    source_hash: &str,
+    source_hash: Option<&String>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
@@ -650,14 +650,16 @@ fn generate_read_only_fragment(
     // -- End Fragment Node Section --
 
     // -- Begin Fragment Node Hash Section --
-    let mut section = GenericSection::default();
-    write_source_hash(
-        config,
-        &project_config.typegen_config.language,
-        &mut section,
-        source_hash,
-    )?;
-    content_sections.push(ContentSection::Generic(section));
+    if let Some(source_hash) = source_hash {
+        let mut section = GenericSection::default();
+        write_source_hash(
+            config,
+            &project_config.typegen_config.language,
+            &mut section,
+            source_hash,
+        )?;
+        content_sections.push(ContentSection::Generic(section));
+    }
     // -- End Fragment Node Hash Section --
 
     // -- Begin Fragment Node Export Section --

@@ -49,6 +49,7 @@ use crate::errors::ErrorMessages;
 pub struct ParseOptions {
     pub use_named_imports: bool,
     pub relay_resolver_model_syntax_enabled: bool,
+    pub relay_resolver_enable_terse_syntax: bool,
     pub id_field_name: StringKey,
 }
 

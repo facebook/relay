@@ -12,6 +12,8 @@
 'use strict';
 import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 
+import type {RecordObjectMap} from '../RelayStoreTypes';
+
 import RelayNetwork from '../../network/RelayNetwork';
 import RelayModernEnvironment from '../RelayModernEnvironment';
 import {createOperationDescriptor} from '../RelayModernOperationDescriptor';
@@ -237,7 +239,7 @@ describe('RelayReferenceMarker', () => {
   });
 
   it('marks "handle" nodes with key and filters for queries', () => {
-    const data = {
+    const data: RecordObjectMap = {
       '1': {
         __id: '1',
         __typename: 'User',

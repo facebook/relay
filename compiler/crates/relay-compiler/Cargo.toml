@@ -15,7 +15,7 @@ name = "relay_compiler_compile_relay_artifacts_with_custom_id_test"
 path = "tests/compile_relay_artifacts_with_custom_id_test.rs"
 
 [dependencies]
-async-trait = "0.1.56"
+async-trait = "0.1.58"
 bincode = "1.3.3"
 common = { path = "../common" }
 common-path = "1.0.0"

@@ -349,7 +349,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         beforeEach(() => {
           taskID = 0;
-          tasks = new Map<string, () => void>();
+          tasks = new Map();
           scheduler = {
             cancel: (id: string) => {
               tasks.delete(id);

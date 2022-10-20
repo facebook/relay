@@ -13,12 +13,13 @@ query relayResolverEsModules_Query {
 # %extensions%
 
 extend type User {
-  pop_star_name: String @relay_resolver(fragment_name: "relayResolverEsModules_PopStarNameResolverFragment_name", import_path: "./path/to/PopStarNameResolver.js", import_name: "pop_star_name")
+  pop_star_name: String @relay_resolver(fragment_name: "relayResolverEsModules_PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", import_name: "pop_star_name")
 }
 
 
 %project_config%
 {
   "eagerEsModules": true,
-  "language": "flow"
+  "language": "flow",
+  "jsModuleFormat": "haste"
 }

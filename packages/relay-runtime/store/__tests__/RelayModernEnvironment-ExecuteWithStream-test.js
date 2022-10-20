@@ -503,7 +503,7 @@ describe('execute() a query with @stream', () => {
 
   it('processes streamed payloads with scheduling', () => {
     let taskID = 0;
-    const tasks = new Map<string, () => void>();
+    const tasks = new Map();
     const scheduler = {
       cancel: (id: string) => {
         tasks.delete(id);
@@ -604,7 +604,7 @@ describe('execute() a query with @stream', () => {
 
   it('cancels processing of streamed payloads with scheduling', () => {
     let taskID = 0;
-    const tasks = new Map<string, () => void>();
+    const tasks = new Map();
     const scheduler = {
       cancel: (id: string) => {
         tasks.delete(id);

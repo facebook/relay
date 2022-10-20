@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {RequestIdentifier} from '../util/getRequestIdentifier';
 
 import type {RequestDescriptor} from './RelayStoreTypes';
 
@@ -45,7 +46,7 @@ class RelayOperationTracker {
       return;
     }
     const pendingOperationIdentifier = pendingOperation.identifier;
-    const newlyAffectedOwnersIdentifier = new Set();
+    const newlyAffectedOwnersIdentifier = new Set<RequestIdentifier>();
     for (const owner of affectedOwners) {
       const ownerIdentifier = owner.identifier;
       const pendingOperationsAffectingOwner =
@@ -105,11 +106,11 @@ class RelayOperationTracker {
       return;
     }
     // These were the owners affected only by `pendingOperationIdentifier`
-    const completedOwnersIdentifier = new Set();
+    const completedOwnersIdentifier = new Set<string>();
 
     // These were the owners affected by `pendingOperationIdentifier`
     // and some other operations
-    const updatedOwnersIdentifier = new Set();
+    const updatedOwnersIdentifier = new Set<string>();
     for (const ownerIdentifier of affectedOwnersIdentifier) {
       const pendingOperationsAffectingOwner =
         this._ownersToPendingOperations.get(ownerIdentifier);

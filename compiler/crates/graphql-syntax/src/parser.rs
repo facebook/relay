@@ -113,6 +113,16 @@ impl<'a> Parser<'a> {
     pub fn parse_field_definition_stub(mut self) -> DiagnosticsResult<FieldDefinitionStub> {
         let stub = self.parse_field_definition_stub_impl();
         if self.errors.is_empty() {
+            Ok(stub.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
+    /// Parses a string containing a field definition
+    pub fn parse_field_definition(mut self) -> DiagnosticsResult<FieldDefinition> {
+        let stub = self.parse_field_definition_impl();
+        if self.errors.is_empty() {
             self.parse_eof()?;
             Ok(stub.unwrap())
         } else {
@@ -875,7 +885,7 @@ impl<'a> Parser<'a> {
         self.parse_optional_delimited_nonempty_list(
             TokenKind::OpenBrace,
             TokenKind::CloseBrace,
-            Self::parse_field_definition,
+            Self::parse_field_definition_impl,
         )
     }
 
@@ -883,7 +893,7 @@ impl<'a> Parser<'a> {
      * FieldDefinition :
      *   - Description? Name ArgumentsDefinition? : Type Directives?
      */
-    fn parse_field_definition(&mut self) -> ParseResult<FieldDefinition> {
+    fn parse_field_definition_impl(&mut self) -> ParseResult<FieldDefinition> {
         let description = self.parse_optional_description();
         let name = self.parse_identifier()?;
         let arguments = self.parse_argument_defs()?;

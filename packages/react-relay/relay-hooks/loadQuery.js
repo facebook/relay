@@ -120,7 +120,7 @@ function loadQuery<
   // of the operation, and then replay them to the Observable we
   // ultimately return.
   const executionSubject = new ReplaySubject();
-  const returnedObservable = Observable.create(sink =>
+  const returnedObservable = Observable.create<GraphQLResponse>(sink =>
     executionSubject.subscribe(sink),
   );
 

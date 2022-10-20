@@ -1,0 +1,70 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+/**
+ * @RelayResolver User.favorite_page: Page
+ * @rootFragment myRootFragment
+ *
+ * The user's favorite page! They probably clicked something in the UI
+ * to tell us that it was their favorite page and then we put that in a
+ * database or something. Then we got that info out again and put it out
+ * again. Anyway, I'm rambling now. Its a page that the user likes. A lot.
+ */
+ graphql`
+ fragment myRootFragment on User {
+   name
+ }
+`
+==================================== OUTPUT ===================================
+TerseRelayResolver(
+    TerseRelayResolverIr {
+        field: FieldDefinition {
+            name: Identifier {
+                span: 25:38,
+                token: Token {
+                    span: 25:38,
+                    kind: Identifier,
+                },
+                value: "favorite_page",
+            },
+            type_: Named(
+                NamedTypeAnnotation {
+                    name: Identifier {
+                        span: 40:44,
+                        token: Token {
+                            span: 40:44,
+                            kind: Identifier,
+                        },
+                        value: "Page",
+                    },
+                },
+            ),
+            arguments: None,
+            directives: [],
+            description: None,
+        },
+        type_: WithLocation {
+            location: /path/to/test/fixture/terse-relay-resolver.js:20:24,
+            item: "User",
+        },
+        root_fragment: Some(
+            WithLocation {
+                location: /path/to/test/fixture/terse-relay-resolver.js:62:76,
+                item: FragmentDefinitionName(
+                    "myRootFragment",
+                ),
+            },
+        ),
+        deprecated: None,
+        output_type: None,
+        live: None,
+        location: /path/to/test/fixture/terse-relay-resolver.js:20:44,
+        fragment_arguments: None,
+        named_import: None,
+    },
+)

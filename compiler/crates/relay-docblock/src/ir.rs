@@ -84,6 +84,7 @@ lazy_static! {
 #[derive(Debug, PartialEq)]
 pub enum DocblockIr {
     RelayResolver(RelayResolverIr),
+    TerseRelayResolver(TerseRelayResolverIr),
     StrongObjectResolver(StrongObjectIr),
     WeakObjectType(WeakObjectIr),
 }
@@ -101,6 +102,9 @@ impl DocblockIr {
     pub fn to_graphql_schema_ast(&self, schema: &SDLSchema) -> DiagnosticsResult<SchemaDocument> {
         match self {
             DocblockIr::RelayResolver(relay_resolver) => {
+                relay_resolver.to_graphql_schema_ast(schema)
+            }
+            DocblockIr::TerseRelayResolver(relay_resolver) => {
                 relay_resolver.to_graphql_schema_ast(schema)
             }
             DocblockIr::StrongObjectResolver(strong_object) => {
@@ -240,11 +244,14 @@ trait ResolverIr {
             arguments.push(true_argument(LIVE_ARGUMENT_NAME.0, live_field.key_location))
         }
 
-        if let Some(OutputType::Output(type_)) = &self.output_type() {
-            arguments.push(true_argument(
-                HAS_OUTPUT_TYPE_ARGUMENT_NAME.0,
-                type_.location,
-            ))
+        if let Some(output_type) = &self.output_type() {
+            match output_type {
+                OutputType::EdgeTo(_) => {}
+                OutputType::Output(type_) => arguments.push(true_argument(
+                    HAS_OUTPUT_TYPE_ARGUMENT_NAME.0,
+                    type_.location,
+                )),
+            }
         }
         if let Some(name) = self.named_import() {
             arguments.push(string_argument(
@@ -259,6 +266,59 @@ trait ResolverIr {
             name: string_key_as_identifier(RELAY_RESOLVER_DIRECTIVE_NAME.0),
             arguments: Some(List::generated(arguments)),
         }
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub struct TerseRelayResolverIr {
+    pub field: FieldDefinition,
+    pub type_: WithLocation<StringKey>,
+    pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
+    pub deprecated: Option<IrField>,
+    pub output_type: Option<OutputType>,
+    pub live: Option<IrField>,
+    pub location: Location,
+    pub fragment_arguments: Option<Vec<Argument>>,
+    pub named_import: Option<StringKey>,
+}
+
+impl ResolverIr for TerseRelayResolverIr {
+    fn definitions(&self, _schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+        Ok(vec![TypeSystemDefinition::ObjectTypeExtension(
+            ObjectTypeExtension {
+                name: as_identifier(self.type_),
+                interfaces: Vec::new(),
+                directives: self.directives(),
+                fields: Some(List::generated(vec![self.field.clone()])),
+            },
+        )])
+    }
+
+    fn location(&self) -> Location {
+        self.location
+    }
+
+    fn root_fragment(&self) -> Option<RootFragment> {
+        self.root_fragment.map(|fragment| RootFragment {
+            fragment,
+            inject_fragment_data: None,
+        })
+    }
+
+    fn output_type(&self) -> Option<&OutputType> {
+        self.output_type.as_ref()
+    }
+
+    fn deprecated(&self) -> Option<IrField> {
+        self.deprecated
+    }
+
+    fn live(&self) -> Option<IrField> {
+        self.live
+    }
+
+    fn named_import(&self) -> Option<StringKey> {
+        self.named_import
     }
 }
 
@@ -303,7 +363,7 @@ impl ResolverIr for RelayResolverIr {
                                 schema,
                                 &schema.object(object_id).interfaces,
                             )?;
-                            return Ok(self.object_definitions(value.map(ObjectName)));
+                            return Ok(self.object_definitions(value.map(ObjectName), schema));
                         }
                         Type::Interface(_) => {
                             return Err(vec![Diagnostic::error_with_data(
@@ -426,10 +486,10 @@ impl RelayResolverIr {
         for object_id in &schema.interface(interface_id).implementing_objects {
             if !seen_objects.contains(object_id) {
                 seen_objects.insert(*object_id);
-                definitions.extend(self.object_definitions(WithLocation::new(
-                    interface_name.location,
-                    schema.object(*object_id).name.item,
-                )))
+                definitions.extend(self.object_definitions(
+                    WithLocation::new(interface_name.location, schema.object(*object_id).name.item),
+                    schema,
+                ))
             }
         }
 
@@ -497,7 +557,11 @@ impl RelayResolverIr {
         Ok(())
     }
 
-    fn object_definitions(&self, on_type: WithLocation<ObjectName>) -> Vec<TypeSystemDefinition> {
+    fn object_definitions(
+        &self,
+        on_type: WithLocation<ObjectName>,
+        _schema: &SDLSchema,
+    ) -> Vec<TypeSystemDefinition> {
         vec![TypeSystemDefinition::ObjectTypeExtension(
             ObjectTypeExtension {
                 name: obj_as_identifier(on_type),

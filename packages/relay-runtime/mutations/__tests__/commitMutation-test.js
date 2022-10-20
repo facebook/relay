@@ -461,7 +461,7 @@ describe('Configs: RANGE_ADD', () => {
       feedback: feedbackID,
       message: {
         text: 'Hello!',
-        ranges: [],
+        ranges: ([]: Array<mixed>),
       },
     },
   };

@@ -10,6 +10,9 @@
  */
 
 'use strict';
+import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
+
+import type {RecordObjectMap} from '../RelayStoreTypes';
 
 import RelayNetwork from '../../network/RelayNetwork';
 import RelayModernEnvironment from '../RelayModernEnvironment';
@@ -126,7 +129,7 @@ describe('RelayReferenceMarker', () => {
         }
       }
     `;
-    const references = new Set();
+    const references = new Set<DataID>();
     mark(
       source,
       createNormalizationSelector(FooQuery.operation, ROOT_ID, {
@@ -215,7 +218,7 @@ describe('RelayReferenceMarker', () => {
         }
       }
     `;
-    const references = new Set();
+    const references = new Set<DataID>();
     mark(
       source,
       createNormalizationSelector(UserProfile.operation, ROOT_ID, {
@@ -236,7 +239,7 @@ describe('RelayReferenceMarker', () => {
   });
 
   it('marks "handle" nodes with key and filters for queries', () => {
-    const data = {
+    const data: RecordObjectMap = {
       '1': {
         __id: '1',
         __typename: 'User',
@@ -320,7 +323,7 @@ describe('RelayReferenceMarker', () => {
         }
       }
     `;
-    let references = new Set();
+    let references = new Set<DataID>();
     mark(
       source,
       createNormalizationSelector(UserProfile.operation, ROOT_ID, {
@@ -443,7 +446,7 @@ describe('RelayReferenceMarker', () => {
         }
       }
     `;
-    const references = new Set();
+    const references = new Set<DataID>();
     mark(
       source,
       createNormalizationSelector(FooQuery.operation, ROOT_ID, {
@@ -552,7 +555,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         source,
         createNormalizationSelector(BarQuery.operation, 'client:root', {
@@ -605,7 +608,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         source,
         createNormalizationSelector(BarQuery.operation, 'client:root', {
@@ -650,7 +653,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         source,
         createNormalizationSelector(BarQuery.operation, 'client:root', {
@@ -706,7 +709,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         source,
         createNormalizationSelector(BarQuery.operation, 'client:root', {
@@ -750,7 +753,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         source,
         createNormalizationSelector(BarQuery.operation, 'client:root', {
@@ -791,7 +794,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         source,
         createNormalizationSelector(BarQuery.operation, 'client:root', {
@@ -823,7 +826,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         source,
         createNormalizationSelector(BarQuery.operation, 'client:root', {
@@ -849,7 +852,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         source,
         createNormalizationSelector(BarQuery.operation, 'client:root', {
@@ -882,7 +885,7 @@ describe('RelayReferenceMarker', () => {
       };
 
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       const loader = {
         get: jest.fn(
           moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
@@ -931,7 +934,7 @@ describe('RelayReferenceMarker', () => {
       };
 
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       const loader = {
         get: jest.fn(
           moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
@@ -979,7 +982,7 @@ describe('RelayReferenceMarker', () => {
       };
 
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       const loader = {
         get: jest.fn(
           moduleName => nodes[String(moduleName).replace(/\$.*/, '')],
@@ -1103,7 +1106,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         source,
         createNormalizationSelector(BarQuery.operation, 'client:root', {
@@ -1153,7 +1156,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         source,
         createNormalizationSelector(BarQuery.operation, 'client:root', {
@@ -1195,7 +1198,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         source,
         createNormalizationSelector(BarQuery.operation, 'client:root', {
@@ -1248,7 +1251,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         source,
         createNormalizationSelector(BarQuery.operation, 'client:root', {
@@ -1289,7 +1292,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         source,
         createNormalizationSelector(BarQuery.operation, 'client:root', {
@@ -1327,7 +1330,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         source,
         createNormalizationSelector(BarQuery.operation, 'client:root', {
@@ -1375,7 +1378,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       source = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       expect(() =>
         mark(
           source,
@@ -1435,7 +1438,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       const recordSource = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         recordSource,
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
@@ -1459,7 +1462,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       const recordSource = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         recordSource,
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
@@ -1511,7 +1514,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       const recordSource = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         recordSource,
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
@@ -1535,7 +1538,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       const recordSource = RelayRecordSource.create(storeData);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         recordSource,
         createNormalizationSelector(Query.operation, 'client:root', {id: '1'}),
@@ -1638,7 +1641,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       const recordSource = RelayRecordSource.create(data);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         recordSource,
         createNormalizationSelector(FlightQuery.operation, 'client:root', {
@@ -1682,7 +1685,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       const recordSource = RelayRecordSource.create(data);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         recordSource,
         createNormalizationSelector(FlightQuery.operation, 'client:root', {
@@ -1722,7 +1725,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       const recordSource = RelayRecordSource.create(data);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         recordSource,
         createNormalizationSelector(FlightQuery.operation, 'client:root', {
@@ -1762,7 +1765,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       const recordSource = RelayRecordSource.create(data);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         recordSource,
         createNormalizationSelector(FlightQuery.operation, 'client:root', {
@@ -1800,7 +1803,7 @@ describe('RelayReferenceMarker', () => {
         },
       };
       const recordSource = RelayRecordSource.create(data);
-      const references = new Set();
+      const references = new Set<DataID>();
       mark(
         recordSource,
         createNormalizationSelector(FlightQuery.operation, 'client:root', {

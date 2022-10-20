@@ -149,7 +149,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
           clientPageInfo &&
           args.after === clientPageInfo.getValue(END_CURSOR)
         ) {
-          const nodeIDs = new Set();
+          const nodeIDs = new Set<mixed>();
           mergeEdges(prevEdges, nextEdges, nodeIDs);
           mergeEdges(serverEdges, nextEdges, nodeIDs);
         } else {
@@ -168,7 +168,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
           clientPageInfo &&
           args.before === clientPageInfo.getValue(START_CURSOR)
         ) {
-          const nodeIDs = new Set();
+          const nodeIDs = new Set<mixed>();
           mergeEdges(serverEdges, nextEdges, nodeIDs);
           mergeEdges(prevEdges, nextEdges, nodeIDs);
         } else {

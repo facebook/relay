@@ -44,7 +44,7 @@ const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 const STORE_OR_NETWORK_DEFAULT: PreloadFetchPolicy = 'store-or-network';
 
 const pendingQueriesByEnvironment = WEAKMAP_SUPPORTED
-  ? new WeakMap()
+  ? new WeakMap<IEnvironment, Map<string, PendingQueryEntry>>()
   : new Map();
 
 type PendingQueryEntry =
@@ -91,7 +91,7 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   );
   const source =
     queryEntry.kind === 'network'
-      ? Observable.create(sink => {
+      ? Observable.create<GraphQLResponse>(sink => {
           let subscription;
           if (pendingQueries.get(queryEntry.cacheKey) == null) {
             const newQueryEntry = preloadQueryDeduped(

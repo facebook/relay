@@ -290,7 +290,7 @@ describe('readUpdatableQuery', () => {
       ).updatableData;
 
       if (updatableData.node != null) {
-        const propertyDescriptor = Object.getOwnPropertyDescriptor(
+        const propertyDescriptor = Object.getOwnPropertyDescriptor<$FlowFixMe>(
           updatableData.node,
           'name',
         );
@@ -309,7 +309,7 @@ describe('readUpdatableQuery', () => {
       // Because node2 is not a user, selections within an inline fragment on User do not result
       // in a setter being created
       if (updatableData.node2 != null) {
-        const propertyDescriptor2 = Object.getOwnPropertyDescriptor(
+        const propertyDescriptor2 = Object.getOwnPropertyDescriptor<$FlowFixMe>(
           updatableData.node2,
           'name',
         );

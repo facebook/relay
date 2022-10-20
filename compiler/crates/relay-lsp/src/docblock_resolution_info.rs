@@ -68,6 +68,39 @@ pub fn create_docblock_resolution_info(
 
             Err(LSPRuntimeError::ExpectedError)
         }
+        DocblockIr::TerseRelayResolver(resolver_ir) => {
+            // Parent type
+            if resolver_ir.type_.location.contains(position_span) {
+                return Ok(DocblockResolutionInfo::Type(resolver_ir.type_.item));
+            }
+
+            let field_type_location = resolver_ir
+                .location
+                .with_span(resolver_ir.field.type_.span());
+
+            // Return type
+            if field_type_location.contains(position_span) {
+                return Ok(DocblockResolutionInfo::Type(
+                    resolver_ir.field.type_.inner().name.value,
+                ));
+            }
+
+            // Root fragment
+            if let Some(root_fragment) = resolver_ir.root_fragment {
+                if root_fragment.location.contains(position_span) {
+                    return Ok(DocblockResolutionInfo::RootFragment(root_fragment.item));
+                }
+            }
+
+            // @deprecated key
+            if let Some(deprecated) = resolver_ir.deprecated {
+                if deprecated.key_location.contains(position_span) {
+                    return Ok(DocblockResolutionInfo::Deprecated);
+                }
+            }
+
+            Err(LSPRuntimeError::ExpectedError)
+        }
         DocblockIr::StrongObjectResolver(strong_object) => {
             if strong_object.type_.value.location.contains(position_span) {
                 return Ok(DocblockResolutionInfo::Type(strong_object.type_.value.item));

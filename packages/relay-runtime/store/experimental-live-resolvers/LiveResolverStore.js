@@ -501,7 +501,7 @@ class LiveResolverStore implements Store {
   // real RelayModernStore can create. For now we just use any.
   // $FlowFixMe
   lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): any {
-    const invalidations = new Map();
+    const invalidations = new Map<DataID, ?number>();
     dataIDs.forEach(dataID => {
       const record = this.getSource().get(dataID);
       invalidations.set(
@@ -663,7 +663,7 @@ class LiveResolverStore implements Store {
     /* eslint-disable no-labels */
     top: while (true) {
       const startEpoch = this._currentWriteEpoch;
-      const references = new Set();
+      const references = new Set<DataID>();
 
       // Mark all records that are traversable from a root
       for (const {operation} of this._roots.values()) {

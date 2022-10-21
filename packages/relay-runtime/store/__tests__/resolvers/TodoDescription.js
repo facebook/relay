@@ -45,7 +45,7 @@ function text(instance: ?TodoDescription): ?string {
  * @RelayResolver
  * @onType TodoDescription
  * @fieldName color
- * @outputType String
+ * @outputType RelayResolverValue
  */
 function color(instance: ?TodoDescription): ?string {
   return instance?.color;

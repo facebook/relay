@@ -48,6 +48,7 @@ use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use relay_transforms::UPDATABLE_DIRECTIVE_FOR_TYPEGEN;
 use schema::EnumID;
+use schema::Field;
 use schema::SDLSchema;
 use schema::ScalarID;
 use schema::Schema;
@@ -101,6 +102,7 @@ use crate::TYPE_BOOLEAN;
 use crate::TYPE_FLOAT;
 use crate::TYPE_ID;
 use crate::TYPE_INT;
+use crate::TYPE_RELAY_RESOLVER_VALUE;
 use crate::TYPE_STRING;
 use crate::VARIABLES;
 
@@ -388,13 +390,17 @@ fn generate_resolver_type(
         .map(|output_type_info| match output_type_info {
             ResolverOutputTypeInfo::ScalarField(field_id) => {
                 let field = typegen_context.schema.field(*field_id);
-                transform_scalar_type(
-                    typegen_context,
-                    &field.type_,
-                    None,
-                    encountered_enums,
-                    custom_scalars,
-                )
+                if is_relay_resolver_type(typegen_context, field) {
+                    AST::Mixed
+                } else {
+                    transform_scalar_type(
+                        typegen_context,
+                        &field.type_,
+                        None,
+                        encountered_enums,
+                        custom_scalars,
+                    )
+                }
             }
             ResolverOutputTypeInfo::Composite(normalization_info) => {
                 imported_raw_response_types.0.insert(
@@ -436,7 +442,7 @@ fn generate_resolver_type(
             inner: Box::new(inner_type.unwrap_or(AST::Any)),
         }
     } else {
-        inner_type.unwrap_or(AST::RawType("mixed".intern()))
+        inner_type.unwrap_or(AST::Mixed)
     };
 
     AST::AssertFunctionType(FunctionTypeAssertion {
@@ -497,6 +503,16 @@ fn import_relay_resolver_function_type(
         .or_insert(imported_resolver);
 }
 
+/// Check if the scalar field has output type as `RelayResolverValue`
+fn is_relay_resolver_type(typegen_context: &'_ TypegenContext<'_>, field: &Field) -> bool {
+    typegen_context
+        .schema
+        .scalar(field.type_.inner().get_scalar_id().unwrap())
+        .name
+        .item
+        == *TYPE_RELAY_RESOLVER_VALUE
+}
+
 /// Build relay resolver field type
 fn relay_resolver_field_type(
     typegen_context: &'_ TypegenContext<'_>,
@@ -507,9 +523,23 @@ fn relay_resolver_field_type(
     required: bool,
     live: bool,
 ) -> AST {
-    if let Some(ResolverOutputTypeInfo::ScalarField(field_id)) = resolver_metadata.output_type_info
+    let maybe_scalar_field = if let Some(ResolverOutputTypeInfo::ScalarField(field_id)) =
+        resolver_metadata.output_type_info
     {
         let field = typegen_context.schema.field(field_id);
+        // Scalar fields that return `RelayResolverValue` should behave as "classic"
+        // resolvers, where we infer the field type from the return type of the
+        // resolver function
+        if is_relay_resolver_type(typegen_context, field) {
+            None
+        } else {
+            Some(field)
+        }
+    } else {
+        None
+    };
+
+    if let Some(field) = maybe_scalar_field {
         let inner_value = transform_scalar_type(
             typegen_context,
             &field.type_,
@@ -574,7 +604,7 @@ fn visit_relay_resolver(
     let live = resolver_metadata.live;
     let local_resolver_name = resolver_metadata.generate_local_resolver_name();
 
-    let value = relay_resolver_field_type(
+    let resolver_type = relay_resolver_field_type(
         typegen_context,
         resolver_metadata,
         encountered_enums,
@@ -587,7 +617,7 @@ fn visit_relay_resolver(
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
         special_field: None,
-        value,
+        value: resolver_type,
         conditional: false,
         concrete_type: None,
     }));

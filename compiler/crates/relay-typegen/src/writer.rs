@@ -43,6 +43,7 @@ pub enum AST {
     Boolean,
     Callable(Box<AST>),
     Any,
+    Mixed,
     FragmentReference(SortedStringKeyList),
     FragmentReferenceType(StringKey),
     ReturnTypeOfFunctionWithName(StringKey),

@@ -19,15 +19,9 @@ const {
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 
 import type {TodoItem} from 'relay-runtime/store/__tests__/resolvers/ExampleTodoStore';
+import type {TodoDescription} from './TodoDescription';
 
-/**
- * @RelayResolver TodoDescription
- * @weak
- */
-export type TodoDescription = {
-  text: string,
-  color: string,
-};
+const {createTodoDescription} = require('./TodoDescription');
 
 /**
  * @RelayResolver TodoModel
@@ -53,7 +47,21 @@ function description(model: ?TodoItem): ?string {
   return model?.description;
 }
 
+/**
+ * @RelayResolver
+ * @onType TodoModel
+ * @fieldName fancy_description
+ * @outputType TodoDescription
+ */
+function fancy_description(model: ?TodoItem): ?TodoDescription {
+  if (model == null) {
+    return null;
+  }
+  return createTodoDescription(model.description, model.isCompleted);
+}
+
 module.exports = {
   TodoModel,
   description,
+  fancy_description,
 };

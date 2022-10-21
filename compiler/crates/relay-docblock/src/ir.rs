@@ -64,7 +64,7 @@ lazy_static! {
         DirectiveName("relay_resolver".intern());
     static ref RELAY_RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("__RelayResolverModel".intern());
-    static ref OBJECT_DEFINITION_OUPTUT_TYPE_DIRECTIVE_NAME: DirectiveName =
+    static ref OBJECT_DEFINITION_OUTPUT_TYPE_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("RelayOutputType".intern());
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("deprecated".intern());
@@ -80,7 +80,9 @@ lazy_static! {
     pub(crate) static ref ID_FIELD_NAME: StringKey = "id".intern();
     pub(crate) static ref RESOLVER_VALUE_SCALAR_NAME: StringKey = "RelayResolverValue".intern();
     static ref RESOLVER_MODEL_INSTANCE_FIELD_NAME: StringKey = "__relay_model_instance".intern();
-    static ref MODEL_CUSTOM_SCALAR_TYPE_PREFIX: StringKey = "Model".intern();
+    static ref MODEL_CUSTOM_SCALAR_TYPE_SUFFIX: StringKey = "Model".intern();
+    static ref RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE: DirectiveName =
+        DirectiveName("__RelayWeakObject".intern());
 }
 
 #[derive(Debug, PartialEq)]
@@ -760,7 +762,13 @@ impl WeakObjectIr {
             ConstantDirective {
                 span: span.clone(),
                 at: dummy_token(span),
-                name: string_key_as_identifier(OBJECT_DEFINITION_OUPTUT_TYPE_DIRECTIVE_NAME.0),
+                name: string_key_as_identifier(OBJECT_DEFINITION_OUTPUT_TYPE_DIRECTIVE_NAME.0),
+                arguments: None,
+            },
+            ConstantDirective {
+                span: span.clone(),
+                at: dummy_token(span),
+                name: string_key_as_identifier(RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE.0),
                 arguments: None,
             },
         ];
@@ -840,7 +848,7 @@ impl WeakObjectIr {
         // TODO: Ensure this type does not already exist?
         format!(
             "{}{}",
-            self.type_name.value.item, *MODEL_CUSTOM_SCALAR_TYPE_PREFIX
+            self.type_name.value.item, *MODEL_CUSTOM_SCALAR_TYPE_SUFFIX
         )
         .intern()
     }

@@ -75,6 +75,8 @@ lazy_static! {
         ArgumentName("has_output_type".intern());
     pub static ref RELAY_RESOLVER_INJECT_FRAGMENT_DATA: ArgumentName =
         ArgumentName("inject_fragment_data".intern());
+    pub static ref RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE: DirectiveName =
+        DirectiveName("__RelayWeakObject".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -82,6 +84,7 @@ pub struct ResolverNormalizationInfo {
     pub type_name: StringKey,
     pub plural: bool,
     pub normalization_operation: WithLocation<OperationDefinitionName>,
+    pub weak_object_instance_field: Option<StringKey>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -113,8 +116,8 @@ pub struct RelayResolverMetadata {
     pub field_arguments: Vec<Argument>,
     pub live: bool,
     pub normalization_info: Option<ResolverNormalizationInfo>,
-    // a tuple with fragment name and field name we need read of that fragment
-    // to pass it to the resolver function
+    /// A tuple with fragment name and field name we need read
+    /// of that fragment to pass it to the resolver function.
     pub inject_fragment_data: Option<(
         WithLocation<FragmentDefinitionName>,
         FragmentDataInjectionMode,
@@ -190,11 +193,12 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                     }
                 });
 
+            let schema_field = self.program.schema.field(field.definition().item);
             let resolver_metadata = RelayResolverMetadata {
                 field_parent_type: field_metadata.field_parent_type,
                 import_path: field_metadata.import_path,
                 import_name: field_metadata.import_name,
-                field_name: self.program.schema.field(field.definition().item).name.item,
+                field_name: schema_field.name.item,
                 field_alias: field.alias().map(|alias| alias.item),
                 field_path: field_metadata.field_path,
                 field_arguments,
@@ -392,10 +396,29 @@ impl<'program> RelayResolverFieldTransform<'program> {
                             self.program.schema.field(field.definition().item),
                         );
 
+                        let weak_object_instance_field =
+                            field_type.type_.inner().get_object_id().and_then(|id| {
+                                let object = self.program.schema.object(id);
+                                if object
+                                    .directives
+                                    .named(*RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE)
+                                    .is_some()
+                                {
+                                    let field_id = object.fields.get(0).unwrap();
+                                    // This is expect to be `__relay_model_instance`
+                                    // TODO: Add validation/panic to assert that weak object has only
+                                    // one field here, and it's a magic relay instance field.
+                                    Some(self.program.schema.field(*field_id).name.item)
+                                } else {
+                                    None
+                                }
+                            });
+
                         Some(ResolverNormalizationInfo {
                             type_name: self.program.schema.get_type_name(field_type.type_.inner()),
                             plural: field_type.type_.is_list(),
                             normalization_operation,
+                            weak_object_instance_field,
                         })
                     } else {
                         None

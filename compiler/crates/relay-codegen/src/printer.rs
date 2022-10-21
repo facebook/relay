@@ -516,6 +516,8 @@ impl<'b> JSONPrinter<'b> {
                 js_module,
                 field_name.as_ref().copied(),
             ),
+            Primitive::RelayResolverWeakObjectWrapper { resolver, key } => self
+                .write_relay_resolver_weak_object_wrapper(f, resolver, *key, indent, is_dedupe_var),
         }
     }
 
@@ -598,6 +600,28 @@ impl<'b> JSONPrinter<'b> {
             write!(f, ", '{}'", field_name)?;
         }
         write!(f, ")")
+    }
+
+    fn write_relay_resolver_weak_object_wrapper(
+        &mut self,
+        f: &mut String,
+        resolver: &Primitive,
+        key: StringKey,
+        indent: usize,
+        is_dedupe_var: bool,
+    ) -> FmtResult {
+        let js_module_name = "ResolverObjectWrapper";
+        let js_module_path =
+            "relay-runtime/store/experimental-live-resolvers/ResolverWeakObjectWrapper";
+
+        self.write_js_dependency(
+            f,
+            ModuleImportName::Default(js_module_name.to_string()),
+            Cow::Borrowed(js_module_path),
+        )?;
+        write!(f, "(")?;
+        self.print_primitive(f, resolver, indent + 1, is_dedupe_var)?;
+        write!(f, ", '{}')", key)
     }
 }
 
@@ -767,5 +791,8 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         Primitive::JSModuleDependency { .. } => panic!("Unexpected JSModuleDependency"),
         Primitive::DynamicImport { .. } => panic!("Unexpected DynamicImport"),
         Primitive::RelayResolverModel { .. } => panic!("Unexpected RelayResolver"),
+        Primitive::RelayResolverWeakObjectWrapper { .. } => {
+            panic!("Unexpected RelayResolverWeakObjectWrapper")
+        }
     }
 }

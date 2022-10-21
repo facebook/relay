@@ -1003,6 +1003,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         let args = self.build_arguments(field_arguments);
 
+        let resolver_js_module = JSModuleDependency {
+            path: import_path,
+            named_import: relay_resolver_metadata.import_name,
+            import_as: Some(relay_resolver_metadata.generate_local_resolver_name()),
+        };
+
         let resolver_module = if let Some((fragment_name, injection_mode)) =
             relay_resolver_metadata.inject_fragment_data
         {
@@ -1018,21 +1024,26 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
             Primitive::RelayResolverModel {
                 graphql_module: fragment_import_path,
-                js_module: JSModuleDependency {
-                    path: import_path,
-                    named_import: relay_resolver_metadata.import_name,
-                    import_as: Some(relay_resolver_metadata.generate_local_resolver_name()),
-                },
+                js_module: resolver_js_module,
                 field_name: match injection_mode {
                     FragmentDataInjectionMode::Field(field_name) => Some(field_name),
                 },
             }
         } else {
-            Primitive::JSModuleDependency(JSModuleDependency {
-                path: import_path,
-                named_import: relay_resolver_metadata.import_name,
-                import_as: Some(relay_resolver_metadata.generate_local_resolver_name()),
-            })
+            Primitive::JSModuleDependency(resolver_js_module)
+        };
+
+        let resolver_module = if let Some(key) = relay_resolver_metadata
+            .normalization_info
+            .as_ref()
+            .and_then(|info| info.weak_object_instance_field)
+        {
+            Primitive::RelayResolverWeakObjectWrapper {
+                resolver: Box::new(resolver_module),
+                key,
+            }
+        } else {
+            resolver_module
         };
 
         // For Relay Resolvers in the Reader AST, we need enough

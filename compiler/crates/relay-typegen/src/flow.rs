@@ -71,10 +71,11 @@ impl Writer for FlowPrinter {
             }) => self.write_assert_function_type(*function_name, arguments, return_type),
             AST::GenericType { outer, inner } => self.write_generic_type(*outer, inner),
             AST::PropertyType {
-                type_name,
+                type_,
                 property_name,
             } => {
-                write!(&mut self.result, "{}['{}']", type_name, property_name)
+                self.write(type_)?;
+                write!(&mut self.result, "['{}']", property_name)
             }
         }
     }

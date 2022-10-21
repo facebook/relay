@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ab9874c4fadbaa9f97a9a762efed188d>>
+ * @generated SignedSource<<e27ba72789a7b22825e1a507c0cede8d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import type { RelayResolverStrongModelTestFragment$fragmentType } from "./RelayResolverStrongModelTestFragment.graphql";
+import type { RelayResolverModelTestFragment$fragmentType } from "./RelayResolverModelTestFragment.graphql";
 import {todo_model as queryTodoModelResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryTodoModel.js";
 // Type assertion validating that `queryTodoModelResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
@@ -27,17 +27,17 @@ import {todo_model as queryTodoModelResolver} from "../../../relay-runtime/store
     todoID: string,
   |}, 
 ) => mixed);
-export type RelayResolverStrongModelTestTodoQuery$variables = {|
+export type RelayResolverModelTestTodoQuery$variables = {|
   id: string,
 |};
-export type RelayResolverStrongModelTestTodoQuery$data = {|
+export type RelayResolverModelTestTodoQuery$data = {|
   +todo_model: ?{|
-    +$fragmentSpreads: RelayResolverStrongModelTestFragment$fragmentType,
+    +$fragmentSpreads: RelayResolverModelTestFragment$fragmentType,
   |},
 |};
-export type RelayResolverStrongModelTestTodoQuery = {|
-  response: RelayResolverStrongModelTestTodoQuery$data,
-  variables: RelayResolverStrongModelTestTodoQuery$variables,
+export type RelayResolverModelTestTodoQuery = {|
+  response: RelayResolverModelTestTodoQuery$data,
+  variables: RelayResolverModelTestTodoQuery$variables,
 |};
 */
 
@@ -63,7 +63,7 @@ return {
     "metadata": {
       "hasClientEdges": true
     },
-    "name": "RelayResolverStrongModelTestTodoQuery",
+    "name": "RelayResolverModelTestTodoQuery",
     "selections": [
       {
         "kind": "ClientEdgeToClientObject",
@@ -88,7 +88,7 @@ return {
             {
               "args": null,
               "kind": "FragmentSpread",
-              "name": "RelayResolverStrongModelTestFragment"
+              "name": "RelayResolverModelTestFragment"
             }
           ],
           "storageKey": null
@@ -102,7 +102,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "RelayResolverStrongModelTestTodoQuery",
+    "name": "RelayResolverModelTestTodoQuery",
     "selections": [
       {
         "kind": "ClientExtension",
@@ -119,10 +119,10 @@ return {
     ]
   },
   "params": {
-    "cacheID": "d635bb2b5977ffe4d18bb4a0344f3284",
+    "cacheID": "2038b2cef168130bb00fa9874b879379",
     "id": null,
     "metadata": {},
-    "name": "RelayResolverStrongModelTestTodoQuery",
+    "name": "RelayResolverModelTestTodoQuery",
     "operationKind": "query",
     "text": null
   }
@@ -130,10 +130,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "5e2d0bc4de4f3c8382467eb1c9fdc6df";
+  (node/*: any*/).hash = "b207dfaaed084f7ca220cc00816a3ed0";
 }
 
 module.exports = ((node/*: any*/)/*: ClientQuery<
-  RelayResolverStrongModelTestTodoQuery$variables,
-  RelayResolverStrongModelTestTodoQuery$data,
+  RelayResolverModelTestTodoQuery$variables,
+  RelayResolverModelTestTodoQuery$data,
 >*/);

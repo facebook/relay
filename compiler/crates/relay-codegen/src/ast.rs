@@ -94,6 +94,10 @@ pub enum Primitive {
         js_module: JSModuleDependency,
         field_name: Option<StringKey>,
     },
+    RelayResolverWeakObjectWrapper {
+        resolver: Box<Primitive>,
+        key: StringKey,
+    },
 }
 
 impl Primitive {

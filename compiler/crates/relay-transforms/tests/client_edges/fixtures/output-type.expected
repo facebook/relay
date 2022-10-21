@@ -52,6 +52,7 @@ fragment Foo_user on User {
     #                     "User__best_friend$normalization",
     #                 ),
     #             },
+    #             weak_object_instance_field: None,
     #         },
     #     ),
     #     inject_fragment_data: None,

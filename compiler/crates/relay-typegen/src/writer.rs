@@ -54,7 +54,7 @@ pub enum AST {
         inner: Box<AST>,
     },
     PropertyType {
-        type_name: StringKey,
+        type_: Box<AST>,
         property_name: StringKey,
     },
 }

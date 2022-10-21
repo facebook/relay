@@ -317,7 +317,9 @@ fn generate_resolver_type(
                     resolver_arguments.push(KeyValuePairProp {
                         key: field_name,
                         value: AST::PropertyType {
-                            type_name: format!("{}$data", fragment_name.item).intern(),
+                            type_: Box::new(AST::RawType(
+                                format!("{}$data", fragment_name.item).intern(),
+                            )),
                             property_name: field_name,
                         },
                         read_only: false,
@@ -392,10 +394,19 @@ fn generate_resolver_type(
                 normalization_info.normalization_operation.item.0,
             )));
 
-            if normalization_info.plural {
+            let ast = if normalization_info.plural {
                 AST::ReadOnlyArray(Box::new(type_))
             } else {
                 type_
+            };
+
+            if let Some(instance_field_name) = normalization_info.weak_object_instance_field {
+                AST::PropertyType {
+                    type_: Box::new(ast),
+                    property_name: instance_field_name,
+                }
+            } else {
+                ast
             }
         });
 

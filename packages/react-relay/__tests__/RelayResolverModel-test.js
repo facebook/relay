@@ -12,7 +12,7 @@
 'use strict';
 
 import type {LogEvent} from '../../relay-runtime/store/RelayStoreTypes';
-import type {RelayResolverStrongModelTestFragment$key} from './__generated__/RelayResolverStrongModelTestFragment.graphql';
+import type {RelayResolverModelTestFragment$key} from './__generated__/RelayResolverModelTestFragment.graphql';
 
 const React = require('react');
 const {
@@ -102,13 +102,16 @@ describe.each([
   });
 
   function TodoComponent(props: {
-    fragmentKey: ?RelayResolverStrongModelTestFragment$key,
+    fragmentKey: ?RelayResolverModelTestFragment$key,
   }) {
     const data = useFragment(
       graphql`
-        fragment RelayResolverStrongModelTestFragment on TodoModel {
+        fragment RelayResolverModelTestFragment on TodoModel {
           id
-          description
+          fancy_description {
+            text
+            color
+          }
         }
       `,
       props.fragmentKey,
@@ -119,15 +122,17 @@ describe.each([
 
     // TODO: The `__relay_model_instance` will be hidden from the
     // users and impossible to select.
-    return data.description;
+    return `${data.fancy_description?.text ?? 'unknown'} - ${
+      data.fancy_description?.color ?? 'unknown'
+    }`;
   }
 
   function TodoRootComponent(props: {todoID: string}) {
     const data = useClientQuery(
       graphql`
-        query RelayResolverStrongModelTestTodoQuery($id: ID!) {
+        query RelayResolverModelTestTodoQuery($id: ID!) {
           todo_model(todoID: $id) {
-            ...RelayResolverStrongModelTestFragment
+            ...RelayResolverModelTestFragment
           }
         }
       `,
@@ -148,6 +153,6 @@ describe.each([
         <TodoRootComponent todoID="todo-1" />
       </EnvironmentWrapper>,
     );
-    expect(renderer.toJSON()).toEqual('Test todo');
+    expect(renderer.toJSON()).toEqual('Test todo - red');
   });
 });

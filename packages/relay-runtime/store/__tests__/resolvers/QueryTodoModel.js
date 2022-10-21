@@ -12,10 +12,7 @@
 'use strict';
 
 /**
- * @RelayResolver
- * @onType Query
- * @fieldName todo_model(todoID: ID!)
- * @edgeTo TodoModel
+ * @RelayResolver Query.todo_model(todoID: ID!): TodoModel
  */
 function todo_model(args: {todoID: string}): string {
   return args.todoID;

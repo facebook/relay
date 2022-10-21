@@ -22,6 +22,6 @@ graphql`
  }
 `
 ==================================== OUTPUT ===================================
-extend type User @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-with-output-type.js", fragment_name: "myRootFragment") {
-  favorite_page: ClientPage
+extend type User {
+  favorite_page: ClientPage @relay_resolver(import_path: "/path/to/test/fixture/terse-relay-resolver-with-output-type.js", fragment_name: "myRootFragment", has_output_type: true)
 }

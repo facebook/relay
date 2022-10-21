@@ -150,8 +150,9 @@ impl Named for Argument {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum OutputType {
+    Pending(WithLocation<TypeAnnotation>),
     EdgeTo(WithLocation<TypeAnnotation>),
     Output(WithLocation<TypeAnnotation>),
 }
@@ -159,6 +160,7 @@ pub enum OutputType {
 impl OutputType {
     pub fn inner(&self) -> &WithLocation<TypeAnnotation> {
         match self {
+            Self::Pending(inner) => inner,
             Self::EdgeTo(inner) => inner,
             Self::Output(inner) => inner,
         }
@@ -183,7 +185,7 @@ trait ResolverIr {
     fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>>;
     fn location(&self) -> Location;
     fn root_fragment(&self, object: Option<&Object>) -> Option<RootFragment>;
-    fn output_type(&self) -> Option<&OutputType>;
+    fn output_type(&self) -> Option<OutputType>;
     fn deprecated(&self) -> Option<IrField>;
     fn live(&self) -> Option<IrField>;
     fn named_import(&self) -> Option<StringKey>;
@@ -195,10 +197,10 @@ trait ResolverIr {
         })
     }
 
-    fn directives(&self, object: Option<&Object>) -> Vec<ConstantDirective> {
+    fn directives(&self, object: Option<&Object>, schema: &SDLSchema) -> Vec<ConstantDirective> {
         let location = self.location();
         let span = location.span();
-        let mut directives = vec![self.directive(object)];
+        let mut directives = vec![self.directive(object, schema)];
 
         if let Some(deprecated) = self.deprecated() {
             directives.push(ConstantDirective {
@@ -217,7 +219,7 @@ trait ResolverIr {
         directives
     }
 
-    fn directive(&self, object: Option<&Object>) -> ConstantDirective {
+    fn directive(&self, object: Option<&Object>, schema: &SDLSchema) -> ConstantDirective {
         let location = self.location();
         let span = location.span();
         let import_path = self.location().source_location().path().intern();
@@ -248,8 +250,36 @@ trait ResolverIr {
             arguments.push(true_argument(LIVE_ARGUMENT_NAME.0, live_field.key_location))
         }
 
-        if let Some(output_type) = &self.output_type() {
+        if let Some(output_type) = self.output_type() {
             match output_type {
+                OutputType::Pending(type_) => {
+                    let schema_type = schema.get_type(type_.item.inner().name.value);
+                    let fields = match schema_type {
+                        Some(Type::Object(id)) => {
+                            let object = schema.object(id);
+                            Some(&object.fields)
+                        }
+                        Some(Type::Interface(id)) => {
+                            let interface = schema.interface(id);
+                            Some(&interface.fields)
+                        }
+                        _ => None,
+                    };
+                    let is_edge_to = fields.map_or(false, |fields| {
+                        fields
+                            .iter()
+                            .any(|id| schema.field(*id).name.item == *ID_FIELD_NAME)
+                    });
+
+                    if !is_edge_to {
+                        // If terse resolver does not return strong object (edge)
+                        // it should be `@outputType` resolver
+                        arguments.push(true_argument(
+                            HAS_OUTPUT_TYPE_ARGUMENT_NAME.0,
+                            type_.location,
+                        ))
+                    }
+                }
                 OutputType::EdgeTo(_) => {}
                 OutputType::Output(type_) => arguments.push(true_argument(
                     HAS_OUTPUT_TYPE_ARGUMENT_NAME.0,
@@ -279,7 +309,6 @@ pub struct TerseRelayResolverIr {
     pub type_: WithLocation<StringKey>,
     pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
     pub deprecated: Option<IrField>,
-    pub output_type: Option<OutputType>,
     pub live: Option<IrField>,
     pub location: Location,
     pub fragment_arguments: Option<Vec<Argument>>,
@@ -294,9 +323,12 @@ impl ResolverIr for TerseRelayResolverIr {
                     return Ok(vec![TypeSystemDefinition::ObjectTypeExtension(
                         ObjectTypeExtension {
                             name: as_identifier(self.type_),
-                            interfaces: Vec::new(),
-                            directives: self.directives(Some(schema.object(object_id))),
-                            fields: Some(List::generated(vec![self.field.clone()])),
+                            interfaces: vec![],
+                            directives: vec![],
+                            fields: Some(List::generated(vec![FieldDefinition {
+                                directives: self.directives(Some(schema.object(object_id)), schema),
+                                ..self.field.clone()
+                            }])),
                         },
                     )]);
                 }
@@ -319,15 +351,20 @@ impl ResolverIr for TerseRelayResolverIr {
         self.location
     }
 
-    fn root_fragment(&self, _object: Option<&Object>) -> Option<RootFragment> {
-        self.root_fragment.map(|fragment| RootFragment {
-            fragment,
-            inject_fragment_data: None,
+    fn root_fragment(&self, object: Option<&Object>) -> Option<RootFragment> {
+        get_root_fragment_for_object(object).or_else(|| {
+            self.root_fragment.map(|fragment| RootFragment {
+                fragment,
+                inject_fragment_data: None,
+            })
         })
     }
 
-    fn output_type(&self) -> Option<&OutputType> {
-        self.output_type.as_ref()
+    fn output_type(&self) -> Option<OutputType> {
+        Some(OutputType::Pending(WithLocation::new(
+            self.location,
+            self.field.type_.clone(),
+        )))
     }
 
     fn deprecated(&self) -> Option<IrField> {
@@ -382,7 +419,7 @@ impl ResolverIr for RelayResolverIr {
                         Type::Object(object_id) => {
                             let object = schema.object(object_id);
                             self.validate_singular_implementation(schema, &object.interfaces)?;
-                            return Ok(self.object_definitions(object));
+                            return Ok(self.object_definitions(object, schema));
                         }
                         Type::Interface(_) => {
                             return Err(vec![Diagnostic::error_with_data(
@@ -441,35 +478,16 @@ impl ResolverIr for RelayResolverIr {
     }
 
     fn root_fragment(&self, object: Option<&Object>) -> Option<RootFragment> {
-        if let Some(object) = object {
-            if object
-                .directives
-                .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
-                .is_some()
-            {
-                return Some(RootFragment {
-                    fragment: WithLocation::generated(FragmentDefinitionName(
-                        format!(
-                            "{}__{}",
-                            object.name.item, *RESOLVER_MODEL_INSTANCE_FIELD_NAME
-                        )
-                        .intern(),
-                    )),
-                    inject_fragment_data: Some(FragmentDataInjectionMode::Field(
-                        *RESOLVER_MODEL_INSTANCE_FIELD_NAME,
-                    )),
-                });
-            }
-        }
-
-        self.root_fragment.map(|fragment| RootFragment {
-            fragment,
-            inject_fragment_data: None,
+        get_root_fragment_for_object(object).or_else(|| {
+            self.root_fragment.map(|fragment| RootFragment {
+                fragment,
+                inject_fragment_data: None,
+            })
         })
     }
 
-    fn output_type(&self) -> Option<&OutputType> {
-        self.output_type.as_ref()
+    fn output_type(&self) -> Option<OutputType> {
+        self.output_type.as_ref().cloned()
     }
 
     fn deprecated(&self) -> Option<IrField> {
@@ -511,7 +529,7 @@ impl RelayResolverIr {
         seen_objects: &mut HashSet<ObjectID>,
         seen_interfaces: &mut HashSet<InterfaceID>,
     ) -> Vec<TypeSystemDefinition> {
-        let fields = self.fields(None);
+        let fields = self.fields(None, schema);
         // First we extend the interface itself...
         let mut definitions = vec![TypeSystemDefinition::InterfaceTypeExtension(
             InterfaceTypeExtension {
@@ -526,7 +544,7 @@ impl RelayResolverIr {
         for object_id in &schema.interface(interface_id).implementing_objects {
             if !seen_objects.contains(object_id) {
                 seen_objects.insert(*object_id);
-                definitions.extend(self.object_definitions(schema.object(*object_id)));
+                definitions.extend(self.object_definitions(schema.object(*object_id), schema));
             }
         }
 
@@ -594,18 +612,18 @@ impl RelayResolverIr {
         Ok(())
     }
 
-    fn object_definitions(&self, object: &Object) -> Vec<TypeSystemDefinition> {
+    fn object_definitions(&self, object: &Object, schema: &SDLSchema) -> Vec<TypeSystemDefinition> {
         vec![TypeSystemDefinition::ObjectTypeExtension(
             ObjectTypeExtension {
                 name: obj_as_identifier(object.name),
                 interfaces: Vec::new(),
                 directives: vec![],
-                fields: Some(self.fields(Some(object))),
+                fields: Some(self.fields(Some(object), schema)),
             },
         )]
     }
 
-    fn fields(&self, object: Option<&Object>) -> List<FieldDefinition> {
+    fn fields(&self, object: Option<&Object>, schema: &SDLSchema) -> List<FieldDefinition> {
         let edge_to = self.output_type.as_ref().map_or_else(
             || {
                 // Resolvers return arbitrary JavaScript values. However, we
@@ -635,7 +653,7 @@ impl RelayResolverIr {
             name: self.field.name.clone(),
             type_: edge_to,
             arguments: args,
-            directives: self.directives(object),
+            directives: self.directives(object, schema),
             description: self.description.map(as_string_node),
         }])
     }
@@ -669,7 +687,7 @@ pub struct StrongObjectIr {
 }
 
 impl ResolverIr for StrongObjectIr {
-    fn definitions(&self, _schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+    fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let span = Span::empty();
         let fields = vec![
             FieldDefinition {
@@ -691,7 +709,7 @@ impl ResolverIr for StrongObjectIr {
                     name: string_key_as_identifier(*INT_TYPE),
                 }),
                 arguments: None,
-                directives: self.directives(None),
+                directives: self.directives(None, schema),
                 description: None,
             },
         ];
@@ -714,6 +732,7 @@ impl ResolverIr for StrongObjectIr {
         self.location
     }
 
+    // For Model resolver we always inject the `id` fragment
     fn root_fragment(&self, _: Option<&Object>) -> Option<RootFragment> {
         Some(RootFragment {
             fragment: self.root_fragment,
@@ -721,7 +740,7 @@ impl ResolverIr for StrongObjectIr {
         })
     }
 
-    fn output_type(&self) -> Option<&OutputType> {
+    fn output_type(&self) -> Option<OutputType> {
         None
     }
 
@@ -870,7 +889,7 @@ impl ResolverIr for WeakObjectIr {
         None
     }
 
-    fn output_type(&self) -> Option<&OutputType> {
+    fn output_type(&self) -> Option<OutputType> {
         None
     }
 
@@ -950,5 +969,29 @@ fn dummy_token(span: &Span) -> Token {
     Token {
         span: span.clone(),
         kind: TokenKind::Empty,
+    }
+}
+
+fn get_root_fragment_for_object(object: Option<&Object>) -> Option<RootFragment> {
+    if object?
+        .directives
+        .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
+        .is_some()
+    {
+        Some(RootFragment {
+            fragment: WithLocation::generated(FragmentDefinitionName(
+                format!(
+                    "{}__{}",
+                    object.unwrap().name.item,
+                    *RESOLVER_MODEL_INSTANCE_FIELD_NAME
+                )
+                .intern(),
+            )),
+            inject_fragment_data: Some(FragmentDataInjectionMode::Field(
+                *RESOLVER_MODEL_INSTANCE_FIELD_NAME,
+            )),
+        })
+    } else {
+        None
     }
 }

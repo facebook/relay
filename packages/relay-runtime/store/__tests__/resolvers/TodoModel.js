@@ -39,19 +39,14 @@ function TodoModel(id: string): LiveState<?TodoItem> {
 }
 
 /**
- * @RelayResolver
- * @onType TodoModel
- * @fieldName description
+ * @RelayResolver TodoModel.description: String
  */
 function description(model: ?TodoItem): ?string {
   return model?.description;
 }
 
 /**
- * @RelayResolver
- * @onType TodoModel
- * @fieldName fancy_description
- * @outputType TodoDescription
+ * @RelayResolver TodoModel.fancy_description: TodoDescription
  */
 function fancy_description(model: ?TodoItem): ?TodoDescription {
   if (model == null) {

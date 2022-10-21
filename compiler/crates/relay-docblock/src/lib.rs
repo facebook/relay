@@ -753,10 +753,6 @@ impl RelayResolverParser {
 
         let location = type_str.location;
 
-        // TODO: Provide an output type (using a new variant) to signal that
-        // @outputType should be inferred from the type definition.
-        let output_type = None;
-
         // These fields are subsumed by the terse syntax, and as such cannot be used with terse syntax.
         for forbidden_field_name in &[
             *FIELD_NAME_FIELD,
@@ -775,6 +771,7 @@ impl RelayResolverParser {
                 ));
             }
         }
+        let named_import = self.options.use_named_imports.then_some(field.name.value);
         Ok(Some(TerseRelayResolverIr {
             field,
             type_: WithLocation::new(type_str.location.with_span(type_name.span), type_name.value),
@@ -782,10 +779,9 @@ impl RelayResolverParser {
                 .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
             location,
             deprecated,
-            output_type,
             live,
             fragment_arguments,
-            named_import: None,
+            named_import,
         }))
     }
 

@@ -32,20 +32,14 @@ function createTodoDescription(
 }
 
 /**
- * @RelayResolver
- * @onType TodoDescription
- * @fieldName text
- * @outputType String
+ * @RelayResolver TodoDescription.text: String
  */
 function text(instance: ?TodoDescription): ?string {
   return instance?.text;
 }
 
 /**
- * @RelayResolver
- * @onType TodoDescription
- * @fieldName color
- * @outputType RelayResolverValue
+ * @RelayResolver TodoDescription.color: RelayResolverValue
  */
 function color(instance: ?TodoDescription): ?string {
   return instance?.color;

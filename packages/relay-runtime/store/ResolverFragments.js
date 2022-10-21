@@ -14,6 +14,7 @@
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {FragmentType, SingularReaderSelector} from './RelayStoreTypes';
 import type {ResolverFragmentResult} from './ResolverCache';
+import type {Fragment} from '../util/RelayRuntimeTypes';
 
 const {getFragment} = require('../query/GraphQLTag');
 const {getSelector} = require('./RelayModernSelector');
@@ -97,6 +98,11 @@ declare function readFragment<
   ) => ?TFragmentData,
   TKey,
 >;
+
+declare function readFragment<TKey: FragmentType, TData>(
+  fragmentInput: Fragment<TKey, TData>,
+  fragmentKey: TKey,
+): TData;
 
 function readFragment(
   fragmentInput: GraphQLTaggedNode,

@@ -11,9 +11,6 @@ use graphql_ir::FragmentDefinitionName;
 use relay_docblock::DocblockIr;
 use relay_docblock::On;
 
-use crate::LSPRuntimeError;
-use crate::LSPRuntimeResult;
-
 pub enum DocblockResolutionInfo {
     Type(StringKey),
     RootFragment(FragmentDefinitionName),
@@ -24,37 +21,37 @@ pub enum DocblockResolutionInfo {
 pub fn create_docblock_resolution_info(
     docblock_ir: &DocblockIr,
     position_span: Span,
-) -> LSPRuntimeResult<DocblockResolutionInfo> {
+) -> Option<DocblockResolutionInfo> {
     match docblock_ir {
         DocblockIr::RelayResolver(resolver_ir) => {
             match resolver_ir.on {
                 On::Type(on_type) => {
                     if on_type.value.location.contains(position_span) {
-                        return Ok(DocblockResolutionInfo::Type(on_type.value.item));
+                        return Some(DocblockResolutionInfo::Type(on_type.value.item));
                     }
                 }
                 On::Interface(on_interface) => {
                     if on_interface.value.location.contains(position_span) {
-                        return Ok(DocblockResolutionInfo::Type(on_interface.value.item));
+                        return Some(DocblockResolutionInfo::Type(on_interface.value.item));
                     }
                 }
             };
 
             if let Some(root_fragment) = resolver_ir.root_fragment {
                 if root_fragment.location.contains(position_span) {
-                    return Ok(DocblockResolutionInfo::RootFragment(root_fragment.item));
+                    return Some(DocblockResolutionInfo::RootFragment(root_fragment.item));
                 }
             }
 
             if resolver_ir.field.name.span.contains(position_span) {
-                return Ok(DocblockResolutionInfo::FieldName(
+                return Some(DocblockResolutionInfo::FieldName(
                     resolver_ir.field.name.value,
                 ));
             }
 
             if let Some(output_type) = &resolver_ir.output_type {
                 if output_type.inner().location.contains(position_span) {
-                    return Ok(DocblockResolutionInfo::Type(
+                    return Some(DocblockResolutionInfo::Type(
                         output_type.inner().item.inner().name.value,
                     ));
                 }
@@ -62,16 +59,16 @@ pub fn create_docblock_resolution_info(
 
             if let Some(deprecated) = resolver_ir.deprecated {
                 if deprecated.key_location.contains(position_span) {
-                    return Ok(DocblockResolutionInfo::Deprecated);
+                    return Some(DocblockResolutionInfo::Deprecated);
                 }
             }
 
-            Err(LSPRuntimeError::ExpectedError)
+            None
         }
         DocblockIr::TerseRelayResolver(resolver_ir) => {
             // Parent type
             if resolver_ir.type_.location.contains(position_span) {
-                return Ok(DocblockResolutionInfo::Type(resolver_ir.type_.item));
+                return Some(DocblockResolutionInfo::Type(resolver_ir.type_.item));
             }
 
             let field_type_location = resolver_ir
@@ -80,7 +77,7 @@ pub fn create_docblock_resolution_info(
 
             // Return type
             if field_type_location.contains(position_span) {
-                return Ok(DocblockResolutionInfo::Type(
+                return Some(DocblockResolutionInfo::Type(
                     resolver_ir.field.type_.inner().name.value,
                 ));
             }
@@ -88,30 +85,30 @@ pub fn create_docblock_resolution_info(
             // Root fragment
             if let Some(root_fragment) = resolver_ir.root_fragment {
                 if root_fragment.location.contains(position_span) {
-                    return Ok(DocblockResolutionInfo::RootFragment(root_fragment.item));
+                    return Some(DocblockResolutionInfo::RootFragment(root_fragment.item));
                 }
             }
 
             // @deprecated key
             if let Some(deprecated) = resolver_ir.deprecated {
                 if deprecated.key_location.contains(position_span) {
-                    return Ok(DocblockResolutionInfo::Deprecated);
+                    return Some(DocblockResolutionInfo::Deprecated);
                 }
             }
 
-            Err(LSPRuntimeError::ExpectedError)
+            None
         }
         DocblockIr::StrongObjectResolver(strong_object) => {
             if strong_object.type_.value.location.contains(position_span) {
-                return Ok(DocblockResolutionInfo::Type(strong_object.type_.value.item));
+                return Some(DocblockResolutionInfo::Type(strong_object.type_.value.item));
             }
 
             if let Some(deprecated) = strong_object.deprecated {
                 if deprecated.key_location.contains(position_span) {
-                    return Ok(DocblockResolutionInfo::Deprecated);
+                    return Some(DocblockResolutionInfo::Deprecated);
                 }
             }
-            Err(LSPRuntimeError::ExpectedError)
+            None
         }
         DocblockIr::WeakObjectType(weak_type_ir) => {
             if weak_type_ir
@@ -120,18 +117,18 @@ pub fn create_docblock_resolution_info(
                 .location
                 .contains(position_span)
             {
-                return Ok(DocblockResolutionInfo::Type(
+                return Some(DocblockResolutionInfo::Type(
                     weak_type_ir.type_name.value.item,
                 ));
             }
 
             if let Some(deprecated) = weak_type_ir.deprecated {
                 if deprecated.key_location.contains(position_span) {
-                    return Ok(DocblockResolutionInfo::Deprecated);
+                    return Some(DocblockResolutionInfo::Deprecated);
                 }
             }
             // TODO: We could provide location mapping for the @weak docblock attribute
-            Err(LSPRuntimeError::ExpectedError)
+            None
         }
     }
 }

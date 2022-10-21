@@ -412,7 +412,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 create_node_resolution_info(executable_document, position_span)?,
             ),
             Feature::DocblockIr(docblock_ir) => FeatureResolutionInfo::DocblockNode(DocblockNode {
-                resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)?,
+                resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)
+                    .ok_or(LSPRuntimeError::ExpectedError)?,
                 ir: docblock_ir,
             }),
         };

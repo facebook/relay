@@ -241,7 +241,7 @@ function createMockEnvironment(
           op => op !== currentOperation,
         );
         if (result instanceof Error) {
-          return Observable.create(sink => {
+          return Observable.create<empty>(sink => {
             sink.error(result);
           });
         } else {
@@ -250,7 +250,7 @@ function createMockEnvironment(
       }
     }
 
-    return Observable.create(sink => {
+    return Observable.create<GraphQLSingularResponse>(sink => {
       const nextRequest = {request, variables, cacheConfig, sink};
       pendingRequests = pendingRequests.concat([nextRequest]);
 

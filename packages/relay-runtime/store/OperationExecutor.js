@@ -343,7 +343,7 @@ class Executor<TMutation: MutationParameters> {
     const scheduler = this._scheduler;
     if (scheduler != null) {
       const id = this._nextSubscriptionId++;
-      RelayObservable.create(sink => {
+      RelayObservable.create<empty>(sink => {
         const cancellationToken = scheduler.schedule(() => {
           try {
             task();
@@ -956,7 +956,7 @@ class Executor<TMutation: MutationParameters> {
                 .then(resolve, reject);
             }),
           );
-          RelayObservable.create(sink => {
+          RelayObservable.create<empty>(sink => {
             let cancellationToken;
             const subscription = networkObservable.subscribe({
               next: (loadedNode: ?NormalizationRootNode) => {
@@ -1153,7 +1153,7 @@ class Executor<TMutation: MutationParameters> {
         previousParentEntry.record,
         parentRecord,
       );
-      const handlePayloads = new Map();
+      const handlePayloads = new Map<string, HandleFieldPayload>();
       const dedupePayload = (payload: HandleFieldPayload) => {
         const key = stableStringify(payload);
         handlePayloads.set(key, payload);
@@ -1569,7 +1569,7 @@ class Executor<TMutation: MutationParameters> {
   _runPublishQueue(
     operation?: OperationDescriptor,
   ): $ReadOnlyArray<RequestDescriptor> {
-    const updatedOwners = new Set();
+    const updatedOwners = new Set<RequestDescriptor>();
     for (const actorIdentifier of this._getActorsToVisit()) {
       const owners = this._getPublishQueue(actorIdentifier).run(operation);
       owners.forEach(owner => updatedOwners.add(owner));

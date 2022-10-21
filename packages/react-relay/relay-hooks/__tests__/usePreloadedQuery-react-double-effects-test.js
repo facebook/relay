@@ -758,7 +758,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
   describe('using preloadQuery_DEPRECATED', () => {
     describe('when request is in flight upon rendering', () => {
       it('forces a re-render when effects are double invoked and refetches when policy network-only', () => {
-        const queryRef = preloadQuery_DEPRECATED(
+        const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQuery,
           variables,
@@ -865,7 +865,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       });
 
       it('forces a re-render when effects are double invoked and does NOT refetch when policy store-or-network', () => {
-        const queryRef = preloadQuery_DEPRECATED(
+        const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQuery,
           variables,
@@ -946,7 +946,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
     describe('when request is complete upon rendering', () => {
       it('forces a re-render when effects are double invoked and refetches when policy network-only', () => {
-        const queryRef = preloadQuery_DEPRECATED(
+        const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQuery,
           variables,
@@ -1046,7 +1046,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       });
 
       it('forces a re-render when effects are double invoked and does NOT refetch when policy store-or-network', () => {
-        const queryRef = preloadQuery_DEPRECATED(
+        const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQuery,
           variables,
@@ -1129,7 +1129,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
 
     describe('with incremental delivery', () => {
       it('forces a re-render when effects are double invoked and refetches when policy is network-only', () => {
-        const queryRef = preloadQuery_DEPRECATED(
+        const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQueryWithDefer,
           variables,
@@ -1270,7 +1270,7 @@ describe.skip('usePreloadedQuery-react-double-effects', () => {
       });
 
       it('forces a re-render when effects are double invoked and refetches when policy is store-or-network', () => {
-        const queryRef = preloadQuery_DEPRECATED(
+        const queryRef = preloadQuery_DEPRECATED<any, empty>(
           environment,
           gqlQueryWithDefer,
           variables,

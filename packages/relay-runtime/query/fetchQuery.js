@@ -148,7 +148,9 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
 
   switch (fetchPolicy) {
     case 'network-only': {
-      return getNetworkObservable(environment, operation).map(readData);
+      return getNetworkObservable<$FlowFixMe>(environment, operation).map(
+        readData,
+      );
     }
     case 'store-or-network': {
       if (environment.check(operation).status === 'available') {
@@ -156,7 +158,9 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
           readData,
         );
       }
-      return getNetworkObservable(environment, operation).map(readData);
+      return getNetworkObservable<$FlowFixMe>(environment, operation).map(
+        readData,
+      );
     }
     default:
       (fetchPolicy: empty);

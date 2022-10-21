@@ -154,7 +154,7 @@ describe.each([
     });
 
     it('suspends while the query is pending', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {
@@ -179,7 +179,7 @@ describe.each([
     });
 
     it('suspends while the query is pending (with default variables)', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {},
@@ -205,7 +205,7 @@ describe.each([
       // TODO(T40983823): Fix usage of timers in tests
       environment.getStore().holdGC();
 
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {
@@ -242,7 +242,7 @@ describe.each([
     });
 
     it('renders synchronously if the query has already errored', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {
@@ -275,7 +275,7 @@ describe.each([
     });
 
     it('updates asynchronously when the query completes', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {
@@ -317,14 +317,14 @@ describe.each([
     });
 
     it('refetches when a different fetchKey is passed', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {id: '4'},
         {fetchKey: 'Break Cache 0', fetchPolicy: 'network-only'},
       );
       const dataSourceBreakCache0 = dataSource;
-      const prefetchedWithFetchKey = preloadQuery_DEPRECATED(
+      const prefetchedWithFetchKey = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {id: '4'},
@@ -387,7 +387,7 @@ describe.each([
     });
 
     it('refetches when consumed with a different environment', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {id: '4'},
@@ -431,14 +431,14 @@ describe.each([
     });
 
     it('no refetch when the same fetchKey is passed', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {id: '4'},
         {fetchKey: 'Break Cache 0', fetchPolicy: 'network-only'},
       );
       const dataSourceBreakCache0 = dataSource;
-      const prefetchedWithFetchKey = preloadQuery_DEPRECATED(
+      const prefetchedWithFetchKey = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {id: '4'},
@@ -501,7 +501,7 @@ describe.each([
     });
 
     it('updates asynchronously when the query errors', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {

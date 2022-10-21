@@ -191,6 +191,29 @@ class LiveResolverStore implements Store {
     return this._resolverCache.getLiveResolverPromise(recordID);
   }
 
+  /**
+   * When an external data proider knows it's going to notify us about multiple
+   * Live Resolver state updates in a single tick, it can batch them into a
+   * single Relay update by notifying us within a batch. All updates recieved by
+   * Relay during the evaluation of the provided `callback` will be aggregated
+   * into a single Relay update.
+   *
+   * A typical use with a Flux store might look like this:
+   *
+   * const originalDispatch = fluxStore.dispatch;
+   *
+   * function wrapped(action) {
+   *   relayStore.batchLiveStateUpdates(() => {
+   *     originalDispatch(action);
+   *   })
+   * }
+   *
+   * fluxStore.dispatch = wrapped;
+   */
+  batchLiveStateUpdates(callback: () => void) {
+    this._resolverCache.batchLiveStateUpdates(callback);
+  }
+
   check(
     operation: OperationDescriptor,
     options?: CheckOptions,

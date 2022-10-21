@@ -85,6 +85,8 @@ class LiveResolverCache implements ResolverCache {
   _recordIDToResolverIDs: Map<DataID, Set<ResolverID>>;
   _getRecordSource: () => MutableRecordSource;
   _store: LiveResolverStore;
+  _handlingBatch: boolean; // Flag indicating that Live Resolver updates are being batched.
+  _liveResolverBatchRecordSource: ?MutableRecordSource; // Lazily created record source for batched Live Resolver updates.
 
   constructor(
     getRecordSource: () => MutableRecordSource,
@@ -94,6 +96,8 @@ class LiveResolverCache implements ResolverCache {
     this._recordIDToResolverIDs = new Map();
     this._getRecordSource = getRecordSource;
     this._store = store;
+    this._handlingBatch = false;
+    this._liveResolverBatchRecordSource = null;
   }
 
   readFromCacheOrEvaluate<T>(
@@ -403,7 +407,6 @@ class LiveResolverCache implements ResolverCache {
         return;
       }
 
-      const nextSource = RelayRecordSource.create();
       const nextRecord = RelayModernRecord.clone(currentRecord);
 
       // Mark the field as dirty. The next time it's read, we will call
@@ -414,13 +417,48 @@ class LiveResolverCache implements ResolverCache {
         true,
       );
 
-      nextSource.set(linkedID, nextRecord);
-      this._store.publish(nextSource);
-
-      // In the future, this notify might be deferred if we are within a
-      // transaction.
-      this._store.notify();
+      this._setLiveResolverUpdate(linkedID, nextRecord);
     };
+  }
+
+  _setLiveResolverUpdate(linkedId: DataID, record: Record) {
+    if (this._handlingBatch) {
+      // Lazily create the batched record source.
+      if (this._liveResolverBatchRecordSource == null) {
+        this._liveResolverBatchRecordSource = RelayRecordSource.create();
+      }
+      this._liveResolverBatchRecordSource.set(linkedId, record);
+      // We will wait for the batch to complete before we publish/notify...
+    } else {
+      const nextSource = RelayRecordSource.create();
+      nextSource.set(linkedId, record);
+
+      // We are not within a batch, so we will immediately publish/notify.
+      this._store.publish(nextSource);
+      this._store.notify();
+    }
+  }
+
+  batchLiveStateUpdates(callback: () => void) {
+    invariant(
+      !this._handlingBatch,
+      'Unexpected nested call to batchLiveStateUpdates.',
+    );
+    this._handlingBatch = true;
+    try {
+      callback();
+    } finally {
+      // We lazily create the record source. If one has not been created, there
+      // is nothing to publish.
+      if (this._liveResolverBatchRecordSource != null) {
+        this._store.publish(this._liveResolverBatchRecordSource);
+        this._store.notify();
+      }
+
+      // Reset batched state.
+      this._liveResolverBatchRecordSource = null;
+      this._handlingBatch = false;
+    }
   }
 
   _setRelayResolverValue(

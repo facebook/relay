@@ -51,6 +51,7 @@ use relay_transforms::RefetchableMetadata;
 use relay_transforms::RelayDirective;
 use relay_transforms::RelayResolverMetadata;
 use relay_transforms::RequiredMetadataDirective;
+use relay_transforms::ResolverOutputTypeInfo;
 use relay_transforms::StreamDirective;
 use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use relay_transforms::DEFER_STREAM_CONSTANTS;
@@ -1034,10 +1035,12 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         };
 
         let resolver_module = if let Some(key) = relay_resolver_metadata
-            .normalization_info
+            .output_type_info
             .as_ref()
-            .and_then(|info| info.weak_object_instance_field)
-        {
+            .and_then(|info| match info {
+                ResolverOutputTypeInfo::ScalarField(_) => None,
+                ResolverOutputTypeInfo::Composite(info) => info.weak_object_instance_field,
+            }) {
             Primitive::RelayResolverWeakObjectWrapper {
                 resolver: Box::new(resolver_module),
                 key,
@@ -1066,7 +1069,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             path: Primitive::String(path),
         };
 
-        if let Some(normalization_info) = &relay_resolver_metadata.normalization_info {
+        if let Some(ResolverOutputTypeInfo::Composite(normalization_info)) =
+            &relay_resolver_metadata.output_type_info
+        {
             let normalization_artifact_source_location = normalization_info
                 .normalization_operation
                 .location

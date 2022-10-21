@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d0326d641f532cf63bd957c0e0afea12>>
+ * @generated SignedSource<<832de6c8c46524a105bf3142deaecaf2>>
  */
 
 mod compile_relay_artifacts;
@@ -1151,6 +1151,20 @@ fn relay_resolver_with_fragment_on_client_type() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-fragment-on-client-type.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-fragment-on-client-type.expected");
     test_fixture(transform_fixture, "relay-resolver-with-fragment-on-client-type.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-fragment-on-client-type.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-output-type.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-output-type.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-output-type.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type_scalar() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-output-type-scalar.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-output-type-scalar.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-scalar.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-output-type-scalar.expected", input, expected);
 }
 
 #[test]

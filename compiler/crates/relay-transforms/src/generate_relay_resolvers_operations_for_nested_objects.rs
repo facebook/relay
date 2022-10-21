@@ -279,6 +279,11 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
                 continue;
             }
 
+            // Allow scalar/enums as @outputType
+            if field.type_.inner().is_scalar() || field.type_.inner().is_enum() {
+                continue;
+            }
+
             let selections = match generate_fat_selections_from_type(
                 &program.schema,
                 schema_config,

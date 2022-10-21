@@ -35,6 +35,7 @@ function createTodoDescription(
  * @RelayResolver
  * @onType TodoDescription
  * @fieldName text
+ * @outputType String
  */
 function text(instance: ?TodoDescription): ?string {
   return instance?.text;
@@ -44,6 +45,7 @@ function text(instance: ?TodoDescription): ?string {
  * @RelayResolver
  * @onType TodoDescription
  * @fieldName color
+ * @outputType String
  */
 function color(instance: ?TodoDescription): ?string {
   return instance?.color;

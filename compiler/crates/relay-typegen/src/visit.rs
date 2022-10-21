@@ -40,6 +40,7 @@ use relay_transforms::ModuleMetadata;
 use relay_transforms::NoInlineFragmentSpreadMetadata;
 use relay_transforms::RelayResolverMetadata;
 use relay_transforms::RequiredMetadataDirective;
+use relay_transforms::ResolverOutputTypeInfo;
 use relay_transforms::TypeConditionInfo;
 use relay_transforms::ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN;
 use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
@@ -382,31 +383,43 @@ fn generate_resolver_type(
         });
     }
     let inner_type = resolver_metadata
-        .normalization_info
+        .output_type_info
         .as_ref()
-        .map(|normalization_info| {
-            imported_raw_response_types.0.insert(
-                normalization_info.normalization_operation.item.0,
-                Some(normalization_info.normalization_operation.location),
-            );
+        .map(|output_type_info| match output_type_info {
+            ResolverOutputTypeInfo::ScalarField(field_id) => {
+                let field = typegen_context.schema.field(*field_id);
+                transform_scalar_type(
+                    typegen_context,
+                    &field.type_,
+                    None,
+                    encountered_enums,
+                    custom_scalars,
+                )
+            }
+            ResolverOutputTypeInfo::Composite(normalization_info) => {
+                imported_raw_response_types.0.insert(
+                    normalization_info.normalization_operation.item.0,
+                    Some(normalization_info.normalization_operation.location),
+                );
 
-            let type_ = AST::Nullable(Box::new(AST::RawType(
-                normalization_info.normalization_operation.item.0,
-            )));
+                let type_ = AST::Nullable(Box::new(AST::RawType(
+                    normalization_info.normalization_operation.item.0,
+                )));
 
-            let ast = if normalization_info.plural {
-                AST::ReadOnlyArray(Box::new(type_))
-            } else {
-                type_
-            };
+                let ast = if normalization_info.plural {
+                    AST::ReadOnlyArray(Box::new(type_))
+                } else {
+                    type_
+                };
 
-            if let Some(instance_field_name) = normalization_info.weak_object_instance_field {
-                AST::PropertyType {
-                    type_: Box::new(ast),
-                    property_name: instance_field_name,
+                if let Some(instance_field_name) = normalization_info.weak_object_instance_field {
+                    AST::PropertyType {
+                        type_: Box::new(ast),
+                        property_name: instance_field_name,
+                    }
+                } else {
+                    ast
                 }
-            } else {
-                ast
             }
         });
 
@@ -484,6 +497,50 @@ fn import_relay_resolver_function_type(
         .or_insert(imported_resolver);
 }
 
+/// Build relay resolver field type
+fn relay_resolver_field_type(
+    typegen_context: &'_ TypegenContext<'_>,
+    resolver_metadata: &RelayResolverMetadata,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
+    local_resolver_name: StringKey,
+    required: bool,
+    live: bool,
+) -> AST {
+    if let Some(ResolverOutputTypeInfo::ScalarField(field_id)) = resolver_metadata.output_type_info
+    {
+        let field = typegen_context.schema.field(field_id);
+        let inner_value = transform_scalar_type(
+            typegen_context,
+            &field.type_,
+            None,
+            encountered_enums,
+            custom_scalars,
+        );
+        if required {
+            if field.type_.is_non_null() {
+                inner_value
+            } else {
+                AST::NonNullable(Box::new(inner_value))
+            }
+        } else {
+            inner_value
+        }
+    } else {
+        let inner_value = AST::ReturnTypeOfFunctionWithName(local_resolver_name);
+        let inner_value = if live {
+            AST::ReturnTypeOfMethodCall(Box::new(inner_value), intern!("read"))
+        } else {
+            inner_value
+        };
+        if required {
+            AST::NonNullable(Box::new(inner_value))
+        } else {
+            AST::Nullable(Box::new(inner_value))
+        }
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 fn visit_relay_resolver(
     typegen_context: &'_ TypegenContext<'_>,
@@ -517,17 +574,15 @@ fn visit_relay_resolver(
     let live = resolver_metadata.live;
     let local_resolver_name = resolver_metadata.generate_local_resolver_name();
 
-    let mut inner_value = Box::new(AST::ReturnTypeOfFunctionWithName(local_resolver_name));
-
-    if live {
-        inner_value = Box::new(AST::ReturnTypeOfMethodCall(inner_value, intern!("read")));
-    }
-
-    let value = if required {
-        AST::NonNullable(inner_value)
-    } else {
-        AST::Nullable(inner_value)
-    };
+    let value = relay_resolver_field_type(
+        typegen_context,
+        resolver_metadata,
+        encountered_enums,
+        custom_scalars,
+        local_resolver_name,
+        required,
+        live,
+    );
 
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,

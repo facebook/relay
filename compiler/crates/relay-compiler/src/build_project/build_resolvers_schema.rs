@@ -49,6 +49,12 @@ fn extend_schema_with_types(
             match definition {
                 TypeSystemDefinition::ObjectTypeDefinition(extension) => schema
                     .add_extension_object(extension, schema_document.location.source_location())?,
+                TypeSystemDefinition::ScalarTypeDefinition(extension) => {
+                    schema.add_extension_scalar(
+                        extension,
+                        schema_document.location.source_location(),
+                    )?;
+                }
                 _ => panic!("Expected docblocks to only expose object extensions"),
             }
         }

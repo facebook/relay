@@ -302,6 +302,17 @@ impl SDLSchema {
         }
     }
 
+    pub fn add_extension_scalar(
+        &mut self,
+        scalar: ScalarTypeDefinition,
+        location_key: SourceLocationKey,
+    ) -> DiagnosticsResult<()> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::InMemory(schema) => schema.add_extension_scalar(scalar, location_key),
+        }
+    }
+
     pub fn add_extension_object(
         &mut self,
         object: ObjectTypeDefinition,

@@ -9,7 +9,7 @@ query RelayClientIDFieldQuery($id: ID!) {
 scalar CustomClientTypeModel
   @__RelayCustomScalar(
     path: "./path/to/the/module.js"
-    export_name: "CustomClientTypeModel"
+    export_name: "CustomClientType"
   )
 
 type CustomClientType {

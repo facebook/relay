@@ -21,6 +21,15 @@ const {
 import type {TodoItem} from 'relay-runtime/store/__tests__/resolvers/ExampleTodoStore';
 
 /**
+ * @RelayResolver TodoDescription
+ * @weak
+ */
+export type TodoDescription = {
+  text: string,
+  color: string,
+};
+
+/**
  * @RelayResolver TodoModel
  * @live
  */

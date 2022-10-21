@@ -1707,7 +1707,6 @@ fn transform_graphql_scalar_type(
 ) -> AST {
     let scalar_definition = typegen_context.schema.scalar(scalar);
     let scalar_name = scalar_definition.name;
-
     if let Some(directive) = scalar_definition
         .directives
         .named(DirectiveName(*CUSTOM_SCALAR_DIRECTIVE_NAME))
@@ -1729,7 +1728,7 @@ fn transform_graphql_scalar_type(
             ))
             .expect_string_literal();
         custom_scalars.insert((export_name, PathBuf::from(path.lookup())));
-        return AST::RawType(scalar_name.item.0);
+        return AST::RawType(export_name);
     }
     // TODO: We could implement custom variables that are provided via the
     // config by inserting them into the schema with directives, thus avoiding

@@ -108,7 +108,7 @@ describe.each([
       graphql`
         fragment RelayResolverStrongModelTestFragment on TodoModel {
           id
-          __relay_model_instance
+          description
         }
       `,
       props.fragmentKey,
@@ -119,7 +119,7 @@ describe.each([
 
     // TODO: The `__relay_model_instance` will be hidden from the
     // users and impossible to select.
-    return data.__relay_model_instance?.description;
+    return data.description;
   }
 
   function TodoRootComponent(props: {todoID: string}) {

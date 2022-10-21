@@ -92,7 +92,7 @@ pub enum ErrorMessages {
     ArgumentDefaultValuesNoSupported,
 
     #[error(
-        "Unexpected Relay Resolver for a field which is defined in parent interface. The field `{field_name}` is defined by `{interface_name}`. Relay does not yet support interfaces where different subtypes implement the same field using different Relay Resolvers. As a workaround consider defining Relay Resolver field directly on the interface and checking the `__typename` field to have special handling for different concreete types."
+        "Unexpected Relay Resolver for a field which is defined in parent interface. The field `{field_name}` is defined by `{interface_name}`. Relay does not yet support interfaces where different subtypes implement the same field using different Relay Resolvers. As a workaround consider defining Relay Resolver field directly on the interface and checking the `__typename` field to have special handling for different concrete types."
     )]
     ResolverImplementingInterfaceField {
         field_name: StringKey,
@@ -145,6 +145,12 @@ pub enum ErrorMessagesWithData {
         fragment_name: StringKey,
         suggestions: Vec<StringKey>,
     },
+
+    #[error("The \"{type_name}\" is not an existing GraphQL type.{suggestions}", suggestions = did_you_mean(suggestions))]
+    TypeNotFound {
+        type_name: StringKey,
+        suggestions: Vec<StringKey>,
+    },
 }
 
 impl WithDiagnosticData for ErrorMessagesWithData {
@@ -158,6 +164,10 @@ impl WithDiagnosticData for ErrorMessagesWithData {
                 .collect::<_>(),
             ErrorMessagesWithData::OnTypeForInterface => vec![into_box(*ON_INTERFACE_FIELD)],
             ErrorMessagesWithData::OnInterfaceForType => vec![into_box(*ON_TYPE_FIELD)],
+            ErrorMessagesWithData::TypeNotFound { suggestions, .. } => suggestions
+                .iter()
+                .map(|suggestion| into_box(*suggestion))
+                .collect::<_>(),
         }
     }
 }

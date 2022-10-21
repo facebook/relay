@@ -40,8 +40,8 @@ function TodoModel(id: string): LiveState<?TodoItem> {
  * @onType TodoModel
  * @fieldName description
  */
-function description() {
-  throw new Error('Not Implemented');
+function description(model: ?TodoItem): ?string {
+  return model?.description;
 }
 
 module.exports = {

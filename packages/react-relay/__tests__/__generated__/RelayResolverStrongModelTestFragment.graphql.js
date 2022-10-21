@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<89d38117a3414099d2ab7ba045ad1244>>
+ * @generated SignedSource<<c325b19aa1ffdacf585cb891aad95ee2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,18 +18,17 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-import type { TodoModel__id$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql";
-import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { TodoModel____relay_model_instance$data } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql";
 import type { FragmentType } from "relay-runtime";
-import {TodoModel as todoModelRelayModelInstanceResolver} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
-// Type assertion validating that `todoModelRelayModelInstanceResolver` resolver is correctly implemented.
+import {description as todoModelDescriptionResolver} from "../../../relay-runtime/store/__tests__/resolvers/TodoModel.js";
+// Type assertion validating that `todoModelDescriptionResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
-(todoModelRelayModelInstanceResolver: (
-  id: TodoModel__id$data['id'], 
-) => LiveState<any>);
+(todoModelDescriptionResolver: (
+  __relay_model_instance: TodoModel____relay_model_instance$data['__relay_model_instance'], 
+) => mixed);
 declare export opaque type RelayResolverStrongModelTestFragment$fragmentType: FragmentType;
 export type RelayResolverStrongModelTestFragment$data = {|
-  +__relay_model_instance: ?$Call<$Call<<R>((...empty[]) => R) => R, typeof todoModelRelayModelInstanceResolver>["read"]>,
+  +description: ?$Call<<R>((...empty[]) => R) => R, typeof todoModelDescriptionResolver>,
   +id: string,
   +$fragmentType: RelayResolverStrongModelTestFragment$fragmentType,
 |};
@@ -52,12 +51,12 @@ var node/*: ReaderFragment*/ = {
       "fragment": {
         "args": null,
         "kind": "FragmentSpread",
-        "name": "TodoModel__id"
+        "name": "TodoModel____relay_model_instance"
       },
-      "kind": "RelayLiveResolver",
-      "name": "__relay_model_instance",
-      "resolverModule": require('relay-runtime/store/experimental-live-resolvers/FragmentDataInjector')(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel__id.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').TodoModel, 'id'),
-      "path": "__relay_model_instance"
+      "kind": "RelayResolver",
+      "name": "description",
+      "resolverModule": require('relay-runtime/store/experimental-live-resolvers/FragmentDataInjector')(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').description, '__relay_model_instance'),
+      "path": "description"
     },
     {
       "kind": "ClientExtension",
@@ -77,7 +76,7 @@ var node/*: ReaderFragment*/ = {
 };
 
 if (__DEV__) {
-  (node/*: any*/).hash = "96aafd7990c887dc3e118f597ee44be8";
+  (node/*: any*/).hash = "799664390b166cbb0e41946da936f9d7";
 }
 
 module.exports = ((node/*: any*/)/*: Fragment<

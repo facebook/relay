@@ -35,6 +35,16 @@ function TodoModel(id: string): LiveState<?TodoItem> {
   };
 }
 
+/**
+ * @RelayResolver
+ * @onType TodoModel
+ * @fieldName description
+ */
+function description() {
+  throw new Error('Not Implemented');
+}
+
 module.exports = {
   TodoModel,
+  description,
 };

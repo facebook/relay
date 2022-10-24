@@ -10,7 +10,6 @@
 mod relay_test_operation;
 
 use relay_test_operation::transform_fixture;
-use relay_test_operation::transform_fixture_with_mock_client_data_enabled;
 use fixture_tests::test_fixture;
 
 #[test]
@@ -21,17 +20,10 @@ fn prod_query_invalid() {
 }
 
 #[test]
-fn test_client_fields_not_generated_query() {
-    let input = include_str!("relay_test_operation/fixtures/test_client_fields_not_generated_query.graphql");
-    let expected = include_str!("relay_test_operation/fixtures/test_client_fields_not_generated_query.expected");
-    test_fixture(transform_fixture, "test_client_fields_not_generated_query.graphql", "relay_test_operation/fixtures/test_client_fields_not_generated_query.expected", input, expected);
-}
-
-#[test]
 fn test_client_fields_query() {
     let input = include_str!("relay_test_operation/fixtures/test_client_fields_query.graphql");
     let expected = include_str!("relay_test_operation/fixtures/test_client_fields_query.expected");
-    test_fixture(transform_fixture_with_mock_client_data_enabled, "test_client_fields_query.graphql", "relay_test_operation/fixtures/test_client_fields_query.expected", input, expected);
+    test_fixture(transform_fixture, "test_client_fields_query.graphql", "relay_test_operation/fixtures/test_client_fields_query.expected", input, expected);
 }
 
 #[test]

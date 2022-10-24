@@ -9,7 +9,6 @@ use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
-use common::FeatureFlag;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::ConstantArgument;
@@ -46,7 +45,6 @@ lazy_static! {
     static ref NULLABLE_KEY: ArgumentName = ArgumentName("nullable".intern());
     static ref PLURAL_KEY: ArgumentName = ArgumentName("plural".intern());
     static ref TYPE_KEY: ArgumentName = ArgumentName("type".intern());
-    static ref MOCK_CLIENT_DATA: ArgumentName = ArgumentName("mock_client_data".intern());
 }
 
 /// Transforms the @relay_test_operation directive to @__metadata thats printed
@@ -56,13 +54,8 @@ lazy_static! {
 pub fn generate_test_operation_metadata(
     program: &Program,
     test_path_regex: &Option<Regex>,
-    enable_mock_client_data_metadata_flag: &FeatureFlag,
 ) -> DiagnosticsResult<Program> {
-    let mut transformer = GenerateTestOperationMetadata::new(
-        program,
-        test_path_regex,
-        enable_mock_client_data_metadata_flag,
-    );
+    let mut transformer = GenerateTestOperationMetadata::new(program, test_path_regex);
     let next_program = transformer
         .transform_program(program)
         .replace_or_else(|| program.clone());
@@ -74,29 +67,23 @@ pub fn generate_test_operation_metadata(
     }
 }
 
-struct GenerateTestOperationMetadata<'program, 'flag> {
-    program: &'program Program,
-    test_path_regex: &'program Option<Regex>,
+struct GenerateTestOperationMetadata<'a> {
+    program: &'a Program,
+    test_path_regex: &'a Option<Regex>,
     errors: Vec<Diagnostic>,
-    enable_mock_client_data_metadata_flag: &'flag FeatureFlag,
 }
 
-impl<'program, 'flag> GenerateTestOperationMetadata<'program, 'flag> {
-    fn new(
-        program: &'program Program,
-        test_path_regex: &'program Option<Regex>,
-        enable_mock_client_data_metadata_flag: &'flag FeatureFlag,
-    ) -> Self {
+impl<'a> GenerateTestOperationMetadata<'a> {
+    fn new(program: &'a Program, test_path_regex: &'a Option<Regex>) -> Self {
         GenerateTestOperationMetadata {
             program,
             test_path_regex,
             errors: Vec::new(),
-            enable_mock_client_data_metadata_flag: &enable_mock_client_data_metadata_flag,
         }
     }
 }
 
-impl<'program, 'flag> Transformer for GenerateTestOperationMetadata<'program, 'flag> {
+impl<'a> Transformer for GenerateTestOperationMetadata<'a> {
     const NAME: &'static str = "GenerateTestOperationMetadata";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = false;
@@ -129,8 +116,6 @@ impl<'program, 'flag> Transformer for GenerateTestOperationMetadata<'program, 'f
                         ConstantValue::Object(From::from(RelayTestOperationMetadata::new(
                             self.program,
                             &operation.selections,
-                            self.enable_mock_client_data_metadata_flag
-                                .is_fully_enabled(),
                         ))),
                     ));
                 } else {
@@ -226,7 +211,7 @@ pub struct RelayTestOperationMetadata {
 }
 
 impl RelayTestOperationMetadata {
-    pub fn new(program: &Program, selections: &[Selection], mock_client_data: bool) -> Self {
+    pub fn new(program: &Program, selections: &[Selection]) -> Self {
         let schema = program.schema.as_ref();
         let mut selection_type_info: IndexMap<StringKey, RelayTestOperationSelectionTypeInfo> =
             Default::default();
@@ -239,26 +224,22 @@ impl RelayTestOperationMetadata {
                     match selection {
                         Selection::ScalarField(scalar_field) => {
                             let field = schema.field(scalar_field.definition.item);
-                            if !field.is_extension || mock_client_data {
-                                let alias_or_name = scalar_field.alias_or_name(schema);
-                                let next_path = next_path(path, alias_or_name);
-                                selection_type_info.insert(
-                                    next_path,
-                                    RelayTestOperationSelectionTypeInfo::new(schema, field),
-                                );
-                            }
+                            let alias_or_name = scalar_field.alias_or_name(schema);
+                            let next_path = next_path(path, alias_or_name);
+                            selection_type_info.insert(
+                                next_path,
+                                RelayTestOperationSelectionTypeInfo::new(schema, field),
+                            );
                         }
                         Selection::LinkedField(linked_field) => {
                             let field = schema.field(linked_field.definition.item);
-                            if !field.is_extension || mock_client_data {
-                                let alias_or_name = linked_field.alias_or_name(schema);
-                                let next_path = next_path(path, alias_or_name);
-                                selection_type_info.insert(
-                                    next_path,
-                                    RelayTestOperationSelectionTypeInfo::new(schema, field),
-                                );
-                                processing_queue.push((Some(next_path), &linked_field.selections));
-                            }
+                            let alias_or_name = linked_field.alias_or_name(schema);
+                            let next_path = next_path(path, alias_or_name);
+                            selection_type_info.insert(
+                                next_path,
+                                RelayTestOperationSelectionTypeInfo::new(schema, field),
+                            );
+                            processing_queue.push((Some(next_path), &linked_field.selections));
                         }
                         Selection::Condition(condition) => {
                             processing_queue.push((path, &condition.selections));

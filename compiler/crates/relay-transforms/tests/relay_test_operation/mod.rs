@@ -21,10 +21,7 @@ use regex::Regex;
 use relay_test_schema::get_test_schema_with_extensions;
 use relay_transforms::generate_test_operation_metadata;
 
-fn transform_fixture_inner(
-    fixture: &Fixture<'_>,
-    enable_mock_client_data_metadata_flag: &FeatureFlag,
-) -> Result<String, String> {
+pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split("%extensions%").collect();
 
     if let [base, extensions] = parts.as_slice() {
@@ -37,12 +34,8 @@ fn transform_fixture_inner(
 
         let test_path_regex = Some(Regex::new(r#"^test"#).unwrap());
 
-        let next_program = generate_test_operation_metadata(
-            &program,
-            &test_path_regex,
-            enable_mock_client_data_metadata_flag,
-        )
-        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+        let next_program = generate_test_operation_metadata(&program, &test_path_regex)
+            .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
 
         let printer_options = PrinterOptions {
             debug_directive_data: true,
@@ -63,14 +56,4 @@ fn transform_fixture_inner(
     } else {
         panic!("Expected exactly one %extensions% section marker.")
     }
-}
-
-pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    transform_fixture_inner(fixture, &FeatureFlag::Disabled)
-}
-
-pub fn transform_fixture_with_mock_client_data_enabled(
-    fixture: &Fixture<'_>,
-) -> Result<String, String> {
-    transform_fixture_inner(fixture, &FeatureFlag::Enabled)
 }

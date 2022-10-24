@@ -566,13 +566,15 @@ impl<'b> JSONPrinter<'b> {
         js_module: &JSModuleDependency,
         field_name: Option<StringKey>,
     ) -> FmtResult {
-        let relay_runtime_experimental =
-            "relay-runtime/experimental";
+        let relay_runtime_experimental = "relay-runtime/experimental";
         let fragment_data_injector = "fragmentDataInjector";
 
         self.write_js_dependency(
             f,
-            ModuleImportName::Named { name: fragment_data_injector.to_string(), import_as: None },
+            ModuleImportName::Named {
+                name: fragment_data_injector.to_string(),
+                import_as: None,
+            },
             Cow::Borrowed(relay_runtime_experimental),
         )?;
         write!(f, "(")?;
@@ -610,13 +612,15 @@ impl<'b> JSONPrinter<'b> {
         indent: usize,
         is_dedupe_var: bool,
     ) -> FmtResult {
-        let relay_runtime_experimental =
-            "relay-runtime/experimental";
+        let relay_runtime_experimental = "relay-runtime/experimental";
         let resolver_weak_object_wrapper = "resolverWeakObjectWrapper";
 
         self.write_js_dependency(
             f,
-            ModuleImportName::Named { name: resolver_weak_object_wrapper.to_string(), import_as: None },
+            ModuleImportName::Named {
+                name: resolver_weak_object_wrapper.to_string(),
+                import_as: None,
+            },
             Cow::Borrowed(relay_runtime_experimental),
         )?;
         write!(f, "(")?;

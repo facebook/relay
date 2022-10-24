@@ -1816,10 +1816,9 @@ fn transform_graphql_scalar_type(
             ))
             .expect_string_literal();
 
-        let import_path = typegen_context.project_config.js_module_import_path(
-            typegen_context.definition_source_location,
-            path,
-        );
+        let import_path = typegen_context
+            .project_config
+            .js_module_import_path(typegen_context.definition_source_location, path);
 
         let export_name = directive
             .arguments

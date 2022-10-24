@@ -45,6 +45,7 @@ const {
   RELAY_RESOLVER_INVALIDATION_KEY,
   RELAY_RESOLVER_SNAPSHOT_KEY,
   RELAY_RESOLVER_VALUE_KEY,
+  RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,
   getStorageKey,
 } = require('../RelayStoreUtils');
 const {isSuspenseSentinel} = require('./LiveResolverSuspenseSentinel');
@@ -60,7 +61,7 @@ const RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY =
 const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
 const RELAY_RESOLVER_RECORD_TYPENAME = '__RELAY_RESOLVER__';
-const RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS = '__resolverOutputTypeRecordIDs';
+const getOutputTypeRecordIDs = require('./getOutputTypeRecordIDs');
 
 /**
  * An experimental fork of store/ResolverCache.js intended to let us experiment
@@ -818,28 +819,6 @@ function expectRecord(source: RecordSource, recordID: DataID): Record {
   );
 
   return record;
-}
-
-function getOutputTypeRecordIDs(record: Record): $ReadOnlySet<DataID> | null {
-  const maybeOutputTypeRecordIDs = RelayModernRecord.getValue(
-    record,
-    RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,
-  );
-  if (maybeOutputTypeRecordIDs == null) {
-    return null;
-  }
-  invariant(
-    maybeOutputTypeRecordIDs instanceof Set,
-    'getOutputTypeRecordIDs: Expected the `%s` field on record `%s` to be of type Set. Instead, it is a %s.',
-    RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,
-    typeof maybeOutputTypeRecordIDs,
-  );
-
-  const outputTypeRecordIDs: $ReadOnlySet<DataID> = new Set(
-    maybeOutputTypeRecordIDs,
-  );
-
-  return outputTypeRecordIDs;
 }
 
 // Validate that a value is live state

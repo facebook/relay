@@ -39,6 +39,7 @@ const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
+const getOutputTypeRecordIDs = require('./experimental-live-resolvers/getOutputTypeRecordIDs');
 
 const {
   ACTOR_CHANGE,
@@ -161,7 +162,7 @@ class RelayReferenceMarker {
             if (
               (typeName != null && typeName === selection.type) ||
               // Our root record has a special type of `__Root` which may not
-              // match the shcema type of Query/Mutation or whatever the shcema
+              // match the schema type of Query/Mutation or whatever the schema
               // specifies.
               //
               // If we have an inline fragment on a concrete type within an
@@ -265,6 +266,17 @@ class RelayReferenceMarker {
     // Resolver subscription.
     if (dataID != null) {
       this._references.add(dataID);
+
+      // Also mark all @outputType record IDs
+      const resolverRecord = this._recordSource.get(dataID);
+      if (resolverRecord != null) {
+        const outputTypeRecordIDs = getOutputTypeRecordIDs(resolverRecord);
+        if (outputTypeRecordIDs != null) {
+          for (const dataID of outputTypeRecordIDs) {
+            this._references.add(dataID);
+          }
+        }
+      }
     }
 
     const {fragment} = field;

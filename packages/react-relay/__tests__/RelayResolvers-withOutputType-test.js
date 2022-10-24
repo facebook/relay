@@ -541,16 +541,6 @@ describe.each([
     (environment.getStore(): $FlowFixMe).__gc();
     jest.runAllTimers();
 
-    // TODO: GC is still not fully supported for @outputType records.
-    // This is still fails.
-    // expect(() => {
-    //   renderer.update(
-    //     <EnvironmentWrapper environment={environment} key="1">
-    //       <TodoListComponent />
-    //     </EnvironmentWrapper>,
-    //   );
-    // }).not.toThrow();
-
     expect(environment.getStore().getSource().toJSON()).toEqual({
       'client:root': {
         __id: 'client:root',
@@ -578,9 +568,60 @@ describe.each([
         __resolverValue: 'client:TodoConnection:client:root:todos(first:10)',
         __typename: '__RELAY_RESOLVER__',
       },
-      // This should also preserve a record with the `node` content
-      // client:TodoConnection:client:root:todos(first:10):edges:0:node
+      'client:TodoConnection:client:root:todos(first:10)': {
+        __id: 'client:TodoConnection:client:root:todos(first:10)',
+        __typename: 'TodoConnection',
+        count: 1,
+        edges: {
+          __refs: ['client:TodoConnection:client:root:todos(first:10):edges:0'],
+        },
+        pageInfo: {
+          __ref: 'client:TodoConnection:client:root:todos(first:10):pageInfo',
+        },
+      },
+      'client:TodoConnection:client:root:todos(first:10):edges:0': {
+        __id: 'client:TodoConnection:client:root:todos(first:10):edges:0',
+        __typename: 'TodoEdge',
+        cursor: null,
+        node: {
+          __ref:
+            'client:TodoConnection:client:root:todos(first:10):edges:0:node',
+        },
+      },
+      'client:TodoConnection:client:root:todos(first:10):edges:0:node': {
+        __id: 'client:TodoConnection:client:root:todos(first:10):edges:0:node',
+        __typename: 'Todo',
+        complete: {
+          __ref:
+            'client:TodoConnection:client:root:todos(first:10):edges:0:node:complete',
+        },
+        self: {
+          __ref:
+            'client:TodoConnection:client:root:todos(first:10):edges:0:node:self',
+        },
+        text: {
+          __ref:
+            'client:TodoConnection:client:root:todos(first:10):edges:0:node:text',
+        },
+        todo_id: 'todo-1',
+      },
+      'client:TodoConnection:client:root:todos(first:10):pageInfo': {
+        __id: 'client:TodoConnection:client:root:todos(first:10):pageInfo',
+        __typename: 'TodoConnectionPageInfo',
+        endCursor: null,
+        hasNextPage: false,
+        hasPreviousPage: false,
+        startCursor: null,
+      },
     });
+
+    expect(() => {
+      renderer.update(
+        <EnvironmentWrapper environment={environment} key="1">
+          <TodoListComponent />
+        </EnvironmentWrapper>,
+      );
+    }).not.toThrow();
   });
 
   test('render with recursive resolvers (with blocked_by)', () => {

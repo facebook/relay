@@ -541,9 +541,8 @@ describe.each([
     (environment.getStore(): $FlowFixMe).__gc();
     jest.runAllTimers();
 
-    // TODO: Fix re-rendering of the components after GK
-    // Currently, it breaks with different errors in Legacy and React_CACHE modes (so we put this as a
-    // follow-up to fix together with proper GK handling)
+    // TODO: GC is still not fully supported for @outputType records.
+    // This is still fails.
     // expect(() => {
     //   renderer.update(
     //     <EnvironmentWrapper environment={environment} key="1">
@@ -551,6 +550,7 @@ describe.each([
     //     </EnvironmentWrapper>,
     //   );
     // }).not.toThrow();
+
     expect(environment.getStore().getSource().toJSON()).toEqual({
       'client:root': {
         __id: 'client:root',
@@ -568,10 +568,18 @@ describe.each([
           read: expect.anything(),
           subscribe: expect.anything(),
         },
+        __resolverOutputTypeRecordIDs: new Set([
+          'client:TodoConnection:client:root:todos(first:10)',
+          'client:TodoConnection:client:root:todos(first:10):edges:0',
+          'client:TodoConnection:client:root:todos(first:10):edges:0:node',
+          'client:TodoConnection:client:root:todos(first:10):pageInfo',
+        ]),
         __resolverSnapshot: undefined,
         __resolverValue: 'client:TodoConnection:client:root:todos(first:10)',
         __typename: '__RELAY_RESOLVER__',
       },
+      // This should also preserve a record with the `node` content
+      // client:TodoConnection:client:root:todos(first:10):edges:0:node
     });
   });
 

@@ -1621,7 +1621,7 @@ test('Errors when reading a non-@live resolver that returns a LiveState object',
   expect(() => {
     environment.lookup(operation.fragment);
   }).toThrow(
-    'Unexpected LiveState value returned from the non-@live Relay Resolver backing the field "non_live_resolver_with_live_return_value". Did you intend to add @live to this resolver?.',
+    'Unexpected LiveState value returned from the non-@live Relay Resolver backing the field "non_live_resolver_with_live_return_value". Did you intend to add @live to this resolver?',
   );
 });
 

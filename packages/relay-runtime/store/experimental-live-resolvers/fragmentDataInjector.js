@@ -12,7 +12,7 @@
 
 import type {Fragment} from '../../util/RelayRuntimeTypes';
 import type {FragmentType} from '../RelayStoreTypes';
-const {readFragment} = require('relay-runtime/store/ResolverFragments');
+const {readFragment} = require('../ResolverFragments');
 const invariant = require('invariant');
 
 /**

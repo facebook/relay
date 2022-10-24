@@ -566,14 +566,14 @@ impl<'b> JSONPrinter<'b> {
         js_module: &JSModuleDependency,
         field_name: Option<StringKey>,
     ) -> FmtResult {
-        let relay_resolver_with_type_module =
-            "relay-runtime/store/experimental-live-resolvers/FragmentDataInjector";
-        let relay_resolver_with_type_module_name = "RelayResolversFragmentDataInjector";
+        let relay_runtime_experimental =
+            "relay-runtime/experimental";
+        let fragment_data_injector = "fragmentDataInjector";
 
         self.write_js_dependency(
             f,
-            ModuleImportName::Default(relay_resolver_with_type_module_name.to_string()),
-            Cow::Borrowed(relay_resolver_with_type_module),
+            ModuleImportName::Named { name: fragment_data_injector.to_string(), import_as: None },
+            Cow::Borrowed(relay_runtime_experimental),
         )?;
         write!(f, "(")?;
         self.write_js_dependency(
@@ -610,14 +610,14 @@ impl<'b> JSONPrinter<'b> {
         indent: usize,
         is_dedupe_var: bool,
     ) -> FmtResult {
-        let js_module_name = "ResolverObjectWrapper";
-        let js_module_path =
-            "relay-runtime/store/experimental-live-resolvers/ResolverWeakObjectWrapper";
+        let relay_runtime_experimental =
+            "relay-runtime/experimental";
+        let resolver_weak_object_wrapper = "resolverWeakObjectWrapper";
 
         self.write_js_dependency(
             f,
-            ModuleImportName::Default(js_module_name.to_string()),
-            Cow::Borrowed(js_module_path),
+            ModuleImportName::Named { name: resolver_weak_object_wrapper.to_string(), import_as: None },
+            Cow::Borrowed(relay_runtime_experimental),
         )?;
         write!(f, "(")?;
         self.print_primitive(f, resolver, indent + 1, is_dedupe_var)?;

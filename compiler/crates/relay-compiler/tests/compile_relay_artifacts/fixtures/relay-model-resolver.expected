@@ -58,7 +58,7 @@ extend type Query {
                 },
                 "kind": "RelayResolver",
                 "name": "name",
-                "resolverModule": require('relay-runtime/store/experimental-live-resolvers/FragmentDataInjector')(require('ClientUser____relay_model_instance.graphql'), require('UserNameResolver'), 'id'),
+                "resolverModule": require('relay-runtime/experimental').fragmentDataInjector(require('ClientUser____relay_model_instance.graphql'), require('UserNameResolver'), 'id'),
                 "path": "client_user.name"
               }
             ],
@@ -164,7 +164,7 @@ Query Text is Empty.
       },
       "kind": "RelayResolver",
       "name": "__relay_model_instance",
-      "resolverModule": require('relay-runtime/store/experimental-live-resolvers/FragmentDataInjector')(require('ClientUser__id.graphql'), require('UserModelResolver'), 'id'),
+      "resolverModule": require('relay-runtime/experimental').fragmentDataInjector(require('ClientUser__id.graphql'), require('UserModelResolver'), 'id'),
       "path": "__relay_model_instance"
     }
   ],

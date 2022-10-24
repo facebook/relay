@@ -16,11 +16,13 @@ const {
   isSuspenseSentinel,
   suspenseSentinel,
 } = require('./store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
-const fragmentDataInjector = require('./store/experimental-live-resolvers/FragmentDataInjector');
+const fragmentDataInjector = require('./store/experimental-live-resolvers/fragmentDataInjector');
+const resolverWeakObjectWrapper = require('./store/experimental-live-resolvers/resolverWeakObjectWrapper');
 
 module.exports = {
-  LiveResolverStore,
-  isSuspenseSentinel,
-  suspenseSentinel,
   fragmentDataInjector,
+  isSuspenseSentinel,
+  LiveResolverStore,
+  resolverWeakObjectWrapper,
+  suspenseSentinel,
 };

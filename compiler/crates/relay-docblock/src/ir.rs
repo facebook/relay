@@ -303,6 +303,182 @@ trait ResolverIr {
     }
 }
 
+trait ResolverTypeDefinitionIr: ResolverIr {
+    fn field_name(&self) -> &Identifier;
+    fn field_arguments(&self) -> Option<&List<InputValueDefinition>>;
+    fn description(&self) -> Option<StringNode>;
+    fn fragment_arguments(&self) -> Option<&Vec<Argument>>;
+
+    /// Build recursive object/interface extensions to add this field to all
+    /// types that will need it.
+    fn interface_definitions(
+        &self,
+        interface_name: WithLocation<InterfaceName>,
+        interface_id: InterfaceID,
+        schema: &SDLSchema,
+    ) -> Vec<TypeSystemDefinition> {
+        self.interface_definitions_impl(
+            interface_name,
+            interface_id,
+            schema,
+            &mut HashSet::default(),
+            &mut HashSet::default(),
+        )
+    }
+
+    fn interface_definitions_impl(
+        &self,
+        interface_name: WithLocation<InterfaceName>,
+        interface_id: InterfaceID,
+        schema: &SDLSchema,
+        seen_objects: &mut HashSet<ObjectID>,
+        seen_interfaces: &mut HashSet<InterfaceID>,
+    ) -> Vec<TypeSystemDefinition> {
+        let fields = self.fields(None, schema);
+        // First we extend the interface itself...
+        let mut definitions = vec![TypeSystemDefinition::InterfaceTypeExtension(
+            InterfaceTypeExtension {
+                name: as_identifier(interface_name.map(|x| x.0)),
+                interfaces: Vec::new(),
+                directives: vec![],
+                fields: Some(fields),
+            },
+        )];
+
+        // Secondly we extend every object which implements this interface
+        for object_id in &schema.interface(interface_id).implementing_objects {
+            if !seen_objects.contains(object_id) {
+                seen_objects.insert(*object_id);
+                definitions.extend(self.object_definitions(schema.object(*object_id), schema));
+            }
+        }
+
+        // Thirdly we recursively extend every interface which implements
+        // this interface, and therefore every object/interface which
+        // implements that interface.
+        for existing_interface in schema
+            .interfaces()
+            .filter(|i| i.interfaces.contains(&interface_id))
+        {
+            let interface_id = match schema
+                .get_type(existing_interface.name.item.0)
+                .expect("Expect to find type for interface.")
+            {
+                schema::Type::Interface(interface_id) => interface_id,
+                _ => panic!("Expected interface to have an interface type"),
+            };
+            if !seen_interfaces.contains(&interface_id) {
+                seen_interfaces.insert(interface_id);
+                definitions.extend(
+                    self.interface_definitions_impl(
+                        WithLocation::new(interface_name.location, existing_interface.name.item),
+                        schema
+                            .get_type(existing_interface.name.item.0)
+                            .unwrap()
+                            .get_interface_id()
+                            .unwrap(),
+                        schema,
+                        seen_objects,
+                        seen_interfaces,
+                    ),
+                )
+            }
+        }
+        definitions
+    }
+
+    // When defining a resolver on an object or interface, we must be sure that this
+    // field is not defined on any parent interface because this could lead to a case where
+    // someone tries to read the field in an fragment on that interface. In order to support
+    // that, our runtime would need to dynamically figure out which resolver it
+    // should read from, or if it should even read from a resolver at all.
+    //
+    // Until we decide to support that behavior we'll make it a compiler error.
+    fn validate_singular_implementation(
+        &self,
+        schema: &SDLSchema,
+        interfaces: &[InterfaceID],
+    ) -> DiagnosticsResult<()> {
+        for interface_id in interfaces {
+            let interface = schema.interface(*interface_id);
+            for field_id in &interface.fields {
+                let field = schema.field(*field_id);
+                if field.name() == self.field_name().value {
+                    return Err(vec![Diagnostic::error(
+                        ErrorMessages::ResolverImplementingInterfaceField {
+                            field_name: self.field_name().value,
+                            interface_name: interface.name(),
+                        },
+                        self.location().with_span(self.field_name().span),
+                    )]);
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn object_definitions(&self, object: &Object, schema: &SDLSchema) -> Vec<TypeSystemDefinition> {
+        vec![TypeSystemDefinition::ObjectTypeExtension(
+            ObjectTypeExtension {
+                name: obj_as_identifier(object.name),
+                interfaces: vec![],
+                directives: vec![],
+                fields: Some(self.fields(Some(object), schema)),
+            },
+        )]
+    }
+
+    fn fields(&self, object: Option<&Object>, schema: &SDLSchema) -> List<FieldDefinition> {
+        let edge_to = self.output_type().as_ref().map_or_else(
+            || {
+                // Resolvers return arbitrary JavaScript values. However, we
+                // need some GraphQL type to use in the schema. We use
+                // `RelayResolverValue` (defined in the relay-extensions.graphql
+                // file) for this purpose.
+                TypeAnnotation::Named(NamedTypeAnnotation {
+                    name: string_key_as_identifier(*RESOLVER_VALUE_SCALAR_NAME),
+                })
+            },
+            |output_type| output_type.inner().item.clone(),
+        );
+
+        let args = match (self.fragment_argument_definitions(), self.field_arguments()) {
+            (None, None) => None,
+            (None, Some(b)) => Some(b.clone()),
+            (Some(a), None) => Some(a),
+            (Some(a), Some(b)) => Some(List::generated(
+                a.items
+                    .into_iter()
+                    .chain(b.clone().items.into_iter())
+                    .collect::<Vec<_>>(),
+            )),
+        };
+
+        List::generated(vec![FieldDefinition {
+            name: self.field_name().clone(),
+            type_: edge_to,
+            arguments: args,
+            directives: self.directives(object, schema),
+            description: self.description(),
+        }])
+    }
+
+    fn fragment_argument_definitions(&self) -> Option<List<InputValueDefinition>> {
+        self.fragment_arguments().as_ref().map(|args| {
+            List::generated(
+                args.iter()
+                    .map(|arg| InputValueDefinition {
+                        name: arg.name.clone(),
+                        type_: arg.type_.clone(),
+                        default_value: arg.default_value.clone(),
+                        directives: vec![],
+                    })
+                    .collect::<Vec<_>>(),
+            )
+        })
+    }
+}
+
 #[derive(Debug, PartialEq)]
 pub struct TerseRelayResolverIr {
     pub field: FieldDefinition,
@@ -320,20 +496,14 @@ impl ResolverIr for TerseRelayResolverIr {
         if let Some(type_) = schema.get_type(self.type_.item) {
             match type_ {
                 Type::Object(object_id) => {
-                    return Ok(vec![TypeSystemDefinition::ObjectTypeExtension(
-                        ObjectTypeExtension {
-                            name: as_identifier(self.type_),
-                            interfaces: vec![],
-                            directives: vec![],
-                            fields: Some(List::generated(vec![FieldDefinition {
-                                directives: self.directives(Some(schema.object(object_id)), schema),
-                                ..self.field.clone()
-                            }])),
-                        },
-                    )]);
+                    let object = schema.object(object_id);
+                    return Ok(self.object_definitions(object, schema));
                 }
-                // TODO: Add support for interfaces
-                _ => panic!("Terser syntax is only supported on concrete types."),
+                Type::Interface(interface_id) => {
+                    let interface = schema.interface(interface_id);
+                    return Ok(self.interface_definitions(interface.name, interface_id, schema));
+                }
+                _ => panic!("Terser syntax is only supported on non-input objects or interfaces."),
             }
         }
 
@@ -377,6 +547,24 @@ impl ResolverIr for TerseRelayResolverIr {
 
     fn named_import(&self) -> Option<StringKey> {
         self.named_import
+    }
+}
+
+impl ResolverTypeDefinitionIr for TerseRelayResolverIr {
+    fn field_name(&self) -> &Identifier {
+        &self.field.name
+    }
+
+    fn field_arguments(&self) -> Option<&List<InputValueDefinition>> {
+        self.field.arguments.as_ref()
+    }
+
+    fn description(&self) -> Option<StringNode> {
+        self.field.description.clone()
+    }
+
+    fn fragment_arguments(&self) -> Option<&Vec<Argument>> {
+        self.fragment_arguments.as_ref()
     }
 }
 
@@ -503,174 +691,21 @@ impl ResolverIr for RelayResolverIr {
     }
 }
 
-impl RelayResolverIr {
-    /// Build recursive object/interface extensions to add this field to all
-    /// types that will need it.
-    fn interface_definitions(
-        &self,
-        interface_name: WithLocation<InterfaceName>,
-        interface_id: InterfaceID,
-        schema: &SDLSchema,
-    ) -> Vec<TypeSystemDefinition> {
-        self.interface_definitions_impl(
-            interface_name,
-            interface_id,
-            schema,
-            &mut HashSet::default(),
-            &mut HashSet::default(),
-        )
+impl ResolverTypeDefinitionIr for RelayResolverIr {
+    fn field_name(&self) -> &Identifier {
+        &self.field.name
     }
 
-    fn interface_definitions_impl(
-        &self,
-        interface_name: WithLocation<InterfaceName>,
-        interface_id: InterfaceID,
-        schema: &SDLSchema,
-        seen_objects: &mut HashSet<ObjectID>,
-        seen_interfaces: &mut HashSet<InterfaceID>,
-    ) -> Vec<TypeSystemDefinition> {
-        let fields = self.fields(None, schema);
-        // First we extend the interface itself...
-        let mut definitions = vec![TypeSystemDefinition::InterfaceTypeExtension(
-            InterfaceTypeExtension {
-                name: as_identifier(interface_name.map(|x| x.0)),
-                interfaces: Vec::new(),
-                directives: vec![],
-                fields: Some(fields.clone()),
-            },
-        )];
-
-        // Secondly we extend every object which implements this interface
-        for object_id in &schema.interface(interface_id).implementing_objects {
-            if !seen_objects.contains(object_id) {
-                seen_objects.insert(*object_id);
-                definitions.extend(self.object_definitions(schema.object(*object_id), schema));
-            }
-        }
-
-        // Thirdly we recursively extend every interface which implements
-        // this interface, and therefore every object/interface which
-        // implements that interface.
-        for existing_interface in schema
-            .interfaces()
-            .filter(|i| i.interfaces.contains(&interface_id))
-        {
-            let interface_id = match schema
-                .get_type(existing_interface.name.item.0)
-                .expect("Expect to find type for interface.")
-            {
-                schema::Type::Interface(interface_id) => interface_id,
-                _ => panic!("Expected interface to have an interface type"),
-            };
-            if !seen_interfaces.contains(&interface_id) {
-                seen_interfaces.insert(interface_id);
-                definitions.extend(
-                    self.interface_definitions_impl(
-                        WithLocation::new(interface_name.location, existing_interface.name.item),
-                        schema
-                            .get_type(existing_interface.name.item.0)
-                            .unwrap()
-                            .get_interface_id()
-                            .unwrap(),
-                        schema,
-                        seen_objects,
-                        seen_interfaces,
-                    ),
-                )
-            }
-        }
-        definitions
+    fn field_arguments(&self) -> Option<&List<InputValueDefinition>> {
+        self.field.arguments.as_ref()
     }
 
-    // When defining a resolver on an object or interface, we must be sure that this
-    // field is not defined on any parent interface because this could lead to a case where
-    // someone tries to read the field in an fragment on that interface. In order to support
-    // that, our runtime would need to dynamically figure out which resolver it
-    // should read from, or if it should even read from a resolver at all.
-    //
-    // Until we decide to support that behavior we'll make it a compiler error.
-    fn validate_singular_implementation(
-        &self,
-        schema: &SDLSchema,
-        interfaces: &[InterfaceID],
-    ) -> DiagnosticsResult<()> {
-        for interface_id in interfaces {
-            let interface = schema.interface(*interface_id);
-            for field_id in &interface.fields {
-                let field = schema.field(*field_id);
-                if field.name() == self.field.name.value {
-                    return Err(vec![Diagnostic::error(
-                        ErrorMessages::ResolverImplementingInterfaceField {
-                            field_name: self.field.name.value,
-                            interface_name: interface.name(),
-                        },
-                        self.location.with_span(self.field.name.span),
-                    )]);
-                }
-            }
-        }
-        Ok(())
+    fn description(&self) -> Option<StringNode> {
+        self.description.map(as_string_node)
     }
 
-    fn object_definitions(&self, object: &Object, schema: &SDLSchema) -> Vec<TypeSystemDefinition> {
-        vec![TypeSystemDefinition::ObjectTypeExtension(
-            ObjectTypeExtension {
-                name: obj_as_identifier(object.name),
-                interfaces: Vec::new(),
-                directives: vec![],
-                fields: Some(self.fields(Some(object), schema)),
-            },
-        )]
-    }
-
-    fn fields(&self, object: Option<&Object>, schema: &SDLSchema) -> List<FieldDefinition> {
-        let edge_to = self.output_type.as_ref().map_or_else(
-            || {
-                // Resolvers return arbitrary JavaScript values. However, we
-                // need some GraphQL type to use in the schema. We use
-                // `RelayResolverValue` (defined in the relay-extensions.graphql
-                // file) for this purpose.
-                TypeAnnotation::Named(NamedTypeAnnotation {
-                    name: string_key_as_identifier(*RESOLVER_VALUE_SCALAR_NAME),
-                })
-            },
-            |output_type| output_type.inner().item.clone(),
-        );
-
-        let args = match (self.fragment_arguments(), self.field.arguments.as_ref()) {
-            (None, None) => None,
-            (None, Some(b)) => Some(b.clone()),
-            (Some(a), None) => Some(a),
-            (Some(a), Some(b)) => Some(List::generated(
-                a.items
-                    .into_iter()
-                    .chain(b.clone().items.into_iter())
-                    .collect::<Vec<_>>(),
-            )),
-        };
-
-        List::generated(vec![FieldDefinition {
-            name: self.field.name.clone(),
-            type_: edge_to,
-            arguments: args,
-            directives: self.directives(object, schema),
-            description: self.description.map(as_string_node),
-        }])
-    }
-
-    fn fragment_arguments(&self) -> Option<List<InputValueDefinition>> {
-        self.fragment_arguments.as_ref().map(|args| {
-            List::generated(
-                args.iter()
-                    .map(|arg| InputValueDefinition {
-                        name: arg.name.clone(),
-                        type_: arg.type_.clone(),
-                        default_value: arg.default_value.clone(),
-                        directives: vec![],
-                    })
-                    .collect::<Vec<_>>(),
-            )
-        })
+    fn fragment_arguments(&self) -> Option<&Vec<Argument>> {
+        self.fragment_arguments.as_ref()
     }
 }
 

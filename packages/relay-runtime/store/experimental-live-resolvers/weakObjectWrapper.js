@@ -10,7 +10,7 @@
 
 'use strict';
 
-function resolverWeakObjectWrapper<TKey, TArgs>(
+function weakObjectWrapper<TKey, TArgs>(
   resolverFn: (key: TKey, args?: TArgs) => mixed,
   key: string,
 ): (key: TKey, args?: TArgs) => mixed {
@@ -22,4 +22,4 @@ function resolverWeakObjectWrapper<TKey, TArgs>(
   };
 }
 
-module.exports = resolverWeakObjectWrapper;
+module.exports = weakObjectWrapper;

@@ -12,7 +12,7 @@
 
 import type {Fragment} from '../../util/RelayRuntimeTypes';
 import type {FragmentType} from '../RelayStoreTypes';
-const {readFragment} = require('relay-runtime/store/ResolverFragments');
+const {readFragment} = require('../ResolverFragments');
 const invariant = require('invariant');
 
 /**
@@ -27,7 +27,7 @@ const invariant = require('invariant');
  * This will not call the `resolverFn` if the fragment data for it is null/undefined.
  * The the compiler generates calls to this function, ensuring the correct set of arguments.
  */
-function fragmentDataInjector<
+function resolverDataInjector<
   TFragmentType: FragmentType,
   TData: ?{...},
   TResolverFn: ($FlowFixMe, ?$FlowFixMe) => mixed,
@@ -59,4 +59,4 @@ function fragmentDataInjector<
   };
 }
 
-module.exports = fragmentDataInjector;
+module.exports = resolverDataInjector;

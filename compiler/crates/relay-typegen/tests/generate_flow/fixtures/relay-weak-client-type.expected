@@ -21,7 +21,7 @@ extend type Query {
   my_custom_type: CustomClientType
 }
 ==================================== OUTPUT ===================================
-import type { CustomClientType } from "./path/to/the/module.js";
+import type { CustomClientType } from "module";
 export type RelayClientIDFieldQuery$variables = {|
   id: string,
 |};

@@ -1815,6 +1815,11 @@ fn transform_graphql_scalar_type(
                 *CUSTOM_SCALAR_DIRECTIVE_NAME
             ))
             .expect_string_literal();
+
+        let import_path = typegen_context
+            .project_config
+            .js_module_import_path(typegen_context.definition_source_location, path);
+
         let export_name = directive
             .arguments
             .named(ArgumentName(*EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME))
@@ -1823,7 +1828,7 @@ fn transform_graphql_scalar_type(
                 *CUSTOM_SCALAR_DIRECTIVE_NAME
             ))
             .expect_string_literal();
-        custom_scalars.insert((export_name, PathBuf::from(path.lookup())));
+        custom_scalars.insert((export_name, PathBuf::from(import_path.lookup())));
         return AST::RawType(export_name);
     }
     // TODO: We could implement custom variables that are provided via the

@@ -19,10 +19,12 @@ import type {Query__example_client_object$normalization as ReturnType} from './_
  * @onType Query
  * @outputType ClientObject
  */
-function ExampleClientObjectResolver(): ReturnType {
+function example_client_object(): ReturnType {
   return {
     description: 'Hello world',
   };
 }
 
-module.exports = ExampleClientObjectResolver;
+module.exports = {
+  example_client_object,
+};

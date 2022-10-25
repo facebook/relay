@@ -11,6 +11,7 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::Validator;
 use graphql_ir::VariableName;
+use intern::Lookup;
 use thiserror::Error;
 
 use crate::util::INTERNAL_RELAY_VARIABLES_PREFIX;

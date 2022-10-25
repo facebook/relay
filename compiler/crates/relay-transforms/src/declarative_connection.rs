@@ -7,6 +7,7 @@
 
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::DirectiveName;
@@ -51,12 +52,12 @@ pub fn transform_declarative_connection(
 lazy_static! {
     static ref APPEND_EDGE: DirectiveName = DirectiveName("appendEdge".intern());
     static ref APPEND_NODE: DirectiveName = DirectiveName("appendNode".intern());
-    static ref CONNECTIONS_ARG_NAME: StringKey = "connections".intern();
+    static ref CONNECTIONS_ARG_NAME: ArgumentName = ArgumentName("connections".intern());
     static ref DELETE_RECORD: DirectiveName = DirectiveName("deleteRecord".intern());
     static ref DELETE_EDGE: DirectiveName = DirectiveName("deleteEdge".intern());
     static ref PREPEND_EDGE: DirectiveName = DirectiveName("prependEdge".intern());
     static ref PREPEND_NODE: DirectiveName = DirectiveName("prependNode".intern());
-    static ref EDGE_TYPENAME_ARG: StringKey = "edgeTypeName".intern();
+    static ref EDGE_TYPENAME_ARG: ArgumentName = ArgumentName("edgeTypeName".intern());
     static ref EMPTY_STRING: StringKey = "".intern();
 }
 
@@ -162,7 +163,7 @@ impl Transformer for DeclarativeConnectionMutationTransform<'_> {
 
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
         let transformed_field = self.default_transform_linked_field(field);
-        let delete_directive = field.directives.named(DELETE_RECORD.0);
+        let delete_directive = field.directives.named(*DELETE_RECORD);
         if let Some(delete_directive) = delete_directive {
             self.errors.push(Diagnostic::error(
                 ValidationMessage::DeleteRecordDirectiveOnLinkedField {

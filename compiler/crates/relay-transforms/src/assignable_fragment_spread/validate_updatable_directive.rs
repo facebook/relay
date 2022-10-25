@@ -36,7 +36,7 @@ use super::UPDATABLE_DIRECTIVE;
 
 lazy_static! {
     static ref ALLOW_LISTED_DIRECTIVES: Vec<DirectiveName> = vec![
-        DirectiveName(*UPDATABLE_DIRECTIVE),
+        *UPDATABLE_DIRECTIVE,
         // TODO have a global list of directives...?
         DirectiveName("fb_owner".intern()),
     ];

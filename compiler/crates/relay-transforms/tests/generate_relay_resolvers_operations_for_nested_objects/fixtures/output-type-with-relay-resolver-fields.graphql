@@ -1,0 +1,36 @@
+fragment Foo_user on User {
+  poppy: pop_star_name {
+    stage_name
+  }
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+type PopStarName {
+  name: String
+  stage_name: String
+}
+
+extend type PopStarName {
+  fancy_name: RelayResolverValue
+    @relay_resolver(import_path: "PopStarFancyNameResolver")
+}
+
+extend type User {
+  pop_star_name: PopStarName
+    @relay_resolver(
+      fragment_name: "PopStarNameResolverFragment_name"
+      import_path: "PopStarNameResolver"
+      has_output_type: true
+    )
+}

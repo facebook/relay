@@ -15,7 +15,6 @@ jest.mock('scheduler', () => require('scheduler/unstable_mock'));
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayQueryRenderer = require('../ReactRelayQueryRenderer');
 const ReactRelayQueryRendererContext = require('../ReactRelayQueryRendererContext');
-const readContext = require('../readContext');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {graphql} = require('relay-runtime');
@@ -34,6 +33,8 @@ const {
   simpleClone,
 } = require('relay-test-utils-internal');
 const Scheduler = require('scheduler');
+
+const {useContext} = React;
 
 describe('ReactRelayQueryRenderer', () => {
   let TestQuery;
@@ -634,7 +635,7 @@ describe('ReactRelayQueryRenderer', () => {
 
     beforeEach(() => {
       function ContextGetter() {
-        relayContext = readContext(ReactRelayContext);
+        relayContext = useContext(ReactRelayContext);
         return null;
       }
 
@@ -815,7 +816,7 @@ describe('ReactRelayQueryRenderer', () => {
 
     beforeEach(() => {
       ContextGetter = () => {
-        queryRendererContext = readContext(ReactRelayQueryRendererContext);
+        queryRendererContext = useContext(ReactRelayQueryRendererContext);
         return null;
       };
 

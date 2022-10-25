@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<11620806f5b0cbab18ed60e0d0c9276c>>
+ * @generated SignedSource<<52fbe10a46cc44f6f4a9ef85f007a155>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserShoutedGreetingResolver$key } from "./../resolvers/__generated__/UserShoutedGreetingResolver.graphql";
-import userShoutedGreetingResolver from "../resolvers/UserShoutedGreetingResolver.js";
+import {shouted_greeting as userShoutedGreetingResolver} from "../resolvers/UserShoutedGreetingResolver.js";
 // Type assertion validating that `userShoutedGreetingResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userShoutedGreetingResolver: (
@@ -62,7 +62,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "shouted_greeting",
-            "resolverModule": require('./../resolvers/UserShoutedGreetingResolver'),
+            "resolverModule": require('./../resolvers/UserShoutedGreetingResolver').shouted_greeting,
             "path": "me.shouted_greeting"
           }
         ],
@@ -87,10 +87,36 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "shouted_greeting",
             "args": null,
-            "kind": "ScalarField",
-            "name": "name",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "name": "greeting",
+                  "args": null,
+                  "fragment": {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "name",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "User",
+                    "abstractKey": null
+                  },
+                  "kind": "RelayResolver",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

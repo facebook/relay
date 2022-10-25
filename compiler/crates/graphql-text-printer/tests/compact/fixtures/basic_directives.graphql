@@ -1,0 +1,18 @@
+query MyQuery($id: ID, $cond: Boolean!) {
+  my_alias: node(id: $id) {
+    id
+    ... on User @include(if: $cond) {
+      name
+    }
+    ...UserFragment @include(if: $cond)
+  }
+}
+
+fragment UserFragment on User {
+  id
+  name @include(if: $cond)
+  otherName: name @customDirective(level: 3) @skip(if: $cond)
+  address @skip(if: true) {
+    city
+  }
+}

@@ -50,4 +50,7 @@ pub enum SchemaError {
         "Expected a field of the input object to be a valid input object, scalar, or enum. Got '{0}'."
     )]
     ExpectedInputType(StringKey),
+
+    #[error("Reference to undefined directive '{0}'.")]
+    UndefinedDirective(StringKey),
 }

@@ -45,6 +45,7 @@ const {
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -501,6 +502,18 @@ class RelayMockPayloadGenerator {
           throw new Error('Flight fields are not yet supported.');
         case ACTOR_CHANGE:
           throw new Error('ActorChange fields are not yet supported.');
+        case RELAY_RESOLVER:
+          if (selection.fragment) {
+            mockData = this._traverseSelections(
+              selection.fragment.selections,
+              typeName,
+              isAbstractType,
+              path,
+              mockData,
+              defaultValues,
+            );
+          }
+          break;
         default:
           (selection: empty);
           invariant(

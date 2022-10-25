@@ -12,7 +12,11 @@ query relayResolver_Query {
 # %extensions%
 
 extend type User {
-  pop_star_name: Int @relay_resolver(fragment_name: "relayResolver_PopStarNameResolverFragment_name", import_path: "./foo/bar/baz/PopStarNameResolver.js")
+  pop_star_name: RelayResolverValue
+    @relay_resolver(
+      fragment_name: "relayResolver_PopStarNameResolverFragment_name"
+      import_path: "./foo/bar/baz/PopStarNameResolver.js"
+    )
 }
 ==================================== OUTPUT ===================================
 import type { relayResolver_PopStarNameResolverFragment_name$key } from "relayResolver_PopStarNameResolverFragment_name.graphql";

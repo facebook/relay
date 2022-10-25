@@ -30,6 +30,7 @@ use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -465,7 +466,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     }
 }
 
-fn has_same_type_reference_wrapping(l: &TypeReference, r: &TypeReference) -> bool {
+fn has_same_type_reference_wrapping(l: &TypeReference<Type>, r: &TypeReference<Type>) -> bool {
     match (l, r) {
         (TypeReference::Named(_), TypeReference::Named(_)) => true,
         (TypeReference::NonNull(l), TypeReference::NonNull(r))

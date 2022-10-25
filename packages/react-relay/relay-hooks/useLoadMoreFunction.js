@@ -123,7 +123,13 @@ function useLoadMoreFunction<TQuery: OperationType>(
   }, [disposeFetch]);
 
   const loadMore = useCallback(
-    (count, options) => {
+    (
+      count: number,
+      options: void | {
+        UNSTABLE_extraVariables?: $Shape<VariablesOf<TQuery>>,
+        onComplete?: (Error | null) => void,
+      },
+    ) => {
       // TODO(T41131846): Fetch/Caching policies for loadMore
 
       const onComplete = options?.onComplete;

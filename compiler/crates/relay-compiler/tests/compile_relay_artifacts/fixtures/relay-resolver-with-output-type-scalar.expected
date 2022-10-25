@@ -1,0 +1,98 @@
+==================================== INPUT ====================================
+fragment relayResolverWithOutputTypeScalar_user on User {
+  poppy: pop_star_name
+}
+
+fragment relayResolverWithOutputTypeScalar_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "relayResolverWithOutputTypeScalar_name", import_path: "PopStarNameResolver", has_output_type: true)
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "relayResolverWithOutputTypeScalar_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "StreetAddress",
+      "kind": "LinkedField",
+      "name": "address",
+      "plural": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "street",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    },
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "parents",
+      "plural": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "lastName",
+          "storageKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "relayResolverWithOutputTypeScalar_user",
+  "selections": [
+    {
+      "alias": "poppy",
+      "args": null,
+      "fragment": {
+        "args": null,
+        "kind": "FragmentSpread",
+        "name": "relayResolverWithOutputTypeScalar_name"
+      },
+      "kind": "RelayResolver",
+      "name": "pop_star_name",
+      "resolverModule": require('PopStarNameResolver'),
+      "path": "poppy"
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

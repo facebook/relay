@@ -24,9 +24,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @onType User
  * @edgeTo User
  */
-function UserNullClientEdgeResolver(
-  rootKey: UserNullClientEdgeResolver$key,
-): ?DataID {
+function null_client_edge(rootKey: UserNullClientEdgeResolver$key): ?DataID {
   readFragment(
     graphql`
       fragment UserNullClientEdgeResolver on User {
@@ -38,4 +36,6 @@ function UserNullClientEdgeResolver(
   return null;
 }
 
-module.exports = UserNullClientEdgeResolver;
+module.exports = {
+  null_client_edge,
+};

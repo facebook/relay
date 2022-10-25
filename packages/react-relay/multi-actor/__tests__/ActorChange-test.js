@@ -131,7 +131,7 @@ type Props = $ReadOnly<{
 
 function ActorMessage(props: Props) {
   const data = useFragment(fragment, props.myFragment);
-  const [commit] = useMutation(mutation);
+  const [commit] = useMutation<$FlowFixMe>(mutation);
 
   // We're calling this hook only to verify that it won't throw.
   // `useRelayActorEnvironment` should be able to have access to `getEnvironmentForActor` function

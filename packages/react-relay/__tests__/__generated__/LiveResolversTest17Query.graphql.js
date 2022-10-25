@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d3239885fb5ccc25195239edcf5df95f>>
+ * @generated SignedSource<<90e2c0499bdf116ea44eb268c3d35607>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +18,7 @@
 
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
-import queryNonLiveResolverWithLiveReturnValueResolver from "../../../relay-runtime/store/__tests__/resolvers/QueryNonLiveResolverWithLiveReturnValue.js";
+import {non_live_resolver_with_live_return_value as queryNonLiveResolverWithLiveReturnValueResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryNonLiveResolverWithLiveReturnValue.js";
 // Type assertion validating that `queryNonLiveResolverWithLiveReturnValueResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryNonLiveResolverWithLiveReturnValueResolver: () => mixed);
@@ -48,7 +48,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayResolver",
             "name": "non_live_resolver_with_live_return_value",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryNonLiveResolverWithLiveReturnValue'),
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryNonLiveResolverWithLiveReturnValue').non_live_resolver_with_live_return_value,
             "path": "non_live_resolver_with_live_return_value"
           }
         ]
@@ -67,10 +67,10 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
+            "name": "non_live_resolver_with_live_return_value",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

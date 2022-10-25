@@ -98,7 +98,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           _variables: Variables,
           _cacheConfig: CacheConfig,
         ) => {
-          return RelayObservable.create(sink => {
+          return RelayObservable.create<$FlowFixMe>(sink => {
             dataSource = sink;
           });
         };
@@ -142,7 +142,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       it('loads the Flight field and normalizes/publishes the field payload', () => {
         environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
-        const payload = {
+        const payload: $FlowFixMe = {
           data: {
             node: {
               id: '1',
@@ -209,7 +209,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       it('updates the Flight field on refetch', () => {
         environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
-        const initialPayload = {
+        const initialPayload: $FlowFixMe = {
           data: {
             node: {
               id: '1',
@@ -249,7 +249,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             },
           },
         };
-        const nextPayload = {
+        const nextPayload: $FlowFixMe = {
           data: {
             node: {
               id: '1',
@@ -360,7 +360,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           it('calls ReactFlightServerErrorHandler', () => {
             environment.execute({operation}).subscribe(callbacks);
-            const payload = {
+            const payload: $FlowFixMe = {
               data: {
                 node: {
                   id: '1',
@@ -402,7 +402,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         describe('no ReactFlightServerErrorHandler is specified', () => {
           it('warns', () => {
             environment.execute({operation}).subscribe(callbacks);
-            const payload = {
+            const payload: $FlowFixMe = {
               data: {
                 node: {
                   id: '1',
@@ -445,7 +445,7 @@ Error
       describe('when checking availability', () => {
         it('returns available if all data exists in the environment', () => {
           environment.execute({operation}).subscribe(callbacks);
-          const payload = {
+          const payload: $FlowFixMe = {
             data: {
               node: {
                 id: '1',
@@ -500,7 +500,7 @@ Error
 
         it('returns missing if `tree` is null in the payload', () => {
           environment.execute({operation}).subscribe(callbacks);
-          const payload = {
+          const payload: $FlowFixMe = {
             data: {
               node: {
                 id: '1',
@@ -552,7 +552,7 @@ Error
 
         it('returns missing if `queries` is null in the payload', () => {
           environment.execute({operation}).subscribe(callbacks);
-          const payload = {
+          const payload: $FlowFixMe = {
             data: {
               node: {
                 id: '1',
@@ -587,7 +587,7 @@ Error
 
         it('returns missing if the inner query is missing data', () => {
           environment.execute({operation}).subscribe(callbacks);
-          const payload = {
+          const payload: $FlowFixMe = {
             data: {
               node: {
                 id: '1',
@@ -719,7 +719,7 @@ Error
       describe('when the response is malformed', () => {
         it('warns if the row protocol is null', () => {
           environment.execute({operation}).subscribe(callbacks);
-          const payload = {
+          const payload: $FlowFixMe = {
             data: {
               node: {
                 id: '1',

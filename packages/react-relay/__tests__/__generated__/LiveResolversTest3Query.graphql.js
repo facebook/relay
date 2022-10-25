@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<fcc4e165c9bb3685713084965968dd1a>>
+ * @generated SignedSource<<93e535f1b0ada38075a674cd447116a6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { CounterPlusOneResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/CounterPlusOneResolver.graphql";
-import queryCounterPlusOneResolver from "../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver.js";
+import {counter_plus_one as queryCounterPlusOneResolver} from "../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver.js";
 // Type assertion validating that `queryCounterPlusOneResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterPlusOneResolver: (
@@ -52,7 +52,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "counter_plus_one",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver'),
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/CounterPlusOneResolver').counter_plus_one,
         "path": "counter_plus_one"
       }
     ],
@@ -66,33 +66,59 @@ var node/*: ConcreteRequest*/ = {
     "name": "LiveResolversTest3Query",
     "selections": [
       {
-        "alias": null,
+        "name": "counter_plus_one",
         "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
-            "kind": "ClientExtension",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__id",
-                "storageKey": null
-              }
-            ]
-          }
-        ],
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "name": "counter",
+              "args": null,
+              "fragment": {
+                "kind": "InlineFragment",
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "User",
+                    "kind": "LinkedField",
+                    "name": "me",
+                    "plural": false,
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "id",
+                        "storageKey": null
+                      },
+                      {
+                        "kind": "ClientExtension",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": null,
+                            "kind": "ScalarField",
+                            "name": "__id",
+                            "storageKey": null
+                          }
+                        ]
+                      }
+                    ],
+                    "storageKey": null
+                  }
+                ],
+                "type": "Query",
+                "abstractKey": null
+              },
+              "kind": "RelayResolver",
+              "storageKey": null
+            }
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
         "storageKey": null
       }
     ]

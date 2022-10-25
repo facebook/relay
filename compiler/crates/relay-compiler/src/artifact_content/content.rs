@@ -14,6 +14,7 @@ use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::OperationDefinition;
+use intern::Lookup;
 use relay_codegen::build_request_params;
 use relay_codegen::Printer;
 use relay_codegen::QueryID;
@@ -96,7 +97,7 @@ pub fn generate_updatable_query(
     }
 
     write_import_type_from(
-        &project_config.typegen_config.language,
+        project_config,
         &mut section,
         generated_types.imported_types,
         "relay-runtime",
@@ -260,7 +261,7 @@ pub fn generate_operation(
     }
 
     write_import_type_from(
-        &project_config.typegen_config.language,
+        project_config,
         &mut section,
         generated_types.imported_types,
         "relay-runtime",
@@ -397,6 +398,7 @@ pub fn generate_split_operation(
     typegen_operation: &Option<Arc<OperationDefinition>>,
     source_hash: Option<&String>,
     fragment_locations: &FragmentLocations,
+    no_optional_fields_in_raw_response_type: bool,
 ) -> Result<Vec<u8>, FmtError> {
     let mut content_sections = ContentSections::default();
 
@@ -426,7 +428,7 @@ pub fn generate_split_operation(
         writeln!(section, "/*::")?;
     }
     write_import_type_from(
-        &project_config.typegen_config.language,
+        project_config,
         &mut section,
         "NormalizationSplitOperation",
         "relay-runtime",
@@ -443,6 +445,7 @@ pub fn generate_split_operation(
                 schema,
                 project_config,
                 fragment_locations,
+                no_optional_fields_in_raw_response_type
             )
         )?;
     }
@@ -505,7 +508,7 @@ pub fn generate_fragment(
     schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
-    source_hash: &str,
+    source_hash: Option<&String>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
@@ -545,7 +548,7 @@ fn generate_read_only_fragment(
     schema: &SDLSchema,
     reader_fragment: &FragmentDefinition,
     typegen_fragment: &FragmentDefinition,
-    source_hash: &str,
+    source_hash: Option<&String>,
     skip_types: bool,
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
@@ -600,7 +603,7 @@ fn generate_read_only_fragment(
     }
 
     write_import_type_from(
-        &project_config.typegen_config.language,
+        project_config,
         &mut section,
         generated_types.imported_types,
         "relay-runtime",
@@ -647,14 +650,16 @@ fn generate_read_only_fragment(
     // -- End Fragment Node Section --
 
     // -- Begin Fragment Node Hash Section --
-    let mut section = GenericSection::default();
-    write_source_hash(
-        config,
-        &project_config.typegen_config.language,
-        &mut section,
-        source_hash,
-    )?;
-    content_sections.push(ContentSection::Generic(section));
+    if let Some(source_hash) = source_hash {
+        let mut section = GenericSection::default();
+        write_source_hash(
+            config,
+            &project_config.typegen_config.language,
+            &mut section,
+            source_hash,
+        )?;
+        content_sections.push(ContentSection::Generic(section));
+    }
     // -- End Fragment Node Hash Section --
 
     // -- Begin Fragment Node Export Section --
@@ -790,15 +795,26 @@ fn generate_use_strict_section(language: &TypegenLanguage) -> Result<GenericSect
 }
 
 fn write_import_type_from(
-    language: &TypegenLanguage,
+    project_config: &ProjectConfig,
     section: &mut dyn Write,
     type_: &str,
     from: &str,
 ) -> FmtResult {
+    let language = &project_config.typegen_config.language;
     match language {
         TypegenLanguage::JavaScript => Ok(()),
         TypegenLanguage::Flow => writeln!(section, "import type {{ {} }} from '{}';", type_, from),
-        TypegenLanguage::TypeScript => writeln!(section, "import {{ {} }} from '{}';", type_, from),
+        TypegenLanguage::TypeScript => writeln!(
+            section,
+            "import {}{{ {} }} from '{}';",
+            if project_config.typegen_config.use_import_type_syntax {
+                "type "
+            } else {
+                ""
+            },
+            type_,
+            from
+        ),
     }
 }
 

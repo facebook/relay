@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<0332c89c5c62ac6ca59f8a338b15e253>>
+ * @generated SignedSource<<3b7c387af404142160b00221edc21148>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserProfilePictureResolver$key } from "./../resolvers/__generated__/UserProfilePictureResolver.graphql";
-import userUserProfilePictureUriWithScaleResolver from "../resolvers/UserProfilePictureResolver.js";
+import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScaleResolver} from "../resolvers/UserProfilePictureResolver.js";
 // Type assertion validating that `userUserProfilePictureUriWithScaleResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriWithScaleResolver: (
@@ -82,7 +82,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "user_profile_picture_uri_with_scale",
-            "resolverModule": require('./../resolvers/UserProfilePictureResolver'),
+            "resolverModule": require('./../resolvers/UserProfilePictureResolver').user_profile_picture_uri_with_scale,
             "path": "me.profile_picture"
           }
         ],
@@ -107,21 +107,34 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
-            "args": (v1/*: any*/),
-            "concreteType": "Image",
-            "kind": "LinkedField",
-            "name": "profile_picture",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "uri",
-                "storageKey": null
-              }
-            ],
+            "name": "user_profile_picture_uri_with_scale",
+            "args": null,
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": (v1/*: any*/),
+                  "concreteType": "Image",
+                  "kind": "LinkedField",
+                  "name": "profile_picture",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "uri",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

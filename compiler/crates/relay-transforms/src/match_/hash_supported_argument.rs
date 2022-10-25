@@ -20,6 +20,7 @@ use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use graphql_ir::Value;
 use intern::string_key::Intern;
+use intern::Lookup;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::TypeReference;
@@ -122,7 +123,7 @@ impl<'a> HashSupportedArgumentTransform<'a> {
     fn has_match_supported_arg(&self, field: &LinkedField) -> bool {
         if field
             .arguments
-            .named(MATCH_CONSTANTS.supported_arg.0)
+            .named(MATCH_CONSTANTS.supported_arg)
             .is_none()
         {
             return false;
@@ -131,7 +132,7 @@ impl<'a> HashSupportedArgumentTransform<'a> {
             .schema
             .field(field.definition.item)
             .arguments
-            .named(MATCH_CONSTANTS.supported_arg.0)
+            .named(MATCH_CONSTANTS.supported_arg)
             .expect("field has supported arg, but missing from the schema");
 
         let field_type_name = {

@@ -1,0 +1,172 @@
+==================================== INPUT ====================================
+fragment relayResolverWithFragmentOnClientType_ResolverFragment on ClientType {
+  id
+  some_field
+}
+
+query relayResolverWithFragmentOnClientTypeQuery {
+  client_type {
+    resolver_field
+  }
+}
+
+# %extensions%
+
+type ClientType {
+  id: ID!
+  some_field: String
+}
+
+extend type Query {
+  client_type: ClientType
+}
+
+extend type ClientType {
+  resolver_field: String
+    @relay_resolver(
+      fragment_name: "relayResolverWithFragmentOnClientType_ResolverFragment"
+      import_path: "./path/to/Resolver.js"
+    )
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "relayResolverWithFragmentOnClientTypeQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "ClientType",
+            "kind": "LinkedField",
+            "name": "client_type",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "fragment": {
+                  "args": null,
+                  "kind": "FragmentSpread",
+                  "name": "relayResolverWithFragmentOnClientType_ResolverFragment"
+                },
+                "kind": "RelayResolver",
+                "name": "resolver_field",
+                "resolverModule": require('Resolver'),
+                "path": "client_type.resolver_field"
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "relayResolverWithFragmentOnClientTypeQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "ClientType",
+            "kind": "LinkedField",
+            "name": "client_type",
+            "plural": false,
+            "selections": [
+              {
+                "name": "resolver_field",
+                "args": null,
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "id",
+                      "storageKey": null
+                    },
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "some_field",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "ClientType",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "57fc7bae0df99cb14afd15a3315d63dc",
+    "id": null,
+    "metadata": {},
+    "name": "relayResolverWithFragmentOnClientTypeQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "relayResolverWithFragmentOnClientType_ResolverFragment",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "id",
+          "storageKey": null
+        },
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "some_field",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "ClientType",
+  "abstractKey": null
+}

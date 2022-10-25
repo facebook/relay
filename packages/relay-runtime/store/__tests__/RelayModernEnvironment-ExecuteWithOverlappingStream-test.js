@@ -156,7 +156,7 @@ describe('execute() a query with multiple @stream selections on the same record'
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
-    const payload = {
+    const payload: $FlowFixMe = {
       data: {
         node: {
           __typename: 'Feedback',

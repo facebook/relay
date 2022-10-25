@@ -84,10 +84,10 @@ pub fn build_connection_metadata(
 ) -> ConnectionMetadata {
     let first_arg = connection_field
         .arguments
-        .named(connection_constants.first_arg_name.0);
+        .named(connection_constants.first_arg_name);
     let last_arg = connection_field
         .arguments
-        .named(connection_constants.last_arg_name.0);
+        .named(connection_constants.last_arg_name);
 
     let direction = match (first_arg, last_arg) {
         (Some(_), Some(_)) => connection_constants.direction_bidirectional,
@@ -105,14 +105,14 @@ pub fn build_connection_metadata(
             extract_variable_name(
                 connection_field
                     .arguments
-                    .named(connection_constants.after_arg_name.0),
+                    .named(connection_constants.after_arg_name),
             )
         }),
         before: last_arg.and_then(|_| {
             extract_variable_name(
                 connection_field
                     .arguments
-                    .named(connection_constants.before_arg_name.0),
+                    .named(connection_constants.before_arg_name),
             )
         }),
         direction,

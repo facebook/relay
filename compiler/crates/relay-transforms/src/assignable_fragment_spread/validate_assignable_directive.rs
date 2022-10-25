@@ -22,7 +22,7 @@ use super::ASSIGNABLE_DIRECTIVE;
 
 lazy_static! {
     static ref ALLOW_LISTED_DIRECTIVES: Vec<DirectiveName> = vec![
-        DirectiveName(*ASSIGNABLE_DIRECTIVE),
+        *ASSIGNABLE_DIRECTIVE,
         // TODO have a global list of directives...?
         DirectiveName("fb_owner".intern()),
     ];

@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a62c375306a48e0932eb88e66b9ebaa5>>
+ * @generated SignedSource<<21f9ea721ebbd2c02c7482e0f44b6efe>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import queryLiveConstantClientEdgeResolver from "../../../relay-runtime/store/__tests__/resolvers/LiveConstantClientEdgeResolver.js";
+import {live_constant_client_edge as queryLiveConstantClientEdgeResolver} from "../../../relay-runtime/store/__tests__/resolvers/LiveConstantClientEdgeResolver.js";
 // Type assertion validating that `queryLiveConstantClientEdgeResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveConstantClientEdgeResolver: () => LiveState<any>);
@@ -53,7 +53,7 @@ var node/*: ClientRequest*/ = {
           "fragment": null,
           "kind": "RelayLiveResolver",
           "name": "live_constant_client_edge",
-          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveConstantClientEdgeResolver'),
+          "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveConstantClientEdgeResolver').live_constant_client_edge,
           "path": "live_constant_client_edge"
         },
         "linkedField": {
@@ -89,10 +89,10 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
+            "name": "live_constant_client_edge",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

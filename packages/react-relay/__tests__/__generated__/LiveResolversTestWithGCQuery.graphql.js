@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<e349e6d0e514cec02157b4b8ca70c89c>>
+ * @generated SignedSource<<739d3c3b5446789c5618c883d45d010b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { LiveCounterWithPossibleMissingFragmentDataResolverFragment$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/LiveCounterWithPossibleMissingFragmentDataResolverFragment.graphql";
-import queryLiveCounterWithPossibleMissingFragmentDataResolver from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterWithPossibleMissingFragmentDataResolver.js";
+import {live_counter_with_possible_missing_fragment_data as queryLiveCounterWithPossibleMissingFragmentDataResolver} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterWithPossibleMissingFragmentDataResolver.js";
 // Type assertion validating that `queryLiveCounterWithPossibleMissingFragmentDataResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveCounterWithPossibleMissingFragmentDataResolver: (
@@ -53,7 +53,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayLiveResolver",
         "name": "live_counter_with_possible_missing_fragment_data",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterWithPossibleMissingFragmentDataResolver'),
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterWithPossibleMissingFragmentDataResolver').live_counter_with_possible_missing_fragment_data,
         "path": "live_counter_with_possible_missing_fragment_data"
       }
     ],
@@ -67,21 +67,34 @@ var node/*: ConcreteRequest*/ = {
     "name": "LiveResolversTestWithGCQuery",
     "selections": [
       {
-        "alias": null,
+        "name": "live_counter_with_possible_missing_fragment_data",
         "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          }
-        ],
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "me",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "id",
+                  "storageKey": null
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
         "storageKey": null
       }
     ]

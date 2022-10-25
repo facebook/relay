@@ -14,14 +14,18 @@
 import type {
   ReaderRelayLiveResolver,
   ReaderRelayResolver,
+  ResolverNormalizationInfo,
 } from '../../util/ReaderNode';
 import type {DataID, Variables} from '../../util/RelayRuntimeTypes';
+import type {NormalizationOptions} from '../RelayResponseNormalizer';
 import type {
   MutableRecordSource,
+  RecordSource,
   Record,
   RelayResolverError,
   SingularReaderSelector,
   Snapshot,
+  DataIDSet,
 } from '../RelayStoreTypes';
 import type {
   EvaluationResult,
@@ -41,11 +45,14 @@ const {
   RELAY_RESOLVER_INVALIDATION_KEY,
   RELAY_RESOLVER_SNAPSHOT_KEY,
   RELAY_RESOLVER_VALUE_KEY,
+  RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,
   getStorageKey,
 } = require('../RelayStoreUtils');
 const {isSuspenseSentinel} = require('./LiveResolverSuspenseSentinel');
 const invariant = require('invariant');
 const warning = require('warning');
+const {createNormalizationSelector} = require('../RelayModernSelector');
+const {normalize} = require('../RelayResponseNormalizer');
 
 // When this experiment gets promoted to stable, these keys will move into
 // `RelayStoreUtils`.
@@ -54,6 +61,7 @@ const RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY =
 const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
 const RELAY_RESOLVER_RECORD_TYPENAME = '__RELAY_RESOLVER__';
+const getOutputTypeRecordIDs = require('./getOutputTypeRecordIDs');
 
 /**
  * An experimental fork of store/ResolverCache.js intended to let us experiment
@@ -61,6 +69,8 @@ const RELAY_RESOLVER_RECORD_TYPENAME = '__RELAY_RESOLVER__';
  */
 
 type ResolverID = string;
+
+export opaque type UpdatedRecords = DataIDSet;
 
 function addDependencyEdge(
   edges: Map<ResolverID, Set<DataID>> | Map<DataID, Set<ResolverID>>,
@@ -78,9 +88,10 @@ function addDependencyEdge(
 class LiveResolverCache implements ResolverCache {
   _resolverIDToRecordIDs: Map<ResolverID, Set<DataID>>;
   _recordIDToResolverIDs: Map<DataID, Set<ResolverID>>;
-
   _getRecordSource: () => MutableRecordSource;
   _store: LiveResolverStore;
+  _handlingBatch: boolean; // Flag indicating that Live Resolver updates are being batched.
+  _liveResolverBatchRecordSource: ?MutableRecordSource; // Lazily created record source for batched Live Resolver updates.
 
   constructor(
     getRecordSource: () => MutableRecordSource,
@@ -90,6 +101,8 @@ class LiveResolverCache implements ResolverCache {
     this._recordIDToResolverIDs = new Map();
     this._getRecordSource = getRecordSource;
     this._store = store;
+    this._handlingBatch = false;
+    this._liveResolverBatchRecordSource = null;
   }
 
   readFromCacheOrEvaluate<T>(
@@ -104,19 +117,21 @@ class LiveResolverCache implements ResolverCache {
     ?RelayResolverError,
     ?Snapshot,
     ?DataID /* ID of record containing a suspended Live field */,
+    ?DataIDSet /** Set of dirty records after read */,
   ] {
     const recordSource = this._getRecordSource();
 
     // NOTE: Be very careful with `record` in this scope. After `evaluate` has
     // been called, the `record` we have here may have been replaced in the
-    // Relay store with a new record containing new informaiton about nested
+    // Relay store with a new record containing new information about nested
     // resolvers on this parent record.
-    const record = recordSource.get(recordID);
-    invariant(record != null, 'We expect this record to exist in the store.');
+    const record = expectRecord(recordSource, recordID);
 
     const storageKey = getStorageKey(field, variables);
     let linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
     let linkedRecord = linkedID == null ? null : recordSource.get(linkedID);
+
+    let updatedDataIDs;
 
     if (
       linkedRecord == null ||
@@ -125,7 +140,7 @@ class LiveResolverCache implements ResolverCache {
       // Cache miss; evaluate the selector and store the result in a new record:
 
       if (linkedRecord != null) {
-        // Clean up any existing subscriptions before creating the new subsciption
+        // Clean up any existing subscriptions before creating the new subscription
         // to avoid being double subscribed, or having a dangling subscription in
         // the event of an error during subscription.
         this._maybeUnsubscribeFromLiveState(linkedRecord);
@@ -151,7 +166,13 @@ class LiveResolverCache implements ResolverCache {
           const liveState: LiveState<mixed> =
             // $FlowFixMe[incompatible-type] - casting mixed
             evaluationResult.resolverResult;
-          this._setLiveStateValue(linkedRecord, linkedID, liveState);
+          updatedDataIDs = this._setLiveStateValue(
+            linkedRecord,
+            linkedID,
+            liveState,
+            field,
+            variables,
+          );
         } else {
           if (__DEV__) {
             invariant(
@@ -170,14 +191,15 @@ class LiveResolverCache implements ResolverCache {
         if (__DEV__) {
           invariant(
             !isLiveStateValue(evaluationResult.resolverResult),
-            'Unexpected LiveState value retuned from the non-@live Relay Resolver backing the field "%s". Did you intend to add @live to this resolver?.',
+            'Unexpected LiveState value returned from the non-@live Relay Resolver backing the field "%s". Did you intend to add @live to this resolver?',
             field.path,
           );
         }
-        RelayModernRecord.setValue(
+        updatedDataIDs = this._setResolverValue(
           linkedRecord,
-          RELAY_RESOLVER_VALUE_KEY,
           evaluationResult.resolverResult,
+          field,
+          variables,
         );
       }
       RelayModernRecord.setValue(
@@ -195,20 +217,17 @@ class LiveResolverCache implements ResolverCache {
       // Link the resolver value record to the resolver field of the record being read:
 
       // Note: We get a fresh instance of the parent record from the record
-      // source, becuase it may have been updated when we traversed into child
+      // source, because it may have been updated when we traversed into child
       // resolvers.
-      const currentRecord = recordSource.get(recordID);
-      invariant(
-        currentRecord != null,
-        'Expected the parent record to still be in the record source.',
-      );
+      const currentRecord = expectRecord(recordSource, recordID);
       const nextRecord = RelayModernRecord.clone(currentRecord);
       RelayModernRecord.setLinkedRecordID(nextRecord, storageKey, linkedID);
       recordSource.set(recordID, nextRecord);
 
       if (field.fragment != null) {
         // Put records observed by the resolver into the dependency graph:
-        const resolverID = evaluationResult.resolverID;
+        const fragmentStorageKey = getStorageKey(field.fragment, variables);
+        const resolverID = generateClientID(recordID, fragmentStorageKey);
         addDependencyEdge(this._resolverIDToRecordIDs, resolverID, linkedID);
         addDependencyEdge(this._recordIDToResolverIDs, recordID, resolverID);
         const seenRecordIds = evaluationResult.snapshot?.seenRecords;
@@ -249,13 +268,11 @@ class LiveResolverCache implements ResolverCache {
         );
       }
 
-      const resolverValue = liveState.read();
-
-      // Set the new value for this and future reads.
-      RelayModernRecord.setValue(
+      updatedDataIDs = this._setResolverValue(
         linkedRecord,
-        RELAY_RESOLVER_VALUE_KEY,
-        resolverValue,
+        liveState.read(),
+        field,
+        variables,
       );
 
       // Mark the resolver as clean again.
@@ -269,7 +286,8 @@ class LiveResolverCache implements ResolverCache {
     }
 
     // $FlowFixMe[incompatible-type] - will always be empty
-    const answer: T = linkedRecord[RELAY_RESOLVER_VALUE_KEY];
+    const answer: T = this._getResolverValue(linkedRecord);
+
     // $FlowFixMe[incompatible-type] - casting mixed
     const snapshot: ?Snapshot = linkedRecord[RELAY_RESOLVER_SNAPSHOT_KEY];
     // $FlowFixMe[incompatible-type] - casting mixed
@@ -281,7 +299,7 @@ class LiveResolverCache implements ResolverCache {
       suspenseID = linkedID ?? generateClientID(recordID, storageKey);
     }
 
-    return [answer, linkedID, error, snapshot, suspenseID];
+    return [answer, linkedID, error, snapshot, suspenseID, updatedDataIDs];
   }
 
   getLiveResolverPromise(liveStateID: DataID): Promise<void> {
@@ -325,10 +343,12 @@ class LiveResolverCache implements ResolverCache {
     linkedRecord: Record,
     linkedID: DataID,
     liveState: LiveState<mixed>,
-  ) {
+    field: ReaderRelayLiveResolver,
+    variables: Variables,
+  ): DataIDSet | null {
     // Subscribe to future values
     // Note: We subscribe before reading, since subscribing could potentially
-    // trigger a synchronous update. By reading second way we will always
+    // trigger a synchronous update. By reading a second way we will always
     // observe the new value, without needing to double render.
     const handler = this._makeLiveStateHandler(linkedID);
     const unsubscribe = liveState.subscribe(handler);
@@ -341,10 +361,11 @@ class LiveResolverCache implements ResolverCache {
     );
 
     // Store the current value, for this read, and future cached reads.
-    RelayModernRecord.setValue(
+    const updatedDataIDs = this._setResolverValue(
       linkedRecord,
-      RELAY_RESOLVER_VALUE_KEY,
       liveState.read(),
+      field,
+      variables,
     );
 
     // Mark the field as clean.
@@ -360,6 +381,8 @@ class LiveResolverCache implements ResolverCache {
       RELAY_RESOLVER_LIVE_STATE_SUBSCRIPTION_KEY,
       unsubscribe,
     );
+
+    return updatedDataIDs;
   }
 
   // Create a callback to handle notifications from the live source that the
@@ -389,7 +412,6 @@ class LiveResolverCache implements ResolverCache {
         return;
       }
 
-      const nextSource = RelayRecordSource.create();
       const nextRecord = RelayModernRecord.clone(currentRecord);
 
       // Mark the field as dirty. The next time it's read, we will call
@@ -400,17 +422,182 @@ class LiveResolverCache implements ResolverCache {
         true,
       );
 
-      nextSource.set(linkedID, nextRecord);
-      this._store.publish(nextSource);
-
-      // In the future, this notify might be defferred if we are within a
-      // transaction.
-      this._store.notify();
+      this._setLiveResolverUpdate(linkedID, nextRecord);
     };
   }
 
+  _setLiveResolverUpdate(linkedId: DataID, record: Record) {
+    if (this._handlingBatch) {
+      // Lazily create the batched record source.
+      if (this._liveResolverBatchRecordSource == null) {
+        this._liveResolverBatchRecordSource = RelayRecordSource.create();
+      }
+      this._liveResolverBatchRecordSource.set(linkedId, record);
+      // We will wait for the batch to complete before we publish/notify...
+    } else {
+      const nextSource = RelayRecordSource.create();
+      nextSource.set(linkedId, record);
+
+      // We are not within a batch, so we will immediately publish/notify.
+      this._store.publish(nextSource);
+      this._store.notify();
+    }
+  }
+
+  batchLiveStateUpdates(callback: () => void) {
+    invariant(
+      !this._handlingBatch,
+      'Unexpected nested call to batchLiveStateUpdates.',
+    );
+    this._handlingBatch = true;
+    try {
+      callback();
+    } finally {
+      // We lazily create the record source. If one has not been created, there
+      // is nothing to publish.
+      if (this._liveResolverBatchRecordSource != null) {
+        this._store.publish(this._liveResolverBatchRecordSource);
+        this._store.notify();
+      }
+
+      // Reset batched state.
+      this._liveResolverBatchRecordSource = null;
+      this._handlingBatch = false;
+    }
+  }
+
+  _setResolverValue(
+    resolverRecord: Record,
+    value: mixed,
+    field: ReaderRelayResolver | ReaderRelayLiveResolver,
+    variables: Variables,
+  ): DataIDSet | null {
+    const normalizationInfo = field.normalizationInfo;
+    let updatedDataIDs = null;
+    if (value != null && normalizationInfo != null) {
+      let resolverValue: DataID | Array<DataID>;
+
+      const prevOutputTypeRecordIDs = getOutputTypeRecordIDs(resolverRecord);
+      const nextOutputTypeRecordIDs: Set<DataID> = new Set();
+
+      const currentSource = this._getRecordSource();
+      if (normalizationInfo.plural) {
+        invariant(
+          Array.isArray(value),
+          '_setResolverValue: Expected array value for plural @outputType resolver.',
+        );
+
+        // For plural resolvers we will be returning
+        // the list of generated @outputType record `ID`s.
+        resolverValue = [];
+
+        const nextSource = RelayRecordSource.create();
+        for (let ii = 0; ii < value.length; ii++) {
+          const currentValue = value[ii];
+          if (currentValue == null) {
+            continue;
+          }
+          invariant(
+            typeof currentValue == 'object',
+            '_setResolverValue: Expected object value as the payload for the @outputType resolver.',
+          );
+          // The `id` of the nested object (@outputType resolver)
+          // is localized to it's resolver record. To ensure that
+          // there is only one path to the records created from the
+          // @outputType payload.
+          const outputTypeDataID = generateClientObjectClientID(
+            normalizationInfo.concreteType,
+            RelayModernRecord.getDataID(resolverRecord),
+            ii,
+          );
+          const source = normalizeOutputTypeValue(
+            outputTypeDataID,
+            currentValue,
+            variables,
+            normalizationInfo,
+            this._store.__getNormalizationOptions([field.path, String(ii)]),
+          );
+          for (const recordID of source.getRecordIDs()) {
+            // For plural case we'll keep adding the `item` records to the `nextSource`
+            // so we can publish all of them at the same time: clean up all records,
+            // and correctly collect all `dirty` records.
+            nextSource.set(recordID, expectRecord(source, recordID));
+            nextOutputTypeRecordIDs.add(recordID);
+          }
+
+          resolverValue.push(outputTypeDataID);
+        }
+
+        // Adding/removing/updating records in the `currentSource`.
+        updatedDataIDs = updateCurrentSource(
+          currentSource,
+          nextSource,
+          prevOutputTypeRecordIDs,
+        );
+      } else {
+        invariant(
+          typeof value == 'object',
+          '_setResolverValue: Expected object value as the payload for the @outputType resolver.',
+        );
+        const outputTypeDataID = generateClientObjectClientID(
+          normalizationInfo.concreteType,
+          RelayModernRecord.getDataID(resolverRecord),
+        );
+        const nextSource = normalizeOutputTypeValue(
+          outputTypeDataID,
+          value,
+          variables,
+          normalizationInfo,
+          this._store.__getNormalizationOptions([field.path]),
+        );
+        for (const recordID of nextSource.getRecordIDs()) {
+          nextOutputTypeRecordIDs.add(recordID);
+        }
+        resolverValue = outputTypeDataID;
+
+        updatedDataIDs = updateCurrentSource(
+          currentSource,
+          nextSource,
+          prevOutputTypeRecordIDs,
+        );
+      }
+
+      // Keep track of the created record IDs from this resolver
+      // so we can properly clean them, if they are no longer used.
+      RelayModernRecord.setValue(
+        resolverRecord,
+        RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS,
+        nextOutputTypeRecordIDs,
+      );
+
+      RelayModernRecord.setValue(
+        resolverRecord,
+        RELAY_RESOLVER_VALUE_KEY,
+        resolverValue,
+      );
+    } else {
+      // For "classic" resolvers (or if the value is nullish), we are just setting their
+      // value as is.
+      RelayModernRecord.setValue(
+        resolverRecord,
+        RELAY_RESOLVER_VALUE_KEY,
+        value,
+      );
+    }
+
+    return updatedDataIDs;
+  }
+
+  notifyUpdatedSubscribers(updatedDataIDs: DataIDSet): void {
+    this._store.__notifyUpdatedSubscribers(updatedDataIDs);
+  }
+
+  _getResolverValue(resolverRecord: Record): mixed {
+    return RelayModernRecord.getValue(resolverRecord, RELAY_RESOLVER_VALUE_KEY);
+  }
+
   invalidateDataIDs(
-    updatedDataIDs: Set<DataID>, // Mutated in place
+    updatedDataIDs: DataIDSet, // Mutated in place
   ): void {
     const recordSource = this._getRecordSource();
     const visited: Set<string> = new Set();
@@ -543,6 +730,97 @@ class LiveResolverCache implements ResolverCache {
   }
 }
 
+// Returns a normalized version (RecordSource) of the @outputType,
+// containing only "weak" records.
+function normalizeOutputTypeValue(
+  outputTypeDataID: DataID,
+  value: {...},
+  variables: Variables,
+  resolverNormalizationInfo: ResolverNormalizationInfo,
+  normalizationOptions: NormalizationOptions,
+): RecordSource {
+  const source = RelayRecordSource.create();
+  source.set(
+    outputTypeDataID,
+    RelayModernRecord.create(
+      outputTypeDataID,
+      resolverNormalizationInfo.concreteType,
+    ),
+  );
+  const selector = createNormalizationSelector(
+    resolverNormalizationInfo.normalizationNode,
+    outputTypeDataID,
+    variables,
+  );
+
+  // The resulted `source` is the normalized version of the
+  // resolver's (@outputType) value.
+  // All records in the `source` should have IDs that
+  // is "prefix-ed" with the parent resolver record `ID`
+  // and they don't expect to have a "strong" identifier.
+  return normalize(source, selector, value, normalizationOptions).source;
+}
+
+// Update the `currentSource` with the set of new records from the
+// resolver with @outputType.
+// This method will return a set of `updatedDataIDs` IDs.
+// The record is marked as `updated`, if
+// - it is removed from the current source
+// - it is updated in the current source
+// A record is **not** marked as `updated` if it is only added to the current source.
+function updateCurrentSource(
+  currentSource: MutableRecordSource,
+  nextSource: RecordSource,
+  prevOutputTypeRecordIDs: ?$ReadOnlySet<DataID>,
+): DataIDSet {
+  const updatedDataIDs = new Set();
+
+  // First, we are removing records from the `currentSource`
+  // that is no longer created from the resolver with @outputType
+  // (these are new records in the `nextSource`).
+  if (prevOutputTypeRecordIDs != null) {
+    for (const recordID of prevOutputTypeRecordIDs) {
+      if (!nextSource.has(recordID)) {
+        updatedDataIDs.add(recordID);
+        currentSource.remove(recordID);
+      }
+    }
+  }
+
+  // Next, we are updating records in the `currentSource` with the
+  // new values from the `nextSource`. If the record has change we're adding its
+  // `id` to the set of `updatedDataIDs`.
+  // New records are just added to the `currentSource`, we do not add their
+  // ids to the `updatedDataIDs` set, as there shouldn't be any subscribers
+  // for these.
+  for (const recordID of nextSource.getRecordIDs()) {
+    const nextRecord = expectRecord(nextSource, recordID);
+    if (currentSource.has(recordID)) {
+      const currentRecord = expectRecord(currentSource, recordID);
+      const updatedRecord = RelayModernRecord.update(currentRecord, nextRecord);
+      if (updatedRecord !== currentRecord) {
+        updatedDataIDs.add(recordID);
+        currentSource.set(recordID, nextRecord);
+      }
+    } else {
+      currentSource.set(recordID, nextRecord);
+    }
+  }
+
+  return updatedDataIDs;
+}
+
+function expectRecord(source: RecordSource, recordID: DataID): Record {
+  const record = source.get(recordID);
+  invariant(
+    record != null,
+    'Expected a record with ID `%s` to exist in the record source.',
+    recordID,
+  );
+
+  return record;
+}
+
 // Validate that a value is live state
 function isLiveStateValue(v: mixed): boolean {
   return (
@@ -553,6 +831,11 @@ function isLiveStateValue(v: mixed): boolean {
   );
 }
 
+function getUpdatedDataIDs(updatedRecords: UpdatedRecords): DataIDSet {
+  return updatedRecords;
+}
+
 module.exports = {
   LiveResolverCache,
+  getUpdatedDataIDs,
 };

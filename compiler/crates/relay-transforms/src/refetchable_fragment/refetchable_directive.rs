@@ -19,6 +19,7 @@ use graphql_text_printer::print_value;
 use graphql_text_printer::PrinterOptions;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use schema::SDLSchema;
 

@@ -12,24 +12,31 @@ use std::collections::HashMap;
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
 use common::SourceLocationKey;
+use common::Span;
 use common::WithLocation;
 use docblock_syntax::DocblockAST;
 use docblock_syntax::DocblockField;
 use docblock_syntax::DocblockSection;
 use errors::ErrorMessagesWithData;
 use graphql_ir::FragmentDefinitionName;
+use graphql_syntax::parse_field_definition;
 use graphql_syntax::parse_field_definition_stub;
+use graphql_syntax::parse_identifier;
 use graphql_syntax::parse_type;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::ExecutableDefinition;
 use graphql_syntax::FieldDefinitionStub;
 use graphql_syntax::FragmentDefinition;
+use graphql_syntax::InputValueDefinition;
+use graphql_syntax::List;
 use graphql_syntax::TypeAnnotation;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 pub use ir::Argument;
 pub use ir::DocblockIr;
 use ir::IrField;
@@ -37,9 +44,19 @@ pub use ir::On;
 use ir::OutputType;
 use ir::PopulatedIrField;
 pub use ir::RelayResolverIr;
+use ir::StrongObjectIr;
+use ir::TerseRelayResolverIr;
+use ir::WeakObjectIr;
 use lazy_static::lazy_static;
 
 use crate::errors::ErrorMessages;
+
+pub struct ParseOptions {
+    pub use_named_imports: bool,
+    pub relay_resolver_model_syntax_enabled: bool,
+    pub relay_resolver_enable_terse_syntax: bool,
+    pub id_field_name: StringKey,
+}
 
 lazy_static! {
     static ref RELAY_RESOLVER_FIELD: StringKey = "RelayResolver".intern();
@@ -51,37 +68,56 @@ lazy_static! {
     static ref LIVE_FIELD: StringKey = "live".intern();
     static ref ROOT_FRAGMENT_FIELD: StringKey = "rootFragment".intern();
     static ref OUTPUT_TYPE_FIELD: StringKey = "outputType".intern();
+    static ref WEAK_FIELD: StringKey = "weak".intern();
     static ref EMPTY_STRING: StringKey = "".intern();
-    static ref ARGUMENT_DEFINITIONS: StringKey = "argumentDefinitions".intern();
+    static ref ARGUMENT_DEFINITIONS: DirectiveName = DirectiveName("argumentDefinitions".intern());
     static ref ARGUMENT_TYPE: StringKey = "type".intern();
     static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
+    static ref PROVIDER_ARG_NAME: StringKey = "provider".intern();
 }
 
 pub fn parse_docblock_ast(
     ast: &DocblockAST,
     definitions: Option<&Vec<ExecutableDefinition>>,
+    parse_options: ParseOptions,
 ) -> DiagnosticsResult<Option<DocblockIr>> {
     if ast.find_field(*RELAY_RESOLVER_FIELD).is_none() {
         return Ok(None);
     }
 
-    let parser = RelayResolverParser::new();
+    let parser = RelayResolverParser::new(parse_options);
     let resolver_ir = parser.parse(ast, definitions)?;
-    Ok(Some(DocblockIr::RelayResolver(resolver_ir)))
+    Ok(Some(resolver_ir))
+}
+
+/// Check if this docblock has Resolver Model (type) definition
+pub fn resolver_maybe_defining_type(ast: &DocblockAST) -> bool {
+    ast.find_field(*RELAY_RESOLVER_FIELD)
+        .map_or(false, |field| {
+            if let Some(value) = field.field_value {
+                // If @RelayResolver value contains a `.`
+                // it is mostly likely a terse version of resolver
+                // field definition.
+                // values without `.` will be considered type definitions
+                !value.item.lookup().contains('.')
+            } else {
+                false
+            }
+        })
 }
 
 type ParseResult<T> = Result<T, ()>;
 
-#[derive(Default)]
 struct RelayResolverParser {
     fields: HashMap<StringKey, IrField>,
     description: Option<WithLocation<StringKey>>,
     allowed_fields: Vec<StringKey>,
     errors: Vec<Diagnostic>,
+    options: ParseOptions,
 }
 
 impl RelayResolverParser {
-    fn new() -> Self {
+    fn new(options: ParseOptions) -> Self {
         Self {
             fields: Default::default(),
             description: Default::default(),
@@ -96,14 +132,17 @@ impl RelayResolverParser {
                 *DEPRECATED_FIELD,
                 *LIVE_FIELD,
                 *OUTPUT_TYPE_FIELD,
+                *WEAK_FIELD,
             ],
+            options,
         }
     }
+
     fn parse(
         mut self,
         ast: &DocblockAST,
         definitions_in_file: Option<&Vec<ExecutableDefinition>>,
-    ) -> DiagnosticsResult<RelayResolverIr> {
+    ) -> DiagnosticsResult<DocblockIr> {
         let result = self.parse_sections(ast, definitions_in_file);
         if !self.errors.is_empty() {
             Err(self.errors)
@@ -116,7 +155,7 @@ impl RelayResolverParser {
         &mut self,
         ast: &DocblockAST,
         definitions_in_file: Option<&Vec<ExecutableDefinition>>,
-    ) -> ParseResult<RelayResolverIr> {
+    ) -> ParseResult<DocblockIr> {
         for section in &ast.sections {
             match section {
                 DocblockSection::Field(field) => self.parse_field(field),
@@ -135,27 +174,46 @@ impl RelayResolverParser {
                 }
             }
         }
-        let live = self.fields.get(&LIVE_FIELD).copied();
-        let root_fragment = self.get_field_with_value(*ROOT_FRAGMENT_FIELD)?;
+        let relay_resolver = self.fields.get(&RELAY_RESOLVER_FIELD).copied().unwrap();
+        // Currently, we expect Strong objects to be defined
+        // as @RelayResolver StrongTypeName. No other fields are expected
+        if let Some(type_name) = relay_resolver.value {
+            if !self.options.relay_resolver_model_syntax_enabled {
+                self.errors.push(Diagnostic::error(
+                    "Parsing Relay Models (@RelayResolver `StrongTypeName`) is not enabled.",
+                    relay_resolver.key_location,
+                ));
+
+                return Err(());
+            }
+
+            self.parse_terse_relay_resolver(
+                ast.location,
+                PopulatedIrField {
+                    key_location: relay_resolver.key_location,
+                    value: type_name,
+                },
+                definitions_in_file,
+            )
+        } else {
+            self.parse_relay_resolver(ast.location, definitions_in_file)
+                .map(DocblockIr::RelayResolver)
+        }
+    }
+
+    fn parse_fragment_definition(
+        &mut self,
+        root_fragment: Option<PopulatedIrField>,
+        source_location: SourceLocationKey,
+        field_arguments: &Option<List<InputValueDefinition>>,
+        definitions_in_file: Option<&Vec<ExecutableDefinition>>,
+    ) -> ParseResult<(Option<WithLocation<StringKey>>, Option<Vec<Argument>>)> {
         let fragment_definition = root_fragment
             .map(|root_fragment| {
                 self.assert_fragment_definition(root_fragment.value, definitions_in_file)
             })
             .transpose()?;
 
-        let fragment_type_condition = fragment_definition.as_ref().map(|fragment_definition| {
-            WithLocation::from_span(
-                fragment_definition.location.source_location(),
-                fragment_definition.type_condition.span,
-                fragment_definition.type_condition.type_.value,
-            )
-        });
-        let on = self.assert_on(ast.location, &fragment_type_condition);
-        let field_string = self.assert_field_value_exists(*FIELD_NAME_FIELD, ast.location)?;
-        let field = self.parse_field_definition(field_string)?;
-        self.validate_field_arguments(&field, field_string.location.source_location());
-
-        let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
         let fragment_arguments = fragment_definition
             .as_ref()
             .map(|fragment_definition| self.extract_fragment_arguments(fragment_definition))
@@ -164,14 +222,14 @@ impl RelayResolverParser {
 
         // Validate that the field arguments don't collide with the fragment arguments.
         if let (Some(field_arguments), Some(fragment_definition), Some(fragment_arguments)) =
-            (&field.arguments, &fragment_definition, &fragment_arguments)
+            (&field_arguments, &fragment_definition, &fragment_arguments)
         {
             for field_arg in &field_arguments.items {
                 if let Some(fragment_arg) = fragment_arguments.named(field_arg.name.value) {
                     self.errors.push(
                         Diagnostic::error(
                             ErrorMessages::ConflictingArguments,
-                            field_string.location.with_span(field_arg.name.span),
+                            Location::new(source_location, field_arg.name.span),
                         )
                         .annotate(
                             "conflicts with this fragment argument",
@@ -184,6 +242,43 @@ impl RelayResolverParser {
             }
         }
 
+        let fragment_type_condition = fragment_definition.as_ref().map(|fragment_definition| {
+            WithLocation::from_span(
+                fragment_definition.location.source_location(),
+                fragment_definition.type_condition.span,
+                fragment_definition.type_condition.type_.value,
+            )
+        });
+        Ok((fragment_type_condition, fragment_arguments))
+    }
+
+    fn parse_relay_resolver(
+        &mut self,
+        ast_location: Location,
+        definitions_in_file: Option<&Vec<ExecutableDefinition>>,
+    ) -> ParseResult<RelayResolverIr> {
+        let live = self.fields.get(&LIVE_FIELD).copied();
+
+        let field_string = self.assert_field_value_exists(*FIELD_NAME_FIELD, ast_location)?;
+        let field = self.parse_field_definition(field_string)?;
+        let root_fragment = self.get_field_with_value(*ROOT_FRAGMENT_FIELD)?;
+        let (fragment_type_condition, fragment_arguments) = self.parse_fragment_definition(
+            root_fragment,
+            field_string.location.source_location(),
+            &field.arguments,
+            definitions_in_file,
+        )?;
+
+        let on = self.assert_on(ast_location, &fragment_type_condition);
+        self.validate_field_arguments(&field.arguments, field_string.location.source_location());
+
+        let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
+
+        // For the initial version the name of the export have to match
+        // the name of the resolver field. Adding JS parser capabilities will allow
+        // us to derive the name of the export from the source.
+        let named_import = self.options.use_named_imports.then_some(field.name.value);
+
         Ok(RelayResolverIr {
             field,
             on: on?,
@@ -191,10 +286,11 @@ impl RelayResolverParser {
                 .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
             output_type: self.output_type(),
             description: self.description,
-            location: ast.location,
+            location: ast_location,
             deprecated,
             live,
             fragment_arguments,
+            named_import,
         })
     }
 
@@ -444,17 +540,25 @@ impl RelayResolverParser {
     ) -> ParseResult<Option<Vec<Argument>>> {
         Ok(fragment_definition
             .directives
-            .named(*ARGUMENT_DEFINITIONS)
+            .named(ARGUMENT_DEFINITIONS.0)
             .and_then(|directive| directive.arguments.as_ref())
             .map(|arguments| {
                 arguments
                     .items
                     .iter()
-                    .map(|arg: &graphql_syntax::Argument| {
+                    .filter_map(|arg: &graphql_syntax::Argument| {
                         let (type_, default_value) = if let graphql_syntax::Value::Constant(
                             graphql_syntax::ConstantValue::Object(object),
                         ) = &arg.value
                         {
+                            if object
+                                .items
+                                .iter()
+                                .any(|item| item.name.value == *PROVIDER_ARG_NAME)
+                            {
+                                return None;
+                            }
+
                             let type_value = &object
                                 .items
                                 .iter()
@@ -486,11 +590,11 @@ impl RelayResolverParser {
                             panic!("Expect the constant value for the argDef: {:?}", &arg.value);
                         };
 
-                        type_.map(|type_| Argument {
+                        Some(type_.map(|type_| Argument {
                             name: arg.name.clone(),
                             type_,
                             default_value,
-                        })
+                        }))
                     })
                     .filter_map(|result| result.map_err(|err| self.errors.extend(err)).ok())
                     .collect::<Vec<_>>()
@@ -512,10 +616,10 @@ impl RelayResolverParser {
 
     fn validate_field_arguments(
         &mut self,
-        field: &FieldDefinitionStub,
+        arguments: &Option<List<InputValueDefinition>>,
         source_location: SourceLocationKey,
     ) {
-        if let Some(field_arguments) = &field.arguments {
+        if let Some(field_arguments) = &arguments {
             for argument in field_arguments.items.iter() {
                 if let Some(default_value) = &argument.default_value {
                     self.errors.push(Diagnostic::error(
@@ -525,5 +629,195 @@ impl RelayResolverParser {
                 }
             }
         }
+    }
+
+    fn parse_terse_relay_resolver(
+        &mut self,
+        ast_location: Location,
+        field_value: PopulatedIrField,
+        definitions_in_file: Option<&Vec<ExecutableDefinition>>,
+    ) -> ParseResult<DocblockIr> {
+        let type_str = field_value.value;
+
+        let type_name = match parse_identifier(
+            type_str.item.lookup(),
+            type_str.location.source_location(),
+            type_str.location.span().start,
+        ) {
+            Ok(type_name) => type_name,
+            Err(diagnostics) => {
+                self.errors.extend(diagnostics);
+                return Err(());
+            }
+        };
+
+        let type_ = PopulatedIrField {
+            key_location: field_value.key_location,
+            value: WithLocation::new(type_str.location.with_span(type_name.span), type_name.value),
+        };
+
+        if let Some(terse_resolver) = self.parse_terse_field_definition_tail(
+            ast_location,
+            type_str,
+            type_name,
+            definitions_in_file,
+        )? {
+            Ok(DocblockIr::TerseRelayResolver(terse_resolver))
+        } else if self.fields.get(&WEAK_FIELD).is_some() {
+            self.parse_weak_type(ast_location, type_)
+                .map(DocblockIr::WeakObjectType)
+        } else {
+            self.parse_strong_object(ast_location, type_)
+                .map(DocblockIr::StrongObjectResolver)
+        }
+    }
+
+    // If present, parse the `.field_name(argument: String): ReturnType`
+    // following a `TypeName`.
+    fn parse_terse_field_definition_tail(
+        &mut self,
+        ast_location: Location,
+        type_str: WithLocation<StringKey>,
+        type_name: graphql_syntax::Identifier,
+        definitions_in_file: Option<&Vec<ExecutableDefinition>>,
+    ) -> ParseResult<Option<TerseRelayResolverIr>> {
+        let (start, end) = type_name.span.as_usize();
+        let offset = end - start;
+        let remaining_source = &type_str.item.lookup()[offset..];
+        let span_start = type_str.location.span().start + offset as u32;
+
+        match remaining_source.chars().next() {
+            Some(maybe_dot) => {
+                if !self.options.relay_resolver_enable_terse_syntax {
+                    self.errors.push(Diagnostic::error(
+                        ErrorMessages::UnexpectedTerseSyntax { found: maybe_dot },
+                        type_str.location,
+                    ));
+                    return Err(());
+                }
+                if maybe_dot != '.' {
+                    self.errors.push(Diagnostic::error(
+                        ErrorMessages::UnexpectedNonDot { found: maybe_dot },
+                        type_str
+                            .location
+                            .with_span(Span::new(span_start, span_start + 1)),
+                    ));
+                    return Err(());
+                }
+            }
+            None => return Ok(None),
+        };
+
+        let field = match parse_field_definition(
+            &remaining_source[1..],
+            type_str.location.source_location(),
+            span_start + 1,
+        ) {
+            Ok(field) => field,
+            Err(diagnostics) => {
+                self.errors.extend(diagnostics);
+                return Err(());
+            }
+        };
+
+        self.validate_field_arguments(&field.arguments, ast_location.source_location());
+        let root_fragment = self.get_field_with_value(*ROOT_FRAGMENT_FIELD)?;
+
+        let (maybe_fragment_type_condition, fragment_arguments) = self.parse_fragment_definition(
+            root_fragment,
+            type_str.location.source_location(),
+            &field.arguments,
+            definitions_in_file,
+        )?;
+
+        if let Some(fragment_type_condition) = maybe_fragment_type_condition {
+            if fragment_type_condition.item != type_name.value {
+                self.errors.push(
+                    Diagnostic::error(
+                        ErrorMessages::MismatchRootFragmentTypeConditionTerseSyntax {
+                            fragment_type_condition: fragment_type_condition.item,
+                            type_name: type_name.value,
+                        },
+                        type_str.location.with_span(type_name.span),
+                    )
+                    .annotate(
+                        "with fragment type condition",
+                        fragment_type_condition.location,
+                    ),
+                );
+            }
+        }
+
+        let live = self.fields.get(&LIVE_FIELD).copied();
+        let deprecated = self.fields.get(&DEPRECATED_FIELD).copied();
+
+        let location = type_str.location;
+
+        // These fields are subsumed by the terse syntax, and as such cannot be used with terse syntax.
+        for forbidden_field_name in &[
+            *FIELD_NAME_FIELD,
+            *ON_TYPE_FIELD,
+            *ON_INTERFACE_FIELD,
+            *EDGE_TO_FIELD,
+            *OUTPUT_TYPE_FIELD,
+            *WEAK_FIELD,
+        ] {
+            if let Some(field) = self.fields.get(forbidden_field_name) {
+                self.errors.push(Diagnostic::error(
+                    ErrorMessages::UnexpectedFieldInTerseSyntax {
+                        field_name: *forbidden_field_name,
+                    },
+                    field.key_location,
+                ));
+            }
+        }
+        let named_import = self.options.use_named_imports.then_some(field.name.value);
+        Ok(Some(TerseRelayResolverIr {
+            field,
+            type_: WithLocation::new(type_str.location.with_span(type_name.span), type_name.value),
+            root_fragment: root_fragment
+                .map(|root_fragment| root_fragment.value.map(FragmentDefinitionName)),
+            location,
+            deprecated,
+            live,
+            fragment_arguments,
+            named_import,
+        }))
+    }
+
+    fn parse_strong_object(
+        &self,
+        ast_location: Location,
+        type_: PopulatedIrField,
+    ) -> ParseResult<StrongObjectIr> {
+        // For Relay Models (Strong object) we'll automatically inject the
+        // fragment with `id` field.
+        let fragment_name = FragmentDefinitionName(
+            format!("{}__{}", type_.value.item, self.options.id_field_name).intern(),
+        );
+
+        Ok(StrongObjectIr {
+            type_,
+            root_fragment: WithLocation::generated(fragment_name),
+            description: self.description,
+            deprecated: self.fields.get(&DEPRECATED_FIELD).copied(),
+            live: self.fields.get(&LIVE_FIELD).copied(),
+            location: ast_location,
+            named_import: self.options.use_named_imports.then_some(type_.value.item),
+        })
+    }
+
+    fn parse_weak_type(
+        &self,
+        ast_location: Location,
+        type_: PopulatedIrField,
+    ) -> ParseResult<WeakObjectIr> {
+        // TODO: Validate that no incompatible docblock fields are used.
+        Ok(WeakObjectIr {
+            type_name: type_,
+            description: self.description,
+            deprecated: self.fields.get(&DEPRECATED_FIELD).copied(),
+            location: ast_location,
+        })
     }
 }

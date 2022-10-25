@@ -7,6 +7,7 @@
 
 use std::collections::HashMap;
 
+use common::ArgumentName;
 use common::Location;
 use common::NamedItem;
 use graphql_ir::Argument;
@@ -56,7 +57,7 @@ impl Scope {
         let mut bindings = HashMap::<VariableName, Value>::default();
         for variable_definition in &fragment.variable_definitions {
             let arg_name = variable_definition.name.item;
-            let arg_value = match arguments.named(arg_name.0) {
+            let arg_value = match arguments.named(ArgumentName(arg_name.0)) {
                 Some(arg_from_spread) => {
                     if arg_from_spread.value.item == Value::Constant(ConstantValue::Null()) {
                         if let Some(default_value) = &variable_definition.default_value {
@@ -111,6 +112,7 @@ mod tests {
     use intern::string_key::Intern;
     use relay_test_schema::TEST_SCHEMA;
     use schema::Schema;
+    use schema::Type;
     use schema::TypeReference;
 
     use super::*;
@@ -123,7 +125,7 @@ mod tests {
         WithLocation::new(default_location(), item)
     }
 
-    fn optional_int_type_reference() -> TypeReference {
+    fn optional_int_type_reference() -> TypeReference<Type> {
         TypeReference::Named(TEST_SCHEMA.get_type("Int".intern()).unwrap())
     }
 

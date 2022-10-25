@@ -125,7 +125,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
   });
 
   const {fragmentNode, fragmentRef} = preparedQueryResult;
-  const {data} = useFragmentNode(
+  const {data} = useFragmentNode<$FlowFixMe>(
     fragmentNode,
     fragmentRef,
     componentDisplayName,

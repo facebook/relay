@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<a59157cdc2c6826fb66755912f1d3123>>
+ * @generated SignedSource<<70f7290bc6ed34aa91a70ebd164f988f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.graphql";
-import userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolver from "../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js";
+import {user_profile_picture_uri_suspends_when_the_counter_is_odd as userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolver} from "../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd.js";
 // Type assertion validating that `userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriSuspendsWhenTheCounterIsOddResolver: (
@@ -108,7 +108,7 @@ return {
                 },
                 "kind": "RelayLiveResolver",
                 "name": "user_profile_picture_uri_suspends_when_the_counter_is_odd",
-                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd'),
+                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserProfilePictureUriSuspendsWhenTheCounterIsOdd').user_profile_picture_uri_suspends_when_the_counter_is_odd,
                 "path": "node.user_profile_picture_uri_suspends_when_the_counter_is_odd"
               }
             ],
@@ -148,21 +148,61 @@ return {
             "selections": [
               (v2/*: any*/),
               {
-                "alias": null,
-                "args": (v3/*: any*/),
-                "concreteType": "Image",
-                "kind": "LinkedField",
-                "name": "profile_picture",
-                "plural": false,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "uri",
-                    "storageKey": null
-                  }
-                ],
+                "name": "user_profile_picture_uri_suspends_when_the_counter_is_odd",
+                "args": null,
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "name": "greeting",
+                      "args": null,
+                      "fragment": {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          (v2/*: any*/)
+                        ],
+                        "type": "User",
+                        "abstractKey": null
+                      },
+                      "kind": "RelayResolver",
+                      "storageKey": null
+                    },
+                    {
+                      "name": "user_profile_picture_uri_with_scale",
+                      "args": null,
+                      "fragment": {
+                        "kind": "InlineFragment",
+                        "selections": [
+                          {
+                            "alias": null,
+                            "args": (v3/*: any*/),
+                            "concreteType": "Image",
+                            "kind": "LinkedField",
+                            "name": "profile_picture",
+                            "plural": false,
+                            "selections": [
+                              {
+                                "alias": null,
+                                "args": null,
+                                "kind": "ScalarField",
+                                "name": "uri",
+                                "storageKey": null
+                              }
+                            ],
+                            "storageKey": null
+                          }
+                        ],
+                        "type": "User",
+                        "abstractKey": null
+                      },
+                      "kind": "RelayResolver",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
                 "storageKey": null
               }
             ],

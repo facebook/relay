@@ -31,6 +31,8 @@ impl<'a> TypeAnnotationParent<'a> {
 
 #[cfg(test)]
 mod tests {
+    use intern::Lookup;
+
     use super::*;
     use crate::test::test_resolution;
 

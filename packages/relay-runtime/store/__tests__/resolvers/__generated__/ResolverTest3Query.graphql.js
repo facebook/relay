@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<802940de4bb5fba8194be98d01ada3a2>>
+ * @generated SignedSource<<a89375bc921d4ef55a1925ddd7b1c214>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserClientEdgeResolver$key } from "./UserClientEdgeResolver.graphql";
-import userClientEdgeResolver from "../UserClientEdgeResolver.js";
+import {client_edge as userClientEdgeResolver} from "../UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientEdgeResolver: (
@@ -69,7 +69,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "client_edge",
-              "resolverModule": require('./../UserClientEdgeResolver'),
+              "resolverModule": require('./../UserClientEdgeResolver').client_edge,
               "path": "me.client_edge"
             },
             "linkedField": {
@@ -113,10 +113,23 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "client_edge",
             "args": null,
-            "kind": "ScalarField",
-            "name": "name",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

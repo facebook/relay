@@ -23,7 +23,7 @@ const {disallowWarnings} = require('relay-test-utils-internal');
 disallowWarnings();
 
 describe('isServer', () => {
-  const fetch = () => Observable.create(() => {});
+  const fetch = () => Observable.create<any>(() => {});
   it('defaults to false', () => {
     const environment = new Environment({
       network: Network.create(fetch),

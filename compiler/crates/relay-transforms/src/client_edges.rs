@@ -13,6 +13,7 @@ use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
+use common::ObjectName;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
@@ -34,13 +35,13 @@ use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
 use schema::Schema;
 use schema::Type;
 
 use super::ValidationMessageWithData;
-use crate::generate_relay_resolvers_operations_for_nested_objects::generate_name_for_nested_object_operation;
 use crate::refetchable_fragment::RefetchableFragment;
 use crate::refetchable_fragment::REFETCHABLE_NAME;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
@@ -56,7 +57,6 @@ lazy_static! {
     // This gets attached to fragment which defines the selection in the generated query
     pub static ref CLIENT_EDGE_GENERATED_FRAGMENT_KEY: DirectiveName = DirectiveName("__clientEdgeGeneratedFragment".intern());
     pub static ref CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME: DirectiveName = DirectiveName("waterfall".intern());
-    pub static ref RELAY_RESOLVER_IS_OUTPUT_TYPE: ArgumentName  = ArgumentName("is_output_type".intern());
 }
 
 /// Directive added to inline fragments created by the transform. The inline
@@ -73,9 +73,8 @@ pub enum ClientEdgeMetadataDirective {
         unique_id: u32,
     },
     ClientObject {
-        type_name: StringKey,
+        type_name: ObjectName,
         unique_id: u32,
-        normalization_operation: Option<WithLocation<OperationDefinitionName>>,
     },
 }
 associated_data_impl!(ClientEdgeMetadataDirective);
@@ -297,7 +296,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
         let waterfall_directive = field
             .directives()
-            .named(CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME.0);
+            .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME);
 
         if !is_client_edge {
             // Non-Client-Edge fields do not incur a waterfall, and thus should
@@ -355,19 +354,6 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 ));
             }
 
-            let is_resolver_with_output_type = resolver_directive
-                .and_then(|directive| directive.arguments.named(RELAY_RESOLVER_IS_OUTPUT_TYPE.0))
-                .is_some();
-
-            let normalization_operation_name = if is_resolver_with_output_type {
-                Some(generate_name_for_nested_object_operation(
-                    &self.program.schema,
-                    self.program.schema.field(field.definition().item),
-                ))
-            } else {
-                None
-            };
-
             match edge_to_type {
                 Type::Interface(_) => {
                     self.errors.push(Diagnostic::error(
@@ -386,7 +372,6 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                 Type::Object(object_id) => ClientEdgeMetadataDirective::ClientObject {
                     type_name: schema.object(object_id).name.item,
                     unique_id: self.get_key(),
-                    normalization_operation: normalization_operation_name,
                 },
                 _ => {
                     panic!(
@@ -419,7 +404,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
         let mut inline_fragment_directives: Vec<Directive> = vec![metadata_directive.into()];
         if let Some(required_directive_metadata) = field
             .directives
-            .named(RequiredMetadataDirective::directive_name().0)
+            .named(RequiredMetadataDirective::directive_name())
             .cloned()
         {
             inline_fragment_directives.push(required_directive_metadata);
@@ -509,7 +494,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
     ) -> Transformed<Selection> {
         if let Some(directive) = field
             .directives()
-            .named(CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME.0)
+            .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
         {
             self.errors.push(Diagnostic::error_with_data(
                 ValidationMessageWithData::RelayResolversUnexpectedWaterfall,

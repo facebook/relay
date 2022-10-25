@@ -145,7 +145,7 @@ describe.skip('useQueryLoader-react-double-effects', () => {
 
     loaderRenderLogs = [];
     LoaderComponent = function (props: any) {
-      const [queryRef] = useQueryLoader(gqlQuery, props.initialQueryRef);
+      const [queryRef] = useQueryLoader<empty>(gqlQuery, props.initialQueryRef);
 
       const queryRefId = queryRef == null ? 'null' : queryRef.id ?? 'Unknown';
       useEffect(() => {

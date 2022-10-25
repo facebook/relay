@@ -14,9 +14,12 @@ use fnv::FnvHashMap;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
 use graphql_text_printer::OperationPrinter;
+use graphql_text_printer::PrinterOptions;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use relay_transforms::ClientEdgeGeneratedQueryMetadataDirective;
 use relay_transforms::Programs;
+use relay_transforms::RawResponseGenerationMode;
 use relay_transforms::RefetchableDerivedFromMetadata;
 use relay_transforms::SplitOperationMetadata;
 use relay_transforms::CLIENT_EDGE_GENERATED_FRAGMENT_KEY;
@@ -45,19 +48,26 @@ pub fn generate_artifacts(
     programs: &Programs,
     source_hashes: Arc<SourceHashes>,
 ) -> Vec<Artifact> {
-    let mut operation_printer = OperationPrinter::new(&programs.operation_text);
+    let printer_options = PrinterOptions {
+        compact: project_config
+            .feature_flags
+            .compact_query_text
+            .is_fully_enabled(),
+        ..Default::default()
+    };
+    let mut operation_printer = OperationPrinter::new(&programs.operation_text, printer_options);
     return group_operations(programs)
         .into_iter()
         .map(|(_, operations)| -> Artifact {
             if let Some(normalization) = operations.normalization {
                 // We have a normalization AST... so we'll move forward with that
-                if let Some(directive) = normalization.directives.named(DIRECTIVE_SPLIT_OPERATION.0)
+                if let Some(directive) = normalization.directives.named(*DIRECTIVE_SPLIT_OPERATION)
                 {
                     // Generate normalization file for SplitOperation
                     let metadata = SplitOperationMetadata::from(directive);
                     let source_file = metadata.location.source_location();
                     let source_hash = metadata.derived_from.and_then(|derived_from| source_hashes.get(&derived_from.0).cloned());
-                    let typegen_operation = if metadata.raw_response_type {
+                    let typegen_operation = if metadata.raw_response_type_generation_mode.is_some() {
                         Some(Arc::clone(normalization))
                     } else {
                         None
@@ -70,6 +80,7 @@ pub fn generate_artifacts(
                         content: ArtifactContent::SplitOperation {
                             normalization_operation: Arc::clone(normalization),
                             typegen_operation,
+                            no_optional_fields_in_raw_response_type: matches!(metadata.raw_response_type_generation_mode, Some(RawResponseGenerationMode::AllFieldsRequired)),
                             source_hash,
                         },
                         source_file,
@@ -149,11 +160,11 @@ pub fn generate_artifacts(
         .chain(programs.reader.fragments().map(|reader_fragment| {
             let source_name = if let Some(client_edges_directive) = reader_fragment
                 .directives
-                .named(CLIENT_EDGE_GENERATED_FRAGMENT_KEY.0)
+                .named(*CLIENT_EDGE_GENERATED_FRAGMENT_KEY)
             {
                 client_edges_directive
                     .arguments
-                    .named(CLIENT_EDGE_SOURCE_NAME.0)
+                    .named(*CLIENT_EDGE_SOURCE_NAME)
                     .expect("Client edges should have a source argument")
                     .value
                     .item
@@ -162,7 +173,7 @@ pub fn generate_artifacts(
                 reader_fragment.name.item.0
             };
 
-            let source_hash = source_hashes.get(&source_name).cloned().unwrap();
+            let source_hash = source_hashes.get(&source_name).cloned();
             let source_definition_names = vec![source_name];
             generate_reader_artifact(
                 project_config,
@@ -233,7 +244,7 @@ fn generate_reader_artifact(
     project_config: &ProjectConfig,
     programs: &Programs,
     reader_fragment: &Arc<FragmentDefinition>,
-    source_hash: String,
+    source_hash: Option<String>,
     source_definition_names: Vec<StringKey>,
 ) -> Artifact {
     let name = reader_fragment.name.item;

@@ -34,4 +34,6 @@ function outer(rootKey: OuterResolver$key): number | null | void {
   return data.inner;
 }
 
-module.exports = outer;
+module.exports = {
+  outer,
+};

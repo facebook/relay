@@ -1,0 +1,19 @@
+query relayResolverWithoutFragmentOnClientTypeQuery {
+  client_type {
+    resolver_field
+  }
+}
+
+# %extensions%
+
+type ClientType {
+  id: ID!
+}
+
+extend type Query {
+  client_type: ClientType
+}
+
+extend type ClientType {
+  resolver_field: String @relay_resolver(import_path: "./path/to/Resolver.js")
+}

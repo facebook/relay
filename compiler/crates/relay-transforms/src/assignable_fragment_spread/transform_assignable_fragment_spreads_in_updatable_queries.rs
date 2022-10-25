@@ -26,8 +26,9 @@ use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
 
+use crate::UPDATABLE_DIRECTIVE;
+
 lazy_static! {
-    static ref UPDATABLE_DIRECTIVE: StringKey = "updatable".intern();
     pub static ref ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN: DirectiveName =
         DirectiveName("__assignable".intern());
 }

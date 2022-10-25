@@ -1,0 +1,25 @@
+fragment relayResolverEsModules_PopStarNameResolverFragment_name on User {
+  name
+}
+
+query relayResolverEsModules_Query {
+  node(id: "SOME_ID") {
+    ... on User {
+      pop_star_name
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "relayResolverEsModules_PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", import_name: "pop_star_name")
+}
+
+
+%project_config%
+{
+  "eagerEsModules": true,
+  "language": "flow",
+  "jsModuleFormat": "haste"
+}

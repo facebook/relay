@@ -599,7 +599,9 @@ Text Schema:Schema {
     InputObject {
         name: WithLocation {
             location: <generated>:775:782,
-            item: "Country",
+            item: InputObjectName(
+                "Country",
+            ),
         },
         fields: [
             Argument {
@@ -660,7 +662,9 @@ Text Schema:Schema {
     Interface {
         name: WithLocation {
             location: <generated>:427:435,
-            item: "XIGHuman",
+            item: InterfaceName(
+                "XIGHuman",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [],
@@ -715,7 +719,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:342:347,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -729,7 +735,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:505:509,
-            item: "User",
+            item: ObjectName(
+                "User",
+            ),
         },
         is_extension: false,
         fields: [
@@ -768,7 +776,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:702:716,
-            item: "MailingAddress",
+            item: ObjectName(
+                "MailingAddress",
+            ),
         },
         is_extension: false,
         fields: [
@@ -783,7 +793,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:872:880,
-            item: "XIGStory",
+            item: ObjectName(
+                "XIGStory",
+            ),
         },
         is_extension: false,
         fields: [
@@ -856,7 +868,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:187:190,
-            item: "Int",
+            item: ScalarName(
+                "Int",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -865,7 +879,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:198:203,
-            item: "Float",
+            item: ScalarName(
+                "Float",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -874,7 +890,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:211:217,
-            item: "String",
+            item: ScalarName(
+                "String",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -883,7 +901,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:225:232,
-            item: "Boolean",
+            item: ScalarName(
+                "Boolean",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -892,7 +912,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:240:242,
-            item: "ID",
+            item: ScalarName(
+                "ID",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -901,7 +923,9 @@ Text Schema:Schema {
     Scalar {
         name: WithLocation {
             location: <generated>:293:295,
-            item: "ID",
+            item: ScalarName(
+                "ID",
+            ),
         },
         is_extension: false,
         directives: [
@@ -1436,7 +1460,9 @@ input_objects: [
     InputObject {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Country",
+            item: InputObjectName(
+                "Country",
+            ),
         },
         fields: [
             Argument {
@@ -1497,7 +1523,9 @@ interfaces: [
     Interface {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "XIGHuman",
+            item: InterfaceName(
+                "XIGHuman",
+            ),
         },
         is_extension: false,
         implementing_interfaces: [],
@@ -1552,7 +1580,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "MailingAddress",
+            item: ObjectName(
+                "MailingAddress",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1567,7 +1597,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1581,7 +1613,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "User",
+            item: ObjectName(
+                "User",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1620,7 +1654,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "XIGStory",
+            item: ObjectName(
+                "XIGStory",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1693,7 +1729,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Boolean",
+            item: ScalarName(
+                "Boolean",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -1702,7 +1740,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Float",
+            item: ScalarName(
+                "Float",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -1711,7 +1751,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "ID",
+            item: ScalarName(
+                "ID",
+            ),
         },
         is_extension: false,
         directives: [
@@ -1756,7 +1798,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Int",
+            item: ScalarName(
+                "Int",
+            ),
         },
         is_extension: false,
         directives: [],
@@ -1765,7 +1809,9 @@ scalars: [
     Scalar {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "String",
+            item: ScalarName(
+                "String",
+            ),
         },
         is_extension: false,
         directives: [],

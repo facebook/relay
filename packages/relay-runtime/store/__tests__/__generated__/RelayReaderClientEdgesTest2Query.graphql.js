@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<2de81c54a8df2fc4aa3dadd8e4478040>>
+ * @generated SignedSource<<7875a300023db8ab23892bb4c9597348>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserClientEdgeResolver$key } from "./../resolvers/__generated__/UserClientEdgeResolver.graphql";
-import userClientEdgeResolver from "../resolvers/UserClientEdgeResolver.js";
+import {client_edge as userClientEdgeResolver} from "../resolvers/UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientEdgeResolver: (
@@ -42,13 +42,15 @@ export type RelayReaderClientEdgesTest2Query = {|
 */
 
 var node/*: ConcreteRequest*/ = (function(){
-var v0 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "name",
-  "storageKey": null
-};
+var v0 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "name",
+    "storageKey": null
+  }
+];
 return {
   "fragment": {
     "argumentDefinitions": [],
@@ -79,7 +81,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "client_edge",
-              "resolverModule": require('./../resolvers/UserClientEdgeResolver'),
+              "resolverModule": require('./../resolvers/UserClientEdgeResolver').client_edge,
               "path": "me.client_edge"
             },
             "linkedField": {
@@ -97,9 +99,7 @@ return {
                   "kind": "LinkedField",
                   "name": "author",
                   "plural": false,
-                  "selections": [
-                    (v0/*: any*/)
-                  ],
+                  "selections": (v0/*: any*/),
                   "storageKey": null
                 }
               ],
@@ -127,7 +127,18 @@ return {
         "name": "me",
         "plural": false,
         "selections": [
-          (v0/*: any*/),
+          {
+            "name": "client_edge",
+            "args": null,
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": (v0/*: any*/),
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null
+          },
           {
             "alias": null,
             "args": null,

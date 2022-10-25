@@ -30,6 +30,7 @@ type Human implements Hominid @fetchable(field_name: "id") {
   pet: OtherPet
   friends(location: Location, radius: Int!, Country: String): [Human]
   location: Location
+  location: ID
   other_friends(location: Location, location: Location): [Human]
 }
 
@@ -73,10 +74,12 @@ Type Human with definition:
   pet: OtherPet
   friends(location: Location, radius: Int!, Country: String): [Human]
   location: Location
+  location: ID
   other_friends(location: Location, location: Location): [Human]
 }
 had errors:
 	* Duplicate argument 'location' found on field/directive 'other_friends'.
+	* Duplicate field 'location' found.
 	* Interface field 'Hominid.pet' expects type 'Canine' but 'Human.pet' is of type 'OtherPet'.
 	* Object field 'Human.friends' includes required argument 'radius' that is missing from the Interface field 'Hominid.friends'.
 	* The type of 'Human.location' must be Output Type but got: 'Named(InputObject(0))'.

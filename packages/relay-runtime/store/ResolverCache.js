@@ -17,6 +17,7 @@ import type {
 } from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  DataIDSet,
   MutableRecordSource,
   Record,
   RelayResolverError,
@@ -42,7 +43,6 @@ type ResolverID = string;
 
 export type EvaluationResult<T> = {
   resolverResult: ?T,
-  resolverID: ResolverID,
   snapshot: ?Snapshot,
   error: ?RelayResolverError,
 };
@@ -68,11 +68,13 @@ export interface ResolverCache {
     ?RelayResolverError,
     ?Snapshot,
     ?DataID /* ID of record containing a suspended Live field */,
+    ?DataIDSet /** Set of updated records after read. Then need to be consumed by `processFollowupUpdates` */,
   ];
   invalidateDataIDs(
-    updatedDataIDs: Set<DataID>, // Mutated in place
+    updatedDataIDs: DataIDSet, // Mutated in place
   ): void;
   ensureClientRecord(id: string, typename: string): DataID;
+  notifyUpdatedSubscribers(updatedDataIDs: DataIDSet): void;
 }
 
 // $FlowFixMe[unclear-type] - will always be empty
@@ -91,6 +93,7 @@ class NoopResolverCache implements ResolverCache {
     ?RelayResolverError,
     ?Snapshot,
     ?DataID /* ID of record containing a suspended Live field */,
+    ?DataIDSet /** Set of dirty records after read */,
   ] {
     invariant(
       field.kind !== RELAY_LIVE_RESOLVER,
@@ -98,15 +101,16 @@ class NoopResolverCache implements ResolverCache {
     );
     const {resolverResult, snapshot, error} = evaluate();
 
-    return [resolverResult, undefined, error, snapshot, undefined];
+    return [resolverResult, undefined, error, snapshot, undefined, undefined];
   }
-  invalidateDataIDs(updatedDataIDs: Set<DataID>): void {}
+  invalidateDataIDs(updatedDataIDs: DataIDSet): void {}
   ensureClientRecord(id: string, typeName: string): DataID {
     invariant(
       false,
       'Client Edges to Client Objects are not supported in this version of Relay Store',
     );
   }
+  notifyUpdatedSubscribers(updatedDataIDs: DataIDSet): void {}
 }
 
 function addDependencyEdge(
@@ -146,12 +150,13 @@ class RecordResolverCache implements ResolverCache {
     ?RelayResolverError,
     ?Snapshot,
     ?DataID /* ID of record containing a suspended Live field */,
+    ?DataIDSet /** Set of dirty records after read */,
   ] {
     const recordSource = this._getRecordSource();
 
     // NOTE: Be very careful with `record` in this scope. After `evaluate` has
     // been called, the `record` we have here may have been replaced in the
-    // Relay store with a new record containing new informaiton about nested
+    // Relay store with a new record containing new information about nested
     // resolvers on this parent record.
     const record = recordSource.get(recordID);
     invariant(record != null, 'We expect record to exist in the store.');
@@ -188,7 +193,7 @@ class RecordResolverCache implements ResolverCache {
       // Link the resolver value record to the resolver field of the record being read:
 
       // Note: We get a fresh instance of the parent record from the record
-      // source, becuase it may have been updated when we traversed into child
+      // source, because it may have been updated when we traversed into child
       // resolvers.
       const currentRecord = recordSource.get(recordID);
       invariant(
@@ -199,18 +204,21 @@ class RecordResolverCache implements ResolverCache {
       RelayModernRecord.setLinkedRecordID(nextRecord, storageKey, linkedID);
       recordSource.set(recordID, nextRecord);
 
-      // Put records observed by the resolver into the dependency graph:
-      const resolverID = evaluationResult.resolverID;
-      addDependencyEdge(this._resolverIDToRecordIDs, resolverID, linkedID);
-      addDependencyEdge(this._recordIDToResolverIDs, recordID, resolverID);
-      const seenRecordIds = evaluationResult.snapshot?.seenRecords;
-      if (seenRecordIds != null) {
-        for (const seenRecordID of seenRecordIds) {
-          addDependencyEdge(
-            this._recordIDToResolverIDs,
-            seenRecordID,
-            resolverID,
-          );
+      if (field.fragment != null) {
+        // Put records observed by the resolver into the dependency graph:
+        const fragmentStorageKey = getStorageKey(field.fragment, variables);
+        const resolverID = generateClientID(recordID, fragmentStorageKey);
+        addDependencyEdge(this._resolverIDToRecordIDs, resolverID, linkedID);
+        addDependencyEdge(this._recordIDToResolverIDs, recordID, resolverID);
+        const seenRecordIds = evaluationResult.snapshot?.seenRecords;
+        if (seenRecordIds != null) {
+          for (const seenRecordID of seenRecordIds) {
+            addDependencyEdge(
+              this._recordIDToResolverIDs,
+              seenRecordID,
+              resolverID,
+            );
+          }
         }
       }
     }
@@ -222,7 +230,7 @@ class RecordResolverCache implements ResolverCache {
     // $FlowFixMe[incompatible-type] - casting mixed
     const error: ?RelayResolverError = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
 
-    return [answer, linkedID, error, snapshot, undefined];
+    return [answer, linkedID, error, snapshot, undefined, undefined];
   }
 
   invalidateDataIDs(
@@ -312,6 +320,13 @@ class RecordResolverCache implements ResolverCache {
     invariant(
       false,
       'Client Edges to Client Objects are not supported in this version of Relay Store',
+    );
+  }
+
+  notifyUpdatedSubscribers(updatedDataIDs: DataIDSet): void {
+    invariant(
+      false,
+      'Processing @outputType records is not supported in this version of Relay Store',
     );
   }
 }

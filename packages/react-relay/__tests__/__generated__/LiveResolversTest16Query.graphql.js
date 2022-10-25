@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<371dde8e05a1b91e3077a7f7b10a2a6a>>
+ * @generated SignedSource<<e6b300f918cb35f7d0c05f69b357f100>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +19,7 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import queryLiveResolverWithBadReturnValueResolver from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverWithBadReturnValue.js";
+import {live_resolver_with_bad_return_value as queryLiveResolverWithBadReturnValueResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverWithBadReturnValue.js";
 // Type assertion validating that `queryLiveResolverWithBadReturnValueResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveResolverWithBadReturnValueResolver: () => LiveState<any>);
@@ -49,7 +49,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "live_resolver_with_bad_return_value",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverWithBadReturnValue'),
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverWithBadReturnValue').live_resolver_with_bad_return_value,
             "path": "live_resolver_with_bad_return_value"
           }
         ]
@@ -68,10 +68,10 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
+            "name": "live_resolver_with_bad_return_value",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

@@ -12,6 +12,7 @@
 'use strict';
 
 import type {
+  EnvironmentProviderOptions,
   LoadQueryOptions,
   PreloadableConcreteRequest,
   PreloadedQueryInner,
@@ -55,7 +56,10 @@ function useTrackLoadQueryInRender() {
   }
 }
 
-function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
+function loadQuery<
+  TQuery: OperationType,
+  TEnvironmentProviderOptions = EnvironmentProviderOptions,
+>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
   variables: TQuery['variables'],
@@ -116,7 +120,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   // of the operation, and then replay them to the Observable we
   // ultimately return.
   const executionSubject = new ReplaySubject();
-  const returnedObservable = Observable.create(sink =>
+  const returnedObservable = Observable.create<GraphQLResponse>(sink =>
     executionSubject.subscribe(sink),
   );
 

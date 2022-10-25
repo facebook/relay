@@ -11,9 +11,10 @@
 
 'use strict';
 
+import type {ActorIdentifier} from '../../multi-actor-environment/ActorIdentifier';
 import type {DataID, Disposable} from '../../util/RelayRuntimeTypes';
 import type {Availability} from '../DataChecker';
-import type {GetDataID} from '../RelayResponseNormalizer';
+import type {GetDataID, NormalizationOptions} from '../RelayResponseNormalizer';
 import type {
   CheckOptions,
   DataIDSet,
@@ -22,6 +23,8 @@ import type {
   OperationAvailability,
   OperationDescriptor,
   OperationLoader,
+  ReactFlightPayloadDeserializer,
+  ReactFlightServerErrorHandler,
   RecordSource,
   RequestDescriptor,
   Scheduler,
@@ -30,10 +33,11 @@ import type {
   Store,
   StoreSubscriptions,
 } from '../RelayStoreTypes';
+import type {UpdatedRecords} from './LiveResolverCache';
 
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-  assertInternalActorIndentifier,
+  assertInternalActorIdentifier,
 } = require('../../multi-actor-environment/ActorIdentifier');
 const deepFreeze = require('../../util/deepFreeze');
 const resolveImmediate = require('../../util/resolveImmediate');
@@ -47,7 +51,7 @@ const RelayStoreReactFlightUtils = require('../RelayStoreReactFlightUtils');
 const RelayStoreSubscriptions = require('../RelayStoreSubscriptions');
 const RelayStoreUtils = require('../RelayStoreUtils');
 const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
-const {LiveResolverCache} = require('./LiveResolverCache');
+const {LiveResolverCache, getUpdatedDataIDs} = require('./LiveResolverCache');
 const invariant = require('invariant');
 
 export type LiveState<T> = {
@@ -105,18 +109,26 @@ class LiveResolverStore implements Store {
   _shouldScheduleGC: boolean;
   _storeSubscriptions: StoreSubscriptions;
   _updatedRecordIDs: DataIDSet;
-  _shouldProcessClientComponents: ?boolean;
+  _actorIdentifier: ?ActorIdentifier;
+  _treatMissingFieldsAsNull: boolean;
+  _reactFlightPayloadDeserializer: ?ReactFlightPayloadDeserializer;
+  _reactFlightServerErrorHandler: ?ReactFlightServerErrorHandler;
+  _shouldProcessClientComponents: boolean;
 
   constructor(
     source: MutableRecordSource,
     options?: {
+      actorIdentifier?: ?ActorIdentifier,
+      gcReleaseBufferSize?: ?number,
       gcScheduler?: ?Scheduler,
+      getDataID?: ?GetDataID,
       log?: ?LogFunction,
       operationLoader?: ?OperationLoader,
-      getDataID?: ?GetDataID,
-      gcReleaseBufferSize?: ?number,
       queryCacheExpirationTime?: ?number,
+      reactFlightPayloadDeserializer?: ?ReactFlightPayloadDeserializer,
+      reactFlightServerErrorHandler?: ?ReactFlightServerErrorHandler,
       shouldProcessClientComponents?: ?boolean,
+      treatMissingFieldsAsNull?: ?boolean,
     },
   ) {
     // Prevent mutation of a record from outside the store.
@@ -156,8 +168,14 @@ class LiveResolverStore implements Store {
       this._resolverCache,
     );
     this._updatedRecordIDs = new Set();
+    this._treatMissingFieldsAsNull = options?.treatMissingFieldsAsNull ?? false;
+    this._actorIdentifier = options?.actorIdentifier;
+    this._reactFlightPayloadDeserializer =
+      options?.reactFlightPayloadDeserializer;
+    this._reactFlightServerErrorHandler =
+      options?.reactFlightServerErrorHandler;
     this._shouldProcessClientComponents =
-      options?.shouldProcessClientComponents;
+      options?.shouldProcessClientComponents ?? false;
 
     initializeRecordSource(this._recordSource);
   }
@@ -172,6 +190,29 @@ class LiveResolverStore implements Store {
 
   getLiveResolverPromise(recordID: DataID): Promise<void> {
     return this._resolverCache.getLiveResolverPromise(recordID);
+  }
+
+  /**
+   * When an external data proider knows it's going to notify us about multiple
+   * Live Resolver state updates in a single tick, it can batch them into a
+   * single Relay update by notifying us within a batch. All updates recieved by
+   * Relay during the evaluation of the provided `callback` will be aggregated
+   * into a single Relay update.
+   *
+   * A typical use with a Flux store might look like this:
+   *
+   * const originalDispatch = fluxStore.dispatch;
+   *
+   * function wrapped(action) {
+   *   relayStore.batchLiveStateUpdates(() => {
+   *     originalDispatch(action);
+   *   })
+   * }
+   *
+   * fluxStore.dispatch = wrapped;
+   */
+  batchLiveStateUpdates(callback: () => void) {
+    this._resolverCache.batchLiveStateUpdates(callback);
   }
 
   check(
@@ -205,13 +246,13 @@ class LiveResolverStore implements Store {
     const getSourceForActor =
       options?.getSourceForActor ??
       (actorIdentifier => {
-        assertInternalActorIndentifier(actorIdentifier);
+        assertInternalActorIdentifier(actorIdentifier);
         return source;
       });
     const getTargetForActor =
       options?.getTargetForActor ??
       (actorIdentifier => {
-        assertInternalActorIndentifier(actorIdentifier);
+        assertInternalActorIdentifier(actorIdentifier);
         return source;
       });
 
@@ -306,6 +347,7 @@ class LiveResolverStore implements Store {
     if (__DEV__) {
       deepFreeze(snapshot);
     }
+
     return snapshot;
   }
 
@@ -337,7 +379,7 @@ class LiveResolverStore implements Store {
     this._resolverCache.invalidateDataIDs(this._updatedRecordIDs);
 
     const source = this.getSource();
-    const updatedOwners = [];
+    const updatedOwners: Array<RequestDescriptor> = [];
     this._storeSubscriptions.updateSubscriptions(
       source,
       this._updatedRecordIDs,
@@ -465,7 +507,7 @@ class LiveResolverStore implements Store {
   // real RelayModernStore can create. For now we just use any.
   // $FlowFixMe
   lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): any {
-    const invalidations = new Map();
+    const invalidations = new Map<DataID, ?number>();
     dataIDs.forEach(dataID => {
       const record = this.getSource().get(dataID);
       invalidations.set(
@@ -627,7 +669,7 @@ class LiveResolverStore implements Store {
     /* eslint-disable no-labels */
     top: while (true) {
       const startEpoch = this._currentWriteEpoch;
-      const references = new Set();
+      const references = new Set<DataID>();
 
       // Mark all records that are traversable from a root
       for (const {operation} of this._roots.values()) {
@@ -672,6 +714,31 @@ class LiveResolverStore implements Store {
       }
       return;
     }
+  }
+
+  // Internal API for normalizing @outputType payloads in LiveResolverCache.
+  __getNormalizationOptions(
+    path: $ReadOnlyArray<string>,
+  ): NormalizationOptions {
+    return {
+      path,
+      getDataID: this._getDataID,
+      treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,
+      reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
+      reactFlightServerErrorHandler: this._reactFlightServerErrorHandler,
+      shouldProcessClientComponents: this._shouldProcessClientComponents,
+      actorIdentifier: this._actorIdentifier,
+    };
+  }
+
+  // Internal API that can be only invoked from the LiveResolverCache
+  // to notify subscribers of `updatedRecords`.
+  __notifyUpdatedSubscribers(updatedRecords: UpdatedRecords): void {
+    const nextUpdatedRecordIDs = getUpdatedDataIDs(updatedRecords);
+    const prevUpdatedRecordIDs = this._updatedRecordIDs;
+    this._updatedRecordIDs = nextUpdatedRecordIDs;
+    this.notify();
+    this._updatedRecordIDs = prevUpdatedRecordIDs;
   }
 }
 

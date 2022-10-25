@@ -13,6 +13,7 @@ use graphql_ir::OperationDefinition;
 use graphql_ir::Program;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
+use intern::Lookup;
 
 use crate::root_variables::InferVariablesVisitor;
 use crate::DIRECTIVE_SPLIT_OPERATION;
@@ -43,7 +44,7 @@ impl Validator for ValidateGlobalVariables<'_> {
         // Skip 3D normalization fragments
         if operation
             .directives
-            .named(DIRECTIVE_SPLIT_OPERATION.0)
+            .named(*DIRECTIVE_SPLIT_OPERATION)
             .is_some()
         {
             return Ok(());

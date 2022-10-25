@@ -15,6 +15,7 @@ use clap::ArgEnum;
 use clap::Parser;
 use common::ConsoleLogger;
 use intern::string_key::Intern;
+use intern::Lookup;
 use log::error;
 use log::info;
 use relay_compiler::build_project::artifact_writer::ArtifactValidationWriter;

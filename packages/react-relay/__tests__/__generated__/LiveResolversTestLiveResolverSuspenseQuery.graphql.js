@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d2b04ad522aa86bd04d1732653904e60>>
+ * @generated SignedSource<<488b427c39eae94dd224af1b7452041c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -103,10 +103,10 @@ return {
                 "kind": "ClientExtension",
                 "selections": [
                   {
-                    "alias": null,
+                    "name": "counter_suspends_when_odd",
                     "args": null,
-                    "kind": "ScalarField",
-                    "name": "__id",
+                    "fragment": null,
+                    "kind": "RelayResolver",
                     "storageKey": null
                   }
                 ]

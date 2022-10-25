@@ -125,7 +125,7 @@ describe('execute() fetches a @stream-ed @connection', () => {
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
-      return RelayObservable.create(sink => {
+      return RelayObservable.create<$FlowFixMe>(sink => {
         dataSource = sink;
       });
     };

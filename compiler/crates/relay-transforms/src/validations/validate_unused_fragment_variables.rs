@@ -53,7 +53,7 @@ impl Validator for ValidateUnusedFragmentVariables {
                 let actually_unused = !self.used_variables.contains(&variable_definition.name.item);
                 let expect_unused_directive = variable_definition
                     .directives
-                    .named(UNUSED_LOCAL_VARIABLE_DEPRECATED.0);
+                    .named(*UNUSED_LOCAL_VARIABLE_DEPRECATED);
                 if expect_unused_directive.is_some() == actually_unused {
                     None
                 } else if let Some(expect_unused_directive) = expect_unused_directive {

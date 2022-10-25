@@ -153,7 +153,7 @@ describe.each([
     }
 
     function useRefetchableFragmentNode(fragmentNode: any, fragmentRef: any) {
-      const result = useRefetchableFragmentNodeOriginal(
+      const result = useRefetchableFragmentNodeOriginal<any, any>(
         fragmentNode,
         fragmentRef,
         'TestDisplayName',
@@ -3074,7 +3074,7 @@ describe.each([
       describe('disposing', () => {
         const unsubscribe = jest.fn();
         jest.doMock('relay-runtime', () => {
-          const originalRuntime = jest.requireActual('relay-runtime');
+          const originalRuntime = jest.requireActual<any>('relay-runtime');
           const originalInternal = originalRuntime.__internal;
           return {
             ...originalRuntime,

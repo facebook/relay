@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3fb88ff880442668f982213ce20bcf4e>>
+ * @generated SignedSource<<746b3efa38c7116e55aadb704cfbae23>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -20,7 +20,7 @@
 import type { NormalizationSplitOperation } from 'relay-runtime';
 
 export type Query__example_client_object$normalization = {|
-  +description?: ?string,
+  +description: ?string,
 |};
 
 */

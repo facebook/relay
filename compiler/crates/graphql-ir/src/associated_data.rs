@@ -101,7 +101,7 @@ macro_rules! associated_data_impl {
             #[allow(dead_code)]
             pub fn find(directives: &[$crate::Directive]) -> Option<&Self> {
                 use $crate::reexport::NamedItem;
-                directives.named(Self::directive_name().0).map(|directive| {
+                directives.named(Self::directive_name()).map(|directive| {
                     directive
                         .data
                         .as_ref()

@@ -24,6 +24,7 @@ use graphql_ir::Transformer;
 use graphql_ir::Value;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::Schema;
 
 use crate::connections::assert_connection_selections;
@@ -212,7 +213,7 @@ impl<'s> ConnectionTransform<'s> {
         let transformed_page_info_field_selection = if is_stream_connection {
             let mut arguments = vec![];
             let connection_args = &connection_directive.arguments;
-            if let Some(key_arg) = connection_args.named(KEY_ARG_NAME.0) {
+            if let Some(key_arg) = connection_args.named(*KEY_ARG_NAME) {
                 let key = key_arg.value.item.expect_string_literal();
                 arguments.push(Argument {
                     name: WithLocation::new(
@@ -233,7 +234,7 @@ impl<'s> ConnectionTransform<'s> {
                     ),
                 });
             }
-            if let Some(if_arg) = connection_args.named(DEFER_STREAM_CONSTANTS.if_arg.0) {
+            if let Some(if_arg) = connection_args.named(DEFER_STREAM_CONSTANTS.if_arg) {
                 arguments.push(if_arg.clone());
             }
             Selection::InlineFragment(Arc::new(InlineFragment {

@@ -5,7 +5,7 @@ slug: /guided-tour/updating-data/local-data-updates/
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import FbLocalDataUpdatesFlow from './fb/FbLocalDataUpdatesFlow.md';
 
 There are a couple of APIs that Relay provides in order to make purely local updates to the Relay store (i.e. updates not tied to a server operation).

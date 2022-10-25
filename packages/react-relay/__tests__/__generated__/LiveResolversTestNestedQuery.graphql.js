@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<3fcc1c1be13f9aff87815b05098fdc88>>
+ * @generated SignedSource<<cd3fb00b1c2e0fabca179a27262398b6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -21,13 +21,13 @@ import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { InnerResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/InnerResolver.graphql";
 import type { OuterResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/OuterResolver.graphql";
-import queryInnerResolver from "../../../relay-runtime/store/__tests__/resolvers/InnerResolver.js";
+import {inner as queryInnerResolver} from "../../../relay-runtime/store/__tests__/resolvers/InnerResolver.js";
 // Type assertion validating that `queryInnerResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryInnerResolver: (
   rootKey: InnerResolver$key, 
 ) => LiveState<any>);
-import queryOuterResolver from "../../../relay-runtime/store/__tests__/resolvers/OuterResolver.js";
+import {outer as queryOuterResolver} from "../../../relay-runtime/store/__tests__/resolvers/OuterResolver.js";
 // Type assertion validating that `queryOuterResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryOuterResolver: (
@@ -44,48 +44,12 @@ export type LiveResolversTestNestedQuery = {|
 |};
 */
 
-var node/*: ConcreteRequest*/ = {
+var node/*: ConcreteRequest*/ = (function(){
+var v0 = {
+  "name": "inner",
+  "args": null,
   "fragment": {
-    "argumentDefinitions": [],
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "LiveResolversTestNestedQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "fragment": {
-          "args": null,
-          "kind": "FragmentSpread",
-          "name": "OuterResolver"
-        },
-        "kind": "RelayResolver",
-        "name": "outer",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/OuterResolver'),
-        "path": "outer"
-      },
-      {
-        "alias": null,
-        "args": null,
-        "fragment": {
-          "args": null,
-          "kind": "FragmentSpread",
-          "name": "InnerResolver"
-        },
-        "kind": "RelayLiveResolver",
-        "name": "inner",
-        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/InnerResolver'),
-        "path": "inner"
-      }
-    ],
-    "type": "Query",
-    "abstractKey": null
-  },
-  "kind": "Request",
-  "operation": {
-    "argumentDefinitions": [],
-    "kind": "Operation",
-    "name": "LiveResolversTestNestedQuery",
+    "kind": "InlineFragment",
     "selections": [
       {
         "alias": null,
@@ -112,6 +76,71 @@ var node/*: ConcreteRequest*/ = {
         ],
         "storageKey": null
       }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "RelayResolver",
+  "storageKey": null
+};
+return {
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "LiveResolversTestNestedQuery",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "fragment": {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "OuterResolver"
+        },
+        "kind": "RelayResolver",
+        "name": "outer",
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/OuterResolver').outer,
+        "path": "outer"
+      },
+      {
+        "alias": null,
+        "args": null,
+        "fragment": {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "InnerResolver"
+        },
+        "kind": "RelayLiveResolver",
+        "name": "inner",
+        "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/InnerResolver').inner,
+        "path": "inner"
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "LiveResolversTestNestedQuery",
+    "selections": [
+      {
+        "name": "outer",
+        "args": null,
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            (v0/*: any*/)
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
+        "storageKey": null
+      },
+      (v0/*: any*/)
     ]
   },
   "params": {
@@ -123,6 +152,7 @@ var node/*: ConcreteRequest*/ = {
     "text": "query LiveResolversTestNestedQuery {\n  ...OuterResolver\n  ...InnerResolver\n}\n\nfragment InnerResolver on Query {\n  me {\n    name\n    id\n  }\n}\n\nfragment OuterResolver on Query {\n  ...InnerResolver\n}\n"
   }
 };
+})();
 
 if (__DEV__) {
   (node/*: any*/).hash = "6985c8175a8d589a4b7a04f9e8bb0265";

@@ -77,6 +77,7 @@ export type NormalizationClientExtension = {
 };
 
 export type NormalizationField =
+  | NormalizationResolverField
   | NormalizationFlightField
   | NormalizationScalarField
   | NormalizationLinkedField;
@@ -168,6 +169,14 @@ export type NormalizationFlightField = {
   +alias: ?string,
   +name: string,
   +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +storageKey: ?string,
+};
+
+export type NormalizationResolverField = {
+  +kind: 'RelayResolver',
+  +name: string,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +fragment: ?NormalizationInlineFragment,
   +storageKey: ?string,
 };
 

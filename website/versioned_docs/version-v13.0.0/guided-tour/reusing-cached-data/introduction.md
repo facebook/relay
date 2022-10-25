@@ -9,7 +9,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 While an app is in use, Relay will accumulate and cache *(for some time)* the data for the multiple queries that have been fetched throughout usage of our app. Often times, we'll want to be able to reuse and immediately render this data that is locally cached instead of waiting for a network request when fulfilling a query; this is what we'll cover in this section.
 

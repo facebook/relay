@@ -310,20 +310,22 @@ fn generate_resolver_type(
 ) -> AST {
     let mut resolver_arguments = vec![];
     if let Some(fragment_name) = fragment_name {
-        if let Some((fragment_name, injection_mode)) = resolver_metadata.inject_fragment_data {
+        if let Some((fragment_name, injection_mode)) =
+            resolver_metadata.fragment_data_injection_mode
+        {
             match injection_mode {
-                FragmentDataInjectionMode::Field(field_name) => {
+                FragmentDataInjectionMode::Field { name, .. } => {
                     encountered_fragments
                         .0
                         .insert(EncounteredFragment::Data(fragment_name.item));
 
                     resolver_arguments.push(KeyValuePairProp {
-                        key: field_name,
+                        key: name,
                         value: AST::PropertyType {
                             type_: Box::new(AST::RawType(
                                 format!("{}$data", fragment_name.item).intern(),
                             )),
-                            property_name: field_name,
+                            property_name: name,
                         },
                         read_only: false,
                         optional: false,

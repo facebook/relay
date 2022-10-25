@@ -155,4 +155,30 @@ describe.each([
     );
     expect(renderer.toJSON()).toEqual('Test todo - red');
   });
+
+  test('should render `null` model.', () => {
+    function TodoNullComponent() {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverModelTestTodoNullQuery {
+            todo_model_null {
+              id
+            }
+          }
+        `,
+        {},
+      );
+      if (data?.todo_model_null == null) {
+        return null;
+      }
+
+      return data?.todo_model_null.id;
+    }
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoNullComponent />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual(null);
+  });
 });

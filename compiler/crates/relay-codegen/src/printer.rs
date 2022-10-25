@@ -509,12 +509,12 @@ impl<'b> JSONPrinter<'b> {
             Primitive::RelayResolverModel {
                 graphql_module,
                 js_module,
-                field_name,
+                injected_field_name_details,
             } => self.write_relay_resolver_model(
                 f,
                 *graphql_module,
                 js_module,
-                field_name.as_ref().copied(),
+                injected_field_name_details.as_ref().copied(),
             ),
             Primitive::RelayResolverWeakObjectWrapper { resolver, key } => self
                 .write_relay_resolver_weak_object_wrapper(f, resolver, *key, indent, is_dedupe_var),
@@ -564,7 +564,7 @@ impl<'b> JSONPrinter<'b> {
         f: &mut String,
         graphql_module: StringKey,
         js_module: &JSModuleDependency,
-        field_name: Option<StringKey>,
+        injected_field_name_details: Option<(StringKey, bool)>,
     ) -> FmtResult {
         let relay_runtime_experimental = "relay-runtime/experimental";
         let resolver_data_injector = "resolverDataInjector";
@@ -598,8 +598,9 @@ impl<'b> JSONPrinter<'b> {
             ),
             get_module_path(self.js_module_format, js_module.path),
         )?;
-        if let Some(field_name) = field_name {
+        if let Some((field_name, is_required_field)) = injected_field_name_details {
             write!(f, ", '{}'", field_name)?;
+            write!(f, ", {}", is_required_field)?;
         }
         write!(f, ")")
     }

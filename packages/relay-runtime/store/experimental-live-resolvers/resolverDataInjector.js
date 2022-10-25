@@ -35,17 +35,33 @@ function resolverDataInjector<
   fragment: Fragment<TFragmentType, TData>,
   resolverFn: TResolverFn,
   fieldName?: string,
+  isRequiredField?: boolean,
 ): (fragmentKey: TFragmentType, args: mixed) => mixed {
   return (fragmentKey: TFragmentType, args: mixed): mixed => {
     const data = readFragment(fragment, fragmentKey);
     if (fieldName != null) {
       if (data == null) {
-        return null;
+        if (isRequiredField === true) {
+          invariant(
+            false,
+            'Expected required resolver field `%` to be present. But resolvers fragment data is null/undefined.',
+            fieldName,
+          );
+        } else {
+          return resolverFn(null, args);
+        }
       }
 
       // If `fieldName` is defined, the resolver expects only
       // the data for this field.
       if (fieldName in data) {
+        if (isRequiredField === true) {
+          invariant(
+            data[fieldName] != null,
+            'Expected required resolver field `%` to be non-null.',
+          );
+        }
+
         return resolverFn(data[fieldName], args);
       } else {
         // If both `data` and `fieldName` is available, we expect the

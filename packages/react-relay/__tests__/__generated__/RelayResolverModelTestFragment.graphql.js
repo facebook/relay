@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<d75e36989867c9f377e8664b90ec8cd2>>
+ * @generated SignedSource<<352d29451982f053118af40679f112a9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -83,7 +83,7 @@ return {
         },
         "kind": "RelayResolver",
         "name": "fancy_description",
-        "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance'), '__relay_model_instance'),
+        "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoModel____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoModel').fancy_description, '__relay_model_instance', false), '__relay_model_instance'),
         "path": "fancy_description",
         "normalizationInfo": {
           "concreteType": "TodoDescription",
@@ -105,7 +105,7 @@ return {
             "fragment": (v0/*: any*/),
             "kind": "RelayResolver",
             "name": "text",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text, '__relay_model_instance'),
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').text, '__relay_model_instance', false),
             "path": "text"
           },
           {
@@ -114,7 +114,7 @@ return {
             "fragment": (v0/*: any*/),
             "kind": "RelayResolver",
             "name": "color",
-            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').color, '__relay_model_instance'),
+            "resolverModule": require('relay-runtime/experimental').resolverDataInjector(require('./../../../relay-runtime/store/__tests__/resolvers/__generated__/TodoDescription____relay_model_instance.graphql'), require('./../../../relay-runtime/store/__tests__/resolvers/TodoDescription').color, '__relay_model_instance', false),
             "path": "color"
           }
         ],

@@ -22,6 +22,7 @@ import type {TodoItem} from 'relay-runtime/store/__tests__/resolvers/ExampleTodo
 import type {TodoDescription} from './TodoDescription';
 
 const {createTodoDescription} = require('./TodoDescription');
+import type {DataID} from '../../../util/RelayRuntimeTypes';
 
 /**
  * @RelayResolver TodoModel
@@ -55,7 +56,15 @@ function fancy_description(model: ?TodoItem): ?TodoDescription {
   return createTodoDescription(model.description, model.isCompleted);
 }
 
+/**
+ * @RelayResolver Query.todo_model_null: TodoModel
+ */
+function todo_model_null(): ?DataID {
+  return null;
+}
+
 module.exports = {
+  todo_model_null,
   TodoModel,
   description,
   fancy_description,

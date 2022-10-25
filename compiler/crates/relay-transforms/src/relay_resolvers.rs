@@ -38,6 +38,7 @@ use lazy_static::lazy_static;
 use schema::ArgumentValue;
 use schema::Field;
 use schema::FieldID;
+use schema::SDLSchema;
 use schema::Schema;
 
 use super::ValidationMessage;
@@ -97,7 +98,7 @@ pub enum ResolverOutputTypeInfo {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum FragmentDataInjectionMode {
-    Field(StringKey), // TODO: Add Support for FullData
+    Field { name: StringKey, is_required: bool }, // TODO: Add Support for FullData
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -106,7 +107,7 @@ struct RelayResolverFieldMetadata {
     import_path: StringKey,
     import_name: Option<StringKey>,
     fragment_name: Option<FragmentDefinitionName>,
-    inject_fragment_data: Option<FragmentDataInjectionMode>,
+    fragment_data_injection_mode: Option<FragmentDataInjectionMode>,
     field_path: StringKey,
     live: bool,
     output_type_info: Option<ResolverOutputTypeInfo>,
@@ -126,7 +127,7 @@ pub struct RelayResolverMetadata {
     pub output_type_info: Option<ResolverOutputTypeInfo>,
     /// A tuple with fragment name and field name we need read
     /// of that fragment to pass it to the resolver function.
-    pub inject_fragment_data: Option<(
+    pub fragment_data_injection_mode: Option<(
         WithLocation<FragmentDefinitionName>,
         FragmentDataInjectionMode,
     )>,
@@ -212,17 +213,18 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                 field_arguments,
                 live: field_metadata.live,
                 output_type_info: field_metadata.output_type_info.clone(),
-                inject_fragment_data: field_metadata.inject_fragment_data.as_ref().map(
-                    |injection_mode| {
+                fragment_data_injection_mode: field_metadata
+                    .fragment_data_injection_mode
+                    .as_ref()
+                    .map(|injection_mode| {
                         (
                             self.program
-                                .fragment(field_metadata.fragment_name.unwrap())
+                                .fragment(field_metadata.fragment_name.unwrap_or_else(|| panic!()))
                                 .unwrap()
                                 .name,
                             *injection_mode,
                         )
-                    },
-                ),
+                    }),
             };
 
             let mut new_directives: Vec<Directive> = vec![resolver_metadata.into()];
@@ -353,7 +355,12 @@ impl<'program> RelayResolverFieldTransform<'program> {
     ) -> Option<Vec<Directive>> {
         let field_type = self.program.schema.field(field.definition().item);
 
-        get_resolver_info(field_type, field.definition().location).and_then(|info| {
+        get_resolver_info(
+            &self.program.schema,
+            field_type,
+            field.definition().location,
+        )
+        .and_then(|info| {
             if !self.enabled {
                 self.errors.push(Diagnostic::error(
                     ValidationMessage::RelayResolversDisabled {},
@@ -368,7 +375,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                     import_name,
                     live,
                     has_output_type,
-                    inject_fragment_data,
+                    fragment_data_injection_mode,
                 }) => {
                     let mut non_required_directives =
                         field.directives().iter().filter(|directive| {
@@ -449,7 +456,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                         field_path: self.path.join(".").intern(),
                         live,
                         output_type_info,
-                        inject_fragment_data,
+                        fragment_data_injection_mode,
                     };
 
                     let mut directives: Vec<Directive> = field.directives().to_vec();
@@ -562,7 +569,7 @@ impl Transformer for RelayResolverFieldTransform<'_> {
 
 struct ResolverInfo {
     fragment_name: Option<FragmentDefinitionName>,
-    inject_fragment_data: Option<FragmentDataInjectionMode>,
+    fragment_data_injection_mode: Option<FragmentDataInjectionMode>,
     import_path: StringKey,
     import_name: Option<StringKey>,
     live: bool,
@@ -570,13 +577,14 @@ struct ResolverInfo {
 }
 
 fn get_resolver_info(
-    field_type: &Field,
+    schema: &SDLSchema,
+    resolver_field: &Field,
     error_location: Location,
 ) -> Option<DiagnosticsResult<ResolverInfo>> {
-    if !field_type.is_extension {
+    if !resolver_field.is_extension {
         return None;
     }
-    field_type
+    resolver_field
         .directives
         .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
         .map(|directive| {
@@ -615,7 +623,28 @@ fn get_resolver_info(
                 import_name,
                 live,
                 has_output_type,
-                inject_fragment_data: inject_fragment_data.map(FragmentDataInjectionMode::Field),
+                fragment_data_injection_mode: inject_fragment_data.map(|field_name| {
+                    let injected_field_id = schema
+                        .named_field(
+                            resolver_field.parent_type.unwrap_or_else(|| {
+                                panic!(
+                                    "Parent type should be defined for the field `{}`.",
+                                    field_name
+                                )
+                            }),
+                            field_name,
+                        )
+                        .unwrap_or_else(|| {
+                            panic!(
+                                "Expect a field `{}` to be defined on the resolvers parent type.",
+                                field_name
+                            )
+                        });
+                    FragmentDataInjectionMode::Field {
+                        name: field_name,
+                        is_required: schema.field(injected_field_id).type_.is_non_null(),
+                    }
+                }),
             })
         })
 }

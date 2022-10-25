@@ -35,7 +35,7 @@ fragment Foo_user on User {
   #     field_arguments: [],
   #     live: false,
   #     output_type_info: None,
-  #     inject_fragment_data: None,
+  #     fragment_data_injection_mode: None,
   # }
   
 }

@@ -1011,7 +1011,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
         };
 
         let resolver_module = if let Some((fragment_name, injection_mode)) =
-            relay_resolver_metadata.inject_fragment_data
+            relay_resolver_metadata.fragment_data_injection_mode
         {
             let path_for_artifact = self.project_config.create_path_for_artifact(
                 fragment_name.location.source_location(),
@@ -1026,8 +1026,10 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             Primitive::RelayResolverModel {
                 graphql_module: fragment_import_path,
                 js_module: resolver_js_module,
-                field_name: match injection_mode {
-                    FragmentDataInjectionMode::Field(field_name) => Some(field_name),
+                injected_field_name_details: match injection_mode {
+                    FragmentDataInjectionMode::Field { name, is_required } => {
+                        Some((name, is_required))
+                    }
                 },
             }
         } else {

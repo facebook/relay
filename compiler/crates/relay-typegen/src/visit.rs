@@ -414,17 +414,19 @@ fn generate_resolver_type(
                     normalization_info.normalization_operation.item.0,
                 )));
 
-                let ast = if normalization_info.plural {
-                    AST::ReadOnlyArray(Box::new(type_))
+                let ast = if let Some(instance_field_name) =
+                    normalization_info.weak_object_instance_field
+                {
+                    AST::PropertyType {
+                        type_: Box::new(type_),
+                        property_name: instance_field_name,
+                    }
                 } else {
                     type_
                 };
 
-                if let Some(instance_field_name) = normalization_info.weak_object_instance_field {
-                    AST::PropertyType {
-                        type_: Box::new(ast),
-                        property_name: instance_field_name,
-                    }
+                if normalization_info.plural {
+                    AST::ReadOnlyArray(Box::new(ast))
                 } else {
                     ast
                 }

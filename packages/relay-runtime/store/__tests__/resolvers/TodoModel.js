@@ -57,6 +57,19 @@ function fancy_description(model: ?TodoItem): ?TodoDescription {
 }
 
 /**
+ * @RelayResolver TodoModel.many_fancy_descriptions: [TodoDescription]
+ */
+function many_fancy_descriptions(
+  model: ?TodoItem,
+): $ReadOnlyArray<TodoDescription> {
+  if (model == null) {
+    return [];
+  }
+
+  return [createTodoDescription(model.description, model.isCompleted)];
+}
+
+/**
  * @RelayResolver Query.todo_model_null: TodoModel
  */
 function todo_model_null(): ?DataID {
@@ -68,4 +81,5 @@ module.exports = {
   TodoModel,
   description,
   fancy_description,
+  many_fancy_descriptions,
 };

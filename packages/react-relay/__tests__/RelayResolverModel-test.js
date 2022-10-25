@@ -13,6 +13,7 @@
 
 import type {LogEvent} from '../../relay-runtime/store/RelayStoreTypes';
 import type {RelayResolverModelTestFragment$key} from './__generated__/RelayResolverModelTestFragment.graphql';
+import type {RelayResolverModelTestWithPluralFragment$key} from './__generated__/RelayResolverModelTestWithPluralFragment.graphql';
 
 const React = require('react');
 const {
@@ -180,5 +181,61 @@ describe.each([
       </EnvironmentWrapper>,
     );
     expect(renderer.toJSON()).toEqual(null);
+  });
+
+  test('read plural resolver field', () => {
+    function TodoComponentWithPluralResolverComponent(props: {todoID: string}) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverModelTestTodoWithPluralFieldQuery($id: ID!) {
+            todo_model(todoID: $id) {
+              ...RelayResolverModelTestWithPluralFragment
+            }
+          }
+        `,
+        {id: props.todoID},
+      );
+      if (data?.todo_model == null) {
+        return null;
+      }
+
+      return (
+        <TodoComponentWithPluralDescription fragmentKey={data.todo_model} />
+      );
+    }
+
+    function TodoComponentWithPluralDescription(props: {
+      fragmentKey: ?RelayResolverModelTestWithPluralFragment$key,
+    }) {
+      const data = useFragment(
+        graphql`
+          fragment RelayResolverModelTestWithPluralFragment on TodoModel {
+            many_fancy_descriptions {
+              text
+              color
+            }
+          }
+        `,
+        props.fragmentKey,
+      );
+      if (data == null) {
+        return null;
+      }
+
+      return data.many_fancy_descriptions
+        ?.map(
+          item => `${item?.text ?? 'unknown'} - ${item?.color ?? 'unknown'}`,
+        )
+        .join(',');
+    }
+
+    addTodo('Test todo');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoComponentWithPluralResolverComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('Test todo - red');
   });
 });

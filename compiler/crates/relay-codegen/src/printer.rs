@@ -516,8 +516,18 @@ impl<'b> JSONPrinter<'b> {
                 js_module,
                 injected_field_name_details.as_ref().copied(),
             ),
-            Primitive::RelayResolverWeakObjectWrapper { resolver, key } => self
-                .write_relay_resolver_weak_object_wrapper(f, resolver, *key, indent, is_dedupe_var),
+            Primitive::RelayResolverWeakObjectWrapper {
+                resolver,
+                key,
+                plural,
+            } => self.write_relay_resolver_weak_object_wrapper(
+                f,
+                resolver,
+                *key,
+                *plural,
+                indent,
+                is_dedupe_var,
+            ),
         }
     }
 
@@ -610,6 +620,7 @@ impl<'b> JSONPrinter<'b> {
         f: &mut String,
         resolver: &Primitive,
         key: StringKey,
+        plural: bool,
         indent: usize,
         is_dedupe_var: bool,
     ) -> FmtResult {
@@ -626,7 +637,7 @@ impl<'b> JSONPrinter<'b> {
         )?;
         write!(f, "(")?;
         self.print_primitive(f, resolver, indent + 1, is_dedupe_var)?;
-        write!(f, ", '{}')", key)
+        write!(f, ", '{}', {})", key, plural)
     }
 }
 

@@ -10,15 +10,29 @@
 
 'use strict';
 
+const invariant = require('invariant');
+
 function weakObjectWrapper<TKey, TArgs>(
   resolverFn: (key: TKey, args?: TArgs) => mixed,
   key: string,
+  isPlural: boolean,
 ): (key: TKey, args?: TArgs) => mixed {
   return (...args) => {
     const data = resolverFn.apply(null, args);
-    return {
-      [key]: data,
-    };
+    if (isPlural) {
+      invariant(
+        Array.isArray(data),
+        'Resolver is expected to return a plural value.',
+      );
+
+      return data.map(item => ({
+        [key]: item,
+      }));
+    } else {
+      return {
+        [key]: data,
+      };
+    }
   };
 }
 

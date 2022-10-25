@@ -1036,16 +1036,19 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             Primitive::JSModuleDependency(resolver_js_module)
         };
 
-        let resolver_module = if let Some(key) = relay_resolver_metadata
+        let resolver_module = if let Some((key, plural)) = relay_resolver_metadata
             .output_type_info
             .as_ref()
             .and_then(|info| match info {
                 ResolverOutputTypeInfo::ScalarField(_) => None,
-                ResolverOutputTypeInfo::Composite(info) => info.weak_object_instance_field,
+                ResolverOutputTypeInfo::Composite(info) => info
+                    .weak_object_instance_field
+                    .map(|field_name| (field_name, info.plural)),
             }) {
             Primitive::RelayResolverWeakObjectWrapper {
                 resolver: Box::new(resolver_module),
                 key,
+                plural,
             }
         } else {
             resolver_module

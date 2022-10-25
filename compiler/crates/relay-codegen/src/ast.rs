@@ -97,6 +97,7 @@ pub enum Primitive {
     RelayResolverWeakObjectWrapper {
         resolver: Box<Primitive>,
         key: StringKey,
+        plural: bool,
     },
 }
 

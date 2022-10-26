@@ -16,6 +16,7 @@ pub struct DocblockField {
 }
 
 impl Named for DocblockField {
+    type Name = StringKey;
     fn name(&self) -> StringKey {
         self.field_name.item
     }

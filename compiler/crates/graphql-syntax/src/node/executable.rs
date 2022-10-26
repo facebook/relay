@@ -31,11 +31,20 @@ impl ExecutableDefinition {
         }
     }
 
-    pub fn name(&self) -> Option<StringKey> {
+    pub fn name_identifier(&self) -> Option<&Identifier> {
         match self {
-            ExecutableDefinition::Operation(node) => node.name.as_ref().map(|name| name.value),
-            ExecutableDefinition::Fragment(node) => Some(node.name.value),
+            ExecutableDefinition::Operation(node) => node.name.as_ref(),
+            ExecutableDefinition::Fragment(node) => Some(&node.name),
         }
+    }
+
+    pub fn name(&self) -> Option<StringKey> {
+        self.name_identifier().map(|identifier| identifier.value)
+    }
+
+    pub fn name_location(&self) -> Option<Location> {
+        self.name_identifier()
+            .map(|identifier| self.location().with_span(identifier.span))
     }
 
     pub fn has_directive(&self, directive_name: StringKey) -> bool {

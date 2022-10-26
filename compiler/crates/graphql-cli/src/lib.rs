@@ -10,6 +10,7 @@ mod source_printer;
 mod text_style;
 
 pub use diagnostic_printer::DiagnosticPrinter;
+pub use diagnostic_printer::Sources;
 pub use source_printer::SourcePrinter;
 pub use text_style::Style;
 pub use text_style::Styles;

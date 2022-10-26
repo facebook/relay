@@ -11,6 +11,7 @@ use std::fmt::Write;
 use std::ops::Deref;
 
 use intern::string_key::StringKey;
+use intern::Lookup;
 use relay_config::TypegenConfig;
 use relay_config::TypegenLanguage;
 
@@ -42,12 +43,21 @@ pub enum AST {
     Boolean,
     Callable(Box<AST>),
     Any,
+    Mixed,
     FragmentReference(SortedStringKeyList),
     FragmentReferenceType(StringKey),
     ReturnTypeOfFunctionWithName(StringKey),
     ReturnTypeOfMethodCall(Box<AST>, StringKey),
     ActorChangePoint(Box<AST>),
     AssertFunctionType(FunctionTypeAssertion),
+    GenericType {
+        outer: StringKey,
+        inner: Box<AST>,
+    },
+    PropertyType {
+        type_: Box<AST>,
+        property_name: StringKey,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -353,6 +363,13 @@ pub trait Writer: Write {
 
     fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult;
 
+    fn write_import_module_named(
+        &mut self,
+        name: &str,
+        import_as: Option<&str>,
+        from: &str,
+    ) -> FmtResult;
+
     fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult;
 
     fn write_import_fragment_type(&mut self, types: &[&str], from: &str) -> FmtResult;
@@ -371,6 +388,7 @@ pub trait Writer: Write {
 #[cfg(test)]
 mod tests {
     use graphql_ir::reexport::Intern;
+    use intern::Lookup;
 
     use super::StringLiteral;
     use crate::FUTURE_ENUM_VALUE;

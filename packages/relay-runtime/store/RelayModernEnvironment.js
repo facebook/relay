@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -47,7 +47,7 @@ import type {
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
-  assertInternalActorIndentifier,
+  assertInternalActorIdentifier,
 } = require('../multi-actor-environment/ActorIdentifier');
 const RelayObservable = require('../network/RelayObservable');
 const wrapNetworkWithLogObserver = require('../network/wrapNetworkWithLogObserver');
@@ -299,11 +299,11 @@ class RelayModernEnvironment implements IEnvironment {
       handlers,
       defaultActorIdentifier: INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
       getSourceForActor(actorIdentifier: ActorIdentifier) {
-        assertInternalActorIndentifier(actorIdentifier);
+        assertInternalActorIdentifier(actorIdentifier);
         return source;
       },
       getTargetForActor(actorIdentifier: ActorIdentifier) {
-        assertInternalActorIndentifier(actorIdentifier);
+        assertInternalActorIdentifier(actorIdentifier);
         return target;
       },
     });
@@ -482,7 +482,7 @@ class RelayModernEnvironment implements IEnvironment {
         operationTracker: this._operationTracker,
         optimisticConfig,
         getPublishQueue(actorIdentifier: ActorIdentifier) {
-          assertInternalActorIndentifier(actorIdentifier);
+          assertInternalActorIdentifier(actorIdentifier);
           return publishQueue;
         },
         reactFlightPayloadDeserializer: this._reactFlightPayloadDeserializer,
@@ -494,7 +494,7 @@ class RelayModernEnvironment implements IEnvironment {
         //       when the Observable is executed.
         source: createSource(),
         getStore(actorIdentifier: ActorIdentifier) {
-          assertInternalActorIndentifier(actorIdentifier);
+          assertInternalActorIdentifier(actorIdentifier);
           return store;
         },
         treatMissingFieldsAsNull: this._treatMissingFieldsAsNull,

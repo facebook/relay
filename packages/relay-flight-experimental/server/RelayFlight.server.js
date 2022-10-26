@@ -17,7 +17,9 @@ import useQuery from 'RelayFlightUseQuery.server';
 
 export type {ClientQuery} from 'RelayFlight.hybrid';
 
+// eslint-disable-next-line no-unused-vars
 export opaque type GraphQLID<T: string>: string = string;
+// eslint-disable-next-line no-unused-vars
 export opaque type GraphQLEnum<T: string>: string = string;
 
 export * from 'RelayFlight.hybrid';

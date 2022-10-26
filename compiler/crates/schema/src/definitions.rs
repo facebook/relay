@@ -12,8 +12,13 @@ use std::slice::Iter;
 
 use common::ArgumentName;
 use common::DirectiveName;
+use common::EnumName;
+use common::InputObjectName;
+use common::InterfaceName;
 use common::Named;
 use common::NamedItem;
+use common::ObjectName;
+use common::ScalarName;
 use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
@@ -22,8 +27,8 @@ use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    static ref DIRECTIVE_DEPRECATED: StringKey = "deprecated".intern();
-    static ref ARGUMENT_REASON: StringKey = "reason".intern();
+    static ref DIRECTIVE_DEPRECATED: DirectiveName = DirectiveName("deprecated".intern());
+    static ref ARGUMENT_REASON: ArgumentName = ArgumentName("reason".intern());
 }
 
 pub(crate) type TypeMap = HashMap<StringKey, Type>;
@@ -168,14 +173,14 @@ impl fmt::Debug for Type {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
-pub enum TypeReference {
-    Named(Type),
-    NonNull(Box<TypeReference>),
-    List(Box<TypeReference>),
+pub enum TypeReference<T> {
+    Named(T),
+    NonNull(Box<TypeReference<T>>),
+    List(Box<TypeReference<T>>),
 }
 
-impl TypeReference {
-    pub fn inner(&self) -> Type {
+impl<T: Copy> TypeReference<T> {
+    pub fn inner(&self) -> T {
         match self {
             TypeReference::Named(type_) => *type_,
             TypeReference::List(of) => of.inner(),
@@ -183,7 +188,7 @@ impl TypeReference {
         }
     }
 
-    pub fn non_null(&self) -> TypeReference {
+    pub fn non_null(&self) -> TypeReference<T> {
         match self {
             TypeReference::Named(_) => TypeReference::NonNull(Box::new(self.clone())),
             TypeReference::List(_) => TypeReference::NonNull(Box::new(self.clone())),
@@ -191,7 +196,59 @@ impl TypeReference {
         }
     }
 
-    pub fn nullable_type(&self) -> &TypeReference {
+    // If the type is Named or NonNull<Named> return the inner named.
+    // If the type is a List or NonNull<List> returns a matching list with nullable items.
+    pub fn with_nullable_item_type(&self) -> TypeReference<T> {
+        match self {
+            TypeReference::Named(_) => self.clone(),
+            TypeReference::List(of) => TypeReference::List(Box::new(of.nullable_type().clone())),
+            TypeReference::NonNull(of) => {
+                let inner: &TypeReference<T> = of;
+                match inner {
+                    TypeReference::List(_) => {
+                        TypeReference::NonNull(Box::new(of.with_nullable_item_type()))
+                    }
+                    TypeReference::Named(_) => inner.clone(),
+                    TypeReference::NonNull(_) => {
+                        unreachable!("Invalid nested TypeReference::NonNull")
+                    }
+                }
+            }
+        }
+    }
+
+    // Return None if the type is a List, otherwise return the inner type
+    pub fn non_list_type(&self) -> Option<T> {
+        match self {
+            TypeReference::List(_) => None,
+            TypeReference::Named(type_) => Some(*type_),
+            TypeReference::NonNull(of) => of.non_list_type(),
+        }
+    }
+}
+
+impl<T> TypeReference<T> {
+    pub fn map<U>(self, transform: impl FnOnce(T) -> U) -> TypeReference<U> {
+        match self {
+            TypeReference::Named(inner) => TypeReference::Named(transform(inner)),
+            TypeReference::NonNull(inner) => TypeReference::NonNull(Box::new(inner.map(transform))),
+            TypeReference::List(inner) => TypeReference::List(Box::new(inner.map(transform))),
+        }
+    }
+
+    pub fn as_ref(&self) -> TypeReference<&T> {
+        match self {
+            TypeReference::Named(inner) => TypeReference::Named(inner),
+            TypeReference::NonNull(inner) => {
+                TypeReference::NonNull(Box::new(Box::as_ref(inner).as_ref()))
+            }
+            TypeReference::List(inner) => {
+                TypeReference::List(Box::new(Box::as_ref(inner).as_ref()))
+            }
+        }
+    }
+
+    pub fn nullable_type(&self) -> &TypeReference<T> {
         match self {
             TypeReference::Named(_) => self,
             TypeReference::List(_) => self,
@@ -207,45 +264,15 @@ impl TypeReference {
         matches!(self.nullable_type(), TypeReference::List(_))
     }
 
-    // If the type is Named or NonNull<Named> return the inner named.
-    // If the type is a List or NonNull<List> returns a matching list with nullable items.
-    pub fn with_nullable_item_type(&self) -> TypeReference {
-        match self {
-            TypeReference::Named(_) => self.clone(),
-            TypeReference::List(of) => TypeReference::List(Box::new(of.nullable_type().clone())),
-            TypeReference::NonNull(of) => {
-                let inner: &TypeReference = of;
-                match inner {
-                    TypeReference::List(_) => {
-                        TypeReference::NonNull(Box::new(of.with_nullable_item_type()))
-                    }
-                    TypeReference::Named(_) => inner.clone(),
-                    TypeReference::NonNull(_) => {
-                        unreachable!("Invalid nested TypeReference::NonNull")
-                    }
-                }
-            }
-        }
-    }
-
-    pub fn list_item_type(&self) -> Option<&TypeReference> {
+    pub fn list_item_type(&self) -> Option<&TypeReference<T>> {
         match self.nullable_type() {
             TypeReference::List(of) => Some(of),
             _ => None,
         }
     }
-
-    // Return None if the type is a List, otherwise return the inner type
-    pub fn non_list_type(&self) -> Option<Type> {
-        match self {
-            TypeReference::List(_) => None,
-            TypeReference::Named(type_) => Some(*type_),
-            TypeReference::NonNull(of) => of.non_list_type(),
-        }
-    }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Directive {
     pub name: DirectiveName,
     pub arguments: ArgumentDefinitions,
@@ -256,14 +283,15 @@ pub struct Directive {
 }
 
 impl Named for Directive {
-    fn name(&self) -> StringKey {
-        self.name.0
+    type Name = DirectiveName;
+    fn name(&self) -> DirectiveName {
+        self.name
     }
 }
 
 #[derive(Clone, Debug)]
 pub struct Scalar {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<ScalarName>,
     pub is_extension: bool,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
@@ -271,7 +299,7 @@ pub struct Scalar {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Object {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<ObjectName>,
     pub is_extension: bool,
     pub fields: Vec<FieldID>,
     pub interfaces: Vec<InterfaceID>,
@@ -281,7 +309,7 @@ pub struct Object {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct InputObject {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<InputObjectName>,
     pub fields: ArgumentDefinitions,
     pub directives: Vec<DirectiveValue>,
     pub description: Option<StringKey>,
@@ -289,7 +317,7 @@ pub struct InputObject {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Enum {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<EnumName>,
     pub is_extension: bool,
     pub values: Vec<EnumValue>,
     pub directives: Vec<DirectiveValue>,
@@ -307,8 +335,9 @@ pub struct Union {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Interface {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<InterfaceName>,
     pub is_extension: bool,
+    pub implementing_interfaces: Vec<InterfaceID>,
     pub implementing_objects: Vec<ObjectID>,
     pub fields: Vec<FieldID>,
     pub directives: Vec<DirectiveValue>,
@@ -321,7 +350,7 @@ pub struct Field {
     pub name: WithLocation<StringKey>,
     pub is_extension: bool,
     pub arguments: ArgumentDefinitions,
-    pub type_: TypeReference,
+    pub type_: TypeReference<Type>,
     pub directives: Vec<DirectiveValue>,
     /// The type on which this field was defined. This field is (should)
     /// always be set, except for special fields such as __typename and
@@ -351,15 +380,16 @@ impl Field {
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Argument {
     pub name: ArgumentName,
-    pub type_: TypeReference,
+    pub type_: TypeReference<Type>,
     pub default_value: Option<ConstantValue>,
     pub description: Option<StringKey>,
     pub directives: Vec<DirectiveValue>,
 }
 
 impl Named for Argument {
-    fn name(&self) -> StringKey {
-        self.name.0
+    type Name = ArgumentName;
+    fn name(&self) -> ArgumentName {
+        self.name
     }
 }
 
@@ -367,6 +397,24 @@ impl Named for Argument {
 pub struct ArgumentValue {
     pub name: ArgumentName,
     pub value: ConstantValue,
+}
+
+impl ArgumentValue {
+    /// If the value is a constant string literal, return the value, otherwise None.
+    pub fn get_string_literal(&self) -> Option<StringKey> {
+        if let ConstantValue::String(string_node) = &self.value {
+            Some(string_node.value)
+        } else {
+            None
+        }
+    }
+    /// Return the constant string literal of this value.
+    /// Panics if the value is not a constant string literal.
+    pub fn expect_string_literal(&self) -> StringKey {
+        self.get_string_literal().unwrap_or_else(|| {
+            panic!("expected a string literal, got {:?}", self);
+        })
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd)]
@@ -389,7 +437,7 @@ impl ArgumentDefinitions {
         Self(arguments)
     }
 
-    pub fn named(&self, name: StringKey) -> Option<&Argument> {
+    pub fn named(&self, name: ArgumentName) -> Option<&Argument> {
         self.0.named(name)
     }
 
@@ -450,6 +498,7 @@ impl TypeWithFields for Object {
 macro_rules! impl_named {
     ($type_name:ident) => {
         impl Named for $type_name {
+            type Name = StringKey;
             fn name(&self) -> StringKey {
                 self.name
             }
@@ -458,31 +507,34 @@ macro_rules! impl_named {
 }
 
 macro_rules! impl_named_for_with_location {
-    ($type_name:ident) => {
+    ($type_name:ident, $name_type:ident) => {
         impl Named for $type_name {
-            fn name(&self) -> StringKey {
+            type Name = $name_type;
+            fn name(&self) -> $name_type {
                 self.name.item
             }
         }
     };
 }
 
-impl_named_for_with_location!(Object);
-impl_named_for_with_location!(Field);
-impl_named_for_with_location!(InputObject);
-impl_named_for_with_location!(Interface);
-impl_named_for_with_location!(Union);
-impl_named_for_with_location!(Scalar);
-impl_named_for_with_location!(Enum);
+impl_named_for_with_location!(Object, ObjectName);
+impl_named_for_with_location!(Field, StringKey);
+impl_named_for_with_location!(InputObject, InputObjectName);
+impl_named_for_with_location!(Interface, InterfaceName);
+impl_named_for_with_location!(Union, StringKey);
+impl_named_for_with_location!(Scalar, ScalarName);
+impl_named_for_with_location!(Enum, EnumName);
 
 impl Named for DirectiveValue {
-    fn name(&self) -> StringKey {
-        self.name.0
+    type Name = DirectiveName;
+    fn name(&self) -> DirectiveName {
+        self.name
     }
 }
 
 impl Named for ArgumentValue {
-    fn name(&self) -> StringKey {
-        self.name.0
+    type Name = ArgumentName;
+    fn name(&self) -> ArgumentName {
+        self.name
     }
 }

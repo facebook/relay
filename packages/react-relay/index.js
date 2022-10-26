@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -33,6 +34,7 @@ const useRelayEnvironment = require('./relay-hooks/useRelayEnvironment');
 const useSubscribeToInvalidationState = require('./relay-hooks/useSubscribeToInvalidationState');
 const useSubscription = require('./relay-hooks/useSubscription');
 const RelayRuntime = require('relay-runtime');
+const ProfilerContext = require('./relay-hooks/ProfilerContext');
 
 export type {
   $FragmentRef,
@@ -106,6 +108,8 @@ module.exports = {
   // Relay Hooks
   EntryPointContainer: EntryPointContainer,
   RelayEnvironmentProvider: RelayEnvironmentProvider,
+
+  ProfilerContext: ProfilerContext,
 
   fetchQuery: RelayRuntime.fetchQuery,
 

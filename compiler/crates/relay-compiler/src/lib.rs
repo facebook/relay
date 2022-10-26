@@ -33,6 +33,7 @@ pub use build_project::artifact_writer::NoopArtifactWriter;
 pub use build_project::build_programs;
 pub use build_project::build_raw_program;
 pub use build_project::build_schema;
+pub use build_project::find_duplicates;
 pub use build_project::generate_artifacts;
 pub use build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
 pub use build_project::transform_program;

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -24,9 +24,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * Reads a client edge field and then returns a string
  */
-function userClientEdgeResolver(
-  rootKey: UserReadsClientEdgeResolver$key,
-): string {
+function reads_client_edge(rootKey: UserReadsClientEdgeResolver$key): string {
   readFragment(
     graphql`
       fragment UserReadsClientEdgeResolver on User {
@@ -40,4 +38,6 @@ function userClientEdgeResolver(
   return 'Hello. I read a client edge.';
 }
 
-module.exports = userClientEdgeResolver;
+module.exports = {
+  reads_client_edge,
+};

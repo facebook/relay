@@ -469,7 +469,7 @@ fn is_selection_linked_or_scalar(selection: &Selection) -> bool {
     match selection {
         Selection::LinkedField(field) => field
             .directives
-            .named(DEFER_STREAM_CONSTANTS.stream_name.0)
+            .named(DEFER_STREAM_CONSTANTS.stream_name)
             .is_none(),
         Selection::ScalarField(_) => true,
         _ => false,

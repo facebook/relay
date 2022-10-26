@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -50,8 +51,13 @@ function generateUniqueClientID(): DataID {
 function generateClientObjectClientID(
   typename: string,
   localId: string,
+  index?: number,
 ): DataID {
-  return `${PREFIX}${typename}:${localId}`;
+  let key = `${PREFIX}${typename}:${localId}`;
+  if (index != null) {
+    key += ':' + index;
+  }
+  return key;
 }
 
 module.exports = {

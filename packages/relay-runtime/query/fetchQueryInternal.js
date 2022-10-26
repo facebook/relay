@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -35,7 +36,7 @@ type RequestCacheEntry = {
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 
 const requestCachesByEnvironment = WEAKMAP_SUPPORTED
-  ? new WeakMap()
+  ? new WeakMap<IEnvironment, Map<RequestIdentifier, RequestCacheEntry>>()
   : new Map();
 
 /**

@@ -6,6 +6,7 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -29,6 +30,7 @@ const {
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -162,6 +164,7 @@ if (__DEV__) {
         return validateModuleImport(context);
       case TYPE_DISCRIMINATOR:
         return validateAbstractKey(context, selection.abstractKey);
+      case RELAY_RESOLVER:
       case LINKED_HANDLE:
       case SCALAR_HANDLE:
       case DEFER:

@@ -5,7 +5,7 @@ slug: /api-reference/store/
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 The Relay Store can be used to programmatically update client-side data inside [`updater` functions](../../guided-tour/updating-data/graphql-mutations/). The following is a reference of the Relay Store interface.
 

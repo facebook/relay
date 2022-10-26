@@ -7,11 +7,12 @@
 
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::FeatureFlag;
 use common::Location;
-use common::Named;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
@@ -36,8 +37,8 @@ use schema::Type;
 use crate::ValidationMessage;
 
 lazy_static! {
-    pub static ref FRAGMENT_ALIAS_DIRECTIVE_NAME: StringKey = "alias".intern();
-    pub static ref FRAGMENT_ALIAS_ARGUMENT_NAME: StringKey = "as".intern();
+    pub static ref FRAGMENT_ALIAS_DIRECTIVE_NAME: DirectiveName = DirectiveName("alias".intern());
+    pub static ref FRAGMENT_ALIAS_ARGUMENT_NAME: ArgumentName = ArgumentName("as".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -92,7 +93,7 @@ impl<'program> FragmentAliasTransform<'program> {
         N: Fn() -> Option<StringKey>,
     {
         transform_list(directives, |directive| {
-            if directive.name() != *FRAGMENT_ALIAS_DIRECTIVE_NAME {
+            if directive.name.item != *FRAGMENT_ALIAS_DIRECTIVE_NAME {
                 return Transformed::Keep;
             }
 

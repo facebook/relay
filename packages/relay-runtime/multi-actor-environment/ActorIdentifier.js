@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -21,9 +21,7 @@ const invariant = require('invariant');
 const INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE: ActorIdentifier =
   'INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE';
 
-function assertInternalActorIndentifier(
-  actorIdentifier: ActorIdentifier,
-): void {
+function assertInternalActorIdentifier(actorIdentifier: ActorIdentifier): void {
   invariant(
     actorIdentifier === INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
     'Expected to use only internal version of the `actorIdentifier`. "%s" was provided.',
@@ -32,7 +30,7 @@ function assertInternalActorIndentifier(
 }
 
 module.exports = {
-  assertInternalActorIndentifier,
+  assertInternalActorIdentifier,
   getActorIdentifier(actorID: string): ActorIdentifier {
     return (actorID: ActorIdentifier);
   },

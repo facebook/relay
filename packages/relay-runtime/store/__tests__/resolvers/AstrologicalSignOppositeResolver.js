@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -25,7 +25,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * Expose a sign's opposite as an edge in the graph.
  */
-function astrologicalSignOpposite(
+function opposite(
   rootKey: AstrologicalSignOppositeResolver$key,
 ): string | null {
   const sign = readFragment(
@@ -39,4 +39,6 @@ function astrologicalSignOpposite(
   return sign.self?.oppositeSignId ?? null;
 }
 
-module.exports = astrologicalSignOpposite;
+module.exports = {
+  opposite,
+};

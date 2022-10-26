@@ -4,13 +4,27 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6daa50c6d4e1f509314b7c28a29bf686>>
+ * @generated SignedSource<<7e6c48eb62c1d815fb6644cb2e6e3bb3>>
  */
 
 mod hover;
 
 use hover::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn double_underscore_id_field() {
+    let input = include_str!("hover/fixtures/double_underscore_id_field.graphql");
+    let expected = include_str!("hover/fixtures/double_underscore_id_field.expected");
+    test_fixture(transform_fixture, "double_underscore_id_field.graphql", "hover/fixtures/double_underscore_id_field.expected", input, expected);
+}
+
+#[test]
+fn double_underscore_typename_field() {
+    let input = include_str!("hover/fixtures/double_underscore_typename_field.graphql");
+    let expected = include_str!("hover/fixtures/double_underscore_typename_field.expected");
+    test_fixture(transform_fixture, "double_underscore_typename_field.graphql", "hover/fixtures/double_underscore_typename_field.expected", input, expected);
+}
 
 #[test]
 fn fragment_definition_name() {

@@ -4,12 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
+import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {
   generateClientID,
@@ -18,7 +19,7 @@ const {
 } = require('../ClientID');
 
 it('creates unique local ids', () => {
-  const set = new Set();
+  const set = new Set<DataID>();
   for (let i = 0; i < 10; i++) {
     const id = generateUniqueClientID();
     expect(set.has(id)).toBe(false);

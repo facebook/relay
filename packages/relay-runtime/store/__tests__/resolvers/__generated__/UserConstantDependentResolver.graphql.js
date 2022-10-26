@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d3ec09d41bfdec4869edcce3f6761a65>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<a97c2f7b6a0d7e5c3d850f4adbfb0b17>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +20,7 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { UserConstantResolver$key } from "./UserConstantResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import userConstantResolver from "../UserConstantResolver.js";
+import {constant as userConstantResolver} from "../UserConstantResolver.js";
 // Type assertion validating that `userConstantResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userConstantResolver: (
@@ -52,7 +54,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "constant",
-      "resolverModule": require('./../UserConstantResolver'),
+      "resolverModule": require('./../UserConstantResolver').constant,
       "path": "constant"
     }
   ],

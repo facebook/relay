@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -27,7 +27,7 @@ const {
  * @onType Query
  * @live
  */
-function resolver(
+function live_external_greeting(
   rootKey: LiveExternalGreetingFragment$key,
 ): LiveState<string> {
   const data = readFragment(
@@ -73,10 +73,12 @@ function updateSalutation(salutation: string) {
   state.subscribers.forEach(s => s());
 }
 
-resolver.__debug = {
+live_external_greeting.__debug = {
   state,
   subscribe,
   updateSalutation,
 };
 
-module.exports = resolver;
+module.exports = {
+  live_external_greeting,
+};

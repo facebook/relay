@@ -29,13 +29,15 @@ pub trait StatusReporter {
 pub struct ConsoleStatusReporter {
     source_reader: Box<dyn SourceReader + Send + Sync>,
     root_dir: PathBuf,
+    is_multi_project: bool,
 }
 
 impl ConsoleStatusReporter {
-    pub fn new(root_dir: PathBuf) -> Self {
+    pub fn new(root_dir: PathBuf, is_multi_project: bool) -> Self {
         Self {
             root_dir,
             source_reader: Box::new(FsSourceReader),
+            is_multi_project,
         }
     }
 }
@@ -87,9 +89,19 @@ impl ConsoleStatusReporter {
                         let output = self.print_diagnostic(diagnostic);
                         let formatted_output = match diagnostic.severity() {
                             DiagnosticSeverity::ERROR => {
-                                format!("Error in the project `{}`: {}", project_name, output)
+                                if self.is_multi_project {
+                                    format!("Error in the project `{}`: {}", project_name, output)
+                                } else {
+                                    format!("Error: {}", output)
+                                }
                             }
-                            _ => format!("In the project `{}`: {}", project_name, output),
+                            _ => {
+                                if self.is_multi_project {
+                                    format!("In the project `{}`: {}", project_name, output)
+                                } else {
+                                    output
+                                }
+                            }
                         };
 
                         (diagnostic.severity(), formatted_output)
@@ -101,7 +113,11 @@ impl ConsoleStatusReporter {
                 project_name,
             } => {
                 for error in errors {
-                    error!("Error in the project `{}`: {}", project_name, error);
+                    if self.is_multi_project {
+                        error!("Error in the project `{}`: {}", project_name, error);
+                    } else {
+                        error!("Error: {}", error);
+                    }
                 }
             }
             _ => {

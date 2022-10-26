@@ -11,6 +11,7 @@
 mod artifact_generated_types;
 pub mod artifact_writer;
 mod build_ir;
+mod build_resolvers_schema;
 pub mod build_schema;
 mod generate_artifacts;
 pub mod generate_extra_artifacts;
@@ -59,6 +60,7 @@ pub use validate::validate;
 pub use validate::AdditionalValidations;
 
 use self::log_program_stats::print_stats;
+pub use self::project_asts::find_duplicates;
 pub use self::project_asts::get_project_asts;
 pub use self::project_asts::ProjectAstData;
 pub use self::project_asts::ProjectAsts;

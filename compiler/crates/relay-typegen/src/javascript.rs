@@ -47,6 +47,15 @@ impl Writer for JavaScriptPrinter {
         Ok(())
     }
 
+    fn write_import_module_named(
+        &mut self,
+        _name: &str,
+        _alias: Option<&str>,
+        _from: &str,
+    ) -> FmtResult {
+        Ok(())
+    }
+
     fn write_import_type(&mut self, _types: &[&str], _from: &str) -> FmtResult {
         Ok(())
     }

@@ -10,7 +10,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 In this section we're going to cover how to implement more advanced pagination use cases than the default cases covered by `usePaginationFragment`.
 

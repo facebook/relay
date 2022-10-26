@@ -4,12 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 
 const EntryPointContainer = require('../EntryPointContainer.react');
 const loadEntryPoint = require('../loadEntryPoint');
@@ -146,7 +147,35 @@ afterAll(() => {
 });
 
 it('suspends while the query and component are pending', () => {
-  entryPointReference = loadEntryPoint(
+  entryPointReference = loadEntryPoint<
+    {id: string},
+    {...},
+    {...},
+    {...},
+    mixed,
+    any,
+    {
+      getPreloadProps(entryPointParams: any): {
+        entryPoints: {
+          nestedEntryPoint: {
+            entryPoint: {
+              getPreloadProps(nestedEntryPointParams: any): {
+                queries: {
+                  preloadedQuery: {
+                    parameters: {kind: string, params: RequestParameters},
+                    variables: {id: any},
+                  },
+                },
+              },
+              root: any,
+            },
+            entryPointParams: any,
+          },
+        },
+      },
+      root: any,
+    },
+  >(
     {
       getEnvironment: () => environment,
     },
@@ -173,7 +202,35 @@ it('suspends while the query and component are pending', () => {
 });
 
 it('suspends then updates when the query and component load', () => {
-  entryPointReference = loadEntryPoint(
+  entryPointReference = loadEntryPoint<
+    {id: string},
+    {...},
+    {...},
+    {...},
+    mixed,
+    any,
+    {
+      getPreloadProps(entryPointParams: any): {
+        entryPoints: {
+          nestedEntryPoint: {
+            entryPoint: {
+              getPreloadProps(nestedEntryPointParams: any): {
+                queries: {
+                  preloadedQuery: {
+                    parameters: {kind: string, params: RequestParameters},
+                    variables: {id: any},
+                  },
+                },
+              },
+              root: any,
+            },
+            entryPointParams: any,
+          },
+        },
+      },
+      root: any,
+    },
+  >(
     {
       getEnvironment: () => environment,
     },
@@ -227,7 +284,35 @@ it('renders synchronously when the component has already loaded and the data arr
   }
   PreloadableQueryRegistry.set(ID, query);
   nestedEntryPointResource.resolve(Component);
-  entryPointReference = loadEntryPoint(
+  entryPointReference = loadEntryPoint<
+    {id: string},
+    {...},
+    {...},
+    {...},
+    mixed,
+    any,
+    {
+      getPreloadProps(entryPointParams: any): {
+        entryPoints: {
+          nestedEntryPoint: {
+            entryPoint: {
+              getPreloadProps(nestedEntryPointParams: any): {
+                queries: {
+                  preloadedQuery: {
+                    parameters: {kind: string, params: RequestParameters},
+                    variables: {id: any},
+                  },
+                },
+              },
+              root: any,
+            },
+            entryPointParams: any,
+          },
+        },
+      },
+      root: any,
+    },
+  >(
     {
       getEnvironment: () => environment,
     },

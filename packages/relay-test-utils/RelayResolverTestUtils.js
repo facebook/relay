@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
- * @format
  * @flow
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -41,7 +41,7 @@ function testResolver<D, Ret>(
   fragmentData: D,
 ): Ret {
   const readFragment = ResolverFragments.readFragment;
-  // a test utility, so... YOLO!!
+  // $FlowFixMe: a test utility, so... YOLO!!
   ResolverFragments.readFragment = () => fragmentData;
   const result = resolver(
     // This will be ignored since we mock the function it gets passed to.

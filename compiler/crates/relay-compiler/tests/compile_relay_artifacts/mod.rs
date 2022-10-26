@@ -32,6 +32,7 @@ use relay_codegen::print_fragment;
 use relay_codegen::print_operation;
 use relay_codegen::print_request;
 use relay_codegen::JsModuleFormat;
+use relay_compiler::find_duplicates;
 use relay_compiler::validate;
 use relay_compiler::ConfigFileProject;
 use relay_compiler::ProjectConfig;
@@ -115,6 +116,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_client_edges: FeatureFlag::Enabled,
         skip_printing_nulls: FeatureFlag::Disabled,
         enable_fragment_aliases: FeatureFlag::Enabled,
+        compact_query_text: FeatureFlag::Disabled,
+        use_named_imports_for_relay_resolvers: false,
+        relay_resolver_model_syntax_enabled: false,
+        relay_resolver_enable_terse_syntax: false,
     };
 
     let default_project_config = ProjectConfig {
@@ -174,6 +179,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let ast = parse_executable(base, source_location)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+
+    find_duplicates(&ast.definitions, &[])
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+
     let ir_result = build_ir_with_extra_features(
         &schema,
         &ast.definitions,
@@ -210,7 +219,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .map(|operation| {
             if operation
                 .directives
-                .named(DIRECTIVE_SPLIT_OPERATION.0)
+                .named(*DIRECTIVE_SPLIT_OPERATION)
                 .is_some()
             {
                 let mut import_statements = Default::default();
@@ -225,7 +234,11 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 let text = print_operation_node.map_or_else(
                     || "Query Text is Empty.".to_string(),
                     |print_operation_node| {
-                        print_full_operation(&programs.operation_text, print_operation_node)
+                        print_full_operation(
+                            &programs.operation_text,
+                            print_operation_node,
+                            Default::default(),
+                        )
                     },
                 );
 

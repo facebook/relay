@@ -110,7 +110,7 @@ impl<'program> ClientExtensionsAbstactTypesTransform<'program> {
             generate_abstract_type_refinement_key(&self.program.schema, abstract_type);
         let names_iter = object_ids
             .iter()
-            .map(|object_id| self.program.schema.object(*object_id).name.item);
+            .map(|object_id| self.program.schema.object(*object_id).name.item.0);
         match self.abstract_type_map.entry(abstract_type_name) {
             Entry::Occupied(mut occupied) => {
                 occupied.get_mut().extend(names_iter);

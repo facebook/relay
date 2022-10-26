@@ -6,6 +6,7 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -52,6 +53,7 @@ const {
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -350,6 +352,11 @@ class RelayResponseNormalizer {
           break;
         case ACTOR_CHANGE:
           this._normalizeActorChange(node, selection, record, data);
+          break;
+        case RELAY_RESOLVER:
+          if (selection.fragment != null) {
+            this._traverseSelections(selection.fragment, record, data);
+          }
           break;
         default:
           (selection: empty);
@@ -897,7 +904,7 @@ class RelayResponseNormalizer {
       storageKey,
     );
     const prevIDs = RelayModernRecord.getLinkedRecordIDs(record, storageKey);
-    const nextIDs = [];
+    const nextIDs: Array<?DataID> = [];
     fieldValue.forEach((item, nextIndex) => {
       // validate response data
       if (item == null) {

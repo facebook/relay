@@ -5,12 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 const versions = require('./versions.json');
-const {fbContent, isInternal} = require('internaldocs-fb-helpers');
+const {
+  fbContent,
+  isInternal,
+} = require('docusaurus-plugin-internaldocs-fb/internal');
 
 module.exports = {
   title: 'Relay',

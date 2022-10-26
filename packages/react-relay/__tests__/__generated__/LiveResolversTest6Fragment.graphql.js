@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0f07e322f4cbc5a36f1b09adee39f43a>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<59f69d2cd201bbafd3e51e2ac571b507>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +20,7 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { UserNameAndCounterSuspendsWhenOdd$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserNameAndCounterSuspendsWhenOdd.graphql";
 import type { FragmentType } from "relay-runtime";
-import queryUserNameAndCounterSuspendsWhenOddResolver from "../../../relay-runtime/store/__tests__/resolvers/UserNameAndCounterSuspendsWhenOdd.js";
+import {user_name_and_counter_suspends_when_odd as queryUserNameAndCounterSuspendsWhenOddResolver} from "../../../relay-runtime/store/__tests__/resolvers/UserNameAndCounterSuspendsWhenOdd.js";
 // Type assertion validating that `queryUserNameAndCounterSuspendsWhenOddResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryUserNameAndCounterSuspendsWhenOddResolver: (
@@ -52,7 +54,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "user_name_and_counter_suspends_when_odd",
-      "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserNameAndCounterSuspendsWhenOdd'),
+      "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserNameAndCounterSuspendsWhenOdd').user_name_and_counter_suspends_when_odd,
       "path": "user_name_and_counter_suspends_when_odd"
     }
   ],

@@ -71,6 +71,7 @@ query QueryWithDirectAndTransitiveModuleDep @__RelayDataDrivenDependencyMetadata
           #     fragment_name: FragmentDefinitionName(
           #         "PlainUserNameRenderer_name",
           #     ),
+          #     fragment_source_location: query-with-direct-and-transitive-module-dep.graphql:586:612,
           #     no_inline: false,
           # }
            {
@@ -90,6 +91,7 @@ query QueryWithDirectAndTransitiveModuleDep @__RelayDataDrivenDependencyMetadata
           #     fragment_name: FragmentDefinitionName(
           #         "MarkdownUserNameRenderer_name",
           #     ),
+          #     fragment_source_location: query-with-direct-and-transitive-module-dep.graphql:686:715,
           #     no_inline: false,
           # }
            {
@@ -128,6 +130,7 @@ fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
       #     fragment_name: FragmentDefinitionName(
       #         "PlainUserNameRenderer_name",
       #     ),
+      #     fragment_source_location: query-with-direct-and-transitive-module-dep.graphql:586:612,
       #     no_inline: false,
       # }
        {
@@ -147,6 +150,7 @@ fragment FragmentWithModuleDep on User @__RelayDataDrivenDependencyMetadata
       #     fragment_name: FragmentDefinitionName(
       #         "MarkdownUserNameRenderer_name",
       #     ),
+      #     fragment_source_location: query-with-direct-and-transitive-module-dep.graphql:686:715,
       #     no_inline: false,
       # }
        {

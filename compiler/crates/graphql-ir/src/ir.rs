@@ -11,6 +11,7 @@ use std::fmt;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use std::hash::Hash;
+use std::str::FromStr;
 use std::sync::Arc;
 
 use common::ArgumentName;
@@ -20,8 +21,11 @@ use common::Named;
 use common::WithLocation;
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
+use intern::impl_lookup;
+use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::BuildIdHasher;
+use intern::Lookup;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
@@ -67,7 +71,7 @@ impl Display for OperationDefinitionName {
         write!(f, "{}", self.0)
     }
 }
-
+impl_lookup!(OperationDefinitionName);
 /// A fully-typed mutation, query, or subscription definition
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct OperationDefinition {
@@ -80,8 +84,9 @@ pub struct OperationDefinition {
 }
 
 impl Named for OperationDefinition {
-    fn name(&self) -> StringKey {
-        self.name.item.0
+    type Name = OperationDefinitionName;
+    fn name(&self) -> OperationDefinitionName {
+        self.name.item
     }
 }
 
@@ -107,6 +112,8 @@ impl fmt::Display for FragmentDefinitionName {
     }
 }
 
+impl_lookup!(FragmentDefinitionName);
+
 pub type FragmentDefinitionNameMap<V> = HashMap<FragmentDefinitionName, V, BuildIdHasher<u32>>;
 pub type FragmentDefinitionNameSet = HashSet<FragmentDefinitionName, BuildIdHasher<u32>>;
 
@@ -130,11 +137,20 @@ impl Display for VariableName {
     }
 }
 
+impl FromStr for VariableName {
+    type Err = std::convert::Infallible;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(VariableName(s.intern()))
+    }
+}
+
+impl_lookup!(VariableName);
+
 /// A variable definition of an operation or fragment
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct VariableDefinition {
     pub name: WithLocation<VariableName>,
-    pub type_: TypeReference,
+    pub type_: TypeReference<Type>,
     pub default_value: Option<WithLocation<ConstantValue>>,
     pub directives: Vec<Directive>,
 }
@@ -149,8 +165,9 @@ impl VariableDefinition {
 }
 
 impl Named for VariableDefinition {
-    fn name(&self) -> StringKey {
-        self.name.item.0
+    type Name = VariableName;
+    fn name(&self) -> VariableName {
+        self.name.item
     }
 }
 
@@ -387,8 +404,9 @@ pub struct Directive {
     pub data: Option<Box<dyn AssociatedData>>,
 }
 impl Named for Directive {
-    fn name(&self) -> StringKey {
-        self.name.item.0
+    type Name = DirectiveName;
+    fn name(&self) -> DirectiveName {
+        self.name.item
     }
 }
 
@@ -399,8 +417,9 @@ pub struct Argument {
     pub value: WithLocation<Value>,
 }
 impl Named for Argument {
-    fn name(&self) -> StringKey {
-        self.name.item.0
+    type Name = ArgumentName;
+    fn name(&self) -> ArgumentName {
+        self.name.item
     }
 }
 
@@ -450,17 +469,18 @@ impl Value {
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Variable {
     pub name: WithLocation<VariableName>,
-    pub type_: TypeReference,
+    pub type_: TypeReference<Type>,
 }
 
 /// Name : Value[Const]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ConstantArgument {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<ArgumentName>,
     pub value: WithLocation<ConstantValue>,
 }
 impl Named for ConstantArgument {
-    fn name(&self) -> StringKey {
+    type Name = ArgumentName;
+    fn name(&self) -> ArgumentName {
         self.name.item
     }
 }

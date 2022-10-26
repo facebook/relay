@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -24,7 +24,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * Greet the user with a custom salutation provided via arguments.
  */
-function userGreeting(
+function custom_greeting(
   rootKey: UserCustomGreetingResolver$key,
   args: {salutation: string},
 ): string {
@@ -40,4 +40,6 @@ function userGreeting(
   return `${args.salutation}, ${name}!`;
 }
 
-module.exports = userGreeting;
+module.exports = {
+  custom_greeting,
+};

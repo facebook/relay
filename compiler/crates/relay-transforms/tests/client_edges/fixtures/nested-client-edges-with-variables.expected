@@ -34,11 +34,14 @@ fragment Foo_user on User {
     # RelayResolverMetadata {
     #     field_parent_type: "User",
     #     import_path: "BestFriendResolver",
+    #     import_name: None,
     #     field_name: "best_friend",
     #     field_alias: None,
     #     field_path: "best_friend",
     #     field_arguments: [],
     #     live: false,
+    #     output_type_info: None,
+    #     fragment_data_injection_mode: None,
     # }
      @waterfall
     best_friend @waterfall {
@@ -53,11 +56,14 @@ fragment Foo_user on User {
         # RelayResolverMetadata {
         #     field_parent_type: "User",
         #     import_path: "BestFriendResolver",
+        #     import_name: None,
         #     field_name: "best_friend",
         #     field_alias: None,
         #     field_path: "best_friend",
         #     field_arguments: [],
         #     live: false,
+        #     output_type_info: None,
+        #     fragment_data_injection_mode: None,
         # }
          @waterfall
         best_friend @waterfall {
@@ -91,11 +97,14 @@ fragment RefetchableClientEdgeQuery_Foo_user_best_friend on User @__clientEdgeGe
     # RelayResolverMetadata {
     #     field_parent_type: "User",
     #     import_path: "BestFriendResolver",
+    #     import_name: None,
     #     field_name: "best_friend",
     #     field_alias: None,
     #     field_path: "best_friend",
     #     field_arguments: [],
     #     live: false,
+    #     output_type_info: None,
+    #     fragment_data_injection_mode: None,
     # }
      @waterfall
     best_friend @waterfall {

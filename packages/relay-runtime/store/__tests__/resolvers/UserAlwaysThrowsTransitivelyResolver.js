@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -24,7 +24,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * A Relay Resolver that reads another resolver which will always throw.
  */
-function userAlwaysThrowsTransitively(
+function always_throws_transitively(
   rootKey: UserAlwaysThrowsTransitivelyResolver$key,
 ): ?string {
   const user = readFragment(
@@ -38,4 +38,6 @@ function userAlwaysThrowsTransitively(
   return user.always_throws;
 }
 
-module.exports = userAlwaysThrowsTransitively;
+module.exports = {
+  always_throws_transitively,
+};

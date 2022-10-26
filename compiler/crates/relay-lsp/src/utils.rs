@@ -22,7 +22,9 @@ use lsp_types::TextDocumentPositionParams;
 use lsp_types::Url;
 use relay_compiler::FileCategorizer;
 use relay_compiler::FileGroup;
+use relay_compiler::ProjectConfig;
 use relay_docblock::parse_docblock_ast;
+use relay_docblock::ParseOptions;
 
 use crate::lsp_runtime_error::LSPRuntimeError;
 use crate::lsp_runtime_error::LSPRuntimeResult;
@@ -97,6 +99,7 @@ pub fn extract_project_name_from_url(
 /// Return a parsed executable document, or parsed Docblock IR for this LSP
 /// request, only if the request occurs within a GraphQL document or Docblock.
 pub fn extract_feature_from_text(
+    project_config: &ProjectConfig,
     source_feature_cache: &DashMap<Url, Vec<JavaScriptSourceFeature>>,
     text_document_position: &TextDocumentPositionParams,
     index_offset: usize,
@@ -154,7 +157,24 @@ pub fn extract_feature_from_text(
             let text_source = &docblock_source.text_source();
             let text = &text_source.text;
             let docblock_ir = parse_docblock(text, source_location_key)
-                .and_then(|ast| parse_docblock_ast(&ast, Some(&executable_definitions_in_file)))
+                .and_then(|ast| {
+                    parse_docblock_ast(
+                        &ast,
+                        Some(&executable_definitions_in_file),
+                        ParseOptions {
+                            use_named_imports: project_config
+                                .feature_flags
+                                .use_named_imports_for_relay_resolvers,
+                            relay_resolver_model_syntax_enabled: project_config
+                                .feature_flags
+                                .relay_resolver_model_syntax_enabled,
+                            relay_resolver_enable_terse_syntax: project_config
+                                .feature_flags
+                                .relay_resolver_enable_terse_syntax,
+                            id_field_name: project_config.schema_config.node_interface_id_field,
+                        },
+                    )
+                })
                 .map_err(|_| {
                     LSPRuntimeError::UnexpectedError("Failed to parse docblock".to_string())
                 })?

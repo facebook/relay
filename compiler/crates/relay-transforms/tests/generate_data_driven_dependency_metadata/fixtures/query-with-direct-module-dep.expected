@@ -53,6 +53,7 @@ query QueryWithDirectModuleDep @__RelayDataDrivenDependencyMetadata
           #     fragment_name: FragmentDefinitionName(
           #         "PlainUserNameRenderer_name",
           #     ),
+          #     fragment_source_location: query-with-direct-module-dep.graphql:303:329,
           #     no_inline: false,
           # }
            {
@@ -72,6 +73,7 @@ query QueryWithDirectModuleDep @__RelayDataDrivenDependencyMetadata
           #     fragment_name: FragmentDefinitionName(
           #         "MarkdownUserNameRenderer_name",
           #     ),
+          #     fragment_source_location: query-with-direct-module-dep.graphql:403:432,
           #     no_inline: false,
           # }
            {

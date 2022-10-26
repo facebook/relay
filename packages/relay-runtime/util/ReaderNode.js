@@ -6,11 +6,13 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type {ConnectionMetadata} from '../handlers/connection/ConnectionHandler';
+import type {NormalizationSelectableNode} from './NormalizationNode';
 import type {ConcreteRequest} from './RelayConcreteNode';
 
 export type ReaderFragmentSpread = {
@@ -244,6 +246,12 @@ type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear
 // With ES6 imports, a resolver function might be exported under the `default` key.
 type ResolverModule = ResolverFunction | {default: ResolverFunction};
 
+export type ResolverNormalizationInfo = {
+  +concreteType: string,
+  +plural: boolean,
+  +normalizationNode: NormalizationSelectableNode,
+};
+
 export type ReaderRelayResolver = {
   +kind: 'RelayResolver',
   +alias: ?string,
@@ -252,6 +260,7 @@ export type ReaderRelayResolver = {
   +fragment: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
+  +normalizationInfo?: ResolverNormalizationInfo,
 };
 
 export type ReaderRelayLiveResolver = {
@@ -262,6 +271,7 @@ export type ReaderRelayLiveResolver = {
   +fragment: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
+  +normalizationInfo?: ResolverNormalizationInfo,
 };
 
 export type ReaderClientEdgeToClientObject = {

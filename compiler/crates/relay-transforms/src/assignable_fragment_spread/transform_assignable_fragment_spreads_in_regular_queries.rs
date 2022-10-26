@@ -24,6 +24,7 @@ use graphql_ir::Selection;
 use graphql_ir::Transformed;
 use graphql_ir::Transformer;
 use intern::string_key::Intern;
+use intern::Lookup;
 use schema::Schema;
 
 use super::ensure_discriminated_union_is_created;

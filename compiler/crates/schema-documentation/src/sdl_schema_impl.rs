@@ -7,6 +7,7 @@
 
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::Field;
 use schema::SDLSchema;
 use schema::Schema;

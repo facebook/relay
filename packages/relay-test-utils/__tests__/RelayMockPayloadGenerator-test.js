@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -1652,6 +1652,27 @@ describe('with @relay_test_operation', () => {
             client_name
             client_code
           }
+        }
+      }
+    `;
+    test('generate mock for client extensions with client generation disabled', () => {
+      testGeneratedData(clientExtensionsQuery, undefined, {
+        mockClientData: false,
+      });
+    });
+
+    test('generate mock for client extensions with client generation enabled', () => {
+      testGeneratedData(clientExtensionsQuery, undefined, {
+        mockClientData: true,
+      });
+    });
+  });
+  describe('with Relay Resolver having fragment', () => {
+    const clientExtensionsQuery = graphql`
+      query RelayMockPayloadGeneratorTest57Query @relay_test_operation {
+        me {
+          # Should mock out the user's 'name' field, since that field is used by this resolver's fragment
+          name_passthrough
         }
       }
     `;

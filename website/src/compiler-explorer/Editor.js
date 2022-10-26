@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 import 'monaco-editor/esm/vs/editor/browser/controller/coreCommands.js';

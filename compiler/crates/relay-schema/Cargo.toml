@@ -9,4 +9,5 @@ license = "MIT"
 [dependencies]
 common = { path = "../common" }
 intern = { path = "../intern" }
+lazy_static = "1.4"
 schema = { path = "../schema" }

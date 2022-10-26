@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<12a515c571ef1347c44970cc73bec3ca>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<25e976a302808107b7e7f22a65af8067>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserNamePassthroughResolver$key } from "./../resolvers/__generated__/UserNamePassthroughResolver.graphql";
-import userNamePassthroughResolver from "../resolvers/UserNamePassthroughResolver.js";
+import {name_passthrough as userNamePassthroughResolver} from "../resolvers/UserNamePassthroughResolver.js";
 // Type assertion validating that `userNamePassthroughResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userNamePassthroughResolver: (
@@ -62,7 +64,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "name_passthrough",
-              "resolverModule": require('./../resolvers/UserNamePassthroughResolver'),
+              "resolverModule": require('./../resolvers/UserNamePassthroughResolver').name_passthrough,
               "path": "me.name_passthrough"
             },
             "action": "NONE",
@@ -90,10 +92,23 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "name_passthrough",
             "args": null,
-            "kind": "ScalarField",
-            "name": "name",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

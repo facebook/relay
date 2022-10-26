@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -76,6 +77,7 @@ export type FetchPolicy =
 export type RenderPolicy = 'full' | 'partial';
 
 /* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 
 /**
  * Return type of graphql tag literals for all operations.

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -24,7 +24,6 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -78,7 +77,7 @@ describe('useBlockingPaginationFragment with useTransition', () => {
     ) {
       const [isPendingNext, startTransition] = useTransition();
       // $FlowFixMe[incompatible-call]
-      const {data, ...result} = useBlockingPaginationFragmentOriginal(
+      const {data, ...result} = useBlockingPaginationFragmentOriginal<any, any>(
         fragmentNode,
         // $FlowFixMe[prop-missing]
         // $FlowFixMe[incompatible-call]

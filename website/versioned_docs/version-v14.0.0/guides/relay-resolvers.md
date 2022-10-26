@@ -11,7 +11,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {FbInternalOnly} from 'internaldocs-fb-helpers';
+import {FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 Relay Resolvers is an experimental Relay feature which enables modeling derived state as client-only fields in Relay’s GraphQL graph. Similar to server [resolvers](https://graphql.org/learn/execution/), a Relay Resolver is a function which defines how to compute the value of a GraphQL field. However, unlike server resolvers, Relay Resolvers are evaluated reactively on the client. A Relay Resolver reads fields off of its parent object and returns a derived result. If any of those fields change, Relay will automatically reevaluate the resolver.
 

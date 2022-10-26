@@ -13,6 +13,7 @@ use common::DirectiveName;
 use common::WithDiagnosticData;
 use graphql_syntax::OperationKind;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::suggestion_list::did_you_mean;
 use schema::Type;
 use schema::TypeReference;
@@ -40,7 +41,7 @@ pub enum ValidationMessage {
     ExpectedCompositeType(Type),
 
     #[error("Expected type '{0:?}")]
-    ExpectedType(TypeReference),
+    ExpectedType(TypeReference<Type>),
 
     #[error("Expected no selections on scalar field `{field_name}` of type `{type_name}`")]
     InvalidSelectionsOnScalarField {

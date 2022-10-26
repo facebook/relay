@@ -11,10 +11,12 @@ use graphql_ir::Directive;
 use graphql_ir::FragmentDefinitionName;
 use graphql_ir::ProvidedVariableMetadata;
 use graphql_ir::Value;
+use graphql_ir::VariableName;
 use graphql_ir::ARGUMENT_DEFINITION;
 use graphql_ir::UNUSED_LOCAL_VARIABLE_DEPRECATED;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use regex::Regex;
 use schema::SDLSchema;
@@ -124,7 +126,7 @@ lazy_static! {
         *REQUIRED_DIRECTIVE_NAME,
         RelayClientComponentMetadata::directive_name(),
     ];
-    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [DirectiveName; 7] = [
+    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [DirectiveName; 8] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ModuleMetadata::directive_name(),
         InlineDirectiveMetadata::directive_name(),
@@ -132,6 +134,7 @@ lazy_static! {
         ClientEdgeMetadataDirective::directive_name(),
         DirectiveName("defer".intern()),
         FragmentAliasMetadata::directive_name(),
+        RelayResolverMetadata::directive_name(),
     ];
     static ref VALID_PROVIDED_VARIABLE_NAME: Regex = Regex::new(r#"^[A-Za-z0-9_]*$"#).unwrap();
     pub static ref INTERNAL_RELAY_VARIABLES_PREFIX: StringKey = "__relay_internal".intern();
@@ -173,8 +176,8 @@ pub fn get_fragment_filename(fragment_name: FragmentDefinitionName) -> StringKey
     .intern()
 }
 
-pub fn format_provided_variable_name(module_name: StringKey) -> StringKey {
-    if VALID_PROVIDED_VARIABLE_NAME.is_match(module_name.lookup()) {
+pub fn format_provided_variable_name(module_name: StringKey) -> VariableName {
+    let x = if VALID_PROVIDED_VARIABLE_NAME.is_match(module_name.lookup()) {
         format!(
             "{}__pv__{}",
             *INTERNAL_RELAY_VARIABLES_PREFIX,
@@ -192,5 +195,6 @@ pub fn format_provided_variable_name(module_name: StringKey) -> StringKey {
             *INTERNAL_RELAY_VARIABLES_PREFIX, transformed_name
         )
         .intern()
-    }
+    };
+    VariableName(x)
 }

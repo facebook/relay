@@ -13,6 +13,7 @@ use common::SourceLocationKey;
 use docblock_syntax::DocblockSource;
 use extract_graphql::JavaScriptSourceFeature;
 use graphql_syntax::GraphQLSource;
+use intern::Lookup;
 use serde::Deserialize;
 use serde::Serialize;
 

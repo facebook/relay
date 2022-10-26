@@ -30,6 +30,7 @@ use graphql_ir::Program;
 use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -77,7 +78,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
 
     fn validate_program(&self, program: &'s Program) -> DiagnosticsResult<()> {
         if self.further_optimization {
-            self.prewarm_fragments(program);
+            self.prewarm_fragments(program)?;
         }
 
         par_try_map(&program.operations, |operation| {
@@ -86,7 +87,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
         Ok(())
     }
 
-    fn prewarm_fragments(&self, program: &'s Program) {
+    fn prewarm_fragments(&self, program: &'s Program) -> DiagnosticsResult<()> {
         // Validate the fragments in topology order.
         let mut unclaimed_fragment_queue: VecDeque<FragmentDefinitionName> = VecDeque::new();
 
@@ -118,11 +119,13 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
 
         let dummy_hashset = HashSet::new();
         while let Some(visiting) = unclaimed_fragment_queue.pop_front() {
-            let _ = self.validate_and_collect_fragment(
+            if let Err(e) = self.validate_and_collect_fragment(
                 program
                     .fragment(visiting)
                     .expect("fragment must have been registered"),
-            );
+            ) {
+                return Err(e);
+            }
 
             for used_by in dag_used_by.get(&visiting).unwrap_or(&dummy_hashset) {
                 // fragment "used_by" now can assume "...now" cached.
@@ -133,6 +136,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                 }
             }
         }
+        Ok(())
     }
 
     fn validate_operation(&self, operation: &'s OperationDefinition) -> DiagnosticsResult<()> {
@@ -268,7 +272,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                             *l,
                             *r,
                         ) {
-                            errors.push(err)
+                            errors.push(err);
                         };
                     }
                     if has_same_type_reference_wrapping(&l_definition.type_, &r_definition.type_) {
@@ -313,7 +317,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
                             *l,
                             *r,
                         ) {
-                            errors.push(err)
+                            errors.push(err);
                         };
                     } else if l_definition.type_ != r_definition.type_ {
                         errors.push(
@@ -361,7 +365,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
             }
 
             // save the verified pair into cache
-            if self.further_optimization && errors.is_empty() {
+            if self.further_optimization {
                 self.verified_fields_pair.insert((addr1, addr2));
             }
         }
@@ -462,7 +466,7 @@ impl<'s, B: LocationAgnosticBehavior + Sync> ValidateSelectionConflict<'s, B> {
     }
 }
 
-fn has_same_type_reference_wrapping(l: &TypeReference, r: &TypeReference) -> bool {
+fn has_same_type_reference_wrapping(l: &TypeReference<Type>, r: &TypeReference<Type>) -> bool {
     match (l, r) {
         (TypeReference::Named(_), TypeReference::Named(_)) => true,
         (TypeReference::NonNull(l), TypeReference::NonNull(r))

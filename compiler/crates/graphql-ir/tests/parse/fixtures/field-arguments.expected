@@ -121,7 +121,9 @@ query TestQuery {
                                             ConstantArgument {
                                                 name: WithLocation {
                                                     location: field-arguments.graphql:141:146,
-                                                    item: "query",
+                                                    item: ArgumentName(
+                                                        "query",
+                                                    ),
                                                 },
                                                 value: WithLocation {
                                                     location: field-arguments.graphql:148:155,

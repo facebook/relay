@@ -16,6 +16,7 @@ use std::vec;
 use async_trait::async_trait;
 use common::FeatureFlags;
 use common::Rollout;
+use common::ScalarName;
 use fnv::FnvBuildHasher;
 use fnv::FnvHashSet;
 use graphql_ir::OperationDefinition;
@@ -276,6 +277,11 @@ Example file:
         let mut hash = Sha1::new();
         serde_json::to_writer(&mut hash, &config_file).unwrap();
 
+        let is_multi_project = match config_file {
+            ConfigFile::MultiProject(_) => true,
+            ConfigFile::SingleProject(_) => false,
+        };
+
         let config_file = match config_file {
             ConfigFile::MultiProject(config) => *config,
             ConfigFile::SingleProject(config) => {
@@ -373,7 +379,10 @@ Example file:
         let config = Self {
             name: config_file.name,
             artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
-            status_reporter: Box::new(ConsoleStatusReporter::new(root_dir.clone())),
+            status_reporter: Box::new(ConsoleStatusReporter::new(
+                root_dir.clone(),
+                is_multi_project,
+            )),
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
@@ -674,7 +683,7 @@ pub struct SingleProjectConfigFile {
 
     /// Mappings from custom scalars in your schema to built-in GraphQL
     /// types, for type emission purposes.
-    pub custom_scalars: FnvIndexMap<StringKey, CustomScalarType>,
+    pub custom_scalars: FnvIndexMap<ScalarName, CustomScalarType>,
 
     /// This option enables emitting es modules artifacts.
     pub eager_es_modules: bool,

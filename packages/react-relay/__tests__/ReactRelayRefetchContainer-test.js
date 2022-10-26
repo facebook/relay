@@ -4,8 +4,8 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -13,7 +13,6 @@
 const {act: internalAct} = require('../jest-react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
-const readContext = require('../readContext');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {
@@ -27,6 +26,8 @@ const {
   expectToWarn,
   unwrapContainer,
 } = require('relay-test-utils-internal');
+
+const {useContext} = React;
 
 disallowWarnings();
 
@@ -118,7 +119,7 @@ describe('ReactRelayRefetchContainer', () => {
     `;
 
     function ContextGetter() {
-      relayContext = readContext(ReactRelayContext);
+      relayContext = useContext(ReactRelayContext);
       return null;
     }
 

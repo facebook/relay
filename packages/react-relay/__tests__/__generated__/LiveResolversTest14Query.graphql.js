@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cb7b132119689add051fdcdd1a88ae29>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<b36a66f7ecb75aac7c600f33cba01982>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import queryCounterNoFragmentResolver from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment.js";
+import {counter_no_fragment as queryCounterNoFragmentResolver} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment.js";
 // Type assertion validating that `queryCounterNoFragmentResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterNoFragmentResolver: () => LiveState<any>);
@@ -70,7 +72,7 @@ return {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "counter_no_fragment",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment'),
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragment').counter_no_fragment,
             "path": "counter_no_fragment"
           }
         ]
@@ -108,10 +110,10 @@ return {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
+            "name": "counter_no_fragment",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -117,7 +117,7 @@ describe('execute() a query with @stream', () => {
       _variables: Variables,
       _cacheConfig: CacheConfig,
     ) => {
-      return RelayObservable.create(sink => {
+      return RelayObservable.create<$FlowFixMe>(sink => {
         dataSource = sink;
       });
     };
@@ -142,7 +142,7 @@ describe('execute() a query with @stream', () => {
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
-    const payload = {
+    const payload: $FlowFixMe = {
       data: {
         node: {
           __typename: 'Feedback',
@@ -1431,7 +1431,7 @@ describe('execute() a query with @stream', () => {
     environment.subscribe(initialSnapshot, callback);
 
     environment.execute({operation}).subscribe(callbacks);
-    const payload = {
+    const payload: $FlowFixMe = {
       data: {
         node: {
           __typename: 'Feedback',

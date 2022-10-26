@@ -18,7 +18,7 @@ graphql-ir = { path = "../graphql-ir" }
 graphql-text-printer = { path = "../graphql-text-printer" }
 intern = { path = "../intern" }
 schema = { path = "../schema" }
-thiserror = "1.0.30"
+thiserror = "1.0.36"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

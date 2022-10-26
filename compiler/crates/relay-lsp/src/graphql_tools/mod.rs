@@ -159,6 +159,7 @@ fn print_full_operation_text(programs: Programs, operation_name: StringKey) -> O
     Some(print_full_operation(
         &programs.operation_text,
         print_operation_node,
+        Default::default(),
     ))
 }
 

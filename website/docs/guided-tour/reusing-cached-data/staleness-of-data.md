@@ -8,7 +8,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import FbPushViews from './fb/FbPushViews.md';
 
 Assuming our data is [present in the store](../presence-of-data/), we still need to consider the staleness of such data.

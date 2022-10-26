@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use common::Diagnostic;
@@ -13,6 +14,7 @@ use common::SourceLocationKey;
 use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
+use graphql_cli::Sources as DiagnosticPrinterSources;
 use graphql_ir::build_ir_with_extra_features;
 use graphql_ir::BuilderOptions;
 use graphql_ir::FragmentVariablesSemantic;
@@ -23,15 +25,29 @@ use graphql_text_printer::print_fragment;
 use graphql_text_printer::print_operation;
 use graphql_text_printer::PrinterOptions;
 use relay_test_schema::get_test_schema;
+use relay_test_schema::get_test_schema_with_located_extensions;
 
 pub fn apply_transform_for_test<T>(fixture: &Fixture<'_>, transform: T) -> Result<String, String>
 where
     T: Fn(&Program) -> DiagnosticsResult<Program>,
 {
-    let source_location = SourceLocationKey::standalone(fixture.file_name);
-    let schema = get_test_schema();
-    let ast = parse_executable(fixture.content, source_location)
-        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+    let parts: Vec<_> = fixture.content.split("%extensions%").collect();
+    let source_location = SourceLocationKey::embedded(fixture.file_name, 0);
+    let source_text = parts[0];
+
+    let mut sources_map: HashMap<SourceLocationKey, String> = Default::default();
+
+    sources_map.insert(source_location, source_text.to_string());
+    let ast = parse_executable(source_text, source_location).unwrap();
+    let schema = if let Some(extensions_text) = parts.get(1) {
+        let extension_location = SourceLocationKey::embedded(fixture.file_name, 1);
+        sources_map.insert(extension_location, extensions_text.to_string());
+
+        get_test_schema_with_located_extensions(*extensions_text, extension_location)
+    } else {
+        get_test_schema()
+    };
+
     let ir_result = build_ir_with_extra_features(
         &schema,
         &ast.definitions,
@@ -42,12 +58,14 @@ where
             default_anonymous_operation_name: None,
         },
     );
-    let ir = ir_result
-        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+    let ir = ir_result.map_err(|diagnostics| {
+        diagnostics_to_sorted_strings_with_sources_map(&sources_map, &diagnostics)
+    })?;
 
     let program = Program::from_definitions(Arc::clone(&schema), ir);
-    let next_program = transform(&program)
-        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+    let next_program = transform(&program).map_err(|diagnostics| {
+        diagnostics_to_sorted_strings_with_sources_map(&sources_map, &diagnostics)
+    })?;
 
     let printer_options = PrinterOptions {
         debug_directive_data: true,
@@ -73,6 +91,26 @@ where
 pub fn diagnostics_to_sorted_string(source: &str, diagnostics: &[Diagnostic]) -> String {
     let printer =
         DiagnosticPrinter::new(|_| Some(TextSource::from_whole_document(source.to_string())));
+
+    print_diagnostics_to_sorted_string(&printer, diagnostics)
+}
+
+pub fn diagnostics_to_sorted_strings_with_sources_map(
+    sources: &HashMap<SourceLocationKey, String>,
+    diagnostics: &[Diagnostic],
+) -> String {
+    let printer = DiagnosticPrinter::new(|source_location| {
+        sources
+            .get(&source_location)
+            .map(TextSource::from_whole_document)
+    });
+    print_diagnostics_to_sorted_string(&printer, diagnostics)
+}
+
+fn print_diagnostics_to_sorted_string<T: DiagnosticPrinterSources>(
+    printer: &DiagnosticPrinter<T>,
+    diagnostics: &[Diagnostic],
+) -> String {
     let mut printed = diagnostics
         .iter()
         .map(|diagnostic| printer.diagnostic_to_string(diagnostic))

@@ -98,7 +98,7 @@ RelayResolver(
                 ),
             },
         ),
-        edge_to: None,
+        output_type: None,
         description: None,
         deprecated: None,
         live: None,
@@ -172,5 +172,6 @@ RelayResolver(
                 },
             ],
         ),
+        named_import: None,
     },
 )

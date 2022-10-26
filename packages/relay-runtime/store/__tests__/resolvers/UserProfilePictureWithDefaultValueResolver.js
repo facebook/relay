@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -22,7 +22,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @rootFragment UserProfilePictureWithDefaultValueResolver
  * @onType User
  */
-function userProfilePicture2(
+function user_profile_picture_uri_with_scale_and_default_value(
   rootKey: UserProfilePictureWithDefaultValueResolver$key,
 ): ?string {
   const user = readFragment(
@@ -39,4 +39,6 @@ function userProfilePicture2(
   return user?.profile_picture?.uri;
 }
 
-module.exports = userProfilePicture2;
+module.exports = {
+  user_profile_picture_uri_with_scale_and_default_value,
+};

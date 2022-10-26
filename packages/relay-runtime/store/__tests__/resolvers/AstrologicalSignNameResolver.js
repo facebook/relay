@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -24,9 +24,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * Re-expose `Name` from our client fat `self` object.
  */
-function astrologicalSignName(
-  rootKey: AstrologicalSignNameResolver$key,
-): string | null {
+function name(rootKey: AstrologicalSignNameResolver$key): string | null {
   const sign = readFragment(
     graphql`
       fragment AstrologicalSignNameResolver on AstrologicalSign {
@@ -38,4 +36,6 @@ function astrologicalSignName(
   return sign.self?.name ?? null;
 }
 
-module.exports = astrologicalSignName;
+module.exports = {
+  name,
+};

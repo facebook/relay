@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -19,8 +19,10 @@ import type {DataID} from 'relay-runtime';
  * @edgeTo Node
  * @onType User
  */
-function UserClientEdgeResolver(args: {id: string}): DataID {
+function client_node(args: {id: string}): DataID {
   return args.id;
 }
 
-module.exports = UserClientEdgeResolver;
+module.exports = {
+  client_node,
+};

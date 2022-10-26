@@ -4,23 +4,20 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type {DataID} from 'relay-runtime';
-import type {CounterSuspendsWhenOdd$key} from './__generated__/CounterSuspendsWhenOdd.graphql';
 import type {LiveState} from 'relay-runtime/store/experimental-live-resolvers/LiveResolverStore';
 
 const {GLOBAL_STORE, Selectors} = require('./ExampleExternalStateStore');
-const {graphql} = require('relay-runtime');
 const {
   suspenseSentinel,
 } = require('relay-runtime/store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
-const {readFragment} = require('relay-runtime/store/ResolverFragments');
 
 /**
  * @RelayResolver
@@ -29,7 +26,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @onType Query
  * @live
  */
-function resolver(): LiveState<DataID> {
+function live_user_suspends_when_odd(): LiveState<DataID> {
   return {
     read() {
       const number = Selectors.getNumber(GLOBAL_STORE.getState());
@@ -45,4 +42,6 @@ function resolver(): LiveState<DataID> {
   };
 }
 
-module.exports = resolver;
+module.exports = {
+  live_user_suspends_when_odd,
+};

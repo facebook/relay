@@ -1,0 +1,12 @@
+# expected-to-throw
+query duplicateQueryName {
+  me {
+    __typename
+  }
+}
+
+query duplicateQueryName {
+  me {
+    __typename
+  }
+}

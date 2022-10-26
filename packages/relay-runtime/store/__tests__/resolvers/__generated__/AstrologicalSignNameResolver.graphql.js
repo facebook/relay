@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<44f07d5e35238e9edf8925c49b37f17d>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<3e8ab49470c9446231dee62465a792f7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +20,7 @@
 import type { Fragment, ReaderFragment } from 'relay-runtime';
 import type { AstrologicalSignSelfResolver$key } from "./AstrologicalSignSelfResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import astrologicalSignSelfResolver from "../AstrologicalSignSelfResolver.js";
+import {self as astrologicalSignSelfResolver} from "../AstrologicalSignSelfResolver.js";
 // Type assertion validating that `astrologicalSignSelfResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignSelfResolver: (
@@ -52,7 +54,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "self",
-      "resolverModule": require('./../AstrologicalSignSelfResolver'),
+      "resolverModule": require('./../AstrologicalSignSelfResolver').self,
       "path": "self"
     }
   ],

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -20,7 +20,7 @@
  */
 import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
 
-function nonLiveResolverWithLiveReturnValue(): LiveState<string> {
+function non_live_resolver_with_live_return_value(): LiveState<string> {
   return {
     read() {
       return 'Oops!';
@@ -31,4 +31,6 @@ function nonLiveResolverWithLiveReturnValue(): LiveState<string> {
   };
 }
 
-module.exports = nonLiveResolverWithLiveReturnValue;
+module.exports = {
+  non_live_resolver_with_live_return_value,
+};

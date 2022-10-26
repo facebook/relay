@@ -41,6 +41,7 @@ use graphql_ir::Value;
 use indexmap::IndexSet;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use relay_config::ModuleImportConfig;
 use schema::FieldID;
 use schema::ScalarID;
@@ -150,7 +151,11 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
     // Validate that `JSDependency` is a server scalar type in the schema
     fn validate_js_module_type(&self, spread_location: Location) -> Result<(), Diagnostic> {
-        match self.program.schema.get_type(MATCH_CONSTANTS.js_field_type) {
+        match self
+            .program
+            .schema
+            .get_type(MATCH_CONSTANTS.js_field_type.0)
+        {
             Some(js_module_type) => match js_module_type {
                 Type::Scalar(id) => {
                     if self.program.schema.scalar(id).is_extension {
@@ -206,7 +211,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
                     let js_field_module_arg = js_field
                         .arguments
-                        .named(MATCH_CONSTANTS.js_field_module_arg.0);
+                        .named(MATCH_CONSTANTS.js_field_module_arg);
                     let is_module_valid = {
                         if let Some(js_field_module_arg) = js_field_module_arg {
                             if let Some(non_list_type) = js_field_module_arg.type_.non_list_type() {
@@ -219,8 +224,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                         }
                     };
 
-                    let js_field_id_arg =
-                        js_field.arguments.named(MATCH_CONSTANTS.js_field_id_arg.0);
+                    let js_field_id_arg = js_field.arguments.named(MATCH_CONSTANTS.js_field_id_arg);
                     let is_id_valid = {
                         if let Some(js_field_id_arg) = js_field_id_arg {
                             if let Some(id_non_list_type) = js_field_id_arg.type_.non_list_type() {
@@ -236,7 +240,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
                     let js_field_branch_arg = js_field
                         .arguments
-                        .named(MATCH_CONSTANTS.js_field_branch_arg.0);
+                        .named(MATCH_CONSTANTS.js_field_branch_arg);
                     let is_branch_valid = {
                         if let Some(js_field_branch_arg) = js_field_branch_arg {
                             if let Some(branch_non_list_type) =
@@ -291,7 +295,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
     ) -> Result<Transformed<Selection>, Diagnostic> {
         let module_directive = spread
             .directives
-            .named(MATCH_CONSTANTS.module_directive_name.0);
+            .named(MATCH_CONSTANTS.module_directive_name);
 
         // Only process the fragment spread with @module
         if let Some(module_directive) = module_directive {
@@ -309,7 +313,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 && !(spread.directives.len() == 2
                     && spread
                         .directives
-                        .named(DEFER_STREAM_CONSTANTS.defer_name.0)
+                        .named(DEFER_STREAM_CONSTANTS.defer_name)
                         .is_some())
             {
                 // allow @defer and @module in typegen transforms
@@ -499,6 +503,12 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                                 module_name: module_directive_name_argument,
                                 source_document_name: self.document_name,
                                 fragment_name: spread.fragment.item,
+                                fragment_source_location: self
+                                    .program
+                                    .fragment(spread.fragment.item)
+                                    .unwrap()
+                                    .name
+                                    .location,
                                 location: module_directive.name.location,
                                 no_inline: should_use_no_inline,
                             }
@@ -622,7 +632,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         // The linked field definition should have: 'supported: [String]'
         let supported_arg_definition = field_definition
             .arguments
-            .named(MATCH_CONSTANTS.supported_arg.0);
+            .named(MATCH_CONSTANTS.supported_arg);
         match supported_arg_definition {
             None => {
                 if key_arg.is_none() {
@@ -678,7 +688,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         }
 
         // The supported arg shouldn't be defined by the user
-        let supported_arg = field.arguments.named(MATCH_CONSTANTS.supported_arg.0);
+        let supported_arg = field.arguments.named(MATCH_CONSTANTS.supported_arg);
         if let Some(supported_arg) = supported_arg {
             return Err(Diagnostic::error(
                 ValidationMessage::InvalidMatchNoUserSuppliedSupportedArg {
@@ -833,7 +843,11 @@ impl Transformer for MatchTransform<'_, '_> {
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let field_definition = self.program.schema.field(field.definition.item);
         if field_definition.name.item == MATCH_CONSTANTS.js_field_name {
-            match self.program.schema.get_type(MATCH_CONSTANTS.js_field_type) {
+            match self
+                .program
+                .schema
+                .get_type(MATCH_CONSTANTS.js_field_type.0)
+            {
                 None => self.errors.push(Diagnostic::error(
                     ValidationMessage::MissingServerSchemaDefinition {
                         name: MATCH_CONSTANTS.js_field_name,
@@ -859,9 +873,7 @@ impl Transformer for MatchTransform<'_, '_> {
 
     // Validate and transform `@match`
     fn transform_linked_field(&mut self, field: &LinkedField) -> Transformed<Selection> {
-        let match_directive = field
-            .directives
-            .named(MATCH_CONSTANTS.match_directive_name.0);
+        let match_directive = field.directives.named(MATCH_CONSTANTS.match_directive_name);
         let match_directive_key_argument = self.match_directive_key_argument;
         self.match_directive_key_argument = None;
 
@@ -914,7 +926,7 @@ fn get_module_directive_name_argument(
 ) -> Result<StringKey, Diagnostic> {
     let name_arg = module_directive
         .arguments
-        .named(MATCH_CONSTANTS.name_arg.0)
+        .named(MATCH_CONSTANTS.name_arg)
         .ok_or_else(|| {
             Diagnostic::error(ValidationMessage::InvalidModuleNoName, spread_location)
         })?;
@@ -934,6 +946,7 @@ pub struct ModuleMetadata {
     pub module_name: StringKey,
     pub source_document_name: StringKey,
     pub fragment_name: FragmentDefinitionName,
+    pub fragment_source_location: Location,
     pub no_inline: bool,
 }
 associated_data_impl!(ModuleMetadata);

@@ -4,12 +4,15 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
+
+import type {VariablesOf} from 'relay-runtime/util/RelayRuntimeTypes';
+import type {Options} from './useRefetchableFragmentNode';
 
 import type {LoadMoreFn, UseLoadMoreFunctionArgs} from './useLoadMoreFunction';
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
@@ -128,7 +131,7 @@ function useBlockingPaginationFragment<
   });
 
   const refetchPagination: RefetchFnDynamic<TQuery, TKey> = useCallback(
-    (variables, options) => {
+    (variables: VariablesOf<TQuery>, options: void | Options) => {
       disposeFetchNext();
       disposeFetchPrevious();
       return refetch(variables, {...options, __environment: undefined});
@@ -161,7 +164,9 @@ function useLoadMore<TQuery: OperationType>(args: {
   >,
 }): [LoadMoreFn<TQuery>, boolean, () => void] {
   const {disableStoreUpdates, enableStoreUpdates, ...loadMoreArgs} = args;
-  const [requestPromise, setRequestPromise] = useState(null);
+  const [requestPromise, setRequestPromise] = useState<null | Promise<mixed>>(
+    null,
+  );
   const requestPromiseRef = useRef(null);
   const promiseResolveRef = useRef(null);
 

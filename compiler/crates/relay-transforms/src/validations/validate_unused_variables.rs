@@ -7,6 +7,7 @@
 
 use common::Diagnostic;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::NamedItem;
 use graphql_ir::FragmentDefinition;
 use graphql_ir::OperationDefinition;
@@ -14,7 +15,6 @@ use graphql_ir::Program;
 use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
 
 use crate::root_variables::InferVariablesVisitor;
 
@@ -24,14 +24,16 @@ pub fn validate_unused_variables(program: &Program) -> DiagnosticsResult<()> {
 
 pub struct ValidateUnusedVariables<'program> {
     visitor: InferVariablesVisitor<'program>,
-    ignore_directive_name: StringKey,
+    ignore_directive_name: DirectiveName,
 }
 
 impl<'program> ValidateUnusedVariables<'program> {
     fn new(program: &'program Program) -> Self {
         Self {
             visitor: InferVariablesVisitor::new(program),
-            ignore_directive_name: "DEPRECATED__relay_ignore_unused_variables_error".intern(),
+            ignore_directive_name: DirectiveName(
+                "DEPRECATED__relay_ignore_unused_variables_error".intern(),
+            ),
         }
     }
 }

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -3287,7 +3287,7 @@ describe('check()', () => {
     `;
     const source = RelayRecordSource.create();
     const target = RelayRecordSource.create();
-    const status = check(
+    check(
       () => source,
       () => target,
       INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
@@ -3350,7 +3350,7 @@ describe('check()', () => {
       },
     });
     const target = RelayRecordSource.create();
-    const status = check(
+    check(
       () => source,
       () => target,
       INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,

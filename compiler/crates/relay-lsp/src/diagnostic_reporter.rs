@@ -8,18 +8,24 @@
 //! Utilities for reporting errors to an LSP client
 use std::path::PathBuf;
 
-use common::convert_diagnostic;
+use common::get_diagnostics_data;
 use common::Diagnostic as CompilerDiagnostic;
+use common::DiagnosticRelatedInformation;
 use common::Location;
+use common::TextSource;
 use crossbeam::channel::Sender;
 use dashmap::mapref::entry::Entry;
 use dashmap::DashMap;
+use extract_graphql::JavaScriptSourceFeature;
 use lsp_server::Message;
 use lsp_server::Notification as ServerNotification;
 use lsp_types::notification::Notification;
 use lsp_types::notification::PublishDiagnostics;
 use lsp_types::Diagnostic;
+use lsp_types::DiagnosticRelatedInformation as LspDiagnosticRelatedInformation;
 use lsp_types::DiagnosticSeverity;
+use lsp_types::DiagnosticTag;
+use lsp_types::Location as LspLocation;
 use lsp_types::Position;
 use lsp_types::PublishDiagnosticsParams;
 use lsp_types::Range;
@@ -175,30 +181,78 @@ impl DiagnosticReporter {
     fn report_diagnostic(&self, diagnostic: &CompilerDiagnostic) {
         let location = diagnostic.location();
 
-        let url = match url_from_location(location, &self.root_dir) {
+        let url = match self.url_from_location(location) {
             Some(url) => url,
-            None => {
-                // TODO(brandondail) we should always be able to parse as a Url, so log here when we don't
-                if let Ok(root) = Url::from_directory_path(&self.root_dir) {
-                    root
-                } else {
-                    return;
-                }
-            }
+            None => return,
+        };
+        let source = match self.source_from_location(location) {
+            Some(source) => source,
+            None => return,
         };
 
-        let source = if let Some(source) = source_for_location(
+        let diagnostic = self.convert_diagnostic(source.text_source(), diagnostic);
+        self.add_diagnostic(url, diagnostic);
+    }
+
+    pub fn convert_diagnostic(
+        &self,
+        text_source: &TextSource,
+        diagnostic: &CompilerDiagnostic,
+    ) -> Diagnostic {
+        let tags: Vec<DiagnosticTag> = diagnostic.tags();
+
+        let related_information = diagnostic
+            .related_information()
+            .iter()
+            .filter_map(|info| self.maybe_convert_related_information(info))
+            .collect::<Vec<_>>();
+
+        Diagnostic {
+            code: None,
+            data: get_diagnostics_data(diagnostic),
+            message: diagnostic.message().to_string(),
+            range: text_source.to_span_range(diagnostic.location().span()),
+            related_information: if related_information.is_empty() {
+                None
+            } else {
+                Some(related_information)
+            },
+            severity: Some(diagnostic.severity()),
+            tags: if tags.is_empty() { None } else { Some(tags) },
+            source: None,
+            ..Default::default()
+        }
+    }
+
+    pub fn maybe_convert_related_information(
+        &self,
+        info: &DiagnosticRelatedInformation,
+    ) -> Option<LspDiagnosticRelatedInformation> {
+        let uri = self.url_from_location(info.location)?;
+        let source = self.source_from_location(info.location)?;
+
+        Some(LspDiagnosticRelatedInformation {
+            message: info.message.to_string(),
+            location: LspLocation {
+                range: source.text_source().to_span_range(info.location.span()),
+                uri,
+            },
+        })
+    }
+
+    pub fn url_from_location(&self, location: Location) -> Option<Url> {
+        url_from_location(location, &self.root_dir).or_else(|| {
+            // TODO(brandondail) we should always be able to parse as a Url, so log here when we don't
+            Url::from_directory_path(&self.root_dir).ok()
+        })
+    }
+
+    fn source_from_location(&self, location: Location) -> Option<JavaScriptSourceFeature> {
+        source_for_location(
             &self.root_dir,
             location.source_location(),
             self.source_reader.as_ref(),
-        ) {
-            source
-        } else {
-            return;
-        };
-
-        let diagnostic = convert_diagnostic(source.text_source(), diagnostic);
-        self.add_diagnostic(url, diagnostic);
+        )
     }
 
     fn print_project_error(&self, error: &BuildProjectError) {

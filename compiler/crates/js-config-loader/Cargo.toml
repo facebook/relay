@@ -13,7 +13,7 @@ path = "tests/lib.rs"
 [dependencies]
 serde = { version = "1.0.136", features = ["derive", "rc"] }
 serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }
-thiserror = "1.0.30"
+thiserror = "1.0.36"
 
 [dev-dependencies]
 tempfile = "3.3"

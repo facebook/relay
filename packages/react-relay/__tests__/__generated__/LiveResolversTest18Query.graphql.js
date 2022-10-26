@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<65a35c394a4cca821978c141eca450ef>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<8ec1eb2dfe9f87eaced6ba9c69e1b1e7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +19,7 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import queryLiveResolverThrowsResolver from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverThrows.js";
+import {live_resolver_throws as queryLiveResolverThrowsResolver} from "../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverThrows.js";
 // Type assertion validating that `queryLiveResolverThrowsResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryLiveResolverThrowsResolver: () => LiveState<any>);
@@ -47,7 +49,7 @@ var node/*: ClientRequest*/ = {
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "live_resolver_throws",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverThrows'),
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/QueryLiveResolverThrows').live_resolver_throws,
             "path": "live_resolver_throws"
           }
         ]
@@ -66,10 +68,10 @@ var node/*: ClientRequest*/ = {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
+            "name": "live_resolver_throws",
             "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

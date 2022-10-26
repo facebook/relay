@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<211f157fe55d1789c4dcfd88e274b0b0>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<0bc40b4262825d3062fc3d3ebf18f285>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ThrowBeforeReadResolver$key } from "./../resolvers/__generated__/ThrowBeforeReadResolver.graphql";
-import queryThrowBeforeReadResolver from "../resolvers/ThrowBeforeReadResolver.js";
+import {throw_before_read as queryThrowBeforeReadResolver} from "../resolvers/ThrowBeforeReadResolver.js";
 // Type assertion validating that `queryThrowBeforeReadResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryThrowBeforeReadResolver: (
@@ -50,7 +52,7 @@ var node/*: ConcreteRequest*/ = {
         },
         "kind": "RelayResolver",
         "name": "throw_before_read",
-        "resolverModule": require('./../resolvers/ThrowBeforeReadResolver'),
+        "resolverModule": require('./../resolvers/ThrowBeforeReadResolver').throw_before_read,
         "path": "throw_before_read"
       }
     ],
@@ -64,33 +66,46 @@ var node/*: ConcreteRequest*/ = {
     "name": "RelayReaderResolverTest14Query",
     "selections": [
       {
-        "alias": null,
+        "name": "throw_before_read",
         "args": null,
-        "concreteType": "User",
-        "kind": "LinkedField",
-        "name": "me",
-        "plural": false,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
-          },
-          {
-            "kind": "ClientExtension",
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "__id",
-                "storageKey": null
-              }
-            ]
-          }
-        ],
+        "fragment": {
+          "kind": "InlineFragment",
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "concreteType": "User",
+              "kind": "LinkedField",
+              "name": "me",
+              "plural": false,
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "id",
+                  "storageKey": null
+                },
+                {
+                  "kind": "ClientExtension",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "__id",
+                      "storageKey": null
+                    }
+                  ]
+                }
+              ],
+              "storageKey": null
+            }
+          ],
+          "type": "Query",
+          "abstractKey": null
+        },
+        "kind": "RelayResolver",
         "storageKey": null
       }
     ]

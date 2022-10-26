@@ -13,6 +13,7 @@ use common::DiagnosticsResult;
 use common::DirectiveName;
 use common::Location;
 use common::NamedItem;
+use common::ObjectName;
 use common::WithLocation;
 use graphql_ir::associated_data_impl;
 use graphql_ir::Argument;
@@ -34,6 +35,7 @@ use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use intern::string_key::StringKeyMap;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
 use schema::Schema;
@@ -71,7 +73,7 @@ pub enum ClientEdgeMetadataDirective {
         unique_id: u32,
     },
     ClientObject {
-        type_name: StringKey,
+        type_name: ObjectName,
         unique_id: u32,
     },
 }
@@ -288,16 +290,13 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
 
         // Eventually we will want to enable client edges on non-resolver client
         // schema extensions, but we'll start with limiting them to resolvers.
-        let is_resolver = field_type
-            .directives
-            .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
-            .is_some();
+        let resolver_directive = field_type.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME);
 
-        let is_client_edge = field_type.is_extension && is_resolver;
+        let is_client_edge = field_type.is_extension && resolver_directive.is_some();
 
         let waterfall_directive = field
             .directives()
-            .named(CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME.0);
+            .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME);
 
         if !is_client_edge {
             // Non-Client-Edge fields do not incur a waterfall, and thus should
@@ -354,6 +353,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
                     directive.name.location,
                 ));
             }
+
             match edge_to_type {
                 Type::Interface(_) => {
                     self.errors.push(Diagnostic::error(
@@ -404,7 +404,7 @@ impl<'program, 'sc> ClientEdgesTransform<'program, 'sc> {
         let mut inline_fragment_directives: Vec<Directive> = vec![metadata_directive.into()];
         if let Some(required_directive_metadata) = field
             .directives
-            .named(RequiredMetadataDirective::directive_name().0)
+            .named(RequiredMetadataDirective::directive_name())
             .cloned()
         {
             inline_fragment_directives.push(required_directive_metadata);
@@ -494,7 +494,7 @@ impl Transformer for ClientEdgesTransform<'_, '_> {
     ) -> Transformed<Selection> {
         if let Some(directive) = field
             .directives()
-            .named(CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME.0)
+            .named(*CLIENT_EDGE_WATERFALL_DIRECTIVE_NAME)
         {
             self.errors.push(Diagnostic::error_with_data(
                 ValidationMessageWithData::RelayResolversUnexpectedWaterfall,

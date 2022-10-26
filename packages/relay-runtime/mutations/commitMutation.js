@@ -6,6 +6,7 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -104,7 +105,7 @@ function commitMutation<TMutation: MutationParameters>(
       updater,
     ));
   }
-  const errors = [];
+  const errors: Array<PayloadError> = [];
   const subscription = environment
     .executeMutation({
       operation,

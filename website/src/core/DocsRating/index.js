@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 import './docsRating.css';
 import Link from '@docusaurus/Link';
-import {fbContent} from 'internaldocs-fb-helpers';
+import {fbContent} from 'docusaurus-plugin-internaldocs-fb/internal';
 import * as React from 'react';
 
 function provideFeedbackToGoogleAnalytics(value) {

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -73,7 +73,10 @@ beforeEach(() => {
   }) {
     renderCount = (renderCount || 0) + 1;
     [loadedEntryPoint, entryPointLoaderCallback, disposeEntryPoint] =
-      useEntryPointLoader(environmentProvider, entryPoint);
+      useEntryPointLoader<{...}, any, any, any, any, any, any>(
+        environmentProvider,
+        entryPoint,
+      );
     return null;
   };
   loadEntryPoint.mockClear();

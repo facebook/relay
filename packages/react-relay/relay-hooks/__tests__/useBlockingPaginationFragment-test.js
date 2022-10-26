@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -85,7 +85,7 @@ describe('useBlockingPaginationFragment', () => {
     fragmentRef: mixed,
   ) {
     // $FlowFixMe[incompatible-call]
-    const {data, ...result} = useBlockingPaginationFragmentOriginal(
+    const {data, ...result} = useBlockingPaginationFragmentOriginal<any, mixed>(
       fragmentNode,
       // $FlowFixMe[incompatible-call]
       // $FlowFixMe[prop-missing]
@@ -1655,7 +1655,7 @@ describe('useBlockingPaginationFragment', () => {
         const useLoadMoreFunction = require('../useLoadMoreFunction');
         // $FlowFixMe[prop-missing]
         useLoadMoreFunction.mockImplementation((...args) =>
-          jest.requireActual('../useLoadMoreFunction')(...args),
+          jest.requireActual<any>('../useLoadMoreFunction')(...args),
         );
 
         const callback = jest.fn();

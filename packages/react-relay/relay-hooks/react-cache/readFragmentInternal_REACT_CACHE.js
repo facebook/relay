@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -223,7 +223,7 @@ function readFragmentInternal_REACT_CACHE(
   if (fragmentNode.metadata?.hasClientEdges === true) {
     const missingClientEdges = getMissingClientEdges(state);
     if (missingClientEdges?.length) {
-      clientEdgeQueries = [];
+      clientEdgeQueries = ([]: Array<QueryResult>);
       for (const edge of missingClientEdges) {
         clientEdgeQueries.push(
           handleMissingClientEdge(

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -22,6 +22,8 @@
 import type {LiveState} from '../../experimental-live-resolvers/LiveResolverStore';
 
 // $FlowFixMe - this resolver returns undefined, but should return LiveState
-function liveResolverReturnUndefined(): LiveState<> {}
+function live_resolver_return_undefined(): LiveState<> {}
 
-module.exports = liveResolverReturnUndefined;
+module.exports = {
+  live_resolver_return_undefined,
+};

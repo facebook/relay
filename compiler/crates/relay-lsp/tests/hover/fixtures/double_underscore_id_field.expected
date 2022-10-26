@@ -1,0 +1,14 @@
+==================================== INPUT ====================================
+query MyQuery {
+  me {
+    _|_id
+  }
+}
+==================================== OUTPUT ===================================
+Field: **__id**
+--
+Relay's cache key for this object.
+--
+Type: **[ID!](command:nuclide.relay-lsp.openSchemaExplorer?{%22path%22:[%22Query%22,%22User%22,%22ID%22],%22schemaName%22:%22Some%20Schema%20Name%22})**
+--
+**Client Schema Extension**: This field was declared as a Relay Client Schema Extension, and is therefore only avalaible in Relay code. [Learn More](https://relay.dev/docs/guided-tour/updating-data/client-only-data/#client-only-data-client-schema-extensions).

@@ -134,6 +134,7 @@ pub use crate::intern::DeGuard;
 pub use crate::intern::InternId;
 #[doc(inline)]
 pub use crate::intern::InternSerdes;
+pub use crate::intern::Lookup;
 #[doc(inline)]
 pub use crate::intern::SerGuard;
 #[doc(inline)]

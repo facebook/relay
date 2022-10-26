@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -24,7 +24,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * Greet the user.
  */
-function userGreeting(rootKey: UserGreetingResolver$key): string {
+function greeting(rootKey: UserGreetingResolver$key): string {
   const user = readFragment(
     graphql`
       fragment UserGreetingResolver on User {
@@ -37,4 +37,6 @@ function userGreeting(rootKey: UserGreetingResolver$key): string {
   return `Hello, ${name}!`;
 }
 
-module.exports = userGreeting;
+module.exports = {
+  greeting,
+};

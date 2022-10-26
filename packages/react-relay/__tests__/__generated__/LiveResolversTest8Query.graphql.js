@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e527e3ac526d28700f51a9e2ec77b908>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<e6e013e5a940a0fd86da240869d01352>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,7 +20,7 @@
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { ResolverThatThrows$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/ResolverThatThrows.graphql";
-import userResolverThatThrowsResolver from "../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js";
+import {resolver_that_throws as userResolverThatThrowsResolver} from "../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows.js";
 // Type assertion validating that `userResolverThatThrowsResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userResolverThatThrowsResolver: (
@@ -90,7 +92,7 @@ return {
                 },
                 "kind": "RelayLiveResolver",
                 "name": "resolver_that_throws",
-                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows'),
+                "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/ResolverThatThrows').resolver_that_throws,
                 "path": "node.resolver_that_throws"
               }
             ],
@@ -130,10 +132,23 @@ return {
             "selections": [
               (v2/*: any*/),
               {
-                "alias": null,
+                "name": "resolver_that_throws",
                 "args": null,
-                "kind": "ScalarField",
-                "name": "username",
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "username",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
                 "storageKey": null
               }
             ],

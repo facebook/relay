@@ -52,7 +52,8 @@ lazy_static! {
     static ref REACT_FLIGHT_PROPS_TYPE: StringKey = "ReactFlightProps".intern();
     static ref REACT_FLIGHT_COMPONENT_TYPE: StringKey = "ReactFlightComponent".intern();
     static ref REACT_FLIGHT_FIELD_NAME: StringKey = "flight".intern();
-    static ref REACT_FLIGHT_EXTENSION_DIRECTIVE_NAME: StringKey = "react_flight_component".intern();
+    static ref REACT_FLIGHT_EXTENSION_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("react_flight_component".intern());
     static ref NAME_ARGUMENT: ArgumentName = ArgumentName("name".intern());
 }
 

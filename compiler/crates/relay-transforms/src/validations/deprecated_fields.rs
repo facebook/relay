@@ -7,9 +7,11 @@
 
 use std::sync::Arc;
 
+use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticTag;
 use common::DiagnosticsResult;
+use common::DirectiveName;
 use common::NamedItem;
 use common::WithLocation;
 use graphql_ir::ExecutableDefinition;
@@ -20,15 +22,14 @@ use graphql_ir::ValidationMessage;
 use graphql_ir::Validator;
 use graphql_ir::Value;
 use intern::string_key::Intern;
-use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::FieldID;
 use schema::SDLSchema;
 use schema::Schema;
 
 lazy_static! {
-    static ref DIRECTIVE_DEPRECATED: StringKey = "deprecated".intern();
-    static ref ARGUMENT_REASON: StringKey = "reason".intern();
+    static ref DIRECTIVE_DEPRECATED: DirectiveName = DirectiveName("deprecated".intern());
+    static ref ARGUMENT_REASON: ArgumentName = ArgumentName("reason".intern());
 }
 
 pub fn deprecated_fields(

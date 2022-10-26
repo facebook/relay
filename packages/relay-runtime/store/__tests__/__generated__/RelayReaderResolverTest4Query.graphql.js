@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b79b7d097d8d57400e6a373a01a64fe5>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<12c9ff71bd6802698bbe2713882671c0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { UserBestFriendGreetingResolver$key } from "./../resolvers/__generated__/UserBestFriendGreetingResolver.graphql";
-import userBestFriendGreetingResolver from "../resolvers/UserBestFriendGreetingResolver.js";
+import {best_friend_greeting as userBestFriendGreetingResolver} from "../resolvers/UserBestFriendGreetingResolver.js";
 // Type assertion validating that `userBestFriendGreetingResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userBestFriendGreetingResolver: (
@@ -68,7 +70,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "best_friend_greeting",
-            "resolverModule": require('./../resolvers/UserBestFriendGreetingResolver'),
+            "resolverModule": require('./../resolvers/UserBestFriendGreetingResolver').best_friend_greeting,
             "path": "me.best_friend_greeting"
           }
         ],
@@ -93,58 +95,71 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "first",
-                "value": 1
-              }
-            ],
-            "concreteType": "FriendsConnection",
-            "kind": "LinkedField",
-            "name": "friends",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "FriendsEdge",
-                "kind": "LinkedField",
-                "name": "edges",
-                "plural": true,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "cursor",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "User",
-                    "kind": "LinkedField",
-                    "name": "node",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "name",
-                        "storageKey": null
-                      },
-                      (v0/*: any*/)
-                    ],
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "storageKey": "friends(first:1)"
+            "name": "best_friend_greeting",
+            "args": null,
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "first",
+                      "value": 1
+                    }
+                  ],
+                  "concreteType": "FriendsConnection",
+                  "kind": "LinkedField",
+                  "name": "friends",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "concreteType": "FriendsEdge",
+                      "kind": "LinkedField",
+                      "name": "edges",
+                      "plural": true,
+                      "selections": [
+                        {
+                          "alias": null,
+                          "args": null,
+                          "kind": "ScalarField",
+                          "name": "cursor",
+                          "storageKey": null
+                        },
+                        {
+                          "alias": null,
+                          "args": null,
+                          "concreteType": "User",
+                          "kind": "LinkedField",
+                          "name": "node",
+                          "plural": false,
+                          "selections": [
+                            {
+                              "alias": null,
+                              "args": null,
+                              "kind": "ScalarField",
+                              "name": "name",
+                              "storageKey": null
+                            },
+                            (v0/*: any*/)
+                          ],
+                          "storageKey": null
+                        }
+                      ],
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": "friends(first:1)"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null
           },
           (v0/*: any*/)
         ],

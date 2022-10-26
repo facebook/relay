@@ -11,7 +11,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 Usually when you're rendering a connection, you'll also want to be able to add or remove items to/from the connection in response to user actions.
 

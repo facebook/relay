@@ -15,7 +15,9 @@ use graphql_syntax::Identifier;
 use graphql_syntax::OperationDefinition;
 use graphql_syntax::VariableDefinition;
 use graphql_text_printer::print_value;
+use graphql_text_printer::PrinterOptions;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use lsp_types::Hover;
 use lsp_types::HoverContents;
 use lsp_types::MarkedString;
@@ -659,7 +661,6 @@ fn get_scalar_or_linked_field_hover_content(
         .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
         .is_some();
 
-    let rendered_type_string = schema.get_type_string(&field.type_);
     let field_type_name = schema.get_type_name(field.type_.inner()).lookup();
 
     let mut hover_contents: Vec<MarkedString> = vec![MarkedString::String(format!(
@@ -671,25 +672,23 @@ fn get_scalar_or_linked_field_hover_content(
         schema_documentation.get_field_description(parent_type_name, field.name.item.lookup())
     {
         hover_contents.push(MarkedString::String(field_description.to_string()));
+    } else if let Some(description) = field.description {
+        hover_contents.push(MarkedString::String(description.to_string()));
     }
 
     type_path.push(field_type_name);
 
-    // Relay Resolvers return the return type of their resolver function. This can be any JavaScript value
-    // so it's not correctly modeled in our schema types.
-    if !is_resolver {
-        hover_contents.push(MarkedString::String(format!(
-            "Type: **{}**",
-            content_consumer_type.render_text_with_params(
-                &rendered_type_string,
-                &GraphQLSchemaExplorerParams {
-                    path: type_path,
-                    schema_name: schema_name.lookup(),
-                    filter: None,
-                }
-            )
-        )));
-    }
+    hover_contents.push(MarkedString::String(format!(
+        "Type: **{}**",
+        content_consumer_type.render_text_with_params(
+            &schema.get_type_string(&field.type_),
+            &GraphQLSchemaExplorerParams {
+                path: type_path,
+                schema_name: schema_name.lookup(),
+                filter: None,
+            }
+        )
+    )));
     if let Some(type_description) = schema_documentation.get_type_description(field_type_name) {
         hover_contents.push(MarkedString::String(type_description.to_string()));
     }
@@ -852,7 +851,11 @@ fn on_hover_fragment_spread<'a>(
             let default_value = match var.default_value.clone() {
                 Some(default_value) => format!(
                     ", with a default value of {}",
-                    print_value(schema, &Value::Constant(default_value.item))
+                    print_value(
+                        schema,
+                        &Value::Constant(default_value.item),
+                        PrinterOptions::default()
+                    )
                 ),
                 None => "".to_string(),
             };

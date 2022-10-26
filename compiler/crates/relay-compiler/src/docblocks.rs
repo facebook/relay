@@ -88,6 +88,6 @@ fn parse_source(
         },
     )?;
     maybe_ir
-        .map(|ir| ir.to_graphql_schema_ast(schema))
+        .map(|ir| ir.to_graphql_schema_ast(schema, &project_config.schema_config))
         .transpose()
 }

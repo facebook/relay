@@ -1,11 +1,11 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';
@@ -16,7 +16,7 @@ describe('`development` option', () => {
   it('tests the hash when `development` is set', () => {
     expect(
       transformerWithOptions(
-        {eagerESModules: true},
+        {eagerEsModules: true},
         'development',
       )('graphql`fragment TestFrag on Node { id }`'),
     ).toMatchSnapshot();
@@ -24,9 +24,10 @@ describe('`development` option', () => {
 
   it('tests the hash when `isDevVariable` is set', () => {
     expect(
-      transformerWithOptions({eagerESModules: true, isDevVariable: 'IS_DEV'})(
-        'graphql`fragment TestFrag on Node { id }`',
-      ),
+      transformerWithOptions({
+        eagerEsModules: true,
+        isDevVariableName: 'IS_DEV',
+      })('graphql`fragment TestFrag on Node { id }`'),
     ).toMatchSnapshot();
   });
 
@@ -34,8 +35,8 @@ describe('`development` option', () => {
     expect(
       transformerWithOptions(
         {
-          buildCommand: 'relay-build',
-          eagerESModules: true,
+          buildCommand: 'relay-compiler',
+          eagerEsModules: true,
         },
         'development',
       )('graphql`fragment TestFrag on Node { id }`'),
@@ -45,7 +46,7 @@ describe('`development` option', () => {
   it('does not test the hash when `development` is not set', () => {
     expect(
       transformerWithOptions(
-        {eagerESModules: true},
+        {eagerEsModules: true},
         'production',
       )('graphql`fragment TestFrag on Node { id }`'),
     ).toMatchSnapshot();

@@ -1,14 +1,13 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::sync::{
-    atomic::{AtomicI8, Ordering},
-    Arc,
-};
+use std::sync::atomic::AtomicI8;
+use std::sync::atomic::Ordering;
+use std::sync::Arc;
 
 #[derive(Clone, Default, Debug)]
 /// This structure is representing the state of the current source control update.

@@ -1,24 +1,36 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-pub use super::artifact_content::ArtifactContent;
-use super::build_ir::SourceHashes;
-use crate::config::{Config, ProjectConfig};
-use common::{NamedItem, SourceLocationKey};
-use fnv::FnvHashMap;
-use graphql_ir::{FragmentDefinition, OperationDefinition};
-use graphql_text_printer::OperationPrinter;
-use interner::StringKey;
-use relay_transforms::{
-    Programs, RefetchableDerivedFromMetadata, SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION,
-};
-use relay_typegen::TypegenLanguage;
 use std::path::PathBuf;
 use std::sync::Arc;
+
+use common::NamedItem;
+use common::SourceLocationKey;
+use fnv::FnvHashMap;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_text_printer::OperationPrinter;
+use graphql_text_printer::PrinterOptions;
+use intern::string_key::StringKey;
+use intern::Lookup;
+use relay_transforms::ClientEdgeGeneratedQueryMetadataDirective;
+use relay_transforms::Programs;
+use relay_transforms::RawResponseGenerationMode;
+use relay_transforms::RefetchableDerivedFromMetadata;
+use relay_transforms::SplitOperationMetadata;
+use relay_transforms::CLIENT_EDGE_GENERATED_FRAGMENT_KEY;
+use relay_transforms::CLIENT_EDGE_SOURCE_NAME;
+use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
+use relay_transforms::UPDATABLE_DIRECTIVE;
+
+pub use super::artifact_content::ArtifactContent;
+use super::build_ir::SourceHashes;
+use crate::config::Config;
+use crate::config::ProjectConfig;
 
 /// Represents a generated output artifact.
 pub struct Artifact {
@@ -36,82 +48,140 @@ pub fn generate_artifacts(
     programs: &Programs,
     source_hashes: Arc<SourceHashes>,
 ) -> Vec<Artifact> {
-    let mut operation_printer = OperationPrinter::new(&programs.operation_text);
+    let printer_options = PrinterOptions {
+        compact: project_config
+            .feature_flags
+            .compact_query_text
+            .is_fully_enabled(),
+        ..Default::default()
+    };
+    let mut operation_printer = OperationPrinter::new(&programs.operation_text, printer_options);
     return group_operations(programs)
         .into_iter()
-        .map(|(_, operations)| {
-            if let Some(directive) = operations
-                .normalization
-                .directives
-                .named(*DIRECTIVE_SPLIT_OPERATION)
-            {
-                // Generate normalization file for SplitOperation
-                let metadata = SplitOperationMetadata::from(directive);
-                let source_fragment = programs
-                    .source
-                    .fragment(metadata.derived_from)
-                    .expect("Expected the source document for the SplitOperation to exist.");
-                let source_hash = source_hashes.get(&metadata.derived_from).cloned().unwrap();
-                let source_file = source_fragment.name.location.source_location();
-                let typegen_operation = if metadata.raw_response_type {
-                    Some(Arc::clone(operations.normalization))
-                } else {
-                    None
-                };
+        .map(|(_, operations)| -> Artifact {
+            if let Some(normalization) = operations.normalization {
+                // We have a normalization AST... so we'll move forward with that
+                if let Some(directive) = normalization.directives.named(*DIRECTIVE_SPLIT_OPERATION)
+                {
+                    // Generate normalization file for SplitOperation
+                    let metadata = SplitOperationMetadata::from(directive);
+                    let source_file = metadata.location.source_location();
+                    let source_hash = metadata.derived_from.and_then(|derived_from| source_hashes.get(&derived_from.0).cloned());
+                    let typegen_operation = if metadata.raw_response_type_generation_mode.is_some() {
+                        Some(Arc::clone(normalization))
+                    } else {
+                        None
+                    };
 
-                Artifact {
-                    source_definition_names: metadata.parent_documents.into_iter().collect(),
-                    path: path_for_artifact(
-                        project_config,
+                    return Artifact {
+                        source_definition_names: metadata.parent_documents.into_iter().collect(),
+                        path: project_config
+                            .path_for_artifact(source_file, normalization.name.item.0),
+                        content: ArtifactContent::SplitOperation {
+                            normalization_operation: Arc::clone(normalization),
+                            typegen_operation,
+                            no_optional_fields_in_raw_response_type: matches!(metadata.raw_response_type_generation_mode, Some(RawResponseGenerationMode::AllFieldsRequired)),
+                            source_hash,
+                        },
                         source_file,
-                        operations.normalization.name.item,
-                    ),
-                    content: ArtifactContent::SplitOperation {
-                        normalization_operation: Arc::clone(operations.normalization),
-                        typegen_operation,
-                        source_hash,
-                    },
-                    source_file,
-                }
-            } else if let Some(derived_from_metadata) =
-                RefetchableDerivedFromMetadata::find(&operations.normalization.directives)
-            {
-                let source_name = derived_from_metadata.0;
-                let source_fragment = programs
-                    .source
-                    .fragment(source_name)
-                    .expect("Expected the source document for the SplitOperation to exist.");
-                let source_hash = source_hashes.get(&source_name).cloned().unwrap();
+                    }
+                } else if let Some(derived_from_metadata) =
+                    RefetchableDerivedFromMetadata::find(&normalization.directives)
+                {
+                    let source_name = derived_from_metadata.0;
+                    let source_fragment = programs
+                        .source
+                        .fragment(source_name)
+                        .expect("Expected the source document for the SplitOperation to exist.");
+                    let source_hash = source_hashes.get(&source_name.0).cloned().unwrap();
 
-                generate_normalization_artifact(
-                    &mut operation_printer,
-                    source_name,
-                    project_config,
-                    &operations,
-                    source_hash,
-                    source_fragment.name.location.source_location(),
-                )
-            } else {
-                let source_hash = source_hashes
-                    .get(&operations.normalization.name.item)
-                    .cloned()
-                    .unwrap();
-                generate_normalization_artifact(
-                    &mut operation_printer,
-                    operations.normalization.name.item,
-                    project_config,
-                    &operations,
-                    source_hash,
-                    operations.normalization.name.location.source_location(),
-                )
+                    return generate_normalization_artifact(
+                        &mut operation_printer,
+                        source_name.0,
+                        project_config,
+                        &operations,
+                        source_hash,
+                        source_fragment.name.location.source_location(),
+                    )
+                } else if let Some(client_edges_directive) =
+                    ClientEdgeGeneratedQueryMetadataDirective::find(&normalization.directives)
+                {
+                    let source_name = client_edges_directive.source_name.item;
+                    let source_file = client_edges_directive
+                        .source_name
+                        .location
+                        .source_location();
+                    let source_hash = source_hashes.get(&source_name).cloned().unwrap();
+                    return generate_normalization_artifact(
+                        &mut operation_printer,
+                        source_name,
+                        project_config,
+                        &operations,
+                        source_hash,
+                        source_file,
+                    )
+                } else {
+                    let source_hash = source_hashes
+                        .get(&normalization.name.item.0)
+                        .cloned()
+                        .unwrap();
+                    return generate_normalization_artifact(
+                        &mut operation_printer,
+                        normalization.name.item.0,
+                        project_config,
+                        &operations,
+                        source_hash,
+                        normalization.name.location.source_location(),
+                    )
+                }
+            } else if let Some(reader) = operations.reader {
+                // We don't have a normalization AST, but we do have a reader.
+                // Therefore this must be an updatable query in order to continue.
+                if reader
+                    .directives
+                    .named(*UPDATABLE_DIRECTIVE)
+                    .is_some()
+                {
+                    let source_hash = source_hashes
+                        .get(&reader.name.item.0)
+                        .cloned()
+                        .unwrap();
+                    return generate_updatable_query_artifact(
+                        reader.name.item.0,
+                        project_config,
+                        &operations,
+                        source_hash,
+                        reader.name.location.source_location(),
+                    )
+                }
             }
+            panic!("Expected at least one of an @updatable reader AST, or normalization AST to be present");
         })
         .chain(programs.reader.fragments().map(|reader_fragment| {
-            let source_hash = source_hashes
-                .get(&reader_fragment.name.item)
-                .cloned()
-                .unwrap();
-            generate_reader_artifact(project_config, programs, reader_fragment, source_hash)
+            let source_name = if let Some(client_edges_directive) = reader_fragment
+                .directives
+                .named(*CLIENT_EDGE_GENERATED_FRAGMENT_KEY)
+            {
+                client_edges_directive
+                    .arguments
+                    .named(*CLIENT_EDGE_SOURCE_NAME)
+                    .expect("Client edges should have a source argument")
+                    .value
+                    .item
+                    .expect_string_literal()
+            } else {
+                reader_fragment.name.item.0
+            };
+
+            let source_hash = source_hashes.get(&source_name).cloned();
+            let source_definition_names = vec![source_name];
+            generate_reader_artifact(
+                project_config,
+                programs,
+                reader_fragment,
+                source_hash,
+                source_definition_names,
+            )
         }))
         .collect();
 }
@@ -124,23 +194,49 @@ fn generate_normalization_artifact(
     source_hash: String,
     source_file: SourceLocationKey,
 ) -> Artifact {
-    let text = operation_printer.print(operations.expect_operation_text());
+    let text = operations
+        .operation_text
+        .map(|operation| operation_printer.print(operation));
+
+    let normalization = operations
+        .normalization
+        .expect("Operations must have a normalization entry.");
+
     Artifact {
         source_definition_names: vec![source_definition_name],
-        path: path_for_artifact(
-            project_config,
-            source_file,
-            operations.normalization.name.item,
-        ),
+        path: project_config.path_for_artifact(source_file, normalization.name.item.0),
         content: ArtifactContent::Operation {
-            normalization_operation: Arc::clone(operations.normalization),
+            normalization_operation: Arc::clone(normalization),
             reader_operation: operations.expect_reader(),
             typegen_operation: operations.expect_typegen(),
             source_hash,
             text,
             id_and_text_hash: None,
         },
-        source_file: operations.normalization.name.location.source_location(),
+        source_file: normalization.name.location.source_location(),
+    }
+}
+
+fn generate_updatable_query_artifact(
+    source_definition_name: StringKey,
+    project_config: &ProjectConfig,
+    operations: &OperationGroup<'_>,
+    source_hash: String,
+    source_file: SourceLocationKey,
+) -> Artifact {
+    let reader = operations
+        .reader
+        .expect("Updatable operations must have a reader entry.");
+
+    Artifact {
+        source_definition_names: vec![source_definition_name],
+        path: project_config.path_for_artifact(source_file, reader.name.item.0),
+        content: ArtifactContent::UpdatableQuery {
+            reader_operation: operations.expect_reader(),
+            typegen_operation: operations.expect_typegen(),
+            source_hash,
+        },
+        source_file: reader.name.location.source_location(),
     }
 }
 
@@ -148,7 +244,8 @@ fn generate_reader_artifact(
     project_config: &ProjectConfig,
     programs: &Programs,
     reader_fragment: &Arc<FragmentDefinition>,
-    source_hash: String,
+    source_hash: Option<String>,
+    source_definition_names: Vec<StringKey>,
 ) -> Artifact {
     let name = reader_fragment.name.item;
     let typegen_fragment = programs
@@ -156,12 +253,9 @@ fn generate_reader_artifact(
         .fragment(name)
         .expect("a type fragment should be generated for this fragment");
     Artifact {
-        source_definition_names: vec![name],
-        path: path_for_artifact(
-            project_config,
-            reader_fragment.name.location.source_location(),
-            name,
-        ),
+        source_definition_names,
+        path: project_config
+            .path_for_artifact(reader_fragment.name.location.source_location(), name.0),
         content: ArtifactContent::Fragment {
             reader_fragment: Arc::clone(reader_fragment),
             typegen_fragment: Arc::clone(typegen_fragment),
@@ -171,85 +265,43 @@ fn generate_reader_artifact(
     }
 }
 
-/// This function will create a correct path for artifact based on the project configuration
-pub fn create_path_for_artifact(
-    project_config: &ProjectConfig,
-    source_file: SourceLocationKey,
-    artifact_file_name: String,
-) -> PathBuf {
-    if let Some(output) = &project_config.output {
-        // If an output directory is specified, output into that directory.
-        if project_config.shard_output {
-            if let Some(ref regex) = project_config.shard_strip_regex {
-                let full_source_path = regex.replace_all(source_file.path(), "");
-                let mut output = output.join(full_source_path.to_string());
-                output.pop();
-                output
-            } else {
-                output.join(source_file.get_dir())
-            }
-            .join(artifact_file_name)
-        } else {
-            output.join(artifact_file_name)
-        }
-    } else {
-        // Otherwise, output into a file relative to the source.
-        source_file
-            .get_dir()
-            .join("__generated__")
-            .join(artifact_file_name)
-    }
-}
-
-fn path_for_artifact(
-    project_config: &ProjectConfig,
-    source_file: SourceLocationKey,
-    definition_name: StringKey,
-) -> PathBuf {
-    let filename = if let Some(filename_for_artifact) = &project_config.filename_for_artifact {
-        filename_for_artifact(source_file, definition_name)
-    } else {
-        match &project_config.typegen_config.language {
-            TypegenLanguage::Flow => format!("{}.graphql.js", definition_name),
-            TypegenLanguage::TypeScript => format!("{}.graphql.ts", definition_name),
-        }
-    };
-    create_path_for_artifact(project_config, source_file, filename)
-}
-
 /// Operation with the same name from different `Program`s.
 struct OperationGroup<'a> {
-    normalization: &'a Arc<OperationDefinition>,
+    normalization: Option<&'a Arc<OperationDefinition>>,
     operation_text: Option<&'a OperationDefinition>,
     reader: Option<&'a Arc<OperationDefinition>>,
     typegen: Option<&'a Arc<OperationDefinition>>,
 }
 
 impl<'a> OperationGroup<'a> {
-    fn expect_operation_text(&self) -> &OperationDefinition {
-        self.operation_text.unwrap_or_else(|| {
-            panic!(
-                "Expected to have a operation_text operation for `{}`",
-                self.normalization.name.item
-            )
-        })
+    fn new() -> Self {
+        OperationGroup {
+            normalization: None,
+            operation_text: None,
+            reader: None,
+            typegen: None,
+        }
     }
 
     fn expect_reader(&self) -> Arc<OperationDefinition> {
-        Arc::clone(self.reader.unwrap_or_else(|| {
-            panic!(
-                "Expected to have a reader operation for `{}`",
-                self.normalization.name.item
-            )
-        }))
+        let normal_name = self
+            .normalization
+            .map_or("MISSING_ENTRY", |n| n.name.item.0.lookup());
+
+        Arc::clone(
+            self.reader.unwrap_or_else(|| {
+                panic!("Expected to have a reader operation for `{}`", normal_name)
+            }),
+        )
     }
 
     fn expect_typegen(&self) -> Arc<OperationDefinition> {
+        let normal_name = self
+            .normalization
+            .map_or("MISSING_ENTRY", |n| n.name.item.0.lookup());
+
         Arc::clone(self.typegen.unwrap_or_else(|| {
-            panic!(
-                "Expected to have a typegen operation for `{}`",
-                self.normalization.name.item
-            )
+            panic!("Expected to have a typegen operation for `{}`", normal_name)
         }))
     }
 }
@@ -264,9 +316,9 @@ fn group_operations(programs: &Programs) -> FnvHashMap<StringKey, OperationGroup
         .iter()
         .map(|normalization_operation| {
             (
-                normalization_operation.name.item,
+                normalization_operation.name.item.0,
                 OperationGroup {
-                    normalization: &normalization_operation,
+                    normalization: Some(normalization_operation),
                     operation_text: None,
                     reader: None,
                     typegen: None,
@@ -274,23 +326,25 @@ fn group_operations(programs: &Programs) -> FnvHashMap<StringKey, OperationGroup
             )
         })
         .collect();
+
     for operation in programs.operation_text.operations() {
         grouped_operations
-            .get_mut(&operation.name.item)
-            .unwrap()
+            .entry(operation.name.item.0)
+            .or_insert_with(OperationGroup::new)
             .operation_text = Some(operation);
     }
     for operation in programs.reader.operations() {
         grouped_operations
-            .get_mut(&operation.name.item)
-            .unwrap()
+            .entry(operation.name.item.0)
+            .or_insert_with(OperationGroup::new)
             .reader = Some(operation);
     }
     for operation in programs.typegen.operations() {
         grouped_operations
-            .get_mut(&operation.name.item)
-            .unwrap()
+            .entry(operation.name.item.0)
+            .or_insert_with(OperationGroup::new)
             .typegen = Some(operation);
     }
+
     grouped_operations
 }

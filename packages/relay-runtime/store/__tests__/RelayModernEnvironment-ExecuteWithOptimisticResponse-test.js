@@ -1,21 +1,33 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {
+  RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$data,
+  RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$variables,
+} from './__generated__/RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query.graphql';
+import type {
+  RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$data,
+  RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$variables,
+} from './__generated__/RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery.graphql';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -37,13 +49,21 @@ describe('execute() with network that returns optimistic response', () => {
   let fetch;
   let next;
   let operation;
-  let query;
+  let query:
+    | Query<
+        RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$variables,
+        RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query$data,
+      >
+    | Query<
+        RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$variables,
+        RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$data,
+      >;
   let source;
   let store;
   let variables;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery(
         $fetchSize: Boolean!
       ) {
@@ -54,7 +74,7 @@ describe('execute() with network that returns optimistic response', () => {
           }
         }
       }
-    `);
+    `;
     variables = {fetchSize: false};
     operation = createOperationDescriptor(query, {
       ...variables,
@@ -65,7 +85,11 @@ describe('execute() with network that returns optimistic response', () => {
     error = jest.fn();
     next = jest.fn();
     callbacks = {complete, error, next};
-    fetch = (_query, _variables, _cacheConfig) => {
+    fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -342,14 +366,14 @@ describe('execute() with network that returns optimistic response', () => {
   });
 
   it('does fill missing fields from server-sent optimistic response with nulls when treatMissingFieldsAsNull is enabled', () => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithOptimisticResponseTestActor2Query {
         me {
           name
           lastName
         }
       }
-    `);
+    `;
     operation = createOperationDescriptor(query, {});
 
     environment = new RelayModernEnvironment({

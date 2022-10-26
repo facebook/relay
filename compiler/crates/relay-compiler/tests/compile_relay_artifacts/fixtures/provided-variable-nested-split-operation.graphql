@@ -1,0 +1,62 @@
+query providedVariableNestedSplitOperation_Query($id: ID!) {
+  node(id: $id) {
+    ...providedVariableNestedSplitOperationFragment
+  }
+}
+
+fragment providedVariableNestedSplitOperationFragment on User
+{
+  id
+  nameRenderer @match{
+    ...providedVariableNestedSplitOperation_Markdown1
+      @module(name: "MarkdownUserNameRenderer.react")
+    ...providedVariableNestedSplitOperation_Plain1
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment providedVariableNestedSplitOperation_Markdown1 on MarkdownUserNameRenderer
+  @argumentDefinitions(
+    shouldIncludeMarkdown: {type: "Boolean!", provider: "shouldIncludeMarkdown_RelayProvider"}
+  )
+{
+  markdown @include(if: $shouldIncludeMarkdown)
+  data {
+    markup
+  }
+  user {
+    nameRenderer @match{
+      ...providedVariableNestedSplitOperation_Markdown2
+        @module(name: "MarkdownUserNameRenderer.react")
+      ...providedVariableNestedSplitOperation_Plain2
+        @module(name: "MarkdownUserNameRenderer.react")
+    }
+  }
+}
+
+fragment providedVariableNestedSplitOperation_Plain1 on PlainUserNameRenderer
+{
+  plaintext
+  data {
+    text
+  }
+}
+
+fragment providedVariableNestedSplitOperation_Markdown2 on MarkdownUserNameRenderer
+  @argumentDefinitions(
+    shouldIncludeData: {type: "Boolean!", provider: "shouldIncludeData_RelayProvider"}
+  )
+{
+  markdown
+  data {
+    markup  @include(if: $shouldIncludeData)
+  }
+}
+
+fragment providedVariableNestedSplitOperation_Plain2 on PlainUserNameRenderer
+{
+  plaintext
+  data {
+    text
+  }
+}

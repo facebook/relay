@@ -1,0 +1,32 @@
+query queryWithModuleDirectiveCustomImport_NameRendererQuery($id: ID!) {
+  node(id: $id) {
+    ...queryWithModuleDirectiveCustomImport_NameRendererFragment
+  }
+}
+
+fragment queryWithModuleDirectiveCustomImport_NameRendererFragment on User {
+  id
+  nameRenderer {
+    # note: intentionally no @match here
+    ...queryWithModuleDirectiveCustomImport_MarkdownUserNameRenderer_name
+      @module(name: "MarkdownUserNameRenderer.react")
+  }
+}
+
+fragment queryWithModuleDirectiveCustomImport_MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
+  markdown
+  data {
+    markup
+  }
+}
+
+%project_config%
+{
+  "moduleImportConfig": {
+    "dynamicModuleProvider": {
+      "mode": "Custom",
+      "statement": "() => import('<$module>')"
+    }
+  },
+  "language": "flow"
+}

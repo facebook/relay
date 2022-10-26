@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8d11d9573123d71effd73fb44f24ddcf>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<1ad3a55a9b3ba89a79509021e14da537>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +17,9 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type commitMutationTest5QueryVariables = {||};
-export type commitMutationTest5QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type commitMutationTest5Query$variables = {||};
+export type commitMutationTest5Query$data = {|
   +node: ?{|
     +topLevelComments?: ?{|
       +count: ?number,
@@ -30,8 +32,8 @@ export type commitMutationTest5QueryResponse = {|
   |},
 |};
 export type commitMutationTest5Query = {|
-  variables: commitMutationTest5QueryVariables,
-  response: commitMutationTest5QueryResponse,
+  response: commitMutationTest5Query$data,
+  variables: commitMutationTest5Query$variables,
 |};
 */
 
@@ -252,4 +254,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "95a7b3c5f4018a884d2df77e115a4db0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  commitMutationTest5Query$variables,
+  commitMutationTest5Query$data,
+>*/);

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<82ad5def5cba5aa86e165a7257356441>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<692adf32ed3c18a1874d1194a1d2ae77>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +17,16 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type createFragmentSpecResolverTestTestComponent_test$ref: FragmentReference;
-declare export opaque type createFragmentSpecResolverTestTestComponent_test$fragmentType: createFragmentSpecResolverTestTestComponent_test$ref;
-export type createFragmentSpecResolverTestTestComponent_test = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type createFragmentSpecResolverTestTestComponent_test$fragmentType: FragmentType;
+export type createFragmentSpecResolverTestTestComponent_test$data = {|
   +id: string,
-  +$refType: createFragmentSpecResolverTestTestComponent_test$ref,
+  +$fragmentType: createFragmentSpecResolverTestTestComponent_test$fragmentType,
 |};
-export type createFragmentSpecResolverTestTestComponent_test$data = createFragmentSpecResolverTestTestComponent_test;
 export type createFragmentSpecResolverTestTestComponent_test$key = {
   +$data?: createFragmentSpecResolverTestTestComponent_test$data,
-  +$fragmentRefs: createFragmentSpecResolverTestTestComponent_test$ref,
+  +$fragmentSpreads: createFragmentSpecResolverTestTestComponent_test$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e504b83393e283bd086e4e128539b051";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  createFragmentSpecResolverTestTestComponent_test$fragmentType,
+  createFragmentSpecResolverTestTestComponent_test$data,
+>*/);

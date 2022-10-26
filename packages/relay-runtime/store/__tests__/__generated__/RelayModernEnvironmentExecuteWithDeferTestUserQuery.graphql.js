@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4068a9441c56e3883a639e702340a54c>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<357eaacf7dd0604d7eca85220fb4e66e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithDeferTestUserFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithDeferTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteWithDeferTestUserFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferTestUserFragment.graphql";
+export type RelayModernEnvironmentExecuteWithDeferTestUserQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithDeferTestUserQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithDeferTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferTestUserFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferTestUserFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithDeferTestUserQuery = {|
-  variables: RelayModernEnvironmentExecuteWithDeferTestUserQueryVariables,
-  response: RelayModernEnvironmentExecuteWithDeferTestUserQueryResponse,
+  response: RelayModernEnvironmentExecuteWithDeferTestUserQuery$data,
+  variables: RelayModernEnvironmentExecuteWithDeferTestUserQuery$variables,
 |};
 */
 
@@ -158,4 +160,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f0274d924fe95386193769563e6421fc";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithDeferTestUserQuery$variables,
+  RelayModernEnvironmentExecuteWithDeferTestUserQuery$data,
+>*/);

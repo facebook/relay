@@ -1,17 +1,17 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+
+import type {OperationDescriptor} from '../../../relay-runtime/store/RelayStoreTypes';
 
 const useRefetchableFragmentOriginal = require('../useRefetchableFragment');
 const React = require('react');
@@ -22,8 +22,6 @@ const {
   FRAGMENTS_KEY,
   ID_KEY,
   createOperationDescriptor,
-  getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -40,9 +38,10 @@ describe('useRefetchableFragment', () => {
   let renderSpy;
   let Renderer;
 
-  function useRefetchableFragment(fragmentNode, fragmentRef) {
-    const [data, refetch] = useRefetchableFragmentOriginal(
+  function useRefetchableFragment(fragmentNode: any, fragmentRef: any) {
+    const [data, refetch] = useRefetchableFragmentOriginal<any, any>(
       fragmentNode,
+      // $FlowFixMe[incompatible-call]
       // $FlowFixMe[prop-missing]
       fragmentRef,
     );
@@ -50,14 +49,14 @@ describe('useRefetchableFragment', () => {
     return [data, refetch];
   }
 
-  function assertCall(expected, idx) {
+  function assertCall(expected: {data: any}, idx: number) {
     const actualData = renderSpy.mock.calls[idx][0];
 
     expect(actualData).toEqual(expected.data);
   }
 
   function assertFragmentResults(
-    expectedCalls: $ReadOnlyArray<{|data: $FlowFixMe|}>,
+    expectedCalls: $ReadOnlyArray<{data: $FlowFixMe}>,
   ) {
     // This ensures that useEffect runs
     TestRenderer.act(() => jest.runAllImmediates());
@@ -66,11 +65,11 @@ describe('useRefetchableFragment', () => {
     renderSpy.mockClear();
   }
 
-  function expectFragmentResults(expectedCalls) {
+  function expectFragmentResults(expectedCalls: Array<{data: any}>) {
     assertFragmentResults(expectedCalls);
   }
 
-  function createFragmentRef(id, owner) {
+  function createFragmentRef(id: string, owner: OperationDescriptor) {
     return {
       [ID_KEY]: id,
       [FRAGMENTS_KEY]: {
@@ -97,18 +96,18 @@ describe('useRefetchableFragment', () => {
     `;
 
     variables = {id: '1', scale: 16};
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query useRefetchableFragmentTestUserQuery($id: ID!, $scale: Float!) {
         node(id: $id) {
           ...useRefetchableFragmentTestUserFragment
         }
       }
-    `);
-    gqlFragment = getFragment(graphql`
+    `;
+    gqlFragment = graphql`
       fragment useRefetchableFragmentTestUserFragment on User
-        @refetchable(
-          queryName: "useRefetchableFragmentTestUserFragmentRefetchQuery"
-        ) {
+      @refetchable(
+        queryName: "useRefetchableFragmentTestUserFragmentRefetchQuery"
+      ) {
         id
         name
         profile_picture(scale: $scale) {
@@ -116,7 +115,7 @@ describe('useRefetchableFragment', () => {
         }
         ...useRefetchableFragmentTestNestedUserFragment
       }
-    `);
+    `;
 
     query = createOperationDescriptor(gqlQuery, variables);
     environment.commitPayload(query, {
@@ -130,9 +129,13 @@ describe('useRefetchableFragment', () => {
     });
 
     // Set up renderers
-    Renderer = props => null;
+    Renderer = (props: {user: mixed}) => null;
 
-    const Container = (props: {userRef?: {...}, fragment: $FlowFixMe, ...}) => {
+    const Container = (props: {
+      userRef?: {...},
+      fragment?: $FlowFixMe,
+      ...
+    }) => {
       // We need a render a component to run a Hook
       const artificialUserRef = useMemo(
         () => ({
@@ -151,7 +154,7 @@ describe('useRefetchableFragment', () => {
       return <Renderer user={userData} />;
     };
 
-    const ContextProvider = ({children}) => {
+    const ContextProvider = ({children}: {children: React.Node}) => {
       const relayContext = useMemo(() => ({environment}), []);
 
       return (

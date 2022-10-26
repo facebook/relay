@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -47,6 +45,7 @@ const {
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -59,22 +58,22 @@ type ValueResolver = (
   plural: ?boolean,
   defaultValue?: mixed,
 ) => mixed;
-type Traversable = {|
+type Traversable = {
   +selections: $ReadOnlyArray<NormalizationSelection>,
   +typeName: ?string,
   +isAbstractType: ?boolean,
   +name: ?string,
   +alias: ?string,
   +args: ?{[string]: mixed, ...},
-|};
+};
 type MockData = {[string]: mixed, ...};
-type MockResolverContext = {|
+type MockResolverContext = {
   +parentType: ?string,
   +name: ?string,
   +alias: ?string,
   +path: ?$ReadOnlyArray<string>,
   +args: ?{[string]: mixed, ...},
-|};
+};
 type MockResolver = (
   context: MockResolverContext,
   generateId: () => number,
@@ -82,13 +81,13 @@ type MockResolver = (
 export type MockResolvers = {[typeName: string]: MockResolver, ...};
 
 type SelectionMetadata = {
-  [selectionPath: string]: {|
+  [selectionPath: string]: {
     +type: string,
     +plural: boolean,
     +nullable: boolean,
     +enumValues: $ReadOnlyArray<string> | null,
-  |},
-  ...,
+  },
+  ...
 };
 
 function createIdGenerator() {
@@ -99,7 +98,7 @@ function createIdGenerator() {
 }
 
 const DEFAULT_MOCK_RESOLVERS = {
-  ID(context, generateId: () => number) {
+  ID(context: MockResolverContext, generateId: () => number) {
     return `<${
       context.parentType != null && context.parentType !== DEFAULT_MOCK_TYPENAME
         ? context.parentType + '-'
@@ -144,9 +143,9 @@ function valueResolver(
         possibleDefaultValue ??
         (typeName === 'ID'
           ? DEFAULT_MOCK_RESOLVERS.ID(context, generateId)
-          : `<mock-value-for-field-"${context.alias ??
-              context.name ??
-              'undefined'}">`);
+          : `<mock-value-for-field-"${
+              context.alias ?? context.name ?? 'undefined'
+            }">`);
     }
     return mockValue;
   };
@@ -180,12 +179,14 @@ class RelayMockPayloadGenerator {
   _resolveValue: ValueResolver;
   _mockResolvers: MockResolvers;
   _selectionMetadata: SelectionMetadata;
+  _mockClientData: boolean;
 
-  constructor(options: {|
+  constructor(options: {
     +variables: Variables,
     +mockResolvers: MockResolvers | null,
     +selectionMetadata: SelectionMetadata | null,
-  |}) {
+    +mockClientData: ?boolean,
+  }) {
     this._variables = options.variables;
     // $FlowFixMe[cannot-spread-inexact]
     // $FlowFixMe[incompatible-type]
@@ -196,6 +197,7 @@ class RelayMockPayloadGenerator {
     this._selectionMetadata = options.selectionMetadata ?? {};
     // $FlowFixMe[incompatible-call]
     this._resolveValue = createValueResolver(this._mockResolvers);
+    this._mockClientData = options.mockClientData ?? false;
   }
 
   generate(
@@ -253,7 +255,7 @@ class RelayMockPayloadGenerator {
     prevData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
-    let mockData = prevData ?? {};
+    let mockData: ?($FlowFixMe | MockData) = prevData ?? {};
 
     selections.forEach(selection => {
       switch (selection.kind) {
@@ -297,6 +299,11 @@ class RelayMockPayloadGenerator {
           }
           break;
 
+        case CLIENT_EXTENSION:
+          if (!this._mockClientData) {
+            break;
+          }
+        // falls through
         case DEFER:
         case STREAM: {
           mockData = this._traverseSelections(
@@ -458,7 +465,8 @@ class RelayMockPayloadGenerator {
               selection.fragmentName,
             );
 
-            const splitOperation: NormalizationSplitOperation = (operation: $FlowFixMe);
+            const splitOperation: NormalizationSplitOperation =
+              (operation: $FlowFixMe);
             const {documentName} = selection;
             if (mockData == null) {
               mockData = {};
@@ -468,9 +476,8 @@ class RelayMockPayloadGenerator {
               ...mockData,
               [TYPENAME_KEY]: typeName,
               [getModuleOperationKey(documentName)]: operation.name,
-              [getModuleComponentKey(
-                documentName,
-              )]: defaultValues.__module_component,
+              [getModuleComponentKey(documentName)]:
+                defaultValues.__module_component,
               ...this._traverseSelections(
                 splitOperation.selections,
                 typeName,
@@ -481,10 +488,6 @@ class RelayMockPayloadGenerator {
               ),
             };
           }
-          break;
-        case CLIENT_EXTENSION:
-          // We do not expect to receive data for the client extensions
-          // from the server. MockPayloadGenerator should not generate it too.
           break;
         case TYPE_DISCRIMINATOR:
           const {abstractKey} = selection;
@@ -499,6 +502,18 @@ class RelayMockPayloadGenerator {
           throw new Error('Flight fields are not yet supported.');
         case ACTOR_CHANGE:
           throw new Error('ActorChange fields are not yet supported.');
+        case RELAY_RESOLVER:
+          if (selection.fragment) {
+            mockData = this._traverseSelections(
+              selection.fragment.selections,
+              typeName,
+              isAbstractType,
+              path,
+              mockData,
+              defaultValues,
+            );
+          }
+          break;
         default:
           (selection: empty);
           invariant(
@@ -521,7 +536,7 @@ class RelayMockPayloadGenerator {
     value: mixed | Array<mixed>,
     path: $ReadOnlyArray<string>,
     applicationName: string,
-  ) {
+  ): ?(string | Array<string>) {
     if (value === undefined) {
       return value;
     }
@@ -579,13 +594,13 @@ class RelayMockPayloadGenerator {
     mockData: ?MockData,
     defaultValues: ?MockData,
   ): MockData {
-    const data = mockData ?? {};
+    const data = mockData ?? ({}: {[string]: mixed});
     const applicationName = field.alias ?? field.name;
     if (data.hasOwnProperty(applicationName) && field.name !== TYPENAME_KEY) {
       return data;
     }
 
-    let value;
+    let value: mixed;
 
     // For __typename fields we are going to return typeName
     if (field.name === TYPENAME_KEY) {
@@ -658,7 +673,7 @@ class RelayMockPayloadGenerator {
     defaultValues: ?MockData,
   ): MockData | null {
     const applicationName = field.alias ?? field.name;
-    const data = prevData ?? {};
+    const data: MockData = prevData ?? {};
     const args = this._getFieldArgs(field);
 
     // Let's check if we have a custom mock resolver for the object type
@@ -699,9 +714,9 @@ class RelayMockPayloadGenerator {
     // information came from mock resolver __typename value and it was
     // an intentional selection of the specific type
     const isAbstractType =
-      field.concreteType === null && typeName === typeFromSelection.type;
+      field.concreteType == null && typeName === typeFromSelection.type;
 
-    const generateDataForField = possibleDefaultValue => {
+    const generateDataForField = (possibleDefaultValue: mixed) => {
       const fieldDefaultValue =
         this._getDefaultValuesForObject(
           field.concreteType ?? typeFromSelection.type,
@@ -792,7 +807,7 @@ class RelayMockPayloadGenerator {
    * Get object with variables for field
    */
   _getFieldArgs(field: NormalizationField): {[string]: mixed, ...} {
-    const args = {};
+    const args: {[string]: mixed} = {};
     if (field.args != null) {
       field.args.forEach(arg => {
         args[arg.name] = this._getArgValue(arg);
@@ -808,7 +823,7 @@ class RelayMockPayloadGenerator {
       case 'Variable':
         return this._getVariableValue(arg.variableName);
       case 'ObjectValue': {
-        const value = {};
+        const value: {[string]: mixed} = {};
         arg.fields.forEach(field => {
           value[field.name] = this._getArgValue(field);
         });
@@ -831,12 +846,12 @@ class RelayMockPayloadGenerator {
     field: NormalizationScalarField,
     typeName: ?string,
     selectionPath: $ReadOnlyArray<string>,
-  ): {|
+  ): {
     +type: string,
     +plural: boolean,
     +enumValues: $ReadOnlyArray<string> | null,
     +nullable: boolean,
-  |} {
+  } {
     return (
       this._selectionMetadata[selectionPath.join('.')] ?? {
         type: field.name === 'id' ? 'ID' : 'String',
@@ -856,11 +871,13 @@ function generateData(
   variables: Variables,
   mockResolvers: MockResolvers | null,
   selectionMetadata: SelectionMetadata | null,
+  options: ?{mockClientData?: boolean},
 ): MockData {
   const mockGenerator = new RelayMockPayloadGenerator({
     variables,
     mockResolvers,
     selectionMetadata,
+    mockClientData: options?.mockClientData,
   });
   let operationType;
   if (node.name.endsWith('Mutation')) {
@@ -915,12 +932,14 @@ function getSelectionMetadataFromOperation(
 function generateDataForOperation(
   operation: OperationDescriptor,
   mockResolvers: ?MockResolvers,
+  options: ?{mockClientData?: boolean},
 ): GraphQLSingularResponse {
   const data = generateData(
     operation.request.node.operation,
     operation.request.variables,
     mockResolvers ?? null,
     getSelectionMetadataFromOperation(operation),
+    options,
   );
   return {data};
 }

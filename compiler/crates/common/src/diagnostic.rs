@@ -1,57 +1,46 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use lsp_types::{DiagnosticSeverity, DiagnosticTag};
-
-use crate::{Location, SourceLocationKey};
 use std::error::Error;
 use std::fmt;
 use std::fmt::Write;
 
-pub type DiagnosticsResult<T> = Result<T, Vec<Diagnostic>>;
+use lsp_types::DiagnosticSeverity;
+use lsp_types::DiagnosticTag;
+use serde_json::Value;
+
+use crate::Location;
+use crate::SourceLocationKey;
+
+pub type Diagnostics = Vec<Diagnostic>;
+pub type DiagnosticsResult<T> = Result<T, Diagnostics>;
 
 #[derive(fmt::Debug)]
 pub struct WithDiagnostics<T> {
     pub item: T,
-    pub errors: Vec<Diagnostic>,
+    pub diagnostics: Vec<Diagnostic>,
 }
 
-impl<T> From<WithDiagnostics<T>> for Result<T, Vec<Diagnostic>> {
-    fn from(s: WithDiagnostics<T>) -> Result<T, Vec<Diagnostic>> {
-        if s.errors.is_empty() {
+impl<T> From<WithDiagnostics<T>> for Result<T, Diagnostics> {
+    fn from(s: WithDiagnostics<T>) -> Result<T, Diagnostics> {
+        if s.diagnostics.is_empty() {
             Ok(s.item)
         } else {
-            Err(s.errors)
+            Err(s.diagnostics)
         }
     }
 }
 
-pub fn diagnostics_result<T>(result: T, diagnostics: Vec<Diagnostic>) -> DiagnosticsResult<T> {
+pub fn diagnostics_result<T>(result: T, diagnostics: Diagnostics) -> DiagnosticsResult<T> {
     if diagnostics.is_empty() {
         Ok(result)
     } else {
         Err(diagnostics)
     }
-}
-
-/// Convert a list of DiagnosticsResult<T> into a DiagnosticsResult<Vec<T>>.
-/// This is similar to Result::from_iter except that in the case of an error
-/// result, Result::from_iter returns the first error in the list. Whereas
-/// this function concatenates all the Vec<Diagnostic> into one flat list.
-pub fn combined_result<T, I>(results: I) -> DiagnosticsResult<Vec<T>>
-where
-    T: std::fmt::Debug,
-    I: Iterator<Item = DiagnosticsResult<T>>,
-{
-    let (oks, errs): (Vec<_>, Vec<_>) = results.partition(Result::is_ok);
-    diagnostics_result(
-        oks.into_iter().map(Result::unwrap).collect(),
-        errs.into_iter().map(Result::unwrap_err).flatten().collect(),
-    )
 }
 
 /// A diagnostic message as a result of validating some code. This struct is
@@ -66,17 +55,26 @@ where
 pub struct Diagnostic(Box<DiagnosticData>);
 
 impl Diagnostic {
-    /// Creates a new error Diagnostic.
-    /// Additional locations can be added with the `.annotate()` function.
-    pub fn error<T: 'static + DiagnosticDisplay>(message: T, location: Location) -> Self {
+    fn with_severity<T: 'static + DiagnosticDisplay>(
+        severity: DiagnosticSeverity,
+        message: T,
+        location: Location,
+        tags: Vec<DiagnosticTag>,
+    ) -> Self {
         Self(Box::new(DiagnosticData {
             message: Box::new(message),
             location,
-            tags: Vec::new(),
-            severity: DiagnosticSeverity::Error,
             related_information: Vec::new(),
+            tags,
+            severity,
             data: Vec::new(),
         }))
+    }
+
+    /// Creates a new error Diagnostic.
+    /// Additional locations can be added with the `.annotate()` function.
+    pub fn error<T: 'static + DiagnosticDisplay>(message: T, location: Location) -> Self {
+        Diagnostic::with_severity(DiagnosticSeverity::ERROR, message, location, Vec::new())
     }
 
     /// Creates a new error Diagnostic with additional data that
@@ -90,10 +88,30 @@ impl Diagnostic {
             message: Box::new(message),
             location,
             tags: Vec::new(),
-            severity: DiagnosticSeverity::Error,
+            severity: DiagnosticSeverity::ERROR,
             related_information: Vec::new(),
             data,
         }))
+    }
+
+    /// Creates a new Diagnostic with a severity of Warning
+    /// Additional locations can be added with the `.annotate()` function.
+    pub fn warning<T: 'static + DiagnosticDisplay>(
+        message: T,
+        location: Location,
+        tags: Vec<DiagnosticTag>,
+    ) -> Self {
+        Diagnostic::with_severity(DiagnosticSeverity::WARNING, message, location, tags)
+    }
+
+    /// Creates a new Diagnostic with a severity of Information
+    /// Additional locations can be added with the `.annotate()` function.
+    pub fn info<T: 'static + DiagnosticDisplay>(
+        message: T,
+        location: Location,
+        tags: Vec<DiagnosticTag>,
+    ) -> Self {
+        Diagnostic::with_severity(DiagnosticSeverity::INFORMATION, message, location, tags)
     }
 
     /// Creates a new Diagnostic with a severity of Hint
@@ -103,14 +121,7 @@ impl Diagnostic {
         location: Location,
         tags: Vec<DiagnosticTag>,
     ) -> Self {
-        Self(Box::new(DiagnosticData {
-            message: Box::new(message),
-            location,
-            tags,
-            related_information: Vec::new(),
-            severity: DiagnosticSeverity::Hint, // TODO: Make this an argument?
-            data: Vec::new(),
-        }))
+        Diagnostic::with_severity(DiagnosticSeverity::HINT, message, location, tags)
     }
 
     /// Annotates this error with an additional location and associated message.
@@ -156,6 +167,19 @@ impl Diagnostic {
             "Diagnostic::override_location can only be called when the location is generated."
         );
         self.0.location = location;
+    }
+
+    /// Override the severity. This should only be used for escalating
+    /// diagnostics for error reporting. For example, any warnings that
+    /// need to be reported as errors can be reconstructed as diagnostics
+    /// with a severity of DiagnosticSeverity::ERROR.
+    pub fn override_severity(&mut self, severity: DiagnosticSeverity) {
+        assert!(
+            self.0.severity >= severity, // NOTE: The most critical severity level is actually the lowest enum value
+            "Diagnostic::override_severity can only be called when increasing the severity level",
+        );
+
+        self.0.severity = severity;
     }
 
     pub fn related_information(&self) -> &[DiagnosticRelatedInformation] {
@@ -246,53 +270,22 @@ pub trait DiagnosticDisplay: fmt::Debug + fmt::Display + Send + Sync {}
 /// implementors don't need to.
 impl<T> DiagnosticDisplay for T where T: fmt::Debug + fmt::Display + Send + Sync {}
 
-impl From<Diagnostic> for Vec<Diagnostic> {
+impl From<Diagnostic> for Diagnostics {
     fn from(diagnostic: Diagnostic) -> Self {
         vec![diagnostic]
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_combined_result() {
-        let input: Vec<DiagnosticsResult<u32>> = vec![Ok(0), Ok(1), Ok(2)];
-        let output = combined_result(input.into_iter());
-        assert_eq!(output.unwrap(), vec![0, 1, 2]);
-
-        let input: Vec<DiagnosticsResult<u32>> = vec![
-            Ok(1),
-            Err(vec![Diagnostic::error("err0", Location::generated())]),
-        ];
-        let output = combined_result(input.into_iter());
-        assert_eq!(
-            output.as_ref().unwrap_err()[0].message().to_string(),
-            "err0"
-        );
-
-        let input: Vec<DiagnosticsResult<u32>> = vec![
-            Ok(0),
-            Err(vec![Diagnostic::error("err0", Location::generated())]),
-            Ok(1),
-            Err(vec![
-                Diagnostic::error("err1", Location::generated()),
-                Diagnostic::error("err2", Location::generated()),
-            ]),
-        ];
-        let output = combined_result(input.into_iter());
-        assert_eq!(
-            output.as_ref().unwrap_err()[0].message().to_string(),
-            "err0"
-        );
-        assert_eq!(
-            output.as_ref().unwrap_err()[1].message().to_string(),
-            "err1"
-        );
-        assert_eq!(
-            output.as_ref().unwrap_err()[2].message().to_string(),
-            "err2"
-        );
+pub fn get_diagnostics_data(diagnostic: &Diagnostic) -> Option<Value> {
+    let diagnostic_data = diagnostic.get_data();
+    if !diagnostic_data.is_empty() {
+        Some(Value::Array(
+            diagnostic_data
+                .iter()
+                .map(|item| Value::String(item.to_string()))
+                .collect(),
+        ))
+    } else {
+        None
     }
 }

@@ -1,26 +1,37 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
+import type {fetchQueryTest1Query$data} from './__generated__/fetchQueryTest1Query.graphql';
+import type {RequestParameters} from 'relay-runtime';
+
 const fetchQuery = require('../fetchQuery');
 const {
-  RelayFeatureFlags,
+  Environment,
+  Network,
+  RecordSource,
+  Store,
   createOperationDescriptor,
   getRequest,
   graphql,
 } = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 const response = {
   data: {
@@ -79,7 +90,7 @@ describe('fetchQuery', () => {
   it('provides data snapshot on next', () => {
     let calledNext = false;
     const observer = {
-      next: data => {
+      next: (data: fetchQueryTest1Query$data) => {
         calledNext = true;
         expect(retained.length).toEqual(0);
         expect(data).toEqual({
@@ -122,7 +133,7 @@ describe('fetchQuery', () => {
   it('handles error correctly', () => {
     let calledError = false;
     const observer = {
-      error: error => {
+      error: (error: Error) => {
         calledError = true;
         expect(error.message).toEqual('Oops');
         expect(retained.length).toEqual(0);
@@ -227,13 +238,6 @@ describe('fetchQuery', () => {
 });
 
 describe('fetchQuery with missing @required value', () => {
-  beforeEach(() => {
-    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-  });
-  afterEach(() => {
-    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
-  });
-
   it('provides data snapshot on next', () => {
     const requiredFieldLogger = jest.fn();
     const environment = createMockEnvironment({
@@ -255,6 +259,7 @@ describe('fetchQuery with missing @required value', () => {
     environment.mock.nextValue(queryNode, {
       data: {
         me: {
+          id: 'ID-1',
           name: null,
         },
       },
@@ -286,7 +291,9 @@ describe('fetchQuery with missing @required value', () => {
     expect(observer.next).not.toHaveBeenCalled();
     expect(observer.error).not.toHaveBeenCalled();
 
-    environment.mock.nextValue(queryNode, {data: {me: {name: null}}});
+    environment.mock.nextValue(queryNode, {
+      data: {me: {id: 'ID-1', name: null}},
+    });
     subscription.unsubscribe();
     expect(requiredFieldLogger).toHaveBeenCalledWith({
       fieldPath: 'me.name',
@@ -319,10 +326,37 @@ describe('fetchQuery with missing @required value', () => {
     const observer = {next: jest.fn(), error: jest.fn()};
     const subscription = fetchQuery(environment, query, {}).subscribe(observer);
     const queryNode = getRequest(query);
-    environment.mock.nextValue(queryNode, {data: {me: {name: null}}});
+    environment.mock.nextValue(queryNode, {
+      data: {me: {id: 'ID-1', name: null}},
+    });
 
     subscription.unsubscribe();
 
     expect(observer.error).not.toHaveBeenCalled();
   });
+});
+
+test('client-only query with error', () => {
+  const fetchFn = jest.fn((params: RequestParameters) => {
+    if (params.id === null && params.text == null) {
+      throw new Error('Expected ID or Text');
+    }
+    throw new Error('Unexpected Input');
+  });
+  const environment = new Environment({
+    store: new Store(new RecordSource()),
+    network: Network.create(fetchFn),
+  });
+  const query = graphql`
+    query fetchQueryTest5Query {
+      client_root_field
+    }
+  `;
+  const observer = {next: jest.fn(), error: jest.fn()};
+
+  // $FlowExpectedError[incompatible-call] - fetch query is expecting a fetchable query, `fetchQueryTest5Query` is client-only
+  fetchQuery<{...}, empty, mixed>(environment, query, {}).subscribe(observer);
+
+  expect(observer.next).not.toBeCalled();
+  expect(observer.error).toBeCalledWith(new Error('Expected ID or Text'));
 });

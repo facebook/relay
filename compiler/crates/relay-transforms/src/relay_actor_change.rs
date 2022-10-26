@@ -1,22 +1,34 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::FeatureFlag;
+use std::sync::Arc;
 
-use super::ValidationMessage;
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use graphql_ir::{
-    Directive, Field, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
-    Transformer,
-};
-use interner::{Intern, StringKey};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::FeatureFlag;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
-use std::sync::Arc;
+
+use super::ValidationMessage;
 
 pub fn relay_actor_change_transform(
     program: &Program,
@@ -35,9 +47,10 @@ pub fn relay_actor_change_transform(
 }
 
 lazy_static! {
-    pub static ref RELAY_ACTOR_CHANGE_DIRECTIVE: StringKey = "fb_actor_change".intern();
-    pub static ref RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN: StringKey =
-        "__fb_actor_change".intern();
+    pub static ref RELAY_ACTOR_CHANGE_DIRECTIVE: DirectiveName =
+        DirectiveName("fb_actor_change".intern());
+    pub static ref RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN: DirectiveName =
+        DirectiveName("__fb_actor_change".intern());
     static ref ACTOR_CHANGE_FIELD: StringKey = "actor_key".intern();
 }
 
@@ -77,7 +90,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                 Selection::FragmentSpread(fragment_spread) => {
                     if !self
                         .feature_flag
-                        .is_enabled_for(fragment_spread.fragment.item)
+                        .is_enabled_for(fragment_spread.fragment.item.0)
                     {
                         self.errors.push(Diagnostic::error(
                             ValidationMessage::ActorChangeIsExperimental,
@@ -90,9 +103,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                 selection => {
                     self.errors.push(Diagnostic::error(
                         ValidationMessage::ActorChangeInvalidSelection,
-                        selection
-                            .location()
-                            .unwrap_or_else(|| field.alias_or_name_location()),
+                        selection.location(),
                     ));
                     return Transformed::Keep;
                 }
@@ -167,6 +178,7 @@ impl<'program, 'feature> Transformer for ActorChangeTransform<'program, 'feature
                     selections: next_selections,
                     ..field.clone()
                 }))],
+                spread_location: Location::generated(),
             }));
 
             Transformed::Replace(next_selection)

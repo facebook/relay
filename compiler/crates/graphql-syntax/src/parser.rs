@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,12 +7,18 @@
 
 use std::collections::VecDeque;
 
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::SourceLocationKey;
+use common::Span;
+use common::WithDiagnostics;
+use intern::string_key::Intern;
+use logos::Logos;
+
 use crate::lexer::TokenKind;
 use crate::node::*;
 use crate::syntax_error::SyntaxError;
-use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, WithDiagnostics};
-use interner::Intern;
-use logos::Logos;
 
 type ParseResult<T> = Result<T, ()>;
 
@@ -31,6 +37,7 @@ pub struct Parser<'a> {
     source: &'a str,
     /// the byte offset of the *end* of the previous token
     end_index: u32,
+    offset: u32,
 }
 
 /// Parser for the *executable* subset of the GraphQL specification:
@@ -41,6 +48,20 @@ impl<'a> Parser<'a> {
         source_location: SourceLocationKey,
         features: ParserFeatures,
     ) -> Self {
+        Self::with_offset(source, source_location, features, 0)
+    }
+
+    /// When parsing GraphQL syntax that is embedded within a parent
+    /// SourceLocation, such as a field definition within a docblock, you may
+    /// not be starting at the initial character of the SourceLocation.
+    /// Specifying an `offset` allows the Spans attached to each node to reflect
+    /// this fact.
+    pub fn with_offset(
+        source: &'a str,
+        source_location: SourceLocationKey,
+        features: ParserFeatures,
+        offset: u32,
+    ) -> Self {
         // To enable fast lookahead the parser needs to store at least the 'kind' (TokenKind)
         // of the next token: the simplest option is to store the full current token, but
         // the Parser requires an initial value. Rather than incur runtime/code overhead
@@ -50,7 +71,7 @@ impl<'a> Parser<'a> {
         let lexer = TokenKind::lexer(source);
         let dummy = Token {
             kind: TokenKind::EndOfFile,
-            span: Span::empty(),
+            span: Span::new(offset, offset),
         };
         let mut parser = Parser {
             current: dummy,
@@ -59,7 +80,8 @@ impl<'a> Parser<'a> {
             lexer,
             source_location,
             source,
-            end_index: 0,
+            end_index: offset,
+            offset,
         };
         // Advance to the first real token before doing any work
         parser.parse_token();
@@ -87,6 +109,27 @@ impl<'a> Parser<'a> {
         }
     }
 
+    /// Parses a string containing a field name with optional arguments
+    pub fn parse_field_definition_stub(mut self) -> DiagnosticsResult<FieldDefinitionStub> {
+        let stub = self.parse_field_definition_stub_impl();
+        if self.errors.is_empty() {
+            Ok(stub.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
+    /// Parses a string containing a field definition
+    pub fn parse_field_definition(mut self) -> DiagnosticsResult<FieldDefinition> {
+        let stub = self.parse_field_definition_impl();
+        if self.errors.is_empty() {
+            self.parse_eof()?;
+            Ok(stub.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
     /// Parses a document consisting only of executable nodes: operations and
     /// fragments.
     pub fn parse_executable_document(mut self) -> WithDiagnostics<ExecutableDocument> {
@@ -95,12 +138,12 @@ impl<'a> Parser<'a> {
             let _ = self.parse_kind(TokenKind::EndOfFile);
         }
         let document = document.unwrap_or_else(|_| ExecutableDocument {
-            span: Span::new(0, 0),
+            span: Span::new(self.index(), self.index()),
             definitions: Default::default(),
         });
         WithDiagnostics {
             item: document,
-            errors: self.errors,
+            diagnostics: self.errors,
         }
     }
 
@@ -120,6 +163,15 @@ impl<'a> Parser<'a> {
         if self.errors.is_empty() {
             self.parse_eof()?;
             Ok(type_annotation.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
+    pub fn parse_identifier_result(mut self) -> DiagnosticsResult<Identifier> {
+        let identifier = self.parse_identifier();
+        if self.errors.is_empty() {
+            Ok(identifier.unwrap())
         } else {
             Err(self.errors)
         }
@@ -179,7 +231,7 @@ impl<'a> Parser<'a> {
     }
     fn parse_definition(&mut self) -> ParseResult<Definition> {
         let token = self.peek();
-        let source = self.source(&token);
+        let source = self.source(token);
         match (token.kind, source) {
             (TokenKind::OpenBrace, _)
             | (TokenKind::Identifier, "query")
@@ -221,7 +273,7 @@ impl<'a> Parser<'a> {
         match token.kind {
             TokenKind::OpenBrace => true, // unnamed query
             TokenKind::Identifier => matches!(
-                self.source(&token),
+                self.source(token),
                 "query" | "mutation" | "fragment" | "subscription"
             ),
             _ => false,
@@ -234,7 +286,7 @@ impl<'a> Parser<'a> {
     /// []  TypeSystemExtension
     fn parse_executable_definition(&mut self) -> ParseResult<ExecutableDefinition> {
         let token = self.peek();
-        let source = self.source(&token);
+        let source = self.source(token);
         match (token.kind, source) {
             (TokenKind::OpenBrace, _) => Ok(ExecutableDefinition::Operation(
                 self.parse_operation_definition()?,
@@ -267,7 +319,7 @@ impl<'a> Parser<'a> {
         match token.kind {
             TokenKind::StringLiteral | TokenKind::BlockStringLiteral => true, // description
             TokenKind::Identifier => matches!(
-                self.source(&token),
+                self.source(token),
                 "schema"
                     | "scalar"
                     | "type"
@@ -294,7 +346,7 @@ impl<'a> Parser<'a> {
             // self.record_error(error)
             return Err(());
         }
-        match self.source(&token) {
+        match self.source(token) {
             "schema" => Ok(TypeSystemDefinition::SchemaDefinition(
                 self.parse_schema_definition()?,
             )),
@@ -833,7 +885,7 @@ impl<'a> Parser<'a> {
         self.parse_optional_delimited_nonempty_list(
             TokenKind::OpenBrace,
             TokenKind::CloseBrace,
-            Self::parse_field_definition,
+            Self::parse_field_definition_impl,
         )
     }
 
@@ -841,7 +893,7 @@ impl<'a> Parser<'a> {
      * FieldDefinition :
      *   - Description? Name ArgumentsDefinition? : Type Directives?
      */
-    fn parse_field_definition(&mut self) -> ParseResult<FieldDefinition> {
+    fn parse_field_definition_impl(&mut self) -> ParseResult<FieldDefinition> {
         let description = self.parse_optional_description();
         let name = self.parse_identifier()?;
         let arguments = self.parse_argument_defs()?;
@@ -855,6 +907,12 @@ impl<'a> Parser<'a> {
             directives,
             description,
         })
+    }
+
+    fn parse_field_definition_stub_impl(&mut self) -> ParseResult<FieldDefinitionStub> {
+        let name = self.parse_identifier()?;
+        let arguments = self.parse_argument_defs()?;
+        Ok(FieldDefinitionStub { name, arguments })
     }
 
     /**
@@ -961,7 +1019,7 @@ impl<'a> Parser<'a> {
         let maybe_operation_token = self.peek();
         let operation = match (
             maybe_operation_token.kind,
-            self.source(&maybe_operation_token),
+            self.source(maybe_operation_token),
         ) {
             (TokenKind::Identifier, "mutation") => (self.parse_token(), OperationKind::Mutation),
             (TokenKind::Identifier, "query") => (self.parse_token(), OperationKind::Query),
@@ -1879,7 +1937,10 @@ impl<'a> Parser<'a> {
 
     /// A &str for the source of the inner span of the given token.
     fn source(&self, token: &Token) -> &str {
-        let (start, end) = token.span.as_usize();
+        let (raw_start, raw_end) = token.span.as_usize();
+        let start = raw_start - self.offset as usize;
+        let end = raw_end - self.offset as usize;
+
         &self.source[start..end]
     }
 
@@ -1963,34 +2024,35 @@ impl<'a> Parser<'a> {
                         // If error_token is set, return that error token
                         // instead of a generic error.
                         self.end_index = self.current.span.end;
+                        let span = self.lexer_span();
                         return std::mem::replace(
                             &mut self.current,
                             Token {
                                 kind: error_token_kind,
-                                span: self.lexer.span().into(),
+                                span,
                             },
                         );
                     } else {
                         // Record and skip over unknown character errors
                         let error = Diagnostic::error(
                             SyntaxError::UnsupportedCharacter,
-                            Location::new(self.source_location, self.lexer.span().into()),
+                            Location::new(self.source_location, self.lexer_span()),
                         );
                         self.record_error(error);
                     }
                 }
                 _ => {
                     self.end_index = self.current.span.end;
-                    return std::mem::replace(
-                        &mut self.current,
-                        Token {
-                            kind,
-                            span: self.lexer.span().into(),
-                        },
-                    );
+                    let span = self.lexer_span();
+                    return std::mem::replace(&mut self.current, Token { kind, span });
                 }
             }
         }
+    }
+
+    fn lexer_span(&self) -> Span {
+        let span: Span = self.lexer.span().into();
+        span.with_offset(self.offset)
     }
 
     fn record_error(&mut self, error: Diagnostic) {
@@ -2012,7 +2074,7 @@ impl<'a> Parser<'a> {
 // https://spec.graphql.org/June2018/#sec-String-Value
 fn clean_block_string_literal(source: &str) -> String {
     let inner = &source[3..source.len() - 3];
-    let common_indent = get_common_indent(&inner);
+    let common_indent = get_common_indent(inner);
 
     let mut formatted_lines = inner
         .lines()
@@ -2028,13 +2090,13 @@ fn clean_block_string_literal(source: &str) -> String {
 
     while formatted_lines
         .front()
-        .map_or(false, |line| line_is_whitespace(&line))
+        .map_or(false, |line| line_is_whitespace(line))
     {
         formatted_lines.pop_front();
     }
     while formatted_lines
         .back()
-        .map_or(false, |line| line_is_whitespace(&line))
+        .map_or(false, |line| line_is_whitespace(line))
     {
         formatted_lines.pop_back();
     }

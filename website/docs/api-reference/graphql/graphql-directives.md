@@ -11,14 +11,20 @@ keywords:
   - connection
   - relay
   - inline
+  - provider
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {FbInternalOnly, OssOnly} from 'internaldocs-fb-helpers';
+import {FbInternalOnly, OssOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 Relay uses directives to add additional information to GraphQL documents, which are used by the [Relay compiler](../../guides/compiler/) to generate the appropriate runtime artifacts. These directives only appear in your application code and are removed from requests sent to your GraphQL server.
 
+<OssOnly>
 **Note:** The Relay compiler will maintain any directives supported by your server (such as `@include` or `@skip`) so they remain part of the request to the GraphQL server and won't alter generated runtime artifacts.
+</OssOnly>
+<FbInternalOnly>
+**Note:** The Relay compiler will maintain any directives supported by your server (such as `@include` or `@skip`) so they remain part of the request to the GraphQL server and won't alter generated runtime artifacts. Additional directives are documented [here](https://www.internalfb.com/intern/wiki/GraphQL/APIs_and_References/Directives/#graphql-standard).
+</FbInternalOnly>
 
 ## `@arguments`
 
@@ -45,6 +51,60 @@ fragment TodoList_list on TodoList @argumentDefinitions(
   }
 }
 ```
+
+### Provided Variables
+A provided variable is a special fragment variable whose value is supplied by a specified provider function at runtime. This simplifies supplying device attributes, user experiment flags, and other runtime constants to graphql fragments.
+
+To add a provided variable:
+- add an argument with `provider: "[JSModule].relayprovider"` to `@argumentDefinitions`
+- ensure that `[JSModule].relayprovider.js` exists and exports a `get()` function
+  -  `get` should return the same value on every call for a given run.
+```graphql
+fragment TodoItem_item on TodoList
+@argumentDefinitions(
+  include_timestamp: {
+    type: "Boolean!",
+    provider: "Todo_ShouldIncludeTimestamp.relayprovider"
+  },
+) {
+  timestamp @include(if: $include_timestamp)
+  text
+}
+```
+
+```javascript
+// Todo_ShouldIncludeTimestamp.relayprovider.js
+export default {
+  get(): boolean {
+    // must always return true or false for a given run
+    return check('todo_should_include_timestamp');
+  },
+};
+```
+Notes:
+
+<FbInternalOnly>
+
+- Even though fragments declare provided variables in `argumentDefinitions`, their parent cannot pass provided variables through `@arguments`.
+- An argument definition cannot specify both a provider and a defaultValue.
+- If the modified fragment is included in operations that use hack preloaders (`@preloadable(hackPreloader: true)`), you will need to manually add provided variables when calling `RelayPreloader::gen`.
+    - Hack's typechecker will fail with `The field __relay_internal__pv__[JsModule] is missing.`
+    - We strongly encourage switching to [Entrypoints](../../guides/entrypoints/using-entrypoints/) if possible.
+- _Unstable / subject to change_
+  - Relay transforms provided variables to operation root variables and renames them to `__relay_internal__pv__[JsModule]`.
+    - Only relevant if you are debugging a query that uses provided variables.
+
+</FbInternalOnly>
+
+<OssOnly>
+
+- Even though fragments declare provided variables in `argumentDefinitions`, their parent cannot pass provided variables through `@arguments`.
+- An argument definition cannot specify both a provider and a defaultValue.
+- _Unstable / subject to change_
+  - Relay transforms provided variables to operation root variables and renames them to `__relay_internal__pv__[JsModule]`.
+    - Only relevant if you are debugging a query that uses provided variables.
+
+</OssOnly>
 
 ## `@connection(key: String!, filters: [String])`
 
@@ -75,6 +135,12 @@ fragment TodoApp_app on App {
   }
 }
 ```
+
+## @required
+
+`@required` is a directive you can add to fields in your Relay queries to declare how null values should be handled at runtime.
+
+See also [the @required guide](../../guides/required-directive/).
 
 ## `@inline`
 

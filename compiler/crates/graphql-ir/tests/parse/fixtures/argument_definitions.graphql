@@ -1,0 +1,7 @@
+fragment TestFragment on User
+  @argumentDefinitions(
+    id: {type: "ID", directives: ["@configurable"]}
+    size: {type: "[Int]", defaultValue: [100]}
+  ) {
+  __typename
+}

@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -47,9 +45,9 @@ type UseEntryPointLoaderHookReturnType<
 // NullEntryPointReference needs to implement referential equality,
 // so that multiple NullEntryPointReferences can be in the same set
 // (corresponding to multiple calls to disposeEntryPoint).
-type NullEntryPointReference = {|
+type NullEntryPointReference = {
   kind: 'NullEntryPointReference',
-|};
+};
 const initialNullEntryPointReferenceState = {kind: 'NullEntryPointReference'};
 
 function useLoadEntryPoint<
@@ -68,14 +66,14 @@ function useLoadEntryPoint<
 >(
   environmentProvider: IEnvironmentProvider<EnvironmentProviderOptions>,
   entryPoint: TEntryPoint,
-  options?: ?{|
+  options?: ?{
     // TODO(T83890478): Remove once Offscreen API lands in xplat
     // and we can use it in tests
-    TEST_ONLY__initialEntryPointData?: ?{|
+    TEST_ONLY__initialEntryPointData?: ?{
       entryPointReference: ?PreloadedEntryPoint<TEntryPointComponent>,
       entryPointParams: ?TEntryPointParams,
-    |},
-  |},
+    },
+  },
 ): UseEntryPointLoaderHookReturnType<
   TEntryPointParams,
   TPreloadedQueries,
@@ -120,10 +118,8 @@ function useLoadEntryPoint<
   const [entryPointReference, setEntryPointReference] = useState<
     PreloadedEntryPoint<TEntryPointComponent> | NullEntryPointReference,
   >(initialEntryPointReferenceInternal);
-  const [
-    entryPointParams,
-    setEntryPointParams,
-  ] = useState<TEntryPointParams | null>(initialEntryPointParamsInternal);
+  const [entryPointParams, setEntryPointParams] =
+    useState<TEntryPointParams | null>(initialEntryPointParamsInternal);
 
   const disposeEntryPoint = useCallback(() => {
     if (isMountedRef.current) {

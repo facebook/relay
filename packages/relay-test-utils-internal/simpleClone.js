@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -22,7 +21,7 @@ function simpleClone<T>(value: T): T {
     // $FlowFixMe[incompatible-return]
     return value.map(simpleClone);
   } else if (value != null && typeof value === 'object') {
-    const result = {};
+    const result: {[string]: mixed} = {};
     for (const key in value) {
       result[key] = simpleClone(value[key]);
     }

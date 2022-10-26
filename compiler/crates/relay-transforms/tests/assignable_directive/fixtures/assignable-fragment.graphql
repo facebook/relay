@@ -1,0 +1,3 @@
+fragment AssignableFragment on Page @assignable {
+  __typename
+}

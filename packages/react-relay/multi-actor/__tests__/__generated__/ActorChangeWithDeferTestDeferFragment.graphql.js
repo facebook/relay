@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5586ba272ac81f7fea7c2172c7a66afe>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<4c175024acb06817377dda1be926b83c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ActorChangeWithDeferTestDeferFragment$ref: FragmentReference;
-declare export opaque type ActorChangeWithDeferTestDeferFragment$fragmentType: ActorChangeWithDeferTestDeferFragment$ref;
-export type ActorChangeWithDeferTestDeferFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ActorChangeWithDeferTestDeferFragment$fragmentType: FragmentType;
+export type ActorChangeWithDeferTestDeferFragment$data = {|
   +message: ?{|
     +text: ?string,
   |},
-  +$refType: ActorChangeWithDeferTestDeferFragment$ref,
+  +$fragmentType: ActorChangeWithDeferTestDeferFragment$fragmentType,
 |};
-export type ActorChangeWithDeferTestDeferFragment$data = ActorChangeWithDeferTestDeferFragment;
 export type ActorChangeWithDeferTestDeferFragment$key = {
   +$data?: ActorChangeWithDeferTestDeferFragment$data,
-  +$fragmentRefs: ActorChangeWithDeferTestDeferFragment$ref,
+  +$fragmentSpreads: ActorChangeWithDeferTestDeferFragment$fragmentType,
   ...
 };
 */
@@ -66,4 +66,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "38584886de5cea46382e76aa3694a4bd";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ActorChangeWithDeferTestDeferFragment$fragmentType,
+  ActorChangeWithDeferTestDeferFragment$data,
+>*/);

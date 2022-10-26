@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -24,6 +23,7 @@ import type {
   Disposable,
   FragmentMap,
   GraphQLTaggedNode,
+  IEnvironment,
   RelayContext,
   Subscription,
   Variables,
@@ -80,13 +80,14 @@ function createContainerWithFragments<
   const containerName = getContainerName(Component);
 
   return class extends React.Component<ContainerProps, ContainerState> {
+    // $FlowFixMe[missing-local-annot]
     static displayName = containerName;
 
     _refetchSubscription: ?Subscription;
     _queryFetcher: ?ReactRelayQueryFetcher;
     _isUnmounted: boolean;
 
-    constructor(props) {
+    constructor(props: any) {
       super(props);
       const relayContext = assertRelayContext(props.__relayContext);
       const rootIsQueryRenderer = props.__rootIsQueryRenderer ?? false;
@@ -217,7 +218,10 @@ function createContainerWithFragments<
       this._refetchSubscription && this._refetchSubscription.unsubscribe();
     }
 
-    shouldComponentUpdate(nextProps, nextState): boolean {
+    shouldComponentUpdate(
+      nextProps: ContainerProps,
+      nextState: ContainerState,
+    ): boolean {
       // Short-circuit if any Relay-related data has changed
       if (
         nextState.data !== this.state.data ||
@@ -360,9 +364,7 @@ function createContainerWithFragments<
       );
 
       // TODO: T26288752 find a better way
-      /* eslint-disable lint/react-state-props-mutation */
       this.state.localVariables = fetchVariables;
-      /* eslint-enable lint/react-state-props-mutation */
 
       // Cancel any previously running refetch.
       this._refetchSubscription && this._refetchSubscription.unsubscribe();
@@ -447,13 +449,11 @@ function createContainerWithFragments<
       };
     };
 
+    // $FlowFixMe[missing-local-annot]
     render() {
-      const {
-        componentRef,
-        __relayContext,
-        __rootIsQueryRenderer,
-        ...props
-      } = this.props;
+      // eslint-disable-next-line no-unused-vars
+      const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
+        this.props;
       const {relayProp, contextForChildren} = this.state;
       return (
         <ReactRelayContext.Provider value={contextForChildren}>
@@ -469,7 +469,10 @@ function createContainerWithFragments<
   };
 }
 
-function getRelayProp(environment, refetch): RelayRefetchProp {
+function getRelayProp(
+  environment: IEnvironment,
+  refetch: RelayRefetchProp['refetch'],
+): RelayRefetchProp {
   return {
     environment,
     refetch,

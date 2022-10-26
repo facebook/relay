@@ -9,7 +9,7 @@ query clientFieldsOnRoots_FooQuery($id: ID!) {
 mutation clientFieldsOnRoots_FooMutation($input: UnfriendInput) {
   client_root_field
   unfriend(input: $input) {
-    clientMutationId
+    __typename
   }
 }
 

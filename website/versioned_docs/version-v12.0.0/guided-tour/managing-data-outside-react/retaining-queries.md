@@ -12,7 +12,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 In order to manually retain a query so that the data it references isn’t garbage collected by Relay, we can use the `environment.retain` method:
 
@@ -43,7 +43,10 @@ const disposable = environment.retain(queryDescriptor);
 disposable.dispose();
 ```
 
-> NOTE: Relay automatically manages the query data retention based on any mounted query components that are rendering the data, so you usually should not need to call retain directly within product code. For any advanced or special use cases, query data retention should usually be handled within infra-level code, such as a Router.
+:::note
+Relay automatically manages the query data retention based on any mounted query components that are rendering the data, so you usually should not need to call retain directly within product code. For any advanced or special use cases, query data retention should usually be handled within infra-level code, such as a Router.
+:::
+
 
 
 <DocsRating />

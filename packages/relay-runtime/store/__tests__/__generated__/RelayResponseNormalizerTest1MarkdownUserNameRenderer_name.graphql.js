@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3060148d7d776dad6d9452d1f8e9bcae>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<a35953a33a7b46173fb991393f17b6ae>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$fragmentType: RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$ref;
-export type RelayResponseNormalizerTest1MarkdownUserNameRenderer_name = {|
-  +markdown: ?string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$data = {|
   +data: ?{|
     +markup: ?string,
   |},
-  +$refType: RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$ref,
+  +markdown: ?string,
+  +$fragmentType: RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$fragmentType,
 |};
-export type RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$data = RelayResponseNormalizerTest1MarkdownUserNameRenderer_name;
 export type RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$key = {
   +$data?: RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$data,
-  +$fragmentRefs: RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$ref,
+  +$fragmentSpreads: RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0664dafd5e47ea16f70ed265f10ae379";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$fragmentType,
+  RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$data,
+>*/);

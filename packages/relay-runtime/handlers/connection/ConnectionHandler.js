@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -141,7 +140,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
       connection.setLinkedRecord(prevPageInfo, PAGE_INFO);
     }
 
-    let nextEdges = [];
+    let nextEdges: Array<?RecordProxy> = [];
     const args = payload.args;
     if (prevEdges && serverEdges) {
       if (args.after != null) {
@@ -150,7 +149,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
           clientPageInfo &&
           args.after === clientPageInfo.getValue(END_CURSOR)
         ) {
-          const nodeIDs = new Set();
+          const nodeIDs = new Set<mixed>();
           mergeEdges(prevEdges, nextEdges, nodeIDs);
           mergeEdges(serverEdges, nextEdges, nodeIDs);
         } else {
@@ -169,7 +168,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
           clientPageInfo &&
           args.before === clientPageInfo.getValue(START_CURSOR)
         ) {
-          const nodeIDs = new Set();
+          const nodeIDs = new Set<mixed>();
           mergeEdges(serverEdges, nextEdges, nodeIDs);
           mergeEdges(prevEdges, nextEdges, nodeIDs);
         } else {
@@ -189,6 +188,7 @@ function update(store: RecordSourceProxy, payload: HandleFieldPayload): void {
     } else if (serverEdges) {
       nextEdges = serverEdges;
     } else {
+      // $FlowFixMe[incompatible-type]
       nextEdges = prevEdges;
     }
     // Update edges only if they were updated, the null check is
@@ -363,7 +363,7 @@ function insertEdgeAfter(
   if (cursor == null) {
     nextEdges = edges.concat(newEdge);
   } else {
-    nextEdges = [];
+    nextEdges = ([]: Array<?RecordProxy>);
     let foundCursor = false;
     for (let ii = 0; ii < edges.length; ii++) {
       const edge = edges[ii];
@@ -467,7 +467,7 @@ function insertEdgeBefore(
   if (cursor == null) {
     nextEdges = [newEdge].concat(edges);
   } else {
-    nextEdges = [];
+    nextEdges = ([]: Array<?RecordProxy>);
     let foundCursor = false;
     for (let ii = 0; ii < edges.length; ii++) {
       const edge = edges[ii];

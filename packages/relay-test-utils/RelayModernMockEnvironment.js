@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -40,12 +39,12 @@ const {
   getRequest,
 } = require('relay-runtime');
 
-type PendingRequest = {|
+type PendingRequest = {
   +request: RequestParameters,
   +variables: Variables,
   +cacheConfig: CacheConfig,
   +sink: Sink<GraphQLSingularResponse>,
-|};
+};
 
 const MAX_SIZE = 10;
 const MAX_TTL = 5 * 60 * 1000; // 5 min
@@ -91,7 +90,7 @@ type OperationMockResolver = (
   operation: OperationDescriptor,
 ) => ?GraphQLSingularResponse | ?Error;
 
-type MockFunctions = {|
+type MockFunctions = {
   +clearCache: () => void,
   +cachePayload: (
     request: ConcreteRequest | OperationDescriptor,
@@ -134,7 +133,7 @@ type MockFunctions = {|
     error: Error | ((operation: OperationDescriptor) => Error),
   ) => void,
   +queueOperationResolver: (resolver: OperationMockResolver) => void,
-|};
+};
 
 interface MockEnvironment {
   +mock: MockFunctions;
@@ -242,7 +241,7 @@ function createMockEnvironment(
           op => op !== currentOperation,
         );
         if (result instanceof Error) {
-          return Observable.create(sink => {
+          return Observable.create<empty>(sink => {
             sink.error(result);
           });
         } else {
@@ -251,7 +250,7 @@ function createMockEnvironment(
       }
     }
 
-    return Observable.create(sink => {
+    return Observable.create<GraphQLSingularResponse>(sink => {
       const nextRequest = {request, variables, cacheConfig, sink};
       pendingRequests = pendingRequests.concat([nextRequest]);
 
@@ -441,15 +440,15 @@ function createMockEnvironment(
   const createExecuteProxy = (
     env: IEnvironment,
     fn: // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-    | $PropertyType<IEnvironment, 'execute'>
+    | IEnvironment['execute']
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      | $PropertyType<IEnvironment, 'executeSubscription'>
+      | IEnvironment['executeSubscription']
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      | $PropertyType<IEnvironment, 'executeWithSource'>
+      | IEnvironment['executeWithSource']
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-      | $PropertyType<IEnvironment, 'executeMutation'>,
+      | IEnvironment['executeMutation'],
   ) => {
-    return (...argumentsList) => {
+    return (...argumentsList: $FlowFixMe) => {
       const [{operation}] = argumentsList;
       pendingOperations = pendingOperations.concat([operation]);
       return fn.apply(env, argumentsList);
@@ -552,6 +551,9 @@ function createMockEnvironment(
     environment.executeMutation.mockClear();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.executeSubscription.mockClear();
+
+    // $FlowExpectedError[prop-missing]
+    store.getSource().clear?.();
 
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     store.getSource.mockClear();

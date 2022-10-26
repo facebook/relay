@@ -1,20 +1,18 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 const validateMutation = require('../validateMutation');
-const {RelayFeatureFlags, getRequest, graphql} = require('relay-runtime');
+const {RelayFeatureFlags, graphql} = require('relay-runtime');
 
 jest.mock('warning', () => {
   return (dontWarn, message, ...args) => {
@@ -31,11 +29,38 @@ graphql`
   }
 `;
 
+graphql`
+  fragment validateMutationTestActorFragment on Actor {
+    ... on User {
+      birthdate {
+        day
+        month
+        year
+      }
+    }
+    ... on Page {
+      username
+    }
+  }
+`;
+
+graphql`
+  fragment validateMutationTestEntityFragement on Entity {
+    url
+  }
+`;
+
+graphql`
+  fragment validateMutationTestNodeFragement on Node {
+    name
+  }
+`;
+
 describe('validateOptimisticResponse', () => {
   [
     {
       name: 'Does not log a warning in the positive case',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest1ChangeNameMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -45,7 +70,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -60,7 +85,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Logs a warning when a field is is not specified',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest2ChangeNameMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -70,7 +95,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {},
@@ -81,7 +106,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Logs a warning when an id is is not specified',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest3ChangeNameMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -91,7 +116,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -105,7 +130,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Logs a warning when a object is is not specified',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest4ChangeNameMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -115,7 +140,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {},
       },
@@ -124,7 +149,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Uses type names to filter inline fragment warnings',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest5ChangeNameBirthdayMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -143,7 +168,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -158,7 +183,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Logs a warning for errors contained in inline fragments',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest6ChangeNameBirthdayMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -177,7 +202,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -191,9 +216,8 @@ describe('validateOptimisticResponse', () => {
       shouldWarn: true,
     },
     {
-      name:
-        'Logs a warning when there are unused fields in an `optimisticResponse`',
-      mutation: getRequest(graphql`
+      name: 'Logs a warning when there are unused fields in an `optimisticResponse`',
+      mutation: graphql`
         mutation validateMutationTest7ChangeNameBirthdayMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -212,7 +236,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -228,7 +252,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Passes when fields are null',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest8ChangeNameBirthdayWithNameMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -248,7 +272,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
 
       optimisticResponse: {
         actorNameChange: {
@@ -265,7 +289,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Warns when conditional branches are not specified',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest9ChangeNameIncludeMutation(
           $input: ActorNameChangeInput!
           $myVar: Boolean!
@@ -285,7 +309,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -302,7 +326,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Does not warn when conditional branches are specified',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest10ChangeNameIncludeBoolMutation(
           $input: ActorNameChangeInput!
           $myVar: Boolean!
@@ -322,7 +346,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -340,7 +364,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Handles Lists',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest11ChangeNamePhonesMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -352,7 +376,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -373,7 +397,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Handles Lists with null values',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest12ChangeNamePhonesMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -385,7 +409,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -402,7 +426,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Handles object with null values',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest13ChangeNamePhonesMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -414,7 +438,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -431,7 +455,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Warn when invalid value in the list',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest14ChangeNamePhonesMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -443,7 +467,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -466,7 +490,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Handles Lists with scalar fields',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest15ChangeNameWebsitesMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -476,7 +500,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -493,7 +517,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Warn for invalid values in the list',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest16ChangeNameWebsitesMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -503,7 +527,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {
@@ -520,7 +544,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Does not warn when a field is specified as undefined',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest17ChangeNameMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -530,7 +554,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: {__typename: null, id: null, name: undefined},
@@ -541,7 +565,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Does not warn when an object is specified as undefined',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest18ChangeNameMutation(
           $input: ActorNameChangeInput!
         ) {
@@ -551,7 +575,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         actorNameChange: {
           actor: undefined,
@@ -562,7 +586,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Does not log a warning for client-side schema extensions',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest19FeedbackLikeMutation(
           $input: FeedbackLikeInput
         ) {
@@ -573,7 +597,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         feedbackLike: {
           feedback: {
@@ -588,7 +612,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Logs a warning for invalid client-side schema extension fields',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest20FeedbackLikeMutation(
           $input: FeedbackLikeInput
         ) {
@@ -599,7 +623,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         feedbackLike: {
           feedback: {
@@ -614,7 +638,7 @@ describe('validateOptimisticResponse', () => {
     },
     {
       name: 'Does not log a warning for ModuleImport sub selections',
-      mutation: getRequest(graphql`
+      mutation: graphql`
         mutation validateMutationTest21FeedbackLikeGroovyMutation(
           $input: FeedbackLikeInput
         ) {
@@ -625,11 +649,180 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `),
+      `,
       optimisticResponse: {
         feedbackLike: {
           feedback: {
             id: 1,
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: "__isX fields are supported, when there's an interface field + same interface fragment spread",
+      mutation: graphql`
+        mutation validateMutationTestIsActorMutation(
+          $input: ActorNameChangeInput!
+        ) @raw_response_type {
+          actorNameChange(input: $input) {
+            actor {
+              ...validateMutationTestActorFragment
+            }
+          }
+        }
+      `,
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {
+            id: 3,
+            __typename: 'Page',
+            username: 'Zuck',
+            __isActor: 'Page',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: "__isX fields are supported, when there's an interface field + same interface inline fragment",
+      mutation: graphql`
+        mutation validateMutationTestIsActorInlineMutation(
+          $input: ActorNameChangeInput!
+        ) @raw_response_type {
+          actorNameChange(input: $input) {
+            actor {
+              ... on Actor {
+                ... on User {
+                  birthdate {
+                    day
+                    month
+                    year
+                  }
+                }
+                ... on Page {
+                  username
+                }
+              }
+            }
+          }
+        }
+      `,
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {
+            id: 3,
+            __typename: 'Page',
+            username: 'Zuck',
+            __isActor: 'Page',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: '__isX fields are supported, when a field with an interface type contains an inline fragment with a different interface type',
+      mutation: graphql`
+        mutation validateMutationTestIsEntityInlineFragmentMutation(
+          $input: ActorNameChangeInput!
+        ) @raw_response_type {
+          actorNameChange(input: $input) {
+            actor {
+              ... on Entity {
+                url
+              }
+            }
+          }
+        }
+      `,
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {
+            id: 3,
+            __typename: 'User',
+            url: 'Zuck.com',
+            __isEntity: 'User',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: '__isX fields are supported, when a field with an interface type contains a fragment spread with a different interface type',
+      mutation: graphql`
+        mutation validateMutationTestIsEntitySpreadFragmentMutation(
+          $input: ActorNameChangeInput!
+        ) @raw_response_type {
+          actorNameChange(input: $input) {
+            actor {
+              ...validateMutationTestEntityFragement
+            }
+          }
+        }
+      `,
+      optimisticResponse: {
+        actorNameChange: {
+          actor: {
+            id: 3,
+            __typename: 'User',
+            url: 'Zuck.com',
+            __isEntity: 'User',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: '__isX fields are supported, when a field with a concrete type contains an inline fragment with an interface type',
+      mutation: graphql`
+        mutation validateMutationTestIsNodeInlineFragmentMutation(
+          $input: FeedbackLikeInput
+        ) @raw_response_type {
+          feedbackLike(input: $input) {
+            feedback {
+              ... on Node {
+                name
+              }
+            }
+          }
+        }
+      `,
+      optimisticResponse: {
+        feedbackLike: {
+          feedback: {
+            id: 1,
+            name: 'Zuck',
+            __isNode: 'Feedback',
+          },
+        },
+      },
+      variables: null,
+      shouldWarn: false,
+    },
+    {
+      name: '__isX fields are supported, when a field with a concrete type contains a fragment spread with an interface type',
+      mutation: graphql`
+        mutation validateMutationTestIsNodeSpreadMutation(
+          $input: FeedbackLikeInput
+        ) @raw_response_type {
+          feedbackLike(input: $input) {
+            feedback {
+              ...validateMutationTestNodeFragement
+            }
+          }
+        }
+      `,
+      optimisticResponse: {
+        feedbackLike: {
+          feedback: {
+            id: 1,
+            name: 'Zuck',
+            __isNode: 'Feedback',
           },
         },
       },
@@ -656,7 +849,7 @@ describe('validateOptimisticResponse', () => {
     beforeEach(() => {
       jest.clearAllMocks();
       RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
-      FlightMutation = getRequest(graphql`
+      FlightMutation = graphql`
         mutation validateMutationTestFlightMutation(
           $input: StoryUpdateInput!
           $count: Int!
@@ -671,7 +864,7 @@ describe('validateOptimisticResponse', () => {
             }
           }
         }
-      `);
+      `;
     });
 
     afterEach(() => {
@@ -679,7 +872,7 @@ describe('validateOptimisticResponse', () => {
     });
 
     it('Throws an error when optimistic responses contain Flight fields', () => {
-      const optimisticResponse = {
+      const optimisticResponse: $FlowFixMe = {
         storyUpdate: {
           story: {
             id: 1,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,16 +12,24 @@
 mod check;
 
 pub mod definitions;
-use crate::definitions::*;
-
 use common::SourceLocationKey;
-use fnv::{FnvHashMap, FnvHashSet};
-use graphql_syntax::{
-    parse_schema_document, EnumTypeDefinition, FieldDefinition, Identifier,
-    InputObjectTypeDefinition, InputValueDefinition, InterfaceTypeDefinition, List,
-    ObjectTypeDefinition, ScalarTypeDefinition, TypeSystemDefinition, UnionTypeDefinition,
-};
-use interner::StringKey;
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
+use graphql_syntax::parse_schema_document;
+use graphql_syntax::EnumTypeDefinition;
+use graphql_syntax::FieldDefinition;
+use graphql_syntax::Identifier;
+use graphql_syntax::InputObjectTypeDefinition;
+use graphql_syntax::InputValueDefinition;
+use graphql_syntax::InterfaceTypeDefinition;
+use graphql_syntax::List;
+use graphql_syntax::ObjectTypeDefinition;
+use graphql_syntax::ScalarTypeDefinition;
+use graphql_syntax::TypeSystemDefinition;
+use graphql_syntax::UnionTypeDefinition;
+use intern::string_key::StringKey;
+
+use crate::definitions::*;
 
 fn add_definition(changes: &mut Vec<DefinitionChange>, def: &TypeSystemDefinition) -> bool {
     use DefinitionChange::*;
@@ -67,7 +75,7 @@ fn add_definition(changes: &mut Vec<DefinitionChange>, def: &TypeSystemDefinitio
     }
 }
 
-fn build_curent_map(
+fn build_current_map(
     current: &[TypeSystemDefinition],
 ) -> FnvHashMap<&StringKey, &TypeSystemDefinition> {
     let mut current_map = FnvHashMap::default();
@@ -289,7 +297,7 @@ fn compare_string_keys(
 
 fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>) -> SchemaChange {
     let mut changes = vec![];
-    let mut current_map = build_curent_map(&current);
+    let mut current_map = build_current_map(&current);
 
     for definition in previous {
         match definition {
@@ -299,35 +307,31 @@ fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>)
                 ..
             }) => {
                 let def = current_map.remove(&name.value);
-                match def {
-                    Some(TypeSystemDefinition::EnumTypeDefinition(EnumTypeDefinition {
-                        values: Some(values),
-                        ..
-                    })) => {
-                        let mut previous_values = previous_values
-                            .into_iter()
-                            .flat_map(|list| list.items.into_iter().map(|value| value.name.value))
-                            .collect::<FnvHashSet<_>>();
-
-                        let mut added = vec![];
-                        for val in &values.items {
-                            if !previous_values.remove(&val.name.value) {
-                                added.push(val.name.value);
+                match (def, previous_values) {
+                    (
+                        Some(TypeSystemDefinition::EnumTypeDefinition(EnumTypeDefinition {
+                            values: Some(values),
+                            ..
+                        })),
+                        Some(previous_values),
+                    ) => {
+                        if values.items.len() != previous_values.items.len() {
+                            changes.push(DefinitionChange::EnumChanged { name: name.value });
+                        } else {
+                            for i in 0..values.items.len() {
+                                if values.items[i].name.value != previous_values.items[i].name.value
+                                {
+                                    changes
+                                        .push(DefinitionChange::EnumChanged { name: name.value });
+                                    break;
+                                }
                             }
                         }
-                        let removed: Vec<StringKey> = previous_values.drain().collect();
-                        if !added.is_empty() || !removed.is_empty() {
-                            changes.push(DefinitionChange::EnumChanged {
-                                name: name.value,
-                                added,
-                                removed,
-                            });
-                        }
                     }
-                    None => {
+                    (None, _) => {
                         changes.push(DefinitionChange::EnumRemoved(name.value));
                     }
-                    Some(def) => {
+                    (Some(def), _) => {
                         if !add_definition(&mut changes, def) {
                             return SchemaChange::GenericChange;
                         }
@@ -347,7 +351,7 @@ fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>)
                         members,
                         ..
                     })) => {
-                        let (added, removed) = compare_string_keys(&members, previous_members);
+                        let (added, removed) = compare_string_keys(members, previous_members);
                         if !added.is_empty() || !removed.is_empty() {
                             changes.push(DefinitionChange::UnionChanged {
                                 name: name.value,
@@ -529,7 +533,7 @@ fn diff(current: Vec<TypeSystemDefinition>, previous: Vec<TypeSystemDefinition>)
 
     if changes.is_empty() {
         // The schema has changed, but we currently don't detect directive definition changes,
-        // schema deifinition changes, and we don't parse client extensions.
+        // schema definition changes, and we don't parse client extensions.
         // But we can add them later if some of the changes don't require full rebuilds.
         return SchemaChange::GenericChange;
     }

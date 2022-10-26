@@ -15,23 +15,29 @@ fragment ChildFragment on User
         FragmentDefinition {
             name: WithLocation {
                 location: fragment-with-literal-arguments.graphql:9:23,
-                item: "ParentFragment",
+                item: FragmentDefinitionName(
+                    "ParentFragment",
+                ),
             },
             variable_definitions: [],
             used_global_variables: [],
-            type_condition: Object(67),
+            type_condition: Object(69),
             directives: [],
             selections: [
                 FragmentSpread {
                     fragment: WithLocation {
                         location: fragment-with-literal-arguments.graphql:39:52,
-                        item: "ChildFragment",
+                        item: FragmentDefinitionName(
+                            "ChildFragment",
+                        ),
                     },
                     arguments: [
                         Argument {
                             name: WithLocation {
                                 location: fragment-with-literal-arguments.graphql:64:75,
-                                item: "pictureSize",
+                                item: ArgumentName(
+                                    "pictureSize",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment-with-literal-arguments.graphql:77:81,
@@ -56,13 +62,17 @@ fragment ChildFragment on User
         FragmentDefinition {
             name: WithLocation {
                 location: fragment-with-literal-arguments.graphql:95:108,
-                item: "ChildFragment",
+                item: FragmentDefinitionName(
+                    "ChildFragment",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment-with-literal-arguments.graphql:140:151,
-                        item: "pictureSize",
+                        item: VariableName(
+                            "pictureSize",
+                        ),
                     },
                     type_: List(
                         Named(
@@ -74,12 +84,14 @@ fragment ChildFragment on User
                 },
             ],
             used_global_variables: [],
-            type_condition: Object(67),
+            type_condition: Object(69),
             directives: [
                 Directive {
                     name: WithLocation {
                         location: fragment-with-literal-arguments.graphql:120:139,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,
@@ -90,13 +102,15 @@ fragment ChildFragment on User
                     alias: None,
                     definition: WithLocation {
                         location: fragment-with-literal-arguments.graphql:174:188,
-                        item: FieldID(477),
+                        item: FieldID(474),
                     },
                     arguments: [
                         Argument {
                             name: WithLocation {
                                 location: fragment-with-literal-arguments.graphql:189:193,
-                                item: "size",
+                                item: ArgumentName(
+                                    "size",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment-with-literal-arguments.graphql:195:207,
@@ -104,7 +118,9 @@ fragment ChildFragment on User
                                     Variable {
                                         name: WithLocation {
                                             location: fragment-with-literal-arguments.graphql:195:207,
-                                            item: "pictureSize",
+                                            item: VariableName(
+                                                "pictureSize",
+                                            ),
                                         },
                                         type_: List(
                                             Named(
@@ -122,7 +138,7 @@ fragment ChildFragment on User
                             alias: None,
                             definition: WithLocation {
                                 location: fragment-with-literal-arguments.graphql:215:218,
-                                item: FieldID(185),
+                                item: FieldID(179),
                             },
                             arguments: [],
                             directives: [],

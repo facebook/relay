@@ -143,9 +143,13 @@ interface ClientNamed {
         ],
         "storageKey": null
       }
-    ]
+    ],
+    "clientAbstractTypes": {
+      "__isClientNamed": []
+    }
   },
   "params": {
+    "cacheID": "0fdcace16a82aaf469e14bd8f7d6e5bd",
     "id": null,
     "metadata": {},
     "name": "clientInlineFragmentsInQuery_FooQuery",

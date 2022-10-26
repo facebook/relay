@@ -1,0 +1,53 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+graphql `
+    fragment Foo1 on User {
+        __typename
+    }
+`
+
+graphql    `
+    fragment Foo2 on User {
+        __typename
+    }
+`
+
+graphql
+`
+    fragment Foo3 on User {
+        __typename
+    }
+`
+
+graphql	`
+    fragment Foo4 on User {
+        __typename
+    }
+`
+==================================== OUTPUT ===================================
+graphql - line: 7, column: 9, text: <
+    fragment Foo1 on User {
+        __typename
+    }
+>
+graphql - line: 13, column: 12, text: <
+    fragment Foo2 on User {
+        __typename
+    }
+>
+graphql - line: 20, column: 1, text: <
+    fragment Foo3 on User {
+        __typename
+    }
+>
+graphql - line: 26, column: 9, text: <
+    fragment Foo4 on User {
+        __typename
+    }
+>

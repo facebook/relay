@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<059c962f937e72a6c2c98e72501caa1c>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<74d3fc58df9078082df904cf9c184a67>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentNoInlineTest_inner$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentNoInlineTest_inner$fragmentType: RelayModernEnvironmentNoInlineTest_inner$ref;
-export type RelayModernEnvironmentNoInlineTest_inner = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentNoInlineTest_inner$fragmentType: FragmentType;
+export type RelayModernEnvironmentNoInlineTest_inner$data = {|
   +profile_picture_inner?: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayModernEnvironmentNoInlineTest_inner$ref,
+  +$fragmentType: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
 |};
-export type RelayModernEnvironmentNoInlineTest_inner$data = RelayModernEnvironmentNoInlineTest_inner;
 export type RelayModernEnvironmentNoInlineTest_inner$key = {
   +$data?: RelayModernEnvironmentNoInlineTest_inner$data,
-  +$fragmentRefs: RelayModernEnvironmentNoInlineTest_inner$ref,
+  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_inner$fragmentType,
   ...
 };
 */
@@ -109,4 +109,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "94488d2ae2c4b79e35879d38212fcf35";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentNoInlineTest_inner$fragmentType,
+  RelayModernEnvironmentNoInlineTest_inner$data,
+>*/);

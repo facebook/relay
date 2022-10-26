@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<beb02d2a282d23a76357b6cdf85b6877>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<81321fd35613bac8f4bb60fdf345b711>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +17,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentsDeleteInput = {|
-  clientMutationId?: ?string,
   commentIds?: ?$ReadOnlyArray<?string>,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutationVariables = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$variables = {|
   input?: ?CommentsDeleteInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutationResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$data = {|
   +commentsDelete: ?{|
     +deletedCommentIds: ?$ReadOnlyArray<?string>,
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation = {|
-  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutationVariables,
-  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutationResponse,
+  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$data,
+  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$variables,
 |};
 */
 
@@ -123,4 +124,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b5238896d960787f8900c1bc830b1d71";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$variables,
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestDeleteCommentsMutation$data,
+>*/);

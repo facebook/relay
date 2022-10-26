@@ -1,21 +1,31 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::PointerAddress;
+use std::sync::Arc;
+
+use common::DirectiveName;
+use common::Location;
+use common::PointerAddress;
 use common::WithLocation;
 use fnv::FnvHashMap;
-use graphql_ir::{
-    Directive, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
-    TransformedValue, Transformer,
-};
-use interner::{Intern, StringKey};
+use graphql_ir::Directive;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
 use lazy_static::lazy_static;
 use schema::Schema;
-use std::sync::Arc;
+
+use crate::client_edges::ClientEdgeMetadataDirective;
 
 /// A transform that group all client selections and generates ... @__clientExtension inline fragments
 /// the generated result is used by codegen only to generate `ClientExtension` nodes.
@@ -30,7 +40,8 @@ pub fn client_extensions(program: &Program) -> Program {
 type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
 
 lazy_static! {
-    pub static ref CLIENT_EXTENSION_DIRECTIVE_NAME: StringKey = "__clientExtension".intern();
+    pub static ref CLIENT_EXTENSION_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("__clientExtension".intern());
 }
 
 struct ClientExtensionsTransform<'program> {
@@ -111,6 +122,7 @@ impl Transformer for ClientExtensionsTransform<'_> {
                     type_condition: None,
                     directives: vec![self.build_client_extension_directive()],
                     selections: client_selections,
+                    spread_location: Location::generated(),
                 })));
             }
             TransformedValue::Replace(server_selections)
@@ -132,6 +144,16 @@ impl Transformer for ClientExtensionsTransform<'_> {
     }
 
     fn transform_inline_fragment(&mut self, fragment: &InlineFragment) -> Transformed<Selection> {
+        // Client Edges are modeled in the IR as inline fragments. If we
+        // traverse into those fragements, and pull its contents out into a
+        // separate inline fragment (without this directive) we will have lost
+        // the fact that these selections belong to the client edge.
+        //
+        // Client edges are all explicitly handled for each artifact type, so we
+        // don't need to handle them specifically as client schema extensions.
+        if ClientEdgeMetadataDirective::find(&fragment.directives).is_some() {
+            return Transformed::Keep;
+        }
         if let Some(type_condition) = fragment.type_condition {
             if self.program.schema.is_extension_type(type_condition) {
                 return Transformed::Delete;

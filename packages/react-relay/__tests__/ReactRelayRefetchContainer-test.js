@@ -1,11 +1,11 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -13,7 +13,6 @@
 const {act: internalAct} = require('../jest-react');
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayRefetchContainer = require('../ReactRelayRefetchContainer');
-const readContext = require('../readContext');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {
@@ -27,6 +26,8 @@ const {
   expectToWarn,
   unwrapContainer,
 } = require('relay-test-utils-internal');
+
+const {useContext} = React;
 
 disallowWarnings();
 
@@ -93,7 +94,7 @@ describe('ReactRelayRefetchContainer', () => {
     environment = createMockEnvironment();
     UserFragment = graphql`
       fragment ReactRelayRefetchContainerTestUserFragment on User
-        @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
+      @argumentDefinitions(cond: {type: "Boolean!", defaultValue: true}) {
         id
         name @include(if: $cond)
       }
@@ -118,7 +119,7 @@ describe('ReactRelayRefetchContainer', () => {
     `;
 
     function ContextGetter() {
-      relayContext = readContext(ReactRelayContext);
+      relayContext = useContext(ReactRelayContext);
       return null;
     }
 
@@ -271,6 +272,9 @@ describe('ReactRelayRefetchContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      missingLiveResolverFields: [],
+      relayResolverErrors: [],
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -304,6 +308,7 @@ describe('ReactRelayRefetchContainer', () => {
         name: 'Mark', // !== 'Zuck'
       },
       seenRecords: {},
+      relayResolverErrors: [],
     });
 
     // No need to resolve props or resubscribe
@@ -361,6 +366,9 @@ describe('ReactRelayRefetchContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      missingLiveResolverFields: [],
+      relayResolverErrors: [],
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -412,6 +420,9 @@ describe('ReactRelayRefetchContainer', () => {
       },
       isMissingData: false,
       missingRequiredFields: null,
+      missingLiveResolverFields: [],
+      relayResolverErrors: [],
+      missingClientEdges: null,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(
         UserFragment,
@@ -487,6 +498,9 @@ describe('ReactRelayRefetchContainer', () => {
         // Name is excluded since value of cond is now false
       },
       missingRequiredFields: null,
+      missingLiveResolverFields: [],
+      relayResolverErrors: [],
+      missingClientEdges: null,
       isMissingData: false,
       seenRecords: expect.any(Object),
       selector: createReaderSelector(

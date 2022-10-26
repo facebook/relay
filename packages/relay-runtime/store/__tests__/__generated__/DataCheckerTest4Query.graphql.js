@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cd5baafb7919205730b7261705a1d640>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<f10735ccd7a26e8ef220450a0b0bd5ca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -14,20 +16,22 @@
 
 'use strict';
 
+// @indirectDataDrivenDependency DataCheckerTest4Fragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"DataCheckerTestMarkdownUserNameRenderer_nameFragment$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql"}},"plural":false}
+
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type DataCheckerTest4Fragment$ref = any;
-export type DataCheckerTest4QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { DataCheckerTest4Fragment$fragmentType } from "./DataCheckerTest4Fragment.graphql";
+export type DataCheckerTest4Query$variables = {|
   id: string,
 |};
-export type DataCheckerTest4QueryResponse = {|
+export type DataCheckerTest4Query$data = {|
   +node: ?{|
-    +$fragmentRefs: DataCheckerTest4Fragment$ref,
+    +$fragmentSpreads: DataCheckerTest4Fragment$fragmentType,
   |},
 |};
 export type DataCheckerTest4Query = {|
-  variables: DataCheckerTest4QueryVariables,
-  response: DataCheckerTest4QueryResponse,
+  response: DataCheckerTest4Query$data,
+  variables: DataCheckerTest4Query$variables,
 |};
 */
 
@@ -178,4 +182,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a9b9699255a75903b81e31abf46a581d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  DataCheckerTest4Query$variables,
+  DataCheckerTest4Query$data,
+>*/);

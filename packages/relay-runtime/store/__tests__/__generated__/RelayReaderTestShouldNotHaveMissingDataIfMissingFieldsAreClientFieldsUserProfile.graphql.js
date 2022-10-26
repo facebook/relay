@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7d8855e892747a57b9a268e85e435754>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<6f72341242f00b4bf7f0668c5df89661>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,26 +17,25 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$ref: FragmentReference;
-declare export opaque type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$ref;
-export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile = {|
-  +id: string,
-  +friends: ?{|
-    +client_friends_connection_field: ?string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType: FragmentType;
+export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data = {|
+  +best_friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
+      +client_friend_edge_field: ?string,
       +cursor: ?string,
       +node: ?{|
+        +client_actor_field?: ?string,
         +id: string,
-        +firstName: ?string,
-        +client_foo: ?{|
-          +client_name: ?string,
+        +profilePicture?: ?{|
+          +height: ?number,
+          +uri: ?string,
+          +width: ?number,
         |},
       |},
     |}>,
   |},
-  +nickname: ?string,
   +client_actor_field: ?string,
   +client_foo: ?{|
     +client_name: ?string,
@@ -42,27 +43,26 @@ export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientField
       +uri: ?string,
     |},
   |},
-  +best_friends: ?{|
+  +friends: ?{|
+    +client_friends_connection_field: ?string,
     +edges: ?$ReadOnlyArray<?{|
-      +client_friend_edge_field: ?string,
       +cursor: ?string,
       +node: ?{|
-        +id: string,
-        +client_actor_field?: ?string,
-        +profilePicture?: ?{|
-          +uri: ?string,
-          +height: ?number,
-          +width: ?number,
+        +client_foo: ?{|
+          +client_name: ?string,
         |},
+        +firstName: ?string,
+        +id: string,
       |},
     |}>,
   |},
-  +$refType: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$ref,
+  +id: string,
+  +nickname: ?string,
+  +$fragmentType: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
 |};
-export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data = RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile;
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$key = {
   +$data?: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data,
-  +$fragmentRefs: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$ref,
+  +$fragmentSpreads: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
   ...
 };
 */
@@ -340,4 +340,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "be1193f9af652f17c3230d030ea0ae72";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
+  RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$data,
+>*/);

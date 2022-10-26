@@ -1,8 +1,0 @@
-# expected-to-throw
-fragment Foo on Node {
-  ... on Actor {
-    ... on User {
-      name @required(action: LOG)
-    }
-  }
-}

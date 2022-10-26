@@ -1,7 +1,9 @@
 .nvmrc
+.yarnrc
 node_modules
 npm-debug.log
 /compiler/target
+/compiler/crates/*/target
 /dist/
 /lib/
 /website/build
@@ -9,5 +11,9 @@ npm-debug.log
 /website/src/relay/graphql
 /website/src/relay/prototyping
 .idea
-.vscode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
 .DS_Store

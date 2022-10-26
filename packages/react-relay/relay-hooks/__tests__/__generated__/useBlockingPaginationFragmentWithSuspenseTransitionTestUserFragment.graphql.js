@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8550e84f5e4dfbaf631a01e7a1de511f>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<7243d1a57efc233d9be96f249683ad02>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,30 +17,28 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref = any;
-type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType = any;
-export type { useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref, useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType };
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment = {|
-  +id: string,
-  +name: ?string,
+import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+import type { useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType } from "./useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType: FragmentType;
+type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$variables = any;
+export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data = {|
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
         +id: string,
         +name: ?string,
-        +$fragmentRefs: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$ref,
+        +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestNestedUserFragment$fragmentType,
       |},
     |}>,
   |},
-  +$refType: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref,
+  +id: string,
+  +name: ?string,
+  +$fragmentType: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
 |};
-export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data = useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment;
 export type useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$key = {
   +$data?: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data,
-  +$fragmentRefs: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$ref,
+  +$fragmentSpreads: useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
   ...
 };
 */
@@ -237,4 +237,8 @@ if (__DEV__) {
   (node/*: any*/).hash = "f40001b7b963988467bb56b398ac1e1a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: RefetchableFragment<
+  useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$fragmentType,
+  useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragment$data,
+  useBlockingPaginationFragmentWithSuspenseTransitionTestUserFragmentPaginationQuery$variables,
+>*/);

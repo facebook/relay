@@ -1,22 +1,24 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';
 
 import type {
+  EnvironmentProviderOptions,
   LoadQueryOptions,
   PreloadableConcreteRequest,
   PreloadedQueryInner,
 } from './EntryPointTypes.flow';
 import type {
+  ConcreteRequest,
   GraphQLResponse,
   GraphQLTaggedNode,
   IEnvironment,
@@ -54,10 +56,13 @@ function useTrackLoadQueryInRender() {
   }
 }
 
-function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
+function loadQuery<
+  TQuery: OperationType,
+  TEnvironmentProviderOptions = EnvironmentProviderOptions,
+>(
   environment: IEnvironment,
   preloadableRequest: GraphQLTaggedNode | PreloadableConcreteRequest<TQuery>,
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: TQuery['variables'],
   options?: ?LoadQueryOptions,
   environmentProviderOptions?: ?TEnvironmentProviderOptions,
 ): PreloadedQueryInner<TQuery, TEnvironmentProviderOptions> {
@@ -115,7 +120,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   // of the operation, and then replay them to the Observable we
   // ultimately return.
   const executionSubject = new ReplaySubject();
-  const returnedObservable = Observable.create(sink =>
+  const returnedObservable = Observable.create<GraphQLResponse>(sink =>
     executionSubject.subscribe(sink),
   );
 
@@ -236,7 +241,7 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
     }));
   };
 
-  const checkAvailabilityAndExecute = concreteRequest => {
+  const checkAvailabilityAndExecute = (concreteRequest: ConcreteRequest) => {
     const operation = createOperationDescriptor(
       concreteRequest,
       variables,
@@ -272,7 +277,8 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   let cancelOnLoadCallback;
   let queryId;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
-    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
+    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> =
+      (preloadableRequest: $FlowFixMe);
     ({params} = preloadableConcreteRequest);
 
     ({id: queryId} = params);
@@ -316,7 +322,8 @@ function loadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
       ));
     }
   } else {
-    const graphQlTaggedNode: GraphQLTaggedNode = (preloadableRequest: $FlowFixMe);
+    const graphQlTaggedNode: GraphQLTaggedNode =
+      (preloadableRequest: $FlowFixMe);
     const request = getRequest(graphQlTaggedNode);
     params = request.params;
     queryId = params.cacheID != null ? params.cacheID : params.id;

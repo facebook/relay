@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8f031dc862963a718806691a3a7b4ed2>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<b79b077c6721fab092b47c76041567b9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,27 +19,26 @@
 // @dataDrivenDependency validateMutationTest21FeedbackLikeGroovyMutation.feedbackLike.feedback {"branches":{"Feedback":{"component":"GroovyModule.react","fragment":"validateMutationTestGroovyFragment_groovygroovy$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type validateMutationTestGroovyFragment_groovygroovy$ref = any;
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
+import type { validateMutationTestGroovyFragment_groovygroovy$fragmentType } from "./validateMutationTestGroovyFragment_groovygroovy.graphql";
 export type FeedbackLikeInput = {|
-  clientMutationId?: ?string,
   feedbackId?: ?string,
 |};
-export type validateMutationTest21FeedbackLikeGroovyMutationVariables = {|
+export type validateMutationTest21FeedbackLikeGroovyMutation$variables = {|
   input?: ?FeedbackLikeInput,
 |};
-export type validateMutationTest21FeedbackLikeGroovyMutationResponse = {|
+export type validateMutationTest21FeedbackLikeGroovyMutation$data = {|
   +feedbackLike: ?{|
     +feedback: ?{|
       +__fragmentPropName: ?string,
       +__module_component: ?string,
-      +$fragmentRefs: validateMutationTestGroovyFragment_groovygroovy$ref,
+      +$fragmentSpreads: validateMutationTestGroovyFragment_groovygroovy$fragmentType,
     |},
   |},
 |};
 export type validateMutationTest21FeedbackLikeGroovyMutation = {|
-  variables: validateMutationTest21FeedbackLikeGroovyMutationVariables,
-  response: validateMutationTest21FeedbackLikeGroovyMutationResponse,
+  response: validateMutationTest21FeedbackLikeGroovyMutation$data,
+  variables: validateMutationTest21FeedbackLikeGroovyMutation$variables,
 |};
 */
 
@@ -150,4 +151,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "1e3c3d5ff5319327113cae797b6e7f72";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  validateMutationTest21FeedbackLikeGroovyMutation$variables,
+  validateMutationTest21FeedbackLikeGroovyMutation$data,
+>*/);

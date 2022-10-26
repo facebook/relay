@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -29,13 +28,12 @@ const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext
 const areEqual = require('areEqual');
 const React = require('react');
 const {
-  RelayFeatureFlags,
   createOperationDescriptor,
   deepFreeze,
   getRequest,
 } = require('relay-runtime');
 
-type RetryCallbacks = {|
+type RetryCallbacks = {
   handleDataChange:
     | null
     | (({
@@ -44,34 +42,39 @@ type RetryCallbacks = {|
         ...
       }) => void),
   handleRetryAfterError: null | ((error: Error) => void),
-|};
+};
 
-export type RenderProps<T> = {|
+export type RenderProps<T> = {
   error: ?Error,
   props: ?T,
   retry: ?(cacheConfigOverride?: CacheConfig) => void,
-|};
+};
 /**
  * React may double-fire the constructor, and we call 'fetch' in the
  * constructor. If a request is already in flight from a previous call to the
  * constructor, just reuse the query fetcher and wait for the response.
  */
-const requestCache = {};
+const requestCache: {
+  [string]: void | {
+    queryFetcher: ReactRelayQueryFetcher,
+    snapshot: ?Snapshot,
+  },
+} = {};
 
 const queryRendererContext: ReactRelayQueryRendererContextType = {
   rootIsQueryRenderer: true,
 };
 
-export type Props = {|
+export type Props = {
   cacheConfig?: ?CacheConfig,
   fetchPolicy?: 'store-and-network' | 'network-only',
   environment: IEnvironment,
   query: ?GraphQLTaggedNode,
   render: (renderProps: RenderProps<Object>) => React.Node,
   variables: Variables,
-|};
+};
 
-type State = {|
+type State = {
   error: Error | null,
   prevPropsEnvironment: IEnvironment,
   prevPropsVariables: Variables,
@@ -82,7 +85,7 @@ type State = {|
   retryCallbacks: RetryCallbacks,
   requestCacheKey: ?string,
   snapshot: Snapshot | null,
-|};
+};
 
 /**
  * @public
@@ -157,10 +160,7 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    if (
-      RelayFeatureFlags.ENABLE_QUERY_RENDERER_OFFSCREEN_SUPPORT === true &&
-      this._maybeHiddenOrFastRefresh === true
-    ) {
+    if (this._maybeHiddenOrFastRefresh === true) {
       // This block only runs if the component has previously "unmounted"
       // due to it being hidden by the Offscreen API, or during fast refresh.
       // At this point, the current cached resource will have been disposed
@@ -170,7 +170,12 @@ class ReactRelayQueryRenderer extends React.Component<Props, State> {
       this._maybeHiddenOrFastRefresh = false;
       // eslint-disable-next-line react/no-did-mount-set-state
       this.setState(prevState => {
-        return resetQueryStateForUpdate(this.props, prevState);
+        const newState = resetQueryStateForUpdate(this.props, prevState);
+        const {requestCacheKey, queryFetcher} = newState;
+        if (requestCacheKey != null && requestCache[requestCacheKey] != null) {
+          queryFetcher.setOnDataChange(this._handleDataChange);
+        }
+        return newState;
       });
       return;
     }
@@ -339,7 +344,8 @@ function resetQueryStateForUpdate(
 ): $Shape<State> {
   const {query} = props;
 
-  const prevSelectionReferences = prevState.queryFetcher.getSelectionReferences();
+  const prevSelectionReferences =
+    prevState.queryFetcher.getSelectionReferences();
   prevState.queryFetcher.disposeRequest();
 
   let queryFetcher;

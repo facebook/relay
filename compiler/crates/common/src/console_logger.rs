@@ -1,14 +1,17 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::perf_logger::{PerfLogEvent, PerfLogger};
+use std::time::Instant;
+
 use colored::*;
 use log::debug;
-use std::time::Instant;
+
+use super::perf_logger::PerfLogEvent;
+use super::perf_logger::PerfLogger;
 
 pub struct ConsoleLogEvent;
 
@@ -27,7 +30,7 @@ impl PerfLogEvent for ConsoleLogEvent {
     }
     fn stop(&self, timer: Self::Timer) {
         let (name, time) = timer;
-        print_time(&name, time);
+        print_time(name, time);
     }
     fn complete(self) {}
 }

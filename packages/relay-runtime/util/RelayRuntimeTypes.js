@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -17,7 +16,11 @@
  */
 
 import type {ReaderFragment, ReaderInlineDataFragment} from './ReaderNode';
-import type {ConcreteRequest} from './RelayConcreteNode';
+import type {
+  ClientRequest,
+  ConcreteRequest,
+  ConcreteUpdatableQuery,
+} from './RelayConcreteNode';
 
 /**
  * Represents any resource that must be explicitly disposed of. The most common
@@ -34,14 +37,14 @@ export type Variables = {+[string]: $FlowFixMe};
 /**
  * Generated operation flow types are subtypes of this.
  */
-export type OperationType = {|
+export type OperationType = {
   // TODO(T33395812) Make this an open object type
   +variables: Variables,
   +response: mixed,
   +rawResponse?: {...},
-|};
+};
 
-export type VariablesOf<T: OperationType> = $ElementType<T, 'variables'>;
+export type VariablesOf<T: OperationType> = T['variables'];
 
 /**
  * Settings for how a query response may be cached.
@@ -57,14 +60,14 @@ export type VariablesOf<T: OperationType> = $ElementType<T, 'variables'>;
  * - `transactionId`: a user-supplied value, intended for use as a unique id for
  *   a given instance of executing an operation.
  */
-export type CacheConfig = {|
+export type CacheConfig = {
   force?: ?boolean,
   poll?: ?number,
   liveConfigId?: ?string,
   onSubscribe?: () => void,
   metadata?: {[key: string]: mixed, ...},
   transactionId?: ?string,
-|};
+};
 
 export type FetchQueryFetchPolicy = 'store-or-network' | 'network-only';
 export type FetchPolicy =
@@ -74,6 +77,7 @@ export type FetchPolicy =
 export type RenderPolicy = 'full' | 'partial';
 
 /* eslint-disable no-undef */
+/* eslint-disable no-unused-vars */
 
 /**
  * Return type of graphql tag literals for all operations.
@@ -85,6 +89,22 @@ declare export opaque type Operation<
 >: ConcreteRequest;
 
 /**
+ * Return type of graphql tag literals for updatable queries.
+ */
+declare export opaque type UpdatableQuery<
+  -TVariables: Variables,
+  +TData,
+>: ConcreteUpdatableQuery;
+
+/**
+ * Return type of graphql tag literals for updatable fragments.
+ */
+declare export opaque type UpdatableFragment<
+  TFragmentType,
+  +TData,
+>: ReaderFragment;
+
+/**
  * Return type of graphql tag literals for queries.
  */
 declare export opaque type Query<
@@ -92,6 +112,15 @@ declare export opaque type Query<
   +TData,
   TRawResponse = void,
 >: Operation<TVariables, TData, TRawResponse>;
+
+/**
+ * Return type of graphql tag literals for client-only queries.
+ */
+declare export opaque type ClientQuery<
+  -TVariables: Variables,
+  +TData,
+  TRawResponse = void,
+>: ClientRequest;
 
 /**
  * Return type of graphql tag literals for mutations.

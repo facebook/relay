@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2649f9d9bd47cb096917d0711159f6a1>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<4c100a89d0ae6ab12b9e227816ef97a8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayMockEnvironmentWithComponentsTestSwiftPerformanceQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery$variables = {|
   userId: string,
 |};
-export type RelayMockEnvironmentWithComponentsTestSwiftPerformanceQueryResponse = {|
+export type RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery$data = {|
   +user: ?{|
     +id: string,
     +name: ?string,
   |},
 |};
 export type RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery = {|
-  variables: RelayMockEnvironmentWithComponentsTestSwiftPerformanceQueryVariables,
-  response: RelayMockEnvironmentWithComponentsTestSwiftPerformanceQueryResponse,
+  response: RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery$data,
+  variables: RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery$variables,
 |};
 */
 
@@ -154,4 +156,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "63c82190819d9bae1e10591c6a8c322d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery$variables,
+  RelayMockEnvironmentWithComponentsTestSwiftPerformanceQuery$data,
+>*/);

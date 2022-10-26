@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<999863520cd52b564ee21fff166fb3b4>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<cc2a387726a1cc54d044c7115d387606>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +17,18 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockPayloadGeneratorTest29Fragment$ref = any;
-type RelayMockPayloadGeneratorTest30Fragment$ref = any;
-export type RelayMockPayloadGeneratorTest26QueryVariables = {||};
-export type RelayMockPayloadGeneratorTest26QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayMockPayloadGeneratorTest29Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest29Fragment.graphql";
+import type { RelayMockPayloadGeneratorTest30Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest30Fragment.graphql";
+export type RelayMockPayloadGeneratorTest26Query$variables = {||};
+export type RelayMockPayloadGeneratorTest26Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayMockPayloadGeneratorTest29Fragment$ref & RelayMockPayloadGeneratorTest30Fragment$ref,
+    +$fragmentSpreads: RelayMockPayloadGeneratorTest29Fragment$fragmentType & RelayMockPayloadGeneratorTest30Fragment$fragmentType,
   |},
 |};
 export type RelayMockPayloadGeneratorTest26Query = {|
-  variables: RelayMockPayloadGeneratorTest26QueryVariables,
-  response: RelayMockPayloadGeneratorTest26QueryResponse,
+  response: RelayMockPayloadGeneratorTest26Query$data,
+  variables: RelayMockPayloadGeneratorTest26Query$variables,
 |};
 */
 
@@ -175,4 +177,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7a9885b7c8d5c02b3497ea60e2d3097c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockPayloadGeneratorTest26Query$variables,
+  RelayMockPayloadGeneratorTest26Query$data,
+>*/);

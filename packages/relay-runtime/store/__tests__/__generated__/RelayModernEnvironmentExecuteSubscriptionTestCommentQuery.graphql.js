@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<08d7735132ce7657c69523e3c9fdff64>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<b8bac4682ad6c9c2a0c220bf701c85cb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$ref = any;
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$fragmentType } from "./RelayModernEnvironmentExecuteSubscriptionTestCommentFragment.graphql";
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionTestCommentQueryResponse = {|
+export type RelayModernEnvironmentExecuteSubscriptionTestCommentQuery$data = {|
   +node: ?{|
     +id: string,
-    +$fragmentRefs: RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionTestCommentFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteSubscriptionTestCommentQuery = {|
-  variables: RelayModernEnvironmentExecuteSubscriptionTestCommentQueryVariables,
-  response: RelayModernEnvironmentExecuteSubscriptionTestCommentQueryResponse,
+  response: RelayModernEnvironmentExecuteSubscriptionTestCommentQuery$data,
+  variables: RelayModernEnvironmentExecuteSubscriptionTestCommentQuery$variables,
 |};
 */
 
@@ -149,4 +151,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "19ec2bd10802d7b3486c8eacf7bc0e37";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteSubscriptionTestCommentQuery$variables,
+  RelayModernEnvironmentExecuteSubscriptionTestCommentQuery$data,
+>*/);

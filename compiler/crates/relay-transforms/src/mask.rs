@@ -1,20 +1,30 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::relay_directive::RelayDirective;
-use fnv::FnvBuildHasher;
-use graphql_ir::{
-    FragmentDefinition, FragmentSpread, InlineFragment, OperationDefinition, Program, ScalarField,
-    Selection, Transformed, Transformer, VariableDefinition,
-};
-use indexmap::{map::Entry, IndexMap};
-use interner::StringKey;
+use std::ops::RangeFull;
+use std::sync::Arc;
+
+use common::Location;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
+use indexmap::map::Entry;
+use indexmap::IndexMap;
 use schema::Schema;
-use std::{ops::RangeFull, sync::Arc};
+
+use crate::relay_directive::RelayDirective;
 
 /// Transform to inline fragment spreads with @relay(mask:false)
 pub fn mask(program: &Program) -> Program {
@@ -24,7 +34,7 @@ pub fn mask(program: &Program) -> Program {
         .replace_or_else(|| program.clone())
 }
 
-type JoinedArguments<'s> = IndexMap<StringKey, &'s VariableDefinition, FnvBuildHasher>;
+type JoinedArguments<'s> = IndexMap<VariableName, &'s VariableDefinition>;
 
 struct Mask<'s> {
     program: &'s Program,
@@ -120,6 +130,7 @@ impl<'s> Transformer for Mask<'s> {
                 selections: self
                     .transform_selections(&fragment.selections)
                     .replace_or_else(|| fragment.selections.to_vec()),
+                spread_location: Location::generated(),
             })))
         } else {
             Transformed::Keep

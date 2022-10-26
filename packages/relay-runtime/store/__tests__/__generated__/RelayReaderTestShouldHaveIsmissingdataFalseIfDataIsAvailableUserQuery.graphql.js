@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<43fdcb51f0c8c5226fbb0556c5714263>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<0e7b08d7afc7172ea3a005edfb27107f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture$ref = any;
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture$fragmentType } from "./RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture.graphql";
+export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$variables = {|
   size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQueryResponse = {|
+export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture$ref,
+    +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableProfilePicture$fragmentType,
   |},
 |};
 export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery = {|
-  variables: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQueryVariables,
-  response: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQueryResponse,
+  response: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$data,
+  variables: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$variables,
 |};
 */
 
@@ -131,4 +133,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e67bfc897e5efd72ca5ee4c64e78e016";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$variables,
+  RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserQuery$data,
+>*/);

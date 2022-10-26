@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c97c31d702697caf9f9b1d9a00062714>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<4f98a38884f201aca56eb746b30872a3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -14,18 +16,20 @@
 
 'use strict';
 
+// @indirectDataDrivenDependency RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref = any;
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryVariables = {||};
-export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType } from "./RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment.graphql";
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables = {||};
+export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$ref,
+    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarFragment$fragmentType,
   |},
 |};
 export type RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery = {|
-  variables: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryVariables,
-  response: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQueryResponse,
+  response: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data,
+  variables: RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables,
 |};
 */
 
@@ -142,4 +146,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "52e8fb8b490569a5a7125ef7dac411f1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$variables,
+  RelayReaderTestWhenMatchDirectiveIsPresentNoModuleBarQuery$data,
+>*/);

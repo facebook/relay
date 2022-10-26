@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<356cc236f2ad0752dfc8fdc9e05c429b>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<0439ae32df2808db688e991ac04c90d1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +17,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$fragmentType: RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$ref;
-export type RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name = {|
-  +markdown: ?string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$data = {|
+  +__typename: "MarkdownUserNameRenderer",
   +data: ?{|
     +markup: ?string,
   |},
-  +__typename: "MarkdownUserNameRenderer",
-  +$refType: RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$ref,
+  +markdown: ?string,
+  +$fragmentType: RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$data = RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name;
 export type RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$key = {
   +$data?: RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -82,4 +82,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "dfe2983812ab88e9900e71fa90f336a7";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$fragmentType,
+  RelayModernEnvironmentExecuteWithModuleTestMarkdownUserNameRenderer_name$data,
+>*/);

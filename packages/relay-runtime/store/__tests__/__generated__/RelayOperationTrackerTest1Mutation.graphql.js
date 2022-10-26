@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<36fa53babae9ec5a05e1f3e5639bf0f4>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<ec96c0898cc26999cc877d624cad9901>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +17,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -27,17 +28,17 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayOperationTrackerTest1MutationVariables = {|
+export type RelayOperationTrackerTest1Mutation$variables = {|
   input?: ?CommentCreateInput,
 |};
-export type RelayOperationTrackerTest1MutationResponse = {|
+export type RelayOperationTrackerTest1Mutation$data = {|
   +commentCreate: ?{|
-    +__typename: string,
+    +__typename: "CommentCreateResponsePayload",
   |},
 |};
 export type RelayOperationTrackerTest1Mutation = {|
-  variables: RelayOperationTrackerTest1MutationVariables,
-  response: RelayOperationTrackerTest1MutationResponse,
+  response: RelayOperationTrackerTest1Mutation$data,
+  variables: RelayOperationTrackerTest1Mutation$variables,
 |};
 */
 
@@ -107,4 +108,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a8b4fecd1f7151d129643e38bba2bb6a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayOperationTrackerTest1Mutation$variables,
+  RelayOperationTrackerTest1Mutation$data,
+>*/);

@@ -1,8 +1,14 @@
 [ignore]
 <PROJECT_ROOT>/dist/.*
 <PROJECT_ROOT>/compiler/.*
+<PROJECT_ROOT>/.*/node_modules/.*
+.*/node_modules/resolve/test/resolver/malformed_package_json/package.json
+<PROJECT_ROOT>/packages/relay-flight-experimental/.*
 
 [options]
+exact_by_default=true
+exact_empty_objects=true
+
 module.system=haste
 module.system.haste.use_name_reducers=true
 # get basename
@@ -20,6 +26,7 @@ suppress_type=$FlowIssue
 suppress_type=$FlowFixMe
 suppress_type=$FlowFixMeProps
 suppress_type=$FlowFixMeState
+suppress_type=$FlowExpectedError
 
 format.bracket_spacing=false
 
@@ -38,4 +45,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.162.0
+^0.190.1

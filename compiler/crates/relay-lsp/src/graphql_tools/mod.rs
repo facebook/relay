@@ -1,32 +1,44 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{collections::HashSet, sync::Arc};
+use std::collections::HashSet;
+use std::sync::Arc;
 
-use common::{PerfLogger, SourceLocationKey};
-use graphql_ir::{
-    build_ir_with_extra_features, BuilderOptions, ExecutableDefinition, FragmentDefinition,
-    FragmentVariablesSemantic, OperationDefinition, Program, Selection,
-};
+use common::PerfLogger;
+use common::SourceLocationKey;
+use graphql_ir::build_ir_with_extra_features;
+use graphql_ir::BuilderOptions;
+use graphql_ir::ExecutableDefinition;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentVariablesSemantic;
+use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
+use graphql_ir::Program;
+use graphql_ir::Selection;
 use graphql_syntax::parse_executable_with_error_recovery;
 use graphql_text_printer::print_full_operation;
-use interner::{Intern, StringKey};
-use lsp_types::{request::Request, Url};
-use relay_compiler::config::{Config, ProjectConfig};
-use relay_transforms::{apply_transforms, Programs};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use lsp_types::request::Request;
+use lsp_types::Url;
+use relay_compiler::config::ProjectConfig;
+use relay_transforms::apply_transforms;
+use relay_transforms::CustomTransformsConfig;
+use relay_transforms::Programs;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
+use serde::Deserialize;
+use serde::Serialize;
 
-use crate::{
-    lsp_runtime_error::LSPRuntimeResult,
-    server::{GlobalState, LSPState},
-    LSPRuntimeError,
-};
-use serde::{Deserialize, Serialize};
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::server::GlobalState;
+use crate::server::LSPState;
+use crate::LSPRuntimeError;
 
 pub(crate) enum GraphQLExecuteQuery {}
 
@@ -78,7 +90,7 @@ fn get_operation_only_program(
         next_program.insert_fragment(Arc::clone(fragment));
     }
 
-    let mut visited_fragments: HashSet<StringKey> = HashSet::default();
+    let mut visited_fragments: HashSet<FragmentDefinitionName> = HashSet::default();
 
     while !selections_to_visit.is_empty() {
         let current_selections = selections_to_visit.pop()?;
@@ -124,30 +136,31 @@ fn get_operation_only_program(
 /// that may generate full operation text
 fn transform_program<TPerfLogger: PerfLogger + 'static>(
     project_config: &ProjectConfig,
-    config: Arc<Config>,
     program: Arc<Program>,
     perf_logger: Arc<TPerfLogger>,
+    custom_transforms_config: Option<&CustomTransformsConfig>,
 ) -> Result<Programs, String> {
     apply_transforms(
-        project_config.name,
+        project_config,
         program,
         Default::default(),
-        &config.connection_interface,
-        Arc::clone(&project_config.feature_flags),
-        &None,
         perf_logger,
         None,
+        custom_transforms_config,
     )
     .map_err(|errors| format!("{:?}", errors))
 }
 
-fn print_full_operation_text(programs: Programs, operation_name: StringKey) -> String {
+fn print_full_operation_text(programs: Programs, operation_name: StringKey) -> Option<String> {
     let print_operation_node = programs
         .operation_text
-        .operation(operation_name)
-        .expect("a query text operation should be generated for this operation");
+        .operation(OperationDefinitionName(operation_name))?;
 
-    print_full_operation(&programs.operation_text, print_operation_node)
+    Some(print_full_operation(
+        &programs.operation_text,
+        print_operation_node,
+        Default::default(),
+    ))
 }
 
 /// From the list of AST nodes we're trying to extract the operation and possible
@@ -160,10 +173,10 @@ fn build_operation_ir_with_fragments(
     let ir = build_ir_with_extra_features(
         &schema,
         definitions,
-        BuilderOptions {
+        &BuilderOptions {
             allow_undefined_fragment_spreads: true,
             fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-            relay_mode: true,
+            relay_mode: Some(graphql_ir::RelayMode),
             default_anonymous_operation_name: Some("anonymous".intern()),
         },
     )
@@ -216,10 +229,10 @@ pub(crate) fn get_query_text<
 
     let result = parse_executable_with_error_recovery(&original_text, SourceLocationKey::Generated);
 
-    if !&result.errors.is_empty() {
+    if !&result.diagnostics.is_empty() {
         return Err(LSPRuntimeError::UnexpectedError(
             result
-                .errors
+                .diagnostics
                 .iter()
                 .map(|err| format!("- {}\n", err))
                 .collect::<String>(),
@@ -230,20 +243,20 @@ pub(crate) fn get_query_text<
         build_operation_ir_with_fragments(&result.item.definitions, schema)
             .map_err(LSPRuntimeError::UnexpectedError)?;
 
-    let operation_name = operation.name.item;
+    let operation_name = operation.name.item.0;
     let program = state.get_program(project_name)?;
 
     let query_text =
         if let Some(program) = get_operation_only_program(operation, fragments, &program) {
             let programs = transform_program(
                 project_config,
-                Arc::clone(&state.config),
                 Arc::new(program),
                 Arc::clone(&state.perf_logger),
+                state.config.custom_transforms.as_ref(),
             )
             .map_err(LSPRuntimeError::UnexpectedError)?;
 
-            print_full_operation_text(programs, operation_name)
+            print_full_operation_text(programs, operation_name).unwrap_or(original_text)
         } else {
             original_text
         };

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d42605c3bf747d2b6164fef66f397a41>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<f3c1312bfab787bae713b29b3bf5269e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +17,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernFragmentSpecResolverTestQueryUserFragment$ref = any;
-type RelayModernFragmentSpecResolverTestQueryUsersFragment$ref = any;
-export type RelayModernFragmentSpecResolverTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType } from "./RelayModernFragmentSpecResolverTestQueryUserFragment.graphql";
+import type { RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType } from "./RelayModernFragmentSpecResolverTestQueryUsersFragment.graphql";
+export type RelayModernFragmentSpecResolverTestQuery$variables = {|
+  fetchSize: boolean,
   id: string,
   size?: ?$ReadOnlyArray<?number>,
-  fetchSize: boolean,
 |};
-export type RelayModernFragmentSpecResolverTestQueryResponse = {|
+export type RelayModernFragmentSpecResolverTestQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernFragmentSpecResolverTestQueryUserFragment$ref & RelayModernFragmentSpecResolverTestQueryUsersFragment$ref,
+    +$fragmentSpreads: RelayModernFragmentSpecResolverTestQueryUserFragment$fragmentType & RelayModernFragmentSpecResolverTestQueryUsersFragment$fragmentType,
   |},
 |};
 export type RelayModernFragmentSpecResolverTestQuery = {|
-  variables: RelayModernFragmentSpecResolverTestQueryVariables,
-  response: RelayModernFragmentSpecResolverTestQueryResponse,
+  response: RelayModernFragmentSpecResolverTestQuery$data,
+  variables: RelayModernFragmentSpecResolverTestQuery$variables,
 |};
 */
 
@@ -190,4 +192,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "861d571e1856374cfbff7ce6564c306c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernFragmentSpecResolverTestQuery$variables,
+  RelayModernFragmentSpecResolverTestQuery$data,
+>*/);

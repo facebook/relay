@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b4b3e67ce46e01abfe7e94881e41a3b3>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<d58124d90a030ff5803ba639df86006f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment.graphql";
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQueryResponse = {|
+export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery = {|
-  variables: RelayModernEnvironmentConnectionAndRequiredTestFeedbackQueryVariables,
-  response: RelayModernEnvironmentConnectionAndRequiredTestFeedbackQueryResponse,
+  response: RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$data,
+  variables: RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$variables,
 |};
 */
 
@@ -220,4 +222,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c71f667104383509795bb812551f3700";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$variables,
+  RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery$data,
+>*/);

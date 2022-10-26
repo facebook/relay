@@ -1,34 +1,34 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 import type {
-  CacheConfig,
-  FetchQueryFetchPolicy,
-  GraphQLTaggedNode,
   IEnvironment,
   OperationDescriptor,
-  OperationType,
   Snapshot,
-  VariablesOf,
-} from 'relay-runtime';
+} from '../store/RelayStoreTypes';
+import type {
+  CacheConfig,
+  FetchQueryFetchPolicy,
+  OperationType,
+  Query,
+  Variables,
+} from '../util/RelayRuntimeTypes';
 
 const RelayObservable = require('../network/RelayObservable');
 const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
-const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
+const handlePotentialSnapshotErrors = require('../util/handlePotentialSnapshotErrors');
 const fetchQueryInternal = require('./fetchQueryInternal');
 const {getRequest} = require('./GraphQLTag');
 const invariant = require('invariant');
@@ -110,15 +110,15 @@ const invariant = require('invariant');
  * ```
  * NOTE: When using .toPromise(), the request cannot be cancelled.
  */
-function fetchQuery<TQuery: OperationType>(
+function fetchQuery<TVariables: Variables, TData, TRawResponse>(
   environment: IEnvironment,
-  query: GraphQLTaggedNode,
-  variables: VariablesOf<TQuery>,
-  options?: $ReadOnly<{|
+  query: Query<TVariables, TData, TRawResponse>,
+  variables: TVariables,
+  options?: $ReadOnly<{
     fetchPolicy?: FetchQueryFetchPolicy,
     networkCacheConfig?: CacheConfig,
-  |}>,
-): RelayObservable<$ElementType<TQuery, 'response'>> {
+  }>,
+): RelayObservable<TData> {
   const queryNode = getRequest(query);
   invariant(
     queryNode.params.operationKind === 'query',
@@ -135,16 +135,22 @@ function fetchQuery<TQuery: OperationType>(
   );
   const fetchPolicy = options?.fetchPolicy ?? 'network-only';
 
-  function readData(snapshot: Snapshot) {
-    if (snapshot.missingRequiredFields != null) {
-      reportMissingRequiredFields(environment, snapshot.missingRequiredFields);
-    }
+  function readData(snapshot: Snapshot): TData {
+    handlePotentialSnapshotErrors(
+      environment,
+      snapshot.missingRequiredFields,
+      snapshot.relayResolverErrors,
+    );
+    /* $FlowFixMe[incompatible-return] we assume readData returns the right
+     * data just having written it from network or checked availability. */
     return snapshot.data;
   }
 
   switch (fetchPolicy) {
     case 'network-only': {
-      return getNetworkObservable(environment, operation).map(readData);
+      return getNetworkObservable<$FlowFixMe>(environment, operation).map(
+        readData,
+      );
     }
     case 'store-or-network': {
       if (environment.check(operation).status === 'available') {
@@ -152,7 +158,9 @@ function fetchQuery<TQuery: OperationType>(
           readData,
         );
       }
-      return getNetworkObservable(environment, operation).map(readData);
+      return getNetworkObservable<$FlowFixMe>(environment, operation).map(
+        readData,
+      );
     }
     default:
       (fetchPolicy: empty);
@@ -163,7 +171,7 @@ function fetchQuery<TQuery: OperationType>(
 function getNetworkObservable<TQuery: OperationType>(
   environment: IEnvironment,
   operation: OperationDescriptor,
-): RelayObservable<$ElementType<TQuery, 'response'>> {
+): RelayObservable<TQuery['response']> {
   return fetchQueryInternal
     .fetchQuery(environment, operation)
     .map(() => environment.lookup(operation.fragment));

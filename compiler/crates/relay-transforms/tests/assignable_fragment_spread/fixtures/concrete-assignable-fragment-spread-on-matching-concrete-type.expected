@@ -1,0 +1,24 @@
+==================================== INPUT ====================================
+query TestQuery {
+  me {
+    ...Assignable_user
+  }
+}
+
+fragment Assignable_user on User @assignable {
+  __typename
+}
+==================================== OUTPUT ===================================
+query TestQuery {
+  me {
+    ... {
+      ...Assignable_user
+      __typename
+      __id
+    }
+  }
+}
+
+fragment Assignable_user on User @assignable {
+  __typename
+}

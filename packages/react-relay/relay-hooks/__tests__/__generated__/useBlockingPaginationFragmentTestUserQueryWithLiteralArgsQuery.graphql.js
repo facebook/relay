@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<69c79979858a0c564564e4e37dd1f083>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<4e6f2e06315d1a96223ff40ed272a7a7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,23 +17,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useBlockingPaginationFragmentTestUserFragment$ref = any;
-export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { useBlockingPaginationFragmentTestUserFragment$fragmentType } from "./useBlockingPaginationFragmentTestUserFragment.graphql";
+export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$variables = {|
   after?: ?string,
-  first?: ?number,
   before?: ?string,
+  first?: ?number,
+  id: string,
   last?: ?number,
 |};
-export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQueryResponse = {|
+export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useBlockingPaginationFragmentTestUserFragment$ref,
+    +$fragmentSpreads: useBlockingPaginationFragmentTestUserFragment$fragmentType,
   |},
 |};
 export type useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery = {|
-  variables: useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQueryVariables,
-  response: useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQueryResponse,
+  response: useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$data,
+  variables: useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$variables,
 |};
 */
 
@@ -315,4 +317,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "48433b64c70ecbb519ed6a7d45ec3952";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$variables,
+  useBlockingPaginationFragmentTestUserQueryWithLiteralArgsQuery$data,
+>*/);

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<24f5477615fcc708139cec07bcc14e89>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<6f9cebfabb127ad6db1de1705f8a9764>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,26 +17,24 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayRefetchContainerFlowtest_viewer$ref: FragmentReference;
-declare export opaque type ReactRelayRefetchContainerFlowtest_viewer$fragmentType: ReactRelayRefetchContainerFlowtest_viewer$ref;
-export type ReactRelayRefetchContainerFlowtest_viewer = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayRefetchContainerFlowtest_viewer$fragmentType: FragmentType;
+export type ReactRelayRefetchContainerFlowtest_viewer$data = {|
   +account_user: ?{|
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?{|
-          +__typename: string,
+          +__typename: "User",
         |},
       |}>,
     |},
   |},
-  +$refType: ReactRelayRefetchContainerFlowtest_viewer$ref,
+  +$fragmentType: ReactRelayRefetchContainerFlowtest_viewer$fragmentType,
 |};
-export type ReactRelayRefetchContainerFlowtest_viewer$data = ReactRelayRefetchContainerFlowtest_viewer;
 export type ReactRelayRefetchContainerFlowtest_viewer$key = {
   +$data?: ReactRelayRefetchContainerFlowtest_viewer$data,
-  +$fragmentRefs: ReactRelayRefetchContainerFlowtest_viewer$ref,
+  +$fragmentSpreads: ReactRelayRefetchContainerFlowtest_viewer$fragmentType,
   ...
 };
 */
@@ -158,4 +158,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "cf098b4248d8ddfacfc0d356838697bb";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayRefetchContainerFlowtest_viewer$fragmentType,
+  ReactRelayRefetchContainerFlowtest_viewer$data,
+>*/);

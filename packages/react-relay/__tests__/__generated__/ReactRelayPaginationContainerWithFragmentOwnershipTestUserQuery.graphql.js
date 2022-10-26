@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<06704f2369d5e880af6bcb6fcddb5663>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<949c292c388e628caec8bca19f66fbef>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +17,25 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$ref = any;
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType } from "./ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment.graphql";
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables = {|
   after?: ?string,
   count: number,
   id: string,
-  orderby?: ?$ReadOnlyArray<?string>,
   isViewerFriend: boolean,
+  orderby?: ?$ReadOnlyArray<?string>,
 |};
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryResponse = {|
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data = {|
   +node: ?{|
-    +id: string,
     +__typename: string,
-    +$fragmentRefs: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$ref,
+    +id: string,
+    +$fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   |},
 |};
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery = {|
-  variables: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryVariables,
-  response: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQueryResponse,
+  response: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data,
+  variables: ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables,
 |};
 */
 
@@ -291,4 +293,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "46153f91be065033bb3e83f093819f1b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables,
+  ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$data,
+>*/);

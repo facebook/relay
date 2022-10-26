@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f8a4178fef34b75fafc843028375249c>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<a37bc66f38eff9ae989552f827b32778>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,36 +20,34 @@
 // @dataDrivenDependency RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment.author.plainNameRenderer {"branches":{"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref;
-export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment = {|
-  +id: string,
-  +body: ?{|
-    +text: ?string,
-  |},
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name.graphql";
+import type { RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data = {|
   +author: ?{|
-    +__typename: string,
+    +__typename: "User",
     +nameRenderer: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$ref & RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
     |},
     +plainNameRenderer: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
     |},
   |},
-  +$refType: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref,
+  +body: ?{|
+    +text: ?string,
+  |},
+  +id: string,
+  +$fragmentType: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data = RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment;
 export type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$key = {
   +$data?: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
   ...
 };
 */
@@ -191,4 +191,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e135d9b0559cedee19c4ccccd85dc5be";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
+  RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$data,
+>*/);

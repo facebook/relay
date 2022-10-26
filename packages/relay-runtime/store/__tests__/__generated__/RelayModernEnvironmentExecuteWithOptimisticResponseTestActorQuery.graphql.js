@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cc70ed59dd4f2151789d1df791260b83>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<861be7c11151a7141c55c4a6aa7cac32>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +17,11 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$variables = {|
   fetchSize: boolean,
 |};
-export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$data = {|
   +me: ?{|
     +name: ?string,
     +profilePicture?: ?{|
@@ -28,8 +30,8 @@ export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQueryRes
   |},
 |};
 export type RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery = {|
-  variables: RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQueryVariables,
-  response: RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQueryResponse,
+  response: RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$data,
+  variables: RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$variables,
 |};
 */
 
@@ -146,4 +148,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "cfef85ef2070bbfccc939c627d35f1ba";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$variables,
+  RelayModernEnvironmentExecuteWithOptimisticResponseTestActorQuery$data,
+>*/);

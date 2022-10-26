@@ -1,16 +1,16 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::PathBuf;
+use std::process::Command;
+use std::process::Stdio;
+use std::sync::Mutex;
+
 use log::info;
-use std::{
-    path::PathBuf,
-    process::{Command, Stdio},
-    sync::Mutex,
-};
 
 pub fn add_to_mercurial(
     root_dir: &PathBuf,

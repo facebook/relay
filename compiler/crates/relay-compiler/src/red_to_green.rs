@@ -1,12 +1,14 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{PerfLogEvent, PerfLogger};
 use std::time::Instant;
+
+use common::PerfLogEvent;
+use common::PerfLogger;
 
 /// A struct to keep track of the state of how many build,
 ///  and how long it takes for errors to be resolved

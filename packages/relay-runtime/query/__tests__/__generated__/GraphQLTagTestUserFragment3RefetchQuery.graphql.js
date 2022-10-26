@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d173c0fda240856c41ba2008ac4535c8>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<5cb45ccc3a8ad0d6f4eea43b70f4282f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type GraphQLTagTest5UserFragment$ref: FragmentReference;
-declare export opaque type GraphQLTagTest5UserFragment$fragmentType: GraphQLTagTest5UserFragment$ref;
-export type GraphQLTagTestUserFragment3RefetchQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+import type { GraphQLTagTest5UserFragment$fragmentType } from "./GraphQLTagTest5UserFragment.graphql";
+export type GraphQLTagTestUserFragment3RefetchQuery$variables = {|
   id: string,
 |};
-export type GraphQLTagTestUserFragment3RefetchQueryResponse = {|
+export type GraphQLTagTestUserFragment3RefetchQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: GraphQLTagTest5UserFragment$ref,
+    +$fragmentSpreads: GraphQLTagTest5UserFragment$fragmentType,
   |},
 |};
 export type GraphQLTagTestUserFragment3RefetchQuery = {|
-  variables: GraphQLTagTestUserFragment3RefetchQueryVariables,
-  response: GraphQLTagTestUserFragment3RefetchQueryResponse,
+  response: GraphQLTagTestUserFragment3RefetchQuery$data,
+  variables: GraphQLTagTestUserFragment3RefetchQuery$variables,
 |};
 */
 
@@ -137,4 +138,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8c6f16917d7019fa1e958f35d43ef8f5";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  GraphQLTagTestUserFragment3RefetchQuery$variables,
+  GraphQLTagTestUserFragment3RefetchQuery$data,
+>*/);

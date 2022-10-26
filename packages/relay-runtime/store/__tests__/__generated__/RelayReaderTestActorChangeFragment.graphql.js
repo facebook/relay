@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5a895afc81600943090f97d0b9d14e6a>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<a2eacebaa6aed464d67f81269defec29>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +17,16 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestActorChangeFragment$ref: FragmentReference;
-declare export opaque type RelayReaderTestActorChangeFragment$fragmentType: RelayReaderTestActorChangeFragment$ref;
-export type RelayReaderTestActorChangeFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestActorChangeFragment$fragmentType: FragmentType;
+export type RelayReaderTestActorChangeFragment$data = {|
   +name: ?string,
-  +$refType: RelayReaderTestActorChangeFragment$ref,
+  +$fragmentType: RelayReaderTestActorChangeFragment$fragmentType,
 |};
-export type RelayReaderTestActorChangeFragment$data = RelayReaderTestActorChangeFragment;
 export type RelayReaderTestActorChangeFragment$key = {
   +$data?: RelayReaderTestActorChangeFragment$data,
-  +$fragmentRefs: RelayReaderTestActorChangeFragment$ref,
+  +$fragmentSpreads: RelayReaderTestActorChangeFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "fd02a74ad0fea268d2dc732ad2d56c26";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestActorChangeFragment$fragmentType,
+  RelayReaderTestActorChangeFragment$data,
+>*/);

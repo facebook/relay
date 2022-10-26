@@ -1,18 +1,31 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, WithLocation};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::WithLocation;
 use errors::validate;
-use graphql_ir::{LinkedField, Program, ScalarField, ValidationMessage, Validator};
-use interner::{Intern, StringKey};
-use schema::{FieldID, SDLSchema, Schema};
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use relay_config::SchemaConfig;
+use schema::FieldID;
+use schema::SDLSchema;
+use schema::Schema;
 
-pub fn disallow_reserved_aliases(program: &Program) -> DiagnosticsResult<()> {
-    let mut validator = DisallowReservedAliases::new(program);
+pub fn disallow_reserved_aliases(
+    program: &Program,
+    schema_config: &SchemaConfig,
+) -> DiagnosticsResult<()> {
+    let mut validator = DisallowReservedAliases::new(program, schema_config);
     validator.validate_program(program)
 }
 
@@ -22,10 +35,14 @@ struct DisallowReservedAliases<'program> {
 }
 
 impl<'program> DisallowReservedAliases<'program> {
-    fn new(program: &'program Program) -> Self {
+    fn new(program: &'program Program, schema_config: &SchemaConfig) -> Self {
         Self {
             program,
-            reserved_aliases: vec!["id".intern(), "__typename".intern(), "__id".intern()],
+            reserved_aliases: vec![
+                schema_config.node_interface_id_field,
+                "__typename".intern(),
+                "__id".intern(),
+            ],
         }
     }
 }

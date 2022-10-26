@@ -1,0 +1,25 @@
+query Foo {
+  client_type {
+    ...MyFragment
+  }
+}
+
+fragment MyFragment on ClientUnion {
+  __typename
+}
+
+# %extensions%
+
+extend type Query {
+  client_type: ClientType
+}
+
+type ClientType {
+  name: String
+}
+
+type OtherClientType {
+  name: String
+}
+
+union ClientUnion = ClientType | OtherClientType

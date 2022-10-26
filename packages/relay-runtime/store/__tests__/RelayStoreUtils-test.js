@@ -1,11 +1,11 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';
@@ -61,7 +61,7 @@ describe('RelayStoreUtils', () => {
     it('embeds variable values', () => {
       const UserFragment = graphql`
         fragment RelayStoreUtilsTest4Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           profilePicture(size: $size) {
             uri
           }
@@ -76,10 +76,10 @@ describe('RelayStoreUtils', () => {
     it('filters out arguments that are unset', () => {
       const UserFragment = graphql`
         fragment RelayStoreUtilsTest5Fragment on User
-          @argumentDefinitions(
-            preset: {type: "PhotoSize"}
-            size: {type: "[Int]"}
-          ) {
+        @argumentDefinitions(
+          preset: {type: "PhotoSize"}
+          size: {type: "[Int]"}
+        ) {
           profilePicture(preset: $preset, size: $size) {
             uri
           }
@@ -94,10 +94,10 @@ describe('RelayStoreUtils', () => {
     it('suppresses the argument list if all values are unset', () => {
       const UserFragment = graphql`
         fragment RelayStoreUtilsTest6Fragment on User
-          @argumentDefinitions(
-            preset: {type: "PhotoSize"}
-            size: {type: "[Int]"}
-          ) {
+        @argumentDefinitions(
+          preset: {type: "PhotoSize"}
+          size: {type: "[Int]"}
+        ) {
           profilePicture(preset: $preset, size: $size) {
             uri
           }

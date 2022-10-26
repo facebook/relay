@@ -1,15 +1,20 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult};
-use graphql_ir::{FragmentDefinition, OperationDefinition, Program, ValidationMessage, Validator};
-use graphql_syntax::OperationKind;
-
 mod extract_module_name;
+
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Validator;
+use graphql_syntax::OperationKind;
+use thiserror::Error;
 
 pub fn validate_module_names(program: &Program) -> DiagnosticsResult<()> {
     (ValidateModuleNames {}).validate_program(program)
@@ -25,7 +30,7 @@ impl Validator for ValidateModuleNames {
     const VALIDATE_DIRECTIVES: bool = true;
 
     fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
-        let operation_name = operation.name.item.to_string();
+        let operation_name = operation.name.item.0.to_string();
         let path = operation.name.location.source_location().path();
         let module_name = extract_module_name(path).expect("Unable to extract module name.");
         let (operation_type_suffix, pluralized_string) = match operation.kind {
@@ -73,4 +78,25 @@ impl Validator for ValidateModuleNames {
         }
         Ok(())
     }
+}
+
+#[derive(Debug, Error)]
+pub enum ValidationMessage {
+    #[error(
+        "{pluralized_string} in graphql tags must start with the module name ('{module_name}') and end with '{operation_type_suffix}'. Got '{operation_name}' instead."
+    )]
+    InvalidOperationName {
+        pluralized_string: String,
+        module_name: String,
+        operation_type_suffix: String,
+        operation_name: String,
+    },
+
+    #[error(
+        "Fragments in graphql tags must start with the module name ('{module_name}'). Got '{fragment_name}' instead."
+    )]
+    InvalidFragmentName {
+        module_name: String,
+        fragment_name: String,
+    },
 }

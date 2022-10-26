@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3c63b28052257399c12fb685057eaf57>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<6b2101bac612118a648c66c84db7de1e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayFragmentContainerTestUserFragment$ref = any;
-export type ReactRelayFragmentContainerTestUserWithCondQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { ReactRelayFragmentContainerTestUserFragment$fragmentType } from "./ReactRelayFragmentContainerTestUserFragment.graphql";
+export type ReactRelayFragmentContainerTestUserWithCondQuery$variables = {|
   condGlobal: boolean,
+  id: string,
 |};
-export type ReactRelayFragmentContainerTestUserWithCondQueryResponse = {|
+export type ReactRelayFragmentContainerTestUserWithCondQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: ReactRelayFragmentContainerTestUserFragment$ref,
+    +$fragmentSpreads: ReactRelayFragmentContainerTestUserFragment$fragmentType,
   |},
 |};
 export type ReactRelayFragmentContainerTestUserWithCondQuery = {|
-  variables: ReactRelayFragmentContainerTestUserWithCondQueryVariables,
-  response: ReactRelayFragmentContainerTestUserWithCondQueryResponse,
+  response: ReactRelayFragmentContainerTestUserWithCondQuery$data,
+  variables: ReactRelayFragmentContainerTestUserWithCondQuery$variables,
 |};
 */
 
@@ -158,4 +160,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "810e07ba9d2d6d4dd6194dd3f49b1211";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayFragmentContainerTestUserWithCondQuery$variables,
+  ReactRelayFragmentContainerTestUserWithCondQuery$data,
+>*/);

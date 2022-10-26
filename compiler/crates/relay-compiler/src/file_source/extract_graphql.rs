@@ -1,18 +1,44 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::{read_file_to_string, File, FileSourceResult};
-use crate::errors::Result;
+use std::fs;
+use std::path::Path;
+use std::path::PathBuf;
+
 use common::SourceLocationKey;
+use docblock_syntax::DocblockSource;
+use extract_graphql::JavaScriptSourceFeature;
 use graphql_syntax::GraphQLSource;
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use intern::Lookup;
+use serde::Deserialize;
+use serde::Serialize;
+
+use super::read_file_to_string;
+use super::File;
+use super::FileSourceResult;
+use crate::errors::Result;
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct LocatedGraphQLSource {
+    pub index: usize,
+    pub graphql_source: GraphQLSource,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct LocatedDocblockSource {
+    pub index: usize,
+    pub docblock_source: DocblockSource,
+}
+
+#[derive(Default)]
+pub struct LocatedJavascriptSourceFeatures {
+    pub graphql_sources: Vec<LocatedGraphQLSource>,
+    pub docblock_sources: Vec<LocatedDocblockSource>,
+}
 
 pub trait SourceReader {
     fn read_file_to_string(&self, path: &PathBuf) -> std::io::Result<String>;
@@ -28,34 +54,58 @@ impl SourceReader for FsSourceReader {
     }
 }
 
-/// Reads and extracts `graphql` tagged literals from a file.
-pub fn extract_graphql_strings_from_file(
+/// Reads and extracts `graphql` tagged literals and Relay-specific docblocks
+/// from a JavaScript file.
+pub fn extract_javascript_features_from_file(
     file_source_result: &FileSourceResult,
     file: &File,
-) -> Result<Vec<GraphQLSource>> {
+) -> Result<LocatedJavascriptSourceFeatures> {
     let contents = read_file_to_string(file_source_result, file)?;
-    Ok(extract_graphql::parse_chunks(&contents))
+    let features = extract_graphql::extract(&contents);
+    let mut graphql_sources = Vec::new();
+    let mut docblock_sources = Vec::new();
+    for (index, feature) in features.into_iter().enumerate() {
+        match feature {
+            JavaScriptSourceFeature::GraphQL(graphql_source) => {
+                graphql_sources.push(LocatedGraphQLSource {
+                    graphql_source,
+                    index,
+                })
+            }
+            JavaScriptSourceFeature::Docblock(docblock_source) => {
+                docblock_sources.push(LocatedDocblockSource {
+                    docblock_source,
+                    index,
+                })
+            }
+        }
+    }
+
+    Ok(LocatedJavascriptSourceFeatures {
+        graphql_sources,
+        docblock_sources,
+    })
 }
 
 pub fn source_for_location(
     root_dir: &Path,
     source_location: SourceLocationKey,
     source_reader: &dyn SourceReader,
-) -> Option<GraphQLSource> {
+) -> Option<JavaScriptSourceFeature> {
     match source_location {
         SourceLocationKey::Embedded { path, index } => {
             let absolute_path = root_dir.join(path.lookup());
             let contents = source_reader.read_file_to_string(&absolute_path).ok()?;
-            let file_sources = extract_graphql::parse_chunks(&contents);
-            file_sources.into_iter().nth(index.try_into().unwrap())
+            let file_sources = extract_graphql::extract(&contents);
+            file_sources.into_iter().nth(index.into())
         }
         SourceLocationKey::Standalone { path } => {
             let absolute_path = root_dir.join(path.lookup());
-            Some(GraphQLSource {
-                text: source_reader.read_file_to_string(&absolute_path).ok()?,
-                line_index: 0,
-                column_index: 0,
-            })
+            Some(JavaScriptSourceFeature::GraphQL(GraphQLSource::new(
+                source_reader.read_file_to_string(&absolute_path).ok()?,
+                0,
+                0,
+            )))
         }
         SourceLocationKey::Generated => None,
     }

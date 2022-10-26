@@ -1,11 +1,14 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
+
+/* eslint-disable no-unused-vars */
 
 'use strict';
 
@@ -40,9 +43,8 @@ declare module react {
 
   declare export var Component: typeof React$Component;
   declare export var PureComponent: typeof React$PureComponent;
-  declare export type StatelessFunctionalComponent<
-    P,
-  > = React$StatelessFunctionalComponent<P>;
+  declare export type StatelessFunctionalComponent<P> =
+    React$StatelessFunctionalComponent<P>;
   declare export type ComponentType<-P> = React$ComponentType<P>;
   declare export type AbstractComponent<
     -Config,
@@ -50,7 +52,6 @@ declare module react {
   > = React$AbstractComponent<Config, Instance>;
   declare export type MixedElement = React$MixedElement;
   declare export type ElementType = React$ElementType;
-  // eslint-disable-next-line lint/flow-react-element
   declare export type Element<+C> = React$Element<C>;
   declare export var Fragment: React$FragmentType;
   declare export type Key = React$Key;

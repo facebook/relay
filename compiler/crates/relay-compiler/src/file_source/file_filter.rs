@@ -1,22 +1,22 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::path::Path;
+use std::path::PathBuf;
+
 use fnv::FnvHashSet;
 use glob::Pattern;
-use interner::StringKey;
+use intern::string_key::StringKey;
 
-use crate::{
-    compiler_state::SourceSet,
-    config::{Config, SchemaLocation},
-};
-use std::path::{Path, PathBuf};
+use crate::config::Config;
+use crate::config::SchemaLocation;
 
 /// The FileFilter is intended to be used for input sources other than
-/// Watchman. The FileFilter is created from `Config` and trys to replicate
+/// Watchman. The FileFilter is created from `Config` and tries to replicate
 /// the filtering done in Watchman. One addition is that this can filter
 /// out files from disabled projects.
 /// It allows paths defined in `config.sources` with `config.excludes` applied,
@@ -64,7 +64,7 @@ fn get_extra_roots(config: &Config, enabled_projects: &FnvHashSet<StringKey>) ->
         if !enabled_projects.contains(&project_config.name) {
             continue;
         }
-        roots.extend(&project_config.extensions);
+        roots.extend(&project_config.schema_extensions);
         if let Some(output_dir) = &project_config.output {
             roots.push(output_dir);
         }
@@ -83,13 +83,10 @@ fn get_sources_root(config: &Config, enabled_projects: &FnvHashSet<StringKey>) -
         config
             .sources
             .iter()
-            .filter_map(|(path, source_set)| {
-                let is_enabled = match source_set {
-                    SourceSet::SourceSetName(name) => enabled_projects.contains(name),
-                    SourceSet::SourceSetNames(names) => {
-                        names.iter().any(|name| enabled_projects.contains(name))
-                    }
-                };
+            .filter_map(|(path, project_set)| {
+                let is_enabled = project_set
+                    .iter()
+                    .any(|name| enabled_projects.contains(name));
                 is_enabled.then(|| path)
             })
             .collect(),

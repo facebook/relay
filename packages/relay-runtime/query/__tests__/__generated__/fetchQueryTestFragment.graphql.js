@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ef934a039bbabddc75989cf31329f99c>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<69b03fe2ef943cb8e38c889443fa1224>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +17,16 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type fetchQueryTestFragment$ref: FragmentReference;
-declare export opaque type fetchQueryTestFragment$fragmentType: fetchQueryTestFragment$ref;
-export type fetchQueryTestFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type fetchQueryTestFragment$fragmentType: FragmentType;
+export type fetchQueryTestFragment$data = {|
   +name: string,
-  +$refType: fetchQueryTestFragment$ref,
+  +$fragmentType: fetchQueryTestFragment$fragmentType,
 |};
-export type fetchQueryTestFragment$data = fetchQueryTestFragment;
 export type fetchQueryTestFragment$key = {
   +$data?: fetchQueryTestFragment$data,
-  +$fragmentRefs: fetchQueryTestFragment$ref,
+  +$fragmentSpreads: fetchQueryTestFragment$fragmentType,
   ...
 };
 */
@@ -58,4 +58,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7f2fe4c26db9bf66d873fc1d67d8b378";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  fetchQueryTestFragment$fragmentType,
+  fetchQueryTestFragment$data,
+>*/);

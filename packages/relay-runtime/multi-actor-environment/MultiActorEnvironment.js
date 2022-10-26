@@ -1,12 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -161,9 +161,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         handlers: [],
         defaultActorIdentifier: actorEnvironment.actorIdentifier,
         getSourceForActor: actorIdentifier => {
-          return this.forActor(actorIdentifier)
-            .getStore()
-            .getSource();
+          return this.forActor(actorIdentifier).getStore().getSource();
         },
         getTargetForActor: () => {
           return RelayRecordSource.create();
@@ -189,9 +187,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       handlers,
       defaultActorIdentifier: actorEnvironment.actorIdentifier,
       getSourceForActor: actorIdentifier => {
-        return this.forActor(actorIdentifier)
-          .getStore()
-          .getSource();
+        return this.forActor(actorIdentifier).getStore().getSource();
       },
       getTargetForActor: actorIdentifier => {
         let target = targets.get(actorIdentifier);
@@ -355,7 +351,7 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       updater,
     }: {
       operation: OperationDescriptor,
-      updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+      updater?: ?SelectorStoreUpdater<TMutation['response']>,
     },
   ): RelayObservable<GraphQLResponse> {
     return this._execute(actorEnvironment, {
@@ -447,13 +443,13 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       operation,
       optimisticConfig,
       updater,
-    }: {|
+    }: {
       createSource: () => RelayObservable<GraphQLResponse>,
       isClientPayload: boolean,
       operation: OperationDescriptor,
       optimisticConfig: ?OptimisticResponseConfig<TMutation>,
-      updater: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
-    |},
+      updater: ?SelectorStoreUpdater<TMutation['response']>,
+    },
   ): RelayObservable<GraphQLResponse> {
     return RelayObservable.create(sink => {
       const executor = OperationExecutor.execute({

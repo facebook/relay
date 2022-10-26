@@ -27,32 +27,32 @@ query RelayClientIDFieldQuery($id: ID!) {
   }
 }
 ==================================== OUTPUT ===================================
-export type RelayClientIDFieldQueryVariables = {|
+export type RelayClientIDFieldQuery$variables = {|
   id: string,
 |};
-export type RelayClientIDFieldQueryResponse = {|
+export type RelayClientIDFieldQuery$data = {|
   +__id: string,
   +me: ?{|
+    +__typename: "User",
     +__id: string,
-    +__typename: string,
     +id: string,
   |},
   +node: ?{|
-    +__id: string,
     +__typename: string,
-    +id: string,
+    +__id: string,
     +commentBody?: ?{|
-      +__id: string,
       +__typename: string,
+      +__id: string,
       +text?: ?{|
+        +__typename: "Text",
         +__id: string,
-        +__typename: string,
         +text: ?string,
       |},
     |},
+    +id: string,
   |},
 |};
 export type RelayClientIDFieldQuery = {|
-  variables: RelayClientIDFieldQueryVariables,
-  response: RelayClientIDFieldQueryResponse,
+  response: RelayClientIDFieldQuery$data,
+  variables: RelayClientIDFieldQuery$variables,
 |};

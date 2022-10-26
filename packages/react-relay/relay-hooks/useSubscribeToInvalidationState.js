@@ -1,19 +1,17 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
-import type {DataID, Disposable, InvalidationState} from 'relay-runtime';
+import type {DataID, Disposable} from 'relay-runtime';
 
 const useRelayEnvironment = require('./useRelayEnvironment');
 const {useEffect, useRef} = require('react');
@@ -34,9 +32,7 @@ function useSubscribeToInvalidationState(
   const environment = useRelayEnvironment();
   const disposableRef = useRef(null);
 
-  const stableDataIDs = Array.from(dataIDs)
-    .sort()
-    .join('');
+  const stableDataIDs = Array.from(dataIDs).sort().join('');
   useEffect(() => {
     const store = environment.getStore();
     const invalidationState = store.lookupInvalidationState(dataIDs);

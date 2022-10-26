@@ -1,13 +1,17 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, Span};
+use std::fmt;
 
-use crate::{ExecutableDefinition, TypeSystemDefinition};
+use common::Location;
+use common::Span;
+
+use crate::ExecutableDefinition;
+use crate::TypeSystemDefinition;
 
 /// A GraphQL document containing any type of definition. This can represent
 /// any GraphQL document.
@@ -38,4 +42,16 @@ pub struct ExecutableDocument {
 pub struct SchemaDocument {
     pub location: Location,
     pub definitions: Vec<TypeSystemDefinition>,
+}
+
+impl fmt::Display for SchemaDocument {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let v = self
+            .definitions
+            .iter()
+            .map(|definition| definition.to_string())
+            .collect::<Vec<String>>()
+            .join("\n");
+        writeln!(f, "{}", v)
+    }
 }

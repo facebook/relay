@@ -1,17 +1,20 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {
   MultiActorEnvironment,
@@ -19,7 +22,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -54,7 +57,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       beforeEach(() => {
         RelayFeatureFlags.ENABLE_REACT_FLIGHT_COMPONENT_FIELD = true;
 
-        FlightQuery = getRequest(graphql`
+        FlightQuery = graphql`
           query RelayModernEnvironmentExecuteWithFlightTestFlightQuery(
             $id: ID!
             $count: Int!
@@ -65,9 +68,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        InnerQuery = getRequest(graphql`
+        InnerQuery = graphql`
           query RelayModernEnvironmentExecuteWithFlightTestInnerQuery(
             $id: ID!
           ) {
@@ -77,7 +80,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
         reactFlightPayloadDeserializer = jest.fn(payload => {
           return {
@@ -90,8 +93,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         error = jest.fn();
         next = jest.fn();
         callbacks = {complete, error, next};
-        fetch = (_query, _variables, _cacheConfig) => {
-          return RelayObservable.create(sink => {
+        fetch = (
+          _query: RequestParameters,
+          _variables: Variables,
+          _cacheConfig: CacheConfig,
+        ) => {
+          return RelayObservable.create<$FlowFixMe>(sink => {
             dataSource = sink;
           });
         };
@@ -135,7 +142,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       it('loads the Flight field and normalizes/publishes the field payload', () => {
         environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
-        const payload = {
+        const payload: $FlowFixMe = {
           data: {
             node: {
               id: '1',
@@ -202,7 +209,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       it('updates the Flight field on refetch', () => {
         environment.retain(operation);
         environment.execute({operation}).subscribe(callbacks);
-        const initialPayload = {
+        const initialPayload: $FlowFixMe = {
           data: {
             node: {
               id: '1',
@@ -242,7 +249,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             },
           },
         };
-        const nextPayload = {
+        const nextPayload: $FlowFixMe = {
           data: {
             node: {
               id: '1',
@@ -353,7 +360,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
           it('calls ReactFlightServerErrorHandler', () => {
             environment.execute({operation}).subscribe(callbacks);
-            const payload = {
+            const payload: $FlowFixMe = {
               data: {
                 node: {
                   id: '1',
@@ -395,7 +402,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         describe('no ReactFlightServerErrorHandler is specified', () => {
           it('warns', () => {
             environment.execute({operation}).subscribe(callbacks);
-            const payload = {
+            const payload: $FlowFixMe = {
               data: {
                 node: {
                   id: '1',
@@ -438,7 +445,7 @@ Error
       describe('when checking availability', () => {
         it('returns available if all data exists in the environment', () => {
           environment.execute({operation}).subscribe(callbacks);
-          const payload = {
+          const payload: $FlowFixMe = {
             data: {
               node: {
                 id: '1',
@@ -493,7 +500,7 @@ Error
 
         it('returns missing if `tree` is null in the payload', () => {
           environment.execute({operation}).subscribe(callbacks);
-          const payload = {
+          const payload: $FlowFixMe = {
             data: {
               node: {
                 id: '1',
@@ -545,7 +552,7 @@ Error
 
         it('returns missing if `queries` is null in the payload', () => {
           environment.execute({operation}).subscribe(callbacks);
-          const payload = {
+          const payload: $FlowFixMe = {
             data: {
               node: {
                 id: '1',
@@ -580,7 +587,7 @@ Error
 
         it('returns missing if the inner query is missing data', () => {
           environment.execute({operation}).subscribe(callbacks);
-          const payload = {
+          const payload: $FlowFixMe = {
             data: {
               node: {
                 id: '1',
@@ -712,7 +719,7 @@ Error
       describe('when the response is malformed', () => {
         it('warns if the row protocol is null', () => {
           environment.execute({operation}).subscribe(callbacks);
-          const payload = {
+          const payload: $FlowFixMe = {
             data: {
               node: {
                 id: '1',

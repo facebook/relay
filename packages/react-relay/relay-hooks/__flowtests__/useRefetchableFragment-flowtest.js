@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 import type {
   FetchFn,
@@ -80,7 +78,7 @@ useRefetchableFragment<QueryOperation, _>(fragmentInput, fragmentData);
 declare var variables: QueryVariables;
 declare var environment: IEnvironment;
 
-const [_, refetch] = useRefetchableFragment<QueryOperation, _>(
+const [, refetch] = useRefetchableFragment<QueryOperation, _>(
   fragmentInput,
   keyNonNullable,
 );

@@ -89,6 +89,7 @@ fragment abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpread_NodeFr
     ]
   },
   "params": {
+    "cacheID": "60e9b9f0d89c6dfcec940caf231e5f2c",
     "id": null,
     "metadata": {},
     "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorFragmentSpread_AbstractTypeRefinementQuery",

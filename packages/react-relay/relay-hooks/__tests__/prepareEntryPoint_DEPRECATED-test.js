@@ -1,20 +1,25 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 const prepareEntryPoint_DEPRECATED = require('../prepareEntryPoint_DEPRECATED');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 class FakeJSResource<T> {
   _resolve: (T => mixed) | null;
@@ -48,7 +53,7 @@ test('it should preload entry point with queries', () => {
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
   const entryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: {id: string}) {
       return {
         queries: {
           myTestQuery: {
@@ -89,7 +94,7 @@ test('it should preload entry point with nested entry points', () => {
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
   const nestedEntryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: $FlowFixMe) {
       return {
         queries: {
           myNestedQuery: {
@@ -113,7 +118,7 @@ test('it should preload entry point with nested entry points', () => {
     root: (new FakeJSResource(null): $FlowFixMe),
   };
   const entryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: {id: string}) {
       return {
         entryPoints: {
           myNestedEntryPoint: {
@@ -147,7 +152,7 @@ test('it should preload entry point with both queries and nested entry points', 
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
   const nestedEntryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: $FlowFixMe) {
       return {
         queries: {
           myNestedQuery: {
@@ -171,7 +176,7 @@ test('it should preload entry point with both queries and nested entry points', 
     root: (new FakeJSResource(null): $FlowFixMe),
   };
   const entryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: {id: string}) {
       return {
         queries: {
           myTestQuery: {
@@ -222,7 +227,7 @@ test('with `getEnvironment` function', () => {
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
   const entryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: {id: string}) {
       return {
         queries: {
           myTestQuery: {

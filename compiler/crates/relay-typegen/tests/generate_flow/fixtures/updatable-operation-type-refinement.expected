@@ -1,0 +1,40 @@
+==================================== INPUT ====================================
+query UpdatableQuery @updatable {
+  maybeNodeInterface {
+    ... on NonNodeNoID {
+      __typename
+      name
+    }
+    ... on Story {
+      __typename
+      actorCount
+      address {
+        city
+      }
+    }
+  }
+}
+==================================== OUTPUT ===================================
+export type UpdatableQuery$variables = {||};
+export type UpdatableQuery$data = {|
+  get maybeNodeInterface(): ?({|
+    +__typename: "NonNodeNoID",
+    name: ?string,
+  |} | {|
+    +__typename: "Story",
+    actorCount: ?number,
+    get address(): ?{|
+      city: ?string,
+    |},
+    set address(value: null | void): void,
+  |} | {|
+    // This will never be '%other', but we need some
+    // value in case none of the concrete values match.
+    +__typename: "%other",
+  |}),
+  set maybeNodeInterface(value: null | void): void,
+|};
+export type UpdatableQuery = {|
+  response: UpdatableQuery$data,
+  variables: UpdatableQuery$variables,
+|};

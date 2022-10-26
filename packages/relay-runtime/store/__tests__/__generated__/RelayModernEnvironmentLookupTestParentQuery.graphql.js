@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8d8abc4833c084b07c0b81d2dbdae427>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<9f8f432e93dc3be7a46edaa5b0da7d4a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentLookupTestChildFragment$ref = any;
-export type RelayModernEnvironmentLookupTestParentQueryVariables = {||};
-export type RelayModernEnvironmentLookupTestParentQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentLookupTestChildFragment$fragmentType } from "./RelayModernEnvironmentLookupTestChildFragment.graphql";
+export type RelayModernEnvironmentLookupTestParentQuery$variables = {||};
+export type RelayModernEnvironmentLookupTestParentQuery$data = {|
   +me: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: RelayModernEnvironmentLookupTestChildFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentLookupTestChildFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentLookupTestParentQuery = {|
-  variables: RelayModernEnvironmentLookupTestParentQueryVariables,
-  response: RelayModernEnvironmentLookupTestParentQueryResponse,
+  response: RelayModernEnvironmentLookupTestParentQuery$data,
+  variables: RelayModernEnvironmentLookupTestParentQuery$variables,
 |};
 */
 
@@ -111,4 +113,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "34b779d9c927d69f53328fb1463c2e06";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentLookupTestParentQuery$variables,
+  RelayModernEnvironmentLookupTestParentQuery$data,
+>*/);

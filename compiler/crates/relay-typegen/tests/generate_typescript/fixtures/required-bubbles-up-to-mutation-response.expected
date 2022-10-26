@@ -8,9 +8,9 @@ mutation CommentCreateMutation($input: CommentCreateInput!) {
 }
 ==================================== OUTPUT ===================================
 export type CommentCreateInput = {
-  clientMutationId?: string | null;
-  feedbackId?: string | null;
+  client_mutation_id: string;
   feedback?: CommentfeedbackFeedback | null;
+  feedbackId?: string | null;
 };
 export type CommentfeedbackFeedback = {
   comment?: FeedbackcommentComment | null;
@@ -18,10 +18,10 @@ export type CommentfeedbackFeedback = {
 export type FeedbackcommentComment = {
   feedback?: CommentfeedbackFeedback | null;
 };
-export type CommentCreateMutationVariables = {
+export type CommentCreateMutation$variables = {
   input: CommentCreateInput;
 };
-export type CommentCreateMutationResponse = {
+export type CommentCreateMutation$data = {
   readonly commentCreate: {
     readonly comment: {
       readonly id: string;
@@ -29,6 +29,6 @@ export type CommentCreateMutationResponse = {
   };
 } | null;
 export type CommentCreateMutation = {
-  variables: CommentCreateMutationVariables;
-  response: CommentCreateMutationResponse;
+  response: CommentCreateMutation$data;
+  variables: CommentCreateMutation$variables;
 };

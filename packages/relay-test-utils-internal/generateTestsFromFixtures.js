@@ -1,10 +1,11 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -49,9 +50,10 @@ function generateTestsFromFixtures(
 
   const onlyFixtures = fixtures.filter(name => name.startsWith('only.'));
   if (onlyFixtures.length) {
-    test.skip.each(
-      fixtures.filter(name => !name.startsWith('only.')),
-    )('matches expected output: %s', () => {});
+    test.skip.each(fixtures.filter(name => !name.startsWith('only.')))(
+      'matches expected output: %s',
+      () => {},
+    );
     fixtures = onlyFixtures;
   }
   test.each(fixtures)('matches expected output: %s', file => {

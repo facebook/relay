@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<78987ed12f342dc432df8f20ac3ce0a1>>
+ * @generated SignedSource<<7414a7d21db69b967b49c36af99ace12>>
  */
 
 mod extract;
@@ -48,6 +48,20 @@ fn quote_in_jsx() {
 }
 
 #[test]
+fn relay_resolver() {
+    let input = include_str!("extract/fixtures/relay_resolver.js");
+    let expected = include_str!("extract/fixtures/relay_resolver.expected");
+    test_fixture(transform_fixture, "relay_resolver.js", "extract/fixtures/relay_resolver.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_and_graphql() {
+    let input = include_str!("extract/fixtures/relay_resolver_and_graphql.js");
+    let expected = include_str!("extract/fixtures/relay_resolver_and_graphql.expected");
+    test_fixture(transform_fixture, "relay_resolver_and_graphql.js", "extract/fixtures/relay_resolver_and_graphql.expected", input, expected);
+}
+
+#[test]
 fn simple() {
     let input = include_str!("extract/fixtures/simple.flow");
     let expected = include_str!("extract/fixtures/simple.expected");
@@ -55,8 +69,22 @@ fn simple() {
 }
 
 #[test]
+fn tabbed() {
+    let input = include_str!("extract/fixtures/tabbed.js");
+    let expected = include_str!("extract/fixtures/tabbed.expected");
+    test_fixture(transform_fixture, "tabbed.js", "extract/fixtures/tabbed.expected", input, expected);
+}
+
+#[test]
 fn template_literal() {
     let input = include_str!("extract/fixtures/template_literal.js");
     let expected = include_str!("extract/fixtures/template_literal.expected");
     test_fixture(transform_fixture, "template_literal.js", "extract/fixtures/template_literal.expected", input, expected);
+}
+
+#[test]
+fn with_space() {
+    let input = include_str!("extract/fixtures/with_space.js");
+    let expected = include_str!("extract/fixtures/with_space.expected");
+    test_fixture(transform_fixture, "with_space.js", "extract/fixtures/with_space.expected", input, expected);
 }

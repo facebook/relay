@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<30a14ff5bbca3bbd87946a1d480df14e>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<294c647ee395bc40905542cf5c12d28b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -14,21 +16,23 @@
 
 'use strict';
 
+// @indirectDataDrivenDependency RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment.actor.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$ref = any;
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType } from "./RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment.graphql";
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentQueryResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentQuery$data = {|
   +node: ?{|
     +id: string,
-    +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentQuery = {|
-  variables: RelayModernEnvironmentExecuteMutationWithMatchTestCommentQueryVariables,
-  response: RelayModernEnvironmentExecuteMutationWithMatchTestCommentQueryResponse,
+  response: RelayModernEnvironmentExecuteMutationWithMatchTestCommentQuery$data,
+  variables: RelayModernEnvironmentExecuteMutationWithMatchTestCommentQuery$variables,
 |};
 */
 
@@ -201,4 +205,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "85aee16ac1e83847bd25d209521afc27";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteMutationWithMatchTestCommentQuery$variables,
+  RelayModernEnvironmentExecuteMutationWithMatchTestCommentQuery$data,
+>*/);

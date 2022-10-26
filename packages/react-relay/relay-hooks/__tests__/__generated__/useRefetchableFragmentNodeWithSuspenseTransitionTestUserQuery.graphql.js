@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<92659b16413c7bd69b25f7d743f15811>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<acb294d3c27b4dc7e0f059b7e765600c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$ref = any;
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType } from "./useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment.graphql";
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables = {|
   id: string,
   scale: number,
 |};
-export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQueryResponse = {|
+export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$ref,
+    +$fragmentSpreads: useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment$fragmentType,
   |},
 |};
 export type useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery = {|
-  variables: useRefetchableFragmentNodeWithSuspenseTransitionTestUserQueryVariables,
-  response: useRefetchableFragmentNodeWithSuspenseTransitionTestUserQueryResponse,
+  response: useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data,
+  variables: useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables,
 |};
 */
 
@@ -172,4 +174,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7dd300784a6642a4b84870d9abd398b9";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$variables,
+  useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery$data,
+>*/);

@@ -1,18 +1,15 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict
  * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
-export type RecordState = $Keys<typeof RelayRecordState>;
 
 const RelayRecordState = {
   /**
@@ -33,5 +30,7 @@ const RelayRecordState = {
    */
   UNKNOWN: 'UNKNOWN',
 };
+
+export type RecordState = $Keys<typeof RelayRecordState>;
 
 module.exports = RelayRecordState;

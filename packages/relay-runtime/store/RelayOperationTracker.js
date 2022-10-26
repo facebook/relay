@@ -1,16 +1,16 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {RequestIdentifier} from '../util/getRequestIdentifier';
 
 import type {RequestDescriptor} from './RelayStoreTypes';
 
@@ -21,11 +21,11 @@ class RelayOperationTracker {
   _pendingOperationsToOwners: Map<string, Set<string>>;
   _ownersToPendingPromise: Map<
     string,
-    {|
+    {
       promise: Promise<void>,
       resolve: () => void,
       pendingOperations: $ReadOnlyArray<RequestDescriptor>,
-    |},
+    },
   >;
 
   constructor() {
@@ -46,12 +46,11 @@ class RelayOperationTracker {
       return;
     }
     const pendingOperationIdentifier = pendingOperation.identifier;
-    const newlyAffectedOwnersIdentifier = new Set();
+    const newlyAffectedOwnersIdentifier = new Set<RequestIdentifier>();
     for (const owner of affectedOwners) {
       const ownerIdentifier = owner.identifier;
-      const pendingOperationsAffectingOwner = this._ownersToPendingOperations.get(
-        ownerIdentifier,
-      );
+      const pendingOperationsAffectingOwner =
+        this._ownersToPendingOperations.get(ownerIdentifier);
       if (pendingOperationsAffectingOwner != null) {
         // In this case the `ownerIdentifier` already affected by some operations
         // We just need to detect, is it the same operation that we already
@@ -107,15 +106,14 @@ class RelayOperationTracker {
       return;
     }
     // These were the owners affected only by `pendingOperationIdentifier`
-    const completedOwnersIdentifier = new Set();
+    const completedOwnersIdentifier = new Set<string>();
 
     // These were the owners affected by `pendingOperationIdentifier`
     // and some other operations
-    const updatedOwnersIdentifier = new Set();
+    const updatedOwnersIdentifier = new Set<string>();
     for (const ownerIdentifier of affectedOwnersIdentifier) {
-      const pendingOperationsAffectingOwner = this._ownersToPendingOperations.get(
-        ownerIdentifier,
-      );
+      const pendingOperationsAffectingOwner =
+        this._ownersToPendingOperations.get(ownerIdentifier);
       if (!pendingOperationsAffectingOwner) {
         continue;
       }
@@ -151,16 +149,13 @@ class RelayOperationTracker {
     this._ownersToPendingPromise.delete(ownerIdentifier);
   }
 
-  getPendingOperationsAffectingOwner(
-    owner: RequestDescriptor,
-  ): {|
+  getPendingOperationsAffectingOwner(owner: RequestDescriptor): {
     promise: Promise<void>,
     pendingOperations: $ReadOnlyArray<RequestDescriptor>,
-  |} | null {
+  } | null {
     const ownerIdentifier = owner.identifier;
-    const pendingOperationsForOwner = this._ownersToPendingOperations.get(
-      ownerIdentifier,
-    );
+    const pendingOperationsForOwner =
+      this._ownersToPendingOperations.get(ownerIdentifier);
     if (
       pendingOperationsForOwner == null ||
       pendingOperationsForOwner.size === 0
@@ -168,9 +163,8 @@ class RelayOperationTracker {
       return null;
     }
 
-    const cachedPromiseEntry = this._ownersToPendingPromise.get(
-      ownerIdentifier,
-    );
+    const cachedPromiseEntry =
+      this._ownersToPendingPromise.get(ownerIdentifier);
     if (cachedPromiseEntry != null) {
       return {
         promise: cachedPromiseEntry.promise,

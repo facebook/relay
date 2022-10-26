@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -33,7 +31,6 @@ import type {
 const {
   Observable,
   PreloadableQueryRegistry,
-  RelayFeatureFlags,
   ReplaySubject,
   createOperationDescriptor,
   getRequest,
@@ -47,11 +44,11 @@ const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 const STORE_OR_NETWORK_DEFAULT: PreloadFetchPolicy = 'store-or-network';
 
 const pendingQueriesByEnvironment = WEAKMAP_SUPPORTED
-  ? new WeakMap()
+  ? new WeakMap<IEnvironment, Map<string, PendingQueryEntry>>()
   : new Map();
 
 type PendingQueryEntry =
-  | $ReadOnly<{|
+  | $ReadOnly<{
       cacheKey: string,
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
@@ -61,8 +58,8 @@ type PendingQueryEntry =
       status: PreloadQueryStatus,
       subject: ReplaySubject<GraphQLResponse>,
       subscription: Subscription,
-    |}>
-  | $ReadOnly<{|
+    }>
+  | $ReadOnly<{
       cacheKey: string,
       fetchKey: ?string | ?number,
       fetchPolicy: PreloadFetchPolicy,
@@ -70,7 +67,7 @@ type PendingQueryEntry =
       id: ?string,
       name: string,
       status: PreloadQueryStatus,
-    |}>;
+    }>;
 
 function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   environment: IEnvironment,
@@ -94,7 +91,7 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   );
   const source =
     queryEntry.kind === 'network'
-      ? Observable.create(sink => {
+      ? Observable.create<GraphQLResponse>(sink => {
           let subscription;
           if (pendingQueries.get(queryEntry.cacheKey) == null) {
             const newQueryEntry = preloadQueryDeduped(
@@ -115,20 +112,13 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
             if (environment.isServer()) {
               return;
             }
-            if (
-              RelayFeatureFlags.DELAY_CLEANUP_OF_PENDING_PRELOAD_QUERIES ===
-              true
-            ) {
-              setTimeout(() => {
-                // Clear the cache entry after the default timeout
-                // null-check for Flow
-                if (queryEntry != null) {
-                  cleanup(pendingQueries, queryEntry);
-                }
-              }, DEFAULT_PREFETCH_TIMEOUT);
-            } else {
-              cleanup(pendingQueries, queryEntry);
-            }
+            setTimeout(() => {
+              // Clear the cache entry after the default timeout
+              // null-check for Flow
+              if (queryEntry != null) {
+                cleanup(pendingQueries, queryEntry);
+              }
+            }, DEFAULT_PREFETCH_TIMEOUT);
           };
         })
       : null;
@@ -157,7 +147,8 @@ function preloadQueryDeduped<TQuery: OperationType>(
   let params;
   let query: ?ConcreteRequest;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
-    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> = (preloadableRequest: $FlowFixMe);
+    const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> =
+      (preloadableRequest: $FlowFixMe);
     params = preloadableConcreteRequest.params;
     query = params.id != null ? PreloadableQueryRegistry.get(params.id) : null;
   } else {

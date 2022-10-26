@@ -1,11 +1,12 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use common::SourceLocationKey;
+use common::TextSource;
 use fixture_tests::Fixture;
 use fnv::FnvHashMap;
 use graphql_cli::DiagnosticPrinter;
@@ -31,7 +32,9 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 errors
                     .into_iter()
                     .map(|error| {
-                        let printer = DiagnosticPrinter::new(|_| Some(fixture.content.to_string()));
+                        let printer = DiagnosticPrinter::new(|_| {
+                            Some(TextSource::from_whole_document(fixture.content.to_string()))
+                        });
                         printer.diagnostic_to_string(&error)
                     })
                     .collect::<Vec<_>>()

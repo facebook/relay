@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b883787a099f210ddaff6d03072fe216>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<073d1d174775daaac06d462623886192>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayPaginationContainerFlowtest_viewer$ref = any;
-export type ReactRelayPaginationContainerFlowtestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { ReactRelayPaginationContainerFlowtest_viewer$fragmentType } from "./ReactRelayPaginationContainerFlowtest_viewer.graphql";
+export type ReactRelayPaginationContainerFlowtestQuery$variables = {|
   count: number,
   cursor?: ?string,
 |};
-export type ReactRelayPaginationContainerFlowtestQueryResponse = {|
+export type ReactRelayPaginationContainerFlowtestQuery$data = {|
   +viewer: ?{|
-    +$fragmentRefs: ReactRelayPaginationContainerFlowtest_viewer$ref,
+    +$fragmentSpreads: ReactRelayPaginationContainerFlowtest_viewer$fragmentType,
   |},
 |};
 export type ReactRelayPaginationContainerFlowtestQuery = {|
-  variables: ReactRelayPaginationContainerFlowtestQueryVariables,
-  response: ReactRelayPaginationContainerFlowtestQueryResponse,
+  response: ReactRelayPaginationContainerFlowtestQuery$data,
+  variables: ReactRelayPaginationContainerFlowtestQuery$variables,
 |};
 */
 
@@ -219,4 +221,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "712afeafa1f51bfe391719629a0fcea0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayPaginationContainerFlowtestQuery$variables,
+  ReactRelayPaginationContainerFlowtestQuery$data,
+>*/);

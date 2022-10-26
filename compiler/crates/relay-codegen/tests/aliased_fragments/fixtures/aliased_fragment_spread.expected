@@ -1,0 +1,58 @@
+==================================== INPUT ====================================
+fragment RelayReaderNamedFragmentsTest_user on User {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  me {
+    ...RelayReaderNamedFragmentsTest_user @alias(as: "aliased_fragment")
+  }
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "RelayReaderNamedFragmentsTest_user",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Operation",
+  "name": "RelayReaderNamedFragmentsTest2Query",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "concreteType": "User",
+      "kind": "LinkedField",
+      "name": "me",
+      "plural": false,
+      "selections": [
+        {
+          "fragment": {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "RelayReaderNamedFragmentsTest_user"
+          },
+          "kind": "AliasedFragmentSpread",
+          "name": "aliased_fragment",
+          "type": "User",
+          "abstractKey": null
+        }
+      ],
+      "storageKey": null
+    }
+  ]
+}

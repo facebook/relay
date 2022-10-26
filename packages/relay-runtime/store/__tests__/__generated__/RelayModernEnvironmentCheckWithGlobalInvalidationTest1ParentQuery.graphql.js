@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3dbde118796029947229cbae1d808d45>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<1bf677c2dce1ab8d280c6c13a30fdc6c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +17,11 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$variables = {|
   size: $ReadOnlyArray<?number>,
 |};
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQueryResponse = {|
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$data = {|
   +me: ?{|
     +id: string,
     +name: ?string,
@@ -29,8 +31,8 @@ export type RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQueryRes
   |},
 |};
 export type RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery = {|
-  variables: RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQueryVariables,
-  response: RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQueryResponse,
+  response: RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$data,
+  variables: RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$variables,
 |};
 */
 
@@ -125,4 +127,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "6b6025e9bbd2d6277cea03a606e6b573";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$variables,
+  RelayModernEnvironmentCheckWithGlobalInvalidationTest1ParentQuery$data,
+>*/);

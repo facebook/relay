@@ -25,23 +25,23 @@ subscription TestSubscription($input: FeedbackLikeInput) {
   }
 }
 ==================================== OUTPUT ===================================
-export type ExampleQueryVariables = {|
+export type ExampleQuery$variables = {|
   id: string,
 |};
-export type ExampleQueryResponse = {|
+export type ExampleQuery$data = {|
   +node: ?{|
     +id: string,
   |},
 |};
 export type ExampleQuery = {|
-  variables: ExampleQueryVariables,
-  response: ExampleQueryResponse,
+  response: ExampleQuery$data,
+  variables: ExampleQuery$variables,
 |};
 -------------------------------------------------------------------------------
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
+  client_mutation_id: string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -49,10 +49,10 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type TestMutationVariables = {|
+export type TestMutation$variables = {|
   input: CommentCreateInput,
 |};
-export type TestMutationResponse = {|
+export type TestMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
       +id: string,
@@ -60,18 +60,17 @@ export type TestMutationResponse = {|
   |},
 |};
 export type TestMutation = {|
-  variables: TestMutationVariables,
-  response: TestMutationResponse,
+  response: TestMutation$data,
+  variables: TestMutation$variables,
 |};
 -------------------------------------------------------------------------------
 export type FeedbackLikeInput = {|
-  clientMutationId?: ?string,
   feedbackId?: ?string,
 |};
-export type TestSubscriptionVariables = {|
+export type TestSubscription$variables = {|
   input?: ?FeedbackLikeInput,
 |};
-export type TestSubscriptionResponse = {|
+export type TestSubscription$data = {|
   +feedbackLikeSubscribe: ?{|
     +feedback: ?{|
       +id: string,
@@ -79,20 +78,18 @@ export type TestSubscriptionResponse = {|
   |},
 |};
 export type TestSubscription = {|
-  variables: TestSubscriptionVariables,
-  response: TestSubscriptionResponse,
+  response: TestSubscription$data,
+  variables: TestSubscription$variables,
 |};
 -------------------------------------------------------------------------------
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ExampleFragment$ref: FragmentReference;
-declare export opaque type ExampleFragment$fragmentType: ExampleFragment$ref;
-export type ExampleFragment = {|
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ExampleFragment$fragmentType: FragmentType;
+export type ExampleFragment$data = {|
   +id: string,
-  +$refType: ExampleFragment$ref,
+  +$fragmentType: ExampleFragment$fragmentType,
 |};
-export type ExampleFragment$data = ExampleFragment;
 export type ExampleFragment$key = {
   +$data?: ExampleFragment$data,
-  +$fragmentRefs: ExampleFragment$ref,
+  +$fragmentSpreads: ExampleFragment$fragmentType,
   ...
 };

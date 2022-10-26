@@ -1,25 +1,46 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Named, WithLocation};
-use graphql_ir::{
-    Argument, Condition, ConditionValue, ConstantValue, Directive, ExecutableDefinition,
-    FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, OperationDefinition,
-    ScalarField, Selection, Value, VariableDefinition,
-};
-use graphql_syntax::OperationKind;
-use interner::StringKey;
-use schema::{SDLSchema, Schema};
-use std::fmt::{Result, Write};
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+
+use common::DirectiveName;
+use common::Named;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::Condition;
+use graphql_ir::ConditionValue;
+use graphql_ir::ConstantArgument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::ExecutableDefinition;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Value;
+use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
 
 pub fn print_ir(schema: &SDLSchema, definitions: &[ExecutableDefinition]) -> Vec<String> {
     definitions
         .iter()
-        .map(|def| print_definition(&schema, &def))
+        .map(|def| print_definition(schema, def))
         .collect()
 }
 
@@ -55,6 +76,12 @@ pub fn print_selections(schema: &SDLSchema, selections: &[Selection]) -> String 
     result
 }
 
+pub fn print_selection(schema: &SDLSchema, selection: &Selection) -> String {
+    let mut result = String::new();
+    write_selection(schema, selection, &mut result).unwrap();
+    result
+}
+
 pub fn print_arguments(
     schema: &SDLSchema,
     arguments: &[Argument],
@@ -65,15 +92,19 @@ pub fn print_arguments(
     result
 }
 
-pub fn print_directives(schema: &SDLSchema, directives: &[Directive]) -> String {
+pub fn print_directives(
+    schema: &SDLSchema,
+    directives: &[Directive],
+    options: PrinterOptions,
+) -> String {
     let mut result = String::new();
-    write_directives(schema, directives, &mut result).unwrap();
+    write_directives(schema, directives, options, &mut result).unwrap();
     result
 }
 
-pub fn print_value(schema: &SDLSchema, value: &Value) -> String {
+pub fn print_value(schema: &SDLSchema, value: &Value, options: PrinterOptions) -> String {
     let mut result = String::new();
-    write_value(schema, value, &mut result).unwrap();
+    write_value(schema, value, options, &mut result).unwrap();
     result
 }
 
@@ -81,8 +112,8 @@ pub fn write_definition(
     schema: &SDLSchema,
     definition: &ExecutableDefinition,
     mut result: &mut impl Write,
-) -> Result {
-    let printer = Printer::new(&schema, &mut result, PrinterOptions::default());
+) -> FmtResult {
+    let printer = Printer::new(schema, &mut result, PrinterOptions::default());
     printer.print_definition(definition)
 }
 
@@ -91,8 +122,8 @@ pub fn write_operation(
     operation: &OperationDefinition,
     options: PrinterOptions,
     mut result: &mut impl Write,
-) -> Result {
-    let printer = Printer::new(&schema, &mut result, options);
+) -> FmtResult {
+    let printer = Printer::new(schema, &mut result, options);
     printer.print_operation(operation)
 }
 
@@ -101,8 +132,8 @@ pub fn write_fragment(
     fragment: &FragmentDefinition,
     options: PrinterOptions,
     mut result: &mut impl Write,
-) -> Result {
-    let printer = Printer::new(&schema, &mut result, options);
+) -> FmtResult {
+    let printer = Printer::new(schema, &mut result, options);
     printer.print_fragment(fragment)
 }
 
@@ -110,9 +141,18 @@ pub fn write_selections(
     schema: &SDLSchema,
     selections: &[Selection],
     mut result: &mut impl Write,
-) -> Result {
-    let mut printer = Printer::new(&schema, &mut result, PrinterOptions::default());
+) -> FmtResult {
+    let mut printer = Printer::new(schema, &mut result, PrinterOptions::default());
     printer.print_selections(selections)
+}
+
+pub fn write_selection(
+    schema: &SDLSchema,
+    selection: &Selection,
+    mut result: &mut impl Write,
+) -> FmtResult {
+    let mut printer = Printer::new(schema, &mut result, PrinterOptions::default());
+    printer.print_selection(selection, None)
 }
 
 pub fn write_arguments(
@@ -120,29 +160,36 @@ pub fn write_arguments(
     arguments: &[Argument],
     options: PrinterOptions,
     mut result: &mut impl Write,
-) -> Result {
-    let mut printer = Printer::new(&schema, &mut result, options);
+) -> FmtResult {
+    let mut printer = Printer::new(schema, &mut result, options);
     printer.print_arguments(arguments)
 }
 
 pub fn write_directives(
     schema: &SDLSchema,
     directives: &[Directive],
+    options: PrinterOptions,
     mut result: &mut impl Write,
-) -> Result {
-    let mut printer = Printer::new(&schema, &mut result, PrinterOptions::default());
+) -> FmtResult {
+    let mut printer = Printer::new(schema, &mut result, options);
     printer.print_directives(directives, None, None)
 }
 
-pub fn write_value(schema: &SDLSchema, value: &Value, mut result: &mut impl Write) -> Result {
-    let mut printer = Printer::new(&schema, &mut result, PrinterOptions::default());
+pub fn write_value(
+    schema: &SDLSchema,
+    value: &Value,
+    options: PrinterOptions,
+    mut result: &mut impl Write,
+) -> FmtResult {
+    let mut printer = Printer::new(schema, &mut result, options);
     printer.print_value(value)
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone, Copy, Default)]
 pub struct PrinterOptions {
     pub compact: bool,
     pub sort_keys: bool,
+    pub json_format: bool,
     /// Print `data` from Directive nodes
     pub debug_directive_data: bool,
 }
@@ -164,35 +211,33 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         }
     }
 
-    fn print_definition(self, definition: &ExecutableDefinition) -> Result {
+    fn print_definition(self, definition: &ExecutableDefinition) -> FmtResult {
         match definition {
-            ExecutableDefinition::Operation(operation) => self.print_operation(&operation),
-            ExecutableDefinition::Fragment(fragment) => self.print_fragment(&fragment),
+            ExecutableDefinition::Operation(operation) => self.print_operation(operation),
+            ExecutableDefinition::Fragment(fragment) => self.print_fragment(fragment),
         }
     }
 
-    fn print_operation(mut self, operation: &OperationDefinition) -> Result {
-        let operation_kind = match operation.kind {
-            OperationKind::Query => "query",
-            OperationKind::Mutation => "mutation",
-            OperationKind::Subscription => "subscription",
-        };
-        let operation_name = operation.name.item;
-        write!(self.writer, "{} {}", operation_kind, operation_name)?;
+    fn print_operation(mut self, operation: &OperationDefinition) -> FmtResult {
+        write!(self.writer, "{} {}", operation.kind, operation.name.item)?;
         self.print_variable_definitions(&operation.variable_definitions)?;
         self.print_directives(&operation.directives, None, None)?;
         self.print_selections(&operation.selections)
     }
 
-    fn print_fragment(mut self, fragment: &FragmentDefinition) -> Result {
+    fn print_fragment(mut self, fragment: &FragmentDefinition) -> FmtResult {
         let fragment_name = fragment.name.item;
         let type_condition_name = self.schema.get_type_name(fragment.type_condition);
-        write!(
-            self.writer,
-            "fragment {} on {}",
-            fragment_name, type_condition_name
-        )
-        .unwrap();
+        write!(self.writer, "fragment {}", fragment_name)?;
+        if fragment
+            .directives
+            .named(DirectiveName("argumentDefinitions".intern()))
+            .is_none()
+        {
+            self.print_variable_definitions(&fragment.variable_definitions)?;
+        }
+        write!(self.writer, " on {}", type_condition_name)?;
+
         self.print_directives(
             &fragment.directives,
             None,
@@ -201,22 +246,23 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         self.print_selections(&fragment.selections)
     }
 
-    fn print_selections(&mut self, selections: &[Selection]) -> Result {
+    fn print_selections(&mut self, selections: &[Selection]) -> FmtResult {
         let len = selections.len();
         if len > 0 {
-            write!(self.writer, " {{")?;
+            self.print_optional_space()?;
+            write!(self.writer, "{{")?;
             self.indentation += 1;
-            self.next_line()?;
+            self.print_new_line(true)?;
 
             for (i, selection) in selections.iter().enumerate() {
                 self.print_selection(selection, None)?;
                 if i != len - 1 {
-                    self.next_line()?;
+                    self.print_item_separator()?;
                 }
             }
 
             self.indentation -= 1;
-            self.next_line()?;
+            self.print_new_line(true)?;
             write!(self.writer, "}}")?;
         } else {
             panic!(
@@ -230,32 +276,21 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         &mut self,
         selection: &Selection,
         conditions: Option<Vec<&Condition>>,
-    ) -> Result {
+    ) -> FmtResult {
         match selection {
-            Selection::ScalarField(field) => {
-                self.print_scalar_field(field, conditions)?;
-            }
-            Selection::LinkedField(field) => {
-                self.print_linked_field(field, conditions)?;
-            }
-            Selection::FragmentSpread(field) => {
-                self.print_fragment_spread(field, conditions)?;
-            }
-            Selection::InlineFragment(field) => {
-                self.print_inline_fragment(field, conditions)?;
-            }
-            Selection::Condition(field) => {
-                self.print_condition(field)?;
-            }
+            Selection::ScalarField(field) => self.print_scalar_field(field, conditions),
+            Selection::LinkedField(field) => self.print_linked_field(field, conditions),
+            Selection::FragmentSpread(field) => self.print_fragment_spread(field, conditions),
+            Selection::InlineFragment(field) => self.print_inline_fragment(field, conditions),
+            Selection::Condition(field) => self.print_condition(field),
         }
-        Ok(())
     }
 
     fn print_scalar_field(
         &mut self,
         field: &ScalarField,
         conditions: Option<Vec<&Condition>>,
-    ) -> Result {
+    ) -> FmtResult {
         let schema_field = self.schema.field(field.definition.item);
         self.print_alias_and_name(&field.alias, schema_field.name.item)?;
         self.print_arguments(&field.arguments)?;
@@ -266,7 +301,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         &mut self,
         field: &LinkedField,
         conditions: Option<Vec<&Condition>>,
-    ) -> Result {
+    ) -> FmtResult {
         let schema_field = self.schema.field(field.definition.item);
         self.print_alias_and_name(&field.alias, schema_field.name.item)?;
         self.print_arguments(&field.arguments)?;
@@ -279,12 +314,13 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         &mut self,
         field: &FragmentSpread,
         conditions: Option<Vec<&Condition>>,
-    ) -> Result {
+    ) -> FmtResult {
         let fragment_name = field.fragment.item;
         write!(self.writer, "...{}", fragment_name)?;
         self.print_directives(&field.directives, conditions, None)?;
         if !field.arguments.is_empty() {
-            write!(self.writer, " @arguments")?;
+            self.print_optional_space()?;
+            write!(self.writer, "@arguments")?;
             self.print_arguments(&field.arguments)
         } else {
             Ok(())
@@ -295,12 +331,13 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         &mut self,
         field: &InlineFragment,
         conditions: Option<Vec<&Condition>>,
-    ) -> Result {
+    ) -> FmtResult {
         write!(self.writer, "...")?;
         if let Some(type_condition) = field.type_condition {
+            self.print_optional_space()?;
             write!(
                 self.writer,
-                " on {}",
+                "on {}",
                 self.schema.get_type_name(type_condition).lookup(),
             )?;
         };
@@ -308,7 +345,7 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         self.print_selections(&field.selections)
     }
 
-    fn print_condition(&mut self, condition: &Condition) -> Result {
+    fn print_condition(&mut self, condition: &Condition) -> FmtResult {
         let mut maybe_current_condition = Some(condition);
         let mut accum_conditions: Vec<Condition> = vec![];
         let mut is_first_selection = true;
@@ -317,17 +354,14 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
 
             for selection in current_condition.selections.iter() {
                 if let Selection::Condition(nested_cond) = selection {
-                    maybe_current_condition = Some(&nested_cond);
+                    maybe_current_condition = Some(nested_cond);
                 } else {
                     if is_first_selection {
                         is_first_selection = false;
                     } else {
-                        self.next_line()?;
+                        self.print_new_line(false)?;
                     }
-                    self.print_selection(
-                        &selection,
-                        Some(accum_conditions.iter().rev().collect()),
-                    )?;
+                    self.print_selection(selection, Some(accum_conditions.iter().rev().collect()))?;
                     maybe_current_condition = None;
                 }
             }
@@ -340,12 +374,12 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         directives: &[Directive],
         conditions: Option<Vec<&Condition>>,
         fragment_argument_definitions: Option<&[VariableDefinition]>,
-    ) -> Result {
+    ) -> FmtResult {
         if let Some(conditions) = conditions {
             self.print_condition_directives(conditions)?;
         }
         for directive in directives {
-            if directive.name.item.lookup() == "argumentDefinitions" {
+            if directive.name.item.0.lookup() == "argumentDefinitions" {
                 self.print_argument_definitions(fragment_argument_definitions.unwrap())?;
             } else {
                 self.print_directive(directive)?;
@@ -354,42 +388,43 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         Ok(())
     }
 
-    fn print_directive(&mut self, directive: &Directive) -> Result {
-        write!(self.writer, " @{}", directive.name.item)?;
+    fn print_directive(&mut self, directive: &Directive) -> FmtResult {
+        self.print_optional_space()?;
+        write!(self.writer, "@{}", directive.name.item)?;
         self.print_arguments(&directive.arguments)?;
 
         if self.options.debug_directive_data {
             if let Some(data) = &directive.data {
                 for debug_line in format!("{:#?}", data).lines() {
-                    self.next_line()?;
+                    self.print_new_line(false)?;
                     write!(self.writer, "# {}", debug_line)?;
                 }
-                self.next_line()?;
+                self.print_new_line(false)?;
             }
         }
 
         Ok(())
     }
 
-    fn print_condition_directives(&mut self, conditions: Vec<&Condition>) -> Result {
+    fn print_condition_directives(&mut self, conditions: Vec<&Condition>) -> FmtResult {
         for condition in conditions {
+            self.print_optional_space()?;
             write!(
                 self.writer,
-                " @{}",
+                "@{}",
                 if condition.passing_value {
                     "include"
                 } else {
                     "skip"
                 }
             )?;
+            write!(self.writer, "(if")?;
+            self.print_colon_separator()?;
             match &condition.value {
-                ConditionValue::Constant(value) => {
-                    write!(self.writer, "(if: {})", value)?;
-                }
-                ConditionValue::Variable(variable) => {
-                    write!(self.writer, "(if: ${})", variable.name.item)?;
-                }
-            }
+                ConditionValue::Constant(value) => write!(self.writer, "{}", value),
+                ConditionValue::Variable(variable) => self.print_variable(variable.name.item),
+            }?;
+            write!(self.writer, ")")?;
         }
         Ok(())
     }
@@ -397,27 +432,21 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_variable_definitions(
         &mut self,
         variable_definitions: &[VariableDefinition],
-    ) -> Result {
+    ) -> FmtResult {
         if !variable_definitions.is_empty() {
             write!(self.writer, "(")?;
             self.indentation += 1;
-            for var_def in variable_definitions.iter() {
-                self.next_line()?;
-                let type_name = self.schema.get_type_string(&var_def.type_);
-                write!(self.writer, "${}: {}", var_def.name.item, type_name)?;
-
-                match &var_def.default_value {
-                    None => {}
-                    Some(default_value) => {
-                        write!(self.writer, " = ")?;
-                        self.print_constant_value(&default_value.item)?;
-                    }
+            for (i, var_def) in variable_definitions.iter().enumerate() {
+                if i == 0 {
+                    self.print_new_line(true)?;
+                } else {
+                    self.print_item_separator()?;
                 }
-
-                self.print_directives(&var_def.directives, None, None)?;
+                self.print_variable_definition(var_def)?;
             }
             self.indentation -= 1;
-            write!(self.writer, "\n)")?;
+            self.print_new_line(true)?;
+            write!(self.writer, ")")?;
         }
         Ok(())
     }
@@ -425,36 +454,43 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
     fn print_argument_definitions(
         &mut self,
         argument_definitions: &[VariableDefinition],
-    ) -> Result {
+    ) -> FmtResult {
         if !argument_definitions.is_empty() {
-            write!(self.writer, " @argumentDefinitions(")?;
+            self.print_optional_space()?;
+            write!(self.writer, "@argumentDefinitions(")?;
             self.indentation += 1;
-            for arg_def in argument_definitions.iter() {
-                self.next_line()?;
-                let type_name = self.schema.get_type_string(&arg_def.type_);
-                write!(
-                    self.writer,
-                    "{}: {{type: \"{}\"",
-                    arg_def.name.item, type_name
-                )?;
-
+            for (i, arg_def) in argument_definitions.iter().enumerate() {
+                if i == 0 {
+                    self.print_new_line(true)?;
+                } else {
+                    self.print_item_separator()?;
+                }
+                write!(self.writer, "{}", arg_def.name.item)?;
+                self.print_colon_separator()?;
+                write!(self.writer, "{{type")?;
+                self.print_colon_separator()?;
+                write!(self.writer, "\"")?;
+                self.print_type(&arg_def.type_)?;
+                write!(self.writer, "\"")?;
                 if let Some(default_value) = &arg_def.default_value {
-                    write!(self.writer, ", defaultValue: ")?;
+                    self.print_comma_separator()?;
+                    write!(self.writer, "defaultValue")?;
+                    self.print_colon_separator()?;
                     self.print_constant_value(&default_value.item)?;
                 }
                 write!(self.writer, "}}")?;
             }
             self.indentation -= 1;
-            write!(self.writer, "\n)")?;
+            self.print_new_line(true)?;
+            write!(self.writer, ")")?;
         }
         Ok(())
     }
 
-    fn print_arguments(&mut self, arguments: &[Argument]) -> Result {
+    fn print_arguments(&mut self, arguments: &[Argument]) -> FmtResult {
         if arguments.is_empty() {
             Ok(())
         } else {
-            write!(self.writer, "(")?;
             let sorted_arguments = if self.options.sort_keys {
                 let mut sorted_arguments = arguments.to_vec();
                 sorted_arguments.sort_by_key(|arg| arg.name());
@@ -465,29 +501,22 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
             let maybe_sorted_arguments = sorted_arguments
                 .as_ref()
                 .map_or(arguments, |v| v.as_slice());
-            for (i, argument) in maybe_sorted_arguments.iter().enumerate() {
-                write!(self.writer, "{}:", argument.name.item)?;
-                if !self.options.compact {
-                    write!(self.writer, " ")?;
-                }
-                self.print_value(&argument.value.item)?;
 
+            write!(self.writer, "(")?;
+            for (i, argument) in maybe_sorted_arguments.iter().enumerate() {
+                self.print_argument(argument)?;
                 if i != arguments.len() - 1 {
-                    write!(self.writer, ",")?;
-                    if !self.options.compact {
-                        write!(self.writer, " ")?;
-                    }
+                    self.print_comma_separator()?;
                 }
             }
-            write!(self.writer, ")")?;
-            Ok(())
+            write!(self.writer, ")")
         }
     }
 
-    fn print_value(&mut self, val: &Value) -> Result {
+    fn print_value(&mut self, val: &Value) -> FmtResult {
         match val {
-            Value::Constant(constant_val) => self.print_constant_value(&constant_val),
-            Value::Variable(variable_val) => write!(self.writer, "${}", variable_val.name.item),
+            Value::Constant(constant_val) => self.print_constant_value(constant_val),
+            Value::Variable(variable_val) => self.print_variable(variable_val.name.item),
             Value::Object(object) => {
                 write!(self.writer, "{{")?;
                 let mut first = true;
@@ -508,19 +537,17 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                     if first {
                         first = false;
                     } else {
-                        write!(self.writer, ",")?;
-                        if !self.options.compact {
-                            write!(self.writer, " ")?;
-                        }
+                        self.print_comma_separator()?;
                     }
-                    write!(self.writer, "{}:", arg.name.item)?;
-                    if !self.options.compact {
-                        write!(self.writer, " ")?;
+                    if self.options.json_format {
+                        write!(self.writer, "\"{}\":", arg.name.item)?;
+                    } else {
+                        write!(self.writer, "{}:", arg.name.item)?;
                     }
+                    self.print_optional_space()?;
                     self.print_value(&arg.value.item)?;
                 }
-                write!(self.writer, "}}")?;
-                Ok(())
+                write!(self.writer, "}}")
             }
             Value::List(list) => {
                 write!(self.writer, "[")?;
@@ -532,27 +559,29 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                     if first {
                         first = false;
                     } else {
-                        write!(self.writer, ",")?;
-                        if !self.options.compact {
-                            write!(self.writer, " ")?;
-                        }
+                        self.print_comma_separator()?;
                     }
                     self.print_value(value)?;
                 }
-                write!(self.writer, "]")?;
-                Ok(())
+                write!(self.writer, "]")
             }
         }
     }
 
-    fn print_constant_value(&mut self, constant_val: &ConstantValue) -> Result {
+    fn print_constant_value(&mut self, constant_val: &ConstantValue) -> FmtResult {
         match &constant_val {
             ConstantValue::String(val) => write!(self.writer, "\"{}\"", val),
-            ConstantValue::Enum(val) => write!(self.writer, "{}", val),
             ConstantValue::Float(val) => write!(self.writer, "{}", val),
             ConstantValue::Int(val) => write!(self.writer, "{}", val),
             ConstantValue::Boolean(val) => write!(self.writer, "{}", val),
             ConstantValue::Null() => write!(self.writer, "null"),
+            ConstantValue::Enum(val) => {
+                if self.options.json_format {
+                    write!(self.writer, "\"{}\"", val)
+                } else {
+                    write!(self.writer, "{}", val)
+                }
+            }
             ConstantValue::Object(object) => {
                 write!(self.writer, "{{")?;
                 let mut first = true;
@@ -570,19 +599,11 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                     if first {
                         first = false;
                     } else {
-                        write!(self.writer, ",")?;
-                        if !self.options.compact {
-                            write!(self.writer, " ")?;
-                        }
+                        self.print_comma_separator()?;
                     }
-                    write!(self.writer, "{}:", arg.name.item)?;
-                    if !self.options.compact {
-                        write!(self.writer, " ")?;
-                    }
-                    self.print_constant_value(&arg.value.item)?;
+                    self.print_constant_object_field(arg)?;
                 }
-                write!(self.writer, "}}")?;
-                Ok(())
+                write!(self.writer, "}}")
             }
             ConstantValue::List(list) => {
                 write!(self.writer, "[")?;
@@ -591,15 +612,11 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
                     if first {
                         first = false;
                     } else {
-                        write!(self.writer, ",")?;
-                        if !self.options.compact {
-                            write!(self.writer, " ")?;
-                        }
+                        self.print_comma_separator()?;
                     }
-                    self.print_constant_value(&value)?;
+                    self.print_constant_value(value)?;
                 }
-                write!(self.writer, "]")?;
-                Ok(())
+                write!(self.writer, "]")
             }
         }
     }
@@ -608,20 +625,92 @@ impl<'schema, 'writer, W: Write> Printer<'schema, 'writer, W> {
         &mut self,
         alias: &Option<WithLocation<StringKey>>,
         name: StringKey,
-    ) -> Result {
+    ) -> FmtResult {
         if let Some(alias) = alias {
             if alias.item != name {
-                write!(self.writer, "{}: ", alias.item)?;
+                write!(self.writer, "{}", alias.item)?;
+                self.print_colon_separator()?;
             }
         }
         write!(self.writer, "{}", name)
     }
 
-    fn next_line(&mut self) -> Result {
+    fn print_argument(&mut self, argument: &Argument) -> FmtResult {
+        write!(self.writer, "{}", argument.name.item)?;
+        self.print_colon_separator()?;
+        self.print_value(&argument.value.item)
+    }
+
+    fn print_variable_definition(&mut self, var_def: &VariableDefinition) -> FmtResult {
+        self.print_variable(var_def.name.item)?;
+        self.print_colon_separator()?;
+        self.print_type(&var_def.type_)?;
+
+        if let Some(default_value) = &var_def.default_value {
+            self.print_default_value(&default_value.item)?;
+        }
+
+        self.print_directives(&var_def.directives, None, None)
+    }
+
+    fn print_constant_object_field(&mut self, arg: &ConstantArgument) -> FmtResult {
+        if self.options.json_format {
+            write!(self.writer, "\"{}\"", arg.name.item)?;
+        } else {
+            write!(self.writer, "{}", arg.name.item)?;
+        }
+        self.print_colon_separator()?;
+        self.print_constant_value(&arg.value.item)
+    }
+
+    fn print_variable(&mut self, variable: VariableName) -> FmtResult {
+        write!(self.writer, "${}", variable)
+    }
+
+    fn print_default_value(&mut self, value: &ConstantValue) -> FmtResult {
+        self.print_optional_space()?;
+        write!(self.writer, "=")?;
+        self.print_optional_space()?;
+        self.print_constant_value(value)
+    }
+
+    fn print_type(&mut self, type_: &TypeReference<Type>) -> FmtResult {
+        write!(self.writer, "{}", self.schema.get_type_string(type_))
+    }
+
+    fn print_new_line(&mut self, can_skip_from_this_location: bool) -> FmtResult {
+        if self.options.compact && can_skip_from_this_location {
+            return Ok(());
+        }
         writeln!(self.writer)?;
         for _ in 0..self.indentation {
             write!(self.writer, "  ")?;
         }
         Ok(())
+    }
+
+    fn print_optional_space(&mut self) -> FmtResult {
+        if self.options.compact {
+            return Ok(());
+        }
+        write!(self.writer, " ")
+    }
+
+    fn print_comma_separator(&mut self) -> FmtResult {
+        write!(self.writer, ",")?;
+        self.print_optional_space()
+    }
+
+    fn print_colon_separator(&mut self) -> FmtResult {
+        write!(self.writer, ":")?;
+        self.print_optional_space()
+    }
+
+    fn print_item_separator(&mut self) -> FmtResult {
+        if self.options.compact {
+            write!(self.writer, ",")
+        } else {
+            self.print_new_line(false)
+        }
     }
 }

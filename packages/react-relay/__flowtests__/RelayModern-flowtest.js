@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -128,22 +127,22 @@ const PluralTestFragment = createFragmentContainer(PluralTest, {
 });
 
 declare var aUserRef: {
-  +$fragmentRefs: RelayModernFlowtest_user$ref,
+  +$fragmentSpreads: RelayModernFlowtest_user$ref,
   ...
 };
 
 declare var oneOfUsersRef: {
-  +$fragmentRefs: RelayModernFlowtest_users$ref,
+  +$fragmentSpreads: RelayModernFlowtest_users$ref,
   ...
 };
 
 declare var usersRef: $ReadOnlyArray<{
-  +$fragmentRefs: RelayModernFlowtest_users$ref,
+  +$fragmentSpreads: RelayModernFlowtest_users$ref,
   ...
 }>;
 
 declare var nonUserRef: {
-  +$fragmentRefs: {thing: true, ...},
+  +$fragmentSpreads: {thing: true, ...},
   ...
 };
 
@@ -210,7 +209,7 @@ function cb(): void {}
 />;
 
 declare var aComplexUserRef: {
-  +$fragmentRefs: {thing1: true, ...} & RelayModernFlowtest_user$ref & {
+  +$fragmentSpreads: {thing1: true, ...} & RelayModernFlowtest_user$ref & {
       thing2: true,
       ...
     },
@@ -252,9 +251,9 @@ declare var aComplexUserRef: {
   optionalUsers={null}
 />;
 
-class AnyTest extends React.Component<{|
+class AnyTest extends React.Component<{
   anything: any,
-|}> {}
+}> {}
 const AnyTestContainer = createFragmentContainer(AnyTest, {});
 
 <AnyTestContainer anything={42} />;

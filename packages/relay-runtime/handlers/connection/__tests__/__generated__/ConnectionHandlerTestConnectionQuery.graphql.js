@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1e1186d92e901dacf9af9ca121a09ff4>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<8cc4854e82405fcc76107eb01931e51f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +17,15 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type ConnectionHandlerTestConnectionQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type ConnectionHandlerTestConnectionQuery$variables = {|
+  after?: ?string,
   before?: ?string,
   count?: ?number,
-  after?: ?string,
+  id: string,
   orderby?: ?$ReadOnlyArray<?string>,
 |};
-export type ConnectionHandlerTestConnectionQueryResponse = {|
+export type ConnectionHandlerTestConnectionQuery$data = {|
   +node: ?{|
     +friends?: ?{|
       +count: ?number,
@@ -43,8 +45,8 @@ export type ConnectionHandlerTestConnectionQueryResponse = {|
   |},
 |};
 export type ConnectionHandlerTestConnectionQuery = {|
-  variables: ConnectionHandlerTestConnectionQueryVariables,
-  response: ConnectionHandlerTestConnectionQueryResponse,
+  response: ConnectionHandlerTestConnectionQuery$data,
+  variables: ConnectionHandlerTestConnectionQuery$variables,
 |};
 */
 
@@ -312,4 +314,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0dda113c23c6abae873e5b369d657031";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ConnectionHandlerTestConnectionQuery$variables,
+  ConnectionHandlerTestConnectionQuery$data,
+>*/);

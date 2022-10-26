@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ec162cdaa185f554e07f0fd29a80ec5b>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<933ff0a461bcb6a036e29355a737e34b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useFragmentTestUsersFragment$ref = any;
-export type useFragmentTestUsersQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { useFragmentTestUsersFragment$fragmentType } from "./useFragmentTestUsersFragment.graphql";
+export type useFragmentTestUsersQuery$variables = {|
   ids: $ReadOnlyArray<string>,
 |};
-export type useFragmentTestUsersQueryResponse = {|
+export type useFragmentTestUsersQuery$data = {|
   +nodes: ?$ReadOnlyArray<?{|
-    +$fragmentRefs: useFragmentTestUsersFragment$ref,
+    +$fragmentSpreads: useFragmentTestUsersFragment$fragmentType,
   |}>,
 |};
 export type useFragmentTestUsersQuery = {|
-  variables: useFragmentTestUsersQueryVariables,
-  response: useFragmentTestUsersQueryResponse,
+  response: useFragmentTestUsersQuery$data,
+  variables: useFragmentTestUsersQuery$variables,
 |};
 */
 
@@ -142,4 +144,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "52a64c5a6af260759a0739fc8faca4e1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useFragmentTestUsersQuery$variables,
+  useFragmentTestUsersQuery$data,
+>*/);

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<021f1c3673f8765cc01fb6c6a3171932>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<9a2a8da93a2831b0276225229d4ed1a5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,28 +19,26 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment.actor.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$ref;
-export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment = {|
-  +id: string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name.graphql";
+import type { RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$data = {|
   +actor: ?{|
     +name: ?string,
     +nameRenderer: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$ref & RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType,
     |},
   |},
-  +$refType: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$ref,
+  +id: string,
+  +$fragmentType: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$data = RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment;
 export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$key = {
   +$data?: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType,
   ...
 };
 */
@@ -131,4 +131,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c6eda812d553cb45a1f53cfb2577d5ed";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType,
+  RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$data,
+>*/);

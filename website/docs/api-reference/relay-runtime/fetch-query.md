@@ -10,20 +10,18 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 ## `fetchQuery`
 
 If you want to fetch a query outside of React, you can use the `fetchQuery` function from `react-relay`:
 
 ```js
-import type {AppQuery} from 'AppQuery.graphql';
-
 // You should prefer passing an environment that was returned from useRelayEnvironment()
 const MyEnvironment = require('MyEnvironment');
 const {fetchQuery} = require('react-relay');
 
-fetchQuery<AppQuery>(
+fetchQuery(
   environment,
   graphql`
     query AppQuery($id: ID!) {
@@ -58,7 +56,7 @@ fetchQuery<AppQuery>(
 ### Return Value
 
 * `observable`: Returns an observable instance. To start the request, `subscribe` or `toPromise` must be called on the observable. Exposes the following methods:
-    * `subscribe`: Function that can be called to subscribe to the observable for the network request
+    * `subscribe`: Function that can be called to subscribe to the observable for the network request. Keep in mind that this subscribes you only to the fetching of the query, not to any subsequent changes to the data within the Relay Store.
         * Arguments:
             * `observer`: Object that specifies observer functions for different events occurring on the network request observable. May specify the following event handlers as keys in the observer object:
                 * `start`: Function that will be called when the network requests starts. It will receive a single `subscription` argument, which represents the subscription on the network observable.
@@ -90,11 +88,9 @@ fetchQuery<AppQuery>(
 If desired, you can convert the request into a Promise using `**.toPromise()**`. Note that toPromise will start the query and return a Promise that will resolve when the *first* piece of data returns from the server and *cancel further processing*. That means any deferred or 3D data in the query may not be processed. **We generally recommend against using toPromise() for this reason.**
 
 ```js
-import type {AppQuery} from 'AppQuery.graphql';
-
 const {fetchQuery} = require('react-relay');
 
-fetchQuery<AppQuery>(
+fetchQuery(
   environment,
   graphql`
     query AppQuery($id: ID!) {

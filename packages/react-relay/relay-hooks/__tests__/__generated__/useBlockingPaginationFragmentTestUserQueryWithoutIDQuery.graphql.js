@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2aa456b2f1478222264a23ee76a296f1>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<3f1bf507d7b273a2047f88b3384d35a1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,26 +17,26 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useBlockingPaginationFragmentTestUserFragment$ref = any;
-export type useBlockingPaginationFragmentTestUserQueryWithoutIDQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { useBlockingPaginationFragmentTestUserFragment$fragmentType } from "./useBlockingPaginationFragmentTestUserFragment.graphql";
+export type useBlockingPaginationFragmentTestUserQueryWithoutIDQuery$variables = {|
   after?: ?string,
-  first?: ?number,
   before?: ?string,
+  first?: ?number,
+  isViewerFriend?: ?boolean,
   last?: ?number,
   orderby?: ?$ReadOnlyArray<?string>,
-  isViewerFriend?: ?boolean,
 |};
-export type useBlockingPaginationFragmentTestUserQueryWithoutIDQueryResponse = {|
+export type useBlockingPaginationFragmentTestUserQueryWithoutIDQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
-      +$fragmentRefs: useBlockingPaginationFragmentTestUserFragment$ref,
+      +$fragmentSpreads: useBlockingPaginationFragmentTestUserFragment$fragmentType,
     |},
   |},
 |};
 export type useBlockingPaginationFragmentTestUserQueryWithoutIDQuery = {|
-  variables: useBlockingPaginationFragmentTestUserQueryWithoutIDQueryVariables,
-  response: useBlockingPaginationFragmentTestUserQueryWithoutIDQueryResponse,
+  response: useBlockingPaginationFragmentTestUserQueryWithoutIDQuery$data,
+  variables: useBlockingPaginationFragmentTestUserQueryWithoutIDQuery$variables,
 |};
 */
 
@@ -338,4 +340,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f5f7783184358dbce0a1bd2544fdddd4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useBlockingPaginationFragmentTestUserQueryWithoutIDQuery$variables,
+  useBlockingPaginationFragmentTestUserQueryWithoutIDQuery$data,
+>*/);

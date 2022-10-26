@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b81a5ea60f1727b4e46c9c2f3078f14f>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<cd5d8d6ea6458d4ab4bca7e22e07bbc0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +19,19 @@
 // @ReactFlightServerDependency FlightComponent.server
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayReferenceMarkerTestFlightQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayReferenceMarkerTestFlightQuery$variables = {|
   count: number,
+  id: string,
 |};
-export type RelayReferenceMarkerTestFlightQueryResponse = {|
+export type RelayReferenceMarkerTestFlightQuery$data = {|
   +node: ?{|
     +flightComponent?: ?any,
   |},
 |};
 export type RelayReferenceMarkerTestFlightQuery = {|
-  variables: RelayReferenceMarkerTestFlightQueryVariables,
-  response: RelayReferenceMarkerTestFlightQueryResponse,
+  response: RelayReferenceMarkerTestFlightQuery$data,
+  variables: RelayReferenceMarkerTestFlightQuery$variables,
 |};
 */
 
@@ -167,4 +169,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "09d7f9c41cf97f8858a39193930a2f54";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReferenceMarkerTestFlightQuery$variables,
+  RelayReferenceMarkerTestFlightQuery$data,
+>*/);

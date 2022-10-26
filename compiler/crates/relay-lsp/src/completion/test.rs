@@ -1,20 +1,27 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{collections::HashMap, collections::HashSet, sync::Arc};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::sync::Arc;
+
+use common::SourceLocationKey;
+use common::Span;
+use graphql_ir::build;
+use graphql_ir::Program;
+use graphql_syntax::parse_executable;
+use graphql_syntax::parse_executable_with_error_recovery;
+use intern::string_key::Intern;
+use lsp_types::CompletionItem;
+use lsp_types::Documentation;
+use relay_test_schema::get_test_schema;
 
 use super::make_markdown_table_documentation;
 use super::resolve_completion_items;
-use common::{SourceLocationKey, Span};
-use graphql_ir::{build, Program};
-use graphql_syntax::{parse_executable, parse_executable_with_error_recovery};
-use interner::Intern;
-use lsp_types::{CompletionItem, Documentation};
-use relay_test_schema::get_test_schema;
 
 fn parse_and_resolve_completion_items(
     source: &str,
@@ -193,6 +200,7 @@ fn directive() {
             "connection",
             "skip",
             "fb_actor_change",
+            "waterfall",
         ],
     );
 }
@@ -229,6 +237,7 @@ fn directive_on_scalar_field() {
             "connection",
             "skip",
             "fb_actor_change",
+            "waterfall",
         ],
     );
 }
@@ -422,6 +431,7 @@ fn empty_directive() {
             "connection",
             "skip",
             "fb_actor_change",
+            "waterfall",
         ],
     );
 }

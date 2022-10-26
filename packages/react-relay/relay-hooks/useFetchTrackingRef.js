@@ -1,21 +1,20 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 import type {Subscription} from 'relay-runtime';
 
-const {useCallback, useEffect, useRef} = require('react');
+const useUnsafeRef_DEPRECATED = require('./useUnsafeRef_DEPRECATED');
+const {useCallback, useEffect} = require('react');
 
 /**
  * This hook returns a mutable React ref that holds the value of whether a
@@ -29,14 +28,14 @@ const {useCallback, useEffect, useRef} = require('react');
  * The additional functions returned by this Hook can be used to mutate
  * the ref.
  */
-function useFetchTrackingRef(): {|
+function useFetchTrackingRef(): {
   isFetchingRef: {current: ?boolean, ...},
   startFetch: Subscription => void,
   disposeFetch: () => void,
   completeFetch: () => void,
-|} {
-  const subscriptionRef = useRef<?Subscription>(null);
-  const isFetchingRef = useRef<?boolean>(false);
+} {
+  const subscriptionRef = useUnsafeRef_DEPRECATED<?Subscription>(null);
+  const isFetchingRef = useUnsafeRef_DEPRECATED<?boolean>(false);
 
   const disposeFetch = useCallback(() => {
     if (subscriptionRef.current != null) {

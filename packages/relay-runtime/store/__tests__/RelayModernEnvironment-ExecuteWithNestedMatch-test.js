@@ -1,24 +1,30 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -35,13 +41,13 @@ const {
 disallowWarnings();
 
 describe('execute() a query with nested @match', () => {
-  let callbacks: {|
+  let callbacks: {
     +complete: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
     +error: JestMockFn<$ReadOnlyArray<Error>, mixed>,
     +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
     +start?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
     +unsubscribe?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-  |};
+  };
   let complete;
   let dataSource;
   let environment;
@@ -52,10 +58,10 @@ describe('execute() a query with nested @match', () => {
   let next;
   let operation;
   let operationCallback;
-  let operationLoader: {|
+  let operationLoader: {
     get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-  |};
+  };
   let plaintextRendererFragment;
   let plaintextRendererNormalizationFragment;
   let query;
@@ -68,7 +74,7 @@ describe('execute() a query with nested @match', () => {
     markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$normalization.graphql');
     plaintextRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name$normalization.graphql');
 
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery(
         $id: ID!
       ) {
@@ -81,9 +87,9 @@ describe('execute() a query with nested @match', () => {
           }
         }
       }
-    `);
+    `;
 
-    markdownRendererFragment = getFragment(graphql`
+    markdownRendererFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         __typename
         markdown
@@ -97,21 +103,21 @@ describe('execute() a query with nested @match', () => {
           }
         }
       }
-    `);
+    `;
 
-    plaintextRendererFragment = getFragment(graphql`
+    plaintextRendererFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name on PlainUserNameRenderer {
         plaintext
         data {
           text
         }
       }
-    `);
+    `;
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
 
     const MarkupHandler = {
-      update(storeProxy, payload) {
+      update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
         const record = storeProxy.get(payload.dataID);
         if (record != null) {
           const markup = record.getValue(payload.fieldKey);
@@ -127,7 +133,11 @@ describe('execute() a query with nested @match', () => {
     error = jest.fn();
     next = jest.fn();
     callbacks = {complete, error, next};
-    fetch = (_query, _variables, _cacheConfig) => {
+    fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -209,7 +219,8 @@ describe('execute() a query with nested @match', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name:
+              {},
           },
 
           __fragmentOwner: operation.request,
@@ -321,7 +332,8 @@ describe('execute() a query with nested @match', () => {
           __fragmentPropName: 'name',
 
           __fragments: {
-            RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithNestedMatchTestPlainUserNameRenderer_name:
+              {},
           },
 
           __id: 'client:2:nameRenderer(supported:["PlainUserNameRenderer"])',

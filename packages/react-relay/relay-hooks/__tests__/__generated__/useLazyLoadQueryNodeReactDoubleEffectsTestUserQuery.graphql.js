@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<98ef1d5313e4a28f479cab84cfcefd62>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<476545c9feafe66809f18fbe494f99a4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$ref = any;
-export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$fragmentType } from "./useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment.graphql";
+export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$variables = {|
   id?: ?string,
 |};
-export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryResponse = {|
+export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$data = {|
   +node: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$ref,
+    +$fragmentSpreads: useLazyLoadQueryNodeReactDoubleEffectsTestUserFragment$fragmentType,
   |},
 |};
 export type useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery = {|
-  variables: useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryVariables,
-  response: useLazyLoadQueryNodeReactDoubleEffectsTestUserQueryResponse,
+  response: useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$data,
+  variables: useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$variables,
 |};
 */
 
@@ -148,4 +150,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "4f5221aaf962b9f3544c53ae0f65d8cd";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$variables,
+  useLazyLoadQueryNodeReactDoubleEffectsTestUserQuery$data,
+>*/);

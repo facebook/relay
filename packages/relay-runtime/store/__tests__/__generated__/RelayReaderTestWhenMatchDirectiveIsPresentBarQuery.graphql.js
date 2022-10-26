@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9df21e9689a75be0bb6aa8d50d53a913>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<f1bcdf0a1e22017badae47bcb933efd5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -14,18 +16,20 @@
 
 'use strict';
 
+// @indirectDataDrivenDependency RelayReaderTestWhenMatchDirectiveIsPresentBarFragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$ref = any;
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarQueryVariables = {||};
-export type RelayReaderTestWhenMatchDirectiveIsPresentBarQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType } from "./RelayReaderTestWhenMatchDirectiveIsPresentBarFragment.graphql";
+export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables = {||};
+export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$ref,
+    +$fragmentSpreads: RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType,
   |},
 |};
 export type RelayReaderTestWhenMatchDirectiveIsPresentBarQuery = {|
-  variables: RelayReaderTestWhenMatchDirectiveIsPresentBarQueryVariables,
-  response: RelayReaderTestWhenMatchDirectiveIsPresentBarQueryResponse,
+  response: RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data,
+  variables: RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables,
 |};
 */
 
@@ -151,4 +155,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ef129a52e6ca5b6a54a16caac745a44a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$variables,
+  RelayReaderTestWhenMatchDirectiveIsPresentBarQuery$data,
+>*/);

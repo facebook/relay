@@ -1,15 +1,19 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::lexer::TokenKind;
-use common::{SourceLocationKey, Span, WithLocation};
-use interner::StringKey;
 use std::cmp::Ordering;
 use std::fmt;
+
+use common::SourceLocationKey;
+use common::Span;
+use common::WithLocation;
+use intern::string_key::StringKey;
+
+use crate::lexer::TokenKind;
 
 #[derive(Debug, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct Token {

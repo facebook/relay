@@ -1,20 +1,41 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use fnv::{FnvBuildHasher, FnvHashMap};
+use fnv::FnvBuildHasher;
 use graphql_syntax::FloatValue;
 use graphql_syntax::OperationKind;
 use indexmap::IndexSet;
-use interner::StringKey;
+use intern::string_key::StringKey;
+use relay_config::DynamicModuleProvider;
 
 #[derive(Eq, PartialEq, Hash, Debug)]
 pub struct ObjectEntry {
     pub key: StringKey,
     pub value: Primitive,
+}
+
+/// A helper for creating Vec<ObjectEntry>
+/// For now, field names are defined in `CODEGEN_CONSTANTS
+#[macro_export]
+macro_rules! object {
+    { $ ( $(:$func: expr,)* $key:ident: $value:expr,)* } => ({
+        use crate::constants::CODEGEN_CONSTANTS;
+        vec![
+            $(
+                $(
+                    $func,
+                )*
+                ObjectEntry {
+                    key: CODEGEN_CONSTANTS.$key,
+                    value: $value,
+                },
+            )*
+        ]
+    })
 }
 
 /// An interned codegen AST
@@ -41,8 +62,16 @@ impl Ast {
 }
 
 #[derive(Eq, PartialEq, Hash, Debug)]
+pub struct JSModuleDependency {
+    pub path: StringKey,
+    pub named_import: Option<StringKey>,
+    pub import_as: Option<StringKey>,
+}
+
+#[derive(Eq, PartialEq, Hash, Debug)]
 pub enum Primitive {
     Key(AstKey),
+    Variable(StringKey),
     String(StringKey),
     Float(FloatValue),
     Int(i64),
@@ -51,7 +80,25 @@ pub enum Primitive {
     StorageKey(StringKey, AstKey),
     RawString(String),
     GraphQLModuleDependency(StringKey),
-    JSModuleDependency(StringKey),
+    JSModuleDependency(JSModuleDependency),
+
+    // Don't include the value in the output when
+    // skip_printing_nulls is enabled
+    SkippableNull,
+    DynamicImport {
+        provider: DynamicModuleProvider,
+        module: StringKey,
+    },
+    RelayResolverModel {
+        graphql_module: StringKey,
+        js_module: JSModuleDependency,
+        injected_field_name_details: Option<(StringKey, bool)>,
+    },
+    RelayResolverWeakObjectWrapper {
+        resolver: Box<Primitive>,
+        key: StringKey,
+        plural: bool,
+    },
 }
 
 impl Primitive {
@@ -103,6 +150,7 @@ impl AstBuilder {
     }
 }
 
+#[derive(Clone)]
 pub enum QueryID {
     Persisted { id: String, text_hash: String },
     External(StringKey),
@@ -110,8 +158,13 @@ pub enum QueryID {
 
 pub struct RequestParameters<'a> {
     pub id: &'a Option<QueryID>,
-    pub metadata: FnvHashMap<String, String>,
     pub name: StringKey,
     pub operation_kind: OperationKind,
     pub text: Option<String>,
+}
+
+impl<'a> RequestParameters<'a> {
+    pub fn is_client_request(&self) -> bool {
+        self.id.is_none() && self.text.is_none()
+    }
 }

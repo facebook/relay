@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a8883394d940051f13ae727d08a33382>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<083550bdc161863d28d79d778af9de35>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$ref: FragmentReference;
-declare export opaque type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$ref;
-export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType: FragmentType;
+export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$data = {|
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +$refType: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$ref,
+  +$fragmentType: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType,
 |};
-export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$data = RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture;
 export type RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$key = {
   +$data?: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$data,
-  +$fragmentRefs: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$ref,
+  +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType,
   ...
 };
 */
@@ -78,4 +78,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d976969d08d009ce0e4babeccc04476a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$fragmentType,
+  RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture$data,
+>*/);

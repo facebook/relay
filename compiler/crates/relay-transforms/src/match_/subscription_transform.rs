@@ -1,21 +1,40 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{match_::MATCH_CONSTANTS, util::get_normalization_operation_name, ModuleMetadata};
-use common::{DiagnosticsResult, WithLocation};
-use graphql_ir::{
-    Argument, ConstantValue, Field, FragmentDefinition, FragmentSpread, InlineFragment,
-    LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    Value,
-};
-use graphql_syntax::OperationKind;
-use interner::Intern;
-use schema::{FieldID, Schema, Type, TypeReference};
 use std::sync::Arc;
+
+use common::DiagnosticsResult;
+use common::Location;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
+use graphql_syntax::OperationKind;
+use intern::string_key::Intern;
+use intern::Lookup;
+use schema::FieldID;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
+
+use crate::match_::MATCH_CONSTANTS;
+use crate::util::get_normalization_operation_name;
+use crate::ModuleMetadata;
 
 pub fn transform_subscriptions(program: &Program) -> DiagnosticsResult<Program> {
     let mut transformer = SubscriptionTransform::new(program);
@@ -77,13 +96,13 @@ impl<'program> SubscriptionTransform<'program> {
                             let object_field = self.program.schema.field(*object_field_id);
                             if object_field.name.item == MATCH_CONSTANTS.js_field_name {
                                 // if we find a js field, it must be valid
-                                return self.is_valid_js_dependency(&object_field.type_).then(|| {
-                                    ValidFieldResult {
+                                return self.is_valid_js_dependency(&object_field.type_).then(
+                                    || ValidFieldResult {
                                         linked_field,
                                         js_field_id: *object_field_id,
                                         fragment_spread,
-                                    }
-                                });
+                                    },
+                                );
                             }
                         }
                         None
@@ -110,11 +129,11 @@ impl<'program> SubscriptionTransform<'program> {
         }
     }
 
-    fn is_valid_js_dependency(&self, type_: &TypeReference) -> bool {
+    fn is_valid_js_dependency(&self, type_: &TypeReference<Type>) -> bool {
         match type_ {
             TypeReference::Named(Type::Scalar(scalar_id)) => {
                 let scalar = self.program.schema.scalar(*scalar_id);
-                scalar.name == MATCH_CONSTANTS.js_field_type && !scalar.is_extension
+                scalar.name.item == MATCH_CONSTANTS.js_field_type && !scalar.is_extension
             }
             _ => false,
         }
@@ -131,10 +150,11 @@ impl<'program> SubscriptionTransform<'program> {
             fragment_spread,
         } = valid_result;
         let location = linked_field.definition.location;
-        let operation_name_with_suffix = format!("{}__subscription", operation.name.item.lookup());
+        let operation_name_with_suffix =
+            format!("{}__subscription", operation.name.item.0.lookup());
         let normalization_operation_name = format!(
             "{}.graphql",
-            get_normalization_operation_name(fragment_spread.fragment.item)
+            get_normalization_operation_name(fragment_spread.fragment.item.0)
         )
         .intern();
 
@@ -161,7 +181,7 @@ impl<'program> SubscriptionTransform<'program> {
                 .type_
                 .inner(),
         );
-        let location = linked_field.alias_or_name_location();
+        let name_location = linked_field.alias_or_name_location();
 
         let selections = vec![Selection::InlineFragment(Arc::new(InlineFragment {
             type_condition,
@@ -173,20 +193,28 @@ impl<'program> SubscriptionTransform<'program> {
                         key: operation_name_with_suffix.intern(),
                         module_id: format!(
                             "{}.{}",
-                            operation.name.item,
+                            operation.name.item.0,
                             linked_field.alias_or_name(&self.program.schema).lookup()
                         )
                         .intern(),
                         module_name: normalization_operation_name,
-                        source_document_name: operation.name.item,
+                        source_document_name: operation.name.item.0,
                         fragment_name: fragment_spread.fragment.item,
-                        location,
+                        fragment_source_location: self
+                            .program
+                            .fragment(fragment_spread.fragment.item)
+                            .unwrap()
+                            .name
+                            .location,
+                        location: name_location,
                         no_inline: false,
                     }
                     .into(),
                 ],
                 selections,
+                spread_location: Location::generated(),
             }))],
+            spread_location: Location::generated(),
         }))];
 
         Selection::LinkedField(Arc::new(LinkedField {

@@ -208,7 +208,7 @@ Let's distill what's going on here:
 -   Note that **_the component is automatically subscribed to updates to the fragment data:_** if the data for this particular `User` is updated anywhere in the app (e.g. via fetching new data, or mutating existing data), the component will automatically re-render with the latest updated data.
 -   Relay will automatically generate Flow types for any declared fragments when the compiler is run, so you can use these types to declare the type for your Component's `props`.
     -   The generated Flow types include a type for the fragment reference, which is the type with the **`$key`** suffix: `<fragment_name>$key`, and a type for the shape of the data, which is the type with the **`$data`** suffix:  `<fragment_name>$data`; these types are available to import from files that are generated with the following name: `<fragment_name>.graphql.js`.
-    -   We use our [lint rule](https://github.com/relayjs/eslint-plugin-relay) to enforce that the type of the fragment reference prop is correctly declared when using `useFragment`. By using a properly typed fragment reference as input, the type of the returned `data` will automatically be Flow typed without requiring an explicit annotation.
+    -   We use our [lint rule](https://github.com/relayjs/eslint-plugin-relay) to enforce that the type of the fragment reference prop is correctly declared when using `useFragment`. By using a properly typed fragment reference as input, the type of the returned `data` will automatically be Flow-typed without requiring an explicit annotation.
     -   In our example, we're typing the `user` prop as the fragment reference we need for `useFragment`, which corresponds to the `UserComponent_user$key` imported from  `UserComponent_user.graphql`, which means that the type of `data` above would be: `{| name: ?string, profile_picture: ?{| uri: ?string |} |}`.
 -   Fragment names need to be globally unique. In order to easily achieve this, we name fragments using the following convention based on the module name followed by an identifier: `<module_name>_<property_name>`. This makes it easy to identify which fragments are defined in which modules and avoids name collisions when multiple fragments are defined in the same module.
 
@@ -458,7 +458,7 @@ Lets see what's going on here:
 -   `useLazyLoadQuery` additionally, it takes a Flow type parameter, which corresponds to the Flow type for the query, in this case `AppQuery`.
     -   Remember that Relay automatically generates Flow types for any declared queries, which you can import and use with `useLazyLoadQuery`. These types are available in the generated files with the following name format: `<query_name>.graphql.js`.
     -   Note that the `variables` will checked by Flow to ensure that you are passing values that match what the GraphQL query expects.
-    -   Note that the `data` is already properly Flow typed without requiring an explicit annotation, and is based on the types from the GraphQL schema. For example, the type of `data` above would be: `{| user: ?{| name: ?string |} |}`.
+    -   Note that the `data` is already properly Flow-typed without requiring an explicit annotation, and is based on the types from the GraphQL schema. For example, the type of `data` above would be: `{| user: ?{| name: ?string |} |}`.
 -   By default, when the component renders, Relay will automatically **_fetch_** the data for this query from the server (if it isn't already cached), and return it as a the result of the `useLazyLoadQuery` call. We'll go into more detail about how to show loading states in the [Loading States With Suspense](#loading-states-with-suspense) section, and how Relay uses cached data in the [Reusing Cached Data for Render](#reusing-cached-data-for-render) section.
 -   Note that if you re-render your component and pass **_different query variables_** than the ones originally used, it will cause the query to be fetched again with the new variables, and potentially re-render with different data.
 -   Finally, make sure you're providing a Relay environment at the root of your app before trying to render a query: [Relay Environment Provider](#relay-environment-provider).
@@ -1359,7 +1359,7 @@ const store = new Store(source, {gcReleaseBufferSize: 10});
 
 Assuming our data is [present in the store](#presence-of-data), we still need to consider the staleness of such data.
 
-By default, Relay will never consider data in the store to be stale (regardless of how long it has been cached for), unless it’s explicitly marked as stale using our data invalidation apis.
+By default, Relay will never consider data in the store to be stale (regardless of how long it has been cached for), unless it’s explicitly marked as stale using our data invalidation APIs.
 
 Marking data as stale is useful for cases when we explicitly know that some data is no longer fresh (for example after executing a [Mutation](#graphql-mutations)), and we want to make sure it get’s refetched with the latest value from the server. Specifically, when data has been marked as stale, if any query references the stale data, that means the query will also be considered stale, and it will need to be fetched again the next time it is evaluated, given the provided [Fetch Policy](#fetch-policies).
 
@@ -1989,7 +1989,7 @@ Let's distill what's happening in this example:
 
 -   `useRefetchableFragment` behaves the same way as a `useFragment` ([Fragments](#fragments)), but with a few additions:
     -   It expects a fragment that is annotated with the `@refetchable` directive. Note that  `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, or on `Query`, or on a type that implements `Node` (i.e. a type that has an `id` field).
-    -   It returns a **`refetch`** function, which is already Flow typed to expect the query variables that the generated query expects
+    -   It returns a **`refetch`** function, which is already Flow-typed to expect the query variables that the generated query expects
     -   It takes to Flow type parameters: the type of the generated query (in our case  `CommentBodyRefetchQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).
 -   Calling `refetch` and passing a new set of variables will fetch the fragment again **_with the newly provided variables_**. The variables you need to provide are a subset of the variables that the generated query expects; the generated query will require an `id`, if the type of the fragment has an `id` field, and any other variables that are transitively referenced in your fragment.
     -   In this case we're passing the current comment `id` and a new value for the `translationType` variable to fetch the translated comment body.
@@ -2580,7 +2580,7 @@ function updater(store: RecordSourceSelectorProxy) {
 }
 ```
 
-### Adding Edges
+### Adding edges
 
 Once we have a connection record, we also need a record for the new edge that we want to add to the connection. Usually, mutation or subscription payloads will contain the new edge that was added; if not, you can also construct a new edge from scratch.
 
@@ -2697,7 +2697,7 @@ function updater(store: RecordSourceSelectorProxy) {
 
 -   Note that these APIs will _mutate_ the connection in-place.
 
-### Removing Edges
+### Removing edges
 
 `ConnectionHandler` provides a similar API to remove an edge from a connection, via **`ConnectionHandler.deleteNode`**:
 
@@ -2728,7 +2728,7 @@ function updater(store: RecordSourceSelectorProxy) {
 
 You can also check out our complete Relay Store APIs [here](https://relay.dev/docs/en/relay-store.html)
 
-### Connection Identity With Filters
+### Connection identity with filters
 
 In our previous examples, our connections didn't take any arguments as filters. If you declared a connection that takes arguments as filters, the values used for the filters will be part of the connection identifier. In other words, **_each of the values passed in as connection filters will be used to identify the connection in the Relay store_**, however, **_excluding_** pagination arguments; i.e. excluding:  `first:`, `last:`, `before:`, and `after:`.
 
@@ -3109,7 +3109,7 @@ In this section, we're going to go over how to update data in the server as well
 
 ### GraphQL Mutations
 
-In GraphQL, data in the server is updated using [GraphQL Mutations](https://graphql.org/learn/queries/#mutations). Mutations are _read-write_ server operations, which both modify data in the backend, and allow querying for the modified data from the server in the same request.
+In GraphQL, data in the server is updated using [GraphQL Mutations](https://graphql.org/learn/queries/#mutations). Mutations are _read-write_ server operations, which both modify data on the backend, and allow querying for the modified data from the server in the same request.
 
 A GraphQL mutation looks very similar to a query, with the exception that it uses the **`mutation`** keyword:
 
@@ -3125,8 +3125,8 @@ mutation LikePostMutation($input: LikePostData!) {
 }
 ```
 
--   The mutation above modifies the server data to "like" the specified `Post` object. The **`like_post`** field is the mutation field itself, which takes specific input and will be processed by the server to update the relevant data in the backend.
--   **`like_post`** returns a specific GraphQL type which exposes the data we can query in the mutation response. In this case, we're querying for the **_updated_** post object, including the updated `like_count` and the updated value for `viewer_does_like`, indicating if the current viewer likes the post object.
+-   The mutation above modifies the server data to "like" the specified `Post` object. The **`like_post`** field is the mutation field itself, which takes specific input and will be processed by the server to update the relevant data on the backend.
+-   **`like_post`** returns a specific GraphQL type which exposes the data we can query in the mutation response. In this case, we're querying for the **_updated_** post object, including the updated `like_count` and the updated value for `viewer_does_like`, indicating whether the current viewer likes the post object.
 
 An example of a successful response for the above mutation could look like this:
 
@@ -3235,7 +3235,7 @@ type UseMutationConfig<TMutation: MutationParameters> = {|
 
 -   The only required property in the `UseMutationConfig` object is `variables`, which is an object containing the parameters to the mutation.
 -   You can also include `onCompleted` and `onError` callbacks, which are called when the mutation completes or errors out, respectively.
--   Note that the input for the mutation can be Flow typed with the autogenerated type available from the `LikePostMutation.graphql` module. In general, the Relay will generate Flow types for mutations at build time, with the following naming format: `<mutation_name>.graphql.js`.
+-   Note that the input for the mutation can be Flow-typed with the autogenerated type available from the `LikePostMutation.graphql` module. In general, the Relay will generate Flow types for mutations at build time, with the following naming format: `<mutation_name>.graphql.js`.
 -   Note that `variables` and `response` in `onComplete` will be typed altogether by providing the autogenerated type `LikePostMutation` to `useMutation` from the `LikePostMutation.graphql` module.
 -   When the mutation response is received, **_if the objects in the mutation response have IDs, the records in the local store will automatically be updated with the new field values from the response_**. In this case, it would automatically find the existing `Post` object matching the given ID in the store, and update the values for its `viewer_does_like` and `like_count` fields.
 -   Note that any local data updates caused by the mutation will automatically cause components subscribed to the data to be notified of the change and re-render.
@@ -3402,7 +3402,7 @@ The recommended approach when executing a mutation is to request **_all_** the r
 
 However, often times it can be unfeasible to know and specify all the possible data that would be affected for mutations that have large rippling effects (e.g. imagine “blocking a user” or “leaving a group”).
 
-For these types of mutations, it’s often more straightforward to explicitly mark some data as stale (or the whole store), so that Relay knows to refetch it the next time it is rendered. In order to do so, you can use the data invalidation apis documented in our [Staleness of Data section](#staleness-of-data).
+For these types of mutations, it’s often more straightforward to explicitly mark some data as stale (or the whole store), so that Relay knows to refetch it the next time it is rendered. In order to do so, you can use the data invalidation aAPIpdocumented in our [Staleness of Data section](#staleness-of-data).
 
 #### Mutation Queueing
 
@@ -3421,7 +3421,7 @@ A GraphQL Subscription looks very similar to a query, with the exception that it
 
 ```
 
--   Subscribing to the above subscription will notify the client whenever the specified `` object has been "liked" or "unliked". The **``** field is the subscription field itself, which takes specific input and will set up the subscription in the backend.
+-   Subscribing to the above subscription will notify the client whenever the specified `` object has been "liked" or "unliked". The **``** field is the subscription field itself, which takes specific input and will set up the subscription on the backend.
 -   **``** returns a specific GraphQL type which exposes the data we can query in the subscription payload; that is, whenever the client is notified, it will receive the subscription payload in the notification. In this case, we're querying for the Post object with it's **_updated_** ``, which will allows us to show the like count in real time.
 
 An example of a subscription payload received by the client could look like this:
@@ -3450,7 +3450,7 @@ In order to _execute_ a subscription against the server in Relay, we can use the
 Let's distill what's happening here:
 
 -   `` takes a config object containing the subscription and the variables that the GraphQL query expects.
--   Note that the `` for the subscription can be Flow typed with the autogenerated type available from the `` module. In general, the Relay will generate Flow types for subscriptions at build time, with the following naming format: ``.
+-   Note that the `` for the subscription can be Flow-typed with the autogenerated type available from the `` module. In general, the Relay will generate Flow types for subscriptions at build time, with the following naming format: ``.
 -   `` also take `` and `` callbacks, which will be called respectively when the subscription is successfully established, or when an error occurs.
 -   `` also takes an `` callback, which will be called whenever a subscription payload is received.
 -   When the subscription payload is received, **_if the objects in the subscription payload have IDs, the records in the local store will _automatically_ be updated with the new field values from the payload._** In this case, it would automatically find the existing `` object matching the given ID in the store, and update the values for the `` field.

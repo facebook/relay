@@ -1,24 +1,25 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -34,22 +35,22 @@ const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
-const observationFragment = getFragment(graphql`
+const observationFragment = graphql`
   fragment RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTest_observation_query on Query {
     me {
       name
       lastName
     }
   }
-`);
+`;
 
 describe('execute() a query with @module if the module fragment is available synchronously', () => {
   let environment;
   let dataSource;
-  let operationLoader: {|
+  let operationLoader: {
     get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-  |};
+  };
   let store;
   let source;
   let variables;
@@ -64,7 +65,11 @@ describe('execute() a query with @module if the module fragment is available syn
   let observationSnapshot;
 
   beforeEach(() => {
-    const fetch = (_query, _variables, _cacheConfig) => {
+    const fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -82,7 +87,7 @@ describe('execute() a query with @module if the module fragment is available syn
     });
 
     variables = {};
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNonDeferredQuery {
         me {
           name
@@ -90,7 +95,7 @@ describe('execute() a query with @module if the module fragment is available syn
             @module(name: "User.react")
         }
       }
-    `);
+    `;
 
     operation = createOperationDescriptor(query, variables);
 
@@ -160,10 +165,10 @@ describe('execute() a query with @module if the module fragment is available syn
 describe('execute() a query with @module in @defer if the deferred fragment and module fragment are available synchronously', () => {
   let environment;
   let dataSource;
-  let operationLoader: {|
+  let operationLoader: {
     get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-  |};
+  };
   let store;
   let source;
   let variables;
@@ -179,7 +184,11 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
 
   beforeEach(() => {
     jest.resetModules();
-    const fetch = (_query, _variables, _cacheConfig) => {
+    const fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -197,7 +206,7 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
     });
 
     variables = {};
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferredQuery {
         me {
           name
@@ -206,7 +215,7 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
             @defer
         }
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestDeferred_deferred_user on User {
@@ -293,10 +302,10 @@ describe('execute() a query with @module in @defer if the deferred fragment and 
 describe('execute() a query with nested @module fragments, where the inner @module normalization fragment is available synchronously', () => {
   let environment;
   let dataSource;
-  let operationLoader: {|
+  let operationLoader: {
     get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-  |};
+  };
   let store;
   let source;
   let variables;
@@ -314,7 +323,11 @@ describe('execute() a query with nested @module fragments, where the inner @modu
 
   beforeEach(() => {
     jest.resetModules();
-    const fetch = (_query, _variables, _cacheConfig) => {
+    const fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -334,14 +347,14 @@ describe('execute() a query with nested @module fragments, where the inner @modu
     });
 
     variables = {};
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModuleQuery {
         me {
           ...RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user
             @module(name: "User.react")
         }
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentPartiallyNormalizedDataObservabilityWithBatchedUpdatesTestNestedModule_module_user on User {

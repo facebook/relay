@@ -1,0 +1,15 @@
+interface ClientInterface {
+  description: String
+}
+
+type ClientTypeImplementingClientInterface implements ClientInterface {
+  description: String
+}
+
+type OtherClientTypeImplementingClientInterface implements ClientInterface {
+  description: String
+}
+
+extend type Query {
+  client_interface: ClientInterface
+}

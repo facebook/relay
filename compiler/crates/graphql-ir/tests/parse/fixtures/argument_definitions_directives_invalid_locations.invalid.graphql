@@ -1,0 +1,14 @@
+# expected-to-throw
+
+fragment InvalidArgumentDirectives on User
+@argumentDefinitions(
+  invalid_locations: {
+    type: "ID"
+    directives: [
+      "@configurable" # this one is okay
+      "@customDirective"
+    ]
+  }
+) {
+  __typename
+}

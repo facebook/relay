@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a8b71b38d94f25927404d2db4161b2e1>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<c5c80b8c005696d50b57ea5f9c8912e5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,12 +17,11 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteMutationTestCommentFragment$ref = any;
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType } from "./RelayModernEnvironmentExecuteMutationTestCommentFragment.graphql";
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -28,19 +29,19 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutationVariables = {|
+export type RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$variables = {|
   input: CommentCreateInput,
 |};
-export type RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutationResponse = {|
+export type RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
-      +$fragmentRefs: RelayModernEnvironmentExecuteMutationTestCommentFragment$ref,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteMutationTestCommentFragment$fragmentType,
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation = {|
-  variables: RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutationVariables,
-  response: RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutationResponse,
+  response: RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$data,
+  variables: RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$variables,
 |};
 */
 
@@ -167,4 +168,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8300454c95b302320001a42f871b20cc";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$variables,
+  RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation$data,
+>*/);

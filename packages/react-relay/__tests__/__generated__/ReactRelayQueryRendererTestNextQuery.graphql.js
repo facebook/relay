@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<31f14a6ef857d59ea8fad502001be404>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<5aa2b321153fbb5396c3d0fef57d17dd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +17,18 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type ReactRelayQueryRendererTestNextQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type ReactRelayQueryRendererTestNextQuery$variables = {|
   id: string,
 |};
-export type ReactRelayQueryRendererTestNextQueryResponse = {|
+export type ReactRelayQueryRendererTestNextQuery$data = {|
   +node: ?{|
     +name?: ?string,
   |},
 |};
 export type ReactRelayQueryRendererTestNextQuery = {|
-  variables: ReactRelayQueryRendererTestNextQueryVariables,
-  response: ReactRelayQueryRendererTestNextQueryResponse,
+  response: ReactRelayQueryRendererTestNextQuery$data,
+  variables: ReactRelayQueryRendererTestNextQuery$variables,
 |};
 */
 
@@ -131,4 +133,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "2653367ac12aeab05ef739c0c9cf766f";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayQueryRendererTestNextQuery$variables,
+  ReactRelayQueryRendererTestNextQuery$data,
+>*/);

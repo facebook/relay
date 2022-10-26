@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9861a90fec4d87a034c03424fec858d4>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<6141e41c7352396659fb429e6a1d15e1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQueryVariables = {|
-  enableStream: boolean,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment.graphql";
+export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$variables = {|
   after?: ?string,
+  enableStream: boolean,
 |};
-export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$data = {|
   +viewer: ?{|
-    +__typename: string,
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$ref,
+    +__typename: "Viewer",
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery = {|
-  variables: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQueryVariables,
-  response: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQueryResponse,
+  response: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$data,
+  variables: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$variables,
 |};
 */
 
@@ -275,4 +277,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "da3bd0b60a87ce2c3aee53776f2f43bd";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$variables,
+  RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedQuery$data,
+>*/);

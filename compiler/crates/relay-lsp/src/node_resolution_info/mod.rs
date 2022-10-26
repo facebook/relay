@@ -1,21 +1,32 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
 use common::Span;
-use graphql_syntax::{
-    Argument, Directive, ExecutableDefinition, ExecutableDocument, FragmentDefinition,
-    FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition, ScalarField, Selection,
-    TypeCondition,
-};
-use interner::StringKey;
+use graphql_syntax::Argument;
+use graphql_syntax::Directive;
+use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::ExecutableDocument;
+use graphql_syntax::FragmentDefinition;
+use graphql_syntax::FragmentSpread;
+use graphql_syntax::InlineFragment;
+use graphql_syntax::LinkedField;
+use graphql_syntax::List;
+use graphql_syntax::OperationDefinition;
+use graphql_syntax::ScalarField;
+use graphql_syntax::Selection;
+use graphql_syntax::TypeCondition;
+use intern::string_key::StringKey;
+
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
 
 mod type_path;
-pub use type_path::{TypePath, TypePathItem};
+pub use type_path::TypePath;
+pub use type_path::TypePathItem;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum NodeKind {
@@ -257,7 +268,7 @@ fn build_node_resolution_info_from_selections(
                         .add_type(TypePathItem::InlineFragment { type_name });
 
                     if let Some(node_kind) =
-                        type_condition_at_position(&type_condition, position_span)
+                        type_condition_at_position(type_condition, position_span)
                     {
                         node_resolution_info.kind = node_kind;
                     } else {
@@ -292,11 +303,14 @@ fn build_node_resolution_info_from_selections(
 
 #[cfg(test)]
 mod test {
-    use super::create_node_resolution_info;
-    use super::{NodeKind, NodeResolutionInfo};
-    use common::{SourceLocationKey, Span};
+    use common::SourceLocationKey;
+    use common::Span;
     use graphql_syntax::parse_executable;
-    use interner::Intern;
+    use intern::string_key::Intern;
+
+    use super::create_node_resolution_info;
+    use super::NodeKind;
+    use super::NodeResolutionInfo;
 
     fn parse_and_get_node_info(source: &str, pos: u32) -> NodeResolutionInfo {
         let document =

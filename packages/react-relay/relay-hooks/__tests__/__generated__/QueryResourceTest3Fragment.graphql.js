@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<78068c60ef0dc769ef78bb47111a5ad4>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<68d4e73a81d8da89bc408d7df4b0ac49>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +17,16 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type QueryResourceTest3Fragment$ref: FragmentReference;
-declare export opaque type QueryResourceTest3Fragment$fragmentType: QueryResourceTest3Fragment$ref;
-export type QueryResourceTest3Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type QueryResourceTest3Fragment$fragmentType: FragmentType;
+export type QueryResourceTest3Fragment$data = {|
   +id: string,
-  +$refType: QueryResourceTest3Fragment$ref,
+  +$fragmentType: QueryResourceTest3Fragment$fragmentType,
 |};
-export type QueryResourceTest3Fragment$data = QueryResourceTest3Fragment;
 export type QueryResourceTest3Fragment$key = {
   +$data?: QueryResourceTest3Fragment$data,
-  +$fragmentRefs: QueryResourceTest3Fragment$ref,
+  +$fragmentSpreads: QueryResourceTest3Fragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "6a44f17afe34540ffe0084ee7abe4cbf";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  QueryResourceTest3Fragment$fragmentType,
+  QueryResourceTest3Fragment$data,
+>*/);

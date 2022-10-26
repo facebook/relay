@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b24e36200c459fca7a3f1ac90dffb806>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<21d5ce041289e962f4ec8ab6962f8829>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +17,14 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type FeedbackLikeInput = {|
-  clientMutationId?: ?string,
   feedbackId?: ?string,
 |};
-export type validateMutationTest20FeedbackLikeMutationVariables = {|
+export type validateMutationTest20FeedbackLikeMutation$variables = {|
   input?: ?FeedbackLikeInput,
 |};
-export type validateMutationTest20FeedbackLikeMutationResponse = {|
+export type validateMutationTest20FeedbackLikeMutation$data = {|
   +feedbackLike: ?{|
     +feedback: ?{|
       +doesViewerLike: ?boolean,
@@ -32,8 +33,8 @@ export type validateMutationTest20FeedbackLikeMutationResponse = {|
   |},
 |};
 export type validateMutationTest20FeedbackLikeMutation = {|
-  variables: validateMutationTest20FeedbackLikeMutationVariables,
-  response: validateMutationTest20FeedbackLikeMutationResponse,
+  response: validateMutationTest20FeedbackLikeMutation$data,
+  variables: validateMutationTest20FeedbackLikeMutation$variables,
 |};
 */
 
@@ -160,4 +161,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "705c710e447f0815be52c8e723e62d35";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  validateMutationTest20FeedbackLikeMutation$variables,
+  validateMutationTest20FeedbackLikeMutation$data,
+>*/);

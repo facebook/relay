@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<48da12ef79e79ae34177495d07933845>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<c06dab2d037a159d2953dc8de7ac020a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type MultiActorEnvironmentExecuteMutationTestCommentFragment$ref = any;
-export type MultiActorEnvironmentExecuteMutationTestCommentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType } from "./MultiActorEnvironmentExecuteMutationTestCommentFragment.graphql";
+export type MultiActorEnvironmentExecuteMutationTestCommentQuery$variables = {|
   id: string,
 |};
-export type MultiActorEnvironmentExecuteMutationTestCommentQueryResponse = {|
+export type MultiActorEnvironmentExecuteMutationTestCommentQuery$data = {|
   +node: ?{|
     +id: string,
-    +$fragmentRefs: MultiActorEnvironmentExecuteMutationTestCommentFragment$ref,
+    +$fragmentSpreads: MultiActorEnvironmentExecuteMutationTestCommentFragment$fragmentType,
   |},
 |};
 export type MultiActorEnvironmentExecuteMutationTestCommentQuery = {|
-  variables: MultiActorEnvironmentExecuteMutationTestCommentQueryVariables,
-  response: MultiActorEnvironmentExecuteMutationTestCommentQueryResponse,
+  response: MultiActorEnvironmentExecuteMutationTestCommentQuery$data,
+  variables: MultiActorEnvironmentExecuteMutationTestCommentQuery$variables,
 |};
 */
 
@@ -149,4 +151,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "dd845fc72f2a9b2b232f69a75bfae3f7";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  MultiActorEnvironmentExecuteMutationTestCommentQuery$variables,
+  MultiActorEnvironmentExecuteMutationTestCommentQuery$data,
+>*/);

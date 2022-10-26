@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<83f1ea15a3d5e2562bd54867ab2f56df>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<332a4ea90c3e382b4d8230d3cc989e87>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,17 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentNoInlineTestDeferredStreamParent$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType: RelayModernEnvironmentNoInlineTestDeferredStreamParent$ref;
-export type RelayModernEnvironmentNoInlineTestDeferredStreamParent = {|
-  +$fragmentRefs: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$ref,
-  +$refType: RelayModernEnvironmentNoInlineTestDeferredStreamParent$ref,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType } from "./RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType: FragmentType;
+export type RelayModernEnvironmentNoInlineTestDeferredStreamParent$data = {|
+  +$fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStream_newsFeed$fragmentType,
+  +$fragmentType: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
 |};
-export type RelayModernEnvironmentNoInlineTestDeferredStreamParent$data = RelayModernEnvironmentNoInlineTestDeferredStreamParent;
 export type RelayModernEnvironmentNoInlineTestDeferredStreamParent$key = {
   +$data?: RelayModernEnvironmentNoInlineTestDeferredStreamParent$data,
-  +$fragmentRefs: RelayModernEnvironmentNoInlineTestDeferredStreamParent$ref,
+  +$fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
   ...
 };
 */
@@ -79,4 +79,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8586d6ae88ead0a1f26e619046f3a398";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
+  RelayModernEnvironmentNoInlineTestDeferredStreamParent$data,
+>*/);

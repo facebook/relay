@@ -1,0 +1,294 @@
+==================================== INPUT ====================================
+query providedVariableInFragment_Query($id: ID!) {
+    node(id: $id) {
+        ...providedVariableInFragment_Fragment1
+        ...providedVariableInFragment_Fragment2
+    }
+}
+
+fragment providedVariableInFragment_Fragment1 on User
+  @argumentDefinitions(
+    foo_gk: {type: "Boolean!", provider: "fooGKProvider"}
+    foobar_gk: {type: "Boolean!", provider: "foobarGKProvider"})
+{
+    name @include(if: $foo_gk)
+    alternate_name @include(if: $foobar_gk)
+}
+
+fragment providedVariableInFragment_Fragment2 on User
+  @argumentDefinitions(bar_gk: {type: "Boolean!", provider: "barGKProvider"})
+{
+    username @skip(if: $bar_gk)
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "providedVariableInFragment_Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "providedVariableInFragment_Fragment1"
+          },
+          {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "providedVariableInFragment_Fragment2"
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "id"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__fooGKProvider"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__foobarGKProvider"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "__relay_internal__pv__barGKProvider"
+      }
+    ],
+    "kind": "Operation",
+    "name": "providedVariableInFragment_Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": [
+          {
+            "kind": "Variable",
+            "name": "id",
+            "variableName": "id"
+          }
+        ],
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "kind": "InlineFragment",
+            "selections": [
+              {
+                "condition": "__relay_internal__pv__fooGKProvider",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "name",
+                    "storageKey": null
+                  }
+                ]
+              },
+              {
+                "condition": "__relay_internal__pv__foobarGKProvider",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "alternate_name",
+                    "storageKey": null
+                  }
+                ]
+              },
+              {
+                "condition": "__relay_internal__pv__barGKProvider",
+                "kind": "Condition",
+                "passingValue": false,
+                "selections": [
+                  {
+                    "alias": null,
+                    "args": null,
+                    "kind": "ScalarField",
+                    "name": "username",
+                    "storageKey": null
+                  }
+                ]
+              }
+            ],
+            "type": "User",
+            "abstractKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "cc39eff012bd94ed7e81152d202bede3",
+    "id": null,
+    "metadata": {},
+    "name": "providedVariableInFragment_Query",
+    "operationKind": "query",
+    "text": null,
+    "providedVariables": {
+      "__relay_internal__pv__fooGKProvider": require('fooGKProvider'),
+      "__relay_internal__pv__foobarGKProvider": require('foobarGKProvider'),
+      "__relay_internal__pv__barGKProvider": require('barGKProvider')
+    }
+  }
+}
+
+QUERY:
+
+query providedVariableInFragment_Query(
+  $id: ID!
+  $__relay_internal__pv__fooGKProvider: Boolean!
+  $__relay_internal__pv__foobarGKProvider: Boolean!
+  $__relay_internal__pv__barGKProvider: Boolean!
+) {
+  node(id: $id) {
+    __typename
+    ...providedVariableInFragment_Fragment1
+    ...providedVariableInFragment_Fragment2
+    id
+  }
+}
+
+fragment providedVariableInFragment_Fragment1 on User {
+  name @include(if: $__relay_internal__pv__fooGKProvider)
+  alternate_name @include(if: $__relay_internal__pv__foobarGKProvider)
+}
+
+fragment providedVariableInFragment_Fragment2 on User {
+  username @skip(if: $__relay_internal__pv__barGKProvider)
+}
+
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__fooGKProvider"
+    },
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__foobarGKProvider"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableInFragment_Fragment1",
+  "selections": [
+    {
+      "condition": "__relay_internal__pv__fooGKProvider",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "name",
+          "storageKey": null
+        }
+      ]
+    },
+    {
+      "condition": "__relay_internal__pv__foobarGKProvider",
+      "kind": "Condition",
+      "passingValue": true,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "alternate_name",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [
+    {
+      "kind": "RootArgument",
+      "name": "__relay_internal__pv__barGKProvider"
+    }
+  ],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "providedVariableInFragment_Fragment2",
+  "selections": [
+    {
+      "condition": "__relay_internal__pv__barGKProvider",
+      "kind": "Condition",
+      "passingValue": false,
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "username",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

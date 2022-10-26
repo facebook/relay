@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b9153aa1eefb9ac9d5f3b53e78b5ffbc>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<57336f71892fef01936c5794e5ede2c2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +17,16 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type GraphQLTagTest1UserFragment$ref: FragmentReference;
-declare export opaque type GraphQLTagTest1UserFragment$fragmentType: GraphQLTagTest1UserFragment$ref;
-export type GraphQLTagTest1UserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type GraphQLTagTest1UserFragment$fragmentType: FragmentType;
+export type GraphQLTagTest1UserFragment$data = {|
   +name: ?string,
-  +$refType: GraphQLTagTest1UserFragment$ref,
+  +$fragmentType: GraphQLTagTest1UserFragment$fragmentType,
 |};
-export type GraphQLTagTest1UserFragment$data = GraphQLTagTest1UserFragment;
 export type GraphQLTagTest1UserFragment$key = {
   +$data?: GraphQLTagTest1UserFragment$data,
-  +$fragmentRefs: GraphQLTagTest1UserFragment$ref,
+  +$fragmentSpreads: GraphQLTagTest1UserFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "fced6c5e36db6981177c0fbd5f001550";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  GraphQLTagTest1UserFragment$fragmentType,
+  GraphQLTagTest1UserFragment$data,
+>*/);

@@ -1,0 +1,20 @@
+query spreadOfAssignableFragmentQuery {
+  me {
+    ...spreadOfAssignableFragmentAssignable_user
+  }
+  node(id: 4) {
+    ...spreadOfAssignableFragmentAssignable_node
+  }
+  node2: node(id: 5) {
+    ...spreadOfAssignableFragmentAssignable_user
+    ...spreadOfAssignableFragmentAssignable_node
+  }
+}
+
+fragment spreadOfAssignableFragmentAssignable_user on User @assignable {
+  __typename
+}
+
+fragment spreadOfAssignableFragmentAssignable_node on Node @assignable {
+  __typename
+}

@@ -1,17 +1,21 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {
   MultiActorEnvironment,
@@ -19,7 +23,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -62,7 +66,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         storyID = 'story-id';
 
-        RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation = getRequest(graphql`
+        RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationWithFlightTest_UpdateStoryMutation(
             $input: StoryUpdateInput!
             $count: Int!
@@ -77,9 +81,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery = getRequest(graphql`
+        RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery = graphql`
           query RelayModernEnvironmentExecuteMutationWithFlightTest_FlightQuery(
             $id: ID!
             $count: Int!
@@ -90,9 +94,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery = getRequest(graphql`
+        RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery = graphql`
           query RelayModernEnvironmentExecuteMutationWithFlightTest_InnerQuery(
             $id: ID!
           ) {
@@ -102,10 +106,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         variables = {
           input: {
-            clientMutationId: '0',
             body: {
               text: 'Hello world!',
             },
@@ -131,8 +134,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         error = jest.fn();
         next = jest.fn();
         callbacks = {complete, error, next};
-        fetch = (_query, _variables, _cacheConfig) => {
-          return RelayObservable.create(sink => {
+        fetch = (
+          _query: RequestParameters,
+          _variables: Variables,
+          _cacheConfig: CacheConfig,
+        ) => {
+          return RelayObservable.create<any>(sink => {
             subject = sink;
           });
         };

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<70baee8db5c12fc5049c679f33e1a9c2>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<cf1334c4f21a5f8f38cb83852af42ef8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,23 +17,23 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayPaginationContainerTestNoConnectionUserFragment$ref = any;
-export type ReactRelayPaginationContainerTestNoConnectionUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType } from "./ReactRelayPaginationContainerTestNoConnectionUserFragment.graphql";
+export type ReactRelayPaginationContainerTestNoConnectionUserQuery$variables = {|
   after?: ?string,
   count: number,
   id: string,
   orderby?: ?$ReadOnlyArray<?string>,
 |};
-export type ReactRelayPaginationContainerTestNoConnectionUserQueryResponse = {|
+export type ReactRelayPaginationContainerTestNoConnectionUserQuery$data = {|
   +node: ?{|
     +id: string,
-    +$fragmentRefs: ReactRelayPaginationContainerTestNoConnectionUserFragment$ref,
+    +$fragmentSpreads: ReactRelayPaginationContainerTestNoConnectionUserFragment$fragmentType,
   |},
 |};
 export type ReactRelayPaginationContainerTestNoConnectionUserQuery = {|
-  variables: ReactRelayPaginationContainerTestNoConnectionUserQueryVariables,
-  response: ReactRelayPaginationContainerTestNoConnectionUserQueryResponse,
+  response: ReactRelayPaginationContainerTestNoConnectionUserQuery$data,
+  variables: ReactRelayPaginationContainerTestNoConnectionUserQuery$variables,
 |};
 */
 
@@ -224,4 +226,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "87f6a6ca60ee4bf34ab055283ec5b341";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayPaginationContainerTestNoConnectionUserQuery$variables,
+  ReactRelayPaginationContainerTestNoConnectionUserQuery$data,
+>*/);

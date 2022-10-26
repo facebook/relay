@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e2163c95c1e74ea990c3265d0f6bd21f>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<cd297f94dc571bf745da00e0ba89b2a4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +17,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentTypeRefinementTest11Fragment$ref = any;
-export type RelayModernEnvironmentTypeRefinementTest6QueryVariables = {||};
-export type RelayModernEnvironmentTypeRefinementTest6QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentTypeRefinementTest11Fragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTest11Fragment.graphql";
+export type RelayModernEnvironmentTypeRefinementTest6Query$variables = {||};
+export type RelayModernEnvironmentTypeRefinementTest6Query$data = {|
   +userOrPage: ?{|
-    +$fragmentRefs: RelayModernEnvironmentTypeRefinementTest11Fragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTest11Fragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentTypeRefinementTest6Query = {|
-  variables: RelayModernEnvironmentTypeRefinementTest6QueryVariables,
-  response: RelayModernEnvironmentTypeRefinementTest6QueryResponse,
+  response: RelayModernEnvironmentTypeRefinementTest6Query$data,
+  variables: RelayModernEnvironmentTypeRefinementTest6Query$variables,
 |};
 */
 
@@ -156,4 +158,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8a7b0811d0016fa43cbdb871c6825a8e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentTypeRefinementTest6Query$variables,
+  RelayModernEnvironmentTypeRefinementTest6Query$data,
+>*/);

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b9538a55caade1086912ee180ad40e8f>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<96724d396fb1effe971de29910a1d9f4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayLocalQueryRendererTestUserFragment$ref = any;
-export type ReactRelayLocalQueryRendererTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { ReactRelayLocalQueryRendererTestUserFragment$fragmentType } from "./ReactRelayLocalQueryRendererTestUserFragment.graphql";
+export type ReactRelayLocalQueryRendererTestUserQuery$variables = {|
   id?: ?string,
 |};
-export type ReactRelayLocalQueryRendererTestUserQueryResponse = {|
+export type ReactRelayLocalQueryRendererTestUserQuery$data = {|
   +node: ?{|
     +id: string,
     +lastName?: ?string,
-    +$fragmentRefs: ReactRelayLocalQueryRendererTestUserFragment$ref,
+    +$fragmentSpreads: ReactRelayLocalQueryRendererTestUserFragment$fragmentType,
   |},
 |};
 export type ReactRelayLocalQueryRendererTestUserQuery = {|
-  variables: ReactRelayLocalQueryRendererTestUserQueryVariables,
-  response: ReactRelayLocalQueryRendererTestUserQueryResponse,
+  response: ReactRelayLocalQueryRendererTestUserQuery$data,
+  variables: ReactRelayLocalQueryRendererTestUserQuery$variables,
 |};
 */
 
@@ -155,4 +157,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f46ad8fa64eb4b5933ed039b4cc94e16";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayLocalQueryRendererTestUserQuery$variables,
+  ReactRelayLocalQueryRendererTestUserQuery$data,
+>*/);

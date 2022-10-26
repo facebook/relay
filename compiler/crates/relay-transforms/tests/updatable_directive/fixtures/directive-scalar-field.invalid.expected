@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery @updatable {
+  node(id: 4) {
+    id @customDirective(level: 1)
+  }
+}
+==================================== ERROR ====================================
+✖︎ The @customDirective directive is not allowed in updatable operations.
+
+  directive-scalar-field.invalid.graphql:4:8
+    3 │   node(id: 4) {
+    4 │     id @customDirective(level: 1)
+      │        ^^^^^^^^^^^^^^^^
+    5 │   }

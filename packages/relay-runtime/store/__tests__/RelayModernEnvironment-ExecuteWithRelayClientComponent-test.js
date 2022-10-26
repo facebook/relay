@@ -1,21 +1,25 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
+
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -50,15 +54,15 @@ describe('execute() with @relay_client_component', () => {
   let store;
 
   beforeEach(() => {
-    ClientFragment = getFragment(graphql`
+    ClientFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithRelayClientComponentTest_clientFragment on Story {
         name
         body {
           text
         }
       }
-    `);
-    Query = getRequest(graphql`
+    `;
+    Query = graphql`
       query RelayModernEnvironmentExecuteWithRelayClientComponentTestQuery(
         $id: ID!
       ) {
@@ -67,13 +71,17 @@ describe('execute() with @relay_client_component', () => {
             @relay_client_component
         }
       }
-    `);
+    `;
 
     complete = jest.fn();
     error = jest.fn();
     next = jest.fn();
     callbacks = {complete, error, next};
-    fetch = (_query, _variables, _cacheConfig) => {
+    fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -115,8 +123,7 @@ describe('execute() with @relay_client_component', () => {
               __typename: 'Story',
               name: 'React Server Components: The Musical',
               body: {
-                text:
-                  'Presenting a new musical from the director of Cats (2019)!',
+                text: 'Presenting a new musical from the director of Cats (2019)!',
               },
             },
           },

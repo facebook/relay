@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -48,13 +46,13 @@ const RelayModernRecord = require('./RelayModernRecord');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
-const {generateTypeID} = require('./TypeID');
+const {generateTypeID, TYPE_SCHEMA_TYPE} = require('./TypeID');
 const invariant = require('invariant');
 
-export type Availability = {|
+export type Availability = {
   +status: 'available' | 'missing',
   +mostRecentlyInvalidatedAt: ?number,
-|};
+};
 
 const {
   ACTOR_CHANGE,
@@ -68,17 +66,14 @@ const {
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
   TYPE_DISCRIMINATOR,
 } = RelayConcreteNode;
-const {
-  ROOT_ID,
-  getModuleOperationKey,
-  getStorageKey,
-  getArgumentValues,
-} = RelayStoreUtils;
+const {ROOT_ID, getModuleOperationKey, getStorageKey, getArgumentValues} =
+  RelayStoreUtils;
 
 /**
  * Synchronously check whether the records required to fulfill the given
@@ -190,6 +185,7 @@ class DataChecker {
   }
 
   check(node: NormalizationNode, dataID: DataID): Availability {
+    this._assignClientAbstractTypes(node);
     this._traverse(node, dataID);
 
     return this._recordWasMissing === true
@@ -479,6 +475,11 @@ class DataChecker {
           }
           this._traverseSelections(selection.fragment.selections, dataID);
           break;
+        case RELAY_RESOLVER:
+          if (selection.fragment) {
+            this._traverseSelections([selection.fragment], dataID);
+          }
+          break;
         default:
           (selection: empty);
           invariant(
@@ -592,14 +593,13 @@ class DataChecker {
       const prevMutator = this._mutator;
       const prevRecordSourceProxy = this._recordSourceProxy;
 
-      const [
-        mutator,
-        recordSourceProxy,
-      ] = this._getMutatorAndRecordProxyForActor(actorIdentifier);
+      const [mutator, recordSourceProxy] =
+        this._getMutatorAndRecordProxyForActor(actorIdentifier);
 
       this._source = this._getSourceForActor(actorIdentifier);
       this._mutator = mutator;
       this._recordSourceProxy = recordSourceProxy;
+      this._assignClientAbstractTypes(field);
       this._traverse(field, linkedID);
       this._source = prevSource;
       this._mutator = prevMutator;
@@ -656,6 +656,27 @@ class DataChecker {
       }
     }
     this._variables = prevVariables;
+  }
+
+  // For abstract types defined in the client schema extension, we won't be
+  // getting `__is<AbstractType>` hints from the server. To handle this, the
+  // compiler attaches additional metadata on the normalization artifact,
+  // which we need to record into the store.
+  _assignClientAbstractTypes(node: NormalizationNode) {
+    const {clientAbstractTypes} = node;
+    if (clientAbstractTypes != null) {
+      for (const abstractType of Object.keys(clientAbstractTypes)) {
+        for (const concreteType of clientAbstractTypes[abstractType]) {
+          const typeID = generateTypeID(concreteType);
+          if (this._source.get(typeID) == null) {
+            this._mutator.create(typeID, TYPE_SCHEMA_TYPE);
+          }
+          if (this._mutator.getValue(typeID, abstractType) == null) {
+            this._mutator.setValue(typeID, abstractType, true);
+          }
+        }
+      }
+    }
   }
 }
 

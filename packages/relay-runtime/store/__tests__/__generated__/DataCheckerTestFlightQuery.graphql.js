@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<03a69e9fe41f1a4839e7798427546000>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<b8f338771d32bcf7d80693427f21bae9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,19 +19,19 @@
 // @ReactFlightServerDependency FlightComponent.server
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type DataCheckerTestFlightQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type DataCheckerTestFlightQuery$variables = {|
   count: number,
+  id: string,
 |};
-export type DataCheckerTestFlightQueryResponse = {|
+export type DataCheckerTestFlightQuery$data = {|
   +node: ?{|
     +flightComponent?: ?any,
   |},
 |};
 export type DataCheckerTestFlightQuery = {|
-  variables: DataCheckerTestFlightQueryVariables,
-  response: DataCheckerTestFlightQueryResponse,
+  response: DataCheckerTestFlightQuery$data,
+  variables: DataCheckerTestFlightQuery$variables,
 |};
 */
 
@@ -167,4 +169,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5deb0c7fbfc1629f14967d717067775d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  DataCheckerTestFlightQuery$variables,
+  DataCheckerTestFlightQuery$data,
+>*/);

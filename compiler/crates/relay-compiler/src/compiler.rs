@@ -1,31 +1,38 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{build_project, commit_project, BuildProjectFailure};
-use crate::config::Config;
-use crate::errors::{Error, Result};
-use crate::file_source::FileSource;
-use crate::graphql_asts::GraphQLAsts;
-use crate::red_to_green::RedToGreen;
-use crate::{
-    compiler_state::{ArtifactMapKind, CompilerState},
-    file_source::FileSourceSubscriptionNextChange,
-    FileSourceResult,
-};
-use common::{PerfLogEvent, PerfLogger};
+use std::sync::Arc;
+
+use common::Diagnostic;
+use common::PerfLogEvent;
+use common::PerfLogger;
+use common::WithDiagnostics;
 use futures::future::join_all;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
-use log::{debug, info};
+use log::debug;
+use log::info;
 use rayon::prelude::*;
-use std::sync::Arc;
-use tokio::{
-    sync::Notify,
-    task::{self, JoinHandle},
-};
+use tokio::sync::Notify;
+use tokio::task;
+use tokio::task::JoinHandle;
+
+use crate::build_project::build_project;
+use crate::build_project::commit_project;
+use crate::build_project::BuildProjectFailure;
+use crate::compiler_state::ArtifactMapKind;
+use crate::compiler_state::CompilerState;
+use crate::config::Config;
+use crate::errors::Error;
+use crate::errors::Result;
+use crate::file_source::FileSource;
+use crate::file_source::FileSourceSubscriptionNextChange;
+use crate::graphql_asts::GraphQLAsts;
+use crate::red_to_green::RedToGreen;
+use crate::FileSourceResult;
 
 pub struct Compiler<TPerfLogger>
 where
@@ -46,23 +53,26 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
     pub async fn compile(&self) -> Result<CompilerState> {
         let setup_event = self.perf_logger.create_event("compiler_setup");
         self.config.status_reporter.build_starts();
-        let result: Result<CompilerState> = async {
+        let result: Result<(CompilerState, Vec<Diagnostic>)> = async {
             let file_source = FileSource::connect(&self.config, &setup_event).await?;
             let mut compiler_state = file_source
                 .query(&setup_event, self.perf_logger.as_ref())
                 .await?;
 
-            self.build_projects(&mut compiler_state, &setup_event)
+            let diagnostics = self
+                .build_projects(&mut compiler_state, &setup_event)
                 .await?;
 
-            Ok(compiler_state)
+            Ok((compiler_state, diagnostics))
         }
         .await;
         setup_event.complete();
 
         match result {
-            Ok(compiler_state) => {
-                self.config.status_reporter.build_completes();
+            Ok((compiler_state, non_fatal_diagnostics)) => {
+                self.config
+                    .status_reporter
+                    .build_completes(&non_fatal_diagnostics);
                 Ok(compiler_state)
             }
             Err(error) => {
@@ -137,15 +147,18 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
             match result {
                 Ok((mut compiler_state, notify_receiver, subscription_handle)) => {
                     let mut red_to_green = RedToGreen::new();
-                    if let Err(err) = self.build_projects(&mut compiler_state, &setup_event).await {
-                        red_to_green.log_error();
-                        self.config.status_reporter.build_errors(&err);
-                    } else {
-                        info!("Compilation completed.");
-                        self.config.status_reporter.build_completes();
-                    }
+                    match self.build_projects(&mut compiler_state, &setup_event).await {
+                        Ok(diagnostics) => {
+                            self.config.status_reporter.build_completes(&diagnostics);
+                        }
+                        Err(err) => {
+                            red_to_green.log_error();
+                            self.config.status_reporter.build_errors(&err);
+                        }
+                    };
+
                     setup_event.complete();
-                    info!("Waiting for changes...");
+                    info!("Watching for new changes...");
 
                     self.incremental_build_loop(
                         compiler_state,
@@ -209,19 +222,23 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                 if had_new_changes {
                     self.config.status_reporter.build_starts();
                     info!("Change detected, start compiling...");
-                    if let Err(err) = self
+
+                    match self
                         .build_projects(&mut compiler_state, &incremental_build_event)
                         .await
                     {
-                        red_to_green.log_error();
-                        self.config.status_reporter.build_errors(&err);
-                    } else {
-                        info!("Compilation completed.");
-                        self.config.status_reporter.build_completes();
-                        red_to_green.clear_error_and_log(self.perf_logger.as_ref());
+                        Ok(diagnostics) => {
+                            self.config.status_reporter.build_completes(&diagnostics);
+                            red_to_green.clear_error_and_log(self.perf_logger.as_ref());
+                        }
+                        Err(err) => {
+                            red_to_green.log_error();
+                            self.config.status_reporter.build_errors(&err);
+                        }
                     }
+
                     incremental_build_event.stop(incremental_build_time);
-                    info!("Waiting for changes...");
+                    info!("Watching for new changes...");
                 } else {
                     debug!("No new changes detected.");
                     incremental_build_event.stop(incremental_build_time);
@@ -235,7 +252,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         &self,
         compiler_state: &mut CompilerState,
         setup_event: &impl PerfLogEvent,
-    ) -> Result<()> {
+    ) -> Result<Vec<Diagnostic>> {
         let build_projects_time = setup_event.start("build_projects_time");
         let result = build_projects(
             Arc::clone(&self.config),
@@ -246,7 +263,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
         .await;
         setup_event.stop(build_projects_time);
         setup_event.time("post_build_projects_time", || {
-            result.and_then(|_| {
+            result.and_then(|diagnostics| {
                 compiler_state.complete_compilation();
                 self.config.artifact_writer.finalize()?;
                 if let Some(post_artifacts_write) = &self.config.post_artifacts_write {
@@ -254,7 +271,7 @@ impl<TPerfLogger: PerfLogger> Compiler<TPerfLogger> {
                         .map_err(|error| Error::PostArtifactsError { error })?;
                 }
 
-                Ok(())
+                Ok(diagnostics)
             })
         })
     }
@@ -265,7 +282,7 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
     perf_logger: Arc<TPerfLogger>,
     setup_event: &impl PerfLogEvent,
     compiler_state: &mut CompilerState,
-) -> Result<()> {
+) -> Result<Vec<Diagnostic>> {
     let mut graphql_asts = setup_event.time("parse_sources_time", || {
         GraphQLAsts::from_graphql_sources_map(
             &compiler_state.graphql_sources,
@@ -312,37 +329,43 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
         }
     }
 
-    let mut build_cancelled_during_commit = false;
-    if errors.is_empty() {
-        if compiler_state.should_cancel_current_build() {
-            debug!("Build is cancelled: updates in source code/or new file changes are pending.");
-            return Err(Error::Cancelled);
-        }
+    if !errors.is_empty() {
+        return Err(Error::BuildProjectsErrors { errors });
+    }
 
-        let mut handles: Vec<JoinHandle<std::result::Result<_, BuildProjectFailure>>> = Vec::new();
-        for (project_name, schema, programs, artifacts) in results {
-            let config = Arc::clone(&config);
-            let perf_logger = Arc::clone(&perf_logger);
-            let artifact_map = compiler_state
-                .artifacts
-                .get(&project_name)
-                .cloned()
-                .unwrap_or_else(|| Arc::new(ArtifactMapKind::Unconnected(Default::default())));
-            let removed_definition_names = graphql_asts
-                .remove(&project_name)
-                .expect("Expect GraphQLAsts to exist.")
-                .removed_definition_names;
-            let dirty_artifact_paths = compiler_state
-                .dirty_artifact_paths
-                .get(&project_name)
-                .cloned()
-                .unwrap_or_default();
+    if compiler_state.should_cancel_current_build() {
+        debug!("Build is cancelled: updates in source code/or new file changes are pending.");
+        return Err(Error::Cancelled);
+    }
 
-            let source_control_update_status =
-                Arc::clone(&compiler_state.source_control_update_status);
-            handles.push(task::spawn(async move {
-                let project_config = &config.projects[&project_name];
-                Ok((
+    let mut handles: Vec<JoinHandle<std::result::Result<_, BuildProjectFailure>>> = Vec::new();
+    for WithDiagnostics {
+        item: (project_name, schema, programs, artifacts),
+        diagnostics,
+    } in results
+    {
+        let config = Arc::clone(&config);
+        let perf_logger = Arc::clone(&perf_logger);
+        let artifact_map = compiler_state
+            .artifacts
+            .get(&project_name)
+            .cloned()
+            .unwrap_or_else(|| Arc::new(ArtifactMapKind::Unconnected(Default::default())));
+        let removed_definition_names = graphql_asts
+            .remove(&project_name)
+            .expect("Expect GraphQLAsts to exist.")
+            .removed_definition_names;
+        let dirty_artifact_paths = compiler_state
+            .dirty_artifact_paths
+            .get(&project_name)
+            .cloned()
+            .unwrap_or_default();
+
+        let source_control_update_status = Arc::clone(&compiler_state.source_control_update_status);
+        handles.push(task::spawn(async move {
+            let project_config = &config.projects[&project_name];
+            Ok((
+                (
                     project_name,
                     commit_project(
                         &config,
@@ -358,39 +381,45 @@ async fn build_projects<TPerfLogger: PerfLogger + 'static>(
                     )
                     .await?,
                     schema,
-                ))
-            }));
-        }
+                ),
+                diagnostics,
+            ))
+        }));
+    }
 
-        for commit_result in join_all(handles).await {
-            let commit_result: std::result::Result<std::result::Result<_, _>, _> = commit_result;
-            let inner_result = commit_result.map_err(|e| Error::JoinError {
-                error: e.to_string(),
-            })?;
-            match inner_result {
-                Ok((project_name, next_artifact_map, schema)) => {
-                    let next_artifact_map = Arc::new(ArtifactMapKind::Mapping(next_artifact_map));
-                    compiler_state
-                        .artifacts
-                        .insert(project_name, next_artifact_map);
-                    compiler_state.schema_cache.insert(project_name, schema);
-                }
-                Err(BuildProjectFailure::Error(error)) => {
-                    errors.push(error);
-                }
-                Err(BuildProjectFailure::Cancelled) => {
-                    build_cancelled_during_commit = true;
-                }
+    let mut build_cancelled_during_commit = false;
+    let mut all_diagnostics: Vec<Diagnostic> = Vec::new();
+    for commit_result in join_all(handles).await {
+        let commit_result: std::result::Result<std::result::Result<_, _>, _> = commit_result;
+        let mut inner_result = commit_result.map_err(|e| Error::JoinError {
+            error: e.to_string(),
+        })?;
+        match inner_result {
+            Ok(((project_name, next_artifact_map, schema), ref mut diagnostics)) => {
+                let next_artifact_map = Arc::new(ArtifactMapKind::Mapping(next_artifact_map));
+                compiler_state
+                    .artifacts
+                    .insert(project_name, next_artifact_map);
+                compiler_state.schema_cache.insert(project_name, schema);
+
+                all_diagnostics.append(diagnostics);
+            }
+            Err(BuildProjectFailure::Error(error)) => {
+                errors.push(error);
+            }
+            Err(BuildProjectFailure::Cancelled) => {
+                build_cancelled_during_commit = true;
             }
         }
     }
 
-    if errors.is_empty() {
-        match build_cancelled_during_commit {
-            true => Err(Error::Cancelled),
-            false => Ok(()),
-        }
-    } else {
-        Err(Error::BuildProjectsErrors { errors })
+    if !errors.is_empty() {
+        return Err(Error::BuildProjectsErrors { errors });
     }
+
+    if build_cancelled_during_commit {
+        return Err(Error::Cancelled);
+    }
+
+    Ok(all_diagnostics)
 }

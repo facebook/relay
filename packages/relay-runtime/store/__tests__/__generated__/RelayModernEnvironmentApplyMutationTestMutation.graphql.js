@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a1903974170c9defc9d7aa1b0958e922>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<7786f28276308b2db9908c9b670f6fc0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +17,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -27,22 +28,22 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentApplyMutationTestMutationVariables = {|
+export type RelayModernEnvironmentApplyMutationTestMutation$variables = {|
   input: CommentCreateInput,
 |};
-export type RelayModernEnvironmentApplyMutationTestMutationResponse = {|
+export type RelayModernEnvironmentApplyMutationTestMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
-      +id: string,
       +body: ?{|
         +text: ?string,
       |},
+      +id: string,
     |},
   |},
 |};
 export type RelayModernEnvironmentApplyMutationTestMutation = {|
-  variables: RelayModernEnvironmentApplyMutationTestMutationVariables,
-  response: RelayModernEnvironmentApplyMutationTestMutationResponse,
+  response: RelayModernEnvironmentApplyMutationTestMutation$data,
+  variables: RelayModernEnvironmentApplyMutationTestMutation$variables,
 |};
 */
 
@@ -141,4 +142,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8f6539466374b4a84e29c1ff8cf94b75";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentApplyMutationTestMutation$variables,
+  RelayModernEnvironmentApplyMutationTestMutation$data,
+>*/);

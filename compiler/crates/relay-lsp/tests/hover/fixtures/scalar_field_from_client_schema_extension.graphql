@@ -1,0 +1,14 @@
+query MyQuery {
+  me {
+    client_sc|hema_field
+  }
+}
+
+%extension%
+
+extend type User {
+  """
+  This is a client schema field
+  """
+  client_schema_field: Int
+}

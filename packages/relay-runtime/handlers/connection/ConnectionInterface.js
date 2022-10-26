@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -30,8 +29,7 @@ export type PageInfo = {
   ...
 };
 
-type ConnectionConfig = {|
-  CLIENT_MUTATION_ID: string,
+type ConnectionConfig = {
   CURSOR: string,
   EDGES: string,
   END_CURSOR: string,
@@ -41,7 +39,7 @@ type ConnectionConfig = {|
   PAGE_INFO: string,
   PAGE_INFO_TYPE: string,
   START_CURSOR: string,
-|};
+};
 
 const CONNECTION_CALLS = {
   after: true,
@@ -53,7 +51,6 @@ const CONNECTION_CALLS = {
 };
 
 let config: ConnectionConfig = {
-  CLIENT_MUTATION_ID: 'clientMutationId',
   CURSOR: 'cursor',
   EDGES: 'edges',
   END_CURSOR: 'endCursor',

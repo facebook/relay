@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -106,11 +105,11 @@ function edgeUpdater(
     );
     let singleServerEdge, serverEdges;
     try {
-      singleServerEdge = record.getLinkedRecord(payload.fieldKey, payload.args);
+      singleServerEdge = record.getLinkedRecord(payload.fieldKey);
     } catch {}
     if (!singleServerEdge) {
       try {
-        serverEdges = record.getLinkedRecords(payload.fieldKey, payload.args);
+        serverEdges = record.getLinkedRecords(payload.fieldKey);
       } catch {}
     }
     if (singleServerEdge == null && serverEdges == null) {
@@ -183,11 +182,11 @@ function nodeUpdater(
     let singleServerNode;
     let serverNodes;
     try {
-      singleServerNode = record.getLinkedRecord(payload.fieldKey, payload.args);
+      singleServerNode = record.getLinkedRecord(payload.fieldKey);
     } catch {}
     if (!singleServerNode) {
       try {
-        serverNodes = record.getLinkedRecords(payload.fieldKey, payload.args);
+        serverNodes = record.getLinkedRecords(payload.fieldKey);
       } catch {}
     }
     if (singleServerNode == null && serverNodes == null) {

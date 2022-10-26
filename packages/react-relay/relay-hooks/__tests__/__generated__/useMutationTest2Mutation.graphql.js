@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d0cbf91de63aec1f0d89fa616f1ae073>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<d92969a824a234d7cc3f852b86675ee7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +17,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -27,25 +28,25 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type useMutationTest2MutationVariables = {|
+export type useMutationTest2Mutation$variables = {|
   input?: ?CommentCreateInput,
 |};
-export type useMutationTest2MutationResponse = {|
+export type useMutationTest2Mutation$data = {|
   +commentCreate: ?{|
     +feedbackCommentEdge: ?{|
       +cursor: ?string,
       +node: ?{|
-        +id: string,
         +body: ?{|
           +text: ?string,
         |},
+        +id: string,
       |},
     |},
   |},
 |};
 export type useMutationTest2Mutation = {|
-  variables: useMutationTest2MutationVariables,
-  response: useMutationTest2MutationResponse,
+  response: useMutationTest2Mutation$data,
+  variables: useMutationTest2Mutation$variables,
 |};
 */
 
@@ -162,4 +163,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7670b67e051a26e0432cda3f19323d22";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  useMutationTest2Mutation$variables,
+  useMutationTest2Mutation$data,
+>*/);

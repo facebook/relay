@@ -1,17 +1,24 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {
   MultiActorEnvironment,
@@ -19,8 +26,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -54,26 +60,26 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
     describe(environmentType, () => {
       beforeEach(() => {
-        query = getRequest(graphql`
+        query = graphql`
           query RelayModernEnvironmentExecuteWithDeferTestUserQuery($id: ID!) {
             node(id: $id) {
               ...RelayModernEnvironmentExecuteWithDeferTestUserFragment
                 @defer(label: "UserFragment")
             }
           }
-        `);
-        fragment = getFragment(graphql`
+        `;
+        fragment = graphql`
           fragment RelayModernEnvironmentExecuteWithDeferTestUserFragment on User {
             id
             name @__clientField(handle: "name_handler")
           }
-        `);
+        `;
         variables = {id: '1'};
         operation = createOperationDescriptor(query, variables);
         selector = createReaderSelector(fragment, '1', {}, operation.request);
 
         NameHandler = {
-          update(storeProxy, payload) {
+          update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
             const record = storeProxy.get(payload.dataID);
             if (record != null) {
               const markup = record.getValue(payload.fieldKey);
@@ -89,14 +95,20 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         error = jest.fn();
         next = jest.fn();
         callbacks = {complete, error, next};
-        fetch = (_query, _variables, _cacheConfig) => {
+        fetch = (
+          _query: RequestParameters,
+          _variables: Variables,
+          _cacheConfig: CacheConfig,
+        ) => {
           return RelayObservable.create(sink => {
             dataSource = sink;
           });
         };
         source = RelayRecordSource.create();
         store = new RelayModernStore(source);
-        handlerProvider = name => {
+        handlerProvider = (
+          name: string | $TEMPORARY$string<'name_handler'>,
+        ) => {
           switch (name) {
             case 'name_handler':
               return NameHandler;
@@ -244,12 +256,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         beforeEach(() => {
           taskID = 0;
-          tasks = new Map();
+          tasks = new Map<string, () => void>();
           scheduler = {
-            cancel: id => {
+            cancel: (id: string) => {
               tasks.delete(id);
             },
-            schedule: task => {
+            schedule: (task: () => void) => {
               const id = String(taskID++);
               tasks.set(id, task);
               return id;

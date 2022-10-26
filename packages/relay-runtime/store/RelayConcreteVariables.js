@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -17,7 +16,11 @@ import type {
   NormalizationLocalArgumentDefinition,
   NormalizationOperation,
 } from '../util/NormalizationNode';
-import type {ReaderFragment} from '../util/ReaderNode';
+import type {
+  ReaderFragment,
+  ReaderInlineDataFragmentSpread,
+} from '../util/ReaderNode';
+import type {ProvidedVariablesType} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
 const {getArgumentValues} = require('./RelayStoreUtils');
@@ -31,10 +34,16 @@ const invariant = require('invariant');
  * Note that this is analagous to determining function arguments given a function call.
  */
 function getFragmentVariables(
-  fragment: ReaderFragment,
+  fragment: ReaderFragment | ReaderInlineDataFragmentSpread,
   rootVariables: Variables,
   argumentVariables: Variables,
 ): Variables {
+  // TODO: Support for legacy ReaderInlineDataFragmentSpread nodes.
+  // Remove this once all we've updated the ReaderInlineDataFragmentSpread
+  // type to indicate that all compiled artifacts have been updated.
+  if (fragment.argumentDefinitions == null) {
+    return argumentVariables;
+  }
   let variables;
   fragment.argumentDefinitions.forEach(definition => {
     if (argumentVariables.hasOwnProperty(definition.name)) {
@@ -76,15 +85,18 @@ function getFragmentVariables(
 
 /**
  * Determines the variables that are in scope for a given operation given values
- * for some/all of its arguments. Extraneous input variables are filtered from
- * the output, and missing variables are set to default values (if given in the
+ * for some/all of its arguments.
+ * - extraneous input variables are filtered from the output
+ * - missing variables are set to default values (if given in the
  * operation's definition).
+ * - variables with provider modules are added
  */
 function getOperationVariables(
   operation: NormalizationOperation,
+  providedVariables: ?ProvidedVariablesType,
   variables: Variables,
 ): Variables {
-  const operationVariables = {};
+  const operationVariables: {[string]: mixed} = {};
   operation.argumentDefinitions.forEach(def => {
     let value = def.defaultValue;
     if (variables[def.name] != null) {
@@ -92,6 +104,12 @@ function getOperationVariables(
     }
     operationVariables[def.name] = value;
   });
+
+  if (providedVariables != null) {
+    Object.keys(providedVariables).forEach((varName: string) => {
+      operationVariables[varName] = providedVariables[varName].get();
+    });
+  }
   return operationVariables;
 }
 

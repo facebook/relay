@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -31,14 +29,14 @@ const {useCallback, useEffect, useRef, useState} = require('react');
 const {getRequest} = require('relay-runtime');
 
 export type LoaderFn<TQuery: OperationType> = (
-  variables: $ElementType<TQuery, 'variables'>,
+  variables: TQuery['variables'],
   options?: UseQueryLoaderLoadQueryOptions,
 ) => void;
 
-export type UseQueryLoaderLoadQueryOptions = $ReadOnly<{|
+export type UseQueryLoaderLoadQueryOptions = $ReadOnly<{
   ...LoadQueryOptions,
   +__environment?: ?IEnvironment,
-|}>;
+}>;
 
 type UseQueryLoaderHookReturnType<TQuery: OperationType> = [
   ?PreloadedQuery<TQuery>,
@@ -49,9 +47,9 @@ type UseQueryLoaderHookReturnType<TQuery: OperationType> = [
 // NullQueryReference needs to implement referential equality,
 // so that multiple NullQueryReferences can be in the same set
 // (corresponding to multiple calls to disposeQuery).
-type NullQueryReference = {|
+type NullQueryReference = {
   kind: 'NullQueryReference',
-|};
+};
 const initialNullQueryReferenceState = {kind: 'NullQueryReference'};
 
 function requestIsLiveQuery<TQuery: OperationType>(
@@ -103,12 +101,10 @@ function useQueryLoader<TQuery: OperationType>(
     PreloadedQuery<TQuery> | NullQueryReference,
   >(() => initialQueryReferenceInternal);
 
-  const [
-    previousInitialQueryReference,
-    setPreviousInitialQueryReference,
-  ] = useState<PreloadedQuery<TQuery> | NullQueryReference>(
-    () => initialQueryReferenceInternal,
-  );
+  const [previousInitialQueryReference, setPreviousInitialQueryReference] =
+    useState<PreloadedQuery<TQuery> | NullQueryReference>(
+      () => initialQueryReferenceInternal,
+    );
 
   if (initialQueryReferenceInternal !== previousInitialQueryReference) {
     // Rendering the query reference makes it "managed" by this hook, so
@@ -130,7 +126,7 @@ function useQueryLoader<TQuery: OperationType>(
 
   const queryLoaderCallback = useCallback(
     (
-      variables: $ElementType<TQuery, 'variables'>,
+      variables: TQuery['variables'],
       options?: ?UseQueryLoaderLoadQueryOptions,
     ) => {
       const mergedOptions: ?UseQueryLoaderLoadQueryOptions =

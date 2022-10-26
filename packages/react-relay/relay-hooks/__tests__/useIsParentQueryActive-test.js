@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -25,10 +23,15 @@ const {
   Store,
   __internal: {fetchQuery},
   createOperationDescriptor,
-  getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
+const {
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowConsoleErrors();
+disallowWarnings();
 
 let dataSource;
 let environment;
@@ -39,8 +42,6 @@ let operation;
 let query;
 
 beforeEach(() => {
-  jest.spyOn(console, 'warn').mockImplementation(() => {});
-  jest.spyOn(console, 'error').mockImplementation(() => {});
   const source = new RecordSource();
   const store = new Store(source);
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
@@ -53,19 +54,19 @@ beforeEach(() => {
     store,
   });
 
-  query = getRequest(graphql`
+  query = graphql`
     query useIsParentQueryActiveTestUserQuery($id: ID!) {
       node(id: $id) {
         ...useIsParentQueryActiveTestUserFragment
       }
     }
-  `);
-  fragment = getFragment(graphql`
+  `;
+  fragment = graphql`
     fragment useIsParentQueryActiveTestUserFragment on User {
       id
       name
     }
-  `);
+  `;
   operation = createOperationDescriptor(query, {id: '4'});
 
   environment.commitPayload(operation, {
@@ -322,6 +323,17 @@ it('updates the component when a pending owner fetch errors', () => {
 });
 
 it('updates the component when a pending owner fetch with multiple payloads completes ', () => {
+  query = graphql`
+    query useIsParentQueryActiveTestUserDeferQuery($id: ID!) {
+      node(id: $id) {
+        ...useIsParentQueryActiveTestUserFragment @defer
+      }
+    }
+  `;
+  operation = createOperationDescriptor(query, {id: '4'});
+  const snapshot = environment.lookup(operation.fragment);
+  fragmentRef = (snapshot.data?.node: $FlowFixMe);
+
   fetchQuery(environment, operation).subscribe({});
   expect(fetch).toBeCalledTimes(1);
   const states = [];
@@ -357,7 +369,8 @@ it('updates the component when a pending owner fetch with multiple payloads comp
         __typename: 'User',
         name: 'Mark',
       },
-      label: 'UserQuery$defer$UserFragment',
+      label:
+        'useIsParentQueryActiveTestUserDeferQuery$defer$useIsParentQueryActiveTestUserFragment',
       path: ['node'],
     });
     dataSource.complete();
@@ -370,9 +383,9 @@ it('should only update if the latest owner completes the query', () => {
   fetchQuery(environment, operation).subscribe({});
   const oldDataSource = dataSource;
   expect(fetch).toBeCalledTimes(1);
-  let setRef = ref => {};
+  let setRef = (ref: $FlowFixMe) => {};
   const mockFn = jest.fn(() => {});
-  const Renderer = props => {
+  const Renderer = (props: {pending: boolean}) => {
     mockFn(props.pending);
     return props.pending;
   };

@@ -1,4 +1,3 @@
-# expected-to-throw
 fragment inlineDataFragmentGlobalVarsFragment on Query {
   me {
     ...inlineDataFragmentGlobalVarsProfile

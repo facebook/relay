@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a194c68f417d0275e0e67ac709ad9829>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<29d0282aead9eaaea7b2b0a26a3cc48a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +17,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestReadScalarProfile$ref = any;
-export type RelayReaderTestReadScalarUserQueryVariables = {||};
-export type RelayReaderTestReadScalarUserQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayReaderTestReadScalarProfile$fragmentType } from "./RelayReaderTestReadScalarProfile.graphql";
+export type RelayReaderTestReadScalarUserQuery$variables = {||};
+export type RelayReaderTestReadScalarUserQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestReadScalarProfile$ref,
+    +$fragmentSpreads: RelayReaderTestReadScalarProfile$fragmentType,
   |},
 |};
 export type RelayReaderTestReadScalarUserQuery = {|
-  variables: RelayReaderTestReadScalarUserQueryVariables,
-  response: RelayReaderTestReadScalarUserQueryResponse,
+  response: RelayReaderTestReadScalarUserQuery$data,
+  variables: RelayReaderTestReadScalarUserQuery$variables,
 |};
 */
 
@@ -96,4 +98,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e60a1a946af376c16ef0358a6effba9d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestReadScalarUserQuery$variables,
+  RelayReaderTestReadScalarUserQuery$data,
+>*/);

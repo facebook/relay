@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver
+ */
+
+graphql`
+  fragment myRootFragment on User {
+    name
+  }
+`
+==================================== ERROR ====================================
+✖︎ Missing docblock field "@fieldName"
+
+  /path/to/test/fixture/relay-resolver-missing-multiple-fields.invalid.js:10:3
+   10 │ *
+      │ ^
+   11 │  * @RelayResolver
+      │ ^^^^^^^^^^^^^^^^^
+   12 │

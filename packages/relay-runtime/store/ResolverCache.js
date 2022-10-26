@@ -1,58 +1,80 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
-import type {ReaderRelayResolver} from '../util/ReaderNode';
+import type {
+  ReaderRelayLiveResolver,
+  ReaderRelayResolver,
+} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  DataIDSet,
   MutableRecordSource,
   Record,
+  RelayResolverError,
   SingularReaderSelector,
+  Snapshot,
 } from './RelayStoreTypes';
 
 const recycleNodesInto = require('../util/recycleNodesInto');
+const {RELAY_LIVE_RESOLVER} = require('../util/RelayConcreteNode');
 const {generateClientID} = require('./ClientID');
 const RelayModernRecord = require('./RelayModernRecord');
 const {
-  RELAY_RESOLVER_INPUTS_KEY,
+  RELAY_RESOLVER_ERROR_KEY,
   RELAY_RESOLVER_INVALIDATION_KEY,
-  RELAY_RESOLVER_READER_SELECTOR_KEY,
+  RELAY_RESOLVER_SNAPSHOT_KEY,
   RELAY_RESOLVER_VALUE_KEY,
   getStorageKey,
 } = require('./RelayStoreUtils');
+const invariant = require('invariant');
 const warning = require('warning');
 
 type ResolverID = string;
 
-type EvaluationResult<T> = {|
-  resolverResult: T,
-  fragmentValue: {...},
-  resolverID: ResolverID,
-  seenRecordIDs: Set<DataID>,
-  readerSelector: SingularReaderSelector,
-|};
+export type EvaluationResult<T> = {
+  resolverResult: ?T,
+  snapshot: ?Snapshot,
+  error: ?RelayResolverError,
+};
+
+export type ResolverFragmentResult = {
+  data: mixed,
+  isMissingData: boolean,
+};
+
+export type GetDataForResolverFragmentFn =
+  SingularReaderSelector => ResolverFragmentResult;
 
 export interface ResolverCache {
   readFromCacheOrEvaluate<T>(
-    record: Record,
-    field: ReaderRelayResolver,
+    recordID: DataID,
+    field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
-    getDataForResolverFragment: (SingularReaderSelector) => mixed,
-  ): [T /* Answer */, ?DataID /* Seen record */];
+    getDataForResolverFragment: GetDataForResolverFragmentFn,
+  ): [
+    ?T /* Answer */,
+    ?DataID /* Seen record */,
+    ?RelayResolverError,
+    ?Snapshot,
+    ?DataID /* ID of record containing a suspended Live field */,
+    ?DataIDSet /** Set of updated records after read. Then need to be consumed by `processFollowupUpdates` */,
+  ];
   invalidateDataIDs(
-    updatedDataIDs: Set<DataID>, // Mutated in place
+    updatedDataIDs: DataIDSet, // Mutated in place
   ): void;
+  ensureClientRecord(id: string, typename: string): DataID;
+  notifyUpdatedSubscribers(updatedDataIDs: DataIDSet): void;
 }
 
 // $FlowFixMe[unclear-type] - will always be empty
@@ -60,18 +82,42 @@ const emptySet: $ReadOnlySet<any> = new Set();
 
 class NoopResolverCache implements ResolverCache {
   readFromCacheOrEvaluate<T>(
-    record: Record,
-    field: ReaderRelayResolver,
+    recordID: DataID,
+    field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
-    getDataForResolverFragment: SingularReaderSelector => mixed,
-  ): [T /* Answer */, ?DataID /* Seen record */] {
-    return [evaluate().resolverResult, undefined];
+    getDataForResolverFragment: GetDataForResolverFragmentFn,
+  ): [
+    ?T /* Answer */,
+    ?DataID /* Seen record */,
+    ?RelayResolverError,
+    ?Snapshot,
+    ?DataID /* ID of record containing a suspended Live field */,
+    ?DataIDSet /** Set of dirty records after read */,
+  ] {
+    invariant(
+      field.kind !== RELAY_LIVE_RESOLVER,
+      'This store does not support Live Resolvers',
+    );
+    const {resolverResult, snapshot, error} = evaluate();
+
+    return [resolverResult, undefined, error, snapshot, undefined, undefined];
   }
-  invalidateDataIDs(updatedDataIDs: Set<DataID>): void {}
+  invalidateDataIDs(updatedDataIDs: DataIDSet): void {}
+  ensureClientRecord(id: string, typeName: string): DataID {
+    invariant(
+      false,
+      'Client Edges to Client Objects are not supported in this version of Relay Store',
+    );
+  }
+  notifyUpdatedSubscribers(updatedDataIDs: DataIDSet): void {}
 }
 
-function addDependencyEdge(edges, from, to): void {
+function addDependencyEdge(
+  edges: Map<ResolverID, Set<DataID>> | Map<DataID, Set<ResolverID>>,
+  from: ResolverID | DataID,
+  to: ResolverID | DataID,
+): void {
   let set = edges.get(from);
   if (!set) {
     set = new Set();
@@ -93,14 +139,27 @@ class RecordResolverCache implements ResolverCache {
   }
 
   readFromCacheOrEvaluate<T>(
-    record: Record,
-    field: ReaderRelayResolver,
+    recordID: DataID,
+    field: ReaderRelayResolver | ReaderRelayLiveResolver,
     variables: Variables,
     evaluate: () => EvaluationResult<T>,
-    getDataForResolverFragment: SingularReaderSelector => mixed,
-  ): [T /* Answer */, ?DataID /* Seen record */] {
+    getDataForResolverFragment: GetDataForResolverFragmentFn,
+  ): [
+    ?T /* Answer */,
+    ?DataID /* Seen record */,
+    ?RelayResolverError,
+    ?Snapshot,
+    ?DataID /* ID of record containing a suspended Live field */,
+    ?DataIDSet /** Set of dirty records after read */,
+  ] {
     const recordSource = this._getRecordSource();
-    const recordID = RelayModernRecord.getDataID(record);
+
+    // NOTE: Be very careful with `record` in this scope. After `evaluate` has
+    // been called, the `record` we have here may have been replaced in the
+    // Relay store with a new record containing new information about nested
+    // resolvers on this parent record.
+    const record = recordSource.get(recordID);
+    invariant(record != null, 'We expect record to exist in the store.');
 
     const storageKey = getStorageKey(field, variables);
     let linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
@@ -121,37 +180,57 @@ class RecordResolverCache implements ResolverCache {
       );
       RelayModernRecord.setValue(
         linkedRecord,
-        RELAY_RESOLVER_INPUTS_KEY,
-        evaluationResult.fragmentValue,
+        RELAY_RESOLVER_SNAPSHOT_KEY,
+        evaluationResult.snapshot,
       );
       RelayModernRecord.setValue(
         linkedRecord,
-        RELAY_RESOLVER_READER_SELECTOR_KEY,
-        evaluationResult.readerSelector,
+        RELAY_RESOLVER_ERROR_KEY,
+        evaluationResult.error,
       );
       recordSource.set(linkedID, linkedRecord);
 
       // Link the resolver value record to the resolver field of the record being read:
-      const nextRecord = RelayModernRecord.clone(record);
-      RelayModernRecord.setLinkedRecordID(nextRecord, storageKey, linkedID);
-      recordSource.set(RelayModernRecord.getDataID(nextRecord), nextRecord);
 
-      // Put records observed by the resolver into the dependency graph:
-      const resolverID = evaluationResult.resolverID;
-      addDependencyEdge(this._resolverIDToRecordIDs, resolverID, linkedID);
-      addDependencyEdge(this._recordIDToResolverIDs, recordID, resolverID);
-      for (const seenRecordID of evaluationResult.seenRecordIDs) {
-        addDependencyEdge(
-          this._recordIDToResolverIDs,
-          seenRecordID,
-          resolverID,
-        );
+      // Note: We get a fresh instance of the parent record from the record
+      // source, because it may have been updated when we traversed into child
+      // resolvers.
+      const currentRecord = recordSource.get(recordID);
+      invariant(
+        currentRecord != null,
+        'Expected the parent record to still be in the record source.',
+      );
+      const nextRecord = RelayModernRecord.clone(currentRecord);
+      RelayModernRecord.setLinkedRecordID(nextRecord, storageKey, linkedID);
+      recordSource.set(recordID, nextRecord);
+
+      if (field.fragment != null) {
+        // Put records observed by the resolver into the dependency graph:
+        const fragmentStorageKey = getStorageKey(field.fragment, variables);
+        const resolverID = generateClientID(recordID, fragmentStorageKey);
+        addDependencyEdge(this._resolverIDToRecordIDs, resolverID, linkedID);
+        addDependencyEdge(this._recordIDToResolverIDs, recordID, resolverID);
+        const seenRecordIds = evaluationResult.snapshot?.seenRecords;
+        if (seenRecordIds != null) {
+          for (const seenRecordID of seenRecordIds) {
+            addDependencyEdge(
+              this._recordIDToResolverIDs,
+              seenRecordID,
+              resolverID,
+            );
+          }
+        }
       }
     }
 
     // $FlowFixMe[incompatible-type] - will always be empty
     const answer: T = linkedRecord[RELAY_RESOLVER_VALUE_KEY];
-    return [answer, linkedID];
+    // $FlowFixMe[incompatible-type] - casting mixed
+    const snapshot: ?Snapshot = linkedRecord[RELAY_RESOLVER_SNAPSHOT_KEY];
+    // $FlowFixMe[incompatible-type] - casting mixed
+    const error: ?RelayResolverError = linkedRecord[RELAY_RESOLVER_ERROR_KEY];
+
+    return [answer, linkedID, error, snapshot, undefined, undefined];
   }
 
   invalidateDataIDs(
@@ -208,20 +287,18 @@ class RecordResolverCache implements ResolverCache {
 
   _isInvalid(
     record: Record,
-    getDataForResolverFragment: SingularReaderSelector => mixed,
+    getDataForResolverFragment: GetDataForResolverFragmentFn,
   ): boolean {
     if (!RelayModernRecord.getValue(record, RELAY_RESOLVER_INVALIDATION_KEY)) {
       return false;
     }
-    const originalInputs = RelayModernRecord.getValue(
-      record,
-      RELAY_RESOLVER_INPUTS_KEY,
-    );
     // $FlowFixMe[incompatible-type] - storing values in records is not typed
-    const readerSelector: ?SingularReaderSelector = RelayModernRecord.getValue(
+    const snapshot: ?Snapshot = RelayModernRecord.getValue(
       record,
-      RELAY_RESOLVER_READER_SELECTOR_KEY,
+      RELAY_RESOLVER_SNAPSHOT_KEY,
     );
+    const originalInputs = snapshot?.data;
+    const readerSelector: ?SingularReaderSelector = snapshot?.selector;
     if (originalInputs == null || readerSelector == null) {
       warning(
         false,
@@ -230,12 +307,27 @@ class RecordResolverCache implements ResolverCache {
       );
       return true;
     }
-    const latestValues = getDataForResolverFragment(readerSelector);
+
+    const {data: latestValues} = getDataForResolverFragment(readerSelector);
     const recycled = recycleNodesInto(originalInputs, latestValues);
     if (recycled !== originalInputs) {
       return true;
     }
     return false;
+  }
+
+  ensureClientRecord(id: string, typename: string): DataID {
+    invariant(
+      false,
+      'Client Edges to Client Objects are not supported in this version of Relay Store',
+    );
+  }
+
+  notifyUpdatedSubscribers(updatedDataIDs: DataIDSet): void {
+    invariant(
+      false,
+      'Processing @outputType records is not supported in this version of Relay Store',
+    );
   }
 }
 

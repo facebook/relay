@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -45,7 +44,7 @@ class BarComponent extends React.Component<{
   requiredProp: string,
   ...
 }> {
-  static defaultProps = {
+  static defaultProps: {defaultProp: string} = {
     defaultProp: 'default',
   };
   getNum(): number {
@@ -127,7 +126,7 @@ module.exports = {
     return <Bar {...props} />;
   },
   checkStaticsAndMethodsProxying(): React.Node {
-    class ProxyChecker extends React.PureComponent<{||}> {
+    class ProxyChecker extends React.PureComponent<{}> {
       _barRef: ?BarComponent;
       getString(): string {
         const ok = this._barRef ? this._barRef.getNum() : 'default'; // legit

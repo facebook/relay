@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<180e9a8d090412e3dab743191afe27f1>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<5831becf3edded27d13185b12b420457>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayMockEnvironmentTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayMockEnvironmentTestQuery$variables = {|
   id: string,
 |};
-export type RelayMockEnvironmentTestQueryResponse = {|
+export type RelayMockEnvironmentTestQuery$data = {|
   +node: ?{|
     +id: string,
     +name?: ?string,
   |},
 |};
 export type RelayMockEnvironmentTestQuery = {|
-  variables: RelayMockEnvironmentTestQueryVariables,
-  response: RelayMockEnvironmentTestQueryResponse,
+  response: RelayMockEnvironmentTestQuery$data,
+  variables: RelayMockEnvironmentTestQuery$variables,
 |};
 */
 
@@ -134,4 +136,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d2298e0d993f39aafb1b6decb48f93e5";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockEnvironmentTestQuery$variables,
+  RelayMockEnvironmentTestQuery$data,
+>*/);

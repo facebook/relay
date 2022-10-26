@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<876070687c68fd6aa422743f2040ef32>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<f20d2d87abe646007b95b784f83bd641>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +17,18 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type preloadQueryDEPRECATEDTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type preloadQueryDEPRECATEDTestQuery$variables = {|
   id: string,
 |};
-export type preloadQueryDEPRECATEDTestQueryResponse = {|
+export type preloadQueryDEPRECATEDTestQuery$data = {|
   +node: ?{|
     +id: string,
   |},
 |};
 export type preloadQueryDEPRECATEDTestQuery = {|
-  variables: preloadQueryDEPRECATEDTestQueryVariables,
-  response: preloadQueryDEPRECATEDTestQueryResponse,
+  response: preloadQueryDEPRECATEDTestQuery$data,
+  variables: preloadQueryDEPRECATEDTestQuery$variables,
 |};
 */
 
@@ -117,4 +119,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f41beb5f28919c6ec7dc474f4322b737";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  preloadQueryDEPRECATEDTestQuery$variables,
+  preloadQueryDEPRECATEDTestQuery$data,
+>*/);

@@ -8,20 +8,19 @@ mutation InputHasArray($input: UpdateAllSeenStateInput) @raw_response_type {
 }
 ==================================== OUTPUT ===================================
 export type UpdateAllSeenStateInput = {
-  clientMutationId?: string | null;
   storyIds?: ReadonlyArray<string | null> | null;
 };
-export type InputHasArrayVariables = {
+export type InputHasArray$variables = {
   input?: UpdateAllSeenStateInput | null;
 };
-export type InputHasArrayResponse = {
+export type InputHasArray$data = {
   readonly viewerNotificationsUpdateAllSeenState: {
     readonly stories: ReadonlyArray<{
       readonly actorCount: number | null;
     } | null> | null;
   } | null;
 };
-export type InputHasArrayRawResponse = {
+export type InputHasArray$rawResponse = {
   readonly viewerNotificationsUpdateAllSeenState: {
     readonly stories: ReadonlyArray<{
       readonly actorCount: number | null;
@@ -30,7 +29,7 @@ export type InputHasArrayRawResponse = {
   } | null;
 };
 export type InputHasArray = {
-  variables: InputHasArrayVariables;
-  response: InputHasArrayResponse;
-  rawResponse: InputHasArrayRawResponse;
+  rawResponse: InputHasArray$rawResponse;
+  response: InputHasArray$data;
+  variables: InputHasArray$variables;
 };

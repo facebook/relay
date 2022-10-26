@@ -17,7 +17,9 @@ query RefetchableFragmentQuery(
   $id: ID!
 ) @__RefetchableDerivedFromMetadata
 # RefetchableDerivedFromMetadata(
-#     "RefetchableFragment",
+#     FragmentDefinitionName(
+#         "RefetchableFragment",
+#     ),
 # )
  {
   fetch__NonNodeStory(input_fetch_id: $id) {

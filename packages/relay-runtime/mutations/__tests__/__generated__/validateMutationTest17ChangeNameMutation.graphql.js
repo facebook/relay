@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<401bbaeabd1bf8b39d6655d741cc424c>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<3424e94b3865c4ed52b635b9c6d68ee1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +17,14 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type ActorNameChangeInput = {|
-  clientMutationId?: ?string,
   newName?: ?string,
 |};
-export type validateMutationTest17ChangeNameMutationVariables = {|
+export type validateMutationTest17ChangeNameMutation$variables = {|
   input: ActorNameChangeInput,
 |};
-export type validateMutationTest17ChangeNameMutationResponse = {|
+export type validateMutationTest17ChangeNameMutation$data = {|
   +actorNameChange: ?{|
     +actor: ?{|
       +name: ?string,
@@ -31,8 +32,8 @@ export type validateMutationTest17ChangeNameMutationResponse = {|
   |},
 |};
 export type validateMutationTest17ChangeNameMutation = {|
-  variables: validateMutationTest17ChangeNameMutationVariables,
-  response: validateMutationTest17ChangeNameMutationResponse,
+  response: validateMutationTest17ChangeNameMutation$data,
+  variables: validateMutationTest17ChangeNameMutation$variables,
 |};
 */
 
@@ -152,4 +153,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d630d1fc782b5147ef65a91b8e6f20e4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  validateMutationTest17ChangeNameMutation$variables,
+  validateMutationTest17ChangeNameMutation$data,
+>*/);

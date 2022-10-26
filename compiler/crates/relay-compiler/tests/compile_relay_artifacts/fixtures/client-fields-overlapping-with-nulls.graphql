@@ -1,0 +1,10 @@
+query clientFieldsOverlappingWithNullsQuery {
+  client_field(arg1: "Value1")
+  client_field(arg1: "Value1", arg2: null)
+}
+
+# %extensions%
+
+extend type Query {
+  client_field(arg1: String, arg2: String): String
+}

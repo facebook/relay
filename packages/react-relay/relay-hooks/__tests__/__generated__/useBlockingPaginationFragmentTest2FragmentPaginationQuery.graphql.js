@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bdc4539ac6b6265e426c4203135c0c9c>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<bd5aae53d053744f2243d8a313e052f9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,27 +17,26 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useBlockingPaginationFragmentTest2Fragment$ref: FragmentReference;
-declare export opaque type useBlockingPaginationFragmentTest2Fragment$fragmentType: useBlockingPaginationFragmentTest2Fragment$ref;
-export type useBlockingPaginationFragmentTest2FragmentPaginationQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+import type { useBlockingPaginationFragmentTest2Fragment$fragmentType } from "./useBlockingPaginationFragmentTest2Fragment.graphql";
+export type useBlockingPaginationFragmentTest2FragmentPaginationQuery$variables = {|
   after?: ?string,
   before?: ?string,
   first?: ?number,
+  id: string,
   isViewerFriendLocal?: ?boolean,
   last?: ?number,
   orderby?: ?$ReadOnlyArray<?string>,
-  id: string,
 |};
-export type useBlockingPaginationFragmentTest2FragmentPaginationQueryResponse = {|
+export type useBlockingPaginationFragmentTest2FragmentPaginationQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useBlockingPaginationFragmentTest2Fragment$ref,
+    +$fragmentSpreads: useBlockingPaginationFragmentTest2Fragment$fragmentType,
   |},
 |};
 export type useBlockingPaginationFragmentTest2FragmentPaginationQuery = {|
-  variables: useBlockingPaginationFragmentTest2FragmentPaginationQueryVariables,
-  response: useBlockingPaginationFragmentTest2FragmentPaginationQueryResponse,
+  response: useBlockingPaginationFragmentTest2FragmentPaginationQuery$data,
+  variables: useBlockingPaginationFragmentTest2FragmentPaginationQuery$variables,
 |};
 */
 
@@ -321,4 +322,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5f8e9317f3d4ea9a22cd368f8b8d0c4d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useBlockingPaginationFragmentTest2FragmentPaginationQuery$variables,
+  useBlockingPaginationFragmentTest2FragmentPaginationQuery$data,
+>*/);

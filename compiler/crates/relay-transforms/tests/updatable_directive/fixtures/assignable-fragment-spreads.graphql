@@ -1,0 +1,19 @@
+fragment AssignableFragmentSpreads_viewer on Viewer @assignable {
+  __typename	
+}
+fragment AssignableFragmentSpreads_node on Node @assignable {
+  __typename	
+}
+fragment AssignableFragmentSpreads_user on User @assignable {
+  __typename	
+}
+
+query TestQuery @updatable {
+  viewer {
+    ...AssignableFragmentSpreads_viewer
+  }
+  node {
+    ...AssignableFragmentSpreads_node
+    ...AssignableFragmentSpreads_user
+  }
+}

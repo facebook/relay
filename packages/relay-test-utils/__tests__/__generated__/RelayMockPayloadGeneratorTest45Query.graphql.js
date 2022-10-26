@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<50e2f6b374b2fdd1843a5e891d12f653>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<57a273dda5f8dd12a0900c539d229e92>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -14,18 +16,20 @@
 
 'use strict';
 
+// @indirectDataDrivenDependency RelayMockPayloadGeneratorTest31Fragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayMockPayloadGeneratorTest1MarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayMockPayloadGeneratorTest1PlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockPayloadGeneratorTest31Fragment$ref = any;
-export type RelayMockPayloadGeneratorTest45QueryVariables = {||};
-export type RelayMockPayloadGeneratorTest45QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayMockPayloadGeneratorTest31Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest31Fragment.graphql";
+export type RelayMockPayloadGeneratorTest45Query$variables = {||};
+export type RelayMockPayloadGeneratorTest45Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayMockPayloadGeneratorTest31Fragment$ref,
+    +$fragmentSpreads: RelayMockPayloadGeneratorTest31Fragment$fragmentType,
   |},
 |};
 export type RelayMockPayloadGeneratorTest45Query = {|
-  variables: RelayMockPayloadGeneratorTest45QueryVariables,
-  response: RelayMockPayloadGeneratorTest45QueryResponse,
+  response: RelayMockPayloadGeneratorTest45Query$data,
+  variables: RelayMockPayloadGeneratorTest45Query$variables,
 |};
 */
 
@@ -228,4 +232,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c45f56ca143cdb6c8633da434a4e229d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockPayloadGeneratorTest45Query$variables,
+  RelayMockPayloadGeneratorTest45Query$data,
+>*/);

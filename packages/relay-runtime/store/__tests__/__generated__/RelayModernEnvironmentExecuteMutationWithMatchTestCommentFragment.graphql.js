@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c5416d95e6b62fcb971a850762d2ed20>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<b79025eac5ef4471f267a5eb20870a93>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,28 +19,26 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment.actor.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$ref;
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment = {|
-  +id: string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name.graphql";
+import type { RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data = {|
   +actor: ?{|
     +name: ?string,
     +nameRenderer: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref & RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType,
     |},
   |},
-  +$refType: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$ref,
+  +id: string,
+  +$fragmentType: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data = RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment;
 export type RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$key = {
   +$data?: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
   ...
 };
 */
@@ -131,4 +131,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f1ff7fec552839f61ccff1a73226c40e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$fragmentType,
+  RelayModernEnvironmentExecuteMutationWithMatchTestCommentFragment$data,
+>*/);

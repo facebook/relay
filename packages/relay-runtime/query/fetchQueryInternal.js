@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -22,20 +21,22 @@ import type {
 import type {RequestIdentifier} from '../util/getRequestIdentifier';
 
 const Observable = require('../network/RelayObservable');
+const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const RelayReplaySubject = require('../util/RelayReplaySubject');
 const invariant = require('invariant');
 
-type RequestCacheEntry = {|
+type RequestCacheEntry = {
   +identifier: RequestIdentifier,
   +subject: RelayReplaySubject<GraphQLResponse>,
   +subjectForInFlightStatus: RelayReplaySubject<GraphQLResponse>,
   +subscription: Subscription,
-|};
+  promise: ?Promise<void>,
+};
 
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 
 const requestCachesByEnvironment = WEAKMAP_SUPPORTED
-  ? new WeakMap()
+  ? new WeakMap<IEnvironment, Map<RequestIdentifier, RequestCacheEntry>>()
   : new Map();
 
 /**
@@ -137,6 +138,7 @@ function fetchQueryDeduped(
               subject: new RelayReplaySubject(),
               subjectForInFlightStatus: new RelayReplaySubject(),
               subscription: subscription,
+              promise: null,
             };
             requestCache.set(identifier, cachedRequest);
           },
@@ -248,8 +250,13 @@ function getPromiseForActiveRequest(
   if (!environment.isRequestActive(cachedRequest.identifier)) {
     return null;
   }
-
-  return new Promise((resolve, reject) => {
+  if (RelayFeatureFlags.USE_REACT_CACHE) {
+    const existing = cachedRequest.promise;
+    if (existing) {
+      return existing;
+    }
+  }
+  const promise = new Promise((resolve, reject) => {
     let resolveOnNext = false;
     getActiveStatusObservableForCachedRequest(
       environment,
@@ -271,6 +278,18 @@ function getPromiseForActiveRequest(
     });
     resolveOnNext = true;
   });
+  if (RelayFeatureFlags.USE_REACT_CACHE) {
+    // React Suspense should get thrown the same promise each time, so we cache it.
+    // However, the promise gets resolved on each payload, so subsequently we need
+    // to provide a new fresh promise that isn't already resolved. (When the feature
+    // flag is off we do this in QueryResource.)
+    cachedRequest.promise = promise;
+    const cleanup = () => {
+      cachedRequest.promise = null;
+    };
+    promise.then(cleanup, cleanup);
+  }
+  return promise;
 }
 
 /**
@@ -306,10 +325,8 @@ function getObservableForActiveRequest(
 function getRequestCache(
   environment: IEnvironment,
 ): Map<RequestIdentifier, RequestCacheEntry> {
-  const cached: ?Map<
-    RequestIdentifier,
-    RequestCacheEntry,
-  > = requestCachesByEnvironment.get(environment);
+  const cached: ?Map<RequestIdentifier, RequestCacheEntry> =
+    requestCachesByEnvironment.get(environment);
   if (cached != null) {
     return cached;
   }

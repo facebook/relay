@@ -1,15 +1,14 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
+use intern::string_key::Intern;
+use schema::build_schema;
 use schema_diff::definitions::*;
 use schema_diff::*;
-
-use interner::Intern;
-use schema::build_schema;
 
 fn diff(current: &str, previous: &str) -> SchemaChange {
     let mut change = detect_changes(&[current], &[previous]);
@@ -20,7 +19,7 @@ fn diff(current: &str, previous: &str) -> SchemaChange {
 fn is_safe(current: &str, previous: &str) -> bool {
     let schema = build_schema(current).unwrap();
     let change = detect_changes(&[current], &[previous]);
-    change.is_safe(&schema)
+    change.is_safe(&schema, &Default::default())
 }
 
 #[test]
@@ -87,13 +86,33 @@ fn test_add_enum_value() {
            }
          #",
         ),
-        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged {
-            name: "A".intern(),
-            added: vec![String::from("MAYBE").intern()],
-            removed: vec![],
-        }])
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged { name: "A".intern() }])
     );
 }
+
+#[test]
+fn test_sort_enum_value() {
+    assert_eq!(
+        diff(
+            r"
+         enum A {
+             OK
+             NOT_OK
+             MAYBE
+           }
+         #",
+            r"
+         enum A {
+             OK
+             MAYBE
+             NOT_OK
+           }
+         #",
+        ),
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged { name: "A".intern() }])
+    );
+}
+
 #[test]
 fn test_remove_enum_value() {
     assert_eq!(
@@ -112,11 +131,7 @@ fn test_remove_enum_value() {
            }
          #",
         ),
-        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged {
-            name: "A".intern(),
-            added: vec![],
-            removed: vec!["MAYBE".intern()],
-        }])
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged { name: "A".intern() }])
     );
 }
 
@@ -141,11 +156,29 @@ fn test_add_remove_enum_value() {
            }
          #",
         ),
-        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged {
-            name: "A".intern(),
-            added: vec!["NOT_ZUCK".intern(), "ZUCK".intern()],
-            removed: vec!["MARK".intern(), "NOT_MARK".intern()],
-        }])
+        SchemaChange::DefinitionChanges(vec![DefinitionChange::EnumChanged { name: "A".intern() }])
+    );
+}
+
+#[test]
+fn test_add_comment_to_enum() {
+    assert_eq!(
+        diff(
+            r"
+            enum A {
+                OK
+                NOT_OK
+            }
+         #",
+            r"
+            # comment
+            enum A {
+                OK
+                NOT_OK
+            }
+         #",
+        ),
+        SchemaChange::GenericChange
     );
 }
 
@@ -934,14 +967,6 @@ fn sort_change(change: &mut SchemaChange) {
         changes.sort();
         for c in changes {
             match c {
-                DefinitionChange::EnumChanged {
-                    ref mut added,
-                    ref mut removed,
-                    ..
-                } => {
-                    added.sort();
-                    removed.sort();
-                }
                 DefinitionChange::UnionChanged {
                     ref mut added,
                     ref mut removed,

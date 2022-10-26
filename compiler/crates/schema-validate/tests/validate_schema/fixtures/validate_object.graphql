@@ -29,6 +29,7 @@ type Human implements Hominid @fetchable(field_name: "id") {
   pet: OtherPet
   friends(location: Location, radius: Int!, Country: String): [Human]
   location: Location
+  location: ID
   other_friends(location: Location, location: Location): [Human]
 }
 

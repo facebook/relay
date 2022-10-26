@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2c6df9358fa04ee48d85fe8324fbd01a>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<f883a64056ba4bf23dc381bf4dacc250>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,33 +19,32 @@
 // @ReactFlightServerDependency FlightComponent.server
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type StoryUpdateInput = {|
-  clientMutationId?: ?string,
   body?: ?InputText,
 |};
 export type InputText = {|
-  text?: ?string,
   ranges?: ?$ReadOnlyArray<?string>,
+  text?: ?string,
 |};
-export type validateMutationTestFlightMutationVariables = {|
-  input: StoryUpdateInput,
+export type validateMutationTestFlightMutation$variables = {|
   count: number,
+  input: StoryUpdateInput,
 |};
-export type validateMutationTestFlightMutationResponse = {|
+export type validateMutationTestFlightMutation$data = {|
   +storyUpdate: ?{|
     +story: ?{|
-      +id: string,
       +body: ?{|
         +text: ?string,
       |},
       +flightComponentValidateMutation: ?any,
+      +id: string,
     |},
   |},
 |};
 export type validateMutationTestFlightMutation = {|
-  variables: validateMutationTestFlightMutationVariables,
-  response: validateMutationTestFlightMutationResponse,
+  response: validateMutationTestFlightMutation$data,
+  variables: validateMutationTestFlightMutation$variables,
 |};
 */
 
@@ -180,4 +181,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c2572b38ee685a5a6aabe18d3b11f56b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  validateMutationTestFlightMutation$variables,
+  validateMutationTestFlightMutation$data,
+>*/);

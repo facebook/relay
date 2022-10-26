@@ -1,15 +1,14 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 'use strict';
-
-const path = require('path');
 
 /**
  * This file is a fork from fbjs's transform of the same name. It has been
@@ -37,7 +36,7 @@ function isJestProperty(t, property) {
   return t.isIdentifier(property) && jestMethods.includes(property.name);
 }
 
-module.exports = function(babel) {
+module.exports = function (babel) {
   var t = babel.types;
 
   /**
@@ -114,7 +113,7 @@ module.exports = function(babel) {
   };
 
   function transformJestCall(path, state) {
-    let params = {isJest: false};
+    const params = {isJest: false};
     path.traverse(jestIdentifier, params);
     if (params.isJest) {
       transformJestHelper(path, state);

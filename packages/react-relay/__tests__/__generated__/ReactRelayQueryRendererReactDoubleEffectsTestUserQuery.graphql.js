@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9aa96019293c36a30c91d629369938ad>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<07c8f7fcdf0fef6f1826595be092252c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type ReactRelayQueryRendererReactDoubleEffectsTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type ReactRelayQueryRendererReactDoubleEffectsTestUserQuery$variables = {|
   id: string,
 |};
-export type ReactRelayQueryRendererReactDoubleEffectsTestUserQueryResponse = {|
+export type ReactRelayQueryRendererReactDoubleEffectsTestUserQuery$data = {|
   +node: ?{|
     +id: string,
     +name?: ?string,
   |},
 |};
 export type ReactRelayQueryRendererReactDoubleEffectsTestUserQuery = {|
-  variables: ReactRelayQueryRendererReactDoubleEffectsTestUserQueryVariables,
-  response: ReactRelayQueryRendererReactDoubleEffectsTestUserQueryResponse,
+  response: ReactRelayQueryRendererReactDoubleEffectsTestUserQuery$data,
+  variables: ReactRelayQueryRendererReactDoubleEffectsTestUserQuery$variables,
 |};
 */
 
@@ -134,4 +136,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "66e1ca90a9f7c60c2256a44afed5f5cb";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayQueryRendererReactDoubleEffectsTestUserQuery$variables,
+  ReactRelayQueryRendererReactDoubleEffectsTestUserQuery$data,
+>*/);

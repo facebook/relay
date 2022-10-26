@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ab32b5cdd04da17f622de3434ab95b79>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<add881e80890ae19322159362e88f677>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -14,13 +16,15 @@
 
 'use strict';
 
+// @indirectDataDrivenDependency RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment.author.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+// @indirectDataDrivenDependency RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment.author.plainNameRenderer {"branches":{"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref = any;
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
+import type { RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment.graphql";
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -28,19 +32,19 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTestMutationVariables = {|
+export type RelayModernEnvironmentWithOperationTrackerTestMutation$variables = {|
   input?: ?CommentCreateInput,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTestMutationResponse = {|
+export type RelayModernEnvironmentWithOperationTrackerTestMutation$data = {|
   +commentCreate: ?{|
     +feedback: ?{|
-      +$fragmentRefs: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref,
+      +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
     |},
   |},
 |};
 export type RelayModernEnvironmentWithOperationTrackerTestMutation = {|
-  variables: RelayModernEnvironmentWithOperationTrackerTestMutationVariables,
-  response: RelayModernEnvironmentWithOperationTrackerTestMutationResponse,
+  response: RelayModernEnvironmentWithOperationTrackerTestMutation$data,
+  variables: RelayModernEnvironmentWithOperationTrackerTestMutation$variables,
 |};
 */
 
@@ -362,4 +366,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a992f5cbffecf3ebece24d038d91c0a2";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentWithOperationTrackerTestMutation$variables,
+  RelayModernEnvironmentWithOperationTrackerTestMutation$data,
+>*/);

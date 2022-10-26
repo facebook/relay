@@ -1,12 +1,14 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use logos::{Lexer, Logos};
 use std::fmt;
+
+use logos::Lexer;
+use logos::Logos;
 
 #[derive(Default, Eq, PartialEq)]
 pub struct TokenKindExtras {
@@ -20,7 +22,7 @@ pub struct TokenKindExtras {
 #[derive(Logos, Copy, Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 #[logos(extras = TokenKindExtras)]
 pub enum TokenKind {
-    #[regex(r"[ \t\r\n\f,]+|#[^\n\r]*", logos::skip)]
+    #[regex(r"[ \t\r\n\f,\ufeff]+|#[^\n\r]*", logos::skip)]
     #[error]
     Error,
 
@@ -506,5 +508,14 @@ mod tests {
         );
         // Unterminated string just consumes the starting quotes
         assert_eq!(lexer.slice(), r#"""""#);
+    }
+
+    #[test]
+    fn test_bom_lexing() {
+        let input = "\u{feff}";
+
+        let mut lexer = TokenKind::lexer(input);
+
+        assert_eq!(lexer.next(), None);
     }
 }

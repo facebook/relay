@@ -1,23 +1,22 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 type EventName = 'fetchRelayQuery';
 type ProfileHandler = (name: EventName, state?: any) => (error?: Error) => void;
 
-const profileHandlersByName: {|
+const profileHandlersByName: {
   [name: EventName]: Array<ProfileHandler>,
-|} = {};
+} = {};
 
 const defaultProfiler = {
   stop() {},
@@ -68,7 +67,7 @@ const RelayProfiler = {
   profile(name: EventName, state?: any): {stop: (error?: Error) => void, ...} {
     const handlers = profileHandlersByName[name];
     if (handlers && handlers.length > 0) {
-      const stopHandlers = [];
+      const stopHandlers: Array<(error?: Error) => void> = [];
       for (let ii = handlers.length - 1; ii >= 0; ii--) {
         const stopHandler = handlers[ii](name, state);
         stopHandlers.unshift(stopHandler);

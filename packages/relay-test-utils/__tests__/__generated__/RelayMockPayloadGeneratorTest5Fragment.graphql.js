@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cb067fad8d24a8febecfef955100542b>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<f96f8df7e669806da7a905ce72747279>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,38 +17,36 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayMockPayloadGeneratorTest4Fragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockPayloadGeneratorTest5Fragment$ref: FragmentReference;
-declare export opaque type RelayMockPayloadGeneratorTest5Fragment$fragmentType: RelayMockPayloadGeneratorTest5Fragment$ref;
-export type RelayMockPayloadGeneratorTest5Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { RelayMockPayloadGeneratorTest4Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest4Fragment.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockPayloadGeneratorTest5Fragment$fragmentType: FragmentType;
+export type RelayMockPayloadGeneratorTest5Fragment$data = {|
   +actor: ?({|
-    +id: string,
-    +myType: "User",
-    +myName: ?string,
-    +name: ?string,
     +friends: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +cursor: ?string,
         +node: ?{|
           +id: string,
-          +$fragmentRefs: RelayMockPayloadGeneratorTest4Fragment$ref,
+          +$fragmentSpreads: RelayMockPayloadGeneratorTest4Fragment$fragmentType,
         |},
       |}>,
     |},
-    +$fragmentRefs: RelayMockPayloadGeneratorTest4Fragment$ref,
+    +id: string,
+    +myName: ?string,
+    +myType: "User",
+    +name: ?string,
+    +$fragmentSpreads: RelayMockPayloadGeneratorTest4Fragment$fragmentType,
   |} | {|
     // This will never be '%other', but we need some
     // value in case none of the concrete values match.
     +myType: "%other",
   |}),
-  +$refType: RelayMockPayloadGeneratorTest5Fragment$ref,
+  +$fragmentType: RelayMockPayloadGeneratorTest5Fragment$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTest5Fragment$data = RelayMockPayloadGeneratorTest5Fragment;
 export type RelayMockPayloadGeneratorTest5Fragment$key = {
   +$data?: RelayMockPayloadGeneratorTest5Fragment$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest5Fragment$ref,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest5Fragment$fragmentType,
   ...
 };
 */
@@ -223,4 +223,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0caeda7ac9d7c75061766462726bf298";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockPayloadGeneratorTest5Fragment$fragmentType,
+  RelayMockPayloadGeneratorTest5Fragment$data,
+>*/);

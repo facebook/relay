@@ -43,10 +43,14 @@ Text Schema:Schema {
   subscription_type: None
   directives: [
     Directive {
-        name: "include",
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -54,6 +58,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -66,10 +71,14 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
-        name: "skip",
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -77,6 +86,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -238,7 +248,9 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
-        description: None,
+        description: Some(
+            "This object's GraphQL type. Provided by GraphQL type name introspection.",
+        ),
     },
     Field {
         name: WithLocation {
@@ -270,7 +282,9 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
-        description: None,
+        description: Some(
+            "Relay's cache key for this object.",
+        ),
     },
     Field {
         name: WithLocation {
@@ -294,7 +308,9 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -302,6 +318,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         type_: NonNull(
@@ -320,7 +337,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:32:37,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -333,7 +352,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:59:62,
-            item: "Foo",
+            item: ObjectName(
+                "Foo",
+            ),
         },
         is_extension: false,
         fields: [
@@ -351,31 +372,56 @@ Text Schema:Schema {
 ]
   scalars: [
     Scalar {
-        name: "Int",
+        name: WithLocation {
+            location: <generated>:187:190,
+            item: ScalarName(
+                "Int",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Float",
+        name: WithLocation {
+            location: <generated>:198:203,
+            item: ScalarName(
+                "Float",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "String",
+        name: WithLocation {
+            location: <generated>:211:217,
+            item: ScalarName(
+                "String",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Boolean",
+        name: WithLocation {
+            location: <generated>:225:232,
+            item: ScalarName(
+                "Boolean",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "ID",
+        name: WithLocation {
+            location: <generated>:240:242,
+            item: ScalarName(
+                "ID",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
@@ -387,10 +433,14 @@ Text Schema:Schema {
 FlatBuffer Schema:FB Schema {
 directives: [
     Directive {
-        name: "include",
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(0),
@@ -398,6 +448,7 @@ directives: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -410,10 +461,14 @@ directives: [
         description: None,
     },
     Directive {
-        name: "skip",
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(0),
@@ -421,6 +476,7 @@ directives: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -554,7 +610,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Foo",
+            item: ObjectName(
+                "Foo",
+            ),
         },
         is_extension: false,
         fields: [
@@ -572,7 +630,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -585,31 +645,56 @@ objects: [
 ]
 scalars: [
     Scalar {
-        name: "Boolean",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "Boolean",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Float",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "Float",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "ID",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "ID",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Int",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "Int",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "String",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "String",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,

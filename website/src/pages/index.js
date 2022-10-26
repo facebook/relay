@@ -1,25 +1,22 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
-/* eslint-disable lint/no-value-import */
 import Code from '../core/Code.js';
 import Container from '../core/Container';
 import GridBlock from '../core/GridBlock';
 import Link from '@docusaurus/Link';
+import {useThemeConfig} from '@docusaurus/theme-common';
 import useBaseUrl, {useBaseUrlUtils} from '@docusaurus/useBaseUrl';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import useThemeContext from '@theme/hooks/useThemeContext';
 import Layout from '@theme/Layout';
 import * as React from 'react';
-import {useEffect, useRef, useState} from 'react';
-
-/* eslint-enable lint/no-value-import */
 
 function LoadQueryLink() {
   return (
@@ -49,10 +46,25 @@ function UseFragmentLink() {
   );
 }
 
+function HomeBanner() {
+  return (
+    <div className="homeBanner">
+      Support Ukraine 🇺🇦{' '}
+      <Link to="https://opensource.facebook.com/support-ukraine">
+        Help Provide Humanitarian Aid to Ukraine
+      </Link>
+      .
+    </div>
+  );
+}
+
 const HomeSplash = () => {
   const {siteConfig} = useDocusaurusContext();
   return (
     <div>
+      <div>
+        <HomeBanner />
+      </div>
       <div className="homeContainer">
         <div className="homeSplashFade">
           <div className="logo">
@@ -84,7 +96,7 @@ const HomeSplash = () => {
 const Index = () => {
   const {siteConfig} = useDocusaurusContext();
   const {withBaseUrl} = useBaseUrlUtils();
-  const {isDarkTheme} = useThemeContext();
+  const {isDarkTheme} = useThemeConfig();
 
   const showcase = siteConfig.customFields.users
     .filter(user => {
@@ -218,7 +230,7 @@ const artistsQuery = graphql\`
 const artistsQueryReference = loadQuery(
   environment,
   artistsQuery,
-  {artistId: "1"}
+  {artistID: "1"}
 );
 
 export default function ArtistPage() {

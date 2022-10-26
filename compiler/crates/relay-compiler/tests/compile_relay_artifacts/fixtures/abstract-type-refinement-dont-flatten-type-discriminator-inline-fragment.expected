@@ -88,6 +88,7 @@ query abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragment_AbstractT
     ]
   },
   "params": {
+    "cacheID": "5412f6e444d6ae99909f15f3f7d9f76b",
     "id": null,
     "metadata": {},
     "name": "abstractTypeRefinementDontFlattenTypeDiscriminatorInlineFragment_AbstractTypeRefinementQuery",

@@ -1,17 +1,20 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use lsp_server::{
-    ErrorCode, Request as ServerRequest, RequestId, RequestId as ServerRequestId,
-    Response as ServerResponse, ResponseError,
-};
+use lsp_server::ErrorCode;
+use lsp_server::Request as ServerRequest;
+use lsp_server::RequestId;
+use lsp_server::RequestId as ServerRequestId;
+use lsp_server::Response as ServerResponse;
+use lsp_server::ResponseError;
 use lsp_types::request::Request;
 
-use crate::lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::lsp_runtime_error::LSPRuntimeResult;
 
 pub struct LSPRequestDispatch<'state, TState> {
     request: lsp_server::Request,
@@ -76,7 +79,7 @@ fn convert_to_lsp_response(
         Err(runtime_error) => {
             let response_error: Option<ResponseError> = runtime_error.into();
             let response_error = response_error.unwrap_or_else(|| ResponseError {
-                code: ErrorCode::RequestCanceled as i32,
+                code: ErrorCode::UnknownErrorCode as i32,
                 message: "Request Canceled".to_string(),
                 data: None,
             });
@@ -107,15 +110,19 @@ where
 
 #[cfg(test)]
 mod test {
-    use crate::lsp_runtime_error::LSPRuntimeResult;
-    use lsp_types::{
-        request::Request,
-        request::{GotoDefinition, HoverRequest},
-        Position, TextDocumentIdentifier, TextDocumentPositionParams, Url,
-    };
-    use std::sync::atomic::{AtomicI32, Ordering};
+    use std::sync::atomic::AtomicI32;
+    use std::sync::atomic::Ordering;
+
+    use lsp_types::request::GotoDefinition;
+    use lsp_types::request::HoverRequest;
+    use lsp_types::request::Request;
+    use lsp_types::Position;
+    use lsp_types::TextDocumentIdentifier;
+    use lsp_types::TextDocumentPositionParams;
+    use lsp_types::Url;
 
     use super::LSPRequestDispatch;
+    use crate::lsp_runtime_error::LSPRuntimeResult;
 
     #[test]
     fn calls_first_matching_request_handler() {
@@ -169,9 +176,10 @@ mod test {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use lsp_types::request::CodeActionRequest;
     use serde_json::json;
+
+    use super::*;
 
     #[test]
     fn test_extract_request_params_error() {

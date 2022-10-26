@@ -3,6 +3,7 @@ query defaultArgumentOnFieldTestQuery {
     hometown {
       a: nameWithDefaultArgs
       b: nameWithDefaultArgs(capitalize: true)
+      c: nameWithRequiredDefaultArgs
     }
   }
 }

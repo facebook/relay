@@ -1,17 +1,20 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
+import type {
+  OperationDescriptor,
+  SelectorData,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
@@ -20,12 +23,14 @@ const ReactTestRenderer = require('react-test-renderer');
 const {
   __internal: {fetchQuery},
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
-function expectToBeRendered(renderFn, readyState) {
+function expectToBeRendered(
+  renderFn: JestMockFn<Array<mixed>, any & React$Node>,
+  readyState: ?SelectorData,
+) {
   // Ensure useEffect is called before other timers
   ReactTestRenderer.act(() => {
     jest.runAllImmediates();
@@ -35,7 +40,18 @@ function expectToBeRendered(renderFn, readyState) {
   renderFn.mockClear();
 }
 
-function expectToHaveFetched(environment, query, cacheConfig) {
+function expectToHaveFetched(
+  environment: RelayMockEnvironment,
+  query: OperationDescriptor,
+  cacheConfig: {
+    force?: ?boolean,
+    liveConfigId?: ?string,
+    metadata?: {[key: string]: mixed},
+    onSubscribe?: () => void,
+    poll?: ?number,
+    transactionId?: ?string,
+  },
+) {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute).toBeCalledTimes(1);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -74,7 +90,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
         name
       }
     `;
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query useLazyLoadQueryNodeFastRefreshTestUserQuery($id: ID) {
         node(id: $id) {
           id
@@ -82,9 +98,10 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
           ...useLazyLoadQueryNodeFastRefreshTestUserFragment
         }
       }
-    `);
+    `;
     variables = {id: '1'};
     query = createOperationDescriptor(gqlQuery, variables);
+    // $FlowFixMe[incompatible-use]
     renderFn = jest.fn(result => result?.node?.name ?? 'Empty');
   });
 
@@ -97,7 +114,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     // $FlowFixMe[cannot-resolve-module] This module is not available on www.
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
-    const V1 = function(props) {
+    const V1 = function (props: {variables: {id: string}}) {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
       const result = useLazyLoadQueryNode<_>({
         query: _query,
@@ -141,7 +158,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.execute.mockClear();
     renderFn.mockClear();
-    function V2(props) {
+    function V2(props: any) {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
       const result = useLazyLoadQueryNode<_>({
         query: _query,

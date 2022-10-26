@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -47,8 +46,23 @@ function generateUniqueClientID(): DataID {
   return `${PREFIX}local:${localID++}`;
 }
 
+// Client objects backed by Relay Resolvers may not be able to provide a
+// globally unique ID, so we provide a namespace.
+function generateClientObjectClientID(
+  typename: string,
+  localId: string,
+  index?: number,
+): DataID {
+  let key = `${PREFIX}${typename}:${localId}`;
+  if (index != null) {
+    key += ':' + index;
+  }
+  return key;
+}
+
 module.exports = {
   generateClientID,
+  generateClientObjectClientID,
   generateUniqueClientID,
   isClientID,
 };

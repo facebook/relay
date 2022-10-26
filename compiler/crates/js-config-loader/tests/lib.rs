@@ -1,13 +1,16 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use js_config_loader::{search, ConfigError, ErrorCode};
-use serde::Deserialize;
 use std::fs::create_dir_all;
+
+use js_config_loader::search;
+use js_config_loader::ConfigError;
+use js_config_loader::ErrorCode;
+use serde::Deserialize;
 use tempfile::tempdir;
 
 #[derive(Debug, Deserialize)]

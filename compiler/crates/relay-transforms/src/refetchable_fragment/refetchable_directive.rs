@@ -1,21 +1,34 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, WithLocation};
-use graphql_ir::{ConstantValue, Directive, ValidationMessage, Value};
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::Location;
+use common::SourceLocationKey;
+use common::WithLocation;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::Value;
 use graphql_text_printer::print_value;
-use interner::{Intern, StringKey};
+use graphql_text_printer::PrinterOptions;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use schema::SDLSchema;
 
+use super::validation_message::ValidationMessage;
+
 lazy_static! {
-    pub static ref REFETCHABLE_NAME: StringKey = "refetchable".intern();
-    static ref QUERY_NAME_ARG: StringKey = "queryName".intern();
-    static ref DIRECTIVES_ARG: StringKey = "directives".intern();
+    pub static ref REFETCHABLE_NAME: DirectiveName = DirectiveName("refetchable".intern());
+    static ref QUERY_NAME_ARG: ArgumentName = ArgumentName("queryName".intern());
+    static ref DIRECTIVES_ARG: ArgumentName = ArgumentName("directives".intern());
 }
 
 /// Represents the @refetchable Relay directive:
@@ -43,7 +56,11 @@ impl RefetchableDirective {
                 } else {
                     return Err(vec![Diagnostic::error(
                         ValidationMessage::ExpectQueryNameToBeString {
-                            query_name_value: print_value(schema, &argument.value.item),
+                            query_name_value: print_value(
+                                schema,
+                                &argument.value.item,
+                                PrinterOptions::default(),
+                            ),
                         },
                         argument.name.location,
                     )]);
@@ -58,10 +75,11 @@ impl RefetchableDirective {
                             if let ConstantValue::String(directive_string) = item {
                                 let ast_directive = graphql_syntax::parse_directive(
                                     directive_string.lookup(),
-                                    // We currently don't have the ability to pass offset locations
-                                    // to the parser call, so we first use a generated location and
-                                    // later override it with an approximation.
                                     SourceLocationKey::generated(),
+                                    // We don't currently have span information
+                                    // for constant values, so we can't derive a
+                                    // reasonable offset here.
+                                    0
                                 )
                                 .map_err(|mut diagnostics| {
                                     for diagnostic in &mut diagnostics {
@@ -73,9 +91,10 @@ impl RefetchableDirective {
                                     schema,
                                     &ast_directive,
                                     graphql_syntax::DirectiveLocation::Query,
-                                    // We currently don't have the ability to pass offset locations
-                                    // to the parser call, so we first use a generated location and
-                                    // later override it with an approximation.
+                                    // We don't currently have span information
+                                    // for constant values, so we can't derive a
+                                    // reasonable offset, which means the spans
+                                    // attached to `ast_directive` are invalid.
                                     Location::generated(),
                                 )
                                 .map_err(|mut diagnostics| {

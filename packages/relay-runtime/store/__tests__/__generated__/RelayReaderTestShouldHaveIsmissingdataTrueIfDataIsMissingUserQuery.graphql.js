@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5aed5f924c2236cdd08c92a44e99561c>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<6d5e3483fdd3a1a5cb0e870175c17227>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +17,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$ref = any;
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryVariables = {||};
-export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType } from "./RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile.graphql";
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$variables = {||};
+export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$ref,
+    +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserProfile$fragmentType,
   |},
 |};
 export type RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery = {|
-  variables: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryVariables,
-  response: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQueryResponse,
+  response: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$data,
+  variables: RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$variables,
 |};
 */
 
@@ -103,4 +105,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b8bb895c4bc3c32d92456c0798ef49ed";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$variables,
+  RelayReaderTestShouldHaveIsmissingdataTrueIfDataIsMissingUserQuery$data,
+>*/);

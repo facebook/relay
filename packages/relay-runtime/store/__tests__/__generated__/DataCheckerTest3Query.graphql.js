@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5c3ebc9c20e7423210320d0402f43315>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<332b2f3909aa74a9ed4b5fe4c899cc3b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +17,9 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type DataCheckerTest3QueryVariables = {||};
-export type DataCheckerTest3QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type DataCheckerTest3Query$variables = {||};
+export type DataCheckerTest3Query$data = {|
   +me: ?{|
     +profilePicture: ?{|
       +uri: ?string,
@@ -25,8 +27,8 @@ export type DataCheckerTest3QueryResponse = {|
   |},
 |};
 export type DataCheckerTest3Query = {|
-  variables: DataCheckerTest3QueryVariables,
-  response: DataCheckerTest3QueryResponse,
+  response: DataCheckerTest3Query$data,
+  variables: DataCheckerTest3Query$variables,
 |};
 */
 
@@ -146,4 +148,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a3a12cb34be08326303b43d116f29246";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  DataCheckerTest3Query$variables,
+  DataCheckerTest3Query$data,
+>*/);

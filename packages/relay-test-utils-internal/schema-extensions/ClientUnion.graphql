@@ -1,0 +1,13 @@
+type ClientTypeInUnion {
+  description: String
+}
+
+type OtherClientTypeInUnion {
+  description: String
+}
+
+union ClientUnion = ClientTypeInUnion | OtherClientTypeInUnion
+
+extend type Query {
+  client_union: ClientUnion
+}

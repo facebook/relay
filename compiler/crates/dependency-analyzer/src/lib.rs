@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -13,5 +13,7 @@
 mod ast;
 mod ir;
 
-pub use ast::{get_definition_references, get_reachable_ast, ReachableAst};
+pub use ast::get_definition_references;
+pub use ast::get_reachable_ast;
+pub use ast::ReachableAst;
 pub use ir::get_reachable_ir;

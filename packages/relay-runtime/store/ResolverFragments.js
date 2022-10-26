@@ -1,19 +1,20 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {FragmentType, SingularReaderSelector} from './RelayStoreTypes';
+import type {ResolverFragmentResult} from './ResolverCache';
+import type {Fragment} from '../util/RelayRuntimeTypes';
 
 const {getFragment} = require('../query/GraphQLTag');
 const {getSelector} = require('./RelayModernSelector');
@@ -23,9 +24,12 @@ const invariant = require('invariant');
 // `readFragment`, but that's a global function -- it needs information
 // about what resolver is being executed, which is supplied by putting the
 // info on this stack before we call the resolver function.
-type ResolverContext = {|
-  getDataForResolverFragment: (SingularReaderSelector, FragmentType) => mixed,
-|};
+type ResolverContext = {
+  getDataForResolverFragment: (
+    SingularReaderSelector,
+    FragmentType,
+  ) => ResolverFragmentResult,
+};
 const contextStack: Array<ResolverContext> = [];
 
 function withResolverContext<T>(context: ResolverContext, cb: () => T): T {
@@ -42,19 +46,19 @@ function withResolverContext<T>(context: ResolverContext, cb: () => T): T {
 // The declarations ensure that the type of the returned data is:
 //   - non-nullable if the provided ref type is non-nullable
 //   - nullable if the provided ref type is nullable
-//   - array of non-nullable if the privoided ref type is an array of
+//   - array of non-nullable if the provided ref type is an array of
 //     non-nullable refs
-//   - array of nullable if the privoided ref type is an array of nullable refs
+//   - array of nullable if the provided ref type is an array of nullable refs
 
 declare function readFragment<
-  TKey: {+$data?: mixed, +$fragmentRefs: FragmentType, ...},
+  TKey: {+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
 ): $Call<<TFragmentData>({+$data?: TFragmentData, ...}) => TFragmentData, TKey>;
 
 declare function readFragment<
-  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentType, ...},
+  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentKey: TKey,
@@ -66,7 +70,7 @@ declare function readFragment<
 declare function readFragment<
   TKey: $ReadOnlyArray<{
     +$data?: mixed,
-    +$fragmentRefs: FragmentType,
+    +$fragmentSpreads: FragmentType,
     ...
   }>,
 >(
@@ -82,7 +86,7 @@ declare function readFragment<
 declare function readFragment<
   TKey: ?$ReadOnlyArray<{
     +$data?: mixed,
-    +$fragmentRefs: FragmentType,
+    +$fragmentSpreads: FragmentType,
     ...
   }>,
 >(
@@ -95,7 +99,15 @@ declare function readFragment<
   TKey,
 >;
 
-function readFragment(fragmentInput, fragmentKey): mixed {
+declare function readFragment<TKey: FragmentType, TData>(
+  fragmentInput: Fragment<TKey, TData>,
+  fragmentKey: TKey,
+): TData;
+
+function readFragment(
+  fragmentInput: GraphQLTaggedNode,
+  fragmentKey: FragmentType,
+): mixed {
   if (!contextStack.length) {
     throw new Error(
       'readFragment should be called only from within a Relay Resolver function.',
@@ -112,7 +124,22 @@ function readFragment(fragmentInput, fragmentKey): mixed {
     fragmentSelector.kind === 'SingularReaderSelector',
     `Expected a singular reader selector for the fragment of the resolver ${fragmentNode.name}, but it was plural.`,
   );
-  return context.getDataForResolverFragment(fragmentSelector, fragmentKey);
+  const {data, isMissingData} = context.getDataForResolverFragment(
+    fragmentSelector,
+    fragmentKey,
+  );
+
+  if (isMissingData) {
+    throw RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL;
+  }
+
+  return data;
 }
 
-module.exports = {readFragment, withResolverContext};
+const RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL: mixed = {};
+
+module.exports = {
+  readFragment,
+  withResolverContext,
+  RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL,
+};

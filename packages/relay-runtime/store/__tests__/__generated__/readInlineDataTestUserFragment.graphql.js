@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4993d88f3c4eca607fdb03e19458a34b>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<80c65c7bf71b3f7b77d914a23711c813>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,17 @@
 'use strict';
 
 /*::
-import type { ReaderInlineDataFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type readInlineDataTestUserFragment$ref: FragmentReference;
-declare export opaque type readInlineDataTestUserFragment$fragmentType: readInlineDataTestUserFragment$ref;
-export type readInlineDataTestUserFragment = {|
+import type { InlineFragment, ReaderInlineDataFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type readInlineDataTestUserFragment$fragmentType: FragmentType;
+export type readInlineDataTestUserFragment$data = {|
   +id: string,
   +name: ?string,
-  +$refType: readInlineDataTestUserFragment$ref,
+  +$fragmentType: readInlineDataTestUserFragment$fragmentType,
 |};
-export type readInlineDataTestUserFragment$data = readInlineDataTestUserFragment;
 export type readInlineDataTestUserFragment$key = {
   +$data?: readInlineDataTestUserFragment$data,
-  +$fragmentRefs: readInlineDataTestUserFragment$ref,
+  +$fragmentSpreads: readInlineDataTestUserFragment$fragmentType,
   ...
 };
 */
@@ -41,4 +41,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ba453fc5b1f337b3ed0db8680df627f5";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: InlineFragment<
+  readInlineDataTestUserFragment$fragmentType,
+  readInlineDataTestUserFragment$data,
+>*/);

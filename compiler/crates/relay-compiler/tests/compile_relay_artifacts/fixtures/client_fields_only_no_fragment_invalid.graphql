@@ -1,0 +1,9 @@
+query clientFieldsOnlyNoFragmentInvalidQuery {
+  my_alias: client_field
+}
+
+# %extensions%
+
+extend type Query {
+  client_field: String
+}

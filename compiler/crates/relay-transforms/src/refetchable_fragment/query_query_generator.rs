@@ -1,24 +1,31 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::{
-    build_fragment_metadata_as_directive, build_fragment_spread,
-    build_operation_variable_definitions, build_used_global_variables, QueryGenerator, RefetchRoot,
-    RefetchableMetadata,
-};
-use crate::root_variables::VariableMap;
+use std::sync::Arc;
+
 use common::DiagnosticsResult;
 use graphql_ir::FragmentDefinition;
-use interner::StringKey;
-use schema::{SDLSchema, Schema};
-use std::sync::Arc;
+use intern::string_key::StringKey;
+use relay_config::SchemaConfig;
+use schema::SDLSchema;
+use schema::Schema;
+
+use super::build_fragment_metadata_as_directive;
+use super::build_fragment_spread;
+use super::build_operation_variable_definitions;
+use super::build_used_global_variables;
+use super::QueryGenerator;
+use super::RefetchRoot;
+use super::RefetchableMetadata;
+use crate::root_variables::VariableMap;
 
 fn build_refetch_operation(
     schema: &SDLSchema,
+    _schema_config: &SchemaConfig,
     fragment: &Arc<FragmentDefinition>,
     query_name: StringKey,
     variables_map: &VariableMap,

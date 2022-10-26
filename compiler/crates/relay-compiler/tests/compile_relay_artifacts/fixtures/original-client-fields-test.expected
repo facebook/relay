@@ -319,6 +319,7 @@ type Foo implements Named {
     ]
   },
   "params": {
+    "cacheID": "1f875f2169b04e1d6486319f486e4f1f",
     "id": null,
     "metadata": {},
     "name": "originalClientFieldsTest_BestFriendsQuery",

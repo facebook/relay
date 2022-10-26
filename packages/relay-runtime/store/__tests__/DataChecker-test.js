@@ -1,17 +1,33 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+
+import type {
+  DataCheckerTest10Query$data,
+  DataCheckerTest10Query$variables,
+} from './__generated__/DataCheckerTest10Query.graphql';
+import type {
+  DataCheckerTest6Query$data,
+  DataCheckerTest6Query$variables,
+} from './__generated__/DataCheckerTest6Query.graphql';
+import type {
+  DataCheckerTest9Query$data,
+  DataCheckerTest9Query$variables,
+} from './__generated__/DataCheckerTest9Query.graphql';
+import type {
+  DataCheckerTestQuery$data,
+  DataCheckerTestQuery$variables,
+} from './__generated__/DataCheckerTestQuery.graphql';
+import type {Query as $IMPORTED_TYPE$_Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
@@ -36,7 +52,23 @@ const {createMockEnvironment} = require('relay-test-utils-internal');
 // This is not correct, and Flow is reporting these errors correctly. We need to prioritize fixing this.
 
 describe('check()', () => {
-  let Query;
+  let Query:
+    | $IMPORTED_TYPE$_Query<
+        DataCheckerTest10Query$variables,
+        DataCheckerTest10Query$data,
+      >
+    | $IMPORTED_TYPE$_Query<
+        DataCheckerTest6Query$variables,
+        DataCheckerTest6Query$data,
+      >
+    | $IMPORTED_TYPE$_Query<
+        DataCheckerTest9Query$variables,
+        DataCheckerTest9Query$data,
+      >
+    | $IMPORTED_TYPE$_Query<
+        DataCheckerTestQuery$variables,
+        DataCheckerTestQuery$data,
+      >;
   let sampleData;
   beforeEach(() => {
     sampleData = {
@@ -181,7 +213,7 @@ describe('check()', () => {
     const target = RelayRecordSource.create();
     const BarFragment = graphql`
       fragment DataCheckerTestFragment on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+      @argumentDefinitions(size: {type: "[Int]"}) {
         id
         firstName
         friends(first: 1) {
@@ -701,22 +733,23 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'PlainUserNameRenderer',
+            __module_component_DataCheckerTest4Fragment:
+              'PlainUserNameRenderer.react',
+            __module_operation_DataCheckerTest4Fragment:
+              'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
+            plaintext: 'plain name',
+            data: {__ref: 'data'},
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'PlainUserNameRenderer',
-          __module_component_DataCheckerTest4Fragment:
-            'PlainUserNameRenderer.react',
-          __module_operation_DataCheckerTest4Fragment:
-            'DataCheckerTestPlainUserNameRenderer_nameFragment$normalization.graphql',
-          plaintext: 'plain name',
-          data: {__ref: 'data'},
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -765,22 +798,23 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component_DataCheckerTest4Fragment:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_DataCheckerTest4Fragment:
+              'DataCheckerTestMarkdownUserNameRenderer_nameFragment$normalization.graphql',
+            markdown: 'markdown payload',
+            data: {__ref: 'data'},
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          __module_component_DataCheckerTest4Fragment:
-            'MarkdownUserNameRenderer.react',
-          __module_operation_DataCheckerTest4Fragment:
-            'DataCheckerTestMarkdownUserNameRenderer_nameFragment$normalization.graphql',
-          markdown: 'markdown payload',
-          data: {__ref: 'data'},
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -826,17 +860,18 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            // NOTE: markdown/data fields are missing, data not processed.
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          // NOTE: markdown/data fields are missing, data not processed.
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -879,18 +914,19 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            // NOTE: 'markdown' field missing
+            data: {__ref: 'data'},
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          // NOTE: 'markdown' field missing
-          data: {__ref: 'data'},
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -935,18 +971,19 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            markdown: 'markdown text',
+            // NOTE: 'data' field missing
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          markdown: 'markdown text',
-          // NOTE: 'data' field missing
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -984,17 +1021,18 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'CustomNameRenderer',
+            customField: 'custom value',
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'CustomNameRenderer',
-          customField: 'custom value',
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -1031,7 +1069,8 @@ describe('check()', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            null,
         },
         'client:root': {
           __id: 'client:root',
@@ -1712,7 +1751,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest8Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -1754,7 +1793,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest9Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -1797,7 +1836,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest10Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -2121,7 +2160,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest13Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           profilePicture(size: $size) {
@@ -2192,7 +2231,7 @@ describe('check()', () => {
       const target = RelayRecordSource.create();
       const BarFragment = graphql`
         fragment DataCheckerTest14Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           id
           firstName
           client_actor_field
@@ -2354,6 +2393,7 @@ describe('check()', () => {
       beforeEach(() => {
         sampleData = {
           ...sampleData,
+          // $FlowFixMe[prop-missing]
           'client:4': {
             __id: 'client:4',
             __typename: 'Photo',
@@ -2466,6 +2506,7 @@ describe('check()', () => {
       });
 
       it('returns null invalidation epoch when stale record is unreachable', () => {
+        // $FlowFixMe[prop-missing]
         sampleData = {
           // Root record is missing, so none of the descendants are reachable
           '1': {
@@ -2480,9 +2521,11 @@ describe('check()', () => {
             __id: 'client:1',
             __typename: 'FriendsConnection',
             edges: {
+              // $FlowFixMe[incompatible-type]
               __refs: [],
             },
           },
+          // $FlowFixMe[prop-missing]
           'client:4': {
             __id: 'client:4',
             __typename: 'Photo',
@@ -2798,10 +2841,11 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
         '2': {
@@ -2810,24 +2854,24 @@ describe('check()', () => {
           id: '2',
           name: 'Lauren',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-          __id:
-            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          __typename: 'ReactFlightComponent',
-          executableDefinitions: [
-            {
-              module: {
-                __dr: 'RelayFlightExampleQuery.graphql',
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          {
+            __id: 'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            __typename: 'ReactFlightComponent',
+            executableDefinitions: [
+              {
+                module: {
+                  __dr: 'RelayFlightExampleQuery.graphql',
+                },
+                variables: {
+                  id: '2',
+                },
               },
-              variables: {
-                id: '2',
-              },
+            ],
+            tree: {
+              readRoot,
             },
-          ],
-          tree: {
-            readRoot,
           },
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -2869,17 +2913,18 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-          __id:
-            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          __typename: 'ReactFlightComponent',
-        },
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          {
+            __id: 'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            __typename: 'ReactFlightComponent',
+          },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -2918,13 +2963,15 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': null,
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          null,
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -2963,13 +3010,15 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': undefined,
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          undefined,
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -3008,10 +3057,11 @@ describe('check()', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
         'client:root': {
@@ -3050,7 +3100,7 @@ describe('check()', () => {
 
   describe('ActorChange', () => {
     beforeEach(() => {
-      Query = getRequest(graphql`
+      Query = graphql`
         query DataCheckerTest10Query {
           viewer {
             newsFeed {
@@ -3062,7 +3112,7 @@ describe('check()', () => {
             }
           }
         }
-      `);
+      `;
       graphql`
         fragment DataCheckerTest20Fragment on FeedUnit {
           id
@@ -3220,5 +3270,99 @@ describe('check()', () => {
       });
       expect(target.size()).toBe(0);
     });
+  });
+
+  it('should assign client-only abstract type information to the target source', () => {
+    graphql`
+      fragment DataCheckerTestClient2Interface on ClientInterface {
+        description
+      }
+    `;
+    const clientQuery = graphql`
+      query DataCheckerTestClient2AbstractQuery {
+        client_interface {
+          ...DataCheckerTestClient2Interface
+        }
+      }
+    `;
+    const source = RelayRecordSource.create();
+    const target = RelayRecordSource.create();
+    check(
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      createNormalizationSelector(
+        getRequest(clientQuery).operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(target.toJSON()).toEqual({
+      'client:__type:ClientTypeImplementingClientInterface': {
+        __id: 'client:__type:ClientTypeImplementingClientInterface',
+        __typename: '__TypeSchema',
+        __isClientInterface: true,
+      },
+      'client:__type:OtherClientTypeImplementingClientInterface': {
+        __id: 'client:__type:OtherClientTypeImplementingClientInterface',
+        __typename: '__TypeSchema',
+        __isClientInterface: true,
+      },
+    });
+  });
+
+  it('should assign client-only abstract type information to the target source if it is not available in the source', () => {
+    graphql`
+      fragment DataCheckerTestClientInterface on ClientInterface {
+        description
+      }
+    `;
+    const clientQuery = graphql`
+      query DataCheckerTestClientAbstractQuery {
+        client_interface {
+          ...DataCheckerTestClientInterface
+        }
+      }
+    `;
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        client_interface: {__ref: 'object-1'},
+      },
+      'client:__type:ClientTypeImplementingClientInterface': {
+        __id: 'client:__type:ClientTypeImplementingClientInterface',
+        __typename: '__TypeSchema',
+        __isClientInterface: true,
+      },
+      'client:__type:OtherClientTypeImplementingClientInterface': {
+        __id: 'client:__type:OtherClientTypeImplementingClientInterface',
+        __typename: '__TypeSchema',
+        __isClientInterface: true,
+      },
+      'object-1': {
+        __id: 'object-1',
+        __typename: 'ClientTypeImplementingClientInterface',
+        id: 'object-1',
+      },
+    });
+    const target = RelayRecordSource.create();
+    check(
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      createNormalizationSelector(
+        getRequest(clientQuery).operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(target.toJSON()).toEqual({});
   });
 });

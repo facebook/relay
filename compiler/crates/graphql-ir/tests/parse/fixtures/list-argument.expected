@@ -13,7 +13,9 @@ query ListArgumentQuery {
             kind: Query,
             name: WithLocation {
                 location: list-argument.graphql:6:23,
-                item: "ListArgumentQuery",
+                item: OperationDefinitionName(
+                    "ListArgumentQuery",
+                ),
             },
             type_: Object(0),
             variable_definitions: [],
@@ -29,7 +31,9 @@ query ListArgumentQuery {
                         Argument {
                             name: WithLocation {
                                 location: list-argument.graphql:34:43,
-                                item: "waypoints",
+                                item: ArgumentName(
+                                    "waypoints",
+                                ),
                             },
                             value: WithLocation {
                                 location: list-argument.graphql:45:71,
@@ -41,7 +45,9 @@ query ListArgumentQuery {
                                                     ConstantArgument {
                                                         name: WithLocation {
                                                             location: list-argument.graphql:47:50,
-                                                            item: "lat",
+                                                            item: ArgumentName(
+                                                                "lat",
+                                                            ),
                                                         },
                                                         value: WithLocation {
                                                             location: list-argument.graphql:52:57,
@@ -53,7 +59,9 @@ query ListArgumentQuery {
                                                     ConstantArgument {
                                                         name: WithLocation {
                                                             location: list-argument.graphql:59:62,
-                                                            item: "lon",
+                                                            item: ArgumentName(
+                                                                "lon",
+                                                            ),
                                                         },
                                                         value: WithLocation {
                                                             location: list-argument.graphql:64:69,

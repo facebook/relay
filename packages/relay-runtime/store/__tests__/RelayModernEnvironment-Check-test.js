@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -18,7 +16,7 @@ const {
   getActorIdentifier,
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -29,7 +27,7 @@ const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
 
-const ParentQuery = getRequest(graphql`
+const ParentQuery = graphql`
   query RelayModernEnvironmentCheckTestParentQuery($size: [Int]!) {
     me {
       id
@@ -39,7 +37,7 @@ const ParentQuery = getRequest(graphql`
       }
     }
   }
-`);
+`;
 
 describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
   'check()',
@@ -126,7 +124,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       describe('ActorChange in MultiActorEnvironment', () => {
         let Query;
         beforeEach(() => {
-          Query = getRequest(graphql`
+          Query = graphql`
             query RelayModernEnvironmentCheckTestQuery {
               viewer {
                 newsFeed {
@@ -138,7 +136,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 }
               }
             }
-          `);
+          `;
           graphql`
             fragment RelayModernEnvironmentCheckTestFragment on FeedUnit {
               id

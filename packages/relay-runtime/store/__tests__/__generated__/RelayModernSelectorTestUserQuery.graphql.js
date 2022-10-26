@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6b4b5fd9e9b4ddabe6bc2948e03e41d3>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<e288acfda87182ab5ce49bfbdb0a7415>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +17,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernSelectorTestUserFragment$ref = any;
-type RelayModernSelectorTestUsersFragment$ref = any;
-export type RelayModernSelectorTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernSelectorTestUserFragment$fragmentType } from "./RelayModernSelectorTestUserFragment.graphql";
+import type { RelayModernSelectorTestUsersFragment$fragmentType } from "./RelayModernSelectorTestUsersFragment.graphql";
+export type RelayModernSelectorTestUserQuery$variables = {|
+  cond: boolean,
   id: string,
   size?: ?$ReadOnlyArray<?number>,
-  cond: boolean,
 |};
-export type RelayModernSelectorTestUserQueryResponse = {|
+export type RelayModernSelectorTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernSelectorTestUserFragment$ref & RelayModernSelectorTestUsersFragment$ref,
+    +$fragmentSpreads: RelayModernSelectorTestUserFragment$fragmentType & RelayModernSelectorTestUsersFragment$fragmentType,
   |},
 |};
 export type RelayModernSelectorTestUserQuery = {|
-  variables: RelayModernSelectorTestUserQueryVariables,
-  response: RelayModernSelectorTestUserQueryResponse,
+  response: RelayModernSelectorTestUserQuery$data,
+  variables: RelayModernSelectorTestUserQuery$variables,
 |};
 */
 
@@ -190,4 +192,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "afbaf504a28e027de34401ff4a82e567";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernSelectorTestUserQuery$variables,
+  RelayModernSelectorTestUserQuery$data,
+>*/);

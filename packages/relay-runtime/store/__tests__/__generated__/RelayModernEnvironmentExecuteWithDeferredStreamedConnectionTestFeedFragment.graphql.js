@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1bc0fcd9846213fb9bc210a63985c1df>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<b60f54ec2091130387ab5bee305842e8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,24 +17,23 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$ref;
-export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$data = {|
   +newsFeed: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +cursor: ?string,
       +node: ?{|
         +__typename: string,
-        +id: string,
         +feedback: ?{|
-          +id: string,
           +actors: ?$ReadOnlyArray<?{|
             +id: string,
             +name: ?string,
           |}>,
+          +id: string,
         |},
+        +id: string,
       |},
     |}>,
     +pageInfo: ?{|
@@ -40,12 +41,11 @@ export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedF
       +hasNextPage: ?boolean,
     |},
   |},
-  +$refType: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$ref,
+  +$fragmentType: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$data = RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment;
 export type RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType,
   ...
 };
 */
@@ -203,4 +203,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "1243990fb1e80998d6468a0e85e40eee";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$fragmentType,
+  RelayModernEnvironmentExecuteWithDeferredStreamedConnectionTestFeedFragment$data,
+>*/);

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<08e49361c5d3d91d5b1c84d6585f6807>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<98c104eef25d992b6fce2fad458e9b79>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$ref = any;
-export type ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType } from "./ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment.graphql";
+export type ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery$variables = {|
   condGlobal: boolean,
+  id: string,
 |};
-export type ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQueryResponse = {|
+export type ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$ref,
+    +$fragmentSpreads: ReactRelayFragmentContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   |},
 |};
 export type ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery = {|
-  variables: ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQueryVariables,
-  response: ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQueryResponse,
+  response: ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery$data,
+  variables: ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery$variables,
 |};
 */
 
@@ -165,4 +167,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "577a07568a7abf3e31c0e6f44fb64a8d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery$variables,
+  ReactRelayFragmentContainerWithFragmentOwnershipTestWithCondUserQuery$data,
+>*/);

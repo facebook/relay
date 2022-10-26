@@ -1,25 +1,32 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, SourceLocationKey};
+use std::collections::BTreeMap;
+
+use common::Diagnostic;
+use common::SourceLocationKey;
+use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
-use schema::{
-    build_schema_from_flat_buffer, build_schema_with_extensions, serialize_as_flatbuffer,
-    SDLSchema, Schema, Type,
-};
-use std::collections::BTreeMap;
+use schema::build_schema_from_flat_buffer;
+use schema::build_schema_with_extensions;
+use schema::serialize_as_flatbuffer;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 
 const SCHEMA_SEPARATOR: &str = "%extensions%";
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let parts: Vec<_> = fixture.content.split(SCHEMA_SEPARATOR).collect();
     let result = match parts.as_slice() {
-        [base] => build_schema_with_extensions::<_, &str>(&[base], &[]),
+        [base] => {
+            build_schema_with_extensions::<_, &str>(&[(base, SourceLocationKey::generated())], &[])
+        }
         [base, extensions] => {
             // prepend a comment so the correct line + column number is reported for client extension
             // (since we source base and client schemas from one file)
@@ -27,7 +34,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
             assert!(nchars_base > 0);
             let prepended_extension = format!("{}\n{}", "#".repeat(nchars_base - 1), extensions);
             build_schema_with_extensions(
-                &[base],
+                &[(base, SourceLocationKey::generated())],
                 &[(
                     prepended_extension,
                     SourceLocationKey::standalone(fixture.file_name),
@@ -108,7 +115,8 @@ unions: {:#?}
 
 // NOTE: copied from graphql-test-helpers to avoid cyclic dependency breaking Rust Analyzer
 fn diagnostics_to_sorted_string(source: &str, diagnostics: &[Diagnostic]) -> String {
-    let printer = DiagnosticPrinter::new(|_| Some(source.to_string()));
+    let printer =
+        DiagnosticPrinter::new(|_| Some(TextSource::from_whole_document(source.to_string())));
     let mut printed = diagnostics
         .iter()
         .map(|diagnostic| printer.diagnostic_to_string(diagnostic))

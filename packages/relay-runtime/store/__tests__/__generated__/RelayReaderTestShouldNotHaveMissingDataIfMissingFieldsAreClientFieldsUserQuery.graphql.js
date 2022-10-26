@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d587d4d60b5e43959e487b9c2f96a110>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<27f2b1ecfe761eed562e942009375b88>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$ref = any;
-export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType } from "./RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile.graphql";
+export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$variables = {|
   size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQueryResponse = {|
+export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$ref,
+    +$fragmentSpreads: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserProfile$fragmentType,
   |},
 |};
 export type RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery = {|
-  variables: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQueryVariables,
-  response: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQueryResponse,
+  response: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$data,
+  variables: RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$variables,
 |};
 */
 
@@ -351,4 +353,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "bd858976002087b3fee19b50cc499727";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$variables,
+  RelayReaderTestShouldNotHaveMissingDataIfMissingFieldsAreClientFieldsUserQuery$data,
+>*/);

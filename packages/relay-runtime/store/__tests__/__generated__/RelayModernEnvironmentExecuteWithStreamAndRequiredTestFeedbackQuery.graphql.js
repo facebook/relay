@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b62bc9d8c56bfaba0bc483ea998a5a40>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<9c52616bbf6a11a2378e9570663828c2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment.graphql";
+export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQuery$variables = {|
   enableStream: boolean,
+  id: string,
 |};
-export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQuery = {|
-  variables: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQueryVariables,
-  response: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQueryResponse,
+  response: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQuery$data,
+  variables: RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQuery$variables,
 |};
 */
 
@@ -167,4 +169,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ab3c3dfb9f6ec864b836f85e13609fb0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQuery$variables,
+  RelayModernEnvironmentExecuteWithStreamAndRequiredTestFeedbackQuery$data,
+>*/);

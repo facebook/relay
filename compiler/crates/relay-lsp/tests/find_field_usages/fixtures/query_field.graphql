@@ -1,0 +1,6 @@
+query Q {
+  __typename
+}
+
+%arguments%
+Query __typename

@@ -1,38 +1,68 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 //! Utilities for providing the completion language feature
-use crate::{
-    lsp_runtime_error::LSPRuntimeResult,
-    node_resolution_info::{TypePath, TypePathItem},
-    server::GlobalState,
-    LSPRuntimeError, SchemaDocumentation,
-};
-use common::{Named, NamedItem, Span};
-
-use fnv::FnvHashSet;
-use graphql_ir::{Program, VariableDefinition, DIRECTIVE_ARGUMENTS};
-use graphql_syntax::{
-    Argument, ConstantValue, Directive, DirectiveLocation, ExecutableDefinition,
-    ExecutableDocument, FragmentSpread, InlineFragment, LinkedField, List, OperationDefinition,
-    OperationKind, ScalarField, Selection, TokenKind, Value,
-};
-use interner::StringKey;
-use log::debug;
-use lsp_types::{
-    request::{Completion, Request, ResolveCompletionItem},
-    CompletionItem, CompletionItemKind, CompletionResponse, Documentation, InsertTextFormat,
-    MarkupContent, MarkupKind,
-};
-use schema::{
-    Argument as SchemaArgument, Directive as SchemaDirective, SDLSchema, Schema, Type,
-    TypeReference, TypeWithFields,
-};
 use std::iter::once;
+
+use common::ArgumentName;
+use common::DirectiveName;
+use common::Named;
+use common::NamedItem;
+use common::Span;
+use fnv::FnvHashSet;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::OperationDefinitionName;
+use graphql_ir::Program;
+use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
+use graphql_ir::DIRECTIVE_ARGUMENTS;
+use graphql_syntax::Argument;
+use graphql_syntax::ConstantValue;
+use graphql_syntax::Directive;
+use graphql_syntax::DirectiveLocation;
+use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::ExecutableDocument;
+use graphql_syntax::FragmentSpread;
+use graphql_syntax::InlineFragment;
+use graphql_syntax::LinkedField;
+use graphql_syntax::List;
+use graphql_syntax::OperationDefinition;
+use graphql_syntax::OperationKind;
+use graphql_syntax::ScalarField;
+use graphql_syntax::Selection;
+use graphql_syntax::TokenKind;
+use graphql_syntax::Value;
+use intern::string_key::StringKey;
+use intern::Lookup;
+use log::debug;
+use lsp_types::request::Completion;
+use lsp_types::request::Request;
+use lsp_types::request::ResolveCompletionItem;
+use lsp_types::CompletionItem;
+use lsp_types::CompletionItemKind;
+use lsp_types::CompletionResponse;
+use lsp_types::Documentation;
+use lsp_types::InsertTextFormat;
+use lsp_types::MarkupContent;
+use lsp_types::MarkupKind;
+use schema::Argument as SchemaArgument;
+use schema::Directive as SchemaDirective;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
+use schema::TypeWithFields;
+
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::node_resolution_info::TypePath;
+use crate::node_resolution_info::TypePathItem;
+use crate::server::GlobalState;
+use crate::LSPRuntimeError;
+use crate::SchemaDocumentation;
 
 #[derive(Debug, Clone)]
 pub enum CompletionKind {
@@ -61,7 +91,7 @@ pub enum CompletionKind {
 #[derive(Debug, Clone)]
 pub enum ArgumentKind {
     Field,
-    Directive(StringKey),
+    Directive(DirectiveName),
     ArgumentsDirective(StringKey),
 }
 
@@ -89,28 +119,28 @@ impl CompletionRequest {
 #[derive(Debug, Copy, Clone)]
 pub enum ExecutableName {
     Operation(StringKey),
-    Fragment(StringKey),
+    Fragment(FragmentDefinitionName),
 }
 
 trait ArgumentLike {
     fn name(&self) -> StringKey;
-    fn type_(&self) -> &TypeReference;
+    fn type_(&self) -> &TypeReference<Type>;
 }
 
 impl ArgumentLike for &SchemaArgument {
     fn name(&self) -> StringKey {
-        self.name
+        self.name.0
     }
-    fn type_(&self) -> &TypeReference {
+    fn type_(&self) -> &TypeReference<Type> {
         &self.type_
     }
 }
 
 impl ArgumentLike for &VariableDefinition {
     fn name(&self) -> StringKey {
-        self.name.item
+        self.name.item.0
     }
-    fn type_(&self) -> &TypeReference {
+    fn type_(&self) -> &TypeReference<Type> {
         &self.type_
     }
 }
@@ -141,11 +171,10 @@ impl CompletionRequestBuilder {
             match &definition {
                 ExecutableDefinition::Operation(operation) => {
                     if operation.location.contains(position_span) {
-                        self.current_executable_name = if let Some(name) = &operation.name {
-                            Some(ExecutableName::Operation(name.value))
-                        } else {
-                            None
-                        };
+                        self.current_executable_name = operation
+                            .name
+                            .as_ref()
+                            .map(|name| ExecutableName::Operation(name.value));
                         let (_, kind) = operation.operation.clone()?;
                         let type_path = vec![TypePathItem::Operation(kind)];
 
@@ -179,8 +208,9 @@ impl CompletionRequestBuilder {
                 }
                 ExecutableDefinition::Fragment(fragment) => {
                     if fragment.location.contains(position_span) {
-                        self.current_executable_name =
-                            Some(ExecutableName::Fragment(fragment.name.value));
+                        self.current_executable_name = Some(ExecutableName::Fragment(
+                            FragmentDefinitionName(fragment.name.value),
+                        ));
                         let type_name = fragment.type_condition.type_.value;
                         let type_path = vec![TypePathItem::FragmentDefinition { type_name }];
                         if let Some(req) = self.build_request_from_selection_or_directives(
@@ -468,10 +498,10 @@ impl CompletionRequestBuilder {
                             if directive.name.value == *DIRECTIVE_ARGUMENTS {
                                 ArgumentKind::ArgumentsDirective(fragment_spread_name)
                             } else {
-                                ArgumentKind::Directive(directive.name.value)
+                                ArgumentKind::Directive(DirectiveName(directive.name.value))
                             }
                         } else {
-                            ArgumentKind::Directive(directive.name.value)
+                            ArgumentKind::Directive(DirectiveName(directive.name.value))
                         },
                     )
                 } else {
@@ -572,7 +602,7 @@ fn completion_items_for_request(
                 ))
             }
             ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
-                let fragment = program.fragment(fragment_spread_name)?;
+                let fragment = program.fragment(FragmentDefinitionName(fragment_spread_name))?;
                 Some(resolve_completion_items_for_argument_name(
                     fragment.variable_definitions.iter(),
                     schema,
@@ -597,17 +627,21 @@ fn completion_items_for_request(
             let argument_type = match kind {
                 ArgumentKind::Field => {
                     let (_, field) = request.type_path.resolve_current_field(schema)?;
-                    &field.arguments.named(argument_name)?.type_
+                    &field.arguments.named(ArgumentName(argument_name))?.type_
                 }
                 ArgumentKind::ArgumentsDirective(fragment_spread_name) => {
-                    let fragment = program.fragment(fragment_spread_name)?;
-                    &fragment.variable_definitions.named(argument_name)?.type_
+                    let fragment =
+                        program.fragment(FragmentDefinitionName(fragment_spread_name))?;
+                    &fragment
+                        .variable_definitions
+                        .named(VariableName(argument_name))?
+                        .type_
                 }
                 ArgumentKind::Directive(directive_name) => {
                     &schema
                         .get_directive(directive_name)?
                         .arguments
-                        .named(argument_name)?
+                        .named(ArgumentName(argument_name))?
                         .type_
                 }
             };
@@ -655,7 +689,7 @@ fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
                     sort_text: None,
                     filter_text: None,
                     insert_text: Some(format!("{}: $1", label)),
-                    insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                    insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
                     text_edit: None,
                     additional_text_edits: None,
                     command: Some(lsp_types::Command::new(
@@ -685,7 +719,7 @@ fn resolve_completion_items_for_inline_fragment_type(
                     interface
                         .implementing_objects
                         .iter()
-                        .filter_map(|id| schema.get_type(schema.object(*id).name.item)),
+                        .filter_map(|id| schema.get_type(schema.object(*id).name.item.0)),
                 )
                 .collect()
         }
@@ -696,7 +730,7 @@ fn resolve_completion_items_for_inline_fragment_type(
                     union
                         .members
                         .iter()
-                        .filter_map(|id| schema.get_type(schema.object(*id).name.item)),
+                        .filter_map(|id| schema.get_type(schema.object(*id).name.item.0)),
                 )
                 .collect()
         }
@@ -718,7 +752,7 @@ fn resolve_completion_items_for_inline_fragment_type(
                 sort_text: None,
                 filter_text: None,
                 insert_text: Some(format!("{} {{\n\t$1\n}}", label)),
-                insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
                 text_edit: None,
                 additional_text_edits: None,
                 command: Some(lsp_types::Command::new(
@@ -737,7 +771,7 @@ fn resolve_completion_items_for_inline_fragment_type(
 
 fn resolve_completion_items_for_argument_value(
     schema: &SDLSchema,
-    type_: &TypeReference,
+    type_: &TypeReference<Type>,
     program: &Program,
     executable_name: ExecutableName,
 ) -> Vec<CompletionItem> {
@@ -758,7 +792,7 @@ fn resolve_completion_items_for_argument_value(
             }
         }
         ExecutableName::Operation(name) => {
-            if let Some(operation) = program.operation(name) {
+            if let Some(operation) = program.operation(OperationDefinitionName(name)) {
                 operation
                     .variable_definitions
                     .iter()
@@ -804,7 +838,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
             let is_deprecated = deprecated.is_some();
             let deprecated_reason = deprecated
                 .and_then(|deprecated| deprecated.reason)
-                .map(|reason| reason.lookup().to_string());
+                .map(|reason| format!("Deprecated: {}", reason));
             let args = create_arguments_snippets(field.arguments.iter(), schema);
             let insert_text = match (
                 existing_linked_field
@@ -823,7 +857,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
             };
             let (insert_text_format, command) = if insert_text.is_some() {
                 (
-                    Some(lsp_types::InsertTextFormat::Snippet),
+                    Some(lsp_types::InsertTextFormat::SNIPPET),
                     Some(lsp_types::Command::new(
                         "Suggest".into(),
                         "editor.action.triggerSuggest".into(),
@@ -840,28 +874,29 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
             let field_description = schema_documentation
                 .get_field_description(type_.name().lookup(), field.name.item.lookup());
 
+            let type_name = schema.get_type_string(&field.type_);
             let documentation = make_markdown_table_documentation(
                 field.name.item.lookup(),
-                &schema.get_type_string(&field.type_),
+                &type_name,
                 field_description.unwrap_or(""),
                 type_description.unwrap_or(""),
             );
 
             let kind = match field.type_.inner() {
-                Type::Enum(_) => Some(CompletionItemKind::Enum),
-                Type::Interface(_) => Some(CompletionItemKind::Interface),
+                Type::Enum(_) => Some(CompletionItemKind::ENUM),
+                Type::Interface(_) => Some(CompletionItemKind::INTERFACE),
                 // There is no Kind for union, so we'll use interface
-                Type::Union(_) => Some(CompletionItemKind::Interface),
-                Type::Object(_) => Some(CompletionItemKind::Struct),
-                Type::InputObject(_) => Some(CompletionItemKind::Struct),
-                type_ if schema.is_string(type_) => Some(CompletionItemKind::Text),
-                _ => Some(CompletionItemKind::Value),
+                Type::Union(_) => Some(CompletionItemKind::INTERFACE),
+                Type::Object(_) => Some(CompletionItemKind::STRUCT),
+                Type::InputObject(_) => Some(CompletionItemKind::STRUCT),
+                type_ if schema.is_string(type_) => Some(CompletionItemKind::TEXT),
+                _ => Some(CompletionItemKind::VALUE),
             };
 
             CompletionItem {
                 label: field_name,
                 kind,
-                detail: deprecated_reason,
+                detail: deprecated_reason.or(Some(type_name)),
                 documentation: Some(documentation),
                 deprecated: Some(is_deprecated),
                 preselect: None,
@@ -912,7 +947,7 @@ fn resolve_completion_items_for_fragment_spread(
                         sort_text: None,
                         filter_text: None,
                         insert_text: Some(insert_text),
-                        insert_text_format: Some(lsp_types::InsertTextFormat::Snippet),
+                        insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
                         text_edit: None,
                         additional_text_edits: None,
                         command: Some(lsp_types::Command::new(
@@ -945,14 +980,14 @@ fn completion_item_from_directive(
 
     // We can return a snippet with the expected arguments of the directive
     let (insert_text, insert_text_format) = if arguments.is_empty() {
-        (label.clone(), InsertTextFormat::PlainText)
+        (label.clone(), InsertTextFormat::PLAIN_TEXT)
     } else {
         let args = create_arguments_snippets(arguments.iter(), schema);
         if args.is_empty() {
-            (label.clone(), InsertTextFormat::PlainText)
+            (label.clone(), InsertTextFormat::PLAIN_TEXT)
         } else {
             let insert_text = format!("{}({})", label, args.join(", "));
-            (insert_text, InsertTextFormat::Snippet)
+            (insert_text, InsertTextFormat::SNIPPET)
         }
     };
 
@@ -1009,7 +1044,7 @@ fn create_arguments_snippets<T: ArgumentLike>(
     args
 }
 
-pub(crate) fn on_completion(
+pub fn on_completion(
     state: &impl GlobalState,
     params: <Completion as Request>::Params,
 ) -> LSPRuntimeResult<<Completion as Request>::Result> {

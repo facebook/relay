@@ -1,11 +1,14 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_ir::{Directive, Program, Transformed, Transformer};
+use graphql_ir::Directive;
+use graphql_ir::Program;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
 use schema::Schema;
 
 pub fn skip_client_directives(program: &Program) -> Program {

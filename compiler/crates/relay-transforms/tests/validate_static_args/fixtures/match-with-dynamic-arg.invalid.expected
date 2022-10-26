@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query matchWithVariableKey_MatchWithVariableNameQuery($key: String) {
+  me {
+    nameRenderer @match(key: $key) {
+      ...matchWithVariableKey_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")
+    }
+  }
+}
+
+fragment matchWithVariableKey_PlainUserNameRenderer_name on PlainUserNameRenderer {
+  plaintext
+  data {
+    text
+  }
+}
+
+# %extensions%
+==================================== ERROR ====================================
+✖︎ Unexpected dynamic argument. match's 'key' argument must be a constant value because it is read by the Relay compiler.
+
+  match-with-dynamic-arg.invalid.graphql:4:30
+    3 │   me {
+    4 │     nameRenderer @match(key: $key) {
+      │                              ^^^^
+    5 │       ...matchWithVariableKey_PlainUserNameRenderer_name @module(name: "PlainUserNameRenderer.react")

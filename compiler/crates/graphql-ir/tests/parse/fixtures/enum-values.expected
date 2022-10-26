@@ -13,7 +13,9 @@ query EnumValueQuery {
             kind: Query,
             name: WithLocation {
                 location: enum-values.graphql:6:20,
-                item: "EnumValueQuery",
+                item: OperationDefinitionName(
+                    "EnumValueQuery",
+                ),
             },
             type_: Object(0),
             variable_definitions: [],
@@ -32,13 +34,15 @@ query EnumValueQuery {
                             alias: None,
                             definition: WithLocation {
                                 location: enum-values.graphql:34:48,
-                                item: FieldID(477),
+                                item: FieldID(474),
                             },
                             arguments: [
                                 Argument {
                                     name: WithLocation {
                                         location: enum-values.graphql:49:55,
-                                        item: "preset",
+                                        item: ArgumentName(
+                                            "preset",
+                                        ),
                                     },
                                     value: WithLocation {
                                         location: enum-values.graphql:57:62,
@@ -56,7 +60,7 @@ query EnumValueQuery {
                                     alias: None,
                                     definition: WithLocation {
                                         location: enum-values.graphql:72:75,
-                                        item: FieldID(185),
+                                        item: FieldID(179),
                                     },
                                     arguments: [],
                                     directives: [],

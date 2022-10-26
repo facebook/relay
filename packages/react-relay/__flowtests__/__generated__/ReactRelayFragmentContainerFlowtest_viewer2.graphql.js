@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<129c19d6ef39ce94d34b7ea90fa96f32>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<493af2df808158f1c08ec6aafda2e783>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayFragmentContainerFlowtest_viewer2$ref: FragmentReference;
-declare export opaque type ReactRelayFragmentContainerFlowtest_viewer2$fragmentType: ReactRelayFragmentContainerFlowtest_viewer2$ref;
-export type ReactRelayFragmentContainerFlowtest_viewer2 = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayFragmentContainerFlowtest_viewer2$fragmentType: FragmentType;
+export type ReactRelayFragmentContainerFlowtest_viewer2$data = {|
   +actor: ?{|
     +id: string,
   |},
-  +$refType: ReactRelayFragmentContainerFlowtest_viewer2$ref,
+  +$fragmentType: ReactRelayFragmentContainerFlowtest_viewer2$fragmentType,
 |};
-export type ReactRelayFragmentContainerFlowtest_viewer2$data = ReactRelayFragmentContainerFlowtest_viewer2;
 export type ReactRelayFragmentContainerFlowtest_viewer2$key = {
   +$data?: ReactRelayFragmentContainerFlowtest_viewer2$data,
-  +$fragmentRefs: ReactRelayFragmentContainerFlowtest_viewer2$ref,
+  +$fragmentSpreads: ReactRelayFragmentContainerFlowtest_viewer2$fragmentType,
   ...
 };
 */
@@ -66,4 +66,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0f55965b7c9aca0d661ebdd96c70e384";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayFragmentContainerFlowtest_viewer2$fragmentType,
+  ReactRelayFragmentContainerFlowtest_viewer2$data,
+>*/);

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bb961be8501b84192b3a26d5645355c5>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<f52f8cf446eac1a508fb2d0f2efca2bc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +17,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -27,22 +28,22 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type commitMutationTest7MutationVariables = {|
+export type commitMutationTest7Mutation$variables = {|
   input: CommentCreateInput,
 |};
-export type commitMutationTest7MutationResponse = {|
+export type commitMutationTest7Mutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
-      +id: string,
       +body: ?{|
         +text: ?string,
       |},
+      +id: string,
     |},
   |},
 |};
 export type commitMutationTest7Mutation = {|
-  variables: commitMutationTest7MutationVariables,
-  response: commitMutationTest7MutationResponse,
+  response: commitMutationTest7Mutation$data,
+  variables: commitMutationTest7Mutation$variables,
 |};
 */
 
@@ -141,4 +142,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e4bfe2558625990ee8e8610c6ada5b3e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  commitMutationTest7Mutation$variables,
+  commitMutationTest7Mutation$data,
+>*/);

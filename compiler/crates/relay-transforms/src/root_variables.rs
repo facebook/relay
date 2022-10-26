@@ -1,22 +1,34 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
-use common::{Diagnostic, NamedItem, WithLocation};
-use fnv::{FnvHashMap, FnvHashSet};
-use graphql_ir::{
-    FragmentDefinition, FragmentSpread, OperationDefinition, Program, ValidationMessage, Value,
-    Variable, Visitor,
-};
-use interner::StringKey;
-use schema::{Schema, TypeReference};
+use std::collections::HashMap;
+use std::collections::HashSet;
 
-pub type VariableMap = FnvHashMap<StringKey, Variable>;
-type Visited = FnvHashMap<StringKey, VariableMap>;
+use common::Diagnostic;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameMap;
+use graphql_ir::FragmentSpread;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Value;
+use graphql_ir::Variable;
+use graphql_ir::VariableName;
+use graphql_ir::Visitor;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
+
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+
+pub type VariableMap = HashMap<VariableName, Variable>;
+type Visited = FragmentDefinitionNameMap<VariableMap>;
 
 pub struct InferVariablesVisitor<'program> {
     /// Cache fragments as they are transformed to avoid duplicate processing.
@@ -72,8 +84,8 @@ struct VariablesVisitor<'a, 'b> {
     variable_map: VariableMap,
     visited_fragments: &'a mut Visited,
     program: &'a Program,
-    local_variables: FnvHashSet<StringKey>,
-    transitive_local_variables: &'b FnvHashSet<StringKey>,
+    local_variables: HashSet<VariableName>,
+    transitive_local_variables: &'b HashSet<VariableName>,
     errors: Vec<Diagnostic>,
 }
 
@@ -81,8 +93,8 @@ impl<'a, 'b> VariablesVisitor<'a, 'b> {
     fn new(
         program: &'a Program,
         visited_fragments: &'a mut Visited,
-        local_variables: FnvHashSet<StringKey>,
-        transitive_local_variables: &'b FnvHashSet<StringKey>,
+        local_variables: HashSet<VariableName>,
+        transitive_local_variables: &'b HashSet<VariableName>,
     ) -> Self {
         Self {
             variable_map: Default::default(),
@@ -118,7 +130,7 @@ impl VariablesVisitor<'_, '_> {
                 .variable_definitions
                 .iter()
                 .map(|var| var.name.item)
-                .collect::<FnvHashSet<_>>();
+                .collect::<HashSet<VariableName>>();
             let transitive_local_variables = if fragment
                 .directives
                 .named(*NO_INLINE_DIRECTIVE_NAME)
@@ -134,7 +146,7 @@ impl VariablesVisitor<'_, '_> {
                 local_variables,
                 transitive_local_variables
                     .as_ref()
-                    .unwrap_or(&self.transitive_local_variables),
+                    .unwrap_or(self.transitive_local_variables),
             );
             visitor.visit_fragment(fragment);
             let result = visitor.variable_map;
@@ -144,7 +156,7 @@ impl VariablesVisitor<'_, '_> {
         }
     }
 
-    fn is_root_variable(&self, name: StringKey) -> bool {
+    fn is_root_variable(&self, name: VariableName) -> bool {
         !self.local_variables.contains(&name) && !self.transitive_local_variables.contains(&name)
     }
 
@@ -157,8 +169,8 @@ impl VariablesVisitor<'_, '_> {
     // with a location that requires that type.
     fn record_root_variable_usage(
         &mut self,
-        name: &WithLocation<StringKey>,
-        type_: &TypeReference,
+        name: &WithLocation<VariableName>,
+        type_: &TypeReference<Type>,
     ) {
         let schema = &self.program.schema;
         let errors = &mut self.errors;
@@ -212,7 +224,10 @@ impl<'a, 'b> Visitor for VariablesVisitor<'a, 'b> {
         if !fragment.variable_definitions.is_empty() {
             for arg in spread.arguments.iter() {
                 if let Value::Variable(var) = &arg.value.item {
-                    if let Some(def) = fragment.variable_definitions.named(arg.name.item) {
+                    if let Some(def) = fragment
+                        .variable_definitions
+                        .named(VariableName(arg.name.item.0))
+                    {
                         if self.is_root_variable(var.name.item) {
                             self.record_root_variable_usage(&var.name, &def.type_);
                         }

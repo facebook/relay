@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9a2800a841ed7fefe1a11c59253feaa3>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<73b85959aa2fa825f7297da289465d87>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -14,20 +16,22 @@
 
 'use strict';
 
+// @indirectDataDrivenDependency RelayReferenceMarkerTest3Fragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayReferenceMarkerTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayReferenceMarkerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReferenceMarkerTest3Fragment$ref = any;
-export type RelayReferenceMarkerTest5QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayReferenceMarkerTest3Fragment$fragmentType } from "./RelayReferenceMarkerTest3Fragment.graphql";
+export type RelayReferenceMarkerTest5Query$variables = {|
   id: string,
 |};
-export type RelayReferenceMarkerTest5QueryResponse = {|
+export type RelayReferenceMarkerTest5Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayReferenceMarkerTest3Fragment$ref,
+    +$fragmentSpreads: RelayReferenceMarkerTest3Fragment$fragmentType,
   |},
 |};
 export type RelayReferenceMarkerTest5Query = {|
-  variables: RelayReferenceMarkerTest5QueryVariables,
-  response: RelayReferenceMarkerTest5QueryResponse,
+  response: RelayReferenceMarkerTest5Query$data,
+  variables: RelayReferenceMarkerTest5Query$variables,
 |};
 */
 
@@ -178,4 +182,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0788b1f4742c878888dfe9389e4d9de4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReferenceMarkerTest5Query$variables,
+  RelayReferenceMarkerTest5Query$data,
+>*/);

@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -23,10 +21,16 @@ const {
   Store,
   __internal: {fetchQuery},
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 describe('QueryResource', () => {
   let environment;
@@ -52,7 +56,7 @@ describe('QueryResource', () => {
     store = new Store(new RecordSource(), {gcReleaseBufferSize: 0});
     environment = createMockEnvironment({store});
     QueryResource = getQueryResourceForEnvironment(environment);
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query QueryResourceTest1Query($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -60,8 +64,8 @@ describe('QueryResource', () => {
           }
         }
       }
-    `);
-    gqlQueryMissingData = getRequest(graphql`
+    `;
+    gqlQueryMissingData = graphql`
       query QueryResourceTest2Query($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -70,7 +74,7 @@ describe('QueryResource', () => {
           }
         }
       }
-    `);
+    `;
 
     query = createOperationDescriptor(gqlQuery, variables, {force: true});
     queryMissingData = createOperationDescriptor(
@@ -79,9 +83,9 @@ describe('QueryResource', () => {
       {force: true},
     );
 
-    gqlLiveQueryMissingData = getRequest(graphql`
+    gqlLiveQueryMissingData = graphql`
       query QueryResourceTest10Query($id: ID!)
-        @live_query(polling_interval: 10000) {
+      @live_query(polling_interval: 10000) {
         node(id: $id) {
           ... on User {
             id
@@ -89,7 +93,7 @@ describe('QueryResource', () => {
           }
         }
       }
-    `);
+    `;
     liveQueryMissingData = createOperationDescriptor(
       gqlLiveQueryMissingData,
       variables,
@@ -282,7 +286,7 @@ describe('QueryResource', () => {
           let thrown = false;
           let sink;
           const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(s => {
+          const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
           });
@@ -327,7 +331,7 @@ describe('QueryResource', () => {
           });
 
           const networkExecute = jest.fn();
-          const syncFetchObservable = Observable.create(sink => {
+          const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
                 __typename: 'User',
@@ -371,7 +375,7 @@ describe('QueryResource', () => {
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
           const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(sink => {
+          const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
           });
@@ -406,14 +410,14 @@ describe('QueryResource', () => {
               }
             `;
 
-            const UserQuery = getRequest(graphql`
+            const UserQuery = graphql`
               query QueryResourceTest3Query($id: ID!) {
                 node(id: $id) {
                   __typename
                   ...QueryResourceTest1Fragment
                 }
               }
-            `);
+            `;
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -464,14 +468,14 @@ describe('QueryResource', () => {
                 username
               }
             `;
-            const UserQuery = getRequest(graphql`
+            const UserQuery = graphql`
               query QueryResourceTest4Query($id: ID!) {
                 node(id: $id) {
                   __typename
                   ...QueryResourceTest2Fragment
                 }
               }
-            `);
+            `;
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -520,14 +524,14 @@ describe('QueryResource', () => {
                 id
               }
             `;
-            const UserQuery = getRequest(graphql`
+            const UserQuery = graphql`
               query QueryResourceTest5Query($id: ID!) {
                 node(id: $id) {
                   __typename
                   ...QueryResourceTest3Fragment
                 }
               }
-            `);
+            `;
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -698,7 +702,7 @@ describe('QueryResource', () => {
           let thrown = false;
           let sink;
           const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(s => {
+          const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
           });
@@ -749,7 +753,7 @@ describe('QueryResource', () => {
           });
 
           const networkExecute = jest.fn();
-          const syncFetchObservable = Observable.create(sink => {
+          const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
                 __typename: 'User',
@@ -793,7 +797,7 @@ describe('QueryResource', () => {
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
           const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(sink => {
+          const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
           });
@@ -876,14 +880,14 @@ describe('QueryResource', () => {
                 id
               }
             `;
-            const UserQuery = getRequest(graphql`
+            const UserQuery = graphql`
               query QueryResourceTest6Query($id: ID!) {
                 node(id: $id) {
                   __typename
                   ...QueryResourceTest4Fragment
                 }
               }
-            `);
+            `;
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -934,14 +938,14 @@ describe('QueryResource', () => {
                 username
               }
             `;
-            const UserQuery = getRequest(graphql`
+            const UserQuery = graphql`
               query QueryResourceTest7Query($id: ID!) {
                 node(id: $id) {
                   __typename
                   ...QueryResourceTest5Fragment
                 }
               }
-            `);
+            `;
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -989,7 +993,7 @@ describe('QueryResource', () => {
                 username
               }
             `;
-            const UserQuery = getRequest(graphql`
+            const UserQuery = graphql`
               query QueryResourceTest8Query($id: ID!) {
                 node(id: $id) {
                   __typename
@@ -997,7 +1001,7 @@ describe('QueryResource', () => {
                   ...QueryResourceTest6Fragment @defer
                 }
               }
-            `);
+            `;
             const queryWithFragments = createOperationDescriptor(
               UserQuery,
               variables,
@@ -1258,7 +1262,7 @@ describe('QueryResource', () => {
           let thrown = false;
           let sink;
           const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(s => {
+          const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
           });
@@ -1302,7 +1306,7 @@ describe('QueryResource', () => {
           });
 
           const networkExecute = jest.fn();
-          const syncFetchObservable = Observable.create(sink => {
+          const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
                 __typename: 'User',
@@ -1346,7 +1350,7 @@ describe('QueryResource', () => {
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
           const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(sink => {
+          const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
           });
@@ -1496,7 +1500,7 @@ describe('QueryResource', () => {
           let thrown = false;
           let sink;
           const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(s => {
+          const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
           });
@@ -1545,7 +1549,7 @@ describe('QueryResource', () => {
           });
 
           const networkExecute = jest.fn();
-          const syncFetchObservable = Observable.create(sink => {
+          const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             environment.commitPayload(queryMissingData, {
               node: {
                 __typename: 'User',
@@ -1589,7 +1593,7 @@ describe('QueryResource', () => {
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
           const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(sink => {
+          const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             sink.error(new Error('Oops'));
           });
@@ -1721,7 +1725,7 @@ describe('QueryResource', () => {
           let thrownError = false;
           let sink;
           const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(s => {
+          const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
           });
@@ -1768,7 +1772,7 @@ describe('QueryResource', () => {
 
         it('should return result if network observable returns synchronously', () => {
           const networkExecute = jest.fn();
-          const syncFetchObservable = Observable.create(sink => {
+          const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             const snapshot = environment.lookup(query.fragment);
             networkExecute();
             sink.next((snapshot: $FlowFixMe));
@@ -1806,7 +1810,7 @@ describe('QueryResource', () => {
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
           const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(sink => {
+          const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             const error = new Error('Oops');
             sink.error(error);
@@ -1903,7 +1907,7 @@ describe('QueryResource', () => {
           let thrownError = false;
           let sink;
           const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(s => {
+          const errorFetchObservable = Observable.create<$FlowFixMe>(s => {
             networkExecute();
             sink = s;
           });
@@ -1950,7 +1954,7 @@ describe('QueryResource', () => {
 
         it('should return result if network observable returns synchronously', () => {
           const networkExecute = jest.fn();
-          const syncFetchObservable = Observable.create(sink => {
+          const syncFetchObservable = Observable.create<$FlowFixMe>(sink => {
             const snapshot = environment.lookup(query.fragment);
             networkExecute();
             sink.next((snapshot: $FlowFixMe));
@@ -1988,7 +1992,7 @@ describe('QueryResource', () => {
         it('should throw error if network request errors synchronously', () => {
           let thrown = false;
           const networkExecute = jest.fn();
-          const errorFetchObservable = Observable.create(sink => {
+          const errorFetchObservable = Observable.create<$FlowFixMe>(sink => {
             networkExecute();
             const error = new Error('Oops');
             sink.error(error);
@@ -2444,14 +2448,6 @@ describe('QueryResource', () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
-        // Assert that retain count is 1
-        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
-          queryMissingData,
-          fetchPolicy,
-          renderPolicy,
-        );
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
-
         const result = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2464,8 +2460,6 @@ describe('QueryResource', () => {
         expect(environment.retain).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Assert network is only called once
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -2479,8 +2473,6 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert retain count is still 1
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Assert that disposing correctly releases the query
         disposable.dispose();
@@ -2503,14 +2495,6 @@ describe('QueryResource', () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
-        // Assert that retain count is 1
-        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
-          queryMissingData,
-          fetchPolicy,
-          renderPolicy,
-        );
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
-
         const result = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2523,8 +2507,6 @@ describe('QueryResource', () => {
         expect(environment.retain).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Assert network is only called once
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -2538,8 +2520,6 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Running timers won't release the query since it has been
         // permanently retained
@@ -2547,8 +2527,6 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Assert that disposing correctly releases the query
         disposable.dispose();
@@ -2571,14 +2549,6 @@ describe('QueryResource', () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
-        // Assert that retain count is 1
-        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
-          queryMissingData,
-          fetchPolicy,
-          renderPolicy,
-        );
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
-
         // Assert network is called once
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.execute).toBeCalledTimes(1);
@@ -2591,8 +2561,6 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count remains at 1
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Running timers won't release the query since it has been
         // permanently retained
@@ -2600,8 +2568,6 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count remains at 1
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Simulate rendering a second time, but without committing
         QueryResource.prepare(
@@ -2610,10 +2576,6 @@ describe('QueryResource', () => {
           fetchPolicy,
           renderPolicy,
         );
-
-        // Assert that the retain count increases by 1 due to the
-        // new temporary commit
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
 
         // Assert query is still retained
         expect(release).toHaveBeenCalledTimes(0);
@@ -2625,7 +2587,6 @@ describe('QueryResource', () => {
         // Assert that disposing the first disposable doesn't release the
         // query since it's still temporarily retained
         disposable.dispose();
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
@@ -2633,7 +2594,6 @@ describe('QueryResource', () => {
         // Assert that if the render never commits, the temporary retain
         // is released.
         jest.runAllTimers();
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(0);
         expect(release).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
@@ -2666,14 +2626,6 @@ describe('QueryResource', () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
-        // Assert that retain count is 1
-        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
-          queryMissingData,
-          fetchPolicy,
-          renderPolicy,
-        );
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
-
         const result2 = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2686,8 +2638,6 @@ describe('QueryResource', () => {
         expect(environment.retain).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Assert network is only called once
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -2699,8 +2649,6 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         const disposable2 = QueryResource.retain(result2);
 
@@ -2708,8 +2656,6 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is now 2
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
 
         // Assert that disposing the first disposable doesn't release the query
         disposable1.dispose();
@@ -2783,14 +2729,6 @@ describe('QueryResource', () => {
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
 
-        // Assert that retain count is 1
-        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
-          queryMissingData,
-          fetchPolicy,
-          renderPolicy,
-        );
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
-
         const result2 = QueryResource.prepare(
           queryMissingData,
           fetchObservableMissingData,
@@ -2803,8 +2741,6 @@ describe('QueryResource', () => {
         expect(environment.retain).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Assert network is only called once
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -2816,8 +2752,6 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         const disposable2 = QueryResource.retain(result2);
 
@@ -2825,8 +2759,6 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is now 2
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
 
         // Running timers won't release the query since it has been
         // permanently retained
@@ -2834,8 +2766,6 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is now 2
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
 
         // Assert that disposing the first disposable doesn't release the query
         disposable1.dispose();
@@ -2897,13 +2827,6 @@ describe('QueryResource', () => {
         expect(environment.retain).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
-        // Assert that retain count is 1
-        const cacheEntry = QueryResource.TESTS_ONLY__getCacheEntry(
-          queryMissingData,
-          fetchPolicy,
-          renderPolicy,
-        );
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Assert network is called
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -2914,8 +2837,6 @@ describe('QueryResource', () => {
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
-        // Assert that retain count is still 1
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
 
         // Prepare the query again after it has been permanently retained.
         // This will happen if the query component is unmounting and re-mounting
@@ -2931,39 +2852,30 @@ describe('QueryResource', () => {
         expect(environment.retain).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain.mock.calls[0][0]).toEqual(queryMissingData);
-        // Assert that retain count is now at 2
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(2);
 
         // First disposable will be called when query component finally unmounts
         disposable1.dispose();
 
         // Assert that query is still temporarily retained by new render
         expect(release).toHaveBeenCalledTimes(0);
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
 
         // Permanently retain the query after the initial retain has been
         // disposed of. This will occur when the query component remounts.
         const disposable2 = QueryResource.retain(result2);
-
-        // Assert latest temporary retain is released, so the retain
-        // count on the cacheEntry will remain at 1
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
 
         // Running timers won't release the query since it has been
         // permanently retained
         jest.runAllTimers();
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(1);
         expect(release).toBeCalledTimes(0);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
 
         // Assert that disposing the last disposable fully releases the query
         disposable2.dispose();
-        expect(cacheEntry && cacheEntry.getRetainCount()).toEqual(0);
         expect(release).toBeCalledTimes(1);
         // $FlowFixMe[method-unbinding] added when improving typing for this parameters
         expect(environment.retain).toBeCalledTimes(1);
@@ -2991,7 +2903,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
       store: new Store(new RecordSource(), {gcReleaseBufferSize: 0}),
     });
     QueryResource = getQueryResourceForEnvironment(environment);
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query QueryResourceTest9Query($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -2999,7 +2911,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
           }
         }
       }
-    `);
+    `;
     query = createOperationDescriptor(gqlQuery, variables, {force: true});
     environment.commitPayload(query, {
       node: {
@@ -3028,7 +2940,7 @@ describe('QueryResource, with an environment meant for SSR', () => {
         fetchTime: null,
       });
 
-      jest.useFakeTimers();
+      jest.useFakeTimers('legacy');
       const result = QueryResource.prepare(
         query,
         fetchObservable,

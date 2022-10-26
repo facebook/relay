@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3a3642c4a1c64267e249a9fe5d9ae30a>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<74ff7d309bac0d5896b6ddb964b4fdca>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type RelayResponseNormalizerTestActorChangeFragment$ref = any;
-export type RelayResponseNormalizerTestActorChangeQueryVariables = {||};
-export type RelayResponseNormalizerTestActorChangeQueryResponse = {|
+import type { RelayResponseNormalizerTestActorChangeFragment$fragmentType } from "./RelayResponseNormalizerTestActorChangeFragment.graphql";
+export type RelayResponseNormalizerTestActorChangeQuery$variables = {||};
+export type RelayResponseNormalizerTestActorChangeQuery$data = {|
   +viewer: ?{|
     +actor: ?ActorChangePoint<{|
       +actor_key: string,
-      +$fragmentRefs: RelayResponseNormalizerTestActorChangeFragment$ref,
+      +$fragmentSpreads: RelayResponseNormalizerTestActorChangeFragment$fragmentType,
     |}>,
   |},
 |};
 export type RelayResponseNormalizerTestActorChangeQuery = {|
-  variables: RelayResponseNormalizerTestActorChangeQueryVariables,
-  response: RelayResponseNormalizerTestActorChangeQueryResponse,
+  response: RelayResponseNormalizerTestActorChangeQuery$data,
+  variables: RelayResponseNormalizerTestActorChangeQuery$variables,
 |};
 */
 
@@ -149,4 +151,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0cca5a4e676a8ee5984e81c0ceda21ef";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayResponseNormalizerTestActorChangeQuery$variables,
+  RelayResponseNormalizerTestActorChangeQuery$data,
+>*/);

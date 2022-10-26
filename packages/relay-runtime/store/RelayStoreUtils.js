@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -21,6 +20,9 @@ import type {
   ReaderActorChange,
   ReaderArgument,
   ReaderField,
+  ReaderFragmentSpread,
+  ReaderRelayLiveResolver,
+  ReaderRelayResolver,
 } from '../util/ReaderNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
 
@@ -29,7 +31,7 @@ const RelayConcreteNode = require('../util/RelayConcreteNode');
 const stableCopy = require('../util/stableCopy');
 const invariant = require('invariant');
 
-export type Arguments = interface {+[string]: mixed};
+export type Arguments = {+[string]: mixed};
 
 const {VARIABLE, LITERAL, OBJECT_VALUE, LIST_VALUE} = RelayConcreteNode;
 
@@ -47,7 +49,7 @@ function getArgumentValue(
     // The Relay compiler generates stable ConcreteArgument values.
     return arg.value;
   } else if (arg.kind === OBJECT_VALUE) {
-    const value = {};
+    const value: {[string]: mixed} = {};
     arg.fields.forEach(field => {
       value[field.name] = getArgumentValue(field, variables);
     });
@@ -69,7 +71,7 @@ function getArgumentValues(
   args: $ReadOnlyArray<NormalizationArgument | ReaderArgument>,
   variables: Variables,
 ): Arguments {
-  const values = {};
+  const values: {[string]: mixed} = {};
   args.forEach(arg => {
     values[arg.name] = getArgumentValue(arg, variables);
   });
@@ -125,6 +127,9 @@ function getHandleStorageKey(
  */
 function getStorageKey(
   field:
+    | ReaderRelayResolver
+    | ReaderRelayLiveResolver
+    | ReaderFragmentSpread
     | NormalizationField
     | NormalizationHandle
     | ReaderField
@@ -135,11 +140,40 @@ function getStorageKey(
     // TODO T23663664: Handle nodes do not yet define a static storageKey.
     return (field: $FlowFixMe).storageKey;
   }
-  const args = typeof field.args === 'undefined' ? undefined : field.args;
+
+  const args = getArguments(field);
   const name = field.name;
   return args && args.length !== 0
     ? formatStorageKey(name, getArgumentValues(args, variables))
     : name;
+}
+
+/**
+ * Given a field the method returns an array of arguments.
+ * For Relay resolver fields, we store arguments on the field and fragment
+ * and this method return combined list of arguments.
+ */
+function getArguments(
+  field:
+    | ReaderRelayResolver
+    | ReaderRelayLiveResolver
+    | ReaderFragmentSpread
+    | NormalizationField
+    | NormalizationHandle
+    | ReaderField
+    | ReaderActorChange,
+): ?$ReadOnlyArray<NormalizationArgument | ReaderArgument> {
+  if (field.kind === 'RelayResolver' || field.kind === 'RelayLiveResolver') {
+    if (field.args == null) {
+      return field.fragment?.args;
+    }
+    if (field.fragment?.args == null) {
+      return field.args;
+    }
+    return field.args.concat(field.fragment.args);
+  }
+  const args = typeof field.args === 'undefined' ? undefined : field.args;
+  return args;
 }
 
 /**
@@ -202,6 +236,7 @@ function getModuleOperationKey(documentName: string): string {
  */
 const RelayStoreUtils = {
   ACTOR_IDENTIFIER_KEY: '__actorIdentifier',
+  CLIENT_EDGE_TRAVERSAL_PATH: '__clientEdgeTraversalPath',
   FRAGMENTS_KEY: '__fragments',
   FRAGMENT_OWNER_KEY: '__fragmentOwner',
   FRAGMENT_PROP_NAME_KEY: '__fragmentPropName',
@@ -216,8 +251,9 @@ const RelayStoreUtils = {
   IS_WITHIN_UNMATCHED_TYPE_REFINEMENT: '__isWithinUnmatchedTypeRefinement',
   RELAY_RESOLVER_VALUE_KEY: '__resolverValue',
   RELAY_RESOLVER_INVALIDATION_KEY: '__resolverValueMayBeInvalid',
-  RELAY_RESOLVER_INPUTS_KEY: '__resolverInputValues',
-  RELAY_RESOLVER_READER_SELECTOR_KEY: '__resolverReaderSelector',
+  RELAY_RESOLVER_SNAPSHOT_KEY: '__resolverSnapshot',
+  RELAY_RESOLVER_ERROR_KEY: '__resolverError',
+  RELAY_RESOLVER_OUTPUT_TYPE_RECORD_IDS: '__resolverOutputTypeRecordIDs',
 
   formatStorageKey,
   getArgumentValue,

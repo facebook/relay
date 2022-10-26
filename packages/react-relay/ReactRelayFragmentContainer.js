@@ -1,21 +1,20 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
 import type {GeneratedNodeMap, RelayProp, $RelayProps} from './ReactRelayTypes';
 import type {
   FragmentMap,
   FragmentSpecResolver,
+  IEnvironment,
   RelayContext,
 } from 'relay-runtime';
 
@@ -57,8 +56,9 @@ function createContainerWithFragments<
   const containerName = getContainerName(Component);
 
   return class extends React.Component<ContainerProps, ContainerState> {
+    // $FlowFixMe[missing-local-annot]
     static displayName = containerName;
-    constructor(props) {
+    constructor(props: $FlowFixMe) {
       super(props);
       const relayContext = assertRelayContext(props.__relayContext);
       const rootIsQueryRenderer = props.__rootIsQueryRenderer ?? false;
@@ -163,7 +163,10 @@ function createContainerWithFragments<
       this.state.resolver.dispose();
     }
 
-    shouldComponentUpdate(nextProps, nextState): boolean {
+    shouldComponentUpdate(
+      nextProps: ContainerProps,
+      nextState: ContainerState,
+    ): boolean {
       // Short-circuit if any Relay-related data has changed
       if (nextState.data !== this.state.data) {
         return true;
@@ -234,13 +237,11 @@ function createContainerWithFragments<
       }
     }
 
+    // $FlowFixMe[missing-local-annot]
     render() {
-      const {
-        componentRef,
-        __relayContext,
-        __rootIsQueryRenderer,
-        ...props
-      } = this.props;
+      // eslint-disable-next-line no-unused-vars
+      const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
+        this.props;
       return React.createElement(Component, {
         ...props,
         ...this.state.data,
@@ -251,7 +252,7 @@ function createContainerWithFragments<
   };
 }
 
-function getRelayProp(environment) {
+function getRelayProp(environment: IEnvironment) {
   return {
     environment,
   };

@@ -1,23 +1,30 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -34,13 +41,13 @@ const {
 disallowWarnings();
 
 describe('execute() a query with @match', () => {
-  let callbacks: {|
+  let callbacks: {
     +complete: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
     +error: JestMockFn<$ReadOnlyArray<Error>, mixed>,
     +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
     +start?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
     +unsubscribe?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-  |};
+  };
   let complete;
   let dataSource;
   let environment;
@@ -52,10 +59,10 @@ describe('execute() a query with @match', () => {
   let next;
   let operation;
   let operationCallback;
-  let operationLoader: {|
+  let operationLoader: {
     get: (reference: mixed) => ?NormalizationRootNode,
     load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-  |};
+  };
   let query;
   let resolveFragment;
   let source;
@@ -63,7 +70,7 @@ describe('execute() a query with @match', () => {
   let variables;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithMatchTestUserQuery($id: ID!) {
         node(id: $id) {
           ... on User {
@@ -77,7 +84,7 @@ describe('execute() a query with @match', () => {
           }
         }
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentExecuteWithMatchTestPlainUserNameRenderer_name on PlainUserNameRenderer {
@@ -89,7 +96,7 @@ describe('execute() a query with @match', () => {
     `;
 
     markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql');
-    markdownRendererFragment = getFragment(graphql`
+    markdownRendererFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
         __typename
         markdown
@@ -97,11 +104,11 @@ describe('execute() a query with @match', () => {
           markup @__clientField(handle: "markup_handler")
         }
       }
-    `);
+    `;
     variables = {id: '1'};
     operation = createOperationDescriptor(query, variables);
     MarkupHandler = {
-      update(storeProxy, payload) {
+      update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
         const record = storeProxy.get(payload.dataID);
         if (record != null) {
           const markup = record.getValue(payload.fieldKey);
@@ -117,7 +124,11 @@ describe('execute() a query with @match', () => {
     error = jest.fn();
     next = jest.fn();
     callbacks = {complete, error, next};
-    fetch = (_query, _variables, _cacheConfig) => {
+    fetch = (
+      _query: RequestParameters,
+      _variables: Variables,
+      _cacheConfig: CacheConfig,
+    ) => {
       return RelayObservable.create(sink => {
         dataSource = sink;
       });
@@ -188,12 +199,12 @@ describe('execute() a query with @match', () => {
     expect(operationSnapshot.data).toEqual({
       node: {
         nameRenderer: {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __typename: 'MarkdownUserNameRenderer',
           __fragmentPropName: 'name',
           __fragments: {
-            RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name: {},
+            RelayModernEnvironmentExecuteWithMatchTestMarkdownUserNameRenderer_name:
+              {},
           },
           __fragmentOwner: operation.request,
           __isWithinUnmatchedTypeRefinement: false,
@@ -645,10 +656,10 @@ describe('execute() a query with @match', () => {
       taskID = 0;
       tasks = new Map();
       scheduler = {
-        cancel: id => {
+        cancel: (id: string) => {
           tasks.delete(id);
         },
-        schedule: task => {
+        schedule: (task: () => void) => {
           const id = String(taskID++);
           tasks.set(id, task);
           return id;

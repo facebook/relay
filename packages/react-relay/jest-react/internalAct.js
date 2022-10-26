@@ -1,12 +1,11 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @format
- *
+ * @oncall relay
  */
 
 /* global jest */
@@ -37,7 +36,7 @@ interface Thenable<+R> {
 
 let actingUpdatesScopeDepth = 0;
 
-function act(scope: () => Thenable<mixed> | void) {
+function act<T>(scope: () => Thenable<T> | T): Thenable<T> {
   if (Scheduler.unstable_flushAllWithoutAsserting === undefined) {
     throw Error(
       'This version of `act` requires a special mock build of Scheduler.',
@@ -50,10 +49,19 @@ function act(scope: () => Thenable<mixed> | void) {
     );
   }
 
+  const previousIsActEnvironment = global.IS_REACT_ACT_ENVIRONMENT;
   const previousActingUpdatesScopeDepth = actingUpdatesScopeDepth;
   actingUpdatesScopeDepth++;
+  if (__DEV__ && actingUpdatesScopeDepth === 1) {
+    // Because this is not the "real" `act`, we set this to `false` so React
+    // knows not to fire `act` warnings.
+    global.IS_REACT_ACT_ENVIRONMENT = false;
+  }
 
   const unwind = () => {
+    if (__DEV__ && actingUpdatesScopeDepth === 1) {
+      global.IS_REACT_ACT_ENVIRONMENT = previousIsActEnvironment;
+    }
     actingUpdatesScopeDepth--;
 
     if (__DEV__) {
@@ -72,20 +80,21 @@ function act(scope: () => Thenable<mixed> | void) {
   // returned and 2) we could use async/await. Since it's only our used in
   // our test suite, we should be able to.
   try {
-    const thenable = scope();
+    const result = scope();
     if (
-      typeof thenable === 'object' &&
-      thenable !== null &&
-      typeof thenable.then === 'function'
+      typeof result === 'object' &&
+      result !== null &&
+      typeof result.then === 'function'
     ) {
+      const thenableResult: Thenable<T> = (result: any);
       return {
-        then(resolve: () => void, reject: (error: mixed) => void) {
-          thenable.then(
-            () => {
+        then(resolve, reject) {
+          thenableResult.then(
+            returnValue => {
               flushActWork(
                 () => {
                   unwind();
-                  resolve();
+                  resolve(returnValue);
                 },
                 error => {
                   unwind();
@@ -101,6 +110,7 @@ function act(scope: () => Thenable<mixed> | void) {
         },
       };
     } else {
+      const returnValue: T = (result: any);
       try {
         // TODO: Let's not support non-async scopes at all in our tests. Need to
         // migrate existing tests.
@@ -108,6 +118,11 @@ function act(scope: () => Thenable<mixed> | void) {
         do {
           didFlushWork = Scheduler.unstable_flushAllWithoutAsserting();
         } while (didFlushWork);
+        return {
+          then(resolve, reject) {
+            resolve(returnValue);
+          },
+        };
       } finally {
         unwind();
       }

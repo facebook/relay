@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f14f2657ce1ad5fbe9b32f2e659f9b13>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<a97cc976d017f4c496816fe5ef281db5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +17,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$ref = any;
-export type RelayModernEnvironmentNoInlineTestNestedQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType } from "./RelayModernEnvironmentNoInlineTest_nestedNoInlineParent.graphql";
+export type RelayModernEnvironmentNoInlineTestNestedQuery$variables = {|
   global_cond: boolean,
 |};
-export type RelayModernEnvironmentNoInlineTestNestedQueryResponse = {|
-  +$fragmentRefs: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$ref,
+export type RelayModernEnvironmentNoInlineTestNestedQuery$data = {|
+  +$fragmentSpreads: RelayModernEnvironmentNoInlineTest_nestedNoInlineParent$fragmentType,
 |};
 export type RelayModernEnvironmentNoInlineTestNestedQuery = {|
-  variables: RelayModernEnvironmentNoInlineTestNestedQueryVariables,
-  response: RelayModernEnvironmentNoInlineTestNestedQueryResponse,
+  response: RelayModernEnvironmentNoInlineTestNestedQuery$data,
+  variables: RelayModernEnvironmentNoInlineTestNestedQuery$variables,
 |};
 */
 
@@ -93,4 +95,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "cecbcd722b6b7ecf0d3af5c336814547";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentNoInlineTestNestedQuery$variables,
+  RelayModernEnvironmentNoInlineTestNestedQuery$data,
+>*/);

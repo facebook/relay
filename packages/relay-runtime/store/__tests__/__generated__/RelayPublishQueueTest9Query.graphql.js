@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<125f094d1231ab1f14520d505e25a491>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<1a929d44ccb1c18055a0c89c1700263e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayPublishQueueTest3Fragment$ref = any;
-export type RelayPublishQueueTest9QueryVariables = {||};
-export type RelayPublishQueueTest9QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayPublishQueueTest3Fragment$fragmentType } from "./RelayPublishQueueTest3Fragment.graphql";
+export type RelayPublishQueueTest9Query$variables = {||};
+export type RelayPublishQueueTest9Query$data = {|
   +me: ?{|
     +name: ?string,
-    +$fragmentRefs: RelayPublishQueueTest3Fragment$ref,
+    +$fragmentSpreads: RelayPublishQueueTest3Fragment$fragmentType,
   |},
   +nodes: ?$ReadOnlyArray<?{|
     +name: ?string,
   |}>,
 |};
 export type RelayPublishQueueTest9Query = {|
-  variables: RelayPublishQueueTest9QueryVariables,
-  response: RelayPublishQueueTest9QueryResponse,
+  response: RelayPublishQueueTest9Query$data,
+  variables: RelayPublishQueueTest9Query$variables,
 |};
 */
 
@@ -160,4 +162,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8c6fb9aff9f2b1d57306984aeeaef2e7";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayPublishQueueTest9Query$variables,
+  RelayPublishQueueTest9Query$data,
+>*/);

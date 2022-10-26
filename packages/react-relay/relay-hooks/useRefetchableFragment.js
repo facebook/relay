@@ -1,25 +1,24 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 import type {RefetchFnDynamic} from './useRefetchableFragmentNode';
 import type {
-  FragmentReference,
+  FragmentType,
   GraphQLTaggedNode,
   OperationType,
 } from 'relay-runtime';
 
+const HooksImplementation = require('./HooksImplementation');
 const useRefetchableFragmentNode = require('./useRefetchableFragmentNode');
 const useStaticFragmentNodeWarning = require('./useStaticFragmentNodeWarning');
 const {useDebugValue} = require('react');
@@ -38,9 +37,20 @@ type ReturnType<TQuery: OperationType, TKey: ?{+$data?: mixed, ...}> = [
   RefetchFnDynamic<TQuery, TKey>,
 ];
 
-function useRefetchableFragment<
+// This separate type export is only needed as long as we are injecting
+// a separate hooks implementation in ./HooksImplementation -- it can
+// be removed after we stop doing that.
+export type UseRefetchableFragmentType = <
   TQuery: OperationType,
-  TKey: ?{+$data?: mixed, +$fragmentRefs: FragmentReference, ...},
+  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
+>(
+  fragmentInput: GraphQLTaggedNode,
+  fragmentRef: TKey,
+) => ReturnType<TQuery, TKey>;
+
+function useRefetchableFragment_LEGACY<
+  TQuery: OperationType,
+  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
 >(
   fragmentInput: GraphQLTaggedNode,
   fragmentRef: TKey,
@@ -62,6 +72,25 @@ function useRefetchableFragment<
   /* $FlowExpectedError[prop-missing] : Exposed options is a subset of internal
    * options */
   return [fragmentData, (refetch: RefetchFnDynamic<TQuery, TKey>)];
+}
+
+function useRefetchableFragment<
+  TQuery: OperationType,
+  TKey: ?{+$data?: mixed, +$fragmentSpreads: FragmentType, ...},
+>(
+  fragmentInput: GraphQLTaggedNode,
+  parentFragmentRef: TKey,
+): ReturnType<TQuery, TKey> {
+  const impl = HooksImplementation.get();
+  if (impl) {
+    return impl.useRefetchableFragment<TQuery, TKey>(
+      fragmentInput,
+      parentFragmentRef,
+    );
+  } else {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useRefetchableFragment_LEGACY(fragmentInput, parentFragmentRef);
+  }
 }
 
 module.exports = useRefetchableFragment;

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0bc497a0d4c1fc9ece3d2b6f9402299f>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<33d560bd1f0e338ed1013c0c1c8a6d5f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,23 +19,23 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery.node.author {"branches":{"User":{"component":"FeedbackAuthor.react","fragment":"RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$ref = any;
-export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$fragmentType } from "./RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author.graphql";
+export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery$data = {|
   +node: ?{|
     +author?: ?{|
       +__fragmentPropName: ?string,
       +__module_component: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$ref,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackAuthor_author$fragmentType,
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery = {|
-  variables: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQueryVariables,
-  response: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQueryResponse,
+  response: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery$data,
+  variables: RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery$variables,
 |};
 */
 
@@ -169,4 +171,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "fc35da25e33ae49daa5c875e64b62542";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery$variables,
+  RelayModernEnvironmentExecuteWithModuleOnConcreteFieldTestFeedbackQuery$data,
+>*/);

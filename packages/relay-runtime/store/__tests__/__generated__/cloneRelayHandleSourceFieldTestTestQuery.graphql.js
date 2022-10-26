@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<662899b267dc3ef34d1031f8a3b96573>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<2f77f1def57ca1e9af3c4ff1aebcebb1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +17,9 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type cloneRelayHandleSourceFieldTestTestQueryVariables = {||};
-export type cloneRelayHandleSourceFieldTestTestQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type cloneRelayHandleSourceFieldTestTestQuery$variables = {||};
+export type cloneRelayHandleSourceFieldTestTestQuery$data = {|
   +me: ?{|
     +address: ?{|
       +street: ?string,
@@ -25,8 +27,8 @@ export type cloneRelayHandleSourceFieldTestTestQueryResponse = {|
   |},
 |};
 export type cloneRelayHandleSourceFieldTestTestQuery = {|
-  variables: cloneRelayHandleSourceFieldTestTestQueryVariables,
-  response: cloneRelayHandleSourceFieldTestTestQueryResponse,
+  response: cloneRelayHandleSourceFieldTestTestQuery$data,
+  variables: cloneRelayHandleSourceFieldTestTestQuery$variables,
 |};
 */
 
@@ -132,4 +134,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b25d254d9cced587a60803f29606c8b5";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  cloneRelayHandleSourceFieldTestTestQuery$variables,
+  cloneRelayHandleSourceFieldTestTestQuery$data,
+>*/);

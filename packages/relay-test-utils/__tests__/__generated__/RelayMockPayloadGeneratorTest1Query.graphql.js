@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4dbcdbb188fc292b8698377ffa8de5a4>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<932eeb1d1e045e6abe4fcb1b5a8d7285>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +17,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockPayloadGeneratorTestFragment$ref = any;
-export type RelayMockPayloadGeneratorTest1QueryVariables = {||};
-export type RelayMockPayloadGeneratorTest1QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayMockPayloadGeneratorTestFragment$fragmentType } from "./RelayMockPayloadGeneratorTestFragment.graphql";
+export type RelayMockPayloadGeneratorTest1Query$variables = {||};
+export type RelayMockPayloadGeneratorTest1Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayMockPayloadGeneratorTestFragment$ref,
+    +$fragmentSpreads: RelayMockPayloadGeneratorTestFragment$fragmentType,
   |},
 |};
 export type RelayMockPayloadGeneratorTest1Query = {|
-  variables: RelayMockPayloadGeneratorTest1QueryVariables,
-  response: RelayMockPayloadGeneratorTest1QueryResponse,
+  response: RelayMockPayloadGeneratorTest1Query$data,
+  variables: RelayMockPayloadGeneratorTest1Query$variables,
 |};
 */
 
@@ -158,4 +160,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "84c1a5848aae26089f4aaaaa74c56543";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockPayloadGeneratorTest1Query$variables,
+  RelayMockPayloadGeneratorTest1Query$data,
+>*/);

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b61e80aef713b3941e79917492dbe850>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<c89fd61f210551c18e904a33a4ad4f14>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$ref: FragmentReference;
-declare export opaque type RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$fragmentType: RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$ref;
-export type RelayModernFragmentSpecResolverRequiredFieldTestUserFragment = ?{|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$fragmentType: FragmentType;
+export type RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$data = ?{|
+  +alternate_name: string,
   +id: string,
   +name: string,
-  +alternate_name: string,
-  +$refType: RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$ref,
+  +$fragmentType: RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$fragmentType,
 |};
-export type RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$data = RelayModernFragmentSpecResolverRequiredFieldTestUserFragment;
 export type RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$key = {
   +$data?: RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$data,
-  +$fragmentRefs: RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$ref,
+  +$fragmentSpreads: RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$fragmentType,
   ...
 };
 */
@@ -79,4 +79,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "15bfebf51ae674d445595318b62ed156";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$fragmentType,
+  RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$data,
+>*/);

@@ -1,0 +1,97 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment FragmentA on User
+  @argumentDefinitions(
+    var1: {type: "[Int]", provider: "varProviderA"}
+    var2: {type: "[Int]!", provider: "varProviderA"}
+) {
+    picture1: profilePicture(size: $var1) {
+        uri
+    }
+    picture2: profilePicture(size: $var2) {
+        uri
+    }
+}
+
+fragment TestAOther on User
+  @argumentDefinitions(
+    var_other: {type: "[Int]!", provider: "varProviderA"}
+) {
+    profilePicture(size: $var_other) {
+        uri
+    }
+}
+
+fragment FragmentB on User
+  @argumentDefinitions(
+    var1: {type: "[Int]", provider: "varProviderB"}
+    var2: {type: "Int", provider: "varProviderB"}
+) {
+    profilePicture(size: $var1) {
+        uri
+    }
+    friends(first: $var2) {
+        count
+    }
+}
+
+fragment FragmentC on User
+  @argumentDefinitions(
+    var1: {type: "Float", provider: "varProviderC"}
+    var2: {type: "Int", provider: "varProviderC"}
+) {
+    profile_picture(scale: $var1) {
+        uri
+    }
+    friends(first: $var2) {
+        count
+    }
+}
+
+fragment FragmentD on User
+  @argumentDefinitions(
+    var1: {type: "Float", provider: "varProviderD"}
+    var2: {type: "Float!", provider: "varProviderD"}
+) {
+    picture1: profile_picture(scale: $var1) {
+        uri
+    }
+    picture2: profile_picture(scale: $var2) {
+        uri
+    }
+}
+==================================== ERROR ====================================
+✖︎ All provided variables using module 'varProviderA' must declare the same type. Expected '[Int]!' but found '[Int]'
+
+  conflicting_types_invalid.graphql:4:5
+    3 │   @argumentDefinitions(
+    4 │     var1: {type: "[Int]", provider: "varProviderA"}
+      │     ^^^^
+    5 │     var2: {type: "[Int]!", provider: "varProviderA"}
+
+
+✖︎ All provided variables using module 'varProviderB' must declare the same type. Expected 'Int' but found '[Int]'
+
+  conflicting_types_invalid.graphql:26:5
+   25 │   @argumentDefinitions(
+   26 │     var1: {type: "[Int]", provider: "varProviderB"}
+      │     ^^^^
+   27 │     var2: {type: "Int", provider: "varProviderB"}
+
+
+✖︎ All provided variables using module 'varProviderC' must declare the same type. Expected 'Float' but found 'Int'
+
+  conflicting_types_invalid.graphql:40:5
+   39 │     var1: {type: "Float", provider: "varProviderC"}
+   40 │     var2: {type: "Int", provider: "varProviderC"}
+      │     ^^^^
+   41 │ ) {
+
+
+✖︎ All provided variables using module 'varProviderD' must declare the same type. Expected 'Float' but found 'Float!'
+
+  conflicting_types_invalid.graphql:53:5
+   52 │     var1: {type: "Float", provider: "varProviderD"}
+   53 │     var2: {type: "Float!", provider: "varProviderD"}
+      │     ^^^^
+   54 │ ) {

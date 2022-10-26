@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ebe0e777ab2e58c0043a9987e4db9751>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<fae67c7ca6657dc6eb50ceddb368da03>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -14,20 +16,22 @@
 
 'use strict';
 
+// @indirectDataDrivenDependency RelayResponseNormalizerTest1Fragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayResponseNormalizerTest1MarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayResponseNormalizerTest1PlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayResponseNormalizerTest1Fragment$ref = any;
-export type RelayResponseNormalizerTest5QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayResponseNormalizerTest1Fragment$fragmentType } from "./RelayResponseNormalizerTest1Fragment.graphql";
+export type RelayResponseNormalizerTest5Query$variables = {|
   id: string,
 |};
-export type RelayResponseNormalizerTest5QueryResponse = {|
+export type RelayResponseNormalizerTest5Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayResponseNormalizerTest1Fragment$ref,
+    +$fragmentSpreads: RelayResponseNormalizerTest1Fragment$fragmentType,
   |},
 |};
 export type RelayResponseNormalizerTest5Query = {|
-  variables: RelayResponseNormalizerTest5QueryVariables,
-  response: RelayResponseNormalizerTest5QueryResponse,
+  response: RelayResponseNormalizerTest5Query$data,
+  variables: RelayResponseNormalizerTest5Query$variables,
 |};
 */
 
@@ -169,4 +173,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "80a957b7f697c6ec8835d41f8e5cfecd";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayResponseNormalizerTest5Query$variables,
+  RelayResponseNormalizerTest5Query$data,
+>*/);

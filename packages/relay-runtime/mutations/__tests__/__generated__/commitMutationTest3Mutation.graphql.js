@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8d0196a98149806f788e23bd10c0b1ee>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<eb44197e4a87b7dcc55f910fec9fad54>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +17,14 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type UnfriendInput = {|
-  clientMutationId?: ?string,
   friendId?: ?string,
 |};
-export type commitMutationTest3MutationVariables = {|
+export type commitMutationTest3Mutation$variables = {|
   input?: ?UnfriendInput,
 |};
-export type commitMutationTest3MutationResponse = {|
+export type commitMutationTest3Mutation$data = {|
   +unfriend: ?{|
     +actor: ?{|
       +id: string,
@@ -34,8 +35,8 @@ export type commitMutationTest3MutationResponse = {|
   |},
 |};
 export type commitMutationTest3Mutation = {|
-  variables: commitMutationTest3MutationVariables,
-  response: commitMutationTest3MutationResponse,
+  response: commitMutationTest3Mutation$data,
+  variables: commitMutationTest3Mutation$variables,
 |};
 */
 
@@ -161,4 +162,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "dab27d75e734a4b036d32acce8a9fbf0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  commitMutationTest3Mutation$variables,
+  commitMutationTest3Mutation$data,
+>*/);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -9,45 +9,73 @@
 
 mod client;
 mod code_action;
-mod completion;
-mod diagnostic_reporter;
+pub mod completion;
+pub mod diagnostic_reporter;
+mod docblock_resolution_info;
 mod explore_schema_for_type;
-mod goto_definition;
+pub mod find_field_usages;
+pub mod goto_definition;
 mod graphql_tools;
-mod hover;
+pub mod hover;
 pub mod js_language_server;
-mod location;
+pub mod location;
 mod lsp_extra_data_provider;
 pub mod lsp_process_error;
 pub mod lsp_runtime_error;
 pub mod node_resolution_info;
-mod references;
-pub mod resolution_path;
+pub mod references;
 mod resolved_types_at_location;
 mod search_schema_items;
 mod server;
 mod shutdown;
 mod status_reporter;
-mod status_updater;
-mod text_documents;
+pub mod status_updater;
+pub mod text_documents;
 pub mod utils;
+use std::sync::Arc;
+
 use common::PerfLogger;
+use docblock_resolution_info::DocblockResolutionInfo;
+pub use extract_graphql::JavaScriptSourceFeature;
+use graphql_syntax::ExecutableDocument;
+pub use hover::ContentConsumerType;
 pub use js_language_server::JSLanguageServer;
 use log::debug;
-pub use lsp_extra_data_provider::{FieldDefinitionSourceInfo, LSPExtraDataProvider};
+pub use lsp_extra_data_provider::DummyExtraDataProvider;
+pub use lsp_extra_data_provider::FieldDefinitionSourceInfo;
+pub use lsp_extra_data_provider::FieldSchemaInfo;
+pub use lsp_extra_data_provider::LSPExtraDataProvider;
 use lsp_process_error::LSPProcessResult;
-pub use lsp_runtime_error::{LSPRuntimeError, LSPRuntimeResult};
+pub use lsp_runtime_error::LSPRuntimeError;
+pub use lsp_runtime_error::LSPRuntimeResult;
 use lsp_server::Connection;
+use node_resolution_info::NodeResolutionInfo;
 use relay_compiler::config::Config;
-use schema_documentation::{SchemaDocumentation, SchemaDocumentationLoader};
+use relay_docblock::DocblockIr;
+use schema_documentation::SchemaDocumentation;
+use schema_documentation::SchemaDocumentationLoader;
+pub use server::GlobalState;
 pub use server::LSPNotificationDispatch;
 pub use server::LSPRequestDispatch;
-pub use server::{GlobalState, LSPState, Schemas};
-use std::sync::Arc;
+pub use server::LSPState;
+pub use server::Schemas;
 pub use utils::position_to_offset;
-#[cfg(test)]
-#[macro_use]
-extern crate assert_matches;
+
+pub enum Feature {
+    GraphQLDocument(ExecutableDocument),
+    DocblockIr(DocblockIr),
+}
+
+#[allow(clippy::large_enum_variant)]
+pub enum FeatureResolutionInfo {
+    GraphqlNode(NodeResolutionInfo),
+    DocblockNode(DocblockNode),
+}
+
+pub struct DocblockNode {
+    resolution_info: DocblockResolutionInfo,
+    ir: DocblockIr,
+}
 
 pub async fn start_language_server<
     TPerfLogger,
@@ -84,11 +112,13 @@ where
 
 #[cfg(test)]
 mod tests {
+    use lsp_server::Connection;
+    use lsp_types::ClientCapabilities;
+    use lsp_types::InitializeParams;
+
     use super::client;
     use super::lsp_process_error::LSPProcessResult;
     use super::server;
-    use lsp_server::Connection;
-    use lsp_types::{ClientCapabilities, InitializeParams};
     #[test]
     fn initialize() -> LSPProcessResult<()> {
         // Test with an in-memory connection pair

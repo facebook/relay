@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -42,23 +41,30 @@ type PendingCommit<TMutation: MutationParameters> =
   | PendingRelayPayload<TMutation>
   | PendingRecordSource
   | PendingUpdater;
-type PendingRelayPayload<TMutation: MutationParameters> = {|
+type PendingRelayPayload<TMutation: MutationParameters> = {
   +kind: 'payload',
   +operation: OperationDescriptor,
   +payload: RelayResponsePayload,
-  +updater: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
-|};
-type PendingRecordSource = {|
+  +updater: ?SelectorStoreUpdater<TMutation['response']>,
+};
+type PendingRecordSource = {
   +kind: 'source',
   +source: RecordSource,
-|};
-type PendingUpdater = {|
+};
+type PendingUpdater = {
   +kind: 'updater',
   +updater: StoreUpdater,
-|};
+};
+
+const _global: typeof global | $FlowFixMe =
+  typeof global !== 'undefined'
+    ? global
+    : typeof window !== 'undefined'
+    ? window
+    : undefined;
 
 const applyWithGuard =
-  global?.ErrorUtils?.applyWithGuard ??
+  _global?.ErrorUtils?.applyWithGuard ??
   ((callback, context, args, onError, name) => callback.apply(context, args));
 
 /**
@@ -160,7 +166,7 @@ class RelayPublishQueue implements PublishQueue {
   commitPayload<TMutation: MutationParameters>(
     operation: OperationDescriptor,
     payload: RelayResponsePayload,
-    updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+    updater?: ?SelectorStoreUpdater<TMutation['response']>,
   ): void {
     this._pendingBackupRebase = true;
     this._pendingData.add({
@@ -200,6 +206,7 @@ class RelayPublishQueue implements PublishQueue {
     sourceOperation?: OperationDescriptor,
   ): $ReadOnlyArray<RequestDescriptor> {
     const runWillClearGcHold =
+      // $FlowFixMe[incompatible-type]
       this._appliedOptimisticUpdates === 0 && !!this._gcHold;
     const runIsANoop =
       // this._pendingBackupRebase is true if an applied optimistic
@@ -307,7 +314,8 @@ class RelayPublishQueue implements PublishQueue {
       const selectorData = lookupSelector(source, selector);
       updater(recordSourceSelectorProxy, selectorData);
     }
-    const idsMarkedForInvalidation = recordSourceProxy.getIDsMarkedForInvalidation();
+    const idsMarkedForInvalidation =
+      recordSourceProxy.getIDsMarkedForInvalidation();
     this._store.publish(source, idsMarkedForInvalidation);
     return recordSourceProxy.isStoreMarkedForInvalidation();
   }
@@ -348,7 +356,8 @@ class RelayPublishQueue implements PublishQueue {
         );
         invalidatedStore =
           invalidatedStore || recordSourceProxy.isStoreMarkedForInvalidation();
-        const idsMarkedForInvalidation = recordSourceProxy.getIDsMarkedForInvalidation();
+        const idsMarkedForInvalidation =
+          recordSourceProxy.getIDsMarkedForInvalidation();
 
         this._store.publish(sink, idsMarkedForInvalidation);
       }

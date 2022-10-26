@@ -1,26 +1,35 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::{SplitOperationMetadata, MATCH_CONSTANTS};
-use crate::{util::get_normalization_operation_name, ModuleMetadata};
-use common::WithLocation;
-use fnv::{FnvHashMap, FnvHashSet};
-use graphql_ir::{
-    InlineFragment, OperationDefinition, Program, Selection, Transformed, TransformedValue,
-    Transformer,
-};
-use graphql_syntax::OperationKind;
-use interner::{Intern, StringKey};
-use schema::Schema;
 use std::sync::Arc;
+
+use common::WithLocation;
+use graphql_ir::FragmentDefinitionNameSet;
+use graphql_ir::InlineFragment;
+use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use graphql_syntax::OperationKind;
+use intern::string_key::Intern;
+use intern::string_key::StringKeyMap;
+use schema::Schema;
+
+use super::SplitOperationMetadata;
+use super::MATCH_CONSTANTS;
+use crate::util::get_normalization_operation_name;
+use crate::ModuleMetadata;
 
 pub fn split_module_import(
     program: &Program,
-    base_fragment_names: &FnvHashSet<StringKey>,
+    base_fragment_names: &FragmentDefinitionNameSet,
 ) -> Program {
     let mut transform = SplitModuleImportTransform::new(program, base_fragment_names);
     transform
@@ -30,14 +39,14 @@ pub fn split_module_import(
 
 pub struct SplitModuleImportTransform<'program, 'base_fragment_names> {
     program: &'program Program,
-    split_operations: FnvHashMap<StringKey, (SplitOperationMetadata, OperationDefinition)>,
-    base_fragment_names: &'base_fragment_names FnvHashSet<StringKey>,
+    split_operations: StringKeyMap<(SplitOperationMetadata, OperationDefinition)>,
+    base_fragment_names: &'base_fragment_names FragmentDefinitionNameSet,
 }
 
 impl<'program, 'base_fragment_names> SplitModuleImportTransform<'program, 'base_fragment_names> {
     fn new(
         program: &'program Program,
-        base_fragment_names: &'base_fragment_names FnvHashSet<StringKey>,
+        base_fragment_names: &'base_fragment_names FragmentDefinitionNameSet,
     ) -> Self {
         Self {
             program,
@@ -104,35 +113,38 @@ impl Transformer for SplitModuleImportTransform<'_, '_> {
             }
 
             let normalization_name =
-                get_normalization_operation_name(module_metadata.fragment_name).intern();
+                get_normalization_operation_name(module_metadata.fragment_name.0).intern();
             let schema = &self.program.schema;
             let created_split_operation = self
                 .split_operations
                 .entry(normalization_name)
                 .or_insert_with(|| {
                     // Exclude `__module_operation/__module_component: js` field selections from `SplitOperation`
-                    let mut next_selections = Vec::with_capacity(fragment.selections.len() - 2);
-                    for selection in &fragment.selections {
-                        match selection {
+                    let next_selections = fragment
+                        .selections
+                        .iter()
+                        .filter(|selection| match selection {
                             Selection::ScalarField(field) => {
-                                if field.alias.is_none()
+                                field.alias.is_none()
                                     || schema.field(field.definition.item).name.item
                                         != MATCH_CONSTANTS.js_field_name
-                                {
-                                    next_selections.push(selection.clone())
-                                }
                             }
-                            _ => next_selections.push(selection.clone()),
-                        }
-                    }
+                            _ => true,
+                        })
+                        .cloned()
+                        .collect();
                     (
                         SplitOperationMetadata {
-                            derived_from: module_metadata.fragment_name,
+                            derived_from: Some(module_metadata.fragment_name),
+                            location: module_metadata.fragment_source_location,
                             parent_documents: Default::default(),
-                            raw_response_type: false,
+                            raw_response_type_generation_mode: None,
                         },
                         OperationDefinition {
-                            name: WithLocation::new(module_metadata.location, normalization_name),
+                            name: WithLocation::new(
+                                module_metadata.location,
+                                OperationDefinitionName(normalization_name),
+                            ),
                             type_: parent_type,
                             variable_definitions: vec![],
                             directives: vec![],

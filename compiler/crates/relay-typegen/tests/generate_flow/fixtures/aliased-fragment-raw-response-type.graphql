@@ -1,0 +1,12 @@
+query MyQuery @raw_response_type {
+  me {
+    ...MyUserFragment @alias(as: "my_user")
+    ... on User @alias(as: "my_inline_fragment") {
+      name
+    }
+  }
+}
+
+fragment MyUserFragment on User {
+  name
+}

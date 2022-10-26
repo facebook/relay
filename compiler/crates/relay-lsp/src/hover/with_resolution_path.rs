@@ -1,42 +1,105 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_ir::{Program, Value};
-use graphql_syntax::{FragmentDefinition, Identifier, OperationDefinition, VariableDefinition};
+use common::DirectiveName;
+use common::NamedItem;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::Program;
+use graphql_ir::Value;
+use graphql_syntax::FragmentDefinition;
+use graphql_syntax::Identifier;
+use graphql_syntax::OperationDefinition;
+use graphql_syntax::VariableDefinition;
 use graphql_text_printer::print_value;
-use interner::StringKey;
-use lsp_types::{Hover, HoverContents, MarkedString};
-use schema::{SDLSchema, Schema};
+use graphql_text_printer::PrinterOptions;
+use intern::string_key::StringKey;
+use intern::Lookup;
+use lsp_types::Hover;
+use lsp_types::HoverContents;
+use lsp_types::MarkedString;
+use relay_transforms::RELAY_RESOLVER_DIRECTIVE_NAME;
+use resolution_path::ArgumentPath;
+use resolution_path::ArgumentRoot;
+use resolution_path::ConstantArgPath;
+use resolution_path::ConstantBooleanPath;
+use resolution_path::ConstantEnumPath;
+use resolution_path::ConstantFloatPath;
+use resolution_path::ConstantIntPath;
+use resolution_path::ConstantListPath;
+use resolution_path::ConstantNullPath;
+use resolution_path::ConstantObjPath;
+use resolution_path::ConstantObjectPath;
+use resolution_path::ConstantStringPath;
+use resolution_path::ConstantValueParent;
+use resolution_path::ConstantValuePath;
+use resolution_path::ConstantValueRoot;
+use resolution_path::DefaultValuePath;
+use resolution_path::DirectivePath;
+use resolution_path::FragmentDefinitionPath;
+use resolution_path::FragmentSpreadPath;
+use resolution_path::IdentParent;
+use resolution_path::IdentPath;
+use resolution_path::InlineFragmentPath;
+use resolution_path::LinkedFieldPath;
+use resolution_path::ListTypeAnnotationPath;
+use resolution_path::NamedTypeAnnotationPath;
+use resolution_path::NonNullTypeAnnotationPath;
+use resolution_path::OperationDefinitionPath;
+use resolution_path::OperationPath;
+use resolution_path::ResolutionPath;
+use resolution_path::ScalarFieldPath;
+use resolution_path::SelectionPath;
+use resolution_path::TypeAnnotationPath;
+use resolution_path::TypeConditionParent;
+use resolution_path::TypeConditionPath;
+use resolution_path::ValueListPath;
+use resolution_path::ValuePath;
+use resolution_path::VariableDefinitionPath;
+use resolution_path::VariableIdentifierParent;
+use resolution_path::VariableIdentifierPath;
+use schema::SDLSchema;
+use schema::Schema;
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
 
-use crate::{
-    hover::{get_open_schema_explorer_command_link, GraphQLSchemaExplorerParams},
-    resolution_path::{
-        ArgumentPath, ArgumentRoot, ConstantArgPath, ConstantBooleanPath, ConstantEnumPath,
-        ConstantFloatPath, ConstantIntPath, ConstantListPath, ConstantNullPath, ConstantObjPath,
-        ConstantObjectPath, ConstantStringPath, ConstantValueParent, ConstantValuePath,
-        ConstantValueRoot, DefaultValuePath, DirectivePath, FragmentDefinitionPath,
-        FragmentSpreadPath, IdentParent, IdentPath, InlineFragmentPath, LinkedFieldPath,
-        ListTypeAnnotationPath, NamedTypeAnnotationPath, NonNullTypeAnnotationPath,
-        OperationDefinitionPath, OperationPath, ResolutionPath, ScalarFieldPath, SelectionPath,
-        TypeAnnotationPath, TypeConditionParent, TypeConditionPath, ValueListPath, ValuePath,
-        VariableDefinitionPath, VariableIdentifierParent, VariableIdentifierPath,
-    },
-    LSPExtraDataProvider,
-};
+use crate::hover::get_open_schema_explorer_command_link;
+use crate::hover::GraphQLSchemaExplorerParams;
+use crate::LSPExtraDataProvider;
 
-pub(crate) fn get_hover<'a>(
+/// Enum, that allows us to adjust content of the hover
+/// tooltip based on the consumer type (Relay, GraphQL)
+#[derive(Clone, Copy)]
+pub enum ContentConsumerType {
+    Relay,
+    GraphQL,
+}
+
+impl ContentConsumerType {
+    /// This method returns a rendered string (with encoded schema search params)
+    fn render_text_with_params(
+        &self,
+        text: &str,
+        params: &GraphQLSchemaExplorerParams<'_>,
+    ) -> String {
+        match self {
+            ContentConsumerType::Relay => get_open_schema_explorer_command_link(text, params),
+            ContentConsumerType::GraphQL => text.to_string(),
+        }
+    }
+}
+
+pub fn get_hover<'a>(
     path: &'a ResolutionPath<'a>,
     schema: &SDLSchema,
     schema_name: StringKey,
     extra_data_provider: &dyn LSPExtraDataProvider,
     schema_documentation: &impl SchemaDocumentation,
     program: &Program,
+    content_consumer_type: ContentConsumerType,
 ) -> Option<Hover> {
     let hover_behavior = get_hover_behavior_from_resolution_path(path);
     let hover_content = get_hover_contents(
@@ -46,6 +109,7 @@ pub(crate) fn get_hover<'a>(
         extra_data_provider,
         schema_documentation,
         program,
+        content_consumer_type,
     );
 
     hover_content.map(|contents| Hover {
@@ -89,7 +153,7 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
                     parent: _,
                 },
         }) => HoverBehavior::OperationDefinitionName(operation_definition),
-        // Explicity show no hover in other parts of the operation definition.
+        // Explicitly show no hover in other parts of the operation definition.
         // For example, the curly braces after the operation variables are included in
         // this match arm.
         ResolutionPath::OperationDefinition(_) => HoverBehavior::OperationDefinitionRemainder,
@@ -170,7 +234,7 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
                     inner: _,
                     parent: constant_value_parent,
                 },
-        }) => HoverBehavior::ConstantValue(&constant_value_parent),
+        }) => HoverBehavior::ConstantValue(constant_value_parent),
         ResolutionPath::ConstantString(ConstantStringPath {
             inner: _,
             parent:
@@ -178,7 +242,7 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
                     inner: _,
                     parent: constant_value_parent,
                 },
-        }) => HoverBehavior::ConstantValue(&constant_value_parent),
+        }) => HoverBehavior::ConstantValue(constant_value_parent),
         ResolutionPath::ConstantBoolean(ConstantBooleanPath {
             inner: _,
             parent:
@@ -186,7 +250,7 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
                     inner: _,
                     parent: constant_value_parent,
                 },
-        }) => HoverBehavior::ConstantValue(&constant_value_parent),
+        }) => HoverBehavior::ConstantValue(constant_value_parent),
         ResolutionPath::ConstantNull(ConstantNullPath {
             inner: _,
             parent:
@@ -194,7 +258,7 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
                     inner: _,
                     parent: constant_value_parent,
                 },
-        }) => HoverBehavior::ConstantValue(&constant_value_parent),
+        }) => HoverBehavior::ConstantValue(constant_value_parent),
         ResolutionPath::ConstantEnum(ConstantEnumPath {
             inner: _,
             parent:
@@ -202,7 +266,7 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
                     inner: _,
                     parent: constant_value_parent,
                 },
-        }) => HoverBehavior::ConstantValue(&constant_value_parent),
+        }) => HoverBehavior::ConstantValue(constant_value_parent),
         ResolutionPath::ConstantList(ConstantListPath {
             inner: _,
             parent: constant_value_path,
@@ -232,7 +296,7 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
         ResolutionPath::ScalarField(ScalarFieldPath {
             inner: scalar_field,
             parent: selection_path,
-        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, &selection_path),
+        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, selection_path),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
@@ -240,7 +304,7 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
                     inner: scalar_field,
                     parent: selection_path,
                 }),
-        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, &selection_path),
+        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, selection_path),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
@@ -248,11 +312,11 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
                     inner: scalar_field,
                     parent: selection_path,
                 }),
-        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, &selection_path),
+        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, selection_path),
         ResolutionPath::LinkedField(LinkedFieldPath {
             inner: scalar_field,
             parent: selection_path,
-        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, &selection_path),
+        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, selection_path),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
@@ -260,7 +324,7 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
                     inner: scalar_field,
                     parent: selection_path,
                 }),
-        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, &selection_path),
+        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, selection_path),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent:
@@ -268,17 +332,17 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
                     inner: scalar_field,
                     parent: selection_path,
                 }),
-        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, &selection_path),
+        }) => HoverBehavior::ScalarOrLinkedField(&scalar_field.name, selection_path),
 
         // Field and directive arguments
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent: IdentParent::ArgumentValue(argument_path),
-        }) => HoverBehavior::ArgumentPath(&argument_path),
+        }) => HoverBehavior::ArgumentPath(argument_path),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent: IdentParent::ArgumentName(argument_path),
-        }) => HoverBehavior::ArgumentPath(&argument_path),
+        }) => HoverBehavior::ArgumentPath(argument_path),
         ResolutionPath::VariableIdentifier(VariableIdentifierPath {
             inner: _,
             parent:
@@ -295,11 +359,11 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
             inner: _,
             parent: value_path,
         }) => HoverBehavior::ArgumentPath(value_path.parent.find_enclosing_argument_path()),
-        ResolutionPath::Argument(argument_path) => HoverBehavior::ArgumentPath(&argument_path),
+        ResolutionPath::Argument(argument_path) => HoverBehavior::ArgumentPath(argument_path),
 
         // inline fragments
         ResolutionPath::InlineFragment(inline_fragment_path) => {
-            HoverBehavior::InlineFragment(&inline_fragment_path)
+            HoverBehavior::InlineFragment(inline_fragment_path)
         }
         ResolutionPath::Ident(IdentPath {
             inner: _,
@@ -308,26 +372,26 @@ fn get_hover_behavior_from_resolution_path<'a>(path: &'a ResolutionPath<'a>) -> 
                     inner: _,
                     parent: TypeConditionParent::InlineFragment(inline_fragment_path),
                 }),
-        }) => HoverBehavior::InlineFragment(&inline_fragment_path),
+        }) => HoverBehavior::InlineFragment(inline_fragment_path),
         ResolutionPath::TypeCondition(TypeConditionPath {
             inner: _,
             parent: TypeConditionParent::InlineFragment(inline_fragment_path),
-        }) => HoverBehavior::InlineFragment(&inline_fragment_path),
+        }) => HoverBehavior::InlineFragment(inline_fragment_path),
 
         // Fragment spreads
         ResolutionPath::FragmentSpread(fragment_spread_path) => {
-            HoverBehavior::FragmentSpread(&fragment_spread_path)
+            HoverBehavior::FragmentSpread(fragment_spread_path)
         }
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent: IdentParent::FragmentSpreadName(fragment_spread_path),
-        }) => HoverBehavior::FragmentSpread(&fragment_spread_path),
+        }) => HoverBehavior::FragmentSpread(fragment_spread_path),
 
-        ResolutionPath::Directive(directive_path) => HoverBehavior::Directive(&directive_path),
+        ResolutionPath::Directive(directive_path) => HoverBehavior::Directive(directive_path),
         ResolutionPath::Ident(IdentPath {
             inner: _,
             parent: IdentParent::DirectiveName(directive_path),
-        }) => HoverBehavior::Directive(&directive_path),
+        }) => HoverBehavior::Directive(directive_path),
 
         ResolutionPath::FragmentDefinition(FragmentDefinitionPath {
             inner: fragment_definition,
@@ -374,6 +438,7 @@ fn get_hover_contents<'a>(
     extra_data_provider: &dyn LSPExtraDataProvider,
     schema_documentation: &impl SchemaDocumentation,
     program: &Program,
+    content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
     match hover_behavior {
         HoverBehavior::OperationDefinitionName(operation_definition) => {
@@ -381,7 +446,7 @@ fn get_hover_contents<'a>(
         }
         HoverBehavior::OperationDefinitionRemainder => None,
         HoverBehavior::VariableDefinition(variable_definition) => Some(
-            on_hover_variable_definition(variable_definition, schema_name),
+            on_hover_variable_definition(variable_definition, schema_name, content_consumer_type),
         ),
         HoverBehavior::VariableDefinitionList => None,
         HoverBehavior::ConstantValue(constant_value_parent) => on_hover_constant_value(
@@ -389,6 +454,7 @@ fn get_hover_contents<'a>(
             schema,
             schema_name,
             schema_documentation,
+            content_consumer_type,
         ),
         HoverBehavior::ScalarOrLinkedField(field_name, selection_path) => {
             on_hover_scalar_or_linked_field(
@@ -397,24 +463,37 @@ fn get_hover_contents<'a>(
                 schema,
                 schema_name,
                 schema_documentation,
+                content_consumer_type,
             )
         }
-        HoverBehavior::ArgumentPath(argument_path) => {
-            on_hover_argument_path(argument_path, schema, schema_name, schema_documentation)
-        }
+        HoverBehavior::ArgumentPath(argument_path) => on_hover_argument_path(
+            argument_path,
+            schema,
+            schema_name,
+            schema_documentation,
+            content_consumer_type,
+        ),
         HoverBehavior::InlineFragment(inline_fragment_path) => on_hover_inline_fragment(
             inline_fragment_path,
             schema,
             schema_name,
             schema_documentation,
+            content_consumer_type,
         ),
-        HoverBehavior::FragmentSpread(fragment_spread_path) => {
-            on_hover_fragment_spread(fragment_spread_path, schema, schema_name, program)
-        }
+        HoverBehavior::FragmentSpread(fragment_spread_path) => on_hover_fragment_spread(
+            fragment_spread_path,
+            schema,
+            schema_name,
+            program,
+            content_consumer_type,
+        ),
         HoverBehavior::Directive(directive_path) => on_hover_directive(directive_path, schema),
-        HoverBehavior::FragmentDefinition(fragment_definition) => {
-            on_hover_fragment_definition(fragment_definition, schema, schema_name)
-        }
+        HoverBehavior::FragmentDefinition(fragment_definition) => on_hover_fragment_definition(
+            fragment_definition,
+            schema,
+            schema_name,
+            content_consumer_type,
+        ),
 
         HoverBehavior::ExecutableDocument => None,
     }
@@ -441,6 +520,7 @@ fn on_hover_operation(
 fn on_hover_variable_definition(
     variable_definition: &VariableDefinition,
     schema_name: StringKey,
+    content_consumer_type: ContentConsumerType,
 ) -> HoverContents {
     let variable_identifier = &variable_definition.name;
     let variable_inner_type = variable_definition.type_.inner().name.value;
@@ -454,7 +534,7 @@ fn on_hover_variable_definition(
     HoverContents::Scalar(MarkedString::String(format!(
         "`{}`: **{}**{}",
         variable_identifier,
-        get_open_schema_explorer_command_link(
+        content_consumer_type.render_text_with_params(
             &variable_type.to_string(),
             &GraphQLSchemaExplorerParams {
                 path: vec![variable_inner_type.lookup()],
@@ -471,14 +551,23 @@ fn on_hover_constant_value<'a>(
     schema: &SDLSchema,
     schema_name: StringKey,
     schema_documentation: &impl SchemaDocumentation,
+    content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
     match constant_value_parent.find_constant_value_root() {
-        ConstantValueRoot::VariableDefinition(variable_definition_path) => Some(
-            on_hover_variable_definition(variable_definition_path.inner, schema_name),
-        ),
-        ConstantValueRoot::Argument(argument_path) => {
-            on_hover_argument_path(argument_path, schema, schema_name, schema_documentation)
+        ConstantValueRoot::VariableDefinition(variable_definition_path) => {
+            Some(on_hover_variable_definition(
+                variable_definition_path.inner,
+                schema_name,
+                content_consumer_type,
+            ))
         }
+        ConstantValueRoot::Argument(argument_path) => on_hover_argument_path(
+            argument_path,
+            schema,
+            schema_name,
+            schema_documentation,
+            content_consumer_type,
+        ),
     }
 }
 
@@ -487,6 +576,7 @@ fn on_hover_argument_path<'a>(
     schema: &SDLSchema,
     schema_name: StringKey,
     schema_documentation: &impl SchemaDocumentation,
+    content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
     let ArgumentPath {
         inner: argument,
@@ -505,6 +595,7 @@ fn on_hover_argument_path<'a>(
             schema,
             schema_name,
             schema_documentation,
+            content_consumer_type,
         ),
         ArgumentRoot::Directive(directive_path) => {
             get_directive_hover_content(directive_path, schema)
@@ -515,6 +606,7 @@ fn on_hover_argument_path<'a>(
             schema,
             schema_name,
             schema_documentation,
+            content_consumer_type,
         ),
     }?;
 
@@ -530,6 +622,7 @@ fn on_hover_scalar_or_linked_field(
     schema: &SDLSchema,
     schema_name: StringKey,
     schema_documentation: &impl SchemaDocumentation,
+    content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
     let content = get_scalar_or_linked_field_hover_content(
         field_name,
@@ -537,6 +630,7 @@ fn on_hover_scalar_or_linked_field(
         schema,
         schema_name,
         schema_documentation,
+        content_consumer_type,
     )?;
     Some(HoverContents::Array(content))
 }
@@ -547,6 +641,7 @@ fn get_scalar_or_linked_field_hover_content(
     schema: &SDLSchema,
     schema_name: StringKey,
     schema_documentation: &impl SchemaDocumentation,
+    content_consumer_type: ContentConsumerType,
 ) -> Option<Vec<MarkedString>> {
     let parent_types = field_selection_path.parent.find_type_path(schema);
     let parent_type = parent_types.last()?;
@@ -561,7 +656,11 @@ fn get_scalar_or_linked_field_hover_content(
         .named_field(*parent_type, field_name.value)
         .map(|id| schema.field(id))?;
 
-    let rendered_type_string = schema.get_type_string(&field.type_);
+    let is_resolver = field
+        .directives
+        .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
+        .is_some();
+
     let field_type_name = schema.get_type_name(field.type_.inner()).lookup();
 
     let mut hover_contents: Vec<MarkedString> = vec![MarkedString::String(format!(
@@ -573,14 +672,16 @@ fn get_scalar_or_linked_field_hover_content(
         schema_documentation.get_field_description(parent_type_name, field.name.item.lookup())
     {
         hover_contents.push(MarkedString::String(field_description.to_string()));
+    } else if let Some(description) = field.description {
+        hover_contents.push(MarkedString::String(description.to_string()));
     }
 
     type_path.push(field_type_name);
 
     hover_contents.push(MarkedString::String(format!(
         "Type: **{}**",
-        get_open_schema_explorer_command_link(
-            &rendered_type_string,
+        content_consumer_type.render_text_with_params(
+            &schema.get_type_string(&field.type_),
             &GraphQLSchemaExplorerParams {
                 path: type_path,
                 schema_name: schema_name.lookup(),
@@ -588,7 +689,6 @@ fn get_scalar_or_linked_field_hover_content(
             }
         )
     )));
-
     if let Some(type_description) = schema_documentation.get_type_description(field_type_name) {
         hover_contents.push(MarkedString::String(type_description.to_string()));
     }
@@ -603,7 +703,7 @@ fn get_scalar_or_linked_field_hover_content(
             hover_contents.push(MarkedString::from_markdown(format!(
                 "{}: **{}**{}\n\n{}",
                 arg.name,
-                get_open_schema_explorer_command_link(
+                content_consumer_type.render_text_with_params(
                     &schema.get_type_string(&arg.type_),
                     &GraphQLSchemaExplorerParams {
                         path: vec![field_type_name, arg_type_name],
@@ -619,7 +719,7 @@ fn get_scalar_or_linked_field_hover_content(
                 if let Some(description) = schema_documentation.get_field_argument_description(
                     parent_type_name,
                     field.name.item.lookup(),
-                    arg.name.lookup(),
+                    arg.name.0.lookup(),
                 ) {
                     description.to_string()
                 } else {
@@ -629,8 +729,19 @@ fn get_scalar_or_linked_field_hover_content(
         }
     }
 
-    if field.is_extension {
-        hover_contents.push(MarkedString::String("**Client Schema Extension**: This field was declared as a Relay Client Schema Extension, and is therefore only avalaible in Relay code. [Learn More](https://relay.dev/docs/guided-tour/updating-data/client-only-data/#client-only-data-client-schema-extensions).".to_string()))
+    if is_resolver {
+        let msg = "**Relay Resolver**: This field is backed by a Relay Resolver, and is therefore only avaliable in Relay code. [Learn More](https://relay.dev/docs/next/guides/relay-resolvers/).";
+        hover_contents.push(MarkedString::String(msg.to_string()))
+    } else if field.is_extension {
+        let msg = match content_consumer_type {
+            ContentConsumerType::Relay => {
+                "**Client Schema Extension**: This field was declared as a Relay Client Schema Extension, and is therefore only avalaible in Relay code. [Learn More](https://relay.dev/docs/guided-tour/updating-data/client-only-data/#client-only-data-client-schema-extensions)."
+            }
+            ContentConsumerType::GraphQL => {
+                "**Client Schema Extension**: This field was declared as a GraphQL client schema extension explicitly among [these](https://fburl.com/code/9qg1gghd) files etc."
+            }
+        };
+        hover_contents.push(MarkedString::String(msg.to_string()))
     }
     Some(hover_contents)
 }
@@ -640,6 +751,7 @@ fn on_hover_inline_fragment(
     schema: &SDLSchema,
     schema_name: StringKey,
     schema_documentation: &impl SchemaDocumentation,
+    content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
     let InlineFragmentPath {
         inner: inline_fragment,
@@ -667,7 +779,7 @@ fn on_hover_inline_fragment(
 
     let first_line = MarkedString::String(format!(
         "An inline fragment refining **{}** to **{}**",
-        get_open_schema_explorer_command_link(
+        content_consumer_type.render_text_with_params(
             parent_type_name.lookup(),
             &GraphQLSchemaExplorerParams {
                 path: parent_type_path,
@@ -675,7 +787,7 @@ fn on_hover_inline_fragment(
                 filter: None,
             },
         ),
-        get_open_schema_explorer_command_link(
+        content_consumer_type.render_text_with_params(
             inline_fragment_condition,
             &GraphQLSchemaExplorerParams {
                 path: inline_fragment_type_path,
@@ -686,12 +798,12 @@ fn on_hover_inline_fragment(
     ));
 
     if let Some(description) = description {
-        return Some(HoverContents::Array(vec![
+        Some(HoverContents::Array(vec![
             first_line,
             MarkedString::String(description.to_string()),
-        ]));
+        ]))
     } else {
-        return Some(HoverContents::Scalar(first_line));
+        Some(HoverContents::Scalar(first_line))
     }
 }
 
@@ -700,6 +812,7 @@ fn on_hover_fragment_spread<'a>(
     schema: &SDLSchema,
     schema_name: StringKey,
     program: &Program,
+    content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
     // TODO eventually show information about whether the fragment spread is
     // infallible, fallible, interface-on-interface, etc.
@@ -710,7 +823,7 @@ fn on_hover_fragment_spread<'a>(
         inner: fragment_spread,
         parent: _,
     } = fragment_spread_path;
-    let fragment_name = fragment_spread.name.value;
+    let fragment_name = FragmentDefinitionName(fragment_spread.name.value);
 
     let fragment_definition = program.fragment(fragment_name)?;
 
@@ -721,7 +834,7 @@ fn on_hover_fragment_spread<'a>(
     hover_contents.push(MarkedString::String(format!(
         "fragment {} on {}",
         fragment_spread.name.value.lookup(),
-        get_open_schema_explorer_command_link(
+        content_consumer_type.render_text_with_params(
             fragment_type_name,
             &GraphQLSchemaExplorerParams {
                 path: vec![fragment_type_name],
@@ -738,7 +851,11 @@ fn on_hover_fragment_spread<'a>(
             let default_value = match var.default_value.clone() {
                 Some(default_value) => format!(
                     ", with a default value of {}",
-                    print_value(schema, &Value::Constant(default_value.item))
+                    print_value(
+                        schema,
+                        &Value::Constant(default_value.item),
+                        PrinterOptions::default()
+                    )
                 ),
                 None => "".to_string(),
             };
@@ -759,11 +876,12 @@ fn on_hover_fragment_spread<'a>(
         hover_contents.push(MarkedString::from_markdown(variables_string.join("\n")))
     }
 
-    let fragment_name_details: Vec<&str> = fragment_name.lookup().split('_').collect();
-    // We expect the fragment name to be `ComponentName_propName`
-    if fragment_name_details.len() == 2 {
-        hover_contents.push(MarkedString::from_markdown(format!(
-            r#"
+    if matches!(content_consumer_type, ContentConsumerType::Relay) {
+        let fragment_name_details: Vec<&str> = fragment_name.0.lookup().split('_').collect();
+        // We expect the fragment name to be `ComponentName_propName`
+        if fragment_name_details.len() == 2 {
+            hover_contents.push(MarkedString::from_markdown(format!(
+                r#"
 To consume this fragment spread,
 pass it to the component where it was defined.
 
@@ -772,13 +890,14 @@ For example:
     <{} {}={{data.{}}} />
 ```
 "#,
-            fragment_name_details[0], fragment_name_details[1], fragment_name_details[1],
-        )));
-    } // We may log an error (later), if that is not the case.
+                fragment_name_details[0], fragment_name_details[1], fragment_name_details[1],
+            )));
+        } // We may log an error (later), if that is not the case.
 
-    hover_contents.push(MarkedString::String(
-        "@see: https://relay.dev/docs/en/thinking-in-relay#data-masking".to_string(),
-    ));
+        hover_contents.push(MarkedString::String(
+            "@see: https://relay.dev/docs/en/thinking-in-relay#data-masking".to_string(),
+        ));
+    }
 
     Some(HoverContents::Array(hover_contents))
 }
@@ -800,17 +919,17 @@ fn get_directive_hover_content<'a>(
         parent: _,
     } = directive_path;
 
-    let directive_name = directive.name.value;
+    let directive_name = DirectiveName(directive.name.value);
 
     if let Some(argument_definition_hover_info) =
-        super::argument_definition_hover_info(directive_name.lookup())
+        super::argument_definition_hover_info(directive_name.0.lookup())
     {
         return Some(vec![argument_definition_hover_info]);
     }
 
     let schema_directive = schema.get_directive(directive_name)?;
 
-    let directive_definition = print_directive(schema, &schema_directive);
+    let directive_definition = print_directive(schema, schema_directive);
     let markdown_definition = super::graphql_marked_string(directive_definition);
     let mut hover_contents: Vec<MarkedString> = vec![markdown_definition];
     if let Some(description) = schema_directive.description {
@@ -824,6 +943,7 @@ fn on_hover_fragment_definition(
     fragment_definition: &FragmentDefinition,
     schema: &SDLSchema,
     schema_name: StringKey,
+    content_consumer_type: ContentConsumerType,
 ) -> Option<HoverContents> {
     let fragment_name = fragment_definition.name.value;
     let fragment_type_condition = fragment_definition.type_condition.type_.value;
@@ -834,7 +954,7 @@ fn on_hover_fragment_definition(
     let title = MarkedString::from_markdown(format!(
         "fragment {} on {}",
         fragment_name,
-        get_open_schema_explorer_command_link(
+        content_consumer_type.render_text_with_params(
             type_name.lookup(),
             &GraphQLSchemaExplorerParams {
                 path: vec![type_name.lookup()],
@@ -844,18 +964,22 @@ fn on_hover_fragment_definition(
         )
     ));
 
-    let hover_contents = vec![
-        title,
-        MarkedString::String(
-            r#"Fragments let you select fields,
-and then include them in queries where you need to.
+    let hover_contents = if matches!(content_consumer_type, ContentConsumerType::Relay) {
+        HoverContents::Array(vec![
+            title,
+            MarkedString::String(
+                r#"Fragments let you select fields,
+    and then include them in queries where you need to.
 
----
-@see: https://graphql.org/learn/queries/#fragments
-"#
-            .to_string(),
-        ),
-    ];
+    ---
+    @see: https://graphql.org/learn/queries/#fragments
+    "#
+                .to_string(),
+            ),
+        ])
+    } else {
+        HoverContents::Scalar(title)
+    };
 
-    Some(HoverContents::Array(hover_contents))
+    Some(hover_contents)
 }

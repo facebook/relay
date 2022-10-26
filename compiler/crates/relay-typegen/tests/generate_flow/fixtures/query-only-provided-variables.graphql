@@ -1,0 +1,34 @@
+query queryOnlyProvidedVar_OneFragment {
+  node(id: 4) {
+    ...FragmentOneProvidedVar
+  }
+}
+
+query queryOnlyProvidedVar_MultiFragment {
+  node(id: 4) {
+    ...FragmentOneProvidedVar,
+    ...FragmentMultiProvidedVar,
+  }
+}
+
+fragment FragmentOneProvidedVar on User
+  @argumentDefinitions(
+    includeName: {type: "Boolean!", provider: "includeNameProvider"}
+) {
+  name @include(if: $includeName)
+}
+
+fragment FragmentMultiProvidedVar on User
+  @argumentDefinitions(
+    numberOfFriends: {type: "Int!", provider: "numberOfFriendsProvider"},
+    includeName: {type: "Boolean!", provider: "includeNameProvider"}
+) {
+  friends(first: $numberOfFriends) {
+    count
+    edges {
+      node {
+        name @include(if: $includeName),
+      }
+    }
+  }
+}

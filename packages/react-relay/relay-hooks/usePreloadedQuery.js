@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -31,25 +29,31 @@ const {
 } = require('relay-runtime');
 const warning = require('warning');
 
+// This separate type export is only needed as long as we are injecting
+// a separate hooks implementation in ./HooksImplementation -- it can
+// be removed after we stop doing that.
+export type UsePreloadedQueryHookType = <TQuery: OperationType>(
+  gqlQuery: GraphQLTaggedNode,
+  preloadedQuery: PreloadedQuery<TQuery>,
+  options?: {
+    UNSTABLE_renderPolicy?: RenderPolicy,
+  },
+) => TQuery['response'];
+
 function usePreloadedQuery<TQuery: OperationType>(
   gqlQuery: GraphQLTaggedNode,
   preloadedQuery: PreloadedQuery<TQuery>,
-  options?: {|
+  options?: {
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
-): $ElementType<TQuery, 'response'> {
+  },
+): TQuery['response'] {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
   useTrackLoadQueryInRender();
 
   const environment = useRelayEnvironment();
-  const {
-    fetchKey,
-    fetchPolicy,
-    source,
-    variables,
-    networkCacheConfig,
-  } = preloadedQuery;
+  const {fetchKey, fetchPolicy, source, variables, networkCacheConfig} =
+    preloadedQuery;
   const operation = useMemoOperationDescriptor(
     gqlQuery,
     variables,
@@ -147,4 +151,4 @@ function usePreloadedQuery<TQuery: OperationType>(
   return data;
 }
 
-module.exports = usePreloadedQuery;
+module.exports = (usePreloadedQuery: UsePreloadedQueryHookType);

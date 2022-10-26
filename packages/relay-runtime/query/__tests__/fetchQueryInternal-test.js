@@ -1,46 +1,65 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
-import type {Observer} from 'relay-runtime';
+import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
+import type {Observer} from '../../network/RelayObservable';
+import type {
+  fetchQueryInternalTest1Query$data,
+  fetchQueryInternalTest1Query$variables,
+} from './__generated__/fetchQueryInternalTest1Query.graphql';
+import type {
+  fetchQueryInternalTest2Query$data,
+  fetchQueryInternalTest2Query$variables,
+} from './__generated__/fetchQueryInternalTest2Query.graphql';
+import type {
+  fetchQueryInternalTest3Query$data,
+  fetchQueryInternalTest3Query$variables,
+} from './__generated__/fetchQueryInternalTest3Query.graphql';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {
   fetchQuery,
   getObservableForActiveRequest,
   getPromiseForActiveRequest,
 } = require('../fetchQueryInternal');
-const {
-  createOperationDescriptor,
-  getRequest,
-  graphql,
-} = require('relay-runtime');
+const {createOperationDescriptor, graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
 let response;
-let gqlQuery;
+let gqlQuery:
+  | Query<
+      fetchQueryInternalTest1Query$variables,
+      fetchQueryInternalTest1Query$data,
+    >
+  | Query<
+      fetchQueryInternalTest2Query$variables,
+      fetchQueryInternalTest2Query$data,
+    >
+  | Query<
+      fetchQueryInternalTest3Query$variables,
+      fetchQueryInternalTest3Query$data,
+    >;
 let query;
 let environment;
 
 beforeEach(() => {
   environment = createMockEnvironment();
-  gqlQuery = getRequest(graphql`
+  gqlQuery = graphql`
     query fetchQueryInternalTest1Query($id: ID!) {
       node(id: $id) {
         id
       }
     }
-  `);
+  `;
   query = createOperationDescriptor(gqlQuery, {id: '4'});
   response = {
     data: {
@@ -72,7 +91,7 @@ describe('fetchQuery', () => {
     let calledNext = false;
     const values = [];
     const observer = {
-      next: value => {
+      next: (value: GraphQLResponse) => {
         calledNext = true;
         values.push(value);
       },
@@ -106,7 +125,7 @@ describe('fetchQuery', () => {
     let calledError = false;
     let errorMessage = null;
     const observer = {
-      error: error => {
+      error: (error: Error) => {
         calledError = true;
         errorMessage = error.message;
       },
@@ -310,7 +329,7 @@ describe('fetchQuery', () => {
       let observer2Payload = null;
       let calledObserver2Complete = false;
       const observer1 = {
-        next: data => {
+        next: (data: GraphQLResponse) => {
           observer1Payload = data;
         },
         complete: () => {
@@ -318,7 +337,7 @@ describe('fetchQuery', () => {
         },
       };
       const observer2 = {
-        next: data => {
+        next: (data: GraphQLResponse) => {
           observer2Payload = data;
         },
         complete: () => {
@@ -697,7 +716,7 @@ describe('getPromiseForActiveRequest', () => {
         get: jest.fn(),
       };
       environment = createMockEnvironment({operationLoader});
-      gqlQuery = getRequest(graphql`
+      gqlQuery = graphql`
         query fetchQueryInternalTest2Query($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -711,7 +730,7 @@ describe('getPromiseForActiveRequest', () => {
             }
           }
         }
-      `);
+      `;
       graphql`
         fragment fetchQueryInternalTestPlainFragment_name on PlainUserNameRenderer {
           plaintext
@@ -867,7 +886,7 @@ describe('getObservableForActiveRequest', () => {
   let observer: Observer<void>;
   let events;
   beforeEach(() => {
-    events = [];
+    events = ([]: Array<$FlowFixMe | Error | string>);
     observer = {
       complete: jest.fn(() => events.push('complete')),
       error: jest.fn(error => events.push('error', error)),
@@ -1008,7 +1027,7 @@ describe('getObservableForActiveRequest', () => {
         get: jest.fn(),
       };
       environment = createMockEnvironment({operationLoader});
-      gqlQuery = getRequest(graphql`
+      gqlQuery = graphql`
         query fetchQueryInternalTest3Query($id: ID!) {
           node(id: $id) {
             ... on User {
@@ -1022,7 +1041,7 @@ describe('getObservableForActiveRequest', () => {
             }
           }
         }
-      `);
+      `;
 
       graphql`
         fragment fetchQueryInternalTestPlain1Fragment_name on PlainUserNameRenderer {

@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -28,11 +26,17 @@ const {
   RecordSource,
   Store,
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
+const {
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
 
-const query = getRequest(graphql`
+disallowWarnings();
+disallowConsoleErrors();
+
+const query = graphql`
   query LazyLoadEntryPointContainerDEEPRECATEDTestQuery($id: ID!) {
     node(id: $id) {
       id
@@ -41,7 +45,7 @@ const query = getRequest(graphql`
       }
     }
   }
-`);
+`;
 
 // Only queries with an ID are preloadable
 // $FlowFixMe[cannot-write]
@@ -63,7 +67,9 @@ const response = {
 let dataSource;
 let environment;
 let fetch;
-let entryPoint;
+let entryPoint: React.ElementProps<
+  typeof LazyLoadEntryPointContainer_DEPRECATED,
+>['entryPoint'];
 let params;
 
 class FakeJSResource<T> {
@@ -99,8 +105,6 @@ class FakeJSResource<T> {
 beforeEach(() => {
   PreloadableQueryRegistry.clear();
 
-  jest.spyOn(console, 'warn').mockImplementation(() => {});
-  jest.spyOn(console, 'error').mockImplementation(() => {});
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
     Observable.create(sink => {
       dataSource = sink;
@@ -150,7 +154,7 @@ it('suspends while the query and component are pending', () => {
 });
 
 it('suspends while the component is loading', () => {
-  preloadQuery_DEPRECATED(environment, params, {id: '4'});
+  preloadQuery_DEPRECATED<any, empty>(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
   dataSource.complete();
@@ -172,7 +176,7 @@ it('suspends while the component is loading', () => {
 });
 
 it('suspends while the query is loading', () => {
-  function Component(props) {
+  function Component(props: any) {
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   }
@@ -217,7 +221,7 @@ it('suspends then updates when the query and component load', () => {
   expect(entryPoint.root.load).toBeCalledTimes(1);
 
   let receivedProps = null;
-  function Component(props) {
+  function Component(props: any) {
     receivedProps = props;
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
@@ -241,14 +245,14 @@ it('renders synchronously when the query and component are already loaded', () =
     version: 0,
   };
   let receivedProps = null;
-  function Component(props) {
+  function Component(props: any) {
     receivedProps = props;
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
   }
   // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
-  preloadQuery_DEPRECATED(environment, params, {id: '4'});
+  preloadQuery_DEPRECATED<any, empty>(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
   dataSource.complete();
@@ -280,7 +284,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
   });
   // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
-  preloadQuery_DEPRECATED(environment, params, {id: '4'});
+  preloadQuery_DEPRECATED<any, empty>(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
   dataSource.complete();
@@ -321,7 +325,7 @@ it('re-renders and reloads when prefetch params change', () => {
   });
   // $FlowFixMe[prop-missing]
   entryPoint.root.resolve(Component);
-  preloadQuery_DEPRECATED(environment, params, {id: '4'});
+  preloadQuery_DEPRECATED<any, empty>(environment, params, {id: '4'});
   expect(fetch).toBeCalledTimes(1);
   dataSource.next(response);
   dataSource.complete();
@@ -385,7 +389,7 @@ it('fetches and renders synchronously when the query data is cached, then update
   });
   const otherProps = {version: 0};
   let receivedProps = null;
-  function Component(props) {
+  function Component(props: any) {
     receivedProps = props;
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;
@@ -455,7 +459,7 @@ it('renders synchronously when the query data and ast are cached, without fetchi
   );
   const otherProps = {version: 0};
   let receivedProps = null;
-  function Component(props) {
+  function Component(props: any) {
     receivedProps = props;
     const data = usePreloadedQuery(query, props.queries.prefetched);
     return data.node.name;

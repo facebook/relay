@@ -1,13 +1,16 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
 use graphql_syntax::OperationKind;
-use interner::StringKey;
-use schema::{Field, SDLSchema, Schema, Type};
+use intern::string_key::StringKey;
+use schema::Field;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 
 #[derive(Debug, Clone)]
 /// An item in the list of type metadata that we can use to resolve the leaf

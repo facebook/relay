@@ -1,0 +1,15 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery @updatable {
+  node(id: 4) @customDirective(level: 1) {
+    id
+  }
+}
+==================================== ERROR ====================================
+✖︎ The @customDirective directive is not allowed in updatable operations.
+
+  directive-linked-field.invalid.graphql:3:15
+    2 │ query TestQuery @updatable {
+    3 │   node(id: 4) @customDirective(level: 1) {
+      │               ^^^^^^^^^^^^^^^^
+    4 │     id

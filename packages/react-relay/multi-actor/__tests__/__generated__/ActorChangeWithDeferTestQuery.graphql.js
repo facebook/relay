@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8a2b354cd1e3a55e03b5425cc288cc20>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<5e009df1467855a6d652a202a4f2f850>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,30 +17,30 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type ActorChangeWithDeferTestFragment$ref = any;
-export type ActorChangeWithDeferTestQueryVariables = {||};
-export type ActorChangeWithDeferTestQueryResponse = {|
+import type { ActorChangeWithDeferTestFragment$fragmentType } from "./ActorChangeWithDeferTestFragment.graphql";
+export type ActorChangeWithDeferTestQuery$variables = {||};
+export type ActorChangeWithDeferTestQuery$data = {|
   +viewer: ?{|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
+        +actor_node: ?ActorChangePoint<{|
+          +actor_key: string,
+          +$fragmentSpreads: ActorChangeWithDeferTestFragment$fragmentType,
+        |}>,
         +node: ?{|
           +actor: ?{|
             +name: ?string,
           |},
         |},
-        +actor_node: ?ActorChangePoint<{|
-          +actor_key: string,
-          +$fragmentRefs: ActorChangeWithDeferTestFragment$ref,
-        |}>,
       |}>,
     |},
   |},
 |};
 export type ActorChangeWithDeferTestQuery = {|
-  variables: ActorChangeWithDeferTestQueryVariables,
-  response: ActorChangeWithDeferTestQueryResponse,
+  response: ActorChangeWithDeferTestQuery$data,
+  variables: ActorChangeWithDeferTestQuery$variables,
 |};
 */
 
@@ -282,4 +284,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "5140be47d96491c09c1d7e9dac4df2ee";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ActorChangeWithDeferTestQuery$variables,
+  ActorChangeWithDeferTestQuery$data,
+>*/);

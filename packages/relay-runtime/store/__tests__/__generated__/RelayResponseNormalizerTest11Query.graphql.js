@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fc6833822723d7d0e5521937dc0818d3>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<52e593a20fd57ecb4271b570ed043c01>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayResponseNormalizerTest7Fragment$ref = any;
-export type RelayResponseNormalizerTest11QueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayResponseNormalizerTest7Fragment$fragmentType } from "./RelayResponseNormalizerTest7Fragment.graphql";
+export type RelayResponseNormalizerTest11Query$variables = {|
   enableStream: boolean,
+  id: string,
 |};
-export type RelayResponseNormalizerTest11QueryResponse = {|
+export type RelayResponseNormalizerTest11Query$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayResponseNormalizerTest7Fragment$ref,
+    +$fragmentSpreads: RelayResponseNormalizerTest7Fragment$fragmentType,
   |},
 |};
 export type RelayResponseNormalizerTest11Query = {|
-  variables: RelayResponseNormalizerTest11QueryVariables,
-  response: RelayResponseNormalizerTest11QueryResponse,
+  response: RelayResponseNormalizerTest11Query$data,
+  variables: RelayResponseNormalizerTest11Query$variables,
 |};
 */
 
@@ -167,4 +169,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "49b6f26955af4b56db48dc9bb544abdf";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayResponseNormalizerTest11Query$variables,
+  RelayResponseNormalizerTest11Query$data,
+>*/);

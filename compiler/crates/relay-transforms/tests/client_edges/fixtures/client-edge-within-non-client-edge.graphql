@@ -1,6 +1,6 @@
 fragment Foo_user on User {
   nearest_neighbor {
-    best_friend {
+    best_friend @waterfall {
       name
     }
   }

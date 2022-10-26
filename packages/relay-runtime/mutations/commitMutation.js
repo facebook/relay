@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -19,11 +18,7 @@ import type {
   MutationParameters,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
-import type {
-  CacheConfig,
-  Disposable,
-  Variables,
-} from '../util/RelayRuntimeTypes';
+import type {CacheConfig, Disposable} from '../util/RelayRuntimeTypes';
 import type {DeclarativeMutationConfig} from './RelayDeclarativeMutationConfig';
 
 const {getRequest} = require('../query/GraphQLTag');
@@ -37,49 +32,27 @@ const validateMutation = require('./validateMutation');
 const invariant = require('invariant');
 const warning = require('warning');
 
-export type DEPRECATED_MutationConfig<TMutationResponse> = {|
-  configs?: Array<DeclarativeMutationConfig>,
+export type MutationConfig<TMutation: MutationParameters> = {
   cacheConfig?: CacheConfig,
+  configs?: Array<DeclarativeMutationConfig>,
   mutation: GraphQLTaggedNode,
-  variables: Variables,
-  uploadables?: UploadableMap,
   onCompleted?: ?(
-    response: TMutationResponse,
+    response: TMutation['response'],
     errors: ?Array<PayloadError>,
   ) => void,
   onError?: ?(error: Error) => void,
-  onUnsubscribe?: ?() => void,
-  optimisticUpdater?: ?SelectorStoreUpdater<TMutationResponse>,
-  optimisticResponse?: Object,
-  updater?: ?SelectorStoreUpdater<TMutationResponse>,
-|};
-
-export type MutationConfig<TMutation: MutationParameters> = {|
-  configs?: Array<DeclarativeMutationConfig>,
-  cacheConfig?: CacheConfig,
-  mutation: GraphQLTaggedNode,
-  onError?: ?(error: Error) => void,
-  onCompleted?: ?(
-    response: $ElementType<TMutation, 'response'>,
-    errors: ?Array<PayloadError>,
-  ) => void,
   onNext?: ?() => void,
   onUnsubscribe?: ?() => void,
-  optimisticResponse?: $ElementType<
-    {
-      +rawResponse?: {...},
-      ...TMutation,
-      ...
-    },
-    'rawResponse',
-  >,
-  optimisticUpdater?: ?SelectorStoreUpdater<
-    $ElementType<TMutation, 'response'>,
-  >,
-  updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  optimisticResponse?: {
+    +rawResponse?: {...},
+    ...TMutation,
+    ...
+  }['rawResponse'],
+  optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
+  updater?: ?SelectorStoreUpdater<TMutation['response']>,
   uploadables?: UploadableMap,
-  variables: $ElementType<TMutation, 'variables'>,
-|};
+  variables: TMutation['variables'],
+};
 
 /**
  * Higher-level helper function to execute a mutation against a specific
@@ -102,14 +75,8 @@ function commitMutation<TMutation: MutationParameters>(
     throw new Error('commitMutation: Expected mutation to be of type request');
   }
   let {optimisticResponse, optimisticUpdater, updater} = config;
-  const {
-    configs,
-    cacheConfig,
-    onError,
-    onUnsubscribe,
-    variables,
-    uploadables,
-  } = config;
+  const {configs, cacheConfig, onError, onUnsubscribe, variables, uploadables} =
+    config;
   const operation = createOperationDescriptor(
     mutation,
     variables,
@@ -138,7 +105,7 @@ function commitMutation<TMutation: MutationParameters>(
       updater,
     ));
   }
-  const errors = [];
+  const errors: Array<PayloadError> = [];
   const subscription = environment
     .executeMutation({
       operation,

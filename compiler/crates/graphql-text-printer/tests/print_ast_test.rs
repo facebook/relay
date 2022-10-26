@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7b96fe6b7c985d489bc7e1a0b1615c8a>>
+ * @generated SignedSource<<ac613948ae97fa3d5385399cf284e3fe>>
  */
 
 mod print_ast;
@@ -73,6 +73,13 @@ fn basic_var_defs() {
     let input = include_str!("print_ast/fixtures/basic_var_defs.graphql");
     let expected = include_str!("print_ast/fixtures/basic_var_defs.expected");
     test_fixture(transform_fixture, "basic_var_defs.graphql", "print_ast/fixtures/basic_var_defs.expected", input, expected);
+}
+
+#[test]
+fn basic_var_defs_with_directives() {
+    let input = include_str!("print_ast/fixtures/basic_var_defs_with_directives.graphql");
+    let expected = include_str!("print_ast/fixtures/basic_var_defs_with_directives.expected");
+    test_fixture(transform_fixture, "basic_var_defs_with_directives.graphql", "print_ast/fixtures/basic_var_defs_with_directives.expected", input, expected);
 }
 
 #[test]

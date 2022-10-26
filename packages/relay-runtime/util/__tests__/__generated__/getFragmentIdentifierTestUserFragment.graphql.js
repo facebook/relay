@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<513bb80b1502a5e1535b90d00c83f7dd>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<d8790f47b067c7ed1b221c3d61261ec8>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,24 +17,22 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type getFragmentIdentifierTestNestedUserFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type getFragmentIdentifierTestUserFragment$ref: FragmentReference;
-declare export opaque type getFragmentIdentifierTestUserFragment$fragmentType: getFragmentIdentifierTestUserFragment$ref;
-export type getFragmentIdentifierTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { getFragmentIdentifierTestNestedUserFragment$fragmentType } from "./getFragmentIdentifierTestNestedUserFragment.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type getFragmentIdentifierTestUserFragment$fragmentType: FragmentType;
+export type getFragmentIdentifierTestUserFragment$data = {|
   +id: string,
   +name: ?string,
   +profile_picture: ?{|
     +uri: ?string,
   |},
-  +$fragmentRefs: getFragmentIdentifierTestNestedUserFragment$ref,
-  +$refType: getFragmentIdentifierTestUserFragment$ref,
+  +$fragmentSpreads: getFragmentIdentifierTestNestedUserFragment$fragmentType,
+  +$fragmentType: getFragmentIdentifierTestUserFragment$fragmentType,
 |};
-export type getFragmentIdentifierTestUserFragment$data = getFragmentIdentifierTestUserFragment;
 export type getFragmentIdentifierTestUserFragment$key = {
   +$data?: getFragmentIdentifierTestUserFragment$data,
-  +$fragmentRefs: getFragmentIdentifierTestUserFragment$ref,
+  +$fragmentSpreads: getFragmentIdentifierTestUserFragment$fragmentType,
   ...
 };
 */
@@ -100,4 +100,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "2944c736e496f4f838bfe90f6b265a0d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  getFragmentIdentifierTestUserFragment$fragmentType,
+  getFragmentIdentifierTestUserFragment$data,
+>*/);

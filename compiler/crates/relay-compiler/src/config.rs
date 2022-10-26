@@ -1,39 +1,69 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
-use crate::build_project::{
-    artifact_writer::{ArtifactFileWriter, ArtifactWriter},
-    AdditionalValidations,
-};
-use crate::compiler_state::{ProjectName, SourceSet};
-use crate::errors::{ConfigValidationError, Error, Result};
-use crate::saved_state::SavedStateLoader;
-use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
+use std::env::current_dir;
+use std::ffi::OsStr;
+use std::fmt;
+use std::path::Path;
+use std::path::PathBuf;
+use std::sync::Arc;
+use std::vec;
+
 use async_trait::async_trait;
-use common::SourceLocationKey;
-use fmt::Debug;
-use fnv::{FnvBuildHasher, FnvHashSet};
-use graphql_ir::{OperationDefinition, Program};
+use common::FeatureFlags;
+use common::Rollout;
+use common::ScalarName;
+use fnv::FnvBuildHasher;
+use fnv::FnvHashSet;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
 use indexmap::IndexMap;
-use interner::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use js_config_loader::LoaderSource;
+use log::warn;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
-use relay_codegen::JsModuleFormat;
-use relay_transforms::{ConnectionInterface, FeatureFlags, Rollout};
-use relay_typegen::TypegenConfig;
-pub use relay_typegen::TypegenLanguage;
-use serde::{Deserialize, Serialize};
-use sha1::{Digest, Sha1};
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
-use std::{fmt, vec};
+use relay_config::CustomScalarType;
+use relay_config::DiagnosticReportConfig;
+use relay_config::FlowTypegenConfig;
+use relay_config::JsModuleFormat;
+pub use relay_config::LocalPersistConfig;
+use relay_config::ModuleImportConfig;
+pub use relay_config::PersistConfig;
+pub use relay_config::ProjectConfig;
+pub use relay_config::RemotePersistConfig;
+use relay_config::SchemaConfig;
+pub use relay_config::SchemaLocation;
+use relay_config::TypegenConfig;
+use relay_config::TypegenLanguage;
+use relay_transforms::CustomTransformsConfig;
+use serde::de::Error as DeError;
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
+use serde_json::Value;
+use sha1::Digest;
+use sha1::Sha1;
 use watchman_client::pdu::ScmAwareClockData;
+
+use crate::build_project::artifact_writer::ArtifactFileWriter;
+use crate::build_project::artifact_writer::ArtifactWriter;
+use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
+use crate::build_project::AdditionalValidations;
+use crate::compiler_state::ProjectName;
+use crate::compiler_state::ProjectSet;
+use crate::errors::ConfigValidationError;
+use crate::errors::Error;
+use crate::errors::Result;
+use crate::saved_state::SavedStateLoader;
+use crate::status_reporter::ConsoleStatusReporter;
+use crate::status_reporter::StatusReporter;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -42,6 +72,10 @@ type PostArtifactsWriter = Box<
         + Send
         + Sync,
 >;
+
+type OperationPersisterCreator =
+    Box<dyn Fn(&ProjectConfig) -> Option<Box<dyn OperationPersister + Send + Sync>> + Send + Sync>;
+
 /// The full compiler config. This is a combination of:
 /// - the configuration file
 /// - the absolute path to the root of the compiled projects
@@ -54,7 +88,7 @@ pub struct Config {
     /// Root directory of all projects to compile. Any other paths in the
     /// compiler should be relative to this root unless otherwise noted.
     pub root_dir: PathBuf,
-    pub sources: FnvIndexMap<PathBuf, SourceSet>,
+    pub sources: FnvIndexMap<PathBuf, ProjectSet>,
     pub excludes: Vec<String>,
     pub projects: FnvIndexMap<ProjectName, ProjectConfig>,
     pub header: Vec<String>,
@@ -81,14 +115,13 @@ pub struct Config {
     /// Do not reuse persist ids from artifacts even if the text hash matches.
     pub repersist_operations: bool,
 
-    pub connection_interface: ConnectionInterface,
-
     pub saved_state_config: Option<ScmAwareClockData>,
     pub saved_state_loader: Option<Box<dyn SavedStateLoader + Send + Sync>>,
     pub saved_state_version: String,
 
-    /// Function that is called to save operation text (e.g. to a database) and to generate an id.
-    pub operation_persister: Option<Box<dyn OperationPersister + Send + Sync>>,
+    /// Function that creates a function that is
+    /// called to save operation text (e.g. to a database) and to generate an id.
+    pub create_operation_persister: Option<OperationPersisterCreator>,
 
     pub post_artifacts_write: Option<PostArtifactsWriter>,
 
@@ -102,27 +135,45 @@ pub struct Config {
     /// This config option is here to define the name of that special variable
     pub is_dev_variable_name: Option<String>,
 
-    /// List with changed files in format "file_path,exists".
-    /// This can be used to replace watchman queries
-    pub changed_files_list: Option<PathBuf>,
+    /// Type of file source to use in the Compiler
+    pub file_source_config: FileSourceKind,
+
+    /// A set of custom transform functions, that can be applied before,
+    /// and after each major transformation step (common, operations, etc)
+    /// in the `apply_transforms(...)`.
+    pub custom_transforms: Option<CustomTransformsConfig>,
+
+    pub export_persisted_query_ids_to_file: Option<PathBuf>,
 }
 
-/// In the configs we may have a various values: with or without './' prefix at the beginning
-/// This function will use `root_dir` to construct full path, canonicalize it, and then
-/// it will remove the `root_dir` prefix.
-fn normalize_path_from_config(root_dir: PathBuf, path_from_config: PathBuf) -> PathBuf {
-    let mut src = root_dir.clone();
-    src.push(path_from_config);
+pub enum FileSourceKind {
+    Watchman,
+    /// List with changed files in format "file_path,exists".
+    /// This can be used to replace watchman queries
+    External(PathBuf),
+    WalkDir,
+}
+
+fn normalize_path_from_config(
+    current_dir: PathBuf,
+    common_path: PathBuf,
+    path_from_config: PathBuf,
+) -> PathBuf {
+    let mut src = current_dir.join(path_from_config.clone());
+
     src = src
         .canonicalize()
-        .map_err(|err| format!("Unable to canonicalize file {:?}. Error: {:?}", &src, err))
-        .unwrap();
+        .unwrap_or_else(|err| panic!("Unable to canonicalize file {:?}. Error: {:?}", &src, err));
 
-    if !src.exists() {
-        panic!("Path '{:?}' does not exits.", &src);
-    }
-
-    src.iter().skip(root_dir.iter().count()).collect()
+    src.strip_prefix(common_path.clone())
+        .unwrap_or_else(|_| {
+            panic!(
+                "Expect to be able to strip common_path from {:?} {:?}",
+                &src,
+                &common_path.clone(),
+            );
+        })
+        .to_path_buf()
 }
 
 impl From<SingleProjectConfigFile> for Config {
@@ -138,40 +189,83 @@ impl From<SingleProjectConfigFile> for Config {
 
 impl Config {
     pub fn search(start_dir: &Path) -> Result<Self> {
-        match js_config_loader::search("relay", start_dir) {
-            Ok(Some(config)) => Self::from_struct(config.path, config.value, true),
-            Ok(None) => Err(Error::ConfigNotFound),
-            Err(error) => Err(Error::ConfigSearchError { error }),
-        }
+        Self::load_config(
+            start_dir,
+            &[
+                LoaderSource::PackageJson("relay".to_string()),
+                LoaderSource::Json("relay.config.json".to_string()),
+                LoaderSource::Js("relay.config.js".to_string()),
+            ],
+        )
     }
 
     pub fn load(config_path: PathBuf) -> Result<Self> {
-        let config_string =
-            std::fs::read_to_string(&config_path).map_err(|err| Error::ConfigFileRead {
-                config_path: config_path.clone(),
-                source: err,
-            })?;
-        Self::from_string(config_path, &config_string, true)
+        let loader = if config_path.extension() == Some(OsStr::new("js")) {
+            LoaderSource::Js(config_path.display().to_string())
+        } else if config_path.extension() == Some(OsStr::new("json")) {
+            LoaderSource::Json(config_path.display().to_string())
+        } else {
+            return Err(Error::ConfigError {
+                details: format!(
+                    "Invalid file extension. Expected `.js` or `.json`. Provided file \"{}\".",
+                    config_path.display()
+                ),
+            });
+        };
+        Self::load_config(
+            &current_dir().expect("Unable to get current working directory."),
+            &[loader],
+        )
+    }
+
+    fn load_config(start_dir: &Path, loaders_sources: &[LoaderSource]) -> Result<Self> {
+        match js_config_loader::load(start_dir, loaders_sources) {
+            Ok(Some(config)) => Self::from_struct(config.path, config.value, true),
+            Ok(None) => Err(Error::ConfigError {
+                details: format!(
+                    r#"
+Configuration for Relay compiler not found.
+
+Please make sure that the configuration file is created in {}.
+
+You can also pass the path to the configuration file as `relay-compiler ./path-to-config/relay.json`.
+
+Example file:
+{{
+  "src": "./src",
+  "schema": "./path-to/schema.graphql",
+  "language": "javascript"
+}}
+"#,
+                    match loaders_sources.len() {
+                        1 => loaders_sources[0].to_string(),
+                        2 => format!("{} or {}", loaders_sources[0], loaders_sources[1]),
+                        _ => {
+                            let mut loaders_str = loaders_sources
+                                .iter()
+                                .map(|loader| loader.to_string())
+                                .collect::<Vec<_>>();
+                            let last_option = loaders_str.pop().unwrap();
+                            format!("{}, or {}", loaders_str.join(", "), last_option)
+                        }
+                    }
+                ),
+            }),
+            Err(error) => Err(Error::ConfigError {
+                details: format!("Error searching config: {}", error),
+            }),
+        }
     }
 
     /// Loads a config file without validation for use in tests.
     #[cfg(test)]
     pub fn from_string_for_test(config_string: &str) -> Result<Self> {
-        Self::from_string(
-            "/virtual/root/virtual_config.json".into(),
-            config_string,
-            false,
-        )
-    }
-
-    /// `validate_fs` disables all filesystem checks for existence of files
-    fn from_string(config_path: PathBuf, config_string: &str, validate_fs: bool) -> Result<Self> {
+        let path = PathBuf::from("/virtual/root/virtual_config.json");
         let config_file: ConfigFile =
-            serde_json::from_str(&config_string).map_err(|err| Error::ConfigFileParse {
-                config_path: config_path.clone(),
-                source: err,
+            serde_json::from_str(config_string).map_err(|err| Error::ConfigError {
+                details: format!("Failed to parse config file `{}`: {}", path.display(), err,),
             })?;
-        Self::from_struct(config_path, config_file, validate_fs)
+        Self::from_struct(path, config_file, false)
     }
 
     /// `validate_fs` disables all filesystem checks for existence of files
@@ -183,9 +277,16 @@ impl Config {
         let mut hash = Sha1::new();
         serde_json::to_writer(&mut hash, &config_file).unwrap();
 
+        let is_multi_project = match config_file {
+            ConfigFile::MultiProject(_) => true,
+            ConfigFile::SingleProject(_) => false,
+        };
+
         let config_file = match config_file {
             ConfigFile::MultiProject(config) => *config,
-            ConfigFile::SingleProject(config) => MultiProjectConfigFile::from(config),
+            ConfigFile::SingleProject(config) => {
+                config.create_multi_project_config(&config_path)?
+            }
         };
 
         let MultiProjectConfigFile {
@@ -240,12 +341,13 @@ impl Config {
                     name: project_name,
                     base: config_file_project.base,
                     enabled: true,
-                    extensions: config_file_project.extensions,
+                    schema_extensions: config_file_project.schema_extensions,
                     output: config_file_project.output,
                     extra_artifacts_output: config_file_project.extra_artifacts_output,
                     shard_output: config_file_project.shard_output,
                     shard_strip_regex,
                     schema_location,
+                    schema_config: config_file_project.schema_config,
                     typegen_config: config_file_project.typegen_config,
                     persist: config_file_project.persist,
                     variable_names_comment: config_file_project.variable_names_comment,
@@ -260,6 +362,8 @@ impl Config {
                     skip_types_for_artifact: None,
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
+                    module_import_config: config_file_project.module_import_config,
+                    diagnostic_report_config: config_file_project.diagnostic_report_config,
                 };
                 Ok((project_name, project_config))
             })
@@ -275,7 +379,10 @@ impl Config {
         let config = Self {
             name: config_file.name,
             artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
-            status_reporter: Box::new(ConsoleStatusReporter::new(root_dir.clone())),
+            status_reporter: Box::new(ConsoleStatusReporter::new(
+                root_dir.clone(),
+                is_multi_project,
+            )),
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
@@ -287,15 +394,16 @@ impl Config {
             generate_virtual_id_file_name: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
-            saved_state_version: hex::encode(hash.result()),
-            connection_interface: config_file.connection_interface,
-            operation_persister: None,
+            saved_state_version: hex::encode(hash.finalize()),
+            create_operation_persister: None,
             compile_everything: false,
             repersist_operations: false,
             post_artifacts_write: None,
             additional_validations: None,
             is_dev_variable_name: config_file.is_dev_variable_name,
-            changed_files_list: None,
+            file_source_config: FileSourceKind::Watchman,
+            custom_transforms: None,
+            export_persisted_query_ids_to_file: None,
         };
 
         let mut validation_errors = Vec::new();
@@ -330,23 +438,23 @@ impl Config {
 
     /// Validated internal consistency of the config.
     fn validate_consistency(&self, errors: &mut Vec<ConfigValidationError>) {
-        let mut source_set_names = FnvHashSet::default();
-        for value in self.sources.values() {
-            match value {
-                SourceSet::SourceSetName(name) => {
-                    source_set_names.insert(*name);
+        let mut project_names = FnvHashSet::default();
+        for (source_dir, project_set) in self.sources.iter() {
+            for name in project_set.iter() {
+                if self.projects.get(name).is_none() {
+                    errors.push(ConfigValidationError::ProjectDefinitionMissing {
+                        source_dir: source_dir.clone(),
+                        project_name: *name,
+                    });
                 }
-                SourceSet::SourceSetNames(names) => {
-                    for name in names {
-                        source_set_names.insert(*name);
-                    }
-                }
-            };
+
+                project_names.insert(*name);
+            }
         }
 
         for (&project_name, project_config) in &self.projects {
             // there should be a source for each project matching the project name
-            if !source_set_names.contains(&project_name) {
+            if !project_names.contains(&project_name) {
                 errors.push(ConfigValidationError::ProjectSourceMissing { project_name });
             }
 
@@ -438,9 +546,8 @@ impl fmt::Debug for Config {
             generate_extra_artifacts,
             saved_state_config,
             saved_state_loader,
-            connection_interface,
             saved_state_version,
-            operation_persister,
+            create_operation_persister,
             post_artifacts_write,
             ..
         } = self;
@@ -462,8 +569,8 @@ impl fmt::Debug for Config {
             .field("load_saved_state_file", load_saved_state_file)
             .field("saved_state_config", saved_state_config)
             .field(
-                "operation_persister",
-                &option_fn_to_string(operation_persister),
+                "create_operation_persister",
+                &option_fn_to_string(create_operation_persister),
             )
             .field(
                 "generate_extra_artifacts",
@@ -473,7 +580,6 @@ impl fmt::Debug for Config {
                 "saved_state_loader",
                 &option_fn_to_string(saved_state_loader),
             )
-            .field("connection_interface", connection_interface)
             .field("saved_state_version", saved_state_version)
             .field(
                 "post_artifacts_write",
@@ -483,94 +589,12 @@ impl fmt::Debug for Config {
     }
 }
 
-pub struct ProjectConfig {
-    pub name: ProjectName,
-    pub base: Option<ProjectName>,
-    pub output: Option<PathBuf>,
-    pub extra_artifacts_output: Option<PathBuf>,
-    pub shard_output: bool,
-    pub shard_strip_regex: Option<Regex>,
-    pub extensions: Vec<PathBuf>,
-    pub enabled: bool,
-    pub schema_location: SchemaLocation,
-    pub typegen_config: TypegenConfig,
-    pub persist: Option<PersistConfig>,
-    pub variable_names_comment: bool,
-    pub extra: serde_json::Value,
-    pub feature_flags: Arc<FeatureFlags>,
-    pub test_path_regex: Option<Regex>,
-    pub filename_for_artifact:
-        Option<Box<dyn (Fn(SourceLocationKey, StringKey) -> String) + Send + Sync>>,
-    pub skip_types_for_artifact: Option<Box<dyn (Fn(SourceLocationKey) -> bool) + Send + Sync>>,
-    pub rollout: Rollout,
-    pub js_module_format: JsModuleFormat,
-}
-
-impl Debug for ProjectConfig {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let ProjectConfig {
-            name,
-            base,
-            output,
-            extra_artifacts_output,
-            shard_output,
-            shard_strip_regex,
-            extensions,
-            enabled,
-            schema_location,
-            typegen_config,
-            persist,
-            variable_names_comment,
-            extra,
-            feature_flags,
-            test_path_regex,
-            filename_for_artifact,
-            skip_types_for_artifact,
-            rollout,
-            js_module_format,
-        } = self;
-        f.debug_struct("ProjectConfig")
-            .field("name", name)
-            .field("base", base)
-            .field("output", output)
-            .field("extra_artifacts_output", extra_artifacts_output)
-            .field("shard_output", shard_output)
-            .field("shard_strip_regex", shard_strip_regex)
-            .field("extensions", extensions)
-            .field("enabled", enabled)
-            .field("schema_location", schema_location)
-            .field("typegen_config", typegen_config)
-            .field("persist", persist)
-            .field("variable_names_comment", variable_names_comment)
-            .field("extra", extra)
-            .field("feature_flags", feature_flags)
-            .field("test_path_regex", test_path_regex)
-            .field(
-                "filename_for_artifact",
-                &if filename_for_artifact.is_some() {
-                    "Some<Fn>"
-                } else {
-                    "None"
-                },
-            )
-            .field(
-                "skip_types_for_artifact",
-                &if skip_types_for_artifact.is_some() {
-                    "Some<Fn>"
-                } else {
-                    "None"
-                },
-            )
-            .field("rollout", rollout)
-            .field("js_module_format", js_module_format)
-            .finish()
-    }
-}
-
-#[derive(Clone, Debug)]
-pub enum SchemaLocation {
-    File(PathBuf),
-    Directory(PathBuf),
+fn get_default_excludes() -> Vec<String> {
+    vec![
+        "**/node_modules/**".to_string(),
+        "**/__mocks__/**".to_string(),
+        "**/__generated__/**".to_string(),
+    ]
 }
 
 /// Schema of the compiler configuration JSON file.
@@ -589,24 +613,22 @@ struct MultiProjectConfigFile {
 
     #[serde(default)]
     header: Vec<String>,
+
     #[serde(default)]
     codegen_command: Option<String>,
 
     /// A mapping from directory paths (relative to the root) to a source set.
     /// If a path is a subdirectory of another path, the more specific path
     /// wins.
-    sources: IndexMap<PathBuf, SourceSet, fnv::FnvBuildHasher>,
+    sources: IndexMap<PathBuf, ProjectSet, fnv::FnvBuildHasher>,
 
     /// Glob patterns that should not be part of the sources even if they are
     /// in the source set directories.
-    #[serde(default)]
+    #[serde(default = "get_default_excludes")]
     excludes: Vec<String>,
 
     /// Configuration of projects to compile.
     projects: FnvIndexMap<ProjectName, ConfigFileProject>,
-
-    #[serde(default)]
-    connection_interface: ConnectionInterface,
 
     #[serde(default)]
     feature_flags: FeatureFlags,
@@ -618,9 +640,12 @@ struct MultiProjectConfigFile {
     is_dev_variable_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Default)]
+#[derive(Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase", default)]
 pub struct SingleProjectConfigFile {
+    #[serde(skip)]
+    pub project_name: StringKey,
+
     /// Path to schema.graphql
     pub schema: PathBuf,
 
@@ -631,19 +656,21 @@ pub struct SingleProjectConfigFile {
     /// the babel plugin needs `artifactDirectory` set as well.
     pub artifact_directory: Option<PathBuf>,
 
-    /// Directories to include under src
-    /// default: ['**'],
+    /// [DEPRECATED] This is deprecated field, we're not using it in the V13.
+    /// Adding to the config, to show the warning, and not a parse error.
     pub include: Vec<String>,
+
+    /// [DEPRECATED] This is deprecated field, we're not using it in the V13.
+    /// Adding to the config, to show the warning, and not a parse error.
+    pub extensions: Vec<String>,
 
     /// Directories to ignore under src
     /// default: ['**/node_modules/**', '**/__mocks__/**', '**/__generated__/**'],
-    pub exclude: Vec<String>,
+    #[serde(alias = "exclude")]
+    pub excludes: Vec<String>,
 
-    /// Schema extensions
-    pub extensions: Vec<String>,
-
-    /// Use watchman when not in watch mode
-    pub watchman: bool,
+    /// List of directories with schema extensions.
+    pub schema_extensions: Vec<PathBuf>,
 
     /// This option controls whether or not a catch-all entry is added to enum type definitions
     /// for values that may be added in the future. Enabling this means you will have to update
@@ -656,49 +683,221 @@ pub struct SingleProjectConfigFile {
 
     /// Mappings from custom scalars in your schema to built-in GraphQL
     /// types, for type emission purposes.
-    pub custom_scalars: FnvIndexMap<StringKey, StringKey>,
+    pub custom_scalars: FnvIndexMap<ScalarName, CustomScalarType>,
 
     /// This option enables emitting es modules artifacts.
     pub eager_es_modules: bool,
+
+    /// Query Persist Configuration
+    /// It contains URL and addition parameters that will be included
+    /// with the request (think API_KEY, APP_ID, etc...)
+    pub persist_config: Option<PersistConfig>,
+
+    /// We may generate some content in the artifacts that's stripped in production if __DEV__ variable is set
+    /// This config option is here to define the name of that special variable
+    pub is_dev_variable_name: Option<String>,
+
+    /// Name of the command that runs the relay compiler
+    pub codegen_command: Option<String>,
+
+    /// Formatting style for generated files.
+    pub js_module_format: JsModuleFormat,
+
+    /// Extra configuration for the schema itself.
+    pub schema_config: SchemaConfig,
+
+    /// Configuration for @module
+    #[serde(default)]
+    pub module_import_config: ModuleImportConfig,
+
+    /// Added in 13.1.1 to customize Final/Compat mode in the single project config file
+    /// Removed in 14.0.0
+    #[serde(default)]
+    pub typegen_phase: Option<Value>,
+
+    #[serde(default)]
+    pub feature_flags: Option<FeatureFlags>,
 }
 
-impl From<SingleProjectConfigFile> for MultiProjectConfigFile {
-    fn from(oss_config: SingleProjectConfigFile) -> MultiProjectConfigFile {
-        let root_dir = std::env::current_dir().unwrap();
-        let default_project_name = "default".intern();
-        let project_config = ConfigFileProject {
-            output: oss_config
-                .artifact_directory
-                .map(|dir| normalize_path_from_config(root_dir.clone(), dir)),
-            schema: Some(normalize_path_from_config(
-                root_dir.clone(),
-                oss_config.schema,
-            )),
-            typegen_config: TypegenConfig {
-                language: oss_config.language.unwrap_or(TypegenLanguage::TypeScript),
-                ..Default::default()
-            },
-            ..Default::default()
-        };
-
-        let mut projects = FnvIndexMap::default();
-        projects.insert(default_project_name, project_config);
-
-        let mut sources = FnvIndexMap::default();
-        let src = normalize_path_from_config(root_dir.clone(), oss_config.src);
-
-        sources.insert(src, SourceSet::SourceSetName(default_project_name));
-
-        MultiProjectConfigFile {
-            root: Some(root_dir),
-            projects,
-            sources,
-            ..Default::default()
+impl Default for SingleProjectConfigFile {
+    fn default() -> Self {
+        Self {
+            project_name: "default".intern(),
+            schema: Default::default(),
+            src: Default::default(),
+            artifact_directory: Default::default(),
+            include: vec![],
+            extensions: vec![],
+            excludes: get_default_excludes(),
+            schema_extensions: vec![],
+            no_future_proof_enums: false,
+            language: None,
+            custom_scalars: Default::default(),
+            schema_config: Default::default(),
+            eager_es_modules: false,
+            persist_config: None,
+            is_dev_variable_name: None,
+            codegen_command: None,
+            js_module_format: JsModuleFormat::CommonJS,
+            typegen_phase: None,
+            feature_flags: None,
+            module_import_config: Default::default(),
         }
     }
 }
 
-#[derive(Serialize, Deserialize)]
+impl SingleProjectConfigFile {
+    fn get_common_root(
+        &self,
+        root_dir: PathBuf,
+    ) -> std::result::Result<PathBuf, ConfigValidationError> {
+        let mut paths = vec![];
+        if let Some(artifact_directory_path) = self.artifact_directory.clone() {
+            paths.push(
+                root_dir
+                    .join(artifact_directory_path.clone())
+                    .canonicalize()
+                    .map_err(|_| ConfigValidationError::ArtifactDirectoryNotExistent {
+                        path: artifact_directory_path,
+                    })?,
+            );
+        }
+        paths.push(
+            root_dir
+                .join(self.src.clone())
+                .canonicalize()
+                .map_err(|_| ConfigValidationError::SourceNotExistent {
+                    source_dir: self.src.clone(),
+                })?,
+        );
+        paths.push(
+            root_dir
+                .join(self.schema.clone())
+                .canonicalize()
+                .map_err(|_| ConfigValidationError::SchemaFileNotExistent {
+                    project_name: self.project_name,
+                    schema_file: self.schema.clone(),
+                })?,
+        );
+        for extension_dir in self.schema_extensions.iter() {
+            paths.push(
+                root_dir
+                    .clone()
+                    .join(extension_dir.clone())
+                    .canonicalize()
+                    .map_err(|_| ConfigValidationError::ExtensionDirNotExistent {
+                        project_name: self.project_name,
+                        extension_dir: extension_dir.clone(),
+                    })?,
+            );
+        }
+        common_path::common_path_all(paths.iter().map(|path| path.as_path()))
+            .ok_or(ConfigValidationError::CommonPathNotFound)
+    }
+
+    fn create_multi_project_config(self, config_path: &Path) -> Result<MultiProjectConfigFile> {
+        if !self.include.is_empty() {
+            warn!(
+                r#"The configuration contains `include: {:#?}` section. This configuration option is no longer supported. Consider removing it."#,
+                &self.include
+            );
+        }
+        if !self.extensions.is_empty() {
+            warn!(
+                r#"The configuration contains `extensions: {:#?}` section. This configuration option is no longer supported. Consider removing it."#,
+                &self.extensions
+            );
+        }
+
+        if self.typegen_phase.is_some() {
+            return Err(Error::ConfigFileValidation {
+                config_path: config_path.into(),
+                validation_errors: vec![ConfigValidationError::RemovedConfigField {
+                    name: "typegenPhase",
+                    action: "Please remove the option and update type imports from generated files to new names.",
+                }],
+            });
+        }
+
+        let current_dir = std::env::current_dir().unwrap();
+        let common_root_dir = self.get_common_root(current_dir.clone()).map_err(|err| {
+            Error::ConfigFileValidation {
+                config_path: config_path.to_path_buf(),
+                validation_errors: vec![err],
+            }
+        })?;
+
+        let language = self.language.ok_or_else(|| {
+            let mut variants = vec![];
+            for lang in TypegenLanguage::get_variants_as_string() {
+                variants.push(format!(r#"  "language": "{}""#, lang));
+            }
+
+            Error::ConfigError {
+                    details: format!("The `language` option is missing in the Relay configuration file. Please, specify one of the following options:\n{}", variants.join("\n")),
+                }
+            }
+        )?;
+
+        let project_config = ConfigFileProject {
+            output: self.artifact_directory.map(|dir| {
+                normalize_path_from_config(current_dir.clone(), common_root_dir.clone(), dir)
+            }),
+            schema: Some(normalize_path_from_config(
+                current_dir.clone(),
+                common_root_dir.clone(),
+                self.schema,
+            )),
+            schema_config: self.schema_config,
+            schema_extensions: self
+                .schema_extensions
+                .iter()
+                .map(|dir| {
+                    normalize_path_from_config(
+                        current_dir.clone(),
+                        common_root_dir.clone(),
+                        dir.clone(),
+                    )
+                })
+                .collect(),
+            persist: self.persist_config,
+            typegen_config: TypegenConfig {
+                language,
+                custom_scalar_types: self.custom_scalars.clone(),
+                eager_es_modules: self.eager_es_modules,
+                flow_typegen: FlowTypegenConfig {
+                    no_future_proof_enums: self.no_future_proof_enums,
+                    ..Default::default()
+                },
+                ..Default::default()
+            },
+            js_module_format: self.js_module_format,
+            feature_flags: self.feature_flags,
+            module_import_config: self.module_import_config,
+            ..Default::default()
+        };
+
+        let mut projects = FnvIndexMap::default();
+        projects.insert(self.project_name, project_config);
+
+        let mut sources = FnvIndexMap::default();
+        let src = normalize_path_from_config(current_dir, common_root_dir.clone(), self.src);
+
+        sources.insert(src, ProjectSet::of(self.project_name));
+
+        Ok(MultiProjectConfigFile {
+            root: Some(common_root_dir),
+            projects,
+            sources,
+            excludes: self.excludes,
+            is_dev_variable_name: self.is_dev_variable_name,
+            codegen_command: self.codegen_command,
+            ..Default::default()
+        })
+    }
+}
+
+#[derive(Serialize)]
 #[serde(untagged)]
 enum ConfigFile {
     /// Base case configuration (mostly of OSS) where the project
@@ -711,9 +910,33 @@ enum ConfigFile {
     MultiProject(Box<MultiProjectConfigFile>),
 }
 
+impl<'de> Deserialize<'de> for ConfigFile {
+    fn deserialize<D: Deserializer<'de>>(deserializer: D) -> std::result::Result<Self, D::Error> {
+        let value = Value::deserialize(deserializer)?;
+        match MultiProjectConfigFile::deserialize(value.clone()) {
+            Ok(config) => Ok(ConfigFile::MultiProject(Box::new(config))),
+            Err(multi_project_error) => match SingleProjectConfigFile::deserialize(value) {
+                Ok(single_project_config) => Ok(ConfigFile::SingleProject(single_project_config)),
+                Err(single_project_error) => {
+                    let error_message = format!(
+                        r#"The config file cannot be parsed as a multi-project config file due to:
+- {:?}.
+
+It also cannot be a single project config file due to:
+- {:?}."#,
+                        multi_project_error, single_project_error
+                    );
+
+                    Err(DeError::custom(error_message))
+                }
+            },
+        }
+    }
+}
+
 #[derive(Debug, Deserialize, Serialize, Default)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
-struct ConfigFileProject {
+pub struct ConfigFileProject {
     /// If a base project is set, the documents of that project can be
     /// referenced, but won't produce output artifacts.
     /// Extensions from the base project will be added as well and the schema
@@ -744,7 +967,7 @@ struct ConfigFileProject {
 
     /// Directory containing *.graphql files with schema extensions.
     #[serde(default)]
-    extensions: Vec<PathBuf>,
+    schema_extensions: Vec<PathBuf>,
 
     /// Path to the schema.graphql or a directory containing a schema broken up
     /// in multiple *.graphql files.
@@ -757,7 +980,7 @@ struct ConfigFileProject {
     persist: Option<PersistConfig>,
 
     #[serde(flatten)]
-    typegen_config: TypegenConfig,
+    pub typegen_config: TypegenConfig,
 
     /// Optional regex to restrict @relay_test_operation to directories matching
     /// this regex. Defaults to no limitations.
@@ -773,7 +996,7 @@ struct ConfigFileProject {
     extra: serde_json::Value,
 
     #[serde(default)]
-    feature_flags: Option<FeatureFlags>,
+    pub feature_flags: Option<FeatureFlags>,
 
     /// A generic rollout state for larger codegen changes. The default is to
     /// pass, otherwise it should be a number between 0 and 100 as a percentage.
@@ -781,28 +1004,33 @@ struct ConfigFileProject {
     pub rollout: Rollout,
 
     #[serde(default)]
-    js_module_format: JsModuleFormat,
+    pub js_module_format: JsModuleFormat,
+
+    #[serde(default)]
+    pub schema_config: SchemaConfig,
+
+    #[serde(default)]
+    pub module_import_config: ModuleImportConfig,
+
+    #[serde(default)]
+    pub diagnostic_report_config: DiagnosticReportConfig,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct PersistConfig {
-    /// URL to send a POST request to to persist.
-    pub url: String,
-    /// The document will be in a POST parameter `text`. This map can contain
-    /// additional parameters to send.
-    pub params: FnvIndexMap<String, String>,
-}
+pub type PersistId = String;
 
-type PersistId = String;
+pub type PersistResult<T> = std::result::Result<T, PersistError>;
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ArtifactForPersister {
+    pub text: String,
+    pub relative_path: PathBuf,
+}
 
 #[async_trait]
 pub trait OperationPersister {
-    async fn persist_artifact(
-        &self,
-        artifact_text: String,
-        project_config: &PersistConfig,
-    ) -> std::result::Result<PersistId, PersistError>;
+    async fn persist_artifact(&self, artifact: ArtifactForPersister) -> PersistResult<PersistId>;
 
-    fn worker_count(&self) -> usize;
+    fn finalize(&self) -> PersistResult<()> {
+        Ok(())
+    }
 }

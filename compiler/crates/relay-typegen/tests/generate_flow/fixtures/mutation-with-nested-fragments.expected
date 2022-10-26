@@ -31,11 +31,11 @@ fragment FeedbackFragment on Feedback {
   name
 }
 ==================================== OUTPUT ===================================
-import type { FriendFragment$ref } from "FriendFragment.graphql";
+import type { FriendFragment$fragmentType } from "FriendFragment.graphql";
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
+  client_mutation_id: string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -43,38 +43,38 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type CommentCreateMutationVariables = {|
-  input: CommentCreateInput,
+export type CommentCreateMutation$variables = {|
   first?: ?number,
+  input: CommentCreateInput,
   orderBy?: ?$ReadOnlyArray<string>,
 |};
-export type CommentCreateMutationResponse = {|
+export type CommentCreateMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
       +friends: ?{|
         +edges: ?$ReadOnlyArray<?{|
           +node: ?{|
             +lastName: ?string,
-            +$fragmentRefs: FriendFragment$ref,
+            +$fragmentSpreads: FriendFragment$fragmentType,
           |},
         |}>,
       |},
     |},
   |},
 |};
-export type CommentCreateMutationRawResponse = {|
+export type CommentCreateMutation$rawResponse = {|
   +commentCreate: ?{|
     +comment: ?{|
       +friends: ?{|
         +edges: ?$ReadOnlyArray<?{|
           +node: ?{|
-            +lastName: ?string,
-            +name: ?string,
             +feedback: ?{|
               +id: string,
               +name: ?string,
             |},
             +id: string,
+            +lastName: ?string,
+            +name: ?string,
           |},
         |}>,
       |},
@@ -83,41 +83,37 @@ export type CommentCreateMutationRawResponse = {|
   |},
 |};
 export type CommentCreateMutation = {|
-  variables: CommentCreateMutationVariables,
-  response: CommentCreateMutationResponse,
-  rawResponse: CommentCreateMutationRawResponse,
+  rawResponse: CommentCreateMutation$rawResponse,
+  response: CommentCreateMutation$data,
+  variables: CommentCreateMutation$variables,
 |};
 -------------------------------------------------------------------------------
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type FeedbackFragment$ref: FragmentReference;
-declare export opaque type FeedbackFragment$fragmentType: FeedbackFragment$ref;
-export type FeedbackFragment = {|
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FeedbackFragment$fragmentType: FragmentType;
+export type FeedbackFragment$data = {|
   +id: string,
   +name: ?string,
-  +$refType: FeedbackFragment$ref,
+  +$fragmentType: FeedbackFragment$fragmentType,
 |};
-export type FeedbackFragment$data = FeedbackFragment;
 export type FeedbackFragment$key = {
   +$data?: FeedbackFragment$data,
-  +$fragmentRefs: FeedbackFragment$ref,
+  +$fragmentSpreads: FeedbackFragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
-import type { FeedbackFragment$ref } from "FeedbackFragment.graphql";
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type FriendFragment$ref: FragmentReference;
-declare export opaque type FriendFragment$fragmentType: FriendFragment$ref;
-export type FriendFragment = {|
-  +name: ?string,
-  +lastName: ?string,
+import type { FeedbackFragment$fragmentType } from "FeedbackFragment.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type FriendFragment$fragmentType: FragmentType;
+export type FriendFragment$data = {|
   +feedback: ?{|
-    +$fragmentRefs: FeedbackFragment$ref,
+    +$fragmentSpreads: FeedbackFragment$fragmentType,
   |},
-  +$refType: FriendFragment$ref,
+  +lastName: ?string,
+  +name: ?string,
+  +$fragmentType: FriendFragment$fragmentType,
 |};
-export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
   +$data?: FriendFragment$data,
-  +$fragmentRefs: FriendFragment$ref,
+  +$fragmentSpreads: FriendFragment$fragmentType,
   ...
 };

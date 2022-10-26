@@ -1,24 +1,24 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+
+import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -46,14 +46,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
     describe(environmentType, () => {
       beforeEach(() => {
-        ConditionalQuery = getRequest(graphql`
+        ConditionalQuery = graphql`
           query RelayModernEnvironmentConditionalSelectionsTestConditionalQuery(
             $condition: Boolean!
           ) {
             ...RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment
           }
-        `);
-        ConditionalFragment = getFragment(graphql`
+        `;
+        ConditionalFragment = graphql`
           fragment RelayModernEnvironmentConditionalSelectionsTestQueryConditionalFragment on Query {
             ... @include(if: $condition) {
               viewer {
@@ -68,14 +68,14 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         // A version of the same query/fragment where all selections are fetched unconditionally
-        Query = getRequest(graphql`
+        Query = graphql`
           query RelayModernEnvironmentConditionalSelectionsTestUnconditionalQuery {
             ...RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment
           }
-        `);
-        Fragment = getFragment(graphql`
+        `;
+        Fragment = graphql`
           fragment RelayModernEnvironmentConditionalSelectionsTestQueryUnconditionalFragment on Query {
             viewer {
               actor {
@@ -86,7 +86,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               name
             }
           }
-        `);
+        `;
 
         const source = RelayRecordSource.create();
         const store = new RelayModernStore(source, {
@@ -112,7 +112,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       // Commit the given payload, immediately running GC to prune any data
       // that wouldn't be retained by the query
       // eslint-disable-next-line no-shadow
-      function commitPayload(operation, payload) {
+      function commitPayload(
+        operation: OperationDescriptor,
+        payload: $FlowFixMe,
+      ) {
         environment.retain(operation);
         environment.commitPayload(operation, payload);
         (environment.getStore(): $FlowFixMe).scheduleGC();

@@ -7,7 +7,7 @@ slug: /guided-tour/list-data/rendering-connections/
 import DocsRating from '@site/src/core/DocsRating';
 import FbSuspenseListAlternative from './fb/FbSuspenseListAlternative.md';
 import FbRenderingConnectionsUsingSuspenseList from './fb/FbRenderingConnectionsUsingSuspenseList.md';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 In Relay, in order to display a list of data that is backed by a GraphQL connection, first you need to declare a fragment that queries for a connection:
 
@@ -98,7 +98,7 @@ module.exports = FriendsListComponent;
 ```
 <FbSuspenseListAlternative />
 
-* `usePaginationFragment` behaves the same way as a `useFragment` (see the [Fragments](../../rendering/fragments/) section), so our list of friends is available under `data.friends.edges.node`, as declared by the fragment. However, it also has a few additions:
+* `usePaginationFragment` behaves the same way as a `useFragment` (see the [Fragments](../rendering/fragments.md) section), so our list of friends is available under `data.friends.edges.node`, as declared by the fragment. However, it also has a few additions:
     * It expects a fragment that is a connection field annotated with the `@connection` directive
     * It expects a fragment that is annotated with the `@refetchable` directive. Note that  `@refetchable` directive can only be added to fragments that are "refetchable", that is, on fragments that are on `Viewer`, on `Query`, on any type that implements `Node` (i.e. a type that has an `id` field), or on a `@fetchable` type. <FbInternalOnly> For more info on `@fetchable` types, see [this post](https://fb.workplace.com/groups/graphql.fyi/permalink/1539541276187011/). </FbInternalOnly>
 * It takes two Flow type parameters: the type of the generated query (in our case  `FriendsListPaginationQuery`), and a second type which can always be inferred, so you only need to pass underscore (`_`).

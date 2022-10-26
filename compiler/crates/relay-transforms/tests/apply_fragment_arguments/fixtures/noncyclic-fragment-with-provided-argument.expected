@@ -1,0 +1,56 @@
+==================================== INPUT ====================================
+query TestQuery($id: ID) {
+  node(id: $id) {
+    ...Profile @arguments(get_friends: true)
+  }
+}
+
+fragment Profile on User
+    @argumentDefinitions(
+    get_friends: {type: "Boolean!", defaultValue: false}
+    foo_gk: {type: "Boolean!", provider: "fooGKProvider"})
+{
+    name @include(if: $foo_gk)
+    friends(first: 10) @include(if: $get_friends) {
+      edges {
+        node {
+          ...Profile
+        }
+      }
+    }
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $id: ID
+  $__relay_internal__pv__fooGKProvider: Boolean! @__ProvidedVariableMetadata
+  # ProvidedVariableMetadata {
+  #     module_name: "fooGKProvider",
+  #     original_variable_name: VariableName(
+  #         "foo_gk",
+  #     ),
+  #     fragment_source_location: Embedded {
+  #         path: "noncyclic-fragment-with-provided-argument.graphql",
+  #         index: 0,
+  #     },
+  # }
+  
+) {
+  node(id: $id) {
+    ...Profile_eQnbl
+  }
+}
+
+fragment Profile on User {
+  name @include(if: $__relay_internal__pv__fooGKProvider)
+}
+
+fragment Profile_eQnbl on User {
+  name @include(if: $__relay_internal__pv__fooGKProvider)
+  friends(first: 10) {
+    edges {
+      node {
+        ...Profile
+      }
+    }
+  }
+}

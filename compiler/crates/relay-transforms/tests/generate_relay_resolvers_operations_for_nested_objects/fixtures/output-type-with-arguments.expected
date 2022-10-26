@@ -1,0 +1,26 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment Foo_user on User {
+  my_things {
+    __typename
+  }
+}
+
+# %extensions%
+
+type MyThing {
+  something(arg: String): Float
+}
+
+extend type User {
+  my_things: [MyThing] @relay_resolver(import_path: "MyThingResolver", has_output_type: true)
+}
+==================================== ERROR ====================================
+✖︎ Arguments are not supported in the fields on the @outputType in @RelayResolvers. You'll need to expose these fields using @RelayResolver for them.
+
+  output-type-with-arguments.graphql:4:3
+    3 │ type MyThing {
+    4 │   something(arg: String): Float
+      │   ^^^^^^^^^
+    5 │ }

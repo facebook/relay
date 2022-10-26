@@ -1,19 +1,18 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 import type {GeneratedNodeMap} from './ReactRelayTypes';
-import type {FragmentMap} from 'relay-runtime';
+import type {ReaderFragment, FragmentMap} from 'relay-runtime';
 
 const assertFragmentMap = require('./assertFragmentMap');
 const {
@@ -22,10 +21,11 @@ const {
 } = require('./ReactRelayContainerUtils');
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');
-const readContext = require('./readContext');
 const invariant = require('invariant');
 const React = require('react');
 const {getFragment} = require('relay-runtime');
+
+const {useContext} = React;
 
 type ContainerCreator = (
   Component: React$ComponentType<any>,
@@ -45,15 +45,18 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
   const containerName = getContainerName(ComponentClass);
   assertFragmentMap(getComponentName(ComponentClass), fragmentSpec);
 
-  const fragments = {};
+  const fragments: {[string]: ReaderFragment} = {};
   for (const key in fragmentSpec) {
     fragments[key] = getFragment(fragmentSpec[key]);
   }
   const Container = createContainerWithFragments(ComponentClass, fragments);
   Container.displayName = containerName;
 
-  function forwardRef(props, ref) {
-    const context = readContext(ReactRelayContext);
+  function forwardRef(
+    props: any,
+    ref: ((null | any) => mixed) | {current: null | any, ...},
+  ) {
+    const context = useContext(ReactRelayContext);
     invariant(
       context != null,
       '`%s` tried to render a context that was not valid this means that ' +
@@ -61,7 +64,7 @@ function buildReactRelayContainer<TBase: React$ComponentType<any>>(
       containerName,
       containerName,
     );
-    const queryRendererContext = readContext(ReactRelayQueryRendererContext);
+    const queryRendererContext = useContext(ReactRelayQueryRendererContext);
 
     return (
       <Container

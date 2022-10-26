@@ -27,8 +27,8 @@ query UnionTypeTest {
   }
 }
 ==================================== OUTPUT ===================================
-export type UnionTypeTestVariables = {||};
-export type UnionTypeTestResponse = {|
+export type UnionTypeTest$variables = {||};
+export type UnionTypeTest$data = {|
   +neverNode: ?({|
     +__typename: "FakeNode",
     +id: string,
@@ -39,18 +39,15 @@ export type UnionTypeTestResponse = {|
   |}),
 |};
 export type UnionTypeTest = {|
-  variables: UnionTypeTestVariables,
-  response: UnionTypeTestResponse,
+  response: UnionTypeTest$data,
+  variables: UnionTypeTest$variables,
 |};
 -------------------------------------------------------------------------------
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type LinkedField$ref: FragmentReference;
-declare export opaque type LinkedField$fragmentType: LinkedField$ref;
-export type LinkedField = {|
-  +profilePicture: ?{|
-    +uri: ?string,
-    +width: ?number,
-    +height: ?number,
+import type { FragmentType } from "relay-runtime";
+declare export opaque type LinkedField$fragmentType: FragmentType;
+export type LinkedField$data = {|
+  +actor: ?{|
+    +id: string,
   |},
   +hometown: ?{|
     +id: string,
@@ -58,14 +55,15 @@ export type LinkedField = {|
       +uri: ?string,
     |},
   |},
-  +actor: ?{|
-    +id: string,
+  +profilePicture: ?{|
+    +height: ?number,
+    +uri: ?string,
+    +width: ?number,
   |},
-  +$refType: LinkedField$ref,
+  +$fragmentType: LinkedField$fragmentType,
 |};
-export type LinkedField$data = LinkedField;
 export type LinkedField$key = {
   +$data?: LinkedField$data,
-  +$fragmentRefs: LinkedField$ref,
+  +$fragmentSpreads: LinkedField$fragmentType,
   ...
 };

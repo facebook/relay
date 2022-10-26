@@ -1,17 +1,18 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
-import type {ConcreteRequest, Disposable} from 'relay-runtime';
+import type {ConcreteRequest} from '../util/RelayConcreteNode';
+import type {Disposable} from '../util/RelayRuntimeTypes';
 
 type Callback = (concreteRequest: ConcreteRequest) => void;
 
@@ -60,6 +61,7 @@ class PreloadableQueryRegistry {
   }
 }
 
-const preloadableQueryRegistry: PreloadableQueryRegistry = new PreloadableQueryRegistry();
+const preloadableQueryRegistry: PreloadableQueryRegistry =
+  new PreloadableQueryRegistry();
 
 module.exports = preloadableQueryRegistry;

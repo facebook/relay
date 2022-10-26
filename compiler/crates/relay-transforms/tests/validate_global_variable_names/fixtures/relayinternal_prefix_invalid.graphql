@@ -1,0 +1,8 @@
+#expected-to-throw
+query TestQuery($__relay_internal_foo: ID!, $__relay_internal_bar: Boolean!) {
+  node(id: $__relay_internal_foo) {
+    ... on User {
+      name @include(if: $__relay_internal_bar)
+    }
+  }
+}

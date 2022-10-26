@@ -1,21 +1,19 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -47,7 +45,7 @@ describe('execute()', () => {
   let queryVariables;
 
   beforeEach(() => {
-    CommentCreateSubscription = getRequest(graphql`
+    CommentCreateSubscription = graphql`
       subscription RelayModernEnvironmentExecuteSubscriptionTestCommentCreateSubscription(
         $input: CommentCreateSubscriptionInput!
       ) {
@@ -60,16 +58,16 @@ describe('execute()', () => {
           }
         }
       }
-    `);
-    CommentFragment = getFragment(graphql`
+    `;
+    CommentFragment = graphql`
       fragment RelayModernEnvironmentExecuteSubscriptionTestCommentFragment on Comment {
         id
         body {
           text
         }
       }
-    `);
-    CommentQuery = getRequest(graphql`
+    `;
+    CommentQuery = graphql`
       query RelayModernEnvironmentExecuteSubscriptionTestCommentQuery(
         $id: ID!
       ) {
@@ -78,10 +76,9 @@ describe('execute()', () => {
           ...RelayModernEnvironmentExecuteSubscriptionTestCommentFragment
         }
       }
-    `);
+    `;
     variables = {
       input: {
-        clientMutationId: '0',
         feedbackId: '1',
       },
     };

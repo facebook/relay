@@ -1,19 +1,21 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const {
   MultiActorEnvironment,
@@ -21,7 +23,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
@@ -60,13 +62,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       let commentQuery;
       let queryOperation;
       let operationCallback;
-      let operationLoader: {|
+      let operationLoader: {
         get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
         load: JestMockFn<
           $ReadOnlyArray<mixed>,
           Promise<?NormalizationRootNode>,
         >,
-      |};
+      };
       let resolveFragment;
       let source;
       let store;
@@ -76,7 +78,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       beforeEach(() => {
         markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql');
 
-        subscription = getRequest(graphql`
+        subscription = graphql`
           subscription RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentCreateSubscription(
             $input: CommentCreateSubscriptionInput!
           ) {
@@ -94,7 +96,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
         graphql`
           fragment RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name on PlainUserNameRenderer {
@@ -105,7 +107,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           }
         `;
 
-        markdownRendererFragment = getFragment(graphql`
+        markdownRendererFragment = graphql`
           fragment RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
             __typename
             markdown
@@ -113,9 +115,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               markup @__clientField(handle: "markup_handler")
             }
           }
-        `);
+        `;
 
-        commentFragment = getFragment(graphql`
+        commentFragment = graphql`
           fragment RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment on Comment {
             id
             actor {
@@ -128,9 +130,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        commentQuery = getRequest(graphql`
+        commentQuery = graphql`
           query RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentQuery(
             $id: ID!
           ) {
@@ -139,10 +141,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               ...RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment
             }
           }
-        `);
+        `;
         variables = {
           input: {
-            clientMutationId: '0',
             feedbackId: '1',
           },
         };
@@ -156,7 +157,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         );
 
         const MarkupHandler = {
-          update(storeProxy, payload) {
+          update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
             const record = storeProxy.get(payload.dataID);
             if (record != null) {
               const markup = record.getValue(payload.fieldKey);
@@ -267,6 +268,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         expect(next.mock.calls.length).toBe(1);
         expect(complete).not.toBeCalled();
         expect(error).not.toBeCalled();
+        // $FlowFixMe[prop-missing]
         const nextID = payload.extensions?.__relay_subscription_root_id;
         const nextOperation = createReaderSelector(
           operation.fragment.node,
@@ -283,11 +285,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               actor: {
                 name: 'actor-name',
                 nameRenderer: {
-                  __id:
-                    'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+                  __id: 'client:4:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
                   __fragmentPropName: 'name',
                   __fragments: {
-                    RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name: {},
+                    RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name:
+                      {},
                   },
                   __fragmentOwner: operation.request,
 
@@ -376,6 +378,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           'RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql',
         );
 
+        // $FlowFixMe[prop-missing]
         const nextID = payload.extensions?.__relay_subscription_root_id;
         const nextOperation = createReaderSelector(
           operation.fragment.node,
@@ -704,10 +707,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           taskID = 0;
           tasks = new Map();
           scheduler = {
-            cancel: id => {
+            cancel: (id: string) => {
               tasks.delete(id);
             },
-            schedule: task => {
+            schedule: (task: () => void) => {
               const id = String(taskID++);
               tasks.set(id, task);
               return id;

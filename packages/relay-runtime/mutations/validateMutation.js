@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -31,6 +30,7 @@ const {
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -38,20 +38,30 @@ const {
 } = require('../util/RelayConcreteNode');
 const warning = require('warning');
 
-type ValidationContext = {|
+type ValidationContext = {
   visitedPaths: Set<string>,
   path: string,
   variables: Variables,
   missingDiff: Object,
   extraDiff: Object,
   moduleImportPaths: Set<string>,
-|};
+};
 // $FlowFixMe[method-unbinding] added when improving typing for this parameters
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
-let validateMutation = () => {};
+let validateMutation:
+  | (() => void)
+  | ((
+      optimisticResponse: any,
+      mutation: ConcreteRequest,
+      variables: ?any,
+    ) => void) = () => {};
 if (__DEV__) {
-  const addFieldToDiff = (path: string, diff: Object, isScalar) => {
+  const addFieldToDiff = (
+    path: string,
+    diff: Object,
+    isScalar: void | boolean,
+  ) => {
     let deepLoc = diff;
     path.split('.').forEach((key, index, arr) => {
       if (deepLoc[key] == null) {
@@ -137,6 +147,7 @@ if (__DEV__) {
       case INLINE_FRAGMENT:
         const type = selection.type;
         const isConcreteType = selection.abstractKey == null;
+        validateAbstractKey(context, selection.abstractKey);
         selection.selections.forEach(subselection => {
           if (isConcreteType && optimisticResponse.__typename !== type) {
             return;
@@ -151,11 +162,13 @@ if (__DEV__) {
         return;
       case MODULE_IMPORT:
         return validateModuleImport(context);
+      case TYPE_DISCRIMINATOR:
+        return validateAbstractKey(context, selection.abstractKey);
+      case RELAY_RESOLVER:
       case LINKED_HANDLE:
       case SCALAR_HANDLE:
       case DEFER:
-      case STREAM:
-      case TYPE_DISCRIMINATOR: {
+      case STREAM: {
         // TODO(T35864292) - Add missing validations for these types
         return;
       }
@@ -167,6 +180,16 @@ if (__DEV__) {
 
   const validateModuleImport = (context: ValidationContext) => {
     context.moduleImportPaths.add(context.path);
+  };
+
+  const validateAbstractKey = (
+    context: ValidationContext,
+    abstractKey: ?string,
+  ) => {
+    if (abstractKey != null) {
+      const path = `${context.path}.${abstractKey}`;
+      context.visitedPaths.add(path);
+    }
   };
 
   const validateField = (

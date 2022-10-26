@@ -1,0 +1,10 @@
+query updatableFragmentSpreadWithUnusedVariablesQuery($if: Boolean) {
+  me {
+    ...updatableFragmentSpreadWithUnusedVariables_user
+    anotherFirstName: firstName(if: $if)
+  }
+}
+
+fragment updatableFragmentSpreadWithUnusedVariables_user on User @updatable {
+  firstName
+}

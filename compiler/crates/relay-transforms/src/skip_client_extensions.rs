@@ -1,25 +1,33 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::CustomMetadataDirectives;
-use graphql_ir::{
-    Directive, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program,
-    ScalarField, Selection, Transformed, Transformer,
-};
-use interner::StringKey;
+use common::DirectiveName;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
 use schema::Schema;
+
+use crate::util::CustomMetadataDirectives;
 
 /// Transform to skip IR nodes if they are client-defined extensions
 /// to the schema
 pub fn skip_client_extensions(program: &Program) -> Program {
     let mut transform = SkipClientExtensionsTransform::new(program);
-    transform
-        .transform_program(program)
-        .replace_or_else(|| program.clone())
+    let transformed = transform.transform_program(program);
+
+    transformed.replace_or_else(|| program.clone())
 }
 
 struct SkipClientExtensionsTransform<'s> {
@@ -33,7 +41,7 @@ impl<'s> SkipClientExtensionsTransform<'s> {
 }
 
 impl<'s> SkipClientExtensionsTransform<'s> {
-    fn is_client_directive(&self, name: StringKey) -> bool {
+    fn is_client_directive(&self, name: DirectiveName) -> bool {
         // Return true if:
         // - directive is a custom internal directive used to hold
         //   metadata in the IR
@@ -48,6 +56,14 @@ impl<'s> Transformer for SkipClientExtensionsTransform<'s> {
     const NAME: &'static str = "SkipClientExtensionsTransform";
     const VISIT_ARGUMENTS: bool = false;
     const VISIT_DIRECTIVES: bool = true;
+
+    fn transform_operation(
+        &mut self,
+        operation: &OperationDefinition,
+    ) -> Transformed<OperationDefinition> {
+        let transformed = self.default_transform_operation(operation);
+        transformed
+    }
 
     fn transform_fragment(
         &mut self,

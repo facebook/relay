@@ -1,29 +1,41 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
+const {
+  disallowConsoleErrors,
+  expectConsoleError,
+  expectConsoleErrorsMany,
+  expectConsoleErrorWillFire,
+} = require('./consoleError');
+const {
+  disallowConsoleWarnings,
+  expectConsoleWarning,
+  expectConsoleWarningsMany,
+  expectConsoleWarningWillFire,
+} = require('./consoleWarning');
+const describeWithFeatureFlags = require('./describeWithFeatureFlags');
 const {
   FIXTURE_TAG,
   generateTestsFromFixtures,
 } = require('./generateTestsFromFixtures');
 const Matchers = require('./Matchers');
-const parseGraphQLText = require('./parseGraphQLText');
 const printAST = require('./printAST');
 const simpleClone = require('./simpleClone');
-const {TestSchema, testSchemaPath} = require('./TestSchema');
+const trackRetentionForEnvironment = require('./trackRetentionForEnvironment');
 const {
   disallowWarnings,
   expectToWarn,
+  expectToWarnMany,
   expectWarningWillFire,
 } = require('./warnings');
 const {createMockEnvironment, unwrapContainer} = require('relay-test-utils');
@@ -49,16 +61,24 @@ function cannotReadPropertyOfUndefined__DEPRECATED(
 module.exports = {
   cannotReadPropertyOfUndefined__DEPRECATED,
   createMockEnvironment,
-  expectToWarn,
-  expectWarningWillFire,
+  describeWithFeatureFlags,
+  disallowConsoleErrors,
+  disallowConsoleWarnings,
   disallowWarnings,
+  expectConsoleError,
+  expectConsoleErrorsMany,
+  expectConsoleErrorWillFire,
+  expectConsoleWarningWillFire,
+  expectConsoleWarning,
+  expectConsoleWarningsMany,
+  expectToWarn,
+  expectToWarnMany,
+  expectWarningWillFire,
   FIXTURE_TAG,
   generateTestsFromFixtures,
   matchers: Matchers,
-  parseGraphQLText,
   printAST,
   simpleClone,
-  TestSchema,
-  testSchemaPath,
+  trackRetentionForEnvironment,
   unwrapContainer,
 };

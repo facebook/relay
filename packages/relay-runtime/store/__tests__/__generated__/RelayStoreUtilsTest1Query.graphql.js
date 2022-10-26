@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<56124bab5c8c7baf5b9760268d33326a>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<d4c9c7725c311e6835764892f3aabc87>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +17,9 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayStoreUtilsTest1QueryVariables = {||};
-export type RelayStoreUtilsTest1QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayStoreUtilsTest1Query$variables = {||};
+export type RelayStoreUtilsTest1Query$data = {|
   +me: ?{|
     +address: ?{|
       +city: ?string,
@@ -25,8 +27,8 @@ export type RelayStoreUtilsTest1QueryResponse = {|
   |},
 |};
 export type RelayStoreUtilsTest1Query = {|
-  variables: RelayStoreUtilsTest1QueryVariables,
-  response: RelayStoreUtilsTest1QueryResponse,
+  response: RelayStoreUtilsTest1Query$data,
+  variables: RelayStoreUtilsTest1Query$variables,
 |};
 */
 
@@ -132,4 +134,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d17659fb075bc208ab1af109ed7f442c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayStoreUtilsTest1Query$variables,
+  RelayStoreUtilsTest1Query$data,
+>*/);

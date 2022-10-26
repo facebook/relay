@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -18,6 +17,7 @@ import type {
   NormalizationModuleImport,
   NormalizationNode,
   NormalizationSelection,
+  NormalizationResolverField,
 } from '../util/NormalizationNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
@@ -39,6 +39,7 @@ const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
 const {generateTypeID} = require('./TypeID');
 const invariant = require('invariant');
+const getOutputTypeRecordIDs = require('./experimental-live-resolvers/getOutputTypeRecordIDs');
 
 const {
   ACTOR_CHANGE,
@@ -56,6 +57,7 @@ const {
   SCALAR_HANDLE,
   STREAM,
   TYPE_DISCRIMINATOR,
+  RELAY_RESOLVER,
 } = RelayConcreteNode;
 const {ROOT_ID, getStorageKey, getModuleOperationKey} = RelayStoreUtils;
 
@@ -157,7 +159,18 @@ class RelayReferenceMarker {
         case INLINE_FRAGMENT:
           if (selection.abstractKey == null) {
             const typeName = RelayModernRecord.getType(record);
-            if (typeName != null && typeName === selection.type) {
+            if (
+              (typeName != null && typeName === selection.type) ||
+              // Our root record has a special type of `__Root` which may not
+              // match the schema type of Query/Mutation or whatever the schema
+              // specifies.
+              //
+              // If we have an inline fragment on a concrete type within an
+              // operation root, and our query has been validated, we know that
+              // concrete type must match, since the operation selection must be
+              // on a concrete type.
+              typeName === RelayStoreUtils.ROOT_TYPE
+            ) {
               this._traverseSelections(selection.selections, record);
             }
           } else {
@@ -230,6 +243,9 @@ class RelayReferenceMarker {
           }
           this._traverseSelections(selection.fragment.selections, record);
           break;
+        case RELAY_RESOLVER:
+          this._traverseResolverField(selection, record);
+          break;
         default:
           (selection: empty);
           invariant(
@@ -239,6 +255,35 @@ class RelayReferenceMarker {
           );
       }
     });
+  }
+
+  _traverseResolverField(field: NormalizationResolverField, record: Record) {
+    const storageKey = getStorageKey(field, this._variables);
+    const dataID = RelayModernRecord.getLinkedRecordID(record, storageKey);
+
+    // If the resolver value has been created, we should retain it.
+    // This record contains our cached resolver value, and potential Live
+    // Resolver subscription.
+    if (dataID != null) {
+      this._references.add(dataID);
+
+      // Also mark all @outputType record IDs
+      const resolverRecord = this._recordSource.get(dataID);
+      if (resolverRecord != null) {
+        const outputTypeRecordIDs = getOutputTypeRecordIDs(resolverRecord);
+        if (outputTypeRecordIDs != null) {
+          for (const dataID of outputTypeRecordIDs) {
+            this._references.add(dataID);
+          }
+        }
+      }
+    }
+
+    const {fragment} = field;
+    if (fragment != null) {
+      // Mark the contents of the resolver's data dependencies.
+      this._traverseSelections([fragment], record);
+    }
   }
 
   _traverseModuleImport(

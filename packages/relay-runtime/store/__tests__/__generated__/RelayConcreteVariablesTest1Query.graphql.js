@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6f576d86a7133e73a8fe4ebb91103fd1>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<310f11907dd3db1d72e180a6ee4c7d99>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +17,18 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayConcreteVariablesTest1QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayConcreteVariablesTest1Query$variables = {|
   id: string,
 |};
-export type RelayConcreteVariablesTest1QueryResponse = {|
+export type RelayConcreteVariablesTest1Query$data = {|
   +node: ?{|
     +id: string,
   |},
 |};
 export type RelayConcreteVariablesTest1Query = {|
-  variables: RelayConcreteVariablesTest1QueryVariables,
-  response: RelayConcreteVariablesTest1QueryResponse,
+  response: RelayConcreteVariablesTest1Query$data,
+  variables: RelayConcreteVariablesTest1Query$variables,
 |};
 */
 
@@ -117,4 +119,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "1e4569204e89dbf37024f9136e6f5004";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayConcreteVariablesTest1Query$variables,
+  RelayConcreteVariablesTest1Query$data,
+>*/);

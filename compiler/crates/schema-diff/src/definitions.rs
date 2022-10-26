@@ -1,21 +1,20 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-pub use graphql_syntax::TypeAnnotation;
-use interner::StringKey;
 use std::fmt;
+
+pub use graphql_syntax::TypeAnnotation;
+use intern::string_key::StringKey;
 
 #[derive(Eq, PartialEq, PartialOrd, Ord)]
 pub enum DefinitionChange {
     EnumAdded(StringKey),
     EnumChanged {
         name: StringKey,
-        added: Vec<StringKey>,
-        removed: Vec<StringKey>,
     },
     EnumRemoved(StringKey),
     UnionAdded(StringKey),
@@ -57,15 +56,7 @@ pub enum DefinitionChange {
 impl fmt::Debug for DefinitionChange {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            DefinitionChange::EnumChanged {
-                added,
-                removed,
-                name,
-            } => write!(
-                f,
-                "EnumChanged {:?}: added:{:?} removed:{:?}",
-                name, added, removed,
-            ),
+            DefinitionChange::EnumChanged { name } => write!(f, "EnumChanged {:?}.", name,),
             DefinitionChange::UnionChanged {
                 added,
                 removed,

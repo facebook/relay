@@ -1,19 +1,25 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::RequiredAction;
-
-use super::{ACTION_ARGUMENT, REQUIRED_DIRECTIVE_NAME};
-use common::{Diagnostic, Location, NamedItem, WithLocation};
-use graphql_ir::{
-    ConstantValue, Directive, Field, LinkedField, ScalarField, ValidationMessage, Value,
-};
-use interner::StringKey;
+use common::Diagnostic;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::LinkedField;
+use graphql_ir::ScalarField;
+use intern::string_key::StringKey;
 use schema::SDLSchema;
+
+use super::validation_message::ValidationMessage;
+use super::ACTION_ARGUMENT;
+use super::REQUIRED_DIRECTIVE_NAME;
+use crate::RequiredAction;
 
 #[derive(Clone, Copy)]
 pub struct RequiredMetadata {
@@ -68,20 +74,9 @@ fn get_action_argument(
         )
     })?;
 
-    match &action_arg.value.item {
-        Value::Constant(value) => match value {
-            ConstantValue::Enum(action) => Ok(WithLocation::new(
-                action_arg.value.location,
-                RequiredAction::from(*action),
-            )),
-            _ => Err(Diagnostic::error(
-                ValidationMessage::RequiredActionArgumentEnum,
-                action_arg.value.location,
-            )),
-        },
-        _ => Err(Diagnostic::error(
-            ValidationMessage::RequiredActionArgumentConstant,
-            action_arg.value.location,
-        )),
-    }
+    let action = action_arg.value.item.expect_constant().unwrap_enum();
+    Ok(WithLocation::new(
+        action_arg.value.location,
+        RequiredAction::from(action),
+    ))
 }

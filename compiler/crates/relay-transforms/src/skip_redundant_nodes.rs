@@ -1,24 +1,31 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    node_identifier::NodeIdentifier,
-    util::{is_relay_custom_inline_fragment_directive, PointerAddress},
-    DEFER_STREAM_CONSTANTS,
-};
-
-use common::{sync::*, NamedItem};
-use dashmap::DashMap;
-use graphql_ir::{
-    Condition, FragmentDefinition, InlineFragment, LinkedField, OperationDefinition, Program,
-    Selection, Transformed, TransformedValue,
-};
-use schema::SDLSchema;
 use std::sync::Arc;
+
+use common::sync::*;
+use common::NamedItem;
+use common::PointerAddress;
+use dashmap::DashMap;
+use graphql_ir::node_identifier::NodeIdentifier;
+use graphql_ir::Condition;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use schema::SDLSchema;
+
+use crate::util::is_relay_custom_inline_fragment_directive;
+use crate::RelayLocationAgnosticBehavior;
+use crate::DEFER_STREAM_CONSTANTS;
 
 /**
  * A transform that removes redundant fields and fragment spreads. Redundancy is
@@ -119,11 +126,11 @@ pub fn skip_redundant_nodes(program: &Program) -> Program {
 }
 
 #[derive(Default, Clone, Debug)]
-struct SelectionMap(VecMap<NodeIdentifier, Option<SelectionMap>>);
+struct SelectionMap(VecMap<NodeIdentifier<RelayLocationAgnosticBehavior>, Option<SelectionMap>>);
 
 type Cache = DashMap<PointerAddress, (Transformed<Selection>, SelectionMap)>;
 
-struct SkipRedundantNodesTransform {
+pub struct SkipRedundantNodesTransform {
     schema: Arc<SDLSchema>,
     cache: Cache,
 }
@@ -132,6 +139,13 @@ impl<'s> SkipRedundantNodesTransform {
     fn new(program: &'_ Program) -> Self {
         Self {
             schema: Arc::clone(&program.schema),
+            cache: DashMap::new(),
+        }
+    }
+
+    pub fn from_schema(schema: &Arc<SDLSchema>) -> Self {
+        Self {
+            schema: Arc::clone(schema),
             cache: DashMap::new(),
         }
     }
@@ -145,7 +159,8 @@ impl<'s> SkipRedundantNodesTransform {
         // If it's the same node, and selection_map is empty
         // result of transform_selection has to be the same.
         let is_empty = selection_map.0.is_empty();
-        let identifier = NodeIdentifier::from_selection(&self.schema, selection);
+        let identifier =
+            NodeIdentifier::from_selection(&self.schema, selection, RelayLocationAgnosticBehavior);
         match selection {
             Selection::ScalarField(_) | Selection::FragmentSpread(_) => {
                 if selection_map.0.contains_key(&identifier) {
@@ -369,7 +384,7 @@ impl<'s> SkipRedundantNodesTransform {
         }
     }
 
-    fn transform_operation(
+    pub fn transform_operation(
         &self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
@@ -384,7 +399,10 @@ impl<'s> SkipRedundantNodesTransform {
         }
     }
 
-    fn transform_fragment(&self, fragment: &FragmentDefinition) -> Transformed<FragmentDefinition> {
+    pub fn transform_fragment(
+        &self,
+        fragment: &FragmentDefinition,
+    ) -> Transformed<FragmentDefinition> {
         let mut selection_map = Default::default();
         let selections = self.transform_selections(&fragment.selections, &mut selection_map);
         match selections {
@@ -398,16 +416,16 @@ impl<'s> SkipRedundantNodesTransform {
 
     fn transform_program(&self, program: &Program) -> TransformedValue<Program> {
         let operations: Vec<Arc<OperationDefinition>> = par_iter(&program.operations)
-            .filter_map(|operation| match self.transform_operation(&operation) {
+            .filter_map(|operation| match self.transform_operation(operation) {
                 Transformed::Delete => None,
-                Transformed::Keep => Some(Arc::clone(&operation)),
+                Transformed::Keep => Some(Arc::clone(operation)),
                 Transformed::Replace(replacement) => Some(Arc::new(replacement)),
             })
             .collect();
         let fragments: Vec<Arc<FragmentDefinition>> = par_iter(&program.fragments)
-            .filter_map(|(_, fragment)| match self.transform_fragment(&fragment) {
+            .filter_map(|(_, fragment)| match self.transform_fragment(fragment) {
                 Transformed::Delete => None,
-                Transformed::Keep => Some(Arc::clone(&fragment)),
+                Transformed::Keep => Some(Arc::clone(fragment)),
                 Transformed::Replace(replacement) => Some(Arc::new(replacement)),
             })
             .collect();
@@ -429,9 +447,7 @@ impl<'s> SkipRedundantNodesTransform {
  */
 fn get_partitioned_selections(selections: &[Selection]) -> Vec<&Selection> {
     let mut result = Vec::with_capacity(selections.len());
-    unsafe {
-        result.set_len(selections.len())
-    };
+    unsafe { result.set_len(selections.len()) };
     let mut non_field_index = selections
         .iter()
         .filter(|sel| is_selection_linked_or_scalar(sel))

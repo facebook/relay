@@ -1,0 +1,79 @@
+==================================== INPUT ====================================
+fragment relayResolver_BestFriendResolverFragment_name on User {
+  name
+}
+
+query relayResolver_Query {
+  me {
+    best_friend @waterfall {
+      name
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  best_friend: User @relay_resolver(fragment_name: "relayResolver_BestFriendResolverFragment_name", import_path: "./foo/bar/baz/BestFriendResolver.js", live: true)
+}
+==================================== OUTPUT ===================================
+import type { RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$fragmentType } from "RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend.graphql";
+export type ClientEdgeQuery_relayResolver_Query_me__best_friend$variables = {|
+  id: string,
+|};
+export type ClientEdgeQuery_relayResolver_Query_me__best_friend$data = {|
+  +node: ?{|
+    +$fragmentSpreads: RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$fragmentType,
+  |},
+|};
+export type ClientEdgeQuery_relayResolver_Query_me__best_friend = {|
+  response: ClientEdgeQuery_relayResolver_Query_me__best_friend$data,
+  variables: ClientEdgeQuery_relayResolver_Query_me__best_friend$variables,
+|};
+-------------------------------------------------------------------------------
+import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
+import type { relayResolver_BestFriendResolverFragment_name$key } from "relayResolver_BestFriendResolverFragment_name.graphql";
+import userBestFriendResolver from "BestFriendResolver";
+// Type assertion validating that `userBestFriendResolver` resolver is correctly implemented.
+// A type error here indicates that the type signature of the resolver module is incorrect.
+(userBestFriendResolver: (
+  rootKey: relayResolver_BestFriendResolverFragment_name$key, 
+) => LiveState<any>);
+export type relayResolver_Query$variables = {||};
+export type relayResolver_Query$data = {|
+  +me: ?{|
+    +best_friend: ?{|
+      +name: ?string,
+    |},
+  |},
+|};
+export type relayResolver_Query = {|
+  response: relayResolver_Query$data,
+  variables: relayResolver_Query$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$fragmentType: FragmentType;
+import type { ClientEdgeQuery_relayResolver_Query_me__best_friend$variables } from "ClientEdgeQuery_relayResolver_Query_me__best_friend.graphql";
+export type RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$data = {|
+  +id: string,
+  +name: ?string,
+  +$fragmentType: RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$fragmentType,
+|};
+export type RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$key = {
+  +$data?: RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$data,
+  +$fragmentSpreads: RefetchableClientEdgeQuery_relayResolver_Query_me__best_friend$fragmentType,
+  ...
+};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type relayResolver_BestFriendResolverFragment_name$fragmentType: FragmentType;
+export type relayResolver_BestFriendResolverFragment_name$data = {|
+  +name: ?string,
+  +$fragmentType: relayResolver_BestFriendResolverFragment_name$fragmentType,
+|};
+export type relayResolver_BestFriendResolverFragment_name$key = {
+  +$data?: relayResolver_BestFriendResolverFragment_name$data,
+  +$fragmentSpreads: relayResolver_BestFriendResolverFragment_name$fragmentType,
+  ...
+};

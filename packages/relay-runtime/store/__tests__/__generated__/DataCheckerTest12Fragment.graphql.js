@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b108c1442fe51ec42004f052ba27a280>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<185a198f383bcb73d9eed29424a9ee11>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type DataCheckerTest12Fragment$ref: FragmentReference;
-declare export opaque type DataCheckerTest12Fragment$fragmentType: DataCheckerTest12Fragment$ref;
-export type DataCheckerTest12Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type DataCheckerTest12Fragment$fragmentType: FragmentType;
+export type DataCheckerTest12Fragment$data = {|
   +screennames: ?$ReadOnlyArray<?{|
     +name: ?string,
   |}>,
-  +$refType: DataCheckerTest12Fragment$ref,
+  +$fragmentType: DataCheckerTest12Fragment$fragmentType,
 |};
-export type DataCheckerTest12Fragment$data = DataCheckerTest12Fragment;
 export type DataCheckerTest12Fragment$key = {
   +$data?: DataCheckerTest12Fragment$data,
-  +$fragmentRefs: DataCheckerTest12Fragment$ref,
+  +$fragmentSpreads: DataCheckerTest12Fragment$fragmentType,
   ...
 };
 */
@@ -66,4 +66,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8dd733aeb8f041370136353d0509201c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  DataCheckerTest12Fragment$fragmentType,
+  DataCheckerTest12Fragment$data,
+>*/);

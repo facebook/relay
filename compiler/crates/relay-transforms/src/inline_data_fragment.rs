@@ -1,19 +1,31 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{
-    associated_data_impl, FragmentSpread, InlineFragment, Program, Selection, Transformed,
-    Transformer, ValidationMessage,
-};
-
-use interner::{Intern, StringKey};
-use once_cell::sync::Lazy;
 use std::sync::Arc;
+
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Argument;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::VariableDefinition;
+use intern::string_key::Intern;
+use once_cell::sync::Lazy;
+use thiserror::Error;
 
 pub fn inline_data_fragment(program: &Program) -> DiagnosticsResult<Program> {
     let mut transform = InlineDataFragmentsTransform::new(program);
@@ -28,25 +40,31 @@ pub fn inline_data_fragment(program: &Program) -> DiagnosticsResult<Program> {
     }
 }
 
-pub const INLINE_DIRECTIVE_NAME: Lazy<StringKey> = Lazy::new(|| "inline".intern());
+pub const INLINE_DIRECTIVE_NAME: Lazy<DirectiveName> =
+    Lazy::new(|| DirectiveName("inline".intern()));
 
 struct InlineDataFragmentsTransform<'s> {
     program: &'s Program,
     errors: Vec<Diagnostic>,
+    parent_inline_fragments: Vec<WithLocation<FragmentDefinitionName>>,
 }
 
 impl<'s> InlineDataFragmentsTransform<'s> {
     fn new(program: &'s Program) -> Self {
         Self {
             program,
-            errors: vec![],
+            errors: Vec::new(),
+            parent_inline_fragments: Vec::new(),
         }
     }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct InlineDirectiveMetadata {
-    pub fragment_name: StringKey,
+    pub fragment_name: FragmentDefinitionName,
+    pub arguments: Vec<Argument>,
+    pub variable_definitions: Vec<VariableDefinition>,
+    pub used_global_variables: Vec<VariableDefinition>,
 }
 associated_data_impl!(InlineDirectiveMetadata);
 
@@ -62,26 +80,9 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
             .fragment(spread.fragment.item)
             .unwrap_or_else(|| panic!("was expecting to find fragment `{}`", spread.fragment.item));
 
-        let inline_directive = fragment.directives.named(*INLINE_DIRECTIVE_NAME);
-        if inline_directive.is_none() {
+        if fragment.directives.named(*INLINE_DIRECTIVE_NAME).is_none() {
             next_fragment_spread
         } else {
-            if !fragment.variable_definitions.is_empty()
-                || !fragment.used_global_variables.is_empty()
-            {
-                let mut error = Diagnostic::error(
-                    ValidationMessage::InlineDataFragmentArgumentsNotSupported,
-                    fragment.name.location,
-                );
-                for var in fragment
-                    .variable_definitions
-                    .iter()
-                    .chain(fragment.used_global_variables.iter())
-                {
-                    error = error.annotate("Variable used:", var.name.location);
-                }
-                self.errors.push(error);
-            }
             match &next_fragment_spread {
                 Transformed::Keep => {
                     if !spread.directives.is_empty() {
@@ -106,7 +107,29 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
                 }
             };
 
+            if self
+                .parent_inline_fragments
+                .iter()
+                .any(|name| name.item == fragment.name.item)
+            {
+                let mut cyclic_fragments = self.parent_inline_fragments.iter();
+                let first = cyclic_fragments.next().unwrap();
+                let mut diagnostic = Diagnostic::error(
+                    ValidationMessage::CircularFragmentReference {
+                        fragment_name: first.item,
+                    },
+                    first.location,
+                );
+                for spread in cyclic_fragments {
+                    diagnostic =
+                        diagnostic.annotate(format!("spreading {}", spread.item), spread.location);
+                }
+                self.errors.push(diagnostic);
+                return Transformed::Keep;
+            }
+            self.parent_inline_fragments.push(spread.fragment);
             let transformed_fragment = self.default_transform_fragment(fragment);
+            self.parent_inline_fragments.pop();
 
             let (name, selections) = match transformed_fragment {
                 Transformed::Keep => (fragment.name.item, fragment.selections.clone()),
@@ -125,6 +148,9 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
                 directives: vec![
                     InlineDirectiveMetadata {
                         fragment_name: name,
+                        arguments: spread.arguments.clone(),
+                        variable_definitions: fragment.variable_definitions.clone(),
+                        used_global_variables: fragment.used_global_variables.clone(),
                     }
                     .into(),
                 ],
@@ -132,10 +158,23 @@ impl<'s> Transformer for InlineDataFragmentsTransform<'s> {
                     type_condition: Some(fragment.type_condition),
                     directives: vec![],
                     selections,
+                    spread_location: Location::generated(),
                 }))],
+                spread_location: Location::generated(),
             };
 
             Transformed::Replace(Selection::InlineFragment(Arc::new(inline_fragment)))
         }
     }
+}
+
+#[derive(Error, Debug)]
+enum ValidationMessage {
+    #[error("Found a circular reference from fragment '{fragment_name}'.")]
+    CircularFragmentReference {
+        fragment_name: FragmentDefinitionName,
+    },
+
+    #[error("Directives on fragment spreads for @inline fragments are not yet supported")]
+    InlineDataFragmentDirectivesNotSupported,
 }

@@ -24,7 +24,7 @@ _TestFrag !== void 0
 "
 `;
 
-exports[`\`development\` option tests the hash when \`isDevVariable\` is set 1`] = `
+exports[`\`development\` option tests the hash when \`isDevVariableName\` is set 1`] = `
 "var _TestFrag;
 
 _TestFrag !== void 0

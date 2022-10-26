@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -19,7 +17,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -60,7 +58,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       beforeEach(() => {
         commentID = 'comment-id';
 
-        CreateCommentMutation = getRequest(graphql`
+        CreateCommentMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationTestCreateCommentMutation(
             $input: CommentCreateInput!
           ) {
@@ -73,18 +71,18 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        CommentFragment = getFragment(graphql`
+        CommentFragment = graphql`
           fragment RelayModernEnvironmentExecuteMutationTestCommentFragment on Comment {
             id
             body {
               text
             }
           }
-        `);
+        `;
 
-        CreateCommentWithSpreadMutation = getRequest(graphql`
+        CreateCommentWithSpreadMutation = graphql`
           mutation RelayModernEnvironmentExecuteMutationTestCreateCommentWithSpreadMutation(
             $input: CommentCreateInput!
           ) {
@@ -94,9 +92,9 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
-        CommentQuery = getRequest(graphql`
+        CommentQuery = graphql`
           query RelayModernEnvironmentExecuteMutationTestCommentQuery(
             $id: ID!
           ) {
@@ -105,11 +103,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               ...RelayModernEnvironmentExecuteMutationTestCommentFragment
             }
           }
-        `);
+        `;
 
         variables = {
           input: {
-            clientMutationId: '0',
             feedbackId: '1',
           },
         };

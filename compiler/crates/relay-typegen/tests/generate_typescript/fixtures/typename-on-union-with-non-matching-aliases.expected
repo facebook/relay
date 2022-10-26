@@ -1,0 +1,39 @@
+==================================== INPUT ====================================
+fragment Foo on Node {
+  ... on User {
+    __typename
+  }
+  ... on Comment {
+    alias: __typename
+  }
+  ... on Feedback {
+    foo: __typename
+  }
+}
+==================================== OUTPUT ===================================
+import { FragmentRefs } from "relay-runtime";
+export type Foo$data = {
+  readonly __typename: "User";
+  readonly " $fragmentType": "Foo";
+} | {
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly alias: "%other";
+  // This will never be '%other', but we need some
+  // value in case none of the concrete values match.
+  readonly foo: "%other";
+  readonly " $fragmentType": "Foo";
+} | {
+  readonly alias: "Comment";
+  readonly " $fragmentType": "Foo";
+} | {
+  readonly foo: "Feedback";
+  readonly " $fragmentType": "Foo";
+};
+export type Foo$key = {
+  readonly " $data"?: Foo$data;
+  readonly " $fragmentSpreads": FragmentRefs<"Foo">;
+};

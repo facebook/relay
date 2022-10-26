@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<35feb4833b6d2fac9ff5e94c9b08d415>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<9f3d88adc49b815fd50009e9b952b278>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,23 +17,21 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$ref;
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment = {|
-  +id: string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType: FragmentType;
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$data = {|
   +actors: ?$ReadOnlyArray<?{|
     +name: ?string,
   |}>,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$ref,
-  +$refType: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$ref,
+  +id: string,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType,
+  +$fragmentType: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
 |};
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$data = RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment;
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$key = {
   +$data?: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$data,
-  +$fragmentRefs: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$ref,
+  +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
   ...
 };
 */
@@ -96,4 +96,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "aa95f24c1b87abaaa8da5bc4f20bed07";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
+  RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$data,
+>*/);

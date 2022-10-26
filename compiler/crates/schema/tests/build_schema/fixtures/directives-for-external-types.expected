@@ -53,23 +53,31 @@ Text Schema:Schema {
   subscription_type: None
   directives: [
     Directive {
-        name: "extern_type",
+        name: DirectiveName(
+            "extern_type",
+        ),
         arguments: [
             Argument {
-                name: "schema",
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -80,15 +88,20 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
-        name: "fetchable",
+        name: DirectiveName(
+            "fetchable",
+        ),
         arguments: [
             Argument {
-                name: "field_name",
+                name: ArgumentName(
+                    "field_name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -99,10 +112,14 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
-        name: "include",
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -110,6 +127,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -122,23 +140,31 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
-        name: "ref_type",
+        name: DirectiveName(
+            "ref_type",
+        ),
         arguments: [
             Argument {
-                name: "schema",
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -149,10 +175,14 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
-        name: "skip",
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(3),
@@ -160,6 +190,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -172,10 +203,14 @@ Text Schema:Schema {
         description: None,
     },
     Directive {
-        name: "source",
+        name: DirectiveName(
+            "source",
+        ),
         arguments: [
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -183,6 +218,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -222,12 +258,15 @@ Text Schema:Schema {
         is_extension: false,
         arguments: [
             Argument {
-                name: "id",
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: Named(
                     Scalar(5),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         type_: Named(
@@ -247,12 +286,15 @@ Text Schema:Schema {
         is_extension: false,
         arguments: [
             Argument {
-                name: "id",
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: Named(
                     Scalar(5),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         type_: Named(
@@ -308,10 +350,14 @@ Text Schema:Schema {
         ),
         directives: [
             DirectiveValue {
-                name: "ref_type",
+                name: DirectiveName(
+                    "ref_type",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -323,7 +369,9 @@ Text Schema:Schema {
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -350,12 +398,15 @@ Text Schema:Schema {
         is_extension: false,
         arguments: [
             Argument {
-                name: "country",
+                name: ArgumentName(
+                    "country",
+                ),
                 type_: Named(
                     InputObject(0),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         type_: Named(
@@ -461,7 +512,9 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
-        description: None,
+        description: Some(
+            "This object's GraphQL type. Provided by GraphQL type name introspection.",
+        ),
     },
     Field {
         name: WithLocation {
@@ -493,7 +546,9 @@ Text Schema:Schema {
         ),
         directives: [],
         parent_type: None,
-        description: None,
+        description: Some(
+            "Relay's cache key for this object.",
+        ),
     },
     Field {
         name: WithLocation {
@@ -517,7 +572,9 @@ Text Schema:Schema {
         is_extension: true,
         arguments: [
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -525,6 +582,7 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         type_: NonNull(
@@ -539,10 +597,17 @@ Text Schema:Schema {
 ]
   input_objects: [
     InputObject {
-        name: "Country",
+        name: WithLocation {
+            location: <generated>:775:782,
+            item: InputObjectName(
+                "Country",
+            ),
+        },
         fields: [
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -550,14 +615,19 @@ Text Schema:Schema {
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -569,7 +639,9 @@ Text Schema:Schema {
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -588,8 +660,14 @@ Text Schema:Schema {
 ]
   interfaces: [
     Interface {
-        name: "XIGHuman",
+        name: WithLocation {
+            location: <generated>:427:435,
+            item: InterfaceName(
+                "XIGHuman",
+            ),
+        },
         is_extension: false,
+        implementing_interfaces: [],
         implementing_objects: [
             ObjectID(1),
         ],
@@ -598,10 +676,14 @@ Text Schema:Schema {
         ],
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -613,7 +695,9 @@ Text Schema:Schema {
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -635,7 +719,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:342:347,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -649,7 +735,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:505:509,
-            item: "User",
+            item: ObjectName(
+                "User",
+            ),
         },
         is_extension: false,
         fields: [
@@ -662,10 +750,14 @@ Text Schema:Schema {
         ],
         directives: [
             DirectiveValue {
-                name: "fetchable",
+                name: DirectiveName(
+                    "fetchable",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "field_name",
+                        name: ArgumentName(
+                            "field_name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -684,7 +776,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:702:716,
-            item: "MailingAddress",
+            item: ObjectName(
+                "MailingAddress",
+            ),
         },
         is_extension: false,
         fields: [
@@ -699,7 +793,9 @@ Text Schema:Schema {
     Object {
         name: WithLocation {
             location: <generated>:872:880,
-            item: "XIGStory",
+            item: ObjectName(
+                "XIGStory",
+            ),
         },
         is_extension: false,
         fields: [
@@ -709,10 +805,14 @@ Text Schema:Schema {
         interfaces: [],
         directives: [
             DirectiveValue {
-                name: "fetchable",
+                name: DirectiveName(
+                    "fetchable",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "field_name",
+                        name: ArgumentName(
+                            "field_name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -726,10 +826,14 @@ Text Schema:Schema {
                 ],
             },
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -741,7 +845,9 @@ Text Schema:Schema {
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -760,44 +866,78 @@ Text Schema:Schema {
 ]
   scalars: [
     Scalar {
-        name: "Int",
+        name: WithLocation {
+            location: <generated>:187:190,
+            item: ScalarName(
+                "Int",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Float",
+        name: WithLocation {
+            location: <generated>:198:203,
+            item: ScalarName(
+                "Float",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "String",
+        name: WithLocation {
+            location: <generated>:211:217,
+            item: ScalarName(
+                "String",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Boolean",
+        name: WithLocation {
+            location: <generated>:225:232,
+            item: ScalarName(
+                "Boolean",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "ID",
+        name: WithLocation {
+            location: <generated>:240:242,
+            item: ScalarName(
+                "ID",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "ID",
+        name: WithLocation {
+            location: <generated>:293:295,
+            item: ScalarName(
+                "ID",
+            ),
+        },
         is_extension: false,
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -809,7 +949,9 @@ Text Schema:Schema {
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -828,7 +970,10 @@ Text Schema:Schema {
 ]
   unions: [
     Union {
-        name: "Address",
+        name: WithLocation {
+            location: <generated>:993:1000,
+            item: "Address",
+        },
         is_extension: false,
         members: [
             ObjectID(2),
@@ -836,10 +981,14 @@ Text Schema:Schema {
         ],
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -851,7 +1000,9 @@ Text Schema:Schema {
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -873,23 +1024,31 @@ Text Schema:Schema {
 FlatBuffer Schema:FB Schema {
 directives: [
     Directive {
-        name: "extern_type",
+        name: DirectiveName(
+            "extern_type",
+        ),
         arguments: [
             Argument {
-                name: "schema",
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -900,15 +1059,20 @@ directives: [
         description: None,
     },
     Directive {
-        name: "fetchable",
+        name: DirectiveName(
+            "fetchable",
+        ),
         arguments: [
             Argument {
-                name: "field_name",
+                name: ArgumentName(
+                    "field_name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -919,10 +1083,14 @@ directives: [
         description: None,
     },
     Directive {
-        name: "include",
+        name: DirectiveName(
+            "include",
+        ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -930,6 +1098,7 @@ directives: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -942,23 +1111,31 @@ directives: [
         description: None,
     },
     Directive {
-        name: "ref_type",
+        name: DirectiveName(
+            "ref_type",
+        ),
         arguments: [
             Argument {
-                name: "schema",
+                name: ArgumentName(
+                    "schema",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: Named(
                     Scalar(2),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -969,10 +1146,14 @@ directives: [
         description: None,
     },
     Directive {
-        name: "skip",
+        name: DirectiveName(
+            "skip",
+        ),
         arguments: [
             Argument {
-                name: "if",
+                name: ArgumentName(
+                    "if",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(1),
@@ -980,6 +1161,7 @@ directives: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -992,10 +1174,14 @@ directives: [
         description: None,
     },
     Directive {
-        name: "source",
+        name: DirectiveName(
+            "source",
+        ),
         arguments: [
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -1003,6 +1189,7 @@ directives: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         locations: [
@@ -1076,12 +1263,15 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: "id",
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: Named(
                     Scalar(0),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         type_: Named(
@@ -1101,12 +1291,15 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: "id",
+                name: ArgumentName(
+                    "id",
+                ),
                 type_: Named(
                     Scalar(0),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         type_: Named(
@@ -1146,10 +1339,14 @@ fields: [
         ),
         directives: [
             DirectiveValue {
-                name: "ref_type",
+                name: DirectiveName(
+                    "ref_type",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1161,7 +1358,9 @@ fields: [
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1188,12 +1387,15 @@ fields: [
         is_extension: false,
         arguments: [
             Argument {
-                name: "country",
+                name: ArgumentName(
+                    "country",
+                ),
                 type_: Named(
                     InputObject(0),
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         type_: Named(
@@ -1256,10 +1458,17 @@ fields: [
 ]
 input_objects: [
     InputObject {
-        name: "Country",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: InputObjectName(
+                "Country",
+            ),
+        },
         fields: [
             Argument {
-                name: "name",
+                name: ArgumentName(
+                    "name",
+                ),
                 type_: NonNull(
                     Named(
                         Scalar(2),
@@ -1267,14 +1476,19 @@ input_objects: [
                 ),
                 default_value: None,
                 description: None,
+                directives: [],
             },
         ],
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1286,7 +1500,9 @@ input_objects: [
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1305,8 +1521,14 @@ input_objects: [
 ]
 interfaces: [
     Interface {
-        name: "XIGHuman",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: InterfaceName(
+                "XIGHuman",
+            ),
+        },
         is_extension: false,
+        implementing_interfaces: [],
         implementing_objects: [
             ObjectID(2),
         ],
@@ -1315,10 +1537,14 @@ interfaces: [
         ],
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1330,7 +1556,9 @@ interfaces: [
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1352,7 +1580,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "MailingAddress",
+            item: ObjectName(
+                "MailingAddress",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1367,7 +1597,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "Query",
+            item: ObjectName(
+                "Query",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1381,7 +1613,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "User",
+            item: ObjectName(
+                "User",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1394,10 +1628,14 @@ objects: [
         ],
         directives: [
             DirectiveValue {
-                name: "fetchable",
+                name: DirectiveName(
+                    "fetchable",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "field_name",
+                        name: ArgumentName(
+                            "field_name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1416,7 +1654,9 @@ objects: [
     Object {
         name: WithLocation {
             location: <generated>:0:0,
-            item: "XIGStory",
+            item: ObjectName(
+                "XIGStory",
+            ),
         },
         is_extension: false,
         fields: [
@@ -1426,10 +1666,14 @@ objects: [
         interfaces: [],
         directives: [
             DirectiveValue {
-                name: "fetchable",
+                name: DirectiveName(
+                    "fetchable",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "field_name",
+                        name: ArgumentName(
+                            "field_name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1443,10 +1687,14 @@ objects: [
                 ],
             },
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1458,7 +1706,9 @@ objects: [
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1477,26 +1727,45 @@ objects: [
 ]
 scalars: [
     Scalar {
-        name: "Boolean",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "Boolean",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "Float",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "Float",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "ID",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "ID",
+            ),
+        },
         is_extension: false,
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1508,7 +1777,9 @@ scalars: [
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1525,13 +1796,23 @@ scalars: [
         description: None,
     },
     Scalar {
-        name: "Int",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "Int",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
     },
     Scalar {
-        name: "String",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: ScalarName(
+                "String",
+            ),
+        },
         is_extension: false,
         directives: [],
         description: None,
@@ -1539,7 +1820,10 @@ scalars: [
 ]
 unions: [
     Union {
-        name: "Address",
+        name: WithLocation {
+            location: <generated>:0:0,
+            item: "Address",
+        },
         is_extension: false,
         members: [
             ObjectID(0),
@@ -1547,10 +1831,14 @@ unions: [
         ],
         directives: [
             DirectiveValue {
-                name: "source",
+                name: DirectiveName(
+                    "source",
+                ),
                 arguments: [
                     ArgumentValue {
-                        name: "schema",
+                        name: ArgumentName(
+                            "schema",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {
@@ -1562,7 +1850,9 @@ unions: [
                         ),
                     },
                     ArgumentValue {
-                        name: "name",
+                        name: ArgumentName(
+                            "name",
+                        ),
                         value: String(
                             StringNode {
                                 token: Token {

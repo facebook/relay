@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d4f904ba8ab290f931a330d8c46fd028>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<dab6b298953a9fa6f3d72fd6bad37bdc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,9 +17,9 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentViewerTestQueryVariables = {||};
-export type RelayModernEnvironmentViewerTestQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentViewerTestQuery$variables = {||};
+export type RelayModernEnvironmentViewerTestQuery$data = {|
   +viewer: ?{|
     +marketplace_settings: ?{|
       +categories: ?$ReadOnlyArray<?string>,
@@ -25,8 +27,8 @@ export type RelayModernEnvironmentViewerTestQueryResponse = {|
   |},
 |};
 export type RelayModernEnvironmentViewerTestQuery = {|
-  variables: RelayModernEnvironmentViewerTestQueryVariables,
-  response: RelayModernEnvironmentViewerTestQueryResponse,
+  response: RelayModernEnvironmentViewerTestQuery$data,
+  variables: RelayModernEnvironmentViewerTestQuery$variables,
 |};
 */
 
@@ -94,4 +96,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "2d8f31179e51dbb804c2c7db7bb1d972";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentViewerTestQuery$variables,
+  RelayModernEnvironmentViewerTestQuery$data,
+>*/);

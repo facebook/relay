@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9a7d1a9910d88286328560f5883f7274>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<d6bfa4ae801687df4bec1408d257f239>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +17,16 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useFragmentTestNestedUserFragment$ref: FragmentReference;
-declare export opaque type useFragmentTestNestedUserFragment$fragmentType: useFragmentTestNestedUserFragment$ref;
-export type useFragmentTestNestedUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useFragmentTestNestedUserFragment$fragmentType: FragmentType;
+export type useFragmentTestNestedUserFragment$data = {|
   +username: ?string,
-  +$refType: useFragmentTestNestedUserFragment$ref,
+  +$fragmentType: useFragmentTestNestedUserFragment$fragmentType,
 |};
-export type useFragmentTestNestedUserFragment$data = useFragmentTestNestedUserFragment;
 export type useFragmentTestNestedUserFragment$key = {
   +$data?: useFragmentTestNestedUserFragment$data,
-  +$fragmentRefs: useFragmentTestNestedUserFragment$ref,
+  +$fragmentSpreads: useFragmentTestNestedUserFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "4ea048b1d87c7755acab690b182fb089";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  useFragmentTestNestedUserFragment$fragmentType,
+  useFragmentTestNestedUserFragment$data,
+>*/);

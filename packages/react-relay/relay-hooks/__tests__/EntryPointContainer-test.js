@@ -1,19 +1,17 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 
-jest.mock('warning');
 const EntryPointContainer = require('../EntryPointContainer.react');
 const loadEntryPoint = require('../loadEntryPoint');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
@@ -27,12 +25,16 @@ const {
   PreloadableQueryRegistry,
   RecordSource,
   Store,
-  getRequest,
   graphql,
 } = require('relay-runtime');
-const warning = require('warning');
+const {
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
 
-const query = getRequest(graphql`
+disallowWarnings();
+
+const query = graphql`
   query EntryPointContainerTestQuery($id: ID!) {
     node(id: $id) {
       id
@@ -41,7 +43,7 @@ const query = getRequest(graphql`
       }
     }
   }
-`);
+`;
 const params = {
   kind: 'PreloadableConcreteRequest',
   params: query.params,
@@ -102,10 +104,6 @@ class FakeJSResource<T> {
 }
 
 beforeEach(() => {
-  // $FlowFixMe[prop-missing]
-  warning.mockClear();
-  jest.spyOn(console, 'warn').mockImplementation(() => {});
-  jest.spyOn(console, 'error').mockImplementation(() => {});
   fetch = jest.fn((_query, _variables, _cacheConfig) =>
     Observable.create(sink => {
       dataSource = sink;
@@ -118,12 +116,12 @@ beforeEach(() => {
   nestedEntryPointResource = new FakeJSResource();
 
   entrypoint = {
-    getPreloadProps(entryPointParams) {
+    getPreloadProps(entryPointParams: any) {
       return {
         entryPoints: {
           nestedEntryPoint: {
             entryPoint: {
-              getPreloadProps(nestedEntryPointParams) {
+              getPreloadProps(nestedEntryPointParams: any) {
                 return {
                   queries: {
                     preloadedQuery: {
@@ -149,7 +147,35 @@ afterAll(() => {
 });
 
 it('suspends while the query and component are pending', () => {
-  entryPointReference = loadEntryPoint(
+  entryPointReference = loadEntryPoint<
+    {id: string},
+    {...},
+    {...},
+    {...},
+    mixed,
+    any,
+    {
+      getPreloadProps(entryPointParams: any): {
+        entryPoints: {
+          nestedEntryPoint: {
+            entryPoint: {
+              getPreloadProps(nestedEntryPointParams: any): {
+                queries: {
+                  preloadedQuery: {
+                    parameters: {kind: string, params: RequestParameters},
+                    variables: {id: any},
+                  },
+                },
+              },
+              root: any,
+            },
+            entryPointParams: any,
+          },
+        },
+      },
+      root: any,
+    },
+  >(
     {
       getEnvironment: () => environment,
     },
@@ -176,7 +202,35 @@ it('suspends while the query and component are pending', () => {
 });
 
 it('suspends then updates when the query and component load', () => {
-  entryPointReference = loadEntryPoint(
+  entryPointReference = loadEntryPoint<
+    {id: string},
+    {...},
+    {...},
+    {...},
+    mixed,
+    any,
+    {
+      getPreloadProps(entryPointParams: any): {
+        entryPoints: {
+          nestedEntryPoint: {
+            entryPoint: {
+              getPreloadProps(nestedEntryPointParams: any): {
+                queries: {
+                  preloadedQuery: {
+                    parameters: {kind: string, params: RequestParameters},
+                    variables: {id: any},
+                  },
+                },
+              },
+              root: any,
+            },
+            entryPointParams: any,
+          },
+        },
+      },
+      root: any,
+    },
+  >(
     {
       getEnvironment: () => environment,
     },
@@ -202,7 +256,7 @@ it('suspends then updates when the query and component load', () => {
   TestRenderer.act(() => jest.runAllImmediates());
   expect(renderer.toJSON()).toEqual('Fallback');
   let preloadedQuery = null;
-  function Component(props) {
+  function Component(props: any) {
     expect(props.queries.preloadedQuery.variables.id).toBe('my-id');
     preloadedQuery = props.queries.preloadedQuery;
     const data = usePreloadedQuery(query, props.queries.preloadedQuery);
@@ -222,7 +276,7 @@ it('suspends then updates when the query and component load', () => {
 
 it('renders synchronously when the component has already loaded and the data arrives before render', () => {
   let preloadedQuery = null;
-  function Component(props) {
+  function Component(props: any) {
     expect(props.queries.preloadedQuery.variables.id).toBe('my-id');
     preloadedQuery = props.queries.preloadedQuery;
     const data = usePreloadedQuery(query, props.queries.preloadedQuery);
@@ -230,7 +284,35 @@ it('renders synchronously when the component has already loaded and the data arr
   }
   PreloadableQueryRegistry.set(ID, query);
   nestedEntryPointResource.resolve(Component);
-  entryPointReference = loadEntryPoint(
+  entryPointReference = loadEntryPoint<
+    {id: string},
+    {...},
+    {...},
+    {...},
+    mixed,
+    any,
+    {
+      getPreloadProps(entryPointParams: any): {
+        entryPoints: {
+          nestedEntryPoint: {
+            entryPoint: {
+              getPreloadProps(nestedEntryPointParams: any): {
+                queries: {
+                  preloadedQuery: {
+                    parameters: {kind: string, params: RequestParameters},
+                    variables: {id: any},
+                  },
+                },
+              },
+              root: any,
+            },
+            entryPointParams: any,
+          },
+        },
+      },
+      root: any,
+    },
+  >(
     {
       getEnvironment: () => environment,
     },
@@ -259,9 +341,7 @@ it('renders synchronously when the component has already loaded and the data arr
 });
 
 it('warns if the entryPointReference has already been disposed', () => {
-  const expectWarningMessage = expect.stringMatching(
-    /^<EntryPointContainer>: Expected entryPointReference to not be disposed/,
-  );
+  // $FlowFixMe[incompatible-type]
   entryPointReference = loadEntryPoint(
     {
       getEnvironment: () => environment,
@@ -284,17 +364,10 @@ it('warns if the entryPointReference has already been disposed', () => {
   };
 
   render();
-  expect(warning).toBeCalledTimes(2);
-  expect(warning).toHaveBeenLastCalledWith(
-    true, // invariant holds
-    expectWarningMessage,
-  );
-
   entryPointReference.dispose();
-  render();
-  expect(warning).toBeCalledTimes(3);
-  expect(warning).toHaveBeenLastCalledWith(
-    false, // invariant broken
-    expectWarningMessage,
+
+  expectWarningWillFire(
+    '<EntryPointContainer>: Expected entryPointReference to not be disposed yet. This is because disposing the entrypoint marks it for future garbage collection, and as such may no longer be present in the Relay store. In the future, this will become a hard error.',
   );
+  render();
 });

@@ -1,42 +1,69 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ast::{Ast, AstBuilder, AstKey, ObjectEntry, Primitive, QueryID, RequestParameters};
-use crate::build_ast::{
-    build_fragment, build_operation, build_request, build_request_params,
-    build_request_params_ast_key,
-};
-use crate::constants::CODEGEN_CONSTANTS;
-use crate::indentation::print_indentation;
-use crate::js_module_format::JsModuleFormat;
-use crate::utils::escape;
+use std::borrow::Borrow;
+use std::borrow::Cow;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+use std::path::Path;
 
-use graphql_ir::{FragmentDefinition, OperationDefinition};
+use common::WithLocation;
+use fnv::FnvBuildHasher;
+use fnv::FnvHashSet;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use indexmap::IndexMap;
+use intern::string_key::StringKey;
+use intern::Lookup;
+use relay_config::DynamicModuleProvider;
+use relay_config::ProjectConfig;
 use schema::SDLSchema;
 
-use fnv::{FnvBuildHasher, FnvHashSet};
-use indexmap::IndexMap;
-use interner::StringKey;
-use std::fmt::{Result as FmtResult, Write};
+use crate::ast::Ast;
+use crate::ast::AstBuilder;
+use crate::ast::AstKey;
+use crate::ast::JSModuleDependency;
+use crate::ast::ObjectEntry;
+use crate::ast::Primitive;
+use crate::ast::QueryID;
+use crate::ast::RequestParameters;
+use crate::build_ast::build_fragment;
+use crate::build_ast::build_operation;
+use crate::build_ast::build_provided_variables;
+use crate::build_ast::build_request;
+use crate::build_ast::build_request_params;
+use crate::build_ast::build_request_params_ast_key;
+use crate::constants::CODEGEN_CONSTANTS;
+use crate::indentation::print_indentation;
+use crate::object;
+use crate::top_level_statements::ModuleImportName;
+use crate::top_level_statements::TopLevelStatement;
+use crate::top_level_statements::TopLevelStatements;
+use crate::utils::escape;
+use crate::CodegenBuilder;
+use crate::CodegenVariant;
+use crate::JsModuleFormat;
 
 pub fn print_operation(
     schema: &SDLSchema,
     operation: &OperationDefinition,
-    js_module_format: JsModuleFormat,
+    project_config: &ProjectConfig,
+    top_level_statements: &mut TopLevelStatements,
 ) -> String {
-    Printer::without_dedupe(js_module_format).print_operation(schema, operation)
+    Printer::without_dedupe(project_config).print_operation(schema, operation, top_level_statements)
 }
 
 pub fn print_fragment(
     schema: &SDLSchema,
     fragment: &FragmentDefinition,
-    js_module_format: JsModuleFormat,
+    project_config: &ProjectConfig,
+    top_level_statements: &mut TopLevelStatements,
 ) -> String {
-    Printer::without_dedupe(js_module_format).print_fragment(schema, fragment)
+    Printer::without_dedupe(project_config).print_fragment(schema, fragment, top_level_statements)
 }
 
 pub fn print_request(
@@ -44,13 +71,15 @@ pub fn print_request(
     operation: &OperationDefinition,
     fragment: &FragmentDefinition,
     request_parameters: RequestParameters<'_>,
-    js_module_format: JsModuleFormat,
+    project_config: &ProjectConfig,
+    top_level_statements: &mut TopLevelStatements,
 ) -> String {
-    Printer::without_dedupe(js_module_format).print_request(
+    Printer::without_dedupe(project_config).print_request(
         schema,
         operation,
         fragment,
         request_parameters,
+        top_level_statements,
     )
 }
 
@@ -58,39 +87,91 @@ pub fn print_request_params(
     schema: &SDLSchema,
     operation: &OperationDefinition,
     query_id: &Option<QueryID>,
-    js_module_format: JsModuleFormat,
+    project_config: &ProjectConfig,
+    top_level_statements: &mut TopLevelStatements,
 ) -> String {
     let mut request_parameters = build_request_params(operation);
     request_parameters.id = query_id;
 
     let mut builder = AstBuilder::default();
-    let request_parameters_ast_key =
-        build_request_params_ast_key(schema, request_parameters, &mut builder, operation);
-    let printer = JSONPrinter::new(&builder, js_module_format);
+    let request_parameters_ast_key = build_request_params_ast_key(
+        schema,
+        request_parameters,
+        &mut builder,
+        operation,
+        top_level_statements,
+        operation.name.map(|x| x.0),
+        project_config,
+    );
+    let printer = JSONPrinter::new(&builder, project_config, top_level_statements);
     printer.print(request_parameters_ast_key, false)
 }
 
-pub struct Printer {
-    js_module_format: JsModuleFormat,
+pub struct Printer<'p> {
+    project_config: &'p ProjectConfig,
     builder: AstBuilder,
     dedupe: bool,
 }
 
-impl Printer {
-    pub fn with_dedupe(js_module_format: JsModuleFormat) -> Self {
+impl<'p> Printer<'p> {
+    pub fn with_dedupe(project_config: &'p ProjectConfig) -> Self {
         Self {
-            js_module_format,
+            project_config,
             builder: Default::default(),
             dedupe: true,
         }
     }
 
-    pub fn without_dedupe(js_module_format: JsModuleFormat) -> Self {
+    pub fn without_dedupe(project_config: &'p ProjectConfig) -> Self {
         Self {
-            js_module_format,
+            project_config,
             builder: Default::default(),
             dedupe: false,
         }
+    }
+
+    pub fn print_provided_variables(
+        &mut self,
+        schema: &SDLSchema,
+        operation: &OperationDefinition,
+        top_level_statements: &mut TopLevelStatements,
+    ) -> Option<String> {
+        let key = build_provided_variables(
+            schema,
+            &mut self.builder,
+            operation,
+            WithLocation::new(operation.name.location, operation.name.item.0),
+            self.project_config,
+        )?;
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        Some(printer.print(key, self.dedupe))
+    }
+
+    pub fn print_updatable_query(
+        &mut self,
+        schema: &SDLSchema,
+        fragment: &FragmentDefinition,
+    ) -> String {
+        let mut fragment_builder = CodegenBuilder::new(
+            schema,
+            CodegenVariant::Reader,
+            &mut self.builder,
+            self.project_config,
+            fragment.name.map(|x| x.0),
+        );
+        let fragment = Primitive::Key(fragment_builder.build_fragment(fragment, true));
+        let key = self.builder.intern(Ast::Object(object! {
+            fragment: fragment,
+            kind: Primitive::String(CODEGEN_CONSTANTS.updatable_query),
+        }));
+
+        let mut top_level_statements = Default::default();
+        let printer = JSONPrinter::new(
+            &self.builder,
+            self.project_config,
+            &mut top_level_statements,
+        );
+        printer.print(key, self.dedupe)
     }
 
     pub fn print_request(
@@ -99,17 +180,28 @@ impl Printer {
         operation: &OperationDefinition,
         fragment: &FragmentDefinition,
         request_parameters: RequestParameters<'_>,
+        top_level_statements: &mut TopLevelStatements,
     ) -> String {
-        let request_parameters =
-            build_request_params_ast_key(schema, request_parameters, &mut self.builder, operation);
+        let request_parameters = build_request_params_ast_key(
+            schema,
+            request_parameters,
+            &mut self.builder,
+            operation,
+            top_level_statements,
+            WithLocation::new(operation.name.location, operation.name.item.0),
+            self.project_config,
+        );
+
         let key = build_request(
             schema,
             &mut self.builder,
             operation,
             fragment,
             request_parameters,
+            fragment.name.map(|x| x.0),
+            self.project_config,
         );
-        let printer = JSONPrinter::new(&self.builder, self.js_module_format);
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
 
@@ -117,38 +209,90 @@ impl Printer {
         &mut self,
         schema: &SDLSchema,
         operation: &OperationDefinition,
+        top_level_statements: &mut TopLevelStatements,
     ) -> String {
-        let key = build_operation(schema, &mut self.builder, operation);
-        let printer = JSONPrinter::new(&self.builder, self.js_module_format);
+        let key = build_operation(
+            schema,
+            &mut self.builder,
+            operation,
+            WithLocation::new(operation.name.location, operation.name.item.0),
+            self.project_config,
+        );
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
 
-    pub fn print_fragment(&mut self, schema: &SDLSchema, fragment: &FragmentDefinition) -> String {
-        let key = build_fragment(schema, &mut self.builder, fragment);
-        let printer = JSONPrinter::new(&self.builder, self.js_module_format);
+    pub fn print_fragment(
+        &mut self,
+        schema: &SDLSchema,
+        fragment: &FragmentDefinition,
+        top_level_statements: &mut TopLevelStatements,
+    ) -> String {
+        let key = build_fragment(
+            schema,
+            &mut self.builder,
+            fragment,
+            fragment.name.map(|x| x.0),
+            self.project_config,
+        );
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
+        printer.print(key, self.dedupe)
+    }
+
+    pub fn print_request_params(
+        &mut self,
+        schema: &SDLSchema,
+        request_parameters: RequestParameters<'_>,
+        operation: &OperationDefinition,
+        top_level_statements: &mut TopLevelStatements,
+    ) -> String {
+        let key = build_request_params_ast_key(
+            schema,
+            request_parameters,
+            &mut self.builder,
+            operation,
+            top_level_statements,
+            WithLocation::new(operation.name.location, operation.name.item.0),
+            self.project_config,
+        );
+        let printer = JSONPrinter::new(&self.builder, self.project_config, top_level_statements);
         printer.print(key, self.dedupe)
     }
 }
 
 type VariableDefinitions = IndexMap<AstKey, String, FnvBuildHasher>;
-struct JSONPrinter<'b> {
+
+pub struct JSONPrinter<'b> {
     variable_definitions: VariableDefinitions,
     duplicates: FnvHashSet<AstKey>,
     builder: &'b AstBuilder,
+    eager_es_modules: bool,
     js_module_format: JsModuleFormat,
+    top_level_statements: &'b mut TopLevelStatements,
+    skip_printing_nulls: bool,
 }
 
 impl<'b> JSONPrinter<'b> {
-    fn new(builder: &'b AstBuilder, js_module_format: JsModuleFormat) -> Self {
+    pub fn new(
+        builder: &'b AstBuilder,
+        project_config: &ProjectConfig,
+        top_level_statements: &'b mut TopLevelStatements,
+    ) -> Self {
         Self {
             variable_definitions: Default::default(),
+            top_level_statements,
             duplicates: Default::default(),
             builder,
-            js_module_format,
+            js_module_format: project_config.js_module_format,
+            eager_es_modules: project_config.typegen_config.eager_es_modules,
+            skip_printing_nulls: project_config
+                .feature_flags
+                .skip_printing_nulls
+                .is_fully_enabled(),
         }
     }
 
-    fn print(mut self, root_key: AstKey, dedupe: bool) -> String {
+    pub fn print(mut self, root_key: AstKey, dedupe: bool) -> String {
         if dedupe {
             let mut visited = Default::default();
             self.collect_value_duplicates(&mut visited, root_key);
@@ -244,6 +388,10 @@ impl<'b> JSONPrinter<'b> {
                     let next_indent = indent + 1;
                     f.push('{');
                     for ObjectEntry { key, value } in object {
+                        match value {
+                            Primitive::SkippableNull if self.skip_printing_nulls => continue,
+                            _ => {}
+                        }
                         f.push('\n');
                         print_indentation(f, next_indent);
                         write!(f, "\"{}\": ", key).unwrap();
@@ -271,6 +419,10 @@ impl<'b> JSONPrinter<'b> {
                     f.push('[');
                     let next_indent = indent + 1;
                     for value in array {
+                        match value {
+                            Primitive::SkippableNull if self.skip_printing_nulls => continue,
+                            _ => {}
+                        }
                         f.push('\n');
                         print_indentation(f, next_indent);
                         self.print_primitive(f, value, next_indent, is_dedupe_var)
@@ -294,7 +446,7 @@ impl<'b> JSONPrinter<'b> {
         is_dedupe_var: bool,
     ) -> FmtResult {
         match primitive {
-            Primitive::Null => write!(f, "null"),
+            Primitive::Null | Primitive::SkippableNull => write!(f, "null"),
             Primitive::Bool(b) => write!(f, "{}", if *b { "true" } else { "false" }),
             Primitive::RawString(str) => {
                 f.push('\"');
@@ -305,22 +457,210 @@ impl<'b> JSONPrinter<'b> {
             Primitive::String(key) => write!(f, "\"{}\"", key),
             Primitive::Float(value) => write!(f, "{}", value.as_float()),
             Primitive::Int(value) => write!(f, "{}", value),
+            Primitive::Variable(variable_name) => write!(f, "{}", variable_name),
             Primitive::Key(key) => {
                 self.print_ast(f, *key, indent, is_dedupe_var);
                 Ok(())
             }
             Primitive::StorageKey(field_name, key) => {
-                write_static_storage_key(f, &self.builder, *field_name, *key)
+                write_static_storage_key(f, self.builder, *field_name, *key)
             }
-            Primitive::GraphQLModuleDependency(key) => match self.js_module_format {
-                JsModuleFormat::CommonJS => write!(f, "require('./{}.graphql')", key),
-                JsModuleFormat::Haste => write!(f, "require('{}.graphql')", key),
+            Primitive::GraphQLModuleDependency(key) => self.write_js_dependency(
+                f,
+                ModuleImportName::Default(format!("{}_graphql", key)),
+                Cow::Owned(format!(
+                    "{}.graphql",
+                    get_module_path(self.js_module_format, *key)
+                )),
+            ),
+            Primitive::JSModuleDependency(JSModuleDependency {
+                path,
+                named_import,
+                import_as,
+            }) => self.write_js_dependency(
+                f,
+                named_import
+                    .map(|name| ModuleImportName::Named {
+                        name: name.to_string(),
+                        import_as: import_as.map(|item| item.to_string()),
+                    })
+                    .unwrap_or_else(|| ModuleImportName::Default(path.to_string())),
+                get_module_path(self.js_module_format, *path),
+            ),
+            Primitive::DynamicImport { provider, module } => match provider {
+                DynamicModuleProvider::JSResource => {
+                    self.top_level_statements.insert(
+                        "JSResource".to_string(),
+                        TopLevelStatement::ImportStatement {
+                            module_import_name: ModuleImportName::Default("JSResource".to_string()),
+                            path: "JSResource".to_string(),
+                        },
+                    );
+                    write!(f, "() => JSResource('m#{}')", module)
+                }
+                DynamicModuleProvider::Custom { statement } => {
+                    f.push_str(&statement.lookup().replace(
+                        "<$module>",
+                        &get_module_path(self.js_module_format, *module),
+                    ));
+                    Ok(())
+                }
             },
-            Primitive::JSModuleDependency(key) => match self.js_module_format {
-                JsModuleFormat::CommonJS => write!(f, "require('./{}')", key),
-                JsModuleFormat::Haste => write!(f, "require('{}')", key),
-            },
+            Primitive::RelayResolverModel {
+                graphql_module,
+                js_module,
+                injected_field_name_details,
+            } => self.write_relay_resolver_model(
+                f,
+                *graphql_module,
+                js_module,
+                injected_field_name_details.as_ref().copied(),
+            ),
+            Primitive::RelayResolverWeakObjectWrapper {
+                resolver,
+                key,
+                plural,
+            } => self.write_relay_resolver_weak_object_wrapper(
+                f,
+                resolver,
+                *key,
+                *plural,
+                indent,
+                is_dedupe_var,
+            ),
         }
+    }
+
+    fn write_js_dependency(
+        &mut self,
+        f: &mut String,
+        module_import_name: ModuleImportName,
+        path: Cow<'_, str>,
+    ) -> FmtResult {
+        if self.eager_es_modules {
+            let path = path.into_owned();
+            let key = match module_import_name {
+                ModuleImportName::Default(ref name) => name.to_string(),
+                ModuleImportName::Named {
+                    ref name,
+                    ref import_as,
+                } => import_as
+                    .as_ref()
+                    .cloned()
+                    .unwrap_or_else(|| name.to_string()),
+            };
+            self.top_level_statements.insert(
+                key.to_string(),
+                TopLevelStatement::ImportStatement {
+                    module_import_name,
+                    path,
+                },
+            );
+            write!(f, "{}", key)
+        } else {
+            match module_import_name {
+                ModuleImportName::Default(_) => {
+                    write!(f, "require('{}')", path)
+                }
+                ModuleImportName::Named { name, .. } => {
+                    write!(f, "require('{}').{}", path, name)
+                }
+            }
+        }
+    }
+
+    fn write_relay_resolver_model(
+        &mut self,
+        f: &mut String,
+        graphql_module: StringKey,
+        js_module: &JSModuleDependency,
+        injected_field_name_details: Option<(StringKey, bool)>,
+    ) -> FmtResult {
+        let relay_runtime_experimental = "relay-runtime/experimental";
+        let resolver_data_injector = "resolverDataInjector";
+
+        self.write_js_dependency(
+            f,
+            ModuleImportName::Named {
+                name: resolver_data_injector.to_string(),
+                import_as: None,
+            },
+            Cow::Borrowed(relay_runtime_experimental),
+        )?;
+        write!(f, "(")?;
+        self.write_js_dependency(
+            f,
+            ModuleImportName::Default(format!("{}_graphql", graphql_module)),
+            Cow::Owned(format!(
+                "{}.graphql",
+                get_module_path(self.js_module_format, graphql_module)
+            )),
+        )?;
+        write!(f, ", ")?;
+        self.write_js_dependency(
+            f,
+            js_module.named_import.map_or_else(
+                || ModuleImportName::Default(js_module.path.to_string()),
+                |name| ModuleImportName::Named {
+                    name: name.to_string(),
+                    import_as: js_module.import_as.map(|item| item.to_string()),
+                },
+            ),
+            get_module_path(self.js_module_format, js_module.path),
+        )?;
+        if let Some((field_name, is_required_field)) = injected_field_name_details {
+            write!(f, ", '{}'", field_name)?;
+            write!(f, ", {}", is_required_field)?;
+        }
+        write!(f, ")")
+    }
+
+    fn write_relay_resolver_weak_object_wrapper(
+        &mut self,
+        f: &mut String,
+        resolver: &Primitive,
+        key: StringKey,
+        plural: bool,
+        indent: usize,
+        is_dedupe_var: bool,
+    ) -> FmtResult {
+        let relay_runtime_experimental = "relay-runtime/experimental";
+        let weak_object_wrapper = "weakObjectWrapper";
+
+        self.write_js_dependency(
+            f,
+            ModuleImportName::Named {
+                name: weak_object_wrapper.to_string(),
+                import_as: None,
+            },
+            Cow::Borrowed(relay_runtime_experimental),
+        )?;
+        write!(f, "(")?;
+        self.print_primitive(f, resolver, indent + 1, is_dedupe_var)?;
+        write!(f, ", '{}', {})", key, plural)
+    }
+}
+
+fn get_module_path(js_module_format: JsModuleFormat, key: StringKey) -> Cow<'static, str> {
+    match js_module_format {
+        JsModuleFormat::CommonJS => {
+            let path = Path::new(key.lookup());
+            let extension = path.extension();
+
+            if let Some(extension) = extension {
+                if extension == "ts" || extension == "js" {
+                    let path_without_extension = path.with_extension("");
+
+                    let path_without_extension = path_without_extension
+                        .to_str()
+                        .expect("could not convert `path_without_extension` to a str");
+
+                    return Cow::Owned(format!("./{}", path_without_extension));
+                }
+            }
+            Cow::Owned(format!("./{}", key.borrow()))
+        }
+        JsModuleFormat::Haste => Cow::Borrowed(key.lookup()),
     }
 }
 
@@ -426,6 +766,7 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         Primitive::String(key) => write!(f, "\\\"{}\\\"", key),
         Primitive::Float(value) => write!(f, "{}", value.as_float()),
         Primitive::Int(value) => write!(f, "{}", value),
+        Primitive::Variable(variable_name) => write!(f, "{}", variable_name),
         Primitive::Key(key) => {
             let ast = builder.lookup(*key);
             match ast {
@@ -456,13 +797,18 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
                 }
             }
         }
-        Primitive::Null => {
+        Primitive::Null | Primitive::SkippableNull => {
             f.push_str("null");
             Ok(())
         }
         Primitive::StorageKey(_, _) => panic!("Unexpected StorageKey"),
         Primitive::RawString(_) => panic!("Unexpected RawString"),
         Primitive::GraphQLModuleDependency(_) => panic!("Unexpected GraphQLModuleDependency"),
-        Primitive::JSModuleDependency(_) => panic!("Unexpected JSModuleDependency"),
+        Primitive::JSModuleDependency { .. } => panic!("Unexpected JSModuleDependency"),
+        Primitive::DynamicImport { .. } => panic!("Unexpected DynamicImport"),
+        Primitive::RelayResolverModel { .. } => panic!("Unexpected RelayResolver"),
+        Primitive::RelayResolverWeakObjectWrapper { .. } => {
+            panic!("Unexpected RelayResolverWeakObjectWrapper")
+        }
     }
 }

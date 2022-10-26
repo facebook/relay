@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -41,14 +39,14 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
   fetchPolicy,
   fetchKey,
   renderPolicy,
-}: {|
+}: {
   query: OperationDescriptor,
   componentDisplayName: string,
   fetchObservable: Observable<GraphQLResponse>,
   fetchPolicy?: ?FetchPolicy,
   fetchKey?: ?string | ?number,
   renderPolicy?: ?RenderPolicy,
-|}): $ElementType<TQuery, 'response'> {
+}): TQuery['response'] {
   const environment = useRelayEnvironment();
   const profilerContext = useContext(ProfilerContext);
   const QueryResource = getQueryResourceForEnvironment(environment);
@@ -127,7 +125,7 @@ function useLazyLoadQueryNode<TQuery: OperationType>({
   });
 
   const {fragmentNode, fragmentRef} = preparedQueryResult;
-  const {data} = useFragmentNode(
+  const {data} = useFragmentNode<$FlowFixMe>(
     fragmentNode,
     fragmentRef,
     componentDisplayName,

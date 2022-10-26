@@ -1,46 +1,66 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    diagnostic_reporter::{get_diagnostics_data, DiagnosticReporter},
-    graphql_tools::get_query_text,
-    js_language_server::JSLanguageServer,
-    lsp_runtime_error::LSPRuntimeResult,
-    node_resolution_info::{create_node_resolution_info, NodeResolutionInfo},
-    utils::extract_project_name_from_url,
-    utils::{
-        extract_executable_definitions_from_text_document, extract_executable_document_from_text,
-    },
-};
-use crate::{LSPExtraDataProvider, LSPRuntimeError};
-use common::{Diagnostic as CompilerDiagnostic, PerfLogger, SourceLocationKey, Span};
-use crossbeam::channel::{SendError, Sender};
-use dashmap::{mapref::entry::Entry, DashMap};
+use std::path::PathBuf;
+use std::sync::Arc;
+
+use common::PerfLogger;
+use common::SourceLocationKey;
+use common::Span;
+use crossbeam::channel::SendError;
+use crossbeam::channel::Sender;
+use dashmap::mapref::entry::Entry;
+use dashmap::DashMap;
+use docblock_syntax::parse_docblock;
+use extract_graphql::JavaScriptSourceFeature;
 use fnv::FnvBuildHasher;
-use graphql_ir::{
-    build_ir_with_extra_features, BuilderOptions, FragmentVariablesSemantic, Program,
-};
-use graphql_syntax::{
-    parse_executable_with_error_recovery, ExecutableDefinition, ExecutableDocument, GraphQLSource,
-};
-use interner::{Intern, StringKey};
+use graphql_ir::build_ir_with_extra_features;
+use graphql_ir::BuilderOptions;
+use graphql_ir::FragmentVariablesSemantic;
+use graphql_ir::Program;
+use graphql_ir::RelayMode;
+use graphql_syntax::parse_executable_with_error_recovery;
+use graphql_syntax::ExecutableDefinition;
+use graphql_syntax::ExecutableDocument;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use log::debug;
 use lsp_server::Message;
-use lsp_types::{Diagnostic, DiagnosticTag, Range, TextDocumentPositionParams, Url};
-use relay_compiler::{config::Config, FileCategorizer};
+use lsp_types::Diagnostic;
+use lsp_types::Range;
+use lsp_types::TextDocumentPositionParams;
+use lsp_types::Url;
+use relay_compiler::config::Config;
+use relay_compiler::FileCategorizer;
+use relay_docblock::parse_docblock_ast;
+use relay_docblock::ParseOptions;
 use relay_transforms::deprecated_fields_for_executable_definition;
 use schema::SDLSchema;
-use schema_documentation::{
-    CombinedSchemaDocumentation, SchemaDocumentation, SchemaDocumentationLoader,
-};
-use std::{path::PathBuf, sync::Arc};
+use schema_documentation::CombinedSchemaDocumentation;
+use schema_documentation::SchemaDocumentation;
+use schema_documentation::SchemaDocumentationLoader;
 use tokio::sync::Notify;
 
 use super::task_queue::TaskScheduler;
+use crate::diagnostic_reporter::DiagnosticReporter;
+use crate::docblock_resolution_info::create_docblock_resolution_info;
+use crate::graphql_tools::get_query_text;
+use crate::js_language_server::JSLanguageServer;
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::node_resolution_info::create_node_resolution_info;
+use crate::utils::extract_executable_definitions_from_text_document;
+use crate::utils::extract_feature_from_text;
+use crate::utils::extract_project_name_from_url;
+use crate::ContentConsumerType;
+use crate::DocblockNode;
+use crate::Feature;
+use crate::FeatureResolutionInfo;
+use crate::LSPExtraDataProvider;
+use crate::LSPRuntimeError;
 
 pub type Schemas = Arc<DashMap<StringKey, Arc<SDLSchema>, FnvBuildHasher>>;
 pub type SourcePrograms = Arc<DashMap<StringKey, Program, FnvBuildHasher>>;
@@ -62,7 +82,7 @@ pub trait GlobalState {
     fn resolve_node(
         &self,
         text_document_position: &TextDocumentPositionParams,
-    ) -> LSPRuntimeResult<NodeResolutionInfo>;
+    ) -> LSPRuntimeResult<FeatureResolutionInfo>;
 
     fn root_dir(&self) -> PathBuf;
 
@@ -71,6 +91,12 @@ pub trait GlobalState {
         position: &TextDocumentPositionParams,
         index_offset: usize,
     ) -> LSPRuntimeResult<(ExecutableDocument, Span)>;
+
+    fn extract_feature_from_text(
+        &self,
+        position: &TextDocumentPositionParams,
+        index_offset: usize,
+    ) -> LSPRuntimeResult<(Feature, Span)>;
 
     fn get_schema_documentation(&self, schema_name: &str) -> Self::TSchemaDocumentation;
 
@@ -104,6 +130,11 @@ pub trait GlobalState {
     fn document_changed(&self, url: &Url, full_text: &str) -> LSPRuntimeResult<()>;
 
     fn document_closed(&self, url: &Url) -> LSPRuntimeResult<()>;
+
+    /// To distinguish content, that we show to consumers
+    /// we may need to know who's our current consumer.
+    /// This is mostly for hover handler (where we render markup)
+    fn get_content_consumer_type(&self) -> ContentConsumerType;
 }
 
 /// This structure contains all available resources that we may use in the Relay LSP message/notification
@@ -121,7 +152,7 @@ pub struct LSPState<
     pub(crate) schemas: Schemas,
     schema_documentation_loader: Option<Box<dyn SchemaDocumentationLoader<TSchemaDocumentation>>>,
     pub(crate) source_programs: SourcePrograms,
-    synced_graphql_documents: DashMap<Url, Vec<GraphQLSource>>,
+    synced_javascript_features: DashMap<Url, Vec<JavaScriptSourceFeature>>,
     pub(crate) perf_logger: Arc<TPerfLogger>,
     pub(crate) diagnostic_reporter: Arc<DiagnosticReporter>,
     pub(crate) notify_lsp_state_resources: Arc<Notify>,
@@ -166,7 +197,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             schemas: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
             schema_documentation_loader,
             source_programs: Arc::new(DashMap::with_hasher(FnvBuildHasher::default())),
-            synced_graphql_documents: Default::default(),
+            synced_javascript_features: Default::default(),
             js_resource,
         };
 
@@ -178,13 +209,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         lsp_state
     }
 
-    fn insert_synced_sources(&self, url: &Url, sources: Vec<GraphQLSource>) {
-        self.synced_graphql_documents.insert(url.clone(), sources);
+    fn insert_synced_sources(&self, url: &Url, sources: Vec<JavaScriptSourceFeature>) {
+        self.synced_javascript_features.insert(url.clone(), sources);
     }
 
     fn validate_synced_sources(&self, url: &Url) -> LSPRuntimeResult<()> {
         let mut diagnostics = vec![];
-        let graphql_sources = self.synced_graphql_documents.get(url).ok_or_else(|| {
+        let javascript_features = self.synced_javascript_features.get(url).ok_or_else(|| {
             LSPRuntimeError::UnexpectedError(format!("Expected GraphQL sources for URL {}", url))
         })?;
         let project_name = self.extract_project_name_from_url(url)?;
@@ -193,50 +224,92 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .get(&project_name)
             .ok_or(LSPRuntimeError::ExpectedError)?;
 
-        for graphql_source in graphql_sources.iter() {
-            let result = parse_executable_with_error_recovery(
-                &graphql_source.text,
-                SourceLocationKey::standalone(&url.to_string()),
-            );
+        let mut executable_definitions = vec![];
+        let mut docblock_sources = vec![];
 
-            diagnostics.extend(
-                result
-                    .errors
-                    .iter()
-                    .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
-            );
+        for (index, feature) in javascript_features.iter().enumerate() {
+            let source_location_key = SourceLocationKey::embedded(&url.to_string(), index);
 
-            let compiler_diagnostics = match build_ir_with_extra_features(
-                &schema,
-                &result.item.definitions,
-                BuilderOptions {
-                    allow_undefined_fragment_spreads: true,
-                    fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
-                    relay_mode: true,
-                    default_anonymous_operation_name: None,
-                },
-            )
-            .and_then(|documents| {
-                let mut warnings = vec![];
-                for document in documents {
-                    // Today the only warning we check for is deprecated
-                    // fields, but in the future we could check for more
-                    // things here by making this more generic.
-                    warnings.extend(deprecated_fields_for_executable_definition(
-                        &schema, &document,
-                    )?)
+            match feature {
+                JavaScriptSourceFeature::GraphQL(graphql_source) => {
+                    let result = parse_executable_with_error_recovery(
+                        &graphql_source.text_source().text,
+                        source_location_key,
+                    );
+                    diagnostics.extend(result.diagnostics.iter().map(|diagnostic| {
+                        self.diagnostic_reporter
+                            .convert_diagnostic(graphql_source.text_source(), diagnostic)
+                    }));
+
+                    let compiler_diagnostics = match build_ir_with_extra_features(
+                        &schema,
+                        &result.item.definitions,
+                        &BuilderOptions {
+                            allow_undefined_fragment_spreads: true,
+                            fragment_variables_semantic: FragmentVariablesSemantic::PassedValue,
+                            relay_mode: Some(RelayMode),
+                            default_anonymous_operation_name: None,
+                        },
+                    )
+                    .and_then(|documents| {
+                        let mut warnings = vec![];
+                        for document in documents {
+                            // Today the only warning we check for is deprecated
+                            // fields, but in the future we could check for more
+                            // things here by making this more generic.
+                            warnings.extend(deprecated_fields_for_executable_definition(
+                                &schema, &document,
+                            )?)
+                        }
+                        Ok(warnings)
+                    }) {
+                        Ok(warnings) => warnings,
+                        Err(errors) => errors,
+                    };
+
+                    diagnostics.extend(compiler_diagnostics.iter().map(|diagnostic| {
+                        self.diagnostic_reporter
+                            .convert_diagnostic(graphql_source.text_source(), diagnostic)
+                    }));
+
+                    executable_definitions.extend(result.item.definitions);
                 }
-                Ok(warnings)
-            }) {
-                Ok(warnings) => warnings,
-                Err(errors) => errors,
-            };
+                JavaScriptSourceFeature::Docblock(docblock_source) => {
+                    docblock_sources.push(docblock_source);
+                }
+            }
+        }
 
-            diagnostics.extend(
-                compiler_diagnostics
-                    .iter()
-                    .map(|diagnostic| convert_diagnostic(graphql_source, diagnostic)),
-            );
+        let project_config = self.config.projects.get(&project_name).unwrap();
+        for (index, docblock_source) in docblock_sources.iter().enumerate() {
+            let source_location_key = SourceLocationKey::embedded(url.as_ref(), index);
+            let text_source = docblock_source.text_source();
+            let text = &text_source.text;
+            let result = parse_docblock(text, source_location_key).and_then(|ast| {
+                parse_docblock_ast(
+                    &ast,
+                    Some(&executable_definitions),
+                    ParseOptions {
+                        use_named_imports: project_config
+                            .feature_flags
+                            .use_named_imports_for_relay_resolvers,
+                        relay_resolver_model_syntax_enabled: project_config
+                            .feature_flags
+                            .relay_resolver_model_syntax_enabled,
+                        relay_resolver_enable_terse_syntax: project_config
+                            .feature_flags
+                            .relay_resolver_enable_terse_syntax,
+                        id_field_name: project_config.schema_config.node_interface_id_field,
+                    },
+                )
+            });
+
+            if let Err(errors) = result {
+                diagnostics.extend(errors.iter().map(|diagnostic| {
+                    self.diagnostic_reporter
+                        .convert_diagnostic(text_source, diagnostic)
+                }));
+            }
         }
         self.diagnostic_reporter
             .update_quick_diagnostics_for_url(url, diagnostics);
@@ -261,7 +334,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn process_synced_sources(
         &self,
         uri: &Url,
-        sources: Vec<GraphQLSource>,
+        sources: Vec<JavaScriptSourceFeature>,
     ) -> LSPRuntimeResult<()> {
         let project_name = self.extract_project_name_from_url(uri)?;
 
@@ -277,32 +350,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     }
 
     fn remove_synced_sources(&self, url: &Url) {
-        self.synced_graphql_documents.remove(url);
+        self.synced_javascript_features.remove(url);
         self.diagnostic_reporter
             .clear_quick_diagnostics_for_url(url);
-    }
-}
-
-pub fn convert_diagnostic(
-    graphql_source: &GraphQLSource,
-    diagnostic: &CompilerDiagnostic,
-) -> Diagnostic {
-    let tags: Vec<DiagnosticTag> = diagnostic.tags();
-
-    Diagnostic {
-        code: None,
-        data: get_diagnostics_data(&diagnostic),
-        message: diagnostic.message().to_string(),
-        range: diagnostic.location().span().to_range(
-            &graphql_source.text,
-            graphql_source.line_index,
-            graphql_source.column_index,
-        ),
-        related_information: None,
-        severity: Some(diagnostic.severity()),
-        tags: if tags.len() == 0 { None } else { Some(tags) },
-        source: None,
-        ..Default::default()
     }
 }
 
@@ -344,9 +394,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn resolve_node(
         &self,
         text_document_position: &TextDocumentPositionParams,
-    ) -> LSPRuntimeResult<NodeResolutionInfo> {
-        let (document, position_span) = extract_executable_document_from_text(
-            &self.synced_graphql_documents,
+    ) -> LSPRuntimeResult<FeatureResolutionInfo> {
+        let (feature, position_span) = self.extract_feature_from_text(
             text_document_position,
             // For hovering, offset the index by 1
             // ```
@@ -358,16 +407,46 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             1,
         )?;
 
-        create_node_resolution_info(document, position_span)
+        let info = match feature {
+            Feature::GraphQLDocument(executable_document) => FeatureResolutionInfo::GraphqlNode(
+                create_node_resolution_info(executable_document, position_span)?,
+            ),
+            Feature::DocblockIr(docblock_ir) => FeatureResolutionInfo::DocblockNode(DocblockNode {
+                resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)
+                    .ok_or(LSPRuntimeError::ExpectedError)?,
+                ir: docblock_ir,
+            }),
+        };
+        Ok(info)
     }
 
+    /// Return a parsed executable document for this LSP request, only if the request occurs
+    /// within a GraphQL document.
     fn extract_executable_document_from_text(
         &self,
         position: &TextDocumentPositionParams,
         index_offset: usize,
     ) -> LSPRuntimeResult<(ExecutableDocument, Span)> {
-        extract_executable_document_from_text(
-            &self.synced_graphql_documents,
+        let (feature, span) = self.extract_feature_from_text(position, index_offset)?;
+        match feature {
+            Feature::GraphQLDocument(document) => Ok((document, span)),
+            Feature::DocblockIr(_) => Err(LSPRuntimeError::ExpectedError),
+        }
+    }
+
+    /// Return a parsed executable document, or parsed Docblock IR for this LSP
+    /// request, only if the request occurs within a GraphQL document or Docblock.
+    fn extract_feature_from_text(
+        &self,
+        position: &TextDocumentPositionParams,
+        index_offset: usize,
+    ) -> LSPRuntimeResult<(Feature, Span)> {
+        let project_name = self.extract_project_name_from_url(&position.text_document.uri)?;
+        let project_config = self.config.projects.get(&project_name).unwrap();
+
+        extract_feature_from_text(
+            project_config,
+            &self.synced_javascript_features,
             position,
             index_offset,
         )
@@ -400,7 +479,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     ) -> LSPRuntimeResult<Vec<ExecutableDefinition>> {
         extract_executable_definitions_from_text_document(
             text_document_uri,
-            &self.synced_graphql_documents,
+            &self.synced_javascript_features,
         )
     }
 
@@ -427,11 +506,11 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
 
         // First we check to see if this document has any GraphQL documents.
-        let graphql_sources = extract_graphql::parse_chunks(text);
-        if graphql_sources.is_empty() {
+        let embedded_sources = extract_graphql::extract(text);
+        if embedded_sources.is_empty() {
             Ok(())
         } else {
-            self.process_synced_sources(uri, graphql_sources)
+            self.process_synced_sources(uri, embedded_sources)
         }
     }
 
@@ -441,12 +520,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
 
         // First we check to see if this document has any GraphQL documents.
-        let graphql_sources = extract_graphql::parse_chunks(full_text);
-        if graphql_sources.is_empty() {
+        let embedded_sources = extract_graphql::extract(full_text);
+        if embedded_sources.is_empty() {
             self.remove_synced_sources(uri);
             Ok(())
         } else {
-            self.process_synced_sources(uri, graphql_sources)
+            self.process_synced_sources(uri, embedded_sources)
         }
     }
 
@@ -456,6 +535,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         }
         self.remove_synced_sources(uri);
         Ok(())
+    }
+
+    fn get_content_consumer_type(&self) -> ContentConsumerType {
+        ContentConsumerType::Relay
     }
 }
 
@@ -477,7 +560,7 @@ pub(crate) fn handle_lsp_state_tasks<
             state.validate_synced_sources(&url).ok();
         }
         Task::ValidateSyncedSources => {
-            for item in &state.synced_graphql_documents {
+            for item in &state.synced_javascript_features {
                 state.schedule_task(Task::ValidateSyncedSource(item.key().clone()));
             }
         }

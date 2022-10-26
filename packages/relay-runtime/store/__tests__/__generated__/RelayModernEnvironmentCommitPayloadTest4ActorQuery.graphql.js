@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cc22bbfedd2073727418a1047e4f77f5>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<809d0c3805174a048dba7d53ce8b1f24>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +17,18 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentCommitPayloadTest4UserFragment$ref = any;
-export type RelayModernEnvironmentCommitPayloadTest4ActorQueryVariables = {||};
-export type RelayModernEnvironmentCommitPayloadTest4ActorQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType } from "./RelayModernEnvironmentCommitPayloadTest4UserFragment.graphql";
+export type RelayModernEnvironmentCommitPayloadTest4ActorQuery$variables = {||};
+export type RelayModernEnvironmentCommitPayloadTest4ActorQuery$data = {|
   +me: ?{|
     +name: ?string,
-    +$fragmentRefs: RelayModernEnvironmentCommitPayloadTest4UserFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentCommitPayloadTest4UserFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentCommitPayloadTest4ActorQuery = {|
-  variables: RelayModernEnvironmentCommitPayloadTest4ActorQueryVariables,
-  response: RelayModernEnvironmentCommitPayloadTest4ActorQueryResponse,
+  response: RelayModernEnvironmentCommitPayloadTest4ActorQuery$data,
+  variables: RelayModernEnvironmentCommitPayloadTest4ActorQuery$variables,
 |};
 */
 
@@ -127,4 +129,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8f2ceead1f06c0a0a54557f7a9827a27";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentCommitPayloadTest4ActorQuery$variables,
+  RelayModernEnvironmentCommitPayloadTest4ActorQuery$data,
+>*/);

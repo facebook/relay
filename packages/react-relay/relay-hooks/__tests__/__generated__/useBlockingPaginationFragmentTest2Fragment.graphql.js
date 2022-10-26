@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<625b9518d305c262dfac548211b60024>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<169f364cafb7106b58e6f19eb668579e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,13 +17,11 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-type useBlockingPaginationFragmentTest2Fragment$ref = any;
-type useBlockingPaginationFragmentTest2Fragment$fragmentType = any;
-export type { useBlockingPaginationFragmentTest2Fragment$ref, useBlockingPaginationFragmentTest2Fragment$fragmentType };
-export type useBlockingPaginationFragmentTest2Fragment = {|
-  +id: string,
+import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useBlockingPaginationFragmentTest2Fragment$fragmentType: FragmentType;
+type useBlockingPaginationFragmentTest2FragmentPaginationQuery$variables = any;
+export type useBlockingPaginationFragmentTest2Fragment$data = {|
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +node: ?{|
@@ -29,12 +29,12 @@ export type useBlockingPaginationFragmentTest2Fragment = {|
       |},
     |}>,
   |},
-  +$refType: useBlockingPaginationFragmentTest2Fragment$ref,
+  +id: string,
+  +$fragmentType: useBlockingPaginationFragmentTest2Fragment$fragmentType,
 |};
-export type useBlockingPaginationFragmentTest2Fragment$data = useBlockingPaginationFragmentTest2Fragment;
 export type useBlockingPaginationFragmentTest2Fragment$key = {
   +$data?: useBlockingPaginationFragmentTest2Fragment$data,
-  +$fragmentRefs: useBlockingPaginationFragmentTest2Fragment$ref,
+  +$fragmentSpreads: useBlockingPaginationFragmentTest2Fragment$fragmentType,
   ...
 };
 */
@@ -228,4 +228,8 @@ if (__DEV__) {
   (node/*: any*/).hash = "5f8e9317f3d4ea9a22cd368f8b8d0c4d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: RefetchableFragment<
+  useBlockingPaginationFragmentTest2Fragment$fragmentType,
+  useBlockingPaginationFragmentTest2Fragment$data,
+  useBlockingPaginationFragmentTest2FragmentPaginationQuery$variables,
+>*/);

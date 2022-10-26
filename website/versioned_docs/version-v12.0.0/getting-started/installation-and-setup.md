@@ -11,7 +11,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 
 ## Installation
@@ -52,7 +52,7 @@ module.exports = {
 Relay Modern requires a Babel plugin to convert GraphQL to runtime artifacts:
 
 ```sh
-yarn add --dev babel-plugin-relay graphql
+yarn add --dev babel-plugin-relay graphql@^15.0.0
 ```
 
 Add `"relay"` to the list of plugins your `.babelrc` file:

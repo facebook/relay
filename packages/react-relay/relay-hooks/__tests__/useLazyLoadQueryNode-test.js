@@ -1,19 +1,31 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
+import type {LogEvent} from '../../../relay-runtime/store/RelayStoreTypes';
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
+import type {
+  useLazyLoadQueryNodeTest1Query$data,
+  useLazyLoadQueryNodeTest1Query$variables,
+} from './__generated__/useLazyLoadQueryNodeTest1Query.graphql';
+import type {
+  useLazyLoadQueryNodeTestUserQuery$data,
+  useLazyLoadQueryNodeTestUserQuery$variables,
+} from './__generated__/useLazyLoadQueryNodeTestUserQuery.graphql';
 import type {FetchPolicy} from 'relay-runtime';
+import type {
+  OperationDescriptor,
+  SelectorData,
+} from 'relay-runtime/store/RelayStoreTypes';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useFragmentNode = require('../useFragmentNode');
@@ -26,14 +38,22 @@ const {
   __internal,
   createOperationDescriptor,
   getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+const {
+  disallowConsoleErrors,
+  disallowWarnings,
+  expectToWarn,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
 
 const defaultFetchPolicy = 'network-only';
 
-function expectToBeRendered(renderFn, readyState) {
+function expectToBeRendered(
+  renderFn: JestMockFn<Array<any>, any>,
+  readyState: ?SelectorData,
+) {
   // Ensure useEffect is called before other timers
   ReactTestRenderer.act(() => {
     jest.runAllImmediates();
@@ -43,7 +63,13 @@ function expectToBeRendered(renderFn, readyState) {
   renderFn.mockClear();
 }
 
-function expectToHaveFetched(environment, query) {
+disallowWarnings();
+disallowConsoleErrors();
+
+function expectToHaveFetched(
+  environment: RelayMockEnvironment,
+  query: OperationDescriptor,
+) {
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
   expect(environment.execute).toBeCalledTimes(1);
   // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -60,16 +86,24 @@ function expectToHaveFetched(environment, query) {
   ).toEqual(true);
 }
 
-type Props = {|
+type Props = {
   variables: {...},
   fetchPolicy?: FetchPolicy,
   key?: number,
   extraData?: number,
-|};
+};
 
 describe('useLazyLoadQueryNode', () => {
   let environment;
-  let gqlQuery;
+  let gqlQuery:
+    | Query<
+        useLazyLoadQueryNodeTest1Query$variables,
+        useLazyLoadQueryNodeTest1Query$data,
+      >
+    | Query<
+        useLazyLoadQueryNodeTestUserQuery$variables,
+        useLazyLoadQueryNodeTestUserQuery$data,
+      >;
   let renderFn;
   let render;
   let release;
@@ -77,21 +111,19 @@ describe('useLazyLoadQueryNode', () => {
   let variables;
   let Container;
   let setProps;
-  let logs;
+  let logs: Array<LogEvent>;
   let errorBoundaryDidCatchFn;
 
   beforeEach(() => {
-    jest.resetModules();
-    jest.spyOn(console, 'warn').mockImplementationOnce(() => {});
     errorBoundaryDidCatchFn = jest.fn();
 
     class ErrorBoundary extends React.Component<any, any> {
-      state = {error: null};
-      componentDidCatch(error) {
+      state: any | {error: null} = {error: null};
+      componentDidCatch(error: Error) {
         errorBoundaryDidCatchFn(error);
         this.setState({error});
       }
-      render() {
+      render(): any | React.Node {
         const {children, fallback} = this.props;
         const {error} = this.state;
         if (error) {
@@ -118,7 +150,7 @@ describe('useLazyLoadQueryNode', () => {
       return <Renderer {...nextProps} />;
     };
 
-    render = (env, children) => {
+    render = (env: RelayMockEnvironment, children: React.Node) => {
       return ReactTestRenderer.create(
         <RelayEnvironmentProvider environment={env}>
           <ErrorBoundary
@@ -152,7 +184,7 @@ describe('useLazyLoadQueryNode', () => {
       };
     });
 
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query useLazyLoadQueryNodeTestUserQuery($id: ID) {
         node(id: $id) {
           id
@@ -160,7 +192,7 @@ describe('useLazyLoadQueryNode', () => {
           ...useLazyLoadQueryNodeTestUserFragment
         }
       }
-    `);
+    `;
     graphql`
       fragment useLazyLoadQueryNodeTestUserFragment on User {
         name
@@ -262,6 +294,10 @@ describe('useLazyLoadQueryNode', () => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     expect(environment.retain).toHaveBeenCalledTimes(1);
 
+    expectWarningWillFire(
+      'RelayResponseNormalizer: Payload did not contain a value for field `name: name`. Check that you are parsing with the same query that was used to fetch the payload.',
+    );
+
     ReactTestRenderer.act(() => {
       environment.mock.resolve(gqlQuery, {
         data: {
@@ -311,12 +347,7 @@ describe('useLazyLoadQueryNode', () => {
     // Trigger timeout and GC to clear all references
     ReactTestRenderer.act(() => jest.runAllTimers());
     // Verify GC has run
-    expect(
-      environment
-        .getStore()
-        .getSource()
-        .toJSON(),
-    ).toEqual({});
+    expect(environment.getStore().getSource().toJSON()).toEqual({});
 
     renderFn.mockClear();
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
@@ -692,13 +723,13 @@ describe('useLazyLoadQueryNode', () => {
           name
         }
       `;
-      gqlQuery = getRequest(graphql`
+      gqlQuery = graphql`
         query useLazyLoadQueryNodeTest1Query($id: ID) {
           node(id: $id) {
             ...useLazyLoadQueryNodeTestDeferFragment @defer
           }
         }
-      `);
+      `;
       variables = {id: 'user:1234'};
       query = createOperationDescriptor(gqlQuery, variables);
     });
@@ -713,6 +744,8 @@ describe('useLazyLoadQueryNode', () => {
       expect(renderFn).not.toBeCalled();
 
       const payloadError = new Error('Invalid Payload');
+      // $FlowFixMe[prop-missing] This will make react suppress error logging for this error
+      payloadError._suppressLogging = true;
 
       expect(errorBoundaryDidCatchFn).not.toBeCalled();
 
@@ -730,9 +763,6 @@ describe('useLazyLoadQueryNode', () => {
     });
 
     it('should render the query with defer payloads without errors for defer payloads', () => {
-      jest.mock('warning');
-      const warning = require('warning');
-
       const instance = render(
         environment,
         <Container key={0} variables={variables} />,
@@ -759,18 +789,11 @@ describe('useLazyLoadQueryNode', () => {
       expect(errorBoundaryDidCatchFn).not.toBeCalled();
 
       const payloadError = new Error('Invalid Payload');
-      // $FlowFixMe(prop-missing)
-      warning.mockClear();
-
-      environment.mock.reject(query, payloadError);
-      expect(warning).toBeCalledWith(
-        false,
-        expect.stringContaining(
-          'QueryResource: An incremental payload for query `%`',
-        ),
-        'useLazyLoadQueryNodeTest1Query',
-        expect.stringContaining('Invalid Payload'),
-        expect.stringContaining('Invalid Payload'),
+      expectToWarn(
+        'QueryResource: An incremental payload for query `useLazyLoadQueryNodeTest1Query` returned an error: `Invalid Payload`.',
+        () => {
+          environment.mock.reject(query, payloadError);
+        },
       );
 
       // force re-rendering of the component, to read from the QueryResource
@@ -797,17 +820,17 @@ describe('useLazyLoadQueryNode', () => {
           }
         }
       `;
-      const gqlOnlyFragmentsQuery = getRequest(graphql`
+      const gqlOnlyFragmentsQuery = graphql`
         query useLazyLoadQueryNodeTestOnlyFragmentsQuery($id: ID) {
           ...useLazyLoadQueryNodeTestRootFragment
         }
-      `);
+      `;
       const onlyFragsQuery = createOperationDescriptor(
         gqlOnlyFragmentsQuery,
         variables,
       );
 
-      function FragmentComponent(props) {
+      function FragmentComponent(props: {query: mixed}) {
         const fragment = getFragment(gqlFragment);
         const result: $FlowFixMe = useFragmentNode(
           fragment,
@@ -818,7 +841,7 @@ describe('useLazyLoadQueryNode', () => {
         return null;
       }
 
-      const Renderer = props => {
+      const Renderer = (props: {variables: {id: string}}) => {
         const _query = createOperationDescriptor(
           gqlOnlyFragmentsQuery,
           props.variables,
@@ -866,6 +889,13 @@ describe('useLazyLoadQueryNode', () => {
   });
 
   describe('logging', () => {
+    beforeEach(() => {
+      // we need to reset modules in order to test generated ID
+      jest.resetModules();
+      disallowWarnings();
+      disallowConsoleErrors();
+    });
+
     test('simple fetch', () => {
       render(environment, <Container variables={variables} />);
 

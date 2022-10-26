@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b59d1059e6d61bc6e4d59a3172102660>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<3ac62fe0fdf41e34993af94308eec0b3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,24 +17,24 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTestWithArgs_noInline$ref = any;
-export type PhotoSize = "SMALL" | "LARGE" | "%future added value";
-export type RelayModernEnvironmentNoInlineTestWithArgsQueryVariables = {|
-  size?: ?$ReadOnlyArray<?number>,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType } from "./RelayModernEnvironmentNoInlineTestWithArgs_noInline.graphql";
+export type PhotoSize = "LARGE" | "SMALL" | "%future added value";
+export type RelayModernEnvironmentNoInlineTestWithArgsQuery$variables = {|
   preset?: ?PhotoSize,
+  size?: ?$ReadOnlyArray<?number>,
 |};
-export type RelayModernEnvironmentNoInlineTestWithArgsQueryResponse = {|
+export type RelayModernEnvironmentNoInlineTestWithArgsQuery$data = {|
   +me: ?{|
-    +$fragmentRefs: RelayModernEnvironmentNoInlineTestWithArgs_noInline$ref,
+    +$fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
   |},
   +username: ?{|
-    +$fragmentRefs: RelayModernEnvironmentNoInlineTestWithArgs_noInline$ref,
+    +$fragmentSpreads: RelayModernEnvironmentNoInlineTestWithArgs_noInline$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentNoInlineTestWithArgsQuery = {|
-  variables: RelayModernEnvironmentNoInlineTestWithArgsQueryVariables,
-  response: RelayModernEnvironmentNoInlineTestWithArgsQueryResponse,
+  response: RelayModernEnvironmentNoInlineTestWithArgsQuery$data,
+  variables: RelayModernEnvironmentNoInlineTestWithArgsQuery$variables,
 |};
 */
 
@@ -209,4 +211,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "33033002af005dc1dfd32353c821dead";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentNoInlineTestWithArgsQuery$variables,
+  RelayModernEnvironmentNoInlineTestWithArgsQuery$data,
+>*/);

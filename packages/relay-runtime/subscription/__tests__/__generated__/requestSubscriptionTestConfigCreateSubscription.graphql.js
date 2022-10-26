@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<efdd00dcc8131b398db9f3dc83d194a1>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<3cf7cc03c0c45280c53acf73153e3215>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type requestSubscriptionTestExtraFragment$ref = any;
-export type requestSubscriptionTestConfigCreateSubscriptionVariables = {||};
-export type requestSubscriptionTestConfigCreateSubscriptionResponse = {|
+import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
+import type { requestSubscriptionTestExtraFragment$fragmentType } from "./requestSubscriptionTestExtraFragment.graphql";
+export type requestSubscriptionTestConfigCreateSubscription$variables = {||};
+export type requestSubscriptionTestConfigCreateSubscription$data = {|
   +configCreateSubscribe: ?{|
     +config: ?{|
       +name: ?string,
-      +$fragmentRefs: requestSubscriptionTestExtraFragment$ref,
+      +$fragmentSpreads: requestSubscriptionTestExtraFragment$fragmentType,
     |},
   |},
 |};
 export type requestSubscriptionTestConfigCreateSubscription = {|
-  variables: requestSubscriptionTestConfigCreateSubscriptionVariables,
-  response: requestSubscriptionTestConfigCreateSubscriptionResponse,
+  response: requestSubscriptionTestConfigCreateSubscription$data,
+  variables: requestSubscriptionTestConfigCreateSubscription$variables,
 |};
 */
 
@@ -120,9 +122,7 @@ return {
   "params": {
     "cacheID": "1b69adfae158cc6f1ccf259d412d1bf3",
     "id": null,
-    "metadata": {
-      "subscriptionName": "configCreateSubscribe"
-    },
+    "metadata": {},
     "name": "requestSubscriptionTestConfigCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription requestSubscriptionTestConfigCreateSubscription {\n  configCreateSubscribe {\n    config {\n      name\n      ...requestSubscriptionTestExtraFragment\n    }\n  }\n}\n\nfragment requestSubscriptionTestExtraFragment on Config {\n  isEnabled\n}\n"
@@ -134,4 +134,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "6b2edf520dcf571dde1465c394f0a52e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+  requestSubscriptionTestConfigCreateSubscription$variables,
+  requestSubscriptionTestConfigCreateSubscription$data,
+>*/);

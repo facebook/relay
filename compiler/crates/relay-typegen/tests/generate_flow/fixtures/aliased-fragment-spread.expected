@@ -1,0 +1,36 @@
+==================================== INPUT ====================================
+fragment RelayReaderNamedFragmentsTest_user on User {
+  name
+}
+
+query RelayReaderNamedFragmentsTest2Query {
+  me {
+    ...RelayReaderNamedFragmentsTest_user @alias(as: "aliased_fragment")
+  }
+}
+==================================== OUTPUT ===================================
+import type { RelayReaderNamedFragmentsTest_user$fragmentType } from "RelayReaderNamedFragmentsTest_user.graphql";
+export type RelayReaderNamedFragmentsTest2Query$variables = {||};
+export type RelayReaderNamedFragmentsTest2Query$data = {|
+  +me: ?{|
+    +aliased_fragment: ?{|
+      +$fragmentSpreads: RelayReaderNamedFragmentsTest_user$fragmentType,
+    |},
+  |},
+|};
+export type RelayReaderNamedFragmentsTest2Query = {|
+  response: RelayReaderNamedFragmentsTest2Query$data,
+  variables: RelayReaderNamedFragmentsTest2Query$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderNamedFragmentsTest_user$fragmentType: FragmentType;
+export type RelayReaderNamedFragmentsTest_user$data = {|
+  +name: ?string,
+  +$fragmentType: RelayReaderNamedFragmentsTest_user$fragmentType,
+|};
+export type RelayReaderNamedFragmentsTest_user$key = {
+  +$data?: RelayReaderNamedFragmentsTest_user$data,
+  +$fragmentSpreads: RelayReaderNamedFragmentsTest_user$fragmentType,
+  ...
+};

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<aa3a0d3b3e67f596c56c748defab3f09>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<d58e493d670bb6520634a896d17070fc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -14,20 +16,23 @@
 
 'use strict';
 
+// @indirectDataDrivenDependency FragmentResourceWithOperationTrackerTestUserFragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+// @indirectDataDrivenDependency FragmentResourceWithOperationTrackerTestUserFragment.plainNameRenderer {"branches":{"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type FragmentResourceWithOperationTrackerTestUserFragment$ref = any;
-export type FragmentResourceWithOperationTrackerTestNodeQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentResourceWithOperationTrackerTestUserFragment$fragmentType } from "./FragmentResourceWithOperationTrackerTestUserFragment.graphql";
+export type FragmentResourceWithOperationTrackerTestNodeQuery$variables = {|
   id: string,
 |};
-export type FragmentResourceWithOperationTrackerTestNodeQueryResponse = {|
+export type FragmentResourceWithOperationTrackerTestNodeQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: FragmentResourceWithOperationTrackerTestUserFragment$ref,
+    +$fragmentSpreads: FragmentResourceWithOperationTrackerTestUserFragment$fragmentType,
   |},
 |};
 export type FragmentResourceWithOperationTrackerTestNodeQuery = {|
-  variables: FragmentResourceWithOperationTrackerTestNodeQueryVariables,
-  response: FragmentResourceWithOperationTrackerTestNodeQueryResponse,
+  response: FragmentResourceWithOperationTrackerTestNodeQuery$data,
+  variables: FragmentResourceWithOperationTrackerTestNodeQuery$variables,
 |};
 */
 
@@ -52,42 +57,6 @@ v2 = {
   "kind": "ScalarField",
   "name": "__typename",
   "storageKey": null
-},
-v3 = {
-  "enumValues": null,
-  "nullable": false,
-  "plural": false,
-  "type": "String"
-},
-v4 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "String"
-},
-v5 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "UserNameRenderer"
-},
-v6 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "JSDependency"
-},
-v7 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "PlainUserNameData"
-},
-v8 = {
-  "enumValues": null,
-  "nullable": true,
-  "plural": false,
-  "type": "ID"
 };
 return {
   "fragment": {
@@ -243,42 +212,7 @@ return {
   "params": {
     "cacheID": "96eebba688dd18b2fab25e2f22d0fc93",
     "id": null,
-    "metadata": {
-      "relayTestingSelectionTypeInfo": {
-        "node": {
-          "enumValues": null,
-          "nullable": true,
-          "plural": false,
-          "type": "Node"
-        },
-        "node.__typename": (v3/*: any*/),
-        "node.id": {
-          "enumValues": null,
-          "nullable": false,
-          "plural": false,
-          "type": "ID"
-        },
-        "node.name": (v4/*: any*/),
-        "node.nameRenderer": (v5/*: any*/),
-        "node.nameRenderer.__module_component_FragmentResourceWithOperationTrackerTestUserFragment": (v6/*: any*/),
-        "node.nameRenderer.__module_operation_FragmentResourceWithOperationTrackerTestUserFragment": (v6/*: any*/),
-        "node.nameRenderer.__typename": (v3/*: any*/),
-        "node.nameRenderer.data": (v7/*: any*/),
-        "node.nameRenderer.data.id": (v8/*: any*/),
-        "node.nameRenderer.data.markup": (v4/*: any*/),
-        "node.nameRenderer.data.text": (v4/*: any*/),
-        "node.nameRenderer.markdown": (v4/*: any*/),
-        "node.nameRenderer.plaintext": (v4/*: any*/),
-        "node.plainNameRenderer": (v5/*: any*/),
-        "node.plainNameRenderer.__module_component_FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer": (v6/*: any*/),
-        "node.plainNameRenderer.__module_operation_FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer": (v6/*: any*/),
-        "node.plainNameRenderer.__typename": (v3/*: any*/),
-        "node.plainNameRenderer.data": (v7/*: any*/),
-        "node.plainNameRenderer.data.id": (v8/*: any*/),
-        "node.plainNameRenderer.data.text": (v4/*: any*/),
-        "node.plainNameRenderer.plaintext": (v4/*: any*/)
-      }
-    },
+    "metadata": {},
     "name": "FragmentResourceWithOperationTrackerTestNodeQuery",
     "operationKind": "query",
     "text": "query FragmentResourceWithOperationTrackerTestNodeQuery(\n  $id: ID!\n) {\n  node(id: $id) {\n    __typename\n    ...FragmentResourceWithOperationTrackerTestUserFragment\n    id\n  }\n}\n\nfragment FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {\n  markdown\n  data {\n    markup\n    id\n  }\n}\n\nfragment FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name on PlainUserNameRenderer {\n  plaintext\n  data {\n    text\n    id\n  }\n}\n\nfragment FragmentResourceWithOperationTrackerTestUserFragment on User {\n  id\n  name\n  nameRenderer(supported: [\"PlainUserNameRenderer\", \"MarkdownUserNameRenderer\"]) {\n    __typename\n    ... on PlainUserNameRenderer {\n      ...FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name\n      __module_operation_FragmentResourceWithOperationTrackerTestUserFragment: js(module: \"FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql\", id: \"FragmentResourceWithOperationTrackerTestUserFragment.nameRenderer\")\n      __module_component_FragmentResourceWithOperationTrackerTestUserFragment: js(module: \"PlainUserNameRenderer.react\", id: \"FragmentResourceWithOperationTrackerTestUserFragment.nameRenderer\")\n    }\n    ... on MarkdownUserNameRenderer {\n      ...FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name\n      __module_operation_FragmentResourceWithOperationTrackerTestUserFragment: js(module: \"FragmentResourceWithOperationTrackerTestMarkdownUserNameRenderer_name$normalization.graphql\", id: \"FragmentResourceWithOperationTrackerTestUserFragment.nameRenderer\")\n      __module_component_FragmentResourceWithOperationTrackerTestUserFragment: js(module: \"MarkdownUserNameRenderer.react\", id: \"FragmentResourceWithOperationTrackerTestUserFragment.nameRenderer\")\n    }\n  }\n  plainNameRenderer: nameRenderer(supported: [\"PlainUserNameRenderer\"]) {\n    __typename\n    ... on PlainUserNameRenderer {\n      ...FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name\n      __module_operation_FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer: js(module: \"FragmentResourceWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql\", id: \"FragmentResourceWithOperationTrackerTestUserFragment.plainNameRenderer\")\n      __module_component_FragmentResourceWithOperationTrackerTestUserFragment_plainNameRenderer: js(module: \"PlainUserNameRenderer.react\", id: \"FragmentResourceWithOperationTrackerTestUserFragment.plainNameRenderer\")\n    }\n  }\n}\n"
@@ -287,7 +221,10 @@ return {
 })();
 
 if (__DEV__) {
-  (node/*: any*/).hash = "ff9181396332978f08da32b08199e7df";
+  (node/*: any*/).hash = "e4c3c9f6213e6aca299a02aff58349e3";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  FragmentResourceWithOperationTrackerTestNodeQuery$variables,
+  FragmentResourceWithOperationTrackerTestNodeQuery$data,
+>*/);

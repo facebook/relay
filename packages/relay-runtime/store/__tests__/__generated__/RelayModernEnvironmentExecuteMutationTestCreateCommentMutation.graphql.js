@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<520ee7225365147f50cefe5e6ba61fec>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<25f041f309edec89c28967b47f7dc6ea>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +17,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -27,22 +28,22 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentExecuteMutationTestCreateCommentMutationVariables = {|
+export type RelayModernEnvironmentExecuteMutationTestCreateCommentMutation$variables = {|
   input: CommentCreateInput,
 |};
-export type RelayModernEnvironmentExecuteMutationTestCreateCommentMutationResponse = {|
+export type RelayModernEnvironmentExecuteMutationTestCreateCommentMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
-      +id: string,
       +body: ?{|
         +text: ?string,
       |},
+      +id: string,
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationTestCreateCommentMutation = {|
-  variables: RelayModernEnvironmentExecuteMutationTestCreateCommentMutationVariables,
-  response: RelayModernEnvironmentExecuteMutationTestCreateCommentMutationResponse,
+  response: RelayModernEnvironmentExecuteMutationTestCreateCommentMutation$data,
+  variables: RelayModernEnvironmentExecuteMutationTestCreateCommentMutation$variables,
 |};
 */
 
@@ -141,4 +142,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "248ade48769a84dff269fe9106b867b1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentExecuteMutationTestCreateCommentMutation$variables,
+  RelayModernEnvironmentExecuteMutationTestCreateCommentMutation$data,
+>*/);

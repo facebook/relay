@@ -1,0 +1,18 @@
+==================================== INPUT ====================================
+/**
+ * Free text might use markdown because:
+ * * It's neat
+ * * It's conventional
+ */
+==================================== OUTPUT ===================================
+DocblockAST {
+    location: free-text-starting-with-star.ecmascript:0:81,
+    sections: [
+        FreeText(
+            WithLocation {
+                location: free-text-starting-with-star.ecmascript:5:80,
+                item: "Free text might use markdown because:\n* It's neat\n* It's conventional",
+            },
+        ),
+    ],
+}

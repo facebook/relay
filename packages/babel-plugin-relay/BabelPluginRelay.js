@@ -1,35 +1,48 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 const compileGraphQLTag = require('./compileGraphQLTag');
 const getValidGraphQLTag = require('./getValidGraphQLTag');
+const cosmiconfig = require('cosmiconfig');
+
+const configExplorer = cosmiconfig('relay', {
+  searchPlaces: ['relay.config.js', 'relay.config.json', 'package.json'],
+  loaders: {
+    '.json': cosmiconfig.loadJson,
+    '.js': cosmiconfig.loadJs,
+    noExt: cosmiconfig.loadYaml,
+  },
+});
 
 let RelayConfig;
-try {
-  // eslint-disable-next-line no-eval
-  RelayConfig = eval('require')('relay-config');
-  // eslint-disable-next-line lint/no-unused-catch-bindings
-} catch (_) {}
+const result = configExplorer.searchSync();
+if (result) {
+  RelayConfig = result.config;
+}
 
 export type RelayPluginOptions = {
   // The command to run to compile Relay files, used for error messages.
-  buildCommand?: string,
-  // Use haste style global requires, defaults to false.
-  haste?: boolean,
-  // Check this global variable before validation.
-  isDevVariable?: string,
+  codegenCommand?: string,
+
+  // Formatting style for generated files. `commonjs` or `haste`.
+  // Default is `commonjs`.
+  jsModuleFormat?: string,
+
+  // Name of the global variable for dev mode
+  isDevVariableName?: string,
 
   // enable generating eager es modules for modern runtime
-  eagerESModules?: boolean,
+  eagerEsModules?: boolean,
 
   // Directory as specified by artifactDirectory when running relay-compiler
   artifactDirectory?: string,
@@ -64,7 +77,7 @@ module.exports = function BabelPluginRelay(context: {
   }
 
   const visitor = {
-    TaggedTemplateExpression(path, state) {
+    TaggedTemplateExpression(path: any, state: BabelState) {
       // Convert graphql`` literals
       const ast = getValidGraphQLTag(path);
       if (ast) {
@@ -77,8 +90,10 @@ module.exports = function BabelPluginRelay(context: {
   return {
     visitor: {
       Program(path, state) {
-        const config = RelayConfig && RelayConfig.loadConfig();
-        path.traverse(visitor, {...state, opts: {...config, ...state.opts}});
+        path.traverse(visitor, {
+          ...state,
+          opts: {...RelayConfig, ...state.opts},
+        });
       },
     },
   };

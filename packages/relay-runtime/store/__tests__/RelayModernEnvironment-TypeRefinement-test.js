@@ -1,20 +1,48 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {
+  RelayModernEnvironmentTypeRefinementTest1Query$data,
+  RelayModernEnvironmentTypeRefinementTest1Query$variables,
+} from './__generated__/RelayModernEnvironmentTypeRefinementTest1Query.graphql';
+import type {
+  RelayModernEnvironmentTypeRefinementTest2Query$data,
+  RelayModernEnvironmentTypeRefinementTest2Query$variables,
+} from './__generated__/RelayModernEnvironmentTypeRefinementTest2Query.graphql';
+import type {
+  RelayModernEnvironmentTypeRefinementTest3Query$data,
+  RelayModernEnvironmentTypeRefinementTest3Query$variables,
+} from './__generated__/RelayModernEnvironmentTypeRefinementTest3Query.graphql';
+import type {
+  RelayModernEnvironmentTypeRefinementTest4Query$data,
+  RelayModernEnvironmentTypeRefinementTest4Query$variables,
+} from './__generated__/RelayModernEnvironmentTypeRefinementTest4Query.graphql';
+import type {
+  RelayModernEnvironmentTypeRefinementTest5Query$data,
+  RelayModernEnvironmentTypeRefinementTest5Query$variables,
+} from './__generated__/RelayModernEnvironmentTypeRefinementTest5Query.graphql';
+import type {
+  RelayModernEnvironmentTypeRefinementTest6Query$data,
+  RelayModernEnvironmentTypeRefinementTest6Query$variables,
+} from './__generated__/RelayModernEnvironmentTypeRefinementTest6Query.graphql';
+import type {
+  RelayModernEnvironmentTypeRefinementTestParentQuery$data,
+  RelayModernEnvironmentTypeRefinementTestParentQuery$variables,
+} from './__generated__/RelayModernEnvironmentTypeRefinementTestParentQuery.graphql';
+import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -22,6 +50,7 @@ const {
 const {getSingularSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
+const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateTypeID} = require('../TypeID');
 const nullthrows = require('nullthrows');
 const {
@@ -32,20 +61,50 @@ const {
 disallowWarnings();
 
 describe('missing data detection', () => {
-  let ParentQuery;
+  let ParentQuery:
+    | Query<
+        RelayModernEnvironmentTypeRefinementTest1Query$variables,
+        RelayModernEnvironmentTypeRefinementTest1Query$data,
+      >
+    | Query<
+        RelayModernEnvironmentTypeRefinementTest2Query$variables,
+        RelayModernEnvironmentTypeRefinementTest2Query$data,
+      >
+    | Query<
+        RelayModernEnvironmentTypeRefinementTest3Query$variables,
+        RelayModernEnvironmentTypeRefinementTest3Query$data,
+      >
+    | Query<
+        RelayModernEnvironmentTypeRefinementTest4Query$variables,
+        RelayModernEnvironmentTypeRefinementTest4Query$data,
+      >
+    | Query<
+        RelayModernEnvironmentTypeRefinementTest5Query$variables,
+        RelayModernEnvironmentTypeRefinementTest5Query$data,
+      >
+    | Query<
+        RelayModernEnvironmentTypeRefinementTest6Query$variables,
+        RelayModernEnvironmentTypeRefinementTest6Query$data,
+      >
+    | Query<
+        RelayModernEnvironmentTypeRefinementTestParentQuery$variables,
+        RelayModernEnvironmentTypeRefinementTestParentQuery$data,
+      >;
   let AbstractQuery;
+  let AbstractClientQuery;
   let ConcreteQuery;
   let ConcreteUserFragment;
   let ConcreteInlineRefinementFragment;
   let AbstractActorFragment;
   let AbstractInlineRefinementFragment;
+  let AbstractClientInterfaceFragment;
   let environment;
   let operation;
   let concreteOperation;
   let abstractOperation;
 
   beforeEach(() => {
-    ParentQuery = getRequest(graphql`
+    ParentQuery = graphql`
       query RelayModernEnvironmentTypeRefinementTestParentQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestConcreteUserFragment
@@ -54,49 +113,64 @@ describe('missing data detection', () => {
           ...RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment
         }
       }
-    `);
+    `;
 
     // version of the query with only concrete refinements
-    ConcreteQuery = getRequest(graphql`
+    ConcreteQuery = graphql`
       query RelayModernEnvironmentTypeRefinementTestConcreteQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestConcreteUserFragment
           ...RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment
         }
       }
-    `);
+    `;
 
     // version of the query with only abstract refinements
-    AbstractQuery = getRequest(graphql`
+    AbstractQuery = graphql`
       query RelayModernEnvironmentTypeRefinementTestAbstractQuery {
         userOrPage(id: "abc") {
           ...RelayModernEnvironmentTypeRefinementTestAbstractActorFragment
           ...RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment
         }
       }
-    `);
+    `;
+
+    // version of the query with only abstract refinements
+    AbstractClientQuery = graphql`
+      query RelayModernEnvironmentTypeRefinementTestClientAbstractQuery {
+        client_interface {
+          ...RelayModernEnvironmentTypeRefinementTestClientInterface
+        }
+      }
+    `;
 
     // identical fragments except for User (concrete) / Actor (interface)
-    ConcreteUserFragment = getFragment(graphql`
+    ConcreteUserFragment = graphql`
       fragment RelayModernEnvironmentTypeRefinementTestConcreteUserFragment on User {
         id
         name
         missing: lastName
       }
-    `);
+    `;
 
-    AbstractActorFragment = getFragment(graphql`
+    AbstractActorFragment = graphql`
       fragment RelayModernEnvironmentTypeRefinementTestAbstractActorFragment on Actor {
         id
         name
         missing: lastName
       }
-    `);
+    `;
+
+    AbstractClientInterfaceFragment = graphql`
+      fragment RelayModernEnvironmentTypeRefinementTestClientInterface on ClientInterface {
+        description
+      }
+    `;
 
     // identical except for inline fragments on User / Actor
     // note fragment type is Node in both cases to avoid any
     // flattening
-    ConcreteInlineRefinementFragment = getFragment(graphql`
+    ConcreteInlineRefinementFragment = graphql`
       fragment RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment on Node {
         ... on User {
           id
@@ -104,9 +178,9 @@ describe('missing data detection', () => {
           missing: lastName
         }
       }
-    `);
+    `;
 
-    AbstractInlineRefinementFragment = getFragment(graphql`
+    AbstractInlineRefinementFragment = graphql`
       fragment RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment on Node {
         ... on Actor {
           id
@@ -114,7 +188,7 @@ describe('missing data detection', () => {
           missing: lastName
         }
       }
-    `);
+    `;
 
     const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
@@ -130,7 +204,7 @@ describe('missing data detection', () => {
   // Commit the given payload, immediately running GC to prune any data
   // that wouldn't be retained by the query
   // eslint-disable-next-line no-shadow
-  function commitPayload(operation, payload) {
+  function commitPayload(operation: OperationDescriptor, payload: $FlowFixMe) {
     environment.retain(operation);
     environment.commitPayload(operation, payload);
     (environment.getStore(): $FlowFixMe).scheduleGC();
@@ -772,7 +846,7 @@ describe('missing data detection', () => {
     let NestedActorFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest1Query {
           viewer {
             actor {
@@ -780,19 +854,19 @@ describe('missing data detection', () => {
             }
           }
         }
-      `);
-      ActorFragment = getFragment(graphql`
+      `;
+      ActorFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest1Fragment on Actor {
           id
           name
           ...RelayModernEnvironmentTypeRefinementTest2Fragment
         }
-      `);
-      NestedActorFragment = getFragment(graphql`
+      `;
+      NestedActorFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest2Fragment on Actor {
           lastName
         }
-      `);
+      `;
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
@@ -945,25 +1019,25 @@ describe('missing data detection', () => {
     let NestedEntityFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest2Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest3Fragment
           }
         }
-      `);
-      PageFragment = getFragment(graphql`
+      `;
+      PageFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest3Fragment on Page {
           id
           lastName
           ...RelayModernEnvironmentTypeRefinementTest4Fragment
         }
-      `);
-      NestedEntityFragment = getFragment(graphql`
+      `;
+      NestedEntityFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest4Fragment on Entity {
           url
         }
-      `);
+      `;
 
       operation = createOperationDescriptor(ParentQuery, {});
     });
@@ -1149,25 +1223,25 @@ describe('missing data detection', () => {
     let NestedNamedFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest3Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest5Fragment
           }
         }
-      `);
-      ActorFragment = getFragment(graphql`
+      `;
+      ActorFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest5Fragment on Actor {
           id
           lastName
           ...RelayModernEnvironmentTypeRefinementTest6Fragment
         }
-      `);
-      NestedNamedFragment = getFragment(graphql`
+      `;
+      NestedNamedFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest6Fragment on Named {
           name
         }
-      `);
+      `;
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
@@ -1356,14 +1430,14 @@ describe('missing data detection', () => {
     let NestedNamedFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest4Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest7Fragment
           }
         }
-      `);
-      UserFragment = getFragment(graphql`
+      `;
+      UserFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest7Fragment on User {
           ... on Actor {
             id
@@ -1371,12 +1445,12 @@ describe('missing data detection', () => {
             ...RelayModernEnvironmentTypeRefinementTest8Fragment
           }
         }
-      `);
-      NestedNamedFragment = getFragment(graphql`
+      `;
+      NestedNamedFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest8Fragment on Named {
           name
         }
-      `);
+      `;
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
@@ -1565,25 +1639,25 @@ describe('missing data detection', () => {
     let NestedUserFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest5Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest9Fragment
           }
         }
-      `);
-      ActorFragment = getFragment(graphql`
+      `;
+      ActorFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest9Fragment on Actor {
           id
           lastName
           ...RelayModernEnvironmentTypeRefinementTest10Fragment
         }
-      `);
-      NestedUserFragment = getFragment(graphql`
+      `;
+      NestedUserFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest10Fragment on User {
           name
         }
-      `);
+      `;
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
@@ -1676,14 +1750,14 @@ describe('missing data detection', () => {
     let NestedUserFragment;
 
     beforeEach(() => {
-      ParentQuery = getRequest(graphql`
+      ParentQuery = graphql`
         query RelayModernEnvironmentTypeRefinementTest6Query {
           userOrPage(id: "abc") {
             ...RelayModernEnvironmentTypeRefinementTest11Fragment
           }
         }
-      `);
-      UserFragment = getFragment(graphql`
+      `;
+      UserFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest11Fragment on User {
           ... on Actor {
             id
@@ -1691,12 +1765,12 @@ describe('missing data detection', () => {
             ...RelayModernEnvironmentTypeRefinementTest12Fragment
           }
         }
-      `);
-      NestedUserFragment = getFragment(graphql`
+      `;
+      NestedUserFragment = graphql`
         fragment RelayModernEnvironmentTypeRefinementTest12Fragment on User {
           name
         }
-      `);
+      `;
       operation = createOperationDescriptor(ParentQuery, {});
     });
 
@@ -1781,6 +1855,95 @@ describe('missing data detection', () => {
       });
       expect(innerFragmentSnapshot.isMissingData).toBe(false);
       expect(environment.check(operation).status).toBe('available');
+    });
+  });
+
+  describe('Abstract types defined in client schema extension', () => {
+    it('knows when concrete types match abstract types by metadata attached to normalizaiton AST', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      environment.commitUpdate(store => {
+        const rootRecord = nullthrows(store.get(ROOT_ID));
+        const clientObj = store.create(
+          '4',
+          'OtherClientTypeImplementingClientInterface',
+        );
+        clientObj.setValue('4', 'id');
+        clientObj.setValue('My Description', 'description');
+        rootRecord.setLinkedRecord(clientObj, 'client_interface');
+      });
+      environment.commitPayload(operation, {});
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSelector = nullthrows(
+        getSingularSelector(
+          AbstractClientInterfaceFragment,
+          parentSnapshot.data.client_interface,
+        ),
+      );
+      const fragmentSnapshot = environment.lookup(fragmentSelector);
+      expect(fragmentSnapshot.data).toEqual({
+        description: 'My Description',
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false);
+    });
+
+    it('knows when concrete types match abstract types by metadata attached to normalizaiton AST (without committing payloads)', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      environment.commitUpdate(store => {
+        const rootRecord = nullthrows(store.get(ROOT_ID));
+        const clientObj = store.create(
+          '4',
+          'OtherClientTypeImplementingClientInterface',
+        );
+        clientObj.setValue('4', 'id');
+        clientObj.setValue('My Description', 'description');
+        rootRecord.setLinkedRecord(clientObj, 'client_interface');
+      });
+      // DataChecker similar to normalizer will put abstract type information to the record source.
+      // In the previouse test we use `commitPayload(...)` so the normalizer can assign these `abstract types`.
+      environment.check(operation);
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSelector = nullthrows(
+        getSingularSelector(
+          AbstractClientInterfaceFragment,
+          parentSnapshot.data.client_interface,
+        ),
+      );
+      const fragmentSnapshot = environment.lookup(fragmentSelector);
+      expect(fragmentSnapshot.data).toEqual({
+        description: 'My Description',
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false);
+    });
+
+    it('knows when concrete types match abstract types by metadata attached to normalizaiton AST: check after commited payload', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      environment.commitUpdate(store => {
+        const rootRecord = nullthrows(store.get(ROOT_ID));
+        const clientObj = store.create(
+          '4',
+          'OtherClientTypeImplementingClientInterface',
+        );
+        clientObj.setValue('4', 'id');
+        clientObj.setValue('My Description', 'description');
+        rootRecord.setLinkedRecord(clientObj, 'client_interface');
+      });
+      environment.commitPayload(operation, {});
+
+      // DataChecker similar to normalizer will put abstract type information to the record source.
+      // In the previouse test we use `commitPayload(...)` so the normalizer can assign these `abstract types`.
+      environment.check(operation);
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSelector = nullthrows(
+        getSingularSelector(
+          AbstractClientInterfaceFragment,
+          parentSnapshot.data.client_interface,
+        ),
+      );
+      const fragmentSnapshot = environment.lookup(fragmentSelector);
+      expect(fragmentSnapshot.data).toEqual({
+        description: 'My Description',
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false);
     });
   });
 });

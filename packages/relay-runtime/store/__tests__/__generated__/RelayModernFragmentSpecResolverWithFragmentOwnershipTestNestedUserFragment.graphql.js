@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<632c5e1aafe8f0abc93d93945cc52e96>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<541b4b9fa4587f293869ae6db1fe3bbd>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +17,16 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$ref: FragmentReference;
-declare export opaque type RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType: RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$ref;
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType: FragmentType;
+export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$data = {|
   +username: ?string,
-  +$refType: RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$ref,
+  +$fragmentType: RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType,
 |};
-export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$data = RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment;
 export type RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$key = {
   +$data?: RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$data,
-  +$fragmentRefs: RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$ref,
+  +$fragmentSpreads: RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "4499f41f0e4b103713df9c1944d7a3ae";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$fragmentType,
+  RelayModernFragmentSpecResolverWithFragmentOwnershipTestNestedUserFragment$data,
+>*/);

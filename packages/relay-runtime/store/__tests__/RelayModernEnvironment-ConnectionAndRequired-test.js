@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -19,7 +17,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -28,7 +26,6 @@ const {getSingularSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
 const nullthrows = require('nullthrows');
-const {RelayFeatureFlags} = require('relay-runtime');
 const {disallowWarnings} = require('relay-test-utils-internal');
 
 disallowWarnings();
@@ -45,9 +42,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
     describe(environmentType, () => {
       beforeEach(() => {
-        RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-
-        query = getRequest(graphql`
+        query = graphql`
           query RelayModernEnvironmentConnectionAndRequiredTestFeedbackQuery(
             $id: ID!
           ) {
@@ -55,13 +50,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               ...RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment
             }
           }
-        `);
-        fragment = getFragment(graphql`
+        `;
+        fragment = graphql`
           fragment RelayModernEnvironmentConnectionAndRequiredTestFeedbackFragment on Feedback
-            @argumentDefinitions(
-              count: {type: "Int", defaultValue: 2}
-              cursor: {type: "ID"}
-            ) {
+          @argumentDefinitions(
+            count: {type: "Int", defaultValue: 2}
+            cursor: {type: "ID"}
+          ) {
             id
             comments(after: $cursor, first: $count, orderby: "date")
               @connection(
@@ -76,7 +71,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         const variables = {
           id: '<feedbackid>',
         };

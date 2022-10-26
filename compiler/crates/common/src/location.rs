@@ -1,15 +1,19 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::span::Span;
 use core::cmp::Ordering;
-use interner::{Intern, StringKey};
 use std::fmt;
 use std::path::PathBuf;
+
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
+
+use crate::span::Span;
 
 /// The location of a source. Could be a standalone file (e.g. test.graphql),
 /// an embedded source (GraphQL tag in a JS file) or generated code without a
@@ -150,6 +154,13 @@ impl<T> WithLocation<T> {
         Self {
             location: Location::generated(),
             item,
+        }
+    }
+
+    pub fn map<U>(self, f: impl FnOnce(T) -> U) -> WithLocation<U> {
+        WithLocation {
+            location: self.location,
+            item: f(self.item),
         }
     }
 }

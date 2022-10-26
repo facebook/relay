@@ -1,0 +1,9 @@
+query relayLiveResolverWithoutFragment_Query {
+  relay_live_resolver_example
+}
+
+# %extensions%
+
+extend type Query {
+  relay_live_resolver_example: String @relay_resolver(import_path: "./path/to/PopStarNameResolver.js", live: true)
+}

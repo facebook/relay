@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<52d041f8dca1ffe6f8d0144079483d54>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<1cc3fa6f90b6a8b9de01731d500f9bc3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +17,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -27,12 +28,12 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3MutationVariables = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation$variables = {|
   connections: $ReadOnlyArray<string>,
   edgeTypeName: string,
   input?: ?CommentCreateInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3MutationResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
       +id: string,
@@ -40,8 +41,8 @@ export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrep
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation = {|
-  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3MutationVariables,
-  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3MutationResponse,
+  response: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation$data,
+  variables: RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation$variables,
 |};
 */
 
@@ -167,4 +168,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e019fb25e10b78a75776d607d84a9677";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation$variables,
+  RelayModernEnvironmentExecuteMutationWithDeclarativeMutationTestPrependComment3Mutation$data,
+>*/);

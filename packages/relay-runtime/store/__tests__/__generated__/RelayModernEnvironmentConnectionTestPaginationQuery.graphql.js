@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<be6109cb7e23754da48e5be8760a35e3>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<e55f8174eda77e1f64c9eec17f95b186>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentConnectionTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentConnectionTestPaginationQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentConnectionTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentConnectionTestFeedbackFragment.graphql";
+export type RelayModernEnvironmentConnectionTestPaginationQuery$variables = {|
   count: number,
   cursor: string,
+  id: string,
 |};
-export type RelayModernEnvironmentConnectionTestPaginationQueryResponse = {|
+export type RelayModernEnvironmentConnectionTestPaginationQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentConnectionTestFeedbackFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentConnectionTestFeedbackFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentConnectionTestPaginationQuery = {|
-  variables: RelayModernEnvironmentConnectionTestPaginationQueryVariables,
-  response: RelayModernEnvironmentConnectionTestPaginationQueryResponse,
+  response: RelayModernEnvironmentConnectionTestPaginationQuery$data,
+  variables: RelayModernEnvironmentConnectionTestPaginationQuery$variables,
 |};
 */
 
@@ -254,4 +256,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a076190aa4106d4efc94c7044acda9d3";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentConnectionTestPaginationQuery$variables,
+  RelayModernEnvironmentConnectionTestPaginationQuery$data,
+>*/);

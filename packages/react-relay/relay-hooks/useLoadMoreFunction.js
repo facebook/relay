@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -43,13 +41,13 @@ const warning = require('warning');
 
 export type LoadMoreFn<TQuery: OperationType> = (
   count: number,
-  options?: {|
+  options?: {
     onComplete?: (Error | null) => void,
     UNSTABLE_extraVariables?: $Shape<VariablesOf<TQuery>>,
-  |},
+  },
 ) => Disposable;
 
-export type UseLoadMoreFunctionArgs = {|
+export type UseLoadMoreFunctionArgs = {
   direction: Direction,
   fragmentNode: ReaderFragment,
   fragmentRef: mixed,
@@ -62,7 +60,7 @@ export type UseLoadMoreFunctionArgs = {|
   componentDisplayName: string,
   observer: Observer<GraphQLResponse>,
   onReset: () => void,
-|};
+};
 
 function useLoadMoreFunction<TQuery: OperationType>(
   args: UseLoadMoreFunctionArgs,
@@ -82,12 +80,8 @@ function useLoadMoreFunction<TQuery: OperationType>(
     identifierField,
   } = args;
   const environment = useRelayEnvironment();
-  const {
-    isFetchingRef,
-    startFetch,
-    disposeFetch,
-    completeFetch,
-  } = useFetchTrackingRef();
+  const {isFetchingRef, startFetch, disposeFetch, completeFetch} =
+    useFetchTrackingRef();
   const identifierValue =
     identifierField != null &&
     fragmentData != null &&
@@ -96,9 +90,8 @@ function useLoadMoreFunction<TQuery: OperationType>(
       : null;
   const isMountedRef = useIsMountedRef();
   const [mirroredEnvironment, setMirroredEnvironment] = useState(environment);
-  const [mirroredFragmentIdentifier, setMirroredFragmentIdentifier] = useState(
-    fragmentIdentifier,
-  );
+  const [mirroredFragmentIdentifier, setMirroredFragmentIdentifier] =
+    useState(fragmentIdentifier);
 
   const isParentQueryActive = useIsOperationNodeActive(
     fragmentNode,
@@ -130,7 +123,13 @@ function useLoadMoreFunction<TQuery: OperationType>(
   }, [disposeFetch]);
 
   const loadMore = useCallback(
-    (count, options) => {
+    (
+      count: number,
+      options: void | {
+        UNSTABLE_extraVariables?: $Shape<VariablesOf<TQuery>>,
+        onComplete?: (Error | null) => void,
+      },
+    ) => {
       // TODO(T41131846): Fetch/Caching policies for loadMore
 
       const onComplete = options?.onComplete;
@@ -270,10 +269,10 @@ function getConnectionState(
   fragmentNode: ReaderFragment,
   fragmentData: mixed,
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
-): {|
+): {
   cursor: ?string,
   hasMore: boolean,
-|} {
+} {
   const {
     EDGES,
     PAGE_INFO,

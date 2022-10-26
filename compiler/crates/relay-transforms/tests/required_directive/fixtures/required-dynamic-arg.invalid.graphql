@@ -1,6 +1,0 @@
-# expected-to-throw
-query EnabledUserQuery($action: RequiredFieldAction!) {
-  me @required(action: $action) {
-    id
-  }
-}

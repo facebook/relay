@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0f95644ff2807ba01a6a61696f269be3>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<a97e49700b6c3c6de7a873ad3bf0db10>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,24 +19,24 @@
 // @dataDrivenDependency fetchQueryInternalTest2Query.node.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"fetchQueryInternalTestMarkdownFragment_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"fetchQueryInternalTestPlainFragment_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type fetchQueryInternalTestMarkdownFragment_name$ref = any;
-type fetchQueryInternalTestPlainFragment_name$ref = any;
-export type fetchQueryInternalTest2QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { fetchQueryInternalTestMarkdownFragment_name$fragmentType } from "./fetchQueryInternalTestMarkdownFragment_name.graphql";
+import type { fetchQueryInternalTestPlainFragment_name$fragmentType } from "./fetchQueryInternalTestPlainFragment_name.graphql";
+export type fetchQueryInternalTest2Query$variables = {|
   id: string,
 |};
-export type fetchQueryInternalTest2QueryResponse = {|
+export type fetchQueryInternalTest2Query$data = {|
   +node: ?{|
     +nameRenderer?: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: fetchQueryInternalTestPlainFragment_name$ref & fetchQueryInternalTestMarkdownFragment_name$ref,
+      +$fragmentSpreads: fetchQueryInternalTestMarkdownFragment_name$fragmentType & fetchQueryInternalTestPlainFragment_name$fragmentType,
     |},
   |},
 |};
 export type fetchQueryInternalTest2Query = {|
-  variables: fetchQueryInternalTest2QueryVariables,
-  response: fetchQueryInternalTest2QueryResponse,
+  response: fetchQueryInternalTest2Query$data,
+  variables: fetchQueryInternalTest2Query$variables,
 |};
 */
 
@@ -193,4 +195,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8b4e8e582a315c7b0003b5f190341462";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  fetchQueryInternalTest2Query$variables,
+  fetchQueryInternalTest2Query$data,
+>*/);

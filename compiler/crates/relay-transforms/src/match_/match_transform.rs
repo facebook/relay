@@ -1,40 +1,69 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    defer_stream::DEFER_STREAM_CONSTANTS,
-    feature_flags::FeatureFlags,
-    inline_data_fragment::INLINE_DIRECTIVE_NAME,
-    match_::MATCH_CONSTANTS,
-    no_inline::{attach_no_inline_directives_to_fragments, validate_required_no_inline_directive},
-    util::get_normalization_operation_name,
-    FeatureFlag,
-};
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-use fnv::{FnvBuildHasher, FnvHashMap};
-use graphql_ir::{
-    associated_data_impl, Argument, ConstantValue, Directive, Field, FragmentDefinition,
-    FragmentSpread, InlineFragment, LinkedField, OperationDefinition, Program, ScalarField,
-    Selection, Transformed, TransformedValue, Transformer, ValidationMessage, Value,
-};
+use std::hash::Hash;
+use std::hash::Hasher;
+use std::sync::Arc;
+
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::FeatureFlag;
+use common::FeatureFlags;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use fnv::FnvBuildHasher;
+use fnv::FnvHashMap;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentDefinitionNameMap;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
 use indexmap::IndexSet;
-use interner::{Intern, StringKey};
-use schema::{FieldID, ScalarID, Schema, Type, TypeReference};
-use std::{
-    hash::{Hash, Hasher},
-    sync::Arc,
-};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
+use relay_config::ModuleImportConfig;
+use schema::FieldID;
+use schema::ScalarID;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
+
+use super::validation_message::ValidationMessage;
+use crate::defer_stream::DEFER_STREAM_CONSTANTS;
+use crate::inline_data_fragment::INLINE_DIRECTIVE_NAME;
+use crate::match_::MATCH_CONSTANTS;
+use crate::no_inline::attach_no_inline_directives_to_fragments;
+use crate::no_inline::validate_required_no_inline_directive;
+use crate::util::get_normalization_operation_name;
 
 /// Transform and validate @match and @module
 pub fn transform_match(
     program: &Program,
     feature_flags: &FeatureFlags,
+    module_import_config: ModuleImportConfig,
 ) -> DiagnosticsResult<Program> {
-    let mut transformer = MatchTransform::new(program, feature_flags);
+    let mut transformer = MatchTransform::new(program, feature_flags, module_import_config);
     let next_program = transformer.transform_program(program);
     if transformer.errors.is_empty() {
         Ok(next_program.replace_or_else(|| program.clone()))
@@ -60,7 +89,7 @@ impl Hash for Path {
 }
 
 struct TypeMatch {
-    fragment: WithLocation<StringKey>,
+    fragment: WithLocation<FragmentDefinitionName>,
     module_directive_name_argument: StringKey,
 }
 struct Matches {
@@ -80,11 +109,16 @@ pub struct MatchTransform<'program, 'flag> {
     enable_3d_branch_arg_generation: bool,
     no_inline_flag: &'flag FeatureFlag,
     // Stores the fragments that should use @no_inline and their parent document name
-    no_inline_fragments: FnvHashMap<StringKey, Vec<StringKey>>,
+    no_inline_fragments: FragmentDefinitionNameMap<Vec<StringKey>>,
+    module_import_config: ModuleImportConfig,
 }
 
 impl<'program, 'flag> MatchTransform<'program, 'flag> {
-    fn new(program: &'program Program, feature_flags: &'flag FeatureFlags) -> Self {
+    fn new(
+        program: &'program Program,
+        feature_flags: &'flag FeatureFlags,
+        module_import_config: ModuleImportConfig,
+    ) -> Self {
         Self {
             program,
             // Placeholders to make the types non-optional,
@@ -97,6 +131,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             enable_3d_branch_arg_generation: feature_flags.enable_3d_branch_arg_generation,
             no_inline_flag: &feature_flags.no_inline,
             no_inline_fragments: Default::default(),
+            module_import_config,
         }
     }
 
@@ -116,7 +151,11 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
     // Validate that `JSDependency` is a server scalar type in the schema
     fn validate_js_module_type(&self, spread_location: Location) -> Result<(), Diagnostic> {
-        match self.program.schema.get_type(MATCH_CONSTANTS.js_field_type) {
+        match self
+            .program
+            .schema
+            .get_type(MATCH_CONSTANTS.js_field_type.0)
+        {
             Some(js_module_type) => match js_module_type {
                 Type::Scalar(id) => {
                     if self.program.schema.scalar(id).is_extension {
@@ -260,7 +299,7 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
         // Only process the fragment spread with @module
         if let Some(module_directive) = module_directive {
-            let should_use_no_inline = self.no_inline_flag.is_enabled_for(spread.fragment.item);
+            let should_use_no_inline = self.no_inline_flag.is_enabled_for(spread.fragment.item.0);
             // @arguments on the fragment spread is not allowed without @no_inline
             if !should_use_no_inline && !spread.arguments.is_empty() {
                 return Err(Diagnostic::error(
@@ -286,7 +325,10 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 ));
             }
 
-            self.validate_js_module_type(spread.fragment.location)?;
+            let needs_js_fields = self.module_import_config.dynamic_module_provider.is_none();
+            if needs_js_fields {
+                self.validate_js_module_type(spread.fragment.location)?;
+            }
 
             let fragment = self.program.fragment(spread.fragment.item).unwrap();
 
@@ -304,8 +346,6 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
 
             let module_directive_name_argument =
                 get_module_directive_name_argument(module_directive, spread.fragment.location)?;
-            let (js_field_id, has_js_field_id_arg, has_js_field_branch_arg) =
-                self.get_js_field_args(fragment, spread)?;
 
             let parent_name = self.path.last();
             // self.match_directive_key_argument is the value passed to @match(key: "...") that we
@@ -404,19 +444,6 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             }
 
             // Done validating. Build out the resulting fragment spread.
-            let mut component_field_arguments = vec![build_string_literal_argument(
-                MATCH_CONSTANTS.js_field_module_arg,
-                module_directive_name_argument,
-                module_directive.name.location,
-            )];
-
-            let mut normalization_name = get_normalization_operation_name(spread.fragment.item);
-            normalization_name.push_str(".graphql");
-            let mut operation_field_arguments = vec![build_string_literal_argument(
-                MATCH_CONSTANTS.js_field_module_arg,
-                normalization_name.intern(),
-                module_directive.name.location,
-            )];
 
             let module_id = if self.path.is_empty() {
                 self.document_name
@@ -429,49 +456,6 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                 }
                 str.intern()
             };
-
-            if has_js_field_id_arg {
-                let id_arg = build_string_literal_argument(
-                    MATCH_CONSTANTS.js_field_id_arg,
-                    module_id,
-                    module_directive.name.location,
-                );
-                component_field_arguments.push(id_arg.clone());
-                operation_field_arguments.push(id_arg);
-            }
-
-            if has_js_field_branch_arg && self.enable_3d_branch_arg_generation {
-                let branch_arg = build_string_literal_argument(
-                    MATCH_CONSTANTS.js_field_branch_arg,
-                    self.program
-                        .schema
-                        .as_ref()
-                        .get_type_name(fragment.type_condition),
-                    module_directive.name.location,
-                );
-                component_field_arguments.push(branch_arg.clone());
-                operation_field_arguments.push(branch_arg);
-            }
-
-            let component_field = Selection::ScalarField(Arc::new(ScalarField {
-                alias: Some(WithLocation::new(
-                    module_directive.name.location,
-                    format!("__module_component_{}", match_directive_key_argument).intern(),
-                )),
-                definition: WithLocation::new(module_directive.name.location, js_field_id),
-                arguments: component_field_arguments,
-                directives: Default::default(),
-            }));
-
-            let operation_field = Selection::ScalarField(Arc::new(ScalarField {
-                alias: Some(WithLocation::new(
-                    module_directive.name.location,
-                    format!("__module_operation_{}", match_directive_key_argument).intern(),
-                )),
-                definition: WithLocation::new(module_directive.name.location, js_field_id),
-                arguments: operation_field_arguments,
-                directives: Default::default(),
-            }));
 
             let next_spread = Selection::FragmentSpread(Arc::new(FragmentSpread {
                 directives: spread
@@ -488,9 +472,24 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
             if should_use_no_inline {
                 self.no_inline_fragments
                     .entry(fragment.name.item)
-                    .or_insert_with(|| vec![])
+                    .or_insert_with(std::vec::Vec::new)
                     .push(self.document_name);
             }
+
+            let mut next_selections = vec![next_spread];
+            if needs_js_fields {
+                let (operation_field, component_field) = self.generate_js_fields(
+                    match_directive_key_argument,
+                    module_id,
+                    module_directive_name_argument,
+                    module_directive,
+                    fragment,
+                    spread,
+                )?;
+                next_selections.push(operation_field);
+                next_selections.push(component_field);
+            }
+
             Ok(Transformed::Replace(Selection::InlineFragment(Arc::new(
                 InlineFragment {
                     type_condition: Some(fragment.type_condition),
@@ -504,18 +503,97 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
                                 module_name: module_directive_name_argument,
                                 source_document_name: self.document_name,
                                 fragment_name: spread.fragment.item,
+                                fragment_source_location: self
+                                    .program
+                                    .fragment(spread.fragment.item)
+                                    .unwrap()
+                                    .name
+                                    .location,
                                 location: module_directive.name.location,
                                 no_inline: should_use_no_inline,
                             }
                             .into(),
                         ],
-                        selections: vec![next_spread, operation_field, component_field],
+                        selections: next_selections,
+                        spread_location: Location::generated(),
                     }))],
+                    spread_location: Location::generated(),
                 },
             ))))
         } else {
             Ok(Transformed::Keep)
         }
+    }
+
+    fn generate_js_fields(
+        &self,
+        match_directive_key_argument: StringKey,
+        module_id: StringKey,
+        module_directive_name_argument: StringKey,
+        module_directive: &Directive,
+        fragment: &FragmentDefinition,
+        spread: &FragmentSpread,
+    ) -> Result<(Selection, Selection), Diagnostic> {
+        let (js_field_id, has_js_field_id_arg, has_js_field_branch_arg) =
+            self.get_js_field_args(fragment, spread)?;
+
+        let mut component_field_arguments = vec![build_string_literal_argument(
+            MATCH_CONSTANTS.js_field_module_arg,
+            module_directive_name_argument,
+            module_directive.name.location,
+        )];
+
+        let mut normalization_name = get_normalization_operation_name(spread.fragment.item.0);
+        normalization_name.push_str(".graphql");
+        let mut operation_field_arguments = vec![build_string_literal_argument(
+            MATCH_CONSTANTS.js_field_module_arg,
+            normalization_name.intern(),
+            module_directive.name.location,
+        )];
+
+        if has_js_field_id_arg {
+            let id_arg = build_string_literal_argument(
+                MATCH_CONSTANTS.js_field_id_arg,
+                module_id,
+                module_directive.name.location,
+            );
+            component_field_arguments.push(id_arg.clone());
+            operation_field_arguments.push(id_arg);
+        }
+
+        if has_js_field_branch_arg && self.enable_3d_branch_arg_generation {
+            let branch_arg = build_string_literal_argument(
+                MATCH_CONSTANTS.js_field_branch_arg,
+                self.program
+                    .schema
+                    .as_ref()
+                    .get_type_name(fragment.type_condition),
+                module_directive.name.location,
+            );
+            component_field_arguments.push(branch_arg.clone());
+            operation_field_arguments.push(branch_arg);
+        }
+
+        let component_field = Selection::ScalarField(Arc::new(ScalarField {
+            alias: Some(WithLocation::new(
+                module_directive.name.location,
+                format!("__module_component_{}", match_directive_key_argument).intern(),
+            )),
+            definition: WithLocation::new(module_directive.name.location, js_field_id),
+            arguments: component_field_arguments,
+            directives: Default::default(),
+        }));
+
+        let operation_field = Selection::ScalarField(Arc::new(ScalarField {
+            alias: Some(WithLocation::new(
+                module_directive.name.location,
+                format!("__module_operation_{}", match_directive_key_argument).intern(),
+            )),
+            definition: WithLocation::new(module_directive.name.location, js_field_id),
+            arguments: operation_field_arguments,
+            directives: Default::default(),
+        }));
+        Ok((operation_field, component_field))
     }
 
     fn validate_transform_linked_field_with_match_directive(
@@ -527,12 +605,11 @@ impl<'program, 'flag> MatchTransform<'program, 'flag> {
         let field_definition = self.program.schema.field(field.definition.item);
         let key_arg = match_directive.arguments.named(MATCH_CONSTANTS.key_arg);
         if let Some(arg) = key_arg {
-            if let Value::Constant(ConstantValue::String(str)) = arg.value.item {
-                if str.lookup().starts_with(self.document_name.lookup()) {
-                    self.match_directive_key_argument = Some(str);
-                }
-            }
-            if self.match_directive_key_argument.is_none() {
+            let str = arg.value.item.expect_constant().unwrap_string();
+
+            if str.lookup().starts_with(self.document_name.lookup()) {
+                self.match_directive_key_argument = Some(str);
+            } else {
                 return Err(Diagnostic::error(
                     ValidationMessage::InvalidMatchKeyArgument {
                         document_name: self.document_name,
@@ -730,7 +807,7 @@ impl Transformer for MatchTransform<'_, '_> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.document_name = fragment.name.item;
+        self.document_name = fragment.name.item.0;
         self.matches_for_path = Default::default();
         self.match_directive_key_argument = None;
         self.parent_type = fragment.type_condition;
@@ -742,7 +819,7 @@ impl Transformer for MatchTransform<'_, '_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = operation.name.item;
+        self.document_name = operation.name.item.0;
         self.matches_for_path = Default::default();
         self.match_directive_key_argument = None;
         self.parent_type = operation.type_;
@@ -766,7 +843,11 @@ impl Transformer for MatchTransform<'_, '_> {
     fn transform_scalar_field(&mut self, field: &ScalarField) -> Transformed<Selection> {
         let field_definition = self.program.schema.field(field.definition.item);
         if field_definition.name.item == MATCH_CONSTANTS.js_field_name {
-            match self.program.schema.get_type(MATCH_CONSTANTS.js_field_type) {
+            match self
+                .program
+                .schema
+                .get_type(MATCH_CONSTANTS.js_field_type.0)
+            {
                 None => self.errors.push(Diagnostic::error(
                     ValidationMessage::MissingServerSchemaDefinition {
                         name: MATCH_CONSTANTS.js_field_name,
@@ -864,13 +945,14 @@ pub struct ModuleMetadata {
     pub module_id: StringKey,
     pub module_name: StringKey,
     pub source_document_name: StringKey,
-    pub fragment_name: StringKey,
+    pub fragment_name: FragmentDefinitionName,
+    pub fragment_source_location: Location,
     pub no_inline: bool,
 }
 associated_data_impl!(ModuleMetadata);
 
 fn build_string_literal_argument(
-    name: StringKey,
+    name: ArgumentName,
     value: StringKey,
     location: Location,
 ) -> Argument {

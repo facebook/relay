@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<23b965b8e7d9fe9893407855b50dfe5b>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<96463c913222c7bdc11259ea21c824af>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +17,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockPayloadGeneratorTest1Fragment$ref: FragmentReference;
-declare export opaque type RelayMockPayloadGeneratorTest1Fragment$fragmentType: RelayMockPayloadGeneratorTest1Fragment$ref;
-export type RelayMockPayloadGeneratorTest1Fragment = {|
-  +id: string,
-  +name?: ?string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockPayloadGeneratorTest1Fragment$fragmentType: FragmentType;
+export type RelayMockPayloadGeneratorTest1Fragment$data = {|
   +firstName?: ?string,
+  +id: string,
   +lastName?: ?string,
+  +name?: ?string,
   +websites?: ?$ReadOnlyArray<?string>,
-  +$refType: RelayMockPayloadGeneratorTest1Fragment$ref,
+  +$fragmentType: RelayMockPayloadGeneratorTest1Fragment$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTest1Fragment$data = RelayMockPayloadGeneratorTest1Fragment;
 export type RelayMockPayloadGeneratorTest1Fragment$key = {
   +$data?: RelayMockPayloadGeneratorTest1Fragment$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest1Fragment$ref,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest1Fragment$fragmentType,
   ...
 };
 */
@@ -106,4 +106,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "655e53b1e06b621fffd25ad651fdad29";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockPayloadGeneratorTest1Fragment$fragmentType,
+  RelayMockPayloadGeneratorTest1Fragment$data,
+>*/);

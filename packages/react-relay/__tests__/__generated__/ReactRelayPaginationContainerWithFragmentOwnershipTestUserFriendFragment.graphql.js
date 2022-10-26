@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<920ad2b5848eef521d9f09c11a01ef63>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<178be67a190cd610ba530731064956fe>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,17 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$ref: FragmentReference;
-declare export opaque type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$ref;
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType: FragmentType;
+export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$data = {|
   +id: string,
   +name?: ?string,
-  +$refType: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$ref,
+  +$fragmentType: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
 |};
-export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$data = ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment;
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$key = {
   +$data?: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$data,
-  +$fragmentRefs: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$ref,
+  +$fragmentSpreads: ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3c7b2ad9c88055de7baca8e5cec24574";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
+  ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment$data,
+>*/);

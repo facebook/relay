@@ -1,0 +1,6 @@
+# expected-to-throw
+query TestQuery @updatable {
+  node(id: 4) {
+    id @customDirective(level: 1)
+  }
+}

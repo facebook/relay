@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7bdbc5a9ccf76321c6fb06c16a3201a1>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<d701b035aa84dbd098d291ed628ba91d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQueryVariables = {|
-  enableStream: boolean,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment.graphql";
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$variables = {|
   after?: ?string,
+  enableStream: boolean,
 |};
-export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$data = {|
   +viewer: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery = {|
-  variables: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQueryVariables,
-  response: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQueryResponse,
+  response: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$data,
+  variables: RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$variables,
 |};
 */
 
@@ -267,4 +269,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "82b74c724400cf33ab9135fc73b2301a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$variables,
+  RelayModernEnvironmentExecuteWithStreamedConnectionTestFeedQuery$data,
+>*/);

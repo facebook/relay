@@ -1,0 +1,6 @@
+# expected-to-throw
+query TestQuery @updatable @live_query {
+  node(id: 4) {
+    id
+  }
+}

@@ -1,16 +1,23 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::util::PointerAddress;
-use graphql_ir::{
-    Field, FragmentDefinition, OperationDefinition, Program, Selection, Transformed,
-    TransformedValue, Transformer,
-};
-use std::{cmp::Ordering, collections::HashMap};
+use std::cmp::Ordering;
+use std::collections::HashMap;
+
+use common::PointerAddress;
+use graphql_ir::transform_list;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
 
 type Seen = HashMap<PointerAddress, Transformed<Selection>>;
 
@@ -45,9 +52,9 @@ impl Transformer for SortSelectionsTransform<'_> {
         &mut self,
         selections: &[Selection],
     ) -> TransformedValue<Vec<Selection>> {
-        let mut next_selections = self
-            .transform_list(selections, Self::transform_selection)
-            .replace_or_else(|| selections.to_vec());
+        let mut next_selections =
+            transform_list(selections, |selection| self.transform_selection(selection))
+                .replace_or_else(|| selections.to_vec());
         next_selections.sort_unstable_by(|a, b| self.compare_selections(a, b));
         TransformedValue::Replace(next_selections)
     }
@@ -136,7 +143,8 @@ impl SortSelectionsTransform<'_> {
                 .passing_value
                 .cmp(&b.passing_value)
                 .then_with(|| {
-                    use graphql_ir::ConditionValue::{Constant, Variable};
+                    use graphql_ir::ConditionValue::Constant;
+                    use graphql_ir::ConditionValue::Variable;
                     match (&a.value, &b.value) {
                         (Constant(a), Constant(b)) => a.cmp(b),
                         (Variable(a), Variable(b)) => a.name.item.cmp(&b.name.item),

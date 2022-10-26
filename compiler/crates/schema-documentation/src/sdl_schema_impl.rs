@@ -1,14 +1,19 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::SchemaDocumentation;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
+use schema::Field;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 
-use interner::{Intern, StringKey};
-use schema::{Field, SDLSchema, Schema, Type};
+use crate::SchemaDocumentation;
 
 impl SchemaDocumentation for SDLSchema {
     fn get_type_description(&self, type_name: &str) -> Option<&str> {
@@ -39,7 +44,7 @@ impl SchemaDocumentation for SDLSchema {
                 field
                     .arguments
                     .iter()
-                    .find(|argument| argument.name == argument_name_string_key)
+                    .find(|argument| argument.name.0 == argument_name_string_key)
             })
             .and_then(|argument| argument.description)
             .map(|string_key| string_key.lookup())

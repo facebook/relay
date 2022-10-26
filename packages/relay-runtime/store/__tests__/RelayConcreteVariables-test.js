@@ -1,11 +1,11 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';
@@ -26,7 +26,7 @@ describe('RelayConcreteVariables', () => {
       it('correctly sets argument value', () => {
         const Fragment = graphql`
           fragment RelayConcreteVariablesTest1Fragment on User
-            @argumentDefinitions(size: {type: "[Int]"}) {
+          @argumentDefinitions(size: {type: "[Int]"}) {
             profilePicture(size: $size) {
               uri
             }
@@ -41,7 +41,7 @@ describe('RelayConcreteVariables', () => {
       it('correctly sets boolean argument values', () => {
         const Fragment = graphql`
           fragment RelayConcreteVariablesTest2Fragment on User
-            @argumentDefinitions(condition: {type: "Boolean"}) {
+          @argumentDefinitions(condition: {type: "Boolean"}) {
             firstName(if: $condition)
           }
         `;
@@ -58,7 +58,7 @@ describe('RelayConcreteVariables', () => {
       it('correctly sets null argument values', () => {
         const Fragment = graphql`
           fragment RelayConcreteVariablesTest3Fragment on User
-            @argumentDefinitions(condition: {type: "Boolean"}) {
+          @argumentDefinitions(condition: {type: "Boolean"}) {
             firstName(if: $condition)
           }
         `;
@@ -71,7 +71,7 @@ describe('RelayConcreteVariables', () => {
       it('correctly ignores default value when argument passed', () => {
         const Fragment = graphql`
           fragment RelayConcreteVariablesTest4Fragment on User
-            @argumentDefinitions(size: {type: "[Int]", defaultValue: 42}) {
+          @argumentDefinitions(size: {type: "[Int]", defaultValue: 42}) {
             profilePicture(size: $size) {
               uri
             }
@@ -86,7 +86,7 @@ describe('RelayConcreteVariables', () => {
       it('correctly sets argument value even if variable is available in root variables', () => {
         const Fragment = graphql`
           fragment RelayConcreteVariablesTest5Fragment on User
-            @argumentDefinitions(size: {type: "[Int]"}) {
+          @argumentDefinitions(size: {type: "[Int]"}) {
             profilePicture(size: $size) {
               uri
             }
@@ -106,7 +106,7 @@ describe('RelayConcreteVariables', () => {
     it('only includes variables being referenced in fragment, regardless of rootVariables in global scope', () => {
       const Fragment = graphql`
         fragment RelayConcreteVariablesTest6Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           profilePicture(size: $size) {
             uri
           }
@@ -125,7 +125,7 @@ describe('RelayConcreteVariables', () => {
     it('sets variables to null if fragment has @argumentDefinitions but no argument passed, regardless if variable is available in global rootVariables scope', () => {
       const Fragment = graphql`
         fragment RelayConcreteVariablesTest7Fragment on User
-          @argumentDefinitions(size: {type: "[Int]"}) {
+        @argumentDefinitions(size: {type: "[Int]"}) {
           profilePicture(size: $size) {
             uri
           }
@@ -146,7 +146,7 @@ describe('RelayConcreteVariables', () => {
     it('sets variables to default values if defined and no argument passed even if root variable is available', () => {
       const Fragment = graphql`
         fragment RelayConcreteVariablesTest8Fragment on User
-          @argumentDefinitions(size: {type: "[Int]", defaultValue: 42}) {
+        @argumentDefinitions(size: {type: "[Int]", defaultValue: 42}) {
           profilePicture(size: $size) {
             uri
           }
@@ -167,7 +167,7 @@ describe('RelayConcreteVariables', () => {
     it('sets variables to default values if defined and no argument passed and no root variable available', () => {
       const Fragment = graphql`
         fragment RelayConcreteVariablesTest9Fragment on User
-          @argumentDefinitions(size: {type: "[Int]", defaultValue: 42}) {
+        @argumentDefinitions(size: {type: "[Int]", defaultValue: 42}) {
           profilePicture(size: $size) {
             uri
           }
@@ -209,10 +209,14 @@ describe('RelayConcreteVariables', () => {
           }
         }
       `;
-      const variables = getOperationVariables(Query.operation, {
-        id: '4',
-        count: 10, // not defined on Query
-      });
+      const variables = getOperationVariables(
+        Query.operation,
+        Query.params.providedVariables,
+        {
+          id: '4',
+          count: 10, // not defined on Query
+        },
+      );
       expect(variables).toEqual({
         id: '4',
         // count is filtered out
@@ -239,11 +243,15 @@ describe('RelayConcreteVariables', () => {
           }
         }
       `;
-      const variables = getOperationVariables(Query.operation, {
-        id: '4',
-        // no count
-        order: null,
-      });
+      const variables = getOperationVariables(
+        Query.operation,
+        Query.params.providedVariables,
+        {
+          id: '4',
+          // no count
+          order: null,
+        },
+      );
       expect(variables).toEqual({
         id: '4', // user value overwrites default
         count: 10, // set to default

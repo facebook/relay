@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3e2fcc630bb14093d2dc4ffdf5e22370>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<d5f8fa2c410fb005891368b425856c9a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$ref = any;
-type RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$ref = any;
-type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$ref = any;
-type RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$ref = any;
-export type RelayModernEnvironmentTypeRefinementTestParentQueryVariables = {||};
-export type RelayModernEnvironmentTypeRefinementTestParentQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestAbstractActorFragment.graphql";
+import type { RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment.graphql";
+import type { RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment.graphql";
+import type { RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestConcreteUserFragment.graphql";
+export type RelayModernEnvironmentTypeRefinementTestParentQuery$variables = {||};
+export type RelayModernEnvironmentTypeRefinementTestParentQuery$data = {|
   +userOrPage: ?{|
-    +$fragmentRefs: RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$ref & RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$ref & RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$ref & RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTestAbstractActorFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestAbstractInlineRefinementFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentTypeRefinementTestParentQuery = {|
-  variables: RelayModernEnvironmentTypeRefinementTestParentQueryVariables,
-  response: RelayModernEnvironmentTypeRefinementTestParentQueryResponse,
+  response: RelayModernEnvironmentTypeRefinementTestParentQuery$data,
+  variables: RelayModernEnvironmentTypeRefinementTestParentQuery$variables,
 |};
 */
 
@@ -178,4 +180,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "689f4ef00bbe32b65200f7bf0b18600d";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentTypeRefinementTestParentQuery$variables,
+  RelayModernEnvironmentTypeRefinementTestParentQuery$data,
+>*/);

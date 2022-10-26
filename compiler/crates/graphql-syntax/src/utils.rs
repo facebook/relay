@@ -1,12 +1,16 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::node::{ConstantArgument, ConstantDirective, FieldDefinition, InputValueDefinition};
-use interner::StringKey;
+use intern::string_key::StringKey;
+
+use crate::node::ConstantArgument;
+use crate::node::ConstantDirective;
+use crate::node::FieldDefinition;
+use crate::node::InputValueDefinition;
 
 impl FieldDefinition {
     pub fn argument_named(&self, field_name: StringKey) -> Option<&InputValueDefinition> {

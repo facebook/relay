@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -22,6 +21,7 @@ const EntryPointContainer = require('./relay-hooks/EntryPointContainer.react');
 const loadEntryPoint = require('./relay-hooks/loadEntryPoint');
 const {loadQuery} = require('./relay-hooks/loadQuery');
 const RelayEnvironmentProvider = require('./relay-hooks/RelayEnvironmentProvider');
+const useClientQuery = require('./relay-hooks/useClientQuery');
 const useEntryPointLoader = require('./relay-hooks/useEntryPointLoader');
 const useFragment = require('./relay-hooks/useFragment');
 const useLazyLoadQuery = require('./relay-hooks/useLazyLoadQuery');
@@ -34,6 +34,7 @@ const useRelayEnvironment = require('./relay-hooks/useRelayEnvironment');
 const useSubscribeToInvalidationState = require('./relay-hooks/useSubscribeToInvalidationState');
 const useSubscription = require('./relay-hooks/useSubscription');
 const RelayRuntime = require('relay-runtime');
+const ProfilerContext = require('./relay-hooks/ProfilerContext');
 
 export type {
   $FragmentRef,
@@ -108,11 +109,14 @@ module.exports = {
   EntryPointContainer: EntryPointContainer,
   RelayEnvironmentProvider: RelayEnvironmentProvider,
 
+  ProfilerContext: ProfilerContext,
+
   fetchQuery: RelayRuntime.fetchQuery,
 
   loadQuery: loadQuery,
   loadEntryPoint: loadEntryPoint,
 
+  useClientQuery: useClientQuery,
   useFragment: useFragment,
   useLazyLoadQuery: useLazyLoadQuery,
   useEntryPointLoader: useEntryPointLoader,

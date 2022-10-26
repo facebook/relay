@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<eabc6e98f27c3b690bc5deb454386011>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<04e473cfd61ce67af6890717b0584de6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$ref = any;
-export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQueryVariables = {||};
-export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$fragmentType } from "./RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile.graphql";
+export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$variables = {||};
+export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$data = {|
   +viewer: ?{|
     +actor: ?{|
-      +$fragmentRefs: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$ref,
+      +$fragmentSpreads: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorProfile$fragmentType,
     |},
   |},
 |};
 export type RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery = {|
-  variables: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQueryVariables,
-  response: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQueryResponse,
+  response: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$data,
+  variables: RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$variables,
 |};
 */
 
@@ -138,4 +140,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "4b700c3225c0e3ab4f6a4eec8276a452";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$variables,
+  RelayReaderTestShouldConsiderDataMissingIfTheFragmentTypeIsAbstractActorQuery$data,
+>*/);

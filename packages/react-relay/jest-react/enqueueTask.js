@@ -1,11 +1,11 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 // This file is sync'd from https://github.com/facebook/react/tree/main/packages/jest-react
@@ -29,7 +29,7 @@ function enqueueTask(task: () => void) {
       // we're in a browser
       // we can't use regular timers because they may still be faked
       // so we try MessageChannel+postMessage instead
-      enqueueTaskImpl = function(callback: () => void) {
+      enqueueTaskImpl = function (callback: () => void) {
         if (__DEV__) {
           if (didWarnAboutMessageChannel === false) {
             didWarnAboutMessageChannel = true;

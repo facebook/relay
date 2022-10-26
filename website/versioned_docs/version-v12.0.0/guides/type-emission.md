@@ -8,7 +8,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {FbInternalOnly, OssOnly, fbContent} from 'internaldocs-fb-helpers';
+import {FbInternalOnly, OssOnly, fbContent} from 'docusaurus-plugin-internaldocs-fb/internal';
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 

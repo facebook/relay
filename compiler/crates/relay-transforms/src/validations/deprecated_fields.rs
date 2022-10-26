@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,17 +7,29 @@
 
 use std::sync::Arc;
 
-use common::{Diagnostic, DiagnosticTag, DiagnosticsResult, NamedItem, WithLocation};
-use graphql_ir::{
-    ExecutableDefinition, LinkedField, Program, ScalarField, ValidationMessage, Validator, Value,
-};
-use interner::{Intern, StringKey};
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticTag;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::ExecutableDefinition;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
+use graphql_ir::Value;
+use intern::string_key::Intern;
 use lazy_static::lazy_static;
-use schema::{FieldID, SDLSchema, Schema};
+use schema::FieldID;
+use schema::SDLSchema;
+use schema::Schema;
 
 lazy_static! {
-    static ref DIRECTIVE_DEPRECATED: StringKey = "deprecated".intern();
-    static ref ARGUMENT_REASON: StringKey = "reason".intern();
+    static ref DIRECTIVE_DEPRECATED: DirectiveName = DirectiveName("deprecated".intern());
+    static ref ARGUMENT_REASON: ArgumentName = ArgumentName("reason".intern());
 }
 
 pub fn deprecated_fields(
@@ -55,7 +67,7 @@ impl<'a> DeprecatedFields<'a> {
         }
     }
 
-    fn validate_field(&mut self, field_id: &WithLocation<FieldID>) -> () {
+    fn validate_field(&mut self, field_id: &WithLocation<FieldID>) {
         let schema = &self.schema;
         let field_definition = schema.field(field_id.item);
         if let Some(directive) = field_definition.directives.named(*DIRECTIVE_DEPRECATED) {
@@ -73,7 +85,7 @@ impl<'a> DeprecatedFields<'a> {
                     deprecation_reason,
                 },
                 field_id.location,
-                vec![DiagnosticTag::Deprecated],
+                vec![DiagnosticTag::DEPRECATED],
             ));
         }
     }

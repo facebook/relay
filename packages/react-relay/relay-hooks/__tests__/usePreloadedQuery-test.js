@@ -1,23 +1,23 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {Sink} from '../../../relay-runtime/network/RelayObservable';
+import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
-jest.mock('warning');
 const {loadQuery} = require('../loadQuery');
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');
+const usePreloadedQuery_REACT_CACHE = require('../react-cache/usePreloadedQuery_REACT_CACHE');
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
-const usePreloadedQuery = require('../usePreloadedQuery');
+const usePreloadedQuery_LEGACY = require('../usePreloadedQuery');
 const React = require('react');
 const TestRenderer = require('react-test-renderer');
 const {
@@ -26,14 +26,16 @@ const {
   Observable,
   PreloadableQueryRegistry,
   RecordSource,
+  RelayFeatureFlags,
   Store,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 const warning = require('warning');
 
-const query = getRequest(graphql`
+jest.mock('warning');
+
+const query = graphql`
   query usePreloadedQueryTestQuery($id: ID!) {
     node(id: $id) {
       id
@@ -42,7 +44,7 @@ const query = getRequest(graphql`
       }
     }
   }
-`);
+`;
 
 // Only queries with an ID are preloadable
 const ID = '12345';
@@ -79,18 +81,18 @@ const responseRefetch = {
   },
 };
 
-let dataSource;
+let dataSource: ?Sink<GraphQLResponse>;
 let environment;
 let fetch;
 
 class ErrorBoundary extends React.Component<$FlowFixMe, $FlowFixMe> {
-  state: {|error: mixed|} = {error: null};
+  state: {error: mixed} = {error: null};
 
-  componentDidCatch(error) {
+  componentDidCatch(error: Error) {
     this.setState({error});
   }
 
-  render() {
+  render(): any {
     const {children, fallback} = this.props;
     const {error} = this.state;
     if (error != null) {
@@ -110,7 +112,28 @@ afterAll(() => {
   jest.clearAllMocks();
 });
 
-describe('usePreloadedQuery', () => {
+describe.each([
+  ['React Cache', usePreloadedQuery_REACT_CACHE],
+  ['Legacy', usePreloadedQuery_LEGACY],
+])('usePreloadedQuery (%s)', (_hookName, usePreloadedQuery) => {
+  const usingReactCache = usePreloadedQuery === usePreloadedQuery_REACT_CACHE;
+  // Our open-source build is still on React 17, so we need to skip these tests there:
+  if (usingReactCache) {
+    // $FlowExpectedError[prop-missing] Cache not yet part of Flow types
+    if (React.unstable_getCacheForType === undefined) {
+      return;
+    }
+  }
+  let originalReactCacheFeatureFlag;
+  beforeEach(() => {
+    originalReactCacheFeatureFlag = RelayFeatureFlags.USE_REACT_CACHE;
+    RelayFeatureFlags.USE_REACT_CACHE =
+      usePreloadedQuery === usePreloadedQuery_REACT_CACHE;
+  });
+  afterEach(() => {
+    RelayFeatureFlags.USE_REACT_CACHE = originalReactCacheFeatureFlag;
+  });
+
   beforeEach(() => {
     dataSource = undefined;
     fetch = jest.fn((_query, _variables, _cacheConfig) =>
@@ -123,6 +146,7 @@ describe('usePreloadedQuery', () => {
       store: new Store(new RecordSource()),
     });
   });
+
   describe('using preloadQuery_DEPRECATED', () => {
     beforeEach(() => {
       jest.spyOn(console, 'warn').mockImplementation(() => {});
@@ -130,7 +154,7 @@ describe('usePreloadedQuery', () => {
     });
 
     it('suspends while the query is pending', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {
@@ -138,7 +162,7 @@ describe('usePreloadedQuery', () => {
         },
       );
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data?.node?.name;
       }
@@ -155,13 +179,13 @@ describe('usePreloadedQuery', () => {
     });
 
     it('suspends while the query is pending (with default variables)', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {},
       );
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data?.node?.name ?? 'Error: should have suspended';
       }
@@ -181,7 +205,7 @@ describe('usePreloadedQuery', () => {
       // TODO(T40983823): Fix usage of timers in tests
       environment.getStore().holdGC();
 
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {
@@ -196,7 +220,7 @@ describe('usePreloadedQuery', () => {
       }
 
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data?.node?.name ?? 'MISSING NAME';
       }
@@ -218,7 +242,7 @@ describe('usePreloadedQuery', () => {
     });
 
     it('renders synchronously if the query has already errored', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {
@@ -232,7 +256,7 @@ describe('usePreloadedQuery', () => {
       }
 
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data.node.name;
       }
@@ -251,7 +275,7 @@ describe('usePreloadedQuery', () => {
     });
 
     it('updates asynchronously when the query completes', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {
@@ -260,7 +284,7 @@ describe('usePreloadedQuery', () => {
       );
 
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data.node.name;
       }
@@ -293,14 +317,14 @@ describe('usePreloadedQuery', () => {
     });
 
     it('refetches when a different fetchKey is passed', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {id: '4'},
         {fetchKey: 'Break Cache 0', fetchPolicy: 'network-only'},
       );
       const dataSourceBreakCache0 = dataSource;
-      const prefetchedWithFetchKey = preloadQuery_DEPRECATED(
+      const prefetchedWithFetchKey = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {id: '4'},
@@ -310,7 +334,7 @@ describe('usePreloadedQuery', () => {
       expect(fetch).toBeCalledTimes(2);
 
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data.node.name;
       }
@@ -363,7 +387,7 @@ describe('usePreloadedQuery', () => {
     });
 
     it('refetches when consumed with a different environment', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {id: '4'},
@@ -372,7 +396,7 @@ describe('usePreloadedQuery', () => {
       expect(fetch).toBeCalledTimes(1);
 
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data.node.name;
       }
@@ -407,14 +431,14 @@ describe('usePreloadedQuery', () => {
     });
 
     it('no refetch when the same fetchKey is passed', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {id: '4'},
         {fetchKey: 'Break Cache 0', fetchPolicy: 'network-only'},
       );
       const dataSourceBreakCache0 = dataSource;
-      const prefetchedWithFetchKey = preloadQuery_DEPRECATED(
+      const prefetchedWithFetchKey = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {id: '4'},
@@ -424,7 +448,7 @@ describe('usePreloadedQuery', () => {
       expect(fetch).toBeCalledTimes(1);
 
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data.node.name;
       }
@@ -477,7 +501,7 @@ describe('usePreloadedQuery', () => {
     });
 
     it('updates asynchronously when the query errors', () => {
-      const prefetched = preloadQuery_DEPRECATED(
+      const prefetched = preloadQuery_DEPRECATED<any, empty>(
         environment,
         preloadableConcreteRequest,
         {
@@ -486,7 +510,7 @@ describe('usePreloadedQuery', () => {
       );
 
       let data;
-      function Component(props) {
+      function Component(props: any) {
         data = usePreloadedQuery(query, props.prefetched);
         return data.node.name;
       }
@@ -516,10 +540,17 @@ describe('usePreloadedQuery', () => {
 
   describe('using loadQuery', () => {
     let resolvedModule;
-    beforeEach(() => {
-      jest
+    let preloadableQueryRegistrySpy;
+    beforeAll(() => {
+      preloadableQueryRegistrySpy = jest
         .spyOn(PreloadableQueryRegistry, 'get')
-        .mockImplementation(() => resolvedModule);
+        .mockImplementation((key: string) => {
+          expect(key).toEqual(ID);
+          return resolvedModule;
+        });
+    });
+    afterAll(() => {
+      preloadableQueryRegistrySpy.mockRestore();
     });
 
     describe('if loadQuery is passed a preloadableConcreteRequest which is not available synchronously', () => {
@@ -528,7 +559,7 @@ describe('usePreloadedQuery', () => {
           id: '4',
         });
         let data;
-        function Component(props) {
+        function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data?.node?.name ?? 'MISSING NAME';
         }
@@ -571,7 +602,7 @@ describe('usePreloadedQuery', () => {
           id: '4',
         });
         let data;
-        function Component(props) {
+        function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data?.node?.name ?? 'MISSING NAME';
         }
@@ -621,7 +652,7 @@ describe('usePreloadedQuery', () => {
         }
         TestRenderer.act(() => jest.runAllImmediates());
 
-        function Component(props) {
+        function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data.node.name;
         }
@@ -654,7 +685,7 @@ describe('usePreloadedQuery', () => {
         }
         TestRenderer.act(() => jest.runAllImmediates());
 
-        function Component(props) {
+        function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data.node.name;
         }
@@ -685,7 +716,7 @@ describe('usePreloadedQuery', () => {
           }
           TestRenderer.act(() => jest.runAllImmediates());
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -716,7 +747,7 @@ describe('usePreloadedQuery', () => {
           }
           TestRenderer.act(() => jest.runAllImmediates());
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -742,7 +773,7 @@ describe('usePreloadedQuery', () => {
           let data;
           expect(dataSource).toBeDefined();
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -776,7 +807,7 @@ describe('usePreloadedQuery', () => {
           let data;
           expect(dataSource).toBeDefined();
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -803,8 +834,13 @@ describe('usePreloadedQuery', () => {
     });
 
     describe('when loadQuery is passed a preloadable concrete request and the query AST is available synchronously', () => {
+      let originalResolvedModule;
       beforeEach(() => {
+        originalResolvedModule = resolvedModule;
         resolvedModule = query;
+      });
+      afterEach(() => {
+        resolvedModule = originalResolvedModule;
       });
       describe('when the network response is available before usePreloadedQuery is rendered', () => {
         it('should synchronously render successfully', () => {
@@ -822,7 +858,7 @@ describe('usePreloadedQuery', () => {
           }
           TestRenderer.act(() => jest.runAllImmediates());
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -857,7 +893,7 @@ describe('usePreloadedQuery', () => {
           }
           TestRenderer.act(() => jest.runAllImmediates());
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -887,7 +923,7 @@ describe('usePreloadedQuery', () => {
           let data;
           expect(dataSource).toBeDefined();
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -925,7 +961,7 @@ describe('usePreloadedQuery', () => {
           let data;
           expect(dataSource).toBeDefined();
 
-          function Component(props) {
+          function Component(props: any) {
             data = usePreloadedQuery(query, props.prefetched);
             return data.node.name;
           }
@@ -974,7 +1010,7 @@ describe('usePreloadedQuery', () => {
         TestRenderer.act(() => jest.runAllImmediates());
 
         expect(altFetch).not.toHaveBeenCalled();
-        function Component(props) {
+        function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data.node.name;
         }
@@ -1009,7 +1045,7 @@ describe('usePreloadedQuery', () => {
           {},
         );
 
-        function Component(props) {
+        function Component(props: any) {
           const data = usePreloadedQuery(query, props.prefetched);
           return data?.node?.name ?? 'MISSING NAME';
         }
@@ -1034,7 +1070,7 @@ describe('usePreloadedQuery', () => {
 
         prefetched.dispose();
         render();
-        expect(warning).toBeCalledTimes(5);
+        expect(warning).toBeCalledTimes(3);
         expect(warning).toHaveBeenLastCalledWith(
           false, // invariant broken
           expectWarningMessage,
@@ -1055,7 +1091,7 @@ describe('usePreloadedQuery', () => {
           },
         );
         let data;
-        function Component(props) {
+        function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data.node.name;
         }
@@ -1156,7 +1192,7 @@ describe('usePreloadedQuery', () => {
           },
         );
         let data;
-        function Component(props) {
+        function Component(props: any) {
           data = usePreloadedQuery(query, props.prefetched);
           return data.node.name;
         }

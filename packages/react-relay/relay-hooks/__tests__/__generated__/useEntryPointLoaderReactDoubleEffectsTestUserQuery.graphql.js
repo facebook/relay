@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<64564ada280c23d8d7b5b474626b995d>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<3ca775c4cf21029abec02867b8b46c0f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useEntryPointLoaderReactDoubleEffectsTestUserFragment$ref = any;
-export type useEntryPointLoaderReactDoubleEffectsTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { useEntryPointLoaderReactDoubleEffectsTestUserFragment$fragmentType } from "./useEntryPointLoaderReactDoubleEffectsTestUserFragment.graphql";
+export type useEntryPointLoaderReactDoubleEffectsTestUserQuery$variables = {|
   id?: ?string,
 |};
-export type useEntryPointLoaderReactDoubleEffectsTestUserQueryResponse = {|
+export type useEntryPointLoaderReactDoubleEffectsTestUserQuery$data = {|
   +node: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: useEntryPointLoaderReactDoubleEffectsTestUserFragment$ref,
+    +$fragmentSpreads: useEntryPointLoaderReactDoubleEffectsTestUserFragment$fragmentType,
   |},
 |};
 export type useEntryPointLoaderReactDoubleEffectsTestUserQuery = {|
-  variables: useEntryPointLoaderReactDoubleEffectsTestUserQueryVariables,
-  response: useEntryPointLoaderReactDoubleEffectsTestUserQueryResponse,
+  response: useEntryPointLoaderReactDoubleEffectsTestUserQuery$data,
+  variables: useEntryPointLoaderReactDoubleEffectsTestUserQuery$variables,
 |};
 */
 
@@ -134,4 +136,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d296fc0f253f3d0b6940f48b0e01845e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useEntryPointLoaderReactDoubleEffectsTestUserQuery$variables,
+  useEntryPointLoaderReactDoubleEffectsTestUserQuery$data,
+>*/);

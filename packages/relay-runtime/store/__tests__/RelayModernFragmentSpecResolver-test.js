@@ -1,22 +1,21 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';
 
 const {fetchQuery} = require('../../query/fetchQueryInternal');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernFragmentSpecResolver = require('../RelayModernFragmentSpecResolver');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
 
 describe('RelayModernFragmentSpecResolver', () => {
@@ -67,7 +66,7 @@ describe('RelayModernFragmentSpecResolver', () => {
     `;
     UsersFragment = graphql`
       fragment RelayModernFragmentSpecResolverTestQueryUsersFragment on User
-        @relay(plural: true) {
+      @relay(plural: true) {
         id
         name
         profilePicture(size: $size) @include(if: $fetchSize) {
@@ -76,7 +75,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       }
     `;
 
-    UserQuery = getRequest(graphql`
+    UserQuery = graphql`
       query RelayModernFragmentSpecResolverTestQuery(
         $id: ID!
         $size: [Int]
@@ -87,7 +86,7 @@ describe('RelayModernFragmentSpecResolver', () => {
           ...RelayModernFragmentSpecResolverTestQueryUsersFragment
         }
       }
-    `);
+    `;
 
     zuckOperation = createOperationDescriptor(UserQuery, {
       fetchSize: false,
@@ -867,7 +866,7 @@ describe('RelayModernFragmentSpecResolver', () => {
       beforeEach(() => {
         jest.mock('warning');
 
-        AffectingQuery = getRequest(graphql`
+        AffectingQuery = graphql`
           query RelayModernFragmentSpecResolverTestAffectingQuery(
             $id: ID!
             $size: [Int]
@@ -878,7 +877,7 @@ describe('RelayModernFragmentSpecResolver', () => {
               ...RelayModernFragmentSpecResolverTestQueryUsersFragment
             }
           }
-        `);
+        `;
         const affectingQueryOperation = createOperationDescriptor(
           AffectingQuery,
           {

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4b1283bdf7005212889b755be55aa9cc>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<5672c6284bb8af1c610fbd8357634bb3>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +17,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -27,22 +28,22 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutationVariables = {|
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$variables = {|
   input: CommentCreateInput,
 |};
-export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutationResponse = {|
+export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
-      +id: string,
       +body: ?{|
         +text: ?string,
       |},
+      +id: string,
     |},
   |},
 |};
 export type MultiActorEnvironmentExecuteMutationTestCreateCommentMutation = {|
-  variables: MultiActorEnvironmentExecuteMutationTestCreateCommentMutationVariables,
-  response: MultiActorEnvironmentExecuteMutationTestCreateCommentMutationResponse,
+  response: MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$data,
+  variables: MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$variables,
 |};
 */
 
@@ -141,4 +142,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "539386332425cbe8c263e699decf8325";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$variables,
+  MultiActorEnvironmentExecuteMutationTestCreateCommentMutation$data,
+>*/);

@@ -1,0 +1,67 @@
+==================================== INPUT ====================================
+query clientFieldsOnlyNoFragmentInvalidQuery {
+  my_alias: client_field
+}
+
+# %extensions%
+
+extend type Query {
+  client_field: String
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "clientFieldsOnlyNoFragmentInvalidQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": "my_alias",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "clientFieldsOnlyNoFragmentInvalidQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": "my_alias",
+            "args": null,
+            "kind": "ScalarField",
+            "name": "client_field",
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "80d5eb8d7136ee47500dc8169d046343",
+    "id": null,
+    "metadata": {},
+    "name": "clientFieldsOnlyNoFragmentInvalidQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.

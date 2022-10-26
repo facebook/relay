@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ae1cd765c28660b64dcc6a1ecf08856f>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<fb7d355840174d6eaf48c35aeda0b531>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +17,23 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type useRefetchableFragmentNodeTest2Fragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-type useRefetchableFragmentNodeTest3Fragment$ref = any;
-type useRefetchableFragmentNodeTest3Fragment$fragmentType = any;
-export type { useRefetchableFragmentNodeTest3Fragment$ref, useRefetchableFragmentNodeTest3Fragment$fragmentType };
-export type useRefetchableFragmentNodeTest3Fragment = {|
+import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
+import type { useRefetchableFragmentNodeTest2Fragment$fragmentType } from "./useRefetchableFragmentNodeTest2Fragment.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useRefetchableFragmentNodeTest3Fragment$fragmentType: FragmentType;
+type useRefetchableFragmentNodeTest3FragmentRefetchQuery$variables = any;
+export type useRefetchableFragmentNodeTest3Fragment$data = {|
   +id: string,
   +name: ?string,
   +profile_picture: ?{|
     +uri: ?string,
   |},
-  +$fragmentRefs: useRefetchableFragmentNodeTest2Fragment$ref,
-  +$refType: useRefetchableFragmentNodeTest3Fragment$ref,
+  +$fragmentSpreads: useRefetchableFragmentNodeTest2Fragment$fragmentType,
+  +$fragmentType: useRefetchableFragmentNodeTest3Fragment$fragmentType,
 |};
-export type useRefetchableFragmentNodeTest3Fragment$data = useRefetchableFragmentNodeTest3Fragment;
 export type useRefetchableFragmentNodeTest3Fragment$key = {
   +$data?: useRefetchableFragmentNodeTest3Fragment$data,
-  +$fragmentRefs: useRefetchableFragmentNodeTest3Fragment$ref,
+  +$fragmentSpreads: useRefetchableFragmentNodeTest3Fragment$fragmentType,
   ...
 };
 */
@@ -110,4 +110,8 @@ if (__DEV__) {
   (node/*: any*/).hash = "2650c4a9699c99058f29e1c1d3554f01";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: RefetchableFragment<
+  useRefetchableFragmentNodeTest3Fragment$fragmentType,
+  useRefetchableFragmentNodeTest3Fragment$data,
+  useRefetchableFragmentNodeTest3FragmentRefetchQuery$variables,
+>*/);

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4841d352213a15c196d0c869aabf6d99>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<2de768d4886a7c9b951f8950a0bd2898>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$ref;
-export type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name = {|
-  +plaintext: ?string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$data = {|
   +data: ?{|
     +text: ?string,
   |},
-  +$refType: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$ref,
+  +plaintext: ?string,
+  +$fragmentType: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$data = RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name;
 export type RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$key = {
   +$data?: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$data,
-  +$fragmentRefs: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$ref,
+  +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "101296fb740d1eaff68fffbae7e2ed82";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$fragmentType,
+  RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$data,
+>*/);

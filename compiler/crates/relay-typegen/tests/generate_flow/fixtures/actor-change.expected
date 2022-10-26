@@ -14,40 +14,36 @@ fragment ViewerFragment on Viewer {
   }
 }
 ==================================== OUTPUT ===================================
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ActorFragment$ref: FragmentReference;
-declare export opaque type ActorFragment$fragmentType: ActorFragment$ref;
-export type ActorFragment = {|
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ActorFragment$fragmentType: FragmentType;
+export type ActorFragment$data = {|
   +name: ?string,
   +profilePicture: ?{|
+    +height: ?number,
     +uri: ?string,
     +width: ?number,
-    +height: ?number,
   |},
-  +$refType: ActorFragment$ref,
+  +$fragmentType: ActorFragment$fragmentType,
 |};
-export type ActorFragment$data = ActorFragment;
 export type ActorFragment$key = {
   +$data?: ActorFragment$data,
-  +$fragmentRefs: ActorFragment$ref,
+  +$fragmentSpreads: ActorFragment$fragmentType,
   ...
 };
 -------------------------------------------------------------------------------
 import type { ActorChangePoint } from "react-relay/multi-actor";
-import type { ActorFragment$ref } from "ActorFragment.graphql";
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ViewerFragment$ref: FragmentReference;
-declare export opaque type ViewerFragment$fragmentType: ViewerFragment$ref;
-export type ViewerFragment = {|
+import type { ActorFragment$fragmentType } from "ActorFragment.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ViewerFragment$fragmentType: FragmentType;
+export type ViewerFragment$data = {|
   +actor: ?ActorChangePoint<{|
     +actor_key: string,
-    +$fragmentRefs: ActorFragment$ref,
+    +$fragmentSpreads: ActorFragment$fragmentType,
   |}>,
-  +$refType: ViewerFragment$ref,
+  +$fragmentType: ViewerFragment$fragmentType,
 |};
-export type ViewerFragment$data = ViewerFragment;
 export type ViewerFragment$key = {
   +$data?: ViewerFragment$data,
-  +$fragmentRefs: ViewerFragment$ref,
+  +$fragmentSpreads: ViewerFragment$fragmentType,
   ...
 };

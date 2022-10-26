@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -18,8 +16,7 @@ const {
   getActorIdentifier,
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
-const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -34,13 +31,13 @@ const {
 
 disallowWarnings();
 
-const ActorQuery = getRequest(graphql`
+const ActorQuery = graphql`
   query RelayModernEnvironmentCommitPayloadTestActorQuery {
     me {
       name
     }
   }
-`);
+`;
 
 describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
   'CommitPayload',
@@ -93,7 +90,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       });
 
       it('does not fill missing fields from server updates with null when treatMissingFieldsAsNull is disabled (default)', () => {
-        const query = getRequest(graphql`
+        const query = graphql`
           query RelayModernEnvironmentCommitPayloadTest2ActorQuery {
             me {
               name
@@ -104,7 +101,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         operation = createOperationDescriptor(query, {});
         const callback = jest.fn();
         const snapshot = environment.lookup(operation.fragment);
@@ -139,7 +136,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           treatMissingFieldsAsNull: true,
         });
 
-        const query = getRequest(graphql`
+        const query = graphql`
           query RelayModernEnvironmentCommitPayloadTest3ActorQuery {
             me {
               name
@@ -150,7 +147,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         operation = createOperationDescriptor(query, {});
         const callback = jest.fn();
         const snapshot = environment.lookup(operation.fragment);
@@ -210,19 +207,19 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('applies payload on @defer fragments', () => {
         const id = '4';
-        const query = getRequest(graphql`
+        const query = graphql`
           query RelayModernEnvironmentCommitPayloadTest4ActorQuery {
             me {
               name
               ...RelayModernEnvironmentCommitPayloadTest4UserFragment @defer
             }
           }
-        `);
-        const fragment = getFragment(graphql`
+        `;
+        const fragment = graphql`
           fragment RelayModernEnvironmentCommitPayloadTest4UserFragment on User {
             username
           }
-        `);
+        `;
         operation = createOperationDescriptor(query, {});
 
         const selector = createReaderSelector(
@@ -268,7 +265,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
       it('applies payload on @defer fragments in a query with modules', () => {
         const id = '4';
-        const query = getRequest(graphql`
+        const query = graphql`
           query RelayModernEnvironmentCommitPayloadTest6ActorQuery {
             me {
               name
@@ -279,7 +276,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               ...RelayModernEnvironmentCommitPayloadTest6UserFragment @defer
             }
           }
-        `);
+        `;
         const nameFragmentNormalizationNode = require('./__generated__/RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name$normalization.graphql');
         graphql`
           fragment RelayModernEnvironmentCommitPayloadTest6MarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
@@ -287,11 +284,11 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             markdown
           }
         `;
-        const userFragment = getFragment(graphql`
+        const userFragment = graphql`
           fragment RelayModernEnvironmentCommitPayloadTest6UserFragment on User {
             username
           }
-        `);
+        `;
 
         environment = new RelayModernEnvironment({
           network: RelayNetwork.create(jest.fn()),
@@ -354,10 +351,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           taskID = 0;
           tasks = new Map();
           scheduler = {
-            cancel: id => {
+            cancel: (id: string) => {
               tasks.delete(id);
             },
-            schedule: task => {
+            schedule: (task: () => void) => {
               const id = String(taskID++);
               tasks.set(id, task);
               return id;

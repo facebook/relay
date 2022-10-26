@@ -1,19 +1,17 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 import type {DeclarativeMutationConfig} from '../mutations/RelayDeclarativeMutationConfig';
-import type {GraphQLTaggedNode} from '../query/GraphQLTag';
 import type {
   IEnvironment,
   SelectorStoreUpdater,
@@ -21,6 +19,7 @@ import type {
 import type {
   CacheConfig,
   Disposable,
+  GraphQLSubscription,
   Variables,
 } from '../util/RelayRuntimeTypes';
 
@@ -30,53 +29,39 @@ const {
   createOperationDescriptor,
 } = require('../store/RelayModernOperationDescriptor');
 const {createReaderSelector} = require('../store/RelayModernSelector');
-const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const warning = require('warning');
 
-export type SubscriptionParameters = {|
+export type SubscriptionParameters = {
   +response: {...},
-  +variables: interface {},
+  +variables: {...},
   +rawResponse?: {...},
-|};
+};
 
-export type GraphQLSubscriptionConfig<T: SubscriptionParameters> = {|
+/**
+ * Updated Flow type that makes use of typed graphql tagged literals with
+ * type information.
+ */
+export type GraphQLSubscriptionConfig<TVariables, TData, TRawResponse> = {
   configs?: Array<DeclarativeMutationConfig>,
   cacheConfig?: CacheConfig,
-  subscription: GraphQLTaggedNode,
-  variables: $ElementType<T, 'variables'>,
+  subscription: GraphQLSubscription<TVariables, TData, TRawResponse>,
+  variables: TVariables,
   onCompleted?: ?() => void,
   onError?: ?(error: Error) => void,
-  onNext?: ?(response: ?$ElementType<T, 'response'>) => void,
-  updater?: ?SelectorStoreUpdater<$ElementType<T, 'response'>>,
-|};
+  onNext?: ?(response: ?TData) => void,
+  updater?: ?SelectorStoreUpdater<TData>,
+};
 
-export type DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload> = {|
-  configs?: Array<DeclarativeMutationConfig>,
-  cacheConfig?: CacheConfig,
-  subscription: GraphQLTaggedNode,
-  variables: Variables,
-  onCompleted?: ?() => void,
-  onError?: ?(error: Error) => void,
-  onNext?: ?(response: ?TSubscriptionPayload) => void,
-  updater?: ?SelectorStoreUpdater<TSubscriptionPayload>,
-|};
-
-function requestSubscription<TSubscriptionPayload>(
+function requestSubscription<TVariables: Variables, TData, TRawResponse>(
   environment: IEnvironment,
-  config: DEPRECATED_GraphQLSubscriptionConfig<TSubscriptionPayload>,
+  config: GraphQLSubscriptionConfig<TVariables, TData, TRawResponse>,
 ): Disposable {
   const subscription = getRequest(config.subscription);
   if (subscription.params.operationKind !== 'subscription') {
     throw new Error('requestSubscription: Must use Subscription operation');
   }
-  const {
-    configs,
-    onCompleted,
-    onError,
-    onNext,
-    variables,
-    cacheConfig,
-  } = config;
+  const {configs, onCompleted, onError, onNext, variables, cacheConfig} =
+    config;
   const operation = createOperationDescriptor(
     subscription,
     variables,
@@ -122,7 +107,7 @@ function requestSubscription<TSubscriptionPayload>(
           }
           const data = environment.lookup(selector).data;
           // $FlowFixMe[incompatible-cast]
-          onNext((data: TSubscriptionPayload));
+          onNext((data: TData));
         }
       },
       error: onError,

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<712e828ddb31de6bbfb430ed598027c8>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<f5f41f100bd95f46a6bed660636c8408>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,31 +18,32 @@
 
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery.node.outerRendererA {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$normalization.graphql"}},"plural":false}
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery.node.outerRendererB {"branches":{"PlainUserNameRenderer":{"component":"PlainTextUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+// @indirectDataDrivenDependency RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name.user.innerRenderer {"branches":{"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$ref = any;
-export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name.graphql";
+import type { RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name.graphql";
+export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$data = {|
   +node: ?{|
     +outerRendererA?: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$fragmentType,
     |},
     +outerRendererB?: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$fragmentType,
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery = {|
-  variables: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQueryVariables,
-  response: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQueryResponse,
+  response: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$data,
+  variables: RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$variables,
 |};
 */
 
@@ -240,4 +243,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a3fcd2161f88d8217243730132ccda42";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$variables,
+  RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery$data,
+>*/);

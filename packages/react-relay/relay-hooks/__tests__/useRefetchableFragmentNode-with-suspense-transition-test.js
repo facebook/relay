@@ -1,19 +1,18 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
 import type {OperationDescriptor, Variables} from 'relay-runtime';
+import type {Disposable} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const useRefetchableFragmentNodeOriginal = require('../useRefetchableFragmentNode');
 const React = require('react');
@@ -25,8 +24,6 @@ const {
   ID_KEY,
   Observable,
   createOperationDescriptor,
-  getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -54,20 +51,20 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     let Renderer;
 
     function useRefetchableFragmentNodeWithSuspenseTransition(
-      fragmentNode,
-      fragmentRef,
+      fragmentNode: any,
+      fragmentRef: any,
     ) {
       const [isPending, startTransition] = useTransition();
-      const {
-        fragmentData: data,
-        ...result
-      } = useRefetchableFragmentNodeOriginal(
-        fragmentNode,
-        fragmentRef,
-        'TestComponent',
-      );
-      refetch = (...args) => {
-        let disposable = {dispose: () => {}};
+      const {fragmentData: data, ...result} =
+        useRefetchableFragmentNodeOriginal<any, any>(
+          fragmentNode,
+          fragmentRef,
+          'TestComponent',
+        );
+      refetch = (...args: any) => {
+        let disposable: Disposable | {dispose: () => void} = {
+          dispose: () => {},
+        };
         startTransition(() => {
           disposable = result.refetch(...args);
         });
@@ -91,16 +88,19 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       }
     }
 
-    function assertYield(expected, actual) {
+    function assertYield(
+      expected: {data: any, isPending: boolean},
+      actual: any,
+    ) {
       expect(actual.isPending).toEqual(expected.isPending);
       expect(actual.data).toEqual(expected.data);
     }
 
     function expectFragmentResults(
-      expectedYields: $ReadOnlyArray<{|
+      expectedYields: $ReadOnlyArray<{
         data: $FlowFixMe,
         isPending: boolean,
-      |}>,
+      }>,
     ) {
       assertYieldsWereCleared();
       Scheduler.unstable_flushAllWithoutAsserting();
@@ -119,8 +119,8 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     }
 
     function expectRequestIsInFlight(
-      expected,
-      requestEnvironment = environment,
+      expected: any,
+      requestEnvironment: RelayMockEnvironment = environment,
     ) {
       // $FlowFixMe[method-unbinding] added when improving typing for this parameters
       expect(requestEnvironment.executeWithSource).toBeCalledTimes(
@@ -136,12 +136,12 @@ describe('useRefetchableFragmentNode with useTransition', () => {
     }
 
     function expectFragmentIsPendingOnRefetch(
-      renderer,
-      expected: {|
+      renderer: any,
+      expected: {
         data: mixed,
         refetchQuery?: OperationDescriptor,
         refetchVariables: Variables,
-      |},
+      },
     ) {
       // Assert fragment sets isPending to true
       expectFragmentResults([
@@ -164,11 +164,12 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       );
     }
 
-    function createFragmentRef(id, owner) {
+    function createFragmentRef(id: string, owner: OperationDescriptor) {
       return {
         [ID_KEY]: id,
         [FRAGMENTS_KEY]: {
-          useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment: {},
+          useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment:
+            {},
         },
         [FRAGMENT_OWNER_KEY]: owner.request,
         __isWithinUnmatchedTypeRefinement: false,
@@ -206,7 +207,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
         }
       `;
       variables = {id: '1', scale: 16};
-      gqlQuery = getRequest(graphql`
+      gqlQuery = graphql`
         query useRefetchableFragmentNodeWithSuspenseTransitionTestUserQuery(
           $id: ID!
           $scale: Float!
@@ -215,13 +216,13 @@ describe('useRefetchableFragmentNode with useTransition', () => {
             ...useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment
           }
         }
-      `);
+      `;
       gqlRefetchQuery = require('./__generated__/useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery.graphql');
-      gqlFragment = getFragment(graphql`
+      gqlFragment = graphql`
         fragment useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragment on User
-          @refetchable(
-            queryName: "useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery"
-          ) {
+        @refetchable(
+          queryName: "useRefetchableFragmentNodeWithSuspenseTransitionTestUserFragmentRefetchQuery"
+        ) {
           id
           name
           profile_picture(scale: $scale) {
@@ -229,7 +230,7 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           }
           ...useRefetchableFragmentNodeWithSuspenseTransitionTestNestedUserFragment
         }
-      `);
+      `;
 
       query = createOperationDescriptor(gqlQuery, variables);
       refetchQuery = createOperationDescriptor(gqlRefetchQuery, variables);
@@ -244,17 +245,17 @@ describe('useRefetchableFragmentNode with useTransition', () => {
       });
 
       // Set up renderers
-      Renderer = props => null;
+      Renderer = (props: {user: mixed}) => null;
 
       const Container = (props: {
         userRef?: {...},
         owner: $FlowFixMe,
-        fragment: $FlowFixMe,
+        fragment?: $FlowFixMe,
         ...
       }) => {
         // We need a render a component to run a Hook
         const owner = props.owner;
-        const [_, _setCount] = useState(0);
+        const [, setCount] = useState(0);
         const fragment = props.fragment ?? gqlFragment;
         const artificialUserRef = useMemo(
           () => ({
@@ -272,15 +273,14 @@ describe('useRefetchableFragmentNode with useTransition', () => {
           ? props.userRef
           : artificialUserRef;
 
-        forceUpdate = _setCount;
+        forceUpdate = setCount;
 
-        const {
-          data: userData,
-        } = useRefetchableFragmentNodeWithSuspenseTransition(fragment, userRef);
+        const {data: userData} =
+          useRefetchableFragmentNodeWithSuspenseTransition(fragment, userRef);
         return <Renderer user={userData} />;
       };
 
-      const ContextProvider = ({children}) => {
+      const ContextProvider = ({children}: {children: React.Node}) => {
         // TODO(T39494051) - We set empty variables in relay context to make
         // Flow happy, but useRefetchableFragmentNode does not use them, instead it uses
         // the variables from the fragment owner.

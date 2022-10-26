@@ -1,18 +1,21 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
+
+use std::fmt;
+
+use common::Location;
+use common::Span;
+use intern::string_key::StringKey;
 
 use super::constant_value::*;
 use super::directive::Directive;
 use super::primitive::*;
 use super::type_annotation::*;
 use super::value::*;
-use common::{Location, Span};
-use interner::StringKey;
-use std::fmt;
 
 #[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ExecutableDefinition {
@@ -28,11 +31,20 @@ impl ExecutableDefinition {
         }
     }
 
-    pub fn name(&self) -> Option<StringKey> {
+    pub fn name_identifier(&self) -> Option<&Identifier> {
         match self {
-            ExecutableDefinition::Operation(node) => node.name.as_ref().map(|name| name.value),
-            ExecutableDefinition::Fragment(node) => Some(node.name.value),
+            ExecutableDefinition::Operation(node) => node.name.as_ref(),
+            ExecutableDefinition::Fragment(node) => Some(&node.name),
         }
+    }
+
+    pub fn name(&self) -> Option<StringKey> {
+        self.name_identifier().map(|identifier| identifier.value)
+    }
+
+    pub fn name_location(&self) -> Option<Location> {
+        self.name_identifier()
+            .map(|identifier| self.location().with_span(identifier.span))
     }
 
     pub fn has_directive(&self, directive_name: StringKey) -> bool {

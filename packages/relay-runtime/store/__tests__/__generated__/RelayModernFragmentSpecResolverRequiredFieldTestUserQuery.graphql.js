@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f8e7d913e6bb4a2fa353b6e1c8972952>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<169fc6b05f4f8676b7309e500241dd89>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$ref = any;
-export type RelayModernFragmentSpecResolverRequiredFieldTestUserQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$fragmentType } from "./RelayModernFragmentSpecResolverRequiredFieldTestUserFragment.graphql";
+export type RelayModernFragmentSpecResolverRequiredFieldTestUserQuery$variables = {|
   id: string,
 |};
-export type RelayModernFragmentSpecResolverRequiredFieldTestUserQueryResponse = {|
+export type RelayModernFragmentSpecResolverRequiredFieldTestUserQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$ref,
+    +$fragmentSpreads: RelayModernFragmentSpecResolverRequiredFieldTestUserFragment$fragmentType,
   |},
 |};
 export type RelayModernFragmentSpecResolverRequiredFieldTestUserQuery = {|
-  variables: RelayModernFragmentSpecResolverRequiredFieldTestUserQueryVariables,
-  response: RelayModernFragmentSpecResolverRequiredFieldTestUserQueryResponse,
+  response: RelayModernFragmentSpecResolverRequiredFieldTestUserQuery$data,
+  variables: RelayModernFragmentSpecResolverRequiredFieldTestUserQuery$variables,
 |};
 */
 
@@ -142,4 +144,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7a8f1c7d05c71461bd82aa5538c96b3c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernFragmentSpecResolverRequiredFieldTestUserQuery$variables,
+  RelayModernFragmentSpecResolverRequiredFieldTestUserQuery$data,
+>*/);

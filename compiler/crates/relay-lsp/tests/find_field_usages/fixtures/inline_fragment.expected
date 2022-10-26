@@ -1,0 +1,13 @@
+==================================== INPUT ====================================
+fragment TestInlineFragment on Query {
+    me { # User type
+        ... on Actor {
+          name
+        }
+    }
+}
+
+%arguments%
+Actor name
+==================================== OUTPUT ===================================
+("TestInlineFragment", inline_fragment.graphql:93:97)

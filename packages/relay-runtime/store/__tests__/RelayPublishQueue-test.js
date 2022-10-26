@@ -1,11 +1,11 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';
@@ -44,7 +44,7 @@ describe('RelayPublishQueue', () => {
       applyWithGuard: jest.fn((callback, context, params) => {
         try {
           callback.apply(context, params);
-        } catch (guarded) {} // eslint-disable-line lint/no-unused-catch-bindings
+        } catch (guarded) {}
       }),
     };
   });
@@ -115,7 +115,6 @@ describe('RelayPublishQueue', () => {
 
       const variables = {
         input: {
-          clientMutationId: '0',
           newName: 'zuck',
         },
       };

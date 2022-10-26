@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -28,6 +27,7 @@ const useRelayEnvironment = require('./relay-hooks/useRelayEnvironment');
 const useSubscribeToInvalidationState = require('./relay-hooks/useSubscribeToInvalidationState');
 const useSubscription = require('./relay-hooks/useSubscription');
 const RelayRuntime = require('relay-runtime');
+const ProfilerContext = require('./relay-hooks/ProfilerContext');
 
 export type * from './relay-hooks/EntryPointTypes.flow';
 export type {
@@ -78,6 +78,8 @@ module.exports = {
 
   EntryPointContainer: EntryPointContainer,
   RelayEnvironmentProvider: RelayEnvironmentProvider,
+
+  ProfilerContext: ProfilerContext,
 
   fetchQuery: RelayRuntime.fetchQuery,
 

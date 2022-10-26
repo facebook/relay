@@ -1,11 +1,12 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use lsp_server::{ErrorCode, ResponseError};
+use lsp_server::ErrorCode;
+use lsp_server::ResponseError;
 
 pub type LSPRuntimeResult<T> = std::result::Result<T, LSPRuntimeError>;
 

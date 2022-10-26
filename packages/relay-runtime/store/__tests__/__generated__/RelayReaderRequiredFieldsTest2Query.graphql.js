@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<17c2f02db93bfb7fe81113a75cfc2661>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<38214adbdf72e6e445b3a4ac8eaf8262>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,17 +17,17 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayReaderRequiredFieldsTest2QueryVariables = {||};
-export type RelayReaderRequiredFieldsTest2QueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayReaderRequiredFieldsTest2Query$variables = {||};
+export type RelayReaderRequiredFieldsTest2Query$data = {|
   +me: ?{|
     +firstName: ?string,
     +lastName: string,
   |},
 |};
 export type RelayReaderRequiredFieldsTest2Query = {|
-  variables: RelayReaderRequiredFieldsTest2QueryVariables,
-  response: RelayReaderRequiredFieldsTest2QueryResponse,
+  response: RelayReaderRequiredFieldsTest2Query$data,
+  variables: RelayReaderRequiredFieldsTest2Query$variables,
 |};
 */
 
@@ -116,4 +118,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "72f30114def75faa8eaacbb70e93d486";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReaderRequiredFieldsTest2Query$variables,
+  RelayReaderRequiredFieldsTest2Query$data,
+>*/);

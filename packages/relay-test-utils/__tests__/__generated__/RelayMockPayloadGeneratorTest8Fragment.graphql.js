@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8e092fb7f6f0feea5f7fb233a8b99af4>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<8b5ad2edd38026bbd7c742e12df428a6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +17,23 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockPayloadGeneratorTest8Fragment$ref: FragmentReference;
-declare export opaque type RelayMockPayloadGeneratorTest8Fragment$fragmentType: RelayMockPayloadGeneratorTest8Fragment$ref;
-export type RelayMockPayloadGeneratorTest8Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockPayloadGeneratorTest8Fragment$fragmentType: FragmentType;
+export type RelayMockPayloadGeneratorTest8Fragment$data = {|
   +actor: ?{|
     +id: string,
     +name: ?string,
   |},
   +backgroundImage: ?{|
-    +width: ?number,
     +uri: ?string,
+    +width: ?number,
   |},
-  +$refType: RelayMockPayloadGeneratorTest8Fragment$ref,
+  +$fragmentType: RelayMockPayloadGeneratorTest8Fragment$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTest8Fragment$data = RelayMockPayloadGeneratorTest8Fragment;
 export type RelayMockPayloadGeneratorTest8Fragment$key = {
   +$data?: RelayMockPayloadGeneratorTest8Fragment$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest8Fragment$ref,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest8Fragment$fragmentType,
   ...
 };
 */
@@ -103,4 +103,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "24245e41029753fad23b19317a3a22d9";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockPayloadGeneratorTest8Fragment$fragmentType,
+  RelayMockPayloadGeneratorTest8Fragment$data,
+>*/);

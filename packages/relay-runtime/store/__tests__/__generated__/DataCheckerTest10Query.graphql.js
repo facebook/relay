@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<c73c99322ef3b20bea2582dbf6d5a223>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<65894b1dc2322f07d26df3bf2cfa0c5d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +17,25 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type DataCheckerTest20Fragment$ref = any;
-export type DataCheckerTest10QueryVariables = {||};
-export type DataCheckerTest10QueryResponse = {|
+import type { DataCheckerTest20Fragment$fragmentType } from "./DataCheckerTest20Fragment.graphql";
+export type DataCheckerTest10Query$variables = {||};
+export type DataCheckerTest10Query$data = {|
   +viewer: ?{|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?ActorChangePoint<{|
           +actor_key: string,
-          +$fragmentRefs: DataCheckerTest20Fragment$ref,
+          +$fragmentSpreads: DataCheckerTest20Fragment$fragmentType,
         |}>,
       |}>,
     |},
   |},
 |};
 export type DataCheckerTest10Query = {|
-  variables: DataCheckerTest10QueryVariables,
-  response: DataCheckerTest10QueryResponse,
+  response: DataCheckerTest10Query$data,
+  variables: DataCheckerTest10Query$variables,
 |};
 */
 
@@ -205,4 +207,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ba1a075ae31eb67a5b2c54e99b4edec1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  DataCheckerTest10Query$variables,
+  DataCheckerTest10Query$data,
+>*/);

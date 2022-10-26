@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<0dd0642faff46db6fbb4cb68bd6d20e7>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<de03f6f7905ae788761d2f301637512a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,25 +19,23 @@
 // @dataDrivenDependency RelayReferenceMarkerTest4Fragment.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayReferenceMarkerTest2MarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayReferenceMarkerTest2PlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayReferenceMarkerTest2MarkdownUserNameRenderer_name$ref = any;
-type RelayReferenceMarkerTest2PlainUserNameRenderer_name$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReferenceMarkerTest4Fragment$ref: FragmentReference;
-declare export opaque type RelayReferenceMarkerTest4Fragment$fragmentType: RelayReferenceMarkerTest4Fragment$ref;
-export type RelayReferenceMarkerTest4Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { RelayReferenceMarkerTest2MarkdownUserNameRenderer_name$fragmentType } from "./RelayReferenceMarkerTest2MarkdownUserNameRenderer_name.graphql";
+import type { RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType } from "./RelayReferenceMarkerTest2PlainUserNameRenderer_name.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReferenceMarkerTest4Fragment$fragmentType: FragmentType;
+export type RelayReferenceMarkerTest4Fragment$data = {|
   +id: string,
   +nameRenderer: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentRefs: RelayReferenceMarkerTest2PlainUserNameRenderer_name$ref & RelayReferenceMarkerTest2MarkdownUserNameRenderer_name$ref,
+    +$fragmentSpreads: RelayReferenceMarkerTest2MarkdownUserNameRenderer_name$fragmentType & RelayReferenceMarkerTest2PlainUserNameRenderer_name$fragmentType,
   |},
-  +$refType: RelayReferenceMarkerTest4Fragment$ref,
+  +$fragmentType: RelayReferenceMarkerTest4Fragment$fragmentType,
 |};
-export type RelayReferenceMarkerTest4Fragment$data = RelayReferenceMarkerTest4Fragment;
 export type RelayReferenceMarkerTest4Fragment$key = {
   +$data?: RelayReferenceMarkerTest4Fragment$data,
-  +$fragmentRefs: RelayReferenceMarkerTest4Fragment$ref,
+  +$fragmentSpreads: RelayReferenceMarkerTest4Fragment$fragmentType,
   ...
 };
 */
@@ -101,4 +101,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3d6e8ff98f9447a17bcc393a14e2a4f7";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReferenceMarkerTest4Fragment$fragmentType,
+  RelayReferenceMarkerTest4Fragment$data,
+>*/);

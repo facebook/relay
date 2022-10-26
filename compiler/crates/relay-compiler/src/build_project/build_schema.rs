@@ -1,19 +1,26 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_state::CompilerState;
-use crate::config::ProjectConfig;
-use common::DiagnosticsResult;
-use schema::SDLSchema;
 use std::sync::Arc;
+
+use common::DiagnosticsResult;
+use fnv::FnvHashMap;
+use schema::SDLSchema;
+
+use super::build_resolvers_schema::extend_schema_with_resolvers;
+use crate::compiler_state::CompilerState;
+use crate::compiler_state::ProjectName;
+use crate::config::ProjectConfig;
+use crate::GraphQLAsts;
 
 pub fn build_schema(
     compiler_state: &CompilerState,
     project_config: &ProjectConfig,
+    graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
 ) -> DiagnosticsResult<Arc<SDLSchema>> {
     let schema = compiler_state.schema_cache.get(&project_config.name);
     match schema {
@@ -35,11 +42,23 @@ pub fn build_schema(
             let mut schema_sources = Vec::new();
             schema_sources.extend(
                 compiler_state.schemas[&project_config.name]
-                    .get_sources()
+                    .get_sources_with_location()
                     .into_iter()
-                    .map(String::as_str),
+                    .map(|(schema, location_key)| (schema.as_str(), location_key)),
             );
-            relay_schema::build_schema_with_extensions(&schema_sources, &extensions).map(Arc::new)
+            let mut schema =
+                relay_schema::build_schema_with_extensions(&schema_sources, &extensions)?;
+
+            if project_config.feature_flags.enable_relay_resolver_transform {
+                extend_schema_with_resolvers(
+                    &mut schema,
+                    compiler_state,
+                    project_config,
+                    graphql_asts_map,
+                )?;
+            }
+
+            Ok(Arc::new(schema))
         }
     }
 }

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9da58255ddbeb66ddb9594e53b082211>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<568b7f2d75dc02f5dc7e6a8a6bdace72>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,12 +17,10 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$ref: FragmentReference;
-declare export opaque type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$ref;
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends = {|
-  +id: string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType: FragmentType;
+export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$data = {|
   +friends: ?{|
     +edges: ?$ReadOnlyArray<?{|
       +cursor: ?string,
@@ -29,12 +29,12 @@ export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFrie
       |},
     |}>,
   |},
-  +$refType: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$ref,
+  +id: string,
+  +$fragmentType: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,
 |};
-export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$data = RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends;
 export type RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$key = {
   +$data?: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$data,
-  +$fragmentRefs: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$ref,
+  +$fragmentSpreads: RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,
   ...
 };
 */
@@ -111,4 +111,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7ad43c68a307b4ff13f854acf3baeb28";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$fragmentType,
+  RelayReaderTestShouldHaveIsmissingdataFalseIfDataIsAvailableUserFriends$data,
+>*/);

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4985aa96f63d6fbd928b1a1019a9eaf4>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<52d1dc3f0bfcbd2c058cf348b1bfe165>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +17,18 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$ref = any;
-type RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$ref = any;
-export type RelayModernEnvironmentTypeRefinementTestConcreteQueryVariables = {||};
-export type RelayModernEnvironmentTypeRefinementTestConcreteQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment.graphql";
+import type { RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType } from "./RelayModernEnvironmentTypeRefinementTestConcreteUserFragment.graphql";
+export type RelayModernEnvironmentTypeRefinementTestConcreteQuery$variables = {||};
+export type RelayModernEnvironmentTypeRefinementTestConcreteQuery$data = {|
   +userOrPage: ?{|
-    +$fragmentRefs: RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$ref & RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentTypeRefinementTestConcreteInlineRefinementFragment$fragmentType & RelayModernEnvironmentTypeRefinementTestConcreteUserFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentTypeRefinementTestConcreteQuery = {|
-  variables: RelayModernEnvironmentTypeRefinementTestConcreteQueryVariables,
-  response: RelayModernEnvironmentTypeRefinementTestConcreteQueryResponse,
+  response: RelayModernEnvironmentTypeRefinementTestConcreteQuery$data,
+  variables: RelayModernEnvironmentTypeRefinementTestConcreteQuery$variables,
 |};
 */
 
@@ -148,4 +150,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "08f8aa409b7c457e4992582d6eb9d7a5";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentTypeRefinementTestConcreteQuery$variables,
+  RelayModernEnvironmentTypeRefinementTestConcreteQuery$data,
+>*/);

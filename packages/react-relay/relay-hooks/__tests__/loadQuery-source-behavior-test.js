@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -18,6 +16,7 @@ import type {
   PreloadableConcreteRequest,
 } from '../EntryPointTypes.flow';
 import type {GraphQLTaggedNode, OperationType} from 'relay-runtime';
+import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const {loadQuery} = require('../loadQuery');
 const {
@@ -25,18 +24,24 @@ const {
   Observable,
   PreloadableQueryRegistry,
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
+const {
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
 
-const query = getRequest(graphql`
+disallowWarnings();
+disallowConsoleErrors();
+
+const query = graphql`
   query loadQuerySourceBehaviorTestQuery($id: ID!) {
     node(id: $id) {
       id
     }
   }
-`);
+`;
 
 const preloadableConcreteRequest = {
   kind: 'PreloadableConcreteRequest',
@@ -68,11 +73,11 @@ let environment;
 let fetch;
 let writeDataToStore;
 let sink;
-let next;
-let error;
-let complete;
+let next: JestMockFn<Array<GraphQLResponse>, empty>;
+let error: JestMockFn<Array<Error>, empty>;
+let complete: JestMockFn<Array<empty>, empty>;
 let executeObservable;
-let executeUnsubscribe;
+let executeUnsubscribe: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
 let networkUnsubscribe;
 
 beforeEach(() => {
@@ -117,8 +122,9 @@ beforeEach(() => {
   const store = environment.getStore();
   const operation = createOperationDescriptor(query, variables);
 
-  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-  const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
+  const originalExecuteWithSource =
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    environment.executeWithSource.getMockImplementation();
   executeObservable = undefined;
   executeUnsubscribe = undefined;
 
@@ -126,9 +132,8 @@ beforeEach(() => {
     .spyOn(environment, 'executeWithSource')
     .mockImplementation((...params) => {
       executeObservable = originalExecuteWithSource(...params);
-      const originalSubscribe = executeObservable.subscribe.bind(
-        executeObservable,
-      );
+      const originalSubscribe =
+        executeObservable.subscribe.bind(executeObservable);
       jest
         .spyOn(executeObservable, 'subscribe')
         .mockImplementation(subscriptionCallbacks => {

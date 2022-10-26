@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8af171c86958460dc592a193ff3f7e52>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<bb6924948dfdb9fc53f21eeb8b587b1e>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentNoInlineTestDeferredStreamParent$ref = any;
-export type RelayModernEnvironmentNoInlineTestDeferredStreamQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType } from "./RelayModernEnvironmentNoInlineTestDeferredStreamParent.graphql";
+export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables = {|
   cond: boolean,
   enableStream?: ?boolean,
 |};
-export type RelayModernEnvironmentNoInlineTestDeferredStreamQueryResponse = {|
+export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data = {|
   +viewer: ?{|
-    +$fragmentRefs: RelayModernEnvironmentNoInlineTestDeferredStreamParent$ref,
+    +$fragmentSpreads: RelayModernEnvironmentNoInlineTestDeferredStreamParent$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentNoInlineTestDeferredStreamQuery = {|
-  variables: RelayModernEnvironmentNoInlineTestDeferredStreamQueryVariables,
-  response: RelayModernEnvironmentNoInlineTestDeferredStreamQueryResponse,
+  response: RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data,
+  variables: RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables,
 |};
 */
 
@@ -140,4 +142,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "bbd7ede751091238fba6e4da25d3237b";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentNoInlineTestDeferredStreamQuery$variables,
+  RelayModernEnvironmentNoInlineTestDeferredStreamQuery$data,
+>*/);

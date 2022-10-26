@@ -1,4 +1,4 @@
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
 
 extend type User {
   nickname: String
@@ -9,4 +9,11 @@ extend type User {
   foo: Foo
   client_name: String
   client_code: Int
+  client_best_friend: User
+}
+
+# For Relay Resolver tests
+extend type User {
+  client_extension_linked_field: User
+  some_field(some_arg_name: Int!): Int
 }

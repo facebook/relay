@@ -1,17 +1,20 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
- * @format
  * @flow strict-local
+ * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+
+import type {
+  HandleFieldPayload,
+  RecordSourceProxy,
+} from 'relay-runtime/store/RelayStoreTypes';
 
 const {MockPayloadGenerator, createMockEnvironment} = require('../');
 const React = require('react');
@@ -260,7 +263,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           }
         }
       `;
-      function FriendsListComponent(props) {
+      function FriendsListComponent(props: $FlowFixMe) {
         const [isLoading, setIsLoading] = useState(props.relay.isLoading());
         return (
           <>
@@ -490,7 +493,7 @@ describe('ReactRelayTestMocker with Containers', () => {
           websites
         }
       `;
-      function UserHometownComponent(props) {
+      function UserHometownComponent(props: $FlowFixMe) {
         const [isLoading, setIsLoading] = useState(false);
         return (
           <>
@@ -646,9 +649,9 @@ describe('ReactRelayTestMocker with Containers', () => {
         }
       `;
 
-      function FeedbackComponent(props) {
+      function FeedbackComponent(props: $FlowFixMe) {
         const [busy, setBusy] = useState(false);
-        const [errorMessage, setErrorMessage] = useState(null);
+        const [errorMessage, setErrorMessage] = useState<null | string>(null);
         return (
           <div>
             {errorMessage != null && (
@@ -799,7 +802,7 @@ describe('ReactRelayTestMocker with Containers', () => {
 
     beforeEach(() => {
       const HelloHandler = {
-        update(storeProxy, payload) {
+        update(storeProxy: RecordSourceProxy, payload: HandleFieldPayload) {
           const record = storeProxy.get(payload.dataID);
           if (record != null) {
             const name = record.getValue(payload.fieldKey);
@@ -822,7 +825,7 @@ describe('ReactRelayTestMocker with Containers', () => {
       });
       const ViewerQuery = graphql`
         query RelayMockEnvironmentWithComponentsTestOutstandingSolutionQuery
-          @relay_test_operation {
+        @relay_test_operation {
           viewer {
             actor {
               name @__clientField(handle: "hello")
@@ -905,7 +908,7 @@ describe('ReactRelayTestMocker with Containers', () => {
         }
       `;
 
-      function FeedbackComponent(props) {
+      function FeedbackComponent(props: $FlowFixMe) {
         useEffect(() => {
           const subscription = requestSubscription(props.environment, {
             subscription: FeedbackLikeSubscription,

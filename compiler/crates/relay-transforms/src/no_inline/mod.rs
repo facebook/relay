@@ -1,26 +1,43 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{ValidationMessage, MATCH_CONSTANTS, RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME};
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use fnv::FnvHashMap;
-use graphql_ir::{Argument, ConstantValue, Directive, FragmentSpread, Program, Validator, Value};
-use interner::{Intern, StringKey};
-use lazy_static::lazy_static;
 use std::sync::Arc;
 
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinitionNameMap;
+use graphql_ir::FragmentSpread;
+use graphql_ir::Program;
+use graphql_ir::Validator;
+use graphql_ir::Value;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use lazy_static::lazy_static;
+
+use crate::ValidationMessage;
+use crate::MATCH_CONSTANTS;
+use crate::RELAY_CLIENT_COMPONENT_DIRECTIVE_NAME;
+
 lazy_static! {
-    pub static ref NO_INLINE_DIRECTIVE_NAME: StringKey = "no_inline".intern();
-    pub static ref PARENT_DOCUMENTS_ARG: StringKey = "__parentDocuments".intern();
+    pub static ref NO_INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("no_inline".intern());
+    pub static ref PARENT_DOCUMENTS_ARG: ArgumentName = ArgumentName("__parentDocuments".intern());
+    // Note: this is used as both an ArgumentName and as a DirectiveName
     pub static ref RAW_RESPONSE_TYPE_NAME: StringKey = "raw_response_type".intern();
 }
 
 pub fn attach_no_inline_directives_to_fragments(
-    no_inline_fragments: &mut FnvHashMap<StringKey, Vec<StringKey>>,
+    no_inline_fragments: &mut FragmentDefinitionNameMap<Vec<StringKey>>,
     program: &mut Program,
 ) {
     for (fragment_name, parent_sources) in no_inline_fragments.drain() {
@@ -61,7 +78,7 @@ pub fn attach_no_inline_directives_to_fragments(
 pub fn is_raw_response_type_enabled(directive: &Directive) -> bool {
     if let Some(Value::Constant(ConstantValue::Boolean(val))) = directive
         .arguments
-        .named(*RAW_RESPONSE_TYPE_NAME)
+        .named(ArgumentName(*RAW_RESPONSE_TYPE_NAME))
         .map(|arg| &arg.value.item)
     {
         *val
@@ -75,14 +92,14 @@ pub fn is_raw_response_type_enabled(directive: &Directive) -> bool {
 /// adding `@no_inline` is required. Because in watch mode, if the path with @module
 /// or @relay_client_component isn't changed, `@no_inline` won't get added.
 pub fn validate_required_no_inline_directive(
-    no_inline_fragments: &FnvHashMap<StringKey, Vec<StringKey>>,
+    no_inline_fragments: &FragmentDefinitionNameMap<Vec<StringKey>>,
     program: &Program,
 ) -> DiagnosticsResult<()> {
     let mut validator = RequiredNoInlineValidator::new(no_inline_fragments, program);
     validator.validate_program(program)
 }
 
-fn create_parent_documents_arg(parent_sources: Vec<StringKey>) -> Argument {
+pub(crate) fn create_parent_documents_arg(parent_sources: Vec<StringKey>) -> Argument {
     Argument {
         name: WithLocation::generated(*PARENT_DOCUMENTS_ARG),
         value: WithLocation::generated(Value::Constant(ConstantValue::List(
@@ -95,13 +112,13 @@ fn create_parent_documents_arg(parent_sources: Vec<StringKey>) -> Argument {
 }
 
 struct RequiredNoInlineValidator<'f, 'p> {
-    no_inline_fragments: &'f FnvHashMap<StringKey, Vec<StringKey>>,
+    no_inline_fragments: &'f FragmentDefinitionNameMap<Vec<StringKey>>,
     program: &'p Program,
 }
 
 impl<'f, 'p> RequiredNoInlineValidator<'f, 'p> {
     fn new(
-        no_inline_fragments: &'f FnvHashMap<StringKey, Vec<StringKey>>,
+        no_inline_fragments: &'f FragmentDefinitionNameMap<Vec<StringKey>>,
         program: &'p Program,
     ) -> Self {
         Self {

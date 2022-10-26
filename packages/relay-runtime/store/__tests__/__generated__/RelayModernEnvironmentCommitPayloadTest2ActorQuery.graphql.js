@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3d931ff8657e63a998fa219fcd1cfa53>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<488d9a3624a179301a76322d62aab7f6>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentCommitPayloadTest2ActorQueryVariables = {||};
-export type RelayModernEnvironmentCommitPayloadTest2ActorQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentCommitPayloadTest2ActorQuery$variables = {||};
+export type RelayModernEnvironmentCommitPayloadTest2ActorQuery$data = {|
   +me: ?{|
-    +name: ?string,
     +birthdate: ?{|
       +day: ?number,
       +month: ?number,
       +year: ?number,
     |},
+    +name: ?string,
   |},
 |};
 export type RelayModernEnvironmentCommitPayloadTest2ActorQuery = {|
-  variables: RelayModernEnvironmentCommitPayloadTest2ActorQueryVariables,
-  response: RelayModernEnvironmentCommitPayloadTest2ActorQueryResponse,
+  response: RelayModernEnvironmentCommitPayloadTest2ActorQuery$data,
+  variables: RelayModernEnvironmentCommitPayloadTest2ActorQuery$variables,
 |};
 */
 
@@ -140,4 +142,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "84c121348a77eed6c5bd156f7d6f136e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentCommitPayloadTest2ActorQuery$variables,
+  RelayModernEnvironmentCommitPayloadTest2ActorQuery$data,
+>*/);

@@ -1,25 +1,31 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    config::{Config, ProjectConfig},
-    config::{OperationPersister, PersistConfig},
-    errors::BuildProjectError,
-    Artifact, ArtifactContent,
-};
-use common::{sync::ParallelIterator, PerfLogEvent};
+use std::fs;
+use std::path::PathBuf;
+
+use common::sync::ParallelIterator;
+use common::PerfLogEvent;
 use lazy_static::lazy_static;
 use log::debug;
-use md5::{Digest, Md5};
+use md5::Digest;
+use md5::Md5;
 use rayon::iter::IntoParallelRefMutIterator;
 use regex::Regex;
 use relay_codegen::QueryID;
 use relay_transforms::Programs;
-use std::{fs, path::PathBuf};
+
+use crate::config::ArtifactForPersister;
+use crate::config::Config;
+use crate::config::ProjectConfig;
+use crate::errors::BuildProjectError;
+use crate::Artifact;
+use crate::ArtifactContent;
+use crate::OperationPersister;
 
 lazy_static! {
     static ref RELAY_HASH_REGEX: Regex = Regex::new(r#"@relayHash (\w{32})\n"#).unwrap();
@@ -29,7 +35,6 @@ lazy_static! {
 pub async fn persist_operations(
     artifacts: &mut [Artifact],
     root_dir: &PathBuf,
-    persist_config: &PersistConfig,
     config: &Config,
     project_config: &ProjectConfig,
     operation_persister: &'_ (dyn OperationPersister + Send + Sync),
@@ -51,11 +56,14 @@ pub async fn persist_operations(
                     .as_ref()
                     .map(|gen_name| gen_name(project_config, reader_operation, &programs.reader))
                 {
-                    *id_and_text_hash = Some(QueryID::External(virtual_id_file_name));
+                    if text.is_some() {
+                        *id_and_text_hash = Some(QueryID::External(virtual_id_file_name));
+                    }
                     None
-                } else {
+                } else if let Some(text) = text {
                     let text_hash = md5(text);
                     let artifact_path = root_dir.join(&artifact.path);
+                    let relative_path = artifact.path.to_owned();
                     let extracted_persist_id = if config.repersist_operations {
                         None
                     } else {
@@ -68,13 +76,18 @@ pub async fn persist_operations(
                         let text = text.clone();
                         Some(async move {
                             operation_persister
-                                .persist_artifact(text, persist_config)
+                                .persist_artifact(ArtifactForPersister {
+                                    text,
+                                    relative_path,
+                                })
                                 .await
                                 .map(|id| {
                                     *id_and_text_hash = Some(QueryID::Persisted { id, text_hash });
                                 })
                         })
                     }
+                } else {
+                    None
                 }
             } else {
                 None
@@ -82,15 +95,23 @@ pub async fn persist_operations(
         })
         .collect::<Vec<_>>();
     log_event.number("persist_documents", handles.len());
-    log_event.number("worker_count", operation_persister.worker_count());
     let results = futures::future::join_all(handles).await;
+    operation_persister
+        .finalize()
+        .map_err(|error| BuildProjectError::PersistErrors {
+            errors: vec![error],
+            project_name: project_config.name,
+        })?;
     debug!("done persisting");
     let errors = results
         .into_iter()
         .filter_map(Result::err)
         .collect::<Vec<_>>();
     if !errors.is_empty() {
-        let error = BuildProjectError::PersistErrors { errors };
+        let error = BuildProjectError::PersistErrors {
+            errors,
+            project_name: project_config.name,
+        };
         log_event.string("error", error.to_string());
         return Err(error);
     }
@@ -129,6 +150,6 @@ fn extract_request_id(content: &str) -> Option<String> {
 
 fn md5(data: &str) -> String {
     let mut md5 = Md5::new();
-    md5.input(data);
-    hex::encode(md5.result())
+    md5.update(data);
+    hex::encode(md5.finalize())
 }

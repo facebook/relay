@@ -1,11 +1,13 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{any::Any, fmt, hash::Hash};
+use std::any::Any;
+use std::fmt;
+use std::hash::Hash;
 
 pub trait AssociatedData: Send + Sync + fmt::Debug + AsAny {
     fn clone_box(&self) -> Box<dyn AssociatedData>;
@@ -63,8 +65,11 @@ macro_rules! associated_data_impl {
             }
 
             fn hash_box(&self) -> u64 {
-                use std::hash::{Hash, Hasher};
-                use $crate::reexport::{AsAny, FnvHasher};
+                use std::hash::Hash;
+                use std::hash::Hasher;
+
+                use $crate::reexport::AsAny;
+                use $crate::reexport::FnvHasher;
                 let mut state = FnvHasher::default();
                 self.hash(&mut state);
                 self.as_any().type_id().hash(&mut state);
@@ -75,7 +80,7 @@ macro_rules! associated_data_impl {
         impl Into<$crate::Directive> for $name {
             fn into(self) -> $crate::Directive {
                 $crate::Directive {
-                    name: $crate::reexport::WithLocation::generated(*Self::DIRECTIVE_NAME),
+                    name: $crate::reexport::WithLocation::generated(Self::directive_name()),
                     arguments: Vec::new(),
                     data: Some(Box::new(self)),
                 }
@@ -83,15 +88,20 @@ macro_rules! associated_data_impl {
         }
 
         impl $name {
-            pub const DIRECTIVE_NAME: $crate::reexport::Lazy<$crate::reexport::StringKey> =
-                $crate::reexport::Lazy::new(|| {
-                    $crate::reexport::Intern::intern(concat!("__", stringify!($name)))
-                });
+            pub fn directive_name() -> common::DirectiveName {
+                static DIRECTIVE_NAME: $crate::reexport::Lazy<common::DirectiveName> =
+                    $crate::reexport::Lazy::new(|| {
+                        use common::DirectiveName;
+                        use $crate::reexport::string_key::Intern;
+                        DirectiveName(concat!("__", stringify!($name)).intern())
+                    });
+                return *DIRECTIVE_NAME;
+            }
 
             #[allow(dead_code)]
             pub fn find(directives: &[$crate::Directive]) -> Option<&Self> {
                 use $crate::reexport::NamedItem;
-                directives.named(*Self::DIRECTIVE_NAME).map(|directive| {
+                directives.named(Self::directive_name()).map(|directive| {
                     directive
                         .data
                         .as_ref()
@@ -126,10 +136,9 @@ impl<T: Any> AsAny for T {
 
 #[cfg(test)]
 mod tests {
-    use std::{
-        collections::hash_map::RandomState,
-        hash::{BuildHasher, Hasher},
-    };
+    use std::collections::hash_map::RandomState;
+    use std::hash::BuildHasher;
+    use std::hash::Hasher;
 
     use once_cell::sync::Lazy;
 

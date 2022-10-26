@@ -1,0 +1,38 @@
+==================================== INPUT ====================================
+query TestQuery($id: ID!) {
+  node(id: $id) {
+    id
+    ...TestFragment
+  }
+}
+
+fragment TestFragment on User
+  @argumentDefinitions(foo_gk: {type: "Boolean!", provider: "fooGKProvider"})
+{
+    name @include(if: $foo_gk)
+}
+==================================== OUTPUT ===================================
+query TestQuery(
+  $id: ID!
+  $__relay_internal__pv__fooGKProvider: Boolean! @__ProvidedVariableMetadata
+  # ProvidedVariableMetadata {
+  #     module_name: "fooGKProvider",
+  #     original_variable_name: VariableName(
+  #         "foo_gk",
+  #     ),
+  #     fragment_source_location: Embedded {
+  #         path: "fragment-include-with-provided-argument.graphql",
+  #         index: 0,
+  #     },
+  # }
+  
+) {
+  node(id: $id) {
+    id
+    ...TestFragment
+  }
+}
+
+fragment TestFragment on User {
+  name @include(if: $__relay_internal__pv__fooGKProvider)
+}

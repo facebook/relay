@@ -1,17 +1,20 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::types::{InternKey, RawInternKey};
-use fnv::FnvHashMap;
-use parking_lot::RwLock;
 use std::hash::Hash;
 use std::mem::MaybeUninit;
 use std::num::NonZeroU32;
 use std::sync::Arc;
+
+use fnv::FnvHashMap;
+use parking_lot::RwLock;
+
+use crate::types::InternKey;
+use crate::types::RawInternKey;
 
 /// An interner implementation that can be used to intern new values and lookup
 /// the value of previously interned keys.
@@ -107,9 +110,7 @@ where
         // Split the buffer into a pointer to the first element and the remainder
         // of the slice, writing the new element into the first element pointer
         let (dest_ptr, remaining) = buffer.split_first_mut().unwrap();
-        unsafe {
-            std::ptr::write(dest_ptr, MaybeUninit::new(value))
-        };
+        unsafe { std::ptr::write(dest_ptr, MaybeUninit::new(value)) };
 
         // Cast the mutable pointer to immutable
         let dest_ptr: &'static V = unsafe { &*dest_ptr.as_ptr() };

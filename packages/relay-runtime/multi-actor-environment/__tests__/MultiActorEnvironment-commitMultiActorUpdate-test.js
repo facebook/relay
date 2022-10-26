@@ -1,12 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -41,10 +41,7 @@ describe('commitMultiActorUpdate', () => {
 
     environments.forEach(env => {
       expect(environmentsCalled.includes(env)).toBe(true);
-      const testRecord = env
-        .getStore()
-        .getSource()
-        .get('foo123');
+      const testRecord = env.getStore().getSource().get('foo123');
       expect(testRecord).toBeTruthy();
       if (testRecord == null) {
         throw new Error('Test record is null.');

@@ -1,20 +1,26 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::types::{Intern, RawInternKey};
 use core::cmp::Ordering;
-use fnv::FnvHashMap;
-use lazy_static::lazy_static;
-use parking_lot::RwLock;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use std::fmt;
 use std::num::NonZeroU32;
 use std::str::FromStr;
 use std::sync::Arc;
+
+use fnv::FnvHashMap;
+use lazy_static::lazy_static;
+use parking_lot::RwLock;
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
+use serde::Serializer;
+
+use crate::types::Intern;
+use crate::types::RawInternKey;
 
 /// Slices of bytes intern as BytesKey
 impl Intern for &[u8] {
@@ -38,6 +44,14 @@ impl Intern for String {
 /// Str (slices) intern as StringKey, with the interning
 /// based on the raw bytes of the str.
 impl Intern for &str {
+    type Key = StringKey;
+
+    fn intern(self) -> Self::Key {
+        StringKey(BYTES_TABLE.intern(self.as_bytes()))
+    }
+}
+
+impl Intern for &String {
     type Key = StringKey;
 
     fn intern(self) -> Self::Key {

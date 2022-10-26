@@ -1,19 +1,25 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
-import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {
+  NormalizationRootNode,
+  NormalizationSplitOperation,
+} from '../../util/NormalizationNode';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {
   MultiActorEnvironment,
@@ -21,7 +27,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -34,8 +40,16 @@ const {disallowWarnings, expectToWarn} = require('relay-test-utils-internal');
 disallowWarnings();
 
 function createOperationLoader() {
-  const cache = new Map();
-  const resolve = operation => {
+  const cache = new Map<
+    mixed,
+    | {kind: 'value', operation: NormalizationSplitOperation}
+    | {
+        kind: 'promise',
+        promise: Promise<empty>,
+        resolve: (_x: NormalizationSplitOperation) => void,
+      },
+  >();
+  const resolve = (operation: NormalizationSplitOperation) => {
     const moduleName = `${operation.name}.graphql`;
     const entry = cache.get(moduleName);
     if (entry && entry.kind === 'promise') {
@@ -53,8 +67,9 @@ function createOperationLoader() {
     load: jest.fn(moduleName => {
       let entry = cache.get(moduleName);
       if (entry == null) {
-        let resolveFn = _x => undefined;
+        let resolveFn = (_x: NormalizationSplitOperation) => undefined;
         const promise = new Promise(resolve_ => {
+          // $FlowFixMe[incompatible-type]
           resolveFn = resolve_;
         });
         entry = {kind: 'promise', promise, resolve: resolveFn};
@@ -84,10 +99,10 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
     let fragment;
     let next;
     let operation;
-    let operationLoader: {|
+    let operationLoader: {
       get: JestMockFn<$ReadOnlyArray<mixed>, ?NormalizationRootNode>,
       load: JestMockFn<$ReadOnlyArray<mixed>, Promise<?NormalizationRootNode>>,
-    |};
+    };
     let query;
     let resolveFragment;
     let source;
@@ -98,7 +113,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
     describe(environmentType, () => {
       beforeEach(() => {
-        query = getRequest(graphql`
+        query = graphql`
           query RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserQuery(
             $id: ID!
           ) {
@@ -120,7 +135,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
 
         actorNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$normalization.graphql');
         graphql`
@@ -134,25 +149,29 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
         userNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$normalization.graphql');
         graphql`
           fragment RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user on User
-            @no_inline {
+          @no_inline {
             ...RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserFragment
               @defer(label: "UserFragment")
           }
         `;
 
-        fragment = getFragment(graphql`
+        fragment = graphql`
           fragment RelayModernEnvironmentExecuteWithDeferWithinModuleTestUserFragment on User {
             id
             name
           }
-        `);
+        `;
         variables = {id: '1'};
         operation = createOperationDescriptor(query, variables);
         complete = jest.fn();
         error = jest.fn();
         next = jest.fn();
         callbacks = {complete, error, next};
-        fetch = (_query, _variables, _cacheConfig) => {
+        fetch = (
+          _query: RequestParameters,
+          _variables: Variables,
+          _cacheConfig: CacheConfig,
+        ) => {
           return RelayObservable.create(sink => {
             dataSource = sink;
           });
@@ -449,12 +468,12 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
 
         beforeEach(() => {
           taskID = 0;
-          tasks = new Map();
+          tasks = new Map<string, () => void>();
           scheduler = {
-            cancel: id => {
+            cancel: (id: string) => {
               tasks.delete(id);
             },
-            schedule: task => {
+            schedule: (task: () => void) => {
               const id = String(taskID++);
               tasks.set(id, task);
               return id;

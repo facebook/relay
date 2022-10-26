@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b6ed8a5ecbf74295b1f676f992e71f1d>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<c1c6a5ea04c5e78f2424b6f575f251a4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,15 +17,14 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentDeleteInput = {|
-  clientMutationId?: ?string,
   commentId?: ?string,
 |};
-export type commitMutationTest1MutationVariables = {|
+export type commitMutationTest1Mutation$variables = {|
   input?: ?CommentDeleteInput,
 |};
-export type commitMutationTest1MutationResponse = {|
+export type commitMutationTest1Mutation$data = {|
   +commentDelete: ?{|
     +deletedCommentId: ?string,
     +feedback: ?{|
@@ -35,8 +36,8 @@ export type commitMutationTest1MutationResponse = {|
   |},
 |};
 export type commitMutationTest1Mutation = {|
-  variables: commitMutationTest1MutationVariables,
-  response: commitMutationTest1MutationResponse,
+  response: commitMutationTest1Mutation$data,
+  variables: commitMutationTest1Mutation$variables,
 |};
 */
 
@@ -142,4 +143,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "582fcc177e4a23328995e1d14ca9b8cb";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  commitMutationTest1Mutation$variables,
+  commitMutationTest1Mutation$data,
+>*/);

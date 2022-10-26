@@ -1,35 +1,51 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+use std::sync::RwLock;
 
-use common::{PerfLogEvent, PerfLogger};
+use common::PerfLogEvent;
+use common::PerfLogger;
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
-use interner::StringKey;
+use intern::string_key::StringKey;
 use log::debug;
 use rayon::iter::ParallelIterator;
-use relay_compiler::{
-    build_raw_program, build_schema, compiler_state::CompilerState, compiler_state::SourceSetName,
-    config::ProjectConfig, errors::BuildProjectError, errors::Error, transform_program,
-    validate_program, BuildProjectFailure, FileSource, FileSourceResult, FileSourceSubscription,
-    FileSourceSubscriptionNextChange, GraphQLAsts, SourceControlUpdateStatus,
-};
-use relay_transforms::FeatureFlags;
+use relay_compiler::build_project::get_project_asts;
+use relay_compiler::build_project::ProjectAstData;
+use relay_compiler::build_project::ProjectAsts;
+use relay_compiler::build_raw_program;
+use relay_compiler::build_schema;
+use relay_compiler::compiler_state::CompilerState;
+use relay_compiler::compiler_state::ProjectName;
+use relay_compiler::config::ProjectConfig;
+use relay_compiler::errors::BuildProjectError;
+use relay_compiler::errors::Error;
+use relay_compiler::transform_program;
+use relay_compiler::validate_program;
+use relay_compiler::BuildProjectFailure;
+use relay_compiler::FileSource;
+use relay_compiler::FileSourceResult;
+use relay_compiler::FileSourceSubscription;
+use relay_compiler::FileSourceSubscriptionNextChange;
+use relay_compiler::GraphQLAsts;
+use relay_compiler::SourceControlUpdateStatus;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
-use tokio::{task, task::JoinHandle};
+use tokio::task;
+use tokio::task::JoinHandle;
 
-use crate::{
-    status_updater::set_ready_status, status_updater::update_in_progress_status, LSPState,
-};
-
-use super::lsp_state::{ProjectStatus, Task};
+use super::lsp_state::ProjectStatus;
+use super::lsp_state::Task;
+use crate::status_updater::set_ready_status;
+use crate::status_updater::update_in_progress_status;
+use crate::LSPState;
 
 /// This structure is responsible for keeping schemas/programs in sync with the current state of the world
 pub(crate) struct LSPStateResources<
@@ -38,6 +54,8 @@ pub(crate) struct LSPStateResources<
 > {
     lsp_state: Arc<LSPState<TPerfLogger, TSchemaDocumentation>>,
 }
+
+const MAX_ERROR_COUNT: usize = 3;
 
 impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentation + 'static>
     LSPStateResources<TPerfLogger, TSchemaDocumentation>
@@ -48,12 +66,17 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
     pub(crate) fn watch(self) {
         tokio::spawn(async move {
+            // Wait for a notify from VSCode document events. This is for preventing
+            // starting the loop when the current workspace doesn't have any Relay file.
+            self.lsp_state.notify_lsp_state_resources.notified().await;
             self.internal_watch().await;
         });
     }
 
     /// Create an end-less loop of keeping the resources up-to-date with the source control changes
     async fn internal_watch(&self) {
+        // avoid dead loop when watchman has an error
+        let mut error_count = 0;
         'outer: loop {
             debug!("Initializing resources for LSP server");
 
@@ -73,6 +96,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 Ok(f) => f,
                 Err(error) => {
                     self.log_errors("watch_build_error", &error);
+                    error_count += 1;
+                    if error_count == MAX_ERROR_COUNT {
+                        panic!("{}", error);
+                    }
                     continue;
                 }
             };
@@ -83,6 +110,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 Ok(f) => f,
                 Err(error) => {
                     self.log_errors("watch_build_error", &error);
+                    error_count += 1;
+                    if error_count == MAX_ERROR_COUNT {
+                        panic!("{}", error);
+                    }
                     continue;
                 }
             };
@@ -120,9 +151,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             setup_event.complete();
 
             debug!("LSP server initialization completed!");
+            error_count = 0;
 
             // Here we will wait for changes from watchman
             'inner: loop {
+                // Wait for a notify from watchman updates, or when a Relay file
+                // from an unactivated project is opened in VSCode
                 self.lsp_state.notify_lsp_state_resources.notified().await;
 
                 // Source control update started, we can ignore all pending changes, and wait for it to complete,
@@ -253,13 +287,11 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 Err(BuildProjectFailure::Error(err)) => {
                     errors.push(err);
                 }
-                Ok(project_name) => {
-                    compiler_state.complete_project_compilation(&project_name);
-                }
                 _ => {}
             }
         }
         if errors.is_empty() {
+            compiler_state.complete_compilation();
             Ok(())
         } else {
             Err(Error::BuildProjectsErrors { errors })
@@ -270,7 +302,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         project_config: &ProjectConfig,
         compiler_state: &CompilerState,
-        graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
+        graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
     ) -> Result<StringKey, BuildProjectFailure> {
         self.lsp_state
             .project_status
@@ -281,16 +313,23 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         log_event.string("project", project_name.to_string());
 
         let schema = log_event.time("build_schema_time", || {
-            self.build_schema(compiler_state, project_config)
+            self.build_schema(compiler_state, project_config, graphql_asts_map)
         })?;
+
+        let ProjectAstData {
+            project_asts,
+            base_fragment_names,
+        } = get_project_asts(&schema, graphql_asts_map, project_config)?;
 
         // This will kick-off the validation for all synced sources
         self.lsp_state.schedule_task(Task::ValidateSyncedSources);
 
         self.build_programs(
             project_config,
+            project_asts,
+            base_fragment_names,
             compiler_state,
-            graphql_asts,
+            graphql_asts_map,
             schema,
             &log_event,
         )?;
@@ -303,12 +342,17 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         compiler_state: &CompilerState,
         project_config: &ProjectConfig,
+        graphql_asts_map: &FnvHashMap<ProjectName, GraphQLAsts>,
     ) -> Result<Arc<SDLSchema>, BuildProjectFailure> {
         match self.lsp_state.schemas.entry(project_config.name) {
             Entry::Vacant(e) => {
-                let schema = build_schema(compiler_state, project_config).map_err(|errors| {
-                    BuildProjectFailure::Error(BuildProjectError::ValidationErrors { errors })
-                })?;
+                let schema = build_schema(compiler_state, project_config, graphql_asts_map)
+                    .map_err(|errors| {
+                        BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
+                            errors,
+                            project_name: project_config.name,
+                        })
+                    })?;
                 e.insert(Arc::clone(&schema));
                 Ok(schema)
             }
@@ -316,11 +360,12 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 if !compiler_state.project_has_pending_schema_changes(project_config.name) {
                     Ok(Arc::clone(e.get()))
                 } else {
-                    let schema =
-                        build_schema(compiler_state, project_config).map_err(|errors| {
+                    let schema = build_schema(compiler_state, project_config, graphql_asts_map)
+                        .map_err(|errors| {
                             debug!("build error");
                             BuildProjectFailure::Error(BuildProjectError::ValidationErrors {
                                 errors,
+                                project_name: project_config.name,
                             })
                         })?;
                     e.insert(Arc::clone(&schema));
@@ -333,8 +378,10 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
     fn build_programs(
         &self,
         project_config: &ProjectConfig,
+        project_asts: ProjectAsts,
+        base_fragment_names: FragmentDefinitionNameSet,
         compiler_state: &CompilerState,
-        graphql_asts: &FnvHashMap<SourceSetName, GraphQLAsts>,
+        graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
         schema: Arc<SDLSchema>,
         log_event: &impl PerfLogEvent,
     ) -> Result<(), BuildProjectFailure> {
@@ -343,17 +390,17 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             .source_programs
             .contains_key(&project_config.name)
             && compiler_state.has_processed_changes()
-            && !compiler_state.has_breaking_schema_change(project_config.name)
+            && !compiler_state
+                .has_breaking_schema_change(project_config.name, &project_config.schema_config)
             && if let Some(base) = project_config.base {
-                !compiler_state.has_breaking_schema_change(base)
+                !compiler_state.has_breaking_schema_change(base, &project_config.schema_config)
             } else {
                 true
             };
 
-        let (base_program, base_fragment_names, _) = build_raw_program(
+        let (base_program, _) = build_raw_program(
             project_config,
-            &compiler_state.implicit_dependencies.read().unwrap(),
-            graphql_asts,
+            project_asts,
             schema,
             log_event,
             is_incremental_build,
@@ -377,20 +424,21 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             }
         }
 
+        // Call validation rules that go beyond type checking.
         validate_program(
             &self.lsp_state.config,
-            &FeatureFlags::default(),
+            project_config,
             &base_program,
             log_event,
         )?;
 
         transform_program(
-            &self.lsp_state.config,
             project_config,
             Arc::new(base_program),
             Arc::new(base_fragment_names),
             Arc::clone(&self.lsp_state.perf_logger),
             log_event,
+            self.lsp_state.config.custom_transforms.as_ref(),
         )?;
         Ok(())
     }

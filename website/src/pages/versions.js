@@ -1,19 +1,21 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
-/* eslint-disable lint/no-value-import */
 import Link from '@docusaurus/Link';
+import {
+  useLatestVersion,
+  useVersions,
+} from '@docusaurus/plugin-content-docs/client';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import {useLatestVersion, useVersions} from '@theme/hooks/useDocs';
 import Layout from '@theme/Layout';
 import React from 'react';
-/* eslint-enable lint/no-value-import */
 
 function Version() {
   const {siteConfig} = useDocusaurusContext();
@@ -47,7 +49,7 @@ function Version() {
                     <Link to={latestVersion.path}>Documentation</Link>
                   </td>
                   <td>
-                    <a href={`${repoUrl}/releases/tag/v${latestVersion.name}`}>
+                    <a href={`${repoUrl}/releases/tag/${latestVersion.name}`}>
                       Release Notes
                     </a>
                   </td>

@@ -1,0 +1,10 @@
+query updatableFragmentSpreadWithTypenameSiblingQuery {
+  me {
+    ...updatableFragmentSpreadWithTypenameSibling_user
+    __typename
+  }
+}
+
+fragment updatableFragmentSpreadWithTypenameSibling_user on User @updatable {
+  firstName
+}

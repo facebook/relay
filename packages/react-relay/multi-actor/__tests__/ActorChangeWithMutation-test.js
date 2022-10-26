@@ -1,23 +1,31 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
-
+import type {ActorIdentifier} from '../../../relay-runtime/multi-actor-environment/ActorIdentifier';
 import type {ActorChangeWithMutationTestFragment$key} from './__generated__/ActorChangeWithMutationTestFragment.graphql';
 import type {ActorChangeWithMutationTestMutation} from './__generated__/ActorChangeWithMutationTestMutation.graphql';
-import type {ActorChangeWithMutationTestQuery} from './__generated__/ActorChangeWithMutationTestQuery.graphql';
 import type {
   IActorEnvironment,
   IMultiActorEnvironment,
 } from 'relay-runtime/multi-actor-environment';
+import type {
+  LogRequestInfoFunction,
+  UploadableMap,
+} from 'relay-runtime/network/RelayNetworkTypes';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayEnvironmentProvider = require('../../relay-hooks/RelayEnvironmentProvider');
 const useFragment = require('../../relay-hooks/useFragment');
@@ -31,10 +39,7 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-const {
-  disallowWarnings,
-  expectWarningWillFire,
-} = require('relay-test-utils-internal');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 function ComponentWrapper(
   props: $ReadOnly<{
@@ -97,7 +102,7 @@ function MainComponent(props: {
   renderViewerActorName: (actorName: ?string) => void,
   renderActorInTheList: ActorTestRenderFn,
 }) {
-  const data = useLazyLoadQuery<ActorChangeWithMutationTestQuery>(query, {});
+  const data = useLazyLoadQuery(query, {});
   props.renderViewerActorName(data?.viewer?.actor?.name);
 
   return (
@@ -175,7 +180,16 @@ describe('ActorChange', () => {
   let dataSource;
 
   beforeEach(() => {
-    fetchFnForActor = (...args) => {
+    fetchFnForActor = (
+      ...args: Array<?(
+        | ActorIdentifier
+        | LogRequestInfoFunction
+        | UploadableMap
+        | RequestParameters
+        | Variables
+        | CacheConfig
+      )>
+    ) => {
       return Observable.create(sink => {
         dataSource = sink;
       });

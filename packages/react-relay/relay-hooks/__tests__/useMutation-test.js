@@ -1,30 +1,32 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
+import type {RelayMockEnvironment} from '../../../relay-test-utils/RelayModernMockEnvironment';
+import type {
+  useMutationTest1Mutation$data,
+  useMutationTest1Mutation$variables,
+} from './__generated__/useMutationTest1Mutation.graphql';
 import type {PayloadData, PayloadError} from 'relay-runtime';
+import type {Mutation} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useMutation = require('../useMutation');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
+const {createOperationDescriptor, graphql} = require('relay-runtime');
 const {
-  createOperationDescriptor,
-  getRequest,
-  graphql,
-} = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils');
+  MockPayloadGenerator,
+  createMockEnvironment,
+} = require('relay-test-utils');
 
 const {useState, useMemo} = React;
 let environment;
@@ -64,7 +66,7 @@ beforeEach(() => {
   environment = createMockEnvironment();
   isInFlightFn = jest.fn();
 
-  CommentCreateMutation = getRequest(graphql`
+  CommentCreateMutation = graphql`
     mutation useMutationTest1Mutation($input: CommentCreateInput) {
       commentCreate(input: $input) {
         feedbackCommentEdge {
@@ -78,13 +80,22 @@ beforeEach(() => {
         }
       }
     }
-  `);
+  `;
 
-  function Renderer({initialMutation, commitInRender}) {
+  function Renderer({
+    initialMutation,
+    commitInRender,
+  }: {
+    commitInRender: boolean,
+    initialMutation: Mutation<
+      useMutationTest1Mutation$variables,
+      useMutationTest1Mutation$data,
+    >,
+  }) {
     const [mutation, setMutationFn] = useState(initialMutation);
     setMutation = setMutationFn;
-    const [commitFn, isMutationInFlight] = useMutation(mutation);
-    commit = config =>
+    const [commitFn, isMutationInFlight] = useMutation<any>(mutation);
+    commit = (config: any) =>
       ReactTestRenderer.act(() => {
         disposable = commitFn(config);
       });
@@ -99,7 +110,14 @@ beforeEach(() => {
     return null;
   }
 
-  function Container(props) {
+  function Container(props: {
+    commitInRender: boolean,
+    environment: RelayMockEnvironment,
+    mutation: Mutation<
+      useMutationTest1Mutation$variables,
+      useMutationTest1Mutation$data,
+    >,
+  }) {
     const [env, setEnv] = useState(props.environment);
     setEnvironment = setEnv;
     return (
@@ -112,7 +130,14 @@ beforeEach(() => {
     );
   }
 
-  render = function(env, mutation, commitInRender = false) {
+  render = function (
+    env: RelayMockEnvironment,
+    mutation: Mutation<
+      useMutationTest1Mutation$variables,
+      useMutationTest1Mutation$data,
+    >,
+    commitInRender: boolean = false,
+  ) {
     ReactTestRenderer.act(() => {
       instance = ReactTestRenderer.create(
         <Container
@@ -153,6 +178,23 @@ it('returns correct in-flight state when commit called inside render', () => {
   ReactTestRenderer.act(() => environment.mock.resolve(operation, data));
   expect(isInFlightFn).toBeCalledTimes(1);
   expect(isInFlightFn).toHaveBeenCalledWith(false);
+});
+
+it('returns correct in-flight state when mutation resolves immediately', () => {
+  render(environment, CommentCreateMutation);
+  expect(isInFlightFn).toBeCalledTimes(1);
+  expect(isInFlightFn).toBeCalledWith(false);
+
+  isInFlightFn.mockClear();
+  // set up a resolver that will immediately resolve the mutation
+  environment.mock.queueOperationResolver(operation =>
+    MockPayloadGenerator.generate(operation),
+  );
+  ReactTestRenderer.act(() => {
+    commit({variables});
+  });
+  expect(isInFlightFn).toBeCalledTimes(1);
+  expect(isInFlightFn).toBeCalledWith(false);
 });
 
 it('returns correct in-flight state when the mutation is disposed', () => {
@@ -384,7 +426,7 @@ describe('change useMutation input', () => {
 
   beforeEach(() => {
     newEnv = createMockEnvironment();
-    CommentCreateMutation2 = getRequest(graphql`
+    CommentCreateMutation2 = graphql`
       mutation useMutationTest2Mutation($input: CommentCreateInput) {
         commentCreate(input: $input) {
           feedbackCommentEdge {
@@ -398,7 +440,7 @@ describe('change useMutation input', () => {
           }
         }
       }
-    `);
+    `;
   });
 
   it('resets in-flight state when the environment changes', () => {

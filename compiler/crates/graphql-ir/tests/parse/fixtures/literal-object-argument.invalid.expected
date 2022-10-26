@@ -28,6 +28,7 @@ query LiteralObjectArgument3 {
 }
 ==================================== ERROR ====================================
 ✖︎ The type `CheckinSearchInput` has no field `unknownField`.
+See https://relay.dev/docs/error-reference/unknown-field/
 
   literal-object-argument.invalid.graphql:5:7
     4 │     query: {

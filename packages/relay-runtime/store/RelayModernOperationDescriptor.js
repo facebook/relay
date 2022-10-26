@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -44,7 +43,11 @@ function createOperationDescriptor<TQuery: OperationType>(
   dataID?: DataID = ROOT_ID,
 ): OperationDescriptor {
   const operation = request.operation;
-  const operationVariables = getOperationVariables(operation, variables);
+  const operationVariables = getOperationVariables(
+    operation,
+    request.params.providedVariables,
+    variables,
+  );
   const requestDescriptor = createRequestDescriptor(
     request,
     operationVariables,

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<23e6fce6a4d10624f969551795513547>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<4a5781e2a46c9b33f3af732cacdf5728>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,19 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReferenceMarkerTestMarkdownUserNameRenderer_name$ref: FragmentReference;
-declare export opaque type RelayReferenceMarkerTestMarkdownUserNameRenderer_name$fragmentType: RelayReferenceMarkerTestMarkdownUserNameRenderer_name$ref;
-export type RelayReferenceMarkerTestMarkdownUserNameRenderer_name = {|
-  +markdown: ?string,
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReferenceMarkerTestMarkdownUserNameRenderer_name$fragmentType: FragmentType;
+export type RelayReferenceMarkerTestMarkdownUserNameRenderer_name$data = {|
   +data: ?{|
     +markup: ?string,
   |},
-  +$refType: RelayReferenceMarkerTestMarkdownUserNameRenderer_name$ref,
+  +markdown: ?string,
+  +$fragmentType: RelayReferenceMarkerTestMarkdownUserNameRenderer_name$fragmentType,
 |};
-export type RelayReferenceMarkerTestMarkdownUserNameRenderer_name$data = RelayReferenceMarkerTestMarkdownUserNameRenderer_name;
 export type RelayReferenceMarkerTestMarkdownUserNameRenderer_name$key = {
   +$data?: RelayReferenceMarkerTestMarkdownUserNameRenderer_name$data,
-  +$fragmentRefs: RelayReferenceMarkerTestMarkdownUserNameRenderer_name$ref,
+  +$fragmentSpreads: RelayReferenceMarkerTestMarkdownUserNameRenderer_name$fragmentType,
   ...
 };
 */
@@ -74,4 +74,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3435d059eae2fc726bf5cddeb6431b82";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReferenceMarkerTestMarkdownUserNameRenderer_name$fragmentType,
+  RelayReferenceMarkerTestMarkdownUserNameRenderer_name$data,
+>*/);

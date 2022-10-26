@@ -1,0 +1,28 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query TestQuery @updatable {
+	node(id: 4) {
+		... on Page {
+			... on Node {
+				id
+			}
+		}
+	}
+}
+==================================== ERROR ====================================
+✖︎ Within updatable operations, an inline fragment cannot occur immediately within another inline fragment. Found within TestQuery. This is because all inline fragments must have type conditions and narrow the type from an abstract type to a concrete type.
+
+  doubly-nested-fragment-spread.invalid.graphql:2:7
+    1 │ # expected-to-throw
+    2 │ query TestQuery @updatable {
+      │       ^^^^^^^^^
+    3 │ 	node(id: 4) {
+
+
+✖︎ Within updatable operations, each inline fragment spread must contain an unaliased typename field. However, within node, there are inline fragments without typename fields.
+
+  doubly-nested-fragment-spread.invalid.graphql:3:2
+    2 │ query TestQuery @updatable {
+    3 │ 	node(id: 4) {
+      │  ^^^^
+    4 │ 		... on Page {

@@ -1,7 +1,0 @@
-fragment SomeFragment on User {
-  nearest_neighbor {
-    profile_picture @required(action: LOG) {
-      uri @required(action: LOG)
-    }
-  }
-}

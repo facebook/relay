@@ -1,0 +1,5 @@
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+
+extend type Settings {
+  client_field: String
+}

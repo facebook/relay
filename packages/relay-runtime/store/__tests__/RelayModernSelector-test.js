@@ -1,21 +1,20 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 import type {OperationDescriptor} from '../RelayStoreTypes';
+import type {Variables} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
   createRequestDescriptor,
@@ -40,7 +39,7 @@ describe('RelayModernSelector', () => {
   let UsersFragment;
   let environment;
   let zuck;
-  let variables;
+  let variables: Variables;
   let operationVariables;
   let operationDescriptor: OperationDescriptor;
   let owner;
@@ -51,7 +50,7 @@ describe('RelayModernSelector', () => {
     jest.mock('warning');
 
     environment = createMockEnvironment();
-    UserQuery = getRequest(graphql`
+    UserQuery = graphql`
       query RelayModernSelectorTestUserQuery(
         $id: ID!
         $size: [Int]
@@ -62,8 +61,8 @@ describe('RelayModernSelector', () => {
           ...RelayModernSelectorTestUsersFragment
         }
       }
-    `);
-    UserFragment = getFragment(graphql`
+    `;
+    UserFragment = graphql`
       fragment RelayModernSelectorTestUserFragment on User {
         id
         name
@@ -71,17 +70,17 @@ describe('RelayModernSelector', () => {
           uri
         }
       }
-    `);
-    UsersFragment = getFragment(graphql`
+    `;
+    UsersFragment = graphql`
       fragment RelayModernSelectorTestUsersFragment on User
-        @relay(plural: true) {
+      @relay(plural: true) {
         id
         name
         profilePicture(size: $size) @include(if: $cond) {
           uri
         }
       }
-    `);
+    `;
     const dataID = ROOT_ID;
     variables = {id: '4', size: null, cond: false};
     operationVariables = variables;
@@ -656,6 +655,15 @@ describe('RelayModernSelector', () => {
   });
 
   describe('areEqualSelectors()', () => {
+    it('considers null and undefined equivalent selectors', () => {
+      expect(areEqualSelectors(null, null)).toBe(true);
+      expect(areEqualSelectors(undefined, undefined)).toBe(true);
+      // Not sure if null and undefined should be treated as same, but
+      // documenting existing behavior.
+      expect(areEqualSelectors(null, undefined)).toBe(true);
+      expect(areEqualSelectors(undefined, null)).toBe(true);
+    });
+
     it('returns true for equivalent selectors', () => {
       const selector = createReaderSelector(
         UserFragment,
@@ -730,6 +738,10 @@ describe('RelayModernSelector', () => {
       expect(areEqualSelectors(selector, differentID)).toBe(false);
       expect(areEqualSelectors(selector, differentNode)).toBe(false);
       expect(areEqualSelectors(selector, differentVars)).toBe(false);
+      expect(areEqualSelectors(selector, null)).toBe(false);
+      expect(areEqualSelectors(selector, undefined)).toBe(false);
+      expect(areEqualSelectors(null, selector)).toBe(false);
+      expect(areEqualSelectors(undefined, selector)).toBe(false);
     });
 
     it('returns false for different selectors with owners', () => {

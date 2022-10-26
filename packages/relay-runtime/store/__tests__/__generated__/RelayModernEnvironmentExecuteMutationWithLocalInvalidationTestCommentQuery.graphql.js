@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ca6d3eb262e758e350d122455c3c8b3b>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<9f105fc814f498470d1e2aae145d616c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$ref = any;
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType } from "./RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment.graphql";
+export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQueryResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$data = {|
   +node: ?{|
     +id: string,
-    +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery = {|
-  variables: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQueryVariables,
-  response: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQueryResponse,
+  response: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$data,
+  variables: RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$variables,
 |};
 */
 
@@ -149,4 +151,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7ea2a20a76665e224878c2c3c64ca7af";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$variables,
+  RelayModernEnvironmentExecuteMutationWithLocalInvalidationTestCommentQuery$data,
+>*/);

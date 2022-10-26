@@ -1,15 +1,16 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
-const {fbContent} = require('internaldocs-fb-helpers');
+const {fbContent} = require('docusaurus-plugin-internaldocs-fb/internal');
 
 const Guides = fbContent({
   internal: [
@@ -20,7 +21,8 @@ const Guides = fbContent({
     'guides/fb/writing-subscriptions',
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-queries',
-    'guides/fb/required-directive',
+    'guides/required-directive',
+    'guides/relay-resolvers',
     'guides/client-schema-extensions',
     'guides/type-emission',
     {
@@ -52,8 +54,8 @@ const Guides = fbContent({
     'guides/client-schema-extensions',
     'guides/testing-relay-components',
     'guides/testing-relay-with-preloaded-queries',
-    // TODO(T84714692) release required guide externally
-    // 'guides/required-directive',
+    'guides/required-directive',
+    'guides/relay-resolvers',
     // TODO(T84797602) release incremental data delivery externally
     // 'guides/incremental-data-delivery',
     // TODO release these in OSS
@@ -125,6 +127,16 @@ module.exports = {
             'guided-tour/updating-data/introduction',
             'guided-tour/updating-data/graphql-mutations',
             'guided-tour/updating-data/graphql-subscriptions',
+            ...fbContent({
+              internal: [
+                'guided-tour/updating-data/imperatively-modifying-store-data',
+                'guided-tour/updating-data/imperatively-modifying-linked-fields',
+                'guided-tour/updating-data/typesafe-updaters-faq',
+              ],
+              external: [
+                'guided-tour/updating-data/imperatively-modifying-store-data-unsafe',
+              ],
+            }),
             'guided-tour/updating-data/local-data-updates',
             'guided-tour/updating-data/client-only-data',
           ],
@@ -154,6 +166,7 @@ module.exports = {
             'api-reference/hooks/use-query-loader',
             'api-reference/hooks/load-query',
             'api-reference/hooks/use-lazy-load-query',
+            'api-reference/hooks/use-client-query',
             'api-reference/hooks/use-fragment',
             'api-reference/hooks/use-refetchable-fragment',
             'api-reference/hooks/use-pagination-fragment',
@@ -200,12 +213,14 @@ module.exports = {
             'debugging/fb/debugging-suspense',
             'debugging/fb/debugging-phps',
             'debugging/fb/vscode-extension',
+            'debugging/why-null',
             'debugging/fb/debugging-faq',
           ],
           external: [
             'debugging/relay-devtools',
             'debugging/inconsistent-typename-error',
             'debugging/declarative-mutation-directives',
+            'debugging/why-null',
           ],
         }),
       ],
@@ -217,7 +232,9 @@ module.exports = {
         'principles-and-architecture/runtime-architecture',
         'principles-and-architecture/videos',
       ],
+      'Error reference': ['error-reference/unknown-field'],
     },
+    'editor-support',
     'community/learning-resources',
     'glossary/glossary',
   ],

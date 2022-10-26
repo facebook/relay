@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7a6a146b48959f8790b8922bde8d4195>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<e29e7790a574b18e2cb355f00ee3970c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderRequiredFieldsTest4Fragment$ref: FragmentReference;
-declare export opaque type RelayReaderRequiredFieldsTest4Fragment$fragmentType: RelayReaderRequiredFieldsTest4Fragment$ref;
-export type RelayReaderRequiredFieldsTest4Fragment = ?{|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderRequiredFieldsTest4Fragment$fragmentType: FragmentType;
+export type RelayReaderRequiredFieldsTest4Fragment$data = ?{|
   +me: {|
     +lastName: string,
   |},
-  +$refType: RelayReaderRequiredFieldsTest4Fragment$ref,
+  +$fragmentType: RelayReaderRequiredFieldsTest4Fragment$fragmentType,
 |};
-export type RelayReaderRequiredFieldsTest4Fragment$data = RelayReaderRequiredFieldsTest4Fragment;
 export type RelayReaderRequiredFieldsTest4Fragment$key = {
   +$data?: RelayReaderRequiredFieldsTest4Fragment$data,
-  +$fragmentRefs: RelayReaderRequiredFieldsTest4Fragment$ref,
+  +$fragmentSpreads: RelayReaderRequiredFieldsTest4Fragment$fragmentType,
   ...
 };
 */
@@ -76,4 +76,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d7f205cf08433933dc07eab03eb39cee";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderRequiredFieldsTest4Fragment$fragmentType,
+  RelayReaderRequiredFieldsTest4Fragment$data,
+>*/);

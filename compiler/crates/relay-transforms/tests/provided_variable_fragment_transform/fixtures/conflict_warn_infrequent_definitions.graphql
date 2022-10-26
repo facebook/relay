@@ -1,0 +1,61 @@
+# expected-to-throw
+
+# When conflicting module + types are encountered for a provided variable
+#  we assume that the most frequently used module + type is likely to be correct
+#  and warn for all others
+fragment TestFragmentA on User
+  @argumentDefinitions(
+    # varProvider module used more frequently
+    var1: {type: "[Int]", provider: "var Provider"}
+    var2: {type: "[Int]", provider: "../varProvider"}
+    var3: {type: "[Int]", provider: "varProvider"}
+) {
+    picture1: profilePicture(size: $var1) {
+        uri
+    }
+    picture2: profilePicture(size: $var2) {
+        uri
+    }
+    picture3: profilePicture(size: $var3) {
+        uri
+    }
+}
+
+fragment TestFragmentB on User
+  @argumentDefinitions(
+    var1: {type: "[Int]", provider: "varProvider"}
+  ) {
+    picture1: profilePicture(size: $var1) {
+        uri
+    }
+}
+
+# If there is no most frequently used definition,
+# we tie break with string ordering
+fragment TestFragmentC on User
+  @argumentDefinitions(
+    # Same frequency, but var(Provider1 < var)Provider1
+    var1: {type: "[Int]", provider: "var)Provider1"}
+    var2: {type: "[Int]", provider: "var(Provider1"}
+) {
+    picture1: profilePicture(size: $var1) {
+        uri
+    }
+    picture2: profilePicture(size: $var2) {
+        uri
+    }
+}
+
+fragment TestFragmentD on User
+  @argumentDefinitions(
+    # Same frequency, but [Int] < [Int]!
+    var1: {type: "[Int]!", provider: "varProvider2"}
+    var2: {type: "[Int]", provider: "varProvider2"}
+) {
+    picture1: profilePicture(size: $var1) {
+        uri
+    }
+    picture2: profilePicture(size: $var2) {
+        uri
+    }
+}

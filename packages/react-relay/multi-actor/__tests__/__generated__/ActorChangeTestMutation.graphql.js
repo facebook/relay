@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fda54f0f836886cbbed4c3756ddd57d5>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<3a294da9fcaebfbba90f8b1c2cf1b0df>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,11 +17,10 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -27,17 +28,17 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type ActorChangeTestMutationVariables = {|
+export type ActorChangeTestMutation$variables = {|
   input?: ?CommentCreateInput,
 |};
-export type ActorChangeTestMutationResponse = {|
+export type ActorChangeTestMutation$data = {|
   +commentCreate: ?{|
-    +__typename: string,
+    +__typename: "CommentCreateResponsePayload",
   |},
 |};
 export type ActorChangeTestMutation = {|
-  variables: ActorChangeTestMutationVariables,
-  response: ActorChangeTestMutationResponse,
+  response: ActorChangeTestMutation$data,
+  variables: ActorChangeTestMutation$variables,
 |};
 */
 
@@ -107,4 +108,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "3e2d4f1d45715d73d3246c2153869a67";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  ActorChangeTestMutation$variables,
+  ActorChangeTestMutation$data,
+>*/);

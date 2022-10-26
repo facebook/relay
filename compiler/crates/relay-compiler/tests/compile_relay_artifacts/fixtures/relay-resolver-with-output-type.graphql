@@ -1,0 +1,25 @@
+fragment relayResolverWithOutputType_user on User {
+  poppy: pop_star_name {
+    __typename
+  }
+}
+
+fragment relayResolverWithOutputType_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+type ClientUser {
+  name: String
+}
+
+extend type User {
+  pop_star_name: ClientUser @relay_resolver(fragment_name: "relayResolverWithOutputType_name", import_path: "PopStarNameResolver", has_output_type: true)
+}

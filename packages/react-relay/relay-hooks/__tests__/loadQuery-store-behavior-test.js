@@ -1,17 +1,21 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+
+import type {
+  loadQueryStoreBehaviorTestQuery$data,
+  loadQueryStoreBehaviorTestQuery$variables,
+} from './__generated__/loadQueryStoreBehaviorTestQuery.graphql';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {loadQuery} = require('../loadQuery');
 const {
@@ -19,19 +23,25 @@ const {
   Observable,
   PreloadableQueryRegistry,
   createOperationDescriptor,
-  getRequest,
   graphql,
 } = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
 
-const query = getRequest(graphql`
+disallowWarnings();
+disallowConsoleErrors();
+
+const query = graphql`
   query loadQueryStoreBehaviorTestQuery($id: ID!) {
     node(id: $id) {
       name
       id
     }
   }
-`);
+`;
 
 // Only queries with an ID are preloadable
 const ID = '12345';
@@ -70,22 +80,23 @@ const updatedResponse = {
 
 const variables = {id: '4'};
 let sink;
-let observable;
 let fetch;
 let environment;
 let store;
 let operation;
-let resolvedModule;
+let resolvedModule: ?Query<
+  loadQueryStoreBehaviorTestQuery$variables,
+  loadQueryStoreBehaviorTestQuery$data,
+>;
 let writeDataToStore;
 
 beforeEach(() => {
   operation = createOperationDescriptor(query, variables);
-  observable = undefined;
   fetch = jest.fn((_query, _variables, _cacheConfig) => {
-    observable = Observable.create(_sink => {
+    const observableCreate = Observable.create(_sink => {
       sink = _sink;
     });
-    return observable;
+    return observableCreate;
   });
   environment = createMockEnvironment({network: Network.create(fetch)});
   store = environment.getStore();

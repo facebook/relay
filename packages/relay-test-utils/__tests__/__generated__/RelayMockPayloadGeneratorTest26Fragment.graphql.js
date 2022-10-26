@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a00884a62103e7a1d35ddb5107156e07>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<601176fe560730ab87a041be04def149>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockPayloadGeneratorTest26Fragment$ref: FragmentReference;
-declare export opaque type RelayMockPayloadGeneratorTest26Fragment$fragmentType: RelayMockPayloadGeneratorTest26Fragment$ref;
-export type RelayMockPayloadGeneratorTest26Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockPayloadGeneratorTest26Fragment$fragmentType: FragmentType;
+export type RelayMockPayloadGeneratorTest26Fragment$data = {|
+  +height: ?number,
   +uri: ?string,
   +width: ?number,
-  +height: ?number,
-  +$refType: RelayMockPayloadGeneratorTest26Fragment$ref,
+  +$fragmentType: RelayMockPayloadGeneratorTest26Fragment$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTest26Fragment$data = RelayMockPayloadGeneratorTest26Fragment;
 export type RelayMockPayloadGeneratorTest26Fragment$key = {
   +$data?: RelayMockPayloadGeneratorTest26Fragment$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest26Fragment$ref,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest26Fragment$fragmentType,
   ...
 };
 */
@@ -69,4 +69,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "52a0092377065d6b742aa9c2a1825484";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockPayloadGeneratorTest26Fragment$fragmentType,
+  RelayMockPayloadGeneratorTest26Fragment$data,
+>*/);

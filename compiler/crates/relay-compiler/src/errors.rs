@@ -1,40 +1,26 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_state::ProjectName;
-use common::Diagnostic;
-use persist_query::PersistError;
 use std::io;
 use std::path::PathBuf;
+
+use common::Diagnostic;
+use glob::PatternError;
+use persist_query::PersistError;
 use thiserror::Error;
+
+use crate::compiler_state::ProjectName;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
 #[derive(Debug, Error)]
 pub enum Error {
-    #[error("Failed to read config file `{config_path}`.")]
-    ConfigFileRead {
-        config_path: PathBuf,
-        source: std::io::Error,
-    },
-
-    #[error("No config found.")]
-    ConfigNotFound,
-
-    #[error("Error searching config: {error}")]
-    ConfigSearchError {
-        error: js_config_loader::ConfigError,
-    },
-
-    #[error("Failed to parse config file `{config_path}`: {source}")]
-    ConfigFileParse {
-        config_path: PathBuf,
-        source: serde_json::Error,
-    },
+    #[error("Unable to initialize relay compiler configuration. Error details: \n{details}")]
+    ConfigError { details: String },
 
     #[error(
         "Config `{config_path}` is invalid:{}",
@@ -111,6 +97,9 @@ pub enum Error {
     #[error("A thread that the Relay compiler spun up did not shut down gracefully: {error}")]
     JoinError { error: String },
 
+    #[error("Artifacts validation failed: {error}")]
+    ArtifactsValidationError { error: String },
+
     #[error("Error in post artifact writer: {error}")]
     PostArtifactsError {
         error: Box<dyn std::error::Error + Sync + Send>,
@@ -130,6 +119,17 @@ pub enum Error {
         file: PathBuf,
         source: serde_json::Error,
     },
+
+    #[error("glob pattern error: {0}")]
+    PatternError(PatternError),
+
+    #[error(
+        "Saved state versions mismatch. Saved state: {saved_state_version}, config: {config_version}."
+    )]
+    SavedStateVersionMismatch {
+        saved_state_version: String,
+        config_version: String,
+    },
 }
 
 #[derive(Debug, Error)]
@@ -147,6 +147,14 @@ pub enum ConfigValidationError {
         "There is no source for the project `{project_name}`, the `sources` map should contain at least one path mapping to this project name."
     )]
     ProjectSourceMissing { project_name: ProjectName },
+
+    #[error(
+        "Source dir `{source_dir}` tries to use project `{project_name}`, but no such project exists."
+    )]
+    ProjectDefinitionMissing {
+        source_dir: PathBuf,
+        project_name: ProjectName,
+    },
 
     #[error(
         "The project `{project_name}` defines the base project `{base_project_name}`, but no such project exists."
@@ -184,6 +192,14 @@ pub enum ConfigValidationError {
     },
 
     #[error(
+        "The `schemaExtensions` configured for project `{project_name}` does not exist at `{extension_dir}`."
+    )]
+    ExtensionDirNotExistent {
+        project_name: ProjectName,
+        extension_dir: PathBuf,
+    },
+
+    #[error(
         "The `schema_dir` configured for project `{project_name}` to be `{schema_dir}` is not a directory."
     )]
     SchemaDirNotDirectory {
@@ -197,6 +213,18 @@ pub enum ConfigValidationError {
         project_name: ProjectName,
         error: regex::Error,
     },
+
+    #[error("The `artifactDirectory` does not exist at `{path}`.")]
+    ArtifactDirectoryNotExistent { path: PathBuf },
+
+    #[error("Unable to find common path for directories in the config file.")]
+    CommonPathNotFound,
+
+    #[error("The config option `{name}` is no longer supported. {action}")]
+    RemovedConfigField {
+        name: &'static str,
+        action: &'static str,
+    },
 }
 
 #[derive(Debug, Error)]
@@ -209,7 +237,10 @@ pub enum BuildProjectError {
             .collect::<Vec<_>>()
             .join("")
     )]
-    ValidationErrors { errors: Vec<Diagnostic> },
+    ValidationErrors {
+        errors: Vec<Diagnostic>,
+        project_name: ProjectName,
+    },
 
     #[error("Persisting operation(s) failed:{0}",
         errors
@@ -218,11 +249,11 @@ pub enum BuildProjectError {
             .collect::<Vec<_>>()
             .join("")
     )]
-    PersistErrors { errors: Vec<PersistError> },
+    PersistErrors {
+        errors: Vec<PersistError>,
+        project_name: ProjectName,
+    },
 
     #[error("Failed to write file `{file}`: {source}")]
     WriteFileError { file: PathBuf, source: io::Error },
-
-    #[error("Unable to get schema for project {project_name}")]
-    SchemaNotFoundForProject { project_name: ProjectName },
 }

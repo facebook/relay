@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,13 +7,27 @@
 
 use std::sync::Arc;
 
-use super::MATCH_CONSTANTS;
-use crate::{murmurhash::murmurhash, FeatureFlag, FeatureFlags};
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{ConstantValue, LinkedField, Program, Selection, Transformed, Transformer, Value};
-use interner::Intern;
-use schema::{SDLSchema, Schema, TypeReference};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::FeatureFlag;
+use common::FeatureFlags;
+use common::NamedItem;
+use graphql_ir::ConstantValue;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
+use intern::string_key::Intern;
+use intern::Lookup;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::TypeReference;
 use thiserror::Error;
+
+use super::MATCH_CONSTANTS;
+use crate::murmurhash::murmurhash;
 
 pub fn hash_supported_argument(
     program: &Program,
@@ -99,7 +113,7 @@ impl<'a> Transformer for HashSupportedArgumentTransform<'a> {
 
         supported_arg.value.item = Value::Constant(ConstantValue::String(hash.intern()));
 
-        return Transformed::Replace(Selection::LinkedField(new_field));
+        Transformed::Replace(Selection::LinkedField(new_field))
     }
 }
 
@@ -134,7 +148,7 @@ impl<'a> HashSupportedArgumentTransform<'a> {
                 return self.schema.is_string(*item_type_name);
             }
         }
-        return false;
+        false
     }
 }
 

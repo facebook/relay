@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9afbb39766750ca1de620ba0ceea8b49>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<b3a4cae601239e705389328b1de8d999>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment.graphql";
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables = {|
   enableStream: boolean,
+  id: string,
 |};
-export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery = {|
-  variables: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQueryVariables,
-  response: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQueryResponse,
+  response: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data,
+  variables: RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables,
 |};
 */
 
@@ -219,4 +221,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "f23e7dbdffffaa06c49725c9cceca25c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$variables,
+  RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackQuery$data,
+>*/);

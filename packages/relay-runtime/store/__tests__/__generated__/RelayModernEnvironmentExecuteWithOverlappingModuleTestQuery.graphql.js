@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bc89f46bed32553e6877bb4126666465>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<de156b89604562648b176d76aaa877da>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,24 +19,24 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery.node.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$ref = any;
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name.graphql";
+import type { RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name.graphql";
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$data = {|
   +node: ?{|
     +nameRenderer?: ?{|
       +__fragmentPropName?: ?string,
       +__module_component?: ?string,
-      +$fragmentRefs: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$ref & RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$ref,
+      +$fragmentSpreads: RelayModernEnvironmentExecuteWithOverlappingModuleTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteWithOverlappingModuleTestPlainUserNameRenderer_name$fragmentType,
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery = {|
-  variables: RelayModernEnvironmentExecuteWithOverlappingModuleTestQueryVariables,
-  response: RelayModernEnvironmentExecuteWithOverlappingModuleTestQueryResponse,
+  response: RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$data,
+  variables: RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$variables,
 |};
 */
 
@@ -193,4 +195,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "67220472e4a3160320bb23054988237e";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$variables,
+  RelayModernEnvironmentExecuteWithOverlappingModuleTestQuery$data,
+>*/);

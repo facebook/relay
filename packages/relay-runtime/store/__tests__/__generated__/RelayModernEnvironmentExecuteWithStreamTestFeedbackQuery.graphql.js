@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<de8d6f630c80657e61e184c1d4db0c40>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<a4918a0df784371a98849176943591b7>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQueryVariables = {|
-  id: string,
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment.graphql";
+export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$variables = {|
   enableStream: boolean,
+  id: string,
 |};
-export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithStreamTestFeedbackFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery = {|
-  variables: RelayModernEnvironmentExecuteWithStreamTestFeedbackQueryVariables,
-  response: RelayModernEnvironmentExecuteWithStreamTestFeedbackQueryResponse,
+  response: RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$data,
+  variables: RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$variables,
 |};
 */
 
@@ -176,4 +178,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "91e0270ce8d4cdca76615d176c0e0c7c";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$variables,
+  RelayModernEnvironmentExecuteWithStreamTestFeedbackQuery$data,
+>*/);

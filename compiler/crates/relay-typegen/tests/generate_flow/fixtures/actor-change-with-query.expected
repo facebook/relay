@@ -17,36 +17,34 @@ query Viewer {
 }
 ==================================== OUTPUT ===================================
 import type { ActorChangePoint } from "react-relay/multi-actor";
-import type { ActorFragment$ref } from "ActorFragment.graphql";
-export type ViewerVariables = {||};
-export type ViewerResponse = {|
+import type { ActorFragment$fragmentType } from "ActorFragment.graphql";
+export type Viewer$variables = {||};
+export type Viewer$data = {|
   +viewer: ?{|
     +actor: ?ActorChangePoint<{|
       +actor_key: string,
-      +$fragmentRefs: ActorFragment$ref,
+      +$fragmentSpreads: ActorFragment$fragmentType,
     |}>,
   |},
 |};
 export type Viewer = {|
-  variables: ViewerVariables,
-  response: ViewerResponse,
+  response: Viewer$data,
+  variables: Viewer$variables,
 |};
 -------------------------------------------------------------------------------
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ActorFragment$ref: FragmentReference;
-declare export opaque type ActorFragment$fragmentType: ActorFragment$ref;
-export type ActorFragment = {|
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ActorFragment$fragmentType: FragmentType;
+export type ActorFragment$data = {|
   +name: ?string,
   +profilePicture: ?{|
+    +height: ?number,
     +uri: ?string,
     +width: ?number,
-    +height: ?number,
   |},
-  +$refType: ActorFragment$ref,
+  +$fragmentType: ActorFragment$fragmentType,
 |};
-export type ActorFragment$data = ActorFragment;
 export type ActorFragment$key = {
   +$data?: ActorFragment$data,
-  +$fragmentRefs: ActorFragment$ref,
+  +$fragmentSpreads: ActorFragment$fragmentType,
   ...
 };

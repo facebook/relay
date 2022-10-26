@@ -1,16 +1,23 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fc20a1b68972b881ad1b26aeb3809b59>>
+ * @generated SignedSource<<8634e6fbc71207f6f4bb9079d4bea17a>>
  */
 
 mod build_schema;
 
 use build_schema::transform_fixture;
 use fixture_tests::test_fixture;
+
+#[test]
+fn directive_on_arg_def() {
+    let input = include_str!("build_schema/fixtures/directive-on-arg-def.graphql");
+    let expected = include_str!("build_schema/fixtures/directive-on-arg-def.expected");
+    test_fixture(transform_fixture, "directive-on-arg-def.graphql", "build_schema/fixtures/directive-on-arg-def.expected", input, expected);
+}
 
 #[test]
 fn directives_for_external_types() {

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8c1ed24938510d73bd1911a678d68daa>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<1479d5c30780d7f96e5db4ff12fb29d5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,23 +17,22 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type GraphQLTagTest6UserFragment$ref: FragmentReference;
-declare export opaque type GraphQLTagTest6UserFragment$fragmentType: GraphQLTagTest6UserFragment$ref;
-export type GraphQLTagTestUserFragment4RefetchQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+import type { GraphQLTagTest6UserFragment$fragmentType } from "./GraphQLTagTest6UserFragment.graphql";
+export type GraphQLTagTestUserFragment4RefetchQuery$variables = {|
   after?: ?string,
   first?: ?number,
   id: string,
 |};
-export type GraphQLTagTestUserFragment4RefetchQueryResponse = {|
+export type GraphQLTagTestUserFragment4RefetchQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: GraphQLTagTest6UserFragment$ref,
+    +$fragmentSpreads: GraphQLTagTest6UserFragment$fragmentType,
   |},
 |};
 export type GraphQLTagTestUserFragment4RefetchQuery = {|
-  variables: GraphQLTagTestUserFragment4RefetchQueryVariables,
-  response: GraphQLTagTestUserFragment4RefetchQueryResponse,
+  response: GraphQLTagTestUserFragment4RefetchQuery$data,
+  variables: GraphQLTagTestUserFragment4RefetchQuery$variables,
 |};
 */
 
@@ -239,4 +240,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "10a776f9a2114f43f6ada6ebe6adc273";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  GraphQLTagTestUserFragment4RefetchQuery$variables,
+  GraphQLTagTestUserFragment4RefetchQuery$data,
+>*/);

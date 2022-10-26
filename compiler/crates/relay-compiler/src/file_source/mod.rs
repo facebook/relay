@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -12,39 +12,49 @@ mod file_filter;
 mod file_group;
 mod read_file_to_string;
 mod source_control_update_status;
+mod walk_dir_file_source;
 mod watchman_file_source;
 mod watchman_query_builder;
 
-use crate::compiler_state::CompilerState;
-use crate::config::Config;
-use crate::errors::{Error, Result};
-use common::{PerfLogEvent, PerfLogger};
-use graphql_watchman::{
-    WatchmanFileSourceResult, WatchmanFileSourceSubscription,
-    WatchmanFileSourceSubscriptionNextChange,
-};
-use log::warn;
-use serde::Deserialize;
-use serde_bser::value::Value;
 use std::path::PathBuf;
 
-use self::external_file_source::ExternalFileSourceResult;
-pub use self::extract_graphql::{
-    extract_graphql_strings_from_file, source_for_location, FsSourceReader, SourceReader,
-};
+use common::PerfLogEvent;
+use common::PerfLogger;
 use external_file_source::ExternalFileSource;
-pub use file_categorizer::{categorize_files, FileCategorizer};
+pub use file_categorizer::categorize_files;
+pub use file_categorizer::FileCategorizer;
 pub use file_group::FileGroup;
+use graphql_watchman::WatchmanFileSourceResult;
+use graphql_watchman::WatchmanFileSourceSubscription;
+use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
+use log::warn;
 pub use read_file_to_string::read_file_to_string;
+use serde::Deserialize;
+use serde_bser::value::Value;
 pub use source_control_update_status::SourceControlUpdateStatus;
 pub use watchman_client::prelude::Clock;
 use watchman_file_source::WatchmanFileSource;
 
+use self::external_file_source::ExternalFileSourceResult;
+pub use self::extract_graphql::extract_javascript_features_from_file;
+pub use self::extract_graphql::source_for_location;
+pub use self::extract_graphql::FsSourceReader;
+pub use self::extract_graphql::LocatedDocblockSource;
+pub use self::extract_graphql::LocatedGraphQLSource;
+pub use self::extract_graphql::LocatedJavascriptSourceFeatures;
+pub use self::extract_graphql::SourceReader;
+use self::walk_dir_file_source::WalkDirFileSource;
+use self::walk_dir_file_source::WalkDirFileSourceResult;
+use crate::compiler_state::CompilerState;
+use crate::config::Config;
+use crate::config::FileSourceKind;
+use crate::errors::Error;
+use crate::errors::Result;
+
 pub enum FileSource<'config> {
     Watchman(WatchmanFileSource<'config>),
     External(ExternalFileSource<'config>),
-    // TODO(T88130396):
-    // Oss(OssFileSource<'config>),
+    WalkDir(WalkDirFileSource<'config>),
 }
 
 impl<'config> FileSource<'config> {
@@ -52,12 +62,14 @@ impl<'config> FileSource<'config> {
         config: &'config Config,
         perf_logger_event: &impl PerfLogEvent,
     ) -> Result<FileSource<'config>> {
-        if config.changed_files_list.is_some() {
-            Ok(Self::External(ExternalFileSource::new(config)))
-        } else {
-            Ok(Self::Watchman(
+        match &config.file_source_config {
+            FileSourceKind::Watchman => Ok(Self::Watchman(
                 WatchmanFileSource::connect(config, perf_logger_event).await?,
-            ))
+            )),
+            FileSourceKind::External(changed_files_list) => Ok(Self::External(
+                ExternalFileSource::new(changed_files_list.to_path_buf(), config),
+            )),
+            FileSourceKind::WalkDir => Ok(Self::WalkDir(WalkDirFileSource::new(config))),
         }
     }
 
@@ -88,6 +100,7 @@ impl<'config> FileSource<'config> {
                     result
                 }
             }
+            Self::WalkDir(file_source) => file_source.create_compiler_state(perf_logger),
         }
     }
 
@@ -106,8 +119,10 @@ impl<'config> FileSource<'config> {
                     FileSourceSubscription::Watchman(watchman_subscription),
                 ))
             }
-            Self::External(_) => {
-                unimplemented!("watch-mode (subscribe) is not available for external file source.")
+            Self::External(_) | Self::WalkDir(_) => {
+                unimplemented!(
+                    "watch-mode (subscribe) is not available for non-watchman file sources."
+                )
             }
         }
     }
@@ -131,15 +146,15 @@ impl File {
 pub enum FileSourceResult {
     Watchman(WatchmanFileSourceResult),
     External(ExternalFileSourceResult),
-    // TODO(T88130396):
-    // Oss(OssFileSourceResult<'config>)
+    WalkDir(WalkDirFileSourceResult),
 }
 
 impl FileSourceResult {
-    pub fn clock(&self) -> Clock {
+    pub fn clock(&self) -> Option<Clock> {
         match self {
-            Self::Watchman(file_source) => file_source.clock.clone(),
-            Self::External(_) => unimplemented!(),
+            Self::Watchman(file_source) => Some(file_source.clock.clone()),
+            Self::External(_) => None,
+            Self::WalkDir(_) => None,
         }
     }
 
@@ -147,6 +162,7 @@ impl FileSourceResult {
         match self {
             Self::Watchman(file_source_result) => file_source_result.resolved_root.path(),
             Self::External(file_source_result) => file_source_result.resolved_root.clone(),
+            Self::WalkDir(file_source_result) => file_source_result.resolved_root.clone(),
         }
     }
 
@@ -154,6 +170,7 @@ impl FileSourceResult {
         match self {
             Self::Watchman(file_source_result) => &file_source_result.saved_state_info,
             Self::External(_) => unimplemented!(),
+            Self::WalkDir(_) => unimplemented!(),
         }
     }
 
@@ -161,6 +178,7 @@ impl FileSourceResult {
         match self {
             Self::Watchman(file_source_result) => file_source_result.files.len(),
             Self::External(file_source_result) => file_source_result.files.len(),
+            Self::WalkDir(file_source_result) => file_source_result.files.len(),
         }
     }
 }

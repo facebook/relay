@@ -1,25 +1,23 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
-
 import type {
   MutationParameters,
   RecordSourceSelectorProxy,
-  SelectorData,
   SelectorStoreUpdater,
 } from '../store/RelayStoreTypes';
 import type {ConcreteRequest} from '../util/RelayConcreteNode';
 import type {Variables} from '../util/RelayRuntimeTypes';
+import type {RecordProxy} from 'relay-runtime/store/RelayStoreTypes';
 
 const ConnectionHandler = require('../handlers/connection/ConnectionHandler');
 const warning = require('warning');
@@ -39,45 +37,45 @@ export type RangeOperation = $Values<typeof RangeOperations>;
 
 type RangeBehaviorsFunction = (connectionArgs: {
   [name: string]: $FlowFixMe,
-  ...,
+  ...
 }) => RangeOperation;
 type RangeBehaviorsObject = {[key: string]: RangeOperation, ...};
 export type RangeBehaviors = RangeBehaviorsFunction | RangeBehaviorsObject;
 
-type RangeAddConfig = {|
+type RangeAddConfig = {
   type: 'RANGE_ADD',
   parentName?: string,
   parentID?: string,
-  connectionInfo?: Array<{|
+  connectionInfo?: Array<{
     key: string,
     filters?: Variables,
     rangeBehavior: string,
-  |}>,
+  }>,
   connectionName?: string,
   edgeName: string,
   rangeBehaviors?: RangeBehaviors,
-|};
+};
 
-type RangeDeleteConfig = {|
+type RangeDeleteConfig = {
   type: 'RANGE_DELETE',
   parentName?: string,
   parentID?: string,
-  connectionKeys?: Array<{|
+  connectionKeys?: Array<{
     key: string,
     filters?: Variables,
-  |}>,
+  }>,
   connectionName?: string,
   deletedIDFieldName: string | Array<string>,
   pathToConnection: Array<string>,
-|};
+};
 
-type NodeDeleteConfig = {|
+type NodeDeleteConfig = {
   type: 'NODE_DELETE',
   parentName?: string,
   parentID?: string,
   connectionName?: string,
   deletedIDFieldName: string,
-|};
+};
 
 export type DeclarativeMutationConfig =
   | RangeAddConfig
@@ -87,21 +85,18 @@ export type DeclarativeMutationConfig =
 function convert<TMutation: MutationParameters>(
   configs: Array<DeclarativeMutationConfig>,
   request: ConcreteRequest,
-  optimisticUpdater?: ?SelectorStoreUpdater<
-    $ElementType<TMutation, 'response'>,
-  >,
-  updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
+  updater?: ?SelectorStoreUpdater<TMutation['response']>,
 ): {
-  optimisticUpdater: SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
-  updater: SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  optimisticUpdater: SelectorStoreUpdater<TMutation['response']>,
+  updater: SelectorStoreUpdater<TMutation['response']>,
   ...
 } {
   const configOptimisticUpdates: Array<
-    SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+    SelectorStoreUpdater<TMutation['response']>,
   > = optimisticUpdater ? [optimisticUpdater] : [];
-  const configUpdates: Array<
-    SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
-  > = updater ? [updater] : [];
+  const configUpdates: Array<SelectorStoreUpdater<TMutation['response']>> =
+    updater ? [updater] : [];
   configs.forEach(config => {
     switch (config.type) {
       case 'NODE_DELETE':
@@ -130,7 +125,7 @@ function convert<TMutation: MutationParameters>(
   return {
     optimisticUpdater: (
       store: RecordSourceSelectorProxy,
-      data: ?$ElementType<TMutation, 'response'>,
+      data: ?TMutation['response'],
     ) => {
       configOptimisticUpdates.forEach(eachOptimisticUpdater => {
         eachOptimisticUpdater(store, data);
@@ -138,7 +133,7 @@ function convert<TMutation: MutationParameters>(
     },
     updater: (
       store: RecordSourceSelectorProxy,
-      data: ?$ElementType<TMutation, 'response'>,
+      data: ?TMutation['response'],
     ) => {
       configUpdates.forEach(eachUpdater => {
         eachUpdater(store, data);
@@ -243,12 +238,8 @@ function rangeDelete(
   config: RangeDeleteConfig,
   request: ConcreteRequest,
 ): ?SelectorStoreUpdater<mixed> {
-  const {
-    parentID,
-    connectionKeys,
-    pathToConnection,
-    deletedIDFieldName,
-  } = config;
+  const {parentID, connectionKeys, pathToConnection, deletedIDFieldName} =
+    config;
   if (!parentID) {
     warning(
       false,
@@ -317,10 +308,10 @@ function rangeDelete(
 
 function deleteNode(
   parentID: string,
-  connectionKeys: ?Array<{|
+  connectionKeys: ?Array<{
     key: string,
     filters?: Variables,
-  |}>,
+  }>,
   pathToConnection: Array<string>,
   store: RecordSourceSelectorProxy,
   deleteIDs: Array<string>,
@@ -342,7 +333,7 @@ function deleteNode(
     );
     return;
   }
-  let recordProxy = parent;
+  let recordProxy: ?RecordProxy = parent;
   for (let i = 1; i < pathToConnection.length - 1; i++) {
     if (recordProxy) {
       recordProxy = recordProxy.getLinkedRecord(pathToConnection[i]);

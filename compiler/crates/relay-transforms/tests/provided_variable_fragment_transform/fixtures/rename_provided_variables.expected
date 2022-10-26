@@ -1,0 +1,37 @@
+==================================== INPUT ====================================
+fragment FragmentA on User
+  @argumentDefinitions(
+    var1: {type: "[Int]", provider: "var1Provider"}
+    var2: {type: "[Int]", provider: "var1Provider"}
+) {
+    picture1: profilePicture(size: $var1) {
+        uri
+    }
+    picture2: profilePicture(size: $var2) {
+        uri
+    }
+}
+
+fragment FragmentB on User
+  @argumentDefinitions(
+    var3: {type: "[Int]", provider: "var1Provider"}
+) {
+    picture1: profilePicture(size: $var3) {
+        uri
+    }
+}
+==================================== OUTPUT ===================================
+fragment FragmentA on User {
+  picture1: profilePicture(size: $__relay_internal__pv__var1Provider) {
+    uri
+  }
+  picture2: profilePicture(size: $__relay_internal__pv__var1Provider) {
+    uri
+  }
+}
+
+fragment FragmentB on User {
+  picture1: profilePicture(size: $__relay_internal__pv__var1Provider) {
+    uri
+  }
+}

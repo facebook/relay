@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<61e57fa1b320825e0cf5bc4eb08b9912>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<8052ae6c2123139ff8bcd7181dfd9c98>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayStoreUtilsTest7Fragment$ref: FragmentReference;
-declare export opaque type RelayStoreUtilsTest7Fragment$fragmentType: RelayStoreUtilsTest7Fragment$ref;
-export type RelayStoreUtilsTest7Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayStoreUtilsTest7Fragment$fragmentType: FragmentType;
+export type RelayStoreUtilsTest7Fragment$data = {|
   +storySearch: ?$ReadOnlyArray<?{|
     +id: string,
   |}>,
-  +$refType: RelayStoreUtilsTest7Fragment$ref,
+  +$fragmentType: RelayStoreUtilsTest7Fragment$fragmentType,
 |};
-export type RelayStoreUtilsTest7Fragment$data = RelayStoreUtilsTest7Fragment;
 export type RelayStoreUtilsTest7Fragment$key = {
   +$data?: RelayStoreUtilsTest7Fragment$data,
-  +$fragmentRefs: RelayStoreUtilsTest7Fragment$ref,
+  +$fragmentSpreads: RelayStoreUtilsTest7Fragment$fragmentType,
   ...
 };
 */
@@ -76,4 +76,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "def7915d9aa4b51e02e316bfd7f174a0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayStoreUtilsTest7Fragment$fragmentType,
+  RelayStoreUtilsTest7Fragment$data,
+>*/);

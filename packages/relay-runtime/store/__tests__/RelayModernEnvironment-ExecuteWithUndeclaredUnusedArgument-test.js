@@ -1,21 +1,19 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
   createOperationDescriptor,
@@ -41,7 +39,7 @@ describe('query with undeclared, unused fragment argument', () => {
   let subject;
 
   beforeEach(() => {
-    query = getRequest(graphql`
+    query = graphql`
       query RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestQueryWithUnusedFragmentArgumentDefinitionQuery(
         $id: ID!
       ) {
@@ -49,25 +47,25 @@ describe('query with undeclared, unused fragment argument', () => {
           ...RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile
         }
       }
-    `);
+    `;
 
-    fragment = getFragment(graphql`
+    fragment = graphql`
       fragment RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile on User {
         id
         name
         ...RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper
           @arguments(size: $size)
       }
-    `);
+    `;
 
-    innerFragment = getFragment(graphql`
+    innerFragment = graphql`
       fragment RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper on User
-        @argumentDefinitions(size: {type: "Int"}) {
+      @argumentDefinitions(size: {type: "Int"}) {
         __typename
         ...RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto
           @uncheckedArguments_DEPRECATED(size: $size)
       }
-    `);
+    `;
 
     graphql`
       fragment RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto on User {
@@ -113,7 +111,8 @@ describe('query with undeclared, unused fragment argument', () => {
         __isWithinUnmatchedTypeRefinement: false,
 
         __fragments: {
-          RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile: {},
+          RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfile:
+            {},
         },
 
         __id: '4',
@@ -132,9 +131,10 @@ describe('query with undeclared, unused fragment argument', () => {
       __isWithinUnmatchedTypeRefinement: false,
 
       __fragments: {
-        RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper: {
-          size: undefined,
-        },
+        RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhotoWrapper:
+          {
+            size: undefined,
+          },
       },
 
       id: '4',
@@ -153,9 +153,10 @@ describe('query with undeclared, unused fragment argument', () => {
       __isWithinUnmatchedTypeRefinement: false,
 
       __fragments: {
-        RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto: {
-          size: undefined,
-        },
+        RelayModernEnvironmentExecuteWithUndeclaredUnusedArgumentTestProfilePhoto:
+          {
+            size: undefined,
+          },
       },
 
       __typename: 'User',

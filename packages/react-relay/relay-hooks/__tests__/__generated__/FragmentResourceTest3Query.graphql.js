@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d356a48d34a28c7a3c70035ef59c8a12>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<efc7c13ba34b24c5fd991f3db40bec76>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type FragmentResourceTest3Fragment$ref = any;
-export type FragmentResourceTest3QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentResourceTest3Fragment$fragmentType } from "./FragmentResourceTest3Fragment.graphql";
+export type FragmentResourceTest3Query$variables = {|
   ids: $ReadOnlyArray<string>,
 |};
-export type FragmentResourceTest3QueryResponse = {|
+export type FragmentResourceTest3Query$data = {|
   +nodes: ?$ReadOnlyArray<?{|
     +__typename: string,
-    +$fragmentRefs: FragmentResourceTest3Fragment$ref,
+    +$fragmentSpreads: FragmentResourceTest3Fragment$fragmentType,
   |}>,
 |};
 export type FragmentResourceTest3Query = {|
-  variables: FragmentResourceTest3QueryVariables,
-  response: FragmentResourceTest3QueryResponse,
+  response: FragmentResourceTest3Query$data,
+  variables: FragmentResourceTest3Query$variables,
 |};
 */
 
@@ -138,4 +140,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "67df29b7be6197595574afc5bad335bb";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  FragmentResourceTest3Query$variables,
+  FragmentResourceTest3Query$data,
+>*/);

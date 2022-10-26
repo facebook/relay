@@ -1,0 +1,90 @@
+==================================== INPUT ====================================
+fragment Foo_user on User {
+  client_only_obj {
+    id
+  }
+}
+
+fragment BestFriendResolverFragment_name on User {
+  __typename
+}
+
+# %extensions%
+
+type ClientOnlyType implements Node {
+  id: ID!
+}
+
+extend type User {
+  client_only_obj: [ClientOnlyType]
+    @relay_resolver(
+      fragment_name: "BestFriendResolverFragment_name"
+      import_path: "BestFriendResolver"
+    )
+}
+==================================== OUTPUT ===================================
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "BestFriendResolverFragment_name",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "__typename",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": {
+    "hasClientEdges": true
+  },
+  "name": "Foo_user",
+  "selections": [
+    {
+      "kind": "ClientEdgeToClientObject",
+      "concreteType": "ClientOnlyType",
+      "backingField": {
+        "alias": null,
+        "args": null,
+        "fragment": {
+          "args": null,
+          "kind": "FragmentSpread",
+          "name": "BestFriendResolverFragment_name"
+        },
+        "kind": "RelayResolver",
+        "name": "client_only_obj",
+        "resolverModule": require('BestFriendResolver'),
+        "path": "client_only_obj"
+      },
+      "linkedField": {
+        "alias": null,
+        "args": null,
+        "concreteType": "ClientOnlyType",
+        "kind": "LinkedField",
+        "name": "client_only_obj",
+        "plural": true,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

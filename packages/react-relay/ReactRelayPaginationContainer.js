@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -235,7 +234,7 @@ function createGetConnectionFromProps(metadata: ReactConnectionMetadata) {
     'ReactRelayPaginationContainer: Unable to synthesize a ' +
       'getConnectionFromProps function.',
   );
-  return props => {
+  return (props: any) => {
     let data = props[metadata.fragmentName];
     for (let i = 0; i < path.length; i++) {
       if (!data || typeof data !== 'object') {
@@ -264,7 +263,9 @@ function createGetFragmentVariables(
 
 type ReactConnectionMetadata = ConnectionMetadata & {fragmentName: string, ...};
 
-function findConnectionMetadata(fragments): ReactConnectionMetadata {
+function findConnectionMetadata(
+  fragments: FragmentMap,
+): ReactConnectionMetadata {
   let foundConnectionMetadata = null;
   let isRelayModern = false;
   for (const fragmentName in fragments) {
@@ -308,7 +309,7 @@ function toObserver(observerOrCallback: ?ObserverOrCallback): Observer<void> {
     ? {
         error: observerOrCallback,
         complete: observerOrCallback,
-        unsubscribe: subscription => {
+        unsubscribe: (subscription: Subscription) => {
           typeof observerOrCallback === 'function' && observerOrCallback();
         },
       }
@@ -346,6 +347,7 @@ function createContainerWithFragments<
     createGetFragmentVariables(metadata);
 
   return class extends React.Component<$FlowFixMeProps, ContainerState> {
+    // $FlowFixMe[missing-local-annot]
     static displayName = containerName;
 
     _isARequestInFlight: boolean;
@@ -356,7 +358,7 @@ function createContainerWithFragments<
     _isUnmounted: boolean;
     _hasFetched: boolean;
 
-    constructor(props) {
+    constructor(props: any) {
       super(props);
       const relayContext = assertRelayContext(props.__relayContext);
       const rootIsQueryRenderer = props.__rootIsQueryRenderer ?? false;
@@ -415,7 +417,7 @@ function createContainerWithFragments<
      * for updates. Props may be the same in which case previous data and
      * subscriptions can be reused.
      */
-    UNSAFE_componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps: any) {
       const relayContext = assertRelayContext(nextProps.__relayContext);
       const rootIsQueryRenderer = nextProps.__rootIsQueryRenderer ?? false;
       const prevIDs = getDataIDsFromObject(fragments, this.props);
@@ -479,7 +481,10 @@ function createContainerWithFragments<
       this._cleanup();
     }
 
-    shouldComponentUpdate(nextProps, nextState): boolean {
+    shouldComponentUpdate(
+      nextProps: Props,
+      nextState: ContainerState,
+    ): boolean {
       // Short-circuit if any Relay-related data has changed
       if (
         nextState.data !== this.state.data ||
@@ -561,6 +566,7 @@ function createContainerWithFragments<
       ...
     } {
       // Extract connection data and verify there are more edges to fetch
+      // eslint-disable-next-line no-unused-vars
       const {componentRef: _, ...restProps} = this.props;
       const props = {
         ...restProps,
@@ -691,7 +697,7 @@ function createContainerWithFragments<
       const observer = toObserver(observerOrCallback);
       const connectionData = this._getConnectionData();
       if (!connectionData) {
-        Observable.create(sink => sink.complete()).subscribe(observer);
+        Observable.create<empty>(sink => sink.complete()).subscribe(observer);
         return null;
       }
       const totalCount = connectionData.edgeCount + pageSize;
@@ -722,7 +728,7 @@ function createContainerWithFragments<
       return this._queryFetcher;
     }
 
-    _canFetchPage(method): boolean {
+    _canFetchPage(method: 'loadMore' | 'refetchConnection'): boolean {
       if (this._isUnmounted) {
         warning(
           false,
@@ -752,8 +758,11 @@ function createContainerWithFragments<
     ): Subscription {
       const {environment} = assertRelayContext(this.props.__relayContext);
       const {
+        // eslint-disable-next-line no-unused-vars
         componentRef: _,
+        // eslint-disable-next-line no-unused-vars
         __relayContext,
+        // eslint-disable-next-line no-unused-vars
         __rootIsQueryRenderer,
         ...restProps
       } = this.props;
@@ -813,7 +822,7 @@ function createContainerWithFragments<
       }
       this._hasFetched = true;
 
-      const onNext = (payload, complete) => {
+      const onNext = (payload: mixed, complete: () => void) => {
         const prevData = this._resolver.resolve();
         this._resolver.setVariables(
           getFragmentVariables(
@@ -899,13 +908,11 @@ function createContainerWithFragments<
       }
     }
 
+    // $FlowFixMe[missing-local-annot]
     render() {
-      const {
-        componentRef,
-        __relayContext,
-        __rootIsQueryRenderer,
-        ...props
-      } = this.props;
+      // eslint-disable-next-line no-unused-vars
+      const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
+        this.props;
       return (
         <ReactRelayContext.Provider value={this.state.contextForChildren}>
           <Component

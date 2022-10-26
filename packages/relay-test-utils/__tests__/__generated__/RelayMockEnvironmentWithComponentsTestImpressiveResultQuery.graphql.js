@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2bc2392c98d821e5a9875b2bb7aeecdf>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<7e8c24ee0e0cc82734e07f5550d0012f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,19 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$ref = any;
-export type RelayMockEnvironmentWithComponentsTestImpressiveResultQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType } from "./RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment.graphql";
+export type RelayMockEnvironmentWithComponentsTestImpressiveResultQuery$variables = {|
   id: string,
 |};
-export type RelayMockEnvironmentWithComponentsTestImpressiveResultQueryResponse = {|
+export type RelayMockEnvironmentWithComponentsTestImpressiveResultQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$ref,
+    +$fragmentSpreads: RelayMockEnvironmentWithComponentsTestUsefulAwesomenessFragment$fragmentType,
   |},
 |};
 export type RelayMockEnvironmentWithComponentsTestImpressiveResultQuery = {|
-  variables: RelayMockEnvironmentWithComponentsTestImpressiveResultQueryVariables,
-  response: RelayMockEnvironmentWithComponentsTestImpressiveResultQueryResponse,
+  response: RelayMockEnvironmentWithComponentsTestImpressiveResultQuery$data,
+  variables: RelayMockEnvironmentWithComponentsTestImpressiveResultQuery$variables,
 |};
 */
 
@@ -175,4 +177,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "eec1fb2dd0c1d0773d8745926c5fdd09";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayMockEnvironmentWithComponentsTestImpressiveResultQuery$variables,
+  RelayMockEnvironmentWithComponentsTestImpressiveResultQuery$data,
+>*/);

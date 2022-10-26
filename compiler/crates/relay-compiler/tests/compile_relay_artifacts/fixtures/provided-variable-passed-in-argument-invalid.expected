@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+#expected-to-throw
+fragment providedVariablePassedInArgumentInvalid_fragment on User
+  @argumentDefinitions(var: {type: "Boolean!", provider: "var_RelayProvider"}
+) {
+  name @include(if: $var)
+}
+
+query providedVariablePassedInArgumentInvalid_Query {
+  me {
+    ...providedVariablePassedInArgumentInvalid_fragment @arguments(var: false)
+  }
+}
+==================================== ERROR ====================================
+✖︎ Passing a value to 'var' (a provided variable) through @arguments is not supported.
+
+  provided-variable-passed-in-argument-invalid.graphql:10:68
+    9 │   me {
+   10 │     ...providedVariablePassedInArgumentInvalid_fragment @arguments(var: false)
+      │                                                                    ^^^
+   11 │   }
+
+  ℹ︎ Provided variable defined here
+
+  provided-variable-passed-in-argument-invalid.graphql:3:24
+    2 │ fragment providedVariablePassedInArgumentInvalid_fragment on User
+    3 │   @argumentDefinitions(var: {type: "Boolean!", provider: "var_RelayProvider"}
+      │                        ^^^
+    4 │ ) {

@@ -1,10 +1,10 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fbdd7152d7e55defdaa0fc1684c75660>>
+ * @generated SignedSource<<63a5e6c07739f57b58aebaf6414d3d8f>>
  */
 
 mod skip_client_extensions;
@@ -87,6 +87,13 @@ fn client_scalar_fields() {
     let input = include_str!("skip_client_extensions/fixtures/client-scalar-fields.graphql");
     let expected = include_str!("skip_client_extensions/fixtures/client-scalar-fields.expected");
     test_fixture(transform_fixture, "client-scalar-fields.graphql", "skip_client_extensions/fixtures/client-scalar-fields.expected", input, expected);
+}
+
+#[test]
+fn query_with_only_client_fields() {
+    let input = include_str!("skip_client_extensions/fixtures/query-with-only-client-fields.graphql");
+    let expected = include_str!("skip_client_extensions/fixtures/query-with-only-client-fields.expected");
+    test_fixture(transform_fixture, "query-with-only-client-fields.graphql", "skip_client_extensions/fixtures/query-with-only-client-fields.expected", input, expected);
 }
 
 #[test]

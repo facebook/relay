@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -46,6 +45,7 @@ const RelayModernStore = require('./store/RelayModernStore');
 const RelayOperationTracker = require('./store/RelayOperationTracker');
 const RelayRecordSource = require('./store/RelayRecordSource');
 const RelayStoreUtils = require('./store/RelayStoreUtils');
+const ResolverFragments = require('./store/ResolverFragments');
 const ViewerPattern = require('./store/ViewerPattern');
 const requestSubscription = require('./subscription/requestSubscription');
 const createPayloadFor3DField = require('./util/createPayloadFor3DField');
@@ -58,6 +58,7 @@ const getRefetchMetadata = require('./util/getRefetchMetadata');
 const getRelayHandleKey = require('./util/getRelayHandleKey');
 const getRequestIdentifier = require('./util/getRequestIdentifier');
 const getValueAtPath = require('./util/getValueAtPath');
+const handlePotentialSnapshotErrors = require('./util/handlePotentialSnapshotErrors');
 const isPromise = require('./util/isPromise');
 const isScalarAndEqual = require('./util/isScalarAndEqual');
 const recycleNodesInto = require('./util/recycleNodesInto');
@@ -67,8 +68,8 @@ const RelayError = require('./util/RelayError');
 const RelayFeatureFlags = require('./util/RelayFeatureFlags');
 const RelayProfiler = require('./util/RelayProfiler');
 const RelayReplaySubject = require('./util/RelayReplaySubject');
-const reportMissingRequiredFields = require('./util/reportMissingRequiredFields');
 const stableCopy = require('./util/stableCopy');
+const withProvidedVariables = require('./util/withProvidedVariables');
 
 export type {ConnectionMetadata} from './handlers/connection/ConnectionHandler';
 export type {
@@ -82,10 +83,7 @@ export type {
   RangeOperation,
 } from './mutations/RelayDeclarativeMutationConfig';
 export type {OptimisticMutationConfig} from './mutations/applyOptimisticMutation';
-export type {
-  DEPRECATED_MutationConfig,
-  MutationConfig,
-} from './mutations/commitMutation';
+export type {MutationConfig} from './mutations/commitMutation';
 export type {
   ExecuteFunction,
   FetchFunction,
@@ -120,9 +118,10 @@ export type {
   FragmentMap,
   // DEPRECATED: use FragmentType instead of FragmentReference
   FragmentType as FragmentReference,
-  FragmentType,
   FragmentSpecResolver,
+  FragmentType,
   HandleFieldPayload,
+  HasUpdatableSpread,
   IEnvironment,
   InvalidationState,
   LogEvent,
@@ -130,6 +129,7 @@ export type {
   MissingFieldHandler,
   MissingRequiredFields,
   ModuleImportPointer,
+  MutableRecordSource,
   MutationParameters,
   NormalizationSelector,
   OperationAvailability,
@@ -158,9 +158,9 @@ export type {
   SingularReaderSelector,
   Snapshot,
   StoreUpdater,
+  UpdatableData,
 } from './store/RelayStoreTypes';
 export type {
-  DEPRECATED_GraphQLSubscriptionConfig,
   GraphQLSubscriptionConfig,
   SubscriptionParameters,
 } from './subscription/requestSubscription';
@@ -174,13 +174,14 @@ export type {
   NormalizationLinkedHandle,
   NormalizationLocalArgumentDefinition,
   NormalizationModuleImport,
+  NormalizationRootNode,
   NormalizationScalarField,
   NormalizationSelection,
   NormalizationSplitOperation,
   NormalizationStream,
   NormalizationTypeDiscriminator,
+  NormalizationOperation,
 } from './util/NormalizationNode';
-export type {NormalizationOperation} from './util/NormalizationNode';
 export type {
   ReaderArgument,
   ReaderArgumentDefinition,
@@ -201,6 +202,8 @@ export type {
 } from './util/ReaderNode';
 export type {
   ConcreteRequest,
+  ClientRequest,
+  ConcreteUpdatableQuery,
   GeneratedNode,
   RequestParameters,
 } from './util/RelayConcreteNode';
@@ -217,8 +220,11 @@ export type {
   Operation,
   OperationType,
   Query,
+  ClientQuery,
   RefetchableFragment,
   RenderPolicy,
+  UpdatableFragment,
+  UpdatableQuery,
   Variables,
   VariablesOf,
 } from './util/RelayRuntimeTypes';
@@ -287,7 +293,7 @@ module.exports = {
     RelayModernSelector.getVariablesFromPluralFragment,
   getVariablesFromSingularFragment:
     RelayModernSelector.getVariablesFromSingularFragment,
-  reportMissingRequiredFields,
+  handlePotentialSnapshotErrors,
   graphql: GraphQLTag.graphql,
   isFragment: GraphQLTag.isFragment,
   isInlineDataFragment: GraphQLTag.isInlineDataFragment,
@@ -352,6 +358,7 @@ module.exports = {
   getPendingOperationsForFragment: getPendingOperationsForFragment,
   getValueAtPath: getValueAtPath,
   __internal: {
+    ResolverFragments,
     OperationTracker: RelayOperationTracker,
     createRelayContext: createRelayContext,
     getOperationVariables: RelayConcreteVariables.getOperationVariables,
@@ -360,5 +367,6 @@ module.exports = {
     getPromiseForActiveRequest: fetchQueryInternal.getPromiseForActiveRequest,
     getObservableForActiveRequest:
       fetchQueryInternal.getObservableForActiveRequest,
+    withProvidedVariables: withProvidedVariables,
   },
 };

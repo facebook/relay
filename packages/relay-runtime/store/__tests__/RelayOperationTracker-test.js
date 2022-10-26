@@ -1,19 +1,17 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
-const {getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const {
   createOperationDescriptor,
 } = require('../RelayModernOperationDescriptor');
@@ -29,34 +27,34 @@ describe('RelayOperationTracker', () => {
   let MutationOperation2;
   beforeEach(() => {
     tracker = new RelayOperationTracker();
-    const Query1 = getRequest(graphql`
+    const Query1 = graphql`
       query RelayOperationTrackerTest1Query($id: ID) {
         node(id: $id) {
           id
         }
       }
-    `);
-    const Query2 = getRequest(graphql`
+    `;
+    const Query2 = graphql`
       query RelayOperationTrackerTest2Query($id: ID) {
         node(id: $id) {
           __typename
         }
       }
-    `);
-    const Mutation1 = getRequest(graphql`
+    `;
+    const Mutation1 = graphql`
       mutation RelayOperationTrackerTest1Mutation($input: CommentCreateInput) {
         commentCreate(input: $input) {
           __typename
         }
       }
-    `);
-    const Mutation2 = getRequest(graphql`
+    `;
+    const Mutation2 = graphql`
       mutation RelayOperationTrackerTest2Mutation($input: CommentDeleteInput) {
         commentDelete(input: $input) {
           __typename
         }
       }
-    `);
+    `;
 
     QueryOperation1 = createOperationDescriptor(Query1, {id: '1'}).request;
     QueryOperation2 = createOperationDescriptor(Query2, {id: '2'}).request;
@@ -138,9 +136,8 @@ describe('RelayOperationTracker', () => {
 
     it("should return a promise for operation that's been affected operation", () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
-      const result = tracker.getPendingOperationsAffectingOwner(
-        QueryOperation1,
-      );
+      const result =
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1);
       invariant(result != null, 'Expected to find operations for owner.');
       expect(result.promise).toBeInstanceOf(Promise);
       expect(result.pendingOperations).toMatchObject([
@@ -152,9 +149,8 @@ describe('RelayOperationTracker', () => {
 
     it('should return the same promise for an operation if called multiple times', () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
-      const result = tracker.getPendingOperationsAffectingOwner(
-        QueryOperation1,
-      );
+      const result =
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1);
       invariant(result != null, 'Expected to find operations for owner.');
       expect(result.promise).toBeInstanceOf(Promise);
       expect(result.pendingOperations).toMatchObject([
@@ -163,9 +159,8 @@ describe('RelayOperationTracker', () => {
         },
       ]);
 
-      const result2 = tracker.getPendingOperationsAffectingOwner(
-        QueryOperation1,
-      );
+      const result2 =
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1);
       invariant(result2 !== null, 'Expected to find operations for owner.');
       expect(result2.promise).toBe(result.promise);
       expect(result2.pendingOperations).toMatchObject([
@@ -177,9 +172,8 @@ describe('RelayOperationTracker', () => {
 
     it('should resolve promise when pending operation is completed', () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
-      const result = tracker.getPendingOperationsAffectingOwner(
-        QueryOperation1,
-      );
+      const result =
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1);
       invariant(result != null, 'Expected to find operations for owner.');
       const callback = jest.fn();
       result.promise.then(callback);
@@ -194,9 +188,8 @@ describe('RelayOperationTracker', () => {
 
     it('should resolve promise when new operation affected the owner', () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
-      const result = tracker.getPendingOperationsAffectingOwner(
-        QueryOperation1,
-      );
+      const result =
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1);
       invariant(result != null, 'Expected to find operations for owner.');
       const callback = jest.fn();
       result.promise.then(callback);
@@ -205,9 +198,8 @@ describe('RelayOperationTracker', () => {
       jest.runAllTimers();
       expect(callback).toBeCalled();
       // There is one more operation that is affecting the owner
-      const updatedResult = tracker.getPendingOperationsAffectingOwner(
-        QueryOperation1,
-      );
+      const updatedResult =
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1);
       invariant(
         updatedResult != null,
         'Expected to find operations for owner.',
@@ -226,9 +218,8 @@ describe('RelayOperationTracker', () => {
     it('should resolve promise when one of the pending operation is completed', () => {
       tracker.update(MutationOperation1, new Set([QueryOperation1]));
       tracker.update(MutationOperation2, new Set([QueryOperation1]));
-      const result = tracker.getPendingOperationsAffectingOwner(
-        QueryOperation1,
-      );
+      const result =
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1);
       invariant(result != null, 'Expected to find operations for owner.');
       const callback = jest.fn();
       result.promise.then(callback);
@@ -237,9 +228,8 @@ describe('RelayOperationTracker', () => {
       jest.runAllTimers();
       expect(callback).toBeCalled();
       // But there still operations that may affect the owner
-      const updatedResult = tracker.getPendingOperationsAffectingOwner(
-        QueryOperation1,
-      );
+      const updatedResult =
+        tracker.getPendingOperationsAffectingOwner(QueryOperation1);
       invariant(
         updatedResult != null,
         'Expected to find operations for owner.',

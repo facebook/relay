@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d4fde01bab30ce67e65854fef556d10e>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<909036439f4d2e9e2d5728ade52035dc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type ReactRelayRefetchContainerFlowtest_viewer$ref = any;
-export type ReactRelayRefetchContainerFlowtestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { ReactRelayRefetchContainerFlowtest_viewer$fragmentType } from "./ReactRelayRefetchContainerFlowtest_viewer.graphql";
+export type ReactRelayRefetchContainerFlowtestQuery$variables = {|
   count: number,
   cursor?: ?string,
 |};
-export type ReactRelayRefetchContainerFlowtestQueryResponse = {|
+export type ReactRelayRefetchContainerFlowtestQuery$data = {|
   +viewer: ?{|
-    +$fragmentRefs: ReactRelayRefetchContainerFlowtest_viewer$ref,
+    +$fragmentSpreads: ReactRelayRefetchContainerFlowtest_viewer$fragmentType,
   |},
 |};
 export type ReactRelayRefetchContainerFlowtestQuery = {|
-  variables: ReactRelayRefetchContainerFlowtestQueryVariables,
-  response: ReactRelayRefetchContainerFlowtestQueryResponse,
+  response: ReactRelayRefetchContainerFlowtestQuery$data,
+  variables: ReactRelayRefetchContainerFlowtestQuery$variables,
 |};
 */
 
@@ -219,4 +221,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "ce05ae9de6327d14ff0f3813ec77e594";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ReactRelayRefetchContainerFlowtestQuery$variables,
+  ReactRelayRefetchContainerFlowtestQuery$data,
+>*/);

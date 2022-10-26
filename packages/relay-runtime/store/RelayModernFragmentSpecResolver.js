@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -22,16 +21,17 @@ import type {
   MissingRequiredFields,
   PluralReaderSelector,
   RelayContext,
+  RelayResolverErrors,
   SelectorData,
   SingularReaderSelector,
   Snapshot,
 } from './RelayStoreTypes';
 
 const getPendingOperationsForFragment = require('../util/getPendingOperationsForFragment');
+const handlePotentialSnapshotErrors = require('../util/handlePotentialSnapshotErrors');
 const isScalarAndEqual = require('../util/isScalarAndEqual');
 const recycleNodesInto = require('../util/recycleNodesInto');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const reportMissingRequiredFields = require('../util/reportMissingRequiredFields');
 const {createRequestDescriptor} = require('./RelayModernOperationDescriptor');
 const {
   areEqualSelectors,
@@ -45,7 +45,7 @@ const warning = require('warning');
 type Props = {[key: string]: mixed, ...};
 type Resolvers = {
   [key: string]: ?(SelectorListResolver | SelectorResolver),
-  ...,
+  ...
 };
 
 /**
@@ -228,6 +228,7 @@ class SelectorResolver {
   _environment: IEnvironment;
   _isMissingData: boolean;
   _missingRequiredFields: ?MissingRequiredFields;
+  _relayResolverErrors: RelayResolverErrors;
   _rootIsQueryRenderer: boolean;
   _selector: SingularReaderSelector;
   _subscription: ?Disposable;
@@ -244,6 +245,7 @@ class SelectorResolver {
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
     this._missingRequiredFields = snapshot.missingRequiredFields;
+    this._relayResolverErrors = snapshot.relayResolverErrors;
     this._environment = environment;
     this._rootIsQueryRenderer = rootIsQueryRenderer;
     this._selector = selector;
@@ -324,12 +326,11 @@ class SelectorResolver {
         }
       }
     }
-    if (this._missingRequiredFields != null) {
-      reportMissingRequiredFields(
-        this._environment,
-        this._missingRequiredFields,
-      );
-    }
+    handlePotentialSnapshotErrors(
+      this._environment,
+      this._missingRequiredFields,
+      this._relayResolverErrors,
+    );
     return this._data;
   }
 
@@ -345,6 +346,7 @@ class SelectorResolver {
     this._data = recycleNodesInto(this._data, snapshot.data);
     this._isMissingData = snapshot.isMissingData;
     this._missingRequiredFields = snapshot.missingRequiredFields;
+    this._relayResolverErrors = snapshot.relayResolverErrors;
     this._selector = selector;
     this._subscription = this._environment.subscribe(snapshot, this._onChange);
   }
@@ -381,6 +383,7 @@ class SelectorResolver {
     this._data = snapshot.data;
     this._isMissingData = snapshot.isMissingData;
     this._missingRequiredFields = snapshot.missingRequiredFields;
+    this._relayResolverErrors = snapshot.relayResolverErrors;
     this._callback();
   };
 }

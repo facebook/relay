@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<069629f11c4019fcbffa412114855965>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<ae7ab097bac2c93cd0653e40eda48f06>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,20 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type useRefetchableFragmentNodeTestUserFragmentWithArgs$ref = any;
-export type useRefetchableFragmentNodeTestUserQueryWithArgsQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType } from "./useRefetchableFragmentNodeTestUserFragmentWithArgs.graphql";
+export type useRefetchableFragmentNodeTestUserQueryWithArgsQuery$variables = {|
   id: string,
   scale: number,
 |};
-export type useRefetchableFragmentNodeTestUserQueryWithArgsQueryResponse = {|
+export type useRefetchableFragmentNodeTestUserQueryWithArgsQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: useRefetchableFragmentNodeTestUserFragmentWithArgs$ref,
+    +$fragmentSpreads: useRefetchableFragmentNodeTestUserFragmentWithArgs$fragmentType,
   |},
 |};
 export type useRefetchableFragmentNodeTestUserQueryWithArgsQuery = {|
-  variables: useRefetchableFragmentNodeTestUserQueryWithArgsQueryVariables,
-  response: useRefetchableFragmentNodeTestUserQueryWithArgsQueryResponse,
+  response: useRefetchableFragmentNodeTestUserQueryWithArgsQuery$data,
+  variables: useRefetchableFragmentNodeTestUserQueryWithArgsQuery$variables,
 |};
 */
 
@@ -178,4 +180,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "eb3a8dd67a24e472e2e18e80041d344a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  useRefetchableFragmentNodeTestUserQueryWithArgsQuery$variables,
+  useRefetchableFragmentNodeTestUserQueryWithArgsQuery$data,
+>*/);

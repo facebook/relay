@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<89b577980bc8220e8cf0536ced777404>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<90c2f09d4ef92522375d65c915acfda1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,22 +17,20 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayModernStoreSubscriptionsTest2Fragment$ref: FragmentReference;
-declare export opaque type RelayModernStoreSubscriptionsTest2Fragment$fragmentType: RelayModernStoreSubscriptionsTest2Fragment$ref;
-export type RelayModernStoreSubscriptionsTest2Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayModernStoreSubscriptionsTest2Fragment$fragmentType: FragmentType;
+export type RelayModernStoreSubscriptionsTest2Fragment$data = {|
+  +emailAddresses: ?$ReadOnlyArray<?string>,
   +name: ?string,
   +profilePicture: ?{|
     +uri: ?string,
   |},
-  +emailAddresses: ?$ReadOnlyArray<?string>,
-  +$refType: RelayModernStoreSubscriptionsTest2Fragment$ref,
+  +$fragmentType: RelayModernStoreSubscriptionsTest2Fragment$fragmentType,
 |};
-export type RelayModernStoreSubscriptionsTest2Fragment$data = RelayModernStoreSubscriptionsTest2Fragment;
 export type RelayModernStoreSubscriptionsTest2Fragment$key = {
   +$data?: RelayModernStoreSubscriptionsTest2Fragment$data,
-  +$fragmentRefs: RelayModernStoreSubscriptionsTest2Fragment$ref,
+  +$fragmentSpreads: RelayModernStoreSubscriptionsTest2Fragment$fragmentType,
   ...
 };
 */
@@ -93,4 +93,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "62772b04e13398db69cb01e0fffd5b96";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayModernStoreSubscriptionsTest2Fragment$fragmentType,
+  RelayModernStoreSubscriptionsTest2Fragment$data,
+>*/);

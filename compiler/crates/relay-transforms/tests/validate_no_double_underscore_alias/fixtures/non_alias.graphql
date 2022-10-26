@@ -1,0 +1,6 @@
+query TestQuery($Id: ID!) {
+  node(id: $Id) {
+    __id
+		__typename
+  }
+}

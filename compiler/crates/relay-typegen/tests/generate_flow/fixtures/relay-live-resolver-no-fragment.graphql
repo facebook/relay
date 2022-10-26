@@ -1,0 +1,15 @@
+query relayResolver_Query {
+  me {
+    pop_star_name
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: RelayResolverValue
+    @relay_resolver(
+      import_path: "./foo/bar/baz/PopStarNameResolver.js"
+      live: true
+    )
+}

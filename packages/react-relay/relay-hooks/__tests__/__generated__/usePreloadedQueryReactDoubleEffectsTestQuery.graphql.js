@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<872db3241373c0959a9383b3a00e5d78>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<aa04a9f1cd16f682b0068931cc88623c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type usePreloadedQueryReactDoubleEffectsTestFragment$ref = any;
-export type usePreloadedQueryReactDoubleEffectsTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType } from "./usePreloadedQueryReactDoubleEffectsTestFragment.graphql";
+export type usePreloadedQueryReactDoubleEffectsTestQuery$variables = {|
   id?: ?string,
 |};
-export type usePreloadedQueryReactDoubleEffectsTestQueryResponse = {|
+export type usePreloadedQueryReactDoubleEffectsTestQuery$data = {|
   +node: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: usePreloadedQueryReactDoubleEffectsTestFragment$ref,
+    +$fragmentSpreads: usePreloadedQueryReactDoubleEffectsTestFragment$fragmentType,
   |},
 |};
 export type usePreloadedQueryReactDoubleEffectsTestQuery = {|
-  variables: usePreloadedQueryReactDoubleEffectsTestQueryVariables,
-  response: usePreloadedQueryReactDoubleEffectsTestQueryResponse,
+  response: usePreloadedQueryReactDoubleEffectsTestQuery$data,
+  variables: usePreloadedQueryReactDoubleEffectsTestQuery$variables,
 |};
 */
 
@@ -148,4 +150,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "0bbeeb14ab9e57bc7a6ae0d7486fcb9a";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePreloadedQueryReactDoubleEffectsTestQuery$variables,
+  usePreloadedQueryReactDoubleEffectsTestQuery$data,
+>*/);

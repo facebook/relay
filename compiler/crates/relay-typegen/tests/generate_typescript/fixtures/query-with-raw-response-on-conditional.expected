@@ -17,48 +17,47 @@ fragment FriendFragment on User {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type ExampleQueryVariables = {
-  id: string;
+export type ExampleQuery$variables = {
   condition: boolean;
+  id: string;
 };
-export type ExampleQueryResponse = {
+export type ExampleQuery$data = {
   readonly node: {
-    readonly " $fragmentRefs": FragmentRefs<"FriendFragment">;
+    readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
   } | null;
 };
-export type ExampleQueryRawResponse = {
+export type ExampleQuery$rawResponse = {
   readonly node: {
     readonly __typename: "User";
-    readonly id: string;
-    readonly name: string | null;
-    readonly lastName: string | null;
     readonly feedback: {
       readonly id: string;
       readonly name: string | null;
     } | null;
+    readonly id: string;
+    readonly lastName: string | null;
+    readonly name: string | null;
   } | {
     readonly __typename: string;
     readonly id: string;
   } | null;
 };
 export type ExampleQuery = {
-  variables: ExampleQueryVariables;
-  response: ExampleQueryResponse;
-  rawResponse: ExampleQueryRawResponse;
+  rawResponse: ExampleQuery$rawResponse;
+  response: ExampleQuery$data;
+  variables: ExampleQuery$variables;
 };
 -------------------------------------------------------------------------------
 import { FragmentRefs } from "relay-runtime";
-export type FriendFragment = {
-  readonly name?: string | null;
-  readonly lastName?: string | null;
+export type FriendFragment$data = {
   readonly feedback?: {
     readonly id: string;
     readonly name: string | null;
   } | null;
-  readonly " $refType": "FriendFragment";
+  readonly lastName?: string | null;
+  readonly name?: string | null;
+  readonly " $fragmentType": "FriendFragment";
 };
-export type FriendFragment$data = FriendFragment;
 export type FriendFragment$key = {
   readonly " $data"?: FriendFragment$data;
-  readonly " $fragmentRefs": FragmentRefs<"FriendFragment">;
+  readonly " $fragmentSpreads": FragmentRefs<"FriendFragment">;
 };

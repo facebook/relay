@@ -1,18 +1,37 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, Named, WithLocation};
-use graphql_syntax::{FloatValue, OperationKind};
-use interner::StringKey;
-use schema::{FieldID, Type, TypeReference};
-use schema::{SDLSchema, Schema};
+use std::collections::HashMap;
+use std::collections::HashSet;
 use std::fmt;
+use std::fmt::Display;
+use std::fmt::Formatter;
 use std::hash::Hash;
+use std::str::FromStr;
 use std::sync::Arc;
+
+use common::ArgumentName;
+use common::DirectiveName;
+use common::Location;
+use common::Named;
+use common::WithLocation;
+use graphql_syntax::FloatValue;
+use graphql_syntax::OperationKind;
+use intern::impl_lookup;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::BuildIdHasher;
+use intern::Lookup;
+use schema::FieldID;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
+use serde::Serialize;
 
 use crate::AssociatedData;
 // Definitions
@@ -24,7 +43,7 @@ pub enum ExecutableDefinition {
 }
 
 impl ExecutableDefinition {
-    pub fn has_directive(&self, directive_name: StringKey) -> bool {
+    pub fn has_directive(&self, directive_name: DirectiveName) -> bool {
         match self {
             ExecutableDefinition::Operation(node) => node
                 .directives
@@ -39,21 +58,36 @@ impl ExecutableDefinition {
 
     pub fn name_with_location(&self) -> WithLocation<StringKey> {
         match self {
-            ExecutableDefinition::Operation(node) => node.name,
-            ExecutableDefinition::Fragment(node) => node.name,
+            ExecutableDefinition::Operation(node) => node.name.map(|x| x.0),
+            ExecutableDefinition::Fragment(node) => node.name.map(|x| x.0),
         }
     }
 }
+#[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Copy)]
+pub struct OperationDefinitionName(pub StringKey);
 
+impl Display for OperationDefinitionName {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+impl_lookup!(OperationDefinitionName);
 /// A fully-typed mutation, query, or subscription definition
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct OperationDefinition {
     pub kind: OperationKind,
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<OperationDefinitionName>,
     pub type_: Type,
     pub variable_definitions: Vec<VariableDefinition>,
     pub directives: Vec<Directive>,
     pub selections: Vec<Selection>,
+}
+
+impl Named for OperationDefinition {
+    type Name = OperationDefinitionName;
+    fn name(&self) -> OperationDefinitionName {
+        self.name.item
+    }
 }
 
 impl OperationDefinition {
@@ -68,10 +102,25 @@ impl OperationDefinition {
     }
 }
 
+/// A newtype wrapper around StringKey to represent a FragmentDefinition's name
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash, Ord, PartialOrd, Serialize)]
+pub struct FragmentDefinitionName(pub StringKey);
+
+impl fmt::Display for FragmentDefinitionName {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
+impl_lookup!(FragmentDefinitionName);
+
+pub type FragmentDefinitionNameMap<V> = HashMap<FragmentDefinitionName, V, BuildIdHasher<u32>>;
+pub type FragmentDefinitionNameSet = HashSet<FragmentDefinitionName, BuildIdHasher<u32>>;
+
 /// A fully-typed fragment definition
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FragmentDefinition {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<FragmentDefinitionName>,
     pub variable_definitions: Vec<VariableDefinition>,
     pub used_global_variables: Vec<VariableDefinition>,
     pub type_condition: Type,
@@ -79,11 +128,29 @@ pub struct FragmentDefinition {
     pub selections: Vec<Selection>,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
+pub struct VariableName(pub StringKey);
+
+impl Display for VariableName {
+    fn fmt(&self, fmt: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(fmt, "{}", self.0)
+    }
+}
+
+impl FromStr for VariableName {
+    type Err = std::convert::Infallible;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(VariableName(s.intern()))
+    }
+}
+
+impl_lookup!(VariableName);
+
 /// A variable definition of an operation or fragment
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct VariableDefinition {
-    pub name: WithLocation<StringKey>,
-    pub type_: TypeReference,
+    pub name: WithLocation<VariableName>,
+    pub type_: TypeReference<Type>,
     pub default_value: Option<WithLocation<ConstantValue>>,
     pub directives: Vec<Directive>,
 }
@@ -98,7 +165,8 @@ impl VariableDefinition {
 }
 
 impl Named for VariableDefinition {
-    fn name(&self) -> StringKey {
+    type Name = VariableName;
+    fn name(&self) -> VariableName {
         self.name.item
     }
 }
@@ -151,14 +219,13 @@ impl Selection {
     /// A quick method to get the location of the selection. This may
     /// be helpful for error reporting. Please note, this implementation
     /// prefers the location of the alias for scalar and linked field selections.
-    /// It also returns `None` for conditional nodes and inline fragments.
-    pub fn location(&self) -> Option<Location> {
+    pub fn location(&self) -> Location {
         match self {
-            Selection::Condition(_) => None,
-            Selection::FragmentSpread(node) => Some(node.fragment.location),
-            Selection::InlineFragment(_) => None,
-            Selection::LinkedField(node) => Some(node.alias_or_name_location()),
-            Selection::ScalarField(node) => Some(node.alias_or_name_location()),
+            Selection::Condition(node) => node.location,
+            Selection::FragmentSpread(node) => node.fragment.location,
+            Selection::InlineFragment(node) => node.spread_location,
+            Selection::LinkedField(node) => node.alias_or_name_location(),
+            Selection::ScalarField(node) => node.alias_or_name_location(),
         }
     }
 
@@ -178,6 +245,25 @@ impl Selection {
             | (Selection::Condition(_), _) => false,
         }
     }
+
+    /// Find all fragment spreads referenced the current Selection.
+    /// Result deduplicated and sorted by fragment spread name
+    pub fn spreaded_fragments(&self) -> Vec<Arc<FragmentSpread>> {
+        let run_for_set =
+            |set: &[Selection]| set.iter().flat_map(|s| s.spreaded_fragments()).collect();
+
+        let mut all: Vec<Arc<FragmentSpread>> = match self {
+            Selection::FragmentSpread(a) => vec![Arc::clone(a)],
+            Selection::InlineFragment(a) => run_for_set(&a.selections),
+            Selection::LinkedField(a) => run_for_set(&a.selections),
+            Selection::ScalarField(_) => vec![],
+            Selection::Condition(a) => run_for_set(&a.selections),
+        };
+
+        all.sort_unstable_by_key(|fs| fs.fragment.item);
+        all.dedup_by_key(|fs| fs.fragment.item);
+        all
+    }
 }
 
 impl fmt::Debug for Selection {
@@ -195,7 +281,7 @@ impl fmt::Debug for Selection {
 /// ... Name
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FragmentSpread {
-    pub fragment: WithLocation<StringKey>,
+    pub fragment: WithLocation<FragmentDefinitionName>,
     pub arguments: Vec<Argument>,
     pub directives: Vec<Directive>,
 }
@@ -207,6 +293,8 @@ pub struct InlineFragment {
     pub type_condition: Option<Type>,
     pub directives: Vec<Directive>,
     pub selections: Vec<Selection>,
+    /// Points to "..."
+    pub spread_location: Location,
 }
 pub trait Field {
     fn alias(&self) -> Option<WithLocation<StringKey>>;
@@ -290,14 +378,25 @@ pub struct Condition {
     pub selections: Vec<Selection>,
     pub value: ConditionValue,
     pub passing_value: bool,
+    pub location: Location,
+}
+
+impl Condition {
+    pub fn directive_name(&self) -> &'static str {
+        if self.passing_value {
+            "include"
+        } else {
+            "skip"
+        }
+    }
 }
 
 // Associated Types
 
 /// @ Name Arguments?
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Directive {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<DirectiveName>,
     pub arguments: Vec<Argument>,
     /// Optional typed data that has no textual representation. This can be used
     /// to attach arbitrary data on compiler-internal directives, such as to
@@ -305,7 +404,8 @@ pub struct Directive {
     pub data: Option<Box<dyn AssociatedData>>,
 }
 impl Named for Directive {
-    fn name(&self) -> StringKey {
+    type Name = DirectiveName;
+    fn name(&self) -> DirectiveName {
         self.name.item
     }
 }
@@ -313,11 +413,12 @@ impl Named for Directive {
 /// Name : Value
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Argument {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<ArgumentName>,
     pub value: WithLocation<Value>,
 }
 impl Named for Argument {
-    fn name(&self) -> StringKey {
+    type Name = ArgumentName;
+    fn name(&self) -> ArgumentName {
         self.name.item
     }
 }
@@ -330,6 +431,15 @@ pub enum Value {
     Object(Vec<Argument>),
 }
 impl Value {
+    /// If the value is a constant, return the value, otherwise None.
+    pub fn get_constant(&self) -> Option<&ConstantValue> {
+        if let Value::Constant(val) = self {
+            Some(val)
+        } else {
+            None
+        }
+    }
+
     /// If the value is a constant string literal, return the value, otherwise None.
     pub fn get_string_literal(&self) -> Option<StringKey> {
         if let Value::Constant(ConstantValue::String(val)) = self {
@@ -337,6 +447,14 @@ impl Value {
         } else {
             None
         }
+    }
+
+    /// Return the constant of this value.
+    /// Panics if the value is not a constant.
+    pub fn expect_constant(&self) -> &ConstantValue {
+        self.get_constant().unwrap_or_else(|| {
+            panic!("expected a constant, got {:?}", self);
+        })
     }
 
     /// Return the constant string literal of this value.
@@ -350,19 +468,31 @@ impl Value {
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct Variable {
-    pub name: WithLocation<StringKey>,
-    pub type_: TypeReference,
+    pub name: WithLocation<VariableName>,
+    pub type_: TypeReference<Type>,
 }
 
 /// Name : Value[Const]
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct ConstantArgument {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<ArgumentName>,
     pub value: WithLocation<ConstantValue>,
 }
 impl Named for ConstantArgument {
-    fn name(&self) -> StringKey {
+    type Name = ArgumentName;
+    fn name(&self) -> ArgumentName {
         self.name.item
+    }
+}
+
+macro_rules! generate_unwrap_fn {
+    ($fn_name:ident,$self:ident,$t:ty,$cv:pat => $result:expr) => {
+        pub fn $fn_name(&$self) -> $t {
+            match $self {
+                $cv => $result,
+                other => panic!("expected constant {} but got {:#?}", stringify!($cv), other),
+            }
+        }
     }
 }
 
@@ -393,6 +523,14 @@ impl ConstantValue {
             _ => None,
         }
     }
+
+    generate_unwrap_fn!(unwrap_int, self, i64, ConstantValue::Int(i) => *i);
+    generate_unwrap_fn!(unwrap_float, self, FloatValue, ConstantValue::Float(f) => *f);
+    generate_unwrap_fn!(unwrap_boolean, self, bool, ConstantValue::Boolean(b) => *b);
+    generate_unwrap_fn!(unwrap_string, self, StringKey, ConstantValue::String(s) => *s);
+    generate_unwrap_fn!(unwrap_enum, self, StringKey, ConstantValue::Enum(e) => *e);
+    generate_unwrap_fn!(unwrap_list, self, &Vec<ConstantValue>, ConstantValue::List(l) => l);
+    generate_unwrap_fn!(unwrap_object, self, &Vec<ConstantArgument>, ConstantValue::Object(o) => o);
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]

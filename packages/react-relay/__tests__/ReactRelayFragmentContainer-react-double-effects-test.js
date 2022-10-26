@@ -1,27 +1,24 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 const {createContainer} = require('../ReactRelayFragmentContainer');
 const RelayEnvironmentProvider = require('../relay-hooks/RelayEnvironmentProvider');
-// eslint-disable-next-line no-unused-vars
 const React = require('react');
 const {useEffect} = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {
   RelayFeatureFlags,
   createOperationDescriptor,
-  getFragment,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
@@ -47,7 +44,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
 
     // Set up environment and base data
     environment = createMockEnvironment();
-    gqlQuery = getRequest(graphql`
+    gqlQuery = graphql`
       query ReactRelayFragmentContainerReactDoubleEffectsTestUserQuery(
         $id: ID!
       ) {
@@ -55,15 +52,15 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
           ...ReactRelayFragmentContainerReactDoubleEffectsTestUserFragment
         }
       }
-    `);
+    `;
     variables = {id: '1'};
-    gqlFragment = getFragment(graphql`
+    gqlFragment = graphql`
       fragment ReactRelayFragmentContainerReactDoubleEffectsTestUserFragment on User {
         # eslint-disable-next-line relay/unused-fields
         id
         name
       }
-    `);
+    `;
     query = createOperationDescriptor(gqlQuery, variables);
     environment.commitPayload(query, {
       node: {
@@ -87,7 +84,7 @@ describe.skip('ReactRelayFragmentContainer-react-double-effects-test', () => {
     warning.mockClear();
 
     let renderLogs = [];
-    const FragmentComponent = ({user}) => {
+    const FragmentComponent = ({user}: any) => {
       useEffect(() => {
         renderLogs.push(`commit: ${user.name}`);
         return () => {

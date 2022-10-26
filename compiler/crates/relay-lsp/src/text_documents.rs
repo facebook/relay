@@ -1,5 +1,5 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
@@ -7,17 +7,20 @@
 
 //! Utilities related to LSP text document syncing
 
-use crate::{lsp_runtime_error::LSPRuntimeResult, server::GlobalState};
+use lsp_types::notification::Cancel;
+use lsp_types::notification::DidChangeTextDocument;
+use lsp_types::notification::DidCloseTextDocument;
+use lsp_types::notification::DidOpenTextDocument;
+use lsp_types::notification::DidSaveTextDocument;
+use lsp_types::notification::Notification;
+use lsp_types::DidChangeTextDocumentParams;
+use lsp_types::DidOpenTextDocumentParams;
+use lsp_types::TextDocumentItem;
 
-use lsp_types::{
-    notification::{
-        Cancel, DidChangeTextDocument, DidCloseTextDocument, DidOpenTextDocument,
-        DidSaveTextDocument, Notification,
-    },
-    DidChangeTextDocumentParams, DidOpenTextDocumentParams, TextDocumentItem,
-};
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::server::GlobalState;
 
-pub(crate) fn on_did_open_text_document(
+pub fn on_did_open_text_document(
     lsp_state: &impl GlobalState,
     params: <DidOpenTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
@@ -34,7 +37,7 @@ pub(crate) fn on_did_open_text_document(
 }
 
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn on_did_close_text_document(
+pub fn on_did_close_text_document(
     lsp_state: &impl GlobalState,
     params: <DidCloseTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
@@ -49,7 +52,7 @@ pub(crate) fn on_did_close_text_document(
     lsp_state.document_closed(&uri)
 }
 
-pub(crate) fn on_did_change_text_document(
+pub fn on_did_change_text_document(
     lsp_state: &impl GlobalState,
     params: <DidChangeTextDocument as Notification>::Params,
 ) -> LSPRuntimeResult<()> {
@@ -82,7 +85,7 @@ pub(crate) fn on_did_save_text_document(
 }
 
 #[allow(clippy::unnecessary_wraps)]
-pub(crate) fn on_cancel(
+pub fn on_cancel(
     _lsp_state: &impl GlobalState,
     _params: <Cancel as Notification>::Params,
 ) -> LSPRuntimeResult<()> {

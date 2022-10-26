@@ -1,0 +1,62 @@
+==================================== INPUT ====================================
+query UpdatableQuery @updatable {
+  me {
+    actor {
+      ... on User {
+        __typename
+        ...Assignable_user
+      }
+      ... on Page {
+        __typename
+        ...Assignable_page
+      }
+    }
+  }
+}
+
+fragment Assignable_user on User @assignable {
+  __typename
+}
+
+fragment Assignable_page on Page @assignable {
+  __typename
+}
+==================================== OUTPUT ===================================
+import type { Assignable_page$fragmentType } from "Assignable_page.graphql";
+import type { Assignable_user$fragmentType } from "Assignable_user.graphql";
+export type UpdatableQuery$variables = {||};
+export type UpdatableQuery$data = {|
+  get me(): ?{|
+    get actor(): ?({|
+      +__typename: "Page",
+    |} | {|
+      +__typename: "User",
+    |} | {|
+      // This will never be '%other', but we need some
+      // value in case none of the concrete values match.
+      +__typename: "%other",
+    |}),
+    set actor(value: ?({
+      +__typename: "Page",
+      +__id: string,
+      +$fragmentSpreads: Assignable_page$fragmentType,
+      ...
+    } | {
+      +__typename: "User",
+      +__id: string,
+      +$fragmentSpreads: Assignable_user$fragmentType,
+      ...
+    })): void,
+  |},
+  set me(value: null | void): void,
+|};
+export type UpdatableQuery = {|
+  response: UpdatableQuery$data,
+  variables: UpdatableQuery$variables,
+|};
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Assignable_page$fragmentType: FragmentType;
+-------------------------------------------------------------------------------
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Assignable_user$fragmentType: FragmentType;

@@ -1,23 +1,24 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type {ActorChangeTestFeedUnitFragment$key} from './__generated__/ActorChangeTestFeedUnitFragment.graphql';
-import type {ActorChangeTestQuery} from './__generated__/ActorChangeTestQuery.graphql';
 import type {
   ActorIdentifier,
   IActorEnvironment,
   IMultiActorEnvironment,
 } from 'relay-runtime/multi-actor-environment';
+import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
+import type {ObservableFromValue} from 'relay-runtime/network/RelayObservable';
 
 const useRelayActorEnvironment = require('../../multi-actor/useRelayActorEnvironment');
 const RelayEnvironmentProvider = require('../../relay-hooks/RelayEnvironmentProvider');
@@ -32,10 +33,7 @@ const {
   MultiActorEnvironment,
   getActorIdentifier,
 } = require('relay-runtime/multi-actor-environment');
-const {
-  disallowWarnings,
-  expectWarningWillFire,
-} = require('relay-test-utils-internal');
+const {disallowWarnings} = require('relay-test-utils-internal');
 
 function ComponentWrapper(
   props: $ReadOnly<{
@@ -92,7 +90,7 @@ const mutation = graphql`
 `;
 
 function MainComponent() {
-  const data = useLazyLoadQuery<ActorChangeTestQuery>(query, {});
+  const data = useLazyLoadQuery(query, {});
 
   return (
     <div>
@@ -105,8 +103,9 @@ function MainComponent() {
           <div key={index}>
             <span
               className="default-store-actors"
-              data-test-id={`default-store-${edge?.node?.actor?.name ??
-                'not an actor'}`}
+              data-test-id={`default-store-${
+                edge?.node?.actor?.name ?? 'not an actor'
+              }`}
             />
             <ActorChange key={index} actorChangePoint={actorNode}>
               {(fragmentRef, actorIdentifier) => {
@@ -132,7 +131,7 @@ type Props = $ReadOnly<{
 
 function ActorMessage(props: Props) {
   const data = useFragment(fragment, props.myFragment);
-  const [commit] = useMutation(mutation);
+  const [commit] = useMutation<$FlowFixMe>(mutation);
 
   // We're calling this hook only to verify that it won't throw.
   // `useRelayActorEnvironment` should be able to have access to `getEnvironmentForActor` function
@@ -161,7 +160,10 @@ disallowWarnings();
 describe('ActorChange', () => {
   let environment;
   let multiActorEnvironment;
-  let fetchFnForActor;
+  let fetchFnForActor: JestMockFn<
+    Array<mixed>,
+    ObservableFromValue<GraphQLResponse>,
+  >;
 
   beforeEach(() => {
     multiActorEnvironment = new MultiActorEnvironment({

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2b8c95cc05b30027f6c82a6b5c5e9fa7>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<736b739ca0d563f66b7f88cab0039c5a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,28 +17,27 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type usePaginationFragmentTestUserFragment$ref: FragmentReference;
-declare export opaque type usePaginationFragmentTestUserFragment$fragmentType: usePaginationFragmentTestUserFragment$ref;
-export type usePaginationFragmentTestUserFragmentPaginationQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+import type { usePaginationFragmentTestUserFragment$fragmentType } from "./usePaginationFragmentTestUserFragment.graphql";
+export type usePaginationFragmentTestUserFragmentPaginationQuery$variables = {|
   after?: ?string,
   before?: ?string,
   first?: ?number,
+  id: string,
   isViewerFriendLocal?: ?boolean,
   last?: ?number,
   orderby?: ?$ReadOnlyArray<?string>,
   scale?: ?number,
-  id: string,
 |};
-export type usePaginationFragmentTestUserFragmentPaginationQueryResponse = {|
+export type usePaginationFragmentTestUserFragmentPaginationQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: usePaginationFragmentTestUserFragment$ref,
+    +$fragmentSpreads: usePaginationFragmentTestUserFragment$fragmentType,
   |},
 |};
 export type usePaginationFragmentTestUserFragmentPaginationQuery = {|
-  variables: usePaginationFragmentTestUserFragmentPaginationQueryVariables,
-  response: usePaginationFragmentTestUserFragmentPaginationQueryResponse,
+  response: usePaginationFragmentTestUserFragmentPaginationQuery$data,
+  variables: usePaginationFragmentTestUserFragmentPaginationQuery$variables,
 |};
 */
 
@@ -346,4 +347,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "fe5dabc8eef251e3032e850d1c26f222";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  usePaginationFragmentTestUserFragmentPaginationQuery$variables,
+  usePaginationFragmentTestUserFragmentPaginationQuery$data,
+>*/);

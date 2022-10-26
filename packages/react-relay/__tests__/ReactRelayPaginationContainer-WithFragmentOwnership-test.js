@@ -1,11 +1,11 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -122,9 +122,9 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
 
     UserFriendFragment = graphql`
       fragment ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment on User
-        @argumentDefinitions(
-          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-        ) {
+      @argumentDefinitions(
+        isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+      ) {
         id
         name @include(if: $isViewerFriendLocal)
       }
@@ -132,10 +132,10 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
 
     UserFragment = graphql`
       fragment ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment on User
-        @argumentDefinitions(
-          isViewerFriendLocal: {type: "Boolean", defaultValue: false}
-          orderby: {type: "[String]"}
-        ) {
+      @argumentDefinitions(
+        isViewerFriendLocal: {type: "Boolean", defaultValue: false}
+        orderby: {type: "[String]"}
+      ) {
         id
         friends(
           after: $after
@@ -256,9 +256,10 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     id: 'node:1',
                     __id: 'node:1',
                     __fragments: {
-                      ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
-                        isViewerFriendLocal: false,
-                      },
+                      ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                        {
+                          isViewerFriendLocal: false,
+                        },
                     },
                     __fragmentOwner: ownerUser1.request,
                     __isWithinUnmatchedTypeRefinement: false,
@@ -310,9 +311,10 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     id: 'node:1',
                     __id: 'node:1',
                     __fragments: {
-                      ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
-                        isViewerFriendLocal: false,
-                      },
+                      ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                        {
+                          isViewerFriendLocal: false,
+                        },
                     },
                     __fragmentOwner: ownerUser1.request,
                     __isWithinUnmatchedTypeRefinement: false,
@@ -424,9 +426,10 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
             id: 'node:1',
             __id: 'node:1',
             __fragments: {
-              ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
-                isViewerFriendLocal: false,
-              },
+              ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                {
+                  isViewerFriendLocal: false,
+                },
             },
             __fragmentOwner: expectedOwner.request,
             __isWithinUnmatchedTypeRefinement: false,
@@ -439,9 +442,10 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
             id: 'node:2',
             __id: 'node:2',
             __fragments: {
-              ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
-                isViewerFriendLocal: false,
-              },
+              ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                {
+                  isViewerFriendLocal: false,
+                },
             },
             __fragmentOwner: expectedOwner.request,
             __isWithinUnmatchedTypeRefinement: false,
@@ -501,9 +505,10 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                     id: 'node:1',
                     __id: 'node:1',
                     __fragments: {
-                      ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
-                        isViewerFriendLocal: false,
-                      },
+                      ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                        {
+                          isViewerFriendLocal: false,
+                        },
                     },
                     __fragmentOwner: ownerUser1.request,
                     __isWithinUnmatchedTypeRefinement: false,
@@ -624,9 +629,10 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:2',
                   __id: 'node:2',
                   __fragments: {
-                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
-                      isViewerFriendLocal: false,
-                    },
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                      {
+                        isViewerFriendLocal: false,
+                      },
                   },
                   __fragmentOwner: expectedOwner.request,
                   __isWithinUnmatchedTypeRefinement: false,
@@ -798,9 +804,10 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:7',
                   __id: 'node:7',
                   __fragments: {
-                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
-                      isViewerFriendLocal: false,
-                    },
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                      {
+                        isViewerFriendLocal: false,
+                      },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
                   __isWithinUnmatchedTypeRefinement: false,
@@ -880,9 +887,10 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:7',
                   __id: 'node:7',
                   __fragments: {
-                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
-                      isViewerFriendLocal: true,
-                    },
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                      {
+                        isViewerFriendLocal: true,
+                      },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
                   __isWithinUnmatchedTypeRefinement: false,
@@ -969,9 +977,10 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:7',
                   __id: 'node:7',
                   __fragments: {
-                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
-                      isViewerFriendLocal: true,
-                    },
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                      {
+                        isViewerFriendLocal: true,
+                      },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
                   __isWithinUnmatchedTypeRefinement: false,
@@ -984,9 +993,10 @@ describe('ReactRelayPaginationContainer with fragment ownership', () => {
                   id: 'node:8',
                   __id: 'node:8',
                   __fragments: {
-                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment: {
-                      isViewerFriendLocal: true,
-                    },
+                    ReactRelayPaginationContainerWithFragmentOwnershipTestUserFriendFragment:
+                      {
+                        isViewerFriendLocal: true,
+                      },
                   },
                   __fragmentOwner: expectedFragmentOwner.request,
                   __isWithinUnmatchedTypeRefinement: false,

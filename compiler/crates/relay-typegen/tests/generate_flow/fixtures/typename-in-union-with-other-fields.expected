@@ -1,0 +1,20 @@
+==================================== INPUT ====================================
+fragment Foo on Node {
+  id
+  ... on User {
+    __typename
+  }
+}
+==================================== OUTPUT ===================================
+import type { FragmentType } from "relay-runtime";
+declare export opaque type Foo$fragmentType: FragmentType;
+export type Foo$data = {|
+  +__typename: "User",
+  +id: string,
+  +$fragmentType: Foo$fragmentType,
+|};
+export type Foo$key = {
+  +$data?: Foo$data,
+  +$fragmentSpreads: Foo$fragmentType,
+  ...
+};

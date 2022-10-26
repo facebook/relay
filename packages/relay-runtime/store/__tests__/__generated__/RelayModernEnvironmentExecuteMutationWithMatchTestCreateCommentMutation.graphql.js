@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<30afc0d3a4e433c29c47b397d8b990a0>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<9e204ea0dbc08221d9a8b62eeeb16a70>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,13 +19,12 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation.commentCreate.comment.actor.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$ref = any;
-type RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref = any;
+import type { ConcreteRequest, Mutation } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name.graphql";
+import type { RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name.graphql";
 export type CommentCreateInput = {|
-  clientMutationId?: ?string,
-  feedbackId?: ?string,
   feedback?: ?CommentfeedbackFeedback,
+  feedbackId?: ?string,
 |};
 export type CommentfeedbackFeedback = {|
   comment?: ?FeedbackcommentComment,
@@ -31,10 +32,10 @@ export type CommentfeedbackFeedback = {|
 export type FeedbackcommentComment = {|
   feedback?: ?CommentfeedbackFeedback,
 |};
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutationVariables = {|
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables = {|
   input: CommentCreateInput,
 |};
-export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutationResponse = {|
+export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data = {|
   +commentCreate: ?{|
     +comment: ?{|
       +actor: ?{|
@@ -42,15 +43,15 @@ export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutat
         +nameRenderer: ?{|
           +__fragmentPropName?: ?string,
           +__module_component?: ?string,
-          +$fragmentRefs: RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$ref & RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$ref,
+          +$fragmentSpreads: RelayModernEnvironmentExecuteMutationWithMatchTestMarkdownUserNameRenderer_name$fragmentType & RelayModernEnvironmentExecuteMutationWithMatchTestPlainUserNameRenderer_name$fragmentType,
         |},
       |},
     |},
   |},
 |};
 export type RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation = {|
-  variables: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutationVariables,
-  response: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutationResponse,
+  response: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data,
+  variables: RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables,
 |};
 */
 
@@ -260,4 +261,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "8a6c1e92e6379ca2bcf4b83fbdb38c58";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Mutation<
+  RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$variables,
+  RelayModernEnvironmentExecuteMutationWithMatchTestCreateCommentMutation$data,
+>*/);

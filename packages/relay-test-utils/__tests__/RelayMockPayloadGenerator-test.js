@@ -1,38 +1,38 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type {MockResolvers} from '../RelayMockPayloadGenerator';
-import type {GraphQLTaggedNode} from 'relay-runtime';
+import type {Query, Variables} from 'relay-runtime';
 
 const RelayMockPayloadGenerator = require('../RelayMockPayloadGenerator');
-const {
-  createOperationDescriptor,
-  getRequest,
-  graphql,
-} = require('relay-runtime');
+const {createOperationDescriptor, graphql} = require('relay-runtime');
 const {FIXTURE_TAG} = require('relay-test-utils-internal');
 
-function testGeneratedData(
-  query: GraphQLTaggedNode,
+function testGeneratedData<TVariables: Variables, TData, TRawResponse>(
+  query: Query<TVariables, TData, TRawResponse>,
   mockResolvers: ?MockResolvers,
+  options: ?{mockClientData?: boolean},
 ): void {
-  const request = getRequest(query);
-  const operation = createOperationDescriptor(request, {});
-  const payload = RelayMockPayloadGenerator.generate(operation, mockResolvers);
+  const operation = createOperationDescriptor(query, {});
+  const payload = RelayMockPayloadGenerator.generate(
+    operation,
+    mockResolvers,
+    options,
+  );
 
   expect({
     [FIXTURE_TAG]: true,
-    input: request.params?.text,
+    input: query.params?.text,
     output: JSON.stringify(payload, null, 2),
   }).toMatchSnapshot();
 }
@@ -568,7 +568,7 @@ test('generate mock and verify arguments in the context', () => {
 test('generate mock for fragment with @argumentsDefinition', () => {
   graphql`
     fragment RelayMockPayloadGeneratorTest15Fragment on User
-      @argumentDefinitions(withName: {type: "Boolean!"}) {
+    @argumentDefinitions(withName: {type: "Boolean!"}) {
       id
       name @include(if: $withName)
       profile_picture(scale: $scale) {
@@ -600,7 +600,7 @@ test('generate mock for fragment with @argumentsDefinition', () => {
 test('generate mock for plural fragment', () => {
   graphql`
     fragment RelayMockPayloadGeneratorTest16Fragment on Comment
-      @relay(plural: true) {
+    @relay(plural: true) {
       id
       body {
         text
@@ -673,7 +673,7 @@ test('generate mock for with directives and handlers', () => {
   `;
   graphql`
     fragment RelayMockPayloadGeneratorTest22Fragment on User
-      @argumentDefinitions(condition: {type: "Boolean!"}) {
+    @argumentDefinitions(condition: {type: "Boolean!"}) {
       id
       name
       myActor: actor {
@@ -1437,22 +1437,6 @@ describe('with @relay_test_operation', () => {
     );
   });
 
-  test('generate mock for client extensions', () => {
-    testGeneratedData(
-      graphql`
-        query RelayMockPayloadGeneratorTest43Query @relay_test_operation {
-          node(id: "my-id") {
-            ... on User {
-              id
-              client_name
-              client_code
-            }
-          }
-        }
-      `,
-    );
-  });
-
   test('should generate data for @module', () => {
     graphql`
       fragment RelayMockPayloadGeneratorTestNameRendererFragment on User {
@@ -1657,5 +1641,51 @@ describe('with @relay_test_operation', () => {
         },
       },
     );
+  });
+
+  describe('with client extensions', () => {
+    const clientExtensionsQuery = graphql`
+      query RelayMockPayloadGeneratorTest43Query @relay_test_operation {
+        node(id: "my-id") {
+          ... on User {
+            id
+            client_name
+            client_code
+          }
+        }
+      }
+    `;
+    test('generate mock for client extensions with client generation disabled', () => {
+      testGeneratedData(clientExtensionsQuery, undefined, {
+        mockClientData: false,
+      });
+    });
+
+    test('generate mock for client extensions with client generation enabled', () => {
+      testGeneratedData(clientExtensionsQuery, undefined, {
+        mockClientData: true,
+      });
+    });
+  });
+  describe('with Relay Resolver having fragment', () => {
+    const clientExtensionsQuery = graphql`
+      query RelayMockPayloadGeneratorTest57Query @relay_test_operation {
+        me {
+          # Should mock out the user's 'name' field, since that field is used by this resolver's fragment
+          name_passthrough
+        }
+      }
+    `;
+    test('generate mock for client extensions with client generation disabled', () => {
+      testGeneratedData(clientExtensionsQuery, undefined, {
+        mockClientData: false,
+      });
+    });
+
+    test('generate mock for client extensions with client generation enabled', () => {
+      testGeneratedData(clientExtensionsQuery, undefined, {
+        mockClientData: true,
+      });
+    });
   });
 });

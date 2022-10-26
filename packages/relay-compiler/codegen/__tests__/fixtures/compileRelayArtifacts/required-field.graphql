@@ -1,3 +1,0 @@
-fragment RequiredFragment on User {
-  name @required(action: LOG)
-}

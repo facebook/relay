@@ -1,20 +1,25 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 const loadEntryPoint = require('../loadEntryPoint');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  disallowConsoleErrors,
+  disallowWarnings,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 class FakeJSResource<T> {
   _resolve: (T => mixed) | null;
@@ -50,7 +55,7 @@ test('it should preload entry point with queries', () => {
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
   const entryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: {id: string}) {
       return {
         queries: {
           myTestQuery: {
@@ -90,6 +95,86 @@ test('it should preload entry point with queries', () => {
     id: 'my-id',
   });
   expect(preloadedEntryPoint.entryPoints).toEqual({});
+});
+
+test('it should unwrap an entry point wrapping a module with default exports', () => {
+  const env = createMockEnvironment();
+  const fakeModule = {
+    foo: 'bar',
+  };
+  const entryPoint = {
+    getPreloadProps(params: {id: string}) {
+      return {
+        queries: {
+          myTestQuery: {
+            parameters: {
+              kind: 'PreloadableConcreteRequest',
+              params: {
+                operationKind: 'query',
+                name: 'MyPreloadedQuery',
+                id: 'my-persisted-query-id',
+                text: null,
+                metadata: {},
+              },
+            },
+            variables: {
+              id: params.id,
+            },
+          },
+        },
+      };
+    },
+    root: (new FakeJSResource({
+      default: fakeModule,
+    }): $FlowFixMe),
+  };
+  const preloadedEntryPoint = loadEntryPoint(
+    {
+      getEnvironment: () => env,
+    },
+    entryPoint,
+    {id: 'my-id'},
+  );
+  expect(preloadedEntryPoint.getComponent()).toEqual(fakeModule);
+});
+
+test('it should return the module from an entry point that just returns the module directly', () => {
+  const env = createMockEnvironment();
+  const fakeModule = {
+    foo: 'bar',
+  };
+  const entryPoint = {
+    getPreloadProps(params: {id: string}) {
+      return {
+        queries: {
+          myTestQuery: {
+            parameters: {
+              kind: 'PreloadableConcreteRequest',
+              params: {
+                operationKind: 'query',
+                name: 'MyPreloadedQuery',
+                id: 'my-persisted-query-id',
+                text: null,
+                metadata: {},
+              },
+            },
+            variables: {
+              id: params.id,
+            },
+          },
+        },
+      };
+    },
+    root: (new FakeJSResource(fakeModule): $FlowFixMe),
+  };
+  const preloadedEntryPoint = loadEntryPoint(
+    {
+      getEnvironment: () => env,
+    },
+    entryPoint,
+    {id: 'my-id'},
+  );
+  expect(preloadedEntryPoint.getComponent()).toEqual(fakeModule);
 });
 
 describe('with respect to loadQuery', () => {
@@ -135,7 +220,7 @@ describe('with respect to loadQuery', () => {
     };
     const env = createMockEnvironment();
     const entryPoint = {
-      getPreloadProps(params) {
+      getPreloadProps(params: $TEMPORARY$object<{...}>) {
         return {
           queries: {
             myTestQuery,
@@ -166,7 +251,7 @@ describe('with respect to loadQuery', () => {
   it('it should return a dispose callback that calls loadQuery(...).dispose', () => {
     const env = createMockEnvironment();
     const entryPoint = {
-      getPreloadProps(params) {
+      getPreloadProps(params: $TEMPORARY$object<{...}>) {
         return {
           queries: {
             myTestQuery: {
@@ -209,7 +294,7 @@ test('it should preload entry point with nested entry points', () => {
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
   const nestedEntryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: $FlowFixMe) {
       return {
         queries: {
           myNestedQuery: {
@@ -233,7 +318,7 @@ test('it should preload entry point with nested entry points', () => {
     root: (new FakeJSResource(null): $FlowFixMe),
   };
   const entryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: {id: string}) {
       return {
         entryPoints: {
           myNestedEntryPoint: {
@@ -278,7 +363,7 @@ test('it should preload entry point with both queries and nested entry points', 
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
   const nestedEntryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: $FlowFixMe) {
       return {
         queries: {
           myNestedQuery: {
@@ -302,7 +387,7 @@ test('it should preload entry point with both queries and nested entry points', 
     root: (new FakeJSResource(null): $FlowFixMe),
   };
   const entryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: {id: string}) {
       return {
         queries: {
           myTestQuery: {
@@ -366,7 +451,7 @@ test('it should preload entry point with both queries and nested entry points', 
 test('it should dispose nested entry points', () => {
   const env = createMockEnvironment();
   const nestedEntryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: $FlowFixMe) {
       return {
         queries: {
           myNestedQuery: {
@@ -390,7 +475,7 @@ test('it should dispose nested entry points', () => {
     root: (new FakeJSResource(null): $FlowFixMe),
   };
   const entryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: {id: string}) {
       return {
         queries: {
           myTestQuery: {
@@ -426,6 +511,7 @@ test('it should dispose nested entry points', () => {
       getEnvironment: () => env,
     },
     entryPoint,
+    // $FlowFixMe[prop-missing]
     {},
   );
   const nestedEntryPointDisposeSpy = jest.spyOn(
@@ -444,7 +530,7 @@ test('with `getEnvironment` function', () => {
   const env = createMockEnvironment();
   const networkSpy = jest.spyOn(env.getNetwork(), 'execute');
   const entryPoint = {
-    getPreloadProps(params) {
+    getPreloadProps(params: {id: string}) {
       return {
         queries: {
           myTestQuery: {

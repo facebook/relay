@@ -1,25 +1,22 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
 import type {
   CacheConfig,
   FetchPolicy,
-  GraphQLTaggedNode,
-  OperationType,
+  Query,
   RenderPolicy,
-  VariablesOf,
+  Variables,
 } from 'relay-runtime';
 
 const {useTrackLoadQueryInRender} = require('./loadQuery');
@@ -30,16 +27,30 @@ const {
   __internal: {fetchQuery},
 } = require('relay-runtime');
 
-function useLazyLoadQuery<TQuery: OperationType>(
-  gqlQuery: GraphQLTaggedNode,
-  variables: VariablesOf<TQuery>,
-  options?: {|
+// This separate type export is only needed as long as we are injecting
+// a separate hooks implementation in ./HooksImplementation -- it can
+// be removed after we stop doing that.
+export type UseLazyLoadQueryHookType = <TVariables: Variables, TData>(
+  gqlQuery: Query<TVariables, TData>,
+  variables: TVariables,
+  options?: {
     fetchKey?: string | number,
     fetchPolicy?: FetchPolicy,
     networkCacheConfig?: CacheConfig,
     UNSTABLE_renderPolicy?: RenderPolicy,
-  |},
-): $ElementType<TQuery, 'response'> {
+  },
+) => TData;
+
+function useLazyLoadQuery<TVariables: Variables, TData>(
+  gqlQuery: Query<TVariables, TData>,
+  variables: TVariables,
+  options?: {
+    fetchKey?: string | number,
+    fetchPolicy?: FetchPolicy,
+    networkCacheConfig?: CacheConfig,
+    UNSTABLE_renderPolicy?: RenderPolicy,
+  },
+): TData {
   // We need to use this hook in order to be able to track if
   // loadQuery was called during render
   useTrackLoadQueryInRender();
@@ -64,4 +75,4 @@ function useLazyLoadQuery<TQuery: OperationType>(
   return data;
 }
 
-module.exports = useLazyLoadQuery;
+module.exports = (useLazyLoadQuery: UseLazyLoadQueryHookType);

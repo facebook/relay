@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f41bdc1ac5a848e4b5d793ee7b1e7bd8>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<667afef8da4ef40a83bff0c69e1e888c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,24 +17,22 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$ref: FragmentReference;
-declare export opaque type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$ref;
-export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType } from "./ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType: FragmentType;
+export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$data = {|
   +id: string,
   +name?: ?string,
   +profile_picture: ?{|
     +uri: ?string,
   |},
-  +$fragmentRefs: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment$ref,
-  +$refType: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$ref,
+  +$fragmentSpreads: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFriendFragment$fragmentType,
+  +$fragmentType: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType,
 |};
-export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$data = ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment;
 export type ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$key = {
   +$data?: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$data,
-  +$fragmentRefs: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$ref,
+  +$fragmentSpreads: ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType,
   ...
 };
 */
@@ -118,4 +118,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "00fbadab26a32ac69d9c6d12533b85f2";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$fragmentType,
+  ReactRelayRefetchContainerWithFragmentOwnershipTestUserFragment$data,
+>*/);

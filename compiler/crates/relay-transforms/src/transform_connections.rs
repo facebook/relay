@@ -1,27 +1,45 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    connections::{
-        assert_connection_selections, build_connection_metadata, build_edge_selections,
-        build_page_info_selections, extract_connection_directive, get_default_filters,
-        ConnectionConstants, ConnectionInterface, ConnectionMetadata, ConnectionMetadataDirective,
-    },
-    defer_stream::DEFER_STREAM_CONSTANTS,
-    handle_fields::{build_handle_field_directive_from_connection_directive, KEY_ARG_NAME},
-};
-use common::{NamedItem, WithLocation};
-use graphql_ir::{
-    Argument, ConstantValue, Directive, FragmentDefinition, InlineFragment, LinkedField,
-    OperationDefinition, Program, Selection, Transformed, Transformer, Value,
-};
-use interner::{Intern, StringKey};
-use schema::Schema;
 use std::sync::Arc;
+
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
+use schema::Schema;
+
+use crate::connections::assert_connection_selections;
+use crate::connections::build_connection_metadata;
+use crate::connections::build_edge_selections;
+use crate::connections::build_page_info_selections;
+use crate::connections::extract_connection_directive;
+use crate::connections::get_default_filters;
+use crate::connections::ConnectionConstants;
+use crate::connections::ConnectionInterface;
+use crate::connections::ConnectionMetadata;
+use crate::connections::ConnectionMetadataDirective;
+use crate::defer_stream::DEFER_STREAM_CONSTANTS;
+use crate::handle_fields::build_handle_field_directive_from_connection_directive;
+use crate::handle_fields::KEY_ARG_NAME;
 
 pub fn transform_connections(
     program: &Program,
@@ -187,7 +205,7 @@ impl<'s> ConnectionTransform<'s> {
             .push(build_page_info_selections(
                 schema,
                 page_info_type,
-                &connection_metadata,
+                connection_metadata,
                 self.connection_constants,
                 self.connection_interface,
             ));
@@ -232,6 +250,7 @@ impl<'s> ConnectionTransform<'s> {
                     arguments,
                     data: None,
                 }],
+                spread_location: Location::generated(),
             }))
         } else {
             Selection::LinkedField(From::from(transformed_page_info_field))
@@ -275,7 +294,7 @@ impl<'s> ConnectionTransform<'s> {
     ) -> Vec<Directive> {
         let connection_handle_directive = build_handle_field_directive_from_connection_directive(
             connection_directive,
-            Some(self.connection_constants.connection_directive_name),
+            Some(self.connection_constants.connection_directive_name.0),
             get_default_filters(connection_field, self.connection_constants),
         );
         let mut next_directives = connection_field
@@ -299,19 +318,19 @@ impl<'s> ConnectionTransform<'s> {
         connection_directive: &Directive,
     ) -> Transformed<Selection> {
         let connection_metadata = build_connection_metadata(
-            &connection_field,
+            connection_field,
             self.connection_constants,
             &self.current_path,
             connection_directive.name.item
                 == self.connection_constants.stream_connection_directive_name,
         );
         let next_connection_selections = self.transform_connection_selections(
-            &connection_field,
+            connection_field,
             &connection_metadata,
-            &connection_directive,
+            connection_directive,
         );
         let next_connection_directives =
-            self.transform_connection_directives(&connection_field, &connection_directive);
+            self.transform_connection_directives(connection_field, connection_directive);
 
         // Include the connection metadata from this linked field to
         // attach to the current root document (fragment or operation)
@@ -325,11 +344,7 @@ impl<'s> ConnectionTransform<'s> {
     }
 
     fn get_metadata_directive(&mut self) -> Directive {
-        ConnectionMetadataDirective(std::mem::replace(
-            &mut self.current_connection_metadata,
-            Vec::new(),
-        ))
-        .into()
+        ConnectionMetadataDirective(std::mem::take(&mut self.current_connection_metadata)).into()
     }
 }
 
@@ -343,7 +358,7 @@ impl<'s> Transformer for ConnectionTransform<'s> {
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
         // TODO(T63626938): This assumes that each document is processed serially (not in parallel or concurrently)
-        self.current_document_name = operation.name.item;
+        self.current_document_name = operation.name.item.0;
         self.current_path = Some(Vec::new());
         self.current_connection_metadata = Vec::new();
 
@@ -370,7 +385,7 @@ impl<'s> Transformer for ConnectionTransform<'s> {
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
         // TODO(T63626938): This assumes that each document is processed serially (not in parallel or concurrently)
-        self.current_document_name = fragment.name.item;
+        self.current_document_name = fragment.name.item.0;
         self.current_path = Some(Vec::new());
         self.current_connection_metadata = Vec::new();
 

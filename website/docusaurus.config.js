@@ -1,31 +1,30 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 const versions = require('./versions.json');
-const {fbContent, isInternal} = require('internaldocs-fb-helpers');
+const {
+  fbContent,
+  isInternal,
+} = require('docusaurus-plugin-internaldocs-fb/internal');
 
 module.exports = {
   title: 'Relay',
   tagline: 'The GraphQL client that scales with you.',
   url: 'https://relay.dev',
   baseUrl: '/',
+  trailingSlash: true,
   organizationName: 'facebook',
   projectName: 'relay',
-  scripts: [
-    {
-      src:
-        'https://widget.surveymonkey.com/collect/website/js/tRaiETqnLgj758hTBazgdx2NnQ5W6bg3p3XoJtoYjHDMWZrhV7glVKgJgKV87xxk.js',
-      defer: true,
-    },
-  ],
+  scripts: [],
   favicon: 'img/favicon.png',
   customFields: {
     users: [
@@ -187,6 +186,12 @@ module.exports = {
         infoLink: 'https://swissdevjobs.ch/jobs/JavaScript/All',
         pinned: false,
       },
+      {
+        caption: 'Atlassian',
+        image: '/img/logos/vertical-logo-gradient-blue-atlassian.svg',
+        infoLink: 'https://www.atlassian.com/',
+        pinned: false,
+      },
     ],
   },
   onBrokenLinks: 'throw',
@@ -236,11 +241,17 @@ module.exports = {
         blog: {},
         theme: {
           customCss: [
-            '../src/css/docusaurus-1.css',
-            '../src/css/prism.css',
-            '../src/css/customTheme.css',
-            '../src/css/custom.css',
+            './src/css/docusaurus-1.css',
+            './src/css/prism.css',
+            './src/css/customTheme.css',
+            './src/css/custom.css',
           ],
+        },
+        gtag: {
+          trackingID: 'UA-44373548-50',
+        },
+        googleAnalytics: {
+          trackingID: 'UA-44373548-50',
         },
       },
     ],
@@ -249,7 +260,7 @@ module.exports = {
     [
       '@docusaurus/plugin-client-redirects',
       {
-        createRedirects: function(toPath) {
+        createRedirects: function (toPath) {
           if (toPath.startsWith('/docs/')) {
             const docPath = toPath.substring(6);
             const fromPaths = ['/docs/en/' + docPath];
@@ -312,11 +323,7 @@ module.exports = {
           },
           {
             to: '/docs/guides/type-emission/',
-            from: [
-              '/docs/en/type-emission',
-              '/docs/v3.0.0/type-emission',
-              '/docs/type-emission',
-            ],
+            from: ['/docs/en/type-emission', '/docs/type-emission'],
           },
           {
             to: '/docs/guides/client-schema-extensions/',
@@ -354,14 +361,6 @@ module.exports = {
     ],
   ],
   themeConfig: {
-    announcementBar: {
-      id: 'survey-2021-announcement', // Any value that will identify this message.
-      content:
-        'We want to hear from you! <a href="https://surveys.savanta.com/survey/selfserve/21e3/210643?list=2" target="_blank" rel="noopener noreferrer">Take the 2021 React Community Survey!</a>',
-      backgroundColor: '#20232a', // Defaults to `#fff`.
-      textColor: '#fff', // Defaults to `#000`.
-      isCloseable: true, // Defaults to `true`.
-    },
     navbar: {
       title: 'Relay',
       style: 'primary',
@@ -388,7 +387,7 @@ module.exports = {
           position: 'left',
         },
         fbContent({
-          internal: {},
+          internal: null,
           external: {
             type: 'docsVersionDropdown',
             position: 'right',
@@ -401,7 +400,7 @@ module.exports = {
             ],
           },
         }),
-      ],
+      ].filter(Boolean),
     },
     image: 'img/relay.png',
     footer: {
@@ -451,6 +450,7 @@ module.exports = {
       logo: {
         src: 'img/relay.svg',
       },
+      copyright: `Copyright © ${new Date().getFullYear()} Meta Platforms, Inc. Built with Docusaurus.`,
     },
     prism: {
       theme: require('prism-react-renderer/themes/github'),
@@ -458,15 +458,10 @@ module.exports = {
       defaultLanguage: 'javascript',
     },
     algolia: {
+      appId: 'BH4D9OD16A',
       apiKey: '3d7d5825d50ea36bca0e6ad06c926f06',
       indexName: 'relay',
       contextualSearch: true,
-    },
-    gtag: {
-      trackingID: 'UA-44373548-50',
-    },
-    googleAnalytics: {
-      trackingID: 'UA-44373548-50',
     },
   },
 };

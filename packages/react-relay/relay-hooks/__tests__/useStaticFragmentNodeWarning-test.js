@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -26,7 +24,7 @@ const warningMessage =
 const notWarned = [true, warningMessage, 'fragment input'];
 const warned = [false, warningMessage, 'fragment input'];
 
-function Example(props: {|+foo: {|+name: string|}, +bar: string|}) {
+function Example(props: {+foo: {+name: string}, +bar: string}) {
   // $FlowFixMe[prop-missing]
   useStaticFragmentNodeWarning(props.foo, 'fragment input');
   return null;

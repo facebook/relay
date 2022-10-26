@@ -1,0 +1,45 @@
+==================================== INPUT ====================================
+query Foo {
+  client_type {
+    ...MyFragment
+  }
+}
+
+fragment MyFragment on ClientNamed {
+  name
+}
+
+# %extensions%
+
+extend type Query {
+  client_type: ClientType
+}
+
+type ClientType implements ClientNamed {
+  name: String
+}
+
+interface ClientNamed {
+  name: String
+}
+==================================== OUTPUT ===================================
+fragment MyFragment on ClientNamed {
+  name
+}
+
+query Foo @__ClientExtensionAbstractTypeMetadataDirective
+# ClientExtensionAbstractTypeMetadataDirective {
+#     abstract_types: [
+#         AbstractTypeImplements {
+#             name: "__isClientNamed",
+#             concrete: [
+#                 "ClientType",
+#             ],
+#         },
+#     ],
+# }
+ {
+  client_type {
+    ...MyFragment
+  }
+}

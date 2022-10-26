@@ -7,8 +7,8 @@ query TestQuery {
   }
 }
 ==================================== OUTPUT ===================================
-export type TestQueryVariables = {||};
-export type TestQueryResponse = {|
+export type TestQuery$variables = {||};
+export type TestQuery$data = {|
   +me: ?{|
     +neighbors: $ReadOnlyArray<?{|
       +name: string,
@@ -16,6 +16,6 @@ export type TestQueryResponse = {|
   |},
 |};
 export type TestQuery = {|
-  variables: TestQueryVariables,
-  response: TestQueryResponse,
+  response: TestQuery$data,
+  variables: TestQuery$variables,
 |};

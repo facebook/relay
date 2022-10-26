@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -24,16 +23,23 @@ import type {ReaderFragment, ReaderInlineDataFragment} from './ReaderNode';
  * from that operation to read the response data (masking data from child
  * fragments).
  */
-export type ConcreteRequest = {|
+export type ConcreteRequest = {
   +kind: 'Request',
   +fragment: ReaderFragment,
   +operation: NormalizationOperation,
   +params: RequestParameters,
-|};
+};
+
+export type ConcreteUpdatableQuery = {
+  +kind: 'UpdatableQuery',
+  +fragment: ReaderFragment,
+};
 
 export type NormalizationRootNode =
   | ConcreteRequest
   | NormalizationSplitOperation;
+
+export type ProvidedVariablesType = {+[key: string]: {get(): mixed}};
 
 /**
  * Contains the parameters required for executing a GraphQL request.
@@ -42,34 +48,57 @@ export type NormalizationRootNode =
  * for local caching.
  */
 export type RequestParameters =
-  | {|
+  | {
       +id: string,
       +text: null,
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
+      +providedVariables?: ProvidedVariablesType,
       +metadata: {[key: string]: mixed, ...},
-    |}
-  | {|
+    }
+  | {
       +cacheID: string,
       +id: null,
-      +text: string,
+      +text: string | null,
       // common fields
       +name: string,
       +operationKind: 'mutation' | 'query' | 'subscription',
+      +providedVariables?: ProvidedVariablesType,
       +metadata: {[key: string]: mixed, ...},
-    |};
+    };
+
+export type ClientRequestParameters = {
+  +cacheID: string,
+  +id: null,
+  +text: null,
+  // common fields
+  +name: string,
+  +operationKind: 'query',
+  +providedVariables?: ProvidedVariablesType,
+  +metadata: {[key: string]: mixed, ...},
+};
+
+export type ClientRequest = {
+  +kind: 'Request',
+  +fragment: ReaderFragment,
+  +operation: NormalizationOperation,
+  +params: ClientRequestParameters,
+};
 
 export type GeneratedNode =
   | ConcreteRequest
   | ReaderFragment
   | ReaderInlineDataFragment
-  | NormalizationSplitOperation;
+  | NormalizationSplitOperation
+  | ConcreteUpdatableQuery;
 
 const RelayConcreteNode = {
   ACTOR_CHANGE: 'ActorChange',
   CONDITION: 'Condition',
   CLIENT_COMPONENT: 'ClientComponent',
+  CLIENT_EDGE_TO_SERVER_OBJECT: 'ClientEdgeToServerObject',
+  CLIENT_EDGE_TO_CLIENT_OBJECT: 'ClientEdgeToClientObject',
   CLIENT_EXTENSION: 'ClientExtension',
   DEFER: 'Defer',
   CONNECTION: 'Connection',
@@ -85,7 +114,10 @@ const RelayConcreteNode = {
   LIST_VALUE: 'ListValue',
   LOCAL_ARGUMENT: 'LocalArgument',
   MODULE_IMPORT: 'ModuleImport',
+  ALIASED_FRAGMENT_SPREAD: 'AliasedFragmentSpread',
+  ALIASED_INLINE_FRAGMENT_SPREAD: 'AliasedInlineFragmentSpread',
   RELAY_RESOLVER: 'RelayResolver',
+  RELAY_LIVE_RESOLVER: 'RelayLiveResolver',
   REQUIRED_FIELD: 'RequiredField',
   OBJECT_VALUE: 'ObjectValue',
   OPERATION: 'Operation',
@@ -96,6 +128,7 @@ const RelayConcreteNode = {
   SPLIT_OPERATION: 'SplitOperation',
   STREAM: 'Stream',
   TYPE_DISCRIMINATOR: 'TypeDiscriminator',
+  UPDATABLE_QUERY: 'UpdatableQuery',
   VARIABLE: 'Variable',
 };
 

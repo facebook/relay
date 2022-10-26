@@ -1,11 +1,11 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';
@@ -16,51 +16,9 @@ const {
 } = require('../RelayModernOperationDescriptor');
 const {read} = require('../RelayReader');
 const RelayRecordSource = require('../RelayRecordSource');
-const {RelayFeatureFlags, createReaderSelector} = require('relay-runtime');
-
-beforeEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = true;
-});
-
-afterEach(() => {
-  RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
-});
+const {createReaderSelector, getPluralSelector} = require('relay-runtime');
 
 describe('RelayReader @required', () => {
-  it('throws if a @required is encounted without the ENABLE_REQUIRED_DIRECTIVES feature flag enabled', () => {
-    const source = RelayRecordSource.create({
-      'client:root': {
-        __id: 'client:root',
-        __typename: '__Root',
-        me: {__ref: '1'},
-      },
-      '1': {
-        __id: '1',
-        id: '1',
-        __typename: 'User',
-        firstName: 'Alice',
-        lastName: null,
-      },
-    });
-    const FooQuery = graphql`
-      query RelayReaderRequiredFieldsTest1Query {
-        me {
-          firstName
-          lastName @required(action: LOG)
-        }
-      }
-    `;
-    const operation = createOperationDescriptor(FooQuery, {id: '1'});
-
-    RelayFeatureFlags.ENABLE_REQUIRED_DIRECTIVES = false;
-
-    expect(() => {
-      read(source, operation.fragment);
-    }).toThrowErrorMatchingInlineSnapshot(
-      '"RelayReader(): Encountered a `@required` directive at path \\"me.lastName\\" in `RelayReaderRequiredFieldsTest1Query` without the `ENABLE_REQUIRED_DIRECTIVES` feature flag enabled."',
-    );
-  });
-
   it('bubbles @required(action: LOG) scalars up to LinkedField', () => {
     const source = RelayRecordSource.create({
       'client:root': {
@@ -792,5 +750,45 @@ describe('RelayReader @required', () => {
     );
     expect(isMissingData).toBe(true);
     expect(data).toEqual(null);
+  });
+
+  it('bubbles to list item when used in plural fragment', () => {
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        'nodes(ids:["1","2"])': {__refs: ['1', '2']},
+      },
+      '1': {
+        __id: '1',
+        id: '1',
+        __typename: 'User',
+        username: 'Wendy',
+      },
+      '2': {
+        __id: '2',
+        id: '2',
+        __typename: 'User',
+        username: null,
+      },
+    });
+    const BarFragment = graphql`
+      fragment RelayReaderRequiredFieldsTest6Fragment on User
+      @relay(plural: true) {
+        username @required(action: LOG)
+      }
+    `;
+    const UserQuery = graphql`
+      query RelayReaderRequiredFieldsTest24Query {
+        nodes(ids: ["1", "2"]) {
+          ...RelayReaderRequiredFieldsTest6Fragment
+        }
+      }
+    `;
+    const owner = createOperationDescriptor(UserQuery);
+    const {nodes} = read(source, owner.fragment).data;
+    const pluralSelector = getPluralSelector(BarFragment, nodes);
+    const data = pluralSelector.selectors.map(s => read(source, s).data);
+    expect(data).toEqual([{username: 'Wendy'}, null]);
   });
 });

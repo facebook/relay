@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<b0d684fd86e4dce1cbbf28a09107aa82>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<5ff1e82833c06194393dc49ed9f99f63>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,21 +19,21 @@
 // @dataDrivenDependency RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery.node {"branches":{"User":{"component":"User.react","fragment":"RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$normalization.graphql"}},"plural":false}
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$ref = any;
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user.graphql";
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$variables = {|
   id: string,
 |};
-export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQueryResponse = {|
+export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$data = {|
   +node: ?{|
     +__fragmentPropName?: ?string,
     +__module_component?: ?string,
-    +$fragmentRefs: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$ref,
+    +$fragmentSpreads: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery_user$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery = {|
-  variables: RelayModernEnvironmentExecuteWithDeferAndModuleTestQueryVariables,
-  response: RelayModernEnvironmentExecuteWithDeferAndModuleTestQueryResponse,
+  response: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$data,
+  variables: RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$variables,
 |};
 */
 
@@ -146,4 +148,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "e1e0184ec7d619431104e6bada8a3318";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$variables,
+  RelayModernEnvironmentExecuteWithDeferAndModuleTestQuery$data,
+>*/);

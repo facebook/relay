@@ -1,13 +1,16 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use colored::*;
-use common::Span;
 use std::fmt::Write;
+
+use common::Span;
+
+use crate::Style;
+use crate::Styles;
 
 #[derive(Default)]
 pub struct SourcePrinter;
@@ -20,6 +23,18 @@ impl SourcePrinter {
         writer: &mut W,
         span: &Span,
         source: &str,
+        line_offset: usize,
+    ) -> std::fmt::Result {
+        self.write_span_with_highlight_style(writer, span, source, line_offset, Styles::red)
+    }
+
+    pub fn write_span_with_highlight_style<W: Write>(
+        &self,
+        writer: &mut W,
+        span: &Span,
+        source: &str,
+        line_offset: usize,
+        highlight_style: Style,
     ) -> std::fmt::Result {
         let start_char_index = span.start as usize;
         let end_char_index = span.end as usize;
@@ -84,7 +99,7 @@ impl SourcePrinter {
             write!(
                 writer,
                 "{}",
-                format!(" {:>4} \u{2502} ", line_index + 1).bold()
+                Styles::bold(format!(" {:>4} \u{2502} ", line_index + line_offset + 1))
             )
             .unwrap();
             let mut something_highlighted_on_line = false;
@@ -126,7 +141,7 @@ impl SourcePrinter {
                 };
 
                 if currently_hightlighted {
-                    write!(writer, "{}", chr.to_string().red()).unwrap();
+                    write!(writer, "{}", highlight_style(chr.to_string())).unwrap();
                     marker.push('^');
                     something_highlighted_on_line = true;
                     if start_byte_index == end_byte_index {
@@ -142,7 +157,7 @@ impl SourcePrinter {
             }
             writeln!(writer)?;
             if something_highlighted_on_line {
-                writeln!(writer, "      \u{2502} {}", marker.red()).unwrap();
+                writeln!(writer, "      \u{2502} {}", highlight_style(marker)).unwrap();
             }
         }
 

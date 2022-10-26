@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bd2db378c5771021be4c054a504201c0>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<cb4f73e8ecbbf5d81975c889b5988428>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,30 +17,30 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type ActorChangeTestFeedUnitFragment$ref = any;
-export type ActorChangeTestQueryVariables = {||};
-export type ActorChangeTestQueryResponse = {|
+import type { ActorChangeTestFeedUnitFragment$fragmentType } from "./ActorChangeTestFeedUnitFragment.graphql";
+export type ActorChangeTestQuery$variables = {||};
+export type ActorChangeTestQuery$data = {|
   +viewer: ?{|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
+        +actor_node: ?ActorChangePoint<{|
+          +actor_key: string,
+          +$fragmentSpreads: ActorChangeTestFeedUnitFragment$fragmentType,
+        |}>,
         +node: ?{|
           +actor: ?{|
             +name: ?string,
           |},
         |},
-        +actor_node: ?ActorChangePoint<{|
-          +actor_key: string,
-          +$fragmentRefs: ActorChangeTestFeedUnitFragment$ref,
-        |}>,
       |}>,
     |},
   |},
 |};
 export type ActorChangeTestQuery = {|
-  variables: ActorChangeTestQueryVariables,
-  response: ActorChangeTestQueryResponse,
+  response: ActorChangeTestQuery$data,
+  variables: ActorChangeTestQuery$variables,
 |};
 */
 
@@ -271,4 +273,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "200bd87fc1d5bddf56a7ab99f431c3ba";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ActorChangeTestQuery$variables,
+  ActorChangeTestQuery$data,
+>*/);

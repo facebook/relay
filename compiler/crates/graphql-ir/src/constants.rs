@@ -1,13 +1,15 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use interner::{Intern, StringKey};
+use common::DirectiveName;
+use intern::string_key::Intern;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref ARGUMENT_DEFINITION: StringKey = "argumentDefinitions".intern();
+    pub static ref ARGUMENT_DEFINITION: DirectiveName =
+        DirectiveName("argumentDefinitions".intern());
 }

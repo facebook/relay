@@ -1,19 +1,21 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
-import type {ConcreteRequest, GraphQLTaggedNode} from 'relay-runtime';
+import type {
+  loadQueryTestQuery$data,
+  loadQueryTestQuery$variables,
+} from './__generated__/loadQueryTestQuery.graphql';
+import type {Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {loadQuery, useTrackLoadQueryInRender} = require('../loadQuery');
 // Need React require for OSS build
@@ -24,13 +26,20 @@ const {
   Network,
   Observable,
   PreloadableQueryRegistry,
-  getRequest,
   graphql,
 } = require('relay-runtime');
-const {createMockEnvironment} = require('relay-test-utils-internal');
+const {
+  createMockEnvironment,
+  disallowConsoleErrors,
+  disallowWarnings,
+  expectWarningWillFire,
+} = require('relay-test-utils-internal');
+
+disallowWarnings();
+disallowConsoleErrors();
 
 describe('loadQuery', () => {
-  const q: GraphQLTaggedNode = graphql`
+  const query = graphql`
     query loadQueryTestQuery($id: ID!) {
       node(id: $id) {
         id
@@ -38,7 +47,6 @@ describe('loadQuery', () => {
     }
   `;
 
-  const query: ConcreteRequest = getRequest(q);
   // Only queries with an ID are preloadable
   const ID = '12345';
   (query.params: $FlowFixMe).id = ID;
@@ -67,15 +75,18 @@ describe('loadQuery', () => {
   let fetch;
   let environment;
 
-  let executeUnsubscribe;
+  let executeUnsubscribe: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
   let executeObservable;
 
   let networkUnsubscribe;
 
-  let disposeEnvironmentRetain;
+  let disposeEnvironmentRetain: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
 
-  let resolvedModule;
-  let mockAvailability;
+  let resolvedModule: ?Query<
+    loadQueryTestQuery$variables,
+    loadQueryTestQuery$data,
+  >;
+  let mockAvailability: {fetchTime?: number, status: string};
   let disposeOnloadCallback;
   let executeOnloadCallback;
 
@@ -118,8 +129,9 @@ describe('loadQuery', () => {
         return {dispose: disposeOnloadCallback};
       });
 
-    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-    const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
+    const originalExecuteWithSource =
+      // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+      environment.executeWithSource.getMockImplementation();
     executeObservable = undefined;
     executeUnsubscribe = undefined;
 
@@ -127,18 +139,16 @@ describe('loadQuery', () => {
       .spyOn(environment, 'executeWithSource')
       .mockImplementation((...params) => {
         executeObservable = originalExecuteWithSource(...params);
-        const originalSubscribe = executeObservable.subscribe.bind(
-          executeObservable,
-        );
+        const originalSubscribe =
+          executeObservable.subscribe.bind(executeObservable);
         jest
           .spyOn(executeObservable, 'subscribe')
           .mockImplementation(subscriptionCallbacks => {
             const executeSubscription = originalSubscribe(
               subscriptionCallbacks,
             );
-            const originalUnsubscribe = executeSubscription.unsubscribe.bind(
-              executeSubscription,
-            );
+            const originalUnsubscribe =
+              executeSubscription.unsubscribe.bind(executeSubscription);
             executeUnsubscribe = jest.fn(originalUnsubscribe);
             return {unsubscribe: executeUnsubscribe};
           });
@@ -868,12 +878,11 @@ describe('loadQuery', () => {
     let LoadDuringRender;
 
     beforeEach(() => {
-      jest.mock('warning');
-      Container = props => {
+      Container = (props: {children: React.Node}) => {
         useTrackLoadQueryInRender();
         return props.children;
       };
-      LoadDuringRender = (props: {|name?: ?string|}) => {
+      LoadDuringRender = (props: {name?: ?string}) => {
         loadQuery(environment, preloadableConcreteRequest, variables, {
           fetchPolicy: 'store-or-network',
           __nameForWarning: props.name,
@@ -883,9 +892,9 @@ describe('loadQuery', () => {
     });
 
     it('warns if called during render', () => {
-      const warning = require('warning');
-      // $FlowFixMe[prop-missing]
-      warning.mockClear();
+      expectWarningWillFire(
+        'Relay: `loadQuery` should not be called inside a React render function.',
+      );
 
       ReactTestRenderer.act(() => {
         ReactTestRenderer.create(
@@ -894,19 +903,12 @@ describe('loadQuery', () => {
           </Container>,
         );
       });
-      expect(warning).toHaveBeenCalledTimes(1);
-      // $FlowFixMe[prop-missing]
-      expect(warning.mock.calls[0][1]).toContain(
-        'should not be called inside a React render function',
-      );
-      // $FlowFixMe[prop-missing]
-      expect(warning.mock.calls[0][2]).toEqual('loadQuery');
     });
 
     it('uses provided name for warning', () => {
-      const warning = require('warning');
-      // $FlowFixMe[prop-missing]
-      warning.mockClear();
+      expectWarningWillFire(
+        'Relay: `refetch` should not be called inside a React render function.',
+      );
 
       ReactTestRenderer.act(() => {
         ReactTestRenderer.create(
@@ -915,13 +917,6 @@ describe('loadQuery', () => {
           </Container>,
         );
       });
-      expect(warning).toHaveBeenCalledTimes(1);
-      // $FlowFixMe[prop-missing]
-      expect(warning.mock.calls[0][1]).toContain(
-        'should not be called inside a React render function',
-      );
-      // $FlowFixMe[prop-missing]
-      expect(warning.mock.calls[0][2]).toEqual('refetch');
     });
   });
 });

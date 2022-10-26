@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -34,7 +33,10 @@ import type {
   NormalizationScalarField,
   NormalizationSelectableNode,
 } from '../util/NormalizationNode';
-import type {ReaderFragment} from '../util/ReaderNode';
+import type {
+  ReaderClientEdgeToServerObject,
+  ReaderFragment,
+} from '../util/ReaderNode';
 import type {
   ConcreteRequest,
   RequestParameters,
@@ -44,6 +46,8 @@ import type {
   DataID,
   Disposable,
   RenderPolicy,
+  UpdatableFragment,
+  UpdatableQuery,
   Variables,
 } from '../util/RelayRuntimeTypes';
 import type {InvalidationState} from './RelayModernStore';
@@ -53,11 +57,11 @@ import type {RecordState} from './RelayRecordState';
 export opaque type FragmentType = empty;
 export type OperationTracker = RelayOperationTracker;
 
-export type MutationParameters = {|
+export type MutationParameters = {
   +response: {...},
-  +variables: interface {},
+  +variables: {...},
   +rawResponse?: {...},
-|};
+};
 
 /*
  * An individual cached graph object.
@@ -76,58 +80,88 @@ export type FragmentMap = {[key: string]: ReaderFragment, ...};
  */
 export type SelectorData = {[key: string]: mixed, ...};
 
-export type SingularReaderSelector = {|
+export type SingularReaderSelector = {
   +kind: 'SingularReaderSelector',
   +dataID: DataID,
   +isWithinUnmatchedTypeRefinement: boolean,
+  +clientEdgeTraversalPath: ClientEdgeTraversalPath | null,
   +node: ReaderFragment,
   +owner: RequestDescriptor,
   +variables: Variables,
-|};
+};
 
 export type ReaderSelector = SingularReaderSelector | PluralReaderSelector;
 
-export type PluralReaderSelector = {|
+export type PluralReaderSelector = {
   +kind: 'PluralReaderSelector',
   +selectors: $ReadOnlyArray<SingularReaderSelector>,
-|};
+};
 
-export type RequestDescriptor = {|
+export type RequestDescriptor = {
   +identifier: RequestIdentifier,
   +node: ConcreteRequest,
   +variables: Variables,
   +cacheConfig: ?CacheConfig,
-|};
+};
 
 /**
  * A selector defines the starting point for a traversal into the graph for the
  * purposes of targeting a subgraph.
  */
-export type NormalizationSelector = {|
+export type NormalizationSelector = {
   +dataID: DataID,
   +node: NormalizationSelectableNode,
   +variables: Variables,
-|};
+};
 
-type MissingRequiredField = {|
+type FieldLocation = {
   path: string,
   owner: string,
-|};
+};
 
-export type MissingRequiredFields =
-  | {|action: 'THROW', field: MissingRequiredField|}
-  | {|action: 'LOG', fields: Array<MissingRequiredField>|};
+export type MissingRequiredFields = $ReadOnly<
+  | {action: 'THROW', field: FieldLocation}
+  | {action: 'LOG', fields: Array<FieldLocation>},
+>;
+
+export type ClientEdgeTraversalInfo = {
+  +readerClientEdge: ReaderClientEdgeToServerObject,
+  +clientEdgeDestinationID: DataID,
+};
+
+export type ClientEdgeTraversalPath =
+  $ReadOnlyArray<ClientEdgeTraversalInfo | null>;
+
+export type MissingClientEdgeRequestInfo = {
+  +request: ConcreteRequest,
+  +clientEdgeDestinationID: DataID,
+};
+
+export type RelayResolverError = {
+  field: FieldLocation,
+  error: Error,
+};
+
+export type RelayResolverErrors = Array<RelayResolverError>;
+
+export type MissingLiveResolverField = {
+  +path: string,
+  +liveStateID: DataID,
+};
 
 /**
  * A representation of a selector and its results at a particular point in time.
  */
-export type Snapshot = {|
+export type Snapshot = {
   +data: ?SelectorData,
   +isMissingData: boolean,
+  +missingLiveResolverFields?: $ReadOnlyArray<MissingLiveResolverField>,
+  +missingClientEdges: null | $ReadOnlyArray<MissingClientEdgeRequestInfo>,
   +seenRecords: DataIDSet,
   +selector: SingularReaderSelector,
   +missingRequiredFields: ?MissingRequiredFields,
-|};
+  +relayResolverErrors: RelayResolverErrors,
+};
 
 /**
  * An operation selector describes a specific instance of a GraphQL operation
@@ -138,11 +172,11 @@ export type Snapshot = {|
  * - `fragment`: a selector intended for use in reading or subscribing to
  *   the results of the the operation.
  */
-export type OperationDescriptor = {|
+export type OperationDescriptor = {
   +fragment: SingularReaderSelector,
   +request: RequestDescriptor,
   +root: NormalizationSelector,
-|};
+};
 
 /**
  * Arbitrary data e.g. received by a container as props.
@@ -153,12 +187,12 @@ export type Props = {[key: string]: mixed, ...};
  * The type of the `relay` property set on React context by the React/Relay
  * integration layer (e.g. QueryRenderer, FragmentContainer, etc).
  */
-export type RelayContext = {|
+export type RelayContext = {
   environment: IEnvironment,
   getEnvironmentForActor?: ?(
     actorIdentifier: ActorIdentifier,
   ) => IActorEnvironment,
-|};
+};
 
 /**
  * The results of reading the results of a FragmentMap given some input
@@ -229,17 +263,17 @@ export interface MutableRecordSource extends RecordSource {
   set(dataID: DataID, record: Record): void;
 }
 
-export type CheckOptions = {|
+export type CheckOptions = {
   handlers: $ReadOnlyArray<MissingFieldHandler>,
   defaultActorIdentifier: ActorIdentifier,
   getTargetForActor: (actorIdentifier: ActorIdentifier) => MutableRecordSource,
   getSourceForActor: (actorIdentifier: ActorIdentifier) => RecordSource,
-|};
+};
 
 export type OperationAvailability =
-  | {|status: 'available', fetchTime: ?number|}
-  | {|status: 'stale'|}
-  | {|status: 'missing'|};
+  | {status: 'available', fetchTime: ?number}
+  | {status: 'stale'}
+  | {status: 'missing'};
 
 export type {InvalidationState} from './RelayModernStore';
 
@@ -437,6 +471,24 @@ export interface ReadOnlyRecordProxy {
 }
 
 /**
+ * A linked field where an updatable fragment is spread has the type
+ * HasUpdatableSpread.
+ * This type is expected by store.readUpdatableFragment_EXPERIMENTAL.
+ */
+export type HasUpdatableSpread<TFragmentType> = {
+  +$updatableFragmentSpreads: TFragmentType,
+  ...
+};
+
+/**
+ * The return type of calls to readUpdatableQuery_EXPERIMENTAL and
+ * readUpdatableFragment_EXPERIMENTAL.
+ */
+export type UpdatableData<TData> = {
+  +updatableData: TData,
+};
+
+/**
  * An interface for imperatively getting/setting properties of a `RecordSource`. This interface
  * is designed to allow the appearance of direct RecordSource manipulation while
  * allowing different implementations that may e.g. create a changeset of
@@ -448,6 +500,14 @@ export interface RecordSourceProxy {
   get(dataID: DataID): ?RecordProxy;
   getRoot(): RecordProxy;
   invalidateStore(): void;
+  readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
+    query: UpdatableQuery<TVariables, TData>,
+    variables: TVariables,
+  ): UpdatableData<TData>;
+  readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
+    fragment: UpdatableFragment<TFragmentType, TData>,
+    fragmentReference: HasUpdatableSpread<TFragmentType>,
+  ): UpdatableData<TData>;
 }
 
 export interface ReadOnlyRecordSourceProxy {
@@ -466,7 +526,7 @@ export interface RecordSourceSelectorProxy extends RecordSourceProxy {
 }
 
 export type LogEvent =
-  | {|
+  | {
       +name: 'suspense.fragment',
       +data: mixed,
       +fragment: ReaderFragment,
@@ -474,16 +534,16 @@ export type LogEvent =
       +isMissingData: boolean,
       +isPromiseCached: boolean,
       +pendingOperations: $ReadOnlyArray<RequestDescriptor>,
-    |}
-  | {|
+    }
+  | {
       +name: 'suspense.query',
       +fetchPolicy: string,
       +isPromiseCached: boolean,
       +operation: OperationDescriptor,
       +queryAvailability: ?OperationAvailability,
       +renderPolicy: RenderPolicy,
-    |}
-  | {|
+    }
+  | {
       +name: 'queryresource.fetch',
       // ID of this query resource request and will be the same
       // if there is an associated queryresource.retain event.
@@ -497,113 +557,113 @@ export type LogEvent =
       +renderPolicy: RenderPolicy,
       +queryAvailability: OperationAvailability,
       +shouldFetch: boolean,
-    |}
-  | {|
+    }
+  | {
       +name: 'queryresource.retain',
       +resourceID: number,
       // value from ProfilerContext
       +profilerContext: mixed,
-    |}
-  | {|
+    }
+  | {
       +name: 'network.info',
       +networkRequestId: number,
       +info: mixed,
-    |}
-  | {|
+    }
+  | {
       +name: 'network.start',
       +networkRequestId: number,
       +params: RequestParameters,
       +variables: Variables,
       +cacheConfig: CacheConfig,
-    |}
-  | {|
+    }
+  | {
       +name: 'network.next',
       +networkRequestId: number,
       +response: GraphQLResponse,
-    |}
-  | {|
+    }
+  | {
       +name: 'network.error',
       +networkRequestId: number,
       +error: Error,
-    |}
-  | {|
+    }
+  | {
       +name: 'network.complete',
       +networkRequestId: number,
-    |}
-  | {|
+    }
+  | {
       +name: 'network.unsubscribe',
       +networkRequestId: number,
-    |}
-  | {|
+    }
+  | {
       +name: 'execute.start',
       +executeId: number,
       +params: RequestParameters,
       +variables: Variables,
       +cacheConfig: CacheConfig,
-    |}
-  | {|
+    }
+  | {
       +name: 'execute.next',
       +executeId: number,
       +response: GraphQLResponse,
       +duration: number,
-    |}
-  | {|
+    }
+  | {
       +name: 'execute.async.module',
       +executeId: number,
       +operationName: string,
       +duration: number,
-    |}
-  | {|
+    }
+  | {
       +name: 'execute.flight.payload_deserialize',
       +executeId: number,
       +operationName: string,
       +duration: number,
-    |}
-  | {|
+    }
+  | {
       +name: 'execute.error',
       +executeId: number,
       +error: Error,
-    |}
-  | {|
+    }
+  | {
       +name: 'execute.complete',
       +executeId: number,
-    |}
-  | {|
+    }
+  | {
       +name: 'store.publish',
       +source: RecordSource,
       +optimistic: boolean,
-    |}
-  | {|
+    }
+  | {
       +name: 'store.snapshot',
-    |}
-  | {|
+    }
+  | {
       +name: 'store.restore',
-    |}
-  | {|
+    }
+  | {
       +name: 'store.gc',
       +references: DataIDSet,
-    |}
-  | {|
+    }
+  | {
       +name: 'store.notify.start',
       +sourceOperation: ?OperationDescriptor,
-    |}
-  | {|
+    }
+  | {
       +name: 'store.notify.complete',
       +sourceOperation: ?OperationDescriptor,
       +updatedRecordIDs: DataIDSet,
       +invalidatedRecordIDs: DataIDSet,
-    |}
-  | {|
+    }
+  | {
       +name: 'store.notify.subscription',
       +sourceOperation: ?OperationDescriptor,
       +snapshot: Snapshot,
       +nextSnapshot: Snapshot,
-    |}
-  | {|
+    }
+  | {
       +name: 'entrypoint.root.consume',
       +profilerContext: mixed,
       +rootModuleID: string,
-    |};
+    };
 
 export type LogFunction = LogEvent => void;
 export type LogRequestInfoFunction = mixed => void;
@@ -727,9 +787,9 @@ export interface IEnvironment {
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to: environment.execute({...}).subscribe({...}).
    */
-  execute(config: {|
+  execute(config: {
     operation: OperationDescriptor,
-  |}): RelayObservable<GraphQLResponse>;
+  }): RelayObservable<GraphQLResponse>;
 
   /**
    * Send a subscription to the server with Observer semantics: one or more
@@ -742,10 +802,10 @@ export interface IEnvironment {
    * Note: Observables are lazy, so calling this method will do nothing until
    * the result is subscribed to: environment.executeSubscription({...}).subscribe({...}).
    */
-  executeSubscription<TMutation: MutationParameters>(config: {|
+  executeSubscription<TMutation: MutationParameters>(config: {
     operation: OperationDescriptor,
-    updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
-  |}): RelayObservable<GraphQLResponse>;
+    updater?: ?SelectorStoreUpdater<TMutation['response']>,
+  }): RelayObservable<GraphQLResponse>;
 
   /**
    * Returns an Observable of GraphQLResponse resulting from executing the
@@ -770,10 +830,10 @@ export interface IEnvironment {
    * the result is subscribed to:
    * environment.executeWithSource({...}).subscribe({...}).
    */
-  executeWithSource({|
+  executeWithSource({
     operation: OperationDescriptor,
     source: RelayObservable<GraphQLResponse>,
-  |}): RelayObservable<GraphQLResponse>;
+  }): RelayObservable<GraphQLResponse>;
 
   /**
    * Returns true if a request is currently "active", meaning it's currently
@@ -805,7 +865,7 @@ export interface IEnvironment {
 export type ModuleImportPointer = {
   +__fragmentPropName: ?string,
   +__module_component: mixed,
-  +$fragmentRefs: mixed,
+  +$fragmentSpreads: mixed,
   ...
 };
 
@@ -828,7 +888,7 @@ export type Handler = {
  * A payload that is used to initialize or update a "handle" field with
  * information from the server.
  */
-export type HandleFieldPayload = {|
+export type HandleFieldPayload = {
   // The arguments that were fetched.
   +args: Variables,
   // The __id of the record containing the source/handle field.
@@ -842,7 +902,7 @@ export type HandleFieldPayload = {|
   +handleKey: string,
   // The arguments applied to the handle
   +handleArgs: Variables,
-|};
+};
 
 /**
  * A payload that represents data necessary to process the results of an object
@@ -876,7 +936,7 @@ export type HandleFieldPayload = {|
  *     because the query data isn't relative to the parent record–it's
  *     root data.
  */
-export type ModuleImportPayload = {|
+export type ModuleImportPayload = {
   +kind: 'ModuleImportPayload',
   +args: ?$ReadOnlyArray<NormalizationArgument>,
   +data: PayloadData,
@@ -886,7 +946,7 @@ export type ModuleImportPayload = {|
   +typeName: string,
   +variables: Variables,
   +actorIdentifier: ?ActorIdentifier,
-|};
+};
 
 /**
  * A payload that represents data necessary to process the results of an object
@@ -903,7 +963,7 @@ export type ModuleImportPayload = {|
  * which can in turn be used to normalize and publish the data. The dataID and
  * typeName can also be used to construct a root record for normalization.
  */
-export type ActorPayload = {|
+export type ActorPayload = {
   +kind: 'ActorPayload',
   +data: PayloadData,
   +dataID: DataID,
@@ -912,7 +972,7 @@ export type ActorPayload = {|
   +typeName: string,
   +variables: Variables,
   +actorIdentifier: ActorIdentifier,
-|};
+};
 
 /**
  * Union type of possible payload followups we may handle during normalization.
@@ -924,7 +984,7 @@ export type FollowupPayload = ModuleImportPayload | ActorPayload;
  * that describes how to process the corresponding response chunk when it
  * arrives.
  */
-export type DeferPlaceholder = {|
+export type DeferPlaceholder = {
   +kind: 'defer',
   +data: PayloadData,
   +label: string,
@@ -932,8 +992,8 @@ export type DeferPlaceholder = {|
   +selector: NormalizationSelector,
   +typeName: string,
   +actorIdentifier: ?ActorIdentifier,
-|};
-export type StreamPlaceholder = {|
+};
+export type StreamPlaceholder = {
   +kind: 'stream',
   +label: string,
   +path: $ReadOnlyArray<string>,
@@ -941,7 +1001,7 @@ export type StreamPlaceholder = {|
   +node: NormalizationSelectableNode,
   +variables: Variables,
   +actorIdentifier: ?ActorIdentifier,
-|};
+};
 export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
 
 /**
@@ -950,7 +1010,7 @@ export type IncrementalDataPlaceholder = DeferPlaceholder | StreamPlaceholder;
  * reference is left to the application, but it must be a plain JavaScript value
  * (string, number, or object/array of same).
  */
-export type OperationLoader = {|
+export type OperationLoader = {
   /**
    * Synchronously load an operation, returning either the node or null if it
    * cannot be resolved synchronously.
@@ -961,7 +1021,7 @@ export type OperationLoader = {|
    * Asynchronously load an operation.
    */
   load(reference: mixed): Promise<?NormalizationRootNode>,
-|};
+};
 
 /**
  * A function that receives a proxy over the store and may trigger side-effects
@@ -987,28 +1047,28 @@ export type OptimisticUpdate<TMutation: MutationParameters> =
   | OptimisticUpdateFunction
   | OptimisticUpdateRelayPayload<TMutation>;
 
-export type OptimisticUpdateFunction = {|
+export type OptimisticUpdateFunction = {
   +storeUpdater: StoreUpdater,
-|};
+};
 
-export type OptimisticUpdateRelayPayload<TMutation: MutationParameters> = {|
+export type OptimisticUpdateRelayPayload<TMutation: MutationParameters> = {
   +operation: OperationDescriptor,
   +payload: RelayResponsePayload,
-  +updater: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
-|};
+  +updater: ?SelectorStoreUpdater<TMutation['response']>,
+};
 
-export type OptimisticResponseConfig<TMutation: MutationParameters> = {|
+export type OptimisticResponseConfig<TMutation: MutationParameters> = {
   +operation: OperationDescriptor,
   +response: ?PayloadData,
-  +updater: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
-|};
+  +updater: ?SelectorStoreUpdater<TMutation['response']>,
+};
 
 /**
  * A set of handlers that can be used to provide substitute data for missing
  * fields when reading a selector from a source.
  */
 export type MissingFieldHandler =
-  | {|
+  | {
       kind: 'scalar',
       handle: (
         field: NormalizationScalarField,
@@ -1016,8 +1076,8 @@ export type MissingFieldHandler =
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => mixed,
-    |}
-  | {|
+    }
+  | {
       kind: 'linked',
       handle: (
         field: NormalizationLinkedField,
@@ -1025,8 +1085,8 @@ export type MissingFieldHandler =
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => ?DataID,
-    |}
-  | {|
+    }
+  | {
       kind: 'pluralLinked',
       handle: (
         field: NormalizationLinkedField,
@@ -1034,49 +1094,53 @@ export type MissingFieldHandler =
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => ?Array<?DataID>,
-    |};
+    };
 
 /**
  * A handler for events related to @required fields. Currently reports missing
  * fields with either `action: LOG` or `action: THROW`.
  */
 export type RequiredFieldLogger = (
-  | {|
+  | {
       +kind: 'missing_field.log',
       +owner: string,
       +fieldPath: string,
-    |}
-  | {|
+    }
+  | {
       +kind: 'missing_field.throw',
       +owner: string,
       +fieldPath: string,
-    |},
+    }
+  | {
+      +kind: 'relay_resolver.error',
+      +owner: string,
+      +fieldPath: string,
+      +error: Error,
+    },
 ) => void;
 
 /**
  * The results of normalizing a query.
  */
-export type RelayResponsePayload = {|
+export type RelayResponsePayload = {
   +errors: ?Array<PayloadError>,
   +fieldPayloads: ?Array<HandleFieldPayload>,
   +incrementalPlaceholders: ?Array<IncrementalDataPlaceholder>,
   +followupPayloads: ?Array<FollowupPayload>,
   +source: MutableRecordSource,
   +isFinal: boolean,
-|};
+};
 
 /**
  * Configuration on the executeMutation(...).
  */
-export type ExecuteMutationConfig<TMutation: MutationParameters> = {|
+export type ExecuteMutationConfig<TMutation: MutationParameters> = {
   operation: OperationDescriptor,
-  optimisticUpdater?: ?SelectorStoreUpdater<
-    $ElementType<TMutation, 'response'>,
-  >,
+  optimisticUpdater?: ?SelectorStoreUpdater<TMutation['response']>,
   optimisticResponse?: ?Object,
-  updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+  updater?: ?SelectorStoreUpdater<TMutation['response']>,
   uploadables?: ?UploadableMap,
-|};
+};
 
 /**
  * Public interface for Publish Queue.
@@ -1107,7 +1171,7 @@ export interface PublishQueue {
   commitPayload<TMutation: MutationParameters>(
     operation: OperationDescriptor,
     payload: RelayResponsePayload,
-    updater?: ?SelectorStoreUpdater<$ElementType<TMutation, 'response'>>,
+    updater?: ?SelectorStoreUpdater<TMutation['response']>,
   ): void;
 
   /**
@@ -1137,10 +1201,10 @@ export interface PublishQueue {
  */
 export type ReactFlightClientResponse = {readRoot: () => mixed, ...};
 
-export type ReactFlightReachableExecutableDefinitions = {|
+export type ReactFlightReachableExecutableDefinitions = {
   +module: mixed,
   +variables: Variables,
-|};
+};
 
 /**
  * A user-supplied function that takes a ReactFlightServerTree

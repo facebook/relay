@@ -12,7 +12,9 @@ query Test {
             kind: Query,
             name: WithLocation {
                 location: fixme_fat_interface_on_union.graphql:6:10,
-                item: "Test",
+                item: OperationDefinitionName(
+                    "Test",
+                ),
             },
             type_: Object(0),
             variable_definitions: [],
@@ -31,14 +33,16 @@ query Test {
                             alias: None,
                             definition: WithLocation {
                                 location: fixme_fat_interface_on_union.graphql:51:53,
-                                item: FieldID(383),
+                                item: FieldID(378),
                             },
                             arguments: [],
                             directives: [
                                 Directive {
                                     name: WithLocation {
                                         location: fixme_fat_interface_on_union.graphql:54:74,
-                                        item: "fixme_fat_interface",
+                                        item: DirectiveName(
+                                            "fixme_fat_interface",
+                                        ),
                                     },
                                     arguments: [],
                                     data: None,

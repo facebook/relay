@@ -1,17 +1,17 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {EnvironmentProviderOptions} from '../EntryPointTypes.flow';
+import type {IEnvironment} from 'relay-runtime/store/RelayStoreTypes';
 
 const useEntryPointLoader = require('../useEntryPointLoader');
 const React = require('react');
@@ -20,12 +20,12 @@ const {createMockEnvironment} = require('relay-test-utils-internal');
 
 let loadedEntryPoint;
 let instance;
-let entryPointLoaderCallback;
-let dispose;
+let entryPointLoaderCallback: (params: {...}) => void;
+let dispose: ?JestMockFn<$ReadOnlyArray<mixed>, mixed>;
 let loadEntryPointLastReturnValue;
 let disposeEntryPoint;
 
-let renderCount;
+let renderCount: ?number;
 let environment;
 let defaultEnvironmentProvider;
 let render;
@@ -50,7 +50,7 @@ beforeEach(() => {
   // We don't care about the contents of entryPoints
   defaultEntryPoint = {};
 
-  render = function() {
+  render = function () {
     renderCount = 0;
     ReactTestRenderer.act(() => {
       instance = ReactTestRenderer.create(
@@ -62,13 +62,21 @@ beforeEach(() => {
     });
   };
 
-  Container = function({entryPoint, environmentProvider}) {
+  Container = function ({
+    entryPoint,
+    environmentProvider,
+  }: {
+    entryPoint: any,
+    environmentProvider: {
+      getEnvironment: (options: ?EnvironmentProviderOptions) => IEnvironment,
+    },
+  }) {
     renderCount = (renderCount || 0) + 1;
-    [
-      loadedEntryPoint,
-      entryPointLoaderCallback,
-      disposeEntryPoint,
-    ] = useEntryPointLoader(environmentProvider, entryPoint);
+    [loadedEntryPoint, entryPointLoaderCallback, disposeEntryPoint] =
+      useEntryPointLoader<{...}, any, any, any, any, any, any>(
+        environmentProvider,
+        entryPoint,
+      );
     return null;
   };
   loadEntryPoint.mockClear();
@@ -198,7 +206,7 @@ it('does not dispose the entry point before the new component tree unsuspends in
       );
     }
 
-    function Router({route}) {
+    function Router({route}: {route: 'FIRST' | 'SECOND'}) {
       if (route === 'FIRST') {
         return <ComponentWithHook />;
       } else {
@@ -270,7 +278,7 @@ it('disposes entry point references associated with previous suspensions when mu
       );
     }
 
-    function Inner({promise}) {
+    function Inner({promise}: {promise: ?Promise<any>}) {
       [, entryPointLoaderCallback] = useEntryPointLoader(
         defaultEnvironmentProvider,
         defaultEntryPoint,
@@ -369,7 +377,7 @@ it('disposes entry point references associated with subsequent suspensions when 
     }
 
     let innerUnsuspendedCorrectly = false;
-    function Inner({promise}) {
+    function Inner({promise}: {promise: ?Promise<any>}) {
       [, entryPointLoaderCallback] = useEntryPointLoader(
         defaultEnvironmentProvider,
         defaultEntryPoint,

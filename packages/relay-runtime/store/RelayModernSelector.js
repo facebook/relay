@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -16,6 +15,7 @@ import type {NormalizationSelectableNode} from '../util/NormalizationNode';
 import type {ReaderFragment} from '../util/ReaderNode';
 import type {DataID, Variables} from '../util/RelayRuntimeTypes';
 import type {
+  ClientEdgeTraversalPath,
   NormalizationSelector,
   PluralReaderSelector,
   ReaderSelector,
@@ -25,6 +25,7 @@ import type {
 
 const {getFragmentVariables} = require('./RelayConcreteVariables');
 const {
+  CLIENT_EDGE_TRAVERSAL_PATH,
   FRAGMENT_OWNER_KEY,
   FRAGMENTS_KEY,
   ID_KEY,
@@ -79,6 +80,7 @@ function getSingularSelector(
   const mixedOwner = item[FRAGMENT_OWNER_KEY];
   const isWithinUnmatchedTypeRefinement =
     item[IS_WITHIN_UNMATCHED_TYPE_REFINEMENT] === true;
+  const mixedClientEdgeTraversalPath = item[CLIENT_EDGE_TRAVERSAL_PATH];
   if (
     typeof dataID === 'string' &&
     typeof fragments === 'object' &&
@@ -86,22 +88,28 @@ function getSingularSelector(
     typeof fragments[fragment.name] === 'object' &&
     fragments[fragment.name] !== null &&
     typeof mixedOwner === 'object' &&
-    mixedOwner !== null
+    mixedOwner !== null &&
+    (mixedClientEdgeTraversalPath == null ||
+      Array.isArray(mixedClientEdgeTraversalPath))
   ) {
     const owner: RequestDescriptor = (mixedOwner: $FlowFixMe);
-    const argumentVariables = fragments[fragment.name];
+    const clientEdgeTraversalPath: ?ClientEdgeTraversalPath =
+      (mixedClientEdgeTraversalPath: $FlowFixMe);
 
+    const argumentVariables = fragments[fragment.name];
     const fragmentVariables = getFragmentVariables(
       fragment,
       owner.variables,
       argumentVariables,
     );
+
     return createReaderSelector(
       fragment,
       dataID,
       fragmentVariables,
       owner,
       isWithinUnmatchedTypeRefinement,
+      clientEdgeTraversalPath,
     );
   }
 
@@ -198,7 +206,7 @@ function getSelectorsFromObject(
   fragments: {[key: string]: ReaderFragment, ...},
   object: {[key: string]: mixed, ...},
 ): {[key: string]: ?ReaderSelector, ...} {
-  const selectors = {};
+  const selectors: {[string]: ?ReaderSelector} = {};
   for (const key in fragments) {
     if (fragments.hasOwnProperty(key)) {
       const fragment = fragments[key];
@@ -222,7 +230,7 @@ function getDataIDsFromObject(
   fragments: {[key: string]: ReaderFragment, ...},
   object: {[key: string]: mixed, ...},
 ): {[key: string]: ?(DataID | Array<DataID>), ...} {
-  const ids = {};
+  const ids: {[string]: ?(DataID | Array<DataID>)} = {};
   for (const key in fragments) {
     if (fragments.hasOwnProperty(key)) {
       const fragment = fragments[key];
@@ -236,7 +244,7 @@ function getDataIDsFromObject(
 function getDataIDsFromFragment(
   fragment: ReaderFragment,
   item: mixed | Array<mixed>,
-): ?DataID | ?$ReadOnlyArray<DataID> {
+): ?DataID | ?Array<DataID> {
   if (item == null) {
     return item;
   } else if (fragment.metadata && fragment.metadata.plural === true) {
@@ -268,7 +276,7 @@ function getDataIDsFromFragment(
 function getDataIDs(
   fragment: ReaderFragment,
   items: $ReadOnlyArray<mixed>,
-): ?$ReadOnlyArray<DataID> {
+): ?Array<DataID> {
   let ids = null;
   items.forEach(item => {
     const id = item != null ? getDataID(fragment, item) : null;
@@ -393,14 +401,7 @@ function getVariablesFromPluralFragment(
   return variables;
 }
 
-/**
- * @public
- *
- * Determine if two selectors are equal (represent the same selection). Note
- * that this function returns `false` when the two queries/fragments are
- * different objects, even if they select the same fields.
- */
-function areEqualSelectors(
+function areEqualSingularSelectors(
   thisSelector: SingularReaderSelector,
   thatSelector: SingularReaderSelector,
 ): boolean {
@@ -412,17 +413,54 @@ function areEqualSelectors(
   );
 }
 
+/**
+ * @public
+ *
+ * Determine if two selectors are equal (represent the same selection). Note
+ * that this function returns `false` when the two queries/fragments are
+ * different objects, even if they select the same fields.
+ */
+function areEqualSelectors(
+  a: ?(SingularReaderSelector | PluralReaderSelector),
+  b: ?(SingularReaderSelector | PluralReaderSelector),
+): boolean {
+  if (a === b) {
+    return true;
+  } else if (a == null) {
+    return b == null;
+  } else if (b == null) {
+    return a == null;
+  } else if (
+    a.kind === 'SingularReaderSelector' &&
+    b.kind === 'SingularReaderSelector'
+  ) {
+    return areEqualSingularSelectors(a, b);
+  } else if (
+    a.kind === 'PluralReaderSelector' &&
+    b.kind === 'PluralReaderSelector'
+  ) {
+    return (
+      a.selectors.length === b.selectors.length &&
+      a.selectors.every((s, i) => areEqualSingularSelectors(s, b.selectors[i]))
+    );
+  } else {
+    return false;
+  }
+}
+
 function createReaderSelector(
   fragment: ReaderFragment,
   dataID: DataID,
   variables: Variables,
   request: RequestDescriptor,
   isWithinUnmatchedTypeRefinement: boolean = false,
+  clientEdgeTraversalPath: ?ClientEdgeTraversalPath,
 ): SingularReaderSelector {
   return {
     kind: 'SingularReaderSelector',
     dataID,
     isWithinUnmatchedTypeRefinement,
+    clientEdgeTraversalPath: clientEdgeTraversalPath ?? null,
     node: fragment,
     variables,
     owner: request,

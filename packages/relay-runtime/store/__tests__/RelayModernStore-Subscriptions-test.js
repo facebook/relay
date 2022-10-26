@@ -1,19 +1,36 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {SelectorData} from 'relay-runtime/store/RelayStoreTypes';
+import type {
+  RelayModernStoreSubscriptionsTest1Fragment$data,
+  RelayModernStoreSubscriptionsTest1Fragment$fragmentType,
+} from './__generated__/RelayModernStoreSubscriptionsTest1Fragment.graphql';
+import type {
+  RelayModernStoreSubscriptionsTest1Query$data,
+  RelayModernStoreSubscriptionsTest1Query$variables,
+} from './__generated__/RelayModernStoreSubscriptionsTest1Query.graphql';
+import type {
+  RelayModernStoreSubscriptionsTest2Fragment$data,
+  RelayModernStoreSubscriptionsTest2Fragment$fragmentType,
+} from './__generated__/RelayModernStoreSubscriptionsTest2Fragment.graphql';
+import type {
+  RelayModernStoreSubscriptionsTest2Query$data,
+  RelayModernStoreSubscriptionsTest2Query$variables,
+} from './__generated__/RelayModernStoreSubscriptionsTest2Query.graphql';
+import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
+import type {Fragment, Query} from 'relay-runtime/util/RelayRuntimeTypes';
 
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {
   createOperationDescriptor,
@@ -41,14 +58,16 @@ function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
   }
 }
 
-function cloneEventWithSets(event) {
+function cloneEventWithSets(event: LogEvent) {
   const nextEvent = {};
   for (const key in event) {
     if (event.hasOwnProperty(key)) {
       const val = event[key];
       if (val instanceof Set) {
+        // $FlowFixMe[prop-missing]
         nextEvent[key] = new Set(val);
       } else {
+        // $FlowFixMe[prop-missing]
         nextEvent[key] = val;
       }
     }
@@ -57,16 +76,33 @@ function cloneEventWithSets(event) {
 }
 
 [
-  [data => new RelayRecordSource(data), 'Map'],
+  [(data: $FlowFixMe) => new RelayRecordSource(data), 'Map'],
   [
-    data => RelayOptimisticRecordSource.create(new RelayRecordSource(data)),
+    (data: $FlowFixMe) =>
+      RelayOptimisticRecordSource.create(new RelayRecordSource(data)),
     'Optimistic',
   ],
 ].forEach(([getRecordSourceImplementation, ImplementationName]) => {
   describe(`Relay Store with ${ImplementationName} Record Source`, () => {
     describe('notify/publish/subscribe', () => {
-      let UserQuery;
-      let UserFragment;
+      let UserQuery:
+        | Query<
+            RelayModernStoreSubscriptionsTest1Query$variables,
+            RelayModernStoreSubscriptionsTest1Query$data,
+          >
+        | Query<
+            RelayModernStoreSubscriptionsTest2Query$variables,
+            RelayModernStoreSubscriptionsTest2Query$data,
+          >;
+      let UserFragment:
+        | Fragment<
+            RelayModernStoreSubscriptionsTest1Fragment$fragmentType,
+            RelayModernStoreSubscriptionsTest1Fragment$data,
+          >
+        | Fragment<
+            RelayModernStoreSubscriptionsTest2Fragment$fragmentType,
+            RelayModernStoreSubscriptionsTest2Fragment$data,
+          >;
       let data;
       let source;
       let store;
@@ -93,7 +129,9 @@ function cloneEventWithSets(event) {
             me: {__ref: '4'},
           },
         };
-        logEvents = [];
+        logEvents = ([]: Array<
+          $FlowFixMe | {...} | {data: ?SelectorData, kind: string},
+        >);
         source = getRecordSourceImplementation(data);
         store = new RelayModernStore(source, {
           log: event => {
@@ -101,7 +139,7 @@ function cloneEventWithSets(event) {
           },
           gcReleaseBufferSize: 0,
         });
-        UserFragment = getFragment(graphql`
+        UserFragment = graphql`
           fragment RelayModernStoreSubscriptionsTest1Fragment on User {
             name
             profilePicture(size: $size) {
@@ -109,14 +147,14 @@ function cloneEventWithSets(event) {
             }
             emailAddresses
           }
-        `);
-        UserQuery = getRequest(graphql`
+        `;
+        UserQuery = graphql`
           query RelayModernStoreSubscriptionsTest1Query($size: [Int]) {
             me {
               ...RelayModernStoreSubscriptionsTest1Fragment
             }
           }
-        `);
+        `;
       });
 
       it('calls subscribers whose data has changed since previous notify', () => {
@@ -157,14 +195,14 @@ function cloneEventWithSets(event) {
 
       it('calls subscribers and reads data with fragment owner if one is available in subscription snapshot', () => {
         // subscribe(), publish(), notify() -> subscriber called
-        UserQuery = getRequest(graphql`
+        UserQuery = graphql`
           query RelayModernStoreSubscriptionsTest2Query($size: [Int]!) {
             me {
               ...RelayModernStoreSubscriptionsTest2Fragment
             }
           }
-        `);
-        UserFragment = getFragment(graphql`
+        `;
+        UserFragment = graphql`
           fragment RelayModernStoreSubscriptionsTest2Fragment on User {
             name
             profilePicture(size: $size) {
@@ -172,7 +210,7 @@ function cloneEventWithSets(event) {
             }
             emailAddresses
           }
-        `);
+        `;
 
         const owner = createOperationDescriptor(UserQuery, {size: 32});
         const selector = createReaderSelector(
@@ -288,7 +326,7 @@ function cloneEventWithSets(event) {
       });
 
       it('notifies subscribers and sets updated value for isMissingData', () => {
-        data = {
+        const dataObj = {
           '4': {
             __id: '4',
             id: '4',
@@ -301,7 +339,7 @@ function cloneEventWithSets(event) {
             uri: 'https://photo1.jpg',
           },
         };
-        source = getRecordSourceImplementation(data);
+        source = getRecordSourceImplementation(dataObj);
         store = new RelayModernStore(source);
         const owner = createOperationDescriptor(UserQuery, {});
         const selector = createReaderSelector(
@@ -329,6 +367,7 @@ function cloneEventWithSets(event) {
         expect(callback.mock.calls[0][0]).toEqual({
           ...snapshot,
           missingRequiredFields: null,
+          missingLiveResolverFields: [],
           isMissingData: false,
           data: {
             name: 'Zuck',
@@ -372,6 +411,7 @@ function cloneEventWithSets(event) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          missingLiveResolverFields: [],
           isMissingData: true,
           seenRecords: new Set(Object.keys(nextSource.toJSON())),
         });
@@ -411,6 +451,7 @@ function cloneEventWithSets(event) {
             profilePicture: undefined,
           },
           missingRequiredFields: null,
+          missingLiveResolverFields: [],
           isMissingData: true,
           seenRecords: new Set(['842472']),
         });

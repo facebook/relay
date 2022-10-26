@@ -1,11 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -56,19 +57,18 @@ function compileGraphQLTag(
     );
   }
 
-  const eagerESModules = Boolean(state.opts && state.opts.eagerESModules);
-  const isHasteMode = Boolean(state.opts && state.opts.haste);
-  const isDevVariable = state.opts && state.opts.isDevVariable;
-  const artifactDirectory = state.opts && state.opts.artifactDirectory;
-  const buildCommand =
-    (state.opts && state.opts.buildCommand) || 'relay-compiler';
+  const eagerEsModules = state.opts?.eagerEsModules ?? false;
+  const isHasteMode = state.opts?.jsModuleFormat === 'haste';
+  const isDevVariable = state.opts?.isDevVariableName;
+  const artifactDirectory = state.opts?.artifactDirectory;
+  const buildCommand = state.opts?.codegenCommand ?? 'relay-compiler';
   // Fallback is 'true'
   const isDevelopment =
     (process.env.BABEL_ENV || process.env.NODE_ENV) !== 'production';
 
   return createNode(t, state, path, definition, {
     artifactDirectory,
-    eagerESModules,
+    eagerEsModules,
     buildCommand,
     isDevelopment,
     isHasteMode,
@@ -87,11 +87,11 @@ function createNode(
   state: BabelState,
   path: $FlowFixMe,
   graphqlDefinition: OperationDefinitionNode | FragmentDefinitionNode,
-  options: {|
+  options: {
     // If an output directory is specified when running relay-compiler this should point to that directory
     artifactDirectory: ?string,
     // Generate eager es modules instead of lazy require
-    eagerESModules: boolean,
+    eagerEsModules: boolean,
     // The command to run to compile Relay files, used for error messages.
     buildCommand: string,
     // Generate extra validation, defaults to true.
@@ -100,7 +100,7 @@ function createNode(
     isDevVariable: ?string,
     // Use haste style global requires, defaults to false.
     isHasteMode: boolean,
-  |},
+  },
 ): Object {
   const definitionName = graphqlDefinition.name && graphqlDefinition.name.value;
   if (!definitionName) {
@@ -137,7 +137,7 @@ function createNode(
     ),
   );
 
-  if (options.eagerESModules) {
+  if (options.eagerEsModules) {
     const importDeclaration = t.ImportDeclaration(
       [t.ImportDefaultSpecifier(id)],
       t.StringLiteral(requiredPath),

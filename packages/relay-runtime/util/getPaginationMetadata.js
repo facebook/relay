@@ -1,23 +1,18 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
-import type {
-  ConcreteRequest,
-  ReaderFragment,
-  ReaderPaginationMetadata,
-} from 'relay-runtime';
+import type {ReaderFragment, ReaderPaginationMetadata} from './ReaderNode';
+import type {ConcreteRequest} from './RelayConcreteNode';
 
 const getRefetchMetadata = require('./getRefetchMetadata');
 const invariant = require('invariant');
@@ -25,17 +20,15 @@ const invariant = require('invariant');
 function getPaginationMetadata(
   fragmentNode: ReaderFragment,
   componentDisplayName: string,
-): {|
+): {
   connectionPathInFragmentData: $ReadOnlyArray<string | number>,
   identifierField: ?string,
   paginationRequest: ConcreteRequest,
   paginationMetadata: ReaderPaginationMetadata,
   stream: boolean,
-|} {
-  const {
-    refetchableRequest: paginationRequest,
-    refetchMetadata,
-  } = getRefetchMetadata(fragmentNode, componentDisplayName);
+} {
+  const {refetchableRequest: paginationRequest, refetchMetadata} =
+    getRefetchMetadata(fragmentNode, componentDisplayName);
 
   const paginationMetadata = refetchMetadata.connection;
   invariant(

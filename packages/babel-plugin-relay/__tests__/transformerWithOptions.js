@@ -1,11 +1,11 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';
@@ -32,12 +32,12 @@ function transformerWithOptions(
         plugins: [[BabelPluginRelay, options]],
       }).code;
       return prettier.format(code, {
-        singleQuote: true,
-        trailingComma: 'all',
+        bracketSameLine: true,
         bracketSpacing: false,
-        jsxBracketSameLine: true,
         parser: 'flow',
         requirePragma: false,
+        singleQuote: true,
+        trailingComma: 'all',
       });
     } finally {
       process.env.BABEL_ENV = previousEnv;

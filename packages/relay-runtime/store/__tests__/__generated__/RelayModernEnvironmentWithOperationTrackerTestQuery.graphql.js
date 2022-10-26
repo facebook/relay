@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bc0f31e7f488ce2728cc39e20a067227>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<7b4c058a465de1a10f9a9ed50272696d>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -14,20 +16,23 @@
 
 'use strict';
 
+// @indirectDataDrivenDependency RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment.author.nameRenderer {"branches":{"MarkdownUserNameRenderer":{"component":"MarkdownUserNameRenderer.react","fragment":"RelayModernEnvironmentWithOperationTrackerTestMarkdownUserNameRenderer_name$normalization.graphql"},"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+// @indirectDataDrivenDependency RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment.author.plainNameRenderer {"branches":{"PlainUserNameRenderer":{"component":"PlainUserNameRenderer.react","fragment":"RelayModernEnvironmentWithOperationTrackerTestPlainUserNameRenderer_name$normalization.graphql"}},"plural":false}
+
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref = any;
-export type RelayModernEnvironmentWithOperationTrackerTestQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment.graphql";
+export type RelayModernEnvironmentWithOperationTrackerTestQuery$variables = {|
   id?: ?string,
 |};
-export type RelayModernEnvironmentWithOperationTrackerTestQueryResponse = {|
+export type RelayModernEnvironmentWithOperationTrackerTestQuery$data = {|
   +node: ?{|
-    +$fragmentRefs: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentWithOperationTrackerTestFeedbackFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentWithOperationTrackerTestQuery = {|
-  variables: RelayModernEnvironmentWithOperationTrackerTestQueryVariables,
-  response: RelayModernEnvironmentWithOperationTrackerTestQueryResponse,
+  response: RelayModernEnvironmentWithOperationTrackerTestQuery$data,
+  variables: RelayModernEnvironmentWithOperationTrackerTestQuery$variables,
 |};
 */
 
@@ -330,4 +335,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a7167fdd5f3eacc9c1ed47a342eb2fa0";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentWithOperationTrackerTestQuery$variables,
+  RelayModernEnvironmentWithOperationTrackerTestQuery$data,
+>*/);

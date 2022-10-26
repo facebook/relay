@@ -1,0 +1,37 @@
+==================================== INPUT ====================================
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
+// expected-to-throw
+
+/**
+ * @RelayResolver
+ * @fieldName favorite_page
+ * @edgeTo Page
+ * @rootFragment myRootFragment
+ */
+
+graphql`
+  fragment myRootFragment on User {
+    name
+  }
+`
+==================================== ERROR ====================================
+✖︎ Expected either `onType` or `onInterface` to be defined in a @RelayResolver docblock.
+
+  /path/to/test/fixture/relay-resolver-missing-field.invalid.js:10:3
+   10 │ *
+      │ ^
+   11 │  * @RelayResolver
+      │ ^^^^^^^^^^^^^^^^^
+   12 │  * @fieldName favorite_page
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   13 │  * @edgeTo Page
+      │ ^^^^^^^^^^^^^^^
+   14 │  * @rootFragment myRootFragment
+      │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   15 │

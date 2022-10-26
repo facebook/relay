@@ -1,0 +1,35 @@
+==================================== INPUT ====================================
+# expected-to-throw
+
+fragment Foo_user on User {
+  poppy: pop_star_name {
+    __typename
+  }
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+input PopStarName {
+  value: String
+}
+
+extend type User {
+  pop_star_name: PopStarName @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+}
+==================================== ERROR ====================================
+✖︎ Invalid @RelayResolver output type for field `pop_star_name`. Got input object `PopStarName`.
+
+  output-type-input.invalid.graphql:7:3
+    6 │ extend type User {
+    7 │   pop_star_name: PopStarName @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+      │   ^^^^^^^^^^^^^
+    8 │ }

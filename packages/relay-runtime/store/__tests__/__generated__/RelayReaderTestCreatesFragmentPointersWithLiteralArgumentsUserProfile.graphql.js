@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6f6eac9a988da049301ba2323550f81d>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<2a0c00d2762605005ff003b56f6bee59>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,20 +17,18 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$ref = any;
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$ref: FragmentReference;
-declare export opaque type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$fragmentType: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$ref;
-export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$fragmentType } from "./RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture.graphql";
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$fragmentType: FragmentType;
+export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$data = {|
   +id: string,
-  +$fragmentRefs: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$ref,
-  +$refType: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$ref,
+  +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture$fragmentType,
+  +$fragmentType: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$fragmentType,
 |};
-export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$data = RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile;
 export type RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$key = {
   +$data?: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$data,
-  +$fragmentRefs: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$ref,
+  +$fragmentSpreads: RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$fragmentType,
   ...
 };
 */
@@ -66,4 +66,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "b1806f52e4f97679d4a3232f348aeee1";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$fragmentType,
+  RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfile$data,
+>*/);

@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -19,7 +17,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
@@ -54,7 +52,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
       beforeEach(() => {
         RelayFeatureFlags.ENABLE_VARIABLE_CONNECTION_KEY = true;
 
-        query = getRequest(graphql`
+        query = graphql`
           query RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery(
             $id: ID!
             $commentsKey: String
@@ -63,8 +61,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               ...RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment
             }
           }
-        `);
-        paginationQuery = getRequest(graphql`
+        `;
+        paginationQuery = graphql`
           query RelayModernEnvironmentDynamicConnectionKeyTestPaginationQuery(
             $id: ID!
             $commentsKey: String
@@ -76,13 +74,13 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
                 @arguments(count: $count, cursor: $cursor)
             }
           }
-        `);
-        fragment = getFragment(graphql`
+        `;
+        fragment = graphql`
           fragment RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment on Feedback
-            @argumentDefinitions(
-              count: {type: "Int", defaultValue: 2}
-              cursor: {type: "ID"}
-            ) {
+          @argumentDefinitions(
+            count: {type: "Int", defaultValue: 2}
+            cursor: {type: "ID"}
+          ) {
             id
             comments(after: $cursor, first: $count, orderby: "date")
               @connection(
@@ -97,7 +95,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
               }
             }
           }
-        `);
+        `;
         const variables = {
           id: '<feedbackid>',
           commentsKey: '<comments>',
@@ -179,7 +177,8 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
             __id: '<feedbackid>',
 
             __fragments: {
-              RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment: {},
+              RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment:
+                {},
             },
 
             __fragmentOwner: operation.request,

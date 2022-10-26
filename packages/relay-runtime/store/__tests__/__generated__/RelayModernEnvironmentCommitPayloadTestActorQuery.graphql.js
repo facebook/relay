@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<97a1039b73ae8f8b08e22ee8ac404a74>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<8cf7294b895ed5e987a60f96b0b16515>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,16 +17,16 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-export type RelayModernEnvironmentCommitPayloadTestActorQueryVariables = {||};
-export type RelayModernEnvironmentCommitPayloadTestActorQueryResponse = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+export type RelayModernEnvironmentCommitPayloadTestActorQuery$variables = {||};
+export type RelayModernEnvironmentCommitPayloadTestActorQuery$data = {|
   +me: ?{|
     +name: ?string,
   |},
 |};
 export type RelayModernEnvironmentCommitPayloadTestActorQuery = {|
-  variables: RelayModernEnvironmentCommitPayloadTestActorQueryVariables,
-  response: RelayModernEnvironmentCommitPayloadTestActorQueryResponse,
+  response: RelayModernEnvironmentCommitPayloadTestActorQuery$data,
+  variables: RelayModernEnvironmentCommitPayloadTestActorQuery$variables,
 |};
 */
 
@@ -101,4 +103,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7f92ebf6ec98bfacd4bbd941e09a0cc6";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentCommitPayloadTestActorQuery$variables,
+  RelayModernEnvironmentCommitPayloadTestActorQuery$data,
+>*/);

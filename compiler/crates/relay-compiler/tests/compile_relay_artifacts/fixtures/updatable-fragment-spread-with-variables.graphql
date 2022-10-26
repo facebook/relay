@@ -1,0 +1,9 @@
+query updatableFragmentSpreadWithVariablesQuery($if: Boolean) {
+  me {
+    ...updatableFragmentSpreadWithVariables_user
+  }
+}
+
+fragment updatableFragmentSpreadWithVariables_user on User @updatable {
+  firstName(if: $if)
+}

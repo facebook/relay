@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<078b2c38373f2b944f40689130fc479a>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<761a18017d5ef6c60ef0a1097d5831ff>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,30 +17,29 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
 export type CommentCreateSubscriptionInput = {|
-  clientSubscriptionId?: ?string,
   feedbackId?: ?string,
   text?: ?string,
 |};
-export type useSubscriptionTestCommentCreateSubscriptionVariables = {|
+export type useSubscriptionTestCommentCreateSubscription$variables = {|
   input?: ?CommentCreateSubscriptionInput,
 |};
-export type useSubscriptionTestCommentCreateSubscriptionResponse = {|
+export type useSubscriptionTestCommentCreateSubscription$data = {|
   +commentCreateSubscribe: ?{|
     +feedbackCommentEdge: ?{|
       +node: ?{|
-        +id: string,
         +body: ?{|
           +text: ?string,
         |},
+        +id: string,
       |},
     |},
   |},
 |};
 export type useSubscriptionTestCommentCreateSubscription = {|
-  variables: useSubscriptionTestCommentCreateSubscriptionVariables,
-  response: useSubscriptionTestCommentCreateSubscriptionResponse,
+  response: useSubscriptionTestCommentCreateSubscription$data,
+  variables: useSubscriptionTestCommentCreateSubscription$variables,
 |};
 */
 
@@ -136,9 +137,7 @@ return {
   "params": {
     "cacheID": "9825c984d20af05ca6d3b97f00793d02",
     "id": null,
-    "metadata": {
-      "subscriptionName": "commentCreateSubscribe"
-    },
+    "metadata": {},
     "name": "useSubscriptionTestCommentCreateSubscription",
     "operationKind": "subscription",
     "text": "subscription useSubscriptionTestCommentCreateSubscription(\n  $input: CommentCreateSubscriptionInput\n) {\n  commentCreateSubscribe(input: $input) {\n    feedbackCommentEdge {\n      node {\n        id\n        body {\n          text\n        }\n      }\n    }\n  }\n}\n"
@@ -150,4 +149,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "09f7f93828042d5022df685ced707645";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: GraphQLSubscription<
+  useSubscriptionTestCommentCreateSubscription$variables,
+  useSubscriptionTestCommentCreateSubscription$data,
+>*/);

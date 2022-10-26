@@ -1,19 +1,23 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
-// flowlint ambiguous-object-type:error
-
 'use strict';
+import type {NormalizationSplitOperation} from '../../util/NormalizationNode';
 
 import type {NormalizationRootNode} from '../../util/NormalizationNode';
+import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
+import type {
+  CacheConfig,
+  Variables,
+} from 'relay-runtime/util/RelayRuntimeTypes';
 
 const {
   MultiActorEnvironment,
@@ -21,7 +25,7 @@ const {
 } = require('../../multi-actor-environment');
 const RelayNetwork = require('../../network/RelayNetwork');
 const RelayObservable = require('../../network/RelayObservable');
-const {getFragment, getRequest, graphql} = require('../../query/GraphQLTag');
+const {graphql} = require('../../query/GraphQLTag');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const RelayModernEnvironment = require('../RelayModernEnvironment');
 const {
@@ -40,13 +44,13 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
     'execute() a query with nested @match',
     environmentType => {
       describe(environmentType, () => {
-        let callbacks: {|
+        let callbacks: {
           +complete: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
           +error: JestMockFn<$ReadOnlyArray<Error>, mixed>,
           +next: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
           +start?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
           +unsubscribe?: JestMockFn<$ReadOnlyArray<mixed>, mixed>,
-        |};
+        };
         let complete;
         let dataSource;
         let environment;
@@ -57,13 +61,13 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
         let next;
         let operation;
         let operationCallback;
-        let operationLoader: {|
+        let operationLoader: {
           get: (reference: mixed) => ?NormalizationRootNode,
           load: JestMockFn<
             $ReadOnlyArray<mixed>,
             Promise<?NormalizationRootNode>,
           >,
-        |};
+        };
         let plaintextRendererFragment;
         let plaintextRendererNormalizationFragment;
         let query;
@@ -74,12 +78,19 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
         let resolveFragments;
 
         beforeEach(() => {
-          resolveFragments = [];
+          resolveFragments = ([]: Array<
+            | any
+            | ((
+                result?:
+                  | Promise<NormalizationSplitOperation>
+                  | NormalizationSplitOperation,
+              ) => void),
+          >);
           setFlags(RelayFeatureFlags);
           markdownRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name$normalization.graphql');
           plaintextRendererNormalizationFragment = require('./__generated__/RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name$normalization.graphql');
 
-          query = getRequest(graphql`
+          query = graphql`
             query RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestUserQuery(
               $id: ID!
             ) {
@@ -102,9 +113,9 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
                 }
               }
             }
-          `);
+          `;
 
-          markdownRendererFragment = getFragment(graphql`
+          markdownRendererFragment = graphql`
             fragment RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestMarkdownUserNameRenderer_name on MarkdownUserNameRenderer {
               __typename
               markdown
@@ -116,9 +127,9 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
                 }
               }
             }
-          `);
+          `;
 
-          plaintextRendererFragment = getFragment(graphql`
+          plaintextRendererFragment = graphql`
             fragment RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name on PlainUserNameRenderer {
               data {
                 text
@@ -127,7 +138,7 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
                 name
               }
             }
-          `);
+          `;
           variables = {id: '1'};
           operation = createOperationDescriptor(query, variables);
 
@@ -135,7 +146,11 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
           error = jest.fn();
           next = jest.fn();
           callbacks = {complete, error, next};
-          fetch = (_query, _variables, _cacheConfig) => {
+          fetch = (
+            _query: RequestParameters,
+            _variables: Variables,
+            _cacheConfig: CacheConfig,
+          ) => {
             return RelayObservable.create(sink => {
               dataSource = sink;
             });
@@ -440,7 +455,8 @@ function runWithFeatureFlags(setFlags: (typeof RelayFeatureFlags) => void) {
                 __isWithinUnmatchedTypeRefinement: false,
                 __fragmentPropName: 'name',
                 __fragments: {
-                  RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name: {},
+                  RelayModernEnvironmentExecuteWithSiblingAndNestedModuleTestPlainUserNameRenderer_name:
+                    {},
                 },
                 __id: 'client:2:nameRenderer',
                 __module_component: 'PlainUserNameRenderer.react',

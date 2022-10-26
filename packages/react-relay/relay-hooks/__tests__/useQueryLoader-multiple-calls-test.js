@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -23,18 +21,17 @@ const {
   Network,
   Observable,
   PreloadableQueryRegistry,
-  getRequest,
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
-const query = getRequest(graphql`
+const query = graphql`
   query useQueryLoaderMultipleCallsTestQuery($id: ID!) {
     node(id: $id) {
       id
     }
   }
-`);
+`;
 
 const preloadableConcreteRequest = {
   kind: 'PreloadableConcreteRequest',
@@ -63,7 +60,6 @@ let environment;
 let fetch;
 let sink;
 let executeObservable;
-let executeUnsubscribe;
 let networkUnsubscribe;
 
 beforeEach(() => {
@@ -90,24 +86,23 @@ beforeEach(() => {
 
   environment = createMockEnvironment({network: Network.create(fetch)});
 
-  // $FlowFixMe[method-unbinding] added when improving typing for this parameters
-  const originalExecuteWithSource = environment.executeWithSource.getMockImplementation();
+  const originalExecuteWithSource =
+    // $FlowFixMe[method-unbinding] added when improving typing for this parameters
+    environment.executeWithSource.getMockImplementation();
   executeObservable = undefined;
-  executeUnsubscribe = undefined;
 
   jest
     .spyOn(environment, 'executeWithSource')
     .mockImplementation((...params) => {
       executeObservable = originalExecuteWithSource(...params);
-      const originalSubscribe = executeObservable.subscribe.bind(
-        executeObservable,
-      );
+      const originalSubscribe =
+        executeObservable.subscribe.bind(executeObservable);
       jest
         .spyOn(executeObservable, 'subscribe')
         .mockImplementation(subscriptionCallbacks => {
           originalSubscribe(subscriptionCallbacks);
-          executeUnsubscribe = jest.fn();
-          return {unsubscribe: executeUnsubscribe};
+          const executeUnsubscribeFn = jest.fn();
+          return {unsubscribe: executeUnsubscribeFn};
         });
       return executeObservable;
     });
@@ -118,11 +113,15 @@ describe('when loading and disposing same query multiple times', () => {
     let loadedQuery;
     let queryLoaderCallback;
 
-    const QueryRenderer = function({queryRef}) {
+    const QueryRenderer = function ({queryRef}: $FlowFixMe) {
       const data = usePreloadedQuery(query, queryRef);
       return data.node.id;
     };
-    const Inner = function({initialPreloadedQuery}) {
+    const Inner = function ({
+      initialPreloadedQuery,
+    }: {
+      initialPreloadedQuery: $FlowFixMe,
+    }) {
       [loadedQuery, queryLoaderCallback] = useQueryLoader(
         preloadableConcreteRequest,
         initialPreloadedQuery,
@@ -135,7 +134,7 @@ describe('when loading and disposing same query multiple times', () => {
         </React.Suspense>
       );
     };
-    const Container = function({initialPreloadedQuery = undefined}) {
+    const Container = function ({initialPreloadedQuery = undefined}: {}) {
       return (
         <RelayEnvironmentProvider environment={environment}>
           <Inner initialPreloadedQuery={initialPreloadedQuery} />

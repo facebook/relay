@@ -1,14 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -30,12 +29,12 @@ const RelayFeatureFlags = require('../util/RelayFeatureFlags');
 const hasOverlappingIDs = require('./hasOverlappingIDs');
 const RelayReader = require('./RelayReader');
 
-type Subscription = {|
+type Subscription = {
   callback: (snapshot: Snapshot) => void,
   snapshot: Snapshot,
   stale: boolean,
   backup: ?Snapshot,
-|};
+};
 
 class RelayStoreSubscriptions implements StoreSubscriptions {
   _subscriptions: Set<Subscription>;
@@ -101,9 +100,12 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
         subscription.snapshot = {
           data: subscription.snapshot.data,
           isMissingData: backup.isMissingData,
+          missingClientEdges: backup.missingClientEdges,
+          missingLiveResolverFields: backup.missingLiveResolverFields,
           seenRecords: backup.seenRecords,
           selector: backup.selector,
           missingRequiredFields: backup.missingRequiredFields,
+          relayResolverErrors: backup.relayResolverErrors,
         };
       } else {
         subscription.stale = true;
@@ -162,9 +164,12 @@ class RelayStoreSubscriptions implements StoreSubscriptions {
     nextSnapshot = ({
       data: nextData,
       isMissingData: nextSnapshot.isMissingData,
+      missingClientEdges: nextSnapshot.missingClientEdges,
+      missingLiveResolverFields: nextSnapshot.missingLiveResolverFields,
       seenRecords: nextSnapshot.seenRecords,
       selector: nextSnapshot.selector,
       missingRequiredFields: nextSnapshot.missingRequiredFields,
+      relayResolverErrors: nextSnapshot.relayResolverErrors,
     }: Snapshot);
     if (__DEV__) {
       deepFreeze(nextSnapshot);

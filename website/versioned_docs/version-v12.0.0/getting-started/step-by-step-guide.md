@@ -8,7 +8,7 @@ keywords:
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 
 Relay is a framework for managing and declaratively fetching GraphQL data. It allows developers to declare *what* data each component needs via GraphQL, and then aggregate these dependencies and efficiently fetch the data in fewer round trips. In this guide we'll introduce the key concepts for using Relay in a React app one at a time.
@@ -157,11 +157,11 @@ First we'll add the necessary packages. Note that Relay is comprised of three ke
 ```bash
 # NPM Users
 npm install --save relay-runtime react-relay
-npm install --save-dev relay-compiler graphql babel-plugin-relay
+npm install --save-dev relay-compiler graphql@^15.0.0 babel-plugin-relay
 
 # Yarn Users
 yarn add relay-runtime react-relay
-yarn add --dev relay-compiler graphql babel-plugin-relay
+yarn add --dev relay-compiler graphql@^15.0.0 babel-plugin-relay
 ```
 
 ### 4.1 Configure Relay Compiler

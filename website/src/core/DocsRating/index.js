@@ -1,18 +1,17 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
-/* eslint-disable lint/no-value-import */
 import './docsRating.css';
-
-import {fbContent} from 'internaldocs-fb-helpers';
+import Link from '@docusaurus/Link';
+import {fbContent} from 'docusaurus-plugin-internaldocs-fb/internal';
 import * as React from 'react';
-/* eslint-enable lint/no-value-import */
 
 function provideFeedbackToGoogleAnalytics(value) {
   if (window.ga) {
@@ -92,16 +91,28 @@ const FileATaskButton = () => (
   </p>
 );
 
+const SurveyLink = () => (
+  <p>
+    Help us make the site even better by{' '}
+    <Link to="https://www.surveymonkey.com/r/FYC9TCJ">
+      answering a few quick questions
+    </Link>
+    .
+  </p>
+);
+
 const DocsRatingInternal = () => (
   <Wrapper>
     <FileATaskButton />
     <FeedbackButtons />
+    <SurveyLink />
   </Wrapper>
 );
 
 const DocsRatingExternal = () => (
   <Wrapper>
     <FeedbackButtons />
+    <SurveyLink />
   </Wrapper>
 );
 

@@ -1,16 +1,21 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::{Artifact, ArtifactContent};
-use dashmap::{mapref::entry::Entry, DashMap};
-use interner::StringKey;
-use relay_codegen::QueryID;
-use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+
+use dashmap::mapref::entry::Entry;
+use dashmap::DashMap;
+use intern::string_key::StringKey;
+use relay_codegen::QueryID;
+use serde::Deserialize;
+use serde::Serialize;
+
+use crate::build_project::Artifact;
+use crate::build_project::ArtifactContent;
 
 /// Name of a fragment or operation.
 pub type DefinitionName = StringKey;

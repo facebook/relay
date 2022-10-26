@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<799422d6a32a878a368af61303362923>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<44ece5679aa693485843d855ff3b8768>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,25 +17,25 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
+import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type ActorChangeWithStreamTestFragment$ref = any;
-export type ActorChangeWithStreamTestQueryVariables = {||};
-export type ActorChangeWithStreamTestQueryResponse = {|
+import type { ActorChangeWithStreamTestFragment$fragmentType } from "./ActorChangeWithStreamTestFragment.graphql";
+export type ActorChangeWithStreamTestQuery$variables = {||};
+export type ActorChangeWithStreamTestQuery$data = {|
   +viewer: ?{|
     +newsFeed: ?{|
       +edges: ?$ReadOnlyArray<?{|
         +node: ?ActorChangePoint<{|
           +actor_key: string,
-          +$fragmentRefs: ActorChangeWithStreamTestFragment$ref,
+          +$fragmentSpreads: ActorChangeWithStreamTestFragment$fragmentType,
         |}>,
       |}>,
     |},
   |},
 |};
 export type ActorChangeWithStreamTestQuery = {|
-  variables: ActorChangeWithStreamTestQueryVariables,
-  response: ActorChangeWithStreamTestQueryResponse,
+  response: ActorChangeWithStreamTestQuery$data,
+  variables: ActorChangeWithStreamTestQuery$variables,
 |};
 */
 
@@ -248,4 +250,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "d36707add9f4e27149d6e1bf38a04360";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  ActorChangeWithStreamTestQuery$variables,
+  ActorChangeWithStreamTestQuery$data,
+>*/);

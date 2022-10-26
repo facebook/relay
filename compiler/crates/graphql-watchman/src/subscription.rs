@@ -1,16 +1,19 @@
 /*
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::WatchmanFile;
+use std::process::Command;
+
 use log::debug;
 use serde_bser::value::Value;
-use std::process::Command;
 use watchman_client::prelude::*;
-use watchman_client::{Subscription as WatchmanSubscription, SubscriptionData};
+use watchman_client::Subscription as WatchmanSubscription;
+use watchman_client::SubscriptionData;
+
+use crate::WatchmanFile;
 
 #[derive(Debug)]
 pub enum WatchmanFileSourceSubscriptionNextChange {
@@ -39,7 +42,7 @@ pub struct WatchmanFileSourceResult {
 pub struct WatchmanFileSourceSubscription {
     resolved_root: ResolvedRoot,
     subscription: WatchmanSubscription<WatchmanFile>,
-    base_revision: String,
+    base_revision: Option<String>,
 }
 
 impl WatchmanFileSourceSubscription {
@@ -50,7 +53,7 @@ impl WatchmanFileSourceSubscription {
         Self {
             resolved_root,
             subscription,
-            base_revision: get_base_revision(None),
+            base_revision: get_base_hg_revision(None),
         }
     }
 
@@ -88,7 +91,7 @@ impl WatchmanFileSourceSubscription {
                     } else {
                         None
                     };
-                    let current_base_revision = get_base_revision(current_commit);
+                    let current_base_revision = get_base_hg_revision(current_commit);
                     if current_base_revision != self.base_revision {
                         self.base_revision = current_base_revision;
                         return Ok(WatchmanFileSourceSubscriptionNextChange::SourceControlUpdate);
@@ -113,7 +116,7 @@ impl WatchmanFileSourceSubscription {
 /// `master` and current commit hash or `.`
 ///
 /// TODO: Make this dynamic on the default branch name.
-fn get_base_revision(commit_hash: Option<String>) -> String {
+fn get_base_hg_revision(commit_hash: Option<String>) -> Option<String> {
     let output = Command::new("hg")
         .arg("log".to_string())
         .arg("-r".to_string())
@@ -123,14 +126,11 @@ fn get_base_revision(commit_hash: Option<String>) -> String {
         ))
         .arg("-T={node}")
         .output()
-        .expect("Expect `hg` command getting base revision.");
+        .ok()?;
 
     if output.stdout.is_empty() {
-        panic!(
-            "Failed to get base revision hash:\n {:?}",
-            String::from_utf8_lossy(&output.stderr)
-        );
+        return None;
     }
 
-    String::from_utf8_lossy(&output.stdout).to_string()
+    Some(String::from_utf8_lossy(&output.stdout).to_string())
 }

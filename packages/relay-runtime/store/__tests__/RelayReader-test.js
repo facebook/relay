@@ -1,11 +1,11 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';
@@ -169,7 +169,7 @@ describe('RelayReader', () => {
 
     const BarFragment = graphql`
       fragment RelayReaderTestReadsFragmentData on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+      @argumentDefinitions(size: {type: "[Int]"}) {
         id
         firstName
         friends(first: 3) {
@@ -265,7 +265,8 @@ describe('RelayReader', () => {
       id: '1',
       __id: '1',
       __fragments: {
-        RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedUserProfilePicture: {},
+        RelayReaderTestCreatesFragmentPointersWithFragmentOwnerWhenOwnerIsProvidedUserProfilePicture:
+          {},
       },
       __fragmentOwner: owner.request,
       __isWithinUnmatchedTypeRefinement: false,
@@ -284,7 +285,7 @@ describe('RelayReader', () => {
     `;
     const UserProfile = graphql`
       fragment RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfile on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+      @argumentDefinitions(size: {type: "[Int]"}) {
         id
         ...RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture
           @arguments(size: $size)
@@ -293,7 +294,7 @@ describe('RelayReader', () => {
 
     graphql`
       fragment RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+      @argumentDefinitions(size: {type: "[Int]"}) {
         profilePicture(size: $size) {
           uri
         }
@@ -309,9 +310,10 @@ describe('RelayReader', () => {
       id: '1',
       __id: '1',
       __fragments: {
-        RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture: {
-          size: 42,
-        },
+        RelayReaderTestCreatesFragmentPointersWithVariableArgumentsUserProfilePicture:
+          {
+            size: 42,
+          },
       },
       __fragmentOwner: owner.request,
       __isWithinUnmatchedTypeRefinement: false,
@@ -336,7 +338,7 @@ describe('RelayReader', () => {
     `;
     graphql`
       fragment RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture on User
-        @argumentDefinitions(size: {type: "[Int]"}) {
+      @argumentDefinitions(size: {type: "[Int]"}) {
         profilePicture(size: $size) {
           uri
         }
@@ -352,9 +354,10 @@ describe('RelayReader', () => {
       id: '1',
       __id: '1',
       __fragments: {
-        RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture: {
-          size: 42,
-        },
+        RelayReaderTestCreatesFragmentPointersWithLiteralArgumentsUserProfilePicture:
+          {
+            size: 42,
+          },
       },
       __fragmentOwner: owner.request,
       __isWithinUnmatchedTypeRefinement: false,
@@ -379,7 +382,7 @@ describe('RelayReader', () => {
       `;
       graphql`
         fragment RelayReaderTestReadsBasicFragmentUserProfilePicture on User
-          @inline {
+        @inline {
           profilePicture(size: 32) {
             uri
           }
@@ -628,21 +631,22 @@ describe('RelayReader', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'PlainUserNameRenderer',
+            __module_component_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
+              'PlainUserNameRenderer.react',
+            __module_operation_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
+              'RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$normalization.graphql',
+            plaintext: 'plain name',
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'PlainUserNameRenderer',
-          __module_component_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
-            'PlainUserNameRenderer.react',
-          __module_operation_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
-            'RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$normalization.graphql',
-          plaintext: 'plain name',
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -658,10 +662,10 @@ describe('RelayReader', () => {
       expect(data).toEqual({
         id: '1',
         nameRenderer: {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __fragments: {
-            RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name: {},
+            RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name:
+              {},
           },
           __fragmentOwner: owner.request,
           __isWithinUnmatchedTypeRefinement: false,
@@ -683,21 +687,22 @@ describe('RelayReader', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'MarkdownUserNameRenderer',
+            __module_component_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
+              'MarkdownUserNameRenderer.react',
+            __module_operation_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
+              'RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$normalization.graphql',
+            markdown: 'markdown payload',
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'MarkdownUserNameRenderer',
-          __module_component_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
-            'MarkdownUserNameRenderer.react',
-          __module_operation_RelayReaderTestWhenMatchDirectiveIsPresentBarFragment:
-            'RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$normalization.graphql',
-          markdown: 'markdown payload',
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -713,10 +718,10 @@ describe('RelayReader', () => {
       expect(data).toEqual({
         id: '1',
         nameRenderer: {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
           __fragments: {
-            RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name: {},
+            RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name:
+              {},
           },
           __fragmentOwner: owner.request,
           __isWithinUnmatchedTypeRefinement: false,
@@ -737,17 +742,18 @@ describe('RelayReader', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-            __ref:
-              'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            {
+              __ref:
+                'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            },
+        },
+        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+          {
+            __id: 'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
+            __typename: 'CustomNameRenderer',
+            customField: 'custom value',
           },
-        },
-        'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': {
-          __id:
-            'client:1:nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])',
-          __typename: 'CustomNameRenderer',
-          customField: 'custom value',
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -776,7 +782,8 @@ describe('RelayReader', () => {
           __id: '1',
           id: '1',
           __typename: 'User',
-          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])': null,
+          'nameRenderer(supported:["PlainUserNameRenderer","MarkdownUserNameRenderer"])':
+            null,
         },
         'client:root': {
           __id: 'client:root',
@@ -900,7 +907,8 @@ describe('RelayReader', () => {
         nameRenderer: {
           __id: 'client:1:nameRenderer',
           __fragments: {
-            RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name: {},
+            RelayReaderTestWhenMatchDirectiveIsPresentNoModulePlainUserNameRenderer_name:
+              {},
           },
           __fragmentOwner: owner.request,
           __isWithinUnmatchedTypeRefinement: false,
@@ -952,7 +960,8 @@ describe('RelayReader', () => {
         nameRenderer: {
           __id: 'client:1:nameRenderer',
           __fragments: {
-            RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name: {},
+            RelayReaderTestWhenMatchDirectiveIsPresentNoModuleMarkdownUserNameRenderer_name:
+              {},
           },
           __fragmentOwner: owner.request,
           __isWithinUnmatchedTypeRefinement: false,
@@ -1775,36 +1784,37 @@ describe('RelayReader', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-          __id:
-            'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          __typename: 'ReactFlightComponent',
-          executableDefinitions: [
-            {
-              module: {__dr: 'RelayFlightExampleQuery.graphql'},
-              variables: {
-                id: '2',
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          {
+            __id: 'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            __typename: 'ReactFlightComponent',
+            executableDefinitions: [
+              {
+                module: {__dr: 'RelayFlightExampleQuery.graphql'},
+                variables: {
+                  id: '2',
+                },
+              },
+            ],
+            tree: {
+              readRoot() {
+                return {
+                  $$typeof: Symbol.for('react.element'),
+                  type: 'div',
+                  key: null,
+                  ref: null,
+                  props: {foo: 1},
+                };
               },
             },
-          ],
-          tree: {
-            readRoot() {
-              return {
-                $$typeof: Symbol.for('react.element'),
-                type: 'div',
-                key: null,
-                ref: null,
-                props: {foo: 1},
-              };
-            },
           },
-        },
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -1844,13 +1854,15 @@ describe('RelayReader', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': null,
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          null,
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -1888,13 +1900,15 @@ describe('RelayReader', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
-        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': undefined,
+        'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+          undefined,
         'client:root': {
           __id: 'client:root',
           __typename: '__Root',
@@ -1932,10 +1946,11 @@ describe('RelayReader', () => {
         '1': {
           __id: '1',
           __typename: 'Story',
-          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})': {
-            __ref:
-              'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
-          },
+          'flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})':
+            {
+              __ref:
+                'client:1:flight(component:"FlightComponent.server",props:{"condition":true,"count":10,"id":"1"})',
+            },
           id: '1',
         },
         'client:root': {

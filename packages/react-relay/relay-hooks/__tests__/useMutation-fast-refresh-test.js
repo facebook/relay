@@ -1,15 +1,13 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
-
-// flowlint ambiguous-object-type:error
 
 'use strict';
 
@@ -17,7 +15,7 @@ const RelayEnvironmentProvider = require('../RelayEnvironmentProvider');
 const useMutation = require('../useMutation');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
-const {getRequest, graphql} = require('relay-runtime');
+const {graphql} = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils');
 
 describe('useLazyLoadQueryNode', () => {
@@ -53,7 +51,7 @@ describe('useLazyLoadQueryNode', () => {
 
     environment = createMockEnvironment();
 
-    CommentCreateMutation = getRequest(graphql`
+    CommentCreateMutation = graphql`
       mutation useMutationFastRefreshTestCommentCreateMutation(
         $input: CommentCreateInput
       ) {
@@ -69,7 +67,7 @@ describe('useLazyLoadQueryNode', () => {
           }
         }
       }
-    `);
+    `;
     isInFlightFn = jest.fn(val => val);
   });
 
@@ -83,8 +81,10 @@ describe('useLazyLoadQueryNode', () => {
     const ReactRefreshRuntime = require('react-refresh/runtime');
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     let commit;
-    const V1 = function(props) {
-      const [commitFn, isMutationInFlight] = useMutation(CommentCreateMutation);
+    const V1 = function (props: {}) {
+      const [commitFn, isMutationInFlight] = useMutation<any>(
+        CommentCreateMutation,
+      );
       commit = commitFn;
       return isInFlightFn(isMutationInFlight);
     };
@@ -117,8 +117,10 @@ describe('useLazyLoadQueryNode', () => {
     isInFlightFn.mockClear();
 
     // Trigger a fast fresh
-    function V2(props) {
-      const [commitFn, isMutationInFlight] = useMutation(CommentCreateMutation);
+    function V2(props: any) {
+      const [commitFn, isMutationInFlight] = useMutation<any>(
+        CommentCreateMutation,
+      );
       commit = commitFn;
       return isInFlightFn(isMutationInFlight);
     }

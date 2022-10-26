@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6e1d9c29bc8e0b44a4079c53267191ae>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<d83f9bc33d0ba25ef9efc21cc4e159a5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,18 +17,16 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type useLazyLoadQueryNodeTestUserFragment$ref: FragmentReference;
-declare export opaque type useLazyLoadQueryNodeTestUserFragment$fragmentType: useLazyLoadQueryNodeTestUserFragment$ref;
-export type useLazyLoadQueryNodeTestUserFragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type useLazyLoadQueryNodeTestUserFragment$fragmentType: FragmentType;
+export type useLazyLoadQueryNodeTestUserFragment$data = {|
   +name: ?string,
-  +$refType: useLazyLoadQueryNodeTestUserFragment$ref,
+  +$fragmentType: useLazyLoadQueryNodeTestUserFragment$fragmentType,
 |};
-export type useLazyLoadQueryNodeTestUserFragment$data = useLazyLoadQueryNodeTestUserFragment;
 export type useLazyLoadQueryNodeTestUserFragment$key = {
   +$data?: useLazyLoadQueryNodeTestUserFragment$data,
-  +$fragmentRefs: useLazyLoadQueryNodeTestUserFragment$ref,
+  +$fragmentSpreads: useLazyLoadQueryNodeTestUserFragment$fragmentType,
   ...
 };
 */
@@ -53,4 +53,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "90860ff39f89e2594e3eefcb64f7c8fb";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  useLazyLoadQueryNodeTestUserFragment$fragmentType,
+  useLazyLoadQueryNodeTestUserFragment$data,
+>*/);

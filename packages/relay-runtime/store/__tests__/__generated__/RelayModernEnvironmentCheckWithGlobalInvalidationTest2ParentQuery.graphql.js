@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<85b8cc101bb9e081bcb78f037c812e16>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<a48c53da834b284641e681ca142a2671>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$ref = any;
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType } from "./RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment.graphql";
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$variables = {|
   size: $ReadOnlyArray<?number>,
 |};
-export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQueryResponse = {|
+export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$data = {|
   +me: ?{|
     +id: string,
     +name: ?string,
-    +$fragmentRefs: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$ref,
+    +$fragmentSpreads: RelayModernEnvironmentCheckWithGlobalInvalidationTestUserFragment$fragmentType,
   |},
 |};
 export type RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery = {|
-  variables: RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQueryVariables,
-  response: RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQueryResponse,
+  response: RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$data,
+  variables: RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$variables,
 |};
 */
 
@@ -156,4 +158,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "a8ccb92b8e2653a27d1d12558fe72ee4";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$variables,
+  RelayModernEnvironmentCheckWithGlobalInvalidationTest2ParentQuery$data,
+>*/);

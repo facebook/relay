@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bb03d352bb21d7b1b5024778e940380f>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<6329211e2fa9fffb6347d49ec17a98fb>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,21 +17,21 @@
 'use strict';
 
 /*::
-import type { ConcreteRequest } from 'relay-runtime';
-type RelayReferenceMarkerTest2Fragment$ref = any;
-export type RelayReferenceMarkerTest4QueryVariables = {|
+import type { ConcreteRequest, Query } from 'relay-runtime';
+import type { RelayReferenceMarkerTest2Fragment$fragmentType } from "./RelayReferenceMarkerTest2Fragment.graphql";
+export type RelayReferenceMarkerTest4Query$variables = {|
   id?: ?string,
 |};
-export type RelayReferenceMarkerTest4QueryResponse = {|
+export type RelayReferenceMarkerTest4Query$data = {|
   +node: ?{|
-    +id: string,
     +__typename: string,
-    +$fragmentRefs: RelayReferenceMarkerTest2Fragment$ref,
+    +id: string,
+    +$fragmentSpreads: RelayReferenceMarkerTest2Fragment$fragmentType,
   |},
 |};
 export type RelayReferenceMarkerTest4Query = {|
-  variables: RelayReferenceMarkerTest4QueryVariables,
-  response: RelayReferenceMarkerTest4QueryResponse,
+  response: RelayReferenceMarkerTest4Query$data,
+  variables: RelayReferenceMarkerTest4Query$variables,
 |};
 */
 
@@ -252,4 +254,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "c0a1e569d98cf3c0c2b4a559325ed687";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Query<
+  RelayReferenceMarkerTest4Query$variables,
+  RelayReferenceMarkerTest4Query$data,
+>*/);

@@ -1,10 +1,12 @@
 /**
- * Copyright (c) Facebook, Inc. and its affiliates.
- * 
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7055e7b3a6037a8c22099f4bd745a87a>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<b241dc14481d59e088c1b7a257fbbf37>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -15,19 +17,17 @@
 'use strict';
 
 /*::
-import type { ReaderFragment } from 'relay-runtime';
-import type { FragmentReference } from "relay-runtime";
-declare export opaque type RelayMockPayloadGeneratorTest17Fragment$ref: FragmentReference;
-declare export opaque type RelayMockPayloadGeneratorTest17Fragment$fragmentType: RelayMockPayloadGeneratorTest17Fragment$ref;
-export type RelayMockPayloadGeneratorTest17Fragment = {|
+import type { Fragment, ReaderFragment } from 'relay-runtime';
+import type { FragmentType } from "relay-runtime";
+declare export opaque type RelayMockPayloadGeneratorTest17Fragment$fragmentType: FragmentType;
+export type RelayMockPayloadGeneratorTest17Fragment$data = {|
   +id: string,
   +pageName: ?string,
-  +$refType: RelayMockPayloadGeneratorTest17Fragment$ref,
+  +$fragmentType: RelayMockPayloadGeneratorTest17Fragment$fragmentType,
 |};
-export type RelayMockPayloadGeneratorTest17Fragment$data = RelayMockPayloadGeneratorTest17Fragment;
 export type RelayMockPayloadGeneratorTest17Fragment$key = {
   +$data?: RelayMockPayloadGeneratorTest17Fragment$data,
-  +$fragmentRefs: RelayMockPayloadGeneratorTest17Fragment$ref,
+  +$fragmentSpreads: RelayMockPayloadGeneratorTest17Fragment$fragmentType,
   ...
 };
 */
@@ -61,4 +61,7 @@ if (__DEV__) {
   (node/*: any*/).hash = "7a95e906406be378e4662b8cb3362787";
 }
 
-module.exports = node;
+module.exports = ((node/*: any*/)/*: Fragment<
+  RelayMockPayloadGeneratorTest17Fragment$fragmentType,
+  RelayMockPayloadGeneratorTest17Fragment$data,
+>*/);

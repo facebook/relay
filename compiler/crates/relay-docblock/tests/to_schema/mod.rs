@@ -76,7 +76,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         )?
         .unwrap();
 
-        ir.to_sdl_string(&schema)
+        ir.to_sdl_string(&schema, &Default::default())
     };
 
     let schema_strings = js_features

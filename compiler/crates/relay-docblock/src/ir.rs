@@ -43,6 +43,7 @@ use graphql_syntax::TypeSystemDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
+use relay_config::SchemaConfig;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
 use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
@@ -77,7 +78,6 @@ lazy_static! {
     static ref DEPRECATED_REASON_ARGUMENT_NAME: ArgumentName = ArgumentName("reason".intern());
     static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
         ArgumentName("has_output_type".intern());
-    pub(crate) static ref ID_FIELD_NAME: StringKey = "id".intern();
     pub(crate) static ref RESOLVER_VALUE_SCALAR_NAME: StringKey = "RelayResolverValue".intern();
     static ref RESOLVER_MODEL_INSTANCE_FIELD_NAME: StringKey = "__relay_model_instance".intern();
     static ref MODEL_CUSTOM_SCALAR_TYPE_SUFFIX: StringKey = "Model".intern();
@@ -93,28 +93,50 @@ pub enum DocblockIr {
     WeakObjectType(WeakObjectIr),
 }
 
+/// Wrapper over all schema-related values
+#[derive(Copy, Clone, Debug)]
+struct SchemaInfo<'a, 'b> {
+    schema: &'a SDLSchema,
+    config: &'b SchemaConfig,
+}
+
 impl DocblockIr {
-    pub fn to_sdl_string(&self, schema: &SDLSchema) -> DiagnosticsResult<String> {
+    pub fn to_sdl_string(
+        &self,
+        schema: &SDLSchema,
+        schema_config: &SchemaConfig,
+    ) -> DiagnosticsResult<String> {
         Ok(self
-            .to_graphql_schema_ast(schema)?
+            .to_graphql_schema_ast(schema, schema_config)?
             .definitions
             .iter()
             .map(|definition| format!("{}", definition))
             .collect::<Vec<String>>()
             .join("\n\n"))
     }
-    pub fn to_graphql_schema_ast(&self, schema: &SDLSchema) -> DiagnosticsResult<SchemaDocument> {
+    pub fn to_graphql_schema_ast(
+        &self,
+        schema: &SDLSchema,
+        schema_config: &SchemaConfig,
+    ) -> DiagnosticsResult<SchemaDocument> {
+        let schema_info = SchemaInfo {
+            schema,
+            config: schema_config,
+        };
+
         match self {
             DocblockIr::RelayResolver(relay_resolver) => {
-                relay_resolver.to_graphql_schema_ast(schema)
+                relay_resolver.to_graphql_schema_ast(schema_info)
             }
             DocblockIr::TerseRelayResolver(relay_resolver) => {
-                relay_resolver.to_graphql_schema_ast(schema)
+                relay_resolver.to_graphql_schema_ast(schema_info)
             }
             DocblockIr::StrongObjectResolver(strong_object) => {
-                strong_object.to_graphql_schema_ast(schema)
+                strong_object.to_graphql_schema_ast(schema_info)
             }
-            DocblockIr::WeakObjectType(weak_object) => weak_object.to_graphql_schema_ast(schema),
+            DocblockIr::WeakObjectType(weak_object) => {
+                weak_object.to_graphql_schema_ast(schema_info)
+            }
         }
     }
 }
@@ -182,25 +204,39 @@ pub struct RootFragment {
 }
 
 trait ResolverIr {
-    fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>>;
+    fn definitions(
+        &self,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> DiagnosticsResult<Vec<TypeSystemDefinition>>;
     fn location(&self) -> Location;
-    fn root_fragment(&self, object: Option<&Object>) -> Option<RootFragment>;
+    fn root_fragment(
+        &self,
+        object: Option<&Object>,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> Option<RootFragment>;
     fn output_type(&self) -> Option<OutputType>;
     fn deprecated(&self) -> Option<IrField>;
     fn live(&self) -> Option<IrField>;
     fn named_import(&self) -> Option<StringKey>;
 
-    fn to_graphql_schema_ast(&self, schema: &SDLSchema) -> DiagnosticsResult<SchemaDocument> {
+    fn to_graphql_schema_ast(
+        &self,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> DiagnosticsResult<SchemaDocument> {
         Ok(SchemaDocument {
             location: self.location(),
-            definitions: self.definitions(schema)?,
+            definitions: self.definitions(schema_info)?,
         })
     }
 
-    fn directives(&self, object: Option<&Object>, schema: &SDLSchema) -> Vec<ConstantDirective> {
+    fn directives(
+        &self,
+        object: Option<&Object>,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> Vec<ConstantDirective> {
         let location = self.location();
         let span = location.span();
-        let mut directives = vec![self.directive(object, schema)];
+        let mut directives = vec![self.directive(object, schema_info)];
 
         if let Some(deprecated) = self.deprecated() {
             directives.push(ConstantDirective {
@@ -219,7 +255,11 @@ trait ResolverIr {
         directives
     }
 
-    fn directive(&self, object: Option<&Object>, schema: &SDLSchema) -> ConstantDirective {
+    fn directive(
+        &self,
+        object: Option<&Object>,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> ConstantDirective {
         let location = self.location();
         let span = location.span();
         let import_path = self.location().source_location().path().intern();
@@ -228,7 +268,7 @@ trait ResolverIr {
             WithLocation::new(self.location(), import_path),
         )];
 
-        if let Some(root_fragment) = self.root_fragment(object) {
+        if let Some(root_fragment) = self.root_fragment(object, schema_info) {
             arguments.push(string_argument(
                 FRAGMENT_KEY_ARGUMENT_NAME.0,
                 root_fragment.fragment.map(|x| x.0),
@@ -250,6 +290,8 @@ trait ResolverIr {
             arguments.push(true_argument(LIVE_ARGUMENT_NAME.0, live_field.key_location))
         }
 
+        let schema = schema_info.schema;
+
         if let Some(output_type) = self.output_type() {
             match output_type {
                 OutputType::Pending(type_) => {
@@ -266,9 +308,10 @@ trait ResolverIr {
                         _ => None,
                     };
                     let is_edge_to = fields.map_or(false, |fields| {
-                        fields
-                            .iter()
-                            .any(|id| schema.field(*id).name.item == *ID_FIELD_NAME)
+                        fields.iter().any(|id| {
+                            schema.field(*id).name.item
+                                == schema_info.config.node_interface_id_field
+                        })
                     });
 
                     if !is_edge_to {
@@ -315,12 +358,12 @@ trait ResolverTypeDefinitionIr: ResolverIr {
         &self,
         interface_name: WithLocation<InterfaceName>,
         interface_id: InterfaceID,
-        schema: &SDLSchema,
+        schema_info: SchemaInfo<'_, '_>,
     ) -> Vec<TypeSystemDefinition> {
         self.interface_definitions_impl(
             interface_name,
             interface_id,
-            schema,
+            schema_info,
             &mut HashSet::default(),
             &mut HashSet::default(),
         )
@@ -330,11 +373,13 @@ trait ResolverTypeDefinitionIr: ResolverIr {
         &self,
         interface_name: WithLocation<InterfaceName>,
         interface_id: InterfaceID,
-        schema: &SDLSchema,
+        schema_info: SchemaInfo<'_, '_>,
         seen_objects: &mut HashSet<ObjectID>,
         seen_interfaces: &mut HashSet<InterfaceID>,
     ) -> Vec<TypeSystemDefinition> {
-        let fields = self.fields(None, schema);
+        let fields = self.fields(None, schema_info);
+        let schema = schema_info.schema;
+
         // First we extend the interface itself...
         let mut definitions = vec![TypeSystemDefinition::InterfaceTypeExtension(
             InterfaceTypeExtension {
@@ -349,7 +394,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
         for object_id in &schema.interface(interface_id).implementing_objects {
             if !seen_objects.contains(object_id) {
                 seen_objects.insert(*object_id);
-                definitions.extend(self.object_definitions(schema.object(*object_id), schema));
+                definitions.extend(self.object_definitions(schema.object(*object_id), schema_info));
             }
         }
 
@@ -377,7 +422,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
                             .unwrap()
                             .get_interface_id()
                             .unwrap(),
-                        schema,
+                        schema_info,
                         seen_objects,
                         seen_interfaces,
                     ),
@@ -396,9 +441,11 @@ trait ResolverTypeDefinitionIr: ResolverIr {
     // Until we decide to support that behavior we'll make it a compiler error.
     fn validate_singular_implementation(
         &self,
-        schema: &SDLSchema,
+        schema_info: SchemaInfo<'_, '_>,
         interfaces: &[InterfaceID],
     ) -> DiagnosticsResult<()> {
+        let schema = schema_info.schema;
+
         for interface_id in interfaces {
             let interface = schema.interface(*interface_id);
             for field_id in &interface.fields {
@@ -417,18 +464,26 @@ trait ResolverTypeDefinitionIr: ResolverIr {
         Ok(())
     }
 
-    fn object_definitions(&self, object: &Object, schema: &SDLSchema) -> Vec<TypeSystemDefinition> {
+    fn object_definitions(
+        &self,
+        object: &Object,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> Vec<TypeSystemDefinition> {
         vec![TypeSystemDefinition::ObjectTypeExtension(
             ObjectTypeExtension {
                 name: obj_as_identifier(object.name),
                 interfaces: vec![],
                 directives: vec![],
-                fields: Some(self.fields(Some(object), schema)),
+                fields: Some(self.fields(Some(object), schema_info)),
             },
         )]
     }
 
-    fn fields(&self, object: Option<&Object>, schema: &SDLSchema) -> List<FieldDefinition> {
+    fn fields(
+        &self,
+        object: Option<&Object>,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> List<FieldDefinition> {
         let edge_to = self.output_type().as_ref().map_or_else(
             || {
                 // Resolvers return arbitrary JavaScript values. However, we
@@ -458,7 +513,7 @@ trait ResolverTypeDefinitionIr: ResolverIr {
             name: self.field_name().clone(),
             type_: edge_to,
             arguments: args,
-            directives: self.directives(object, schema),
+            directives: self.directives(object, schema_info),
             description: self.description(),
         }])
     }
@@ -492,16 +547,25 @@ pub struct TerseRelayResolverIr {
 }
 
 impl ResolverIr for TerseRelayResolverIr {
-    fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+    fn definitions(
+        &self,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+        let schema = schema_info.schema;
+
         if let Some(type_) = schema.get_type(self.type_.item) {
             match type_ {
                 Type::Object(object_id) => {
                     let object = schema.object(object_id);
-                    return Ok(self.object_definitions(object, schema));
+                    return Ok(self.object_definitions(object, schema_info));
                 }
                 Type::Interface(interface_id) => {
                     let interface = schema.interface(interface_id);
-                    return Ok(self.interface_definitions(interface.name, interface_id, schema));
+                    return Ok(self.interface_definitions(
+                        interface.name,
+                        interface_id,
+                        schema_info,
+                    ));
                 }
                 _ => panic!("Terser syntax is only supported on non-input objects or interfaces."),
             }
@@ -521,7 +585,11 @@ impl ResolverIr for TerseRelayResolverIr {
         self.location
     }
 
-    fn root_fragment(&self, object: Option<&Object>) -> Option<RootFragment> {
+    fn root_fragment(
+        &self,
+        object: Option<&Object>,
+        _: SchemaInfo<'_, '_>,
+    ) -> Option<RootFragment> {
         get_root_fragment_for_object(object).or_else(|| {
             self.root_fragment.map(|fragment| RootFragment {
                 fragment,
@@ -583,7 +651,12 @@ pub struct RelayResolverIr {
 }
 
 impl ResolverIr for RelayResolverIr {
-    fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+    fn definitions(
+        &self,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+        let schema = schema_info.schema;
+
         if let Some(OutputType::EdgeTo(edge_to_with_location)) = &self.output_type {
             if let TypeAnnotation::List(edge_to_type) = &edge_to_with_location.item {
                 if let Some(false) = schema
@@ -606,8 +679,8 @@ impl ResolverIr for RelayResolverIr {
                     match type_ {
                         Type::Object(object_id) => {
                             let object = schema.object(object_id);
-                            self.validate_singular_implementation(schema, &object.interfaces)?;
-                            return Ok(self.object_definitions(object, schema));
+                            self.validate_singular_implementation(schema_info, &object.interfaces)?;
+                            return Ok(self.object_definitions(object, schema_info));
                         }
                         Type::Interface(_) => {
                             return Err(vec![Diagnostic::error_with_data(
@@ -634,13 +707,13 @@ impl ResolverIr for RelayResolverIr {
                 if let Some(_type) = schema.get_type(value.item) {
                     if let Some(interface_type) = _type.get_interface_id() {
                         self.validate_singular_implementation(
-                            schema,
+                            schema_info,
                             &schema.interface(interface_type).interfaces,
                         )?;
                         return Ok(self.interface_definitions(
                             value.map(InterfaceName),
                             interface_type,
-                            schema,
+                            schema_info,
                         ));
                     } else if _type.is_object() {
                         return Err(vec![Diagnostic::error_with_data(
@@ -665,7 +738,11 @@ impl ResolverIr for RelayResolverIr {
         self.location
     }
 
-    fn root_fragment(&self, object: Option<&Object>) -> Option<RootFragment> {
+    fn root_fragment(
+        &self,
+        object: Option<&Object>,
+        _: SchemaInfo<'_, '_>,
+    ) -> Option<RootFragment> {
         get_root_fragment_for_object(object).or_else(|| {
             self.root_fragment.map(|fragment| RootFragment {
                 fragment,
@@ -722,11 +799,14 @@ pub struct StrongObjectIr {
 }
 
 impl ResolverIr for StrongObjectIr {
-    fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+    fn definitions(
+        &self,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let span = Span::empty();
         let fields = vec![
             FieldDefinition {
-                name: string_key_as_identifier(*ID_FIELD_NAME),
+                name: string_key_as_identifier(schema_info.config.node_interface_id_field),
                 type_: TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
                     span,
                     type_: TypeAnnotation::Named(NamedTypeAnnotation {
@@ -744,7 +824,7 @@ impl ResolverIr for StrongObjectIr {
                     name: string_key_as_identifier(*INT_TYPE),
                 }),
                 arguments: None,
-                directives: self.directives(None, schema),
+                directives: self.directives(None, schema_info),
                 description: None,
             },
         ];
@@ -768,10 +848,16 @@ impl ResolverIr for StrongObjectIr {
     }
 
     // For Model resolver we always inject the `id` fragment
-    fn root_fragment(&self, _: Option<&Object>) -> Option<RootFragment> {
+    fn root_fragment(
+        &self,
+        _: Option<&Object>,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> Option<RootFragment> {
         Some(RootFragment {
             fragment: self.root_fragment,
-            inject_fragment_data: Some(FragmentDataInjectionMode::Field(*ID_FIELD_NAME)),
+            inject_fragment_data: Some(FragmentDataInjectionMode::Field(
+                schema_info.config.node_interface_id_field,
+            )),
         })
     }
 
@@ -909,7 +995,7 @@ impl WeakObjectIr {
 }
 
 impl ResolverIr for WeakObjectIr {
-    fn definitions(&self, _schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+    fn definitions(&self, _: SchemaInfo<'_, '_>) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         Ok(vec![
             self.instance_scalar_type_definition(),
             self.type_definition(),
@@ -920,7 +1006,11 @@ impl ResolverIr for WeakObjectIr {
         self.location
     }
 
-    fn root_fragment(&self, _: Option<&Object>) -> Option<RootFragment> {
+    fn root_fragment(
+        &self,
+        _: Option<&Object>,
+        _schema_info: SchemaInfo<'_, '_>,
+    ) -> Option<RootFragment> {
         None
     }
 

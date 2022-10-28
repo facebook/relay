@@ -10,10 +10,10 @@
  */
 
 'use strict';
-import type {SelectorData} from 'relay-runtime/store/RelayStoreTypes';
 
 import type {ReactRelayQueryRendererContext as ReactRelayQueryRendererContextType} from './ReactRelayQueryRendererContext';
 import type {GraphQLTaggedNode, IEnvironment, Variables} from 'relay-runtime';
+import type {SelectorData} from 'relay-runtime/store/RelayStoreTypes';
 
 const ReactRelayContext = require('./ReactRelayContext');
 const ReactRelayQueryRendererContext = require('./ReactRelayQueryRendererContext');

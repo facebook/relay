@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<832de6c8c46524a105bf3142deaecaf2>>
+ * @generated SignedSource<<da7b37382824f1ff9dfc3023a2026666>>
  */
 
 mod compile_relay_artifacts;
@@ -1123,6 +1123,20 @@ fn relay_resolver_required() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-required.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-required.expected");
     test_fixture(transform_fixture, "relay-resolver-required.graphql", "compile_relay_artifacts/fixtures/relay-resolver-required.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_weak_object() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-weak-object.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-weak-object.expected");
+    test_fixture(transform_fixture, "relay-resolver-weak-object.graphql", "compile_relay_artifacts/fixtures/relay-resolver-weak-object.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_weak_object_plural() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-weak-object-plural.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-weak-object-plural.expected");
+    test_fixture(transform_fixture, "relay-resolver-weak-object-plural.graphql", "compile_relay_artifacts/fixtures/relay-resolver-weak-object-plural.expected", input, expected);
 }
 
 #[test]

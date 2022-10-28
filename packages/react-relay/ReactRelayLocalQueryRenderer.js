@@ -10,6 +10,7 @@
  */
 
 'use strict';
+import type {SelectorData} from 'relay-runtime/store/RelayStoreTypes';
 
 import type {ReactRelayQueryRendererContext as ReactRelayQueryRendererContextType} from './ReactRelayQueryRendererContext';
 import type {GraphQLTaggedNode, IEnvironment, Variables} from 'relay-runtime';
@@ -62,9 +63,9 @@ function ReactRelayLocalQueryRenderer(props: Props): React.Node {
 
   // Use a ref to prevent rendering twice when data changes
   // because of props change
-  const dataRef = useRef(null);
+  const dataRef = useRef<?SelectorData>(null);
   const [, forceUpdate] = useState(null);
-  const cleanupFnRef = useRef(null);
+  const cleanupFnRef = useRef<null | (() => void)>(null);
 
   const snapshot = useMemo(() => {
     environment.check(operation);

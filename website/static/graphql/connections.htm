@@ -13,7 +13,7 @@
 <header>
 <h1>GraphQL Cursor Connections Specification</h1>
 <section id="intro">
-<p>This specification aims to provide an option for GraphQL clients to consistently handle <a href="https://graphql.org/learn/pagination/">pagination best practices</a> with support for related metadata via a GraphQL server. This spec proposes calling this pattern &ldquo;Connections&rdquo; and exposing them in a standardized way. </p>
+<p>This specification aims to provide an option for GraphQL clients to consistently handle <a href="https://graphql.org/learn/pagination/">pagination best practices</a> with support for related metadata via a GraphQL server. This spec proposes calling this pattern &ldquo;Connections&rdquo; and exposing them in a standardized way.</p>
 <p>In the query, the connection model provides a standard mechanism for slicing and paginating the result set.</p>
 <p>In the response, the connection model provides a standard way of providing cursors, and a way of telling the client when more results are available.</p>
 <p>An example of all four of those is the following query:</p>
@@ -327,7 +327,7 @@ Including a value for both <code>first</code> and <code>last</code> is strongly 
 <p>The server must provide a type called <code>PageInfo</code>.</p>
 <section id="sec-undefined.PageInfo.Fields" secid="5.1">
 <h2><span class="spec-secid" title="link to this section"><a href="#sec-undefined.PageInfo.Fields">5.1</a></span>Fields</h2>
-<p><code>PageInfo</code> must contain fields <code>hasPreviousPage</code> and <code>hasNextPage</code>, both of which return non-null booleans. It must also contain fields <code>startCursor</code> and <code>endCursor</code>, both of which return non-null opaque strings.</p>
+<p><code>PageInfo</code> must contain fields <code>hasPreviousPage</code> and <code>hasNextPage</code>, both of which return non-null booleans. It must also contain fields <code>startCursor</code> and <code>endCursor</code>, both of which return opaque strings. The fields <code>startCursor</code> and <code>endCursor</code> can be null if there are no results.</p>
 <p><code>hasPreviousPage</code> is used to indicate whether more edges exist prior to the set defined by the clients arguments. If the client is paginating with <code>last</code>/<code>before</code>, then the server must return <span class="spec-keyword">true</span> if prior edges exist, otherwise <span class="spec-keyword">false</span>. If the client is paginating with <code>first</code>/<code>after</code>, then the client may return <span class="spec-keyword">true</span> if edges prior to <code>after</code> exist, if it can do so efficiently, otherwise may return <span class="spec-keyword">false</span>. More formally:</p>
 <div class="spec-algo" id="HasPreviousPage()">
 <span class="spec-call"><a href="#HasPreviousPage()" data-name="HasPreviousPage">HasPreviousPage</a>(<var data-name="allEdges">allEdges</var>, <var data-name="before">before</var>, <var data-name="after">after</var>, <var data-name="first">first</var>, <var data-name="last">last</var>)</span><ol>
@@ -416,23 +416,17 @@ As this spec was created with Relay Classic in mind, it&rsquo;s worth noting tha
         <span class="token punctuation">{</span>
           <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"startCursor"</span><span class="token punctuation">,</span>
           <span class="token property">"type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-            <span class="token property">"name"</span><span class="token operator">:</span> <span class="token null keyword">null</span><span class="token punctuation">,</span>
-            <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"NON_NULL"</span><span class="token punctuation">,</span>
-            <span class="token property">"ofType"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-              <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"String"</span><span class="token punctuation">,</span>
-              <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"SCALAR"</span>
-            <span class="token punctuation">}</span>
+            <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"String"</span><span class="token punctuation">,</span>
+            <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"SCALAR"</span><span class="token punctuation">,</span>
+            <span class="token property">"ofType"</span><span class="token operator">:</span> <span class="token null keyword">null</span>
           <span class="token punctuation">}</span>
         <span class="token punctuation">}</span><span class="token punctuation">,</span>
         <span class="token punctuation">{</span>
           <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"endCursor"</span><span class="token punctuation">,</span>
           <span class="token property">"type"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-            <span class="token property">"name"</span><span class="token operator">:</span> <span class="token null keyword">null</span><span class="token punctuation">,</span>
-            <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"NON_NULL"</span><span class="token punctuation">,</span>
-            <span class="token property">"ofType"</span><span class="token operator">:</span> <span class="token punctuation">{</span>
-              <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"String"</span><span class="token punctuation">,</span>
-              <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"SCALAR"</span>
-            <span class="token punctuation">}</span>
+            <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"String"</span><span class="token punctuation">,</span>
+            <span class="token property">"kind"</span><span class="token operator">:</span> <span class="token string">"SCALAR"</span><span class="token punctuation">,</span>
+            <span class="token property">"ofType"</span><span class="token operator">:</span> <span class="token null keyword">null</span>
           <span class="token punctuation">}</span>
         <span class="token punctuation">}</span>
       <span class="token punctuation">]</span>

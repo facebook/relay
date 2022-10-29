@@ -33,12 +33,11 @@ function constant_dependent(
     `,
     rootKey,
   );
-  // $FlowFixMe[prop-missing]
   constant_dependent._relayResolverTestCallCount =
-    // $FlowFixMe[prop-missing]
     (constant_dependent._relayResolverTestCallCount ?? 0) + 1;
   return (user.constant ?? NaN) + 1;
 }
+constant_dependent._relayResolverTestCallCount = (undefined: number | void);
 
 module.exports = {
   constant_dependent,

@@ -6,7 +6,7 @@ query MyQuery @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type MyQuery$variables = {};
+export type MyQuery$variables = { [K in any]: never };
 export type MyQuery$data = {
   readonly me: {
     readonly id: string;

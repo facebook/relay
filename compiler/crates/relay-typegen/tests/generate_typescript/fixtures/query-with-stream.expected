@@ -18,7 +18,7 @@ query TestStream @raw_response_type {
   }
 }
 ==================================== OUTPUT ===================================
-export type TestStream$variables = {};
+export type TestStream$variables = { [K in any]: never };
 export type TestStream$data = {
   readonly node: {
     readonly friends?: {

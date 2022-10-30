@@ -225,7 +225,7 @@ impl TypeScriptPrinter {
 
     fn write_object(&mut self, props: &[Prop]) -> FmtResult {
         if props.is_empty() {
-            write!(&mut self.result, "{{}}")?;
+            write!(&mut self.result, "{{ [K in any]: never }}")?;
             return Ok(());
         }
 
@@ -402,7 +402,7 @@ mod tests {
     fn exact_object() {
         assert_eq!(
             print_type(&AST::ExactObject(ExactObject::new(Vec::new()))),
-            r"{}".to_string()
+            r"{ [K in any]: never }".to_string()
         );
 
         assert_eq!(
@@ -487,7 +487,7 @@ mod tests {
     fn inexact_object() {
         assert_eq!(
             print_type(&AST::InexactObject(InexactObject::new(Vec::new()))),
-            "{}".to_string()
+            "{ [K in any]: never }".to_string()
         );
 
         assert_eq!(

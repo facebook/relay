@@ -13,7 +13,7 @@ fragment MyUserFragment on User {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type MyQuery$variables = {};
+export type MyQuery$variables = { [K in any]: never };
 export type MyQuery$data = {
   readonly me: {
     readonly my_inline_fragment: {

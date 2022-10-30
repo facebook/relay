@@ -10,7 +10,7 @@ query RelayReaderNamedFragmentsTest2Query {
 }
 ==================================== OUTPUT ===================================
 import { FragmentRefs } from "relay-runtime";
-export type RelayReaderNamedFragmentsTest2Query$variables = {};
+export type RelayReaderNamedFragmentsTest2Query$variables = { [K in any]: never };
 export type RelayReaderNamedFragmentsTest2Query$data = {
   readonly node: {
     readonly named_fragment: {

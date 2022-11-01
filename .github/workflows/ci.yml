@@ -194,7 +194,7 @@ jobs:
     name: Publish to NPM
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.repository == 'facebook/relay'
-    needs: [js-tests, js-lint, typecheck, rust-tests, build-compiler]
+    needs: [js-tests, js-lint, typecheck, build-tests, build-compiler]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2

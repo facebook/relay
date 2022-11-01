@@ -38,7 +38,6 @@ const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {check} = require('../DataChecker');
 const defaultGetDataID = require('../defaultGetDataID');
-const RelayModernRecord = require('../RelayModernRecord');
 const {createNormalizationSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');

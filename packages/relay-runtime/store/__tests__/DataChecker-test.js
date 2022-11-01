@@ -2179,7 +2179,7 @@ describe('check()', () => {
             handle: (field, record, argValues) => {
               if (
                 record &&
-                RelayModernRecord.getDataID(record) === '1' &&
+                record?.getDataID() === '1' &&
                 field.name === 'firstName'
               ) {
                 return 'Alice';
@@ -2189,7 +2189,7 @@ describe('check()', () => {
           {
             kind: 'linked',
             handle: (field, record, argValues) => {
-              const id = record && RelayModernRecord.getDataID(record);
+              const id = record?.getDataID();
               if (
                 field.name === 'profilePicture' &&
                 record &&

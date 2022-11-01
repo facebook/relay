@@ -138,7 +138,7 @@ function getStorageKey(
 ): string {
   if (field.storageKey) {
     // TODO T23663664: Handle nodes do not yet define a static storageKey.
-    return (field: $FlowFixMe).storageKey;
+    return field.storageKey;
   }
 
   const args = getArguments(field);

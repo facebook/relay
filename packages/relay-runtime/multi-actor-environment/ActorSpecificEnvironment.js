@@ -17,6 +17,7 @@ import type {INetwork} from '../network/RelayNetworkTypes';
 import type RelayObservable from '../network/RelayObservable';
 import type {
   ExecuteMutationConfig,
+  MissingFieldHandler,
   LogFunction,
   MutationParameters,
   OperationAvailability,
@@ -54,6 +55,7 @@ export type ActorSpecificEnvironmentConfig = $ReadOnly<{
   network: INetwork,
   requiredFieldLogger: RequiredFieldLogger,
   store: Store,
+  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
 }>;
 
 class ActorSpecificEnvironment implements IActorEnvironment {
@@ -83,6 +85,7 @@ class ActorSpecificEnvironment implements IActorEnvironment {
       config.store,
       config.handlerProvider,
       defaultGetDataID,
+      config.missingFieldHandlers,
     );
     this._defaultRenderPolicy = config.defaultRenderPolicy;
     // TODO:T92305692 Remove `options` in favor of directly using `actorIdentifier` on the environment

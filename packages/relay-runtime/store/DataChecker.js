@@ -175,6 +175,8 @@ class DataChecker {
       const recordSourceProxy = new RelayRecordSourceProxy(
         mutator,
         this._getDataID,
+        undefined,
+        this._handlers,
       );
       tuple = [mutator, recordSourceProxy];
       this._mutatorRecordSourceProxyCache.set(actorIdentifier, tuple);

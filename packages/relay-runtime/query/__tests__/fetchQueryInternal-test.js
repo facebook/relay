@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {GraphQLResponse} from '../../network/RelayNetworkTypes';
 import type {Observer} from '../../network/RelayObservable';
 import type {

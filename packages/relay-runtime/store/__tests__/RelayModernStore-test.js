@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {SelectorData} from 'relay-runtime/store/RelayStoreTypes';
 import type {Disposable} from '../../util/RelayRuntimeTypes';
 import type {

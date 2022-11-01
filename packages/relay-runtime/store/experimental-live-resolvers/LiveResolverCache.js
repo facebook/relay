@@ -773,7 +773,7 @@ function updateCurrentSource(
   nextSource: RecordSource,
   prevOutputTypeRecordIDs: ?$ReadOnlySet<DataID>,
 ): DataIDSet {
-  const updatedDataIDs = new Set();
+  const updatedDataIDs = new Set<DataID>();
 
   // First, we are removing records from the `currentSource`
   // that is no longer created from the resolver with @outputType

@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {
   HandleFieldPayload,
   RecordSourceProxy,

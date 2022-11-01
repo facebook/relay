@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 
 const EntryPointContainer = require('../EntryPointContainer.react');
@@ -113,7 +114,9 @@ beforeEach(() => {
     network: Network.create(fetch),
     store: new Store(new RecordSource()),
   });
-  nestedEntryPointResource = new FakeJSResource();
+  nestedEntryPointResource = new FakeJSResource<
+    void | ((props: any) => empty),
+  >();
 
   entrypoint = {
     getPreloadProps(entryPointParams: any) {

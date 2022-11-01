@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {
   usePaginationFragmentTestStoryFragmentRefetchQuery$data,
   usePaginationFragmentTestStoryFragmentRefetchQuery$variables,

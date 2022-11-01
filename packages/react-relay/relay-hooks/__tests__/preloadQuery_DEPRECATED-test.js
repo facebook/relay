@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
 const preloadQuery_DEPRECATED = require('../preloadQuery_DEPRECATED');

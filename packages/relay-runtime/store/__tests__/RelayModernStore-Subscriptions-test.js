@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {SelectorData} from 'relay-runtime/store/RelayStoreTypes';
 import type {
   RelayModernStoreSubscriptionsTest1Fragment$data,

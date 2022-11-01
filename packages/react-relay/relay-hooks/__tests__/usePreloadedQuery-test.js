@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {Sink} from '../../../relay-runtime/network/RelayObservable';
 import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 

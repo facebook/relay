@@ -78,7 +78,7 @@ jobs:
       - name: Flow
         run: yarn run typecheck
 
-  rust-tests:
+  build-tests:
     name: Rust Tests (${{ matrix.os }})
     strategy:
       matrix:
@@ -98,6 +98,12 @@ jobs:
       - name: "Build test project"
         run: cargo run --manifest-path=../crates/relay-bin/Cargo.toml
         working-directory: ./compiler/test-project
+      - name: "Run compiler on Relay unit-tests"
+        run: './compile-tests.sh'
+        working-directory: ./scripts
+      - name: "Check working directory"
+        run: './check-git-status.sh'
+        working-directory: ./scripts
 
   rust-lint:
     name: Rust Lint

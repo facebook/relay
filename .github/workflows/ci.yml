@@ -95,13 +95,13 @@ jobs:
           command: test
           # add --locked back when we have a better way to ensure it's up to date
           args: --manifest-path=compiler/Cargo.toml
-      - name: "Build test project"
+      - name: "Build compiler test project"
         run: cargo run --manifest-path=../crates/relay-bin/Cargo.toml
         working-directory: ./compiler/test-project
-      - name: "Run compiler on Relay unit-tests"
+      - name: "Build relay Unit-tests"
         run: './compile-tests.sh'
         working-directory: ./scripts
-      - name: "Check working directory"
+      - name: "Check working directory status"
         run: './check-git-status.sh'
         working-directory: ./scripts
 

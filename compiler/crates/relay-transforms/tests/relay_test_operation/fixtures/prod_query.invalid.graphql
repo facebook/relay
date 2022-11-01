@@ -5,3 +5,4 @@ query ProdQuery @relay_test_operation {
     id
   }
 }
+# %extensions%

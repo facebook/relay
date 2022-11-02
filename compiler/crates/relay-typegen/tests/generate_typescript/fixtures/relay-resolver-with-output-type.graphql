@@ -1,0 +1,27 @@
+# typegen_config.use_import_type_syntax = true
+
+fragment Foo_user on User {
+  poppy: pop_star_name {
+    name
+  }
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+type ClientUser {
+  name: String
+}
+
+extend type User {
+  pop_star_name: ClientUser @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+}

@@ -1,0 +1,24 @@
+
+# typegen_config.use_import_type_syntax = true
+
+query RelayWeakClientTypeQuery($id: ID!) {
+  my_custom_type {
+    __instance
+  }
+}
+
+# %extensions%
+
+scalar CustomClientTypeModel
+  @__RelayCustomScalar(
+    path: "./path/to/the/module.js"
+    export_name: "CustomClientType"
+  )
+
+type CustomClientType {
+  __instance: CustomClientTypeModel
+}
+
+extend type Query {
+  my_custom_type: CustomClientType
+}

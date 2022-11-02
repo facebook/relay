@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a58c4e9a6c17915f3f6a98c532b7058c>>
+ * @generated SignedSource<<4cdab6d5d48465ba214752ba0b88c6a4>>
  */
 
 mod generate_typescript;
@@ -244,6 +244,20 @@ fn relay_client_id_field() {
 }
 
 #[test]
+fn relay_resolver_with_output_type() {
+    let input = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay-resolver-with-output-type.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type.graphql", "generate_typescript/fixtures/relay-resolver-with-output-type.expected", input, expected);
+}
+
+#[test]
+fn relay_weak_client_type() {
+    let input = include_str!("generate_typescript/fixtures/relay-weak-client-type.graphql");
+    let expected = include_str!("generate_typescript/fixtures/relay-weak-client-type.expected");
+    test_fixture(transform_fixture, "relay-weak-client-type.graphql", "generate_typescript/fixtures/relay-weak-client-type.expected", input, expected);
+}
+
+#[test]
 fn required() {
     let input = include_str!("generate_typescript/fixtures/required.graphql");
     let expected = include_str!("generate_typescript/fixtures/required.expected");
@@ -353,6 +367,13 @@ fn simple() {
     let input = include_str!("generate_typescript/fixtures/simple.graphql");
     let expected = include_str!("generate_typescript/fixtures/simple.expected");
     test_fixture(transform_fixture, "simple.graphql", "generate_typescript/fixtures/simple.expected", input, expected);
+}
+
+#[test]
+fn simple_use_import_type_syntax() {
+    let input = include_str!("generate_typescript/fixtures/simple-use-import-type-syntax.graphql");
+    let expected = include_str!("generate_typescript/fixtures/simple-use-import-type-syntax.expected");
+    test_fixture(transform_fixture, "simple-use-import-type-syntax.graphql", "generate_typescript/fixtures/simple-use-import-type-syntax.expected", input, expected);
 }
 
 #[test]

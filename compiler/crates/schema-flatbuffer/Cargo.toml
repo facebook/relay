@@ -7,4 +7,4 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-flatbuffers = "2.0"
+flatbuffers = "22.9"

@@ -80,7 +80,7 @@ function updateProxyFromSelections<TData>(
   selections: $ReadOnlyArray<ReaderSelection>,
   recordSourceProxy: RecordSourceProxy,
   missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
-) {
+): void {
   for (const selection of selections) {
     switch (selection.kind) {
       case LINKED_FIELD:
@@ -300,7 +300,7 @@ function createGetterForPluralLinkedField(
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
   missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
-) {
+): () => ?$FlowFixMe {
   return function () {
     const newVariables = getArgumentValues(selection.args ?? [], variables);
     let linkedRecords = updatableProxyRootRecord.getLinkedRecords(
@@ -354,7 +354,7 @@ function createGetterForSingularLinkedField(
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
   missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
-) {
+): () => ?$FlowFixMe {
   return function () {
     const newVariables = getArgumentValues(selection.args ?? [], variables);
     let linkedRecord = updatableProxyRootRecord.getLinkedRecord(

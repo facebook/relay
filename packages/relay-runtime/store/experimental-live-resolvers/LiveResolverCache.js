@@ -318,7 +318,7 @@ class LiveResolverCache implements ResolverCache {
     );
 
     return new Promise(resolve => {
-      const unsubscribe = liveState.subscribe(() => {
+      const unsubscribe: () => void = liveState.subscribe(() => {
         unsubscribe();
         resolve();
       });

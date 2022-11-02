@@ -132,23 +132,36 @@ function createCacheEntry(
   let currentValue: Error | Promise<void> | QueryResult = value;
   let currentNetworkSubscription: ?Subscription = networkSubscription;
 
-  const suspenseResource = new SuspenseResource(environment => {
-    const retention = environment.retain(operation);
-    return {
-      dispose: () => {
-        // Normally if this entry never commits, the request would've ended by the
-        // time this timeout expires and the temporary retain is released. However,
-        // we need to do this for live queries which remain open indefinitely.
-        if (isLiveQuery && currentNetworkSubscription != null) {
-          currentNetworkSubscription.unsubscribe();
-        }
-        retention.dispose();
-        onDispose(cacheEntry);
-      },
-    };
-  });
+  const suspenseResource: SuspenseResource = new SuspenseResource(
+    environment => {
+      const retention = environment.retain(operation);
+      return {
+        dispose: () => {
+          // Normally if this entry never commits, the request would've ended by the
+          // time this timeout expires and the temporary retain is released. However,
+          // we need to do this for live queries which remain open indefinitely.
+          if (isLiveQuery && currentNetworkSubscription != null) {
+            currentNetworkSubscription.unsubscribe();
+          }
+          retention.dispose();
+          onDispose(cacheEntry);
+        },
+      };
+    },
+  );
 
-  const cacheEntry = {
+  const cacheEntry: {
+    cacheIdentifier: string,
+    getValue(): QueryResult | Promise<void> | Error,
+    id: number,
+    operationAvailability: ?OperationAvailability,
+    permanentRetain(environment: IEnvironment): Disposable,
+    processedPayloadsCount: number,
+    releaseTemporaryRetain(): void,
+    setNetworkSubscription(subscription: ?Subscription): void,
+    setValue(val: QueryResult | Promise<void> | Error): void,
+    temporaryRetain(environment: IEnvironment): Disposable,
+  } = {
     cacheIdentifier,
     id: nextID++,
     processedPayloadsCount: 0,

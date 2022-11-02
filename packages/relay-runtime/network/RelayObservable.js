@@ -272,7 +272,7 @@ class RelayObservable<+T> implements Subscribable<T> {
   ifEmpty<U>(alternate: RelayObservable<U>): RelayObservable<T | U> {
     return RelayObservable.create(sink => {
       let hasValue = false;
-      let current = this.subscribe({
+      let current: Subscription = this.subscribe({
         next(value) {
           hasValue = true;
           sink.next(value);

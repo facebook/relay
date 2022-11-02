@@ -274,7 +274,7 @@ function loadQuery<
   };
 
   let params;
-  let cancelOnLoadCallback;
+  let cancelOnLoadCallback: () => void;
   let queryId;
   if (preloadableRequest.kind === 'PreloadableConcreteRequest') {
     const preloadableConcreteRequest: PreloadableConcreteRequest<TQuery> =

@@ -1,0 +1,13 @@
+fragment UserWithAllowedCustomIDType_fragment on UserWithAllowedCustomIDType {
+    id
+    name
+}
+
+# %extensions%
+
+scalar AllowedCustomIDType
+
+type UserWithAllowedCustomIDType {
+    id: AllowedCustomIDType!
+    name: String!
+}

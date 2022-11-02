@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a2ed2a24960c76392c6734ae42747258>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<06beabc914072f477d97918752299794>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,10 +18,10 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type LiveCounterResolver$key = any;
+import type { LiveCounterResolver$key } from "./LiveCounterResolver.graphql";
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { FragmentType } from "relay-runtime";
-import queryCounterResolver from "../LiveCounterResolver.js";
+import {counter as queryCounterResolver} from "../LiveCounterResolver.js";
 // Type assertion validating that `queryCounterResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterResolver: (
@@ -55,7 +57,7 @@ var node/*: ReaderFragment*/ = {
         },
         "kind": "RelayLiveResolver",
         "name": "counter",
-        "resolverModule": require('./../LiveCounterResolver.js'),
+        "resolverModule": require('./../LiveCounterResolver').counter,
         "path": "counter"
       },
       "action": "THROW",

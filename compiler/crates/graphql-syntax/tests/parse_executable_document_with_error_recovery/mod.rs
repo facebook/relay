@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, SourceLocationKey, TextSource};
+use common::Diagnostic;
+use common::SourceLocationKey;
+use common::TextSource;
 use fixture_tests::Fixture;
 use graphql_cli::DiagnosticPrinter;
 use graphql_syntax::parse_executable_with_error_recovery;
@@ -18,7 +20,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     Ok(format!(
         "{:#?}\nErrors:\n{}",
         result.item,
-        diagnostics_to_sorted_string(fixture.content, &result.errors)
+        diagnostics_to_sorted_string(fixture.content, &result.diagnostics)
     ))
 }
 

@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -512,7 +512,7 @@ test('it should dispose nested entry points', () => {
     },
     entryPoint,
     // $FlowFixMe[prop-missing]
-    {...null},
+    {},
   );
   const nestedEntryPointDisposeSpy = jest.spyOn(
     preloadedEntryPoint.entryPoints.myNestedEntryPoint,

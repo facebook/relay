@@ -5,18 +5,33 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{DiagnosticsResult, SourceLocationKey};
-use docblock_syntax::{parse_docblock, DocblockSource};
-use extract_graphql::{self, JavaScriptSourceFeature};
+use std::sync::Arc;
+
+use common::DiagnosticsResult;
+use common::SourceLocationKey;
+use docblock_syntax::parse_docblock;
+use docblock_syntax::DocblockSource;
+use extract_graphql::JavaScriptSourceFeature;
 use fixture_tests::Fixture;
-use graphql_syntax::{parse_executable, ExecutableDefinition};
+use graphql_syntax::parse_executable;
+use graphql_syntax::ExecutableDefinition;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use intern::string_key::Intern;
 use relay_docblock::parse_docblock_ast;
-use relay_test_schema::TEST_SCHEMA;
+use relay_docblock::ParseOptions;
+use relay_test_schema::get_test_schema;
+use relay_test_schema::get_test_schema_with_extensions;
+use schema::SDLSchema;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
-    let js_features = extract_graphql::extract(fixture.content);
+    let parts: Vec<_> = fixture.content.split("%extensions%").collect();
+    let (base, schema) = match parts.as_slice() {
+        [base, extensions] => (base, extract_schema_from_js(extensions)),
+        [base] => (base, get_test_schema()),
+        _ => panic!("Invalid fixture input {}", fixture.content),
+    };
+
+    let js_features = extract_graphql::extract(base);
 
     let executable_documents = js_features
         .iter()
@@ -45,9 +60,23 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 index: i as u16,
             },
         )?;
-        let ir = parse_docblock_ast(&ast, Some(&executable_documents))?.unwrap();
+        let ir = parse_docblock_ast(
+            &ast,
+            Some(&executable_documents),
+            ParseOptions {
+                use_named_imports: fixture.content.contains("// relay:use_named_imports"),
+                relay_resolver_model_syntax_enabled: !fixture
+                    .content
+                    .contains("// relay:disable_relay_resolver_model_syntax"),
+                relay_resolver_enable_terse_syntax: !fixture
+                    .content
+                    .contains("// relay:disable_relay_resolver_terse_syntax"),
+                id_field_name: "id".intern(),
+            },
+        )?
+        .unwrap();
 
-        ir.to_sdl_string(&TEST_SCHEMA)
+        ir.to_sdl_string(&schema, &Default::default())
     };
 
     let schema_strings = js_features
@@ -65,4 +94,16 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .collect::<Result<Vec<_>, String>>()?;
 
     Ok(schema_strings.join("\n\n"))
+}
+
+fn extract_schema_from_js(js: &str) -> Arc<SDLSchema> {
+    let js_features = extract_graphql::extract(js);
+    let sdl_text = match js_features.as_slice() {
+        [JavaScriptSourceFeature::GraphQL(source)] => &source.text_source().text,
+        _ => {
+            panic!("Expected %extensions% to contain exactly 1 graphql`` tagged template literal.")
+        }
+    };
+
+    get_test_schema_with_extensions(sdl_text)
 }

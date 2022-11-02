@@ -5,12 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::definitions::{Directive, *};
-use crate::in_memory::InMemorySchema;
-use crate::{flatbuffer::SchemaWrapper, graphql_schema::Schema};
-use common::{DiagnosticsResult, SourceLocationKey};
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::SourceLocationKey;
 use graphql_syntax::*;
 use intern::string_key::StringKey;
+
+use crate::definitions::Directive;
+use crate::definitions::*;
+use crate::flatbuffer::SchemaWrapper;
+use crate::graphql_schema::Schema;
+use crate::in_memory::InMemorySchema;
 
 #[derive(Debug)]
 pub enum SDLSchema {
@@ -82,7 +87,7 @@ impl Schema for SDLSchema {
         }
     }
 
-    fn get_directive(&self, name: StringKey) -> Option<&Directive> {
+    fn get_directive(&self, name: DirectiveName) -> Option<&Directive> {
         match self {
             SDLSchema::FlatBuffer(schema) => schema.get_directive(name),
             SDLSchema::InMemory(schema) => schema.get_directive(name),
@@ -177,7 +182,7 @@ impl Schema for SDLSchema {
     /// have a type to instantiate the argument.
     ///
     /// TODO: we probably want to replace this with a proper `Unknown` type.
-    fn unchecked_argument_type_sentinel(&self) -> &TypeReference {
+    fn unchecked_argument_type_sentinel(&self) -> &TypeReference<Type> {
         match self {
             SDLSchema::FlatBuffer(schema) => schema.unchecked_argument_type_sentinel(),
             SDLSchema::InMemory(schema) => schema.unchecked_argument_type_sentinel(),
@@ -275,12 +280,11 @@ impl SDLSchema {
         &mut self,
         object_extension: ObjectTypeExtension,
         location_key: SourceLocationKey,
-        is_extension: bool,
     ) -> DiagnosticsResult<()> {
         match self {
             SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
             SDLSchema::InMemory(schema) => {
-                schema.add_object_type_extension(object_extension, location_key, is_extension)
+                schema.add_object_type_extension(object_extension, location_key)
             }
         }
     }
@@ -289,13 +293,34 @@ impl SDLSchema {
         &mut self,
         interface_extension: InterfaceTypeExtension,
         location_key: SourceLocationKey,
-        is_extension: bool,
     ) -> DiagnosticsResult<()> {
         match self {
             SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
             SDLSchema::InMemory(schema) => {
-                schema.add_interface_type_extension(interface_extension, location_key, is_extension)
+                schema.add_interface_type_extension(interface_extension, location_key)
             }
+        }
+    }
+
+    pub fn add_extension_scalar(
+        &mut self,
+        scalar: ScalarTypeDefinition,
+        location_key: SourceLocationKey,
+    ) -> DiagnosticsResult<()> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::InMemory(schema) => schema.add_extension_scalar(scalar, location_key),
+        }
+    }
+
+    pub fn add_extension_object(
+        &mut self,
+        object: ObjectTypeDefinition,
+        location_key: SourceLocationKey,
+    ) -> DiagnosticsResult<()> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => panic!("expected an underlying InMemorySchema"),
+            SDLSchema::InMemory(schema) => schema.add_extension_object(object, location_key),
         }
     }
 
@@ -306,7 +331,7 @@ impl SDLSchema {
         }
     }
 
-    pub fn get_directive_mut(&mut self, name: StringKey) -> Option<&mut Directive> {
+    pub fn get_directive_mut(&mut self, name: DirectiveName) -> Option<&mut Directive> {
         match self {
             SDLSchema::FlatBuffer(_schema) => todo!(),
             SDLSchema::InMemory(schema) => schema.get_directive_mut(name),
@@ -363,7 +388,14 @@ impl SDLSchema {
         }
     }
 
-    pub fn has_directive(&self, directive_name: StringKey) -> bool {
+    pub fn get_unions(&self) -> impl Iterator<Item = &Union> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::InMemory(schema) => schema.get_unions(),
+        }
+    }
+
+    pub fn has_directive(&self, directive_name: DirectiveName) -> bool {
         match self {
             SDLSchema::FlatBuffer(_schema) => todo!(),
             SDLSchema::InMemory(schema) => schema.has_directive(directive_name),
@@ -381,6 +413,13 @@ impl SDLSchema {
         match self {
             SDLSchema::FlatBuffer(_schema) => todo!(),
             SDLSchema::InMemory(schema) => schema.add_directive(directive),
+        }
+    }
+
+    pub fn remove_directive(&mut self, directive_name: DirectiveName) -> DiagnosticsResult<()> {
+        match self {
+            SDLSchema::FlatBuffer(_schema) => todo!(),
+            SDLSchema::InMemory(schema) => schema.remove_directive(directive_name),
         }
     }
 

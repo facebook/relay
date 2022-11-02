@@ -13,32 +13,46 @@ mod utils;
 mod validation_message;
 mod viewer_query_generator;
 
-use crate::{
-    connections::{extract_connection_metadata_from_directive, ConnectionConstants},
-    relay_directive::{PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME},
-    root_variables::{InferVariablesVisitor, VariableMap},
-};
+use std::fmt::Write;
+use std::sync::Arc;
 
-use self::validation_message::ValidationMessage;
 use ::errors::validate_map;
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use common::WithLocation;
 use fetchable_query_generator::FETCHABLE_QUERY_GENERATOR;
-use graphql_ir::{
-    Directive, FragmentDefinition, OperationDefinition, Program, Selection, VariableDefinition,
-};
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameSet;
+use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::VariableDefinition;
 use graphql_syntax::OperationKind;
-use intern::string_key::{StringKey, StringKeyMap, StringKeySet};
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
 use node_query_generator::NODE_QUERY_GENERATOR;
 use query_query_generator::QUERY_QUERY_GENERATOR;
 use relay_config::SchemaConfig;
-use schema::{SDLSchema, Schema};
-use std::{fmt::Write, sync::Arc};
+use schema::SDLSchema;
+use schema::Schema;
+pub use utils::RefetchableDerivedFromMetadata;
+pub use utils::RefetchableMetadata;
+pub use utils::CONSTANTS;
 use utils::*;
-pub use utils::{RefetchableDerivedFromMetadata, RefetchableMetadata, CONSTANTS};
 use viewer_query_generator::VIEWER_QUERY_GENERATOR;
 
 use self::refetchable_directive::RefetchableDirective;
 pub use self::refetchable_directive::REFETCHABLE_NAME;
+use self::validation_message::ValidationMessage;
+use crate::connections::extract_connection_metadata_from_directive;
+use crate::connections::ConnectionConstants;
+use crate::relay_directive::PLURAL_ARG_NAME;
+use crate::relay_directive::RELAY_DIRECTIVE_NAME;
+use crate::root_variables::InferVariablesVisitor;
+use crate::root_variables::VariableMap;
 
 /// This transform synthesizes "refetch" queries for fragments that
 /// are trivially refetchable. This is comprised of three main stages:
@@ -57,7 +71,7 @@ pub use self::refetchable_directive::REFETCHABLE_NAME;
 pub fn transform_refetchable_fragment(
     program: &Program,
     schema_config: &SchemaConfig,
-    base_fragment_names: &'_ StringKeySet,
+    base_fragment_names: &'_ FragmentDefinitionNameSet,
     for_typegen: bool,
 ) -> DiagnosticsResult<Program> {
     let mut next_program = Program::new(Arc::clone(&program.schema));
@@ -80,7 +94,7 @@ pub fn transform_refetchable_fragment(
                     kind: OperationKind::Query,
                     name: WithLocation::new(
                         fragment.name.location,
-                        refetchable_directive.query_name.item,
+                        OperationDefinitionName(refetchable_directive.query_name.item),
                     ),
                     type_: program.schema.query_type().unwrap(),
                     variable_definitions: operation_result.variable_definitions,
@@ -177,7 +191,7 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
         descriptions.pop();
         Err(vec![Diagnostic::error(
             ValidationMessage::UnsupportedRefetchableFragment {
-                fragment_name: fragment.name.item,
+                fragment_name: fragment.name.item.0,
                 descriptions,
             },
             fragment.name.location,
@@ -194,7 +208,7 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
         if let Some(directive) = plural_directive {
             Err(vec![Diagnostic::error(
                 ValidationMessage::InvalidRefetchableFragmentWithRelayPlural {
-                    fragment_name: fragment.name.item,
+                    fragment_name: fragment.name.item.0,
                 },
                 directive.name.location,
             )])
@@ -208,15 +222,18 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
         fragment: &FragmentDefinition,
         refetchable_directive: &RefetchableDirective,
     ) -> DiagnosticsResult<()> {
+        let fragment_name = fragment.name.map(|x| x.0);
+
         // check for conflict with other @refetchable names
         if let Some(previous_fragment) = self
             .existing_refetch_operations
-            .insert(refetchable_directive.query_name.item, fragment.name)
+            .insert(refetchable_directive.query_name.item, fragment_name)
         {
-            let (first_fragment, second_fragment) = if fragment.name.item > previous_fragment.item {
-                (previous_fragment, fragment.name)
+            let (first_fragment, second_fragment) = if fragment.name.item.0 > previous_fragment.item
+            {
+                (previous_fragment, fragment_name)
             } else {
-                (fragment.name, previous_fragment)
+                (fragment_name, previous_fragment)
             };
             return Err(vec![
                 Diagnostic::error(
@@ -232,10 +249,9 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
         }
 
         // check for conflict with operations
-        if let Some(existing_query) = self
-            .program
-            .operation(refetchable_directive.query_name.item)
-        {
+        if let Some(existing_query) = self.program.operation(OperationDefinitionName(
+            refetchable_directive.query_name.item,
+        )) {
             return Err(vec![
                 Diagnostic::error(
                     ValidationMessage::RefetchableQueryConflictWithQuery {
@@ -266,7 +282,7 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
             if metadatas.len() > 1 {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::RefetchableWithMultipleConnections {
-                        fragment_name: fragment.name.item,
+                        fragment_name: fragment.name.item.0,
                     },
                     fragment.name.location,
                 )]);
@@ -275,7 +291,7 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
                 if metadata.path.is_none() {
                     return Err(vec![Diagnostic::error(
                         ValidationMessage::RefetchableWithConnectionInPlural {
-                            fragment_name: fragment.name.item,
+                            fragment_name: fragment.name.item.0,
                         },
                         fragment.name.location,
                     )]);
@@ -285,7 +301,7 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
                 {
                     return Err(vec![Diagnostic::error(
                         ValidationMessage::RefetchableWithConstConnectionArguments {
-                            fragment_name: fragment.name.item,
+                            fragment_name: fragment.name.item.0,
                             arguments: "after and first",
                         },
                         fragment.name.location,
@@ -295,7 +311,7 @@ impl<'program, 'sc> RefetchableFragment<'program, 'sc> {
                 {
                     return Err(vec![Diagnostic::error(
                         ValidationMessage::RefetchableWithConstConnectionArguments {
-                            fragment_name: fragment.name.item,
+                            fragment_name: fragment.name.item.0,
                             arguments: "before and last",
                         },
                         fragment.name.location,

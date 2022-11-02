@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
- * @format
  * @flow strict-local
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -651,7 +651,7 @@ describe('ReactRelayTestMocker with Containers', () => {
 
       function FeedbackComponent(props: $FlowFixMe) {
         const [busy, setBusy] = useState(false);
-        const [errorMessage, setErrorMessage] = useState(null);
+        const [errorMessage, setErrorMessage] = useState<null | string>(null);
         return (
           <div>
             {errorMessage != null && (

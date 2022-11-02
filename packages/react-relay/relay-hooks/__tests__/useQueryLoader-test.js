@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -91,7 +91,7 @@ describe('useQueryLoader', () => {
       },
     }) {
       renderCount = (renderCount || 0) + 1;
-      [loadedQuery, queryLoaderCallback, disposeQuery] = useQueryLoader(
+      [loadedQuery, queryLoaderCallback, disposeQuery] = useQueryLoader<any>(
         generatedQuery,
         // $FlowExpectedError[incompatible-call] it's ok to pass our fake preloaded query here
         initialPreloadedQuery,

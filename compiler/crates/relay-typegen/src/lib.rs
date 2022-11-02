@@ -18,19 +18,26 @@ mod visit;
 mod write;
 mod writer;
 
-use ::intern::string_key::{Intern, StringKey};
-use common::{NamedItem, WithLocation};
-use graphql_ir::{FragmentDefinition, OperationDefinition};
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
+use common::DirectiveName;
+use common::NamedItem;
+use common::ScalarName;
+use common::WithLocation;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
 use lazy_static::lazy_static;
 use relay_config::ProjectConfig;
-pub use relay_config::{TypegenConfig, TypegenLanguage};
+pub use relay_config::TypegenConfig;
+pub use relay_config::TypegenLanguage;
 use relay_transforms::UPDATABLE_DIRECTIVE;
 use schema::SDLSchema;
+pub use typegen_state::FragmentLocations;
 pub use write::has_raw_response_type_directive;
-use write::{
-    write_fragment_type_exports_section, write_operation_type_exports_section,
-    write_split_operation_type_exports_section, write_validator_function,
-};
+use write::write_fragment_type_exports_section;
+use write::write_operation_type_exports_section;
+use write::write_split_operation_type_exports_section;
+use write::write_validator_function;
 use writer::new_writer_from_config;
 
 static REACT_RELAY_MULTI_ACTOR: &str = "react-relay/multi-actor";
@@ -57,15 +64,18 @@ lazy_static! {
     static ref KEY_NODE: StringKey = "node".intern();
     static ref KEY_NODES: StringKey = "nodes".intern();
     static ref MODULE_COMPONENT: StringKey = "__module_component".intern();
-    static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: StringKey = "raw_response_type".intern();
+    static ref RAW_RESPONSE_TYPE_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("raw_response_type".intern());
     static ref RESPONSE: StringKey = "response".intern();
-    static ref TYPE_BOOLEAN: StringKey = "Boolean".intern();
-    static ref TYPE_FLOAT: StringKey = "Float".intern();
-    static ref TYPE_ID: StringKey = "ID".intern();
-    static ref TYPE_INT: StringKey = "Int".intern();
-    static ref TYPE_STRING: StringKey = "String".intern();
+    static ref TYPE_BOOLEAN: ScalarName = ScalarName("Boolean".intern());
+    static ref TYPE_FLOAT: ScalarName = ScalarName("Float".intern());
+    static ref TYPE_ID: ScalarName = ScalarName("ID".intern());
+    static ref TYPE_INT: ScalarName = ScalarName("Int".intern());
+    static ref TYPE_STRING: ScalarName = ScalarName("String".intern());
+    static ref TYPE_RELAY_RESOLVER_VALUE: ScalarName = ScalarName("RelayResolverValue".intern());
     static ref VARIABLES: StringKey = "variables".intern();
     static ref SPREAD_KEY: StringKey = "\0SPREAD".intern();
+    static ref LIVE_STATE_TYPE: StringKey = "LiveState".intern();
 }
 
 /// Determines whether a generated data type is "unmasked", which controls whether
@@ -105,18 +115,22 @@ pub fn generate_fragment_type_exports_section(
     fragment_definition: &FragmentDefinition,
     schema: &SDLSchema,
     project_config: &ProjectConfig,
+    fragment_locations: &FragmentLocations,
 ) -> String {
-    let typgen_context = TypegenContext::new(
+    let typegen_context = TypegenContext::new(
         schema,
         project_config,
         fragment_definition
             .directives
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
-        fragment_definition.name,
+        fragment_definition.name.map(|x| x.0),
+        fragment_locations,
+        false,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
-    write_fragment_type_exports_section(&typgen_context, fragment_definition, &mut writer).unwrap();
+    write_fragment_type_exports_section(&typegen_context, fragment_definition, &mut writer)
+        .unwrap();
     writer.into_string()
 }
 
@@ -124,18 +138,21 @@ pub fn generate_named_validator_export(
     fragment_definition: &FragmentDefinition,
     schema: &SDLSchema,
     project_config: &ProjectConfig,
+    fragment_locations: &FragmentLocations,
 ) -> String {
-    let typgen_context = TypegenContext::new(
+    let typegen_context = TypegenContext::new(
         schema,
         project_config,
         fragment_definition
             .directives
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
-        fragment_definition.name,
+        fragment_definition.name.map(|x| x.0),
+        fragment_locations,
+        false,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
-    write_validator_function(&typgen_context, fragment_definition, &mut writer).unwrap();
+    write_validator_function(&typegen_context, fragment_definition, &mut writer).unwrap();
     let validator_function_body = writer.into_string();
 
     if project_config.typegen_config.eager_es_modules {
@@ -153,19 +170,25 @@ pub fn generate_operation_type_exports_section(
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
     project_config: &ProjectConfig,
+    fragment_locations: &FragmentLocations,
 ) -> String {
-    let typgen_context = TypegenContext::new(
+    let typegen_context = TypegenContext::new(
         schema,
         project_config,
         typegen_operation
             .directives
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
-        typegen_operation.name,
+        WithLocation::new(
+            typegen_operation.name.location,
+            typegen_operation.name.item.0,
+        ),
+        fragment_locations,
+        false,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
     write_operation_type_exports_section(
-        &typgen_context,
+        &typegen_context,
         typegen_operation,
         normalization_operation,
         &mut writer,
@@ -179,20 +202,27 @@ pub fn generate_split_operation_type_exports_section(
     normalization_operation: &OperationDefinition,
     schema: &SDLSchema,
     project_config: &ProjectConfig,
+    fragment_locations: &FragmentLocations,
+    no_optional_fields_in_raw_response_type: bool,
 ) -> String {
-    let typgen_context = TypegenContext::new(
+    let typegen_context = TypegenContext::new(
         schema,
         project_config,
         typegen_operation
             .directives
             .named(*UPDATABLE_DIRECTIVE)
             .is_some(),
-        typegen_operation.name,
+        WithLocation::new(
+            typegen_operation.name.location,
+            typegen_operation.name.item.0,
+        ),
+        fragment_locations,
+        no_optional_fields_in_raw_response_type,
     );
     let mut writer = new_writer_from_config(&project_config.typegen_config);
 
     write_split_operation_type_exports_section(
-        &typgen_context,
+        &typegen_context,
         typegen_operation,
         normalization_operation,
         &mut writer,
@@ -202,12 +232,16 @@ pub fn generate_split_operation_type_exports_section(
 }
 
 /// An immutable grab bag of configuration, etc. for type generation.
+/// A new `TypegenContext` is created for each operation, fragment, and so on.
 struct TypegenContext<'a> {
     schema: &'a SDLSchema,
     project_config: &'a ProjectConfig,
+    fragment_locations: &'a FragmentLocations,
     has_unified_output: bool,
     generating_updatable_types: bool,
     definition_source_location: WithLocation<StringKey>,
+    // All keys in raw response should be required
+    no_optional_fields_in_raw_response_type: bool,
 }
 
 impl<'a> TypegenContext<'a> {
@@ -216,13 +250,17 @@ impl<'a> TypegenContext<'a> {
         project_config: &'a ProjectConfig,
         generating_updatable_types: bool,
         definition_source_location: WithLocation<StringKey>,
+        fragment_locations: &'a FragmentLocations,
+        no_optional_fields_in_raw_response_type: bool,
     ) -> Self {
         Self {
             schema,
             project_config,
+            fragment_locations,
             has_unified_output: project_config.output.is_some(),
             generating_updatable_types,
             definition_source_location,
+            no_optional_fields_in_raw_response_type,
         }
     }
 }

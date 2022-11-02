@@ -8,17 +8,41 @@
 mod serialize;
 mod wrapper;
 
-use crate::definitions::{Argument, Directive, *};
-use common::{Span, WithLocation};
-use flatbuffers::{ForwardsUOffset, Vector};
-use graphql_syntax::{
-    BooleanNode, ConstantArgument, ConstantValue, DirectiveLocation, EnumNode, FloatNode,
-    FloatValue, Identifier, IntNode, List, StringNode, Token, TokenKind,
-};
-use intern::string_key::{Intern, StringKey};
-pub use serialize::serialize_as_flatbuffer;
 use std::cmp::Ordering;
+
+use common::ArgumentName;
+use common::DirectiveName;
+use common::EnumName;
+use common::InputObjectName;
+use common::InterfaceName;
+use common::ObjectName;
+use common::ScalarName;
+use common::Span;
+use common::WithLocation;
+use flatbuffers::ForwardsUOffset;
+use flatbuffers::Vector;
+use graphql_syntax::BooleanNode;
+use graphql_syntax::ConstantArgument;
+use graphql_syntax::ConstantValue;
+use graphql_syntax::DirectiveLocation;
+use graphql_syntax::EnumNode;
+use graphql_syntax::FloatNode;
+use graphql_syntax::FloatValue;
+use graphql_syntax::Identifier;
+use graphql_syntax::IntNode;
+use graphql_syntax::List;
+use graphql_syntax::StringNode;
+use graphql_syntax::Token;
+use graphql_syntax::TokenKind;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
+pub use serialize::serialize_as_flatbuffer;
 pub use wrapper::SchemaWrapper;
+
+use crate::definitions::Argument;
+use crate::definitions::Directive;
+use crate::definitions::*;
 
 #[derive(Debug)]
 pub struct FlatBufferSchema<'fb> {
@@ -86,7 +110,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         self.get_type(type_name).is_some()
     }
 
-    pub fn get_directive(&self, directive_name: StringKey) -> Option<Directive> {
+    pub fn get_directive(&self, directive_name: DirectiveName) -> Option<Directive> {
         self.read_directive(directive_name)
     }
 
@@ -118,10 +142,10 @@ impl<'fb> FlatBufferSchema<'fb> {
         self.parse_interface(id).unwrap()
     }
 
-    fn read_directive(&self, name: StringKey) -> Option<Directive> {
+    fn read_directive(&self, name: DirectiveName) -> Option<Directive> {
         let mut start = 0;
         let mut end = self.directives.len();
-        let name = name.lookup();
+        let name = name.0.lookup();
         while start < end {
             let mid = start + ((end - start) / 2);
             match self.directives.get(mid).key_compare_with_value(name) {
@@ -145,7 +169,7 @@ impl<'fb> FlatBufferSchema<'fb> {
             .map(get_mapped_location)
             .collect::<Vec<_>>();
         let parsed_directive = Directive {
-            name: directive.name()?.intern(),
+            name: DirectiveName(directive.name()?.intern()),
             is_extension: directive.is_extension(),
             arguments: self.parse_arguments(directive.arguments()?)?,
             locations,
@@ -193,7 +217,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_scalar(&self, id: ScalarID) -> Option<Scalar> {
         let scalar = self.scalars.get(id.0.try_into().unwrap());
-        let name = scalar.name()?.to_string().intern();
+        let name = ScalarName(scalar.name()?.intern());
         let parsed_scalar = Scalar {
             name: WithLocation::generated(name),
             is_extension: scalar.is_extension(),
@@ -205,7 +229,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_input_object(&self, id: InputObjectID) -> Option<InputObject> {
         let input_object = self.input_objects.get(id.0.try_into().unwrap());
-        let name = input_object.name()?.to_string().intern();
+        let name = InputObjectName(input_object.name()?.to_string().intern());
         let parsed_input_object = InputObject {
             name: WithLocation::generated(name),
             fields: self.parse_arguments(input_object.fields()?)?,
@@ -217,7 +241,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_enum(&self, id: EnumID) -> Option<Enum> {
         let enum_ = self.enums.get(id.0.try_into().unwrap());
-        let name = enum_.name()?.to_string().intern();
+        let name = EnumName(enum_.name()?.to_string().intern());
         let parsed_enum = Enum {
             name: WithLocation::generated(name),
             is_extension: enum_.is_extension(),
@@ -232,7 +256,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         let object = self.objects.get(id.0.try_into().unwrap());
         let name = object.name()?.intern();
         let parsed_object = Object {
-            name: WithLocation::generated(name),
+            name: WithLocation::generated(ObjectName(name)),
             is_extension: object.is_extension(),
             fields: object.fields()?.iter().map(FieldID).collect(),
             interfaces: object.interfaces()?.iter().map(InterfaceID).collect(),
@@ -244,11 +268,12 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_interface(&self, id: InterfaceID) -> Option<Interface> {
         let interface = self.interfaces.get(id.0.try_into().unwrap());
-        let name = interface.name()?.intern();
+        let name = InterfaceName(interface.name()?.intern());
 
         let parsed_interface = Interface {
             name: WithLocation::generated(name),
             is_extension: interface.is_extension(),
+            implementing_interfaces: wrap_ids(interface.implementing_interfaces(), InterfaceID),
             implementing_objects: wrap_ids(interface.implementing_objects(), ObjectID),
             fields: wrap_ids(interface.fields(), FieldID),
             directives: self.parse_directive_values(interface.directives()?)?,
@@ -316,7 +341,7 @@ impl<'fb> FlatBufferSchema<'fb> {
 
     fn parse_argument(&self, argument: schema_flatbuffer::Argument<'fb>) -> Option<Argument> {
         Some(Argument {
-            name: argument.name().unwrap().intern(),
+            name: ArgumentName(argument.name().unwrap().intern()),
             default_value: match argument.value() {
                 Some(value) => Some(self.parse_const_value(value)?),
                 _ => None,
@@ -330,7 +355,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     fn parse_type_reference(
         &self,
         type_reference: schema_flatbuffer::TypeReference<'fb>,
-    ) -> Option<TypeReference> {
+    ) -> Option<TypeReference<Type>> {
         Some(match type_reference.kind() {
             schema_flatbuffer::TypeReferenceKind::Named => {
                 let type_name = self.get_fbtype_name(&type_reference.named()?);
@@ -362,7 +387,7 @@ impl<'fb> FlatBufferSchema<'fb> {
     ) -> Option<DirectiveValue> {
         let arguments = self.parse_argument_values(directive.arguments()?)?;
         Some(DirectiveValue {
-            name: directive.name()?.intern(),
+            name: DirectiveName(directive.name()?.intern()),
             arguments,
         })
     }
@@ -382,7 +407,7 @@ impl<'fb> FlatBufferSchema<'fb> {
         argument: schema_flatbuffer::ArgumentValue<'fb>,
     ) -> Option<ArgumentValue> {
         Some(ArgumentValue {
-            name: argument.name()?.intern(),
+            name: ArgumentName(argument.name()?.intern()),
             value: self.parse_const_value(argument.value()?)?,
         })
     }
@@ -565,9 +590,10 @@ fn get_mapped_location(location: schema_flatbuffer::DirectiveLocation) -> Direct
 
 #[cfg(test)]
 mod tests {
+    use common::DiagnosticsResult;
+
     use super::*;
     use crate::build_schema;
-    use common::DiagnosticsResult;
 
     #[test]
     fn binary_search() -> DiagnosticsResult<()> {
@@ -593,13 +619,37 @@ mod tests {
         assert!(fb_schema.read_type("Aaaa".intern()).is_none());
         assert!(fb_schema.read_type("Zzzz".intern()).is_none());
 
-        assert!(fb_schema.read_directive("ref_type".intern()).is_some());
-        assert!(fb_schema.read_directive("extern_type".intern()).is_some());
-        assert!(fb_schema.read_directive("fetchable".intern()).is_some());
+        assert!(
+            fb_schema
+                .read_directive(DirectiveName("ref_type".intern()))
+                .is_some()
+        );
+        assert!(
+            fb_schema
+                .read_directive(DirectiveName("extern_type".intern()))
+                .is_some()
+        );
+        assert!(
+            fb_schema
+                .read_directive(DirectiveName("fetchable".intern()))
+                .is_some()
+        );
 
-        assert!(fb_schema.read_directive("goto".intern()).is_none());
-        assert!(fb_schema.read_directive("aaaa".intern()).is_none());
-        assert!(fb_schema.read_directive("zzzz".intern()).is_none());
+        assert!(
+            fb_schema
+                .read_directive(DirectiveName("goto".intern()))
+                .is_none()
+        );
+        assert!(
+            fb_schema
+                .read_directive(DirectiveName("aaaa".intern()))
+                .is_none()
+        );
+        assert!(
+            fb_schema
+                .read_directive(DirectiveName("zzzz".intern()))
+                .is_none()
+        );
 
         Ok(())
     }

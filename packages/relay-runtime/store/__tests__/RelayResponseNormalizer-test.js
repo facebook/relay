@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -1439,7 +1439,7 @@ describe('RelayResponseNormalizer', () => {
           }
         }
       `;
-      const payload = {
+      const payload: $FlowFixMe = {
         node: {
           id: '1',
           __typename: 'Feedback',
@@ -2495,19 +2495,19 @@ describe('RelayResponseNormalizer', () => {
       @argumentDefinitions(
         includeName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsTrue.relayprovider"
+          provider: "./RelayProvider_returnsTrue.relayprovider"
         }
         includeFirstName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsFalse.relayprovider"
+          provider: "./RelayProvider_returnsFalse.relayprovider"
         }
         skipLastName: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsFalse.relayprovider"
+          provider: "./RelayProvider_returnsFalse.relayprovider"
         }
         skipUsername: {
           type: "Boolean!"
-          provider: "../RelayProvider_returnsTrue.relayprovider"
+          provider: "./RelayProvider_returnsTrue.relayprovider"
         }
       ) {
         name @include(if: $includeName)
@@ -3536,7 +3536,7 @@ describe('RelayResponseNormalizer', () => {
 
     describe('when successful', () => {
       it('normalizes Flight fields', () => {
-        const payload = {
+        const payload: $FlowFixMe = {
           node: {
             id: '1',
             __typename: 'Story',
@@ -3656,7 +3656,7 @@ describe('RelayResponseNormalizer', () => {
       });
 
       it('asserts that reactFlightPayloadDeserializer is defined as a function', () => {
-        const payload = {
+        const payload: $FlowFixMe = {
           node: {
             id: '1',
             __typename: 'Story',
@@ -3703,7 +3703,7 @@ describe('RelayResponseNormalizer', () => {
       describe('and ReactFlightServerErrorHandler is specified', () => {
         const reactFlightServerErrorHandler = jest.fn();
         it('calls ReactFlightServerErrorHandler', () => {
-          const payload = {
+          const payload: $FlowFixMe = {
             node: {
               id: '1',
               __typename: 'Story',
@@ -3748,7 +3748,7 @@ describe('RelayResponseNormalizer', () => {
       });
       describe('and no ReactFlightServerErrorHandler is specified', () => {
         it('warns', () => {
-          const payload = {
+          const payload: $FlowFixMe = {
             node: {
               id: '1',
               __typename: 'Story',
@@ -3855,7 +3855,7 @@ describe('RelayResponseNormalizer', () => {
       });
 
       it('warns if the row protocol is null', () => {
-        const payload = {
+        const payload: $FlowFixMe = {
           node: {
             id: '1',
             __typename: 'Story',
@@ -4636,6 +4636,65 @@ describe('RelayResponseNormalizer', () => {
           __typename: 'User',
           id: 'user-1234',
           name: 'Antonio',
+        },
+      });
+    });
+    it('records which concrete types implement which client schema extension interfaces', () => {
+      graphql`
+        fragment RelayResponseNormalizerTestClientInterfaceFragment on ClientInterface {
+          description
+        }
+      `;
+      // This query contains abstract client types referenced in both named and
+      // inline fragments as well as including both interfaces and unions.
+      const query = graphql`
+        query RelayResponseNormalizerTestClientInterfaceQuery {
+          client_interface {
+            ...RelayResponseNormalizerTestClientInterfaceFragment
+          }
+          client_union {
+            ... on ClientUnion {
+              __typename
+            }
+          }
+        }
+      `;
+
+      const payload = {};
+      const recordSource = new RelayRecordSource();
+      recordSource.set(ROOT_ID, RelayModernRecord.create(ROOT_ID, ROOT_TYPE));
+
+      const result = normalize(
+        recordSource,
+        createNormalizationSelector(query.operation, ROOT_ID, {}),
+        payload,
+        {...defaultOptions},
+      );
+
+      expect(result.source.toJSON()).toEqual({
+        'client:__type:ClientTypeImplementingClientInterface': {
+          __id: 'client:__type:ClientTypeImplementingClientInterface',
+          __isClientInterface: true,
+          __typename: '__TypeSchema',
+        },
+        'client:__type:OtherClientTypeImplementingClientInterface': {
+          __id: 'client:__type:OtherClientTypeImplementingClientInterface',
+          __isClientInterface: true,
+          __typename: '__TypeSchema',
+        },
+        'client:__type:ClientTypeInUnion': {
+          __id: 'client:__type:ClientTypeInUnion',
+          __isClientUnion: true,
+          __typename: '__TypeSchema',
+        },
+        'client:__type:OtherClientTypeInUnion': {
+          __id: 'client:__type:OtherClientTypeInUnion',
+          __isClientUnion: true,
+          __typename: '__TypeSchema',
+        },
+        'client:root': {
+          __id: 'client:root',
+          __typename: '__Root',
         },
       });
     });

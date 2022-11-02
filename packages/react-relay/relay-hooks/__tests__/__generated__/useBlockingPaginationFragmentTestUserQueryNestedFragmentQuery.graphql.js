@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<44e978ae9ab472d6cb5e1ce3c1f8e687>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<60642da297baaa6e036f8ad58d2e74b4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type useBlockingPaginationFragmentTestUserFragment$fragmentType = any;
+import type { useBlockingPaginationFragmentTestUserFragment$fragmentType } from "./useBlockingPaginationFragmentTestUserFragment.graphql";
 export type useBlockingPaginationFragmentTestUserQueryNestedFragmentQuery$variables = {|
   after?: ?string,
   before?: ?string,

@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<32632ff69073457129bf9e7b05e46280>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<c70082f734c9cdc4a4c9af63097ea769>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +19,7 @@
 /*::
 import type { ClientRequest, ClientQuery } from 'relay-runtime';
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
-import queryCounterNoFragmentWithArgResolver from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragmentWithArg.js";
+import {counter_no_fragment_with_arg as queryCounterNoFragmentWithArgResolver} from "../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragmentWithArg.js";
 // Type assertion validating that `queryCounterNoFragmentWithArgResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterNoFragmentWithArgResolver: (
@@ -44,6 +46,13 @@ var v0 = [
     "kind": "LocalArgument",
     "name": "prefix"
   }
+],
+v1 = [
+  {
+    "kind": "Variable",
+    "name": "prefix",
+    "variableName": "prefix"
+  }
 ];
 return {
   "fragment": {
@@ -57,17 +66,11 @@ return {
         "selections": [
           {
             "alias": null,
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "prefix",
-                "variableName": "prefix"
-              }
-            ],
+            "args": (v1/*: any*/),
             "fragment": null,
             "kind": "RelayLiveResolver",
             "name": "counter_no_fragment_with_arg",
-            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragmentWithArg.js'),
+            "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/LiveCounterNoFragmentWithArg').counter_no_fragment_with_arg,
             "path": "counter_no_fragment_with_arg"
           }
         ]
@@ -86,10 +89,10 @@ return {
         "kind": "ClientExtension",
         "selections": [
           {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__id",
+            "name": "counter_no_fragment_with_arg",
+            "args": (v1/*: any*/),
+            "fragment": null,
+            "kind": "RelayResolver",
             "storageKey": null
           }
         ]

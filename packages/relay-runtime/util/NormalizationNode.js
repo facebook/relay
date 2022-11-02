@@ -6,11 +6,13 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type {ConcreteRequest} from './RelayConcreteNode';
+import type {JSResourceReference} from 'JSResourceReference';
 
 /**
  * Represents a single operation used to processing and normalize runtime
@@ -21,6 +23,9 @@ export type NormalizationOperation = {
   +name: string,
   +argumentDefinitions: $ReadOnlyArray<NormalizationLocalArgumentDefinition>,
   +selections: $ReadOnlyArray<NormalizationSelection>,
+  +clientAbstractTypes?: {
+    +[string]: $ReadOnlyArray<string>,
+  },
 };
 
 export type NormalizationHandle =
@@ -72,6 +77,7 @@ export type NormalizationClientExtension = {
 };
 
 export type NormalizationField =
+  | NormalizationResolverField
   | NormalizationFlightField
   | NormalizationScalarField
   | NormalizationLinkedField;
@@ -111,6 +117,14 @@ export type NormalizationModuleImport = {
   +documentName: string,
   +fragmentPropName: string,
   +fragmentName: string,
+  +componentModuleProvider?: () =>
+    | mixed
+    | Promise<mixed>
+    | JSResourceReference<mixed>,
+  +operationModuleProvider?: () =>
+    | NormalizationRootNode
+    | Promise<NormalizationRootNode>
+    | JSResourceReference<NormalizationRootNode>,
 };
 
 export type NormalizationListValueArgument = {
@@ -155,6 +169,14 @@ export type NormalizationFlightField = {
   +alias: ?string,
   +name: string,
   +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +storageKey: ?string,
+};
+
+export type NormalizationResolverField = {
+  +kind: 'RelayResolver',
+  +name: string,
+  +args: ?$ReadOnlyArray<NormalizationArgument>,
+  +fragment: ?NormalizationInlineFragment,
   +storageKey: ?string,
 };
 

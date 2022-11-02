@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -43,19 +43,19 @@ const fragmentPV = graphql`
   @argumentDefinitions(
     includeName: {
       type: "Boolean!"
-      provider: "../RelayProvider_returnsTrue.relayprovider"
+      provider: "./RelayProvider_returnsTrue.relayprovider"
     }
     includeFirstName: {
       type: "Boolean!"
-      provider: "../RelayProvider_returnsFalse.relayprovider"
+      provider: "./RelayProvider_returnsFalse.relayprovider"
     }
     skipLastName: {
       type: "Boolean!"
-      provider: "../RelayProvider_returnsFalse.relayprovider"
+      provider: "./RelayProvider_returnsFalse.relayprovider"
     }
     skipUsername: {
       type: "Boolean!"
-      provider: "../RelayProvider_returnsTrue.relayprovider"
+      provider: "./RelayProvider_returnsTrue.relayprovider"
     }
   ) {
     name @include(if: $includeName)
@@ -149,12 +149,14 @@ describe.each([
         store: new Store(new RecordSource()),
       });
       RelayProvider_impure.test_reset();
-      withProvidedVariables.tests_only_resetDebugCache();
+      if (withProvidedVariables.tests_only_resetDebugCache !== undefined) {
+        withProvidedVariables.tests_only_resetDebugCache();
+      }
     });
 
     describe('using preloadQuery_DEPRECATED', () => {
       it('renders synchronously with provided variables', () => {
-        const prefetched = preloadQuery_DEPRECATED(
+        const prefetched = preloadQuery_DEPRECATED<any, empty>(
           environment,
           preloadableConcreteRequestPV,
           {
@@ -254,7 +256,7 @@ describe.each([
         @argumentDefinitions(
           impureProvider: {
             type: "Float!"
-            provider: "../RelayProvider_impure.relayprovider"
+            provider: "./RelayProvider_impure.relayprovider"
           }
         ) {
           profile_picture(scale: $impureProvider) {
@@ -271,7 +273,7 @@ describe.each([
       `;
 
       const preloadWithFetchKey = (fetchKey: string | number) => {
-        return preloadQuery_DEPRECATED(
+        return preloadQuery_DEPRECATED<any, empty>(
           environment,
           {
             kind: 'PreloadableConcreteRequest',

@@ -5,23 +5,29 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::file_filter::FileFilter;
-use super::File;
-use super::FileGroup;
-use crate::compiler_state::{ProjectName, ProjectSet};
-use crate::config::{Config, SchemaLocation};
-use crate::FileSourceResult;
-use common::sync::ParallelIterator;
 use core::panic;
+use std::borrow::Cow;
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
+use std::ffi::OsStr;
+use std::path::Component;
+use std::path::Path;
+use std::path::PathBuf;
+
+use common::sync::ParallelIterator;
 use fnv::FnvHashSet;
 use log::warn;
 use rayon::iter::IntoParallelRefIterator;
 use relay_typegen::TypegenLanguage;
-use std::borrow::Cow;
-use std::collections::HashMap;
-use std::ffi::OsStr;
-use std::path::{Component, PathBuf};
-use std::{collections::hash_map::Entry, path::Path};
+
+use super::file_filter::FileFilter;
+use super::File;
+use super::FileGroup;
+use crate::compiler_state::ProjectName;
+use crate::compiler_state::ProjectSet;
+use crate::config::Config;
+use crate::config::SchemaLocation;
+use crate::FileSourceResult;
 
 /// The watchman query returns a list of files, but for the compiler we
 /// need to categorize these files into multiple groups of files like
@@ -357,8 +363,9 @@ fn is_valid_source_code_extension(typegen_language: &TypegenLanguage, extension:
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use intern::string_key::Intern;
+
+    use super::*;
 
     fn create_test_config() -> Config {
         Config::from_string_for_test(

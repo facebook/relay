@@ -5,8 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use graphql_ir::{Argument, ConstantValue, Value};
 use std::fmt;
+
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Value;
+use intern::Lookup;
 
 use crate::murmurhash::murmurhash;
 
@@ -17,7 +21,7 @@ pub fn hash_arguments(args: &[Argument]) -> Option<String> {
         let mut converted_args: Vec<_> = args
             .iter()
             .map(|arg| HashArgument {
-                name: arg.name.item.lookup(),
+                name: arg.name.item.0.lookup(),
                 value: identifier_for_argument_value(&arg.value.item),
             })
             .collect();
@@ -111,7 +115,7 @@ fn build_constant_value_string(value: &ConstantValue) -> String {
         ConstantValue::Object(val_object) => {
             let mut rows: Vec<String> = Vec::with_capacity(val_object.len());
             for arg in val_object.iter() {
-                let field_name = String::from(arg.name.item.lookup());
+                let field_name = arg.name.item;
                 rows.push(format!(
                     "\"{}\":{}",
                     field_name,
@@ -126,7 +130,7 @@ fn build_constant_value_string(value: &ConstantValue) -> String {
 fn identifier_for_argument_value(value: &Value) -> IdentiferValue {
     match value {
         Value::Constant(value) => IdentiferValue::Value(build_constant_value_string(value)),
-        Value::Variable(variable) => IdentiferValue::Variable(variable.name.item.lookup()),
+        Value::Variable(variable) => IdentiferValue::Variable(variable.name.item.0.lookup()),
         Value::List(items) => {
             IdentiferValue::List(items.iter().map(identifier_for_argument_value).collect())
         }
@@ -134,7 +138,7 @@ fn identifier_for_argument_value(value: &Value) -> IdentiferValue {
             entries
                 .iter()
                 .map(|entry| IdentiferObjectProperty {
-                    name: entry.name.item.lookup(),
+                    name: entry.name.item.0.lookup(),
                     value: identifier_for_argument_value(&entry.value.item),
                 })
                 .collect(),

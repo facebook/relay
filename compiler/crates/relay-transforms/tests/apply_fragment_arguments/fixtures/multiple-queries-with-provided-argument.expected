@@ -22,7 +22,13 @@ query TestQuery1(
   $__relay_internal__pv__fooGKProvider: Boolean! @__ProvidedVariableMetadata
   # ProvidedVariableMetadata {
   #     module_name: "fooGKProvider",
-  #     original_variable_name: "foo_gk",
+  #     original_variable_name: VariableName(
+  #         "foo_gk",
+  #     ),
+  #     fragment_source_location: Embedded {
+  #         path: "multiple-queries-with-provided-argument.graphql",
+  #         index: 0,
+  #     },
   # }
   
 ) {
@@ -37,7 +43,13 @@ query TestQuery2(
   $__relay_internal__pv__fooGKProvider: Boolean! @__ProvidedVariableMetadata
   # ProvidedVariableMetadata {
   #     module_name: "fooGKProvider",
-  #     original_variable_name: "foo_gk",
+  #     original_variable_name: VariableName(
+  #         "foo_gk",
+  #     ),
+  #     fragment_source_location: Embedded {
+  #         path: "multiple-queries-with-provided-argument.graphql",
+  #         index: 0,
+  #     },
   # }
   
 ) {

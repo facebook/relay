@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<aed68ad3cef8dee76a2abeca3776f648>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<6dcddd9ad2a0734c0feba17eff981558>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { FragmentType } from "relay-runtime";
-type ResolverTest2Fragment$fragmentType = any;
+import type { ResolverTest2Fragment$fragmentType } from "./ResolverTest2Fragment.graphql";
 export type ResolverTest1FragmentRefetchableQuery$variables = {|
   id: string,
 |};
@@ -106,10 +108,23 @@ return {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": null,
+                "name": "greeting",
                 "args": null,
-                "kind": "ScalarField",
-                "name": "name",
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "name",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
                 "storageKey": null
               }
             ],

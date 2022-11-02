@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -27,7 +27,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * A client edge to a plural client object
  */
-function astrologicalSignSelf(
+function all_astrological_signs(
   rootKey: QueryAllAstrologicalSignsResolver$key,
 ): $ReadOnlyArray<AstrologicalSignID> {
   readFragment(
@@ -44,4 +44,6 @@ function astrologicalSignSelf(
   return [...HOUSE_ORDER];
 }
 
-module.exports = astrologicalSignSelf;
+module.exports = {
+  all_astrological_signs,
+};

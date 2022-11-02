@@ -7,23 +7,38 @@
 
 use std::sync::Arc;
 
-use common::{
-    Diagnostic, DiagnosticsResult, FeatureFlag, Location, Named, NamedItem, WithLocation,
-};
-use graphql_ir::{
-    associated_data_impl, transform_list, Directive, FragmentDefinition, FragmentSpread,
-    InlineFragment, LinkedField, OperationDefinition, Program, Selection, Transformed,
-    TransformedValue, Transformer,
-};
-use intern::string_key::{Intern, StringKey};
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::FeatureFlag;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::transform_list;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
-use schema::{Schema, Type};
+use schema::Schema;
+use schema::Type;
 
 use crate::ValidationMessage;
 
 lazy_static! {
-    pub static ref FRAGMENT_ALIAS_DIRECTIVE_NAME: StringKey = "alias".intern();
-    pub static ref FRAGMENT_ALIAS_ARGUMENT_NAME: StringKey = "as".intern();
+    pub static ref FRAGMENT_ALIAS_DIRECTIVE_NAME: DirectiveName = DirectiveName("alias".intern());
+    pub static ref FRAGMENT_ALIAS_ARGUMENT_NAME: ArgumentName = ArgumentName("as".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -78,7 +93,7 @@ impl<'program> FragmentAliasTransform<'program> {
         N: Fn() -> Option<StringKey>,
     {
         transform_list(directives, |directive| {
-            if directive.name() != *FRAGMENT_ALIAS_DIRECTIVE_NAME {
+            if directive.name.item != *FRAGMENT_ALIAS_DIRECTIVE_NAME {
                 return Transformed::Keep;
             }
 
@@ -131,11 +146,10 @@ impl<'program> FragmentAliasTransform<'program> {
                 FragmentAliasMetadata {
                     alias,
                     type_condition,
-                    selection_type:
-                        type_condition.unwrap_or(
-                            self.parent_type
-                                .expect("Selection should be within a parent type."),
-                        ),
+                    selection_type: type_condition.unwrap_or(
+                        self.parent_type
+                            .expect("Selection should be within a parent type."),
+                    ),
                 }
                 .into(),
             )
@@ -152,7 +166,7 @@ impl Transformer for FragmentAliasTransform<'_> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.document_name = Some(fragment.name.item);
+        self.document_name = Some(fragment.name.item.0);
         self.parent_type = Some(fragment.type_condition);
         let transformed = self.default_transform_fragment(fragment);
         self.parent_type = None;
@@ -164,7 +178,7 @@ impl Transformer for FragmentAliasTransform<'_> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.document_name = Some(operation.name.item);
+        self.document_name = Some(operation.name.item.0);
         self.parent_type = Some(operation.type_);
         let transformed = self.default_transform_operation(operation);
         self.parent_type = None;
@@ -214,7 +228,7 @@ impl Transformer for FragmentAliasTransform<'_> {
                 .expect("I believe we have already validated that all fragments exist")
                 .type_condition,
         );
-        let get_default_name = || Some(spread.fragment.item);
+        let get_default_name = || Some(spread.fragment.item.0);
         self.transform_alias_directives(&spread.directives, type_condition, get_default_name)
             .map(|directives| {
                 Selection::FragmentSpread(Arc::new(FragmentSpread {

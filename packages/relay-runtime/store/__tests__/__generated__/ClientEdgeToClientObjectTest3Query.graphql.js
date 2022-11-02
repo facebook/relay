@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<97b5f88dd076c5aa231437e61ec0ee90>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<59d7731fa89fa141f390fbbb8e75c989>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,15 +18,15 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type AstrologicalSignNameResolver$key = any;
-type UserAstrologicalSignResolver$key = any;
-import astrologicalSignNameResolver from "../resolvers/AstrologicalSignNameResolver.js";
+import type { AstrologicalSignNameResolver$key } from "./../resolvers/__generated__/AstrologicalSignNameResolver.graphql";
+import type { UserAstrologicalSignResolver$key } from "./../resolvers/__generated__/UserAstrologicalSignResolver.graphql";
+import {name as astrologicalSignNameResolver} from "../resolvers/AstrologicalSignNameResolver.js";
 // Type assertion validating that `astrologicalSignNameResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolver: (
   rootKey: AstrologicalSignNameResolver$key, 
 ) => mixed);
-import userAstrologicalSignResolver from "../resolvers/UserAstrologicalSignResolver.js";
+import {astrological_sign as userAstrologicalSignResolver} from "../resolvers/UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAstrologicalSignResolver: (
@@ -76,7 +78,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "astrological_sign",
-              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver.js'),
+              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver').astrological_sign,
               "path": "me.astrological_sign"
             },
             "linkedField": {
@@ -104,7 +106,7 @@ var node/*: ConcreteRequest*/ = {
                   },
                   "kind": "RelayResolver",
                   "name": "name",
-                  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver.js'),
+                  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
                   "path": "me.name"
                 },
                 {
@@ -140,28 +142,41 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "astrological_sign",
             "args": null,
-            "concreteType": "Date",
-            "kind": "LinkedField",
-            "name": "birthdate",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "month",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "day",
-                "storageKey": null
-              }
-            ],
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": "Date",
+                  "kind": "LinkedField",
+                  "name": "birthdate",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "month",
+                      "storageKey": null
+                    },
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "day",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

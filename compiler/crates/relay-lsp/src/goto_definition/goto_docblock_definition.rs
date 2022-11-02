@@ -8,27 +8,20 @@
 use common::Span;
 use relay_docblock::DocblockIr;
 
-use crate::LSPRuntimeResult;
-use crate::{
-    docblock_resolution_info::{create_docblock_resolution_info, DocblockResolutionInfo},
-    lsp_runtime_error::LSPRuntimeError,
-};
-
 use super::DefinitionDescription;
+use crate::docblock_resolution_info::create_docblock_resolution_info;
+use crate::docblock_resolution_info::DocblockResolutionInfo;
+use crate::lsp_runtime_error::LSPRuntimeError;
+use crate::LSPRuntimeResult;
 
 pub fn get_docblock_definition_description(
     docblock_ir: &DocblockIr,
     position_span: Span,
 ) -> LSPRuntimeResult<DefinitionDescription> {
-    let resolution = create_docblock_resolution_info(docblock_ir, position_span)?;
+    let resolution = create_docblock_resolution_info(docblock_ir, position_span)
+        .ok_or(LSPRuntimeError::ExpectedError)?;
     match resolution {
-        DocblockResolutionInfo::OnType(type_name) => Ok(DefinitionDescription::Type { type_name }),
-        DocblockResolutionInfo::OnInterface(interface_name) => Ok(DefinitionDescription::Type {
-            type_name: interface_name,
-        }),
-        DocblockResolutionInfo::EdgeTo(edge_type) => Ok(DefinitionDescription::Type {
-            type_name: edge_type,
-        }),
+        DocblockResolutionInfo::Type(type_name) => Ok(DefinitionDescription::Type { type_name }),
         DocblockResolutionInfo::RootFragment(fragment_name) => {
             Ok(DefinitionDescription::Fragment { fragment_name })
         }

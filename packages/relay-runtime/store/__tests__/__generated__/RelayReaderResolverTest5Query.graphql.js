@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<e4ed35cc1a9762da1776f948c66fb9b8>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<52fbe10a46cc44f6f4a9ef85f007a155>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +18,8 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type UserShoutedGreetingResolver$key = any;
-import userShoutedGreetingResolver from "../resolvers/UserShoutedGreetingResolver.js";
+import type { UserShoutedGreetingResolver$key } from "./../resolvers/__generated__/UserShoutedGreetingResolver.graphql";
+import {shouted_greeting as userShoutedGreetingResolver} from "../resolvers/UserShoutedGreetingResolver.js";
 // Type assertion validating that `userShoutedGreetingResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userShoutedGreetingResolver: (
@@ -60,7 +62,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "shouted_greeting",
-            "resolverModule": require('./../resolvers/UserShoutedGreetingResolver.js'),
+            "resolverModule": require('./../resolvers/UserShoutedGreetingResolver').shouted_greeting,
             "path": "me.shouted_greeting"
           }
         ],
@@ -85,10 +87,36 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "shouted_greeting",
             "args": null,
-            "kind": "ScalarField",
-            "name": "name",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "name": "greeting",
+                  "args": null,
+                  "fragment": {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "name",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "User",
+                    "abstractKey": null
+                  },
+                  "kind": "RelayResolver",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

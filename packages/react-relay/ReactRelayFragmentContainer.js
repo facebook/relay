@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -55,6 +56,7 @@ function createContainerWithFragments<
   const containerName = getContainerName(Component);
 
   return class extends React.Component<ContainerProps, ContainerState> {
+    // $FlowFixMe[missing-local-annot]
     static displayName = containerName;
     constructor(props: $FlowFixMe) {
       super(props);
@@ -235,7 +237,9 @@ function createContainerWithFragments<
       }
     }
 
+    // $FlowFixMe[missing-local-annot]
     render() {
+      // eslint-disable-next-line no-unused-vars
       const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
         this.props;
       return React.createElement(Component, {

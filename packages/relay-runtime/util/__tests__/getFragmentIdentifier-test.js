@@ -4,12 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
+import type {OperationDescriptor} from 'relay-runtime/store/RelayStoreTypes';
 const {graphql} = require('../../query/GraphQLTag');
 const getFragmentIdentifier = require('../getFragmentIdentifier');
 const RelayFeatureFlags = require('../RelayFeatureFlags');
@@ -24,7 +25,7 @@ describe('getFragmentIdentifier', () => {
   let gqlQueryWithArgs;
   let singularFragment;
   let singularVariables;
-  let singularQuery;
+  let singularQuery: OperationDescriptor;
   let pluralQuery;
   let pluralFragment;
   let queryWithArgs;
@@ -200,7 +201,7 @@ describe('getFragmentIdentifier Optimized', () => {
   let gqlQueryWithArgs;
   let singularFragment;
   let singularVariables;
-  let singularQuery;
+  let singularQuery: OperationDescriptor;
   let pluralQuery;
   let pluralFragment;
   let queryWithArgs;

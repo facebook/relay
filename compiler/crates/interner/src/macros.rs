@@ -14,7 +14,9 @@
 #[macro_export]
 macro_rules! intern {
     ($value:literal) => {{
-        use $crate::{reexport::Lazy, Intern, StringKey};
+        use $crate::reexport::Lazy;
+        use $crate::Intern;
+        use $crate::StringKey;
         static KEY: Lazy<StringKey> = Lazy::new(|| Intern::intern($value));
         *KEY
     }};
@@ -46,8 +48,12 @@ macro_rules! intern {
 #[macro_export]
 macro_rules! make_intern {
     ($name:ident as $alias:ident) => {
-        use crate::{Intern, InternKey, InternTable, RawInternKey};
         use lazy_static::lazy_static;
+
+        use crate::Intern;
+        use crate::InternKey;
+        use crate::InternTable;
+        use crate::RawInternKey;
 
         lazy_static! {
             /// Global interning table for this type

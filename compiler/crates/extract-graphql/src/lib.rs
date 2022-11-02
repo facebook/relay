@@ -9,11 +9,12 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+use std::iter::Peekable;
+use std::str::CharIndices;
+
 use common::TextSource;
 use docblock_syntax::DocblockSource;
 use graphql_syntax::GraphQLSource;
-use std::iter::Peekable;
-use std::str::CharIndices;
 
 #[derive(Clone)]
 pub enum JavaScriptSourceFeature {

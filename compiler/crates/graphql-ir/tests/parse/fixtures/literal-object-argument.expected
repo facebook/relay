@@ -11,7 +11,9 @@ query LiteralObjectArgument {
             kind: Query,
             name: WithLocation {
                 location: literal-object-argument.graphql:6:27,
-                item: "LiteralObjectArgument",
+                item: OperationDefinitionName(
+                    "LiteralObjectArgument",
+                ),
             },
             type_: Object(0),
             variable_definitions: [],
@@ -27,7 +29,9 @@ query LiteralObjectArgument {
                         Argument {
                             name: WithLocation {
                                 location: literal-object-argument.graphql:51:56,
-                                item: "query",
+                                item: ArgumentName(
+                                    "query",
+                                ),
                             },
                             value: WithLocation {
                                 location: literal-object-argument.graphql:58:77,
@@ -37,7 +41,9 @@ query LiteralObjectArgument {
                                             ConstantArgument {
                                                 name: WithLocation {
                                                     location: literal-object-argument.graphql:59:64,
-                                                    item: "query",
+                                                    item: ArgumentName(
+                                                        "query",
+                                                    ),
                                                 },
                                                 value: WithLocation {
                                                     location: literal-object-argument.graphql:66:76,

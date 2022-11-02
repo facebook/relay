@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<76451b3babcc9dd2be65c42e5cd1fc5d>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<a753ce97a5dec4082d8071bbd6261471>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Mutation } from 'relay-runtime';
-type validateMutationTestNodeFragement$fragmentType = any;
+import type { validateMutationTestNodeFragement$fragmentType } from "./validateMutationTestNodeFragement.graphql";
 export type FeedbackLikeInput = {|
   feedbackId?: ?string,
 |};

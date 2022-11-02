@@ -6,11 +6,13 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
 import type {ConnectionMetadata} from '../handlers/connection/ConnectionHandler';
+import type {NormalizationSelectableNode} from './NormalizationNode';
 import type {ConcreteRequest} from './RelayConcreteNode';
 
 export type ReaderFragmentSpread = {
@@ -31,10 +33,8 @@ export type ReaderInlineDataFragmentSpread = {
   +kind: 'InlineDataFragmentSpread',
   +name: string,
   +selections: $ReadOnlyArray<ReaderSelection>,
-  // TODO: T123948544 Mark both of these as non-optional once the compiler
-  // changes have rolled out.
-  +args?: ?$ReadOnlyArray<ReaderArgument>,
-  +argumentDefinitions?: $ReadOnlyArray<ReaderArgumentDefinition>,
+  +args: ?$ReadOnlyArray<ReaderArgument>,
+  +argumentDefinitions: $ReadOnlyArray<ReaderArgumentDefinition>,
 };
 
 export type ReaderFragment = {
@@ -234,7 +234,10 @@ export type RequiredFieldAction = 'NONE' | 'LOG' | 'THROW';
 
 export type ReaderRequiredField = {
   +kind: 'RequiredField',
-  +field: ReaderField,
+  +field:
+    | ReaderField
+    | ReaderClientEdgeToClientObject
+    | ReaderClientEdgeToServerObject,
   +action: RequiredFieldAction,
   +path: string,
 };
@@ -242,6 +245,12 @@ export type ReaderRequiredField = {
 type ResolverFunction = (...args: Array<any>) => mixed; // flowlint-line unclear-type:off
 // With ES6 imports, a resolver function might be exported under the `default` key.
 type ResolverModule = ResolverFunction | {default: ResolverFunction};
+
+export type ResolverNormalizationInfo = {
+  +concreteType: string,
+  +plural: boolean,
+  +normalizationNode: NormalizationSelectableNode,
+};
 
 export type ReaderRelayResolver = {
   +kind: 'RelayResolver',
@@ -251,6 +260,7 @@ export type ReaderRelayResolver = {
   +fragment: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
+  +normalizationInfo?: ResolverNormalizationInfo,
 };
 
 export type ReaderRelayLiveResolver = {
@@ -261,6 +271,7 @@ export type ReaderRelayLiveResolver = {
   +fragment: ?ReaderFragmentSpread,
   +path: string,
   +resolverModule: ResolverModule,
+  +normalizationInfo?: ResolverNormalizationInfo,
 };
 
 export type ReaderClientEdgeToClientObject = {

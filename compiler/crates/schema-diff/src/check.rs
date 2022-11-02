@@ -5,11 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::definitions::{ArgumentChange, DefinitionChange, SchemaChange, Type, TypeChange};
-use intern::string_key::{Intern, StringKey};
+use common::InterfaceName;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
-use schema::{SDLSchema, Schema};
+use schema::SDLSchema;
+use schema::Schema;
+
+use crate::definitions::ArgumentChange;
+use crate::definitions::DefinitionChange;
+use crate::definitions::SchemaChange;
+use crate::definitions::Type;
+use crate::definitions::TypeChange;
 
 /// Return if the changes are safe to skip full rebuild.
 impl SchemaChange {
@@ -88,7 +96,7 @@ impl SchemaChange {
 
 lazy_static! {
     static ref JS_FIELD_KEY: StringKey = "js".intern();
-    static ref NODE_INTERFACE_KEY: StringKey = "Node".intern();
+    static ref NODE_INTERFACE_KEY: InterfaceName = InterfaceName("Node".intern());
 }
 
 /// If the type has an `id` field and the type implements interfaces

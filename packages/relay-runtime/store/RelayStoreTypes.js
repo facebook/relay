@@ -6,6 +6,7 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -35,6 +36,7 @@ import type {
 import type {
   ReaderClientEdgeToServerObject,
   ReaderFragment,
+  ReaderLinkedField,
 } from '../util/ReaderNode';
 import type {
   ConcreteRequest,
@@ -1071,7 +1073,7 @@ export type MissingFieldHandler =
       kind: 'scalar',
       handle: (
         field: NormalizationScalarField,
-        record: ?Record,
+        parentRecord: ?ReadOnlyRecordProxy,
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => mixed,
@@ -1079,8 +1081,8 @@ export type MissingFieldHandler =
   | {
       kind: 'linked',
       handle: (
-        field: NormalizationLinkedField,
-        record: ?Record,
+        field: NormalizationLinkedField | ReaderLinkedField,
+        parentRecord: ?ReadOnlyRecordProxy,
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => ?DataID,
@@ -1088,8 +1090,8 @@ export type MissingFieldHandler =
   | {
       kind: 'pluralLinked',
       handle: (
-        field: NormalizationLinkedField,
-        record: ?Record,
+        field: NormalizationLinkedField | ReaderLinkedField,
+        parentRecord: ?ReadOnlyRecordProxy,
         args: Variables,
         store: ReadOnlyRecordSourceProxy,
       ) => ?Array<?DataID>,

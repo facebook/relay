@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<fb4cdd49c40d66e4548349c18fd53df9>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<9daeee1dae3b67e6e15e47e8c9620d0b>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,9 +18,9 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type UserAlwaysThrowsResolver$key = any;
+import type { UserAlwaysThrowsResolver$key } from "./UserAlwaysThrowsResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import userAlwaysThrowsResolver from "../UserAlwaysThrowsResolver.js";
+import {always_throws as userAlwaysThrowsResolver} from "../UserAlwaysThrowsResolver.js";
 // Type assertion validating that `userAlwaysThrowsResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAlwaysThrowsResolver: (
@@ -52,7 +54,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "always_throws",
-      "resolverModule": require('./../UserAlwaysThrowsResolver.js'),
+      "resolverModule": require('./../UserAlwaysThrowsResolver').always_throws,
       "path": "always_throws"
     }
   ],

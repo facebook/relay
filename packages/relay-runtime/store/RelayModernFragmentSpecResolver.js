@@ -6,6 +6,7 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -108,7 +109,7 @@ class RelayModernFragmentSpecResolver implements FragmentSpecResolver {
       // Avoid mapping the object multiple times, which could occur if data for
       // multiple keys changes in the same event loop.
       const prevData = this._data;
-      let nextData;
+      let nextData: any;
       for (const key in this._resolvers) {
         if (this._resolvers.hasOwnProperty(key)) {
           const resolver = this._resolvers[key];
@@ -426,7 +427,7 @@ class SelectorListResolver {
       // Avoid mapping the array multiple times, which could occur if data for
       // multiple indices changes in the same event loop.
       const prevData = this._data;
-      let nextData;
+      let nextData: Array<?SelectorData>;
       for (let ii = 0; ii < this._resolvers.length; ii++) {
         const prevItem = prevData[ii];
         const nextItem = this._resolvers[ii].resolve();

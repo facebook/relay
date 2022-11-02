@@ -1137,29 +1137,6 @@ query RelayMockPayloadGeneratorTest35Query {
 }
 `;
 
-exports[`with @relay_test_operation generate mock for client extensions 1`] = `
-~~~~~~~~~~ INPUT ~~~~~~~~~~
-query RelayMockPayloadGeneratorTest43Query {
-  node(id: "my-id") {
-    __typename
-    ... on User {
-      id
-    }
-    id
-  }
-}
-
-~~~~~~~~~~ OUTPUT ~~~~~~~~~~
-{
-  "data": {
-    "node": {
-      "__typename": "User",
-      "id": "<Node-mock-id-1>"
-    }
-  }
-}
-`;
-
 exports[`with @relay_test_operation generate mock for enum in arrays 1`] = `
 ~~~~~~~~~~ INPUT ~~~~~~~~~~
 query RelayMockPayloadGeneratorTest40Query {
@@ -2177,3 +2154,99 @@ fragment RelayMockPayloadGeneratorTest5MarkdownUserNameRenderer_name on Markdown
 `;
 
 exports[`with @relay_test_operation should throw if invalid default value provide for __module_operation. 1`] = `"RelayMockPayloadGenerator(): Unexpected default value for a field \`__module_operation\` in the mock resolver for @module dependency. Provided value is \\"{\\"kind\\":\\"InvalidObject\\"}\\" and we're expecting an object of a type \`NormalizationSplitOperation\`. Please adjust mock resolver for the type \\"MarkdownUserNameRenderer\\". Typically it should require a file \\"RelayMockPayloadGeneratorTest4MarkdownUserNameRenderer_name$normalization.graphql\\"."`;
+
+exports[`with @relay_test_operation with Relay Resolver having fragment generate mock for client extensions with client generation disabled 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest57Query {
+  me {
+    ...UserNamePassthroughResolver
+    id
+  }
+}
+
+fragment UserNamePassthroughResolver on User {
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "me": {
+      "name": "<mock-value-for-field-\\"name\\">",
+      "id": "<User-mock-id-1>"
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation with Relay Resolver having fragment generate mock for client extensions with client generation enabled 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest57Query {
+  me {
+    ...UserNamePassthroughResolver
+    id
+  }
+}
+
+fragment UserNamePassthroughResolver on User {
+  name
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "me": {
+      "name": "<mock-value-for-field-\\"name\\">",
+      "id": "<User-mock-id-1>"
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation with client extensions generate mock for client extensions with client generation disabled 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest43Query {
+  node(id: "my-id") {
+    __typename
+    ... on User {
+      id
+    }
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>"
+    }
+  }
+}
+`;
+
+exports[`with @relay_test_operation with client extensions generate mock for client extensions with client generation enabled 1`] = `
+~~~~~~~~~~ INPUT ~~~~~~~~~~
+query RelayMockPayloadGeneratorTest43Query {
+  node(id: "my-id") {
+    __typename
+    ... on User {
+      id
+    }
+    id
+  }
+}
+
+~~~~~~~~~~ OUTPUT ~~~~~~~~~~
+{
+  "data": {
+    "node": {
+      "__typename": "User",
+      "id": "<Node-mock-id-1>",
+      "client_name": "<mock-value-for-field-\\"client_name\\">",
+      "client_code": 42
+    }
+  }
+}
+`;

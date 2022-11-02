@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<58705028a2dc69feea7c9ab25d67e76d>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<295d4fe133262868316c6d296ed14ec2>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type DataCheckerTest7Fragment$fragmentType = any;
+import type { DataCheckerTest7Fragment$fragmentType } from "./DataCheckerTest7Fragment.graphql";
 export type DataCheckerTest6Query$variables = {|
   id: string,
 |};

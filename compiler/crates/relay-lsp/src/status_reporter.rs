@@ -6,14 +6,18 @@
  */
 
 //! Utilities for reporting errors to an LSP client
-use crate::{
-    diagnostic_reporter::DiagnosticReporter,
-    status_updater::{set_error_status, set_ready_status, update_in_progress_status},
-};
-use crossbeam::channel::Sender;
-use lsp_server::Message;
-use relay_compiler::{errors::Error, status_reporter::StatusReporter};
 use std::path::PathBuf;
+
+use crossbeam::channel::Sender;
+use log::info;
+use lsp_server::Message;
+use relay_compiler::errors::Error;
+use relay_compiler::status_reporter::StatusReporter;
+
+use crate::diagnostic_reporter::DiagnosticReporter;
+use crate::status_updater::set_error_status;
+use crate::status_updater::set_ready_status;
+use crate::status_updater::update_in_progress_status;
 
 pub struct LSPStatusReporter {
     diagnostic_reporter: DiagnosticReporter,
@@ -39,10 +43,12 @@ impl StatusReporter for LSPStatusReporter {
         );
     }
 
-    fn build_completes(&self) {
+    fn build_completes(&self, diagnostics: &[common::Diagnostic]) {
         set_ready_status(&self.sender);
         self.diagnostic_reporter.clear_regular_diagnostics();
+        self.diagnostic_reporter.report_diagnostics(diagnostics);
         self.diagnostic_reporter.commit_diagnostics();
+        info!("Compilation completed.");
     }
 
     fn build_errors(&self, error: &Error) {

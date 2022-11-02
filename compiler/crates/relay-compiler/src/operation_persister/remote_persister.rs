@@ -5,13 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::config::ArtifactForPersister;
 use async_trait::async_trait;
-use persist_query::{persist, PersistError};
+use persist_query::persist;
+use persist_query::PersistError;
 use relay_config::RemotePersistConfig;
-use std::iter::empty;
 use tokio::sync::Semaphore;
 
+use crate::config::ArtifactForPersister;
 use crate::OperationPersister;
 
 pub struct RemotePersister {
@@ -33,14 +33,16 @@ impl OperationPersister for RemotePersister {
         artifact: ArtifactForPersister,
     ) -> Result<String, PersistError> {
         let params = &self.config.params;
+        let headers = &self.config.headers;
+
         let url = &self.config.url;
         if let Some(semaphore) = &self.semaphore {
             let permit = (*semaphore).acquire().await.unwrap();
-            let result = persist(&artifact.text, url, params, empty()).await;
+            let result = persist(&artifact.text, url, params, headers).await;
             drop(permit);
             result
         } else {
-            persist(&artifact.text, url, params, empty()).await
+            persist(&artifact.text, url, params, headers).await
         }
     }
 }

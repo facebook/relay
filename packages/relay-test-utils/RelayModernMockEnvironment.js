@@ -4,8 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -240,7 +241,7 @@ function createMockEnvironment(
           op => op !== currentOperation,
         );
         if (result instanceof Error) {
-          return Observable.create(sink => {
+          return Observable.create<empty>(sink => {
             sink.error(result);
           });
         } else {
@@ -249,7 +250,7 @@ function createMockEnvironment(
       }
     }
 
-    return Observable.create(sink => {
+    return Observable.create<GraphQLSingularResponse>(sink => {
       const nextRequest = {request, variables, cacheConfig, sink};
       pendingRequests = pendingRequests.concat([nextRequest]);
 

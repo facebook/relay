@@ -7,22 +7,38 @@
 
 use std::collections::HashSet;
 
-use super::{ValidationMessage, ASSIGNABLE_DIRECTIVE, UPDATABLE_DIRECTIVE};
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem};
-use errors::{validate, validate_map};
-use graphql_ir::{
-    Condition, Directive, Field, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField,
-    OperationDefinition, Program, Selection, Validator,
-};
-use intern::string_key::{Intern, StringKey};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::Location;
+use common::NamedItem;
+use errors::validate;
+use errors::validate_map;
+use graphql_ir::Condition;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Validator;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use schema::Schema;
 
+use super::ValidationMessage;
+use super::ASSIGNABLE_DIRECTIVE;
+use super::UPDATABLE_DIRECTIVE;
+
 lazy_static! {
-    static ref ALLOW_LISTED_DIRECTIVES: Vec<StringKey> = vec![
+    static ref ALLOW_LISTED_DIRECTIVES: Vec<DirectiveName> = vec![
         *UPDATABLE_DIRECTIVE,
         // TODO have a global list of directives...?
-        "fb_owner".intern(),
+        DirectiveName("fb_owner".intern()),
     ];
 }
 
@@ -256,7 +272,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
     fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
         if operation.directives.named(*UPDATABLE_DIRECTIVE).is_some() {
             self.executable_definition_info = Some(ExecutableDefinitionInfo {
-                name: operation.name.item,
+                name: operation.name.item.0,
                 location: operation.name.location,
                 type_plural: "operations",
             });
@@ -269,7 +285,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
     fn validate_fragment(&mut self, fragment: &FragmentDefinition) -> DiagnosticsResult<()> {
         if fragment.directives.named(*UPDATABLE_DIRECTIVE).is_some() {
             self.executable_definition_info = Some(ExecutableDefinitionInfo {
-                name: fragment.name.item,
+                name: fragment.name.item.0,
                 location: fragment.name.location,
                 type_plural: "fragments",
             });
@@ -283,7 +299,7 @@ impl<'a> Validator for UpdatableDirective<'a> {
         if !ALLOW_LISTED_DIRECTIVES.contains(&directive.name.item) {
             Err(vec![Diagnostic::error(
                 ValidationMessage::UpdatableDisallowOtherDirectives {
-                    disallowed_directive_name: directive.name.item,
+                    disallowed_directive_name: directive.name.item.0,
                     outer_type_plural: self.executable_definition_info.unwrap().type_plural,
                 },
                 directive.name.location,
@@ -340,13 +356,12 @@ impl<'a> Validator for UpdatableDirective<'a> {
         )
     }
 
-    fn validate_condition(&mut self, _condition: &Condition) -> DiagnosticsResult<()> {
+    fn validate_condition(&mut self, condition: &Condition) -> DiagnosticsResult<()> {
         Err(vec![Diagnostic::error(
             ValidationMessage::UpdatableNoConditions {
                 outer_type_plural: self.executable_definition_info.unwrap().type_plural,
-                operation_or_fragment_name: self.executable_definition_info.unwrap().name,
             },
-            self.executable_definition_info.unwrap().location,
+            condition.location,
         )])
     }
 }

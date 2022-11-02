@@ -25,7 +25,9 @@ query RefetchableFragmentQuery(
   $id: ID!
 ) @__RefetchableDerivedFromMetadata
 # RefetchableDerivedFromMetadata(
-#     "PaginationFragment",
+#     FragmentDefinitionName(
+#         "PaginationFragment",
+#     ),
 # )
  {
   node(id: $id) {

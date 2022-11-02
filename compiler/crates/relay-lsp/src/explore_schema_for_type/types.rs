@@ -6,12 +6,21 @@
  */
 
 use intern::string_key::StringKey;
-use schema::{
-    DirectiveValue, EnumID, FieldID, InputObjectID, InterfaceID, ObjectID, SDLSchema, ScalarID,
-    Schema, Type, UnionID,
-};
+use intern::Lookup;
+use schema::DirectiveValue;
+use schema::EnumID;
+use schema::FieldID;
+use schema::InputObjectID;
+use schema::InterfaceID;
+use schema::ObjectID;
+use schema::SDLSchema;
+use schema::ScalarID;
+use schema::Schema;
+use schema::Type;
+use schema::UnionID;
 use schema_documentation::SchemaDocumentation;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
 
 const DEFAULT_COUNT: usize = 100;
 
@@ -390,7 +399,7 @@ fn get_schema_explorer_field(
                 .get_field_argument_description(
                     parent_type_name.lookup(),
                     &field_name,
-                    arg.name.lookup(),
+                    arg.name.0.lookup(),
                 )
                 .map(|field_argument_description| field_argument_description.to_string());
 

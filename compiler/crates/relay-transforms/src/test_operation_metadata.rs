@@ -5,25 +5,46 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{create_metadata_directive, ValidationMessage, DIRECTIVE_SPLIT_OPERATION};
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use graphql_ir::{
-    ConstantArgument, ConstantValue, Field as IrField, FragmentDefinition, OperationDefinition,
-    Program, Selection, Transformed, Transformer,
-};
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::ConstantArgument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Field as IrField;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
 use indexmap::IndexMap;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 use regex::Regex;
-use schema::{EnumValue, Field, SDLSchema, Schema, Type};
+use schema::EnumValue;
+use schema::Field;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+
+use crate::create_metadata_directive;
+use crate::ValidationMessage;
+use crate::DIRECTIVE_SPLIT_OPERATION;
 
 lazy_static! {
-    static ref TEST_OPERATION_DIRECTIVE: StringKey = "relay_test_operation".intern();
-    static ref TEST_OPERATION_METADATA_KEY: StringKey = "relayTestingSelectionTypeInfo".intern();
-    static ref ENUM_VALUES_KEY: StringKey = "enumValues".intern();
-    static ref NULLABLE_KEY: StringKey = "nullable".intern();
-    static ref PLURAL_KEY: StringKey = "plural".intern();
-    static ref TYPE_KEY: StringKey = "type".intern();
+    static ref TEST_OPERATION_DIRECTIVE: DirectiveName =
+        DirectiveName("relay_test_operation".intern());
+    static ref TEST_OPERATION_METADATA_KEY: ArgumentName =
+        ArgumentName("relayTestingSelectionTypeInfo".intern());
+    static ref ENUM_VALUES_KEY: ArgumentName = ArgumentName("enumValues".intern());
+    static ref NULLABLE_KEY: ArgumentName = ArgumentName("nullable".intern());
+    static ref PLURAL_KEY: ArgumentName = ArgumentName("plural".intern());
+    static ref TYPE_KEY: ArgumentName = ArgumentName("type".intern());
 }
 
 /// Transforms the @relay_test_operation directive to @__metadata thats printed
@@ -122,7 +143,7 @@ impl From<RelayTestOperationMetadata> for Vec<ConstantArgument> {
             Vec::with_capacity(test_metadata.selection_type_info.len());
         for (path, type_info) in test_metadata.selection_type_info {
             metadata.push(ConstantArgument {
-                name: WithLocation::generated(path),
+                name: WithLocation::generated(ArgumentName(path)),
                 value: WithLocation::generated(ConstantValue::Object(From::from(type_info))),
             })
         }
@@ -203,26 +224,22 @@ impl RelayTestOperationMetadata {
                     match selection {
                         Selection::ScalarField(scalar_field) => {
                             let field = schema.field(scalar_field.definition.item);
-                            if !field.is_extension {
-                                let alias_or_name = scalar_field.alias_or_name(schema);
-                                let next_path = next_path(path, alias_or_name);
-                                selection_type_info.insert(
-                                    next_path,
-                                    RelayTestOperationSelectionTypeInfo::new(schema, field),
-                                );
-                            }
+                            let alias_or_name = scalar_field.alias_or_name(schema);
+                            let next_path = next_path(path, alias_or_name);
+                            selection_type_info.insert(
+                                next_path,
+                                RelayTestOperationSelectionTypeInfo::new(schema, field),
+                            );
                         }
                         Selection::LinkedField(linked_field) => {
                             let field = schema.field(linked_field.definition.item);
-                            if !field.is_extension {
-                                let alias_or_name = linked_field.alias_or_name(schema);
-                                let next_path = next_path(path, alias_or_name);
-                                selection_type_info.insert(
-                                    next_path,
-                                    RelayTestOperationSelectionTypeInfo::new(schema, field),
-                                );
-                                processing_queue.push((Some(next_path), &linked_field.selections));
-                            }
+                            let alias_or_name = linked_field.alias_or_name(schema);
+                            let next_path = next_path(path, alias_or_name);
+                            selection_type_info.insert(
+                                next_path,
+                                RelayTestOperationSelectionTypeInfo::new(schema, field),
+                            );
+                            processing_queue.push((Some(next_path), &linked_field.selections));
                         }
                         Selection::Condition(condition) => {
                             processing_queue.push((path, &condition.selections));
@@ -232,8 +249,9 @@ impl RelayTestOperationMetadata {
                         }
                         Selection::FragmentSpread(spread) => {
                             // Must be a shared normalization fragment
-                            let operation =
-                                program.operation(spread.fragment.item).unwrap_or_else(|| {
+                            let operation = program
+                                .operation(OperationDefinitionName(spread.fragment.item.0))
+                                .unwrap_or_else(|| {
                                     panic!("Expected fragment '{}' to exist.", spread.fragment.item)
                                 });
                             assert!(

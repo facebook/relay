@@ -5,21 +5,32 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::create_metadata_directive;
-use common::{Diagnostic, DiagnosticsResult, NamedItem, WithLocation};
-use graphql_ir::{
-    ConstantArgument, ConstantValue, OperationDefinition, Program, Transformed, Transformer, Value,
-};
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::ConstantArgument;
+use graphql_ir::ConstantValue;
+use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
+use graphql_ir::Program;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
 use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
 use lazy_static::lazy_static;
 use thiserror::Error;
 
+use crate::create_metadata_directive;
+
 lazy_static! {
-    static ref LIVE_QUERY_DIRECTIVE_NAME: StringKey = "live_query".intern();
-    static ref LIVE_METADATA_KEY: StringKey = "live".intern();
-    static ref POLLING_INTERVAL_ARG: StringKey = "polling_interval".intern();
-    static ref CONFIG_ID_ARG: StringKey = "config_id".intern();
+    static ref LIVE_QUERY_DIRECTIVE_NAME: DirectiveName = DirectiveName("live_query".intern());
+    static ref LIVE_METADATA_KEY: ArgumentName = ArgumentName("live".intern());
+    static ref POLLING_INTERVAL_ARG: ArgumentName = ArgumentName("polling_interval".intern());
+    static ref CONFIG_ID_ARG: ArgumentName = ArgumentName("config_id".intern());
 }
 
 pub fn generate_live_query_metadata(program: &Program) -> DiagnosticsResult<Program> {
@@ -52,7 +63,6 @@ impl Transformer for GenerateLiveQueryMetadata {
         match operation.kind {
             OperationKind::Query => {
                 let live_query_directive = operation.directives.named(*LIVE_QUERY_DIRECTIVE_NAME);
-
                 if let Some(live_query_directive) = live_query_directive {
                     let polling_interval =
                         live_query_directive.arguments.named(*POLLING_INTERVAL_ARG);
@@ -136,15 +146,15 @@ enum ValidationMessage {
     #[error(
         "Live query expects 'polling_interval' or 'config_id' as an argument to @live_query to for root field {query_name}"
     )]
-    LiveQueryTransformMissingConfig { query_name: StringKey },
+    LiveQueryTransformMissingConfig { query_name: OperationDefinitionName },
 
     #[error(
         "Expected the 'polling_interval' argument to @live_query to be a literal number for root field {query_name}"
     )]
-    LiveQueryTransformInvalidPollingInterval { query_name: StringKey },
+    LiveQueryTransformInvalidPollingInterval { query_name: OperationDefinitionName },
 
     #[error(
         "Expected the 'config_id' argument to @live_query to be a literal string for root field {query_name}"
     )]
-    LiveQueryTransformInvalidConfigId { query_name: StringKey },
+    LiveQueryTransformInvalidConfigId { query_name: OperationDefinitionName },
 }

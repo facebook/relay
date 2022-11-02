@@ -19,13 +19,17 @@ fragment F2 on Query @argumentDefinitions(
         FragmentDefinition {
             name: WithLocation {
                 location: fragment_with_arguments_defaulting.graphql:9:21,
-                item: "TestFragment",
+                item: FragmentDefinitionName(
+                    "TestFragment",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment_with_arguments_defaulting.graphql:132:143,
-                        item: "defaultedID",
+                        item: VariableName(
+                            "defaultedID",
+                        ),
                     },
                     type_: Named(
                         Scalar(4),
@@ -47,7 +51,9 @@ fragment F2 on Query @argumentDefinitions(
                 Directive {
                     name: WithLocation {
                         location: fragment_with_arguments_defaulting.graphql:32:51,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,
@@ -57,13 +63,17 @@ fragment F2 on Query @argumentDefinitions(
                 FragmentSpread {
                     fragment: WithLocation {
                         location: fragment_with_arguments_defaulting.graphql:185:187,
-                        item: "F2",
+                        item: FragmentDefinitionName(
+                            "F2",
+                        ),
                     },
                     arguments: [
                         Argument {
                             name: WithLocation {
                                 location: fragment_with_arguments_defaulting.graphql:199:208,
-                                item: "nonnullID",
+                                item: ArgumentName(
+                                    "nonnullID",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment_with_arguments_defaulting.graphql:210:222,
@@ -71,7 +81,9 @@ fragment F2 on Query @argumentDefinitions(
                                     Variable {
                                         name: WithLocation {
                                             location: fragment_with_arguments_defaulting.graphql:210:222,
-                                            item: "defaultedID",
+                                            item: VariableName(
+                                                "defaultedID",
+                                            ),
                                         },
                                         type_: NonNull(
                                             Named(
@@ -92,13 +104,17 @@ fragment F2 on Query @argumentDefinitions(
         FragmentDefinition {
             name: WithLocation {
                 location: fragment_with_arguments_defaulting.graphql:236:238,
-                item: "F2",
+                item: FragmentDefinitionName(
+                    "F2",
+                ),
             },
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
                         location: fragment_with_arguments_defaulting.graphql:272:281,
-                        item: "nonnullID",
+                        item: VariableName(
+                            "nonnullID",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -115,7 +131,9 @@ fragment F2 on Query @argumentDefinitions(
                 Directive {
                     name: WithLocation {
                         location: fragment_with_arguments_defaulting.graphql:249:268,
-                        item: "argumentDefinitions",
+                        item: DirectiveName(
+                            "argumentDefinitions",
+                        ),
                     },
                     arguments: [],
                     data: None,
@@ -132,7 +150,9 @@ fragment F2 on Query @argumentDefinitions(
                         Argument {
                             name: WithLocation {
                                 location: fragment_with_arguments_defaulting.graphql:320:322,
-                                item: "id",
+                                item: ArgumentName(
+                                    "id",
+                                ),
                             },
                             value: WithLocation {
                                 location: fragment_with_arguments_defaulting.graphql:324:334,
@@ -140,7 +160,9 @@ fragment F2 on Query @argumentDefinitions(
                                     Variable {
                                         name: WithLocation {
                                             location: fragment_with_arguments_defaulting.graphql:324:334,
-                                            item: "nonnullID",
+                                            item: VariableName(
+                                                "nonnullID",
+                                            ),
                                         },
                                         type_: NonNull(
                                             Named(

@@ -5,7 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
+
+/* eslint-disable no-unused-vars */
 
 'use strict';
 
@@ -49,7 +52,6 @@ declare module react {
   > = React$AbstractComponent<Config, Instance>;
   declare export type MixedElement = React$MixedElement;
   declare export type ElementType = React$ElementType;
-  // eslint-disable-next-line lint/flow-react-element
   declare export type Element<+C> = React$Element<C>;
   declare export var Fragment: React$FragmentType;
   declare export type Key = React$Key;

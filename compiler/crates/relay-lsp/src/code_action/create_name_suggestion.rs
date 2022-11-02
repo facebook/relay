@@ -5,10 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::collections::HashSet;
+use std::fmt;
+
 use graphql_syntax::OperationKind;
 use rand::seq::SliceRandom;
 use relay_transforms::extract_module_name;
-use std::{collections::HashSet, fmt};
 
 #[derive(Clone, Copy, Debug)]
 pub enum DefinitionNameSuffix {
@@ -181,11 +183,12 @@ fn create_impactful_part() -> String {
 #[cfg(not(windows))]
 #[cfg(test)]
 mod tests {
-    use super::{
-        create_default_name, create_default_name_with_index, create_name_wrapper,
-        DefinitionNameSuffix,
-    };
     use std::collections::HashSet;
+
+    use super::create_default_name;
+    use super::create_default_name_with_index;
+    use super::create_name_wrapper;
+    use super::DefinitionNameSuffix;
 
     #[test]
     fn test_create_default_name() {
@@ -307,7 +310,8 @@ mod tests {
 #[cfg(windows)]
 #[cfg(test)]
 mod tests {
-    use super::{create_default_name, DefinitionNameSuffix};
+    use super::create_default_name;
+    use super::DefinitionNameSuffix;
 
     #[test]
     fn test_create_default_name() {

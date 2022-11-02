@@ -5,14 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::UPDATABLE_DIRECTIVE;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use graphql_ir::Condition;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::Validator;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
 
-use super::{ensure_discriminated_union_is_created, ValidationMessage};
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{
-    Condition, FragmentDefinition, FragmentSpread, InlineFragment, LinkedField, Program, Validator,
-};
-use schema::{Schema, TypeReference};
+use super::ensure_discriminated_union_is_created;
+use super::ValidationMessage;
+use crate::UPDATABLE_DIRECTIVE;
 
 pub fn validate_updatable_fragment_spread(program: &Program) -> DiagnosticsResult<()> {
     UpdatableFragmentSpread {
@@ -38,7 +47,7 @@ enum PathItem {
 }
 
 struct LinkedFieldPathItem {
-    type_reference: TypeReference,
+    type_reference: TypeReference<Type>,
     should_ensure_discriminated_union_is_created: bool,
 }
 

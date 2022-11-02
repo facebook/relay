@@ -5,16 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
 use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::{build, FragmentDefinition, Program};
+use graphql_ir::build;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::Program;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
-use relay_codegen::{build_request_params, JsModuleFormat, Printer};
+use relay_codegen::build_request_params;
+use relay_codegen::JsModuleFormat;
+use relay_codegen::Printer;
 use relay_config::ProjectConfig;
 use relay_test_schema::get_test_schema;
-use relay_transforms::{transform_connections, validate_connections, ConnectionInterface};
-use std::sync::Arc;
+use relay_transforms::transform_connections;
+use relay_transforms::validate_connections;
+use relay_transforms::ConnectionInterface;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let project_config = ProjectConfig {
@@ -43,7 +51,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         .operations()
         .map(|def| {
             let operation_fragment = FragmentDefinition {
-                name: def.name,
+                name: def.name.map(|x| FragmentDefinitionName(x.0)),
                 variable_definitions: def.variable_definitions.clone(),
                 selections: def.selections.clone(),
                 used_global_variables: Default::default(),

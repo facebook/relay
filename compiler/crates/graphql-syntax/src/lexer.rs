@@ -5,8 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use logos::{Lexer, Logos};
 use std::fmt;
+
+use logos::Lexer;
+use logos::Logos;
 
 #[derive(Default, Eq, PartialEq)]
 pub struct TokenKindExtras {

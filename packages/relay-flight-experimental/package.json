@@ -1,0 +1,10 @@
+{
+  "name": "relay-flight-experimental",
+  "description": "experimental stuff for relay and react server components integration",
+  "version": "0.0.0",
+  "private": true,
+  "license": "MIT",
+  "homepage": "https://relay.dev",
+  "bugs": "https://github.com/facebook/relay/issues",
+  "repository": "facebook/relay"
+}

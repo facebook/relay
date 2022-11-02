@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<300ea9d15691cbfa6649ce2b0ef3fec9>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<3cf5e821b03f189c1681f8e44ba05597>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +18,8 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type UserBestFriendShoutedGreetingResolver$key = any;
-import userBestFriendShoutedGreetingResolver from "../resolvers/UserBestFriendShoutedGreetingResolver.js";
+import type { UserBestFriendShoutedGreetingResolver$key } from "./../resolvers/__generated__/UserBestFriendShoutedGreetingResolver.graphql";
+import {best_friend_shouted_greeting as userBestFriendShoutedGreetingResolver} from "../resolvers/UserBestFriendShoutedGreetingResolver.js";
 // Type assertion validating that `userBestFriendShoutedGreetingResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userBestFriendShoutedGreetingResolver: (
@@ -68,7 +70,7 @@ return {
             },
             "kind": "RelayResolver",
             "name": "best_friend_shouted_greeting",
-            "resolverModule": require('./../resolvers/UserBestFriendShoutedGreetingResolver.js'),
+            "resolverModule": require('./../resolvers/UserBestFriendShoutedGreetingResolver').best_friend_shouted_greeting,
             "path": "me.best_friend_shouted_greeting"
           }
         ],
@@ -93,58 +95,84 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
-            "args": [
-              {
-                "kind": "Literal",
-                "name": "first",
-                "value": 1
-              }
-            ],
-            "concreteType": "FriendsConnection",
-            "kind": "LinkedField",
-            "name": "friends",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "FriendsEdge",
-                "kind": "LinkedField",
-                "name": "edges",
-                "plural": true,
-                "selections": [
-                  {
-                    "alias": null,
-                    "args": null,
-                    "kind": "ScalarField",
-                    "name": "cursor",
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "User",
-                    "kind": "LinkedField",
-                    "name": "node",
-                    "plural": false,
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "name",
-                        "storageKey": null
-                      },
-                      (v0/*: any*/)
-                    ],
-                    "storageKey": null
-                  }
-                ],
-                "storageKey": null
-              }
-            ],
-            "storageKey": "friends(first:1)"
+            "name": "best_friend_shouted_greeting",
+            "args": null,
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": [
+                    {
+                      "kind": "Literal",
+                      "name": "first",
+                      "value": 1
+                    }
+                  ],
+                  "concreteType": "FriendsConnection",
+                  "kind": "LinkedField",
+                  "name": "friends",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "concreteType": "FriendsEdge",
+                      "kind": "LinkedField",
+                      "name": "edges",
+                      "plural": true,
+                      "selections": [
+                        {
+                          "alias": null,
+                          "args": null,
+                          "kind": "ScalarField",
+                          "name": "cursor",
+                          "storageKey": null
+                        },
+                        {
+                          "alias": null,
+                          "args": null,
+                          "concreteType": "User",
+                          "kind": "LinkedField",
+                          "name": "node",
+                          "plural": false,
+                          "selections": [
+                            {
+                              "name": "greeting",
+                              "args": null,
+                              "fragment": {
+                                "kind": "InlineFragment",
+                                "selections": [
+                                  {
+                                    "alias": null,
+                                    "args": null,
+                                    "kind": "ScalarField",
+                                    "name": "name",
+                                    "storageKey": null
+                                  }
+                                ],
+                                "type": "User",
+                                "abstractKey": null
+                              },
+                              "kind": "RelayResolver",
+                              "storageKey": null
+                            },
+                            (v0/*: any*/)
+                          ],
+                          "storageKey": null
+                        }
+                      ],
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": "friends(first:1)"
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null
           },
           (v0/*: any*/)
         ],

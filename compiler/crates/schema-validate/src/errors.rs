@@ -5,8 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
+use common::InterfaceName;
+use common::ObjectName;
 use intern::string_key::StringKey;
-use schema::{Type, TypeReference};
+use schema::Type;
+use schema::TypeReference;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -27,38 +31,38 @@ pub enum SchemaValidationError {
     DuplicateField(StringKey),
 
     #[error("Duplicate argument '{0}' found on field/directive '{1}'.")]
-    DuplicateArgument(StringKey, StringKey),
+    DuplicateArgument(ArgumentName, StringKey),
 
     #[error("Type must define one or more fields.")]
     TypeWithNoFields,
 
     #[error("The type of '{0}.{1}' must be Output Type but got: '{2:?}'.")]
-    InvalidFieldType(StringKey, StringKey, TypeReference),
+    InvalidFieldType(StringKey, StringKey, TypeReference<Type>),
 
     #[error("The type of '{0}.{1}({2}:)' must be InputType but got: '{3:?}'.")]
-    InvalidArgumentType(StringKey, StringKey, StringKey, TypeReference),
+    InvalidArgumentType(StringKey, StringKey, ArgumentName, TypeReference<Type>),
 
     #[error("Type '{0}' can only implement '{1}' once.")]
-    DuplicateInterfaceImplementation(StringKey, StringKey),
+    DuplicateInterfaceImplementation(StringKey, InterfaceName),
 
     #[error("Interface field '{0}.{1}' expected but '{2}' does not provide it.")]
-    InterfaceFieldNotProvided(StringKey, StringKey, StringKey),
+    InterfaceFieldNotProvided(InterfaceName, StringKey, StringKey),
 
     #[error("Interface field '{0}.{1}' expects type '{2}' but '{3}.{1}' is of type '{4}'.")]
-    NotASubType(StringKey, StringKey, StringKey, StringKey, StringKey),
+    NotASubType(InterfaceName, StringKey, StringKey, StringKey, StringKey),
 
     #[error(
         "Interface field argument '{0}.{1}({2}:)' expected but '{3}.{1}' does not provide it."
     )]
-    InterfaceFieldArgumentNotProvided(StringKey, StringKey, StringKey, StringKey),
+    InterfaceFieldArgumentNotProvided(InterfaceName, StringKey, ArgumentName, StringKey),
 
     #[error(
         "Interface field argument '{0}.{1}({2}:)' expects type '{3}' but '{4}.{1}({2}:)' is type '{5}'."
     )]
     NotEqualType(
+        InterfaceName,
         StringKey,
-        StringKey,
-        StringKey,
+        ArgumentName,
         StringKey,
         StringKey,
         StringKey,
@@ -67,13 +71,13 @@ pub enum SchemaValidationError {
     #[error(
         "Object field '{0}.{1}' includes required argument '{2}' that is missing from the Interface field '{3}.{1}'."
     )]
-    MissingRequiredArgument(StringKey, StringKey, StringKey, StringKey),
+    MissingRequiredArgument(StringKey, StringKey, ArgumentName, InterfaceName),
 
     #[error("Union type must define one or more member types.")]
     UnionWithNoMembers(StringKey),
 
     #[error("Union can only include member {0} once.")]
-    DuplicateMember(StringKey),
+    DuplicateMember(ObjectName),
 
     #[error("Enum must define one or more values.")]
     EnumWithNoValues,

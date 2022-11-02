@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<6ed0e2dadde95774e982d6fe9ef1de78>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<9a2a8da93a2831b0276225229d4ed1a5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +20,8 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType = any;
-type RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType = any;
+import type { RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteSubscriptionWithMatchTestMarkdownUserNameRenderer_name.graphql";
+import type { RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteSubscriptionWithMatchTestPlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$fragmentType: FragmentType;
 export type RelayModernEnvironmentExecuteSubscriptionWithMatchTestCommentFragment$data = {|

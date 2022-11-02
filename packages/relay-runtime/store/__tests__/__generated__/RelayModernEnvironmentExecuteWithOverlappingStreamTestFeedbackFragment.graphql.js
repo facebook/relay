@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f1e427517f7c5e9b02e6a690e9a6bae2>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<9f3d88adc49b815fd50009e9b952b278>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType = any;
+import type { RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithOverlappingStreamTestDeferFragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$fragmentType: FragmentType;
 export type RelayModernEnvironmentExecuteWithOverlappingStreamTestFeedbackFragment$data = {|

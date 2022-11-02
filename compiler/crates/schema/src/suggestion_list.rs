@@ -5,9 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{SDLSchema, Schema, Type};
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
 use strsim::damerau_levenshtein;
+
+use crate::SDLSchema;
+use crate::Schema;
+use crate::Type;
 
 /// Computes the lexical distance between strings A and B.
 ///
@@ -227,7 +232,7 @@ impl<'schema> GraphQLSuggestions<'schema> {
                 .input_object(input_id)
                 .fields
                 .iter()
-                .map(|arg| arg.name)
+                .map(|arg| arg.name.0)
                 .collect(),
             _ => vec![],
         };
@@ -266,8 +271,9 @@ pub fn did_you_mean(suggestions: &[StringKey]) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::suggestion_list;
     use intern::string_key::Intern;
+
+    use super::suggestion_list;
 
     #[test]
     fn test_suggestion_list_empty_input() {

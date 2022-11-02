@@ -5,17 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    idhasher::BuildIdHasher,
-    string::{self, IntoUtf8Bytes, StringId},
-};
+use std::collections::HashMap;
+use std::collections::HashSet;
+use std::fmt;
+use std::fmt::Formatter;
+use std::str::FromStr;
+
 use indexmap::IndexMap;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
-use std::{
-    collections::{HashMap, HashSet},
-    fmt::{self, Formatter},
-    str::FromStr,
-};
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
+use serde::Serializer;
+
+use crate::idhasher::BuildIdHasher;
+use crate::string;
+use crate::string::IntoUtf8Bytes;
+use crate::string::StringId;
+use crate::Lookup;
 
 // StringKey is a small impedence matcher around StringId.
 // NOTE in particular that it does NOT do de-duplicating serde.
@@ -36,10 +42,6 @@ pub trait Intern: IntoUtf8Bytes {
 impl<T: IntoUtf8Bytes> Intern for T {}
 
 impl StringKey {
-    pub fn lookup(self) -> &'static str {
-        self.0.as_str()
-    }
-
     pub fn index(self) -> u32 {
         self.0.index()
     }
@@ -50,6 +52,12 @@ impl StringKey {
 
     pub unsafe fn from_index(index: u32) -> Self {
         Self(StringId::from_index(index))
+    }
+}
+
+impl Lookup for StringKey {
+    fn lookup(self) -> &'static str {
+        self.0.as_str()
     }
 }
 
@@ -94,7 +102,8 @@ impl FromStr for StringKey {
 #[macro_export]
 macro_rules! intern {
     ($value:literal) => {{
-        use $crate::{string::Lazy, string_key::Intern};
+        use $crate::string::Lazy;
+        use $crate::string_key::Intern;
         static INSTANCE: Lazy<$crate::string_key::StringKey> = Lazy::new(|| $value.intern());
         *INSTANCE
     }};

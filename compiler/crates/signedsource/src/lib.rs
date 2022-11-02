@@ -10,7 +10,8 @@
 #![deny(clippy::all)]
 
 use lazy_static::lazy_static;
-use md5::{Digest, Md5};
+use md5::Digest;
+use md5::Md5;
 use regex::Regex;
 
 lazy_static! {
@@ -19,8 +20,8 @@ lazy_static! {
 
 fn hash(data: &str) -> String {
     let mut md5 = Md5::new();
-    md5.input(data);
-    hex::encode(md5.result())
+    md5.update(data);
+    hex::encode(md5.finalize())
 }
 fn sign(data: &str) -> String {
     data.replace(NEWTOKEN, &format!("SignedSource<<{}>>", hash(data)))

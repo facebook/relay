@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7d8567c972aa77af99d58cf55545b589>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<10e1a861ea49f1a624859dad7a53c95a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type useRefetchableFragmentNodeTest1Fragment$fragmentType = any;
+import type { useRefetchableFragmentNodeTest1Fragment$fragmentType } from "./useRefetchableFragmentNodeTest1Fragment.graphql";
 export type useRefetchableFragmentNodeTest1Query$variables = {|
   id: string,
 |};

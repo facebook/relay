@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<44fc7761e01eaebf4466f0cb985064ca>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<913362b6843cb785f7c89ccea96009e1>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType = any;
+import type { useLazyLoadQueryNodeFastRefreshTestUserFragment$fragmentType } from "./useLazyLoadQueryNodeFastRefreshTestUserFragment.graphql";
 export type useLazyLoadQueryNodeFastRefreshTestUserQuery$variables = {|
   id?: ?string,
 |};

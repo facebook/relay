@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<002896ccd8c64a51c62e46fb666c5a1a>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<db6455c42edb5fbc76136399a1e20535>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType = any;
+import type { ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment$fragmentType } from "./ReactRelayPaginationContainerReactDoubleEffectsTestUserFragment.graphql";
 export type ReactRelayPaginationContainerReactDoubleEffectsTestUserQuery$variables = {|
   count: number,
   id: string,

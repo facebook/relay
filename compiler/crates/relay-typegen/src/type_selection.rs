@@ -5,13 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use ::intern::string_key::{Intern, StringKey};
+use ::intern::string_key::Intern;
+use ::intern::string_key::StringKey;
+use graphql_ir::FragmentDefinitionName;
 use indexmap::IndexMap;
 use relay_config::SchemaConfig;
 use relay_transforms::TypeConditionInfo;
-use schema::{Type, TypeReference};
+use schema::Type;
+use schema::TypeReference;
 
-use crate::{writer::AST, JS_FIELD_NAME, KEY_CLIENTID, KEY_TYPENAME, SPREAD_KEY};
+use crate::writer::AST;
+use crate::JS_FIELD_NAME;
+use crate::KEY_CLIENTID;
+use crate::KEY_TYPENAME;
+use crate::SPREAD_KEY;
 
 #[derive(Debug, Clone)]
 pub(crate) enum TypeSelection {
@@ -102,7 +109,7 @@ impl TypeSelection {
             TypeSelection::ScalarField(s) => s.field_name_or_alias,
             TypeSelection::FragmentSpread(i) => format!("__fragments_{}", i.fragment_name).intern(),
             TypeSelection::InlineFragment(i) => format!("__fragments_{}", i.fragment_name).intern(),
-            TypeSelection::ModuleDirective(md) => md.fragment_name,
+            TypeSelection::ModuleDirective(md) => md.fragment_name.0,
             TypeSelection::RawResponseFragmentSpread(_) => *SPREAD_KEY,
         }
     }
@@ -117,7 +124,7 @@ pub(crate) struct RawResponseFragmentSpread {
 
 #[derive(Debug, Clone)]
 pub(crate) struct ModuleDirective {
-    pub(crate) fragment_name: StringKey,
+    pub(crate) fragment_name: FragmentDefinitionName,
     pub(crate) document_name: StringKey,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
@@ -126,7 +133,7 @@ pub(crate) struct ModuleDirective {
 #[derive(Debug, Clone)]
 pub(crate) struct TypeSelectionLinkedField {
     pub(crate) field_name_or_alias: StringKey,
-    pub(crate) node_type: TypeReference,
+    pub(crate) node_type: TypeReference<Type>,
     pub(crate) node_selections: TypeSelectionMap,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
@@ -143,14 +150,14 @@ pub(crate) struct TypeSelectionScalarField {
 
 #[derive(Debug, Clone)]
 pub(crate) struct TypeSelectionInlineFragment {
-    pub(crate) fragment_name: StringKey,
+    pub(crate) fragment_name: FragmentDefinitionName,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
 }
 
 #[derive(Debug, Clone)]
 pub(crate) struct TypeSelectionFragmentSpread {
-    pub(crate) fragment_name: StringKey,
+    pub(crate) fragment_name: FragmentDefinitionName,
     pub(crate) conditional: bool,
     pub(crate) concrete_type: Option<Type>,
     // Why are we using TypeSelectionInfo instead of re-using concrete_type?

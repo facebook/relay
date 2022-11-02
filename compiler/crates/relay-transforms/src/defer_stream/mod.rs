@@ -7,39 +7,63 @@
 
 mod directives;
 
-use super::get_applied_fragment_name;
-use crate::util::{remove_directive, replace_directive};
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-pub use directives::{DeferDirective, StreamDirective};
-use graphql_ir::{
-    Argument, ConstantValue, Directive, Field, FragmentDefinition, FragmentSpread, InlineFragment,
-    LinkedField, OperationDefinition, Program, ScalarField, Selection, Transformed, Transformer,
-    Value,
-};
-use intern::string_key::{Intern, StringKey};
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+pub use directives::DeferDirective;
+pub use directives::StreamDirective;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use schema::Schema;
-use std::{collections::HashMap, sync::Arc};
 use thiserror::Error;
 
+use super::get_applied_fragment_name;
+use crate::util::remove_directive;
+use crate::util::replace_directive;
+
 pub struct DeferStreamConstants {
-    pub defer_name: StringKey,
-    pub stream_name: StringKey,
-    pub if_arg: StringKey,
-    pub label_arg: StringKey,
-    pub initial_count_arg: StringKey,
-    pub use_customized_batch_arg: StringKey,
+    pub defer_name: DirectiveName,
+    pub stream_name: DirectiveName,
+    pub if_arg: ArgumentName,
+    pub label_arg: ArgumentName,
+    pub initial_count_arg: ArgumentName,
+    pub use_customized_batch_arg: ArgumentName,
 }
 
 impl Default for DeferStreamConstants {
     fn default() -> Self {
         Self {
-            defer_name: "defer".intern(),
-            stream_name: "stream".intern(),
-            if_arg: "if".intern(),
-            label_arg: "label".intern(),
-            initial_count_arg: "initial_count".intern(),
-            use_customized_batch_arg: "use_customized_batch".intern(),
+            defer_name: DirectiveName("defer".intern()),
+            stream_name: DirectiveName("stream".intern()),
+            if_arg: ArgumentName("if".intern()),
+            label_arg: ArgumentName("label".intern()),
+            initial_count_arg: ArgumentName("initial_count".intern()),
+            use_customized_batch_arg: ArgumentName("use_customized_batch".intern()),
         }
     }
 }
@@ -113,8 +137,9 @@ impl DeferStreamTransform<'_> {
         }
 
         let label_value = get_literal_string_argument(defer, label_arg)?;
-        let label = label_value
-            .unwrap_or_else(|| get_applied_fragment_name(spread.fragment.item, &spread.arguments));
+        let label = label_value.unwrap_or_else(|| {
+            get_applied_fragment_name(spread.fragment.item, &spread.arguments).0
+        });
         let transformed_label = transform_label(
             self.current_document_name
                 .expect("We expect the parent name to be defined here."),
@@ -212,9 +237,10 @@ impl DeferStreamTransform<'_> {
         let label_value = get_literal_string_argument(stream, label_arg)?;
         let label = label_value.unwrap_or_else(|| {
             get_applied_fragment_name(
-                linked_field.alias_or_name(&self.program.schema),
+                FragmentDefinitionName(linked_field.alias_or_name(&self.program.schema)),
                 &linked_field.arguments,
             )
+            .0
         });
         let transformed_label = transform_label(
             self.current_document_name
@@ -269,7 +295,7 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
         &mut self,
         operation: &OperationDefinition,
     ) -> Transformed<OperationDefinition> {
-        self.set_current_document_name(operation.name.item);
+        self.set_current_document_name(operation.name.item.0);
         self.default_transform_operation(operation)
     }
 
@@ -277,7 +303,7 @@ impl<'s> Transformer for DeferStreamTransform<'s> {
         &mut self,
         fragment: &FragmentDefinition,
     ) -> Transformed<FragmentDefinition> {
-        self.set_current_document_name(fragment.name.item);
+        self.set_current_document_name(fragment.name.item.0);
         self.default_transform_fragment(fragment)
     }
 
@@ -371,7 +397,7 @@ fn is_literal_false_arg(arg: Option<&Argument>) -> bool {
 
 fn transform_label(
     parent_name: StringKey,
-    directive_name: StringKey,
+    directive_name: DirectiveName,
     label: StringKey,
 ) -> StringKey {
     format!("{}${}${}", parent_name, directive_name, label).intern()
@@ -403,7 +429,7 @@ enum ValidationMessage {
     #[error(
         "Invalid use of @{directive_name}, the provided label is not unique. Specify a unique 'label' as a literal string."
     )]
-    LabelNotUniqueForDeferStream { directive_name: StringKey },
+    LabelNotUniqueForDeferStream { directive_name: DirectiveName },
 
     #[error("Field '{field_name}' is not of list type, therefore cannot use @stream directive.")]
     StreamFieldIsNotAList { field_name: StringKey },
@@ -423,7 +449,7 @@ enum ValidationMessage {
         "Expected the '{arg_name}' value to @{directive_name} to be a string literal if provided."
     )]
     LiteralStringArgumentExpectedForDirective {
-        arg_name: StringKey,
-        directive_name: StringKey,
+        arg_name: ArgumentName,
+        directive_name: DirectiveName,
     },
 }

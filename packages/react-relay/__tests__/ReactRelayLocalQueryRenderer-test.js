@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';
@@ -13,7 +13,6 @@
 const ReactRelayContext = require('../ReactRelayContext');
 const ReactRelayLocalQueryRenderer = require('../ReactRelayLocalQueryRenderer');
 const ReactRelayQueryRendererContext = require('../ReactRelayQueryRendererContext');
-const readContext = require('../readContext');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {
@@ -23,6 +22,8 @@ const {
   graphql,
 } = require('relay-runtime');
 const {createMockEnvironment} = require('relay-test-utils-internal');
+
+const {useContext} = React;
 
 describe('ReactRelayLocalQueryRenderer', () => {
   graphql`
@@ -96,7 +97,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
     it('sets context correctly', () => {
       let relayContext;
       function ContextGetter() {
-        relayContext = readContext(ReactRelayContext);
+        relayContext = useContext(ReactRelayContext);
         return null;
       }
       render = jest.fn(() => <ContextGetter />);
@@ -493,7 +494,7 @@ describe('ReactRelayLocalQueryRenderer', () => {
 
     beforeEach(() => {
       ContextGetter = () => {
-        queryRendererContext = readContext(ReactRelayQueryRendererContext);
+        queryRendererContext = useContext(ReactRelayQueryRendererContext);
         return null;
       };
 

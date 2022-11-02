@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -351,7 +351,7 @@ describe('execute() a query with @match with additional arguments', () => {
 
   it('loads the @match fragment and normalizes/publishes the field payload with scheduling', () => {
     let taskID = 0;
-    const tasks = new Map();
+    const tasks = new Map<string, () => void>();
     const scheduler = {
       cancel: (id: string) => {
         tasks.delete(id);
@@ -451,7 +451,7 @@ describe('execute() a query with @match with additional arguments', () => {
 
   it('cancels processing of @match fragments with scheduling', () => {
     let taskID = 0;
-    const tasks = new Map();
+    const tasks = new Map<string, () => void>();
     const scheduler = {
       cancel: (id: string) => {
         tasks.delete(id);

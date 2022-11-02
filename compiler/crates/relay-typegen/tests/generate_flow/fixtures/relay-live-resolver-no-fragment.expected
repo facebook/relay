@@ -8,7 +8,11 @@ query relayResolver_Query {
 # %extensions%
 
 extend type User {
-  pop_star_name: Int @relay_resolver(import_path: "./foo/bar/baz/PopStarNameResolver.js", live: true)
+  pop_star_name: RelayResolverValue
+    @relay_resolver(
+      import_path: "./foo/bar/baz/PopStarNameResolver.js"
+      live: true
+    )
 }
 ==================================== OUTPUT ===================================
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";

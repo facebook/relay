@@ -6,11 +6,12 @@
  *
  * @flow strict
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
-const internTable = new Map();
+const internTable = new Map<string, string>();
 let nextIndex = 1;
 const digits = initDigitTable();
 
@@ -25,7 +26,7 @@ const ESCAPE_PREFIX = '\v';
 function initDigitTable() {
   // disable lint because digits isn't defined when this function is called
   // eslint-disable-next-line no-shadow
-  const digits = new Set();
+  const digits = new Set<string>();
   for (let i = 0; i < 10; ++i) {
     digits.add(i.toString());
   }

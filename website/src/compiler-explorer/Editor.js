@@ -5,18 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
-/* eslint-disable lint/no-value-import */
 import 'monaco-editor/esm/vs/editor/browser/controller/coreCommands.js';
 import 'monaco-editor/esm/vs/editor/contrib/find/findController.js';
 import 'monaco-editor/esm/vs/editor/contrib/hover/hover.js';
 import 'monaco-editor/esm/vs/basic-languages/graphql/graphql.contribution.js';
 
-import useThemeContext from '@theme/hooks/useThemeContext';
+import {useThemeConfig} from '@docusaurus/theme-common';
 import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
 import * as React from 'react';
-/* eslint-enable lint/no-value-import */
 
 const {useMemo, useState, useLayoutEffect, useEffect} = React;
 
@@ -43,7 +42,7 @@ const editorOptions = {
 
 export default function Editor({text, onDidChange, diagnostics, style}) {
   const [ref, setRef] = useState(null);
-  const themeContext = useThemeContext();
+  const themeContext = useThemeConfig();
   const editorTheme = themeContext.isDarkTheme ? 'vs-dark' : 'vs';
 
   const editor = useMemo(() => {

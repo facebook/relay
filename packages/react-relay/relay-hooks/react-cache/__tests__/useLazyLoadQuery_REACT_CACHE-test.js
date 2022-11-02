@@ -5,11 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
+
+import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 
 import type {FetchPolicy, GraphQLResponse, RenderPolicy} from 'relay-runtime';
 
@@ -175,12 +177,12 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
 
       let errorBoundaryDidCatchFn;
       class ErrorBoundary extends React.Component<any, any> {
-        state = {error: null};
+        state: {error: ?Error} = {error: null};
         componentDidCatch(error: Error) {
           errorBoundaryDidCatchFn(error);
           this.setState({error});
         }
-        render() {
+        render(): React.Node {
           const {children, fallback} = this.props;
           const {error} = this.state;
           if (error) {
@@ -212,7 +214,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
       beforeEach(() => {
         jest.clearAllTimers();
         errorBoundaryDidCatchFn = jest.fn();
-        logs = [];
+        logs = ([]: Array<LogEvent>);
         subject = new RelayReplaySubject();
         fetch = jest.fn((_query, _vars, config) => {
           return RelayObservable.create(sink => {
@@ -658,7 +660,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
                 responseIsRejected &&
                 (shouldAwaitFetchResult || responseIsSynchronous);
 
-              const thrownPromises = new Set();
+              const thrownPromises = new Set<any>();
               let numberOfRendersObserved = 0;
               function TestComponent({output}: {output: boolean}) {
                 numberOfRendersObserved++;

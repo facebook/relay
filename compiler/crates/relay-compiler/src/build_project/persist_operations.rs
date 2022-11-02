@@ -5,20 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    config::{ArtifactForPersister, Config, ProjectConfig},
-    errors::BuildProjectError,
-    Artifact, ArtifactContent, OperationPersister,
-};
-use common::{sync::ParallelIterator, PerfLogEvent};
+use std::fs;
+use std::path::PathBuf;
+
+use common::sync::ParallelIterator;
+use common::PerfLogEvent;
 use lazy_static::lazy_static;
 use log::debug;
-use md5::{Digest, Md5};
+use md5::Digest;
+use md5::Md5;
 use rayon::iter::IntoParallelRefMutIterator;
 use regex::Regex;
 use relay_codegen::QueryID;
 use relay_transforms::Programs;
-use std::{fs, path::PathBuf};
+
+use crate::config::ArtifactForPersister;
+use crate::config::Config;
+use crate::config::ProjectConfig;
+use crate::errors::BuildProjectError;
+use crate::Artifact;
+use crate::ArtifactContent;
+use crate::OperationPersister;
 
 lazy_static! {
     static ref RELAY_HASH_REGEX: Regex = Regex::new(r#"@relayHash (\w{32})\n"#).unwrap();
@@ -49,7 +56,9 @@ pub async fn persist_operations(
                     .as_ref()
                     .map(|gen_name| gen_name(project_config, reader_operation, &programs.reader))
                 {
-                    *id_and_text_hash = Some(QueryID::External(virtual_id_file_name));
+                    if text.is_some() {
+                        *id_and_text_hash = Some(QueryID::External(virtual_id_file_name));
+                    }
                     None
                 } else if let Some(text) = text {
                     let text_hash = md5(text);
@@ -141,6 +150,6 @@ fn extract_request_id(content: &str) -> Option<String> {
 
 fn md5(data: &str) -> String {
     let mut md5 = Md5::new();
-    md5.input(data);
-    hex::encode(md5.result())
+    md5.update(data);
+    hex::encode(md5.finalize())
 }

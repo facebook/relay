@@ -5,36 +5,71 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build::{
-    build_constant_value, build_type_annotation, build_variable_definitions, ValidationLevel,
-};
-use crate::constants::ARGUMENT_DEFINITION;
-use crate::errors::{ValidationMessage, ValidationMessageWithData};
-use crate::ir::{ConstantValue, VariableDefinition};
-use crate::{associated_data_impl, build_directive};
-use common::{Diagnostic, DiagnosticsResult, Location, WithLocation};
-use errors::{par_try_map, try2};
-use intern::string_key::{Intern, StringKey, StringKeyMap};
+use std::collections::HashMap;
+use std::path::PathBuf;
+
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::Location;
+use common::SourceLocationKey;
+use common::WithLocation;
+use errors::par_try_map;
+use errors::try2;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use schema::suggestion_list::GraphQLSuggestions;
-use schema::{SDLSchema, Schema, Type, TypeReference};
-use std::collections::HashMap;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
+
+use crate::associated_data_impl;
+use crate::build::build_constant_value;
+use crate::build::build_type_annotation;
+use crate::build::build_variable_definitions;
+use crate::build::ValidationLevel;
+use crate::build_directive;
+use crate::constants::ARGUMENT_DEFINITION;
+use crate::errors::ValidationMessage;
+use crate::errors::ValidationMessageWithData;
+use crate::ir::ConstantValue;
+use crate::ir::FragmentDefinitionName;
+use crate::ir::FragmentDefinitionNameMap;
+use crate::ir::VariableDefinition;
+use crate::VariableName;
 
 lazy_static! {
     static ref TYPE: StringKey = "type".intern();
     static ref DEFAULT_VALUE: StringKey = "defaultValue".intern();
     static ref PROVIDER: StringKey = "provider".intern();
-    pub static ref UNUSED_LOCAL_VARIABLE_DEPRECATED: StringKey =
-        "unusedLocalVariable_DEPRECATED".intern();
+    pub static ref UNUSED_LOCAL_VARIABLE_DEPRECATED: DirectiveName =
+        DirectiveName("unusedLocalVariable_DEPRECATED".intern());
     static ref DIRECTIVES: StringKey = "directives".intern();
 }
 
-pub type FragmentSignatures = StringKeyMap<FragmentSignature>;
+pub type FragmentSignatures = FragmentDefinitionNameMap<FragmentSignature>;
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct ProvidedVariableMetadata {
     pub module_name: StringKey,
-    pub original_variable_name: StringKey,
+    pub original_variable_name: VariableName,
+    fragment_source_location: SourceLocationKey,
+}
+
+impl ProvidedVariableMetadata {
+    /// Return a path to the provider module, based on the fragment location
+    /// where this provider is used.
+    pub fn module_path(&self) -> PathBuf {
+        let mut fragment_path = PathBuf::from(self.fragment_source_location.path());
+        fragment_path.pop();
+        fragment_path.push(PathBuf::from(self.module_name.lookup()));
+
+        fragment_path
+    }
 }
 
 associated_data_impl!(ProvidedVariableMetadata);
@@ -48,7 +83,7 @@ associated_data_impl!(ProvidedVariableMetadata);
 /// and using these to type check fragment spreads in selections.
 #[derive(Debug, Eq, PartialEq)]
 pub struct FragmentSignature {
-    pub name: WithLocation<StringKey>,
+    pub name: WithLocation<FragmentDefinitionName>,
     pub variable_definitions: Vec<VariableDefinition>,
     pub type_condition: Type,
 }
@@ -58,7 +93,7 @@ pub fn build_signatures(
     definitions: &[graphql_syntax::ExecutableDefinition],
 ) -> DiagnosticsResult<FragmentSignatures> {
     let suggestions = GraphQLSuggestions::new(schema);
-    let mut seen_signatures: StringKeyMap<FragmentSignature> =
+    let mut seen_signatures: FragmentDefinitionNameMap<FragmentSignature> =
         HashMap::with_capacity_and_hasher(definitions.len(), Default::default());
     let signatures = par_try_map(definitions, |definition| match definition {
         graphql_syntax::ExecutableDefinition::Fragment(fragment) => Ok(Some(
@@ -72,7 +107,7 @@ pub fn build_signatures(
         if let Some(previous_signature) = previous_signature {
             errors.push(
                 Diagnostic::error(
-                    ValidationMessage::DuplicateDefinition(signature.name.item),
+                    ValidationMessage::DuplicateDefinition(signature.name.item.0),
                     previous_signature.name.location,
                 )
                 .annotate("also defined here", signature.name.location),
@@ -119,11 +154,11 @@ fn build_fragment_signature(
     let argument_definition_directives = fragment
         .directives
         .iter()
-        .filter(|x| x.name.value == *ARGUMENT_DEFINITION)
+        .filter(|x| DirectiveName(x.name.value) == *ARGUMENT_DEFINITION)
         .collect::<Vec<_>>();
     if fragment.variable_definitions.is_some() && !argument_definition_directives.is_empty() {
         return Err(Diagnostic::error(
-            ValidationMessage::VariableDefinitionsAndArgumentDirective(),
+            ValidationMessage::VariableDefinitionsAndArgumentDirective,
             fragment
                 .location
                 .with_span(argument_definition_directives[0].span),
@@ -141,7 +176,7 @@ fn build_fragment_signature(
         .into());
     } else if argument_definition_directives.len() > 1 {
         return Err(Diagnostic::error(
-            ValidationMessage::ExpectedOneArgumentDefinitionsDirective(),
+            ValidationMessage::ExpectedOneArgumentDefinitionsDirective,
             fragment
                 .location
                 .with_span(argument_definition_directives[1].span),
@@ -162,10 +197,13 @@ fn build_fragment_signature(
         .unwrap_or_else(|| Ok(Default::default()));
 
     let (type_condition, variable_definitions) = try2(type_condition, variable_definitions)?;
+
     Ok(FragmentSignature {
-        name: fragment
-            .name
-            .name_with_location(fragment.location.source_location()),
+        name: WithLocation::from_span(
+            fragment.location.source_location(),
+            fragment.name.span,
+            FragmentDefinitionName(fragment.name.value),
+        ),
         type_condition,
         variable_definitions,
     })
@@ -197,7 +235,7 @@ fn build_fragment_variable_definitions(
                             type_arg = Some(item);
                         } else if name == *DEFAULT_VALUE {
                             default_arg = Some(item);
-                        } else if name == *UNUSED_LOCAL_VARIABLE_DEPRECATED {
+                        } else if DirectiveName(name) == *UNUSED_LOCAL_VARIABLE_DEPRECATED {
                             unused_local_variable_arg = Some(item);
                         } else if name == *DIRECTIVES {
                             directives_arg = Some(item);
@@ -267,7 +305,7 @@ fn build_fragment_variable_definitions(
                     if let Some(provider_arg) = provider_arg {
                         let provider_module_name = provider_arg.value.get_string_literal().ok_or_else(|| {
                             vec![Diagnostic::error(
-                                ValidationMessage::LiteralStringArgumentExpectedForDirective{arg_name: *PROVIDER, directive_name: *ARGUMENT_DEFINITION },
+                                ValidationMessage::LiteralStringArgumentExpectedForDirective{arg_name: ArgumentName(*PROVIDER), directive_name: *ARGUMENT_DEFINITION },
                                 fragment
                                     .location
                                     .with_span(provider_arg.value.span()),
@@ -290,9 +328,10 @@ fn build_fragment_variable_definitions(
                                 ProvidedVariableMetadata::directive_name(),
                             ),
                             arguments: Vec::new(),
-                            data: Some(Box::new(ProvidedVariableMetadata{
+                            data: Some(Box::new(ProvidedVariableMetadata {
                                 module_name: provider_module_name,
-                                original_variable_name: variable_name.value
+                                original_variable_name: VariableName(variable_name.value),
+                                fragment_source_location: fragment.location.source_location(),
                             })),
                         });
                     }
@@ -343,14 +382,14 @@ fn build_fragment_variable_definitions(
 
                     Ok(VariableDefinition {
                         name: variable_name
-                            .name_with_location(fragment.location.source_location()),
+                        .name_with_location(fragment.location.source_location()).map(VariableName),
                         type_,
                         directives,
                         default_value,
                     })
                 } else {
                     Err(Diagnostic::error(
-                        ValidationMessage::ExpectedArgumentDefinitionToBeObject(),
+                        ValidationMessage::ExpectedArgumentDefinitionToBeObject,
                         fragment.location.with_span(variable_arg.value.span()),
                     )
                     .into())
@@ -367,7 +406,7 @@ fn get_argument_type(
     location: Location,
     type_arg: Option<&graphql_syntax::ConstantArgument>,
     object: &graphql_syntax::List<graphql_syntax::ConstantArgument>,
-) -> DiagnosticsResult<TypeReference> {
+) -> DiagnosticsResult<TypeReference<Type>> {
     let type_name_and_offset = match type_arg {
         Some(graphql_syntax::ConstantArgument {
             value: graphql_syntax::ConstantValue::String(type_name_node),
@@ -390,7 +429,7 @@ fn get_argument_type(
         Ok(type_)
     } else {
         Err(Diagnostic::error(
-            ValidationMessage::ExpectedArgumentDefinitionLiteralType(),
+            ValidationMessage::ExpectedArgumentDefinitionLiteralType,
             location.with_span(type_arg.map_or(object.span, |x| x.span)),
         )
         .into())
@@ -401,7 +440,7 @@ fn get_default_value(
     schema: &SDLSchema,
     location: Location,
     default_arg: Option<&graphql_syntax::ConstantArgument>,
-    type_: &TypeReference,
+    type_: &TypeReference<Type>,
 ) -> DiagnosticsResult<Option<WithLocation<ConstantValue>>> {
     default_arg
         .map(|x| {

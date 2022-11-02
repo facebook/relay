@@ -52,14 +52,18 @@ type Foo {
             kind: Query,
             name: WithLocation {
                 location: client-fields.graphql:6:22,
-                item: "BestFriendsQuery",
+                item: OperationDefinitionName(
+                    "BestFriendsQuery",
+                ),
             },
             type_: Object(0),
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
                         location: client-fields.graphql:23:26,
-                        item: "id",
+                        item: VariableName(
+                            "id",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -82,7 +86,9 @@ type Foo {
                         Argument {
                             name: WithLocation {
                                 location: client-fields.graphql:42:44,
-                                item: "id",
+                                item: ArgumentName(
+                                    "id",
+                                ),
                             },
                             value: WithLocation {
                                 location: client-fields.graphql:46:49,
@@ -90,7 +96,9 @@ type Foo {
                                     Variable {
                                         name: WithLocation {
                                             location: client-fields.graphql:46:49,
-                                            item: "id",
+                                            item: VariableName(
+                                                "id",
+                                            ),
                                         },
                                         type_: Named(
                                             Scalar(4),
@@ -105,7 +113,9 @@ type Foo {
                         FragmentSpread {
                             fragment: WithLocation {
                                 location: client-fields.graphql:60:71,
-                                item: "BestFriends",
+                                item: FragmentDefinitionName(
+                                    "BestFriends",
+                                ),
                             },
                             arguments: [],
                             directives: [],
@@ -119,7 +129,9 @@ type Foo {
         FragmentDefinition {
             name: WithLocation {
                 location: client-fields.graphql:88:99,
-                item: "BestFriends",
+                item: FragmentDefinitionName(
+                    "BestFriends",
+                ),
             },
             variable_definitions: [],
             used_global_variables: [],
@@ -224,7 +236,9 @@ type Foo {
                                 FragmentSpread {
                                     fragment: WithLocation {
                                         location: client-fields.graphql:431:442,
-                                        item: "FooFragment",
+                                        item: FragmentDefinitionName(
+                                            "FooFragment",
+                                        ),
                                     },
                                     arguments: [],
                                     directives: [],
@@ -259,7 +273,9 @@ type Foo {
         FragmentDefinition {
             name: WithLocation {
                 location: client-fields.graphql:503:514,
-                item: "FooFragment",
+                item: FragmentDefinitionName(
+                    "FooFragment",
+                ),
             },
             variable_definitions: [],
             used_global_variables: [],

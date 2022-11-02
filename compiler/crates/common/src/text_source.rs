@@ -5,8 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use lsp_types::{Position, Range};
-use serde::{Deserialize, Serialize};
+use lsp_types::Position;
+use lsp_types::Range;
+use serde::Deserialize;
+use serde::Serialize;
 
 use crate::Span;
 

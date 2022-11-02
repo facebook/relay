@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<5ca28ec86b08f1b00fab2a1b5b043a39>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<6e20c832d6d9eb692d9bbe638d2bfe1c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -144,6 +146,18 @@ return {
         "node.__typename": {
           "enumValues": null,
           "nullable": false,
+          "plural": false,
+          "type": "String"
+        },
+        "node.client_code": {
+          "enumValues": null,
+          "nullable": true,
+          "plural": false,
+          "type": "Int"
+        },
+        "node.client_name": {
+          "enumValues": null,
+          "nullable": true,
           "plural": false,
           "type": "String"
         },

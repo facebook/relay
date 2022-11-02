@@ -5,11 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use core::fmt;
+
+use common::Named;
+use common::SourceLocationKey;
+use common::Span;
+use common::WithLocation;
+use intern::string_key::StringKey;
+
 use super::constant_value::*;
 use super::primitive::*;
-use common::{Named, SourceLocationKey, Span, WithLocation};
-use core::fmt;
-use intern::string_key::StringKey;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct VariableIdentifier {
@@ -95,6 +100,7 @@ impl fmt::Display for Argument {
 }
 
 impl Named for Argument {
+    type Name = StringKey;
     fn name(&self) -> StringKey {
         self.name.value
     }

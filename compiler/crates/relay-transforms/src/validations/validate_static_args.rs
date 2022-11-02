@@ -5,17 +5,30 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ValidationMessage;
 use ::intern::string_key::StringKey;
-use common::{Diagnostic, DiagnosticsResult, Named, NamedItem};
-use fnv::{FnvHashMap, FnvHashSet};
-use graphql_ir::{Argument as IRArgument, Directive, Program, Validator, Value};
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::Named;
+use common::NamedItem;
+use fnv::FnvHashMap;
+use fnv::FnvHashSet;
+use graphql_ir::Argument as IRArgument;
+use graphql_ir::Directive;
+use graphql_ir::Program;
+use graphql_ir::Validator;
+use graphql_ir::Value;
 use intern::intern;
 use lazy_static::lazy_static;
-use schema::{Argument as SchemaArgument, ArgumentDefinitions, Schema};
+use schema::Argument as SchemaArgument;
+use schema::ArgumentDefinitions;
+use schema::Schema;
+
+use crate::ValidationMessage;
 
 lazy_static! {
-    static ref STATIC_ARG: StringKey = intern!("static");
+    static ref STATIC_ARG: DirectiveName = DirectiveName(intern!("static"));
 }
 
 pub fn validate_static_args(program: &Program) -> DiagnosticsResult<()> {
@@ -23,7 +36,6 @@ pub fn validate_static_args(program: &Program) -> DiagnosticsResult<()> {
 }
 
 type FieldName = StringKey;
-type ArgumentName = StringKey;
 type StaticArguments = FnvHashSet<ArgumentName>;
 type StaticArgCache = FnvHashMap<FieldName, StaticArguments>;
 
@@ -51,11 +63,11 @@ impl<'a> Validator for StaticArgValidator<'a> {
         let validation_errors = self
             .program
             .schema
-            .get_directive(directive.name())
+            .get_directive(directive.name.item)
             .map(|schema_directive| {
                 validate_all_static_args(
                     &mut self.field_to_static_args,
-                    &schema_directive.name(),
+                    schema_directive.name().0,
                     &schema_directive.arguments,
                     &directive.arguments,
                 )
@@ -72,21 +84,21 @@ impl<'a> Validator for StaticArgValidator<'a> {
 
 fn validate_all_static_args<'a, 'b>(
     field_to_static_args: &'b mut StaticArgCache,
-    field_name: &'a StringKey,
+    field_name: StringKey,
     schema_arguments: &'a ArgumentDefinitions,
     ir_arguments: &'a [IRArgument],
 ) -> Vec<Diagnostic> {
     let static_args = field_to_static_args
-        .entry(*field_name)
+        .entry(field_name)
         .or_insert_with(|| find_static_argument_names(schema_arguments));
 
     ir_arguments
         .iter()
         .filter_map(|arg| {
-            if static_args.contains(&arg.name()) && !is_constant_value(&arg.value.item) {
+            if static_args.contains(&arg.name.item) && !is_constant_value(&arg.value.item) {
                 Some(Diagnostic::error(
                     ValidationMessage::InvalidStaticArgument {
-                        field_name: *field_name,
+                        field_name,
                         argument_name: arg.name(),
                     },
                     arg.value.location,
@@ -102,7 +114,7 @@ fn find_static_argument_names(schema_arguments: &ArgumentDefinitions) -> FnvHash
     schema_arguments
         .iter()
         .filter(|a| has_static_directive(a))
-        .map(|a| a.name())
+        .map(|a| a.name)
         .collect()
 }
 

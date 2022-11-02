@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<15ad8d501f56b5eb522c0a16c96f95fd>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<caa1a36d97deb4b3ff2c994a19e4e4ac>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type FragmentResourceClientEdgesTestFragment1$fragmentType = any;
+import type { FragmentResourceClientEdgesTestFragment1$fragmentType } from "./FragmentResourceClientEdgesTestFragment1.graphql";
 export type FragmentResourceClientEdgesTest1Query$variables = {|
   id: string,
 |};
@@ -101,10 +103,23 @@ return {
             "kind": "InlineFragment",
             "selections": [
               {
-                "alias": null,
+                "name": "client_edge",
                 "args": null,
-                "kind": "ScalarField",
-                "name": "name",
+                "fragment": {
+                  "kind": "InlineFragment",
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "name",
+                      "storageKey": null
+                    }
+                  ],
+                  "type": "User",
+                  "abstractKey": null
+                },
+                "kind": "RelayResolver",
                 "storageKey": null
               }
             ],

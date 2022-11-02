@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -168,7 +168,7 @@ describe.each([
           >,
       fragmentRef: any,
     ) {
-      const result = useFragmentNodeOriginal(
+      const result = useFragmentNodeOriginal<any>(
         fragmentNode,
         fragmentRef,
         'TestDisplayName',
@@ -1486,6 +1486,57 @@ describe.each([
           },
         ]);
       });
+    });
+
+    it('should not suspend when data goes missing due to store changes after it has committed (starting with no data missing)', () => {
+      const renderer = renderSingularFragment();
+      internalAct(() => {
+        // Let there be an operation in flight:
+        fetchQuery(environment, singularQuery).subscribe({});
+        // And let there be missing data:
+        environment.commitUpdate(store => {
+          store.get('1')?.setValue(undefined, 'name');
+        });
+      });
+      // Nonetheless, once the component has mounted, it only suspends if the fragment ref changes,
+      // not because of data being deleted from the store:
+      expect(renderer.toJSON()).toEqual(null); // null means it rendered successfully and didn't suspend
+    });
+
+    it('should not suspend when data goes missing due to store changes after it has committed (starting with data missing already)', () => {
+      const missingDataVariables = {...pluralVariables, ids: ['4']};
+      const missingDataQuery = createOperationDescriptor(
+        gqlPluralQuery,
+        missingDataVariables,
+      );
+      environment.commitPayload(
+        createOperationDescriptor(
+          gqlPluralMissingDataQuery,
+          missingDataVariables,
+        ),
+        {
+          nodes: [
+            {
+              __typename: 'User',
+              id: '4',
+            },
+          ],
+        },
+      );
+
+      const renderer = renderPluralFragment({owner: missingDataQuery});
+
+      internalAct(() => {
+        // Let there be an operation in flight:
+        fetchQuery(environment, missingDataQuery).subscribe({});
+        // And let there be missing data:
+        environment.commitUpdate(store => {
+          store.get('4')?.setValue(undefined, 'name');
+        });
+      });
+      // Nonetheless, once the component has mounted, it only suspends if the fragment ref changes,
+      // not because of data being deleted from the store:
+      expect(renderer.toJSON()).toEqual(null); // null means it rendered successfully and didn't suspend
     });
 
     it('checks for missed updates, subscribing to the latest snapshot even if fragment data is unchanged', () => {

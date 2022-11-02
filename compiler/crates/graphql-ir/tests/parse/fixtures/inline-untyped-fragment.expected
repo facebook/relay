@@ -10,7 +10,9 @@ fragment InlineUntypedFragment on User {
         FragmentDefinition {
             name: WithLocation {
                 location: inline-untyped-fragment.graphql:9:30,
-                item: "InlineUntypedFragment",
+                item: FragmentDefinitionName(
+                    "InlineUntypedFragment",
+                ),
             },
             variable_definitions: [],
             used_global_variables: [],

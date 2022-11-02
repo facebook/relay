@@ -5,12 +5,31 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{DiagnosticDisplay, WithDiagnosticData};
+use std::fmt::Display;
+
+use common::ArgumentName;
+use common::DiagnosticDisplay;
+use common::DirectiveName;
+use common::WithDiagnosticData;
 use graphql_syntax::OperationKind;
 use intern::string_key::StringKey;
+use intern::Lookup;
 use schema::suggestion_list::did_you_mean;
-use schema::{Type, TypeReference};
+use schema::Type;
+use schema::TypeReference;
 use thiserror::Error;
+
+use crate::ir::FragmentDefinitionName;
+use crate::VariableName;
+
+struct ErrorLink(&'static str);
+
+impl Display for ErrorLink {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f)?;
+        write!(f, "See https://relay.dev/docs/error-reference/{}/", self.0)
+    }
+}
 
 /// Fixed set of validation errors with custom display messages
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
@@ -22,7 +41,7 @@ pub enum ValidationMessage {
     ExpectedCompositeType(Type),
 
     #[error("Expected type '{0:?}")]
-    ExpectedType(TypeReference),
+    ExpectedType(TypeReference<Type>),
 
     #[error("Expected no selections on scalar field `{field_name}` of type `{type_name}`")]
     InvalidSelectionsOnScalarField {
@@ -31,7 +50,7 @@ pub enum ValidationMessage {
     },
 
     #[error("Unknown directive '{0}'")]
-    UnknownDirective(StringKey),
+    UnknownDirective(DirectiveName),
 
     #[error(
         "Invalid use of @uncheckedArguments_DEPRECATED: all arguments are defined and of correct type, use @arguments instead."
@@ -39,13 +58,13 @@ pub enum ValidationMessage {
     UnnecessaryUncheckedArgumentsDirective,
 
     #[error("Expected operation to have a name (e.g. 'query <Name>')")]
-    ExpectedOperationName(),
+    ExpectedOperationName,
 
     #[error("The schema does not support '{0}' operations")]
     UnsupportedOperation(OperationKind),
 
     #[error("Nested lists ('[[T]]' etc) are not supported")]
-    UnsupportedNestListType(),
+    UnsupportedNestListType,
 
     #[error("Expected a value of type '{0}'")]
     ExpectedValueMatchingType(StringKey),
@@ -65,28 +84,28 @@ pub enum ValidationMessage {
     UnsupportedCustomScalarType(StringKey),
 
     #[error("Expected at-most one '@arguments' directive per fragment spread")]
-    ExpectedOneArgumentsDirective(),
+    ExpectedOneArgumentsDirective,
 
     #[error("Expected at-most one '@argumentDefinitions' directive per fragment spread")]
-    ExpectedOneArgumentDefinitionsDirective(),
+    ExpectedOneArgumentDefinitionsDirective,
 
     #[error(
         "Cannot combine fragment variable definitions syntax with the '@argumentDefinitions' directive"
     )]
-    VariableDefinitionsAndArgumentDirective(),
+    VariableDefinitionsAndArgumentDirective,
 
     #[error(
         "Expected `@argumentDefinitions` value to have a `type` field with a literal string value (e.g. `type: \"Int!\"`)"
     )]
-    ExpectedArgumentDefinitionLiteralType(),
+    ExpectedArgumentDefinitionLiteralType,
 
     #[error(
         "Expected `@argumentDefinitions` value to be an object with `type` and (optionally) `defaultValue` properties"
     )]
-    ExpectedArgumentDefinitionToBeObject(),
+    ExpectedArgumentDefinitionToBeObject,
 
     #[error("Expected '@argumentDefinitions' directive to be used on fragment definitions only.")]
-    ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition(),
+    ExpectedArgumentDefinitionsDirectiveOnFragmentDefinition,
 
     #[error(
         "Expected the `directives` argument to `@argumentDefinition` to be a list of literal strings in the form `directives: [\"@example\"]`."
@@ -94,7 +113,7 @@ pub enum ValidationMessage {
     ArgumentDefinitionsDirectivesNotStringListLiteral,
 
     #[error("Non-nullable variable '{variable_name}' has a default value.")]
-    NonNullableVariableHasDefaultValue { variable_name: StringKey },
+    NonNullableVariableHasDefaultValue { variable_name: VariableName },
 
     #[error(
         "Variable was defined as type '{defined_type}' but used where a variable of type '{used_type}' is expected."
@@ -113,7 +132,7 @@ pub enum ValidationMessage {
     },
 
     #[error("Expected variable `${0}` to be defined on the operation")]
-    ExpectedOperationVariableToBeDefined(StringKey),
+    ExpectedOperationVariableToBeDefined(VariableName),
 
     #[error(
         "Expected argument definition to have an input type (scalar, enum, or input object), found type '{0}'"
@@ -137,13 +156,13 @@ pub enum ValidationMessage {
         "Invalid fragment spread '{fragment_name}', the type of this fragment ('{type_condition}') can never occur for parent type '{parent_type}'"
     )]
     InvalidFragmentSpreadType {
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
         parent_type: StringKey,
         type_condition: StringKey,
     },
 
     #[error("Directive '{0}' not supported in this location")]
-    InvalidDirectiveUsageUnsupportedLocation(StringKey),
+    InvalidDirectiveUsageUnsupportedLocation(DirectiveName),
 
     #[error(
         "Invalid value passed to `@argumentDefinitions`, supported options include `type` and `defaultValue`, got `{0}`"
@@ -151,27 +170,45 @@ pub enum ValidationMessage {
     InvalidArgumentDefinitionsKey(StringKey),
 
     #[error("Unexpected arguments on `__typename` field")]
-    InvalidArgumentsOnTypenameField(),
+    InvalidArgumentsOnTypenameField,
 
     #[error("Unexpected arguments on '__token' field")]
-    InvalidArgumentsOnFetchTokenField(),
+    InvalidArgumentsOnFetchTokenField,
+
+    #[error(
+        "Invalid type `{id_type_string}` of field `{id_field_name}` on parent type `{parent_type_name}`. Fields named `{id_field_name}` can only have `ID` or `String`-like types (e.g. custom scalars or enums)."
+    )]
+    InvalidIdFieldType {
+        parent_type_name: StringKey,
+        id_field_name: StringKey,
+        id_type_string: String,
+    },
+
+    #[error(
+        "Disallowed type `{id_type_string}` of field `{id_field_name}` on parent type `{parent_type_name}` cannot be used by Relay to identify entities. For a detailed explanation, check out https://relay.dev/docs/debugging/disallowed-id-types-error"
+    )]
+    DisallowNonNodeIdFieldType {
+        parent_type_name: StringKey,
+        id_field_name: StringKey,
+        id_type_string: String,
+    },
 
     #[error("Relay does not allow aliasing fields to `{0}`.")]
     DisallowReservedAliasError(StringKey),
 
     #[error("Relay does not allow `__typename` field on Query, Mutation or Subscription.")]
-    DisallowTypenameOnRoot(),
+    DisallowTypenameOnRoot,
 
     #[error(
         "Unexpected directive: '{0}'. This directive can only be used on fields/fragments that are fetched from the server schema, but it is used inside a client-only selection."
     )]
-    InvalidServerOnlyDirectiveInClientFields(StringKey),
+    InvalidServerOnlyDirectiveInClientFields(DirectiveName),
 
     #[error(
         "@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the return type to be a non-plural interface or object, got '{connection_type_string}'."
     )]
     InvalidConnectionFieldType {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         connection_type_string: String,
     },
@@ -181,8 +218,8 @@ pub enum ValidationMessage {
     )]
     ExpectedConnectionToHaveCountArgs {
         connection_field_name: StringKey,
-        first_arg: StringKey,
-        last_arg: StringKey,
+        first_arg: ArgumentName,
+        last_arg: ArgumentName,
     },
 
     #[error("Expected '{connection_field_name}' to have a '{edges_selection_name}' selection.")]
@@ -195,7 +232,7 @@ pub enum ValidationMessage {
         "@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{edges_selection_name}' field that returns a list of objects."
     )]
     ExpectedConnectionToExposeValidEdgesField {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         connection_type_name: StringKey,
         edges_selection_name: StringKey,
@@ -205,7 +242,7 @@ pub enum ValidationMessage {
         "@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{edges_selection_name} {{ {node_selection_name} }}' field that returns an object, interface or union."
     )]
     ExpectedConnectionToExposeValidNodeField {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         connection_type_name: StringKey,
         edges_selection_name: StringKey,
@@ -216,7 +253,7 @@ pub enum ValidationMessage {
         "@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{edges_selection_name} {{ {cursor_selection_name} }}' field that returns a scalar."
     )]
     ExpectedConnectionToExposeValidCursorField {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         connection_type_name: StringKey,
         cursor_selection_name: StringKey,
@@ -227,7 +264,7 @@ pub enum ValidationMessage {
         "@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{page_info_selection_name}' field that returns an object."
     )]
     ExpectedConnectionToExposeValidPageInfoField {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         connection_type_name: StringKey,
         page_info_selection_name: StringKey,
@@ -237,7 +274,7 @@ pub enum ValidationMessage {
         "@{connection_directive_name} used on invalid field '{connection_field_name}'. Expected the field type '{connection_type_name}' to expose a '{page_info_selection_name} {{ {page_info_sub_field_name} }}' field that returns a scalar."
     )]
     ExpectedConnectionToExposeValidPageInfoSubField {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
         connection_type_name: StringKey,
         page_info_selection_name: StringKey,
@@ -248,36 +285,36 @@ pub enum ValidationMessage {
         "Expected the {handler_arg_name} argument to @{connection_directive_name} to be a string literal for field '{connection_field_name}'."
     )]
     InvalidConnectionHandlerArg {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
-        handler_arg_name: StringKey,
+        handler_arg_name: ArgumentName,
     },
 
     #[error(
         "Expected the {key_arg_name} argument to @{connection_directive_name} to be a string literal for field '{connection_field_name}'."
     )]
     InvalidConnectionKeyArg {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
-        key_arg_name: StringKey,
+        key_arg_name: ArgumentName,
     },
 
     #[error(
         "Expected the {dynamic_key_arg_name} argument to @{connection_directive_name} to be a variable for field '{connection_field_name}'."
     )]
     InvalidConnectionDynamicKeyArg {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
-        dynamic_key_arg_name: StringKey,
+        dynamic_key_arg_name: ArgumentName,
     },
 
     #[error(
         "Expected the {key_arg_name} argument to @{connection_directive_name} to be of form '<SomeName>_{postfix}', got '{key_arg_value}'. For a detailed explanation, check out https://relay.dev/docs/en/pagination-container#connection"
     )]
     InvalidConnectionKeyArgPostfix {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
-        key_arg_name: StringKey,
+        key_arg_name: ArgumentName,
         key_arg_value: StringKey,
         postfix: String,
     },
@@ -286,27 +323,27 @@ pub enum ValidationMessage {
         "Expected the {filters_arg_name} argument to @{connection_directive_name} to be a list of string literals for field '{connection_field_name}'."
     )]
     InvalidConnectionFiltersArg {
-        connection_directive_name: StringKey,
+        connection_directive_name: DirectiveName,
         connection_field_name: StringKey,
-        filters_arg_name: StringKey,
+        filters_arg_name: ArgumentName,
     },
 
     #[error("@stream_connection does not support aliasing the '{field_name}' field.")]
     UnsupportedAliasingInStreamConnection { field_name: StringKey },
 
     #[error("Expected the `{0}` argument to @relay to be a boolean literal if specified.")]
-    InvalidRelayDirectiveArg(StringKey),
+    InvalidRelayDirectiveArg(ArgumentName),
 
     #[error("Cannot use @relay(mask: false) on fragment spreads for fragments with directives.")]
-    InvalidUnmaskOnFragmentWithDirectives(),
+    InvalidUnmaskOnFragmentWithDirectives,
 
     #[error(
         "Cannot use @relay(mask: false) on fragment spreads for fragments with @argumentDefinitions."
     )]
-    InvalidUnmaskOnFragmentWithArguments(),
+    InvalidUnmaskOnFragmentWithArguments,
 
     #[error("Cannot combine global and local variables when applying @relay(mask: false")]
-    InvalidUnmaskOnLocalAndGloablVariablesWithSameName(),
+    InvalidUnmaskOnLocalAndGloablVariablesWithSameName,
 
     #[error(
         "Cannot combine variables with incompatible types {prev_arg_type} and {next_arg_type} when applying @relay(mask: false"
@@ -320,13 +357,13 @@ pub enum ValidationMessage {
         "Expected the '{arg_name}' value to @{directive_name} to be a string literal if provided."
     )]
     LiteralStringArgumentExpectedForDirective {
-        arg_name: StringKey,
-        directive_name: StringKey,
+        arg_name: ArgumentName,
+        directive_name: DirectiveName,
     },
 
     #[error("Variable `${variable_name}` is never used in operation `{operation_name}`")]
     UnusedVariable {
-        variable_name: StringKey,
+        variable_name: VariableName,
         operation_name: StringKey,
     },
 
@@ -334,16 +371,16 @@ pub enum ValidationMessage {
         "Variable `${variable_name}` is never used in fragment `{fragment_name}`. `@argumentDefinitions` defines local variables, global variables are implicitly available."
     )]
     UnusedFragmentVariable {
-        variable_name: StringKey,
-        fragment_name: StringKey,
+        variable_name: VariableName,
+        fragment_name: FragmentDefinitionName,
     },
 
     #[error(
         "Variable `${variable_name}` of fragment `{fragment_name}` is marked as unused using `unusedLocalVariable_DEPRECATED: true`, but is actually used. `unusedLocalVariable_DEPRECATED: true` should be removed."
     )]
     UselessUnusedFragmentVariableAnnotation {
-        variable_name: StringKey,
-        fragment_name: StringKey,
+        variable_name: VariableName,
+        fragment_name: FragmentDefinitionName,
     },
 
     #[error(
@@ -366,7 +403,7 @@ pub enum ValidationMessage {
     GenerateSubscriptionNameSingleSelectionItem { subscription_name: StringKey },
 
     #[error("The directive `@{name}` can only be used once at this location.")]
-    RepeatedNonRepeatableDirective { name: StringKey },
+    RepeatedNonRepeatableDirective { name: DirectiveName },
 
     #[error("Module-provided variable ('{argument_name}') may not declare a default value")]
     ProvidedVariableIncompatibleWithDefaultValue { argument_name: StringKey },
@@ -400,7 +437,7 @@ pub enum ValidationMessage {
         "Required argument '{argument_name}: {type_string}' is missing on '{node_name}' in '{root_name}'."
     )]
     MissingRequiredArgument {
-        argument_name: StringKey,
+        argument_name: ArgumentName,
         type_string: String,
         node_name: StringKey,
         root_name: StringKey,
@@ -415,7 +452,9 @@ pub enum ValidationMessage {
     #[error(
         "The `raw_response_type` argument should be set to `true` for the @no_inline fragment `{fragment_name}` used in the query with @raw_response_type."
     )]
-    RequiredRawResponseTypeOnNoInline { fragment_name: StringKey },
+    RequiredRawResponseTypeOnNoInline {
+        fragment_name: FragmentDefinitionName,
+    },
 
     #[error("No fields can have an alias that start with two underscores.")]
     NoDoubleUnderscoreAlias,
@@ -429,7 +468,9 @@ pub enum ValidationMessageWithData {
         suggestions: Vec<StringKey>,
     },
 
-    #[error("The type `{type_}` has no field `{field}`.{suggestions}", suggestions = did_you_mean(suggestions))]
+    #[error("The type `{type_}` has no field `{field}`.{suggestions}{error_link}",
+        suggestions = did_you_mean(suggestions),
+        error_link = ErrorLink("unknown-field"))]
     UnknownField {
         type_: StringKey,
         field: StringKey,
@@ -444,7 +485,7 @@ pub enum ValidationMessageWithData {
 
     #[error("Undefined fragment '{fragment_name}'.{suggestions}", suggestions = did_you_mean(suggestions))]
     UndefinedFragment {
-        fragment_name: StringKey,
+        fragment_name: FragmentDefinitionName,
         suggestions: Vec<StringKey>,
     },
 

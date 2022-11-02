@@ -5,18 +5,29 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    relay_directive::{MASK_ARG_NAME, PLURAL_ARG_NAME, RELAY_DIRECTIVE_NAME},
-    should_generate_hack_preloader,
-};
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
+use std::collections::HashMap;
+
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
 use errors::validate;
-use graphql_ir::{
-    ConstantValue, Directive, FragmentDefinition, FragmentSpread, OperationDefinition, Program,
-    ValidationMessage, Validator, Value, VariableDefinition,
-};
-use intern::string_key::StringKeyMap;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentSpread;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
+use graphql_ir::Value;
+use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
 use schema::Schema;
+
+use crate::relay_directive::MASK_ARG_NAME;
+use crate::relay_directive::PLURAL_ARG_NAME;
+use crate::relay_directive::RELAY_DIRECTIVE_NAME;
+use crate::should_generate_hack_preloader;
 
 pub fn validate_relay_directives(program: &Program) -> DiagnosticsResult<()> {
     let mut validator = RelayDirectiveValidation::new(program);
@@ -60,7 +71,7 @@ impl<'program> RelayDirectiveValidation<'program> {
         {
             errs.push(
                 Diagnostic::error(
-                    ValidationMessage::InvalidUnmaskOnFragmentWithDirectives(),
+                    ValidationMessage::InvalidUnmaskOnFragmentWithDirectives,
                     spread.fragment.location,
                 )
                 .annotate("related location", fragment.name.location),
@@ -77,7 +88,7 @@ impl<'program> RelayDirectiveValidation<'program> {
     /// 2. Their types should be same, or one is the subset of the
     fn validate_reachable_arguments(
         &self,
-        map: &mut StringKeyMap<ArgumentDefinition<'program>>,
+        map: &mut HashMap<VariableName, ArgumentDefinition<'program>>,
     ) -> DiagnosticsResult<()> {
         let mut errs = vec![];
         for arg in &self.current_reachable_arguments {
@@ -85,7 +96,7 @@ impl<'program> RelayDirectiveValidation<'program> {
                 match prev_arg {
                     ArgumentDefinition::Local(prev_arg) => errs.push(
                         Diagnostic::error(
-                            ValidationMessage::InvalidUnmaskOnLocalAndGloablVariablesWithSameName(),
+                            ValidationMessage::InvalidUnmaskOnLocalAndGloablVariablesWithSameName,
                             prev_arg.name.location,
                         )
                         .annotate("related location", arg.name.location),
@@ -151,7 +162,7 @@ impl Validator for RelayDirectiveValidation<'_> {
             if self.current_reachable_arguments.is_empty() {
                 Ok(())
             } else {
-                let mut map: StringKeyMap<_> = Default::default();
+                let mut map: HashMap<VariableName, _> = Default::default();
                 for variable in &fragment.used_global_variables {
                     map.insert(variable.name.item, ArgumentDefinition::Global(variable));
                 }
@@ -172,7 +183,7 @@ impl Validator for RelayDirectiveValidation<'_> {
             if self.current_reachable_arguments.is_empty() {
                 Ok(())
             } else {
-                let mut map: StringKeyMap<_> = Default::default();
+                let mut map: HashMap<VariableName, _> = Default::default();
                 for variable in &operation.variable_definitions {
                     map.insert(variable.name.item, ArgumentDefinition::Global(variable));
                 }

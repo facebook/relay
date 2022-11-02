@@ -1,0 +1,29 @@
+==================================== INPUT ====================================
+# expected-to-throw
+query duplicateQueryName {
+  me {
+    __typename
+  }
+}
+
+query duplicateQueryName {
+  me {
+    __typename
+  }
+}
+==================================== ERROR ====================================
+✖︎ Duplicate definitions for 'duplicateQueryName'
+
+  duplicate_fragment_name.graphql:8:7
+    7 │ 
+    8 │ query duplicateQueryName {
+      │       ^^^^^^^^^^^^^^^^^^
+    9 │   me {
+
+  ℹ︎ previously defined here
+
+  duplicate_fragment_name.graphql:2:7
+    1 │ # expected-to-throw
+    2 │ query duplicateQueryName {
+      │       ^^^^^^^^^^^^^^^^^^
+    3 │   me {

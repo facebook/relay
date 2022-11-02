@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -148,7 +148,9 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
 
   switch (fetchPolicy) {
     case 'network-only': {
-      return getNetworkObservable(environment, operation).map(readData);
+      return getNetworkObservable<$FlowFixMe>(environment, operation).map(
+        readData,
+      );
     }
     case 'store-or-network': {
       if (environment.check(operation).status === 'available') {
@@ -156,7 +158,9 @@ function fetchQuery<TVariables: Variables, TData, TRawResponse>(
           readData,
         );
       }
-      return getNetworkObservable(environment, operation).map(readData);
+      return getNetworkObservable<$FlowFixMe>(environment, operation).map(
+        readData,
+      );
     }
     default:
       (fetchPolicy: empty);

@@ -52,12 +52,13 @@
 
 mod print_diff;
 
-use lazy_static::lazy_static;
-use parking_lot::Mutex;
 use std::env;
 use std::fs::File;
 use std::io::prelude::*;
 use std::sync::Arc;
+
+use lazy_static::lazy_static;
+use parking_lot::Mutex;
 
 lazy_static! {
     static ref LOCK: Arc<Mutex<usize>> = Arc::new(Mutex::new(0));

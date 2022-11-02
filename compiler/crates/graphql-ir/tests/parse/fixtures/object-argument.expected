@@ -11,14 +11,18 @@ query ObjectArgument($text: String!) {
             kind: Query,
             name: WithLocation {
                 location: object-argument.graphql:6:20,
-                item: "ObjectArgument",
+                item: OperationDefinitionName(
+                    "ObjectArgument",
+                ),
             },
             type_: Object(0),
             variable_definitions: [
                 VariableDefinition {
                     name: WithLocation {
                         location: object-argument.graphql:21:26,
-                        item: "text",
+                        item: VariableName(
+                            "text",
+                        ),
                     },
                     type_: NonNull(
                         Named(
@@ -41,7 +45,9 @@ query ObjectArgument($text: String!) {
                         Argument {
                             name: WithLocation {
                                 location: object-argument.graphql:60:65,
-                                item: "query",
+                                item: ArgumentName(
+                                    "query",
+                                ),
                             },
                             value: WithLocation {
                                 location: object-argument.graphql:67:81,
@@ -50,7 +56,9 @@ query ObjectArgument($text: String!) {
                                         Argument {
                                             name: WithLocation {
                                                 location: object-argument.graphql:68:73,
-                                                item: "query",
+                                                item: ArgumentName(
+                                                    "query",
+                                                ),
                                             },
                                             value: WithLocation {
                                                 location: object-argument.graphql:75:80,
@@ -58,7 +66,9 @@ query ObjectArgument($text: String!) {
                                                     Variable {
                                                         name: WithLocation {
                                                             location: object-argument.graphql:75:80,
-                                                            item: "text",
+                                                            item: VariableName(
+                                                                "text",
+                                                            ),
                                                         },
                                                         type_: Named(
                                                             Scalar(2),

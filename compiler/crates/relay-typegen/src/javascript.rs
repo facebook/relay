@@ -5,9 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::writer::{Writer, AST};
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
 
-use std::fmt::{Result as FmtResult, Write};
+use crate::writer::Writer;
+use crate::writer::AST;
 
 #[derive(Default)]
 pub struct JavaScriptPrinter {
@@ -42,6 +44,15 @@ impl Writer for JavaScriptPrinter {
     }
 
     fn write_import_module_default(&mut self, _name: &str, _from: &str) -> FmtResult {
+        Ok(())
+    }
+
+    fn write_import_module_named(
+        &mut self,
+        _name: &str,
+        _alias: Option<&str>,
+        _from: &str,
+    ) -> FmtResult {
         Ok(())
     }
 

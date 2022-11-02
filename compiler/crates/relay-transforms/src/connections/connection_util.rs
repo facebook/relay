@@ -5,16 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    connections::{ConnectionConstants, ConnectionInterface},
-    util::extract_variable_name,
-};
-use common::{Location, NamedItem, WithLocation};
-use graphql_ir::{
-    associated_data_impl, Directive, InlineFragment, LinkedField, ScalarField, Selection,
-};
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Directive;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
 use intern::string_key::StringKey;
-use schema::{SDLSchema, Schema, Type};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+
+use crate::connections::ConnectionConstants;
+use crate::connections::ConnectionInterface;
+use crate::util::extract_variable_name;
 
 /// Helper to assert and extract the expected selections for a connection
 /// field. This function will panic if the expected selections aren't present,
@@ -292,7 +299,7 @@ pub fn get_default_filters(
             if connection_constants.is_connection_argument(arg.name.item) {
                 None
             } else {
-                Some(arg.name.item)
+                Some(arg.name.item.0)
             }
         })
         .collect::<Vec<_>>();

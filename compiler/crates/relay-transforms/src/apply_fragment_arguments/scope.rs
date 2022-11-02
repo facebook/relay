@@ -5,13 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, NamedItem};
-use graphql_ir::{Argument, ConstantValue, FragmentDefinition, Value};
-use intern::string_key::{Intern, StringKey, StringKeyMap};
+use std::collections::HashMap;
+
+use common::ArgumentName;
+use common::Location;
+use common::NamedItem;
+use graphql_ir::Argument;
+use graphql_ir::ConstantValue;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::Value;
+use graphql_ir::VariableName;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 
 #[derive(Default, Debug)]
 pub struct Scope {
-    bindings: Vec<(Location, StringKeyMap<Value>)>,
+    bindings: Vec<(Location, HashMap<VariableName, Value>)>,
 }
 
 impl Scope {
@@ -21,7 +31,7 @@ impl Scope {
         }
     }
 
-    pub fn get(&self, name: StringKey) -> Option<&Value> {
+    pub fn get(&self, name: VariableName) -> Option<&Value> {
         self.bindings
             .last()
             .and_then(|bindings| bindings.1.get(&name))
@@ -34,7 +44,7 @@ impl Scope {
             .collect()
     }
 
-    pub fn push_bindings(&mut self, location: Location, bindings: StringKeyMap<Value>) {
+    pub fn push_bindings(&mut self, location: Location, bindings: HashMap<VariableName, Value>) {
         self.bindings.push((location, bindings));
     }
 
@@ -44,10 +54,10 @@ impl Scope {
         arguments: &[Argument],
         fragment: &FragmentDefinition,
     ) {
-        let mut bindings = StringKeyMap::default();
+        let mut bindings = HashMap::<VariableName, Value>::default();
         for variable_definition in &fragment.variable_definitions {
             let arg_name = variable_definition.name.item;
-            let arg_value = match arguments.named(arg_name) {
+            let arg_value = match arguments.named(ArgumentName(arg_name.0)) {
                 Some(arg_from_spread) => {
                     if arg_from_spread.value.item == Value::Constant(ConstantValue::Null()) {
                         if let Some(default_value) = &variable_definition.default_value {
@@ -81,20 +91,31 @@ impl Scope {
     }
 }
 
-pub fn format_local_variable(fragment_name: StringKey, arg_name: StringKey) -> StringKey {
+pub fn format_local_variable(
+    fragment_name: FragmentDefinitionName,
+    arg_name: StringKey,
+) -> StringKey {
     format!("{}${}", fragment_name, arg_name).intern()
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
-    use common::{Location, SourceLocationKey, Span, WithLocation};
-    use graphql_ir::{Argument, ConstantValue, VariableDefinition};
+    use common::ArgumentName;
+    use common::Location;
+    use common::SourceLocationKey;
+    use common::Span;
+    use common::WithLocation;
+    use graphql_ir::Argument;
+    use graphql_ir::ConstantValue;
+    use graphql_ir::VariableDefinition;
+    use graphql_ir::VariableName;
     use intern::string_key::Intern;
-    use schema::{Schema, TypeReference};
-
     use relay_test_schema::TEST_SCHEMA;
+    use schema::Schema;
+    use schema::Type;
+    use schema::TypeReference;
+
+    use super::*;
 
     fn default_location() -> Location {
         Location::new(SourceLocationKey::standalone("test-file"), Span::new(0, 0))
@@ -104,13 +125,13 @@ mod tests {
         WithLocation::new(default_location(), item)
     }
 
-    fn optional_int_type_reference() -> TypeReference {
+    fn optional_int_type_reference() -> TypeReference<Type> {
         TypeReference::Named(TEST_SCHEMA.get_type("Int".intern()).unwrap())
     }
 
     fn empty_fragment_definition() -> FragmentDefinition {
         FragmentDefinition {
-            name: with_test_location("TestFragment".intern()),
+            name: with_test_location(FragmentDefinitionName("TestFragment".intern())),
             type_condition: TEST_SCHEMA.get_type("User".intern()).unwrap(),
             directives: vec![],
             selections: vec![],
@@ -131,7 +152,7 @@ mod tests {
         let fragment_definition = FragmentDefinition {
             used_global_variables: vec![],
             variable_definitions: vec![VariableDefinition {
-                name: with_test_location("size".intern()),
+                name: with_test_location(VariableName("size".intern())),
                 type_: optional_int_type_reference(),
                 default_value: None,
                 directives: vec![],
@@ -140,20 +161,20 @@ mod tests {
         };
 
         let spread_arguments = vec![Argument {
-            name: with_test_location("size".intern()),
+            name: with_test_location(ArgumentName("size".intern())),
             value: with_test_location(Value::Constant(ConstantValue::Int(42))),
         }];
 
         // push the fragment call on the scope stack
         scope.push(default_location(), &spread_arguments, &fragment_definition);
         assert_eq!(
-            scope.get("size".intern()),
+            scope.get(VariableName("size".intern())),
             Some(&Value::Constant(ConstantValue::Int(42)))
         );
 
         // after pop, the value should no longer be set
         scope.pop();
-        assert_eq!(scope.get("size".intern()), None);
+        assert_eq!(scope.get(VariableName("size".intern())), None);
     }
 
     // Test of default value behavior.
@@ -180,25 +201,25 @@ mod tests {
             used_global_variables: vec![],
             variable_definitions: vec![
                 VariableDefinition {
-                    name: with_test_location("noDefaultAndNothingPassed".intern()),
+                    name: with_test_location(VariableName("noDefaultAndNothingPassed".intern())),
                     type_: optional_int_type_reference(),
                     default_value: None,
                     directives: vec![],
                 },
                 VariableDefinition {
-                    name: with_test_location("defaultAndValuePassed".intern()),
+                    name: with_test_location(VariableName("defaultAndValuePassed".intern())),
                     type_: optional_int_type_reference(),
                     default_value: Some(with_test_location(ConstantValue::Int(42))),
                     directives: vec![],
                 },
                 VariableDefinition {
-                    name: with_test_location("defaultAndNothingPassed".intern()),
+                    name: with_test_location(VariableName("defaultAndNothingPassed".intern())),
                     type_: optional_int_type_reference(),
                     default_value: Some(with_test_location(ConstantValue::Int(42))),
                     directives: vec![],
                 },
                 VariableDefinition {
-                    name: with_test_location("defaultAndNullPassed".intern()),
+                    name: with_test_location(VariableName("defaultAndNullPassed".intern())),
                     type_: optional_int_type_reference(),
                     default_value: Some(with_test_location(ConstantValue::Int(42))),
                     directives: vec![],
@@ -209,11 +230,11 @@ mod tests {
 
         let spread_arguments = vec![
             Argument {
-                name: with_test_location("defaultAndValuePassed".intern()),
+                name: with_test_location(ArgumentName("defaultAndValuePassed".intern())),
                 value: with_test_location(Value::Constant(ConstantValue::Int(3))),
             },
             Argument {
-                name: with_test_location("defaultAndNullPassed".intern()),
+                name: with_test_location(ArgumentName("defaultAndNullPassed".intern())),
                 value: with_test_location(Value::Constant(ConstantValue::Null())),
             },
         ];
@@ -221,19 +242,19 @@ mod tests {
         scope.push(default_location(), &spread_arguments, &fragment_definition);
 
         assert_eq!(
-            scope.get("noDefaultAndNothingPassed".intern()),
+            scope.get(VariableName("noDefaultAndNothingPassed".intern())),
             Some(&Value::Constant(ConstantValue::Null()))
         );
         assert_eq!(
-            scope.get("defaultAndValuePassed".intern()),
+            scope.get(VariableName("defaultAndValuePassed".intern())),
             Some(&Value::Constant(ConstantValue::Int(3)))
         );
         assert_eq!(
-            scope.get("defaultAndNothingPassed".intern()),
+            scope.get(VariableName("defaultAndNothingPassed".intern())),
             Some(&Value::Constant(ConstantValue::Int(42)))
         );
         assert_eq!(
-            scope.get("defaultAndNullPassed".intern()),
+            scope.get(VariableName("defaultAndNullPassed".intern())),
             // NOTE: This behaves like nothing passed. This is against the
             //       general GraphQL spec for arguments, but unfortunately baked
             //       in legacy behavior.

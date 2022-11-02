@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1d040f2361036a3ebcc35538c8373a1a>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<d37a05d0fd4ea663ab9f70ef011ad05f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,29 +18,29 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type AstrologicalSignHouseResolver$key = any;
-type AstrologicalSignNameResolver$key = any;
-type AstrologicalSignOppositeResolver$key = any;
-type UserAstrologicalSignResolver$key = any;
-import astrologicalSignHouseResolver from "../resolvers/AstrologicalSignHouseResolver.js";
+import type { AstrologicalSignHouseResolver$key } from "./../resolvers/__generated__/AstrologicalSignHouseResolver.graphql";
+import type { AstrologicalSignNameResolver$key } from "./../resolvers/__generated__/AstrologicalSignNameResolver.graphql";
+import type { AstrologicalSignOppositeResolver$key } from "./../resolvers/__generated__/AstrologicalSignOppositeResolver.graphql";
+import type { UserAstrologicalSignResolver$key } from "./../resolvers/__generated__/UserAstrologicalSignResolver.graphql";
+import {house as astrologicalSignHouseResolver} from "../resolvers/AstrologicalSignHouseResolver.js";
 // Type assertion validating that `astrologicalSignHouseResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignHouseResolver: (
   rootKey: AstrologicalSignHouseResolver$key, 
 ) => mixed);
-import astrologicalSignNameResolver from "../resolvers/AstrologicalSignNameResolver.js";
+import {name as astrologicalSignNameResolver} from "../resolvers/AstrologicalSignNameResolver.js";
 // Type assertion validating that `astrologicalSignNameResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignNameResolver: (
   rootKey: AstrologicalSignNameResolver$key, 
 ) => mixed);
-import astrologicalSignOppositeResolver from "../resolvers/AstrologicalSignOppositeResolver.js";
+import {opposite as astrologicalSignOppositeResolver} from "../resolvers/AstrologicalSignOppositeResolver.js";
 // Type assertion validating that `astrologicalSignOppositeResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (astrologicalSignOppositeResolver: (
   rootKey: AstrologicalSignOppositeResolver$key, 
 ) => mixed);
-import userAstrologicalSignResolver from "../resolvers/UserAstrologicalSignResolver.js";
+import {astrological_sign as userAstrologicalSignResolver} from "../resolvers/UserAstrologicalSignResolver.js";
 // Type assertion validating that `userAstrologicalSignResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userAstrologicalSignResolver: (
@@ -87,7 +89,7 @@ v1 = {
   },
   "kind": "RelayResolver",
   "name": "name",
-  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver.js'),
+  "resolverModule": require('./../resolvers/AstrologicalSignNameResolver').name,
   "path": "me.name"
 },
 v2 = {
@@ -100,7 +102,7 @@ v2 = {
   },
   "kind": "RelayResolver",
   "name": "house",
-  "resolverModule": require('./../resolvers/AstrologicalSignHouseResolver.js'),
+  "resolverModule": require('./../resolvers/AstrologicalSignHouseResolver').house,
   "path": "me.house"
 },
 v3 = {
@@ -113,7 +115,7 @@ v3 = {
   },
   "kind": "RelayResolver",
   "name": "opposite",
-  "resolverModule": require('./../resolvers/AstrologicalSignOppositeResolver.js'),
+  "resolverModule": require('./../resolvers/AstrologicalSignOppositeResolver').opposite,
   "path": "me.opposite"
 };
 return {
@@ -146,7 +148,7 @@ return {
               },
               "kind": "RelayResolver",
               "name": "astrological_sign",
-              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver.js'),
+              "resolverModule": require('./../resolvers/UserAstrologicalSignResolver').astrological_sign,
               "path": "me.astrological_sign"
             },
             "linkedField": {
@@ -223,28 +225,41 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "astrological_sign",
             "args": null,
-            "concreteType": "Date",
-            "kind": "LinkedField",
-            "name": "birthdate",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "month",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "day",
-                "storageKey": null
-              }
-            ],
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "concreteType": "Date",
+                  "kind": "LinkedField",
+                  "name": "birthdate",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "month",
+                      "storageKey": null
+                    },
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "day",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

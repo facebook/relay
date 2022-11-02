@@ -1,4 +1,4 @@
-# Copyright (c) Meta Platforms, Inc. and affiliates. All Rights Reserved.
+# Copyright (c) Meta Platforms, Inc. and affiliates.
 
 type Bar {
   content: String

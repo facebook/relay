@@ -28,7 +28,9 @@ fragment InlineDataFragment on Image @inline {
   uri
   ... @__InlineDirectiveMetadata
   # InlineDirectiveMetadata {
-  #     fragment_name: "AnotherInlineDataFragment",
+  #     fragment_name: FragmentDefinitionName(
+  #         "AnotherInlineDataFragment",
+  #     ),
   #     arguments: [],
   #     variable_definitions: [],
   #     used_global_variables: [],
@@ -45,7 +47,9 @@ fragment UserProfile on User {
   profilePicture(size: $ProfilePicture_SIZE) {
     ... @__InlineDirectiveMetadata
     # InlineDirectiveMetadata {
-    #     fragment_name: "InlineDataFragment",
+    #     fragment_name: FragmentDefinitionName(
+    #         "InlineDataFragment",
+    #     ),
     #     arguments: [],
     #     variable_definitions: [],
     #     used_global_variables: [],
@@ -55,7 +59,9 @@ fragment UserProfile on User {
         uri
         ... @__InlineDirectiveMetadata
         # InlineDirectiveMetadata {
-        #     fragment_name: "AnotherInlineDataFragment",
+        #     fragment_name: FragmentDefinitionName(
+        #         "AnotherInlineDataFragment",
+        #     ),
         #     arguments: [],
         #     variable_definitions: [],
         #     used_global_variables: [],
@@ -70,7 +76,9 @@ fragment UserProfile on User {
     }
     ... @include(if: $cond) @__InlineDirectiveMetadata
     # InlineDirectiveMetadata {
-    #     fragment_name: "AnotherInlineDataFragment",
+    #     fragment_name: FragmentDefinitionName(
+    #         "AnotherInlineDataFragment",
+    #     ),
     #     arguments: [],
     #     variable_definitions: [],
     #     used_global_variables: [],
@@ -85,7 +93,9 @@ fragment UserProfile on User {
   smallPic: profilePicture(size: 20) {
     ... @__InlineDirectiveMetadata
     # InlineDirectiveMetadata {
-    #     fragment_name: "InlineDataFragment",
+    #     fragment_name: FragmentDefinitionName(
+    #         "InlineDataFragment",
+    #     ),
     #     arguments: [],
     #     variable_definitions: [],
     #     used_global_variables: [],
@@ -95,7 +105,9 @@ fragment UserProfile on User {
         uri
         ... @__InlineDirectiveMetadata
         # InlineDirectiveMetadata {
-        #     fragment_name: "AnotherInlineDataFragment",
+        #     fragment_name: FragmentDefinitionName(
+        #         "AnotherInlineDataFragment",
+        #     ),
         #     arguments: [],
         #     variable_definitions: [],
         #     used_global_variables: [],

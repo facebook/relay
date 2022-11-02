@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8ffaee391ce9627261c7255598ae8b85>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<ed1d1736dab8efeffbeb471e7074b868>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayExperimentalGraphResponseTransformTest_condition$fragmentType = any;
+import type { RelayExperimentalGraphResponseTransformTest_condition$fragmentType } from "./RelayExperimentalGraphResponseTransformTest_condition.graphql";
 export type RelayExperimentalGraphResponseTransformTestConditionQuery$variables = {|
   enableDefer: boolean,
   id: string,

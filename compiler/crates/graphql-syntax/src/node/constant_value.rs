@@ -5,10 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use super::primitive::*;
-use common::{Named, Span};
 use core::fmt;
+
+use common::Named;
+use common::Span;
 use intern::string_key::StringKey;
+
+use super::primitive::*;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum ConstantValue {
@@ -89,6 +92,7 @@ impl fmt::Display for ConstantArgument {
 }
 
 impl Named for ConstantArgument {
+    type Name = StringKey;
     fn name(&self) -> StringKey {
         self.name.value
     }

@@ -4,14 +4,16 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
-const UserConstantDependentResolver = require('./resolvers/UserConstantDependentResolver');
+const {
+  constant_dependent: UserConstantDependentResolver,
+} = require('./resolvers/UserConstantDependentResolver');
 const nullthrows = require('nullthrows');
 const {RelayFeatureFlags} = require('relay-runtime');
 const RelayNetwork = require('relay-runtime/network/RelayNetwork');

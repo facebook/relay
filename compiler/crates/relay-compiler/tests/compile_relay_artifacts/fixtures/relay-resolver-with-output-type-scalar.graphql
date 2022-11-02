@@ -1,0 +1,19 @@
+fragment relayResolverWithOutputTypeScalar_user on User {
+  poppy: pop_star_name
+}
+
+fragment relayResolverWithOutputTypeScalar_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+extend type User {
+  pop_star_name: String @relay_resolver(fragment_name: "relayResolverWithOutputTypeScalar_name", import_path: "PopStarNameResolver", has_output_type: true)
+}

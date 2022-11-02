@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -50,6 +50,7 @@ const {
 const {getSingularSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
+const {ROOT_ID} = require('../RelayStoreUtils');
 const {generateTypeID} = require('../TypeID');
 const nullthrows = require('nullthrows');
 const {
@@ -90,11 +91,13 @@ describe('missing data detection', () => {
         RelayModernEnvironmentTypeRefinementTestParentQuery$data,
       >;
   let AbstractQuery;
+  let AbstractClientQuery;
   let ConcreteQuery;
   let ConcreteUserFragment;
   let ConcreteInlineRefinementFragment;
   let AbstractActorFragment;
   let AbstractInlineRefinementFragment;
+  let AbstractClientInterfaceFragment;
   let environment;
   let operation;
   let concreteOperation;
@@ -132,6 +135,15 @@ describe('missing data detection', () => {
       }
     `;
 
+    // version of the query with only abstract refinements
+    AbstractClientQuery = graphql`
+      query RelayModernEnvironmentTypeRefinementTestClientAbstractQuery {
+        client_interface {
+          ...RelayModernEnvironmentTypeRefinementTestClientInterface
+        }
+      }
+    `;
+
     // identical fragments except for User (concrete) / Actor (interface)
     ConcreteUserFragment = graphql`
       fragment RelayModernEnvironmentTypeRefinementTestConcreteUserFragment on User {
@@ -146,6 +158,12 @@ describe('missing data detection', () => {
         id
         name
         missing: lastName
+      }
+    `;
+
+    AbstractClientInterfaceFragment = graphql`
+      fragment RelayModernEnvironmentTypeRefinementTestClientInterface on ClientInterface {
+        description
       }
     `;
 
@@ -1837,6 +1855,95 @@ describe('missing data detection', () => {
       });
       expect(innerFragmentSnapshot.isMissingData).toBe(false);
       expect(environment.check(operation).status).toBe('available');
+    });
+  });
+
+  describe('Abstract types defined in client schema extension', () => {
+    it('knows when concrete types match abstract types by metadata attached to normalizaiton AST', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      environment.commitUpdate(store => {
+        const rootRecord = nullthrows(store.get(ROOT_ID));
+        const clientObj = store.create(
+          '4',
+          'OtherClientTypeImplementingClientInterface',
+        );
+        clientObj.setValue('4', 'id');
+        clientObj.setValue('My Description', 'description');
+        rootRecord.setLinkedRecord(clientObj, 'client_interface');
+      });
+      environment.commitPayload(operation, {});
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSelector = nullthrows(
+        getSingularSelector(
+          AbstractClientInterfaceFragment,
+          parentSnapshot.data.client_interface,
+        ),
+      );
+      const fragmentSnapshot = environment.lookup(fragmentSelector);
+      expect(fragmentSnapshot.data).toEqual({
+        description: 'My Description',
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false);
+    });
+
+    it('knows when concrete types match abstract types by metadata attached to normalizaiton AST (without committing payloads)', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      environment.commitUpdate(store => {
+        const rootRecord = nullthrows(store.get(ROOT_ID));
+        const clientObj = store.create(
+          '4',
+          'OtherClientTypeImplementingClientInterface',
+        );
+        clientObj.setValue('4', 'id');
+        clientObj.setValue('My Description', 'description');
+        rootRecord.setLinkedRecord(clientObj, 'client_interface');
+      });
+      // DataChecker similar to normalizer will put abstract type information to the record source.
+      // In the previouse test we use `commitPayload(...)` so the normalizer can assign these `abstract types`.
+      environment.check(operation);
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSelector = nullthrows(
+        getSingularSelector(
+          AbstractClientInterfaceFragment,
+          parentSnapshot.data.client_interface,
+        ),
+      );
+      const fragmentSnapshot = environment.lookup(fragmentSelector);
+      expect(fragmentSnapshot.data).toEqual({
+        description: 'My Description',
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false);
+    });
+
+    it('knows when concrete types match abstract types by metadata attached to normalizaiton AST: check after commited payload', () => {
+      operation = createOperationDescriptor(AbstractClientQuery, {});
+      environment.commitUpdate(store => {
+        const rootRecord = nullthrows(store.get(ROOT_ID));
+        const clientObj = store.create(
+          '4',
+          'OtherClientTypeImplementingClientInterface',
+        );
+        clientObj.setValue('4', 'id');
+        clientObj.setValue('My Description', 'description');
+        rootRecord.setLinkedRecord(clientObj, 'client_interface');
+      });
+      environment.commitPayload(operation, {});
+
+      // DataChecker similar to normalizer will put abstract type information to the record source.
+      // In the previouse test we use `commitPayload(...)` so the normalizer can assign these `abstract types`.
+      environment.check(operation);
+      const parentSnapshot: $FlowFixMe = environment.lookup(operation.fragment);
+      const fragmentSelector = nullthrows(
+        getSingularSelector(
+          AbstractClientInterfaceFragment,
+          parentSnapshot.data.client_interface,
+        ),
+      );
+      const fragmentSnapshot = environment.lookup(fragmentSelector);
+      expect(fragmentSnapshot.data).toEqual({
+        description: 'My Description',
+      });
+      expect(fragmentSnapshot.isMissingData).toBe(false);
     });
   });
 });

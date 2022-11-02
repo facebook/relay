@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cb5a0111a1da23d9744ca768a57d021b>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<f686b5cc9e5aca9228d754cc7dff4284>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType = any;
+import type { RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment$fragmentType } from "./RelayModernEnvironmentDynamicConnectionKeyTestFeedbackFragment.graphql";
 export type RelayModernEnvironmentDynamicConnectionKeyTestFeedbackQuery$variables = {|
   commentsKey?: ?string,
   id: string,

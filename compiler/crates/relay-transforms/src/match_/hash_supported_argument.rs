@@ -7,13 +7,27 @@
 
 use std::sync::Arc;
 
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::FeatureFlag;
+use common::FeatureFlags;
+use common::NamedItem;
+use graphql_ir::ConstantValue;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
+use intern::string_key::Intern;
+use intern::Lookup;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::TypeReference;
+use thiserror::Error;
+
 use super::MATCH_CONSTANTS;
 use crate::murmurhash::murmurhash;
-use common::{Diagnostic, DiagnosticsResult, FeatureFlag, FeatureFlags, NamedItem};
-use graphql_ir::{ConstantValue, LinkedField, Program, Selection, Transformed, Transformer, Value};
-use intern::string_key::Intern;
-use schema::{SDLSchema, Schema, TypeReference};
-use thiserror::Error;
 
 pub fn hash_supported_argument(
     program: &Program,

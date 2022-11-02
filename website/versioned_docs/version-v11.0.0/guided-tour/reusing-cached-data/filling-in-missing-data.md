@@ -5,7 +5,7 @@ slug: /guided-tour/reusing-cached-data/filling-in-missing-data/
 ---
 
 import DocsRating from '@site/src/core/DocsRating';
-import {OssOnly, FbInternalOnly} from 'internaldocs-fb-helpers';
+import {OssOnly, FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 
 import FbMissingFieldHandlers from './fb/FbMissingFieldHandlers.md';
 

@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<7821d69698d15058c1a5745ce776024d>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<33d1f7249eda5ed1638dabd92fbf5166>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +18,8 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type readUpdatableFragmentEXPERIMENTALTest_2_user$fragmentType = any;
-type readUpdatableFragmentEXPERIMENTALTest_user$fragmentType = any;
+import type { readUpdatableFragmentEXPERIMENTALTest_2_user$fragmentType } from "./readUpdatableFragmentEXPERIMENTALTest_2_user.graphql";
+import type { readUpdatableFragmentEXPERIMENTALTest_user$fragmentType } from "./readUpdatableFragmentEXPERIMENTALTest_user.graphql";
 export type readUpdatableFragmentEXPERIMENTALTestRegularQuery$variables = {|
   if2?: ?boolean,
   if3?: ?boolean,

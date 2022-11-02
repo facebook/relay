@@ -5,7 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
+
+/* eslint-disable no-unused-vars */
 
 'use strict';
 
@@ -207,7 +210,6 @@ type EnzymeMatchersType = {
   toBeEmpty(): void,
   toBeEmptyRender(): void,
   toBePresent(): void,
-  // eslint-disable-next-line lint/flow-react-element
   toContainReact(element: React$Element<any>): void,
   toExist(): void,
   toHaveClassName(className: string): void,
@@ -223,7 +225,6 @@ type EnzymeMatchersType = {
   toHaveText(text: string): void,
   toIncludeText(text: string): void,
   toHaveValue(value: any): void,
-  // eslint-disable-next-line lint/flow-react-element
   toMatchElement(element: React$Element<any>): void,
   toMatchSelector(selector: string): void,
   ...
@@ -902,7 +903,7 @@ type JestObjectType = {
    * (setTimeout, setInterval, clearTimeout, clearInterval, nextTick,
    * setImmediate and clearImmediate).
    */
-  useFakeTimers(): JestObjectType,
+  useFakeTimers(type?: 'legacy' | 'modern'): JestObjectType,
   /**
    * Instructs Jest to use the real versions of the standard timer functions.
    */

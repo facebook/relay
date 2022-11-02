@@ -5,35 +5,51 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{
-    client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME,
-    connections::ConnectionMetadataDirective,
-    handle_fields::HANDLE_FIELD_DIRECTIVE_NAME,
-    inline_data_fragment::InlineDirectiveMetadata,
-    react_flight::REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY,
-    refetchable_fragment::RefetchableMetadata,
-    relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
-    required_directive::{CHILDREN_CAN_BUBBLE_METADATA_KEY, REQUIRED_DIRECTIVE_NAME},
-    ClientEdgeGeneratedQueryMetadataDirective, ClientEdgeMetadataDirective, FragmentAliasMetadata,
-    ModuleMetadata, ReactFlightLocalComponentsMetadata, RefetchableDerivedFromMetadata,
-    RelayClientComponentMetadata, RelayResolverMetadata, RequiredMetadataDirective,
-    CLIENT_EDGE_GENERATED_FRAGMENT_KEY, DIRECTIVE_SPLIT_OPERATION, INTERNAL_METADATA_DIRECTIVE,
-};
-
-use graphql_ir::{
-    Argument, Directive, ProvidedVariableMetadata, Value, ARGUMENT_DEFINITION,
-    UNUSED_LOCAL_VARIABLE_DEPRECATED,
-};
-use intern::string_key::{Intern, StringKey};
+use common::DirectiveName;
+use graphql_ir::Argument;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::ProvidedVariableMetadata;
+use graphql_ir::Value;
+use graphql_ir::VariableName;
+use graphql_ir::ARGUMENT_DEFINITION;
+use graphql_ir::UNUSED_LOCAL_VARIABLE_DEPRECATED;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use regex::Regex;
-use schema::{SDLSchema, Schema, Type};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+
+use crate::client_extensions::CLIENT_EXTENSION_DIRECTIVE_NAME;
+use crate::connections::ConnectionMetadataDirective;
+use crate::handle_fields::HANDLE_FIELD_DIRECTIVE_NAME;
+use crate::inline_data_fragment::InlineDirectiveMetadata;
+use crate::react_flight::REACT_FLIGHT_SCALAR_FLIGHT_FIELD_METADATA_KEY;
+use crate::refetchable_fragment::RefetchableMetadata;
+use crate::relay_actor_change::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
+use crate::required_directive::CHILDREN_CAN_BUBBLE_METADATA_KEY;
+use crate::required_directive::REQUIRED_DIRECTIVE_NAME;
+use crate::ClientEdgeGeneratedQueryMetadataDirective;
+use crate::ClientEdgeMetadataDirective;
+use crate::FragmentAliasMetadata;
+use crate::ModuleMetadata;
+use crate::ReactFlightLocalComponentsMetadata;
+use crate::RefetchableDerivedFromMetadata;
+use crate::RelayClientComponentMetadata;
+use crate::RelayResolverMetadata;
+use crate::RequiredMetadataDirective;
+use crate::CLIENT_EDGE_GENERATED_FRAGMENT_KEY;
+use crate::DIRECTIVE_SPLIT_OPERATION;
+use crate::INTERNAL_METADATA_DIRECTIVE;
 
 /// This function will return a new Vec[...] of directives,
 /// where one will be missing. The one with `remove_directive_name` name
 pub fn remove_directive(
     directives: &[Directive],
-    remove_directive_name: StringKey,
+    remove_directive_name: DirectiveName,
 ) -> Vec<Directive> {
     let mut next_directives = Vec::with_capacity(directives.len() - 1);
     for directive in directives {
@@ -64,7 +80,7 @@ pub fn replace_directive(directives: &[Directive], replacement: Directive) -> Ve
 pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
     match argument {
         Some(arg) => match &arg.value.item {
-            Value::Variable(var) => Some(var.name.item),
+            Value::Variable(var) => Some(var.name.item.0),
             _ => None,
         },
         None => None,
@@ -72,7 +88,7 @@ pub fn extract_variable_name(argument: Option<&Argument>) -> Option<StringKey> {
 }
 
 lazy_static! {
-    static ref CUSTOM_METADATA_DIRECTIVES: [StringKey; 23] = [
+    static ref CUSTOM_METADATA_DIRECTIVES: [DirectiveName; 23] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
         *HANDLE_FIELD_DIRECTIVE_NAME,
@@ -97,7 +113,7 @@ lazy_static! {
         ProvidedVariableMetadata::directive_name(),
         FragmentAliasMetadata::directive_name(),
     ];
-    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [StringKey; 11] = [
+    static ref DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER: [DirectiveName; 11] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ConnectionMetadataDirective::directive_name(),
         *HANDLE_FIELD_DIRECTIVE_NAME,
@@ -110,14 +126,15 @@ lazy_static! {
         *REQUIRED_DIRECTIVE_NAME,
         RelayClientComponentMetadata::directive_name(),
     ];
-    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [StringKey; 7] = [
+    static ref RELAY_CUSTOM_INLINE_FRAGMENT_DIRECTIVES: [DirectiveName; 8] = [
         *CLIENT_EXTENSION_DIRECTIVE_NAME,
         ModuleMetadata::directive_name(),
         InlineDirectiveMetadata::directive_name(),
         *RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN,
         ClientEdgeMetadataDirective::directive_name(),
-        "defer".intern(),
+        DirectiveName("defer".intern()),
         FragmentAliasMetadata::directive_name(),
+        RelayResolverMetadata::directive_name(),
     ];
     static ref VALID_PROVIDED_VARIABLE_NAME: Regex = Regex::new(r#"^[A-Za-z0-9_]*$"#).unwrap();
     pub static ref INTERNAL_RELAY_VARIABLES_PREFIX: StringKey = "__relay_internal".intern();
@@ -126,15 +143,15 @@ lazy_static! {
 pub struct CustomMetadataDirectives;
 
 impl CustomMetadataDirectives {
-    pub fn is_custom_metadata_directive(name: StringKey) -> bool {
+    pub fn is_custom_metadata_directive(name: DirectiveName) -> bool {
         CUSTOM_METADATA_DIRECTIVES.contains(&name)
     }
 
-    pub fn should_skip_in_node_identifier(name: StringKey) -> bool {
+    pub fn should_skip_in_node_identifier(name: DirectiveName) -> bool {
         DIRECTIVES_SKIPPED_IN_NODE_IDENTIFIER.contains(&name)
     }
 
-    pub fn is_handle_field_directive(name: StringKey) -> bool {
+    pub fn is_handle_field_directive(name: DirectiveName) -> bool {
         name == *HANDLE_FIELD_DIRECTIVE_NAME
     }
 }
@@ -151,16 +168,16 @@ pub fn get_normalization_operation_name(name: StringKey) -> String {
     format!("{}$normalization", name)
 }
 
-pub fn get_fragment_filename(fragment_name: StringKey) -> StringKey {
+pub fn get_fragment_filename(fragment_name: FragmentDefinitionName) -> StringKey {
     format!(
         "{}.graphql",
-        get_normalization_operation_name(fragment_name)
+        get_normalization_operation_name(fragment_name.0)
     )
     .intern()
 }
 
-pub fn format_provided_variable_name(module_name: StringKey) -> StringKey {
-    if VALID_PROVIDED_VARIABLE_NAME.is_match(module_name.lookup()) {
+pub fn format_provided_variable_name(module_name: StringKey) -> VariableName {
+    let x = if VALID_PROVIDED_VARIABLE_NAME.is_match(module_name.lookup()) {
         format!(
             "{}__pv__{}",
             *INTERNAL_RELAY_VARIABLES_PREFIX,
@@ -178,5 +195,6 @@ pub fn format_provided_variable_name(module_name: StringKey) -> StringKey {
             *INTERNAL_RELAY_VARIABLES_PREFIX, transformed_name
         )
         .intern()
-    }
+    };
+    VariableName(x)
 }

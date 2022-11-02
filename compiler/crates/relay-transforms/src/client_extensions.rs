@@ -5,17 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::client_edges::ClientEdgeMetadataDirective;
-use common::{Location, PointerAddress, WithLocation};
+use std::sync::Arc;
+
+use common::DirectiveName;
+use common::Location;
+use common::PointerAddress;
+use common::WithLocation;
 use fnv::FnvHashMap;
-use graphql_ir::{
-    Directive, InlineFragment, LinkedField, Program, ScalarField, Selection, Transformed,
-    TransformedValue, Transformer,
-};
-use intern::string_key::{Intern, StringKey};
+use graphql_ir::Directive;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
 use lazy_static::lazy_static;
 use schema::Schema;
-use std::sync::Arc;
+
+use crate::client_edges::ClientEdgeMetadataDirective;
 
 /// A transform that group all client selections and generates ... @__clientExtension inline fragments
 /// the generated result is used by codegen only to generate `ClientExtension` nodes.
@@ -30,7 +40,8 @@ pub fn client_extensions(program: &Program) -> Program {
 type Seen = FnvHashMap<PointerAddress, Transformed<Selection>>;
 
 lazy_static! {
-    pub static ref CLIENT_EXTENSION_DIRECTIVE_NAME: StringKey = "__clientExtension".intern();
+    pub static ref CLIENT_EXTENSION_DIRECTIVE_NAME: DirectiveName =
+        DirectiveName("__clientExtension".intern());
 }
 
 struct ClientExtensionsTransform<'program> {

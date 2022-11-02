@@ -5,9 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{root_variables::InferVariablesVisitor, DIRECTIVE_SPLIT_OPERATION};
-use common::{Diagnostic, DiagnosticsResult, NamedItem};
-use graphql_ir::{FragmentDefinition, OperationDefinition, Program, ValidationMessage, Validator};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::NamedItem;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
+use intern::Lookup;
+
+use crate::root_variables::InferVariablesVisitor;
+use crate::DIRECTIVE_SPLIT_OPERATION;
 
 pub fn validate_global_variables(program: &Program) -> DiagnosticsResult<()> {
     ValidateGlobalVariables::new(program).validate_program(program)
@@ -59,13 +68,13 @@ impl Validator for ValidateGlobalVariables<'_> {
                 .map(|arg_def| arg_def.name.location);
             let mut error = Diagnostic::error(
                 ValidationMessage::GlobalVariables {
-                    operation_name: operation.name.item,
+                    operation_name: operation.name.item.0,
                     variables_string: format!(
                         "{}: '${}'",
                         if is_plural { "s" } else { "" },
                         undefined_variables
                             .iter()
-                            .map(|var| var.name.item.lookup())
+                            .map(|var| var.name.item.0.lookup())
                             .collect::<Vec<_>>()
                             .join("', '$"),
                     ),

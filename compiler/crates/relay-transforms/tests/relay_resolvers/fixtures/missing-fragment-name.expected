@@ -14,14 +14,14 @@ fragment Foo_user on User {
   # RelayResolverMetadata {
   #     field_parent_type: "User",
   #     import_path: "PopStarNameResolver",
+  #     import_name: None,
   #     field_name: "pop_star_name",
   #     field_alias: None,
   #     field_path: "pop_star_name",
   #     field_arguments: [],
   #     live: true,
+  #     output_type_info: None,
+  #     fragment_data_injection_mode: None,
   # }
   
 }
-
-# Implicit Dependencies:
-#

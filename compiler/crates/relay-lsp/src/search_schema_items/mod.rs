@@ -5,13 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::{lsp_runtime_error::LSPRuntimeResult, server::GlobalState};
-use common::Named;
+use graphql_ir::reexport::StringKey;
 use intern::string_key::Intern;
+use intern::Lookup;
 use lsp_types::request::Request;
 use schema::Schema;
 use schema_documentation::SchemaDocumentation;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
+use serde::Serialize;
+
+use crate::lsp_runtime_error::LSPRuntimeResult;
+use crate::server::GlobalState;
 
 pub(crate) enum SearchSchemaItems {}
 
@@ -52,14 +56,36 @@ pub(crate) fn on_search_schema_items(
 
     let schema_documentation = state.get_schema_documentation(schema_name);
 
-    let objects = filter_and_transform_items(schema.objects(), &schema_documentation, &filter);
-    let interfaces =
-        filter_and_transform_items(schema.interfaces(), &schema_documentation, &filter);
-    let enums = filter_and_transform_items(schema.enums(), &schema_documentation, &filter);
-    let unions = filter_and_transform_items(schema.unions(), &schema_documentation, &filter);
-    let input_objects =
-        filter_and_transform_items(schema.input_objects(), &schema_documentation, &filter);
-    let scalars = filter_and_transform_items(schema.scalars(), &schema_documentation, &filter);
+    let objects = filter_and_transform_items(
+        schema.objects().map(|o| o.name.item.0),
+        &schema_documentation,
+        &filter,
+    );
+    let interfaces = filter_and_transform_items(
+        schema.interfaces().map(|i| i.name.item.0),
+        &schema_documentation,
+        &filter,
+    );
+    let enums = filter_and_transform_items(
+        schema.enums().map(|e| e.name.item.0),
+        &schema_documentation,
+        &filter,
+    );
+    let unions = filter_and_transform_items(
+        schema.unions().map(|u| u.name.item),
+        &schema_documentation,
+        &filter,
+    );
+    let input_objects = filter_and_transform_items(
+        schema.input_objects().map(|io| io.name.item.0),
+        &schema_documentation,
+        &filter,
+    );
+    let scalars = filter_and_transform_items(
+        schema.scalars().map(|s| s.name.item.0),
+        &schema_documentation,
+        &filter,
+    );
 
     let mut items = objects
         .chain(interfaces)
@@ -80,13 +106,13 @@ pub(crate) fn on_search_schema_items(
     Ok(SearchSchemaItemsResponse { items, has_more })
 }
 
-fn filter_and_transform_items<'a, T: Named + 'a>(
-    items: impl Iterator<Item = &'a T> + 'a,
+fn filter_and_transform_items<'a>(
+    items: impl Iterator<Item = StringKey> + 'a,
     schema_documentation: &'a impl SchemaDocumentation,
     filter: &'a Option<String>,
 ) -> impl Iterator<Item = SchemaSearchItem> + 'a {
     items.filter_map(move |obj| {
-        let name = obj.name().lookup();
+        let name = obj.lookup();
         let description = schema_documentation
             .get_type_description(name)
             .map(|s| s.to_string());

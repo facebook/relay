@@ -5,44 +5,65 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
-use crate::build_project::{
-    artifact_writer::{ArtifactFileWriter, ArtifactWriter},
-    AdditionalValidations,
-};
-use crate::compiler_state::{ProjectName, ProjectSet};
-use crate::errors::{ConfigValidationError, Error, Result};
-use crate::saved_state::SavedStateLoader;
-use crate::status_reporter::{ConsoleStatusReporter, StatusReporter};
+use std::env::current_dir;
+use std::ffi::OsStr;
+use std::fmt;
+use std::path::Path;
+use std::path::PathBuf;
+use std::sync::Arc;
+use std::vec;
+
 use async_trait::async_trait;
-use common::{FeatureFlags, Rollout};
-use fnv::{FnvBuildHasher, FnvHashSet};
-use graphql_ir::{OperationDefinition, Program};
+use common::FeatureFlags;
+use common::Rollout;
+use common::ScalarName;
+use fnv::FnvBuildHasher;
+use fnv::FnvHashSet;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
 use indexmap::IndexMap;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use js_config_loader::LoaderSource;
 use log::warn;
 use persist_query::PersistError;
 use rayon::prelude::*;
 use regex::Regex;
-use relay_config::{
-    CustomScalarType, FlowTypegenConfig, JsModuleFormat, SchemaConfig, TypegenConfig,
-    TypegenLanguage,
-};
-pub use relay_config::{
-    LocalPersistConfig, PersistConfig, ProjectConfig, RemotePersistConfig, SchemaLocation,
-};
+use relay_config::CustomScalarType;
+use relay_config::DiagnosticReportConfig;
+use relay_config::FlowTypegenConfig;
+use relay_config::JsModuleFormat;
+pub use relay_config::LocalPersistConfig;
+use relay_config::ModuleImportConfig;
+pub use relay_config::PersistConfig;
+pub use relay_config::ProjectConfig;
+pub use relay_config::RemotePersistConfig;
+use relay_config::SchemaConfig;
+pub use relay_config::SchemaLocation;
+use relay_config::TypegenConfig;
+use relay_config::TypegenLanguage;
 use relay_transforms::CustomTransformsConfig;
 use serde::de::Error as DeError;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::Deserialize;
+use serde::Deserializer;
+use serde::Serialize;
 use serde_json::Value;
-use sha1::{Digest, Sha1};
-use std::env::current_dir;
-use std::ffi::OsStr;
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
-use std::{fmt, vec};
+use sha1::Digest;
+use sha1::Sha1;
 use watchman_client::pdu::ScmAwareClockData;
+
+use crate::build_project::artifact_writer::ArtifactFileWriter;
+use crate::build_project::artifact_writer::ArtifactWriter;
+use crate::build_project::generate_extra_artifacts::GenerateExtraArtifactsFn;
+use crate::build_project::AdditionalValidations;
+use crate::compiler_state::ProjectName;
+use crate::compiler_state::ProjectSet;
+use crate::errors::ConfigValidationError;
+use crate::errors::Error;
+use crate::errors::Result;
+use crate::saved_state::SavedStateLoader;
+use crate::status_reporter::ConsoleStatusReporter;
+use crate::status_reporter::StatusReporter;
 
 type FnvIndexMap<K, V> = IndexMap<K, V, FnvBuildHasher>;
 
@@ -256,6 +277,11 @@ Example file:
         let mut hash = Sha1::new();
         serde_json::to_writer(&mut hash, &config_file).unwrap();
 
+        let is_multi_project = match config_file {
+            ConfigFile::MultiProject(_) => true,
+            ConfigFile::SingleProject(_) => false,
+        };
+
         let config_file = match config_file {
             ConfigFile::MultiProject(config) => *config,
             ConfigFile::SingleProject(config) => {
@@ -336,6 +362,8 @@ Example file:
                     skip_types_for_artifact: None,
                     rollout: config_file_project.rollout,
                     js_module_format: config_file_project.js_module_format,
+                    module_import_config: config_file_project.module_import_config,
+                    diagnostic_report_config: config_file_project.diagnostic_report_config,
                 };
                 Ok((project_name, project_config))
             })
@@ -351,7 +379,10 @@ Example file:
         let config = Self {
             name: config_file.name,
             artifact_writer: Box::new(ArtifactFileWriter::new(None, root_dir.clone())),
-            status_reporter: Box::new(ConsoleStatusReporter::new(root_dir.clone())),
+            status_reporter: Box::new(ConsoleStatusReporter::new(
+                root_dir.clone(),
+                is_multi_project,
+            )),
             root_dir,
             sources: config_file.sources,
             excludes: config_file.excludes,
@@ -363,7 +394,7 @@ Example file:
             generate_virtual_id_file_name: None,
             saved_state_config: config_file.saved_state_config,
             saved_state_loader: None,
-            saved_state_version: hex::encode(hash.result()),
+            saved_state_version: hex::encode(hash.finalize()),
             create_operation_persister: None,
             compile_everything: false,
             repersist_operations: false,
@@ -652,7 +683,7 @@ pub struct SingleProjectConfigFile {
 
     /// Mappings from custom scalars in your schema to built-in GraphQL
     /// types, for type emission purposes.
-    pub custom_scalars: FnvIndexMap<StringKey, CustomScalarType>,
+    pub custom_scalars: FnvIndexMap<ScalarName, CustomScalarType>,
 
     /// This option enables emitting es modules artifacts.
     pub eager_es_modules: bool,
@@ -674,6 +705,10 @@ pub struct SingleProjectConfigFile {
 
     /// Extra configuration for the schema itself.
     pub schema_config: SchemaConfig,
+
+    /// Configuration for @module
+    #[serde(default)]
+    pub module_import_config: ModuleImportConfig,
 
     /// Added in 13.1.1 to customize Final/Compat mode in the single project config file
     /// Removed in 14.0.0
@@ -706,6 +741,7 @@ impl Default for SingleProjectConfigFile {
             js_module_format: JsModuleFormat::CommonJS,
             typegen_phase: None,
             feature_flags: None,
+            module_import_config: Default::default(),
         }
     }
 }
@@ -837,6 +873,7 @@ impl SingleProjectConfigFile {
             },
             js_module_format: self.js_module_format,
             feature_flags: self.feature_flags,
+            module_import_config: self.module_import_config,
             ..Default::default()
         };
 
@@ -971,6 +1008,12 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub schema_config: SchemaConfig,
+
+    #[serde(default)]
+    pub module_import_config: ModuleImportConfig,
+
+    #[serde(default)]
+    pub diagnostic_report_config: DiagnosticReportConfig,
 }
 
 pub type PersistId = String;

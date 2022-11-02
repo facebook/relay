@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<11509600ed94b20d1779167b55d32190>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<6e2054587b8ff1c81d40535eb007ee66>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RefetchableClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$fragmentType = any;
+import type { RefetchableClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$fragmentType } from "./RefetchableClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend.graphql";
 export type ClientEdgeQuery_LiveResolversTest15Query_live_user_resolver_always_suspend$variables = {|
   id: string,
 |};

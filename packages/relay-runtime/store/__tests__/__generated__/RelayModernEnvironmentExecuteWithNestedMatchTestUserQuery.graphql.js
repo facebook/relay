@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d3a6ddf559f420d55e6c13d89f9af4d4>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<8b4c425eb635d0959a7f528f7ed305c5>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -19,7 +21,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$fragmentType = any;
+import type { RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name$fragmentType } from "./RelayModernEnvironmentExecuteWithNestedMatchTestMarkdownUserNameRenderer_name.graphql";
 export type RelayModernEnvironmentExecuteWithNestedMatchTestUserQuery$variables = {|
   id: string,
 |};

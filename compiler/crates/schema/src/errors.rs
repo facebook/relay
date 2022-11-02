@@ -5,10 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::definitions::Type;
 use graphql_syntax::OperationType;
 use intern::string_key::StringKey;
 use thiserror::Error;
+
+use crate::definitions::Type;
 
 pub type Result<T> = std::result::Result<T, SchemaError>;
 
@@ -49,4 +50,7 @@ pub enum SchemaError {
         "Expected a field of the input object to be a valid input object, scalar, or enum. Got '{0}'."
     )]
     ExpectedInputType(StringKey),
+
+    #[error("Reference to undefined directive '{0}'.")]
+    UndefinedDirective(StringKey),
 }

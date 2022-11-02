@@ -35,11 +35,14 @@ fragment Foo_user on Node {
     # RelayResolverMetadata {
     #     field_parent_type: "User",
     #     import_path: "PopStarNameResolver",
+    #     import_name: None,
     #     field_name: "pop_star_name",
     #     field_alias: None,
     #     field_path: "aliased_fragment.pop_star_name",
     #     field_arguments: [],
     #     live: false,
+    #     output_type_info: None,
+    #     fragment_data_injection_mode: None,
     # }
     
   }
@@ -50,7 +53,3 @@ fragment PopStarNameResolverFragment_name on User {
     lastName
   }
 }
-
-# Implicit Dependencies:
-#
-# Foo_user --> {PopStarNameResolverFragment_name}

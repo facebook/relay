@@ -6,6 +6,7 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -79,6 +80,7 @@ function createContainerWithFragments<
   const containerName = getContainerName(Component);
 
   return class extends React.Component<ContainerProps, ContainerState> {
+    // $FlowFixMe[missing-local-annot]
     static displayName = containerName;
 
     _refetchSubscription: ?Subscription;
@@ -362,16 +364,14 @@ function createContainerWithFragments<
       );
 
       // TODO: T26288752 find a better way
-      /* eslint-disable lint/react-state-props-mutation */
       this.state.localVariables = fetchVariables;
-      /* eslint-enable lint/react-state-props-mutation */
 
       // Cancel any previously running refetch.
       this._refetchSubscription && this._refetchSubscription.unsubscribe();
 
       // Declare refetchSubscription before assigning it in .start(), since
       // synchronous completion may call callbacks .subscribe() returns.
-      let refetchSubscription;
+      let refetchSubscription: Subscription;
 
       const storeSnapshot = this._getQueryFetcher().lookupInStore(
         environment,
@@ -449,7 +449,9 @@ function createContainerWithFragments<
       };
     };
 
+    // $FlowFixMe[missing-local-annot]
     render() {
+      // eslint-disable-next-line no-unused-vars
       const {componentRef, __relayContext, __rootIsQueryRenderer, ...props} =
         this.props;
       const {relayProp, contextForChildren} = this.state;

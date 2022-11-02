@@ -2,6 +2,8 @@
 <PROJECT_ROOT>/dist/.*
 <PROJECT_ROOT>/compiler/.*
 <PROJECT_ROOT>/.*/node_modules/.*
+.*/node_modules/resolve/test/resolver/malformed_package_json/package.json
+<PROJECT_ROOT>/packages/relay-flight-experimental/.*
 
 [options]
 exact_by_default=true
@@ -23,6 +25,7 @@ suppress_type=$FlowIssue
 suppress_type=$FlowFixMe
 suppress_type=$FlowFixMeProps
 suppress_type=$FlowFixMeState
+suppress_type=$FlowExpectedError
 
 format.bracket_spacing=false
 
@@ -41,4 +44,4 @@ untyped-import
 untyped-type-import
 
 [version]
-^0.181.0
+^0.191.0

@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9a73f0d0cda7927165c89771868c6909>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<4f5d83c4264a1f7ed9f6c9d20e831870>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +18,8 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type UserProfilePictureWithRuntimeArgumentResolver$key = any;
-import userUserProfilePictureUriWithScaleAndAdditionalArgumentResolver from "../resolvers/UserProfilePictureWithRuntimeArgumentResolver.js";
+import type { UserProfilePictureWithRuntimeArgumentResolver$key } from "./../resolvers/__generated__/UserProfilePictureWithRuntimeArgumentResolver.graphql";
+import {user_profile_picture_uri_with_scale_and_additional_argument as userUserProfilePictureUriWithScaleAndAdditionalArgumentResolver} from "../resolvers/UserProfilePictureWithRuntimeArgumentResolver.js";
 // Type assertion validating that `userUserProfilePictureUriWithScaleAndAdditionalArgumentResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriWithScaleAndAdditionalArgumentResolver: (
@@ -56,6 +58,13 @@ v1 = {
 v2 = [
   {
     "kind": "Variable",
+    "name": "name",
+    "variableName": "name"
+  }
+],
+v3 = [
+  {
+    "kind": "Variable",
     "name": "scale",
     "variableName": "scale"
   }
@@ -80,21 +89,15 @@ return {
         "selections": [
           {
             "alias": "profile_picture",
-            "args": [
-              {
-                "kind": "Variable",
-                "name": "name",
-                "variableName": "name"
-              }
-            ],
+            "args": (v2/*: any*/),
             "fragment": {
-              "args": (v2/*: any*/),
+              "args": (v3/*: any*/),
               "kind": "FragmentSpread",
               "name": "UserProfilePictureWithRuntimeArgumentResolver"
             },
             "kind": "RelayResolver",
             "name": "user_profile_picture_uri_with_scale_and_additional_argument",
-            "resolverModule": require('./../resolvers/UserProfilePictureWithRuntimeArgumentResolver.js'),
+            "resolverModule": require('./../resolvers/UserProfilePictureWithRuntimeArgumentResolver').user_profile_picture_uri_with_scale_and_additional_argument,
             "path": "me.profile_picture"
           }
         ],
@@ -122,21 +125,34 @@ return {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "user_profile_picture_uri_with_scale_and_additional_argument",
             "args": (v2/*: any*/),
-            "concreteType": "Image",
-            "kind": "LinkedField",
-            "name": "profile_picture",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "uri",
-                "storageKey": null
-              }
-            ],
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": (v3/*: any*/),
+                  "concreteType": "Image",
+                  "kind": "LinkedField",
+                  "name": "profile_picture",
+                  "plural": false,
+                  "selections": [
+                    {
+                      "alias": null,
+                      "args": null,
+                      "kind": "ScalarField",
+                      "name": "uri",
+                      "storageKey": null
+                    }
+                  ],
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

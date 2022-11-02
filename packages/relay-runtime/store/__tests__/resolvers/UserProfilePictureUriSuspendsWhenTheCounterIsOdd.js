@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -28,9 +28,10 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @onType User
  * @live
  *
- * This field is returing the profile picture url, when s
+ * This field returns the profile picture url, when the GLOBAL_STORE number is
+ * even and suspends when the number is odd.
  */
-function UserProfilePictureUriSuspendsWhenTheCounterIsOdd(
+function user_profile_picture_uri_suspends_when_the_counter_is_odd(
   rootKey: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key,
 ): LiveState<?string> {
   const data = readFragment(
@@ -53,11 +54,13 @@ function UserProfilePictureUriSuspendsWhenTheCounterIsOdd(
       }
     },
     subscribe(cb): () => void {
-      // Here we could try to run the selector and short-circut if the value has
+      // Here we could try to run the selector and short-circuit if the value has
       // not changed, but for now we'll over-notify.
       return GLOBAL_STORE.subscribe(cb);
     },
   };
 }
 
-module.exports = UserProfilePictureUriSuspendsWhenTheCounterIsOdd;
+module.exports = {
+  user_profile_picture_uri_suspends_when_the_counter_is_odd,
+};

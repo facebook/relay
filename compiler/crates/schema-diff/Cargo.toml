@@ -15,6 +15,6 @@ common = { path = "../common" }
 fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
-lazy_static = "1.0"
+lazy_static = "1.4"
 relay-config = { path = "../relay-config" }
 schema = { path = "../schema" }

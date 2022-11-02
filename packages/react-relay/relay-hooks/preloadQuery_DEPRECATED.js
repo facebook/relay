@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -31,7 +31,6 @@ import type {
 const {
   Observable,
   PreloadableQueryRegistry,
-  RelayFeatureFlags,
   ReplaySubject,
   createOperationDescriptor,
   getRequest,
@@ -45,7 +44,7 @@ const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 const STORE_OR_NETWORK_DEFAULT: PreloadFetchPolicy = 'store-or-network';
 
 const pendingQueriesByEnvironment = WEAKMAP_SUPPORTED
-  ? new WeakMap()
+  ? new WeakMap<IEnvironment, Map<string, PendingQueryEntry>>()
   : new Map();
 
 type PendingQueryEntry =
@@ -92,7 +91,7 @@ function preloadQuery<TQuery: OperationType, TEnvironmentProviderOptions>(
   );
   const source =
     queryEntry.kind === 'network'
-      ? Observable.create(sink => {
+      ? Observable.create<GraphQLResponse>(sink => {
           let subscription;
           if (pendingQueries.get(queryEntry.cacheKey) == null) {
             const newQueryEntry = preloadQueryDeduped(

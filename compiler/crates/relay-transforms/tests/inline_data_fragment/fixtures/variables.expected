@@ -14,12 +14,16 @@ fragment UserProfile on User
 fragment User on User {
   ... @__InlineDirectiveMetadata
   # InlineDirectiveMetadata {
-  #     fragment_name: "UserProfile",
+  #     fragment_name: FragmentDefinitionName(
+  #         "UserProfile",
+  #     ),
   #     arguments: [
   #         Argument {
   #             name: WithLocation {
   #                 location: variables.graphql:52:70,
-  #                 item: "profilePictureSize",
+  #                 item: ArgumentName(
+  #                     "profilePictureSize",
+  #                 ),
   #             },
   #             value: WithLocation {
   #                 location: variables.graphql:72:78,
@@ -42,7 +46,9 @@ fragment User on User {
   #         VariableDefinition {
   #             name: WithLocation {
   #                 location: variables.graphql:141:159,
-  #                 item: "profilePictureSize",
+  #                 item: VariableName(
+  #                     "profilePictureSize",
+  #                 ),
   #             },
   #             type_: List(
   #                 Named(

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
@@ -169,7 +169,7 @@ export class GraphModeNormalizer {
     this.duplicateFieldsAvoided = 0;
   }
 
-  _getStreamID() {
+  _getStreamID(): number {
     return this._nextStreamID++;
   }
 
@@ -178,7 +178,7 @@ export class GraphModeNormalizer {
     if (maybeSent != null) {
       return maybeSent;
     }
-    const sent = new Set();
+    const sent = new Set<string>();
     this._sentFields.set(cacheKey, sent);
     return sent;
   }
@@ -195,7 +195,7 @@ export class GraphModeNormalizer {
 
   // TODO: The GraphMode proposal outlines different approachs to derive keys. We
   // can expriment with different approaches here.
-  _getStorageKey(selection: NormalizationField) {
+  _getStorageKey(selection: NormalizationField): string {
     return getStorageKey(selection, this._variables);
   }
 

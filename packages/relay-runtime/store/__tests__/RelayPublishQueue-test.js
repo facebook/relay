@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';
@@ -44,7 +44,7 @@ describe('RelayPublishQueue', () => {
       applyWithGuard: jest.fn((callback, context, params) => {
         try {
           callback.apply(context, params);
-        } catch (guarded) {} // eslint-disable-line lint/no-unused-catch-bindings
+        } catch (guarded) {}
       }),
     };
   });

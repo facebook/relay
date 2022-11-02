@@ -5,8 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @flow strict-local
- * @emails oncall+relay
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -75,7 +75,7 @@ opaque type FragmentResult: {data: mixed, ...} = {
 const CACHE_CAPACITY = 1000000;
 
 // this is frozen so that users don't accidentally push data into the array
-const CONSTANT_READONLY_EMPTY_ARRAY = Object.freeze([]);
+const CONSTANT_READONLY_EMPTY_ARRAY: Array<$FlowFixMe> = Object.freeze([]);
 
 function isMissingData(snapshot: SingularOrPluralSnapshot): boolean {
   if (Array.isArray(snapshot)) {
@@ -176,7 +176,7 @@ class ClientEdgeQueryResultsCache {
     }
   }
 
-  _retain(id: string) {
+  _retain(id: string): {dispose: () => void} {
     const retainCount = (this._retainCounts.get(id) ?? 0) + 1;
     this._retainCounts.set(id, retainCount);
     return {
@@ -305,6 +305,7 @@ class FragmentResourceImpl {
         !missingLiveResolverFields(cachedValue.result.snapshot)?.length
       ) {
         this._handlePotentialSnapshotErrorsInSnapshot(
+          // $FlowFixMe[incompatible-call]
           cachedValue.result.snapshot,
         );
         return cachedValue.result;
@@ -479,7 +480,7 @@ class FragmentResourceImpl {
     fragmentRef: mixed,
     request: ConcreteRequest,
     clientEdgeDestinationID: DataID,
-  ) {
+  ): {queryResult: QueryResult, requestDescriptor: RequestDescriptor} {
     const originalVariables = getVariablesFromFragment(
       fragmentNode,
       fragmentRef,

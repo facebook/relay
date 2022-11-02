@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -60,7 +60,6 @@ let environment;
 let fetch;
 let sink;
 let executeObservable;
-let executeUnsubscribe;
 let networkUnsubscribe;
 
 beforeEach(() => {
@@ -91,7 +90,6 @@ beforeEach(() => {
     // $FlowFixMe[method-unbinding] added when improving typing for this parameters
     environment.executeWithSource.getMockImplementation();
   executeObservable = undefined;
-  executeUnsubscribe = undefined;
 
   jest
     .spyOn(environment, 'executeWithSource')

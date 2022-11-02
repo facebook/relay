@@ -5,19 +5,30 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, WithLocation};
-use graphql_ir::{ConstantValue, Directive, Value};
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::Location;
+use common::SourceLocationKey;
+use common::WithLocation;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::Value;
 use graphql_text_printer::print_value;
-use intern::string_key::{Intern, StringKey};
+use graphql_text_printer::PrinterOptions;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
 use lazy_static::lazy_static;
 use schema::SDLSchema;
 
 use super::validation_message::ValidationMessage;
 
 lazy_static! {
-    pub static ref REFETCHABLE_NAME: StringKey = "refetchable".intern();
-    static ref QUERY_NAME_ARG: StringKey = "queryName".intern();
-    static ref DIRECTIVES_ARG: StringKey = "directives".intern();
+    pub static ref REFETCHABLE_NAME: DirectiveName = DirectiveName("refetchable".intern());
+    static ref QUERY_NAME_ARG: ArgumentName = ArgumentName("queryName".intern());
+    static ref DIRECTIVES_ARG: ArgumentName = ArgumentName("directives".intern());
 }
 
 /// Represents the @refetchable Relay directive:
@@ -45,7 +56,11 @@ impl RefetchableDirective {
                 } else {
                     return Err(vec![Diagnostic::error(
                         ValidationMessage::ExpectQueryNameToBeString {
-                            query_name_value: print_value(schema, &argument.value.item),
+                            query_name_value: print_value(
+                                schema,
+                                &argument.value.item,
+                                PrinterOptions::default(),
+                            ),
                         },
                         argument.name.location,
                     )]);

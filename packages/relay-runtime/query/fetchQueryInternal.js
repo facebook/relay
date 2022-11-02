@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -35,7 +36,7 @@ type RequestCacheEntry = {
 const WEAKMAP_SUPPORTED = typeof WeakMap === 'function';
 
 const requestCachesByEnvironment = WEAKMAP_SUPPORTED
-  ? new WeakMap()
+  ? new WeakMap<IEnvironment, Map<RequestIdentifier, RequestCacheEntry>>()
   : new Map();
 
 /**
@@ -278,7 +279,15 @@ function getPromiseForActiveRequest(
     resolveOnNext = true;
   });
   if (RelayFeatureFlags.USE_REACT_CACHE) {
+    // React Suspense should get thrown the same promise each time, so we cache it.
+    // However, the promise gets resolved on each payload, so subsequently we need
+    // to provide a new fresh promise that isn't already resolved. (When the feature
+    // flag is off we do this in QueryResource.)
     cachedRequest.promise = promise;
+    const cleanup = () => {
+      cachedRequest.promise = null;
+    };
+    promise.then(cleanup, cleanup);
   }
   return promise;
 }

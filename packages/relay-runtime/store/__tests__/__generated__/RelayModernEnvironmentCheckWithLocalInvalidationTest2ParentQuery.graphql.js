@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<bb1b0f4bb2b7a74559a19863fd730019>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<94e50c860585cc8a89a69094637103e4>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType = any;
+import type { RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment$fragmentType } from "./RelayModernEnvironmentCheckWithLocalInvalidationTestUserFragment.graphql";
 export type RelayModernEnvironmentCheckWithLocalInvalidationTest2ParentQuery$variables = {|
   size: $ReadOnlyArray<?number>,
 |};

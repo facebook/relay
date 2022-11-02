@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -82,7 +82,9 @@ describe('useLazyLoadQueryNode', () => {
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     let commit;
     const V1 = function (props: {}) {
-      const [commitFn, isMutationInFlight] = useMutation(CommentCreateMutation);
+      const [commitFn, isMutationInFlight] = useMutation<any>(
+        CommentCreateMutation,
+      );
       commit = commitFn;
       return isInFlightFn(isMutationInFlight);
     };
@@ -116,7 +118,9 @@ describe('useLazyLoadQueryNode', () => {
 
     // Trigger a fast fresh
     function V2(props: any) {
-      const [commitFn, isMutationInFlight] = useMutation(CommentCreateMutation);
+      const [commitFn, isMutationInFlight] = useMutation<any>(
+        CommentCreateMutation,
+      );
       commit = commitFn;
       return isInFlightFn(isMutationInFlight);
     }

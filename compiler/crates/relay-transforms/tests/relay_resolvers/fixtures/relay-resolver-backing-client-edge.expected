@@ -28,15 +28,14 @@ fragment Foo_user on User {
   # RelayResolverMetadata {
   #     field_parent_type: "User",
   #     import_path: "BestFriendResolver",
+  #     import_name: None,
   #     field_name: "best_friend",
   #     field_alias: None,
   #     field_path: "best_friend",
   #     field_arguments: [],
   #     live: false,
+  #     output_type_info: None,
+  #     fragment_data_injection_mode: None,
   # }
   
 }
-
-# Implicit Dependencies:
-#
-# Foo_user --> {BestFriendResolverFragment}

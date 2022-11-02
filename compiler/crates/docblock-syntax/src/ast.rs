@@ -5,7 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Location, Named, WithLocation};
+use common::Location;
+use common::Named;
+use common::WithLocation;
 use intern::string_key::StringKey;
 #[derive(Debug, PartialEq)]
 pub struct DocblockField {
@@ -14,6 +16,7 @@ pub struct DocblockField {
 }
 
 impl Named for DocblockField {
+    type Name = StringKey;
     fn name(&self) -> StringKey {
         self.field_name.item
     }

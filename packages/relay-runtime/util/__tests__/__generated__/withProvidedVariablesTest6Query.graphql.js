@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<54b94c441fa6bd96eeb152b3f1c225ad>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<2dc5f8f1fb7f57f4fbd9ed95c754cf4f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type withProvidedVariablesTest6Fragment$fragmentType = any;
+import type { withProvidedVariablesTest6Fragment$fragmentType } from "./withProvidedVariablesTest6Fragment.graphql";
 export type withProvidedVariablesTest6Query$variables = {||};
 export type withProvidedVariablesTest6Query$data = {|
   +node: ?{|

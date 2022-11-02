@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -97,7 +98,7 @@ class RelayOptimisticRecordSource implements MutableRecordSource {
     return Object.keys(this.toJSON()).length;
   }
 
-  toJSON() {
+  toJSON(): {[DataID]: ?Record} {
     const merged = {...this._base.toJSON()};
     this._sink.getRecordIDs().forEach(dataID => {
       const record = this.get(dataID);

@@ -5,9 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use intern::string_key::{Intern, StringKey};
+use common::DirectiveName;
+use intern::string_key::Intern;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref ARGUMENT_DEFINITION: StringKey = "argumentDefinitions".intern();
+    pub static ref ARGUMENT_DEFINITION: DirectiveName =
+        DirectiveName("argumentDefinitions".intern());
 }

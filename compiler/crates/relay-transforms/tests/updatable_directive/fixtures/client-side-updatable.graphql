@@ -1,0 +1,9 @@
+query clientSideOnlyQuery @updatable {
+  foo
+}
+
+# %extensions%
+
+extend type Query {
+  foo: Boolean
+}

@@ -5,13 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::compiler_state::ProjectName;
+use std::io;
+use std::path::PathBuf;
+
 use common::Diagnostic;
 use glob::PatternError;
 use persist_query::PersistError;
-use std::io;
-use std::path::PathBuf;
 use thiserror::Error;
+
+use crate::compiler_state::ProjectName;
 
 pub type Result<T> = std::result::Result<T, Error>;
 

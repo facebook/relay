@@ -11,11 +11,15 @@
 
 mod errors;
 
+use std::fmt;
+
 pub use errors::PersistError;
-use hyper::{Body, Client, Method, Request};
+use hyper::Body;
+use hyper::Client;
+use hyper::Method;
+use hyper::Request;
 use hyper_tls::HttpsConnector;
 use serde::Deserialize;
-use std::fmt;
 use url::form_urlencoded;
 
 #[derive(Debug, Deserialize)]

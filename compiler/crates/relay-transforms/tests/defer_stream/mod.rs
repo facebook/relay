@@ -7,7 +7,8 @@
 
 use fixture_tests::Fixture;
 use graphql_test_helpers::apply_transform_for_test;
-use relay_transforms::{transform_defer_stream, unwrap_custom_directive_selection};
+use relay_transforms::transform_defer_stream;
+use relay_transforms::unwrap_custom_directive_selection;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     apply_transform_for_test(fixture, |program| {

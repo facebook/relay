@@ -5,18 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::config::ArtifactForPersister;
+use std::collections::BTreeMap;
+use std::fs::File;
+use std::io::BufWriter;
+use std::io::Write;
+
 use async_trait::async_trait;
 use dashmap::DashMap;
 use md5::Md5;
 use persist_query::PersistError;
-use relay_config::{LocalPersistAlgorithm, LocalPersistConfig};
-use sha1::{Digest, Sha1};
+use relay_config::LocalPersistAlgorithm;
+use relay_config::LocalPersistConfig;
+use sha1::Digest;
+use sha1::Sha1;
 use sha2::Sha256;
-use std::collections::BTreeMap;
-use std::fs::File;
-use std::io::{BufWriter, Write};
 
+use crate::config::ArtifactForPersister;
 use crate::OperationPersister;
 
 pub struct LocalPersister {
@@ -43,18 +47,18 @@ impl LocalPersister {
         match self.config.algorithm {
             LocalPersistAlgorithm::MD5 => {
                 let mut md5 = Md5::new();
-                md5.input(operation_text);
-                hex::encode(md5.result())
+                md5.update(operation_text);
+                hex::encode(md5.finalize())
             }
             LocalPersistAlgorithm::SHA1 => {
                 let mut hash = Sha1::new();
-                hash.input(&operation_text);
-                hex::encode(hash.result())
+                hash.update(&operation_text);
+                hex::encode(hash.finalize())
             }
             LocalPersistAlgorithm::SHA256 => {
                 let mut hash = Sha256::new();
-                hash.input(&operation_text);
-                hex::encode(hash.result())
+                hash.update(&operation_text);
+                hex::encode(hash.finalize())
             }
         }
     }

@@ -11,7 +11,9 @@ query NullValuesQuery {
             kind: Query,
             name: WithLocation {
                 location: null-values.graphql:6:21,
-                item: "NullValuesQuery",
+                item: OperationDefinitionName(
+                    "NullValuesQuery",
+                ),
             },
             type_: Object(0),
             variable_definitions: [],
@@ -27,7 +29,9 @@ query NullValuesQuery {
                         Argument {
                             name: WithLocation {
                                 location: null-values.graphql:32:38,
-                                item: "filter",
+                                item: ArgumentName(
+                                    "filter",
+                                ),
                             },
                             value: WithLocation {
                                 location: null-values.graphql:40:52,
@@ -37,7 +41,9 @@ query NullValuesQuery {
                                             ConstantArgument {
                                                 name: WithLocation {
                                                     location: null-values.graphql:41:45,
-                                                    item: "date",
+                                                    item: ArgumentName(
+                                                        "date",
+                                                    ),
                                                 },
                                                 value: WithLocation {
                                                     location: null-values.graphql:47:51,

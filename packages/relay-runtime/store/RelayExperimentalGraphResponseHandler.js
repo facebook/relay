@@ -4,11 +4,12 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
+import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 import type {
   DataChunk,
   GraphModeResponse,
@@ -75,7 +76,7 @@ class GraphModeHandler {
     this._populateRecord(record, chunk);
   }
 
-  _populateRecord(parentRecord: Record, chunk: DataChunk) {
+  _populateRecord(parentRecord: Record, chunk: DataChunk): void {
     for (const [key, value] of Object.entries(chunk)) {
       switch (key) {
         case '$streamID':
@@ -98,7 +99,7 @@ class GraphModeHandler {
             } else if (value.hasOwnProperty('__ids')) {
               // Plural
               const streamIDs = ((value.__ids: any): Array<number | null>);
-              const ids = streamIDs.map(sID => {
+              const ids = streamIDs.map((sID): ?DataID => {
                 return sID == null ? null : this._lookupCacheKey(sID);
               });
               RelayModernRecord.setLinkedRecordIDs(parentRecord, key, ids);

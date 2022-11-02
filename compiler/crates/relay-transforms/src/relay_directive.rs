@@ -5,15 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::ArgumentName;
+use common::DirectiveName;
 use common::NamedItem;
 use graphql_ir::*;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
 use lazy_static::lazy_static;
 
 lazy_static! {
-    pub static ref RELAY_DIRECTIVE_NAME: StringKey = "relay".intern();
-    pub static ref PLURAL_ARG_NAME: StringKey = "plural".intern();
-    pub static ref MASK_ARG_NAME: StringKey = "mask".intern();
+    pub static ref RELAY_DIRECTIVE_NAME: DirectiveName = DirectiveName("relay".intern());
+    pub static ref PLURAL_ARG_NAME: ArgumentName = ArgumentName("plural".intern());
+    pub static ref MASK_ARG_NAME: ArgumentName = ArgumentName("mask".intern());
 }
 
 /// Easy access to the arguments of the @relay directive.

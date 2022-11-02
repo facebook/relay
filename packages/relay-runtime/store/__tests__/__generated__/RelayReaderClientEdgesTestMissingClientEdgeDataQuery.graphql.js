@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<34bb8da0c531a1202a47f4255a061b54>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<86f14783baa931721000095df273e36a>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,8 +18,8 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type UserReadsClientEdgeResolver$key = any;
-import userReadsClientEdgeResolver from "../resolvers/UserReadsClientEdgeResolver.js";
+import type { UserReadsClientEdgeResolver$key } from "./../resolvers/__generated__/UserReadsClientEdgeResolver.graphql";
+import {reads_client_edge as userReadsClientEdgeResolver} from "../resolvers/UserReadsClientEdgeResolver.js";
 // Type assertion validating that `userReadsClientEdgeResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userReadsClientEdgeResolver: (
@@ -60,7 +62,7 @@ var node/*: ConcreteRequest*/ = {
             },
             "kind": "RelayResolver",
             "name": "reads_client_edge",
-            "resolverModule": require('./../resolvers/UserReadsClientEdgeResolver.js'),
+            "resolverModule": require('./../resolvers/UserReadsClientEdgeResolver').reads_client_edge,
             "path": "me.reads_client_edge"
           }
         ],
@@ -85,10 +87,36 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "reads_client_edge",
             "args": null,
-            "kind": "ScalarField",
-            "name": "name",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "name": "client_edge",
+                  "args": null,
+                  "fragment": {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "name",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "User",
+                    "abstractKey": null
+                  },
+                  "kind": "RelayResolver",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

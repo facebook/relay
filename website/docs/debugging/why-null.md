@@ -10,7 +10,7 @@ keywords:
 - nullthrows
 ---
 
-import {FbInternalOnly} from 'internaldocs-fb-helpers';
+import {FbInternalOnly} from 'docusaurus-plugin-internaldocs-fb/internal';
 import DocsRating from '@site/src/core/DocsRating';
 
 There are a number of reasons that a field read by Relay can be null and some of them are obscure or unintuitive. When debugging an unexpectedly null value, it can be helpful to understand both the common cases and edge cases that can cause a field to be read as null. This document enumerates the cases that can lead to null or missing values with tips for figuring determining which case you are in.

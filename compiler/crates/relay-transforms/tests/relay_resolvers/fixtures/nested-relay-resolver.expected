@@ -30,11 +30,14 @@ fragment Foo_user on User {
   # RelayResolverMetadata {
   #     field_parent_type: "User",
   #     import_path: "HobbitNameResolver",
+  #     import_name: None,
   #     field_name: "hobbit_name",
   #     field_alias: None,
   #     field_path: "hobbit_name",
   #     field_arguments: [],
   #     live: false,
+  #     output_type_info: None,
+  #     fragment_data_injection_mode: None,
   # }
   
 }
@@ -45,11 +48,14 @@ fragment HobbitNameResolverFragment_name on User {
   # RelayResolverMetadata {
   #     field_parent_type: "User",
   #     import_path: "PopStarNameResolver",
+  #     import_name: None,
   #     field_name: "pop_star_name",
   #     field_alias: None,
   #     field_path: "pop_star_name",
   #     field_arguments: [],
   #     live: false,
+  #     output_type_info: None,
+  #     fragment_data_injection_mode: None,
   # }
   
 }
@@ -63,8 +69,3 @@ fragment PopStarNameResolverFragment_name on User {
     lastName
   }
 }
-
-# Implicit Dependencies:
-#
-# Foo_user --> {HobbitNameResolverFragment_name}
-# HobbitNameResolverFragment_name --> {PopStarNameResolverFragment_name}

@@ -5,21 +5,42 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::{fmt, hash::Hash};
+use std::fmt;
+use std::hash::Hash;
 
+use common::ArgumentName;
+use common::DirectiveName;
 use common::WithLocation;
 use dashmap::DashMap;
 use fnv::FnvBuildHasher;
-use intern::string_key::{Intern, StringKey};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::Lookup;
 use ouroboros::self_referencing;
 
-use crate::{
-    Argument, ArgumentDefinitions, Directive, Enum, EnumID, Field, FieldID, InputObject,
-    InputObjectID, Interface, InterfaceID, Object, ObjectID, Scalar, ScalarID, Schema, Type,
-    TypeReference, Union, UnionID,
-};
-
 use super::FlatBufferSchema;
+use crate::field_descriptions::CLIENT_ID_DESCRIPTION;
+use crate::field_descriptions::TYPENAME_DESCRIPTION;
+use crate::Argument;
+use crate::ArgumentDefinitions;
+use crate::Directive;
+use crate::Enum;
+use crate::EnumID;
+use crate::Field;
+use crate::FieldID;
+use crate::InputObject;
+use crate::InputObjectID;
+use crate::Interface;
+use crate::InterfaceID;
+use crate::Object;
+use crate::ObjectID;
+use crate::Scalar;
+use crate::ScalarID;
+use crate::Schema;
+use crate::Type;
+use crate::TypeReference;
+use crate::Union;
+use crate::UnionID;
 
 #[self_referencing]
 struct OwnedFlatBufferSchema {
@@ -43,9 +64,9 @@ pub struct SchemaWrapper {
     typename_field_name: StringKey,
     fetch_token_field_name: StringKey,
     is_fulfilled_field_name: StringKey,
-    unchecked_argument_type_sentinel: Option<TypeReference>,
+    unchecked_argument_type_sentinel: Option<TypeReference<Type>>,
 
-    directives: Cache<StringKey, Option<Directive>>,
+    directives: Cache<DirectiveName, Option<Directive>>,
     interfaces: Cache<InterfaceID, Interface>,
     unions: Cache<UnionID, Union>,
     input_objects: Cache<InputObjectID, InputObject>,
@@ -104,16 +125,18 @@ impl SchemaWrapper {
             parent_type: None,
             description: None,
         });
-        result.fields.get(CLIENTID_FIELD_ID, || Field {
-            name: WithLocation::generated(result.clientid_field_name),
-            is_extension: true,
-            arguments: ArgumentDefinitions::new(Default::default()),
-            type_: TypeReference::NonNull(Box::new(TypeReference::Named(
-                result.get_type("ID".intern()).unwrap(),
-            ))),
-            directives: Vec::new(),
-            parent_type: None,
-            description: None,
+        result.fields.get(CLIENTID_FIELD_ID, || -> Field {
+            Field {
+                name: WithLocation::generated(result.clientid_field_name),
+                is_extension: true,
+                arguments: ArgumentDefinitions::new(Default::default()),
+                type_: TypeReference::NonNull(Box::new(TypeReference::Named(
+                    result.get_type("ID".intern()).unwrap(),
+                ))),
+                directives: Vec::new(),
+                parent_type: None,
+                description: Some(*CLIENT_ID_DESCRIPTION),
+            }
         });
         result.fields.get(STRONGID_FIELD_ID, || Field {
             name: WithLocation::generated(result.strongid_field_name),
@@ -122,7 +145,7 @@ impl SchemaWrapper {
             type_: TypeReference::Named(result.get_type("ID".intern()).unwrap()),
             directives: Vec::new(),
             parent_type: None,
-            description: None,
+            description: Some(*TYPENAME_DESCRIPTION),
         });
         result.fields.get(FETCH_TOKEN_FIELD_ID, || Field {
             name: WithLocation::generated(result.fetch_token_field_name),
@@ -139,7 +162,7 @@ impl SchemaWrapper {
             name: WithLocation::generated(result.is_fulfilled_field_name),
             is_extension: true,
             arguments: ArgumentDefinitions::new(vec![Argument {
-                name: "name".intern(),
+                name: ArgumentName("name".intern()),
                 type_: TypeReference::NonNull(Box::new(TypeReference::Named(
                     result.get_type("String".intern()).unwrap(),
                 ))),
@@ -166,7 +189,7 @@ impl SchemaWrapper {
         self.flatbuffer_schema().has_type(type_name)
     }
 
-    pub fn has_directive(&self, name: StringKey) -> bool {
+    pub fn has_directive(&self, name: DirectiveName) -> bool {
         self.get_directive(name).is_some()
     }
 
@@ -223,14 +246,17 @@ impl Schema for SchemaWrapper {
         self.flatbuffer_schema().get_type(type_name)
     }
 
-    fn get_directive(&self, name: StringKey) -> Option<&Directive> {
+    fn get_directive(&self, name: DirectiveName) -> Option<&Directive> {
         self.directives
             .get(name, || {
-                match (name.lookup(), self.flatbuffer_schema().get_directive(name)) {
+                match (
+                    name.0.lookup(),
+                    self.flatbuffer_schema().get_directive(name),
+                ) {
                     ("defer", Some(mut directive)) | ("stream", Some(mut directive)) => {
                         let mut next_args: Vec<_> = directive.arguments.iter().cloned().collect();
                         for arg in next_args.iter_mut() {
-                            if arg.name.lookup() == "label" {
+                            if arg.name.0.lookup() == "label" {
                                 if let TypeReference::NonNull(of) = &arg.type_ {
                                     arg.type_ = *of.clone()
                                 };
@@ -277,11 +303,11 @@ impl Schema for SchemaWrapper {
 
     fn get_type_name(&self, type_: Type) -> StringKey {
         match type_ {
-            Type::Enum(id) => self.enum_(id).name.item,
-            Type::InputObject(id) => self.input_object(id).name.item,
-            Type::Interface(id) => self.interface(id).name.item,
-            Type::Object(id) => self.object(id).name.item,
-            Type::Scalar(id) => self.scalar(id).name.item,
+            Type::Enum(id) => self.enum_(id).name.item.0,
+            Type::InputObject(id) => self.input_object(id).name.item.0,
+            Type::Interface(id) => self.interface(id).name.item.0,
+            Type::Object(id) => self.object(id).name.item.0,
+            Type::Scalar(id) => self.scalar(id).name.item.0,
             Type::Union(id) => self.union(id).name.item,
         }
     }
@@ -364,7 +390,7 @@ impl Schema for SchemaWrapper {
             .cloned()
     }
 
-    fn unchecked_argument_type_sentinel(&self) -> &TypeReference {
+    fn unchecked_argument_type_sentinel(&self) -> &TypeReference<Type> {
         self.unchecked_argument_type_sentinel.as_ref().unwrap()
     }
 

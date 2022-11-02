@@ -37,9 +37,8 @@ pub enum ArgumentRoot<'a> {
 
 #[cfg(test)]
 mod test {
-    use crate::test::test_resolution;
-
     use super::*;
+    use crate::test::test_resolution;
 
     #[test]
     fn argument_root_scalar_field_constant_object_path() {

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -27,7 +27,7 @@ class Store {
   dispatch(action: {type: 'INCREMENT'}) {
     switch (action.type) {
       case 'INCREMENT':
-        this._state = this._state + 1;
+        this._state += 1;
         break;
       default:
         (action.type: empty);

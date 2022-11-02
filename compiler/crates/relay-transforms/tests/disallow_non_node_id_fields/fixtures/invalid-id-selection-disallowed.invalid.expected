@@ -1,0 +1,23 @@
+==================================== INPUT ====================================
+# expected-to-throw
+fragment UserWithDisallowedCustomIDType_fragment on UserWithDisallowedCustomIDType {
+    id
+    name
+}
+
+# %extensions%
+
+scalar DisallowedCustomIDType
+
+type UserWithDisallowedCustomIDType {
+    id: DisallowedCustomIDType!
+    name: String!
+}
+==================================== ERROR ====================================
+✖︎ Disallowed type `DisallowedCustomIDType!` of field `id` on parent type `UserWithDisallowedCustomIDType` cannot be used by Relay to identify entities. For a detailed explanation, check out https://relay.dev/docs/debugging/disallowed-id-types-error
+
+  <generated>:2:56
+    1 │ # expected-to-throw
+    2 │ fragment UserWithDisallowedCustomIDType_fragment on UserWithDisallowedCustomIDType {
+      │                                                        ^^
+    3 │     id

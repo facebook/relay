@@ -6,14 +6,13 @@
  *
  * @flow strict-local
  * @format
- * @emails oncall+relay
+ * @oncall relay
  */
 
 'use strict';
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
-  NormalizationField,
   NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationModuleImport,
@@ -29,7 +28,6 @@ import type {
   NormalizationSelector,
   OperationLoader,
   ReactFlightReachableExecutableDefinitions,
-  Record,
   RecordSource,
 } from './RelayStoreTypes';
 
@@ -46,7 +44,7 @@ const RelayModernRecord = require('./RelayModernRecord');
 const {EXISTENT, UNKNOWN} = require('./RelayRecordState');
 const RelayStoreReactFlightUtils = require('./RelayStoreReactFlightUtils');
 const RelayStoreUtils = require('./RelayStoreUtils');
-const {generateTypeID} = require('./TypeID');
+const {generateTypeID, TYPE_SCHEMA_TYPE} = require('./TypeID');
 const invariant = require('invariant');
 
 export type Availability = {
@@ -66,6 +64,7 @@ const {
   LINKED_FIELD,
   LINKED_HANDLE,
   MODULE_IMPORT,
+  RELAY_RESOLVER,
   SCALAR_FIELD,
   SCALAR_HANDLE,
   STREAM,
@@ -176,6 +175,8 @@ class DataChecker {
       const recordSourceProxy = new RelayRecordSourceProxy(
         mutator,
         this._getDataID,
+        undefined,
+        this._handlers,
       );
       tuple = [mutator, recordSourceProxy];
       this._mutatorRecordSourceProxyCache.set(actorIdentifier, tuple);
@@ -184,6 +185,7 @@ class DataChecker {
   }
 
   check(node: NormalizationNode, dataID: DataID): Availability {
+    this._assignClientAbstractTypes(node);
     this._traverse(node, dataID);
 
     return this._recordWasMissing === true
@@ -210,28 +212,6 @@ class DataChecker {
     this._recordWasMissing = true;
   }
 
-  _getDataForHandlers(
-    field: NormalizationField,
-    dataID: DataID,
-  ): {
-    args: Variables,
-    record: ?Record,
-    ...
-  } {
-    return {
-      /* $FlowFixMe[class-object-subtyping] added when improving typing for
-       * this parameters */
-      args: field.args ? getArgumentValues(field.args, this._variables) : {},
-      // Getting a snapshot of the record state is potentially expensive since
-      // we will need to merge the sink and source records. Since we do not create
-      // any new records in this process, it is probably reasonable to provide
-      // handlers with a copy of the source record.
-      // The only thing that the provided record will not contain is fields
-      // added by previous handlers.
-      record: this._source.get(dataID),
-    };
-  }
-
   _handleMissingScalarField(
     field: NormalizationScalarField,
     dataID: DataID,
@@ -239,12 +219,15 @@ class DataChecker {
     if (field.name === 'id' && field.alias == null && isClientID(dataID)) {
       return undefined;
     }
-    const {args, record} = this._getDataForHandlers(field, dataID);
+    const args =
+      field.args != undefined
+        ? getArgumentValues(field.args, this._variables)
+        : {};
     for (const handler of this._handlers) {
       if (handler.kind === 'scalar') {
         const newValue = handler.handle(
           field,
-          record,
+          this._recordSourceProxy.get(dataID),
           args,
           this._recordSourceProxy,
         );
@@ -260,12 +243,15 @@ class DataChecker {
     field: NormalizationLinkedField,
     dataID: DataID,
   ): ?DataID {
-    const {args, record} = this._getDataForHandlers(field, dataID);
+    const args =
+      field.args != undefined
+        ? getArgumentValues(field.args, this._variables)
+        : {};
     for (const handler of this._handlers) {
       if (handler.kind === 'linked') {
         const newValue = handler.handle(
           field,
-          record,
+          this._recordSourceProxy.get(dataID),
           args,
           this._recordSourceProxy,
         );
@@ -284,12 +270,15 @@ class DataChecker {
     field: NormalizationLinkedField,
     dataID: DataID,
   ): ?Array<?DataID> {
-    const {args, record} = this._getDataForHandlers(field, dataID);
+    const args =
+      field.args != undefined
+        ? getArgumentValues(field.args, this._variables)
+        : {};
     for (const handler of this._handlers) {
       if (handler.kind === 'pluralLinked') {
         const newValue = handler.handle(
           field,
-          record,
+          this._recordSourceProxy.get(dataID),
           args,
           this._recordSourceProxy,
         );
@@ -473,6 +462,11 @@ class DataChecker {
           }
           this._traverseSelections(selection.fragment.selections, dataID);
           break;
+        case RELAY_RESOLVER:
+          if (selection.fragment) {
+            this._traverseSelections([selection.fragment], dataID);
+          }
+          break;
         default:
           (selection: empty);
           invariant(
@@ -592,6 +586,7 @@ class DataChecker {
       this._source = this._getSourceForActor(actorIdentifier);
       this._mutator = mutator;
       this._recordSourceProxy = recordSourceProxy;
+      this._assignClientAbstractTypes(field);
       this._traverse(field, linkedID);
       this._source = prevSource;
       this._mutator = prevMutator;
@@ -648,6 +643,27 @@ class DataChecker {
       }
     }
     this._variables = prevVariables;
+  }
+
+  // For abstract types defined in the client schema extension, we won't be
+  // getting `__is<AbstractType>` hints from the server. To handle this, the
+  // compiler attaches additional metadata on the normalization artifact,
+  // which we need to record into the store.
+  _assignClientAbstractTypes(node: NormalizationNode) {
+    const {clientAbstractTypes} = node;
+    if (clientAbstractTypes != null) {
+      for (const abstractType of Object.keys(clientAbstractTypes)) {
+        for (const concreteType of clientAbstractTypes[abstractType]) {
+          const typeID = generateTypeID(concreteType);
+          if (this._source.get(typeID) == null) {
+            this._mutator.create(typeID, TYPE_SCHEMA_TYPE);
+          }
+          if (this._mutator.getValue(typeID, abstractType) == null) {
+            this._mutator.setValue(typeID, abstractType, true);
+          }
+        }
+      }
+    }
   }
 }
 

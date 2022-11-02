@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<19517d825f5f6ae4f8b201c527120b2b>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<97b19e3d604a71ea8b7c17d0074ea57c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType = any;
+import type { RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment$fragmentType } from "./RelayModernEnvironmentExecuteWithNestedStreamTestFeedFragment.graphql";
 export type RelayModernEnvironmentExecuteWithNestedStreamTestFeedQuery$variables = {|
   enableStream: boolean,
 |};

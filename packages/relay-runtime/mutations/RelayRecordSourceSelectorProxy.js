@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -16,6 +17,7 @@ import type {
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
+  MissingFieldHandler,
   SingularReaderSelector,
   UpdatableData,
 } from '../store/RelayStoreTypes';
@@ -49,15 +51,18 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
   __mutator: RelayRecordSourceMutator;
   __recordSource: RecordSourceProxy;
   _readSelector: SingularReaderSelector;
+  _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
 
   constructor(
     mutator: RelayRecordSourceMutator,
     recordSource: RecordSourceProxy,
     readSelector: SingularReaderSelector,
+    missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
   ) {
     this.__mutator = mutator;
     this.__recordSource = recordSource;
     this._readSelector = readSelector;
+    this._missingFieldHandlers = missingFieldHandlers;
   }
 
   create(dataID: DataID, typeName: string): RecordProxy {
@@ -135,7 +140,12 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
     query: UpdatableQuery<TVariables, TData>,
     variables: TVariables,
   ): UpdatableData<TData> {
-    return readUpdatableQuery_EXPERIMENTAL(query, variables, this);
+    return readUpdatableQuery_EXPERIMENTAL(
+      query,
+      variables,
+      this,
+      this._missingFieldHandlers,
+    );
   }
 
   readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
@@ -146,6 +156,7 @@ class RelayRecordSourceSelectorProxy implements RecordSourceSelectorProxy {
       fragment,
       fragmentReference,
       this,
+      this._missingFieldHandlers,
     );
   }
 }

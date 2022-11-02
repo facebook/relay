@@ -51,25 +51,29 @@ RelayResolver(
         root_fragment: Some(
             WithLocation {
                 location: /path/to/test/fixture/relay-resolver.js:100:114,
-                item: "myRootFragment",
-            },
-        ),
-        edge_to: Some(
-            WithLocation {
-                location: /path/to/test/fixture/relay-resolver.js:78:82,
-                item: Named(
-                    NamedTypeAnnotation {
-                        name: Identifier {
-                            span: 78:82,
-                            token: Token {
-                                span: 78:82,
-                                kind: Identifier,
-                            },
-                            value: "Page",
-                        },
-                    },
+                item: FragmentDefinitionName(
+                    "myRootFragment",
                 ),
             },
+        ),
+        output_type: Some(
+            EdgeTo(
+                WithLocation {
+                    location: /path/to/test/fixture/relay-resolver.js:78:82,
+                    item: Named(
+                        NamedTypeAnnotation {
+                            name: Identifier {
+                                span: 78:82,
+                                token: Token {
+                                    span: 78:82,
+                                    kind: Identifier,
+                                },
+                                value: "Page",
+                            },
+                        },
+                    ),
+                },
+            ),
         ),
         description: Some(
             WithLocation {
@@ -81,5 +85,6 @@ RelayResolver(
         live: None,
         location: /path/to/test/fixture/relay-resolver.js:0:409,
         fragment_arguments: None,
+        named_import: None,
     },
 )

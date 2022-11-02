@@ -5,12 +5,21 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult, WithLocation};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::WithLocation;
 use errors::validate;
-use graphql_ir::{LinkedField, Program, ScalarField, ValidationMessage, Validator};
-use intern::string_key::{Intern, StringKey};
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use relay_config::SchemaConfig;
-use schema::{FieldID, SDLSchema, Schema};
+use schema::FieldID;
+use schema::SDLSchema;
+use schema::Schema;
 
 pub fn disallow_reserved_aliases(
     program: &Program,

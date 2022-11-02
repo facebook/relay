@@ -5,27 +5,39 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, FeatureFlag, FeatureFlags, NamedItem, SourceLocationKey};
+use std::sync::Arc;
+
+use common::ConsoleLogger;
+use common::FeatureFlag;
+use common::FeatureFlags;
+use common::NamedItem;
+use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::{
-    build_ir_with_extra_features, BuilderOptions, FragmentDefinition, FragmentVariablesSemantic,
-    OperationDefinition, Program, RelayMode,
-};
+use graphql_ir::build_ir_with_extra_features;
+use graphql_ir::BuilderOptions;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentVariablesSemantic;
+use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
+use graphql_ir::Program;
+use graphql_ir::RelayMode;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
-
 use intern::string_key::Intern;
-use relay_codegen::{
-    build_request_params, print_fragment, print_operation, print_request, JsModuleFormat,
-};
-use relay_compiler::{validate, ProjectConfig};
+use relay_codegen::build_request_params;
+use relay_codegen::print_fragment;
+use relay_codegen::print_operation;
+use relay_codegen::print_request;
+use relay_codegen::JsModuleFormat;
+use relay_compiler::validate;
+use relay_compiler::ProjectConfig;
 use relay_config::SchemaConfig;
-use relay_test_schema::{
-    get_test_schema_with_custom_id, get_test_schema_with_custom_id_with_extensions,
-};
-use relay_transforms::{apply_transforms, DIRECTIVE_SPLIT_OPERATION};
-use std::sync::Arc;
+use relay_test_schema::get_test_schema_with_custom_id;
+use relay_test_schema::get_test_schema_with_custom_id_with_extensions;
+use relay_transforms::apply_transforms;
+use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
@@ -74,6 +86,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_client_edges: FeatureFlag::Enabled,
         skip_printing_nulls: FeatureFlag::Disabled,
         enable_fragment_aliases: FeatureFlag::Enabled,
+        compact_query_text: FeatureFlag::Disabled,
+        use_named_imports_for_relay_resolvers: false,
+        relay_resolver_model_syntax_enabled: false,
+        relay_resolver_enable_terse_syntax: false,
     };
 
     let project_config = ProjectConfig {
@@ -103,7 +119,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let mut operations: Vec<&std::sync::Arc<OperationDefinition>> =
         programs.normalization.operations().collect();
-    operations.sort_by_key(|operation| operation.name.item);
+    operations.sort_by_key(|operation| operation.name.item.0);
     let result = operations
         .into_iter()
         .map(|operation| {
@@ -117,21 +133,27 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                     print_operation(&schema, operation, &project_config, &mut import_statements);
                 format!("{}{}", import_statements, operation)
             } else {
-                let name = operation.name.item;
-                let print_operation_node = programs.operation_text.operation(name);
+                let name = operation.name.item.0;
+                let print_operation_node = programs
+                    .operation_text
+                    .operation(OperationDefinitionName(name));
                 let text = print_operation_node.map_or_else(
                     || "Query Text is Empty.".to_string(),
                     |print_operation_node| {
-                        print_full_operation(&programs.operation_text, print_operation_node)
+                        print_full_operation(
+                            &programs.operation_text,
+                            print_operation_node,
+                            Default::default(),
+                        )
                     },
                 );
 
                 let reader_operation = programs
                     .reader
-                    .operation(name)
+                    .operation(OperationDefinitionName(name))
                     .expect("a reader fragment should be generated for this operation");
                 let operation_fragment = FragmentDefinition {
-                    name: reader_operation.name,
+                    name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
                     variable_definitions: reader_operation.variable_definitions.clone(),
                     selections: reader_operation.selections.clone(),
                     used_global_variables: Default::default(),

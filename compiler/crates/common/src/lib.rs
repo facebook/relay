@@ -11,6 +11,7 @@
 
 mod console_logger;
 mod diagnostic;
+mod diagnostic_check;
 mod feature_flags;
 mod location;
 mod named_item;
@@ -21,16 +22,42 @@ mod span;
 pub mod sync;
 mod text_source;
 
-pub use console_logger::{print_time, ConsoleLogEvent, ConsoleLogger};
-pub use diagnostic::{
-    convert_diagnostic, diagnostics_result, get_diagnostics_data, Diagnostic, DiagnosticDisplay,
-    DiagnosticsResult, WithDiagnosticData, WithDiagnostics,
-};
-pub use feature_flags::{FeatureFlag, FeatureFlags};
-pub use location::{Location, SourceLocationKey, WithLocation};
-pub use lsp_types::{DiagnosticSeverity, DiagnosticTag};
-pub use named_item::{Named, NamedItem};
-pub use perf_logger::{NoopPerfLogger, NoopPerfLoggerEvent, PerfLogEvent, PerfLogger};
+pub use console_logger::print_time;
+pub use console_logger::ConsoleLogEvent;
+pub use console_logger::ConsoleLogger;
+pub use diagnostic::diagnostics_result;
+pub use diagnostic::get_diagnostics_data;
+pub use diagnostic::Diagnostic;
+pub use diagnostic::DiagnosticDisplay;
+pub use diagnostic::DiagnosticRelatedInformation;
+pub(crate) use diagnostic::Diagnostics;
+pub use diagnostic::DiagnosticsResult;
+pub use diagnostic::WithDiagnosticData;
+pub use diagnostic::WithDiagnostics;
+pub use diagnostic_check::escalate_and_check;
+pub use diagnostic_check::CriticalDiagnostics;
+pub use diagnostic_check::DiagnosticCheck;
+pub use diagnostic_check::StableDiagnostics;
+pub use feature_flags::FeatureFlag;
+pub use feature_flags::FeatureFlags;
+pub use location::Location;
+pub use location::SourceLocationKey;
+pub use location::WithLocation;
+pub use lsp_types::DiagnosticSeverity;
+pub use lsp_types::DiagnosticTag;
+pub use named_item::ArgumentName;
+pub use named_item::DirectiveName;
+pub use named_item::EnumName;
+pub use named_item::InputObjectName;
+pub use named_item::InterfaceName;
+pub use named_item::Named;
+pub use named_item::NamedItem;
+pub use named_item::ObjectName;
+pub use named_item::ScalarName;
+pub use perf_logger::NoopPerfLogger;
+pub use perf_logger::NoopPerfLoggerEvent;
+pub use perf_logger::PerfLogEvent;
+pub use perf_logger::PerfLogger;
 pub use pointer_address::PointerAddress;
 pub use rollout::Rollout;
 pub use span::Span;

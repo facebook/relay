@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -18,8 +18,10 @@
  *
  * Say `Hello ${world}!`
  */
-function helloWorldResolver(args: {world: string}): string {
+function hello(args: {world: string}): string {
   return `Hello, ${args.world}!`;
 }
 
-module.exports = helloWorldResolver;
+module.exports = {
+  hello,
+};

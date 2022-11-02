@@ -5,11 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 'use strict';
-
-const path = require('path');
 
 /**
  * This file is a fork from fbjs's transform of the same name. It has been

@@ -17,7 +17,9 @@ query TestQuery {
             kind: Query,
             name: WithLocation {
                 location: field-arguments.graphql:6:15,
-                item: "TestQuery",
+                item: OperationDefinitionName(
+                    "TestQuery",
+                ),
             },
             type_: Object(0),
             variable_definitions: [],
@@ -33,7 +35,9 @@ query TestQuery {
                         Argument {
                             name: WithLocation {
                                 location: field-arguments.graphql:25:31,
-                                item: "number",
+                                item: ArgumentName(
+                                    "number",
+                                ),
                             },
                             value: WithLocation {
                                 location: field-arguments.graphql:33:36,
@@ -68,7 +72,9 @@ query TestQuery {
                         Argument {
                             name: WithLocation {
                                 location: field-arguments.graphql:65:76,
-                                item: "environment",
+                                item: ArgumentName(
+                                    "environment",
+                                ),
                             },
                             value: WithLocation {
                                 location: field-arguments.graphql:78:81,
@@ -103,7 +109,9 @@ query TestQuery {
                         Argument {
                             name: WithLocation {
                                 location: field-arguments.graphql:133:138,
-                                item: "query",
+                                item: ArgumentName(
+                                    "query",
+                                ),
                             },
                             value: WithLocation {
                                 location: field-arguments.graphql:140:156,
@@ -113,7 +121,9 @@ query TestQuery {
                                             ConstantArgument {
                                                 name: WithLocation {
                                                     location: field-arguments.graphql:141:146,
-                                                    item: "query",
+                                                    item: ArgumentName(
+                                                        "query",
+                                                    ),
                                                 },
                                                 value: WithLocation {
                                                     location: field-arguments.graphql:148:155,

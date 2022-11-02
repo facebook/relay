@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -38,7 +38,6 @@ const getRelayHandleKey = require('../../util/getRelayHandleKey');
 const RelayFeatureFlags = require('../../util/RelayFeatureFlags');
 const {check} = require('../DataChecker');
 const defaultGetDataID = require('../defaultGetDataID');
-const RelayModernRecord = require('../RelayModernRecord');
 const {createNormalizationSelector} = require('../RelayModernSelector');
 const RelayModernStore = require('../RelayModernStore');
 const RelayRecordSource = require('../RelayRecordSource');
@@ -2179,7 +2178,7 @@ describe('check()', () => {
             handle: (field, record, argValues) => {
               if (
                 record &&
-                RelayModernRecord.getDataID(record) === '1' &&
+                record?.getDataID() === '1' &&
                 field.name === 'firstName'
               ) {
                 return 'Alice';
@@ -2189,7 +2188,7 @@ describe('check()', () => {
           {
             kind: 'linked',
             handle: (field, record, argValues) => {
-              const id = record && RelayModernRecord.getDataID(record);
+              const id = record?.getDataID();
               if (
                 field.name === 'profilePicture' &&
                 record &&
@@ -3270,5 +3269,99 @@ describe('check()', () => {
       });
       expect(target.size()).toBe(0);
     });
+  });
+
+  it('should assign client-only abstract type information to the target source', () => {
+    graphql`
+      fragment DataCheckerTestClient2Interface on ClientInterface {
+        description
+      }
+    `;
+    const clientQuery = graphql`
+      query DataCheckerTestClient2AbstractQuery {
+        client_interface {
+          ...DataCheckerTestClient2Interface
+        }
+      }
+    `;
+    const source = RelayRecordSource.create();
+    const target = RelayRecordSource.create();
+    check(
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      createNormalizationSelector(
+        getRequest(clientQuery).operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(target.toJSON()).toEqual({
+      'client:__type:ClientTypeImplementingClientInterface': {
+        __id: 'client:__type:ClientTypeImplementingClientInterface',
+        __typename: '__TypeSchema',
+        __isClientInterface: true,
+      },
+      'client:__type:OtherClientTypeImplementingClientInterface': {
+        __id: 'client:__type:OtherClientTypeImplementingClientInterface',
+        __typename: '__TypeSchema',
+        __isClientInterface: true,
+      },
+    });
+  });
+
+  it('should assign client-only abstract type information to the target source if it is not available in the source', () => {
+    graphql`
+      fragment DataCheckerTestClientInterface on ClientInterface {
+        description
+      }
+    `;
+    const clientQuery = graphql`
+      query DataCheckerTestClientAbstractQuery {
+        client_interface {
+          ...DataCheckerTestClientInterface
+        }
+      }
+    `;
+    const source = RelayRecordSource.create({
+      'client:root': {
+        __id: 'client:root',
+        __typename: '__Root',
+        client_interface: {__ref: 'object-1'},
+      },
+      'client:__type:ClientTypeImplementingClientInterface': {
+        __id: 'client:__type:ClientTypeImplementingClientInterface',
+        __typename: '__TypeSchema',
+        __isClientInterface: true,
+      },
+      'client:__type:OtherClientTypeImplementingClientInterface': {
+        __id: 'client:__type:OtherClientTypeImplementingClientInterface',
+        __typename: '__TypeSchema',
+        __isClientInterface: true,
+      },
+      'object-1': {
+        __id: 'object-1',
+        __typename: 'ClientTypeImplementingClientInterface',
+        id: 'object-1',
+      },
+    });
+    const target = RelayRecordSource.create();
+    check(
+      () => source,
+      () => target,
+      INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
+      createNormalizationSelector(
+        getRequest(clientQuery).operation,
+        'client:root',
+        {},
+      ),
+      [],
+      null,
+      defaultGetDataID,
+    );
+    expect(target.toJSON()).toEqual({});
   });
 });

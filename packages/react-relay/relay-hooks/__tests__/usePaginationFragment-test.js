@@ -4,12 +4,13 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
+
 import type {
   usePaginationFragmentTestStoryFragmentRefetchQuery$data,
   usePaginationFragmentTestStoryFragmentRefetchQuery$variables,
@@ -118,11 +119,11 @@ describe.each([
   let unsubscribe;
 
   class ErrorBoundary extends React.Component<any, any> {
-    state = {error: null};
+    state: {error: ?Error} = {error: null};
     componentDidCatch(error: Error) {
       this.setState({error});
     }
-    render() {
+    render(): React.Node {
       const {children, fallback} = this.props;
       const {error} = this.state;
       if (error) {
@@ -133,7 +134,7 @@ describe.each([
   }
 
   function usePaginationFragment(fragmentNode: any, fragmentRef: any) {
-    const {data, ...result} = usePaginationFragmentOriginal(
+    const {data, ...result} = usePaginationFragmentOriginal<any, any>(
       fragmentNode,
       fragmentRef,
     );
@@ -184,6 +185,7 @@ describe.each([
   }
 
   function resolveQuery(payload: mixed) {
+    // $FlowFixMe[incompatible-call]
     dataSource.next(payload);
     dataSource.complete();
   }

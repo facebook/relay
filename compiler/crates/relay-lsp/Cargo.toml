@@ -23,9 +23,9 @@ graphql-text-printer = { path = "../graphql-text-printer" }
 graphql-watchman = { path = "../graphql-watchman" }
 intern = { path = "../intern" }
 itertools = "0.10.3"
-log = { version = "0.4.14", features = ["kv_unstable", "kv_unstable_std"] }
+log = { version = "0.4.17", features = ["kv_unstable", "kv_unstable_std"] }
 lsp-server = "0.5.2"
-lsp-types = "0.89.0"
+lsp-types = "0.93.0"
 percent-encoding = "2.1"
 rand = { version = "0.8", features = ["small_rng"] }
 rayon = "1.2"
@@ -38,7 +38,7 @@ schema-documentation = { path = "../schema-documentation" }
 schema-print = { path = "../schema-print" }
 serde = { version = "1.0.136", features = ["derive", "rc"] }
 serde_json = { version = "1.0.79", features = ["float_roundtrip", "unbounded_depth"] }
-tokio = { version = "1.15", features = ["full", "test-util", "tracing"] }
+tokio = { version = "1.21.2", features = ["full", "test-util", "tracing"] }
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

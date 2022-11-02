@@ -7,17 +7,32 @@
 
 use std::cmp::Reverse;
 
-use crate::util::format_provided_variable_name;
-use common::{Diagnostic, DiagnosticsResult, Location, Named, NamedItem, WithLocation};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::Named;
+use common::NamedItem;
+use common::WithLocation;
 use fnv::FnvHashMap;
-use graphql_ir::{
-    FragmentDefinition, Program, ProvidedVariableMetadata, Transformed, TransformedValue,
-    Transformer, Variable, VariableDefinition,
-};
-use intern::string_key::{Intern, StringKey};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::Program;
+use graphql_ir::ProvidedVariableMetadata;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use graphql_ir::Variable;
+use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
 use itertools::Itertools;
-use schema::{SDLSchema, Schema, TypeReference};
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
+use schema::TypeReference;
 use thiserror::Error;
+
+use crate::util::format_provided_variable_name;
 
 /// This transform applies provided variables in each fragment.
 ///  - Rename all uses of provided variables (in values)
@@ -44,7 +59,7 @@ struct ProvidedVariableDefinitions {
     //  provided variable definitions.
     // We need to keep track of usages under each definition for stable
     //  error reporting.
-    usages_map: FnvHashMap<(StringKey, TypeReference), Vec<Location>>,
+    usages_map: FnvHashMap<(StringKey, TypeReference<Type>), Vec<Location>>,
 }
 
 impl ProvidedVariableDefinitions {
@@ -108,9 +123,9 @@ impl ProvidedVariableDefinitions {
 
 struct ProvidedVariableFragmentTransform<'schema> {
     schema: &'schema SDLSchema,
-    all_provided_variables: FnvHashMap<StringKey, ProvidedVariableDefinitions>,
+    all_provided_variables: FnvHashMap<VariableName, ProvidedVariableDefinitions>,
     // fragment local identifier --> transformed identifier
-    in_scope_providers: FnvHashMap<StringKey, StringKey>,
+    in_scope_providers: FnvHashMap<VariableName, VariableName>,
 }
 
 impl<'schema> ProvidedVariableFragmentTransform<'schema> {
@@ -133,7 +148,7 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
 
     fn add_provided_variable(
         &mut self,
-        transformed_name: StringKey,
+        transformed_name: VariableName,
         module_name: StringKey,
         variable_def: &VariableDefinition,
     ) {
@@ -175,7 +190,7 @@ impl<'schema> ProvidedVariableFragmentTransform<'schema> {
 }
 
 impl<'schema> Transformer for ProvidedVariableFragmentTransform<'schema> {
-    const NAME: &'static str = "ApplyFragmentProvidedVariables";
+    const NAME: &'static str = "ProvidedVariableFragmentTransform";
     const VISIT_ARGUMENTS: bool = true;
     const VISIT_DIRECTIVES: bool = true;
 

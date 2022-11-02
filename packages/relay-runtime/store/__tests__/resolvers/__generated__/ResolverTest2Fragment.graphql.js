@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1e32ee69fa437a9b58401f44e52373b3>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<b256dbf827dbf93bd48ecb38442d98a0>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,9 +18,9 @@
 
 /*::
 import type { ReaderFragment, RefetchableFragment } from 'relay-runtime';
-type UserGreetingResolver$key = any;
+import type { UserGreetingResolver$key } from "./UserGreetingResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import userGreetingResolver from "../UserGreetingResolver.js";
+import {greeting as userGreetingResolver} from "../UserGreetingResolver.js";
 // Type assertion validating that `userGreetingResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userGreetingResolver: (
@@ -63,7 +65,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "greeting",
-      "resolverModule": require('./../UserGreetingResolver.js'),
+      "resolverModule": require('./../UserGreetingResolver').greeting,
       "path": "greeting"
     },
     {

@@ -70,9 +70,8 @@ pub enum ConstantValueRoot<'a> {
 
 #[cfg(test)]
 mod test {
-    use crate::test::test_resolution;
-
     use super::*;
+    use crate::test::test_resolution;
 
     #[test]
     fn constant_value_root_variable_definition_simple_boolean() {

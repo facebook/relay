@@ -5,10 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::Named;
+use common::Span;
+use intern::string_key::StringKey;
+
 use super::constant_value::ConstantArgument;
 use super::primitive::*;
-use common::{Named, Span};
-use intern::string_key::StringKey;
 
 #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub struct ConstantDirective {
@@ -19,6 +21,7 @@ pub struct ConstantDirective {
 }
 
 impl Named for ConstantDirective {
+    type Name = StringKey;
     fn name(&self) -> StringKey {
         self.name.value
     }

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -65,7 +65,7 @@ function useMutation<TMutation: MutationParameters>(
   const [isMutationInFlight, setMutationInFlight] = useState(false);
 
   const cleanup = useCallback(
-    disposable => {
+    (disposable: Disposable) => {
       if (
         environmentRef.current === environment &&
         mutationRef.current === mutation
@@ -98,7 +98,7 @@ function useMutation<TMutation: MutationParameters>(
       if (isMountedRef.current) {
         setMutationInFlight(true);
       }
-      const disposable = commitMutationFn(environment, {
+      const disposable: Disposable = commitMutationFn(environment, {
         ...config,
         mutation,
         onCompleted: (response, errors) => {

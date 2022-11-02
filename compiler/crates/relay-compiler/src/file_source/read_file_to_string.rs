@@ -7,7 +7,8 @@
 
 use super::File;
 use super::FileSourceResult;
-use crate::errors::{Error, Result};
+use crate::errors::Error;
+use crate::errors::Result;
 
 /// Reads a file into a string.
 pub fn read_file_to_string(file_source_result: &FileSourceResult, file: &File) -> Result<String> {

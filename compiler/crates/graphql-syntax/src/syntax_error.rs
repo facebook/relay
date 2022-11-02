@@ -5,8 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::lexer::TokenKind;
 use thiserror::Error;
+
+use crate::lexer::TokenKind;
 
 #[derive(Clone, Copy, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]
 pub enum SyntaxError {

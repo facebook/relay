@@ -5,36 +5,47 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
+use std::sync::RwLock;
 
-use common::{PerfLogEvent, PerfLogger};
+use common::PerfLogEvent;
+use common::PerfLogger;
 use dashmap::mapref::entry::Entry;
 use fnv::FnvHashMap;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_watchman::WatchmanFileSourceSubscriptionNextChange;
-use intern::string_key::{StringKey, StringKeySet};
+use intern::string_key::StringKey;
 use log::debug;
 use rayon::iter::ParallelIterator;
-use relay_compiler::{
-    build_project::{get_project_asts, ProjectAstData, ProjectAsts},
-    build_raw_program, build_schema,
-    compiler_state::{CompilerState, ProjectName},
-    config::ProjectConfig,
-    errors::BuildProjectError,
-    errors::Error,
-    transform_program, validate_program, BuildProjectFailure, FileSource, FileSourceResult,
-    FileSourceSubscription, FileSourceSubscriptionNextChange, GraphQLAsts,
-    SourceControlUpdateStatus,
-};
-use relay_transforms::find_resolver_dependencies;
+use relay_compiler::build_project::get_project_asts;
+use relay_compiler::build_project::ProjectAstData;
+use relay_compiler::build_project::ProjectAsts;
+use relay_compiler::build_raw_program;
+use relay_compiler::build_schema;
+use relay_compiler::compiler_state::CompilerState;
+use relay_compiler::compiler_state::ProjectName;
+use relay_compiler::config::ProjectConfig;
+use relay_compiler::errors::BuildProjectError;
+use relay_compiler::errors::Error;
+use relay_compiler::transform_program;
+use relay_compiler::validate_program;
+use relay_compiler::BuildProjectFailure;
+use relay_compiler::FileSource;
+use relay_compiler::FileSourceResult;
+use relay_compiler::FileSourceSubscription;
+use relay_compiler::FileSourceSubscriptionNextChange;
+use relay_compiler::GraphQLAsts;
+use relay_compiler::SourceControlUpdateStatus;
 use schema::SDLSchema;
 use schema_documentation::SchemaDocumentation;
-use tokio::{task, task::JoinHandle};
+use tokio::task;
+use tokio::task::JoinHandle;
 
-use crate::{
-    status_updater::set_ready_status, status_updater::update_in_progress_status, LSPState,
-};
-
-use super::lsp_state::{ProjectStatus, Task};
+use super::lsp_state::ProjectStatus;
+use super::lsp_state::Task;
+use crate::status_updater::set_ready_status;
+use crate::status_updater::update_in_progress_status;
+use crate::LSPState;
 
 /// This structure is responsible for keeping schemas/programs in sync with the current state of the world
 pub(crate) struct LSPStateResources<
@@ -308,7 +319,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         let ProjectAstData {
             project_asts,
             base_fragment_names,
-        } = get_project_asts(graphql_asts_map, project_config)?;
+        } = get_project_asts(&schema, graphql_asts_map, project_config)?;
 
         // This will kick-off the validation for all synced sources
         self.lsp_state.schedule_task(Task::ValidateSyncedSources);
@@ -368,7 +379,7 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
         &self,
         project_config: &ProjectConfig,
         project_asts: ProjectAsts,
-        base_fragment_names: StringKeySet,
+        base_fragment_names: FragmentDefinitionNameSet,
         compiler_state: &CompilerState,
         graphql_asts: &FnvHashMap<ProjectName, GraphQLAsts>,
         schema: Arc<SDLSchema>,
@@ -389,7 +400,6 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
 
         let (base_program, _) = build_raw_program(
             project_config,
-            &compiler_state.implicit_dependencies.read().unwrap(),
             project_asts,
             schema,
             log_event,
@@ -414,28 +424,13 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
             }
         }
 
-        let (validation_results, _) = rayon::join(
-            || {
-                // Call validation rules that go beyond type checking.
-                validate_program(
-                    &self.lsp_state.config,
-                    project_config,
-                    &base_program,
-                    log_event,
-                )
-            },
-            || {
-                find_resolver_dependencies(
-                    &mut compiler_state
-                        .pending_implicit_dependencies
-                        .write()
-                        .unwrap(),
-                    &base_program,
-                );
-            },
-        );
-
-        validation_results?;
+        // Call validation rules that go beyond type checking.
+        validate_program(
+            &self.lsp_state.config,
+            project_config,
+            &base_program,
+            log_event,
+        )?;
 
         transform_program(
             project_config,

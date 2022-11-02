@@ -5,24 +5,43 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{ConsoleLogger, FeatureFlag, FeatureFlags, NamedItem, SourceLocationKey};
+use std::collections::HashMap;
+use std::sync::Arc;
+
+use common::ConsoleLogger;
+use common::FeatureFlag;
+use common::FeatureFlags;
+use common::NamedItem;
+use common::SourceLocationKey;
 use fixture_tests::Fixture;
-use graphql_ir::{
-    build_ir_with_extra_features, BuilderOptions, FragmentDefinition, FragmentVariablesSemantic,
-    OperationDefinition, Program, RelayMode,
-};
+use graphql_ir::build_ir_with_extra_features;
+use graphql_ir::BuilderOptions;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentVariablesSemantic;
+use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
+use graphql_ir::Program;
+use graphql_ir::RelayMode;
 use graphql_syntax::parse_executable;
 use graphql_test_helpers::diagnostics_to_sorted_string;
 use graphql_text_printer::print_full_operation;
-
 use intern::string_key::Intern;
-use relay_codegen::{
-    build_request_params, print_fragment, print_operation, print_request, JsModuleFormat,
-};
-use relay_compiler::{validate, ConfigFileProject, ProjectConfig};
-use relay_test_schema::{get_test_schema, get_test_schema_with_extensions};
-use relay_transforms::{apply_transforms, DIRECTIVE_SPLIT_OPERATION};
-use std::sync::Arc;
+use relay_codegen::build_request_params;
+use relay_codegen::print_fragment;
+use relay_codegen::print_operation;
+use relay_codegen::print_request;
+use relay_codegen::JsModuleFormat;
+use relay_compiler::find_duplicates;
+use relay_compiler::validate;
+use relay_compiler::ConfigFileProject;
+use relay_compiler::ProjectConfig;
+use relay_config::NonNodeIdFieldsConfig;
+use relay_config::SchemaConfig;
+use relay_test_schema::get_test_schema;
+use relay_test_schema::get_test_schema_with_extensions;
+use relay_transforms::apply_transforms;
+use relay_transforms::DIRECTIVE_SPLIT_OPERATION;
 
 pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
     let source_location = SourceLocationKey::standalone(fixture.file_name);
@@ -97,14 +116,31 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         enable_client_edges: FeatureFlag::Enabled,
         skip_printing_nulls: FeatureFlag::Disabled,
         enable_fragment_aliases: FeatureFlag::Enabled,
+        compact_query_text: FeatureFlag::Disabled,
+        use_named_imports_for_relay_resolvers: false,
+        relay_resolver_model_syntax_enabled: false,
+        relay_resolver_enable_terse_syntax: false,
     };
 
     let default_project_config = ProjectConfig {
         name: "test".intern(),
         feature_flags: Arc::new(feature_flags),
         js_module_format: JsModuleFormat::Haste,
+        schema_config: SchemaConfig {
+            non_node_id_fields: Some(NonNodeIdFieldsConfig {
+                allowed_id_types: {
+                    let mut mappings = HashMap::new();
+
+                    mappings.insert("NonNode".intern(), "String".intern());
+
+                    mappings
+                },
+            }),
+            ..Default::default()
+        },
         ..Default::default()
     };
+
     // Adding %project_config section on top of the fixture will allow
     // us to validate output changes with different configurations
     let parts: Vec<_> = fixture.content.split("%project_config%").collect();
@@ -116,6 +152,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                 ProjectConfig {
                     schema_config: config_file_project.schema_config,
                     typegen_config: config_file_project.typegen_config,
+                    module_import_config: config_file_project.module_import_config,
                     feature_flags: config_file_project
                         .feature_flags
                         .map_or(default_project_config.feature_flags, |flags| {
@@ -142,6 +179,10 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let ast = parse_executable(base, source_location)
         .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+
+    find_duplicates(&ast.definitions, &[])
+        .map_err(|diagnostics| diagnostics_to_sorted_string(fixture.content, &diagnostics))?;
+
     let ir_result = build_ir_with_extra_features(
         &schema,
         &ast.definitions,
@@ -172,7 +213,7 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
 
     let mut operations: Vec<&std::sync::Arc<OperationDefinition>> =
         programs.normalization.operations().collect();
-    operations.sort_by_key(|operation| operation.name.item);
+    operations.sort_by_key(|operation| operation.name.item.0);
     let result = operations
         .into_iter()
         .map(|operation| {
@@ -186,21 +227,27 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
                     print_operation(&schema, operation, &project_config, &mut import_statements);
                 format!("{}{}", import_statements, operation)
             } else {
-                let name = operation.name.item;
-                let print_operation_node = programs.operation_text.operation(name);
+                let name = operation.name.item.0;
+                let print_operation_node = programs
+                    .operation_text
+                    .operation(OperationDefinitionName(name));
                 let text = print_operation_node.map_or_else(
                     || "Query Text is Empty.".to_string(),
                     |print_operation_node| {
-                        print_full_operation(&programs.operation_text, print_operation_node)
+                        print_full_operation(
+                            &programs.operation_text,
+                            print_operation_node,
+                            Default::default(),
+                        )
                     },
                 );
 
                 let reader_operation = programs
                     .reader
-                    .operation(name)
+                    .operation(OperationDefinitionName(name))
                     .expect("a reader fragment should be generated for this operation");
                 let operation_fragment = FragmentDefinition {
-                    name: reader_operation.name,
+                    name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
                     variable_definitions: reader_operation.variable_definitions.clone(),
                     selections: reader_operation.selections.clone(),
                     used_global_variables: Default::default(),

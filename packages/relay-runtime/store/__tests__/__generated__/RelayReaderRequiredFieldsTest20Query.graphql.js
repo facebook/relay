@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2bc3c93973b91e8d3162aa7ac7fd858a>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<c3c617904b619cc338f51661916c77ea>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayReaderRequiredFieldsTest2Fragment$fragmentType = any;
+import type { RelayReaderRequiredFieldsTest2Fragment$fragmentType } from "./RelayReaderRequiredFieldsTest2Fragment.graphql";
 export type RelayReaderRequiredFieldsTest20Query$variables = {||};
 export type RelayReaderRequiredFieldsTest20Query$data = {|
   +me: ?{|

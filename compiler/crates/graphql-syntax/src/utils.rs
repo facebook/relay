@@ -5,8 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::node::{ConstantArgument, ConstantDirective, FieldDefinition, InputValueDefinition};
 use intern::string_key::StringKey;
+
+use crate::node::ConstantArgument;
+use crate::node::ConstantDirective;
+use crate::node::FieldDefinition;
+use crate::node::InputValueDefinition;
 
 impl FieldDefinition {
     pub fn argument_named(&self, field_name: StringKey) -> Option<&InputValueDefinition> {

@@ -5,12 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
-/* eslint-disable lint/no-value-import */
 import classNames from 'classnames';
 import * as React from 'react';
-/* eslint-enable lint/no-value-import */
 
 const Container = props => {
   const containerClasses = classNames('container', props.className, {
@@ -37,7 +36,6 @@ const Container = props => {
   );
 };
 
-// eslint-disable-next-line lint/react-no-defaultProps
 Container.defaultProps = {
   background: null,
   padding: [],

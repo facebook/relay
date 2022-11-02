@@ -5,18 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use intern::string_key::StringKey;
-use relay_config::{TypegenConfig, TypegenLanguage};
-use std::{
-    cmp::Ordering,
-    fmt::{Result as FmtResult, Write},
-    ops::Deref,
-};
+use std::cmp::Ordering;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+use std::ops::Deref;
 
-use crate::{
-    flow::FlowPrinter, javascript::JavaScriptPrinter, typescript::TypeScriptPrinter,
-    FUTURE_ENUM_VALUE, KEY_FRAGMENT_SPREADS, KEY_FRAGMENT_TYPE, KEY_TYPENAME,
-};
+use intern::string_key::StringKey;
+use intern::Lookup;
+use relay_config::TypegenConfig;
+use relay_config::TypegenLanguage;
+
+use crate::flow::FlowPrinter;
+use crate::javascript::JavaScriptPrinter;
+use crate::typescript::TypeScriptPrinter;
+use crate::FUTURE_ENUM_VALUE;
+use crate::KEY_FRAGMENT_SPREADS;
+use crate::KEY_FRAGMENT_TYPE;
+use crate::KEY_TYPENAME;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum AST {
@@ -38,12 +43,21 @@ pub enum AST {
     Boolean,
     Callable(Box<AST>),
     Any,
+    Mixed,
     FragmentReference(SortedStringKeyList),
     FragmentReferenceType(StringKey),
     ReturnTypeOfFunctionWithName(StringKey),
     ReturnTypeOfMethodCall(Box<AST>, StringKey),
     ActorChangePoint(Box<AST>),
     AssertFunctionType(FunctionTypeAssertion),
+    GenericType {
+        outer: StringKey,
+        inner: Box<AST>,
+    },
+    PropertyType {
+        type_: Box<AST>,
+        property_name: StringKey,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -349,6 +363,13 @@ pub trait Writer: Write {
 
     fn write_import_module_default(&mut self, name: &str, from: &str) -> FmtResult;
 
+    fn write_import_module_named(
+        &mut self,
+        name: &str,
+        import_as: Option<&str>,
+        from: &str,
+    ) -> FmtResult;
+
     fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult;
 
     fn write_import_fragment_type(&mut self, types: &[&str], from: &str) -> FmtResult;
@@ -367,10 +388,10 @@ pub trait Writer: Write {
 #[cfg(test)]
 mod tests {
     use graphql_ir::reexport::Intern;
-
-    use crate::FUTURE_ENUM_VALUE;
+    use intern::Lookup;
 
     use super::StringLiteral;
+    use crate::FUTURE_ENUM_VALUE;
 
     #[test]
     fn ast_string_key_sort() {

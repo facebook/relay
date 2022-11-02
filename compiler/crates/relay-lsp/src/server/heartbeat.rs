@@ -7,9 +7,8 @@
 
 use lsp_types::request::Request;
 
-use crate::LSPRuntimeResult;
-
 use super::GlobalState;
+use crate::LSPRuntimeResult;
 
 pub(crate) struct HeartbeatRequest;
 

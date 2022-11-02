@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<06f2a3ef33db38dbae2e945fdae4cf13>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<941eeee7d34fd9a5e5e59daa54cf25ee>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type usePaginationFragmentTestUserFragmentWithStreaming$fragmentType = any;
+import type { usePaginationFragmentTestUserFragmentWithStreaming$fragmentType } from "./usePaginationFragmentTestUserFragmentWithStreaming.graphql";
 export type usePaginationFragmentTestUserQueryWithStreamingQuery$variables = {|
   after?: ?string,
   before?: ?string,

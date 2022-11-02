@@ -5,10 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::DEFER_STREAM_CONSTANTS;
+use std::iter;
+use std::sync::Arc;
+
 use common::NamedItem;
-use graphql_ir::{FragmentSpread, InlineFragment, Program, Selection, Transformed, Transformer};
-use std::{iter, sync::Arc};
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+
+use crate::DEFER_STREAM_CONSTANTS;
 
 /// Transform to unwrap selections wrapped in a InlineFragment with custom
 /// directive for printing

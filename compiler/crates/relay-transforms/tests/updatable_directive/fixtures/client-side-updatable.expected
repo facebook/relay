@@ -1,0 +1,12 @@
+==================================== INPUT ====================================
+query clientSideOnlyQuery @updatable {
+  foo
+}
+
+# %extensions%
+
+extend type Query {
+  foo: Boolean
+}
+==================================== OUTPUT ===================================
+OK

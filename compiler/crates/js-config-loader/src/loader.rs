@@ -5,13 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::ErrorCode;
-use serde::Deserialize;
-use serde_json::Value;
 use std::fs::File;
 use std::io::BufReader;
 use std::path::Path;
 use std::process::Command;
+
+use serde::Deserialize;
+use serde_json::Value;
+
+use crate::ErrorCode;
 
 pub trait Loader<T> {
     fn load(&self, path: &Path) -> Result<Option<T>, ErrorCode>;

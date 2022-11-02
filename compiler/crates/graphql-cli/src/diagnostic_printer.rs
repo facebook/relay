@@ -5,10 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use crate::SourcePrinter;
-use colored::*;
-use common::{Diagnostic, Location, SourceLocationKey, TextSource};
 use std::fmt::Write;
+
+use colored::Colorize;
+use common::Diagnostic;
+use common::Location;
+use common::SourceLocationKey;
+use common::TextSource;
+
+use crate::SourcePrinter;
+use crate::Style;
+use crate::Styles;
 
 pub struct DiagnosticPrinter<T: Sources> {
     sources: T,
@@ -38,35 +45,40 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
         writer: &mut W,
         diagnostic: &Diagnostic,
     ) -> std::fmt::Result {
-        match diagnostic.severity() {
-            common::DiagnosticSeverity::Error => {
-                writeln!(writer, "{}\n", format!("✖︎ {}", diagnostic.message()).red())?;
+        let (message, text_color): (String, Style) = match diagnostic.severity() {
+            common::DiagnosticSeverity::ERROR => {
+                (format!("✖︎ {}", diagnostic.message()), Styles::red)
             }
-            common::DiagnosticSeverity::Warning => {
-                writeln!(
-                    writer,
-                    "{}\n",
-                    format!("︎⚠ {}", diagnostic.message()).yellow()
-                )?;
+            common::DiagnosticSeverity::WARNING => {
+                (format!("︎⚠ {}", diagnostic.message()), Styles::yellow)
             }
-            common::DiagnosticSeverity::Information | common::DiagnosticSeverity::Hint => {
-                writeln!(writer, "{}\n", format!("ℹ {}", diagnostic.message()).blue())?;
+            common::DiagnosticSeverity::INFORMATION | common::DiagnosticSeverity::HINT => {
+                (format!("ℹ {}", diagnostic.message()), Styles::blue)
             }
-        }
-        self.write_source(writer, diagnostic.location())?;
+            _ => (format!("ℹ {}", diagnostic.message()), Styles::blue),
+        };
+
+        writeln!(writer, "{}\n", text_color(message))?;
+        self.write_source(writer, diagnostic.location(), text_color)?;
+
         for related_information in diagnostic.related_information() {
             writeln!(
                 writer,
                 "\n{}\n",
-                format!("  ℹ︎ {}", related_information.message).red()
+                text_color(format!("  ℹ︎ {}", related_information.message)),
             )?;
-            self.write_source(writer, related_information.location)?;
+            self.write_source(writer, related_information.location, text_color)?;
         }
         Ok(())
     }
 
     /// Writes the file path and slice of the source code for the given location.
-    fn write_source<W: Write>(&self, writer: &mut W, location: Location) -> std::fmt::Result {
+    fn write_source<W: Write>(
+        &self,
+        writer: &mut W,
+        location: Location,
+        highlight_color: Style,
+    ) -> std::fmt::Result {
         let source_printer = SourcePrinter::default();
         if let Some(source) = self.sources.get(location.source_location()) {
             let range = source.to_span_range(location.span());
@@ -76,7 +88,13 @@ impl<TSources: Sources> DiagnosticPrinter<TSources> {
                 location.source_location().path().underline(),
                 format!(":{}:{}", range.start.line + 1, range.start.character + 1).dimmed()
             )?;
-            source_printer.write_span(writer, location.span(), &source.text, source.line_index)?;
+            source_printer.write_span_with_highlight_style(
+                writer,
+                location.span(),
+                &source.text,
+                source.line_index,
+                highlight_color,
+            )?;
         } else {
             writeln!(
                 writer,

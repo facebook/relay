@@ -7,12 +7,18 @@
 
 use std::collections::VecDeque;
 
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use common::SourceLocationKey;
+use common::Span;
+use common::WithDiagnostics;
+use intern::string_key::Intern;
+use logos::Logos;
+
 use crate::lexer::TokenKind;
 use crate::node::*;
 use crate::syntax_error::SyntaxError;
-use common::{Diagnostic, DiagnosticsResult, Location, SourceLocationKey, Span, WithDiagnostics};
-use intern::string_key::Intern;
-use logos::Logos;
 
 type ParseResult<T> = Result<T, ()>;
 
@@ -107,6 +113,16 @@ impl<'a> Parser<'a> {
     pub fn parse_field_definition_stub(mut self) -> DiagnosticsResult<FieldDefinitionStub> {
         let stub = self.parse_field_definition_stub_impl();
         if self.errors.is_empty() {
+            Ok(stub.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
+    /// Parses a string containing a field definition
+    pub fn parse_field_definition(mut self) -> DiagnosticsResult<FieldDefinition> {
+        let stub = self.parse_field_definition_impl();
+        if self.errors.is_empty() {
             self.parse_eof()?;
             Ok(stub.unwrap())
         } else {
@@ -127,7 +143,7 @@ impl<'a> Parser<'a> {
         });
         WithDiagnostics {
             item: document,
-            errors: self.errors,
+            diagnostics: self.errors,
         }
     }
 
@@ -147,6 +163,15 @@ impl<'a> Parser<'a> {
         if self.errors.is_empty() {
             self.parse_eof()?;
             Ok(type_annotation.unwrap())
+        } else {
+            Err(self.errors)
+        }
+    }
+
+    pub fn parse_identifier_result(mut self) -> DiagnosticsResult<Identifier> {
+        let identifier = self.parse_identifier();
+        if self.errors.is_empty() {
+            Ok(identifier.unwrap())
         } else {
             Err(self.errors)
         }
@@ -860,7 +885,7 @@ impl<'a> Parser<'a> {
         self.parse_optional_delimited_nonempty_list(
             TokenKind::OpenBrace,
             TokenKind::CloseBrace,
-            Self::parse_field_definition,
+            Self::parse_field_definition_impl,
         )
     }
 
@@ -868,7 +893,7 @@ impl<'a> Parser<'a> {
      * FieldDefinition :
      *   - Description? Name ArgumentsDefinition? : Type Directives?
      */
-    fn parse_field_definition(&mut self) -> ParseResult<FieldDefinition> {
+    fn parse_field_definition_impl(&mut self) -> ParseResult<FieldDefinition> {
         let description = self.parse_optional_description();
         let name = self.parse_identifier()?;
         let arguments = self.parse_argument_defs()?;

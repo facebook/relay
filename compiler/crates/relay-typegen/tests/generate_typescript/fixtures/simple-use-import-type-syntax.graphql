@@ -1,0 +1,10 @@
+# typegen_config.use_import_type_syntax = true
+
+fragment LinkedField on User {
+  name
+  profilePicture {
+    uri
+    width
+    height
+  }
+}

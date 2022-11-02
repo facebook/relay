@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<71546d1df22976de93117f5b08ced0e5>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<22bf05d56f20475941fc3321defa591c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,16 +18,16 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type UserGreetingResolver$key = any;
-type UserProfilePictureResolver$key = any;
+import type { UserGreetingResolver$key } from "./UserGreetingResolver.graphql";
+import type { UserProfilePictureResolver$key } from "./UserProfilePictureResolver.graphql";
 import type { FragmentType } from "relay-runtime";
-import userGreetingResolver from "../UserGreetingResolver.js";
+import {greeting as userGreetingResolver} from "../UserGreetingResolver.js";
 // Type assertion validating that `userGreetingResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userGreetingResolver: (
   rootKey: UserGreetingResolver$key, 
 ) => mixed);
-import userUserProfilePictureUriWithScaleResolver from "../UserProfilePictureResolver.js";
+import {user_profile_picture_uri_with_scale as userUserProfilePictureUriWithScaleResolver} from "../UserProfilePictureResolver.js";
 // Type assertion validating that `userUserProfilePictureUriWithScaleResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userUserProfilePictureUriWithScaleResolver: (
@@ -69,7 +71,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "greeting",
-      "resolverModule": require('./../UserGreetingResolver.js'),
+      "resolverModule": require('./../UserGreetingResolver').greeting,
       "path": "greeting"
     },
     {
@@ -88,7 +90,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayResolver",
       "name": "user_profile_picture_uri_with_scale",
-      "resolverModule": require('./../UserProfilePictureResolver.js'),
+      "resolverModule": require('./../UserProfilePictureResolver').user_profile_picture_uri_with_scale,
       "path": "uri"
     }
   ],

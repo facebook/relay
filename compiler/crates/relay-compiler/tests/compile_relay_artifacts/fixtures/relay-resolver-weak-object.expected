@@ -1,0 +1,165 @@
+==================================== INPUT ====================================
+query relayResolverWeakObject_Query {
+  client_type {
+    __typename
+  }
+}
+
+# %extensions%
+
+scalar MyClientTypeModel @__RelayCustomScalar(path: "/path/to/test/fixture/weak-type.js", export_name: "MyClientType")
+
+type MyClientType @__RelayResolverModel @RelayOutputType @__RelayWeakObject {
+  __relay_model_instance: MyClientTypeModel
+}
+
+extend type Query {
+  client_type: MyClientType @relay_resolver(
+      fragment_name: "MyClientType____relay_model_instance"
+      import_path: "./path/to/ClientTypeResolver.js"
+      has_output_type: true
+    )
+}
+==================================== OUTPUT ===================================
+{
+  "kind": "SplitOperation",
+  "metadata": {},
+  "name": "Query__client_type$normalization",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "__relay_model_instance",
+          "storageKey": null
+        }
+      ]
+    }
+  ]
+}
+
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": {
+      "hasClientEdges": true
+    },
+    "name": "relayResolverWeakObject_Query",
+    "selections": [
+      {
+        "kind": "ClientEdgeToClientObject",
+        "concreteType": "MyClientType",
+        "backingField": {
+          "alias": null,
+          "args": null,
+          "fragment": {
+            "args": null,
+            "kind": "FragmentSpread",
+            "name": "MyClientType____relay_model_instance"
+          },
+          "kind": "RelayResolver",
+          "name": "client_type",
+          "resolverModule": require('relay-runtime/experimental').weakObjectWrapper(require('ClientTypeResolver'), '__relay_model_instance', false),
+          "path": "client_type",
+          "normalizationInfo": {
+            "concreteType": "MyClientType",
+            "plural": false,
+            "normalizationNode": require('Query__client_type$normalization.graphql')
+          }
+        },
+        "linkedField": {
+          "alias": null,
+          "args": null,
+          "concreteType": "MyClientType",
+          "kind": "LinkedField",
+          "name": "client_type",
+          "plural": false,
+          "selections": [
+            {
+              "alias": null,
+              "args": null,
+              "kind": "ScalarField",
+              "name": "__typename",
+              "storageKey": null
+            }
+          ],
+          "storageKey": null
+        }
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "relayResolverWeakObject_Query",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "name": "client_type",
+            "args": null,
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "__relay_model_instance",
+                  "storageKey": null
+                }
+              ],
+              "type": "MyClientType",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "f0f0ada27f0e7de15d84ccab9c93a90b",
+    "id": null,
+    "metadata": {},
+    "name": "relayResolverWeakObject_Query",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "MyClientType____relay_model_instance",
+  "selections": [
+    {
+      "kind": "ClientExtension",
+      "selections": [
+        {
+          "alias": null,
+          "args": null,
+          "kind": "ScalarField",
+          "name": "__relay_model_instance",
+          "storageKey": null
+        }
+      ]
+    }
+  ],
+  "type": "MyClientType",
+  "abstractKey": null
+}

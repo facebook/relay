@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<1e13d913c3099174e5fda0fc0c9968fc>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<a6174340bd30c45f0f4651ff693c2871>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type RelayResponseNormalizerTest9Fragment$fragmentType = any;
+import type { RelayResponseNormalizerTest9Fragment$fragmentType } from "./RelayResponseNormalizerTest9Fragment.graphql";
 export type RelayResponseNormalizerTest12Query$variables = {|
   enableStream: boolean,
   id: string,

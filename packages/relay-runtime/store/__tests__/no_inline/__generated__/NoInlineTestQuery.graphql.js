@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2ae6fd9ef10cd6fd49c4e65de171e635>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<efe64d52250965b45b2102b099a20830>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type SomeDeeplyNestedFragment$fragmentType = any;
+import type { SomeDeeplyNestedFragment$fragmentType } from "./../some/deeply/nested/__generated__/SomeDeeplyNestedFragment.graphql";
 export type NoInlineTestQuery$variables = {||};
 export type NoInlineTestQuery$data = {|
   +me: ?{|

@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ab923e7cf9f95e96e6449e2f09f0c3c7>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<ce9f66c4b6643eb355a08c9036dd69ae>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -18,8 +20,8 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType = any;
-type RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType = any;
+import type { RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name$fragmentType } from "./RelayReaderTestWhenMatchDirectiveIsPresentMarkdownUserNameRenderer_name.graphql";
+import type { RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name$fragmentType } from "./RelayReaderTestWhenMatchDirectiveIsPresentPlainUserNameRenderer_name.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$fragmentType: FragmentType;
 export type RelayReaderTestWhenMatchDirectiveIsPresentBarFragment$data = {|

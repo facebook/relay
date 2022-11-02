@@ -8,16 +8,35 @@
 #![deny(warnings)]
 #![deny(clippy::all)]
 
-use crate::{
-    in_memory::InMemorySchema, Argument, ArgumentDefinitions, ArgumentValue, Directive,
-    DirectiveValue, EnumID, EnumValue, FieldID, InputObjectID, InterfaceID, ObjectID, ScalarID,
-    Schema, Type, TypeReference, UnionID,
-};
-use flatbuffers::{FlatBufferBuilder, WIPOffset};
-use fnv::FnvHashMap;
-use graphql_syntax::{ConstantArgument, ConstantValue, DirectiveLocation, List};
-use intern::string_key::StringKey;
 use std::collections::BTreeMap;
+
+use flatbuffers::FlatBufferBuilder;
+use flatbuffers::WIPOffset;
+use fnv::FnvHashMap;
+use graphql_syntax::ConstantArgument;
+use graphql_syntax::ConstantValue;
+use graphql_syntax::DirectiveLocation;
+use graphql_syntax::List;
+use intern::string_key::StringKey;
+use intern::Lookup;
+
+use crate::in_memory::InMemorySchema;
+use crate::Argument;
+use crate::ArgumentDefinitions;
+use crate::ArgumentValue;
+use crate::Directive;
+use crate::DirectiveValue;
+use crate::EnumID;
+use crate::EnumValue;
+use crate::FieldID;
+use crate::InputObjectID;
+use crate::InterfaceID;
+use crate::ObjectID;
+use crate::ScalarID;
+use crate::Schema;
+use crate::Type;
+use crate::TypeReference;
+use crate::UnionID;
 
 pub fn serialize_as_flatbuffer(schema: &InMemorySchema) -> Vec<u8> {
     let mut serializer = Serializer::new(schema);
@@ -122,7 +141,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
     }
 
     fn serialize_directive(&mut self, directive: &Directive) {
-        let name = directive.name.lookup();
+        let name = directive.name.0.lookup();
         if self.directives.contains_key(name) {
             return;
         }
@@ -186,7 +205,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         self.add_to_type_map(
             self.scalars.len(),
             schema_flatbuffer::TypeKind::Scalar,
-            name.item,
+            name.item.0,
         );
         self.scalars
             .push(schema_flatbuffer::Scalar::create(&mut self.bldr, &args));
@@ -197,7 +216,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let name = input_object.name;
         // Reserve idx and add to typemap. Else we could endup in a cycle
         let idx = self.input_objects.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::InputObject, name.item);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::InputObject, name.item.0);
         self.input_objects
             .push(schema_flatbuffer::InputObject::create(
                 &mut self.bldr,
@@ -206,7 +225,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let items = &self.serialize_directive_values(&input_object.directives);
         let fields = &self.serialize_arguments(&input_object.fields);
         let args = schema_flatbuffer::InputObjectArgs {
-            name: Some(self.bldr.create_string(name.item.lookup())),
+            name: Some(self.bldr.create_string(name.item.0.lookup())),
             directives: Some(self.bldr.create_vector(items)),
             fields: Some(self.bldr.create_vector(fields)),
         };
@@ -227,7 +246,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         self.add_to_type_map(
             self.enums.len(),
             schema_flatbuffer::TypeKind::Enum,
-            name.item,
+            name.item.0,
         );
         self.enums
             .push(schema_flatbuffer::Enum::create(&mut self.bldr, &args));
@@ -237,7 +256,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let object = self.schema.object(id);
         let name = object.name;
         let idx = self.objects.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Object, name.item);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Object, name.item.0);
         self.objects.push(schema_flatbuffer::Object::create(
             &mut self.bldr,
             &schema_flatbuffer::ObjectArgs::default(),
@@ -271,7 +290,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         let interface = self.schema.interface(id);
         let name = interface.name;
         let idx = self.interfaces.len();
-        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Interface, name.item);
+        self.add_to_type_map(idx, schema_flatbuffer::TypeKind::Interface, name.item.0);
         self.interfaces.push(schema_flatbuffer::Interface::create(
             &mut self.bldr,
             &schema_flatbuffer::InterfaceArgs::default(),
@@ -291,6 +310,14 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
                     .interface_id
             })
             .collect::<Vec<_>>();
+        let implementing_interfaces = &interface
+            .implementing_interfaces
+            .iter()
+            .map(|interface_id| {
+                self.get_type_args(Type::Interface(*interface_id))
+                    .interface_id
+            })
+            .collect::<Vec<_>>();
         let implementing_objects = &interface
             .implementing_objects
             .iter()
@@ -302,6 +329,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
             directives: Some(self.bldr.create_vector(directives)),
             fields: Some(self.bldr.create_vector(fields)),
             interfaces: Some(self.bldr.create_vector(interfaces)),
+            implementing_interfaces: Some(self.bldr.create_vector(implementing_interfaces)),
             implementing_objects: Some(self.bldr.create_vector(implementing_objects)),
         };
         self.interfaces[idx] = schema_flatbuffer::Interface::create(&mut self.bldr, &args);
@@ -393,7 +421,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         value: &Argument,
     ) -> WIPOffset<schema_flatbuffer::Argument<'fb>> {
         let args = schema_flatbuffer::ArgumentArgs {
-            name: Some(self.bldr.create_string(value.name.lookup())),
+            name: Some(self.bldr.create_string(value.name.0.lookup())),
             value: value
                 .default_value
                 .as_ref()
@@ -405,7 +433,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
 
     fn serialize_type_reference(
         &mut self,
-        type_: &TypeReference,
+        type_: &TypeReference<Type>,
     ) -> WIPOffset<schema_flatbuffer::TypeReference<'fb>> {
         let mut args = schema_flatbuffer::TypeReferenceArgs::default();
         match type_ {
@@ -442,7 +470,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
     ) -> WIPOffset<schema_flatbuffer::DirectiveValue<'fb>> {
         let argument_values = &self.serialize_argument_values(&directive.arguments);
         let args = schema_flatbuffer::DirectiveValueArgs {
-            name: Some(self.bldr.create_string(directive.name.lookup())),
+            name: Some(self.bldr.create_string(directive.name.0.lookup())),
             arguments: Some(self.bldr.create_vector(argument_values)),
         };
         schema_flatbuffer::DirectiveValue::create(&mut self.bldr, &args)
@@ -463,7 +491,7 @@ impl<'fb, 'schema> Serializer<'fb, 'schema> {
         argument_value: &ArgumentValue,
     ) -> WIPOffset<schema_flatbuffer::ArgumentValue<'fb>> {
         let args = schema_flatbuffer::ArgumentValueArgs {
-            name: Some(self.bldr.create_string(argument_value.name.lookup())),
+            name: Some(self.bldr.create_string(argument_value.name.0.lookup())),
             value: Some(self.serialize_const_value(&argument_value.value)),
         };
         schema_flatbuffer::ArgumentValue::create(&mut self.bldr, &args)

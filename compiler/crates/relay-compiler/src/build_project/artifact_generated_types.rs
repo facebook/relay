@@ -6,9 +6,12 @@
  */
 
 use common::NamedItem;
-use graphql_ir::{FragmentDefinition, OperationDefinition};
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
 use graphql_syntax::OperationKind;
-use relay_transforms::{RefetchableMetadata, INLINE_DIRECTIVE_NAME, UPDATABLE_DIRECTIVE};
+use relay_transforms::RefetchableMetadata;
+use relay_transforms::INLINE_DIRECTIVE_NAME;
+use relay_transforms::UPDATABLE_DIRECTIVE;
 use relay_typegen::has_raw_response_type_directive;
 
 /// Specifies the imported and exported generated types of an
@@ -50,13 +53,13 @@ impl ArtifactGeneratedTypes {
                 format!(
                     "{kind}<\n  {name}$variables,\n  {name}$data,\n  {name}$rawResponse,\n>",
                     kind = kind,
-                    name = operation.name.item
+                    name = operation.name.item.0
                 )
             } else {
                 format!(
                     "{kind}<\n  {name}$variables,\n  {name}$data,\n>",
                     kind = kind,
-                    name = operation.name.item
+                    name = operation.name.item.0
                 )
             };
             Self {
@@ -81,7 +84,7 @@ impl ArtifactGeneratedTypes {
         } else {
             let exported_type = format!(
                 "UpdatableQuery<\n  {name}$variables,\n  {name}$data,\n>",
-                name = typegen_operation.name.item,
+                name = typegen_operation.name.item.0,
             );
             Self {
                 imported_types: "UpdatableQuery, ConcreteUpdatableQuery",

@@ -17,13 +17,20 @@ mod printer;
 mod top_level_statements;
 mod utils;
 
-pub use ast::{AstBuilder, Primitive, QueryID, RequestParameters};
-pub use build_ast::{
-    build_request_params, is_static_storage_key_available, CodegenBuilder, CodegenVariant,
-};
+pub use ast::AstBuilder;
+pub use ast::Primitive;
+pub use ast::QueryID;
+pub use ast::RequestParameters;
+pub use build_ast::build_request_params;
+pub use build_ast::is_static_storage_key_available;
+pub use build_ast::CodegenBuilder;
+pub use build_ast::CodegenVariant;
 pub use constants::CODEGEN_CONSTANTS;
-pub use printer::{
-    print_fragment, print_operation, print_request, print_request_params, JSONPrinter, Printer,
-};
+pub use printer::print_fragment;
+pub use printer::print_operation;
+pub use printer::print_request;
+pub use printer::print_request_params;
+pub use printer::JSONPrinter;
+pub use printer::Printer;
 pub use relay_config::JsModuleFormat;
 pub use top_level_statements::TopLevelStatement;

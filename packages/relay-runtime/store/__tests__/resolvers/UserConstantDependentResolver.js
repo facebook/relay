@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -22,7 +22,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @rootFragment UserConstantDependentResolver
  * @onType User
  */
-function UserConstantDependentResolver(
+function constant_dependent(
   rootKey: UserConstantDependentResolver$key,
 ): number {
   const user = readFragment(
@@ -33,9 +33,12 @@ function UserConstantDependentResolver(
     `,
     rootKey,
   );
-  UserConstantDependentResolver._relayResolverTestCallCount =
-    (UserConstantDependentResolver._relayResolverTestCallCount ?? 0) + 1;
+  constant_dependent._relayResolverTestCallCount =
+    (constant_dependent._relayResolverTestCallCount ?? 0) + 1;
   return (user.constant ?? NaN) + 1;
 }
+constant_dependent._relayResolverTestCallCount = (undefined: number | void);
 
-module.exports = UserConstantDependentResolver;
+module.exports = {
+  constant_dependent,
+};

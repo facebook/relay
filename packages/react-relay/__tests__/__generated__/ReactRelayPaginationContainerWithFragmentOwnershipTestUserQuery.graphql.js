@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<cf236a46f118d3453ccafb1748768ed1>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<949c292c388e628caec8bca19f66fbef>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType = any;
+import type { ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment$fragmentType } from "./ReactRelayPaginationContainerWithFragmentOwnershipTestUserFragment.graphql";
 export type ReactRelayPaginationContainerWithFragmentOwnershipTestUserQuery$variables = {|
   after?: ?string,
   count: number,

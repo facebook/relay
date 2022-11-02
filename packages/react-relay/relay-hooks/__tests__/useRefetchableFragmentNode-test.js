@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @emails oncall+relay
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -138,11 +138,11 @@ describe.each([
     let Renderer;
 
     class ErrorBoundary extends React.Component<any, any> {
-      state = {error: null};
+      state: {error: ?Error} = {error: null};
       componentDidCatch(error: Error) {
         this.setState({error});
       }
-      render() {
+      render(): React.Node {
         const {children, fallback} = this.props;
         const {error} = this.state;
         if (error) {
@@ -153,7 +153,7 @@ describe.each([
     }
 
     function useRefetchableFragmentNode(fragmentNode: any, fragmentRef: any) {
-      const result = useRefetchableFragmentNodeOriginal(
+      const result = useRefetchableFragmentNodeOriginal<any, any>(
         fragmentNode,
         fragmentRef,
         'TestDisplayName',
@@ -3074,7 +3074,7 @@ describe.each([
       describe('disposing', () => {
         const unsubscribe = jest.fn();
         jest.doMock('relay-runtime', () => {
-          const originalRuntime = jest.requireActual('relay-runtime');
+          const originalRuntime = jest.requireActual<any>('relay-runtime');
           const originalInternal = originalRuntime.__internal;
           return {
             ...originalRuntime,

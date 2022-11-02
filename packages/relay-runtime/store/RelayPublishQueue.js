@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -25,6 +26,7 @@ import type {
   SelectorStoreUpdater,
   SingularReaderSelector,
   Store,
+  MissingFieldHandler,
   StoreUpdater,
 } from './RelayStoreTypes';
 
@@ -80,6 +82,7 @@ const applyWithGuard =
 class RelayPublishQueue implements PublishQueue {
   _store: Store;
   _handlerProvider: ?HandlerProvider;
+  _missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>;
   _getDataID: GetDataID;
 
   _hasStoreSnapshot: boolean;
@@ -108,6 +111,7 @@ class RelayPublishQueue implements PublishQueue {
     store: Store,
     handlerProvider?: ?HandlerProvider,
     getDataID: GetDataID,
+    missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
   ) {
     this._hasStoreSnapshot = false;
     this._handlerProvider = handlerProvider || null;
@@ -118,6 +122,7 @@ class RelayPublishQueue implements PublishQueue {
     this._appliedOptimisticUpdates = new Set();
     this._gcHold = null;
     this._getDataID = getDataID;
+    this._missingFieldHandlers = missingFieldHandlers;
   }
 
   /**
@@ -285,6 +290,8 @@ class RelayPublishQueue implements PublishQueue {
     const recordSourceProxy = new RelayRecordSourceProxy(
       mutator,
       this._getDataID,
+      this._handlerProvider,
+      this._missingFieldHandlers,
     );
     if (fieldPayloads && fieldPayloads.length) {
       fieldPayloads.forEach(fieldPayload => {
@@ -309,6 +316,7 @@ class RelayPublishQueue implements PublishQueue {
         mutator,
         recordSourceProxy,
         selector,
+        this._missingFieldHandlers,
       );
       const selectorData = lookupSelector(source, selector);
       updater(recordSourceSelectorProxy, selectorData);
@@ -345,6 +353,8 @@ class RelayPublishQueue implements PublishQueue {
         const recordSourceProxy = new RelayRecordSourceProxy(
           mutator,
           this._getDataID,
+          this._handlerProvider,
+          this._missingFieldHandlers,
         );
         applyWithGuard(
           updater,
@@ -377,6 +387,7 @@ class RelayPublishQueue implements PublishQueue {
       mutator,
       this._getDataID,
       this._handlerProvider,
+      this._missingFieldHandlers,
     );
 
     // $FlowFixMe[unclear-type] see explanation above.
@@ -405,6 +416,7 @@ class RelayPublishQueue implements PublishQueue {
             mutator,
             recordSourceProxy,
             operation.fragment,
+            this._missingFieldHandlers,
           );
           applyWithGuard(
             updater,

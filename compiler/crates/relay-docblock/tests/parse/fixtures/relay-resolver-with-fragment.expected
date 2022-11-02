@@ -45,14 +45,17 @@ RelayResolver(
         root_fragment: Some(
             WithLocation {
                 location: /path/to/test/fixture/relay-resolver-with-fragment.js:79:93,
-                item: "myRootFragment",
+                item: FragmentDefinitionName(
+                    "myRootFragment",
+                ),
             },
         ),
-        edge_to: None,
+        output_type: None,
         description: None,
         deprecated: None,
         live: None,
         location: /path/to/test/fixture/relay-resolver-with-fragment.js:0:94,
         fragment_arguments: None,
+        named_import: None,
     },
 )

@@ -27,30 +27,30 @@ graphql`
 `
 ==================================== OUTPUT ===================================
 extend interface UserNameRenderable {
-  favorite_page: Int @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment")
+  favorite_page: RelayResolverValue @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment")
 }
 
 
 extend type PlainUserNameRenderer {
-  favorite_page: Int @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment")
+  favorite_page: RelayResolverValue @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment")
 }
 
 
 extend type MarkdownUserNameRenderer {
-  favorite_page: Int @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment")
+  favorite_page: RelayResolverValue @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment")
 }
 
 
 extend type ImplementsImplementsUserNameRenderableAndUserNameRenderable {
-  favorite_page: Int @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment")
+  favorite_page: RelayResolverValue @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment")
 }
 
 
 extend interface ImplementsUserNameRenderable {
-  favorite_page: Int @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment")
+  favorite_page: RelayResolverValue @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment")
 }
 
 
 extend type ImplementsImplementsUserNameRenderable {
-  favorite_page: Int @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment")
+  favorite_page: RelayResolverValue @relay_resolver(import_path: "/path/to/test/fixture/relay-resolver-on-interface.js", fragment_name: "myRootFragment")
 }

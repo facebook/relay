@@ -19,6 +19,7 @@ fragment Foo_user on User {
   # RelayResolverMetadata {
   #     field_parent_type: "User",
   #     import_path: "PopStarNameResolver",
+  #     import_name: None,
   #     field_name: "pop_star_name",
   #     field_alias: None,
   #     field_path: "pop_star_name",
@@ -26,7 +27,9 @@ fragment Foo_user on User {
   #         Argument {
   #             name: WithLocation {
   #                 location: relay-resolver-field-and-fragment-arguments.graphql:61:70,
-  #                 item: "field_arg",
+  #                 item: ArgumentName(
+  #                     "field_arg",
+  #                 ),
   #             },
   #             value: WithLocation {
   #                 location: relay-resolver-field-and-fragment-arguments.graphql:72:73,
@@ -39,6 +42,8 @@ fragment Foo_user on User {
   #         },
   #     ],
   #     live: false,
+  #     output_type_info: None,
+  #     fragment_data_injection_mode: None,
   # }
    @arguments(fragment_arg: 1)
 }
@@ -48,7 +53,3 @@ fragment PopStarNameResolverFragment_name on User @argumentDefinitions(
 ) {
   __typename
 }
-
-# Implicit Dependencies:
-#
-# Foo_user --> {PopStarNameResolverFragment_name}

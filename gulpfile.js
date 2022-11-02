@@ -5,6 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -31,7 +32,6 @@ const del = require('del');
 const fs = require('fs');
 const gulp = require('gulp');
 const babel = require('gulp-babel');
-const chmod = require('gulp-chmod');
 const header = require('gulp-header');
 const rename = require('gulp-rename');
 const gulpUtil = require('gulp-util');
@@ -169,12 +169,19 @@ const builds = [
     package: 'relay-runtime',
     exports: {
       index: 'index.js',
+      experimental: 'experimental.js',
     },
     bundles: [
       {
         entry: 'index.js',
         output: 'relay-runtime',
         libraryName: 'RelayRuntime',
+        libraryTarget: 'umd',
+      },
+      {
+        entry: 'experimental.js',
+        output: 'relay-runtime-experimental',
+        libraryName: 'ReactRelayExperimental',
         libraryTarget: 'umd',
       },
     ],

@@ -7,28 +7,60 @@
 
 mod scope;
 
-use super::get_applied_fragment_name;
-use crate::{
-    match_::{SplitOperationMetadata, DIRECTIVE_SPLIT_OPERATION},
-    no_inline::{is_raw_response_type_enabled, NO_INLINE_DIRECTIVE_NAME, PARENT_DOCUMENTS_ARG},
-    util::get_normalization_operation_name,
-};
-use common::{
-    Diagnostic, DiagnosticsResult, FeatureFlag, Location, NamedItem, SourceLocationKey,
-    WithLocation,
-};
-use graphql_ir::{
-    associated_data_impl, transform_list, transform_list_multi, Condition, ConditionValue,
-    ConstantValue, Directive, FragmentDefinition, FragmentSpread, InlineFragment,
-    OperationDefinition, Program, ProvidedVariableMetadata, Selection, Transformed,
-    TransformedMulti, TransformedValue, Transformer, Value, Variable, VariableDefinition,
-};
-use graphql_syntax::OperationKind;
-use intern::string_key::{Intern, StringKey, StringKeyIndexMap, StringKeyMap, StringKeySet};
-use itertools::Itertools;
-use scope::{format_local_variable, Scope};
+use std::collections::HashMap;
 use std::sync::Arc;
+
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::FeatureFlag;
+use common::Location;
+use common::NamedItem;
+use common::SourceLocationKey;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::transform_list;
+use graphql_ir::transform_list_multi;
+use graphql_ir::Condition;
+use graphql_ir::ConditionValue;
+use graphql_ir::ConstantValue;
+use graphql_ir::Directive;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::FragmentDefinitionNameMap;
+use graphql_ir::FragmentDefinitionNameSet;
+use graphql_ir::FragmentSpread;
+use graphql_ir::InlineFragment;
+use graphql_ir::OperationDefinition;
+use graphql_ir::OperationDefinitionName;
+use graphql_ir::Program;
+use graphql_ir::ProvidedVariableMetadata;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedMulti;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use graphql_ir::Value;
+use graphql_ir::Variable;
+use graphql_ir::VariableDefinition;
+use graphql_ir::VariableName;
+use graphql_syntax::OperationKind;
+use intern::string_key::Intern;
+use intern::string_key::StringKeyIndexMap;
+use intern::string_key::StringKeyMap;
+use itertools::Itertools;
+use scope::format_local_variable;
+use scope::Scope;
 use thiserror::Error;
+
+use super::get_applied_fragment_name;
+use crate::match_::SplitOperationMetadata;
+use crate::match_::DIRECTIVE_SPLIT_OPERATION;
+use crate::no_inline::is_raw_response_type_enabled;
+use crate::no_inline::NO_INLINE_DIRECTIVE_NAME;
+use crate::no_inline::PARENT_DOCUMENTS_ARG;
+use crate::util::get_normalization_operation_name;
+use crate::RawResponseGenerationMode;
 
 /// A transform that converts a set of documents containing fragments/fragment
 /// spreads *with* arguments to one where all arguments have been inlined. This
@@ -55,7 +87,7 @@ pub fn apply_fragment_arguments(
     program: &Program,
     is_normalization: bool,
     no_inline_feature: &FeatureFlag,
-    base_fragment_names: &StringKeySet,
+    base_fragment_names: &FragmentDefinitionNameSet,
 ) -> DiagnosticsResult<Program> {
     let mut transform = ApplyFragmentArgumentsTransform {
         base_fragment_names,
@@ -121,9 +153,9 @@ pub struct NoInlineFragmentSpreadMetadata {
 associated_data_impl!(NoInlineFragmentSpreadMetadata);
 
 struct ApplyFragmentArgumentsTransform<'flags, 'program, 'base_fragments> {
-    base_fragment_names: &'base_fragments StringKeySet,
+    base_fragment_names: &'base_fragments FragmentDefinitionNameSet,
     errors: Vec<Diagnostic>,
-    fragments: StringKeyMap<PendingFragment>,
+    fragments: FragmentDefinitionNameMap<PendingFragment>,
     is_normalization: bool,
     no_inline_feature: &'flags FeatureFlag,
     program: &'program Program,
@@ -217,7 +249,10 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 ))
             })
         {
-            if let Some(invalid_argument) = spread.arguments.named(original_definition_name) {
+            if let Some(invalid_argument) = spread
+                .arguments
+                .named(ArgumentName(original_definition_name.0))
+            {
                 self.errors.push(
                     Diagnostic::error(
                         ValidationMessage::ProvidedVariableIncompatibleWithArguments {
@@ -238,7 +273,8 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                     .iter()
                     .map(|arg| {
                         let mut arg = self.transform_argument(arg).unwrap_or_else(|| arg.clone());
-                        arg.name.item = format_local_variable(fragment.name.item, arg.name.item);
+                        arg.name.item.0 =
+                            format_local_variable(fragment.name.item, arg.name.item.0);
                         arg
                     })
                     .collect();
@@ -253,11 +289,14 @@ impl Transformer for ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 );
 
                 let normalization_name =
-                    get_normalization_operation_name(fragment.name.item).intern();
+                    get_normalization_operation_name(fragment.name.item.0).intern();
                 let next_spread = Selection::FragmentSpread(Arc::new(FragmentSpread {
                     arguments: transformed_arguments,
                     directives,
-                    fragment: WithLocation::new(fragment.name.location, normalization_name),
+                    fragment: WithLocation::new(
+                        fragment.name.location,
+                        FragmentDefinitionName(normalization_name),
+                    ),
                 }));
                 // If the fragment type is abstract, we need to ensure that it's only evaluated at runtime if the
                 // type of the object matches the fragment's type condition. Rather than reimplement type refinement
@@ -370,7 +409,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         directive: &Directive,
     ) {
         // If we have already computed, we can return early
-        if let Some((_, provided_variables)) = self.split_operations.get(&fragment.name.item) {
+        if let Some((_, provided_variables)) = self.split_operations.get(&fragment.name.item.0) {
             for (name, def) in provided_variables {
                 self.provided_variables.insert(*name, def.clone());
             }
@@ -379,7 +418,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
 
         // We do not need to to write normalization files for base fragments
         let is_base = self.base_fragment_names.contains(&fragment.name.item);
-        if !is_base && !self.no_inline_feature.is_enabled_for(fragment.name.item) {
+        if !is_base && !self.no_inline_feature.is_enabled_for(fragment.name.item.0) {
             self.errors.push(Diagnostic::error(
                 format!(
                     "Invalid usage of @no_inline on fragment '{}': this feature is gated and currently set to: {}",
@@ -407,19 +446,24 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
         } = fragment;
 
         for variable in &mut variable_definitions {
-            variable.name.item = format_local_variable(fragment.name.item, variable.name.item);
+            variable.name.item = VariableName(format_local_variable(
+                fragment.name.item,
+                variable.name.item.0,
+            ));
         }
         let mut metadata = SplitOperationMetadata {
-            derived_from: fragment.name.item,
+            derived_from: Some(fragment.name.item),
+            location: fragment.name.location,
             parent_documents: Default::default(),
-            raw_response_type: is_raw_response_type_enabled(directive),
+            raw_response_type_generation_mode: is_raw_response_type_enabled(directive)
+                .then_some(RawResponseGenerationMode::AllFieldsOptional),
         };
         // - A fragment with user defined @no_inline always produces a $normalization file. The `parent_document` of
         // that file is the fragment itself as it gets deleted iff that fragment is deleted or no longer
         // has the @no_inline directive.
         // - A fragment with @no_inline generated by @module, `parent_documents` also include fragments that
         // spread the current fragment with @module
-        metadata.parent_documents.insert(fragment.name.item);
+        metadata.parent_documents.insert(fragment.name.item.0);
         let parent_documents_arg = directive.arguments.named(*PARENT_DOCUMENTS_ARG);
         if let Some(Value::Constant(ConstantValue::List(parent_documents))) =
             parent_documents_arg.map(|arg| &arg.value.item)
@@ -433,12 +477,12 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             }
         }
         directives.push(metadata.to_directive());
-        let normalization_name = get_normalization_operation_name(name.item).intern();
+        let normalization_name = get_normalization_operation_name(name.item.0).intern();
         let operation = if is_base {
             None
         } else {
             Some(OperationDefinition {
-                name: WithLocation::new(name.location, normalization_name),
+                name: WithLocation::new(name.location, OperationDefinitionName(normalization_name)),
                 type_: type_condition,
                 variable_definitions,
                 directives,
@@ -447,7 +491,11 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             })
         };
 
-        if self.program.operation(normalization_name).is_some() {
+        if self
+            .program
+            .operation(OperationDefinitionName(normalization_name))
+            .is_some()
+        {
             self.errors.push(Diagnostic::error(
                 format!(
                     "Invalid usage of @no_inline on fragment '{}' - @no_inline is only allowed on allowlisted fragments loaded with @module",
@@ -457,7 +505,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
             ));
         }
         self.split_operations.insert(
-            fragment.name.item,
+            fragment.name.item.0,
             (operation, self.provided_variables.clone()),
         );
 
@@ -480,7 +528,7 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
                 });
         for definition in provided_arguments {
             self.provided_variables
-                .entry(definition.name.item)
+                .entry(definition.name.item.0)
                 .or_insert_with(|| definition.clone());
         }
     }
@@ -620,17 +668,20 @@ impl ApplyFragmentArgumentsTransform<'_, '_, '_> {
 }
 
 fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
-    let mut bindings = StringKeyMap::with_capacity_and_hasher(
+    let mut bindings = HashMap::<VariableName, Value>::with_capacity_and_hasher(
         fragment.variable_definitions.len(),
         Default::default(),
     );
     for variable_definition in &fragment.variable_definitions {
         let variable_name = variable_definition.name.item;
-        let scoped_variable_name = format_local_variable(fragment.name.item, variable_name);
+        let scoped_variable_name = format_local_variable(fragment.name.item, variable_name.0);
         bindings.insert(
             variable_name,
             Value::Variable(Variable {
-                name: WithLocation::new(variable_definition.name.location, scoped_variable_name),
+                name: WithLocation::new(
+                    variable_definition.name.location,
+                    VariableName(scoped_variable_name),
+                ),
                 type_: variable_definition.type_.clone(),
             }),
         );
@@ -643,9 +694,13 @@ fn no_inline_fragment_scope(fragment: &FragmentDefinition) -> Scope {
 #[derive(Debug, Error)]
 enum ValidationMessage {
     #[error("Found a circular reference from fragment '{fragment_name}'.")]
-    CircularFragmentReference { fragment_name: StringKey },
+    CircularFragmentReference {
+        fragment_name: FragmentDefinitionName,
+    },
     #[error(
         "Passing a value to '{original_definition_name}' (a provided variable) through @arguments is not supported."
     )]
-    ProvidedVariableIncompatibleWithArguments { original_definition_name: StringKey },
+    ProvidedVariableIncompatibleWithArguments {
+        original_definition_name: VariableName,
+    },
 }

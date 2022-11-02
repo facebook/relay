@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<53ba5776188bb4ebb5db943e5fd49f6d>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<e639023ec2be3cc544b265fed4603ecf>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,10 +18,10 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type QueryResourceClientEdgesTestUser1Fragment$fragmentType = any;
-type QueryResourceClientEdgesTestUser2Fragment$fragmentType = any;
-type UserClientEdgeResolver$key = any;
-import userClientEdgeResolver from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeResolver.js";
+import type { QueryResourceClientEdgesTestUser1Fragment$fragmentType } from "./QueryResourceClientEdgesTestUser1Fragment.graphql";
+import type { QueryResourceClientEdgesTestUser2Fragment$fragmentType } from "./QueryResourceClientEdgesTestUser2Fragment.graphql";
+import type { UserClientEdgeResolver$key } from "./../../../relay-runtime/store/__tests__/resolvers/__generated__/UserClientEdgeResolver.graphql";
+import {client_edge as userClientEdgeResolver} from "../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeResolver.js";
 // Type assertion validating that `userClientEdgeResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (userClientEdgeResolver: (
@@ -69,7 +71,7 @@ var node/*: ConcreteRequest*/ = {
               },
               "kind": "RelayResolver",
               "name": "client_edge",
-              "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeResolver.js'),
+              "resolverModule": require('./../../../relay-runtime/store/__tests__/resolvers/UserClientEdgeResolver').client_edge,
               "path": "me.client_edge"
             },
             "linkedField": {
@@ -116,10 +118,23 @@ var node/*: ConcreteRequest*/ = {
         "plural": false,
         "selections": [
           {
-            "alias": null,
+            "name": "client_edge",
             "args": null,
-            "kind": "ScalarField",
-            "name": "name",
+            "fragment": {
+              "kind": "InlineFragment",
+              "selections": [
+                {
+                  "alias": null,
+                  "args": null,
+                  "kind": "ScalarField",
+                  "name": "name",
+                  "storageKey": null
+                }
+              ],
+              "type": "User",
+              "abstractKey": null
+            },
+            "kind": "RelayResolver",
             "storageKey": null
           },
           {

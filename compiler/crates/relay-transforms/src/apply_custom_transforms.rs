@@ -5,12 +5,13 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{DiagnosticsResult, PerfLogEvent};
+use common::DiagnosticsResult;
+use common::PerfLogEvent;
+use graphql_ir::FragmentDefinitionNameSet;
 use graphql_ir::Program;
-use intern::string_key::StringKeySet;
 use relay_config::ProjectConfig;
 
-pub type BaseFragmentNames = StringKeySet;
+pub type BaseFragmentNames = FragmentDefinitionNameSet;
 
 #[derive(Clone)]
 pub struct CustomTransform {

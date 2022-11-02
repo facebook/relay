@@ -5,11 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use schema_diff::definitions::*;
-use schema_diff::*;
-
 use intern::string_key::Intern;
 use schema::build_schema;
+use schema_diff::definitions::*;
+use schema_diff::*;
 
 fn diff(current: &str, previous: &str) -> SchemaChange {
     let mut change = detect_changes(&[current], &[previous]);

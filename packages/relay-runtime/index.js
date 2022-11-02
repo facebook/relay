@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -146,6 +147,7 @@ export type {
   ReactFlightServerErrorHandler,
   ReaderSelector,
   ReadOnlyRecordProxy,
+  ReadOnlyRecordSourceProxy,
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
@@ -173,6 +175,7 @@ export type {
   NormalizationLinkedHandle,
   NormalizationLocalArgumentDefinition,
   NormalizationModuleImport,
+  NormalizationRootNode,
   NormalizationScalarField,
   NormalizationSelection,
   NormalizationSplitOperation,
@@ -269,6 +272,7 @@ module.exports = {
   createReaderSelector: RelayModernSelector.createReaderSelector,
   createRequestDescriptor:
     RelayModernOperationDescriptor.createRequestDescriptor,
+  getArgumentValues: RelayStoreUtils.getArgumentValues,
   getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
   getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
   getNode: GraphQLTag.getNode,

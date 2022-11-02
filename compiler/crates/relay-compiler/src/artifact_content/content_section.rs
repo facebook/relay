@@ -5,8 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt::Error as FmtError;
+use std::fmt::Result as FmtResult;
+use std::fmt::Write;
+
 use signedsource::sign_file;
-use std::fmt::{Error as FmtError, Result as FmtResult, Write};
 
 pub enum ContentSection {
     CommentAnnotations(CommentAnnotationsSection),

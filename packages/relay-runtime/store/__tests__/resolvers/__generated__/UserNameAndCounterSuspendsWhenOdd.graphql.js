@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<a0fa273fa8cbc49214652916a158166c>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<4082c51e2a4c2d8d036f76ac969ab53f>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,10 +18,10 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type CounterSuspendsWhenOdd$key = any;
+import type { CounterSuspendsWhenOdd$key } from "./CounterSuspendsWhenOdd.graphql";
 import type { LiveState } from "relay-runtime/store/experimental-live-resolvers/LiveResolverStore";
 import type { FragmentType } from "relay-runtime";
-import queryCounterSuspendsWhenOddResolver from "../CounterSuspendsWhenOdd.js";
+import {counter_suspends_when_odd as queryCounterSuspendsWhenOddResolver} from "../CounterSuspendsWhenOdd.js";
 // Type assertion validating that `queryCounterSuspendsWhenOddResolver` resolver is correctly implemented.
 // A type error here indicates that the type signature of the resolver module is incorrect.
 (queryCounterSuspendsWhenOddResolver: (
@@ -74,7 +76,7 @@ var node/*: ReaderFragment*/ = {
       },
       "kind": "RelayLiveResolver",
       "name": "counter_suspends_when_odd",
-      "resolverModule": require('./../CounterSuspendsWhenOdd.js'),
+      "resolverModule": require('./../CounterSuspendsWhenOdd').counter_suspends_when_odd,
       "path": "counter_suspends_when_odd"
     }
   ],

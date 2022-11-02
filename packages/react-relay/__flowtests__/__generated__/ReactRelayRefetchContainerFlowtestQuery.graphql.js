@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<3b1b16b5d5ec1c94783d6161ae61bc3d>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<909036439f4d2e9e2d5728ade52035dc>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
-type ReactRelayRefetchContainerFlowtest_viewer$fragmentType = any;
+import type { ReactRelayRefetchContainerFlowtest_viewer$fragmentType } from "./ReactRelayRefetchContainerFlowtest_viewer.graphql";
 export type ReactRelayRefetchContainerFlowtestQuery$variables = {|
   count: number,
   cursor?: ?string,

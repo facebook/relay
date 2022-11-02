@@ -5,10 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
+use common::WithLocation;
+
 use crate::ir::*;
 use crate::program::Program;
-use common::WithLocation;
-use std::sync::Arc;
 
 pub trait Transformer {
     const NAME: &'static str;
@@ -82,6 +84,8 @@ pub trait Transformer {
         }
 
         Transformed::Replace(FragmentDefinition {
+            variable_definitions: variable_definitions
+                .replace_or_else(|| fragment.variable_definitions.clone()),
             directives: directives.replace_or_else(|| fragment.directives.clone()),
             selections: selections.replace_or_else(|| fragment.selections.clone()),
             ..fragment.clone()

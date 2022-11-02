@@ -7,8 +7,12 @@
 
 mod extract_module_name;
 
-use common::{Diagnostic, DiagnosticsResult};
-use graphql_ir::{FragmentDefinition, OperationDefinition, Program, Validator};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Validator;
 use graphql_syntax::OperationKind;
 use thiserror::Error;
 
@@ -26,7 +30,7 @@ impl Validator for ValidateModuleNames {
     const VALIDATE_DIRECTIVES: bool = true;
 
     fn validate_operation(&mut self, operation: &OperationDefinition) -> DiagnosticsResult<()> {
-        let operation_name = operation.name.item.to_string();
+        let operation_name = operation.name.item.0.to_string();
         let path = operation.name.location.source_location().path();
         let module_name = extract_module_name(path).expect("Unable to extract module name.");
         let (operation_type_suffix, pluralized_string) = match operation.kind {

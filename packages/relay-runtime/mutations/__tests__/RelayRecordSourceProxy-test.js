@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -74,7 +74,12 @@ describe('RelayRecordSourceProxy', () => {
     baseSource = new RelayRecordSource(simpleClone(initialData));
     sinkSource = new RelayRecordSource({});
     mutator = new RelayRecordSourceMutator(baseSource, sinkSource);
-    store = new RelayRecordSourceProxy(mutator, defaultGetDataID);
+    store = new RelayRecordSourceProxy(
+      mutator,
+      defaultGetDataID,
+      undefined,
+      [],
+    );
   });
 
   describe('get()', () => {

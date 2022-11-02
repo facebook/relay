@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<8aed2dbc4bf489ab7a2058ce199e361a>>
+ * @generated SignedSource<<cbb760c92a070de1f59e662694d57dbb>>
  */
 
 mod updatable_directive;
@@ -24,6 +24,13 @@ fn assignable_fragment_spreads() {
     let input = include_str!("updatable_directive/fixtures/assignable-fragment-spreads.graphql");
     let expected = include_str!("updatable_directive/fixtures/assignable-fragment-spreads.expected");
     test_fixture(transform_fixture, "assignable-fragment-spreads.graphql", "updatable_directive/fixtures/assignable-fragment-spreads.expected", input, expected);
+}
+
+#[test]
+fn client_side_updatable() {
+    let input = include_str!("updatable_directive/fixtures/client-side-updatable.graphql");
+    let expected = include_str!("updatable_directive/fixtures/client-side-updatable.expected");
+    test_fixture(transform_fixture, "client-side-updatable.graphql", "updatable_directive/fixtures/client-side-updatable.expected", input, expected);
 }
 
 #[test]

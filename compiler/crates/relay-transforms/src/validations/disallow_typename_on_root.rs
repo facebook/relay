@@ -5,10 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use common::{Diagnostic, DiagnosticsResult};
-use graphql_ir::{
-    FragmentDefinition, OperationDefinition, Program, Selection, ValidationMessage, Validator,
-};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::Selection;
+use graphql_ir::ValidationMessage;
+use graphql_ir::Validator;
 use schema::Schema;
 
 pub fn disallow_typename_on_root(program: &Program) -> DiagnosticsResult<()> {
@@ -39,7 +43,7 @@ impl<'program> DisallowTypenameOnRoot<'program> {
         });
         if let Some(typename_selection) = typename_selection {
             Err(vec![Diagnostic::error(
-                ValidationMessage::DisallowTypenameOnRoot(),
+                ValidationMessage::DisallowTypenameOnRoot,
                 typename_selection.definition.location,
             )])
         } else {

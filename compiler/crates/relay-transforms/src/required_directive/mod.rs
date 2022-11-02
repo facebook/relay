@@ -8,29 +8,52 @@
 mod requireable_field;
 mod validation_message;
 
-use common::{Diagnostic, DiagnosticsResult, Location, NamedItem, WithLocation};
-use graphql_ir::{
-    associated_data_impl, Directive, Field, FragmentDefinition, InlineFragment, LinkedField,
-    OperationDefinition, Program, ScalarField, Selection, Transformed, TransformedValue,
-    Transformer,
-};
-use intern::string_key::{Intern, StringKey, StringKeyMap};
-use lazy_static::lazy_static;
-use requireable_field::{RequireableField, RequiredMetadata};
-use std::{borrow::Cow, mem, sync::Arc};
+use std::borrow::Cow;
+use std::mem;
+use std::sync::Arc;
 
-use crate::{DirectiveFinder, FragmentAliasMetadata};
+use common::ArgumentName;
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::DirectiveName;
+use common::Location;
+use common::NamedItem;
+use common::WithLocation;
+use graphql_ir::associated_data_impl;
+use graphql_ir::Directive;
+use graphql_ir::Field;
+use graphql_ir::FragmentDefinition;
+use graphql_ir::FragmentDefinitionNameMap;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::OperationDefinition;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::TransformedValue;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use intern::string_key::StringKeyMap;
+use intern::Lookup;
+use lazy_static::lazy_static;
+use requireable_field::RequireableField;
+use requireable_field::RequiredMetadata;
 
 use self::validation_message::ValidationMessage;
+use crate::DirectiveFinder;
+use crate::FragmentAliasMetadata;
 
 lazy_static! {
-    pub static ref REQUIRED_DIRECTIVE_NAME: StringKey = "required".intern();
-    pub static ref ACTION_ARGUMENT: StringKey = "action".intern();
-    pub static ref CHILDREN_CAN_BUBBLE_METADATA_KEY: StringKey = "__childrenCanBubbleNull".intern();
+    pub static ref REQUIRED_DIRECTIVE_NAME: DirectiveName = DirectiveName("required".intern());
+    pub static ref ACTION_ARGUMENT: ArgumentName = ArgumentName("action".intern());
+    pub static ref CHILDREN_CAN_BUBBLE_METADATA_KEY: DirectiveName =
+        DirectiveName("__childrenCanBubbleNull".intern());
     static ref THROW_ACTION: StringKey = "THROW".intern();
     static ref LOG_ACTION: StringKey = "LOG".intern();
     static ref NONE_ACTION: StringKey = "NONE".intern();
-    static ref INLINE_DIRECTIVE_NAME: StringKey = "inline".intern();
+    static ref INLINE_DIRECTIVE_NAME: DirectiveName = DirectiveName("inline".intern());
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -527,7 +550,7 @@ impl From<StringKey> for RequiredAction {
 
 struct RequiredDirectiveVisitor<'s> {
     program: &'s Program,
-    visited_fragments: StringKeyMap<bool>,
+    visited_fragments: FragmentDefinitionNameMap<bool>,
 }
 
 impl<'s> DirectiveFinder for RequiredDirectiveVisitor<'s> {

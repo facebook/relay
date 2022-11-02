@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<f6f05ce44dc4085ef895e21084066478>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<f603cc6e610dfc16828c5a397451e1be>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType = any;
+import type { RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user$fragmentType } from "./RelayModernEnvironmentExecuteWithDeferWithinModuleTestUser_user.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$fragmentType: FragmentType;
 export type RelayModernEnvironmentExecuteWithDeferWithinModuleTestActor_actor$data = {|

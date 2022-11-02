@@ -5,11 +5,12 @@
  * LICENSE file in the root directory of this source tree.
  *
  * @format
+ * @oncall relay
  */
 
 'use strict';
 
-const {fbContent} = require('internaldocs-fb-helpers');
+const {fbContent} = require('docusaurus-plugin-internaldocs-fb/internal');
 
 const Guides = fbContent({
   internal: [
@@ -231,6 +232,7 @@ module.exports = {
         'principles-and-architecture/runtime-architecture',
         'principles-and-architecture/videos',
       ],
+      'Error reference': ['error-reference/unknown-field'],
     },
     'editor-support',
     'community/learning-resources',

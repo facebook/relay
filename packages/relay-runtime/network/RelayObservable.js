@@ -6,6 +6,7 @@
  *
  * @flow
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -271,7 +272,7 @@ class RelayObservable<+T> implements Subscribable<T> {
   ifEmpty<U>(alternate: RelayObservable<U>): RelayObservable<T | U> {
     return RelayObservable.create(sink => {
       let hasValue = false;
-      let current = this.subscribe({
+      let current: Subscription = this.subscribe({
         next(value) {
           hasValue = true;
           sink.next(value);
@@ -343,12 +344,14 @@ class RelayObservable<+T> implements Subscribable<T> {
     return RelayObservable.create(sink => {
       const subscriptions = [];
 
-      function start(subscription: Subscription) {
+      type ObservableContext = {_sub?: Subscription};
+
+      function start(this: ObservableContext, subscription: Subscription) {
         this._sub = subscription;
         subscriptions.push(subscription);
       }
 
-      function complete() {
+      function complete(this: ObservableContext) {
         subscriptions.splice(subscriptions.indexOf(this._sub), 1);
         if (subscriptions.length === 0) {
           sink.complete();

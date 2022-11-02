@@ -11,7 +11,9 @@ fragment LinkedHandleField on User {
         FragmentDefinition {
             name: WithLocation {
                 location: linked-handle-field-with-key.graphql:9:26,
-                item: "LinkedHandleField",
+                item: FragmentDefinitionName(
+                    "LinkedHandleField",
+                ),
             },
             variable_definitions: [],
             used_global_variables: [],
@@ -28,7 +30,9 @@ fragment LinkedHandleField on User {
                         Argument {
                             name: WithLocation {
                                 location: linked-handle-field-with-key.graphql:47:52,
-                                item: "first",
+                                item: ArgumentName(
+                                    "first",
+                                ),
                             },
                             value: WithLocation {
                                 location: linked-handle-field-with-key.graphql:54:56,
@@ -44,13 +48,17 @@ fragment LinkedHandleField on User {
                         Directive {
                             name: WithLocation {
                                 location: linked-handle-field-with-key.graphql:62:76,
-                                item: "__clientField",
+                                item: DirectiveName(
+                                    "__clientField",
+                                ),
                             },
                             arguments: [
                                 Argument {
                                     name: WithLocation {
                                         location: linked-handle-field-with-key.graphql:77:83,
-                                        item: "handle",
+                                        item: ArgumentName(
+                                            "handle",
+                                        ),
                                     },
                                     value: WithLocation {
                                         location: linked-handle-field-with-key.graphql:85:100,
@@ -64,7 +72,9 @@ fragment LinkedHandleField on User {
                                 Argument {
                                     name: WithLocation {
                                         location: linked-handle-field-with-key.graphql:102:105,
-                                        item: "key",
+                                        item: ArgumentName(
+                                            "key",
+                                        ),
                                     },
                                     value: WithLocation {
                                         location: linked-handle-field-with-key.graphql:107:134,

@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -24,7 +24,7 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  *
  * A Relay Resolver that always throws when evaluated.
  */
-function userAlwaysThrows(rootKey: UserAlwaysThrowsResolver$key): string {
+function always_throws(rootKey: UserAlwaysThrowsResolver$key): string {
   readFragment(
     graphql`
       fragment UserAlwaysThrowsResolver on User {
@@ -36,4 +36,6 @@ function userAlwaysThrows(rootKey: UserAlwaysThrowsResolver$key): string {
   throw new Error('I always throw. What did you expect?');
 }
 
-module.exports = userAlwaysThrows;
+module.exports = {
+  always_throws,
+};

@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<4f260bac285278377a679990694ae2b1>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<50035f6e4b5902ef4431ca18431d0be9>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -17,7 +19,7 @@
 /*::
 import type { ConcreteRequest, Query } from 'relay-runtime';
 import type { ActorChangePoint } from "react-relay/multi-actor";
-type RelayModernEnvironmentCheckTestFragment$fragmentType = any;
+import type { RelayModernEnvironmentCheckTestFragment$fragmentType } from "./RelayModernEnvironmentCheckTestFragment.graphql";
 export type RelayModernEnvironmentCheckTestQuery$variables = {||};
 export type RelayModernEnvironmentCheckTestQuery$data = {|
   +viewer: ?{|

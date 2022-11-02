@@ -5,24 +5,49 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::fmt::Result as FmtResult;
+
 use fnv::FnvBuildHasher;
 use indexmap::IndexMap;
-use std::fmt::Result as FmtResult;
 
 #[derive(Default, Clone)]
 pub struct TopLevelStatements(IndexMap<String, TopLevelStatement, FnvBuildHasher>);
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TopLevelStatement {
-    ImportStatement { name: String, path: String },
+    ImportStatement {
+        module_import_name: ModuleImportName,
+        path: String,
+    },
     VariableDefinition(String),
+}
+
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum ModuleImportName {
+    Default(String),
+    Named {
+        name: String,
+        import_as: Option<String>,
+    },
 }
 
 impl std::fmt::Display for TopLevelStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> FmtResult {
         match self {
-            TopLevelStatement::ImportStatement { name, path } => {
-                write!(f, "import {} from '{}';\n", name, path)?
-            }
+            TopLevelStatement::ImportStatement {
+                module_import_name,
+                path,
+            } => match module_import_name {
+                ModuleImportName::Default(default_import) => {
+                    write!(f, "import {} from '{}';\n", default_import, path)?
+                }
+                ModuleImportName::Named { name, import_as } => {
+                    if let Some(import_as) = import_as {
+                        write!(f, "import {{{} as {}}} from '{}';\n", name, import_as, path)?
+                    } else {
+                        write!(f, "import {{{}}} from '{}';\n", name, path)?
+                    }
+                }
+            },
             TopLevelStatement::VariableDefinition(text) => write!(f, "{}", text)?,
         };
         Ok(())
@@ -45,7 +70,9 @@ impl TopLevelStatements {
 
 impl std::fmt::Display for TopLevelStatements {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> FmtResult {
-        for (_, statement) in self.0.iter() {
+        let mut statements = self.0.values().collect::<Vec<_>>();
+        statements.sort();
+        for statement in statements {
             write!(f, "{}", statement)?;
         }
 

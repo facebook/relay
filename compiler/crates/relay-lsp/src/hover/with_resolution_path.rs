@@ -5,32 +5,70 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use common::DirectiveName;
 use common::NamedItem;
-use graphql_ir::{Program, Value};
-use graphql_syntax::{FragmentDefinition, Identifier, OperationDefinition, VariableDefinition};
+use graphql_ir::FragmentDefinitionName;
+use graphql_ir::Program;
+use graphql_ir::Value;
+use graphql_syntax::FragmentDefinition;
+use graphql_syntax::Identifier;
+use graphql_syntax::OperationDefinition;
+use graphql_syntax::VariableDefinition;
 use graphql_text_printer::print_value;
+use graphql_text_printer::PrinterOptions;
 use intern::string_key::StringKey;
-use lsp_types::{Hover, HoverContents, MarkedString};
+use intern::Lookup;
+use lsp_types::Hover;
+use lsp_types::HoverContents;
+use lsp_types::MarkedString;
 use relay_transforms::RELAY_RESOLVER_DIRECTIVE_NAME;
-use resolution_path::{
-    ArgumentPath, ArgumentRoot, ConstantArgPath, ConstantBooleanPath, ConstantEnumPath,
-    ConstantFloatPath, ConstantIntPath, ConstantListPath, ConstantNullPath, ConstantObjPath,
-    ConstantObjectPath, ConstantStringPath, ConstantValueParent, ConstantValuePath,
-    ConstantValueRoot, DefaultValuePath, DirectivePath, FragmentDefinitionPath, FragmentSpreadPath,
-    IdentParent, IdentPath, InlineFragmentPath, LinkedFieldPath, ListTypeAnnotationPath,
-    NamedTypeAnnotationPath, NonNullTypeAnnotationPath, OperationDefinitionPath, OperationPath,
-    ResolutionPath, ScalarFieldPath, SelectionPath, TypeAnnotationPath, TypeConditionParent,
-    TypeConditionPath, ValueListPath, ValuePath, VariableDefinitionPath, VariableIdentifierParent,
-    VariableIdentifierPath,
-};
-use schema::{SDLSchema, Schema};
+use resolution_path::ArgumentPath;
+use resolution_path::ArgumentRoot;
+use resolution_path::ConstantArgPath;
+use resolution_path::ConstantBooleanPath;
+use resolution_path::ConstantEnumPath;
+use resolution_path::ConstantFloatPath;
+use resolution_path::ConstantIntPath;
+use resolution_path::ConstantListPath;
+use resolution_path::ConstantNullPath;
+use resolution_path::ConstantObjPath;
+use resolution_path::ConstantObjectPath;
+use resolution_path::ConstantStringPath;
+use resolution_path::ConstantValueParent;
+use resolution_path::ConstantValuePath;
+use resolution_path::ConstantValueRoot;
+use resolution_path::DefaultValuePath;
+use resolution_path::DirectivePath;
+use resolution_path::FragmentDefinitionPath;
+use resolution_path::FragmentSpreadPath;
+use resolution_path::IdentParent;
+use resolution_path::IdentPath;
+use resolution_path::InlineFragmentPath;
+use resolution_path::LinkedFieldPath;
+use resolution_path::ListTypeAnnotationPath;
+use resolution_path::NamedTypeAnnotationPath;
+use resolution_path::NonNullTypeAnnotationPath;
+use resolution_path::OperationDefinitionPath;
+use resolution_path::OperationPath;
+use resolution_path::ResolutionPath;
+use resolution_path::ScalarFieldPath;
+use resolution_path::SelectionPath;
+use resolution_path::TypeAnnotationPath;
+use resolution_path::TypeConditionParent;
+use resolution_path::TypeConditionPath;
+use resolution_path::ValueListPath;
+use resolution_path::ValuePath;
+use resolution_path::VariableDefinitionPath;
+use resolution_path::VariableIdentifierParent;
+use resolution_path::VariableIdentifierPath;
+use schema::SDLSchema;
+use schema::Schema;
 use schema_documentation::SchemaDocumentation;
 use schema_print::print_directive;
 
-use crate::{
-    hover::{get_open_schema_explorer_command_link, GraphQLSchemaExplorerParams},
-    LSPExtraDataProvider,
-};
+use crate::hover::get_open_schema_explorer_command_link;
+use crate::hover::GraphQLSchemaExplorerParams;
+use crate::LSPExtraDataProvider;
 
 /// Enum, that allows us to adjust content of the hover
 /// tooltip based on the consumer type (Relay, GraphQL)
@@ -623,7 +661,6 @@ fn get_scalar_or_linked_field_hover_content(
         .named(*RELAY_RESOLVER_DIRECTIVE_NAME)
         .is_some();
 
-    let rendered_type_string = schema.get_type_string(&field.type_);
     let field_type_name = schema.get_type_name(field.type_.inner()).lookup();
 
     let mut hover_contents: Vec<MarkedString> = vec![MarkedString::String(format!(
@@ -635,25 +672,23 @@ fn get_scalar_or_linked_field_hover_content(
         schema_documentation.get_field_description(parent_type_name, field.name.item.lookup())
     {
         hover_contents.push(MarkedString::String(field_description.to_string()));
+    } else if let Some(description) = field.description {
+        hover_contents.push(MarkedString::String(description.to_string()));
     }
 
     type_path.push(field_type_name);
 
-    // Relay Resolvers return the return type of their resolver function. This can be any JavaScript value
-    // so it's not correctly modeled in our schema types.
-    if !is_resolver {
-        hover_contents.push(MarkedString::String(format!(
-            "Type: **{}**",
-            content_consumer_type.render_text_with_params(
-                &rendered_type_string,
-                &GraphQLSchemaExplorerParams {
-                    path: type_path,
-                    schema_name: schema_name.lookup(),
-                    filter: None,
-                }
-            )
-        )));
-    }
+    hover_contents.push(MarkedString::String(format!(
+        "Type: **{}**",
+        content_consumer_type.render_text_with_params(
+            &schema.get_type_string(&field.type_),
+            &GraphQLSchemaExplorerParams {
+                path: type_path,
+                schema_name: schema_name.lookup(),
+                filter: None,
+            }
+        )
+    )));
     if let Some(type_description) = schema_documentation.get_type_description(field_type_name) {
         hover_contents.push(MarkedString::String(type_description.to_string()));
     }
@@ -684,7 +719,7 @@ fn get_scalar_or_linked_field_hover_content(
                 if let Some(description) = schema_documentation.get_field_argument_description(
                     parent_type_name,
                     field.name.item.lookup(),
-                    arg.name.lookup(),
+                    arg.name.0.lookup(),
                 ) {
                     description.to_string()
                 } else {
@@ -788,7 +823,7 @@ fn on_hover_fragment_spread<'a>(
         inner: fragment_spread,
         parent: _,
     } = fragment_spread_path;
-    let fragment_name = fragment_spread.name.value;
+    let fragment_name = FragmentDefinitionName(fragment_spread.name.value);
 
     let fragment_definition = program.fragment(fragment_name)?;
 
@@ -816,7 +851,11 @@ fn on_hover_fragment_spread<'a>(
             let default_value = match var.default_value.clone() {
                 Some(default_value) => format!(
                     ", with a default value of {}",
-                    print_value(schema, &Value::Constant(default_value.item))
+                    print_value(
+                        schema,
+                        &Value::Constant(default_value.item),
+                        PrinterOptions::default()
+                    )
                 ),
                 None => "".to_string(),
             };
@@ -838,7 +877,7 @@ fn on_hover_fragment_spread<'a>(
     }
 
     if matches!(content_consumer_type, ContentConsumerType::Relay) {
-        let fragment_name_details: Vec<&str> = fragment_name.lookup().split('_').collect();
+        let fragment_name_details: Vec<&str> = fragment_name.0.lookup().split('_').collect();
         // We expect the fragment name to be `ComponentName_propName`
         if fragment_name_details.len() == 2 {
             hover_contents.push(MarkedString::from_markdown(format!(
@@ -880,10 +919,10 @@ fn get_directive_hover_content<'a>(
         parent: _,
     } = directive_path;
 
-    let directive_name = directive.name.value;
+    let directive_name = DirectiveName(directive.name.value);
 
     if let Some(argument_definition_hover_info) =
-        super::argument_definition_hover_info(directive_name.lookup())
+        super::argument_definition_hover_info(directive_name.0.lookup())
     {
         return Some(vec![argument_definition_hover_info]);
     }

@@ -1,0 +1,108 @@
+==================================== INPUT ====================================
+query relayResolverWithoutFragmentOnClientTypeQuery {
+  client_type {
+    resolver_field
+  }
+}
+
+# %extensions%
+
+type ClientType {
+  id: ID!
+}
+
+extend type Query {
+  client_type: ClientType
+}
+
+extend type ClientType {
+  resolver_field: String @relay_resolver(import_path: "./path/to/Resolver.js")
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "relayResolverWithoutFragmentOnClientTypeQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "ClientType",
+            "kind": "LinkedField",
+            "name": "client_type",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "fragment": null,
+                "kind": "RelayResolver",
+                "name": "resolver_field",
+                "resolverModule": require('Resolver'),
+                "path": "client_type.resolver_field"
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [],
+    "kind": "Operation",
+    "name": "relayResolverWithoutFragmentOnClientTypeQuery",
+    "selections": [
+      {
+        "kind": "ClientExtension",
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "ClientType",
+            "kind": "LinkedField",
+            "name": "client_type",
+            "plural": false,
+            "selections": [
+              {
+                "name": "resolver_field",
+                "args": null,
+                "fragment": null,
+                "kind": "RelayResolver",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "id",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          }
+        ]
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "d2a539403b51caaf7cb1f6dde3f5f989",
+    "id": null,
+    "metadata": {},
+    "name": "relayResolverWithoutFragmentOnClientTypeQuery",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+Query Text is Empty.

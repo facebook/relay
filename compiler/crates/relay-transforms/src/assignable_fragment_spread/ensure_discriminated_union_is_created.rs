@@ -7,9 +7,15 @@
 
 use std::collections::HashSet;
 
-use common::{Diagnostic, DiagnosticsResult, Location};
-use graphql_ir::{InlineFragment, LinkedField, Selection};
-use schema::{SDLSchema, Schema, Type};
+use common::Diagnostic;
+use common::DiagnosticsResult;
+use common::Location;
+use graphql_ir::InlineFragment;
+use graphql_ir::LinkedField;
+use graphql_ir::Selection;
+use schema::SDLSchema;
+use schema::Schema;
+use schema::Type;
 
 use super::errors::ValidationMessage;
 
@@ -59,10 +65,13 @@ pub(super) fn ensure_discriminated_union_is_created(
                     errors.extend(e.into_iter());
                 }
             }
-            _ => errors.push(Diagnostic::error(
-                ValidationMessage::EnsureDiscriminatedUnionNonInlineFragment { reason_message },
-                linked_field.definition.location,
-            )),
+            _ => errors.push(
+                Diagnostic::error(
+                    ValidationMessage::EnsureDiscriminatedUnionNonInlineFragment { reason_message },
+                    selection.location(),
+                )
+                .annotate("enclosing linked field", linked_field.definition.location),
+            ),
         }
     }
 

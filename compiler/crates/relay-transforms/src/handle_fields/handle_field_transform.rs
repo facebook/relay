@@ -5,14 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::sync::Arc;
+
+use common::ArgumentName;
+use common::Location;
+use common::WithLocation;
+use graphql_ir::Argument;
+use graphql_ir::Directive;
+use graphql_ir::LinkedField;
+use graphql_ir::Program;
+use graphql_ir::ScalarField;
+use graphql_ir::Selection;
+use graphql_ir::Transformed;
+use graphql_ir::Transformer;
+use intern::string_key::Intern;
+
 use super::extract_values_from_handle_field_directive;
 use crate::extract_handle_field_directives;
-use common::{Location, WithLocation};
-use graphql_ir::{
-    Argument, Directive, LinkedField, Program, ScalarField, Selection, Transformed, Transformer,
-};
-use intern::string_key::Intern;
-use std::sync::Arc;
 
 /// This transform applies field argument updates for client handle fields:
 /// - If filters is not set, existing arguments are removed.
@@ -36,13 +45,13 @@ impl<'s> HandleFieldTransform {
     ) {
         let handle_values = extract_values_from_handle_field_directive(handle_directive);
         if let Some(filters) = handle_values.filters {
-            arguments.retain(|arg| filters.iter().any(|f| *f == arg.name.item));
+            arguments.retain(|arg| filters.iter().any(|f| *f == arg.name.item.0));
         } else {
             arguments.clear();
         };
         if let Some(dynamic_key) = handle_values.dynamic_key {
             arguments.push(Argument {
-                name: WithLocation::new(location, "__dynamicKey".intern()),
+                name: WithLocation::new(location, ArgumentName("__dynamicKey".intern())),
                 value: WithLocation::new(location, dynamic_key),
             });
         }

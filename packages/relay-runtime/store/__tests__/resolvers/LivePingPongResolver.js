@@ -4,9 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @format
  * @flow strict-local
- * @emails oncall+relay
+ * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -24,11 +24,11 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @onType Query
  * @live
  *
- * A @live Relay resolver that syncronously triggers an update on initial
+ * A @live Relay resolver that synchronously triggers an update on initial
  * subscribe. This is intended to exercise an edge case in Relay's handling of
  * Live Resolvers.
  */
-function pingPong(rootKey: LivePingPongResolver$key): LiveState<string> {
+function ping(rootKey: LivePingPongResolver$key): LiveState<string> {
   readFragment(
     graphql`
       fragment LivePingPongResolver on Query {
@@ -53,4 +53,6 @@ function pingPong(rootKey: LivePingPongResolver$key): LiveState<string> {
   };
 }
 
-module.exports = pingPong;
+module.exports = {
+  ping,
+};

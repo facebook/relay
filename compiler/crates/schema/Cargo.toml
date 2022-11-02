@@ -17,11 +17,11 @@ flatbuffers = "2.0"
 fnv = "1.0"
 graphql-syntax = { path = "../graphql-syntax" }
 intern = { path = "../intern" }
-lazy_static = "1.0"
+lazy_static = "1.4"
 ouroboros = "0.8"
 schema-flatbuffer = { path = "../schema-flatbuffer" }
 strsim = "0.10.0"
-thiserror = "1.0.30"
+thiserror = "1.0.36"
 
 [dev-dependencies]
 fixture-tests = { path = "../fixture-tests" }

@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<da81628e022f0b10dd07d84a748531f7>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<3cf7cc03c0c45280c53acf73153e3215>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { ConcreteRequest, GraphQLSubscription } from 'relay-runtime';
-type requestSubscriptionTestExtraFragment$fragmentType = any;
+import type { requestSubscriptionTestExtraFragment$fragmentType } from "./requestSubscriptionTestExtraFragment.graphql";
 export type requestSubscriptionTestConfigCreateSubscription$variables = {||};
 export type requestSubscriptionTestConfigCreateSubscription$data = {|
   +configCreateSubscribe: ?{|

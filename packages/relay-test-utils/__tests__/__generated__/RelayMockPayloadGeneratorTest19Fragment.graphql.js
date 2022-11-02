@@ -4,7 +4,9 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<9ee0839e7675a2215b8c152dbdfc2204>>
+ * @oncall relay
+ *
+ * @generated SignedSource<<5edf4e84ea91a505003193b84bc4fe02>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -16,7 +18,7 @@
 
 /*::
 import type { Fragment, ReaderFragment } from 'relay-runtime';
-type RelayMockPayloadGeneratorTest18Fragment$fragmentType = any;
+import type { RelayMockPayloadGeneratorTest18Fragment$fragmentType } from "./RelayMockPayloadGeneratorTest18Fragment.graphql";
 import type { FragmentType } from "relay-runtime";
 declare export opaque type RelayMockPayloadGeneratorTest19Fragment$fragmentType: FragmentType;
 export type RelayMockPayloadGeneratorTest19Fragment$data = {|

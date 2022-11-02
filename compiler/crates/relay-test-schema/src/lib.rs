@@ -9,11 +9,12 @@
 #![deny(rust_2018_idioms)]
 #![deny(clippy::all)]
 
+use std::sync::Arc;
+
 use common::SourceLocationKey;
 use lazy_static::lazy_static;
 use relay_schema::build_schema_with_extensions;
 use schema::SDLSchema;
-use std::sync::Arc;
 
 const TEST_SCHEMA_DATA: &str = include_str!("testschema.graphql");
 const TEST_SCHEMA_WITH_CUSTOM_ID_DATA: &str = include_str!("testschema_with_custom_id.graphql");

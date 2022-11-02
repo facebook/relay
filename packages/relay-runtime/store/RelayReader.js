@@ -6,6 +6,7 @@
  *
  * @flow strict-local
  * @format
+ * @oncall relay
  */
 
 'use strict';
@@ -69,7 +70,6 @@ const {
   STREAM,
 } = require('../util/RelayConcreteNode');
 const RelayFeatureFlags = require('../util/RelayFeatureFlags');
-const ClientID = require('./ClientID');
 const {
   isSuspenseSentinel,
 } = require('./experimental-live-resolvers/LiveResolverSuspenseSentinel');
@@ -123,6 +123,7 @@ class RelayReader {
   _owner: RequestDescriptor;
   _recordSource: RecordSource;
   _seenRecords: DataIDSet;
+  _updatedDataIDs: DataIDSet;
   _selector: SingularReaderSelector;
   _variables: Variables;
   _resolverCache: ResolverCache;
@@ -152,6 +153,7 @@ class RelayReader {
     this._resolverCache = resolverCache;
     this._resolverErrors = [];
     this._fragmentName = selector.node.name;
+    this._updatedDataIDs = new Set();
   }
 
   read(): Snapshot {
@@ -211,6 +213,11 @@ class RelayReader {
 
     this._isWithinUnmatchedTypeRefinement = !isDataExpectedToBePresent;
     const data = this._traverse(node, dataID, null);
+
+    if (this._updatedDataIDs.size > 0) {
+      this._resolverCache.notifyUpdatedSubscribers(this._updatedDataIDs);
+      this._updatedDataIDs.clear();
+    }
     return {
       data,
       isMissingData: this._isMissingData && isDataExpectedToBePresent,
@@ -280,7 +287,7 @@ class RelayReader {
   _maybeReportUnexpectedNull(
     fieldPath: string,
     action: 'LOG' | 'THROW',
-    record: Record,
+    _record: Record,
   ) {
     if (this._missingRequiredFields?.action === 'THROW') {
       // Chained @required directives may cause a parent `@required(action:
@@ -421,10 +428,11 @@ class RelayReader {
           );
           // The only case where we want to suspend due to missing data off of
           // a client extension is if we reached a client edge that we might be
-          // able to fetch:
+          // able to fetch, or there is a missing data in one of the live resolvers.
           this._isMissingData =
             isMissingData ||
-            this._missingClientEdges.length > alreadyMissingClientEdges;
+            this._missingClientEdges.length > alreadyMissingClientEdges ||
+            this._missingLiveResolverFields.length > 0;
           if (RelayFeatureFlags.ENABLE_CLIENT_EDGES) {
             this._clientEdgeTraversalPath.pop();
           }
@@ -498,6 +506,12 @@ class RelayReader {
           throw new Error('Relay Resolver fields are not yet supported.');
         }
         return this._readResolverField(selection.field, record, data);
+      case CLIENT_EDGE_TO_CLIENT_OBJECT:
+      case CLIENT_EDGE_TO_SERVER_OBJECT:
+        if (!RelayFeatureFlags.ENABLE_RELAY_RESOLVERS) {
+          throw new Error('Relay Resolver fields are not yet supported.');
+        }
+        return this._readClientEdge(selection.field, record, data);
       default:
         (selection.field.kind: empty);
         invariant(
@@ -514,17 +528,21 @@ class RelayReader {
     data: SelectorData,
   ): mixed {
     const {fragment} = field;
-    const storageKey = getStorageKey(fragment ?? field, this._variables);
-    const resolverID = ClientID.generateClientID(
-      RelayModernRecord.getDataID(record),
-      storageKey,
-    );
+    const parentRecordID = RelayModernRecord.getDataID(record);
 
     // Found when reading the resolver fragment, which can happen either when
     // evaluating the resolver and it calls readFragment, or when checking if the
     // inputs have changed since a previous evaluation:
     let snapshot: ?Snapshot;
 
+    // The function `getDataForResolverFragment` serves two purposes:
+    // 1. To memoize reads of the resolver's root fragment. This is important
+    //    because we may read it twice. Once to check if the results have changed
+    //    since last read, and once when we actually evaluate.
+    // 2. To intercept the snapshot so that it can be cached by the resolver
+    //    cache. This is what enables the change detection described in #1.
+    //
+    // Note: In the future this can be moved into the ResolverCache.
     const getDataForResolverFragment = (
       singularReaderSelector: SingularReaderSelector,
     ) => {
@@ -549,12 +567,17 @@ class RelayReader {
         isMissingData: snapshot.isMissingData,
       };
     };
-    const resolverContext = {getDataForResolverFragment};
 
+    // This function `evaluate` tells the resolver cache how to read this
+    // resolver. It returns an `EvaluationResult` which gives the resolver cache:
+    // * `resolverResult` The value returned by the resolver function
+    // * `snapshot` The snapshot returned when reading the resolver's root fragment (if it has one)
+    // * `error` If the resolver throws, its error is caught (inside
+    //   `getResolverValue`) and converted into an error object.
     const evaluate = (): EvaluationResult<mixed> => {
       if (fragment != null) {
         const key = {
-          __id: RelayModernRecord.getDataID(record),
+          __id: parentRecordID,
           __fragmentOwner: this._owner,
           __fragments: {
             [fragment.name]: fragment.args
@@ -562,6 +585,7 @@ class RelayReader {
               : {},
           },
         };
+        const resolverContext = {getDataForResolverFragment};
         return withResolverContext(resolverContext, () => {
           const [resolverResult, resolverError] = getResolverValue(
             field,
@@ -572,7 +596,6 @@ class RelayReader {
           return {
             resolverResult,
             snapshot: snapshot,
-            resolverID,
             error: resolverError,
           };
         });
@@ -586,21 +609,29 @@ class RelayReader {
         return {
           resolverResult,
           snapshot: undefined,
-          resolverID,
           error: resolverError,
         };
       }
     };
 
-    const [result, seenRecord, resolverError, cachedSnapshot, suspenseID] =
-      this._resolverCache.readFromCacheOrEvaluate(
-        record,
-        field,
-        this._variables,
-        evaluate,
-        getDataForResolverFragment,
-      );
+    const [
+      result,
+      seenRecord,
+      resolverError,
+      cachedSnapshot,
+      suspenseID,
+      updatedDataIDs,
+    ] = this._resolverCache.readFromCacheOrEvaluate(
+      parentRecordID,
+      field,
+      this._variables,
+      evaluate,
+      getDataForResolverFragment,
+    );
 
+    // The resolver's root fragment (if there is one) may be missing data, have
+    // errors, or be in a suspended state. Here we propagate those cases
+    // upwards to mimic the behavior of having traversed into that fragment directly.
     if (cachedSnapshot != null) {
       if (cachedSnapshot.missingRequiredFields != null) {
         this._addMissingRequiredFields(cachedSnapshot.missingRequiredFields);
@@ -624,19 +655,37 @@ class RelayReader {
       }
       this._isMissingData = this._isMissingData || cachedSnapshot.isMissingData;
     }
+
+    // If the resolver errored, we track that as part of our traversal so that
+    // the errors can be attached to this read's snapshot. This allows the error
+    // to be logged.
     if (resolverError) {
       this._resolverErrors.push(resolverError);
     }
+
+    // The resolver itself creates a record in the store. We record that we've
+    // read this record so that subscribers to this snapshot also subscribe to
+    // this resolver.
     if (seenRecord != null) {
       this._seenRecords.add(seenRecord);
     }
 
+    // If this resolver, or a dependency of this resolver, has suspended, we
+    // need to report that in our snapshot. The `suspenseID` is the key in to
+    // store where the suspended LiveState value lives. This ID allows readers
+    // of the snapshot to subscribe to updates on that live resolver so that
+    // they know when to unsuspend.
     if (suspenseID != null) {
       this._isMissingData = true;
       this._missingLiveResolverFields.push({
         path: `${this._fragmentName}.${field.path}`,
         liveStateID: suspenseID,
       });
+    }
+    if (updatedDataIDs != null) {
+      for (const recordID of updatedDataIDs) {
+        this._updatedDataIDs.add(recordID);
+      }
     }
 
     const applicationName = field.alias ?? field.name;
@@ -659,11 +708,10 @@ class RelayReader {
     );
 
     const applicationName = backingField.alias ?? backingField.name;
-
     const backingFieldData = {};
     this._traverseSelections([backingField], record, backingFieldData);
-    let destinationDataID = backingFieldData[applicationName];
 
+    let destinationDataID = backingFieldData[applicationName];
     if (destinationDataID == null || isSuspenseSentinel(destinationDataID)) {
       data[applicationName] = destinationDataID;
       return;
@@ -682,19 +730,25 @@ class RelayReader {
     }
 
     if (field.kind === CLIENT_EDGE_TO_CLIENT_OBJECT) {
-      // Client objects might use ids that are not gobally unique and instead are just
+      // Client objects might use ids that are not globally unique and instead are just
       // local within their type. ResolverCache will derive a namespaced ID for us.
-      if (field.linkedField.plural) {
-        // $FlowFixMe[prop-missing]
-        destinationDataID = destinationDataID.map(id =>
-          this._resolverCache.ensureClientRecord(id, field.concreteType),
-        );
+      if (backingField.normalizationInfo == null) {
+        // @edgeTo case where we need to ensure that the record has `id` field
+        if (field.linkedField.plural) {
+          // $FlowFixMe[prop-missing]
+          destinationDataID = destinationDataID.map(id =>
+            this._resolverCache.ensureClientRecord(id, field.concreteType),
+          );
+        } else {
+          destinationDataID = this._resolverCache.ensureClientRecord(
+            destinationDataID,
+            field.concreteType,
+          );
+        }
       } else {
-        destinationDataID = this._resolverCache.ensureClientRecord(
-          destinationDataID,
-          field.concreteType,
-        );
+        // Normalization process in LiveResolverCache should take care of generating correct ID.
       }
+
       this._clientEdgeTraversalPath.push(null);
     } else {
       invariant(
@@ -793,7 +847,6 @@ class RelayReader {
     data: SelectorData,
   ): ?mixed {
     const applicationName = field.alias ?? field.name;
-    getStorageKey(field, this._variables);
     const storageKey = getStorageKey(field, this._variables);
     const linkedID = RelayModernRecord.getLinkedRecordID(record, storageKey);
     if (linkedID == null) {
@@ -1117,22 +1170,18 @@ class RelayReader {
 
     const parentVariables = this._variables;
 
-    // We only want to update `this._variables` if we have compiler artifacts that support it.
-    // Until we've rolled out the compiler portion of this change, we need to check at runtime.
-    if (fragmentSpreadOrFragment.argumentDefinitions != null) {
-      // If the inline fragment spread has arguments, we need to temporarily
-      // switch this._variables to include the fragment spread's arguments
-      // for the duration of its traversal.
-      const argumentVariables = fragmentSpreadOrFragment.args
-        ? getArgumentValues(fragmentSpreadOrFragment.args, this._variables)
-        : {};
+    // If the inline fragment spread has arguments, we need to temporarily
+    // switch this._variables to include the fragment spread's arguments
+    // for the duration of its traversal.
+    const argumentVariables = fragmentSpreadOrFragment.args
+      ? getArgumentValues(fragmentSpreadOrFragment.args, this._variables)
+      : {};
 
-      this._variables = RelayConcreteVariables.getFragmentVariables(
-        fragmentSpreadOrFragment,
-        this._owner.variables,
-        argumentVariables,
-      );
-    }
+    this._variables = RelayConcreteVariables.getFragmentVariables(
+      fragmentSpreadOrFragment,
+      this._owner.variables,
+      argumentVariables,
+    );
 
     this._traverseSelections(
       fragmentSpreadOrFragment.selections,
@@ -1180,6 +1229,13 @@ class RelayReader {
   }
 }
 
+// Constructs the arguments for a resolver function and then evaluates it.
+//
+// If the resolver's fragment is missing data (query is in-flight, a dependency
+// field is suspending, or is missing required fields) then `readFragment` will
+// throw `RESOLVER_FRAGMENT_MISSING_DATA_SENTINEL`. This function ensures that
+// we catch that error and instead create an error object which can be
+// propagated to the reader snapshot.
 function getResolverValue(
   field: ReaderRelayResolver | ReaderRelayLiveResolver,
   variables: Variables,

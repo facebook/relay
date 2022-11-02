@@ -5,8 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-use intern::string_key::{Intern, StringKey};
-use serde::{Deserialize, Serialize};
+use intern::string_key::Intern;
+use intern::string_key::StringKey;
+use serde::Deserialize;
+use serde::Serialize;
 
 /// Configuration where Relay should expect some fields in the schema.
 #[derive(Debug, Serialize, Deserialize)]

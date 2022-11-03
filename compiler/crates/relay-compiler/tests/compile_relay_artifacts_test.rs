@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<da7b37382824f1ff9dfc3023a2026666>>
+ * @generated SignedSource<<2dc303928ff3615db2ad2ba0e7a5aff2>>
  */
 
 mod compile_relay_artifacts;
@@ -731,6 +731,13 @@ fn nested_conditions() {
     let input = include_str!("compile_relay_artifacts/fixtures/nested_conditions.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/nested_conditions.expected");
     test_fixture(transform_fixture, "nested_conditions.graphql", "compile_relay_artifacts/fixtures/nested_conditions.expected", input, expected);
+}
+
+#[test]
+fn nested_conditions_2() {
+    let input = include_str!("compile_relay_artifacts/fixtures/nested-conditions-2.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/nested-conditions-2.expected");
+    test_fixture(transform_fixture, "nested-conditions-2.graphql", "compile_relay_artifacts/fixtures/nested-conditions-2.expected", input, expected);
 }
 
 #[test]

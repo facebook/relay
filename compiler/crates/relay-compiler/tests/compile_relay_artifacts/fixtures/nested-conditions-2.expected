@@ -1,0 +1,248 @@
+==================================== INPUT ====================================
+query nestedConditions2Query($conditional: Boolean!, $condition: Boolean!) {
+  node {
+    ... @include(if: $conditional){
+        ...nestedConditions2_NestedFragment @include(if: $condition)
+        ...nestedConditions2_NestedFragment2 @skip(if: $condition)
+    }
+  }
+}
+
+fragment nestedConditions2_NestedFragment on User {
+  name
+}
+
+fragment nestedConditions2_NestedFragment2 on User {
+  name
+}
+==================================== OUTPUT ===================================
+{
+  "fragment": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "condition"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "conditional"
+      }
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "nestedConditions2Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "condition": "conditional",
+            "kind": "Condition",
+            "passingValue": true,
+            "selections": [
+              {
+                "condition": "condition",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "args": null,
+                    "kind": "FragmentSpread",
+                    "name": "nestedConditions2_NestedFragment"
+                  }
+                ]
+              },
+              {
+                "condition": "condition",
+                "kind": "Condition",
+                "passingValue": false,
+                "selections": [
+                  {
+                    "args": null,
+                    "kind": "FragmentSpread",
+                    "name": "nestedConditions2_NestedFragment2"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "type": "Query",
+    "abstractKey": null
+  },
+  "kind": "Request",
+  "operation": {
+    "argumentDefinitions": [
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "conditional"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "condition"
+      }
+    ],
+    "kind": "Operation",
+    "name": "nestedConditions2Query",
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": null,
+        "kind": "LinkedField",
+        "name": "node",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "__typename",
+            "storageKey": null
+          },
+          {
+            "condition": "conditional",
+            "kind": "Condition",
+            "passingValue": true,
+            "selections": [
+              {
+                "kind": "TypeDiscriminator",
+                "abstractKey": "__isNode"
+              },
+              {
+                "condition": "condition",
+                "kind": "Condition",
+                "passingValue": true,
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "name",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "User",
+                    "abstractKey": null
+                  }
+                ]
+              },
+              {
+                "condition": "condition",
+                "kind": "Condition",
+                "passingValue": false,
+                "selections": [
+                  {
+                    "kind": "InlineFragment",
+                    "selections": [
+                      {
+                        "alias": null,
+                        "args": null,
+                        "kind": "ScalarField",
+                        "name": "name",
+                        "storageKey": null
+                      }
+                    ],
+                    "type": "User",
+                    "abstractKey": null
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
+  },
+  "params": {
+    "cacheID": "b57a5b8cfc84b8a5e2423f0e9dd54147",
+    "id": null,
+    "metadata": {},
+    "name": "nestedConditions2Query",
+    "operationKind": "query",
+    "text": null
+  }
+}
+
+QUERY:
+
+query nestedConditions2Query(
+  $conditional: Boolean!
+  $condition: Boolean!
+) {
+  node {
+    __typename
+    __isNode: __typename @include(if: $conditional)
+    ...nestedConditions2_NestedFragment @include(if: $condition) @include(if: $conditional)
+    ...nestedConditions2_NestedFragment2 @skip(if: $condition) @include(if: $conditional)
+    id
+  }
+}
+
+fragment nestedConditions2_NestedFragment on User {
+  name
+}
+
+fragment nestedConditions2_NestedFragment2 on User {
+  name
+}
+
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "nestedConditions2_NestedFragment",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}
+
+{
+  "argumentDefinitions": [],
+  "kind": "Fragment",
+  "metadata": null,
+  "name": "nestedConditions2_NestedFragment2",
+  "selections": [
+    {
+      "alias": null,
+      "args": null,
+      "kind": "ScalarField",
+      "name": "name",
+      "storageKey": null
+    }
+  ],
+  "type": "User",
+  "abstractKey": null
+}

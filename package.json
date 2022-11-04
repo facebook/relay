@@ -57,7 +57,7 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-relay": "1.8.3",
     "fbjs": "^3.0.2",
-    "flow-bin": "^0.191.0",
+    "flow-bin": "^0.192.0",
     "glob": "^7.1.1",
     "graphql": "15.3.0",
     "gulp": "4.0.2",

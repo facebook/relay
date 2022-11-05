@@ -193,7 +193,7 @@ class RelayObservable<+T> implements Subscribable<T> {
    */
   concat<U>(next: RelayObservable<U>): RelayObservable<T | U> {
     return RelayObservable.create(sink => {
-      let current;
+      let current: Subscription;
       this.subscribe({
         start(subscription) {
           current = subscription;

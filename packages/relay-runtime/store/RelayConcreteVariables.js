@@ -44,7 +44,7 @@ function getFragmentVariables(
   if (fragment.argumentDefinitions == null) {
     return argumentVariables;
   }
-  let variables;
+  let variables: {[string]: $FlowFixMe};
   fragment.argumentDefinitions.forEach(definition => {
     if (argumentVariables.hasOwnProperty(definition.name)) {
       return;

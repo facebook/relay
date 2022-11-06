@@ -296,6 +296,9 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                         relay_resolver_model_syntax_enabled: project_config
                             .feature_flags
                             .relay_resolver_model_syntax_enabled,
+                        relay_resolver_enable_terse_syntax: project_config
+                            .feature_flags
+                            .relay_resolver_enable_terse_syntax,
                         id_field_name: project_config.schema_config.node_interface_id_field,
                     },
                 )
@@ -409,7 +412,8 @@ impl<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: SchemaDocumentatio
                 create_node_resolution_info(executable_document, position_span)?,
             ),
             Feature::DocblockIr(docblock_ir) => FeatureResolutionInfo::DocblockNode(DocblockNode {
-                resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)?,
+                resolution_info: create_docblock_resolution_info(&docblock_ir, position_span)
+                    .ok_or(LSPRuntimeError::ExpectedError)?,
                 ir: docblock_ir,
             }),
         };

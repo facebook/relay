@@ -173,7 +173,7 @@ pub fn generate_artifacts(
                 reader_fragment.name.item.0
             };
 
-            let source_hash = source_hashes.get(&source_name).cloned().unwrap();
+            let source_hash = source_hashes.get(&source_name).cloned();
             let source_definition_names = vec![source_name];
             generate_reader_artifact(
                 project_config,
@@ -244,7 +244,7 @@ fn generate_reader_artifact(
     project_config: &ProjectConfig,
     programs: &Programs,
     reader_fragment: &Arc<FragmentDefinition>,
-    source_hash: String,
+    source_hash: Option<String>,
     source_definition_names: Vec<StringKey>,
 ) -> Artifact {
     let name = reader_fragment.name.item;

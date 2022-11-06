@@ -6,7 +6,7 @@
  *
  * @oncall relay
  *
- * @generated SignedSource<<ea38fce97a001a2b4d9e14a345acb00f>>
+ * @generated SignedSource<<6e20c832d6d9eb692d9bbe638d2bfe1c>>
  * @flow
  * @lightSyntaxTransform
  * @nogrep
@@ -146,6 +146,18 @@ return {
         "node.__typename": {
           "enumValues": null,
           "nullable": false,
+          "plural": false,
+          "type": "String"
+        },
+        "node.client_code": {
+          "enumValues": null,
+          "nullable": true,
+          "plural": false,
+          "type": "Int"
+        },
+        "node.client_name": {
+          "enumValues": null,
+          "nullable": true,
           "plural": false,
           "type": "String"
         },

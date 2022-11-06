@@ -15,13 +15,13 @@
  * Check out this awesome client type!
  */
 
- export type MyClientType = {
+export type MyClientType = {
     name: string
 }
 ==================================== OUTPUT ===================================
 scalar MyClientTypeModel @__RelayCustomScalar(path: "/path/to/test/fixture/weak-type.js", export_name: "MyClientType")
 
 
-type MyClientType @__RelayResolverModel @RelayOutputType @deprecated(reason: "Don't use this any more") {
-  __relay_model_instance: MyClientTypeModel
+type MyClientType @__RelayResolverModel @RelayOutputType @__RelayWeakObject @deprecated(reason: "Don't use this any more") {
+  __relay_model_instance: MyClientTypeModel @unselectable(reason: "This field is intended only for Relay's internal use")
 }

@@ -371,7 +371,7 @@ function createContainerWithFragments<
 
       // Declare refetchSubscription before assigning it in .start(), since
       // synchronous completion may call callbacks .subscribe() returns.
-      let refetchSubscription;
+      let refetchSubscription: Subscription;
 
       const storeSnapshot = this._getQueryFetcher().lookupInStore(
         environment,

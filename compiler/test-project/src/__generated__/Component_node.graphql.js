@@ -1,16 +1,17 @@
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
- * 
+ *
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<523579bc8f499b4549395145eeb9a939>>
+ * @generated SignedSource<<f4476ba720564b2622c9964ee06b81eb>>
  * @lightSyntaxTransform
  * @nogrep
  */
 
 /* eslint-disable */
 
+'use strict';
 
 var node = {
   "argumentDefinitions": [],
@@ -31,4 +32,5 @@ var node = {
 };
 
 node.hash = "c1076fdf6414be9f597194edf35d01a0";
+
 module.exports = node;

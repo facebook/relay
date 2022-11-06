@@ -6,3 +6,4 @@ query SimpleQuery @relay_test_operation {
     }
   }
 }
+# %extensions%

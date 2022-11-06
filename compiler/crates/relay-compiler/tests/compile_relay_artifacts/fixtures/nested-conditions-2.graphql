@@ -1,0 +1,16 @@
+query nestedConditions2Query($conditional: Boolean!, $condition: Boolean!) {
+  node {
+    ... @include(if: $conditional){
+        ...nestedConditions2_NestedFragment @include(if: $condition)
+        ...nestedConditions2_NestedFragment2 @skip(if: $condition)
+    }
+  }
+}
+
+fragment nestedConditions2_NestedFragment on User {
+  name
+}
+
+fragment nestedConditions2_NestedFragment2 on User {
+  name
+}

@@ -35,7 +35,18 @@ pub trait Named {
 }
 
 /// Wrapper struct for clarity rather than having StringKey everywhere.
-#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[derive(
+    Clone,
+    Copy,
+    Debug,
+    Deserialize,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    Serialize
+)]
 pub struct DirectiveName(pub StringKey);
 
 impl fmt::Display for DirectiveName {

@@ -147,6 +147,7 @@ export type {
   ReactFlightServerErrorHandler,
   ReaderSelector,
   ReadOnlyRecordProxy,
+  ReadOnlyRecordSourceProxy,
   RecordProxy,
   RecordSourceProxy,
   RecordSourceSelectorProxy,
@@ -271,6 +272,7 @@ module.exports = {
   createReaderSelector: RelayModernSelector.createReaderSelector,
   createRequestDescriptor:
     RelayModernOperationDescriptor.createRequestDescriptor,
+  getArgumentValues: RelayStoreUtils.getArgumentValues,
   getDataIDsFromFragment: RelayModernSelector.getDataIDsFromFragment,
   getDataIDsFromObject: RelayModernSelector.getDataIDsFromObject,
   getNode: GraphQLTag.getNode,

@@ -14,6 +14,6 @@
  * Check out this awesome client type!
  */
 
- export type MyClientType = {
+export type MyClientType = {
     name: string
 }

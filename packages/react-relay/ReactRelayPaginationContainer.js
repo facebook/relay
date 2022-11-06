@@ -697,7 +697,7 @@ function createContainerWithFragments<
       const observer = toObserver(observerOrCallback);
       const connectionData = this._getConnectionData();
       if (!connectionData) {
-        Observable.create(sink => sink.complete()).subscribe(observer);
+        Observable.create<empty>(sink => sink.complete()).subscribe(observer);
         return null;
       }
       const totalCount = connectionData.edgeCount + pageSize;

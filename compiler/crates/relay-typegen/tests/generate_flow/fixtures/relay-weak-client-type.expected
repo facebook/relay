@@ -10,7 +10,7 @@ query RelayClientIDFieldQuery($id: ID!) {
 scalar CustomClientTypeModel
   @__RelayCustomScalar(
     path: "./path/to/the/module.js"
-    export_name: "CustomClientTypeModel"
+    export_name: "CustomClientType"
   )
 
 type CustomClientType {
@@ -21,13 +21,13 @@ extend type Query {
   my_custom_type: CustomClientType
 }
 ==================================== OUTPUT ===================================
-import type { CustomClientTypeModel } from "./path/to/the/module.js";
+import type { CustomClientType } from "module";
 export type RelayClientIDFieldQuery$variables = {|
   id: string,
 |};
 export type RelayClientIDFieldQuery$data = {|
   +my_custom_type: ?{|
-    +__instance: ?CustomClientTypeModel,
+    +__instance: ?CustomClientType,
   |},
 |};
 export type RelayClientIDFieldQuery = {|

@@ -47,6 +47,7 @@ pub fn build_schema_with_extensions<T: AsRef<str>, U: AsRef<str>>(
                     .map(|(source, location_key)| (source.as_ref(), *location_key)),
             )
             .collect();
+
     let mut schema = schema::build_schema_with_extensions(server_sdls, &extensions)?;
 
     // Remove label arg from @defer and @stream directives since the compiler

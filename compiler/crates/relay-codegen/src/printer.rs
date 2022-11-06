@@ -509,12 +509,24 @@ impl<'b> JSONPrinter<'b> {
             Primitive::RelayResolverModel {
                 graphql_module,
                 js_module,
-                field_name,
+                injected_field_name_details,
             } => self.write_relay_resolver_model(
                 f,
                 *graphql_module,
                 js_module,
-                field_name.as_ref().copied(),
+                injected_field_name_details.as_ref().copied(),
+            ),
+            Primitive::RelayResolverWeakObjectWrapper {
+                resolver,
+                key,
+                plural,
+            } => self.write_relay_resolver_weak_object_wrapper(
+                f,
+                resolver,
+                *key,
+                *plural,
+                indent,
+                is_dedupe_var,
             ),
         }
     }
@@ -562,16 +574,18 @@ impl<'b> JSONPrinter<'b> {
         f: &mut String,
         graphql_module: StringKey,
         js_module: &JSModuleDependency,
-        field_name: Option<StringKey>,
+        injected_field_name_details: Option<(StringKey, bool)>,
     ) -> FmtResult {
-        let relay_resolver_with_type_module =
-            "relay-runtime/store/experimental-live-resolvers/FragmentDataInjector";
-        let relay_resolver_with_type_module_name = "RelayResolversFragmentDataInjector";
+        let relay_runtime_experimental = "relay-runtime/experimental";
+        let resolver_data_injector = "resolverDataInjector";
 
         self.write_js_dependency(
             f,
-            ModuleImportName::Default(relay_resolver_with_type_module_name.to_string()),
-            Cow::Borrowed(relay_resolver_with_type_module),
+            ModuleImportName::Named {
+                name: resolver_data_injector.to_string(),
+                import_as: None,
+            },
+            Cow::Borrowed(relay_runtime_experimental),
         )?;
         write!(f, "(")?;
         self.write_js_dependency(
@@ -594,10 +608,36 @@ impl<'b> JSONPrinter<'b> {
             ),
             get_module_path(self.js_module_format, js_module.path),
         )?;
-        if let Some(field_name) = field_name {
+        if let Some((field_name, is_required_field)) = injected_field_name_details {
             write!(f, ", '{}'", field_name)?;
+            write!(f, ", {}", is_required_field)?;
         }
         write!(f, ")")
+    }
+
+    fn write_relay_resolver_weak_object_wrapper(
+        &mut self,
+        f: &mut String,
+        resolver: &Primitive,
+        key: StringKey,
+        plural: bool,
+        indent: usize,
+        is_dedupe_var: bool,
+    ) -> FmtResult {
+        let relay_runtime_experimental = "relay-runtime/experimental";
+        let weak_object_wrapper = "weakObjectWrapper";
+
+        self.write_js_dependency(
+            f,
+            ModuleImportName::Named {
+                name: weak_object_wrapper.to_string(),
+                import_as: None,
+            },
+            Cow::Borrowed(relay_runtime_experimental),
+        )?;
+        write!(f, "(")?;
+        self.print_primitive(f, resolver, indent + 1, is_dedupe_var)?;
+        write!(f, ", '{}', {})", key, plural)
     }
 }
 
@@ -767,5 +807,8 @@ fn write_constant_value(f: &mut String, builder: &AstBuilder, value: &Primitive)
         Primitive::JSModuleDependency { .. } => panic!("Unexpected JSModuleDependency"),
         Primitive::DynamicImport { .. } => panic!("Unexpected DynamicImport"),
         Primitive::RelayResolverModel { .. } => panic!("Unexpected RelayResolver"),
+        Primitive::RelayResolverWeakObjectWrapper { .. } => {
+            panic!("Unexpected RelayResolverWeakObjectWrapper")
+        }
     }
 }

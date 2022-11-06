@@ -1024,13 +1024,39 @@ impl InMemorySchema {
         )
     }
 
+    /// Add additional client-only (extension) scalar
+    pub fn add_extension_scalar(
+        &mut self,
+        scalar: ScalarTypeDefinition,
+        location_key: SourceLocationKey,
+    ) -> DiagnosticsResult<()> {
+        let scalar_name = scalar.name.name_with_location(location_key);
+
+        if self.type_map.contains_key(&scalar_name.item) {
+            return Err(vec![Diagnostic::error(
+                SchemaError::DuplicateType(scalar_name.item),
+                scalar_name.location,
+            )]);
+        }
+
+        let scalar_id = Type::Scalar(ScalarID(self.scalars.len() as u32));
+        self.type_map.insert(scalar_name.item, scalar_id);
+        self.add_definition(
+            &TypeSystemDefinition::ScalarTypeDefinition(scalar),
+            &location_key,
+            true,
+        )?;
+
+        Ok(())
+    }
+
     /// Add additional client-only (extension) object
     pub fn add_extension_object(
         &mut self,
-        extension_object: ObjectTypeDefinition,
+        object: ObjectTypeDefinition,
         location_key: SourceLocationKey,
     ) -> DiagnosticsResult<()> {
-        let object_name = extension_object.name.name_with_location(location_key);
+        let object_name = object.name.name_with_location(location_key);
 
         if self.type_map.contains_key(&object_name.item) {
             return Err(vec![Diagnostic::error(
@@ -1042,7 +1068,7 @@ impl InMemorySchema {
         let object_id = Type::Object(ObjectID(self.objects.len() as u32));
         self.type_map.insert(object_name.item, object_id);
         self.add_definition(
-            &TypeSystemDefinition::ObjectTypeDefinition(extension_object),
+            &TypeSystemDefinition::ObjectTypeDefinition(object),
             &location_key,
             true,
         )?;

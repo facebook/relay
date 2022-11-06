@@ -237,7 +237,7 @@ describe('FragmentResource Client Edges behavior', () => {
     // Use our own simulation of setTimeout due to bugs in Jest's.
     // We can't mock SuspenseResource's setTimeout using Jest mocks because
     // they aren't imported from a module, so we swizzle the global one.
-    const timeouts = new Map();
+    const timeouts = new Map<number, $FlowFixMe>();
     let nextTimeoutID = 0;
     const originalSetTimeout = global.setTimeout;
     const originalClearTimeout = global.clearTimeout;

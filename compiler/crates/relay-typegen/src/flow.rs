@@ -36,6 +36,7 @@ impl Writer for FlowPrinter {
     fn write(&mut self, ast: &AST) -> FmtResult {
         match ast {
             AST::Any => write!(&mut self.result, "any"),
+            AST::Mixed => write!(&mut self.result, "mixed"),
             AST::String => write!(&mut self.result, "string"),
             AST::StringLiteral(literal) => self.write_string_literal(**literal),
             AST::OtherTypename => self.write_other_string(),
@@ -71,10 +72,11 @@ impl Writer for FlowPrinter {
             }) => self.write_assert_function_type(*function_name, arguments, return_type),
             AST::GenericType { outer, inner } => self.write_generic_type(*outer, inner),
             AST::PropertyType {
-                type_name,
+                type_,
                 property_name,
             } => {
-                write!(&mut self.result, "{}['{}']", type_name, property_name)
+                self.write(type_)?;
+                write!(&mut self.result, "['{}']", property_name)
             }
         }
     }

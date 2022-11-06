@@ -23,6 +23,7 @@ use relay_transforms::validate_global_variable_names;
 use relay_transforms::validate_module_names;
 use relay_transforms::validate_no_double_underscore_alias;
 use relay_transforms::validate_no_inline_fragments_with_raw_response_type;
+use relay_transforms::validate_no_unselectable_selections;
 use relay_transforms::validate_relay_directives;
 use relay_transforms::validate_resolver_fragments;
 use relay_transforms::validate_static_args;
@@ -41,6 +42,7 @@ pub fn validate(
 ) -> DiagnosticsResult<WithDiagnostics<()>> {
     let output = try_all(vec![
         disallow_reserved_aliases(program, &project_config.schema_config),
+        validate_no_unselectable_selections(program, &project_config.schema_config),
         validate_no_double_underscore_alias(program),
         validate_unused_variables(program),
         validate_unused_fragment_variables(program),

@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,
@@ -98,7 +99,7 @@ describe.each(['RelayModernEnvironment', 'MultiActorEnvironment'])(
           _variables: Variables,
           _cacheConfig: CacheConfig,
         ) => {
-          return RelayObservable.create(sink => {
+          return RelayObservable.create<$FlowFixMe>(sink => {
             dataSource = sink;
           });
         };

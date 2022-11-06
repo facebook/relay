@@ -123,6 +123,7 @@ class RelayReader {
   _owner: RequestDescriptor;
   _recordSource: RecordSource;
   _seenRecords: DataIDSet;
+  _updatedDataIDs: DataIDSet;
   _selector: SingularReaderSelector;
   _variables: Variables;
   _resolverCache: ResolverCache;
@@ -152,6 +153,7 @@ class RelayReader {
     this._resolverCache = resolverCache;
     this._resolverErrors = [];
     this._fragmentName = selector.node.name;
+    this._updatedDataIDs = new Set();
   }
 
   read(): Snapshot {
@@ -212,6 +214,10 @@ class RelayReader {
     this._isWithinUnmatchedTypeRefinement = !isDataExpectedToBePresent;
     const data = this._traverse(node, dataID, null);
 
+    if (this._updatedDataIDs.size > 0) {
+      this._resolverCache.notifyUpdatedSubscribers(this._updatedDataIDs);
+      this._updatedDataIDs.clear();
+    }
     return {
       data,
       isMissingData: this._isMissingData && isDataExpectedToBePresent,
@@ -608,14 +614,20 @@ class RelayReader {
       }
     };
 
-    const [result, seenRecord, resolverError, cachedSnapshot, suspenseID] =
-      this._resolverCache.readFromCacheOrEvaluate(
-        parentRecordID,
-        field,
-        this._variables,
-        evaluate,
-        getDataForResolverFragment,
-      );
+    const [
+      result,
+      seenRecord,
+      resolverError,
+      cachedSnapshot,
+      suspenseID,
+      updatedDataIDs,
+    ] = this._resolverCache.readFromCacheOrEvaluate(
+      parentRecordID,
+      field,
+      this._variables,
+      evaluate,
+      getDataForResolverFragment,
+    );
 
     // The resolver's root fragment (if there is one) may be missing data, have
     // errors, or be in a suspended state. Here we propagate those cases
@@ -669,6 +681,11 @@ class RelayReader {
         path: `${this._fragmentName}.${field.path}`,
         liveStateID: suspenseID,
       });
+    }
+    if (updatedDataIDs != null) {
+      for (const recordID of updatedDataIDs) {
+        this._updatedDataIDs.add(recordID);
+      }
     }
 
     const applicationName = field.alias ?? field.name;

@@ -1,0 +1,65 @@
+==================================== INPUT ====================================
+# typegen_config.use_import_type_syntax = true
+
+fragment Foo_user on User {
+  poppy: pop_star_name {
+    name
+  }
+}
+
+fragment PopStarNameResolverFragment_name on User {
+  name
+  address {
+    street
+  }
+  parents {
+    lastName
+  }
+}
+
+# %extensions%
+
+type ClientUser {
+  name: String
+}
+
+extend type User {
+  pop_star_name: ClientUser @relay_resolver(fragment_name: "PopStarNameResolverFragment_name", import_path: "PopStarNameResolver", has_output_type: true)
+}
+==================================== OUTPUT ===================================
+export type User__pop_star_name$normalization$variables = {};
+export type User__pop_star_name$normalization$data = {
+  readonly name: string | null;
+};
+export type User__pop_star_name$normalization = {
+  response: User__pop_star_name$normalization$data;
+  variables: User__pop_star_name$normalization$variables;
+};
+-------------------------------------------------------------------------------
+import type { FragmentRefs } from "relay-runtime";
+export type Foo_user$data = {
+  readonly poppy: {
+    readonly name: string | null;
+  } | null;
+  readonly " $fragmentType": "Foo_user";
+};
+export type Foo_user$key = {
+  readonly " $data"?: Foo_user$data;
+  readonly " $fragmentSpreads": FragmentRefs<"Foo_user">;
+};
+-------------------------------------------------------------------------------
+import type { FragmentRefs } from "relay-runtime";
+export type PopStarNameResolverFragment_name$data = {
+  readonly address: {
+    readonly street: string | null;
+  } | null;
+  readonly name: string | null;
+  readonly parents: ReadonlyArray<{
+    readonly lastName: string | null;
+  }>;
+  readonly " $fragmentType": "PopStarNameResolverFragment_name";
+};
+export type PopStarNameResolverFragment_name$key = {
+  readonly " $data"?: PopStarNameResolverFragment_name$data;
+  readonly " $fragmentSpreads": FragmentRefs<"PopStarNameResolverFragment_name">;
+};

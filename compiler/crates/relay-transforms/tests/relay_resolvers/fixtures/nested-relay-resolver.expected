@@ -36,8 +36,8 @@ fragment Foo_user on User {
   #     field_path: "hobbit_name",
   #     field_arguments: [],
   #     live: false,
-  #     normalization_info: None,
-  #     inject_fragment_data: None,
+  #     output_type_info: None,
+  #     fragment_data_injection_mode: None,
   # }
   
 }
@@ -54,8 +54,8 @@ fragment HobbitNameResolverFragment_name on User {
   #     field_path: "pop_star_name",
   #     field_arguments: [],
   #     live: false,
-  #     normalization_info: None,
-  #     inject_fragment_data: None,
+  #     output_type_info: None,
+  #     fragment_data_injection_mode: None,
   # }
   
 }

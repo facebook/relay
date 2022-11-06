@@ -14,6 +14,7 @@ use common::DirectiveName;
 use common::InterfaceName;
 use common::Location;
 use common::Named;
+use common::NamedItem;
 use common::ObjectName;
 use common::Span;
 use common::WithLocation;
@@ -42,11 +43,13 @@ use graphql_syntax::TypeSystemDefinition;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
+use relay_config::SchemaConfig;
 use relay_schema::CUSTOM_SCALAR_DIRECTIVE_NAME;
 use relay_schema::EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME;
 use relay_schema::PATH_CUSTOM_SCALAR_ARGUMENT_NAME;
 use schema::suggestion_list::GraphQLSuggestions;
 use schema::InterfaceID;
+use schema::Object;
 use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
@@ -62,7 +65,7 @@ lazy_static! {
         DirectiveName("relay_resolver".intern());
     static ref RELAY_RESOLVER_MODEL_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("__RelayResolverModel".intern());
-    static ref OBJECT_DEFINITION_OUPTUT_TYPE_DIRECTIVE_NAME: DirectiveName =
+    static ref OBJECT_DEFINITION_OUTPUT_TYPE_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("RelayOutputType".intern());
     static ref DEPRECATED_RESOLVER_DIRECTIVE_NAME: DirectiveName =
         DirectiveName("deprecated".intern());
@@ -75,38 +78,65 @@ lazy_static! {
     static ref DEPRECATED_REASON_ARGUMENT_NAME: ArgumentName = ArgumentName("reason".intern());
     static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
         ArgumentName("has_output_type".intern());
-    pub(crate) static ref ID_FIELD_NAME: StringKey = "id".intern();
     pub(crate) static ref RESOLVER_VALUE_SCALAR_NAME: StringKey = "RelayResolverValue".intern();
     static ref RESOLVER_MODEL_INSTANCE_FIELD_NAME: StringKey = "__relay_model_instance".intern();
-    static ref MODEL_CUSTOM_SCALAR_TYPE_PREFIX: StringKey = "Model".intern();
+    static ref MODEL_CUSTOM_SCALAR_TYPE_SUFFIX: StringKey = "Model".intern();
+    static ref RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE: DirectiveName =
+        DirectiveName("__RelayWeakObject".intern());
 }
 
 #[derive(Debug, PartialEq)]
 pub enum DocblockIr {
     RelayResolver(RelayResolverIr),
+    TerseRelayResolver(TerseRelayResolverIr),
     StrongObjectResolver(StrongObjectIr),
     WeakObjectType(WeakObjectIr),
 }
 
+/// Wrapper over all schema-related values
+#[derive(Copy, Clone, Debug)]
+struct SchemaInfo<'a, 'b> {
+    schema: &'a SDLSchema,
+    config: &'b SchemaConfig,
+}
+
 impl DocblockIr {
-    pub fn to_sdl_string(&self, schema: &SDLSchema) -> DiagnosticsResult<String> {
+    pub fn to_sdl_string(
+        &self,
+        schema: &SDLSchema,
+        schema_config: &SchemaConfig,
+    ) -> DiagnosticsResult<String> {
         Ok(self
-            .to_graphql_schema_ast(schema)?
+            .to_graphql_schema_ast(schema, schema_config)?
             .definitions
             .iter()
             .map(|definition| format!("{}", definition))
             .collect::<Vec<String>>()
             .join("\n\n"))
     }
-    pub fn to_graphql_schema_ast(&self, schema: &SDLSchema) -> DiagnosticsResult<SchemaDocument> {
+    pub fn to_graphql_schema_ast(
+        &self,
+        schema: &SDLSchema,
+        schema_config: &SchemaConfig,
+    ) -> DiagnosticsResult<SchemaDocument> {
+        let schema_info = SchemaInfo {
+            schema,
+            config: schema_config,
+        };
+
         match self {
             DocblockIr::RelayResolver(relay_resolver) => {
-                relay_resolver.to_graphql_schema_ast(schema)
+                relay_resolver.to_graphql_schema_ast(schema_info)
+            }
+            DocblockIr::TerseRelayResolver(relay_resolver) => {
+                relay_resolver.to_graphql_schema_ast(schema_info)
             }
             DocblockIr::StrongObjectResolver(strong_object) => {
-                strong_object.to_graphql_schema_ast(schema)
+                strong_object.to_graphql_schema_ast(schema_info)
             }
-            DocblockIr::WeakObjectType(weak_object) => weak_object.to_graphql_schema_ast(schema),
+            DocblockIr::WeakObjectType(weak_object) => {
+                weak_object.to_graphql_schema_ast(schema_info)
+            }
         }
     }
 }
@@ -142,8 +172,9 @@ impl Named for Argument {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum OutputType {
+    Pending(WithLocation<TypeAnnotation>),
     EdgeTo(WithLocation<TypeAnnotation>),
     Output(WithLocation<TypeAnnotation>),
 }
@@ -151,6 +182,7 @@ pub enum OutputType {
 impl OutputType {
     pub fn inner(&self) -> &WithLocation<TypeAnnotation> {
         match self {
+            Self::Pending(inner) => inner,
             Self::EdgeTo(inner) => inner,
             Self::Output(inner) => inner,
         }
@@ -172,25 +204,39 @@ pub struct RootFragment {
 }
 
 trait ResolverIr {
-    fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>>;
+    fn definitions(
+        &self,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> DiagnosticsResult<Vec<TypeSystemDefinition>>;
     fn location(&self) -> Location;
-    fn root_fragment(&self) -> Option<RootFragment>;
-    fn output_type(&self) -> Option<&OutputType>;
+    fn root_fragment(
+        &self,
+        object: Option<&Object>,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> Option<RootFragment>;
+    fn output_type(&self) -> Option<OutputType>;
     fn deprecated(&self) -> Option<IrField>;
     fn live(&self) -> Option<IrField>;
     fn named_import(&self) -> Option<StringKey>;
 
-    fn to_graphql_schema_ast(&self, schema: &SDLSchema) -> DiagnosticsResult<SchemaDocument> {
+    fn to_graphql_schema_ast(
+        &self,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> DiagnosticsResult<SchemaDocument> {
         Ok(SchemaDocument {
             location: self.location(),
-            definitions: self.definitions(schema)?,
+            definitions: self.definitions(schema_info)?,
         })
     }
 
-    fn directives(&self) -> Vec<ConstantDirective> {
+    fn directives(
+        &self,
+        object: Option<&Object>,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> Vec<ConstantDirective> {
         let location = self.location();
         let span = location.span();
-        let mut directives = vec![self.directive()];
+        let mut directives = vec![self.directive(object, schema_info)];
 
         if let Some(deprecated) = self.deprecated() {
             directives.push(ConstantDirective {
@@ -209,7 +255,11 @@ trait ResolverIr {
         directives
     }
 
-    fn directive(&self) -> ConstantDirective {
+    fn directive(
+        &self,
+        object: Option<&Object>,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> ConstantDirective {
         let location = self.location();
         let span = location.span();
         let import_path = self.location().source_location().path().intern();
@@ -218,7 +268,7 @@ trait ResolverIr {
             WithLocation::new(self.location(), import_path),
         )];
 
-        if let Some(root_fragment) = self.root_fragment() {
+        if let Some(root_fragment) = self.root_fragment(object, schema_info) {
             arguments.push(string_argument(
                 FRAGMENT_KEY_ARGUMENT_NAME.0,
                 root_fragment.fragment.map(|x| x.0),
@@ -240,11 +290,45 @@ trait ResolverIr {
             arguments.push(true_argument(LIVE_ARGUMENT_NAME.0, live_field.key_location))
         }
 
-        if let Some(OutputType::Output(type_)) = &self.output_type() {
-            arguments.push(true_argument(
-                HAS_OUTPUT_TYPE_ARGUMENT_NAME.0,
-                type_.location,
-            ))
+        let schema = schema_info.schema;
+
+        if let Some(output_type) = self.output_type() {
+            match output_type {
+                OutputType::Pending(type_) => {
+                    let schema_type = schema.get_type(type_.item.inner().name.value);
+                    let fields = match schema_type {
+                        Some(Type::Object(id)) => {
+                            let object = schema.object(id);
+                            Some(&object.fields)
+                        }
+                        Some(Type::Interface(id)) => {
+                            let interface = schema.interface(id);
+                            Some(&interface.fields)
+                        }
+                        _ => None,
+                    };
+                    let is_edge_to = fields.map_or(false, |fields| {
+                        fields.iter().any(|id| {
+                            schema.field(*id).name.item
+                                == schema_info.config.node_interface_id_field
+                        })
+                    });
+
+                    if !is_edge_to {
+                        // If terse resolver does not return strong object (edge)
+                        // it should be `@outputType` resolver
+                        arguments.push(true_argument(
+                            HAS_OUTPUT_TYPE_ARGUMENT_NAME.0,
+                            type_.location,
+                        ))
+                    }
+                }
+                OutputType::EdgeTo(_) => {}
+                OutputType::Output(type_) => arguments.push(true_argument(
+                    HAS_OUTPUT_TYPE_ARGUMENT_NAME.0,
+                    type_.location,
+                )),
+            }
         }
         if let Some(name) = self.named_import() {
             arguments.push(string_argument(
@@ -262,142 +346,24 @@ trait ResolverIr {
     }
 }
 
-#[derive(Debug, PartialEq)]
-pub struct RelayResolverIr {
-    pub field: FieldDefinitionStub,
-    pub on: On,
-    pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
-    pub output_type: Option<OutputType>,
-    pub description: Option<WithLocation<StringKey>>,
-    pub deprecated: Option<IrField>,
-    pub live: Option<IrField>,
-    pub location: Location,
-    pub fragment_arguments: Option<Vec<Argument>>,
-    pub named_import: Option<StringKey>,
-}
+trait ResolverTypeDefinitionIr: ResolverIr {
+    fn field_name(&self) -> &Identifier;
+    fn field_arguments(&self) -> Option<&List<InputValueDefinition>>;
+    fn description(&self) -> Option<StringNode>;
+    fn fragment_arguments(&self) -> Option<&Vec<Argument>>;
 
-impl ResolverIr for RelayResolverIr {
-    fn definitions(&self, schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
-        if let Some(OutputType::EdgeTo(edge_to_with_location)) = &self.output_type {
-            if let TypeAnnotation::List(edge_to_type) = &edge_to_with_location.item {
-                if let Some(false) = schema
-                    .get_type(edge_to_type.type_.inner().name.value)
-                    .map(|t| schema.is_extension_type(t))
-                {
-                    return Err(vec![Diagnostic::error(
-                        ErrorMessages::ClientEdgeToPluralServerType,
-                        edge_to_with_location.location,
-                    )]);
-                }
-            }
-        }
-        match self.on {
-            On::Type(PopulatedIrField {
-                key_location,
-                value,
-            }) => {
-                if let Some(_type) = schema.get_type(value.item) {
-                    match _type {
-                        Type::Object(object_id) => {
-                            self.validate_singular_implementation(
-                                schema,
-                                &schema.object(object_id).interfaces,
-                            )?;
-                            return Ok(self.object_definitions(value.map(ObjectName)));
-                        }
-                        Type::Interface(_) => {
-                            return Err(vec![Diagnostic::error_with_data(
-                                ErrorMessagesWithData::OnTypeForInterface,
-                                key_location,
-                            )]);
-                        }
-                        _ => {}
-                    }
-                }
-                let suggester = GraphQLSuggestions::new(schema);
-                Err(vec![Diagnostic::error_with_data(
-                    ErrorMessagesWithData::InvalidOnType {
-                        type_name: value.item,
-                        suggestions: suggester.object_type_suggestions(value.item),
-                    },
-                    value.location,
-                )])
-            }
-            On::Interface(PopulatedIrField {
-                key_location,
-                value,
-            }) => {
-                if let Some(_type) = schema.get_type(value.item) {
-                    if let Some(interface_type) = _type.get_interface_id() {
-                        self.validate_singular_implementation(
-                            schema,
-                            &schema.interface(interface_type).interfaces,
-                        )?;
-                        return Ok(self.interface_definitions(
-                            value.map(InterfaceName),
-                            interface_type,
-                            schema,
-                        ));
-                    } else if _type.is_object() {
-                        return Err(vec![Diagnostic::error_with_data(
-                            ErrorMessagesWithData::OnInterfaceForType,
-                            key_location,
-                        )]);
-                    }
-                }
-                let suggester = GraphQLSuggestions::new(schema);
-                Err(vec![Diagnostic::error_with_data(
-                    ErrorMessagesWithData::InvalidOnInterface {
-                        interface_name: value.item,
-                        suggestions: suggester.interface_type_suggestions(value.item),
-                    },
-                    value.location,
-                )])
-            }
-        }
-    }
-
-    fn location(&self) -> Location {
-        self.location
-    }
-
-    fn root_fragment(&self) -> Option<RootFragment> {
-        self.root_fragment.map(|fragment| RootFragment {
-            fragment,
-            inject_fragment_data: None,
-        })
-    }
-
-    fn output_type(&self) -> Option<&OutputType> {
-        self.output_type.as_ref()
-    }
-
-    fn deprecated(&self) -> Option<IrField> {
-        self.deprecated
-    }
-
-    fn live(&self) -> Option<IrField> {
-        self.live
-    }
-
-    fn named_import(&self) -> Option<StringKey> {
-        self.named_import
-    }
-}
-
-impl RelayResolverIr {
     /// Build recursive object/interface extensions to add this field to all
     /// types that will need it.
     fn interface_definitions(
         &self,
         interface_name: WithLocation<InterfaceName>,
         interface_id: InterfaceID,
-        schema: &SDLSchema,
+        schema_info: SchemaInfo<'_, '_>,
     ) -> Vec<TypeSystemDefinition> {
         self.interface_definitions_impl(
             interface_name,
             interface_id,
-            schema,
+            schema_info,
             &mut HashSet::default(),
             &mut HashSet::default(),
         )
@@ -407,18 +373,20 @@ impl RelayResolverIr {
         &self,
         interface_name: WithLocation<InterfaceName>,
         interface_id: InterfaceID,
-        schema: &SDLSchema,
+        schema_info: SchemaInfo<'_, '_>,
         seen_objects: &mut HashSet<ObjectID>,
         seen_interfaces: &mut HashSet<InterfaceID>,
     ) -> Vec<TypeSystemDefinition> {
-        let fields = self.fields();
+        let fields = self.fields(None, schema_info);
+        let schema = schema_info.schema;
+
         // First we extend the interface itself...
         let mut definitions = vec![TypeSystemDefinition::InterfaceTypeExtension(
             InterfaceTypeExtension {
                 name: as_identifier(interface_name.map(|x| x.0)),
                 interfaces: Vec::new(),
                 directives: vec![],
-                fields: Some(fields.clone()),
+                fields: Some(fields),
             },
         )];
 
@@ -426,10 +394,7 @@ impl RelayResolverIr {
         for object_id in &schema.interface(interface_id).implementing_objects {
             if !seen_objects.contains(object_id) {
                 seen_objects.insert(*object_id);
-                definitions.extend(self.object_definitions(WithLocation::new(
-                    interface_name.location,
-                    schema.object(*object_id).name.item,
-                )))
+                definitions.extend(self.object_definitions(schema.object(*object_id), schema_info));
             }
         }
 
@@ -457,7 +422,7 @@ impl RelayResolverIr {
                             .unwrap()
                             .get_interface_id()
                             .unwrap(),
-                        schema,
+                        schema_info,
                         seen_objects,
                         seen_interfaces,
                     ),
@@ -476,20 +441,22 @@ impl RelayResolverIr {
     // Until we decide to support that behavior we'll make it a compiler error.
     fn validate_singular_implementation(
         &self,
-        schema: &SDLSchema,
+        schema_info: SchemaInfo<'_, '_>,
         interfaces: &[InterfaceID],
     ) -> DiagnosticsResult<()> {
+        let schema = schema_info.schema;
+
         for interface_id in interfaces {
             let interface = schema.interface(*interface_id);
             for field_id in &interface.fields {
                 let field = schema.field(*field_id);
-                if field.name() == self.field.name.value {
+                if field.name() == self.field_name().value {
                     return Err(vec![Diagnostic::error(
                         ErrorMessages::ResolverImplementingInterfaceField {
-                            field_name: self.field.name.value,
+                            field_name: self.field_name().value,
                             interface_name: interface.name(),
                         },
-                        self.location.with_span(self.field.name.span),
+                        self.location().with_span(self.field_name().span),
                     )]);
                 }
             }
@@ -497,19 +464,27 @@ impl RelayResolverIr {
         Ok(())
     }
 
-    fn object_definitions(&self, on_type: WithLocation<ObjectName>) -> Vec<TypeSystemDefinition> {
+    fn object_definitions(
+        &self,
+        object: &Object,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> Vec<TypeSystemDefinition> {
         vec![TypeSystemDefinition::ObjectTypeExtension(
             ObjectTypeExtension {
-                name: obj_as_identifier(on_type),
-                interfaces: Vec::new(),
+                name: obj_as_identifier(object.name),
+                interfaces: vec![],
                 directives: vec![],
-                fields: Some(self.fields()),
+                fields: Some(self.fields(Some(object), schema_info)),
             },
         )]
     }
 
-    fn fields(&self) -> List<FieldDefinition> {
-        let edge_to = self.output_type.as_ref().map_or_else(
+    fn fields(
+        &self,
+        object: Option<&Object>,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> List<FieldDefinition> {
+        let edge_to = self.output_type().as_ref().map_or_else(
             || {
                 // Resolvers return arbitrary JavaScript values. However, we
                 // need some GraphQL type to use in the schema. We use
@@ -522,7 +497,7 @@ impl RelayResolverIr {
             |output_type| output_type.inner().item.clone(),
         );
 
-        let args = match (self.fragment_arguments(), self.field.arguments.as_ref()) {
+        let args = match (self.fragment_argument_definitions(), self.field_arguments()) {
             (None, None) => None,
             (None, Some(b)) => Some(b.clone()),
             (Some(a), None) => Some(a),
@@ -535,16 +510,16 @@ impl RelayResolverIr {
         };
 
         List::generated(vec![FieldDefinition {
-            name: self.field.name.clone(),
+            name: self.field_name().clone(),
             type_: edge_to,
             arguments: args,
-            directives: self.directives(),
-            description: self.description.map(as_string_node),
+            directives: self.directives(object, schema_info),
+            description: self.description(),
         }])
     }
 
-    fn fragment_arguments(&self) -> Option<List<InputValueDefinition>> {
-        self.fragment_arguments.as_ref().map(|args| {
+    fn fragment_argument_definitions(&self) -> Option<List<InputValueDefinition>> {
+        self.fragment_arguments().as_ref().map(|args| {
             List::generated(
                 args.iter()
                     .map(|arg| InputValueDefinition {
@@ -556,6 +531,258 @@ impl RelayResolverIr {
                     .collect::<Vec<_>>(),
             )
         })
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub struct TerseRelayResolverIr {
+    pub field: FieldDefinition,
+    pub type_: WithLocation<StringKey>,
+    pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
+    pub deprecated: Option<IrField>,
+    pub live: Option<IrField>,
+    pub location: Location,
+    pub fragment_arguments: Option<Vec<Argument>>,
+    pub named_import: Option<StringKey>,
+}
+
+impl ResolverIr for TerseRelayResolverIr {
+    fn definitions(
+        &self,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+        let schema = schema_info.schema;
+
+        if let Some(type_) = schema.get_type(self.type_.item) {
+            match type_ {
+                Type::Object(object_id) => {
+                    let object = schema.object(object_id);
+                    return Ok(self.object_definitions(object, schema_info));
+                }
+                Type::Interface(interface_id) => {
+                    let interface = schema.interface(interface_id);
+                    return Ok(self.interface_definitions(
+                        interface.name,
+                        interface_id,
+                        schema_info,
+                    ));
+                }
+                _ => panic!("Terser syntax is only supported on non-input objects or interfaces."),
+            }
+        }
+
+        let suggester = GraphQLSuggestions::new(schema);
+        Err(vec![Diagnostic::error_with_data(
+            ErrorMessagesWithData::TypeNotFound {
+                type_name: self.type_.item,
+                suggestions: suggester.object_type_suggestions(self.type_.item),
+            },
+            self.type_.location,
+        )])
+    }
+
+    fn location(&self) -> Location {
+        self.location
+    }
+
+    fn root_fragment(
+        &self,
+        object: Option<&Object>,
+        _: SchemaInfo<'_, '_>,
+    ) -> Option<RootFragment> {
+        get_root_fragment_for_object(object).or_else(|| {
+            self.root_fragment.map(|fragment| RootFragment {
+                fragment,
+                inject_fragment_data: None,
+            })
+        })
+    }
+
+    fn output_type(&self) -> Option<OutputType> {
+        Some(OutputType::Pending(WithLocation::new(
+            self.location,
+            self.field.type_.clone(),
+        )))
+    }
+
+    fn deprecated(&self) -> Option<IrField> {
+        self.deprecated
+    }
+
+    fn live(&self) -> Option<IrField> {
+        self.live
+    }
+
+    fn named_import(&self) -> Option<StringKey> {
+        self.named_import
+    }
+}
+
+impl ResolverTypeDefinitionIr for TerseRelayResolverIr {
+    fn field_name(&self) -> &Identifier {
+        &self.field.name
+    }
+
+    fn field_arguments(&self) -> Option<&List<InputValueDefinition>> {
+        self.field.arguments.as_ref()
+    }
+
+    fn description(&self) -> Option<StringNode> {
+        self.field.description.clone()
+    }
+
+    fn fragment_arguments(&self) -> Option<&Vec<Argument>> {
+        self.fragment_arguments.as_ref()
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub struct RelayResolverIr {
+    pub field: FieldDefinitionStub,
+    pub on: On,
+    pub root_fragment: Option<WithLocation<FragmentDefinitionName>>,
+    pub output_type: Option<OutputType>,
+    pub description: Option<WithLocation<StringKey>>,
+    pub deprecated: Option<IrField>,
+    pub live: Option<IrField>,
+    pub location: Location,
+    pub fragment_arguments: Option<Vec<Argument>>,
+    pub named_import: Option<StringKey>,
+}
+
+impl ResolverIr for RelayResolverIr {
+    fn definitions(
+        &self,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+        let schema = schema_info.schema;
+
+        if let Some(OutputType::EdgeTo(edge_to_with_location)) = &self.output_type {
+            if let TypeAnnotation::List(edge_to_type) = &edge_to_with_location.item {
+                if let Some(false) = schema
+                    .get_type(edge_to_type.type_.inner().name.value)
+                    .map(|t| schema.is_extension_type(t))
+                {
+                    return Err(vec![Diagnostic::error(
+                        ErrorMessages::ClientEdgeToPluralServerType,
+                        edge_to_with_location.location,
+                    )]);
+                }
+            }
+        }
+        match self.on {
+            On::Type(PopulatedIrField {
+                key_location,
+                value,
+            }) => {
+                if let Some(type_) = schema.get_type(value.item) {
+                    match type_ {
+                        Type::Object(object_id) => {
+                            let object = schema.object(object_id);
+                            self.validate_singular_implementation(schema_info, &object.interfaces)?;
+                            return Ok(self.object_definitions(object, schema_info));
+                        }
+                        Type::Interface(_) => {
+                            return Err(vec![Diagnostic::error_with_data(
+                                ErrorMessagesWithData::OnTypeForInterface,
+                                key_location,
+                            )]);
+                        }
+                        _ => {}
+                    }
+                }
+                let suggester = GraphQLSuggestions::new(schema);
+                Err(vec![Diagnostic::error_with_data(
+                    ErrorMessagesWithData::InvalidOnType {
+                        type_name: value.item,
+                        suggestions: suggester.object_type_suggestions(value.item),
+                    },
+                    value.location,
+                )])
+            }
+            On::Interface(PopulatedIrField {
+                key_location,
+                value,
+            }) => {
+                if let Some(_type) = schema.get_type(value.item) {
+                    if let Some(interface_type) = _type.get_interface_id() {
+                        self.validate_singular_implementation(
+                            schema_info,
+                            &schema.interface(interface_type).interfaces,
+                        )?;
+                        return Ok(self.interface_definitions(
+                            value.map(InterfaceName),
+                            interface_type,
+                            schema_info,
+                        ));
+                    } else if _type.is_object() {
+                        return Err(vec![Diagnostic::error_with_data(
+                            ErrorMessagesWithData::OnInterfaceForType,
+                            key_location,
+                        )]);
+                    }
+                }
+                let suggester = GraphQLSuggestions::new(schema);
+                Err(vec![Diagnostic::error_with_data(
+                    ErrorMessagesWithData::InvalidOnInterface {
+                        interface_name: value.item,
+                        suggestions: suggester.interface_type_suggestions(value.item),
+                    },
+                    value.location,
+                )])
+            }
+        }
+    }
+
+    fn location(&self) -> Location {
+        self.location
+    }
+
+    fn root_fragment(
+        &self,
+        object: Option<&Object>,
+        _: SchemaInfo<'_, '_>,
+    ) -> Option<RootFragment> {
+        get_root_fragment_for_object(object).or_else(|| {
+            self.root_fragment.map(|fragment| RootFragment {
+                fragment,
+                inject_fragment_data: None,
+            })
+        })
+    }
+
+    fn output_type(&self) -> Option<OutputType> {
+        self.output_type.as_ref().cloned()
+    }
+
+    fn deprecated(&self) -> Option<IrField> {
+        self.deprecated
+    }
+
+    fn live(&self) -> Option<IrField> {
+        self.live
+    }
+
+    fn named_import(&self) -> Option<StringKey> {
+        self.named_import
+    }
+}
+
+impl ResolverTypeDefinitionIr for RelayResolverIr {
+    fn field_name(&self) -> &Identifier {
+        &self.field.name
+    }
+
+    fn field_arguments(&self) -> Option<&List<InputValueDefinition>> {
+        self.field.arguments.as_ref()
+    }
+
+    fn description(&self) -> Option<StringNode> {
+        self.description.map(as_string_node)
+    }
+
+    fn fragment_arguments(&self) -> Option<&Vec<Argument>> {
+        self.fragment_arguments.as_ref()
     }
 }
 
@@ -572,11 +799,15 @@ pub struct StrongObjectIr {
 }
 
 impl ResolverIr for StrongObjectIr {
-    fn definitions(&self, _schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+    fn definitions(
+        &self,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let span = Span::empty();
+
         let fields = vec![
             FieldDefinition {
-                name: string_key_as_identifier(*ID_FIELD_NAME),
+                name: string_key_as_identifier(schema_info.config.node_interface_id_field),
                 type_: TypeAnnotation::NonNull(Box::new(NonNullTypeAnnotation {
                     span,
                     type_: TypeAnnotation::Named(NamedTypeAnnotation {
@@ -588,15 +819,13 @@ impl ResolverIr for StrongObjectIr {
                 directives: vec![],
                 description: None,
             },
-            FieldDefinition {
-                name: string_key_as_identifier(*RESOLVER_MODEL_INSTANCE_FIELD_NAME),
-                type_: TypeAnnotation::Named(NamedTypeAnnotation {
-                    name: string_key_as_identifier(*INT_TYPE),
-                }),
-                arguments: None,
-                directives: self.directives(),
-                description: None,
-            },
+            generate_model_instance_field(
+                schema_info,
+                *INT_TYPE,
+                None,
+                self.directives(None, schema_info),
+                self.location().clone(),
+            ),
         ];
         let type_ = TypeSystemDefinition::ObjectTypeDefinition(ObjectTypeDefinition {
             name: as_identifier(self.type_.value),
@@ -617,14 +846,21 @@ impl ResolverIr for StrongObjectIr {
         self.location
     }
 
-    fn root_fragment(&self) -> Option<RootFragment> {
+    // For Model resolver we always inject the `id` fragment
+    fn root_fragment(
+        &self,
+        _: Option<&Object>,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> Option<RootFragment> {
         Some(RootFragment {
             fragment: self.root_fragment,
-            inject_fragment_data: Some(FragmentDataInjectionMode::Field(*ID_FIELD_NAME)),
+            inject_fragment_data: Some(FragmentDataInjectionMode::Field(
+                schema_info.config.node_interface_id_field,
+            )),
         })
     }
 
-    fn output_type(&self) -> Option<&OutputType> {
+    fn output_type(&self) -> Option<OutputType> {
         None
     }
 
@@ -652,7 +888,7 @@ pub struct WeakObjectIr {
 
 impl WeakObjectIr {
     // Generate the named GraphQL type (with an __relay_model_instance field).
-    fn type_definition(&self) -> TypeSystemDefinition {
+    fn type_definition(&self, schema_info: SchemaInfo<'_, '_>) -> TypeSystemDefinition {
         let span = self.type_name.value.location.span();
 
         let mut directives = vec![
@@ -665,7 +901,13 @@ impl WeakObjectIr {
             ConstantDirective {
                 span: span.clone(),
                 at: dummy_token(span),
-                name: string_key_as_identifier(OBJECT_DEFINITION_OUPTUT_TYPE_DIRECTIVE_NAME.0),
+                name: string_key_as_identifier(OBJECT_DEFINITION_OUTPUT_TYPE_DIRECTIVE_NAME.0),
+                arguments: None,
+            },
+            ConstantDirective {
+                span: span.clone(),
+                at: dummy_token(span),
+                name: string_key_as_identifier(RELAY_RESOLVER_WEAK_OBJECT_DIRECTIVE.0),
                 arguments: None,
             },
         ];
@@ -686,19 +928,17 @@ impl WeakObjectIr {
             name: as_identifier(self.type_name.value),
             interfaces: vec![],
             directives,
-            fields: Some(List::generated(vec![FieldDefinition {
-                name: string_key_as_identifier(*RESOLVER_MODEL_INSTANCE_FIELD_NAME),
-                type_: TypeAnnotation::Named(NamedTypeAnnotation {
-                    name: string_key_as_identifier(self.model_type_name()),
-                }),
-                arguments: None,
-                directives: vec![],
-                description: self.description.map(as_string_node),
-            }])),
+            fields: Some(List::generated(vec![generate_model_instance_field(
+                schema_info,
+                self.model_type_name(),
+                self.description.map(as_string_node),
+                vec![],
+                self.location().clone(),
+            )])),
         })
     }
 
-    // Genete a custom sclar definition based on the exported type.
+    // Generate a custom scalar definition based on the exported type.
     fn instance_scalar_type_definition(&self) -> TypeSystemDefinition {
         let span = self.type_name.value.location.span();
         TypeSystemDefinition::ScalarTypeDefinition(ScalarTypeDefinition {
@@ -745,17 +985,20 @@ impl WeakObjectIr {
         // TODO: Ensure this type does not already exist?
         format!(
             "{}{}",
-            self.type_name.value.item, *MODEL_CUSTOM_SCALAR_TYPE_PREFIX
+            self.type_name.value.item, *MODEL_CUSTOM_SCALAR_TYPE_SUFFIX
         )
         .intern()
     }
 }
 
 impl ResolverIr for WeakObjectIr {
-    fn definitions(&self, _schema: &SDLSchema) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
+    fn definitions(
+        &self,
+        schema_info: SchemaInfo<'_, '_>,
+    ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         Ok(vec![
             self.instance_scalar_type_definition(),
-            self.type_definition(),
+            self.type_definition(schema_info),
         ])
     }
 
@@ -763,11 +1006,15 @@ impl ResolverIr for WeakObjectIr {
         self.location
     }
 
-    fn root_fragment(&self) -> Option<RootFragment> {
+    fn root_fragment(
+        &self,
+        _: Option<&Object>,
+        _schema_info: SchemaInfo<'_, '_>,
+    ) -> Option<RootFragment> {
         None
     }
 
-    fn output_type(&self) -> Option<&OutputType> {
+    fn output_type(&self) -> Option<OutputType> {
         None
     }
 
@@ -847,5 +1094,62 @@ fn dummy_token(span: &Span) -> Token {
     Token {
         span: span.clone(),
         kind: TokenKind::Empty,
+    }
+}
+
+fn get_root_fragment_for_object(object: Option<&Object>) -> Option<RootFragment> {
+    if object?
+        .directives
+        .named(*RELAY_RESOLVER_MODEL_DIRECTIVE_NAME)
+        .is_some()
+    {
+        Some(RootFragment {
+            fragment: WithLocation::generated(FragmentDefinitionName(
+                format!(
+                    "{}__{}",
+                    object.unwrap().name.item,
+                    *RESOLVER_MODEL_INSTANCE_FIELD_NAME
+                )
+                .intern(),
+            )),
+            inject_fragment_data: Some(FragmentDataInjectionMode::Field(
+                *RESOLVER_MODEL_INSTANCE_FIELD_NAME,
+            )),
+        })
+    } else {
+        None
+    }
+}
+
+/// Generate the internal field for weak and strong model types
+fn generate_model_instance_field(
+    schema_info: SchemaInfo<'_, '_>,
+    type_name: StringKey,
+    description: Option<StringNode>,
+    mut directives: Vec<ConstantDirective>,
+    location: Location,
+) -> FieldDefinition {
+    let span = location.span().clone();
+    directives.push(ConstantDirective {
+        span,
+        at: dummy_token(&span),
+        name: string_key_as_identifier(schema_info.config.unselectable_directive_name.0),
+        arguments: Some(List::generated(vec![string_argument(
+            DEPRECATED_REASON_ARGUMENT_NAME.0,
+            WithLocation::new(
+                location,
+                "This field is intended only for Relay's internal use".intern(),
+            ),
+        )])),
+    });
+
+    FieldDefinition {
+        name: string_key_as_identifier(*RESOLVER_MODEL_INSTANCE_FIELD_NAME),
+        type_: TypeAnnotation::Named(NamedTypeAnnotation {
+            name: string_key_as_identifier(type_name),
+        }),
+        arguments: None,
+        directives,
+        description,
     }
 }

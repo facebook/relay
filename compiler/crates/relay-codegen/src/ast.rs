@@ -92,7 +92,12 @@ pub enum Primitive {
     RelayResolverModel {
         graphql_module: StringKey,
         js_module: JSModuleDependency,
-        field_name: Option<StringKey>,
+        injected_field_name_details: Option<(StringKey, bool)>,
+    },
+    RelayResolverWeakObjectWrapper {
+        resolver: Box<Primitive>,
+        key: StringKey,
+        plural: bool,
     },
 }
 

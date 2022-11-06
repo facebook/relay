@@ -98,7 +98,7 @@ function useMutation<TMutation: MutationParameters>(
       if (isMountedRef.current) {
         setMutationInFlight(true);
       }
-      const disposable = commitMutationFn(environment, {
+      const disposable: Disposable = commitMutationFn(environment, {
         ...config,
         mutation,
         onCompleted: (response, errors) => {

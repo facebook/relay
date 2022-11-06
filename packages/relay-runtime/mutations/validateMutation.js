@@ -121,7 +121,7 @@ if (__DEV__) {
     optimisticResponse: Object,
     selection: NormalizationSelection,
     context: ValidationContext,
-  ) => {
+  ): void => {
     switch (selection.kind) {
       case CONDITION:
         validateSelections(optimisticResponse, selection.selections, context);

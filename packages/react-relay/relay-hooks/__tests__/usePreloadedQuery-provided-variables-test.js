@@ -156,7 +156,7 @@ describe.each([
 
     describe('using preloadQuery_DEPRECATED', () => {
       it('renders synchronously with provided variables', () => {
-        const prefetched = preloadQuery_DEPRECATED(
+        const prefetched = preloadQuery_DEPRECATED<any, empty>(
           environment,
           preloadableConcreteRequestPV,
           {
@@ -273,7 +273,7 @@ describe.each([
       `;
 
       const preloadWithFetchKey = (fetchKey: string | number) => {
-        return preloadQuery_DEPRECATED(
+        return preloadQuery_DEPRECATED<any, empty>(
           environment,
           {
             kind: 'PreloadableConcreteRequest',

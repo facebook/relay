@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d0326d641f532cf63bd957c0e0afea12>>
+ * @generated SignedSource<<2dc303928ff3615db2ad2ba0e7a5aff2>>
  */
 
 mod compile_relay_artifacts;
@@ -734,6 +734,13 @@ fn nested_conditions() {
 }
 
 #[test]
+fn nested_conditions_2() {
+    let input = include_str!("compile_relay_artifacts/fixtures/nested-conditions-2.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/nested-conditions-2.expected");
+    test_fixture(transform_fixture, "nested-conditions-2.graphql", "compile_relay_artifacts/fixtures/nested-conditions-2.expected", input, expected);
+}
+
+#[test]
 fn no_inline_abstract_fragment() {
     let input = include_str!("compile_relay_artifacts/fixtures/no-inline-abstract-fragment.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/no-inline-abstract-fragment.expected");
@@ -1126,6 +1133,20 @@ fn relay_resolver_required() {
 }
 
 #[test]
+fn relay_resolver_weak_object() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-weak-object.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-weak-object.expected");
+    test_fixture(transform_fixture, "relay-resolver-weak-object.graphql", "compile_relay_artifacts/fixtures/relay-resolver-weak-object.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_weak_object_plural() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-weak-object-plural.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-weak-object-plural.expected");
+    test_fixture(transform_fixture, "relay-resolver-weak-object-plural.graphql", "compile_relay_artifacts/fixtures/relay-resolver-weak-object-plural.expected", input, expected);
+}
+
+#[test]
 fn relay_resolver_with_args() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-args.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-args.expected");
@@ -1151,6 +1172,20 @@ fn relay_resolver_with_fragment_on_client_type() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-fragment-on-client-type.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-fragment-on-client-type.expected");
     test_fixture(transform_fixture, "relay-resolver-with-fragment-on-client-type.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-fragment-on-client-type.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-output-type.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-output-type.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-output-type.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type_scalar() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-output-type-scalar.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-output-type-scalar.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-scalar.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-output-type-scalar.expected", input, expected);
 }
 
 #[test]

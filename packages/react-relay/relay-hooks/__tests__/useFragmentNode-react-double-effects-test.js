@@ -75,7 +75,7 @@ describe.skip('useFragmentNode-react-double-effects-test', () => {
 
     let renderLogs = [];
     const FragmentComponent = ({user}: $TEMPORARY$object<{user: mixed}>) => {
-      const {data} = useFragmentNode(gqlFragment, user, 'TestComponent');
+      const {data} = useFragmentNode<any>(gqlFragment, user, 'TestComponent');
       useEffect(() => {
         renderLogs.push(`commit: ${data.name}`);
         return () => {

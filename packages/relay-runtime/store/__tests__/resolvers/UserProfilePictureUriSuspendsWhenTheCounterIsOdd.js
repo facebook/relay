@@ -28,7 +28,8 @@ const {readFragment} = require('relay-runtime/store/ResolverFragments');
  * @onType User
  * @live
  *
- * This field is returning the profile picture url, when s
+ * This field returns the profile picture url, when the GLOBAL_STORE number is
+ * even and suspends when the number is odd.
  */
 function user_profile_picture_uri_suspends_when_the_counter_is_odd(
   rootKey: UserProfilePictureUriSuspendsWhenTheCounterIsOdd$key,

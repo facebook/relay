@@ -168,7 +168,7 @@ describe.each([
           >,
       fragmentRef: any,
     ) {
-      const result = useFragmentNodeOriginal(
+      const result = useFragmentNodeOriginal<any>(
         fragmentNode,
         fragmentRef,
         'TestDisplayName',

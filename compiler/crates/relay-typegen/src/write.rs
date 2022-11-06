@@ -164,7 +164,7 @@ pub(crate) fn write_operation_type_exports_section(
     write_import_actor_change_point(actor_change_status, writer)?;
     runtime_imports.write_runtime_imports(writer)?;
     write_fragment_imports(typegen_context, None, encountered_fragments, writer)?;
-    write_relay_resolver_imports(imported_resolvers, writer)?;
+    write_relay_resolver_imports(typegen_context, imported_resolvers, writer)?;
     write_split_raw_response_type_imports(typegen_context, imported_raw_response_types, writer)?;
 
     let mut input_object_types = IndexMap::default();
@@ -414,7 +414,7 @@ pub(crate) fn write_fragment_type_exports_section(
     write_custom_scalar_imports(custom_scalars, writer)?;
 
     runtime_imports.write_runtime_imports(writer)?;
-    write_relay_resolver_imports(imported_resolvers, writer)?;
+    write_relay_resolver_imports(typegen_context, imported_resolvers, writer)?;
 
     let refetchable_metadata = RefetchableMetadata::find(&fragment_definition.directives);
     let fragment_type_name = format!("{}$fragmentType", fragment_name);
@@ -539,9 +539,19 @@ fn write_import_actor_change_point(
 }
 
 fn write_relay_resolver_imports(
+    typegen_context: &'_ TypegenContext<'_>,
     mut imported_resolvers: ImportedResolvers,
     writer: &mut Box<dyn Writer>,
 ) -> FmtResult {
+    // We don't need to import resolver modules in the type-generation
+    // they should be imported in the codegen.
+    if matches!(
+        typegen_context.project_config.typegen_config.language,
+        TypegenLanguage::TypeScript
+    ) {
+        return Ok(());
+    }
+
     imported_resolvers.0.sort_keys();
     for resolver in imported_resolvers.0.values() {
         match resolver.resolver_name {

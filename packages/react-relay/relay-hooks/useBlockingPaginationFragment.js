@@ -167,8 +167,8 @@ function useLoadMore<TQuery: OperationType>(args: {
   const [requestPromise, setRequestPromise] = useState<null | Promise<mixed>>(
     null,
   );
-  const requestPromiseRef = useRef(null);
-  const promiseResolveRef = useRef(null);
+  const requestPromiseRef = useRef<null | Promise<mixed>>(null);
+  const promiseResolveRef = useRef<null | (() => void)>(null);
 
   const promiseResolve = () => {
     if (promiseResolveRef.current != null) {

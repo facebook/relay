@@ -11,6 +11,7 @@
 mod artifact_generated_types;
 pub mod artifact_writer;
 mod build_ir;
+mod build_resolvers_schema;
 pub mod build_schema;
 mod generate_artifacts;
 pub mod generate_extra_artifacts;

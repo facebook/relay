@@ -51,6 +51,7 @@ use relay_transforms::RefetchableMetadata;
 use relay_transforms::RelayDirective;
 use relay_transforms::RelayResolverMetadata;
 use relay_transforms::RequiredMetadataDirective;
+use relay_transforms::ResolverOutputTypeInfo;
 use relay_transforms::StreamDirective;
 use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use relay_transforms::DEFER_STREAM_CONSTANTS;
@@ -1003,8 +1004,14 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
         let args = self.build_arguments(field_arguments);
 
+        let resolver_js_module = JSModuleDependency {
+            path: import_path,
+            named_import: relay_resolver_metadata.import_name,
+            import_as: Some(relay_resolver_metadata.generate_local_resolver_name()),
+        };
+
         let resolver_module = if let Some((fragment_name, injection_mode)) =
-            relay_resolver_metadata.inject_fragment_data
+            relay_resolver_metadata.fragment_data_injection_mode
         {
             let path_for_artifact = self.project_config.create_path_for_artifact(
                 fragment_name.location.source_location(),
@@ -1018,21 +1025,33 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
 
             Primitive::RelayResolverModel {
                 graphql_module: fragment_import_path,
-                js_module: JSModuleDependency {
-                    path: import_path,
-                    named_import: relay_resolver_metadata.import_name,
-                    import_as: Some(relay_resolver_metadata.generate_local_resolver_name()),
-                },
-                field_name: match injection_mode {
-                    FragmentDataInjectionMode::Field(field_name) => Some(field_name),
+                js_module: resolver_js_module,
+                injected_field_name_details: match injection_mode {
+                    FragmentDataInjectionMode::Field { name, is_required } => {
+                        Some((name, is_required))
+                    }
                 },
             }
         } else {
-            Primitive::JSModuleDependency(JSModuleDependency {
-                path: import_path,
-                named_import: relay_resolver_metadata.import_name,
-                import_as: Some(relay_resolver_metadata.generate_local_resolver_name()),
-            })
+            Primitive::JSModuleDependency(resolver_js_module)
+        };
+
+        let resolver_module = if let Some((key, plural)) = relay_resolver_metadata
+            .output_type_info
+            .as_ref()
+            .and_then(|info| match info {
+                ResolverOutputTypeInfo::ScalarField(_) => None,
+                ResolverOutputTypeInfo::Composite(info) => info
+                    .weak_object_instance_field
+                    .map(|field_name| (field_name, info.plural)),
+            }) {
+            Primitive::RelayResolverWeakObjectWrapper {
+                resolver: Box::new(resolver_module),
+                key,
+                plural,
+            }
+        } else {
+            resolver_module
         };
 
         // For Relay Resolvers in the Reader AST, we need enough
@@ -1055,7 +1074,9 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
             path: Primitive::String(path),
         };
 
-        if let Some(normalization_info) = &relay_resolver_metadata.normalization_info {
+        if let Some(ResolverOutputTypeInfo::Composite(normalization_info)) =
+            &relay_resolver_metadata.output_type_info
+        {
             let normalization_artifact_source_location = normalization_info
                 .normalization_operation
                 .location

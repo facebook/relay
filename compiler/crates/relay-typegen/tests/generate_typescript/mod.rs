@@ -66,10 +66,14 @@ pub fn transform_fixture(fixture: &Fixture<'_>) -> Result<String, String> {
         typegen_config: TypegenConfig {
             language: TypegenLanguage::TypeScript,
             custom_scalar_types,
+            use_import_type_syntax: fixture
+                .content
+                .contains("# typegen_config.use_import_type_syntax = true"),
             ..Default::default()
         },
         feature_flags: Arc::new(FeatureFlags {
             enable_fragment_aliases: FeatureFlag::Enabled,
+            enable_relay_resolver_transform: true,
             ..Default::default()
         }),
         ..Default::default()

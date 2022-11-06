@@ -40,6 +40,7 @@ use relay_transforms::ModuleMetadata;
 use relay_transforms::NoInlineFragmentSpreadMetadata;
 use relay_transforms::RelayResolverMetadata;
 use relay_transforms::RequiredMetadataDirective;
+use relay_transforms::ResolverOutputTypeInfo;
 use relay_transforms::TypeConditionInfo;
 use relay_transforms::ASSIGNABLE_DIRECTIVE_FOR_TYPEGEN;
 use relay_transforms::CHILDREN_CAN_BUBBLE_METADATA_KEY;
@@ -47,6 +48,7 @@ use relay_transforms::CLIENT_EXTENSION_DIRECTIVE_NAME;
 use relay_transforms::RELAY_ACTOR_CHANGE_DIRECTIVE_FOR_CODEGEN;
 use relay_transforms::UPDATABLE_DIRECTIVE_FOR_TYPEGEN;
 use schema::EnumID;
+use schema::Field;
 use schema::SDLSchema;
 use schema::ScalarID;
 use schema::Schema;
@@ -100,6 +102,7 @@ use crate::TYPE_BOOLEAN;
 use crate::TYPE_FLOAT;
 use crate::TYPE_ID;
 use crate::TYPE_INT;
+use crate::TYPE_RELAY_RESOLVER_VALUE;
 use crate::TYPE_STRING;
 use crate::VARIABLES;
 
@@ -307,18 +310,22 @@ fn generate_resolver_type(
 ) -> AST {
     let mut resolver_arguments = vec![];
     if let Some(fragment_name) = fragment_name {
-        if let Some((fragment_name, injection_mode)) = resolver_metadata.inject_fragment_data {
+        if let Some((fragment_name, injection_mode)) =
+            resolver_metadata.fragment_data_injection_mode
+        {
             match injection_mode {
-                FragmentDataInjectionMode::Field(field_name) => {
+                FragmentDataInjectionMode::Field { name, .. } => {
                     encountered_fragments
                         .0
                         .insert(EncounteredFragment::Data(fragment_name.item));
 
                     resolver_arguments.push(KeyValuePairProp {
-                        key: field_name,
+                        key: name,
                         value: AST::PropertyType {
-                            type_name: format!("{}$data", fragment_name.item).intern(),
-                            property_name: field_name,
+                            type_: Box::new(AST::RawType(
+                                format!("{}$data", fragment_name.item).intern(),
+                            )),
+                            property_name: name,
                         },
                         read_only: false,
                         optional: false,
@@ -380,22 +387,49 @@ fn generate_resolver_type(
         });
     }
     let inner_type = resolver_metadata
-        .normalization_info
+        .output_type_info
         .as_ref()
-        .map(|normalization_info| {
-            imported_raw_response_types.0.insert(
-                normalization_info.normalization_operation.item.0,
-                Some(normalization_info.normalization_operation.location),
-            );
+        .map(|output_type_info| match output_type_info {
+            ResolverOutputTypeInfo::ScalarField(field_id) => {
+                let field = typegen_context.schema.field(*field_id);
+                if is_relay_resolver_type(typegen_context, field) {
+                    AST::Mixed
+                } else {
+                    transform_scalar_type(
+                        typegen_context,
+                        &field.type_,
+                        None,
+                        encountered_enums,
+                        custom_scalars,
+                    )
+                }
+            }
+            ResolverOutputTypeInfo::Composite(normalization_info) => {
+                imported_raw_response_types.0.insert(
+                    normalization_info.normalization_operation.item.0,
+                    Some(normalization_info.normalization_operation.location),
+                );
 
-            let type_ = AST::Nullable(Box::new(AST::RawType(
-                normalization_info.normalization_operation.item.0,
-            )));
+                let type_ = AST::Nullable(Box::new(AST::RawType(
+                    normalization_info.normalization_operation.item.0,
+                )));
 
-            if normalization_info.plural {
-                AST::ReadOnlyArray(Box::new(type_))
-            } else {
-                type_
+                let ast = if let Some(instance_field_name) =
+                    normalization_info.weak_object_instance_field
+                {
+                    AST::PropertyType {
+                        type_: Box::new(type_),
+                        property_name: instance_field_name,
+                    }
+                } else {
+                    type_
+                };
+
+                if normalization_info.plural {
+                    AST::ReadOnlyArray(Box::new(ast))
+                } else {
+                    ast
+                }
             }
         });
 
@@ -412,7 +446,7 @@ fn generate_resolver_type(
             inner: Box::new(inner_type.unwrap_or(AST::Any)),
         }
     } else {
-        inner_type.unwrap_or(AST::RawType("mixed".intern()))
+        inner_type.unwrap_or(AST::Mixed)
     };
 
     AST::AssertFunctionType(FunctionTypeAssertion {
@@ -473,6 +507,74 @@ fn import_relay_resolver_function_type(
         .or_insert(imported_resolver);
 }
 
+/// Check if the scalar field has output type as `RelayResolverValue`
+fn is_relay_resolver_type(typegen_context: &'_ TypegenContext<'_>, field: &Field) -> bool {
+    typegen_context
+        .schema
+        .scalar(field.type_.inner().get_scalar_id().unwrap())
+        .name
+        .item
+        == *TYPE_RELAY_RESOLVER_VALUE
+}
+
+/// Build relay resolver field type
+fn relay_resolver_field_type(
+    typegen_context: &'_ TypegenContext<'_>,
+    resolver_metadata: &RelayResolverMetadata,
+    encountered_enums: &mut EncounteredEnums,
+    custom_scalars: &mut CustomScalarsImports,
+    local_resolver_name: StringKey,
+    required: bool,
+    live: bool,
+) -> AST {
+    let maybe_scalar_field = if let Some(ResolverOutputTypeInfo::ScalarField(field_id)) =
+        resolver_metadata.output_type_info
+    {
+        let field = typegen_context.schema.field(field_id);
+        // Scalar fields that return `RelayResolverValue` should behave as "classic"
+        // resolvers, where we infer the field type from the return type of the
+        // resolver function
+        if is_relay_resolver_type(typegen_context, field) {
+            None
+        } else {
+            Some(field)
+        }
+    } else {
+        None
+    };
+
+    if let Some(field) = maybe_scalar_field {
+        let inner_value = transform_scalar_type(
+            typegen_context,
+            &field.type_,
+            None,
+            encountered_enums,
+            custom_scalars,
+        );
+        if required {
+            if field.type_.is_non_null() {
+                inner_value
+            } else {
+                AST::NonNullable(Box::new(inner_value))
+            }
+        } else {
+            inner_value
+        }
+    } else {
+        let inner_value = AST::ReturnTypeOfFunctionWithName(local_resolver_name);
+        let inner_value = if live {
+            AST::ReturnTypeOfMethodCall(Box::new(inner_value), intern!("read"))
+        } else {
+            inner_value
+        };
+        if required {
+            AST::NonNullable(Box::new(inner_value))
+        } else {
+            AST::Nullable(Box::new(inner_value))
+        }
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 fn visit_relay_resolver(
     typegen_context: &'_ TypegenContext<'_>,
@@ -506,22 +608,20 @@ fn visit_relay_resolver(
     let live = resolver_metadata.live;
     let local_resolver_name = resolver_metadata.generate_local_resolver_name();
 
-    let mut inner_value = Box::new(AST::ReturnTypeOfFunctionWithName(local_resolver_name));
-
-    if live {
-        inner_value = Box::new(AST::ReturnTypeOfMethodCall(inner_value, intern!("read")));
-    }
-
-    let value = if required {
-        AST::NonNullable(inner_value)
-    } else {
-        AST::Nullable(inner_value)
-    };
+    let resolver_type = relay_resolver_field_type(
+        typegen_context,
+        resolver_metadata,
+        encountered_enums,
+        custom_scalars,
+        local_resolver_name,
+        required,
+        live,
+    );
 
     type_selections.push(TypeSelection::ScalarField(TypeSelectionScalarField {
         field_name_or_alias: key,
         special_field: None,
-        value,
+        value: resolver_type,
         conditional: false,
         concrete_type: None,
     }));
@@ -1707,7 +1807,6 @@ fn transform_graphql_scalar_type(
 ) -> AST {
     let scalar_definition = typegen_context.schema.scalar(scalar);
     let scalar_name = scalar_definition.name;
-
     if let Some(directive) = scalar_definition
         .directives
         .named(DirectiveName(*CUSTOM_SCALAR_DIRECTIVE_NAME))
@@ -1720,6 +1819,11 @@ fn transform_graphql_scalar_type(
                 *CUSTOM_SCALAR_DIRECTIVE_NAME
             ))
             .expect_string_literal();
+
+        let import_path = typegen_context
+            .project_config
+            .js_module_import_path(typegen_context.definition_source_location, path);
+
         let export_name = directive
             .arguments
             .named(ArgumentName(*EXPORT_NAME_CUSTOM_SCALAR_ARGUMENT_NAME))
@@ -1728,8 +1832,8 @@ fn transform_graphql_scalar_type(
                 *CUSTOM_SCALAR_DIRECTIVE_NAME
             ))
             .expect_string_literal();
-        custom_scalars.insert((export_name, PathBuf::from(path.lookup())));
-        return AST::RawType(scalar_name.item.0);
+        custom_scalars.insert((export_name, PathBuf::from(import_path.lookup())));
+        return AST::RawType(export_name);
     }
     // TODO: We could implement custom variables that are provided via the
     // config by inserting them into the schema with directives, thus avoiding

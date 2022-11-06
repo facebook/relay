@@ -129,3 +129,75 @@ test('unsubscribe happens when record is updated due to missing data', () => {
   expect(data.greeting).toBe('Yo user 2');
   expect(__debug.state.subscribers.size).toBe(1);
 });
+
+test('Updates can be batched', () => {
+  const source = RelayRecordSource.create({
+    'client:root': {
+      __id: 'client:root',
+      __typename: '__Root',
+    },
+  });
+  const operation = createOperationDescriptor(
+    graphql`
+      query LiveResolversTestBatchingQuery {
+        # Together these fields create two subscriptions to the underlying
+        # GLOBAL_STORE.
+        counter_no_fragment
+        counter_no_fragment_with_arg(prefix: "sup")
+      }
+    `,
+    {},
+  );
+  const store = new LiveResolverStore(source, {
+    gcReleaseBufferSize: 0,
+  });
+  const environment = new RelayModernEnvironment({
+    network: RelayNetwork.create(jest.fn()),
+    store,
+  });
+
+  const snapshot = environment.lookup(operation.fragment);
+
+  const handler = jest.fn();
+  environment.subscribe(snapshot, handler);
+
+  expect(handler.mock.calls.length).toBe(0);
+
+  // Update without batching
+  GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+
+  // We get notified once per live resolver. :(
+  expect(handler.mock.calls.length).toBe(2);
+
+  let lastCallCount = handler.mock.calls.length;
+
+  // Update _with_ batching.
+  store.batchLiveStateUpdates(() => {
+    GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+  });
+
+  // We get notified once per batch! :)
+  expect(handler.mock.calls.length - lastCallCount).toBe(1);
+
+  lastCallCount = handler.mock.calls.length;
+
+  // Update with batching, but update throws.
+  // This might happen if some other subscriber to the store throws when they
+  // get notified of an error.
+  expect(() => {
+    store.batchLiveStateUpdates(() => {
+      GLOBAL_STORE.dispatch({type: 'INCREMENT'});
+      throw new Error('An Example Error');
+    });
+  }).toThrowError('An Example Error');
+
+  // We still notify our subscribers
+  expect(handler.mock.calls.length - lastCallCount).toBe(1);
+
+  // Nested calls to batchLiveStateUpdate throw
+  expect(() => {
+    store.batchLiveStateUpdates(() => {
+      store.batchLiveStateUpdates(() => {});
+    });
+  }).toThrow('Unexpected nested call to batchLiveStateUpdates.');
+});

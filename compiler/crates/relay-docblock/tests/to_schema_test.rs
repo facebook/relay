@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<ece51c14bd366613961436d5bbea1465>>
+ * @generated SignedSource<<407145d8046bc95eeeb591420b2d57d9>>
  */
 
 mod to_schema;
@@ -150,6 +150,27 @@ fn relay_resolver_with_output_type() {
     let input = include_str!("to_schema/fixtures/relay-resolver-with-output-type.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-with-output-type.expected");
     test_fixture(transform_fixture, "relay-resolver-with-output-type.js", "to_schema/fixtures/relay-resolver-with-output-type.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver() {
+    let input = include_str!("to_schema/fixtures/terse-relay-resolver.js");
+    let expected = include_str!("to_schema/fixtures/terse-relay-resolver.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver.js", "to_schema/fixtures/terse-relay-resolver.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_interface() {
+    let input = include_str!("to_schema/fixtures/terse-relay-resolver-interface.js");
+    let expected = include_str!("to_schema/fixtures/terse-relay-resolver-interface.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-interface.js", "to_schema/fixtures/terse-relay-resolver-interface.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_with_output_type() {
+    let input = include_str!("to_schema/fixtures/terse-relay-resolver-with-output-type.js");
+    let expected = include_str!("to_schema/fixtures/terse-relay-resolver-with-output-type.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-with-output-type.js", "to_schema/fixtures/terse-relay-resolver-with-output-type.expected", input, expected);
 }
 
 #[test]

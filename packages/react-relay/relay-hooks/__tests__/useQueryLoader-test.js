@@ -91,7 +91,7 @@ describe('useQueryLoader', () => {
       },
     }) {
       renderCount = (renderCount || 0) + 1;
-      [loadedQuery, queryLoaderCallback, disposeQuery] = useQueryLoader(
+      [loadedQuery, queryLoaderCallback, disposeQuery] = useQueryLoader<any>(
         generatedQuery,
         // $FlowExpectedError[incompatible-call] it's ok to pass our fake preloaded query here
         initialPreloadedQuery,

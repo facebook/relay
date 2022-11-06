@@ -40,8 +40,8 @@ fragment Foo_user on User {
     #     field_path: "best_friend",
     #     field_arguments: [],
     #     live: false,
-    #     normalization_info: None,
-    #     inject_fragment_data: None,
+    #     output_type_info: None,
+    #     fragment_data_injection_mode: None,
     # }
      @waterfall @required(action: NONE)
     best_friend @waterfall @required(action: NONE) {

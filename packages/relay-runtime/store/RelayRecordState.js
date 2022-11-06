@@ -11,8 +11,6 @@
 
 'use strict';
 
-export type RecordState = $Keys<typeof RelayRecordState>;
-
 const RelayRecordState = {
   /**
    * Record exists (either fetched from the server or produced by a local,
@@ -32,5 +30,7 @@ const RelayRecordState = {
    */
   UNKNOWN: 'UNKNOWN',
 };
+
+export type RecordState = $Keys<typeof RelayRecordState>;
 
 module.exports = RelayRecordState;

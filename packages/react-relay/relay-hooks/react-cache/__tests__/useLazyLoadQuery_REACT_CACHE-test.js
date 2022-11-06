@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 
 import type {FetchPolicy, GraphQLResponse, RenderPolicy} from 'relay-runtime';
@@ -659,7 +660,7 @@ describe('useLazyLoadQuery_REACT_CACHE', () => {
                 responseIsRejected &&
                 (shouldAwaitFetchResult || responseIsSynchronous);
 
-              const thrownPromises = new Set();
+              const thrownPromises = new Set<any>();
               let numberOfRendersObserved = 0;
               function TestComponent({output}: {output: boolean}) {
                 numberOfRendersObserved++;

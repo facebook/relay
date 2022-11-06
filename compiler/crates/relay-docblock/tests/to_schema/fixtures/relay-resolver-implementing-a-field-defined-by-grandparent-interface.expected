@@ -40,7 +40,7 @@ type MyType implements MyInterface {
 }
 `;
 ==================================== ERROR ====================================
-✖︎ Unexpected Relay Resolver for a field which is defined in parent interface. The field `some_interface_field` is defined by `MyInterface`. Relay does not yet support interfaces where different subtypes implement the same field using different Relay Resolvers. As a workaround consider defining Relay Resolver field directly on the interface and checking the `__typename` field to have special handling for different concreete types.
+✖︎ Unexpected Relay Resolver for a field which is defined in parent interface. The field `some_interface_field` is defined by `MyInterface`. Relay does not yet support interfaces where different subtypes implement the same field using different Relay Resolvers. As a workaround consider defining Relay Resolver field directly on the interface and checking the `__typename` field to have special handling for different concrete types.
 
   /path/to/test/fixture/relay-resolver-implementing-a-field-defined-by-grandparent-interface.js:5:15
     4 │  * @onType MyType

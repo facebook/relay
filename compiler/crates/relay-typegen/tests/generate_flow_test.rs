@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<d8d55674575e3aa95de5eb0f66426525>>
+ * @generated SignedSource<<699083e618ce99dec35d277f6f65cc47>>
  */
 
 mod generate_flow;
@@ -395,6 +395,41 @@ fn relay_resolver_required() {
     let input = include_str!("generate_flow/fixtures/relay-resolver-required.graphql");
     let expected = include_str!("generate_flow/fixtures/relay-resolver-required.expected");
     test_fixture(transform_fixture, "relay-resolver-required.graphql", "generate_flow/fixtures/relay-resolver-required.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type.graphql", "generate_flow/fixtures/relay-resolver-with-output-type.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type_relay_resolver_value() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-relay-resolver-value.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-relay-resolver-value.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-relay-resolver-value.graphql", "generate_flow/fixtures/relay-resolver-with-output-type-relay-resolver-value.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type_relay_resolver_value_required() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-relay-resolver-value-required.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-relay-resolver-value-required.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-relay-resolver-value-required.graphql", "generate_flow/fixtures/relay-resolver-with-output-type-relay-resolver-value-required.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type_scalar() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-scalar.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-scalar.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-scalar.graphql", "generate_flow/fixtures/relay-resolver-with-output-type-scalar.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_with_output_type_scalar_required() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-scalar-required.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-scalar-required.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-scalar-required.graphql", "generate_flow/fixtures/relay-resolver-with-output-type-scalar-required.expected", input, expected);
 }
 
 #[test]

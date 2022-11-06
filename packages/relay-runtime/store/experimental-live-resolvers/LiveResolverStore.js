@@ -33,6 +33,7 @@ import type {
   Store,
   StoreSubscriptions,
 } from '../RelayStoreTypes';
+import type {UpdatedRecords} from './LiveResolverCache';
 
 const {
   INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
@@ -50,7 +51,7 @@ const RelayStoreReactFlightUtils = require('../RelayStoreReactFlightUtils');
 const RelayStoreSubscriptions = require('../RelayStoreSubscriptions');
 const RelayStoreUtils = require('../RelayStoreUtils');
 const {ROOT_ID, ROOT_TYPE} = require('../RelayStoreUtils');
-const {LiveResolverCache} = require('./LiveResolverCache');
+const {LiveResolverCache, getUpdatedDataIDs} = require('./LiveResolverCache');
 const invariant = require('invariant');
 
 export type LiveState<T> = {
@@ -191,6 +192,29 @@ class LiveResolverStore implements Store {
     return this._resolverCache.getLiveResolverPromise(recordID);
   }
 
+  /**
+   * When an external data proider knows it's going to notify us about multiple
+   * Live Resolver state updates in a single tick, it can batch them into a
+   * single Relay update by notifying us within a batch. All updates recieved by
+   * Relay during the evaluation of the provided `callback` will be aggregated
+   * into a single Relay update.
+   *
+   * A typical use with a Flux store might look like this:
+   *
+   * const originalDispatch = fluxStore.dispatch;
+   *
+   * function wrapped(action) {
+   *   relayStore.batchLiveStateUpdates(() => {
+   *     originalDispatch(action);
+   *   })
+   * }
+   *
+   * fluxStore.dispatch = wrapped;
+   */
+  batchLiveStateUpdates(callback: () => void) {
+    this._resolverCache.batchLiveStateUpdates(callback);
+  }
+
   check(
     operation: OperationDescriptor,
     options?: CheckOptions,
@@ -323,26 +347,8 @@ class LiveResolverStore implements Store {
     if (__DEV__) {
       deepFreeze(snapshot);
     }
-    return snapshot;
-  }
 
-  // Internal API for LiveRsolver Cache.
-  // This method should be used for publishing new source
-  // and notifying subscribers that are subscribed to the
-  // `IDs` only in the published `sources`.
-  // Other updatedIds are not notified.
-  __publishSourcesAndNotifyOnlyUpdatedIds(
-    sources: $ReadOnlyArray<RecordSource>,
-  ): void {
-    const currentUpdatedIds = this._updatedRecordIDs;
-    this._updatedRecordIDs = new Set();
-    for (const source of sources) {
-      this.publish(source);
-    }
-    if (this._updatedRecordIDs.size > 0) {
-      this.notify();
-    }
-    this._updatedRecordIDs = currentUpdatedIds;
+    return snapshot;
   }
 
   // This method will return a list of updated owners from the subscriptions
@@ -501,7 +507,7 @@ class LiveResolverStore implements Store {
   // real RelayModernStore can create. For now we just use any.
   // $FlowFixMe
   lookupInvalidationState(dataIDs: $ReadOnlyArray<DataID>): any {
-    const invalidations = new Map();
+    const invalidations = new Map<DataID, ?number>();
     dataIDs.forEach(dataID => {
       const record = this.getSource().get(dataID);
       invalidations.set(
@@ -663,7 +669,7 @@ class LiveResolverStore implements Store {
     /* eslint-disable no-labels */
     top: while (true) {
       const startEpoch = this._currentWriteEpoch;
-      const references = new Set();
+      const references = new Set<DataID>();
 
       // Mark all records that are traversable from a root
       for (const {operation} of this._roots.values()) {
@@ -723,6 +729,16 @@ class LiveResolverStore implements Store {
       shouldProcessClientComponents: this._shouldProcessClientComponents,
       actorIdentifier: this._actorIdentifier,
     };
+  }
+
+  // Internal API that can be only invoked from the LiveResolverCache
+  // to notify subscribers of `updatedRecords`.
+  __notifyUpdatedSubscribers(updatedRecords: UpdatedRecords): void {
+    const nextUpdatedRecordIDs = getUpdatedDataIDs(updatedRecords);
+    const prevUpdatedRecordIDs = this._updatedRecordIDs;
+    this._updatedRecordIDs = nextUpdatedRecordIDs;
+    this.notify();
+    this._updatedRecordIDs = prevUpdatedRecordIDs;
   }
 }
 

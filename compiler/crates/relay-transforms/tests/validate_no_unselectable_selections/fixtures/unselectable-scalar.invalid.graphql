@@ -1,0 +1,13 @@
+#expected-to-throw
+
+fragment User_fragment on User {
+  __typename
+  __relay_model_instance
+  id
+}
+
+# %extensions%
+
+extend type User {
+  __relay_model_instance: Int! @unselectable(reason: "This test requires so.")
+}

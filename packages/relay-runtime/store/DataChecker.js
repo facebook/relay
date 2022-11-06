@@ -13,7 +13,6 @@
 
 import type {ActorIdentifier} from '../multi-actor-environment/ActorIdentifier';
 import type {
-  NormalizationField,
   NormalizationFlightField,
   NormalizationLinkedField,
   NormalizationModuleImport,
@@ -29,7 +28,6 @@ import type {
   NormalizationSelector,
   OperationLoader,
   ReactFlightReachableExecutableDefinitions,
-  Record,
   RecordSource,
 } from './RelayStoreTypes';
 
@@ -177,6 +175,8 @@ class DataChecker {
       const recordSourceProxy = new RelayRecordSourceProxy(
         mutator,
         this._getDataID,
+        undefined,
+        this._handlers,
       );
       tuple = [mutator, recordSourceProxy];
       this._mutatorRecordSourceProxyCache.set(actorIdentifier, tuple);
@@ -212,28 +212,6 @@ class DataChecker {
     this._recordWasMissing = true;
   }
 
-  _getDataForHandlers(
-    field: NormalizationField,
-    dataID: DataID,
-  ): {
-    args: Variables,
-    record: ?Record,
-    ...
-  } {
-    return {
-      /* $FlowFixMe[class-object-subtyping] added when improving typing for
-       * this parameters */
-      args: field.args ? getArgumentValues(field.args, this._variables) : {},
-      // Getting a snapshot of the record state is potentially expensive since
-      // we will need to merge the sink and source records. Since we do not create
-      // any new records in this process, it is probably reasonable to provide
-      // handlers with a copy of the source record.
-      // The only thing that the provided record will not contain is fields
-      // added by previous handlers.
-      record: this._source.get(dataID),
-    };
-  }
-
   _handleMissingScalarField(
     field: NormalizationScalarField,
     dataID: DataID,
@@ -241,12 +219,15 @@ class DataChecker {
     if (field.name === 'id' && field.alias == null && isClientID(dataID)) {
       return undefined;
     }
-    const {args, record} = this._getDataForHandlers(field, dataID);
+    const args =
+      field.args != undefined
+        ? getArgumentValues(field.args, this._variables)
+        : {};
     for (const handler of this._handlers) {
       if (handler.kind === 'scalar') {
         const newValue = handler.handle(
           field,
-          record,
+          this._recordSourceProxy.get(dataID),
           args,
           this._recordSourceProxy,
         );
@@ -262,12 +243,15 @@ class DataChecker {
     field: NormalizationLinkedField,
     dataID: DataID,
   ): ?DataID {
-    const {args, record} = this._getDataForHandlers(field, dataID);
+    const args =
+      field.args != undefined
+        ? getArgumentValues(field.args, this._variables)
+        : {};
     for (const handler of this._handlers) {
       if (handler.kind === 'linked') {
         const newValue = handler.handle(
           field,
-          record,
+          this._recordSourceProxy.get(dataID),
           args,
           this._recordSourceProxy,
         );
@@ -286,12 +270,15 @@ class DataChecker {
     field: NormalizationLinkedField,
     dataID: DataID,
   ): ?Array<?DataID> {
-    const {args, record} = this._getDataForHandlers(field, dataID);
+    const args =
+      field.args != undefined
+        ? getArgumentValues(field.args, this._variables)
+        : {};
     for (const handler of this._handlers) {
       if (handler.kind === 'pluralLinked') {
         const newValue = handler.handle(
           field,
-          record,
+          this._recordSourceProxy.get(dataID),
           args,
           this._recordSourceProxy,
         );

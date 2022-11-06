@@ -30,8 +30,8 @@ fragment Foo_user on User {
   #     field_path: "pop_star_name",
   #     field_arguments: [],
   #     live: false,
-  #     normalization_info: None,
-  #     inject_fragment_data: Some(
+  #     output_type_info: None,
+  #     fragment_data_injection_mode: Some(
   #         (
   #             WithLocation {
   #                 location: relay-resolver-model.graphql:56:88,
@@ -39,9 +39,10 @@ fragment Foo_user on User {
   #                     "PopStarNameResolverFragment_name",
   #                 ),
   #             },
-  #             Field(
-  #                 "name",
-  #             ),
+  #             Field {
+  #                 name: "name",
+  #                 is_required: false,
+  #             },
   #         ),
   #     ),
   # }

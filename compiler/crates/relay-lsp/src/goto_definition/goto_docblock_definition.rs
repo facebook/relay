@@ -18,7 +18,8 @@ pub fn get_docblock_definition_description(
     docblock_ir: &DocblockIr,
     position_span: Span,
 ) -> LSPRuntimeResult<DefinitionDescription> {
-    let resolution = create_docblock_resolution_info(docblock_ir, position_span)?;
+    let resolution = create_docblock_resolution_info(docblock_ir, position_span)
+        .ok_or(LSPRuntimeError::ExpectedError)?;
     match resolution {
         DocblockResolutionInfo::Type(type_name) => Ok(DefinitionDescription::Type { type_name }),
         DocblockResolutionInfo::RootFragment(fragment_name) => {

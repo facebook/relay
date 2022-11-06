@@ -30,7 +30,7 @@ function useSubscribeToInvalidationState(
   callback: () => void,
 ): Disposable {
   const environment = useRelayEnvironment();
-  const disposableRef = useRef(null);
+  const disposableRef = useRef<null | Disposable>(null);
 
   const stableDataIDs = Array.from(dataIDs).sort().join('');
   useEffect(() => {

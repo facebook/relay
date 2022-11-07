@@ -98,6 +98,7 @@ pub enum Primitive {
         resolver: Box<Primitive>,
         key: StringKey,
         plural: bool,
+        live: bool,
     },
 }
 

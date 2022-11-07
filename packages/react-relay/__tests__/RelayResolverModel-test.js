@@ -30,6 +30,7 @@ const RelayNetwork = require('relay-runtime/network/RelayNetwork');
 const {graphql} = require('relay-runtime/query/GraphQLTag');
 const {
   addTodo,
+  completeTodo,
   resetStore,
 } = require('relay-runtime/store/__tests__/resolvers/ExampleTodoStore');
 const LiveResolverStore = require('relay-runtime/store/experimental-live-resolvers/LiveResolverStore.js');
@@ -237,5 +238,43 @@ describe.each([
       </EnvironmentWrapper>,
     );
     expect(renderer.toJSON()).toEqual('Test todo - red');
+  });
+
+  test('read live @weak resolver field', () => {
+    function TodoComponentWithPluralResolverComponent(props: {todoID: string}) {
+      const data = useClientQuery(
+        graphql`
+          query RelayResolverModelTestWeakLiveFieldQuery($id: ID!) {
+            live_todo_description(todoID: $id) {
+              text
+              color
+            }
+          }
+        `,
+        {id: props.todoID},
+      );
+      if (data?.live_todo_description == null) {
+        return null;
+      }
+
+      return `${data.live_todo_description?.text ?? 'unknown'} - ${
+        data.live_todo_description?.color ?? 'unknown'
+      }`;
+    }
+
+    addTodo('Test todo');
+
+    const renderer = TestRenderer.create(
+      <EnvironmentWrapper environment={environment}>
+        <TodoComponentWithPluralResolverComponent todoID="todo-1" />
+      </EnvironmentWrapper>,
+    );
+    expect(renderer.toJSON()).toEqual('Test todo - red');
+
+    TestRenderer.act(() => {
+      completeTodo('todo-1');
+      jest.runAllImmediates();
+    });
+    expect(renderer.toJSON()).toEqual('Test todo - green');
   });
 });

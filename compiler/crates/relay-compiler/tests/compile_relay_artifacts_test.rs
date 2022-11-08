@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<2dc303928ff3615db2ad2ba0e7a5aff2>>
+ * @generated SignedSource<<91eb3240b55e761ddf8a237ee850be9c>>
  */
 
 mod compile_relay_artifacts;
@@ -1109,6 +1109,13 @@ fn relay_resolver_es_modules() {
     let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-es-modules.graphql");
     let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-es-modules.expected");
     test_fixture(transform_fixture, "relay-resolver-es-modules.graphql", "compile_relay_artifacts/fixtures/relay-resolver-es-modules.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_live_weak_object() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-live-weak-object.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-live-weak-object.expected");
+    test_fixture(transform_fixture, "relay-resolver-live-weak-object.graphql", "compile_relay_artifacts/fixtures/relay-resolver-live-weak-object.expected", input, expected);
 }
 
 #[test]

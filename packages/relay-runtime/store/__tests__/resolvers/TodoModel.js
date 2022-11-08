@@ -76,10 +76,32 @@ function todo_model_null(): ?DataID {
   return null;
 }
 
+/**
+ * @RelayResolver Query.live_todo_description(todoID: ID!): TodoDescription
+ * @live
+ *
+ */
+function live_todo_description(args: {
+  todoID: string,
+}): LiveState<?TodoDescription> {
+  return {
+    read() {
+      const todo = Selectors.getTodo(TODO_STORE.getState(), args.todoID);
+      return todo
+        ? createTodoDescription(todo.description, todo.isCompleted)
+        : null;
+    },
+    subscribe(cb) {
+      return TODO_STORE.subscribe(args.todoID, cb);
+    },
+  };
+}
+
 module.exports = {
   todo_model_null,
   TodoModel,
   description,
   fancy_description,
   many_fancy_descriptions,
+  live_todo_description,
 };

@@ -1049,6 +1049,7 @@ impl<'schema, 'builder, 'config> CodegenBuilder<'schema, 'builder, 'config> {
                 resolver: Box::new(resolver_module),
                 key,
                 plural,
+                live: relay_resolver_metadata.live,
             }
         } else {
             resolver_module

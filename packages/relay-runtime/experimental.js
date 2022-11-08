@@ -17,12 +17,16 @@ const {
   suspenseSentinel,
 } = require('./store/experimental-live-resolvers/LiveResolverSuspenseSentinel');
 const resolverDataInjector = require('./store/experimental-live-resolvers/resolverDataInjector');
-const weakObjectWrapper = require('./store/experimental-live-resolvers/weakObjectWrapper');
+const {
+  weakObjectWrapper,
+  weakObjectWrapperLive,
+} = require('./store/experimental-live-resolvers/weakObjectWrapper');
 
 module.exports = {
   resolverDataInjector,
   isSuspenseSentinel,
   LiveResolverStore,
   weakObjectWrapper,
+  weakObjectWrapperLive,
   suspenseSentinel,
 };

@@ -1,9 +1,15 @@
 ==================================== INPUT ====================================
-query nestedConditions2Query($conditional: Boolean!, $condition: Boolean!) {
+query nestedConditions2Query($c1: Boolean!, $c2: Boolean!, $c3: Boolean!, $c4: Boolean!, $c5: Boolean!, $c6: Boolean!, $c7: Boolean!) {
   node {
-    ... @include(if: $conditional){
-        ...nestedConditions2_NestedFragment @include(if: $condition)
-        ...nestedConditions2_NestedFragment2 @skip(if: $condition)
+    ... @include(if: $c1){
+        ...nestedConditions2_NestedFragment @include(if: $c2)
+        ...nestedConditions2_NestedFragment2 @skip(if: $c2)
+        ...@skip(if: $c3) {
+          ...@skip(if: $c4) @include(if: $c5) {
+            ...nestedConditions2_NestedFragment @skip(if: $c6)
+            ...nestedConditions2_NestedFragment2 @skip(if: $c6) @include(if: $c7)
+          }
+        }
     }
   }
 }
@@ -22,12 +28,37 @@ fragment nestedConditions2_NestedFragment2 on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "condition"
+        "name": "c1"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "conditional"
+        "name": "c2"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "c3"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "c4"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "c5"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "c6"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "c7"
       }
     ],
     "kind": "Fragment",
@@ -43,12 +74,12 @@ fragment nestedConditions2_NestedFragment2 on User {
         "plural": false,
         "selections": [
           {
-            "condition": "conditional",
+            "condition": "c1",
             "kind": "Condition",
             "passingValue": true,
             "selections": [
               {
-                "condition": "condition",
+                "condition": "c2",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -60,7 +91,7 @@ fragment nestedConditions2_NestedFragment2 on User {
                 ]
               },
               {
-                "condition": "condition",
+                "condition": "c2",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -68,6 +99,58 @@ fragment nestedConditions2_NestedFragment2 on User {
                     "args": null,
                     "kind": "FragmentSpread",
                     "name": "nestedConditions2_NestedFragment2"
+                  }
+                ]
+              },
+              {
+                "condition": "c3",
+                "kind": "Condition",
+                "passingValue": false,
+                "selections": [
+                  {
+                    "condition": "c5",
+                    "kind": "Condition",
+                    "passingValue": true,
+                    "selections": [
+                      {
+                        "condition": "c4",
+                        "kind": "Condition",
+                        "passingValue": false,
+                        "selections": [
+                          {
+                            "condition": "c6",
+                            "kind": "Condition",
+                            "passingValue": false,
+                            "selections": [
+                              {
+                                "args": null,
+                                "kind": "FragmentSpread",
+                                "name": "nestedConditions2_NestedFragment"
+                              }
+                            ]
+                          },
+                          {
+                            "condition": "c7",
+                            "kind": "Condition",
+                            "passingValue": true,
+                            "selections": [
+                              {
+                                "condition": "c6",
+                                "kind": "Condition",
+                                "passingValue": false,
+                                "selections": [
+                                  {
+                                    "args": null,
+                                    "kind": "FragmentSpread",
+                                    "name": "nestedConditions2_NestedFragment2"
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
                   }
                 ]
               }
@@ -86,12 +169,37 @@ fragment nestedConditions2_NestedFragment2 on User {
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "conditional"
+        "name": "c1"
       },
       {
         "defaultValue": null,
         "kind": "LocalArgument",
-        "name": "condition"
+        "name": "c2"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "c3"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "c4"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "c5"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "c6"
+      },
+      {
+        "defaultValue": null,
+        "kind": "LocalArgument",
+        "name": "c7"
       }
     ],
     "kind": "Operation",
@@ -113,7 +221,14 @@ fragment nestedConditions2_NestedFragment2 on User {
             "storageKey": null
           },
           {
-            "condition": "conditional",
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "condition": "c1",
             "kind": "Condition",
             "passingValue": true,
             "selections": [
@@ -122,7 +237,7 @@ fragment nestedConditions2_NestedFragment2 on User {
                 "abstractKey": "__isNode"
               },
               {
-                "condition": "condition",
+                "condition": "c2",
                 "kind": "Condition",
                 "passingValue": true,
                 "selections": [
@@ -143,7 +258,7 @@ fragment nestedConditions2_NestedFragment2 on User {
                 ]
               },
               {
-                "condition": "condition",
+                "condition": "c2",
                 "kind": "Condition",
                 "passingValue": false,
                 "selections": [
@@ -162,15 +277,50 @@ fragment nestedConditions2_NestedFragment2 on User {
                     "abstractKey": null
                   }
                 ]
+              },
+              {
+                "condition": "c3",
+                "kind": "Condition",
+                "passingValue": false,
+                "selections": [
+                  {
+                    "condition": "c5",
+                    "kind": "Condition",
+                    "passingValue": true,
+                    "selections": [
+                      {
+                        "condition": "c4",
+                        "kind": "Condition",
+                        "passingValue": false,
+                        "selections": [
+                          {
+                            "condition": "c6",
+                            "kind": "Condition",
+                            "passingValue": false,
+                            "selections": [
+                              {
+                                "kind": "InlineFragment",
+                                "selections": [
+                                  {
+                                    "alias": null,
+                                    "args": null,
+                                    "kind": "ScalarField",
+                                    "name": "name",
+                                    "storageKey": null
+                                  }
+                                ],
+                                "type": "User",
+                                "abstractKey": null
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
               }
             ]
-          },
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "id",
-            "storageKey": null
           }
         ],
         "storageKey": null
@@ -190,14 +340,31 @@ fragment nestedConditions2_NestedFragment2 on User {
 QUERY:
 
 query nestedConditions2Query(
-  $conditional: Boolean!
-  $condition: Boolean!
+  $c1: Boolean!
+  $c2: Boolean!
+  $c3: Boolean!
+  $c4: Boolean!
+  $c5: Boolean!
+  $c6: Boolean!
+  $c7: Boolean!
 ) {
   node {
     __typename
-    __isNode: __typename @include(if: $conditional)
-    ...nestedConditions2_NestedFragment @include(if: $condition) @include(if: $conditional)
-    ...nestedConditions2_NestedFragment2 @skip(if: $condition) @include(if: $conditional)
+    __isNode: __typename @include(if: $c1)
+    ... @include(if: $c1) {
+      ...nestedConditions2_NestedFragment @include(if: $c2)
+    }
+    ...nestedConditions2_NestedFragment2 @skip(if: $c2) @include(if: $c1)
+    __isNode: __typename @skip(if: $c3) @include(if: $c1)
+    ... @skip(if: $c3) @include(if: $c1) {
+      __isNode: __typename @skip(if: $c4) @include(if: $c5)
+      ... @skip(if: $c4) @include(if: $c5) {
+        ...nestedConditions2_NestedFragment @skip(if: $c6)
+      }
+      ... @skip(if: $c4) @include(if: $c5) {
+        ...nestedConditions2_NestedFragment2 @skip(if: $c6) @include(if: $c7)
+      }
+    }
     id
   }
 }

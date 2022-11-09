@@ -12,7 +12,7 @@ path = "tests/validate_selection_conflict_test.rs"
 
 [dependencies]
 common = { path = "../common" }
-dashmap = { version = "4.0.2", features = ["rayon", "serde"] }
+dashmap = { version = "5", features = ["rayon", "serde"] }
 errors = { path = "../errors" }
 graphql-ir = { path = "../graphql-ir" }
 graphql-text-printer = { path = "../graphql-text-printer" }

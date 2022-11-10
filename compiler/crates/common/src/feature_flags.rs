@@ -28,7 +28,7 @@ pub struct FeatureFlags {
 
     /// Use `named export` in Relay resolvers modules
     /// this should allow defining multiple resolvers per module.
-    #[serde(default)]
+    #[serde(default = "bool_true")]
     pub use_named_imports_for_relay_resolvers: bool,
 
     /// Use `@RelayResolver ModelName` syntax in Relay resolvers.
@@ -128,4 +128,8 @@ impl Display for FeatureFlag {
             FeatureFlag::Rollout { rollout } => write!(f, "Rollout: {:#?}", rollout),
         }
     }
+}
+
+fn bool_true() -> bool {
+    true
 }

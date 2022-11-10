@@ -45,7 +45,7 @@ const STORE_OR_NETWORK_DEFAULT: PreloadFetchPolicy = 'store-or-network';
 
 const pendingQueriesByEnvironment = WEAKMAP_SUPPORTED
   ? new WeakMap<IEnvironment, Map<string, PendingQueryEntry>>()
-  : new Map();
+  : new Map<IEnvironment, Map<string, PendingQueryEntry>>();
 
 type PendingQueryEntry =
   | $ReadOnly<{

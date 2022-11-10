@@ -737,7 +737,7 @@ class FragmentResourceImpl {
       .then(() => {
         this._cache.delete(cacheKey);
       })
-      .catch((error: Error) => {
+      .catch<void>((error: Error) => {
         this._cache.delete(cacheKey);
       });
     // $FlowExpectedError[prop-missing] Expando to annotate Promises.

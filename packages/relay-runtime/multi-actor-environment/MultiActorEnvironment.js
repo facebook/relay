@@ -452,8 +452,8 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
       updater: ?SelectorStoreUpdater<TMutation['response']>,
     },
   ): RelayObservable<GraphQLResponse> {
-    return RelayObservable.create(sink => {
-      const executor = OperationExecutor.execute({
+    return RelayObservable.create<GraphQLResponse>(sink => {
+      const executor = OperationExecutor.execute<TMutation>({
         actorIdentifier: actorEnvironment.actorIdentifier,
         getDataID: this._getDataID,
         isClientPayload,

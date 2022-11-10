@@ -18,6 +18,7 @@ import type {
   INetwork,
   PayloadData,
 } from '../network/RelayNetworkTypes';
+import type {Sink} from '../network/RelayObservable';
 import type {Disposable, RenderPolicy} from '../util/RelayRuntimeTypes';
 import type {ActiveState, TaskScheduler} from './OperationExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
@@ -471,8 +472,8 @@ class RelayModernEnvironment implements IEnvironment {
   }): RelayObservable<GraphQLResponse> {
     const publishQueue = this._publishQueue;
     const store = this._store;
-    return RelayObservable.create(sink => {
-      const executor = OperationExecutor.execute({
+    return RelayObservable.create((sink: Sink<GraphQLResponse>) => {
+      const executor = OperationExecutor.execute<$FlowFixMe>({
         actorIdentifier: INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         getDataID: this._getDataID,
         isClientPayload,

@@ -547,7 +547,7 @@ class QueryResourceImpl {
 
       let cacheEntry = this._cache.get(cacheIdentifier);
       if (!cacheEntry) {
-        const networkPromise = new Promise(resolve => {
+        const networkPromise = new Promise<void>(resolve => {
           resolveNetworkPromise = resolve;
         });
 

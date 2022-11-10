@@ -15,6 +15,7 @@ import type {
   CacheConfig,
   ConcreteRequest,
   GraphQLSingularResponse,
+  GraphQLResponse,
   IEnvironment,
   PayloadError,
   RequestParameters,
@@ -146,7 +147,7 @@ class ReactRelayTestMocker {
     ) => {
       let resolve;
       let reject;
-      const promise = new Promise((res, rej) => {
+      const promise = new Promise<GraphQLResponse>((res, rej) => {
         resolve = res;
         reject = rej;
       });

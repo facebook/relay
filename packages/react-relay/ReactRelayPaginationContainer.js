@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {Sink} from '../relay-runtime/network/RelayObservable';
 import type {
   GeneratedNodeMap,
   ObserverOrCallback,
@@ -255,9 +256,9 @@ function createGetFragmentVariables(
     'ReactRelayPaginationContainer: Unable to synthesize a ' +
       'getFragmentVariables function.',
   );
-  return (prevVars: Variables, totalCount: number) => ({
+  return (prevVars: Variables, totalCount: number): Variables => ({
     ...prevVars,
-    [countVariable]: totalCount,
+    [(countVariable: string)]: totalCount,
   });
 }
 
@@ -770,7 +771,7 @@ function createContainerWithFragments<
         ...restProps,
         ...this.state.data,
       };
-      let fragmentVariables;
+      let fragmentVariables: Variables;
       const rootVariables = getRootVariablesForFragments(fragments, restProps);
       fragmentVariables = getVariablesFromObject(fragments, restProps);
       fragmentVariables = {
@@ -778,7 +779,7 @@ function createContainerWithFragments<
         ...fragmentVariables,
         ...this._refetchVariables,
       };
-      let fetchVariables = connectionConfig.getVariables(
+      let fetchVariables: Variables = connectionConfig.getVariables(
         props,
         {
           count: paginatingVariables.count,
@@ -793,14 +794,14 @@ function createContainerWithFragments<
         fetchVariables,
         componentName,
       );
-      fetchVariables = {
+      fetchVariables = ({
         ...fetchVariables,
         ...this._refetchVariables,
-      };
-      fragmentVariables = {
+      }: Variables);
+      fragmentVariables = ({
         ...fetchVariables,
         ...fragmentVariables,
-      };
+      }: Variables);
 
       const cacheConfig: ?CacheConfig = options
         ? {force: !!options.force}
@@ -871,8 +872,8 @@ function createContainerWithFragments<
           operation,
           preservePreviousReferences: true,
         })
-        .mergeMap(payload =>
-          Observable.create(sink => {
+        .mergeMap<void>(payload =>
+          Observable.create<void>((sink: Sink<void>) => {
             onNext(payload, () => {
               sink.next(); // pass void to public observer's `next`
               sink.complete();

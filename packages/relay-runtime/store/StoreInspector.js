@@ -149,7 +149,9 @@ if (__DEV__) {
             }
             if (Array.isArray(value.__refs)) {
               // $FlowFixMe[incompatible-call]
-              return value.__refs.map(ref => getWrappedRecord(source, ref));
+              return value.__refs.map((ref: string) =>
+                getWrappedRecord(source, ref),
+              );
             }
           }
           return value;

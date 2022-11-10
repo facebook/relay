@@ -50,7 +50,7 @@ function useFragment_LEGACY(fragment: GraphQLTaggedNode, key: mixed): mixed {
 
   const fragmentNode = getFragment(fragment);
   useStaticFragmentNodeWarning(fragmentNode, 'first argument of useFragment()');
-  const {data} = useFragmentNode<_>(fragmentNode, key, 'useFragment()');
+  const {data} = useFragmentNode<mixed>(fragmentNode, key, 'useFragment()');
   if (__DEV__) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useDebugValue({fragment: fragmentNode.name, data});

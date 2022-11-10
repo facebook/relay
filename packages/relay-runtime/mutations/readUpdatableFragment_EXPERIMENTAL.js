@@ -48,7 +48,8 @@ function readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
   );
 
   return {
-    updatableData: createUpdatableProxy(
+    // $FlowFixMe[incompatible-call]
+    updatableData: createUpdatableProxy<TData>(
       fragmentRoot,
       fragmentVariables,
       updatableFragment.selections,

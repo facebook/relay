@@ -30,7 +30,8 @@ function readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
   const updatableQuery = getUpdatableQuery(query);
 
   return {
-    updatableData: createUpdatableProxy(
+    // $FlowFixMe[incompatible-call]
+    updatableData: createUpdatableProxy<TData>(
       proxy.getRoot(),
       variables,
       updatableQuery.fragment.selections,

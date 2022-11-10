@@ -97,7 +97,7 @@ function createIdGenerator() {
   };
 }
 
-const DEFAULT_MOCK_RESOLVERS = {
+const DEFAULT_MOCK_RESOLVERS: MockResolvers = {
   ID(context: MockResolverContext, generateId: () => number) {
     return `<${
       context.parentType != null && context.parentType !== DEFAULT_MOCK_TYPENAME

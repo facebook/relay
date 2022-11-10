@@ -31,7 +31,7 @@ function weakObjectWrapperLive<TKey, TArgs>(
     );
     return {
       ...liveState,
-      read: weakObjectWrapper(
+      read: weakObjectWrapper<TKey, TArgs>(
         () => {
           return (liveState: $FlowFixMe).read();
         },

@@ -235,7 +235,7 @@ function createSetterForPluralLinkedField(
         'Do not assign null to plural linked fields; assign an empty array instead.',
       );
     } else {
-      const recordProxies = newValue.map(item => {
+      const recordProxies = newValue.map((item): ?RecordProxy => {
         if (item == null) {
           throw new Error(
             'When assigning an array of items, none of the items should be null or undefined.',
@@ -300,7 +300,7 @@ function createGetterForPluralLinkedField(
   updatableProxyRootRecord: RecordProxy,
   recordSourceProxy: RecordSourceProxy,
   missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
-): () => ?$FlowFixMe {
+): () => $FlowFixMe {
   return function () {
     const newVariables = getArgumentValues(selection.args ?? [], variables);
     let linkedRecords = updatableProxyRootRecord.getLinkedRecords(

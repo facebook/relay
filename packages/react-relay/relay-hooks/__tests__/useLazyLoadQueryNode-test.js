@@ -33,9 +33,9 @@ const useLazyLoadQueryNode = require('../useLazyLoadQueryNode');
 const React = require('react');
 const ReactTestRenderer = require('react-test-renderer');
 const {
+  __internal,
   RecordSource,
   Store,
-  __internal,
   createOperationDescriptor,
   getFragment,
   graphql,
@@ -135,7 +135,7 @@ describe('useLazyLoadQueryNode', () => {
 
     const Renderer = (props: Props) => {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
-      const data = useLazyLoadQueryNode<_>({
+      const data = useLazyLoadQueryNode<any>({
         query: _query,
         fetchObservable: __internal.fetchQuery(environment, _query),
         fetchPolicy: props.fetchPolicy || defaultFetchPolicy,
@@ -846,7 +846,7 @@ describe('useLazyLoadQueryNode', () => {
           gqlOnlyFragmentsQuery,
           props.variables,
         );
-        const data = useLazyLoadQueryNode<_>({
+        const data = useLazyLoadQueryNode<any>({
           componentDisplayName: 'TestDisplayName',
           fetchObservable: __internal.fetchQuery(environment, _query),
           fetchPolicy: 'store-or-network',

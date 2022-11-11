@@ -262,7 +262,7 @@ it('suspends then updates when the query and component load', () => {
   function Component(props: any) {
     expect(props.queries.preloadedQuery.variables.id).toBe('my-id');
     preloadedQuery = props.queries.preloadedQuery;
-    const data = usePreloadedQuery(query, props.queries.preloadedQuery);
+    const data = usePreloadedQuery<any>(query, props.queries.preloadedQuery);
     return data.node.name;
   }
   nestedEntryPointResource.resolve(Component);
@@ -282,7 +282,7 @@ it('renders synchronously when the component has already loaded and the data arr
   function Component(props: any) {
     expect(props.queries.preloadedQuery.variables.id).toBe('my-id');
     preloadedQuery = props.queries.preloadedQuery;
-    const data = usePreloadedQuery(query, props.queries.preloadedQuery);
+    const data = usePreloadedQuery<any>(query, props.queries.preloadedQuery);
     return data.node.name;
   }
   PreloadableQueryRegistry.set(ID, query);

@@ -116,7 +116,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     ReactRefreshRuntime.injectIntoGlobalHook(global);
     const V1 = function (props: {variables: {id: string}}) {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
-      const result = useLazyLoadQueryNode<_>({
+      const result = useLazyLoadQueryNode<any>({
         query: _query,
         fetchPolicy: 'network-only',
         fetchObservable: fetchQuery(environment, _query),
@@ -160,7 +160,7 @@ describe('useLazyLoadQueryNode-fast-refresh', () => {
     renderFn.mockClear();
     function V2(props: any) {
       const _query = createOperationDescriptor(gqlQuery, props.variables);
-      const result = useLazyLoadQueryNode<_>({
+      const result = useLazyLoadQueryNode<any>({
         query: _query,
         fetchObservable: fetchQuery(environment, _query),
         fetchPolicy: 'network-only',

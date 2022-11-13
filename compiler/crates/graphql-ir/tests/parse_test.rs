@@ -69,6 +69,20 @@ fn complex_object_with_missing_fields_invalid() {
 }
 
 #[test]
+fn complex_object_with_invalid_fields() {
+    let input = include_str!("parse/fixtures/complex-object-with-invalid-fields.invalid.graphql");
+    let expected = include_str!("parse/fixtures/complex-object-with-invalid-fields.invalid.expected");
+    test_fixture(transform_fixture, "complex-object-with-invalid-fields.invalid.graphql", "parse/fixtures/complex-object-with-invalid-fields.invalid.expected", input, expected);
+}
+
+#[test]
+fn complex_object_with_invalid_constant_fields() {
+    let input = include_str!("parse/fixtures/complex-object-with-invalid-constant-fields.invalid.graphql");
+    let expected = include_str!("parse/fixtures/complex-object-with-invalid-constant-fields.invalid.expected");
+    test_fixture(transform_fixture, "complex-object-with-invalid-constant-fields.invalid.graphql", "parse/fixtures/complex-object-with-invalid-constant-fields.invalid.expected", input, expected);
+}
+
+#[test]
 fn directive_generic() {
     let input = include_str!("parse/fixtures/directive-generic.graphql");
     let expected = include_str!("parse/fixtures/directive-generic.expected");

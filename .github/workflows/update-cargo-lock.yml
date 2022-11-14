@@ -25,9 +25,7 @@ jobs:
         run: cargo check
         working-directory: ./compiler/
       - name: pull-request
-        uses: repo-sync/pull-request@v2
+        uses: peter-evans/create-pull-request@v4
         with:
-          pr_title: "Update Cargo.lock"
-          pr_body: |
-            :crown: *An automated PR*
-          pr_allow_empty: false
+          title: "Update Cargo.lock"
+          delete-branch: true

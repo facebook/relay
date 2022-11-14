@@ -93,8 +93,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          # add --locked back when we have a better way to ensure it's up to date
-          args: --manifest-path=compiler/Cargo.toml
+          args: --manifest-path=compiler/Cargo.toml --locked
       - name: "Build compiler test project"
         run: cargo run --manifest-path=../crates/relay-bin/Cargo.toml
         working-directory: ./compiler/test-project

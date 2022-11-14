@@ -1,0 +1,31 @@
+
+# Copyright (c) Meta Platforms, Inc. and affiliates.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+
+name: Update Cargo.lock
+on:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  update-cargo-lock:
+    name: Update Cargo.lock file
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./compiler
+    steps:
+      - uses: actions/checkout@v3
+      - uses: technote-space/create-pr-action@v2
+        with:
+          EXECUTE_COMMANDS: |
+            cargo check -- verbose
+          COMMIT_MESSAGE: 'Update Cargo.lock'
+          COMMIT_NAME: 'GitHub Actions'
+          PR_BRANCH_NAME: 'update-cargo.lock-${PR_ID}'
+          PR_TITLE: 'Update Cargo.lock'
+

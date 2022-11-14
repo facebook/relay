@@ -27,7 +27,6 @@ jobs:
       - name: pull-request
         uses: repo-sync/pull-request@v2
         with:
-          destination_branch: "main"                      
           pr_title: "Update Cargo.lock"
           pr_body: |
             :crown: *An automated PR*

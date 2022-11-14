@@ -21,13 +21,14 @@ jobs:
         with:
           toolchain: 1.64.0
           override: true
-      - uses: technote-space/create-pr-action@v2
+      - name: "cargo check"
+        run: cargo check
+        working-directory: ./compiler/
+      - name: pull-request
+        uses: repo-sync/pull-request@v2
         with:
-          EXECUTE_COMMANDS: |
-            cd ./compiler
-            cargo check --verbose
-          COMMIT_MESSAGE: 'Update Cargo.lock'
-          COMMIT_NAME: 'GitHub Actions'
-          PR_BRANCH_NAME: 'update-cargo.lock-${PR_ID}'
-          PR_TITLE: 'Update Cargo.lock'
-
+          destination_branch: "main"                      
+          pr_title: "Update Cargo.lock"
+          pr_body: |
+            :crown: *An automated PR*
+          pr_allow_empty: false

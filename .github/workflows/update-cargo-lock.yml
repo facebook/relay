@@ -23,7 +23,7 @@ jobs:
       - uses: technote-space/create-pr-action@v2
         with:
           EXECUTE_COMMANDS: |
-            cargo check -- verbose
+            cargo check --verbose
           COMMIT_MESSAGE: 'Update Cargo.lock'
           COMMIT_NAME: 'GitHub Actions'
           PR_BRANCH_NAME: 'update-cargo.lock-${PR_ID}'

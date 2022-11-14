@@ -20,6 +20,8 @@ use relay_codegen::Printer;
 use relay_codegen::QueryID;
 use relay_codegen::TopLevelStatement;
 use relay_codegen::CODEGEN_CONSTANTS;
+use relay_config::PersistConfig;
+use relay_config::RemotePersistConfig;
 use relay_transforms::is_operation_preloadable;
 use relay_transforms::RelayDataDrivenDependencyMetadata;
 use relay_transforms::ASSIGNABLE_DIRECTIVE;
@@ -176,11 +178,24 @@ pub fn generate_operation(
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
-    if id_and_text_hash.is_some() {
-        request_parameters.id = id_and_text_hash;
-    } else {
-        request_parameters.text = text.clone();
-    };
+    match (id_and_text_hash, &project_config.persist) {
+        (
+            Some(_),
+            Some(PersistConfig::Remote(RemotePersistConfig {
+                include_query_text, ..
+            }))
+        ) if *include_query_text => {
+            request_parameters.id = id_and_text_hash;
+            request_parameters.text = text.clone();
+        }
+        (Some(_), _) => {
+            request_parameters.id = id_and_text_hash;
+        }
+        (None, _) => {
+            request_parameters.text = text.clone();
+        }
+    }
+
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
         variable_definitions: reader_operation.variable_definitions.clone(),

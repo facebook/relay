@@ -15,14 +15,12 @@ jobs:
   update-cargo-lock:
     name: Update Cargo.lock file
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./compiler
     steps:
       - uses: actions/checkout@v3
       - uses: technote-space/create-pr-action@v2
         with:
           EXECUTE_COMMANDS: |
+            cd ./compiler
             cargo check --verbose
           COMMIT_MESSAGE: 'Update Cargo.lock'
           COMMIT_NAME: 'GitHub Actions'

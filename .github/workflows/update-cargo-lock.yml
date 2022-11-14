@@ -16,7 +16,11 @@ jobs:
     name: Update Cargo.lock file
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: 1.64.0
+          override: true
       - uses: technote-space/create-pr-action@v2
         with:
           EXECUTE_COMMANDS: |

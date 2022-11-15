@@ -178,11 +178,16 @@ pub fn generate_operation(
     fragment_locations: &FragmentLocations,
 ) -> Result<Vec<u8>, FmtError> {
     let mut request_parameters = build_request_params(normalization_operation);
-    if id_and_text_hash.is_some() {
+
+    if id_and_text_hash.is_some() && project_config.always_keep_operation_text {
+        request_parameters.id = id_and_text_hash;
+        request_parameters.text = text.clone();
+    } else if id_and_text_hash.is_some() {
         request_parameters.id = id_and_text_hash;
     } else {
         request_parameters.text = text.clone();
     };
+
     let operation_fragment = FragmentDefinition {
         name: reader_operation.name.map(|x| FragmentDefinitionName(x.0)),
         variable_definitions: reader_operation.variable_definitions.clone(),

@@ -207,6 +207,7 @@ pub struct ProjectConfig {
     pub js_module_format: JsModuleFormat,
     pub module_import_config: ModuleImportConfig,
     pub diagnostic_report_config: DiagnosticReportConfig,
+    pub always_keep_operation_text: bool,
 }
 
 impl Default for ProjectConfig {
@@ -234,6 +235,7 @@ impl Default for ProjectConfig {
             js_module_format: Default::default(),
             module_import_config: Default::default(),
             diagnostic_report_config: Default::default(),
+            always_keep_operation_text: false,
         }
     }
 }
@@ -263,6 +265,7 @@ impl Debug for ProjectConfig {
             js_module_format,
             module_import_config,
             diagnostic_report_config,
+            always_keep_operation_text,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -301,6 +304,7 @@ impl Debug for ProjectConfig {
             .field("js_module_format", js_module_format)
             .field("module_import_config", module_import_config)
             .field("diagnostic_report_config", diagnostic_report_config)
+            .field("keep_original_operation_text", always_keep_operation_text)
             .finish()
     }
 }

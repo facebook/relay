@@ -889,8 +889,7 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
                 Type::Union(_) => Some(CompletionItemKind::INTERFACE),
                 Type::Object(_) => Some(CompletionItemKind::STRUCT),
                 Type::InputObject(_) => Some(CompletionItemKind::STRUCT),
-                type_ if schema.is_string(type_) => Some(CompletionItemKind::TEXT),
-                _ => Some(CompletionItemKind::VALUE),
+                _ => Some(CompletionItemKind::FIELD),
             };
 
             CompletionItem {

@@ -884,12 +884,10 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
 
             let kind = match field.type_.inner() {
                 Type::Enum(_) => Some(CompletionItemKind::ENUM),
-                Type::Interface(_) => Some(CompletionItemKind::INTERFACE),
                 // There is no Kind for union, so we'll use interface
-                Type::Union(_) => Some(CompletionItemKind::INTERFACE),
-                Type::Object(_) => Some(CompletionItemKind::STRUCT),
-                Type::InputObject(_) => Some(CompletionItemKind::STRUCT),
-                _ => Some(CompletionItemKind::FIELD),
+                Type::Interface(_) | Type::Union(_) => Some(CompletionItemKind::INTERFACE),
+                Type::Object(_) | Type::InputObject(_) => Some(CompletionItemKind::STRUCT),
+                Type::Scalar(_) => Some(CompletionItemKind::FIELD),
             };
 
             CompletionItem {

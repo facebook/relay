@@ -48,12 +48,10 @@ fn generate_fat_selections_from_type(
     type_: Type,
     field_name: WithLocation<StringKey>,
 ) -> DiagnosticsResult<Vec<Selection>> {
-    let mut parent_types = HashSet::new();
-    parent_types.insert(type_);
-
     match type_ {
         Type::Object(object_id) => {
-            if !schema.object(object_id).is_extension {
+            let object = schema.object(object_id);
+            if !object.is_extension {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::RelayResolverServerTypeNotSupported {
                         field_name: field_name.item,
@@ -63,10 +61,12 @@ fn generate_fat_selections_from_type(
                 )]);
             }
 
+            let mut parent_types = HashSet::new();
+            parent_types.insert(type_);
             generate_selections_from_fields(
                 schema,
                 schema_config,
-                &schema.object(object_id).fields,
+                &object.fields,
                 &mut parent_types,
             )
         }
@@ -181,7 +181,8 @@ fn generate_selection_from_field(
             directives: vec![],
         }))),
         Type::Object(object_id) => {
-            if !schema.object(object_id).is_extension {
+            let object = schema.object(object_id);
+            if !object.is_extension {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::RelayResolverServerTypeNotSupported {
                         field_name: field.name.item,
@@ -204,7 +205,7 @@ fn generate_selection_from_field(
             let selections = generate_selections_from_fields(
                 schema,
                 schema_config,
-                &schema.object(object_id).fields,
+                &object.fields,
                 parent_types,
             )?;
             parent_types.remove(&type_);

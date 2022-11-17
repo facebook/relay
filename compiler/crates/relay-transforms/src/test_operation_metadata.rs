@@ -224,26 +224,22 @@ impl RelayTestOperationMetadata {
                     match selection {
                         Selection::ScalarField(scalar_field) => {
                             let field = schema.field(scalar_field.definition.item);
-                            if !field.is_extension {
-                                let alias_or_name = scalar_field.alias_or_name(schema);
-                                let next_path = next_path(path, alias_or_name);
-                                selection_type_info.insert(
-                                    next_path,
-                                    RelayTestOperationSelectionTypeInfo::new(schema, field),
-                                );
-                            }
+                            let alias_or_name = scalar_field.alias_or_name(schema);
+                            let next_path = next_path(path, alias_or_name);
+                            selection_type_info.insert(
+                                next_path,
+                                RelayTestOperationSelectionTypeInfo::new(schema, field),
+                            );
                         }
                         Selection::LinkedField(linked_field) => {
                             let field = schema.field(linked_field.definition.item);
-                            if !field.is_extension {
-                                let alias_or_name = linked_field.alias_or_name(schema);
-                                let next_path = next_path(path, alias_or_name);
-                                selection_type_info.insert(
-                                    next_path,
-                                    RelayTestOperationSelectionTypeInfo::new(schema, field),
-                                );
-                                processing_queue.push((Some(next_path), &linked_field.selections));
-                            }
+                            let alias_or_name = linked_field.alias_or_name(schema);
+                            let next_path = next_path(path, alias_or_name);
+                            selection_type_info.insert(
+                                next_path,
+                                RelayTestOperationSelectionTypeInfo::new(schema, field),
+                            );
+                            processing_queue.push((Some(next_path), &linked_field.selections));
                         }
                         Selection::Condition(condition) => {
                             processing_queue.push((path, &condition.selections));

@@ -1,0 +1,37 @@
+==================================== INPUT ====================================
+query ClientFieldsQuery @relay_test_operation {
+  node(id: "test-id") {
+    id
+    ... on User {
+      name
+      client_info {
+        name
+        description
+      }
+    }
+  }
+}
+
+# %extensions%
+
+extend type User {
+  client_info: ClientInfo
+}
+
+type ClientInfo {
+  name: String
+  description: String
+}
+==================================== OUTPUT ===================================
+query ClientFieldsQuery @__metadata(relayTestingSelectionTypeInfo: {node: {enumValues: null, nullable: true, plural: false, type: "Node"}, node.id: {enumValues: null, nullable: false, plural: false, type: "ID"}, node.name: {enumValues: null, nullable: true, plural: false, type: "String"}, node.client_info: {enumValues: null, nullable: true, plural: false, type: "ClientInfo"}, node.client_info.name: {enumValues: null, nullable: true, plural: false, type: "String"}, node.client_info.description: {enumValues: null, nullable: true, plural: false, type: "String"}}) {
+  node(id: "test-id") {
+    id
+    ... on User {
+      name
+      client_info {
+        name
+        description
+      }
+    }
+  }
+}

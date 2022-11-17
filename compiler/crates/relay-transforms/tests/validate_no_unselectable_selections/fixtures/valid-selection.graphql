@@ -1,0 +1,11 @@
+fragment User_fragment on User {
+  __typename
+  id
+}
+
+# %extensions%
+
+extend type User {
+  # Unselectable fields on types are allowed as long as you don't select them
+  __relay_model_instance: Int! @unselectable(reason: "This test requires so.")
+}

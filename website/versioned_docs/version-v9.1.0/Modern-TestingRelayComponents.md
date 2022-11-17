@@ -432,7 +432,7 @@ test('it should subscribe', () => {
 
 ### Example with `queueOperationResolver`
 
-With `queueOpeararionResolver` it possible to define responses for operations that will be executed on the environment
+With `queueOperationResolver` it possible to define responses for operations that will be executed on the environment
 
 ```javascript
 // Say you have a component with the QueryRenderer

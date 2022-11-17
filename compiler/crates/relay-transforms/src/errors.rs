@@ -218,6 +218,17 @@ pub enum ValidationMessage {
         "Arguments are not supported in the fields on the @outputType in @RelayResolvers. You'll need to expose these fields using @RelayResolver for them."
     )]
     RelayResolverArgumentsNotSupported,
+
+    #[error(
+        "Disallowed selection of field `{}{field_name}`.{}",
+        parent_name.map_or("".to_string(), |name| format!("{}.", name)),
+        reason.map_or("".to_string(), |reason| format!(" Reason: \"{}\"", reason)),
+    )]
+    UnselectableField {
+        field_name: StringKey,
+        parent_name: Option<StringKey>,
+        reason: Option<StringKey>,
+    },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

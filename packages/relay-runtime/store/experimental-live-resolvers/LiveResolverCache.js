@@ -62,6 +62,7 @@ const RELAY_RESOLVER_LIVE_STATE_VALUE = '__resolverLiveStateValue';
 const RELAY_RESOLVER_LIVE_STATE_DIRTY = '__resolverLiveStateDirty';
 const RELAY_RESOLVER_RECORD_TYPENAME = '__RELAY_RESOLVER__';
 const getOutputTypeRecordIDs = require('./getOutputTypeRecordIDs');
+const isLiveStateValue = require('./isLiveStateValue');
 
 /**
  * An experimental fork of store/ResolverCache.js intended to let us experiment
@@ -318,7 +319,7 @@ class LiveResolverCache implements ResolverCache {
     );
 
     return new Promise(resolve => {
-      const unsubscribe = liveState.subscribe(() => {
+      const unsubscribe: () => void = liveState.subscribe(() => {
         unsubscribe();
         resolve();
       });
@@ -773,7 +774,7 @@ function updateCurrentSource(
   nextSource: RecordSource,
   prevOutputTypeRecordIDs: ?$ReadOnlySet<DataID>,
 ): DataIDSet {
-  const updatedDataIDs = new Set();
+  const updatedDataIDs = new Set<DataID>();
 
   // First, we are removing records from the `currentSource`
   // that is no longer created from the resolver with @outputType
@@ -819,16 +820,6 @@ function expectRecord(source: RecordSource, recordID: DataID): Record {
   );
 
   return record;
-}
-
-// Validate that a value is live state
-function isLiveStateValue(v: mixed): boolean {
-  return (
-    v != null &&
-    typeof v === 'object' &&
-    typeof v.read === 'function' &&
-    typeof v.subscribe === 'function'
-  );
 }
 
 function getUpdatedDataIDs(updatedRecords: UpdatedRecords): DataIDSet {

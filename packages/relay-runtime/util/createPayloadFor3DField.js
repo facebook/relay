@@ -34,7 +34,9 @@ function createPayloadFor3DField<+DocumentName: string, +Response: {...}>(
   const data = {
     ...response,
   };
+  // $FlowFixMe[prop-missing]
   data[getModuleComponentKey(name)] = component;
+  // $FlowFixMe[prop-missing]
   data[getModuleOperationKey(name)] = operation;
   return data;
 }

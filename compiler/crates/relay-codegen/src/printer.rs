@@ -520,11 +520,13 @@ impl<'b> JSONPrinter<'b> {
                 resolver,
                 key,
                 plural,
+                live,
             } => self.write_relay_resolver_weak_object_wrapper(
                 f,
                 resolver,
                 *key,
                 *plural,
+                *live,
                 indent,
                 is_dedupe_var,
             ),
@@ -621,11 +623,16 @@ impl<'b> JSONPrinter<'b> {
         resolver: &Primitive,
         key: StringKey,
         plural: bool,
+        live: bool,
         indent: usize,
         is_dedupe_var: bool,
     ) -> FmtResult {
         let relay_runtime_experimental = "relay-runtime/experimental";
-        let weak_object_wrapper = "weakObjectWrapper";
+        let weak_object_wrapper = if live {
+            "weakObjectWrapperLive"
+        } else {
+            "weakObjectWrapper"
+        };
 
         self.write_js_dependency(
             f,

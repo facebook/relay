@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {DataID} from 'relay-runtime/util/RelayRuntimeTypes';
 
 import type {RecordObjectMap} from '../RelayStoreTypes';

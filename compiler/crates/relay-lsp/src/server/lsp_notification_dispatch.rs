@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+use std::ops::ControlFlow;
+
 use lsp_types::notification::Notification;
 
 use crate::lsp_runtime_error::LSPRuntimeError;
@@ -24,23 +26,23 @@ impl<'state, TState> LSPNotificationDispatch<'state, TState> {
     }
 
     /// Calls handler if the LSPNotificationDispatch's notification's method matches
-    /// the method of TNotification. Returns a Result which will be Ok if the handler
-    /// was not called, or Err if the handler was called.
+    /// the method of TNotification. Returns a ControlFlow which will be Break if the handler
+    /// was called, or Continue otherwise.
     /// Thus, multiple calls to `on_notification_sync(...)?` can be chained. Doing so will
     /// cause LSPNotificationDispatch to execute the first matching handler, if any.
     pub fn on_notification_sync<TNotification: Notification>(
         self,
         handler: fn(&TState, TNotification::Params) -> LSPRuntimeResult<()>,
-    ) -> Result<Self, Option<LSPRuntimeError>> {
+    ) -> ControlFlow<Option<LSPRuntimeError>, Self> {
         if self.notification.method == TNotification::METHOD {
             let params = extract_notification_params::<TNotification>(self.notification);
             // TODO propagate these errors
             let response = handler(self.state, params);
 
-            return Err(response.err());
+            return ControlFlow::Break(response.err());
         }
 
-        Ok(self)
+        ControlFlow::Continue(self)
     }
 
     pub fn notification(self) -> lsp_server::Notification {
@@ -59,6 +61,7 @@ where
 
 #[cfg(test)]
 mod test {
+    use std::ops::ControlFlow;
     use std::sync::atomic::AtomicI32;
     use std::sync::atomic::Ordering;
 
@@ -69,7 +72,6 @@ mod test {
     use lsp_types::MessageType;
 
     use super::LSPNotificationDispatch;
-    use crate::lsp_runtime_error::LSPRuntimeError;
     use crate::lsp_runtime_error::LSPRuntimeResult;
 
     #[test]
@@ -86,14 +88,15 @@ mod test {
             },
             &state,
         );
-        let dispatch = || -> Result<(), Option<LSPRuntimeError>> {
+        let dispatch = || {
             dispatch
                 .on_notification_sync::<TelemetryEvent>(telemetry_handler)?
                 .on_notification_sync::<LogMessage>(log_message_handler)?;
-            Ok(())
+            ControlFlow::Continue(())
         };
+
         let result = dispatch();
-        assert!(result.is_err());
+        assert!(result.is_break());
         assert_eq!(state.load(Ordering::Relaxed), 2);
     }
 

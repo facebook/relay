@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {SelectorData} from 'relay-runtime/store/RelayStoreTypes';
 import type {
   RelayModernStoreSubscriptionsTest1Fragment$data,
@@ -42,7 +43,7 @@ const RelayOptimisticRecordSource = require('../RelayOptimisticRecordSource');
 const RelayRecordSource = require('../RelayRecordSource');
 const {INVALIDATED_AT_KEY, REF_KEY} = require('../RelayStoreUtils');
 
-function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
+function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>): void {
   if (!value) {
     throw new Error(
       'Expected value to be a non-null object or array of objects',

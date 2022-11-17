@@ -177,7 +177,7 @@ it('suspends while the component is loading', () => {
 
 it('suspends while the query is loading', () => {
   function Component(props: any) {
-    const data = usePreloadedQuery(query, props.queries.prefetched);
+    const data = usePreloadedQuery<any>(query, props.queries.prefetched);
     return data.node.name;
   }
   // $FlowFixMe[prop-missing]
@@ -223,7 +223,7 @@ it('suspends then updates when the query and component load', () => {
   let receivedProps = null;
   function Component(props: any) {
     receivedProps = props;
-    const data = usePreloadedQuery(query, props.queries.prefetched);
+    const data = usePreloadedQuery<any>(query, props.queries.prefetched);
     return data.node.name;
   }
   // $FlowFixMe[prop-missing]
@@ -247,7 +247,7 @@ it('renders synchronously when the query and component are already loaded', () =
   let receivedProps = null;
   function Component(props: any) {
     receivedProps = props;
-    const data = usePreloadedQuery(query, props.queries.prefetched);
+    const data = usePreloadedQuery<any>(query, props.queries.prefetched);
     return data.node.name;
   }
   // $FlowFixMe[prop-missing]
@@ -279,7 +279,7 @@ it('renders synchronously when the query and component are already loaded', () =
 
 it('re-renders without reloading when non-prefetch props change', () => {
   const Component = jest.fn(props => {
-    const data = usePreloadedQuery(query, props.queries.prefetched);
+    const data = usePreloadedQuery<any>(query, props.queries.prefetched);
     return data.node.name;
   });
   // $FlowFixMe[prop-missing]
@@ -320,7 +320,7 @@ it('re-renders without reloading when non-prefetch props change', () => {
 
 it('re-renders and reloads when prefetch params change', () => {
   const Component = jest.fn(props => {
-    const data = usePreloadedQuery(query, props.queries.prefetched);
+    const data = usePreloadedQuery<any>(query, props.queries.prefetched);
     return data.node.name;
   });
   // $FlowFixMe[prop-missing]
@@ -391,7 +391,7 @@ it('fetches and renders synchronously when the query data is cached, then update
   let receivedProps = null;
   function Component(props: any) {
     receivedProps = props;
-    const data = usePreloadedQuery(query, props.queries.prefetched);
+    const data = usePreloadedQuery<any>(query, props.queries.prefetched);
     return data.node.name;
   }
   // $FlowFixMe[prop-missing]
@@ -461,7 +461,7 @@ it('renders synchronously when the query data and ast are cached, without fetchi
   let receivedProps = null;
   function Component(props: any) {
     receivedProps = props;
-    const data = usePreloadedQuery(query, props.queries.prefetched);
+    const data = usePreloadedQuery<any>(query, props.queries.prefetched);
     return data.node.name;
   }
   // $FlowFixMe[prop-missing]

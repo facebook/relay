@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {RequestParameters} from 'relay-runtime/util/RelayConcreteNode';
 import type {
   CacheConfig,

@@ -6,6 +6,7 @@ query ProdQuery @relay_test_operation {
     id
   }
 }
+# %extensions%
 ==================================== ERROR ====================================
 ✖︎ The `@relay_test_operation` directive is only allowed within test files because it creates larger generated files we don't want to include in production. File does not match test regex: ^test
 

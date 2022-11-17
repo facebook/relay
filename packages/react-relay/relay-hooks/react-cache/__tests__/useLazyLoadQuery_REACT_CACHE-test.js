@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {LogEvent} from 'relay-runtime/store/RelayStoreTypes';
 
 import type {FetchPolicy, GraphQLResponse, RenderPolicy} from 'relay-runtime';

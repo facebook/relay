@@ -78,7 +78,7 @@ jobs:
       - name: Flow
         run: yarn run typecheck
 
-  rust-tests:
+  build-tests:
     name: Rust Tests (${{ matrix.os }})
     strategy:
       matrix:
@@ -93,11 +93,16 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          # add --locked back when we have a better way to ensure it's up to date
-          args: --manifest-path=compiler/Cargo.toml
-      - name: "Build test project"
+          args: --manifest-path=compiler/Cargo.toml --locked
+      - name: "Build compiler test project"
         run: cargo run --manifest-path=../crates/relay-bin/Cargo.toml
         working-directory: ./compiler/test-project
+      - name: "Build relay Unit-tests"
+        run: './compile-tests.sh'
+        working-directory: ./scripts
+      - name: "Check working directory status"
+        run: './check-git-status.sh'
+        working-directory: ./scripts
 
   rust-lint:
     name: Rust Lint
@@ -188,7 +193,7 @@ jobs:
     name: Publish to NPM
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.repository == 'facebook/relay'
-    needs: [js-tests, js-lint, typecheck, rust-tests, build-compiler]
+    needs: [js-tests, js-lint, typecheck, build-tests, build-compiler]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2

@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {SelectorData} from 'relay-runtime/store/RelayStoreTypes';
 import type {Disposable} from '../../util/RelayRuntimeTypes';
 import type {
@@ -52,7 +53,7 @@ const {
   simpleClone,
 } = require('relay-test-utils-internal');
 
-function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>) {
+function assertIsDeeplyFrozen(value: ?{...} | ?$ReadOnlyArray<{...}>): void {
   if (!value) {
     throw new Error(
       'Expected value to be a non-null object or array of objects',

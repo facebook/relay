@@ -64,7 +64,7 @@ function getMissingClientEdges(
   } else if (state.kind === 'singular') {
     return state.snapshot.missingClientEdges ?? null;
   } else {
-    let edges = null;
+    let edges: null | Array<MissingClientEdgeRequestInfo> = null;
     for (const snapshot of state.snapshots) {
       if (snapshot.missingClientEdges) {
         edges = edges ?? [];

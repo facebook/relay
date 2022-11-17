@@ -163,7 +163,7 @@ function useLoadMore<TQuery: OperationType>(
     error: () => setIsLoadingMore(false),
   };
   const handleReset = () => setIsLoadingMore(false);
-  const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction({
+  const [loadMore, hasMore, disposeFetch] = useLoadMoreFunction<TQuery>({
     ...args,
     observer,
     onReset: handleReset,

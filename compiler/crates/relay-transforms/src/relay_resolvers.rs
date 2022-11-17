@@ -219,8 +219,12 @@ impl<'program> RelayResolverSpreadTransform<'program> {
                     .map(|injection_mode| {
                         (
                             self.program
-                                .fragment(field_metadata.fragment_name.unwrap_or_else(|| panic!()))
-                                .unwrap()
+                                .fragment(
+                                    field_metadata
+                                        .fragment_name
+                                        .expect("Expected to have a fragment name."),
+                                )
+                                .expect("Expect to have a fragment node.")
                                 .name,
                             *injection_mode,
                         )

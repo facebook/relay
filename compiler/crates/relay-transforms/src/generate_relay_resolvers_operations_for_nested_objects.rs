@@ -26,6 +26,7 @@ use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
 use schema::Field;
 use schema::FieldID;
+use schema::ObjectID;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -48,12 +49,10 @@ fn generate_fat_selections_from_type(
     type_: Type,
     field_name: WithLocation<StringKey>,
 ) -> DiagnosticsResult<Vec<Selection>> {
-    let mut parent_types = HashSet::new();
-    parent_types.insert(type_);
-
     match type_ {
         Type::Object(object_id) => {
-            if !schema.object(object_id).is_extension {
+            let object = schema.object(object_id);
+            if !object.is_extension {
                 return Err(vec![Diagnostic::error(
                     ValidationMessage::RelayResolverServerTypeNotSupported {
                         field_name: field_name.item,
@@ -63,10 +62,12 @@ fn generate_fat_selections_from_type(
                 )]);
             }
 
-            generate_selections_from_fields(
+            let mut parent_types = HashSet::new();
+            parent_types.insert(type_);
+            generate_selections_from_object_fields(
                 schema,
                 schema_config,
-                &schema.object(object_id).fields,
+                &object.fields,
                 &mut parent_types,
             )
         }
@@ -112,7 +113,7 @@ fn generate_fat_selections_from_type(
     }
 }
 
-fn generate_selections_from_fields(
+fn generate_selections_from_object_fields(
     schema: &SDLSchema,
     schema_config: &SchemaConfig,
     field_ids: &[FieldID],
@@ -181,34 +182,13 @@ fn generate_selection_from_field(
             directives: vec![],
         }))),
         Type::Object(object_id) => {
-            if !schema.object(object_id).is_extension {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::RelayResolverServerTypeNotSupported {
-                        field_name: field.name.item,
-                        type_name: schema.get_type_name(type_),
-                    },
-                    field.name.location,
-                )]);
-            }
-
-            if parent_types.contains(&type_) {
-                return Err(vec![Diagnostic::error(
-                    ValidationMessage::RelayResolverTypeRecursionDetected {
-                        type_name: schema.get_type_name(type_),
-                    },
-                    field.name.location,
-                )]);
-            }
-
-            parent_types.insert(type_);
-            let selections = generate_selections_from_fields(
+            let selections = generate_selections_from_object(
+                object_id,
+                parent_types,
                 schema,
                 schema_config,
-                &schema.object(object_id).fields,
-                parent_types,
+                field,
             )?;
-            parent_types.remove(&type_);
-
             Ok(Selection::LinkedField(Arc::new(LinkedField {
                 alias: None,
                 definition: WithLocation::generated(*field_id),
@@ -241,6 +221,46 @@ fn generate_selection_from_field(
             field.name.location,
         )]),
     }
+}
+
+fn generate_selections_from_object(
+    object_id: ObjectID,
+    parent_types: &mut HashSet<Type>,
+    schema: &SDLSchema,
+    schema_config: &SchemaConfig,
+    field: &Field,
+) -> Result<Vec<Selection>, Vec<Diagnostic>> {
+    let object = schema.object(object_id);
+    let type_ = Type::Object(object_id);
+
+    if !object.is_extension {
+        return Err(vec![Diagnostic::error(
+            ValidationMessage::RelayResolverServerTypeNotSupported {
+                field_name: field.name.item,
+                type_name: object.name.item.0,
+            },
+            field.name.location,
+        )]);
+    }
+
+    if parent_types.contains(&type_) {
+        return Err(vec![Diagnostic::error(
+            ValidationMessage::RelayResolverTypeRecursionDetected {
+                type_name: object.name.item.0,
+            },
+            field.name.location,
+        )]);
+    }
+    parent_types.insert(type_);
+    let selections = generate_selections_from_object_fields(
+        schema,
+        schema_config,
+        &object.fields,
+        parent_types,
+    )?;
+    parent_types.remove(&type_);
+
+    Ok(selections)
 }
 
 pub(crate) fn generate_name_for_nested_object_operation(

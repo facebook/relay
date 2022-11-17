@@ -733,7 +733,7 @@ This yields efficiency gains. The fragment can be loaded as part of a single, la
 
 A directive that allows you to turn off data masking and is used on plural types.
 
-See the documentation.
+See [the documentation](../api-reference/graphql-and-directives/#relaymask-boolean).
 
 ## Relay Classic
 

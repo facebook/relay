@@ -59,6 +59,11 @@ pub enum ValidationMessage {
         outer_type_plural: &'static str,
     },
 
+    #[error(
+        "Fields defined using Relay Resolvers are not not allowed within @updatable operations."
+    )]
+    UpdatableDisallowRealyResolvers,
+
     #[error("The directives @include and @skip are not allowed within {outer_type_plural}.")]
     UpdatableNoConditions { outer_type_plural: &'static str },
 

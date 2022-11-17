@@ -1,0 +1,44 @@
+==================================== INPUT ====================================
+#expected-to-throw
+
+fragment User_fragment on User {
+  __typename
+  __relay_model_instance
+  __reserved_field
+  __reserved_field_no_reason
+  id
+}
+
+# %extensions%
+
+extend type User {
+  __relay_model_instance: Int! @unselectable(reason: "This test requires so.")
+  __reserved_field: String! @unselectable(reason: "This test requires so.")
+  __reserved_field_no_reason: String @unselectable
+}
+==================================== ERROR ====================================
+✖︎ Disallowed selection of field `User.__relay_model_instance`. Reason: "This test requires so."
+
+  multiple-unselectables.invalid.graphql:5:3
+    4 │   __typename
+    5 │   __relay_model_instance
+      │   ^^^^^^^^^^^^^^^^^^^^^^
+    6 │   __reserved_field
+
+
+✖︎ Disallowed selection of field `User.__reserved_field_no_reason`.
+
+  multiple-unselectables.invalid.graphql:7:3
+    6 │   __reserved_field
+    7 │   __reserved_field_no_reason
+      │   ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    8 │   id
+
+
+✖︎ Disallowed selection of field `User.__reserved_field`. Reason: "This test requires so."
+
+  multiple-unselectables.invalid.graphql:6:3
+    5 │   __relay_model_instance
+    6 │   __reserved_field
+      │   ^^^^^^^^^^^^^^^^
+    7 │   __reserved_field_no_reason

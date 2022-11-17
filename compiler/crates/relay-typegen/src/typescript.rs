@@ -118,12 +118,12 @@ impl Writer for TypeScriptPrinter {
         import_as: Option<&str>,
         from: &str,
     ) -> FmtResult {
-        let local_name = if let Some(import_as) = import_as {
-            format!("{{{} as {}}}", name, import_as)
+        let import_type = if let Some(import_as) = import_as {
+            format!("{} as {}", name, import_as)
         } else {
-            format!("{{{}}}", name)
+            name.to_string()
         };
-        self.write_import_module_default(&local_name, from)
+        self.write_import_type(&[&import_type], from)
     }
 
     fn write_import_type(&mut self, types: &[&str], from: &str) -> FmtResult {

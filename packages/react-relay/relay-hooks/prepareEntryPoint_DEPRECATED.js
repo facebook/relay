@@ -75,11 +75,15 @@ function prepareEntryPoint<
       }
       const {entryPoint: nestedEntryPoint, entryPointParams: nestedParams} =
         entryPointDescription;
-      preloadedEntryPoints[entryPointPropName] = prepareEntryPoint(
-        environmentProvider,
-        nestedEntryPoint,
-        nestedParams,
-      );
+      preloadedEntryPoints[entryPointPropName] = prepareEntryPoint<
+        TEntryPointParams,
+        TPreloadedQueries,
+        TPreloadedEntryPoints,
+        TRuntimeProps,
+        TExtraProps,
+        TEntryPointComponent,
+        TEntryPoint,
+      >(environmentProvider, nestedEntryPoint, nestedParams);
     });
   }
 }

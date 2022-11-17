@@ -16,6 +16,7 @@ import type {
   HasUpdatableSpread,
   RecordSourceProxy,
   UpdatableData,
+  MissingFieldHandler,
 } from '../store/RelayStoreTypes';
 import type {UpdatableFragment} from '../util/RelayRuntimeTypes';
 
@@ -30,6 +31,7 @@ function readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
   fragment: UpdatableFragment<TFragmentType, TData>,
   fragmentReference: HasUpdatableSpread<TFragmentType>,
   proxy: RecordSourceProxy,
+  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
 ): UpdatableData<TData> {
   const updatableFragment = getFragment(fragment);
   const fragmentVariables = getVariablesFromFragment(
@@ -46,11 +48,13 @@ function readUpdatableFragment_EXPERIMENTAL<TFragmentType: FragmentType, TData>(
   );
 
   return {
-    updatableData: createUpdatableProxy(
+    // $FlowFixMe[incompatible-call]
+    updatableData: createUpdatableProxy<TData>(
       fragmentRoot,
       fragmentVariables,
       updatableFragment.selections,
       proxy,
+      missingFieldHandlers,
     ),
   };
 }

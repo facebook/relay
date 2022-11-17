@@ -145,7 +145,7 @@ function getPluralSelector(
   fragment: ReaderFragment,
   items: $ReadOnlyArray<mixed>,
 ): ?PluralReaderSelector {
-  let selectors = null;
+  let selectors: null | Array<SingularReaderSelector> = null;
   items.forEach((item, ii) => {
     const selector = item != null ? getSingularSelector(fragment, item) : null;
     if (selector != null) {
@@ -277,7 +277,7 @@ function getDataIDs(
   fragment: ReaderFragment,
   items: $ReadOnlyArray<mixed>,
 ): ?Array<DataID> {
-  let ids = null;
+  let ids: null | Array<DataID> = null;
   items.forEach(item => {
     const id = item != null ? getDataID(fragment, item) : null;
     if (id != null) {

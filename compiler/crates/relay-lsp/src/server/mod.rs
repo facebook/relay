@@ -12,6 +12,7 @@ mod lsp_state;
 mod lsp_state_resources;
 mod task_queue;
 
+use std::ops::ControlFlow;
 use std::sync::Arc;
 
 use common::PerfLogEvent;
@@ -225,7 +226,9 @@ fn handle_request<TPerfLogger: PerfLogger + 'static, TSchemaDocumentation: Schem
 }
 
 fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) -> ServerResponse {
-    let get_response = || -> Result<_, ServerResponse> {
+    // Returns ControlFlow::Break(ServerResponse) if the request
+    // was handled, ControlFlow::Continue(Request) otherwise.
+    let get_response = || {
         let request = LSPRequestDispatch::new(request, lsp_state)
             .on_request_sync::<ResolvedTypesAtLocation>(on_get_resolved_types_at_location)?
             .on_request_sync::<SearchSchemaItems>(on_search_schema_items)?
@@ -246,7 +249,12 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
             .request();
 
         // If we have gotten here, we have not handled the request
-        Ok(ServerResponse {
+        ControlFlow::Continue(request)
+    };
+
+    match get_response() {
+        ControlFlow::Break(response) => response,
+        ControlFlow::Continue(request) => ServerResponse {
             id: request.id,
             result: None,
             error: Some(ResponseError {
@@ -254,9 +262,8 @@ fn dispatch_request(request: lsp_server::Request, lsp_state: &impl GlobalState) 
                 data: None,
                 message: format!("No handler registered for method '{}'", request.method),
             }),
-        })
-    };
-    get_response().unwrap_or_else(|response| response)
+        },
+    }
 }
 
 fn with_request_logging<'a, TPerfLogger: PerfLogger + 'static>(
@@ -311,11 +318,11 @@ fn handle_notification<
     let notification_result = dispatch_notification(notification, lsp_state.as_ref());
 
     match notification_result {
-        Ok(()) => {
+        ControlFlow::Continue(()) => {
             // The notification is not handled
             lsp_notification_event.string("lsp_outcome", "error".to_string());
         }
-        Err(err) => {
+        ControlFlow::Break(err) => {
             if let Some(err) = err {
                 lsp_notification_event.string("lsp_outcome", "error".to_string());
                 if let LSPRuntimeError::UnexpectedError(message) = err {
@@ -334,7 +341,9 @@ fn handle_notification<
 fn dispatch_notification(
     notification: lsp_server::Notification,
     lsp_state: &impl GlobalState,
-) -> Result<(), Option<LSPRuntimeError>> {
+) -> ControlFlow<Option<LSPRuntimeError>, ()> {
+    // Returns ControlFlow::Break(Option<LSPRuntimeError>) if the notification
+    // was handled, ControlFlow::Continue(()) otherwise.
     let notification = LSPNotificationDispatch::new(notification, lsp_state)
         .on_notification_sync::<DidOpenTextDocument>(on_did_open_text_document)?
         .on_notification_sync::<DidCloseTextDocument>(on_did_close_text_document)?
@@ -349,5 +358,5 @@ fn dispatch_notification(
         "Error: no handler registered for notification '{}'",
         notification.method
     );
-    Ok(())
+    ControlFlow::Continue(())
 }

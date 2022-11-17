@@ -23,6 +23,6 @@
   },
   "devDependencies": {
     "@babel/core": "^7.14.0",
-    "prettier": "^2.4.1"
+    "prettier": "2.7.1"
   }
 }

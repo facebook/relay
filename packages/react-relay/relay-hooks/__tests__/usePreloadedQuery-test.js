@@ -10,6 +10,7 @@
  */
 
 'use strict';
+
 import type {Sink} from '../../../relay-runtime/network/RelayObservable';
 import type {GraphQLResponse} from 'relay-runtime/network/RelayNetworkTypes';
 
@@ -163,7 +164,7 @@ describe.each([
       );
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery(query, props.prefetched);
+        data = usePreloadedQuery<any>(query, props.prefetched);
         return data?.node?.name;
       }
       const renderer = TestRenderer.create(
@@ -186,7 +187,7 @@ describe.each([
       );
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery(query, props.prefetched);
+        data = usePreloadedQuery<any>(query, props.prefetched);
         return data?.node?.name ?? 'Error: should have suspended';
       }
       const renderer = TestRenderer.create(
@@ -221,7 +222,7 @@ describe.each([
 
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery(query, props.prefetched);
+        data = usePreloadedQuery<any>(query, props.prefetched);
         return data?.node?.name ?? 'MISSING NAME';
       }
       const renderer = TestRenderer.create(
@@ -257,7 +258,7 @@ describe.each([
 
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery(query, props.prefetched);
+        data = usePreloadedQuery<any>(query, props.prefetched);
         return data.node.name;
       }
       const renderer = TestRenderer.create(
@@ -285,7 +286,7 @@ describe.each([
 
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery(query, props.prefetched);
+        data = usePreloadedQuery<any>(query, props.prefetched);
         return data.node.name;
       }
       const renderer = TestRenderer.create(
@@ -335,7 +336,7 @@ describe.each([
 
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery(query, props.prefetched);
+        data = usePreloadedQuery<any>(query, props.prefetched);
         return data.node.name;
       }
       const renderer = TestRenderer.create(
@@ -397,7 +398,7 @@ describe.each([
 
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery(query, props.prefetched);
+        data = usePreloadedQuery<any>(query, props.prefetched);
         return data.node.name;
       }
 
@@ -449,7 +450,7 @@ describe.each([
 
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery(query, props.prefetched);
+        data = usePreloadedQuery<any>(query, props.prefetched);
         return data.node.name;
       }
       const renderer = TestRenderer.create(
@@ -511,7 +512,7 @@ describe.each([
 
       let data;
       function Component(props: any) {
-        data = usePreloadedQuery(query, props.prefetched);
+        data = usePreloadedQuery<any>(query, props.prefetched);
         return data.node.name;
       }
       const renderer = TestRenderer.create(
@@ -555,12 +556,16 @@ describe.each([
 
     describe('if loadQuery is passed a preloadableConcreteRequest which is not available synchronously', () => {
       it('does not suspend while the query is pending until the query AST and network response are available', () => {
-        const prefetched = loadQuery(environment, preloadableConcreteRequest, {
-          id: '4',
-        });
+        const prefetched = loadQuery<any, _>(
+          environment,
+          preloadableConcreteRequest,
+          {
+            id: '4',
+          },
+        );
         let data;
         function Component(props: any) {
-          data = usePreloadedQuery(query, props.prefetched);
+          data = usePreloadedQuery<any>(query, props.prefetched);
           return data?.node?.name ?? 'MISSING NAME';
         }
         const renderer = TestRenderer.create(
@@ -598,12 +603,16 @@ describe.each([
       });
 
       it('does not suspend while the query is pending until the network response and the query AST are available', () => {
-        const prefetched = loadQuery(environment, preloadableConcreteRequest, {
-          id: '4',
-        });
+        const prefetched = loadQuery<any, _>(
+          environment,
+          preloadableConcreteRequest,
+          {
+            id: '4',
+          },
+        );
         let data;
         function Component(props: any) {
-          data = usePreloadedQuery(query, props.prefetched);
+          data = usePreloadedQuery<any>(query, props.prefetched);
           return data?.node?.name ?? 'MISSING NAME';
         }
         const renderer = TestRenderer.create(
@@ -641,9 +650,13 @@ describe.each([
       });
 
       it('renders synchronously if the query has already completed', () => {
-        const prefetched = loadQuery(environment, preloadableConcreteRequest, {
-          id: '4',
-        });
+        const prefetched = loadQuery<any, _>(
+          environment,
+          preloadableConcreteRequest,
+          {
+            id: '4',
+          },
+        );
         let data;
         PreloadableQueryRegistry.set(ID, query);
         expect(dataSource).toBeDefined();
@@ -653,7 +666,7 @@ describe.each([
         TestRenderer.act(() => jest.runAllImmediates());
 
         function Component(props: any) {
-          data = usePreloadedQuery(query, props.prefetched);
+          data = usePreloadedQuery<any>(query, props.prefetched);
           return data.node.name;
         }
         const renderer = TestRenderer.create(
@@ -674,9 +687,13 @@ describe.each([
       });
 
       it('renders an error synchronously if the query has already errored', () => {
-        const prefetched = loadQuery(environment, preloadableConcreteRequest, {
-          id: '4',
-        });
+        const prefetched = loadQuery<any, _>(
+          environment,
+          preloadableConcreteRequest,
+          {
+            id: '4',
+          },
+        );
         let data;
         PreloadableQueryRegistry.set(ID, query);
         expect(dataSource).toBeDefined();
@@ -686,7 +703,7 @@ describe.each([
         TestRenderer.act(() => jest.runAllImmediates());
 
         function Component(props: any) {
-          data = usePreloadedQuery(query, props.prefetched);
+          data = usePreloadedQuery<any>(query, props.prefetched);
           return data.node.name;
         }
         const renderer = TestRenderer.create(
@@ -706,7 +723,7 @@ describe.each([
     describe('when loadQuery is passed a query AST', () => {
       describe('when the network response is available before usePreloadedQuery is rendered', () => {
         it('should synchronously render successfully', () => {
-          const prefetched = loadQuery(environment, query, {
+          const prefetched = loadQuery<any, _>(environment, query, {
             id: '4',
           });
           let data;
@@ -717,7 +734,7 @@ describe.each([
           TestRenderer.act(() => jest.runAllImmediates());
 
           function Component(props: any) {
-            data = usePreloadedQuery(query, props.prefetched);
+            data = usePreloadedQuery<any>(query, props.prefetched);
             return data.node.name;
           }
           const renderer = TestRenderer.create(
@@ -737,7 +754,7 @@ describe.each([
           });
         });
         it('should synchronously render errors', () => {
-          const prefetched = loadQuery(environment, query, {
+          const prefetched = loadQuery<any, _>(environment, query, {
             id: '4',
           });
           let data;
@@ -748,7 +765,7 @@ describe.each([
           TestRenderer.act(() => jest.runAllImmediates());
 
           function Component(props: any) {
-            data = usePreloadedQuery(query, props.prefetched);
+            data = usePreloadedQuery<any>(query, props.prefetched);
             return data.node.name;
           }
           const renderer = TestRenderer.create(
@@ -767,14 +784,14 @@ describe.each([
 
       describe('when the network response occurs after usePreloadedQuery is rendered', () => {
         it('should suspend, and then render', () => {
-          const prefetched = loadQuery(environment, query, {
+          const prefetched = loadQuery<any, _>(environment, query, {
             id: '4',
           });
           let data;
           expect(dataSource).toBeDefined();
 
           function Component(props: any) {
-            data = usePreloadedQuery(query, props.prefetched);
+            data = usePreloadedQuery<any>(query, props.prefetched);
             return data.node.name;
           }
           const renderer = TestRenderer.create(
@@ -801,14 +818,14 @@ describe.each([
           });
         });
         it('should suspend, then render and error', () => {
-          const prefetched = loadQuery(environment, query, {
+          const prefetched = loadQuery<any, _>(environment, query, {
             id: '4',
           });
           let data;
           expect(dataSource).toBeDefined();
 
           function Component(props: any) {
-            data = usePreloadedQuery(query, props.prefetched);
+            data = usePreloadedQuery<any>(query, props.prefetched);
             return data.node.name;
           }
           const renderer = TestRenderer.create(
@@ -844,7 +861,7 @@ describe.each([
       });
       describe('when the network response is available before usePreloadedQuery is rendered', () => {
         it('should synchronously render successfully', () => {
-          const prefetched = loadQuery(
+          const prefetched = loadQuery<any, _>(
             environment,
             preloadableConcreteRequest,
             {
@@ -859,7 +876,7 @@ describe.each([
           TestRenderer.act(() => jest.runAllImmediates());
 
           function Component(props: any) {
-            data = usePreloadedQuery(query, props.prefetched);
+            data = usePreloadedQuery<any>(query, props.prefetched);
             return data.node.name;
           }
           const renderer = TestRenderer.create(
@@ -879,7 +896,7 @@ describe.each([
           });
         });
         it('should synchronously render errors', () => {
-          const prefetched = loadQuery(
+          const prefetched = loadQuery<any, _>(
             environment,
             preloadableConcreteRequest,
             {
@@ -894,7 +911,7 @@ describe.each([
           TestRenderer.act(() => jest.runAllImmediates());
 
           function Component(props: any) {
-            data = usePreloadedQuery(query, props.prefetched);
+            data = usePreloadedQuery<any>(query, props.prefetched);
             return data.node.name;
           }
           const renderer = TestRenderer.create(
@@ -913,7 +930,7 @@ describe.each([
 
       describe('when the network response occurs after usePreloadedQuery is rendered', () => {
         it('should suspend, and then render', () => {
-          const prefetched = loadQuery(
+          const prefetched = loadQuery<any, _>(
             environment,
             preloadableConcreteRequest,
             {
@@ -924,7 +941,7 @@ describe.each([
           expect(dataSource).toBeDefined();
 
           function Component(props: any) {
-            data = usePreloadedQuery(query, props.prefetched);
+            data = usePreloadedQuery<any>(query, props.prefetched);
             return data.node.name;
           }
           const renderer = TestRenderer.create(
@@ -951,7 +968,7 @@ describe.each([
           });
         });
         it('should suspend, then render and error', () => {
-          const prefetched = loadQuery(
+          const prefetched = loadQuery<any, _>(
             environment,
             preloadableConcreteRequest,
             {
@@ -962,7 +979,7 @@ describe.each([
           expect(dataSource).toBeDefined();
 
           function Component(props: any) {
-            data = usePreloadedQuery(query, props.prefetched);
+            data = usePreloadedQuery<any>(query, props.prefetched);
             return data.node.name;
           }
           const renderer = TestRenderer.create(
@@ -999,9 +1016,13 @@ describe.each([
           network: Network.create(altFetch),
           store: new Store(new RecordSource()),
         });
-        const prefetched = loadQuery(environment, preloadableConcreteRequest, {
-          id: '4',
-        });
+        const prefetched = loadQuery<any, _>(
+          environment,
+          preloadableConcreteRequest,
+          {
+            id: '4',
+          },
+        );
         let data;
         expect(dataSource).toBeDefined();
         if (dataSource) {
@@ -1011,7 +1032,7 @@ describe.each([
 
         expect(altFetch).not.toHaveBeenCalled();
         function Component(props: any) {
-          data = usePreloadedQuery(query, props.prefetched);
+          data = usePreloadedQuery<any>(query, props.prefetched);
           return data.node.name;
         }
         const renderer = TestRenderer.create(
@@ -1039,14 +1060,14 @@ describe.each([
         const expectWarningMessage = expect.stringMatching(
           /^usePreloadedQuery\(\): Expected preloadedQuery to not be disposed/,
         );
-        const prefetched = loadQuery(
+        const prefetched = loadQuery<any, _>(
           environment,
           preloadableConcreteRequest,
           {},
         );
 
         function Component(props: any) {
-          const data = usePreloadedQuery(query, props.prefetched);
+          const data = usePreloadedQuery<any>(query, props.prefetched);
           return data?.node?.name ?? 'MISSING NAME';
         }
 
@@ -1080,7 +1101,7 @@ describe.each([
 
     describe('refetching', () => {
       it('renders updated data correctly when refetching same query and variables', () => {
-        const loadedFirst = loadQuery(
+        const loadedFirst = loadQuery<any, _>(
           environment,
           preloadableConcreteRequest,
           {
@@ -1128,7 +1149,7 @@ describe.each([
         // Refetch
         data = undefined;
         dataSource = undefined;
-        const loadedSecond = loadQuery(
+        const loadedSecond = loadQuery<any, _>(
           environment,
           preloadableConcreteRequest,
           {
@@ -1181,7 +1202,7 @@ describe.each([
       });
 
       it('renders updated data correctly when refetching different variables', () => {
-        const loadedFirst = loadQuery(
+        const loadedFirst = loadQuery<any, _>(
           environment,
           preloadableConcreteRequest,
           {
@@ -1229,7 +1250,7 @@ describe.each([
         // Refetch
         data = undefined;
         dataSource = undefined;
-        const loadedSecond = loadQuery(
+        const loadedSecond = loadQuery<any, _>(
           environment,
           preloadableConcreteRequest,
           {

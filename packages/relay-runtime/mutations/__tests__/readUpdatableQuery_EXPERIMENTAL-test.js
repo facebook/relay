@@ -23,6 +23,7 @@ const {
 const RelayModernStore = require('../../store/RelayModernStore');
 const RelayReader = require('../../store/RelayReader');
 const RelayRecordSource = require('../../store/RelayRecordSource');
+const {ROOT_TYPE} = require('../../store/RelayStoreUtils');
 const commitLocalUpdate = require('../commitLocalUpdate');
 const {
   validate: validateNode,
@@ -140,11 +141,9 @@ graphql`
 describe('readUpdatableQuery', () => {
   let environment;
   let operation;
-  let rootRequest;
 
   beforeEach(() => {
-    rootRequest = regularQuery;
-    operation = createOperationDescriptor(rootRequest, {});
+    operation = createOperationDescriptor(regularQuery, {});
     const source = RelayRecordSource.create();
     const store = new RelayModernStore(source);
 
@@ -1091,6 +1090,195 @@ describe('readUpdatableQuery', () => {
           name: 'Bob',
           callback: expect.any(Function),
         },
+      });
+    });
+  });
+
+  describe('missing field handlers', () => {
+    // Note that missing field handlers will only be consulted if the field in the store
+    // is undefined (i.e. missing). They are not run on "null" records.
+    // So, in these tests, we don't want to provide a null value for node(id: "4"), etc.
+    //
+    // If the operation for which we are providing data (via environment.commitPayload)
+    // has a `node(id: "4")` selection, we must provide either null or a value for that field.
+    // Providing `node: undefined` causes `environment.commitPayload` to throw an error.
+    // Hence, we provide data using different operations that do not contain the fields
+    // we are attempting to provide via missing field handlers.
+    const missingFieldsUpdatableQuery = graphql`
+      query readUpdatableQueryEXPERIMENTALTestMissingFieldsUpdatableQuery
+      @updatable {
+        node(id: "4") {
+          ... on User {
+            __typename
+            name
+          }
+        }
+        nodes(ids: ["4"]) {
+          ... on User {
+            __typename
+            name
+          }
+        }
+        me {
+          lastName
+        }
+      }
+    `;
+    const missingFieldsQuery = graphql`
+      query readUpdatableQueryEXPERIMENTALTestMissingFieldsQuery {
+        me {
+          name
+        }
+      }
+    `;
+    const missingFieldsOperation = createOperationDescriptor(
+      missingFieldsQuery,
+      {},
+    );
+
+    let handleLinkedField;
+    let handlePluralLinkedField;
+    let handleScalarField;
+
+    beforeEach(() => {
+      handleLinkedField = jest.fn((field, record, argValues) => {
+        if (
+          record != null &&
+          record.getType() === ROOT_TYPE &&
+          field.name === 'node' &&
+          argValues.hasOwnProperty('id')
+        ) {
+          return argValues.id;
+        }
+      });
+      handlePluralLinkedField = jest.fn((field, record, argValues) => {
+        if (
+          record != null &&
+          record.getType() === ROOT_TYPE &&
+          field.name === 'nodes' &&
+          argValues.hasOwnProperty('ids')
+        ) {
+          return argValues.ids;
+        }
+      });
+      handleScalarField = jest.fn((field, record) => {
+        if (field.name === 'lastName') {
+          return 'Hamill';
+        }
+      });
+
+      const source = RelayRecordSource.create();
+      const store = new RelayModernStore(source);
+
+      const fetch = jest.fn();
+      environment = new RelayModernEnvironment({
+        network: RelayNetwork.create(fetch),
+        store,
+        missingFieldHandlers: [
+          {
+            kind: 'linked',
+            handle: handleLinkedField,
+          },
+          {
+            kind: 'pluralLinked',
+            handle: handlePluralLinkedField,
+          },
+          {
+            kind: 'scalar',
+            handle: handleScalarField,
+          },
+        ],
+      });
+    });
+
+    it('should read linked fields using missing field handlers', () => {
+      environment.commitPayload(missingFieldsOperation, {
+        me: {
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
+        },
+      });
+
+      commitLocalUpdate(environment, store => {
+        const me = store.getRoot()?.getLinkedRecord('me');
+        expect(me?.getValue('id')).toEqual('4');
+        expect(me?.getValue('name')).toEqual('Zuck');
+
+        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+          missingFieldsUpdatableQuery,
+          {},
+        ).updatableData;
+
+        const node = updatableData.node;
+        expect(handleLinkedField).toHaveBeenCalledTimes(1);
+        expect(node != null).toBe(true);
+        if (node != null) {
+          expect(node.__typename).toEqual('User');
+          if (node.__typename === 'User') {
+            expect(node.name).toEqual('Zuck');
+          }
+        }
+      });
+    });
+
+    it('should read plural linked fields using missing field handlers', () => {
+      environment.commitPayload(missingFieldsOperation, {
+        me: {
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
+        },
+      });
+
+      commitLocalUpdate(environment, store => {
+        const me = store.getRoot()?.getLinkedRecord('me');
+        expect(me?.getValue('id')).toEqual('4');
+        expect(me?.getValue('name')).toEqual('Zuck');
+
+        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+          missingFieldsUpdatableQuery,
+          {},
+        ).updatableData;
+
+        const nodes = updatableData.nodes;
+        expect(handlePluralLinkedField).toHaveBeenCalledTimes(1);
+        expect(nodes != null).toBe(true);
+        if (nodes != null && nodes[0] != null) {
+          expect(nodes[0].__typename).toEqual('User');
+          if (nodes[0]?.__typename === 'User') {
+            expect(nodes[0].name).toEqual('Zuck');
+          }
+        }
+      });
+    });
+
+    it('should read scalar fields using missing field handlers', () => {
+      environment.commitPayload(missingFieldsOperation, {
+        me: {
+          id: '4',
+          __typename: 'User',
+          name: 'Zuck',
+        },
+      });
+
+      commitLocalUpdate(environment, store => {
+        const me = store.getRoot()?.getLinkedRecord('me');
+        expect(me?.getValue('id')).toEqual('4');
+        expect(me?.getValue('name')).toEqual('Zuck');
+
+        const updatableData = store.readUpdatableQuery_EXPERIMENTAL(
+          missingFieldsUpdatableQuery,
+          {},
+        ).updatableData;
+
+        const updatableMe = updatableData.me;
+        expect(updatableMe != null).toBe(true);
+        if (updatableMe != null) {
+          const lastName = updatableMe.lastName;
+          expect(lastName).toBe('Hamill');
+          expect(handleScalarField).toHaveBeenCalledTimes(1);
+        }
       });
     });
   });

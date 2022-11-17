@@ -18,6 +18,7 @@ import type {
   INetwork,
   PayloadData,
 } from '../network/RelayNetworkTypes';
+import type {Sink} from '../network/RelayObservable';
 import type {Disposable, RenderPolicy} from '../util/RelayRuntimeTypes';
 import type {ActiveState, TaskScheduler} from './OperationExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
@@ -142,10 +143,12 @@ class RelayModernEnvironment implements IEnvironment {
     this._operationExecutions = new Map();
     this._network = wrapNetworkWithLogObserver(this, config.network);
     this._getDataID = config.getDataID ?? defaultGetDataID;
+    this._missingFieldHandlers = config.missingFieldHandlers ?? [];
     this._publishQueue = new RelayPublishQueue(
       config.store,
       config.handlerProvider ?? RelayDefaultHandlerProvider,
       this._getDataID,
+      this._missingFieldHandlers,
     );
     this._scheduler = config.scheduler ?? null;
     this._store = config.store;
@@ -160,7 +163,6 @@ class RelayModernEnvironment implements IEnvironment {
       (this: any).DEBUG_inspect = (dataID: ?string) => inspect(this, dataID);
     }
 
-    this._missingFieldHandlers = config.missingFieldHandlers ?? [];
     this._operationTracker =
       config.operationTracker ?? new RelayOperationTracker();
     this._reactFlightPayloadDeserializer = reactFlightPayloadDeserializer;
@@ -470,8 +472,8 @@ class RelayModernEnvironment implements IEnvironment {
   }): RelayObservable<GraphQLResponse> {
     const publishQueue = this._publishQueue;
     const store = this._store;
-    return RelayObservable.create(sink => {
-      const executor = OperationExecutor.execute({
+    return RelayObservable.create((sink: Sink<GraphQLResponse>) => {
+      const executor = OperationExecutor.execute<$FlowFixMe>({
         actorIdentifier: INTERNAL_ACTOR_IDENTIFIER_DO_NOT_USE,
         getDataID: this._getDataID,
         isClientPayload,

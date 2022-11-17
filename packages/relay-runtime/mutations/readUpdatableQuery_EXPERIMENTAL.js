@@ -11,7 +11,11 @@
 
 'use strict';
 
-import type {RecordSourceProxy, UpdatableData} from '../store/RelayStoreTypes';
+import type {
+  RecordSourceProxy,
+  UpdatableData,
+  MissingFieldHandler,
+} from '../store/RelayStoreTypes';
 import type {UpdatableQuery, Variables} from '../util/RelayRuntimeTypes';
 
 const {getUpdatableQuery} = require('../query/GraphQLTag');
@@ -21,15 +25,18 @@ function readUpdatableQuery_EXPERIMENTAL<TVariables: Variables, TData>(
   query: UpdatableQuery<TVariables, TData>,
   variables: TVariables,
   proxy: RecordSourceProxy,
+  missingFieldHandlers: $ReadOnlyArray<MissingFieldHandler>,
 ): UpdatableData<TData> {
   const updatableQuery = getUpdatableQuery(query);
 
   return {
-    updatableData: createUpdatableProxy(
+    // $FlowFixMe[incompatible-call]
+    updatableData: createUpdatableProxy<TData>(
       proxy.getRoot(),
       variables,
       updatableQuery.fragment.selections,
       proxy,
+      missingFieldHandlers,
     ),
   };
 }

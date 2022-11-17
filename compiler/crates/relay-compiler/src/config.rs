@@ -364,7 +364,6 @@ Example file:
                     js_module_format: config_file_project.js_module_format,
                     module_import_config: config_file_project.module_import_config,
                     diagnostic_report_config: config_file_project.diagnostic_report_config,
-                    always_keep_operation_text: config_file_project.always_keep_operation_text
                 };
                 Ok((project_name, project_config))
             })
@@ -1015,9 +1014,6 @@ pub struct ConfigFileProject {
 
     #[serde(default)]
     pub diagnostic_report_config: DiagnosticReportConfig,
-
-    #[serde(default)]
-    pub always_keep_operation_text: bool,
 }
 
 pub type PersistId = String;

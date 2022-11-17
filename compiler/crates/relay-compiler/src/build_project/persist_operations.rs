@@ -41,11 +41,17 @@ pub async fn persist_operations(
     log_event: &impl PerfLogEvent,
     programs: &Programs,
 ) -> Result<(), BuildProjectError> {
+    let keep_original_text = if let Some(persist_config) = &project_config.persist {
+        persist_config.keep_original_text()
+    } else {
+        false
+    };
+
     let handles = artifacts
         .par_iter_mut()
         .flat_map(|artifact| {
             if let ArtifactContent::Operation {
-                ref text,
+                ref mut text,
                 ref mut id_and_text_hash,
                 ref reader_operation,
                 ..
@@ -58,10 +64,15 @@ pub async fn persist_operations(
                 {
                     if text.is_some() {
                         *id_and_text_hash = Some(QueryID::External(virtual_id_file_name));
+
+                        if !keep_original_text {
+                            *text = None
+                        }
                     }
                     None
-                } else if let Some(text) = text {
-                    let text_hash = md5(text);
+                } else if text.is_some() {
+                    let query_text = text.as_ref().unwrap().clone();
+                    let text_hash = md5(&query_text);
                     let artifact_path = root_dir.join(&artifact.path);
                     let relative_path = artifact.path.to_owned();
                     let extracted_persist_id = if config.repersist_operations {
@@ -71,18 +82,26 @@ pub async fn persist_operations(
                     };
                     if let Some(id) = extracted_persist_id {
                         *id_and_text_hash = Some(QueryID::Persisted { id, text_hash });
+
+                        if !keep_original_text {
+                            *text = None
+                        }
+
                         None
                     } else {
-                        let text = text.clone();
                         Some(async move {
                             operation_persister
                                 .persist_artifact(ArtifactForPersister {
-                                    text,
+                                    text: query_text.clone(),
                                     relative_path,
                                 })
                                 .await
                                 .map(|id| {
                                     *id_and_text_hash = Some(QueryID::Persisted { id, text_hash });
+
+                                    if !keep_original_text {
+                                        *text = None
+                                    }
                                 })
                         })
                     }

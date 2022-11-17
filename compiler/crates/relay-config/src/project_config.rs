@@ -62,6 +62,9 @@ pub struct RemotePersistConfig {
         deserialize_with = "deserialize_semaphore_permits"
     )]
     pub semaphore_permits: Option<usize>,
+
+    #[serde(default)]
+    pub keep_original_text: bool,
 }
 
 fn deserialize_semaphore_permits<'de, D>(d: D) -> Result<Option<usize>, D::Error>
@@ -98,6 +101,9 @@ pub struct LocalPersistConfig {
 
     #[serde(default)]
     pub algorithm: LocalPersistAlgorithm,
+
+    #[serde(default)]
+    pub keep_original_text: bool,
 }
 
 #[derive(Debug, Serialize, Clone)]
@@ -105,6 +111,15 @@ pub struct LocalPersistConfig {
 pub enum PersistConfig {
     Remote(RemotePersistConfig),
     Local(LocalPersistConfig),
+}
+
+impl PersistConfig {
+    pub fn keep_original_text(&self) -> bool {
+        match &self {
+            PersistConfig::Remote(config) => config.keep_original_text,
+            PersistConfig::Local(config) => config.keep_original_text,
+        }
+    }
 }
 
 impl<'de> Deserialize<'de> for PersistConfig {
@@ -207,7 +222,6 @@ pub struct ProjectConfig {
     pub js_module_format: JsModuleFormat,
     pub module_import_config: ModuleImportConfig,
     pub diagnostic_report_config: DiagnosticReportConfig,
-    pub always_keep_operation_text: bool,
 }
 
 impl Default for ProjectConfig {
@@ -235,7 +249,6 @@ impl Default for ProjectConfig {
             js_module_format: Default::default(),
             module_import_config: Default::default(),
             diagnostic_report_config: Default::default(),
-            always_keep_operation_text: false,
         }
     }
 }
@@ -265,7 +278,6 @@ impl Debug for ProjectConfig {
             js_module_format,
             module_import_config,
             diagnostic_report_config,
-            always_keep_operation_text,
         } = self;
         f.debug_struct("ProjectConfig")
             .field("name", name)
@@ -304,7 +316,6 @@ impl Debug for ProjectConfig {
             .field("js_module_format", js_module_format)
             .field("module_import_config", module_import_config)
             .field("diagnostic_report_config", diagnostic_report_config)
-            .field("keep_original_operation_text", always_keep_operation_text)
             .finish()
     }
 }

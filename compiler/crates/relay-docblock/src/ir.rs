@@ -553,6 +553,18 @@ impl ResolverIr for TerseRelayResolverIr {
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let schema = schema_info.schema;
 
+        let name = self
+            .field_name()
+            .name_with_location(self.location.source_location());
+        if name.item == schema_info.config.node_interface_id_field {
+            return Err(vec![Diagnostic::error(
+                ErrorMessages::ResolversCantImplementId {
+                    id_field_name: name.item,
+                },
+                name.location,
+            )]);
+        }
+
         if let Some(type_) = schema.get_type(self.type_.item) {
             match type_ {
                 Type::Object(object_id) => {
@@ -656,6 +668,18 @@ impl ResolverIr for RelayResolverIr {
         schema_info: SchemaInfo<'_, '_>,
     ) -> DiagnosticsResult<Vec<TypeSystemDefinition>> {
         let schema = schema_info.schema;
+
+        let name = self
+            .field_name()
+            .name_with_location(self.location.source_location());
+        if name.item == schema_info.config.node_interface_id_field {
+            return Err(vec![Diagnostic::error(
+                ErrorMessages::ResolversCantImplementId {
+                    id_field_name: name.item,
+                },
+                name.location,
+            )]);
+        }
 
         if let Some(OutputType::EdgeTo(edge_to_with_location)) = &self.output_type {
             if let TypeAnnotation::List(edge_to_type) = &edge_to_with_location.item {

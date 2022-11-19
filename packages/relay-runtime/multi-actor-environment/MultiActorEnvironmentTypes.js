@@ -27,6 +27,7 @@ import type {
   SingularReaderSelector,
   Snapshot,
   StoreUpdater,
+  TaskScheduler,
 } from '../store/RelayStoreTypes';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {ActorIdentifier} from './ActorIdentifier';
@@ -258,4 +259,9 @@ export interface IMultiActorEnvironment {
    * Returns `true` if execute in the server environment
    */
   isServer(): boolean;
+
+  /**
+   * Returns the environment's scheduler
+   */
+  getScheduler(): ?TaskScheduler;
 }

@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<407145d8046bc95eeeb591420b2d57d9>>
+ * @generated SignedSource<<a7ef3d4f0259e3cbfa1e5483c95ca9bf>>
  */
 
 mod to_schema;
@@ -52,6 +52,13 @@ fn relay_resolver_deprecated_no_description() {
     let input = include_str!("to_schema/fixtures/relay-resolver-deprecated-no-description.js");
     let expected = include_str!("to_schema/fixtures/relay-resolver-deprecated-no-description.expected");
     test_fixture(transform_fixture, "relay-resolver-deprecated-no-description.js", "to_schema/fixtures/relay-resolver-deprecated-no-description.expected", input, expected);
+}
+
+#[test]
+fn relay_resolver_id_invalid() {
+    let input = include_str!("to_schema/fixtures/relay-resolver-id.invalid.js");
+    let expected = include_str!("to_schema/fixtures/relay-resolver-id.invalid.expected");
+    test_fixture(transform_fixture, "relay-resolver-id.invalid.js", "to_schema/fixtures/relay-resolver-id.invalid.expected", input, expected);
 }
 
 #[test]
@@ -157,6 +164,13 @@ fn terse_relay_resolver() {
     let input = include_str!("to_schema/fixtures/terse-relay-resolver.js");
     let expected = include_str!("to_schema/fixtures/terse-relay-resolver.expected");
     test_fixture(transform_fixture, "terse-relay-resolver.js", "to_schema/fixtures/terse-relay-resolver.expected", input, expected);
+}
+
+#[test]
+fn terse_relay_resolver_id_invalid() {
+    let input = include_str!("to_schema/fixtures/terse-relay-resolver-id.invalid.js");
+    let expected = include_str!("to_schema/fixtures/terse-relay-resolver-id.invalid.expected");
+    test_fixture(transform_fixture, "terse-relay-resolver-id.invalid.js", "to_schema/fixtures/terse-relay-resolver-id.invalid.expected", input, expected);
 }
 
 #[test]

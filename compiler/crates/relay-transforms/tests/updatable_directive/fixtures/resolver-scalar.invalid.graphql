@@ -1,0 +1,10 @@
+# expected-to-throw
+query resolverQuery @updatable {
+  resolver_field
+}
+
+# %extensions%
+
+extend type Query {
+  resolver_field: Boolean @relay_resolver(import_path: "ResolverModule")
+}

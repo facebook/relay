@@ -20,7 +20,7 @@ import type {
 } from '../network/RelayNetworkTypes';
 import type {Sink} from '../network/RelayObservable';
 import type {Disposable, RenderPolicy} from '../util/RelayRuntimeTypes';
-import type {ActiveState, TaskScheduler} from './OperationExecutor';
+import type {ActiveState} from './OperationExecutor';
 import type {GetDataID} from './RelayResponseNormalizer';
 import type {
   ExecuteMutationConfig,
@@ -43,6 +43,7 @@ import type {
   Snapshot,
   Store,
   StoreUpdater,
+  TaskScheduler,
 } from './RelayStoreTypes';
 
 const RelayDefaultHandlerProvider = require('../handlers/RelayDefaultHandlerProvider');
@@ -184,6 +185,10 @@ class RelayModernEnvironment implements IEnvironment {
 
   getOperationTracker(): RelayOperationTracker {
     return this._operationTracker;
+  }
+
+  getScheduler(): ?TaskScheduler {
+    return this._scheduler;
   }
 
   isRequestActive(requestIdentifier: string): boolean {

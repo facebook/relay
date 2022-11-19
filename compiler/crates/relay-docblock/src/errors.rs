@@ -113,6 +113,9 @@ pub enum ErrorMessages {
         "Unexpected docblock field `{field_name}`. This field is not allowed in combination with terse @RelayResolver syntax, where a field is defined in a single line using the `ParentType.field_name: ReturnType` shorthand."
     )]
     UnexpectedFieldInTerseSyntax { field_name: StringKey },
+
+    #[error("Relay Resolvers may not be used to implement the `{id_field_name}` field.")]
+    ResolversCantImplementId { id_field_name: StringKey },
 }
 
 #[derive(Clone, Debug, Error, Eq, PartialEq, Ord, PartialOrd, Hash)]

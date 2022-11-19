@@ -31,6 +31,7 @@ import type {
   Snapshot,
   Store,
   StoreUpdater,
+  TaskScheduler,
 } from '../store/RelayStoreTypes';
 import type {Disposable, RenderPolicy} from '../util/RelayRuntimeTypes';
 import type {ActorIdentifier} from './ActorIdentifier';
@@ -184,6 +185,10 @@ class ActorSpecificEnvironment implements IActorEnvironment {
 
   getOperationTracker(): OperationTracker {
     return this._operationTracker;
+  }
+
+  getScheduler(): ?TaskScheduler {
+    return this.multiActorEnvironment.getScheduler();
   }
 
   lookup(selector: SingularReaderSelector): Snapshot {

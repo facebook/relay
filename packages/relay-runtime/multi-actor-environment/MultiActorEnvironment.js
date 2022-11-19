@@ -14,7 +14,7 @@
 import type {HandlerProvider} from '../handlers/RelayDefaultHandlerProvider';
 import type {GraphQLResponse, PayloadData} from '../network/RelayNetworkTypes';
 import type {INetwork} from '../network/RelayNetworkTypes';
-import type {ActiveState, TaskScheduler} from '../store/OperationExecutor';
+import type {ActiveState} from '../store/OperationExecutor';
 import type {GetDataID} from '../store/RelayResponseNormalizer';
 import type {
   ExecuteMutationConfig,
@@ -35,6 +35,7 @@ import type {
   Snapshot,
   Store,
   StoreUpdater,
+  TaskScheduler,
 } from '../store/RelayStoreTypes';
 import type {Disposable} from '../util/RelayRuntimeTypes';
 import type {RenderPolicy} from '../util/RelayRuntimeTypes';
@@ -499,6 +500,10 @@ class MultiActorEnvironment implements IMultiActorEnvironment {
         updater(actorIdentifier, environment, storeProxy);
       });
     }
+  }
+
+  getScheduler(): ?TaskScheduler {
+    return this._scheduler;
   }
 }
 

@@ -33,6 +33,7 @@ const {
   getFragmentIdentifier,
   getPaginationMetadata,
 } = require('relay-runtime');
+import useRelayEnvironment from '../useRelayEnvironment';
 
 export type ReturnType<TQuery: OperationType, TKey, TFragmentData> = {
   data: TFragmentData,
@@ -156,7 +157,21 @@ function useLoadMore<TQuery: OperationType>(
     },
   >,
 ): [LoadMoreFn<TQuery>, boolean, boolean, () => void] {
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const environment = useRelayEnvironment();
+  const [isLoadingMore, reallySetIsLoadingMore] = useState(false);
+  // Schedule this update since it must be observed by components at the same
+  // batch as when hasNext changes. hasNext is read from the store and store
+  // updates are scheduled, so this must be scheduled too.
+  const setIsLoadingMore = (value: boolean) => {
+    const schedule = environment.getScheduler()?.schedule;
+    if (schedule) {
+      schedule(() => {
+        reallySetIsLoadingMore(value);
+      });
+    } else {
+      reallySetIsLoadingMore(value);
+    }
+  };
   const observer = {
     start: () => setIsLoadingMore(true),
     complete: () => setIsLoadingMore(false),

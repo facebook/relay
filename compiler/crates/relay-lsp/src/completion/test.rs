@@ -92,7 +92,7 @@ fn scalar_field() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums"]);
+    assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums", "__typename"]);
 }
 
 #[test]
@@ -108,7 +108,7 @@ fn linked_field() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["location", "categories"]);
+    assert_labels(items.unwrap(), vec!["location", "categories", "__typename"]);
 }
 
 #[test]
@@ -124,7 +124,7 @@ fn whitespace_in_linked_field() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums"]);
+    assert_labels(items.unwrap(), vec!["uri", "test_enums", "width", "height", "__typename"]);
 }
 
 #[test]
@@ -137,7 +137,7 @@ fn whitespace_in_fragment() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums"]);
+    assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums", "__typename"]);
 }
 
 #[test]
@@ -152,7 +152,7 @@ fn whitespace_in_inline_fragment() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums"]);
+    assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums", "__typename"]);
 }
 
 #[test]
@@ -455,7 +455,7 @@ fn field_documentation() {
         .map(|item| (item.label, item.documentation))
         .collect::<HashMap<String, Option<Documentation>>>();
 
-    assert_eq!(docs.len(), 4);
+    assert_eq!(docs.len(), 5);
     assert_eq!(
         *docs.get("uri").unwrap(),
         Some(make_markdown_table_documentation(

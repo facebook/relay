@@ -549,35 +549,71 @@ fn completion_items_for_request(
     match kind {
         CompletionKind::FragmentSpread => {
             let leaf_type = request.type_path.resolve_leaf_type(schema)?;
-
-            debug!("has source program");
-            let items = resolve_completion_items_for_fragment_spread(leaf_type, program, schema);
-            Some(items)
+            Some(resolve_completion_items_for_fragment_spread(leaf_type, program, schema, false))
         }
         CompletionKind::FieldName {
             existing_linked_field,
         } => match request.type_path.resolve_leaf_type(schema)? {
             Type::Interface(interface_id) => {
                 let interface = schema.interface(interface_id);
-                let items = resolve_completion_items_from_fields(
-                    interface,
-                    schema,
-                    schema_documentation,
-                    existing_linked_field,
-                );
-                Some(items)
+                Some(merge_completion_items_ordered([
+                    resolve_completion_items_for_fields(
+                        interface,
+                        schema,
+                        schema_documentation,
+                        existing_linked_field,
+                    ),
+                    resolve_completion_items_typename(),
+                    resolve_completion_items_for_inline_fragment_type(
+                        Type::Interface(interface_id),
+                        schema,
+                        false,
+                        true,
+                    ),
+                    resolve_completion_items_for_fragment_spread(
+                        Type::Interface(interface_id),
+                        program,
+                        schema,
+                        true,
+                    ),
+                ]))
             }
             Type::Object(object_id) => {
                 let object = schema.object(object_id);
-                let items = resolve_completion_items_from_fields(
-                    object,
-                    schema,
-                    schema_documentation,
-                    existing_linked_field,
-                );
-                Some(items)
+                Some(merge_completion_items_ordered([
+                    resolve_completion_items_for_fields(
+                        object,
+                        schema,
+                        schema_documentation,
+                        existing_linked_field,
+                    ),
+                    resolve_completion_items_typename(),
+                    resolve_completion_items_for_fragment_spread(
+                        Type::Object(object_id),
+                        program,
+                        schema,
+                        true,
+                    ),
+                ]))
             }
-            Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) | Type::Union(_) => None,
+            Type::Union(union_id) => {
+                Some(merge_completion_items_ordered([
+                    resolve_completion_items_typename(),
+                    resolve_completion_items_for_inline_fragment_type(
+                        Type::Union(union_id),
+                        schema,
+                        false,
+                        true,
+                    ),
+                    resolve_completion_items_for_fragment_spread(
+                        Type::Union(union_id),
+                        program,
+                        schema,
+                        true,
+                    ),
+                ]))
+            }
+            Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) => None,
         },
         CompletionKind::DirectiveName { location } => {
             let directives = schema.directives_for_location(location);
@@ -660,9 +696,16 @@ fn completion_items_for_request(
                 type_,
                 schema,
                 existing_inline_fragment,
+                false,
             ))
         }
     }
+}
+
+fn resolve_completion_items_typename() -> Vec<CompletionItem> {
+    let mut item = CompletionItem::new_simple("__typename".to_owned(), "String!".to_owned());
+    item.kind = Some(CompletionItemKind::FIELD);
+    vec![item]
 }
 
 fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
@@ -710,6 +753,7 @@ fn resolve_completion_items_for_inline_fragment_type(
     type_: Type,
     schema: &SDLSchema,
     existing_inline_fragment: bool,
+    include_fragment: bool,
 ) -> Vec<CompletionItem> {
     match type_ {
         Type::Interface(id) => {
@@ -734,11 +778,16 @@ fn resolve_completion_items_for_inline_fragment_type(
                 )
                 .collect()
         }
-        Type::Enum(_) | Type::Object(_) | Type::InputObject(_) | Type::Scalar(_) => vec![type_],
+        Type::Enum(_) | Type::Object(_) | Type::InputObject(_) | Type::Scalar(_) => vec![],
     }
     .into_iter()
     .map(|type_| {
-        let label = schema.get_type_name(type_).lookup().into();
+        let type_name = schema.get_type_name(type_).lookup();
+        let label = if include_fragment {
+            format!("...on {type_name}")
+        } else {
+            type_name.to_owned()
+        };
         if existing_inline_fragment {
             CompletionItem::new_simple(label, "".into())
         } else {
@@ -822,7 +871,7 @@ fn resolve_completion_items_for_argument_value(
     completion_items
 }
 
-fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
+fn resolve_completion_items_for_fields<T: TypeWithFields + Named>(
     type_: &T,
     schema: &SDLSchema,
     schema_documentation: impl SchemaDocumentation,
@@ -908,60 +957,73 @@ fn resolve_completion_items_from_fields<T: TypeWithFields + Named>(
                 tags: None,
                 ..Default::default()
             }
-        })
-        .collect()
+        }).collect()
 }
 
 fn resolve_completion_items_for_fragment_spread(
     type_: Type,
     source_program: &Program,
     schema: &SDLSchema,
+    include_fragment: bool,
 ) -> Vec<CompletionItem> {
-    let mut valid_fragments = vec![];
-    for fragment in source_program.fragments() {
-        if schema.are_overlapping_types(fragment.type_condition, type_) {
-            let label = fragment.name.item.to_string();
+    log::error!("resolving items for fragment spread");
+    source_program
+        .fragments()
+        .filter(|fragment| {
+            schema.are_overlapping_types(fragment.type_condition, type_)
+        })
+        .map(|fragment| {
+            let label = if include_fragment {
+                format!("...{}", fragment.name.item)
+            } else {
+                fragment.name.item.to_string()
+            };
             let detail = schema
                 .get_type_name(fragment.type_condition)
                 .lookup()
                 .to_string();
             if fragment.variable_definitions.is_empty() {
-                valid_fragments.push(CompletionItem::new_simple(label, detail))
-            } else {
-                // Create a snippet if the fragment has required argumentDefinition with no default values
-                let args = create_arguments_snippets(fragment.variable_definitions.iter(), schema);
-                valid_fragments.push(if args.is_empty() {
-                    CompletionItem::new_simple(label, detail)
-                } else {
-                    let insert_text = format!("{} @arguments({})", label, args.join(", "));
-                    CompletionItem {
-                        label,
-                        kind: None,
-                        detail: Some(detail),
-                        documentation: None,
-                        deprecated: None,
-                        preselect: None,
-                        sort_text: None,
-                        filter_text: None,
-                        insert_text: Some(insert_text),
-                        insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
-                        text_edit: None,
-                        additional_text_edits: None,
-                        command: Some(lsp_types::Command::new(
-                            "Suggest".into(),
-                            "editor.action.triggerSuggest".into(),
-                            None,
-                        )),
-                        data: None,
-                        tags: None,
-                        ..Default::default()
-                    }
-                });
+                return CompletionItem::new_simple(label, detail)
             }
-        }
-    }
-    debug!("get_valid_fragments_for_type {:#?}", valid_fragments);
-    valid_fragments
+            // Create a snippet if the fragment has required argumentDefinition with no default values
+            let args = create_arguments_snippets(fragment.variable_definitions.iter(), schema);
+            if args.is_empty() {
+                return CompletionItem::new_simple(label, detail)
+            }
+            let insert_text = format!("{} @arguments({})", label, args.join(", "));
+            CompletionItem {
+                label,
+                kind: None,
+                detail: Some(detail),
+                documentation: None,
+                deprecated: None,
+                preselect: None,
+                sort_text: None,
+                filter_text: None,
+                insert_text: Some(insert_text),
+                insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
+                text_edit: None,
+                additional_text_edits: None,
+                command: Some(lsp_types::Command::new(
+                    "Suggest".into(),
+                    "editor.action.triggerSuggest".into(),
+                    None,
+                )),
+                data: None,
+                tags: None,
+                ..Default::default()
+            }
+        })
+        .collect()
+}
+
+fn merge_completion_items_ordered<I: IntoIterator<Item = Vec<CompletionItem>>>(completion_item_groups: I) -> Vec<CompletionItem> {
+    completion_item_groups.into_iter().enumerate().flat_map(|(index, mut items)| {
+        items.iter_mut().for_each(|item| {
+            item.sort_text = Some(format!("{}{}", index, item.sort_text.clone().unwrap_or_else(|| item.label.clone())));
+        });
+        items
+    }).collect()
 }
 
 fn completion_item_from_directive(

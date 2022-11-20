@@ -10,6 +10,8 @@ use std::fmt;
 use common::Span;
 use intern::string_key::StringKey;
 
+use crate::OperationKind;
+
 use super::constant_directive::ConstantDirective;
 use super::constant_value::ConstantValue;
 use super::constant_value::StringNode;
@@ -321,6 +323,16 @@ pub enum DirectiveLocation {
     InputObject,
     InputFieldDefinition,
     VariableDefinition,
+}
+
+impl From<OperationKind> for DirectiveLocation {
+    fn from(operation: OperationKind) -> Self {
+        match operation {
+            OperationKind::Query => Self::Query,
+            OperationKind::Mutation => Self::Mutation,
+            OperationKind::Subscription => Self::Subscription,
+        }
+    }
 }
 
 impl fmt::Display for DirectiveLocation {

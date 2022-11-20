@@ -1187,6 +1187,7 @@ impl<'a> Parser<'a> {
         let start = self.index();
         let on = self.parse_keyword("on")?;
         let type_ = self.parse_identifier()?;
+        // let type_ = self.parse_identifier_with_error_recovery();
         Ok(TypeCondition {
             span: Span::new(start, self.end_index),
             on,

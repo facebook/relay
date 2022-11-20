@@ -391,11 +391,7 @@ impl<'schema, 'signatures, 'options> Builder<'schema, 'signatures, 'options> {
 
         let directives = self.build_directives(
             &operation.directives,
-            match kind {
-                OperationKind::Query => DirectiveLocation::Query,
-                OperationKind::Mutation => DirectiveLocation::Mutation,
-                OperationKind::Subscription => DirectiveLocation::Subscription,
-            },
+            kind.into(),
         );
         let operation_type_reference = TypeReference::Named(operation_type);
         // assert the subscription only contains one selection

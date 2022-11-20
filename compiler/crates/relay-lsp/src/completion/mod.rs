@@ -7,6 +7,7 @@
 
 //! Utilities for providing the completion language feature
 use std::iter::once;
+use std::str::FromStr;
 
 use common::ArgumentName;
 use common::DirectiveName;
@@ -21,6 +22,7 @@ use graphql_ir::VariableDefinition;
 use graphql_ir::VariableName;
 use graphql_ir::DIRECTIVE_ARGUMENTS;
 use graphql_syntax::Argument;
+use graphql_syntax::ConstantArgument;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::Directive;
 use graphql_syntax::DirectiveLocation;
@@ -31,14 +33,17 @@ use graphql_syntax::InlineFragment;
 use graphql_syntax::LinkedField;
 use graphql_syntax::List;
 use graphql_syntax::OperationDefinition;
-use graphql_syntax::OperationKind;
 use graphql_syntax::ScalarField;
 use graphql_syntax::Selection;
 use graphql_syntax::TokenKind;
 use graphql_syntax::Value;
 use intern::string_key::StringKey;
 use intern::Lookup;
-use log::debug;
+#[cfg(not(test))] 
+use log::{debug, error}; // Use log crate when building application
+
+#[cfg(test)]
+use std::{println as debug, println as error}; // Workaround to use prinltn! for logs.
 use lsp_types::request::Completion;
 use lsp_types::request::Request;
 use lsp_types::request::ResolveCompletionItem;
@@ -85,6 +90,10 @@ pub enum CompletionKind {
     },
     InlineFragmentType {
         existing_inline_fragment: bool,
+    },
+    InputArgumentName {
+        name: StringKey,
+        existing_names: FnvHashSet<StringKey>,
     },
 }
 
@@ -167,15 +176,19 @@ impl CompletionRequestBuilder {
         document: ExecutableDocument,
         position_span: Span,
     ) -> Option<CompletionRequest> {
+        error!("create_completion_request");
         for definition in document.definitions {
             match &definition {
                 ExecutableDefinition::Operation(operation) => {
+                    error!("\tOperationDefinition");
                     if operation.location.contains(position_span) {
                         self.current_executable_name = operation
                             .name
                             .as_ref()
                             .map(|name| ExecutableName::Operation(name.value));
+                        error!("\tOperationDefinition: 1");
                         let (_, kind) = operation.operation.clone()?;
+                        error!("\tOperationDefinition: 2");
                         let type_path = vec![TypePathItem::Operation(kind)];
 
                         debug!(
@@ -188,12 +201,9 @@ impl CompletionRequestBuilder {
                             ..
                         } = operation;
 
-                        let directive_location = match kind {
-                            OperationKind::Query => DirectiveLocation::Query,
-                            OperationKind::Mutation => DirectiveLocation::Mutation,
-                            OperationKind::Subscription => DirectiveLocation::Subscription,
-                        };
+                        let directive_location = kind.into();
 
+                        error!("\tOperationDefinition: 3");
                         if let Some(req) = self.build_request_from_selection_or_directives(
                             selections,
                             directives,
@@ -201,6 +211,7 @@ impl CompletionRequestBuilder {
                             position_span,
                             type_path,
                         ) {
+                            error!("\tOperationDefinition: 4");
                             return Some(req);
                         }
                     }
@@ -235,7 +246,9 @@ impl CompletionRequestBuilder {
         position_span: Span,
         mut type_path: Vec<TypePathItem>,
     ) -> Option<CompletionRequest> {
+        error!("build_request_from_selections");
         for item in &selections.items {
+            error!("build_request_from_selections item: {:?} {:?}", item.span().contains(position_span), item);
             if item.span().contains(position_span) {
                 return match item {
                     Selection::LinkedField(node) => {
@@ -367,9 +380,10 @@ impl CompletionRequestBuilder {
         &self,
         arguments: &List<Argument>,
         position_span: Span,
-        type_path: Vec<TypePathItem>,
+        mut type_path: Vec<TypePathItem>,
         kind: ArgumentKind,
     ) -> Option<CompletionRequest> {
+        error!("build_request_from_arguments {:?}", type_path);
         for (
             i,
             Argument {
@@ -406,6 +420,54 @@ impl CompletionRequestBuilder {
                                 type_path,
                             ))
                         }
+                        Value::Constant(ConstantValue::Object(object)) => {
+                            error!("\tconstant_value position {:?} object {:?}", position_span, object);
+                            Some(self.new_request(
+                                CompletionKind::InputArgumentName {
+                                    name: name.value,
+                                    existing_names: object.items.iter().map(|arg| arg.name.value).collect(),
+                                },
+                                type_path,
+                            ))
+                            // if current_object.start.span.contains(position_span) || current_object.end.span.contains(position_span) {
+                            //     return None
+                            // }
+
+                            
+                            // match object.items.iter().find(|item| item.span.contains(position_span)) {
+                            //     None => {
+                            //         error!("no input field found {:?}", name);
+                            //         // type_path.push(TypePathItem::LinkedField { name: name.value });
+                            //         Some(self.new_request(
+                            //             CompletionKind::InputArgumentName {
+                            //                 name: name.value,
+                            //                 existing_names: object.items.iter().map(|arg| arg.name.value).collect(),
+                            //             },
+                            //             type_path,
+                            //         ))
+                            //     },
+                            //     Some(value) => {
+                            //         error!("input field found");
+                            //         None
+                            //     },
+                            // }
+                            // for argument in object.items.iter() {
+                            //     if argument.span.contains(position_span) {
+
+                            //     }
+                            // }
+                            // // if object.start.span.contains()
+                            // // let completion_kind = CompletionKind::ArgumentValue {
+                            // //     argument_name: name.value,
+                            // //     executable_name,
+                            // //     kind,
+                            // // };
+                            // None
+                        }
+                        Value::Constant(constant_value) => {
+                            error!("\t\tconstant_value: {:?}", constant_value);
+                            None
+                        }
                         Value::Variable(_) => Some(self.new_request(
                             CompletionKind::ArgumentValue {
                                 argument_name: name.value,
@@ -414,7 +476,37 @@ impl CompletionRequestBuilder {
                             },
                             type_path,
                         )),
-                        _ => None,
+                        Value::List(_) => {
+                            error!("list field!");
+                            None
+                        },
+                        Value::Object(object) => {
+                            error!("object field! {:?}", object);
+                            let current_object = object;
+                            // if current_object.start.span.contains(position_span) || current_object.end.span.contains(position_span) {
+                            //     return None
+                            // }
+
+                            Some(self.new_request(
+                                CompletionKind::InputArgumentName {
+                                    name: name.value,
+                                    existing_names: object.items.iter().map(|arg| arg.name.value).collect(),
+                                },
+                                type_path,
+                            ))
+                            // match object.items.iter().find(|item| item.span.contains(position_span)) {
+                            //     None => {
+                            //         error!("no input field found {:?}", name);
+                            //         // type_path.push(TypePathItem::LinkedField { name: name.value });
+                                    
+                            //     },
+                            //     Some(value) => {
+                            //         error!("input field found");
+                            //         None
+                            //     },
+                            // }
+                            // None
+                        },
                     }
                 } else {
                     None
@@ -482,6 +574,7 @@ impl CompletionRequestBuilder {
         type_path: Vec<TypePathItem>,
         fragment_spread_name: Option<StringKey>,
     ) -> Option<CompletionRequest> {
+        error!("build_request_from_directives");
         for directive in directives {
             if !directive.span.contains(position_span) {
                 continue;
@@ -523,6 +616,7 @@ impl CompletionRequestBuilder {
         position_span: Span,
         type_path: Vec<TypePathItem>,
     ) -> Option<CompletionRequest> {
+        error!("build_request_from_selection_or_directives");
         if selections.span.contains(position_span) {
             // TODO(brandondail) handle when the completion occurs at/within the start token
             self.build_request_from_selections(selections, position_span, type_path)
@@ -545,11 +639,14 @@ fn completion_items_for_request(
     program: &Program,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
+    error!("completion_items_for_request: {:?}", kind);
     debug!("completion_items_for_request: {:?}", kind);
     match kind {
         CompletionKind::FragmentSpread => {
             let leaf_type = request.type_path.resolve_leaf_type(schema)?;
-            Some(resolve_completion_items_for_fragment_spread(leaf_type, program, schema, false))
+            Some(resolve_completion_items_for_fragment_spread(
+                leaf_type, program, schema, false,
+            ))
         }
         CompletionKind::FieldName {
             existing_linked_field,
@@ -563,7 +660,7 @@ fn completion_items_for_request(
                         schema_documentation,
                         existing_linked_field,
                     ),
-                    resolve_completion_items_typename(),
+                    resolve_completion_items_for_typename(),
                     resolve_completion_items_for_inline_fragment_type(
                         Type::Interface(interface_id),
                         schema,
@@ -587,7 +684,7 @@ fn completion_items_for_request(
                         schema_documentation,
                         existing_linked_field,
                     ),
-                    resolve_completion_items_typename(),
+                    resolve_completion_items_for_typename(),
                     resolve_completion_items_for_fragment_spread(
                         Type::Object(object_id),
                         program,
@@ -596,23 +693,21 @@ fn completion_items_for_request(
                     ),
                 ]))
             }
-            Type::Union(union_id) => {
-                Some(merge_completion_items_ordered([
-                    resolve_completion_items_typename(),
-                    resolve_completion_items_for_inline_fragment_type(
-                        Type::Union(union_id),
-                        schema,
-                        false,
-                        true,
-                    ),
-                    resolve_completion_items_for_fragment_spread(
-                        Type::Union(union_id),
-                        program,
-                        schema,
-                        true,
-                    ),
-                ]))
-            }
+            Type::Union(union_id) => Some(merge_completion_items_ordered([
+                resolve_completion_items_for_typename(),
+                resolve_completion_items_for_inline_fragment_type(
+                    Type::Union(union_id),
+                    schema,
+                    false,
+                    true,
+                ),
+                resolve_completion_items_for_fragment_spread(
+                    Type::Union(union_id),
+                    program,
+                    schema,
+                    true,
+                ),
+            ])),
             Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) => None,
         },
         CompletionKind::DirectiveName { location } => {
@@ -660,6 +755,7 @@ fn completion_items_for_request(
             argument_name,
             kind,
         } => {
+            error!("complete_items_for_request CompletionKind::ArgumentValue");
             let argument_type = match kind {
                 ArgumentKind::Field => {
                     let (_, field) = request.type_path.resolve_current_field(schema)?;
@@ -699,10 +795,35 @@ fn completion_items_for_request(
                 false,
             ))
         }
+        CompletionKind::InputArgumentName { name, existing_names } => {
+            error!("InputArgumentName {:?} {:?}", existing_names, request.type_path);
+            let (_, field) = request.type_path.resolve_current_field(schema)?;
+            let argument = field.arguments.iter().find(|argument| argument.name() == name)?;
+            let input_object_id = match &argument.type_ {
+                TypeReference::Named(Type::InputObject(id)) => id,
+                TypeReference::Named(_) => todo!(),
+                TypeReference::NonNull(value) => match value.as_ref() {
+                    TypeReference::Named(Type::InputObject(id)) => id,
+                    _ => todo!(),
+                },
+                TypeReference::List(_) => todo!(),
+            };
+            let input_object = schema.input_object(*input_object_id);
+            error!("InputArgumentName field {:?} input_object {:?}", field, input_object);
+            // Some(vec![])
+            Some(resolve_completion_items_for_argument_name(
+                input_object.fields.iter(),
+                schema,
+                existing_names,
+                false,
+            ))
+        },
     }
 }
 
-fn resolve_completion_items_typename() -> Vec<CompletionItem> {
+// fn resolve_completion_items_for_input_argument_name
+
+fn resolve_completion_items_for_typename() -> Vec<CompletionItem> {
     let mut item = CompletionItem::new_simple("__typename".to_owned(), "String!".to_owned());
     item.kind = Some(CompletionItemKind::FIELD);
     vec![item]
@@ -957,7 +1078,8 @@ fn resolve_completion_items_for_fields<T: TypeWithFields + Named>(
                 tags: None,
                 ..Default::default()
             }
-        }).collect()
+        })
+        .collect()
 }
 
 fn resolve_completion_items_for_fragment_spread(
@@ -966,12 +1088,10 @@ fn resolve_completion_items_for_fragment_spread(
     schema: &SDLSchema,
     include_fragment: bool,
 ) -> Vec<CompletionItem> {
-    log::error!("resolving items for fragment spread");
+    error!("resolving items for fragment spread");
     source_program
         .fragments()
-        .filter(|fragment| {
-            schema.are_overlapping_types(fragment.type_condition, type_)
-        })
+        .filter(|fragment| schema.are_overlapping_types(fragment.type_condition, type_))
         .map(|fragment| {
             let label = if include_fragment {
                 format!("...{}", fragment.name.item)
@@ -983,12 +1103,12 @@ fn resolve_completion_items_for_fragment_spread(
                 .lookup()
                 .to_string();
             if fragment.variable_definitions.is_empty() {
-                return CompletionItem::new_simple(label, detail)
+                return CompletionItem::new_simple(label, detail);
             }
             // Create a snippet if the fragment has required argumentDefinition with no default values
             let args = create_arguments_snippets(fragment.variable_definitions.iter(), schema);
             if args.is_empty() {
-                return CompletionItem::new_simple(label, detail)
+                return CompletionItem::new_simple(label, detail);
             }
             let insert_text = format!("{} @arguments({})", label, args.join(", "));
             CompletionItem {
@@ -1017,13 +1137,23 @@ fn resolve_completion_items_for_fragment_spread(
         .collect()
 }
 
-fn merge_completion_items_ordered<I: IntoIterator<Item = Vec<CompletionItem>>>(completion_item_groups: I) -> Vec<CompletionItem> {
-    completion_item_groups.into_iter().enumerate().flat_map(|(index, mut items)| {
-        items.iter_mut().for_each(|item| {
-            item.sort_text = Some(format!("{}{}", index, item.sort_text.clone().unwrap_or_else(|| item.label.clone())));
-        });
-        items
-    }).collect()
+fn merge_completion_items_ordered<I: IntoIterator<Item = Vec<CompletionItem>>>(
+    completion_item_groups: I,
+) -> Vec<CompletionItem> {
+    completion_item_groups
+        .into_iter()
+        .enumerate()
+        .flat_map(|(index, mut items)| {
+            items.iter_mut().for_each(|item| {
+                item.sort_text = Some(format!(
+                    "{}{}",
+                    index,
+                    item.sort_text.clone().unwrap_or_else(|| item.label.clone())
+                ));
+            });
+            items
+        })
+        .collect()
 }
 
 fn completion_item_from_directive(
@@ -1107,6 +1237,10 @@ pub fn on_completion(
     state: &impl GlobalState,
     params: <Completion as Request>::Params,
 ) -> LSPRuntimeResult<<Completion as Request>::Result> {
+    error!(
+        "on_completion {:?}",
+        state.extract_executable_document_from_text(&params.text_document_position, 0)
+    );
     match state.extract_executable_document_from_text(&params.text_document_position, 0) {
         Ok((document, position_span)) => {
             let project_name = state
@@ -1162,6 +1296,7 @@ fn resolve_completion_items(
     schema_documentation: impl SchemaDocumentation,
     progam: &Program,
 ) -> Option<Vec<CompletionItem>> {
+    error!("resolve_completion_items");
     let completion_request = CompletionRequestBuilder::new(project_name)
         .create_completion_request(document, position_span);
     completion_request.and_then(|completion_request| {

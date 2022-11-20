@@ -346,6 +346,36 @@ fn fragment_spread_on_interface() {
 }
 
 #[test]
+fn argument_value_object() {
+    // let items = parse_and_resolve_completion_items(
+    //     r#"
+    //         fragment Test on Mutation {
+    //             commentCreate(inpu|) {
+    //                 __typename
+    //             }
+    //         }
+    //     "#,
+    //     None,
+    // );
+    // assert_labels(items.unwrap(), vec!["input"]);
+
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Mutation {
+                commentCreate(input: {
+                    feedbackId: "some-id"
+                    |
+                }) {
+                    __typename
+                }
+            }
+        "#,
+        None,
+    );
+    assert_labels(items.unwrap(), vec!["client_mutation_id", "feedback"]);
+}
+
+#[test]
 fn argument_value() {
     let items = parse_and_resolve_completion_items(
         r#"

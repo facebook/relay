@@ -38,7 +38,7 @@ use graphql_syntax::Value;
 use intern::string_key::StringKey;
 use intern::Lookup;
 use log::debug;
-use schema::InputObject; // Use log crate when building application
+use schema::InputObject;
 use lsp_types::request::Completion;
 use lsp_types::request::Request;
 use lsp_types::request::ResolveCompletionItem;
@@ -102,12 +102,6 @@ pub enum ArgumentKind {
     Field,
     Directive(DirectiveName),
     ArgumentsDirective(StringKey),
-}
-
-#[derive(Debug, Clone)]
-pub enum InputArgumentKind<'a> {
-    ConstantValue(&'a ConstantValue),
-    Value(&'a Value),
 }
 
 #[derive(Debug)]
@@ -488,38 +482,6 @@ impl CompletionRequestBuilder {
         ))
     }
 
-    fn build_request_from_input_object(
-        &self,
-        position_span: Span,
-        type_path: Vec<TypePathItem>,
-        input_field_path: Vec<StringKey>,
-        kind: InputArgumentKind,
-        name: StringKey,
-    ) -> Option<CompletionRequest> {
-        match kind {
-            InputArgumentKind::ConstantValue(value) => {
-                self.build_request_from_constant_input_value(
-                    position_span,
-                    type_path,
-                    Default::default(),
-                    input_field_path,
-                    value,
-                    name,
-                )
-            },
-            InputArgumentKind::Value(value) => {
-                self.build_request_from_input_value(
-                    position_span,
-                    type_path,
-                    Default::default(),
-                    input_field_path,
-                    value,
-                    name,
-                )
-            },
-        }
-    }
-
     fn build_request_from_arguments(
         &self,
         arguments: &List<Argument>,
@@ -564,11 +526,12 @@ impl CompletionRequestBuilder {
                             ))
                         }
                         Value::Constant(constant_value) => {
-                            self.build_request_from_input_object(
+                            self.build_request_from_constant_input_value(
                                 position_span,
                                 type_path,
-                                vec![],
-                                InputArgumentKind::ConstantValue(constant_value),
+                                Default::default(),
+                                Default::default(),
+                                constant_value,
                                 name.value,
                             )
                         }

@@ -38,7 +38,6 @@ use graphql_syntax::Value;
 use intern::string_key::StringKey;
 use intern::Lookup;
 use log::debug;
-use schema::InputObject;
 use lsp_types::request::Completion;
 use lsp_types::request::Request;
 use lsp_types::request::ResolveCompletionItem;
@@ -51,6 +50,7 @@ use lsp_types::MarkupContent;
 use lsp_types::MarkupKind;
 use schema::Argument as SchemaArgument;
 use schema::Directive as SchemaDirective;
+use schema::InputObject;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
@@ -90,10 +90,6 @@ pub enum CompletionKind {
         name: StringKey,
         existing_names: FnvHashSet<StringKey>,
         input_field_path: Vec<StringKey>,
-    },
-    InputArgumentName {
-        name: StringKey,
-        existing_names: FnvHashSet<StringKey>,
     },
 }
 
@@ -391,7 +387,7 @@ impl CompletionRequestBuilder {
                         );
                     }
                 }
-            },
+            }
             ConstantValue::Object(arguments) => {
                 for item in arguments.items.iter() {
                     if item.span.contains(position_span) {
@@ -407,8 +403,8 @@ impl CompletionRequestBuilder {
                     }
                 }
                 existing_names = arguments.items.iter().map(|item| item.name()).collect();
-            },
-            _ => {},
+            }
+            _ => {}
         };
         Some(self.new_request(
             CompletionKind::InputFieldName {
@@ -440,10 +436,10 @@ impl CompletionRequestBuilder {
                             input_field_path,
                             item,
                             name,
-                        )
+                        );
                     }
                 }
-            },
+            }
             Value::Object(arguments) => {
                 for item in arguments.items.iter() {
                     if item.span.contains(position_span) {
@@ -455,11 +451,11 @@ impl CompletionRequestBuilder {
                             input_field_path,
                             &item.value,
                             name,
-                        )
+                        );
                     }
                 }
                 existing_names = arguments.items.iter().map(|item| item.name()).collect();
-            },
+            }
             Value::Constant(constant_value) => {
                 return self.build_request_from_constant_input_value(
                     position_span,
@@ -468,9 +464,9 @@ impl CompletionRequestBuilder {
                     input_field_path,
                     constant_value,
                     name,
-                )
+                );
             }
-            _ => return None
+            _ => return None,
         };
         Some(self.new_request(
             CompletionKind::InputFieldName {
@@ -525,16 +521,15 @@ impl CompletionRequestBuilder {
                                 type_path,
                             ))
                         }
-                        Value::Constant(constant_value) => {
-                            self.build_request_from_constant_input_value(
+                        Value::Constant(constant_value) => self
+                            .build_request_from_constant_input_value(
                                 position_span,
                                 type_path,
                                 Default::default(),
                                 Default::default(),
                                 constant_value,
                                 name.value,
-                            )
-                        }
+                            ),
                         Value::Variable(_) => Some(self.new_request(
                             CompletionKind::ArgumentValue {
                                 argument_name: name.value,
@@ -550,7 +545,7 @@ impl CompletionRequestBuilder {
                             vec![],
                             value,
                             name.value,
-                        )
+                        ),
                     }
                 } else {
                     None
@@ -835,28 +830,43 @@ fn completion_items_for_request(
                 false,
             ))
         }
-        CompletionKind::InputFieldName { name, existing_names, input_field_path } => {
+        CompletionKind::InputFieldName {
+            name,
+            existing_names,
+            input_field_path,
+        } => {
             let (_, field) = request.type_path.resolve_current_field(schema)?;
 
-            fn resolve_root_input_field<'a>(schema: &'a SDLSchema, input_object: &'a TypeReference<Type>) -> Option<&'a InputObject> {
+            fn resolve_root_input_field<'a>(
+                schema: &'a SDLSchema,
+                input_object: &'a TypeReference<Type>,
+            ) -> Option<&'a InputObject> {
                 match input_object {
                     TypeReference::Named(Type::InputObject(input_object_id)) => {
                         Some(schema.input_object(*input_object_id))
-                    },
+                    }
                     TypeReference::Named(_) => None,
                     TypeReference::NonNull(inner) => resolve_root_input_field(schema, &*inner),
                     TypeReference::List(inner) => resolve_root_input_field(schema, &*inner),
                 }
             }
 
-            fn resolve_input_field<'a>(schema: &'a SDLSchema, input_object: &'a InputObject, field_name: &StringKey) -> Option<&'a InputObject> {
-                input_object.fields
+            fn resolve_input_field<'a>(
+                schema: &'a SDLSchema,
+                input_object: &'a InputObject,
+                field_name: &StringKey,
+            ) -> Option<&'a InputObject> {
+                input_object
+                    .fields
                     .iter()
                     .find(|field| field.name.0 == *field_name)
                     .and_then(|field| resolve_root_input_field(schema, &field.type_))
             }
 
-            let field_argument = field.arguments.iter().find(|argument| argument.name() == name)?;
+            let field_argument = field
+                .arguments
+                .iter()
+                .find(|argument| argument.name() == name)?;
             let mut input_object = resolve_root_input_field(schema, &field_argument.type_)?;
 
             for input_field_name in input_field_path.iter() {
@@ -870,26 +880,6 @@ fn completion_items_for_request(
                 false,
             ))
         }
-        CompletionKind::InputArgumentName { name, existing_names } => {
-            let (_, field) = request.type_path.resolve_current_field(schema)?;
-            let argument = field.arguments.iter().find(|argument| argument.name() == name)?;
-            let input_object_id = match &argument.type_ {
-                TypeReference::Named(Type::InputObject(id)) => id,
-                TypeReference::Named(_) => todo!(),
-                TypeReference::NonNull(value) => match value.as_ref() {
-                    TypeReference::Named(Type::InputObject(id)) => id,
-                    _ => todo!(),
-                },
-                TypeReference::List(_) => todo!(),
-            };
-            let input_object = schema.input_object(*input_object_id);
-            Some(resolve_completion_items_for_argument_name(
-                input_object.fields.iter(),
-                schema,
-                existing_names,
-                false,
-            ))
-        },
     }
 }
 

@@ -92,7 +92,10 @@ fn scalar_field() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums", "__typename"]);
+    assert_labels(
+        items.unwrap(),
+        vec!["uri", "width", "height", "test_enums", "__typename"],
+    );
 }
 
 #[test]
@@ -124,7 +127,10 @@ fn whitespace_in_linked_field() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["uri", "test_enums", "width", "height", "__typename"]);
+    assert_labels(
+        items.unwrap(),
+        vec!["uri", "test_enums", "width", "height", "__typename"],
+    );
 }
 
 #[test]
@@ -137,7 +143,10 @@ fn whitespace_in_fragment() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums", "__typename"]);
+    assert_labels(
+        items.unwrap(),
+        vec!["uri", "width", "height", "test_enums", "__typename"],
+    );
 }
 
 #[test]
@@ -152,7 +161,10 @@ fn whitespace_in_inline_fragment() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["uri", "width", "height", "test_enums", "__typename"]);
+    assert_labels(
+        items.unwrap(),
+        vec!["uri", "width", "height", "test_enums", "__typename"],
+    );
 }
 
 #[test]
@@ -380,7 +392,6 @@ fn argument_value_constant_object() {
 
 #[test]
 fn argument_value_constant_object_nested() {
-
     let items = parse_and_resolve_completion_items(
         r#"
             fragment Test on Mutation {

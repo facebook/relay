@@ -347,17 +347,17 @@ fn fragment_spread_on_interface() {
 
 #[test]
 fn argument_value_object() {
-    // let items = parse_and_resolve_completion_items(
-    //     r#"
-    //         fragment Test on Mutation {
-    //             commentCreate(inpu|) {
-    //                 __typename
-    //             }
-    //         }
-    //     "#,
-    //     None,
-    // );
-    // assert_labels(items.unwrap(), vec!["input"]);
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Mutation {
+                commentCreate(inpu|) {
+                    __typename
+                }
+            }
+        "#,
+        None,
+    );
+    assert_labels(items.unwrap(), vec!["input"]);
 
     let items = parse_and_resolve_completion_items(
         r#"
@@ -372,7 +372,23 @@ fn argument_value_object() {
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["client_mutation_id", "feedback"]);
+
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Mutation {
+                commentCreate(input: {
+                    feedbackId: "some-id"
+                    feedback: {
+                        |
+                    }
+                }) {
+                    __typename
+                }
+            }
+        "#,
+        None,
+    );
+    assert_labels(items.unwrap(), vec!["comment"]);
 }
 
 #[test]

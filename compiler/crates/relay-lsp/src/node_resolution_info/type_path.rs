@@ -11,7 +11,6 @@ use schema::Field;
 use schema::SDLSchema;
 use schema::Schema;
 use schema::Type;
-use schema_documentation::SchemaDocumentation;
 
 #[derive(Debug, Clone)]
 /// An item in the list of type metadata that we can use to resolve the leaf
@@ -22,7 +21,6 @@ pub enum TypePathItem {
     InlineFragment { type_name: StringKey },
     LinkedField { name: StringKey },
     ScalarField { name: StringKey },
-    ArgumentField { name: StringKey },
 }
 
 /// Given a root path item and the schema this function will return a root type of the document
@@ -58,18 +56,12 @@ fn resolve_relative_type(
             None
         }
         TypePathItem::LinkedField { name } => {
-            // println!("Getting LinkedField: {:?}", name);
             let field_id = schema.named_field(parent_type, name)?;
             let field = schema.field(field_id);
             Some(field.type_.inner())
         }
         TypePathItem::ScalarField { .. } => Some(parent_type),
         TypePathItem::InlineFragment { type_name } => schema.get_type(type_name),
-        TypePathItem::ArgumentField { name } => {
-            // println!("Getting ArgumentField");
-            todo!()
-        },
-        
     }
 }
 
@@ -106,10 +98,6 @@ impl TypePath {
         let mut type_ =
             resolve_root_type(type_path.pop().expect("path must be non-empty"), schema)?;
         while let Some(path_item) = type_path.pop() {
-            // println!(
-            //     "\tresolve_current_field: {:?} from {:?} schema {:?}",
-            //     path_item, type_, schema.get_type_name(type_)
-            // );
             if type_path.is_empty() {
                 return match path_item {
                     TypePathItem::LinkedField { name } | TypePathItem::ScalarField { name } => {
@@ -117,14 +105,7 @@ impl TypePath {
                             .named_field(type_, name)
                             .map(|field_id| (type_, schema.field(field_id)))
                     }
-                    TypePathItem::ArgumentField { name } => {
-                        todo!()
-                        // schema.get_field_argument_description(type_name, field_name, argument_name)
-                        // schema.n
-
-                    }
                     _ => {
-                        // println!("Resolving none here");
                         None
                     }
                 };

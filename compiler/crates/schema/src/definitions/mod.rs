@@ -5,6 +5,8 @@
  * LICENSE file in the root directory of this source tree.
  */
 
+mod interface;
+
 use std::collections::HashMap;
 use std::fmt;
 use std::hash::Hash;
@@ -22,6 +24,7 @@ use common::ScalarName;
 use common::WithLocation;
 use graphql_syntax::ConstantValue;
 use graphql_syntax::DirectiveLocation;
+pub use interface::*;
 use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
@@ -330,18 +333,6 @@ pub struct Union {
     pub is_extension: bool,
     pub members: Vec<ObjectID>,
     pub directives: Vec<DirectiveValue>,
-    pub description: Option<StringKey>,
-}
-
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub struct Interface {
-    pub name: WithLocation<InterfaceName>,
-    pub is_extension: bool,
-    pub implementing_interfaces: Vec<InterfaceID>,
-    pub implementing_objects: Vec<ObjectID>,
-    pub fields: Vec<FieldID>,
-    pub directives: Vec<DirectiveValue>,
-    pub interfaces: Vec<InterfaceID>,
     pub description: Option<StringKey>,
 }
 

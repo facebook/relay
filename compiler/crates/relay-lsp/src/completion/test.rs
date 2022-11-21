@@ -168,16 +168,194 @@ fn whitespace_in_inline_fragment() {
 }
 
 #[test]
-fn inline_fragment() {
+fn whitespace_in_object_type() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+          fragment Test on CommentsEdge {
+            |
+          }
+        "#,
+        Some(build_test_program(
+            r#"
+            fragment ObjectTypeFragment on CommentsEdge {
+              __typename
+            }
+
+            fragment InterfaceFragment on CommentsEdgeInterface {
+              __typename
+            }
+
+            fragment UnrelatedFragment on Task {
+              __typename
+            }
+        "#,
+        )),
+    );
+    assert_labels(
+        items.unwrap(),
+        vec![
+            "cursor",
+            "node",
+            "__typename",
+            "...ObjectTypeFragment",
+            "...InterfaceFragment",
+        ],
+    )
+}
+
+#[test]
+fn whitespace_in_interface() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+          fragment Test on CommentsEdgeInterface {
+            |
+          }
+        "#,
+        Some(build_test_program(
+            r#"
+            fragment ImplementingFragment on CommentsEdge {
+              __typename
+            }
+
+            fragment InterfaceFragment on CommentsEdgeInterface {
+              __typename
+            }
+
+            fragment UnrelatedFragment on Task {
+              __typename
+            }
+        "#,
+        )),
+    );
+    assert_labels(
+        items.unwrap(),
+        vec![
+            "cursor",
+            "source",
+            "node",
+            "__typename",
+            "...on CommentsEdgeInterface",
+            "...on CommentsEdge",
+            "...ImplementingFragment",
+            "...InterfaceFragment",
+        ],
+    )
+}
+
+#[test]
+fn whitespace_in_union() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+          fragment Test on CommentBody {
+            |
+          }
+        "#,
+        Some(build_test_program(
+            r#"
+                fragment UnionFragment on CommentBody {
+                  __typename
+                }
+    
+                fragment UnionVariantFragment on PlainCommentBody {
+                  __typename
+                }
+    
+                fragment UnrelatedFragment on Task {
+                  __typename
+                }
+            "#,
+        )),
+    );
+    assert_labels(
+        items.unwrap(),
+        vec![
+            "__typename",
+            "...on CommentBody",
+            "...on PlainCommentBody",
+            "...on MarkdownCommentBody",
+            "...UnionFragment",
+            "...UnionVariantFragment",
+        ],
+    )
+}
+
+#[test]
+fn inline_fragment_on_object() {
     let items = parse_and_resolve_completion_items(
         r#"
             fragment Test on Viewer {
-                ... on a|
+                ...on |a
             }
         "#,
         None,
     );
-    assert_labels(items.unwrap(), vec!["Viewer"]);
+    assert_labels(items.unwrap(), vec![]);
+}
+
+#[test]
+fn inline_fragment_on_interface() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Named {
+                ...on |a
+            }
+        "#,
+        None,
+    );
+    assert_labels(
+        items.unwrap(),
+        vec!["...on Named", "...on User", "...on SimpleNamed"],
+    );
+}
+
+#[test]
+fn inline_fragment_on_interface_with_existing_inline_fragment() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Named {
+                ...on |a {}
+            }
+        "#,
+        None,
+    );
+    assert_labels(items.unwrap(), vec!["Named", "User", "SimpleNamed"]);
+}
+
+#[test]
+fn inline_fragment_on_union() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on MaybeNode {
+                ...on |a
+            }
+        "#,
+        None,
+    );
+    assert_labels(
+        items.unwrap(),
+        vec![
+            "...on MaybeNode",
+            "...on Story",
+            "...on FakeNode",
+            "...on NonNode",
+        ],
+    );
+}
+
+#[test]
+fn inline_fragment_on_union_with_existing_inline_fragment() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on MaybeNode {
+                ...on |a {}
+            }
+        "#,
+        None,
+    );
+    assert_labels(
+        items.unwrap(),
+        vec!["MaybeNode", "Story", "FakeNode", "NonNode"],
+    );
 }
 
 #[test]
@@ -328,7 +506,7 @@ fn fragment_spread_on_the_same_type() {
         fragment TestFragment2 on Viewer {
             __typename
          }
-    "#,
+      "#,
         )),
     );
     assert_labels(items.unwrap(), vec!["TestFragment", "TestFragment2"]);

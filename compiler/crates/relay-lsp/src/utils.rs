@@ -104,7 +104,6 @@ pub fn extract_feature_from_text(
     text_document_position: &TextDocumentPositionParams,
     index_offset: usize,
 ) -> LSPRuntimeResult<(Feature, Span)> {
-    log::error!("extract_feature_from_text");
     let uri = &text_document_position.text_document.uri;
     let position = text_document_position.position;
 

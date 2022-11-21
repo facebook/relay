@@ -37,12 +37,8 @@ use graphql_syntax::TokenKind;
 use graphql_syntax::Value;
 use intern::string_key::StringKey;
 use intern::Lookup;
-#[cfg(not(test))] 
-use log::{debug, error};
+use log::debug;
 use schema::InputObject; // Use log crate when building application
-
-#[cfg(test)]
-use std::{println as debug, println as error}; // Workaround to use prinltn! for logs.
 use lsp_types::request::Completion;
 use lsp_types::request::Request;
 use lsp_types::request::ResolveCompletionItem;
@@ -186,19 +182,15 @@ impl CompletionRequestBuilder {
         document: ExecutableDocument,
         position_span: Span,
     ) -> Option<CompletionRequest> {
-        error!("create_completion_request");
         for definition in document.definitions {
             match &definition {
                 ExecutableDefinition::Operation(operation) => {
-                    error!("\tOperationDefinition");
                     if operation.location.contains(position_span) {
                         self.current_executable_name = operation
                             .name
                             .as_ref()
                             .map(|name| ExecutableName::Operation(name.value));
-                        error!("\tOperationDefinition: 1");
                         let (_, kind) = operation.operation.clone()?;
-                        error!("\tOperationDefinition: 2");
                         let type_path = vec![TypePathItem::Operation(kind)];
 
                         debug!(
@@ -213,7 +205,6 @@ impl CompletionRequestBuilder {
 
                         let directive_location = kind.into();
 
-                        error!("\tOperationDefinition: 3");
                         if let Some(req) = self.build_request_from_selection_or_directives(
                             selections,
                             directives,
@@ -221,7 +212,6 @@ impl CompletionRequestBuilder {
                             position_span,
                             type_path,
                         ) {
-                            error!("\tOperationDefinition: 4");
                             return Some(req);
                         }
                     }
@@ -256,9 +246,7 @@ impl CompletionRequestBuilder {
         position_span: Span,
         mut type_path: Vec<TypePathItem>,
     ) -> Option<CompletionRequest> {
-        error!("build_request_from_selections");
         for item in &selections.items {
-            error!("build_request_from_selections item: {:?} {:?}", item.span().contains(position_span), item);
             if item.span().contains(position_span) {
                 return match item {
                     Selection::LinkedField(node) => {
@@ -395,7 +383,6 @@ impl CompletionRequestBuilder {
         constant_value: &ConstantValue,
         name: StringKey,
     ) -> Option<CompletionRequest> {
-        error!("build_request_from_constant_input_value {:?}", constant_value);
         match constant_value {
             ConstantValue::List(list) => {
                 for item in list.items.iter() {
@@ -509,7 +496,6 @@ impl CompletionRequestBuilder {
         kind: InputArgumentKind,
         name: StringKey,
     ) -> Option<CompletionRequest> {
-        error!("build_request_from_input_object {:?} {:?}\n\tpath: {:?}", name, kind, type_path);
         match kind {
             InputArgumentKind::ConstantValue(value) => {
                 self.build_request_from_constant_input_value(
@@ -541,7 +527,6 @@ impl CompletionRequestBuilder {
         type_path: Vec<TypePathItem>,
         kind: ArgumentKind,
     ) -> Option<CompletionRequest> {
-        error!("build_request_from_arguments {:?}", type_path);
         for (
             i,
             Argument {
@@ -670,7 +655,6 @@ impl CompletionRequestBuilder {
         type_path: Vec<TypePathItem>,
         fragment_spread_name: Option<StringKey>,
     ) -> Option<CompletionRequest> {
-        error!("build_request_from_directives");
         for directive in directives {
             if !directive.span.contains(position_span) {
                 continue;
@@ -712,7 +696,6 @@ impl CompletionRequestBuilder {
         position_span: Span,
         type_path: Vec<TypePathItem>,
     ) -> Option<CompletionRequest> {
-        error!("build_request_from_selection_or_directives");
         if selections.span.contains(position_span) {
             // TODO(brandondail) handle when the completion occurs at/within the start token
             self.build_request_from_selections(selections, position_span, type_path)
@@ -735,7 +718,6 @@ fn completion_items_for_request(
     program: &Program,
 ) -> Option<Vec<CompletionItem>> {
     let kind = request.kind;
-    error!("completion_items_for_request: {:?}", kind);
     debug!("completion_items_for_request: {:?}", kind);
     match kind {
         CompletionKind::FragmentSpread => {
@@ -851,7 +833,6 @@ fn completion_items_for_request(
             argument_name,
             kind,
         } => {
-            error!("complete_items_for_request CompletionKind::ArgumentValue");
             let argument_type = match kind {
                 ArgumentKind::Field => {
                     let (_, field) = request.type_path.resolve_current_field(schema)?;
@@ -892,7 +873,6 @@ fn completion_items_for_request(
             ))
         }
         CompletionKind::InputFieldName { name, existing_names, input_field_path } => {
-            error!("CompletionKind::InputFieldName {:?} input_field_path {:?}", name, input_field_path);
             let (_, field) = request.type_path.resolve_current_field(schema)?;
 
             fn resolve_root_input_field<'a>(schema: &'a SDLSchema, input_object: &'a TypeReference<Type>) -> Option<&'a InputObject> {
@@ -920,8 +900,6 @@ fn completion_items_for_request(
                 input_object = resolve_input_field(schema, input_object, input_field_name)?;
             }
 
-            error!("input_object {:?}", input_object);
-            error!("InputArgumentName field {:?} name {:?}", field, name);
             Some(resolve_completion_items_for_argument_name(
                 input_object.fields.iter(),
                 schema,
@@ -930,7 +908,6 @@ fn completion_items_for_request(
             ))
         }
         CompletionKind::InputArgumentName { name, existing_names } => {
-            error!("InputArgumentName {:?} {:?}", existing_names, request.type_path);
             let (_, field) = request.type_path.resolve_current_field(schema)?;
             let argument = field.arguments.iter().find(|argument| argument.name() == name)?;
             let input_object_id = match &argument.type_ {
@@ -943,7 +920,6 @@ fn completion_items_for_request(
                 TypeReference::List(_) => todo!(),
             };
             let input_object = schema.input_object(*input_object_id);
-            error!("InputArgumentName field {:?} input_object {:?}", field, input_object);
             Some(resolve_completion_items_for_argument_name(
                 input_object.fields.iter(),
                 schema,
@@ -1219,7 +1195,6 @@ fn resolve_completion_items_for_fragment_spread(
     schema: &SDLSchema,
     include_fragment: bool,
 ) -> Vec<CompletionItem> {
-    error!("resolving items for fragment spread");
     source_program
         .fragments()
         .filter(|fragment| schema.are_overlapping_types(fragment.type_condition, type_))
@@ -1368,10 +1343,6 @@ pub fn on_completion(
     state: &impl GlobalState,
     params: <Completion as Request>::Params,
 ) -> LSPRuntimeResult<<Completion as Request>::Result> {
-    error!(
-        "on_completion {:?}",
-        state.extract_executable_document_from_text(&params.text_document_position, 0)
-    );
     match state.extract_executable_document_from_text(&params.text_document_position, 0) {
         Ok((document, position_span)) => {
             let project_name = state
@@ -1427,7 +1398,6 @@ fn resolve_completion_items(
     schema_documentation: impl SchemaDocumentation,
     progam: &Program,
 ) -> Option<Vec<CompletionItem>> {
-    error!("resolve_completion_items");
     let completion_request = CompletionRequestBuilder::new(project_name)
         .create_completion_request(document, position_span);
     completion_request.and_then(|completion_request| {

@@ -358,7 +358,10 @@ fn argument_value_object() {
         None,
     );
     assert_labels(items.unwrap(), vec!["input"]);
+}
 
+#[test]
+fn argument_value_constant_object() {
     let items = parse_and_resolve_completion_items(
         r#"
             fragment Test on Mutation {
@@ -372,6 +375,11 @@ fn argument_value_object() {
         "#,
         None,
     );
+    assert_labels(items.unwrap(), vec!["client_mutation_id", "feedback"]);
+}
+
+#[test]
+fn argument_value_constant_object_nested() {
 
     let items = parse_and_resolve_completion_items(
         r#"

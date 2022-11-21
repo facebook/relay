@@ -550,7 +550,7 @@ fn completion_items_for_request(
         CompletionKind::FragmentSpread => {
             let leaf_type = request.type_path.resolve_leaf_type(schema)?;
             Some(resolve_completion_items_for_fragment_spread(
-                leaf_type, program, schema, false,
+                leaf_type, program, schema, true,
             ))
         }
         CompletionKind::FieldName {
@@ -575,7 +575,7 @@ fn completion_items_for_request(
                         Type::Interface(interface_id),
                         program,
                         schema,
-                        true,
+                        false,
                     ),
                 ]))
             }
@@ -593,7 +593,7 @@ fn completion_items_for_request(
                         Type::Object(object_id),
                         program,
                         schema,
-                        true,
+                        false,
                     ),
                 ]))
             }
@@ -604,7 +604,7 @@ fn completion_items_for_request(
                     Type::Union(union_id),
                     program,
                     schema,
-                    true,
+                    false,
                 ),
             ])),
             Type::Enum(_) | Type::InputObject(_) | Type::Scalar(_) => None,
@@ -952,16 +952,16 @@ fn resolve_completion_items_for_fragment_spread(
     type_: Type,
     source_program: &Program,
     schema: &SDLSchema,
-    include_fragment: bool,
+    existing_fragment_spread: bool,
 ) -> Vec<CompletionItem> {
     source_program
         .fragments()
         .filter(|fragment| schema.are_overlapping_types(fragment.type_condition, type_))
         .map(|fragment| {
-            let label = if include_fragment {
-                format!("...{}", fragment.name.item)
-            } else {
+            let label = if existing_fragment_spread {
                 fragment.name.item.to_string()
+            } else {
+                format!("...{}", fragment.name.item)
             };
             let detail = schema
                 .get_type_name(fragment.type_condition)

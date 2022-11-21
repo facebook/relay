@@ -566,11 +566,10 @@ fn completion_items_for_request(
                         existing_linked_field,
                     ),
                     resolve_completion_items_typename(),
-                    resolve_completion_items_for_inline_fragment_type(
+                    resolve_completion_items_for_inline_fragment(
                         Type::Interface(interface_id),
                         schema,
                         false,
-                        true,
                     ),
                     resolve_completion_items_for_fragment_spread(
                         Type::Interface(interface_id),
@@ -600,12 +599,7 @@ fn completion_items_for_request(
             }
             Type::Union(union_id) => Some(merge_completion_items_ordered([
                 resolve_completion_items_typename(),
-                resolve_completion_items_for_inline_fragment_type(
-                    Type::Union(union_id),
-                    schema,
-                    false,
-                    true,
-                ),
+                resolve_completion_items_for_inline_fragment(Type::Union(union_id), schema, false),
                 resolve_completion_items_for_fragment_spread(
                     Type::Union(union_id),
                     program,
@@ -692,11 +686,10 @@ fn completion_items_for_request(
             existing_inline_fragment,
         } => {
             let type_ = request.type_path.resolve_leaf_type(schema)?;
-            Some(resolve_completion_items_for_inline_fragment_type(
+            Some(resolve_completion_items_for_inline_fragment(
                 type_,
                 schema,
                 existing_inline_fragment,
-                false,
             ))
         }
     }
@@ -749,11 +742,10 @@ fn resolve_completion_items_for_argument_name<T: ArgumentLike>(
         .collect()
 }
 
-fn resolve_completion_items_for_inline_fragment_type(
+fn resolve_completion_items_for_inline_fragment(
     type_: Type,
     schema: &SDLSchema,
     existing_inline_fragment: bool,
-    include_fragment: bool,
 ) -> Vec<CompletionItem> {
     match type_ {
         Type::Interface(id) => {
@@ -783,16 +775,11 @@ fn resolve_completion_items_for_inline_fragment_type(
     .into_iter()
     .map(|type_| {
         let type_name = schema.get_type_name(type_).lookup();
-        let label = if include_fragment {
-            format!("...on {type_name}")
-        } else {
-            type_name.to_owned()
-        };
         if existing_inline_fragment {
-            CompletionItem::new_simple(label, "".into())
+            CompletionItem::new_simple(type_name.to_owned(), "".into())
         } else {
             CompletionItem {
-                label: label.clone(),
+                label: format!("...on {type_name}"),
                 kind: None,
                 detail: None,
                 documentation: None,
@@ -800,7 +787,7 @@ fn resolve_completion_items_for_inline_fragment_type(
                 preselect: None,
                 sort_text: None,
                 filter_text: None,
-                insert_text: Some(format!("{} {{\n\t$1\n}}", label)),
+                insert_text: Some(format!("...on {type_name} {{\n\t$1\n}}")),
                 insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
                 text_edit: None,
                 additional_text_edits: None,

@@ -302,6 +302,22 @@ fn inline_fragment_on_interface() {
         "#,
         None,
     );
+    assert_labels(
+        items.unwrap(),
+        vec!["...on Named", "...on User", "...on SimpleNamed"],
+    );
+}
+
+#[test]
+fn inline_fragment_on_interface_with_existing_inline_fragment() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Named {
+                ...on |a {}
+            }
+        "#,
+        None,
+    );
     assert_labels(items.unwrap(), vec!["Named", "User", "SimpleNamed"]);
 }
 
@@ -311,6 +327,27 @@ fn inline_fragment_on_union() {
         r#"
             fragment Test on MaybeNode {
                 ...on |a
+            }
+        "#,
+        None,
+    );
+    assert_labels(
+        items.unwrap(),
+        vec![
+            "...on MaybeNode",
+            "...on Story",
+            "...on FakeNode",
+            "...on NonNode",
+        ],
+    );
+}
+
+#[test]
+fn inline_fragment_on_union_with_existing_inline_fragment() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on MaybeNode {
+                ...on |a {}
             }
         "#,
         None,

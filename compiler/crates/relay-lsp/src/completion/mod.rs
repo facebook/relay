@@ -779,7 +779,7 @@ fn resolve_completion_items_for_inline_fragment(
             CompletionItem::new_simple(type_name.to_owned(), "".into())
         } else {
             CompletionItem {
-                label: format!("...on {type_name}"),
+                label: format!("... on {type_name}"),
                 kind: None,
                 detail: None,
                 documentation: None,
@@ -787,7 +787,7 @@ fn resolve_completion_items_for_inline_fragment(
                 preselect: None,
                 sort_text: None,
                 filter_text: None,
-                insert_text: Some(format!("...on {type_name} {{\n\t$1\n}}")),
+                insert_text: Some(format!("... on {type_name} {{\n\t$1\n}}")),
                 insert_text_format: Some(lsp_types::InsertTextFormat::SNIPPET),
                 text_edit: None,
                 additional_text_edits: None,

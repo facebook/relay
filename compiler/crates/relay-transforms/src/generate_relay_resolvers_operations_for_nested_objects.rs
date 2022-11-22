@@ -8,7 +8,6 @@
 use std::collections::HashSet;
 use std::sync::Arc;
 
-use common::ArgumentName;
 use common::Diagnostic;
 use common::DiagnosticsResult;
 use common::NamedItem;
@@ -22,7 +21,6 @@ use graphql_ir::ScalarField;
 use graphql_ir::Selection;
 use graphql_syntax::OperationKind;
 use intern::string_key::Intern;
-use lazy_static::lazy_static;
 use relay_config::SchemaConfig;
 use schema::Field;
 use schema::FieldID;
@@ -35,13 +33,9 @@ use crate::get_normalization_operation_name;
 use crate::match_::RawResponseGenerationMode;
 use crate::relay_resolvers::get_bool_argument_is_true;
 use crate::relay_resolvers::RELAY_RESOLVER_DIRECTIVE_NAME;
+use crate::relay_resolvers::RELAY_RESOLVER_HAS_OUTPUT_TYPE;
 use crate::SplitOperationMetadata;
 use crate::ValidationMessage;
-
-lazy_static! {
-    pub static ref HAS_OUTPUT_TYPE_ARGUMENT_NAME: ArgumentName =
-        ArgumentName("has_output_type".intern());
-}
 
 fn generate_fat_selections_from_type(
     schema: &SDLSchema,
@@ -62,8 +56,7 @@ fn generate_fat_selections_from_type(
                 )]);
             }
 
-            let mut parent_types = HashSet::new();
-            parent_types.insert(type_);
+            let mut parent_types = HashSet::from([type_]);
             generate_selections_from_object_fields(
                 schema,
                 schema_config,
@@ -251,14 +244,9 @@ fn generate_selections_from_object(
             field.name.location,
         )]);
     }
-    parent_types.insert(type_);
-    let selections = generate_selections_from_object_fields(
-        schema,
-        schema_config,
-        &object.fields,
-        parent_types,
-    )?;
-    parent_types.remove(&type_);
+    let selections = with_additional_parent_type(parent_types, type_, |parent_types| {
+        generate_selections_from_object_fields(schema, schema_config, &object.fields, parent_types)
+    })?;
 
     Ok(selections)
 }
@@ -294,7 +282,7 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
 
         if let Some(directive) = field.directives.named(*RELAY_RESOLVER_DIRECTIVE_NAME) {
             let has_output_type =
-                get_bool_argument_is_true(&directive.arguments, *HAS_OUTPUT_TYPE_ARGUMENT_NAME);
+                get_bool_argument_is_true(&directive.arguments, *RELAY_RESOLVER_HAS_OUTPUT_TYPE);
             if !has_output_type {
                 continue;
             }
@@ -362,4 +350,41 @@ pub fn generate_relay_resolvers_operations_for_nested_objects(
     } else {
         Err(errors)
     }
+}
+
+/// A wrapper function that allows us to avoid the pattern
+///
+/// parent_types.insert(t);
+/// // do some work
+/// parent_types.remove(t);
+///
+/// If there is an early return in the do some work section (e.g. a return or a ?),
+/// then we may never remove `t` from `parent_types`, which may cause logic errors.
+fn with_additional_parent_type<T>(
+    parent_types: &mut HashSet<Type>,
+    additional_parent_type: Type,
+    f: impl FnOnce(&mut HashSet<Type>) -> T,
+) -> T {
+    let len = parent_types.len();
+    assert!(
+        !parent_types.contains(&additional_parent_type),
+        "parent_types already contains {:?}",
+        additional_parent_type
+    );
+
+    parent_types.insert(additional_parent_type);
+    let t = f(parent_types);
+
+    let successfully_removed = parent_types.remove(&additional_parent_type);
+    assert!(
+        successfully_removed,
+        "parent_types unexpectedly did not contain {:?}",
+        additional_parent_type
+    );
+    assert!(
+        parent_types.len() == len,
+        "parent_types changed length unexpectedly"
+    );
+
+    t
 }

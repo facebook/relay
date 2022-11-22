@@ -1245,7 +1245,11 @@ impl<'a> Parser<'a> {
                     token_kind => {
                         let name = self.empty_identifier();
                         self.record_error(Diagnostic::error(
-                            format!("Incomplete field alias, expected {} but found {}", TokenKind::Identifier, token_kind),
+                            format!(
+                                "Incomplete field alias, expected {} but found {}",
+                                TokenKind::Identifier,
+                                token_kind
+                            ),
                             Location::new(self.source_location, Span::new(start, name.span.end)),
                         ));
                         name

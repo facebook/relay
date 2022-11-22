@@ -30,11 +30,11 @@ extend type User {
 ==================================== ERROR ====================================
 ✖︎ @RelayResolver type recursion detected for the output type `Child`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation.
 
-  output-type-with-recursion.graphql:10:3
-    9 │   child: Child
-   10 │   child2: Child
-      │   ^^^^^^
-   11 │ }
+  output-type-with-recursion.graphql:14:3
+   13 │ type Child {
+   14 │   child: Child
+      │   ^^^^^
+   15 │ }
 
 
 ✖︎ @RelayResolver type recursion detected for the output type `Child`. This is not supported for `@outputType` resolvers. If you want to model a connection between two entities of the same GraphQL type, consider creating a new Relay Resolver with `@edgeTo` annotation.

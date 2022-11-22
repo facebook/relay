@@ -1239,7 +1239,7 @@ impl<'a> Parser<'a> {
         let (name, alias) = if self.peek_token_kind() == TokenKind::Colon {
             let colon = self.parse_kind(TokenKind::Colon)?;
             let alias = name;
-            let name = self.parse_identifier()?;
+            let name = self.parse_identifier_with_error_recovery();
             (
                 name,
                 Some(Alias {

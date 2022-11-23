@@ -579,23 +579,21 @@ fn completion_items_for_request(
                     ),
                 ]))
             }
-            Type::Object(object_id) => {
-                Some(merge_completion_items_ordered([
-                    resolve_completion_items_for_fields(
-                        schema.object(object_id),
-                        schema,
-                        schema_documentation,
-                        existing_linked_field,
-                    ),
-                    resolve_completion_items_typename(Type::Object(object_id), schema),
-                    resolve_completion_items_for_fragment_spread(
-                        Type::Object(object_id),
-                        program,
-                        schema,
-                        false,
-                    ),
-                ]))
-            }
+            Type::Object(object_id) => Some(merge_completion_items_ordered([
+                resolve_completion_items_for_fields(
+                    schema.object(object_id),
+                    schema,
+                    schema_documentation,
+                    existing_linked_field,
+                ),
+                resolve_completion_items_typename(Type::Object(object_id), schema),
+                resolve_completion_items_for_fragment_spread(
+                    Type::Object(object_id),
+                    program,
+                    schema,
+                    false,
+                ),
+            ])),
             Type::Union(union_id) => Some(merge_completion_items_ordered([
                 resolve_completion_items_typename(Type::Union(union_id), schema),
                 resolve_completion_items_for_inline_fragment(Type::Union(union_id), schema, false),

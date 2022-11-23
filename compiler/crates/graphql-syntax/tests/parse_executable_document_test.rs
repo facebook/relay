@@ -20,6 +20,13 @@ fn block_string() {
 }
 
 #[test]
+fn incomplete_field_alias() {
+    let input = include_str!("parse_executable_document/fixtures/incomplete_field_alias.graphql");
+    let expected = include_str!("parse_executable_document/fixtures/incomplete_field_alias.expected");
+    test_fixture(transform_fixture, "incomplete_field_alias.graphql", "parse_executable_document/fixtures/incomplete_field_alias.expected", input, expected);
+}
+
+#[test]
 fn incorrect_variable_name_invalid() {
     let input = include_str!("parse_executable_document/fixtures/incorrect_variable_name.invalid.graphql");
     let expected = include_str!("parse_executable_document/fixtures/incorrect_variable_name.invalid.expected");

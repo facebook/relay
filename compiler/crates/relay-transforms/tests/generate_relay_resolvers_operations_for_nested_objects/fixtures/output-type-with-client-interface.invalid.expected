@@ -33,7 +33,7 @@ extend type User {
 ==================================== ERROR ====================================
 ✖︎ @RelayResolver interface type `IStageName` for field `also_a_stage_name` is not supported as @outputType, yet.
 
-  output-type-with-interface.invalid.graphql:4:3
+  output-type-with-client-interface.invalid.graphql:4:3
     3 │   stage_name: IStageName
     4 │   also_a_stage_name: IStageName
       │   ^^^^^^^^^^^^^^^^^
@@ -42,7 +42,7 @@ extend type User {
 
 ✖︎ @RelayResolver interface type `IStageName` for field `stage_name` is not supported as @outputType, yet.
 
-  output-type-with-interface.invalid.graphql:3:3
+  output-type-with-client-interface.invalid.graphql:3:3
     2 │ type PopStarName {
     3 │   stage_name: IStageName
       │   ^^^^^^^^^^

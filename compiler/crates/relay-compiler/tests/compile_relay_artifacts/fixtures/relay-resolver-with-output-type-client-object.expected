@@ -1,11 +1,11 @@
 ==================================== INPUT ====================================
-fragment relayResolverWithOutputType_user on User {
+fragment relayResolverWithOutputTypeClientObject_user on User {
   poppy: pop_star_name {
     __typename
   }
 }
 
-fragment relayResolverWithOutputType_name on User {
+fragment relayResolverWithOutputTypeClientObject_name on User {
   name
   address {
     street
@@ -22,7 +22,7 @@ type ClientUser {
 }
 
 extend type User {
-  pop_star_name: ClientUser @relay_resolver(fragment_name: "relayResolverWithOutputType_name", import_path: "PopStarNameResolver", has_output_type: true)
+  pop_star_name: ClientUser @relay_resolver(fragment_name: "relayResolverWithOutputTypeClientObject_name", import_path: "PopStarNameResolver", has_output_type: true)
 }
 ==================================== OUTPUT ===================================
 {
@@ -49,7 +49,7 @@ extend type User {
   "argumentDefinitions": [],
   "kind": "Fragment",
   "metadata": null,
-  "name": "relayResolverWithOutputType_name",
+  "name": "relayResolverWithOutputTypeClientObject_name",
   "selections": [
     {
       "alias": null,
@@ -105,7 +105,7 @@ extend type User {
   "metadata": {
     "hasClientEdges": true
   },
-  "name": "relayResolverWithOutputType_user",
+  "name": "relayResolverWithOutputTypeClientObject_user",
   "selections": [
     {
       "kind": "ClientEdgeToClientObject",
@@ -116,7 +116,7 @@ extend type User {
         "fragment": {
           "args": null,
           "kind": "FragmentSpread",
-          "name": "relayResolverWithOutputType_name"
+          "name": "relayResolverWithOutputTypeClientObject_name"
         },
         "kind": "RelayResolver",
         "name": "pop_star_name",

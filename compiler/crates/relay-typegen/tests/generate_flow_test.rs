@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<699083e618ce99dec35d277f6f65cc47>>
+ * @generated SignedSource<<110608a235d1633951c0afa19efa9b50>>
  */
 
 mod generate_flow;
@@ -398,10 +398,10 @@ fn relay_resolver_required() {
 }
 
 #[test]
-fn relay_resolver_with_output_type() {
-    let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type.graphql");
-    let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type.expected");
-    test_fixture(transform_fixture, "relay-resolver-with-output-type.graphql", "generate_flow/fixtures/relay-resolver-with-output-type.expected", input, expected);
+fn relay_resolver_with_output_type_client_object() {
+    let input = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-client-object.graphql");
+    let expected = include_str!("generate_flow/fixtures/relay-resolver-with-output-type-client-object.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-client-object.graphql", "generate_flow/fixtures/relay-resolver-with-output-type-client-object.expected", input, expected);
 }
 
 #[test]

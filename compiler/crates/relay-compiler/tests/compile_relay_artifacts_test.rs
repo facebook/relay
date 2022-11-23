@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @generated SignedSource<<91eb3240b55e761ddf8a237ee850be9c>>
+ * @generated SignedSource<<5e3fec2fa6c31c2536b60fbc0d68998f>>
  */
 
 mod compile_relay_artifacts;
@@ -1182,10 +1182,10 @@ fn relay_resolver_with_fragment_on_client_type() {
 }
 
 #[test]
-fn relay_resolver_with_output_type() {
-    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-output-type.graphql");
-    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-output-type.expected");
-    test_fixture(transform_fixture, "relay-resolver-with-output-type.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-output-type.expected", input, expected);
+fn relay_resolver_with_output_type_client_object() {
+    let input = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-output-type-client-object.graphql");
+    let expected = include_str!("compile_relay_artifacts/fixtures/relay-resolver-with-output-type-client-object.expected");
+    test_fixture(transform_fixture, "relay-resolver-with-output-type-client-object.graphql", "compile_relay_artifacts/fixtures/relay-resolver-with-output-type-client-object.expected", input, expected);
 }
 
 #[test]

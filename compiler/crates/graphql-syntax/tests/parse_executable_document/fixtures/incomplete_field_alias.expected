@@ -6,7 +6,7 @@
 ==================================== ERROR ====================================
 ✖︎ Incomplete field alias, expected non-variable identifier (e.g. 'x' or 'Foo') but found closing brace ('}')
 
-  foo.graphql:3:3
+  incomplete_field_alias.graphql:3:3
     2 │ {
     3 │   foo:
       │   ^^^^

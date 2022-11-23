@@ -39,7 +39,7 @@ enum DuplicatedEnum {
   B
   C
 }
-enum DuplicatedEnu {
+enum DuplicatedEnum {
   D
   E
   F

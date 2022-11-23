@@ -80,6 +80,16 @@ fn assert_labels(items: Vec<CompletionItem>, labels: Vec<&str>) {
     assert!(completion_labels.is_empty());
 }
 
+fn assert_no_typename_label(items: Option<Vec<CompletionItem>>) {
+    assert!(
+        items
+            .unwrap()
+            .into_iter()
+            .all(|item| item.label != "__typename"),
+        "__typename is invalid on root types"
+    );
+}
+
 #[test]
 fn scalar_field() {
     let items = parse_and_resolve_completion_items(
@@ -587,6 +597,45 @@ fn argument_value_between_names() {
         )),
     );
     assert_labels(items.unwrap(), vec!["$pictureSize", "$pictureSize2"]);
+}
+
+#[test]
+fn no_typename_on_query() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Query {
+                |
+            }
+        "#,
+        None,
+    );
+    assert_no_typename_label(items);
+}
+
+#[test]
+fn no_typename_on_mutation() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Mutation {
+                |
+            }
+        "#,
+        None,
+    );
+    assert_no_typename_label(items);
+}
+
+#[test]
+fn no_typename_on_subscription() {
+    let items = parse_and_resolve_completion_items(
+        r#"
+            fragment Test on Subscription {
+                |
+            }
+        "#,
+        None,
+    );
+    assert_no_typename_label(items);
 }
 
 #[test]

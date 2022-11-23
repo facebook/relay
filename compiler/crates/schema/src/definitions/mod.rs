@@ -29,6 +29,8 @@ use intern::string_key::Intern;
 use intern::string_key::StringKey;
 use lazy_static::lazy_static;
 
+use crate::Schema;
+
 lazy_static! {
     static ref DIRECTIVE_DEPRECATED: DirectiveName = DirectiveName("deprecated".intern());
     static ref ARGUMENT_REASON: ArgumentName = ArgumentName("reason".intern());
@@ -117,6 +119,12 @@ impl Type {
 
     pub fn is_union(self) -> bool {
         matches!(self, Type::Union(_))
+    }
+
+    pub fn is_root_type<S: Schema>(&self, schema: &S) -> bool {
+        Some(*self) == schema.query_type()
+            || Some(*self) == schema.mutation_type()
+            || Some(*self) == schema.subscription_type()
     }
 
     pub fn get_enum_id(self) -> Option<EnumID> {

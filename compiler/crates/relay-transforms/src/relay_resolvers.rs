@@ -367,7 +367,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
         .and_then(|info| {
             if !self.enabled {
                 self.errors.push(Diagnostic::error(
-                    ValidationMessage::RelayResolversDisabled {},
+                    ValidationMessage::RelayResolversDisabled,
                     field.alias_or_name_location(),
                 ));
                 return None;
@@ -390,7 +390,7 @@ impl<'program> RelayResolverFieldTransform<'program> {
                         });
                     if let Some(directive) = non_required_directives.next() {
                         self.errors.push(Diagnostic::error(
-                            ValidationMessage::RelayResolverUnexpectedDirective {},
+                            ValidationMessage::RelayResolverUnexpectedDirective,
                             directive.name.location,
                         ));
                     }

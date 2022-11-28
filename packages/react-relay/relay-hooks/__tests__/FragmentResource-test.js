@@ -11,6 +11,7 @@
 
 'use strict';
 
+import type {LogEvent} from 'relay-runtime';
 import type {
   FragmentResourceTest1Fragment$data,
   FragmentResourceTest1Fragment$fragmentType,
@@ -127,12 +128,19 @@ describe('FragmentResource', () => {
   };
   const pluralVariables = {ids: ['4']};
   const componentDisplayName = 'TestComponent';
+  let logEvents: Array<LogEvent>;
 
   beforeEach(() => {
     // jest.resetModules();
     ({createMockEnvironment} = require('relay-test-utils-internal'));
 
-    environment = createMockEnvironment();
+    logEvents = [];
+
+    environment = createMockEnvironment({
+      log(event) {
+        logEvents.push(event);
+      },
+    });
     FragmentResource = getFragmentResourceForEnvironment(environment);
 
     UserFragment = graphql`
@@ -529,6 +537,54 @@ describe('FragmentResource', () => {
       }
       // Assert that promise from first read was cached
       expect(cached).toBe(thrown);
+    });
+
+    it('should log an event if reading missing data and no relevent network request is in flight', () => {
+      const fragmentRef = {
+        __id: '4',
+        __fragments: {
+          FragmentResourceTest2Fragment: {},
+        },
+        __fragmentOwner: query.request,
+      };
+
+      const result = FragmentResource.read(
+        getFragment(UserFragmentMissing),
+        fragmentRef,
+        componentDisplayName,
+      );
+
+      const expectedData = {id: '4', name: 'Mark', username: undefined};
+
+      expect(result.data).toEqual(expectedData);
+
+      const expectedLogEvent = {
+        data: expectedData,
+        fragment: UserFragmentMissing,
+        isRelayHooks: true,
+        name: 'fragmentresource.missing_data',
+      };
+
+      function getMissigDataEvents() {
+        return logEvents.filter(
+          event => event.name === 'fragmentresource.missing_data',
+        );
+      }
+
+      expect(getMissigDataEvents()).toEqual([expectedLogEvent]);
+
+      // Reading a second time should result in a second event since we don't
+      // cache this state.
+      FragmentResource.read(
+        getFragment(UserFragmentMissing),
+        fragmentRef,
+        componentDisplayName,
+      );
+
+      expect(getMissigDataEvents()).toEqual([
+        expectedLogEvent,
+        expectedLogEvent,
+      ]);
     });
 
     it('should not cache or throw an error if network request for parent query errored', () => {

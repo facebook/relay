@@ -304,7 +304,7 @@ class FragmentResourceImpl {
         cachedValue.result.snapshot &&
         !missingLiveResolverFields(cachedValue.result.snapshot)?.length
       ) {
-        this._handlePotentialSnapshotErrorsInSnapshot(
+        this._throwOrLogErrorsInSnapshot(
           // $FlowFixMe[incompatible-call]
           cachedValue.result.snapshot,
         );
@@ -346,7 +346,7 @@ class FragmentResourceImpl {
       storeEpoch,
     );
     if (!fragmentResult.isMissingData) {
-      this._handlePotentialSnapshotErrorsInSnapshot(snapshot);
+      this._throwOrLogErrorsInSnapshot(snapshot);
 
       this._cache.set(fragmentIdentifier, {
         kind: 'done',
@@ -470,7 +470,18 @@ class FragmentResourceImpl {
       }
     }
 
-    this._handlePotentialSnapshotErrorsInSnapshot(snapshot);
+    this._throwOrLogErrorsInSnapshot(snapshot);
+
+    // At this point, there's nothing we can do. We don't have all the expected
+    // data, but there's no indication the missing data will be fulfilled. So we
+    // choose to return potentially non-typesafe data. The data returned here
+    // might not match the generated types for this fragment/operation.
+    environment.__log({
+      name: 'fragmentresource.missing_data',
+      data: fragmentResult.data,
+      fragment: fragmentNode,
+      isRelayHooks: true,
+    });
     return getFragmentResult(fragmentIdentifier, snapshot, storeEpoch);
   }
 
@@ -506,7 +517,7 @@ class FragmentResourceImpl {
     };
   }
 
-  _handlePotentialSnapshotErrorsInSnapshot(snapshot: SingularOrPluralSnapshot) {
+  _throwOrLogErrorsInSnapshot(snapshot: SingularOrPluralSnapshot) {
     if (Array.isArray(snapshot)) {
       snapshot.forEach(s => {
         handlePotentialSnapshotErrors(

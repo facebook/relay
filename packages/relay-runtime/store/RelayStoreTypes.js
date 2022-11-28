@@ -574,6 +574,14 @@ export type LogEvent =
       +profilerContext: mixed,
     }
   | {
+      // Indicates FragmentResource is going to return a result that is missing
+      // data.
+      +name: 'fragmentresource.missing_data',
+      +data: mixed,
+      +fragment: ReaderFragment,
+      +isRelayHooks: boolean,
+    }
+  | {
       +name: 'network.info',
       +networkRequestId: number,
       +info: mixed,

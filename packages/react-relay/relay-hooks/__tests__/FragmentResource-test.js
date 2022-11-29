@@ -65,6 +65,7 @@ const {
   getFragment,
   graphql,
 } = require('relay-runtime');
+import RelayRecordSource from '../../../relay-runtime/store/RelayRecordSource';
 
 describe('FragmentResource', () => {
   let environment;
@@ -563,6 +564,7 @@ describe('FragmentResource', () => {
         fragment: UserFragmentMissing,
         isRelayHooks: true,
         name: 'fragmentresource.missing_data',
+        cached: false,
       };
 
       function getMissigDataEvents() {
@@ -585,6 +587,75 @@ describe('FragmentResource', () => {
         expectedLogEvent,
         expectedLogEvent,
       ]);
+    });
+
+    it('should log an event if reading missing data and no relevent network request is in flight (triggered by update)', () => {
+      const fragmentRef = {
+        __id: '4',
+        __fragments: {
+          FragmentResourceTest2Fragment: {},
+        },
+        __fragmentOwner: query.request,
+      };
+
+      const result = FragmentResource.read(
+        getFragment(UserFragmentMissing),
+        fragmentRef,
+        componentDisplayName,
+      );
+
+      const expectedData = {id: '4', name: 'Mark', username: undefined};
+
+      expect(result.data).toEqual(expectedData);
+
+      const expectedLogEvent = {
+        data: expectedData,
+        fragment: UserFragmentMissing,
+        isRelayHooks: true,
+        name: 'fragmentresource.missing_data',
+        cached: false,
+      };
+
+      function getMissigDataEvents() {
+        return logEvents.filter(
+          event => event.name === 'fragmentresource.missing_data',
+        );
+      }
+
+      expect(getMissigDataEvents()).toEqual([expectedLogEvent]);
+
+      const mockSubscription = jest.fn();
+      // Subscribing here will cause Fragment resource to write updated fragment
+      // snapshots to its cache.
+      const disposable = FragmentResource.subscribe(result, mockSubscription);
+
+      environment
+        .getStore()
+        .publish(RelayRecordSource.create({'4': {__id: '4', name: 'Mark II'}}));
+
+      environment.getStore().notify();
+
+      expect(mockSubscription).toHaveBeenCalled();
+
+      // Calling read a second time should read the cacheed data and log accordingly.
+      FragmentResource.read(
+        getFragment(UserFragmentMissing),
+        fragmentRef,
+        componentDisplayName,
+      );
+
+      expect(getMissigDataEvents()).toEqual([
+        expectedLogEvent,
+        {
+          data: {...expectedData, name: 'Mark II'},
+          fragment: UserFragmentMissing,
+          isRelayHooks: true,
+          name: 'fragmentresource.missing_data',
+          cached: true,
+        },
+      ]);
+
+      disposable.dispose();
     });
 
     it('should not cache or throw an error if network request for parent query errored', () => {

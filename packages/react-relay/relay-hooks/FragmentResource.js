@@ -308,6 +308,19 @@ class FragmentResourceImpl {
           // $FlowFixMe[incompatible-call]
           cachedValue.result.snapshot,
         );
+
+        // This cache gets populated directly whenever the store notifies us of
+        // an update. That mechanism does not check for missing data, or
+        // in-flight requests.
+        if (cachedValue.result.isMissingData) {
+          environment.__log({
+            name: 'fragmentresource.missing_data',
+            data: cachedValue.result.data,
+            fragment: fragmentNode,
+            isRelayHooks: true,
+            cached: true,
+          });
+        }
         return cachedValue.result;
       }
     }
@@ -481,6 +494,7 @@ class FragmentResourceImpl {
       data: fragmentResult.data,
       fragment: fragmentNode,
       isRelayHooks: true,
+      cached: false,
     });
     return getFragmentResult(fragmentIdentifier, snapshot, storeEpoch);
   }

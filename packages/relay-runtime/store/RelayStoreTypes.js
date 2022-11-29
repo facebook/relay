@@ -580,6 +580,8 @@ export type LogEvent =
       +data: mixed,
       +fragment: ReaderFragment,
       +isRelayHooks: boolean,
+      // Are we reading this result from the fragment resource cache?
+      +cached: boolean,
     }
   | {
       +name: 'network.info',

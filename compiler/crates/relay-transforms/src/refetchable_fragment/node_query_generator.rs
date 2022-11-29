@@ -252,6 +252,6 @@ fn enforce_selections_with_id_field(
 }
 
 pub const NODE_QUERY_GENERATOR: QueryGenerator = QueryGenerator {
-    description: "the Node interface or types implementing the Node interface",
+    description: "the Node interface, object types that implement the Node interface, interfaces whose implementing objects all implement Node, and unions whose members all implement Node",
     build_refetch_operation,
 };
